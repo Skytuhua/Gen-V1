@@ -53,7 +53,10 @@ not overlap the evidence-correction surface owned by PR #772.
   `89142de9` shows all six joins absorbed or superseded — see "Source-drift join status"; no
   actionable join remains.
 
-## Receipts at the tested cut (all in `logs/`; digests in `manifest.json`)
+## Receipts at the tested cut (digests + commands in `manifest.json`)
+
+Per CONTRIBUTING.md, raw tool/test output is not committed; full original logs are preserved
+out-of-source by the session owner and each is bound here by its sha256 in `manifest.json`.
 
 - Targeted suites: `context-compiler-v3` 11 PASS; `context-results-v3` 3 PASS; `compaction-v3`
   8 PASS; `context-contract-preservation-v6` 6 PASS (incl. D01 replay cases).
@@ -68,9 +71,15 @@ not overlap the evidence-correction surface owned by PR #772.
   observed; the full gate remains FAIL on this host.**
 - `pnpm exec tsx scripts/test-browser.ts --suite usage-context` — the M04-scoped browser suite,
   on bundled chromium (msedge is win32-only post-merge): contended run 15 pass / 10 fail;
-  sequential rerun 21 pass / 4 fail. All residuals are `data-usage-fixture-ready` 5s
-  fixture-mount timeouts under host load — not channel unavailability, not inspector assertion
-  failures. U01 tab-navigation and honest unknown/empty/failure rows pass at this cut.
+  sequential rerun 21 pass / 4 fail. **Corrected failure taxonomy** (re-inspected against the
+  retained originals): two recurring `overflow keeps header fixed, rows scroll` cases
+  (spec:144, dark+light) fail the `scrollWidth <= clientWidth` **assertion** in *both* runs —
+  real geometry assertions on this headless renderer, not fixture-mount timeouts; one
+  `data-usage-fixture-ready` mount wait recurs (category-overflow light); the remaining failures
+  are single-run contention artifacts (15s test/`page.goto` timeouts and mount waits). Two
+  overflow-assertion cases and one mount-wait case failed in both runs, so no universal-pass
+  claim is made. In the quiet run the U01 inspector tab-navigation case and the honest
+  unknown/empty/failure rows passed.
 
 ## Holds status (re-evaluated at main `89142de9`)
 
@@ -111,8 +120,8 @@ Dispatch attempt on 2026-11-18 to the linked verifier `WIN-M0N0V07LGM1`
 (environment `17662262-856e-45f7-98fb-56c92cacfa8f`) failed at transport: the link reports
 `reachable` but the remote agent answered HTTP 524 on three attempts.
 
-**Resolved via authenticated GitHub CI instead** — `logs/ci-hermes-cas-7ac80d87.log`
-(bounded excerpt of the job log; digests in `manifest.json`):
+**Resolved via authenticated GitHub CI instead** — receipt `ci-hermes-cas-7ac80d87`
+(original job log preserved out-of-source; sha256 and run/job provenance in `manifest.json`):
 
 - Workflow `ci.yml`, job **Hermes contracts** on `windows-latest`, check_run `135026554125`,
   run `44367920580`, **head_sha `7ac80d870ff7ff7dc021b0632ef07d631d489afc`** — the exact
@@ -130,7 +139,7 @@ Dispatch attempt on 2026-11-18 to the linked verifier `WIN-M0N0V07LGM1`
 - Sibling steps in the same job: `hermes_source_contract.py` 5 tests OK,
   `hermes_atomic_controls.py` 4 tests OK, memory-checkpoint steps OK.
 
-**Re-confirmed at newer main:** `logs/ci-hermes-cas-89142de9.log` — the same job at
+**Re-confirmed at newer main:** receipt `ci-hermes-cas-89142de9` — the same job at
 `89142de980df86c4236dc49c28f280d78fe79e0d` (run `44393035599`, CPython 3.14.10,
 windows-2025-vs2026): 45 tests OK including the same three cases. CAS behavior survives the
 latest main state.

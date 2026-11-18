@@ -1,7 +1,8 @@
 {
   "manifest": "m04-v6-continuation-3-evidence-supplement",
-  "version": 1,
+  "version": 2,
   "generatedUtc": "2026-11-18T17:57:46Z",
+  "revisedUtc": "2026-11-18T22:30:00Z",
   "testedCut": "e5de6c3c6425e6c3f66b132034a5472b6b6961f8",
   "extractedFromCommit": "b54c1f2ae6b8b38d6b66c31810e14a6774059557",
   "extractedFromBranch": "handoff/m04-context-v3",
@@ -17,144 +18,147 @@
       "Edge/Chrome channels unavailable on linux-arm64; browser suites run on bundled chromium"
     ]
   },
-  "disclaimer": "Receipts only. This supplement does not assert core acceptance, platform acceptance, release readiness, or reviewer approval. The six product joins affected by HOLD_SOURCE_DRIFT are unchanged. All four M04 capability flags remain default false.",
-  "files": [
+  "retention": "Per CONTRIBUTING.md, raw tool/test output is not committed to source. Full original logs are preserved out-of-source by the session owner; each entry below carries the sha256 of the original byte stream so a reviewer can bind it. The two CI entries additionally cite public Actions run/job URLs as their provenance.",
+  "disclaimer": "Receipts only. This supplement does not assert core acceptance, platform acceptance, release readiness, or reviewer approval. All four M04 capability flags remain default false.",
+  "receipts": [
     {
-      "path": "logs/cont3-context-compiler-v3.log",
-      "sha256": "13f206156f475f42d26952e74a012f1368ff687fb344337229979a5312fb8038",
-      "bytes": 273,
+      "id": "cont3-context-compiler-v3",
+      "originalSha256": "13f206156f475f42d26952e74a012f1368ff687fb344337229979a5312fb8038",
+      "originalBytes": 273,
       "command": "pnpm exec vitest run tests/context-compiler-v3.test.ts",
       "exitCode": 0,
       "result": "11 passed",
-      "bounding": "tail of run output"
+      "note": "bounded tail of run output retained"
     },
     {
-      "path": "logs/cont3-context-results-v3.log",
-      "sha256": "e98299ad0f97d0ee45ad5a133e6730a73d250e37a071ef8df239941d6f57718c",
-      "bytes": 271,
+      "id": "cont3-context-results-v3",
+      "originalSha256": "e98299ad0f97d0ee45ad5a133e6730a73d250e37a071ef8df239941d6f57718c",
+      "originalBytes": 271,
       "command": "pnpm exec vitest run tests/context-results-v3.test.ts",
       "exitCode": 0,
       "result": "3 passed",
-      "bounding": "tail of run output"
+      "note": "bounded tail of run output retained"
     },
     {
-      "path": "logs/cont3-compaction-v3.log",
-      "sha256": "25fe7ae0e5808f547f58814c9354bafecca37f7bd91b7cf4d058cfd2f5a4dfff",
-      "bytes": 271,
+      "id": "cont3-compaction-v3",
+      "originalSha256": "25fe7ae0e5808f547f58814c9354bafecca37f7bd91b7cf4d058cfd2f5a4dfff",
+      "originalBytes": 271,
       "command": "pnpm exec vitest run tests/compaction-v3.test.ts",
       "exitCode": 0,
       "result": "8 passed",
-      "bounding": "tail of run output"
+      "note": "bounded tail of run output retained"
     },
     {
-      "path": "logs/cont3-context-contract-preservation-v6.log",
-      "sha256": "bbad2d3e4a51e83565618c40de97706e859fcdf059c518a4cbb9289edcc84d55",
-      "bytes": 726,
+      "id": "cont3-context-contract-preservation-v6",
+      "originalSha256": "bbad2d3e4a51e83565618c40de97706e859fcdf059c518a4cbb9289edcc84d55",
+      "originalBytes": 726,
       "command": "pnpm exec vitest run tests/context-contract-preservation-v6.test.ts",
       "exitCode": 0,
       "result": "6 passed, including D01 replay-protection cases",
-      "bounding": "tail of run output"
+      "note": "bounded tail of run output retained"
     },
     {
-      "path": "logs/cont3-supporting-all.log",
-      "sha256": "085517c29d719068ddd03000cdf41baefadd528944ceca16524502a77fcac0a4",
-      "bytes": 4575,
+      "id": "cont3-supporting-all",
+      "originalSha256": "085517c29d719068ddd03000cdf41baefadd528944ceca16524502a77fcac0a4",
+      "originalBytes": 4575,
       "command": "pnpm exec vitest run <15 supporting suites, sequential>",
       "exitCode": 0,
       "result": "15 suites pass, 219 tests passed, 2 skipped (context-discovery-v3 6, context-request-observation 6 incl. CAS apply/mismatch/unsupported, context-result-custody 1, context-draft-sources 2, context-measurement 2, hermes-runtime 47, hermes-broker 6, request-preparation-service-v3 34, source-workbench-host-v3 46+2skip, public-source 11, m01-m02-compatibility 2, tool-authority-v3 6, tool-effects-v3 13, effect-recovery-v3 11, research-baseline 26)",
-      "bounding": "per-suite tails; run interrupted once by host reboot and resumed at the same cut"
+      "note": "per-suite tails; run interrupted once by host reboot and resumed at the same cut"
     },
     {
-      "path": "logs/cont3-typecheck.log",
-      "sha256": "601b8d4308fdb9da8eabefa514a2a7531a63ac5c63ca7ad69206a9338db7ad3a",
-      "bytes": 70,
+      "id": "cont3-typecheck",
+      "originalSha256": "601b8d4308fdb9da8eabefa514a2a7531a63ac5c63ca7ad69206a9338db7ad3a",
+      "originalBytes": 70,
       "command": "pnpm typecheck",
       "exitCode": 0,
       "result": "0 errors",
-      "bounding": "complete output"
+      "note": "complete output retained"
     },
     {
-      "path": "logs/cont3-lint.log",
-      "sha256": "f5db9f70e718cd84576edbcc42cd8a9bc343a6c59e9cced1cd76e7a1e14011ef",
-      "bytes": 230,
+      "id": "cont3-lint",
+      "originalSha256": "f5db9f70e718cd84576edbcc42cd8a9bc343a6c59e9cced1cd76e7a1e14011ef",
+      "originalBytes": 230,
       "command": "pnpm lint",
       "exitCode": 0,
       "result": "564 sources, 0 violations",
-      "bounding": "complete output; an earlier invocation hit the 5-minute execution cap under host load and produced no receipt"
+      "note": "complete output retained; an earlier invocation hit the 5-minute execution cap under host load and produced no receipt"
     },
     {
-      "path": "logs/cont3-build.log",
-      "sha256": "6ee677fc280e5e96cbbc284703da55e3f1fe84cb0753062a82395f23d8dbce2b",
-      "bytes": 8809,
+      "id": "cont3-build",
+      "originalSha256": "6ee677fc280e5e96cbbc284703da55e3f1fe84cb0753062a82395f23d8dbce2b",
+      "originalBytes": 8809,
       "command": "pnpm build",
       "exitCode": 0,
       "result": "build succeeded; dist/web manifest 58 files",
-      "bounding": "complete output"
+      "note": "complete output retained"
     },
     {
-      "path": "logs/cont3-build-credential-lease.log",
-      "sha256": "325a413c5d494de758474ae620248c71f5a22a184dd941ad9d3c12bd708087b9",
-      "bytes": 158,
+      "id": "cont3-build-credential-lease",
+      "originalSha256": "325a413c5d494de758474ae620248c71f5a22a184dd941ad9d3c12bd708087b9",
+      "originalBytes": 158,
       "command": "pnpm build:credential-lease",
       "exitCode": 0,
       "result": "exit 0",
-      "bounding": "complete output"
+      "note": "complete output retained"
     },
     {
-      "path": "logs/cont3-build-widgets.log",
-      "sha256": "9d3eabfa99b1b469c4335188a94ce35b1b88f1b2375d3b73c48b8fd4a03b328a",
-      "bytes": 120,
+      "id": "cont3-build-widgets",
+      "originalSha256": "9d3eabfa99b1b469c4335188a94ce35b1b88f1b2375d3b73c48b8fd4a03b328a",
+      "originalBytes": 120,
       "command": "pnpm build:widgets",
       "exitCode": 0,
       "result": "exit 0",
-      "bounding": "complete output"
+      "note": "complete output retained"
     },
     {
-      "path": "logs/cont3-full-test-bounded.log",
-      "sha256": "c5575a11ff26c5b7bb794b092173ac3000dcc338737a19d89def9180ba197177",
-      "bytes": 15360,
+      "id": "cont3-full-test",
+      "originalSha256": "703600ec06c0f85a7fd0ab041a939565cd54fcd0202975a0eccdfc8744b857f5",
+      "originalBytes": 554741,
       "command": "pnpm test",
       "exitCode": 1,
-      "result": "332 failed / 4013 passed / 70 skipped over 58 min under ~3-agent host load; failures are documented environment classes (linux-path-guard boundary, pinned Python 3.14 hermes worker, native engines) plus 60s timeouts under contention; the two M04-file timeouts (request-preparation-service-v3, source-workbench-host-v3) pass in the quiet sequential supporting run at the same cut; no M04 assertion failure observed",
-      "bounding": "BOUNDED EXCERPT of the 554741-byte receipt: run header, unique failed-file markers (61, original order), complete Unhandled Errors + final summary; full log retained in local session evidence, not published"
+      "result": "332 failed / 4013 passed / 70 skipped over ~58 min under ~3-agent host load; failures are documented environment classes (linux-path-guard boundary, pinned Python 3.14 hermes worker, native engines) plus 60s timeouts under contention; the two M04-file timeouts (request-preparation-service-v3, source-workbench-host-v3) pass in the quiet sequential supporting run at the same cut; no M04 assertion failure observed",
+      "note": "full output retained out-of-source"
     },
     {
-      "path": "logs/cont3-browser-usage-context-3.log",
-      "sha256": "f4640ec0030124c3be6712a36dda7864c3164e9904266bd269fba238a60901d3",
-      "bytes": 26996,
+      "id": "cont3-browser-usage-context-contended",
+      "originalSha256": "f4640ec0030124c3be6712a36dda7864c3164e9904266bd269fba238a60901d3",
+      "originalBytes": 26996,
       "command": "pnpm exec tsx scripts/test-browser.ts --suite usage-context",
       "exitCode": 1,
-      "result": "15 passed / 10 failed in 5.2 min under host load ~20; residual failures are data-usage-fixture-ready 5s fixture-mount timeouts, not channel unavailability (config uses bundled chromium; msedge is win32-only)",
-      "bounding": "complete output"
+      "result": "15 passed / 10 failed in ~5 min under host load ~20. Failure mix: 4x 15s test timeouts (compaction-error cross-thread, semantic colors light, Cost/Tokens/Limits, optional-summary disclosure); 2x deterministic assertions on 'overflow keeps header fixed, rows scroll' dark+light (scrollWidth<=clientWidth returned false); 4x 5s data-usage-fixture-ready mount waits (category-overflow dark+light, transition timing, last-request broker bytes)",
+      "note": "complete output retained out-of-source"
     },
     {
-      "path": "logs/cont3-browser-usage-context-quiet.log",
-      "sha256": "c7df2c8873ae61c10a492aca7271ee8ee23f383e9894c831120b5f85375cca4c",
-      "bytes": 13205,
+      "id": "cont3-browser-usage-context-quiet",
+      "originalSha256": "c7df2c8873ae61c10a492aca7271ee8ee23f383e9894c831120b5f85375cca4c",
+      "originalBytes": 13205,
       "command": "pnpm exec tsx scripts/test-browser.ts --suite usage-context (sequential rerun)",
       "exitCode": 1,
-      "result": "21 passed / 4 failed; the 4 residuals are the same fixture-mount timeout class; every spec test passed in at least one run; U01 inspector tab-navigation and honest unknown/empty/failure rows pass at this cut",
-      "bounding": "complete output"
+      "result": "21 passed / 4 failed. Failures: 1x 15s test/page.goto timeout (token-decrease-not-receipt); 2x the same scrollWidth<=clientWidth assertions (dark+light) — recurring, not mount timeouts; 1x data-usage-fixture-ready mount wait (category-overflow light). The U01 inspector tab-navigation case and honest unknown/empty/failure rows passed in this run.",
+      "note": "complete output retained out-of-source"
     },
     {
-      "path": "logs/ci-hermes-cas-7ac80d87.log",
-      "sha256": "9122e47552e7a215785cfa72ad329a8e88801547a2fe98e1439eae1ed26d4a9e",
-      "bytes": 5946,
+      "id": "ci-hermes-cas-7ac80d87",
+      "originalSha256": "9ca21b8a1618575afab9c633b917ae34411a66cec753b69a405f9eedca9ed8d5",
+      "originalBytes": 61164,
       "testedCut": "7ac80d870ff7ff7dc021b0632ef07d631d489afc",
       "command": "GitHub Actions ci.yml job 'Hermes contracts' (windows-latest): python -I -S -B tests/hermes_source_worker.py -v, plus sibling contract/atomic/memory steps",
       "exitCode": 0,
       "result": "job success at head_sha 7ac80d87 (check_run 135026554125, run 44367920580); CPython 3.14.10 on windows-2025-vs2026; worker suite 45 tests in 200.9s OK, including test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (stale-digest refusal + matching-digest apply), test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive, test_original_summary_compaction_executes_with_the_retained_dependency_subset; contract 5 + atomic 4 + memory checkpoint steps OK",
-      "bounding": "bounded excerpt of the Actions job log: runner/image/toolchain lines, step headers, named-case lines, suite totals, final OK"
+      "provenance": "https://github.com/skytuhua-org/Gen-V1/actions/runs/44367920580/job/135026554125",
+      "note": "full downloaded job log retained out-of-source"
     },
     {
-      "path": "logs/ci-hermes-cas-89142de9.log",
-      "sha256": "d0cd7b7ce70b0c63077a1803297b58b65c40d862489a02209bae7d9a8e5dadf5",
-      "bytes": 2165,
+      "id": "ci-hermes-cas-89142de9",
+      "originalSha256": "51b348a9635703f7552747e6ea63cf6ba6e82f648fa361e43523a9b485bfb3df",
+      "originalBytes": 61108,
       "testedCut": "89142de980df86c4236dc49c28f280d78fe79e0d",
       "command": "GitHub Actions ci.yml job 'Hermes contracts' (windows-latest): python -I -S -B tests/hermes_source_worker.py -v",
       "exitCode": 0,
       "result": "job success at head_sha 89142de9 (job 135124204117, run 44393035599), 2026-11-18 20:56-21:01 UTC; CPython 3.14.10 on windows-2025-vs2026; worker suite 45 tests in 188.7s OK, including the same three CAS/protection cases — CAS behavior survives the newer main state",
-      "bounding": "bounded excerpt of the Actions job log: runner/toolchain lines, step header, named-case lines, suite total, final OK"
+      "provenance": "https://github.com/skytuhua-org/Gen-V1/actions/runs/44393035599/job/135124204117",
+      "note": "full downloaded job log retained out-of-source"
     }
   ]
 }
