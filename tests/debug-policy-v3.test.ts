@@ -86,3 +86,17 @@ it('a failed launch terminates its adapter and leaves no unreachable session',as
  expect(adapter.terminated).toBe(1);
  expect(await registry.revoke('acct-1',signal())).toEqual({terminated:0,failed:0});
 });
+
+it('keeps a launch whose cleanup failed reachable for revocation',async()=>{
+ const adapter=new FakeDebug();
+ adapter.launch=async()=>{throw new Error('The backend refused to start the debuggee');};
+ const confirmed=adapter.terminate.bind(adapter);let attempts=0;
+ adapter.terminate=async()=>{if(++attempts===1)throw new Error('Termination was not confirmed');return confirmed();};
+ const registry=new DebugRegistry([backend('ok')],'ok',()=>adapter);
+ await expect(registry.launch({owner:'acct-1',recipe,signal:signal()})).rejects.toThrowError(/refused to start/i);
+ // The launch error still surfaces, but an unconfirmed cleanup must stay
+ // addressable so revocation can retry it.
+ expect(attempts).toBe(1);
+ expect(await registry.revoke('acct-1',signal())).toEqual({terminated:1,failed:0});
+ expect(adapter.terminated).toBe(1);
+});

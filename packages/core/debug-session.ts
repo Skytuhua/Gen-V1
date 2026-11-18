@@ -105,9 +105,10 @@ export class DebugRegistry {
       session.state = "STOPPED";
       // A failed launch can still own a partially started adapter, and an
       // unreachable session id leaves nobody able to terminate it. Release it
-      // here and never retain the orphan.
-      await adapter.terminate(new AbortController().signal).catch(() => {});
-      this.sessions.delete(session.sessionId);
+      // here; an unconfirmed cleanup keeps the session listed so revoke/dispose
+      // can retry instead of pretending it is gone.
+      const released = await adapter.terminate(new AbortController().signal).then(() => true, () => false);
+      if (released) this.sessions.delete(session.sessionId);
       throw error;
     }
     return this.view(session);
