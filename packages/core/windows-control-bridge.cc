@@ -217,13 +217,10 @@ void dropBinding(HeldBinding& binding) {
   binding.closed = true;
 }
 
-// Best-effort graceful drain (env cleanup hook): releases items+props on the
-// STA thread while it is still alive. Inconsequential if it cannot run —
-// the leaked registry guarantees teardown never destructs the items anyway.
-void dropAllOnSta(void*) {
-  for (auto& entry : bindings()) dropBinding(entry.second);
-  bindings().clear();
-}
+// No drain hook: env-teardown callbacks run while ExitProcess serializes
+// threads, and waiting on the STA thread there deadlocks whenever a capture
+// is in flight (verified on-box). The leaked registry already guarantees
+// nothing destructs at teardown; drop paths release bindings during runtime.
 
 // ---- JS marshalling -------------------------------------------------------
 
@@ -765,10 +762,6 @@ napi_value init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "windowIdentity", ([&] { napi_value f; napi_create_function(env, "windowIdentity", NAPI_AUTO_LENGTH, windowIdentity, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "captureWindow", ([&] { napi_value f; napi_create_function(env, "captureWindow", NAPI_AUTO_LENGTH, captureWindow, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "dropBinding", ([&] { napi_value f; napi_create_function(env, "dropBinding", NAPI_AUTO_LENGTH, dropBindingOp, nullptr, &f); return f; })());
-  // Best-effort graceful drain on env teardown. The leaked registry is the
-  // actual teardown-ordering guarantee; this just returns props/items early
-  // when a graceful env teardown exists (e.g. addon env reload).
-  napi_add_env_cleanup_hook(env, [](void*) { try { onSta(dropAllOnSta, nullptr); } catch (...) {} }, nullptr);
   return exports;
 }
 
