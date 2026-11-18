@@ -4456,6 +4456,8 @@
     "packages/core/tool-effect-read-models.ts",
     "packages/core/tool-effects.ts",
     "packages/core/ui-admission.ts",
+    "packages/core/verification-executor-binding.ts",
+    "packages/core/verification-executor.ts",
     "packages/core/verification-gate.ts",
     "packages/core/verification-read-models.ts",
     "packages/core/widgets.ts",
