@@ -8,7 +8,8 @@
 - Audit anchor: `4805af4680094d2af48ecf666688e750797e9dda` (source-inspection anchor only; not a claim of test success).
 - Duplicate-work search before creation: no `m17` branch, worktree, named implementation file or evidence doc existed locally or on remote refs.
 - The original checkout `/home/piadmin/Gen-V1` (branch `fix/t10-agents-grid-v3`) and all other worktrees were preserved untouched, including uncommitted changes and the untracked `qwencloud-api-key.txt` (never read or copied).
-- No reset, clean, stash or ref updates performed; no account changes; no push.
+- No reset, clean, stash or ref updates performed on the source cut; no account changes.
+- Branch `agent/m17-v6` pushed at handoff (head `826db552131a72cd17eb762289d845979c865090`); draft PR <https://github.com/skytuhua-org/Gen-V1/pull/836> opened against `main` — no merge, no activation.
 
 ## R01 verbatim records (recorded on the original checkout before worktree creation)
 
