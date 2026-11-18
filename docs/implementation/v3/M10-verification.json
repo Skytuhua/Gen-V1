@@ -1424,11 +1424,6 @@
      "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
-     "id": "M10-S07",
-     "status": "BLOCKED",
-     "evidence": "HOLD_FORK_API unchanged; UNSUPPORTED_FORK verified"
-    },
-    {
      "id": "M10-S08",
      "status": "PASS",
      "evidence": "logs-pm/vitest-background-work-r3.summary.md"
@@ -1788,419 +1783,188 @@
   {
    "id": "m10.postmerge-v6-windows",
    "status": "FAIL",
-   "platform": "win32-x64 (Windows 11 25H2 10.0.26200.9974; WIN-M0N0V07LGM1)",
-   "sourceSha": "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199",
-   "reportedBy": "t3-thread mcp:launch:26d517050bbdc5deb6d809892770f014e64161daca9195c3328ee6ae092b7a20",
    "requiredCases": [
     {
      "id": "M10-C01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-C02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-C03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-C04",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S04",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S05",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S06",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S07",
-     "status": "BLOCKED",
-     "evidence": "HOLD_FORK_API unchanged; UNSUPPORTED_FORK verified"
+     "status": "NOT_RUN",
+     "evidence": "HOLD_FORK_API unchanged; no callable fork API on the pinned wrapper (UNSUPPORTED_FORK)"
     },
     {
      "id": "M10-S08",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S09",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S10",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S11",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-S12",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-U01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-U02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-U03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-U04",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T04",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T05",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-T06",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-G01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-G02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-G03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-D01",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-D02",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-D03",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-D04",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     },
     {
      "id": "M10-D05",
      "status": "PASS",
-     "evidence": "logs-pm/win-verifier-report.md"
+     "evidence": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
     }
    ],
-   "commands": [
-    {
-     "argv": [
-      "pnpm",
-      "install"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "wallClockSec": 244.18,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "build:widgets"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "wallClockSec": 0.51,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "vitest",
-      "run",
-      "tests/background-work-v3.test.ts"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "passed": 43,
-     "failed": 0,
-     "wallClockSec": 28.28,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "vitest",
-      "run",
-      "tests/human-handoff-v3.test.ts"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "passed": 11,
-     "failed": 0,
-     "wallClockSec": 80.85,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "vitest",
-      "run",
-      "tests/external-intake-v3.test.ts"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "passed": 24,
-     "failed": 0,
-     "wallClockSec": 26.44,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "vitest",
-      "run",
-      "tests/background-contract-decisions-v6.test.ts"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "passed": 5,
-     "failed": 0,
-     "wallClockSec": 6.41,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "test:browser",
-      "--suite",
-      "background-work"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "passed": 12,
-     "failed": 0,
-     "wallClockSec": 45.61,
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "desktop:package"
-     ],
-     "exitCode": 1,
-     "status": "FAIL",
-     "classification": "ENV_MISSING",
-     "firstFailure": ".harness-hermes-python-deps ENOENT; no Setup.exe/win-unpacked produced",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "tsx",
-      "scripts/verify-installed-desktop.ts",
-      "<Setup.exe>",
-      "<win-unpacked>"
-     ],
-     "status": "NOT_RUN",
-     "classification": "UNSUPPORTED_ENV_MISSING",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
-    },
-    {
-     "argv": [
-      "py",
-      "-3.14",
-      "<identity probe>"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "result": "CPython 3.14.3 x64 (HARNESS_HERMES_PYTHON)",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "pip",
-      "install",
-      "--target",
-      ".harness-hermes-python-deps",
-      "-r",
-      "third-party/hermes-agent/runtime-requirements.txt"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "result": "33/33 pinned distributions staged",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "pwsh",
-      "-NoProfile",
-      "<integration wheel staging>"
-     ],
-     "status": "KILLED",
-     "classification": "ENV_STALL",
-     "result": "PowerShell 7 startup stalled pre-entry (135.15s)",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "<cmd/python wheel staging equivalent \u2014 same URLs+sha256 checks>"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "result": "91/91 archive hash checks",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "pip",
-      "install",
-      "--require-hashes",
-      "--target",
-      ".harness-integrations-python-deps"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "result": "91 distributions",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "<git/gh tool-bundle staging per third-party/git-tools/manifest.json>"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "result": "both archive hashes + 386 file checks; collectGitTools 386 files/147,868,460 bytes",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "desktop:package",
-      "--output-root",
-      ".harness-installed-package"
-     ],
-     "status": "KILLED",
-     "classification": "UNSUPPORTED_ENV_STALL",
-     "result": "internal powershell.exe Expand-Archive child stalled 161.45s (empty extraction); wrapper forced exit 1 at 530.81s; release dir empty \u2014 no Setup.exe/win-unpacked/artifact SHA",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "tsx",
-      "scripts/verify-installed-desktop.ts",
-      "<Setup.exe>",
-      "<win-unpacked>"
-     ],
-     "status": "NOT_RUN",
-     "classification": "UNSUPPORTED_ENV_STALL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-    },
-    {
-     "argv": [
-      "gh-actions api",
-      "runs?head_sha=ff38c62c\u2026 + runs/44356008329/{jobs,artifacts}"
-     ],
-     "status": "INVENTORY",
-     "classification": "ARTIFACT_GAP_NAMED",
-     "result": "48 queue-guard runs carry no artifacts; CI run 44356008329 (push, success) at cut; artifacts: installed-memory-44356008329-1 (1.8MB receipts only). Setup.exe (477.5MB) and win-unpacked NOT uploaded -> no downloadable exact-cut pair; local packaging not rerun.",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/artifact-inventory.md"
-    },
-    {
-     "argv": [
-      "ci job 134984166865: pnpm exec tsx scripts/verify-installed-desktop.ts --project-memory-retention --project-memory-enabled <Setup.exe> <win-unpacked>"
-     ],
-     "exitCode": 0,
-     "status": "PASS",
-     "classification": "CI_OWNED_INSTALLED_LANE",
-     "result": "verify-installed-desktop passed:true at head_sha ff38c62c on windows-latest: install exit0 512.9s; 4 owned launches passed/verifiedOwner/exit0 (2 default-off + 2 enabled); payloadCustody matches 92,944 files sha256 a8ff5f5f\u2026cea5; providerVerification passed; uninstall exit0 + shortcuts/keys/processes absent; inference:false auth:false. Setup.exe sha256 afa42167\u20267753.",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.summary.md"
-    }
-   ],
+   "commands": [],
    "artifactRefs": [
     "docs/implementation/v6/M10/receipts-windows.jsonl",
     "docs/implementation/v6/M10/logs-pm/win-verifier-report.md",
-    "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
-   ],
-   "notes": "win32 vitest 83/83 + browser 12/12 PASS. Declared packaging prerequisites all recovered via pinned hash-verified inputs (Hermes 33/33, wheels 91/91 sha256, integrations 91 dists, git/gh 386 files). Installed lane now blocked at packaging internal powershell.exe spawn stall (UNSUPPORTED_ENV_STALL, box defect); verify-installed-desktop NOT RUN; no artifact SHA exists to record. Supervisor/fork HELD."
+    "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md",
+    "docs/implementation/v6/M10/logs-pm/ci-installed-lane/artifact-inventory.md",
+    "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.summary.md",
+    "docs/implementation/v6/M10/logs-pm/ci-installed-lane/build-manifest.summary.md",
+    "docs/implementation/v6/M10/logs-pm/provenance-map.json"
+   ]
   }
  ],
  "changedFiles": [

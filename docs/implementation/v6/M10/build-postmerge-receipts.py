@@ -12,7 +12,8 @@ boundedLogRef, logDigest). Times are taken from the .exit file mtime
 """
 import json, hashlib, os, sys, datetime
 
-ROOT = "<worktree>"
+ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "..", ".."))
+CWD_IDENTITY = "<worktree>"  # redacted per CONTRIBUTING shared-evidence rules
 L = "docs/implementation/v6/M10/logs-pm"
 OUT = os.path.join(ROOT, "docs/implementation/v6/M10/receipts-postmerge.jsonl")
 
@@ -62,7 +63,7 @@ for key, log, argv in RUNS:
     ended = os.stat(exitp).st_mtime if os.path.exists(exitp) else st.st_mtime
     rows.append({
         "argv": argv,
-        "cwdIdentity": ROOT,
+        "cwdIdentity": CWD_IDENTITY,
         "executableIdentity": argv[0],
         "startedAt": iso(st.st_mtime - max(0, os.path.getsize(logp) and 0)),  # refined below
         "endedAt": iso(ended),

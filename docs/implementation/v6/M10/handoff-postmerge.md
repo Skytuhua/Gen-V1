@@ -318,6 +318,51 @@ same memory-flag job), no new job created (cannot share artifacts across
 runners without duplicating packaging), no PowerShell retry on
 WIN-M0N0V07LGM1, no script edits.
 
+## Session 11 — strict-schema repair + source-lock reconciliation
+
+**Schema repair (`implementationEvidenceV3Schema`):** manager review found
+the persisted `M10-verification.json` failing the checked-in strict
+schema via the appended postmerge phases. Repairs, verified by parsing
+with `implementationEvidenceV3Schema` and `validateImplementationEvidence`
+(0 issues; `bundleStatus` stays FAIL — the observed failures are kept):
+
+- `m10.postmerge-v6-s5`: `M10-S07` removed from `requiredCases` — matches
+  the baseline convention (S07 appears in no baseline phase; the fork
+  hold lives in `m10.gates` FAIL + `remainingGates` HOLD_FORK_API).
+  A PASS phase cannot legally carry NOT_RUN cases.
+- `m10.postmerge-v6-windows`: non-canonical keys removed
+  (`platform`/`sourceSha`/`reportedBy`/`notes`); all 19 pseudo-records
+  lacked required fields (times, identity, digest) or used non-enum
+  statuses (`KILLED`/`INVENTORY`/`ARTIFACT_GAP_NAMED`/
+  `CI_OWNED_INSTALLED_LANE`) → moved to `artifactRefs`; `commands: []`
+  (nothing invented); `M10-S07` = NOT_RUN; status stays FAIL (the
+  installed lane's observed packaging exit 1 / NOT_RUN verify stands —
+  historical FAIL not rewritten).
+- Builders fixed so a rerun preserves validity:
+  `build-postmerge-receipts.py` derives the repo root from `__file__`
+  (the earlier placeholder broke it) and emits redacted
+  `cwdIdentity: "<worktree>"`; `update-postmerge-verification.py`
+  omits S07, and projects receipts to the 10 canonical command fields —
+  collateral curation fields (`originalOutputDigest`, `originalOutput`)
+  now stay in the collateral JSONL only.
+- Raw/curated digest pairs preserved in `logs-pm/provenance-map.json` +
+  `receipts-*.jsonl` (`originalOutputDigest` next to summary `logDigest`);
+  bound cuts `4aef753e`/`ff38c62c` unchanged.
+
+**`M10-source-lock.json` "byte-digest mismatch" — reconciled, not a
+defect.** `sourceLockDigest` `0f234e7866e671bdc6eddad5fcd355a83a780cf0fb46a190d39bd089d10a3986`
+equals `sha256(JSON.stringify(inspectedPaths))` — exactly the binding
+`build-evidence.mjs:117` declares (digest over the inspected set, not
+file bytes). Verified: all 25 `inspectedPaths[].blobSha` equal
+`git rev-parse <executionBaseSha>:<path>` at `56749856`; the file is
+byte-identical at authored head `a5aa3798` and merge `016738f7`; the
+digest reproduces from the persisted array with compact JSON
+serialization. Checkers that assume the raw-bytes convention
+(`sha256(lockBytes)`, e.g. `verify-m05-evidence.ts`) flag this as a
+mismatch — that is a convention difference between milestone evidence
+builders, not corruption. Binding preserved; no bytes rebound; file
+untouched.
+
 ## Publication
 
 Evidence-only draft published per manager instruction as PR
