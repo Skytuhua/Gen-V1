@@ -1,7 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { performance } from 'node:perf_hooks';
@@ -137,12 +137,17 @@ describe('executable resolution', () => {
   });
 
   it('resolves the declared pnpm through the corepack executable', () => {
-    const pm = resolvePackageManager(process.cwd());
-    expect(pm.declaredVersion).toBe('10.30.3');
-    expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).toContain('corepack');
-    expect(pm.file).not.toMatch(/\.cmd$/i);
-    expect(pm.prefix.length).toBeGreaterThan(0);
-    expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
+    const bin = dir('resolver');
+    copyFileSync(process.execPath, join(bin, process.platform === 'win32' ? 'corepack.exe' : 'corepack'), constants.COPYFILE_FICLONE);
+    vi.stubEnv('PATH', bin);
+    try {
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).toContain('corepack');
+      expect(pm.file).not.toMatch(/\.cmd$/i);
+      expect(pm.prefix.length).toBeGreaterThan(0);
+      expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
+    } finally { vi.unstubAllEnvs(); }
   });
 });
 
