@@ -1,0 +1,21 @@
+name: M01 M02 M03 merged PR cleanup
+
+on:
+  pull_request_target:
+    types: [closed]
+
+permissions: {}
+
+# Workflow concurrency cancels the merged PR's obsolete audit without a runner.
+# Unmerged closures remain isolated because the PR may be reopened.
+concurrency:
+  group: ${{ github.event.pull_request.merged == true && format('m01-m03-audit-refs/pull/{0}/merge', github.event.pull_request.number) || format('m01-m03-audit-merged-pr-cleanup-{0}', github.run_id) }}
+  cancel-in-progress: true
+
+jobs:
+  cleanup:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - run: ':'
