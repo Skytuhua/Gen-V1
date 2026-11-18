@@ -215,6 +215,17 @@ it.runIf(process.platform === 'win32')('reauthorizes retained file bytes after g
   expect(f.store.all('outbox', f.thread.id)).toEqual([]);
 });
 
+it.runIf(process.platform === 'win32')('reads an uploaded attachment through its own conversation grant and never through a profile grant [Windows required]', async () => {
+  const f = fixture(), workbench = f.workbench(), folder = join(f.store.dataDir, 'attachments', f.thread.id);
+  mkdirSync(folder, {recursive: true}); const path = join(folder, 'upload-attachment-note.txt'); writeFileSync(path, 'attached\nbytes\n');
+  const grant: ResourceGrant = {id: 'attachment-grant', threadId: f.thread.id, kind: 'attachment', path, label: 'note.txt', writable: false, createdAt: f.thread.createdAt};
+  f.store.internal('fixture.attachment-grant', f.thread.id, () => f.store.put('resource', grant.id, f.thread.id, grant));
+  expect((await workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: grant.id}})).text).toBe('attached\nbytes\n');
+  const profile: ResourceGrant = {id: 'profile-grant', threadId: f.thread.id, kind: 'project', path: f.store.dataDir, label: 'profile', writable: false, createdAt: f.thread.createdAt};
+  f.store.internal('fixture.profile-grant', f.thread.id, () => f.store.put('resource', profile.id, f.thread.id, profile));
+  await expect(workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: profile.id, path: 'attachments/' + f.thread.id + '/upload-attachment-note.txt'}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+});
+
 it.runIf(process.platform === 'win32')('admits the first captured file under its selected account [Windows native guard, runtime fixture]', async () => {
   const f = await emptyTaskAccountFixture(true), path = join(f.root, 'first-source.txt'); writeFileSync(path, 'first\nselected second\nthird\n');
   const grant: ResourceGrant = {id: 'first-file-grant', threadId: f.thread.id, kind: 'file', path, label: 'first-source.txt', writable: false, createdAt: f.thread.createdAt};

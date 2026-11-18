@@ -10,6 +10,7 @@ import {
  readConversationPlacement,
  capturePlacementExpectation,
  expectationHolds,
+ planVisible,
  type ConversationPlacementRecord,
 } from '../apps/web/src/conversation-placement.ts';
 
@@ -251,5 +252,26 @@ describe('readConversationPlacement: pending intent recovery',()=>{
   expect(result.recovery).toBe('layout-changed');
   expect(result.mainSelection).toEqual({kind:'thread',threadId:B.id});
   expect(result.floating).toEqual({}); // never auto-reopen the stale parked thread
+ });
+});
+
+describe('plan visibility',()=>{
+ const plan=(threadId:string):SurfaceRef=>({id:`plan:${threadId}`,kind:'plan',binding:{authority:{kind:'local'},projectId:'p1',threadId}});
+ const run=(layout:SplitWorkspaceLayout,type:string,payload:Record<string,unknown>)=>applySplitWorkspaceCommand(layout,type,payload);
+
+ it('is visible only while the plan tab is the pane that is showing',()=>{
+  const opened=run(createSplitWorkspaceLayout(),'view.open',{paneId:'pane-main',view:plan('a')});
+  expect(planVisible(opened,'a')).toBe(true);
+  const backgrounded=run(opened,'view.open',{paneId:'pane-main',view:{id:'thread:a',kind:'thread',binding:{authority:{kind:'local'},projectId:'p1',threadId:'a'}}});
+  expect(backgrounded.panes['pane-main']!.viewIds).toHaveLength(2);
+  expect(planVisible(backgrounded,'a')).toBe(false);
+  expect(planVisible(run(backgrounded,'view.activate',{paneId:'pane-main',viewId:'plan:a'}),'a')).toBe(true);
+ });
+
+ it('is not visible in a minimized pane, for another thread, or once parked',()=>{
+  const opened=run(createSplitWorkspaceLayout(),'view.open',{paneId:'pane-main',view:plan('a')});
+  expect(planVisible(run(opened,'pane.collapse',{paneId:'pane-main',collapsed:true}),'a')).toBe(false);
+  expect(planVisible(opened,'b')).toBe(false);
+  expect(planVisible(run(opened,'view.park',{viewId:'plan:a'}),'a')).toBe(false);
  });
 });
