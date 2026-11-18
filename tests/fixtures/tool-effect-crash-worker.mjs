@@ -4,12 +4,16 @@ const { Store } = await import('../../packages/storage/store.ts');
 const { buildToolRegistry, ToolAuthority } = await import('../../packages/core/tool-authority.ts');
 const { __setEffectFaultHookForTests, createToolEffectFlags, ToolEffectLedger } = await import('../../packages/core/tool-effects.ts');
 const { recoverEffects } = await import('../../packages/core/effect-recovery.ts');
+const { createEffectAuthenticator } = await import('../../packages/core/host-effect-authenticator.ts');
 
 const [mode, root, phase] = process.argv.slice(2);
 if (!root || !['crash', 'recover'].includes(mode)) throw new Error('Expected mode and owned fixture root');
 const store = new Store(join(root, 'state'));
+// Explicit synthetic signer stays identical across these owned subprocesses.
+// This exercises authenticated durability, not native key custody.
+const authenticator = createEffectAuthenticator(Buffer.alloc(32, 32), '00000000-0000-4000-8000-000000000032');
 const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()),
-  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), authenticator);
 const thread = {
   id: 'crash-thread', title: 'Crash fixture', projectName: null, createdAt: '', updatedAt: '',
   status: 'working', epoch: 1, runId: 'crash-run', modelId: null, sessionPath: null,
@@ -87,12 +91,16 @@ if (after) {
     readmissionError = error.code ?? String(error);
   }
 }
+const approval = ledger.approvalFor(operation.id);
+const { hostAuthenticator, ...grantFields } = approval ?? {};
 const result = {
   beforeState: before?.state ?? null, state: after?.state ?? null,
   transitions: after?.transitions.map(item => item.to) ?? null,
-  remainingUses: ledger.approvalFor(operation.id)?.remainingUses,
+  remainingUses: approval?.remainingUses,
+  approvalAuthenticated: Boolean(hostAuthenticator && authenticator.verify('grant', grantFields, hostAuthenticator.tag)),
   externalEffects: effectCount(), readmissionStarted, readmissionState, readmissionError,
   uncertain: recovery.uncertain, sequence: store.sequence,
 };
 store.close();
+authenticator.revoke();
 process.stdout.write(JSON.stringify(result) + '\n');

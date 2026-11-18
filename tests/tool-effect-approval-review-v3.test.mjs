@@ -6,6 +6,7 @@ const { Service } = await import('../packages/core/service.ts');
 const { Store } = await import('../packages/storage/store.ts');
 const { HarnessError } = await import('../packages/contracts/index.ts');
 const domain = await import('../packages/capabilities/index.ts');
+const { testEffectAuthenticator } = await import('./fixtures/effect-authenticator.ts');
 
 const cleanups = [];
 afterEach(async () => {
@@ -30,6 +31,7 @@ async function fixture() {
   };
   const service = new Service(store, runtime, {
     toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectAuthenticator: testEffectAuthenticator(),
   });
   cleanups.push(async () => { await service.dispose(); store.close(); await rm(root, { recursive: true, force: true }); });
   const command = (type, threadId, payload = {}) =>
