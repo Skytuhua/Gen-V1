@@ -22,6 +22,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('agents-workspace', ['agents-workspace.spec.ts', 'agents-workspace-evidence.spec.ts'], {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
   suite('artifact-settle', ['artifact-settle.spec.ts']),
   suite('browser-action'),
+  suite('background-work'),
   suite('compact-model-picker', ['compact-model-picker.spec.ts', 'model-composer-refinement.spec.ts', 'subscription-accounts.spec.ts']),
   suite('ui-shell-overlays'),
   suite('file-checkpoints'),

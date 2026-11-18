@@ -1,0 +1,4 @@
+[WebServer] [31merror when starting dev server:
+[WebServer] Error: EACCES: permission denied, lstat '/tmp/wo5-run-d-integration-results/node_modules/.vite/deps'[39m
+Error: Process from config.webServer was not able to start. Exit code: 1
+
