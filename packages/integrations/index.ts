@@ -74,7 +74,10 @@ export class IntegrationManager {
  async context7Launch(scope:IntegrationScope):Promise<Context7LaunchDescriptor>{
   const {item,scoped}=await this.admitted('context7',scope,'mcp');
   if(!item.capabilities.mcp||item.runtime?.kind!=='node'||!item.runtime.package)throw new HarnessError('INTEGRATION_UNAVAILABLE','The installed Context7 destination is unavailable.');
-  return {executable:this.options.nodeExecutable??process.execPath,entry:payloadPath(this.root,item.runtime.entry),manifest:join(this.root,'third-party/integrations/manifest.json'),packageManifest:join(this.root,'node_modules',item.runtime.package,'package.json'),cwd:scoped.projectRoot!,args:[...item.runtime.args]};
+  // The approved launch binds an exact working-directory identity, so a task
+  // without a project root has no destination to bind.
+  if(!scoped.projectRoot)throw new HarnessError('INTEGRATION_UNAVAILABLE','Choose a task project before approving a Context7 action.');
+  return {executable:this.options.nodeExecutable??process.execPath,entry:payloadPath(this.root,item.runtime.entry),manifest:join(this.root,'third-party/integrations/manifest.json'),packageManifest:join(this.root,'node_modules',item.runtime.package,'package.json'),cwd:scoped.projectRoot,args:[...item.runtime.args]};
  }
  private environment(directory:string):Record<string,string>{const env:Record<string,string>={};for(const key of ['SystemRoot','WINDIR','COMSPEC','TEMP','TMP','PATH'])if(process.env[key])env[key]=process.env[key]!;return {...env,HOME:directory,USERPROFILE:directory,APPDATA:join(directory,'roaming'),LOCALAPPDATA:join(directory,'local'),XDG_CONFIG_HOME:join(directory,'config'),PYTHON_MANAGER_AUTOMATIC_INSTALL:'false',PYTHONDONTWRITEBYTECODE:'1',PYTHONIOENCODING:'utf-8',PYTHONHASHSEED:'0',GRAPHIFY_BACKEND:'none',GRAPHIFY_NO_AUTO_REFRESH:'1',PROMPTFOO_DISABLE_TELEMETRY:'1',PROMPTFOO_DISABLE_UPDATE:'1',PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:'true',PROMPTFOO_CONFIG_DIR:directory,IMPECCABLE_BIN:join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe')};}
  private pythonArgs(entry:string,args:string[]){return [...(this.options.pythonExecutable?[]:['-3.14']),'-I','-S','-B',join(this.root,'packages/integrations/python-entry.py'),entry,...args];}
