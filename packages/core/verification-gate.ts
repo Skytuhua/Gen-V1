@@ -194,10 +194,17 @@ export class SecurityFindingLedger {
   constructor(private readonly store: Store) {}
   record(finding: Omit<SecurityFindingV1, 'updatedAt'>, threadId: string): SecurityFindingV1 {
     const parsed = securityFindingV1Schema.parse({ ...finding, updatedAt: finding.createdAt });
-    const id = `finding-${digest({ source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
+    const owner = parsed.provenance?.owner;
+    if (owner && owner.threadId !== threadId) throw new HarnessError('STALE_FINDING_OWNER', 'The finding owner does not match this thread.');
     return this.store.internal('securityFinding.recorded', threadId, (): SecurityFindingV1 => {
+      const legacyId = `finding-${digest({ source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
+      const legacy = this.store.db.prepare('SELECT thread_id FROM entities WHERE kind = ? AND id = ?').get('securityFinding', legacyId) as {thread_id: string | null} | undefined;
+      // Preserve same-owner legacy rows. Another thread must never move or
+      // replace a finding merely because it reviewed identical source bytes.
+      const logicalOwner = owner ? {projectId: owner.projectId, workspaceId: owner.workspaceId, accountBinding: owner.accountBinding} : undefined;
+      const id = !owner && legacy?.thread_id === threadId ? legacyId : `finding-${digest({ threadId, ...(logicalOwner ? {logicalOwner} : {}), source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
       const prior = this.store.get<SecurityFindingV1>('securityFinding', id);
-      const merged = prior ? { ...parsed, updatedAt: now() } : parsed;
+      const merged = prior ? { ...parsed, createdAt: prior.createdAt, updatedAt: now() } : parsed;
       this.store.put('securityFinding', id, threadId, merged);
       return merged;
     }) as SecurityFindingV1;

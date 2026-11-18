@@ -5,8 +5,9 @@ import type { Thread } from '../contracts/index.ts';
 import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
-  VerificationDeclarationV1, VisualObservationV1,
+  SecurityFindingV1, VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
+import {securityFindingV1Schema} from '../contracts/verification.ts';
 import { computeAssessment, observationFreshness, observationMatchesThreadOwner } from './verification-gate.ts';
 import { assertVerificationSourceRoot, sourceDigestSync } from './project-verification.ts';
 
@@ -44,11 +45,19 @@ export interface VerificationPanelRow {
   details?: VerificationCheckDetails;
 }
 
+export interface SecurityFindingView extends Omit<SecurityFindingV1, 'provenance' | 'evidenceQuality'> {
+  evidenceQuality: NonNullable<SecurityFindingV1['evidenceQuality']>;
+  freshness: 'CURRENT' | 'STALE' | 'INDETERMINATE';
+  scopeAuthority: 'HOST_RECORDED' | 'UNVERIFIED';
+  executionId: string | null;
+}
+
 export interface VerificationPanelModel {
   label: CompletionLabel | null;
   staleBanner: boolean;
   summary: { verified: number; failed: number; unverified: number; blocked: number; missing: string[] };
   rows: VerificationPanelRow[];
+  securityFindings?: {items: SecurityFindingView[]; truncated: boolean; invalid: number};
 }
 
 const short = (value: string) => (value.length > 12 ? value.slice(0, 12) : value);
@@ -178,5 +187,22 @@ export function verificationPanelModel(store: Store, threadId: string, basis: Ve
   // A completion label exists only after a saved completion assessment — the
   // task_finish boundary. Before that the panel still recomputes requirement
   // rows and freshness against the live cut, but shows no label.
-  return { label: latest ? (recomputed?.label ?? latest.label) : null, staleBanner, summary: counts, rows };
+  // Findings stay outside check/requirement grading. In particular, advisory
+  // review and a recorded severity can never supply a successful check.
+  const findingRows=store.db.prepare('SELECT body FROM entities WHERE kind = ? AND thread_id = ? ORDER BY rowid DESC LIMIT 51').all('securityFinding',threadId) as {body:string}[];
+  const findings:SecurityFindingView[]=[];let invalid=0;
+  for(const row of findingRows.slice(0,50)){
+    try{
+      const finding=securityFindingV1Schema.parse(JSON.parse(row.body)),{provenance,evidenceQuality,...recorded}=finding;
+      const owned=Boolean(provenance&&observationMatchesThreadOwner({owner:provenance.owner},thread));
+      const listed=Boolean(declaration&&[...declaration.sourceFiles,...declaration.dependencyFiles].includes(finding.source.path));
+      const freshness=owned&&listed&&current&&provenance
+        ? provenance.codeDigest===current.codeDigest&&provenance.dependencyDigest===current.dependencyDigest?'CURRENT' as const:'STALE' as const
+        : 'INDETERMINATE' as const;
+      findings.push({...recorded,evidenceQuality:owned?evidenceQuality??'UNVERIFIED':'UNVERIFIED',freshness,
+        scopeAuthority:owned?'HOST_RECORDED':'UNVERIFIED',executionId:provenance?.executionId??null});
+    }catch{invalid++;}
+  }
+  return { label: latest ? (recomputed?.label ?? latest.label) : null, staleBanner, summary: counts, rows,
+    securityFindings:{items:findings,truncated:findingRows.length>50,invalid} };
 }

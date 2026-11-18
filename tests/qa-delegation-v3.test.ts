@@ -124,3 +124,31 @@ it('security findings dedupe by source plus identity and keep evidence fields',(
  expect(ledger.all('t1')).toHaveLength(2);
  expect(other.source.blobSha).toBe('a'.repeat(40));
 });
+
+it('identical security findings in different threads keep their original owners and observations',()=>{
+ const ledger=new SecurityFindingLedger(stateStore());
+ const finding={version:1 as const,findingId:'shared-finding',source:{path:'src/app.ts',blobSha:'b'.repeat(40),line:4},authorizedScope:'first workspace',observation:'first observed behavior',impact:'reported impact',status:'OPEN' as const,reproduction:null,createdAt:'2026-01-01T00:00:00.000Z'};
+ ledger.record(finding,'first');ledger.record({...finding,authorizedScope:'second workspace',observation:'second observed behavior'},'second');
+ expect(ledger.all('first')).toHaveLength(1);expect(ledger.all('first')[0]!.observation).toBe('first observed behavior');
+ expect(ledger.all('second')).toHaveLength(1);expect(ledger.all('second')[0]!.observation).toBe('second observed behavior');
+});
+
+it('updates only the owning thread legacy finding without duplicating it or changing its creation time',()=>{
+ const store=stateStore(),ledger=new SecurityFindingLedger(store);
+ const finding={version:1 as const,findingId:'legacy-finding',source:{path:'src/app.ts',blobSha:'c'.repeat(40),line:8},authorizedScope:'original scope',observation:'original behavior',impact:'reported impact',status:'OPEN' as const,reproduction:null,createdAt:'2026-01-01T00:00:00.000Z',updatedAt:'2026-01-01T00:00:00.000Z'};
+ const legacyId=`finding-${digest({source:finding.source,findingId:finding.findingId}).slice(0,24)}`;
+ store.internal('fixture.legacy-finding','first',()=>store.put('securityFinding',legacyId,'first',finding));
+ ledger.record({...finding,observation:'other thread'},'second');
+ const updated=ledger.record({...finding,createdAt:'2026-02-01T00:00:00.000Z',observation:'updated original'},'first');
+ expect(updated.createdAt).toBe(finding.createdAt);expect(ledger.all('first')).toHaveLength(1);
+ expect(ledger.all('first')[0]!.observation).toBe('updated original');expect(ledger.all('second')[0]!.observation).toBe('other thread');
+});
+
+it('does not combine host-stamped findings from different logical owners of the same thread',()=>{
+ const ledger=new SecurityFindingLedger(stateStore()),stamp='2026-01-01T00:00:00.000Z';
+ const finding={version:1 as const,findingId:'same-source',source:{path:'src/app.ts',blobSha:'d'.repeat(40),line:1},authorizedScope:'Read-only approved source',observation:'First account advisory',impact:'Reported concern',status:'OPEN' as const,reproduction:null,createdAt:stamp,evidenceQuality:'ADVISORY' as const,provenance:{owner,executionId:'execution-1',codeDigest:'e'.repeat(64),dependencyDigest:'f'.repeat(64)}};
+ ledger.record(finding,owner.threadId);
+ ledger.record({...finding,observation:'Other account advisory',provenance:{...finding.provenance,owner:{...owner,accountBinding:'other-account'}}},owner.threadId);
+ expect(ledger.all(owner.threadId)).toHaveLength(2);
+ expect(()=>ledger.record({...finding,provenance:{...finding.provenance,owner:{...owner,threadId:'foreign-thread'}}},owner.threadId)).toThrow(/owner|thread/i);
+});
