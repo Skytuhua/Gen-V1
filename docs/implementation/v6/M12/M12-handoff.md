@@ -105,3 +105,15 @@ CONTRIBUTING.md prohibits raw tool/test output and private workstation paths in 
 - **Custody manifests**: `docs/implementation/v3/m12-logs/CUSTODY.json` and `docs/implementation/v6/M12/logs/CUSTODY.json` map each removed raw artifact to its SHA-256 digest and owned-storage location.
 - **Digest separation**: receipts carry `logDigest`/`boundedLogDigest` = SHA-256 of the **committed excerpt**, and `rawLogDigest` = SHA-256 of the **raw artifact in custody** — independently verifiable.
 - Receipt `cwdIdentity`/`executableIdentity` are redacted (`<worktree:m12-v6>`, `<toolchain>/pnpm`); `M12-verification.json` re-validates schema-clean, `bundleStatus` remains **FAIL** (honest — full-gates fail, platform bounds blocked).
+
+## Windows CI shard diagnosis (dispatch run 44411197628 on `c413a178`)
+
+Manager-dispatched `workflow_dispatch` CI on the PR head (draft lanes otherwise gated). Results:
+
+- **Shard 2 job 135179485851: FAIL** — 35 tests in two files.
+  - `tests/tool-program-replay-v3.test.ts` (M12-owned): 11 death/restart cases. Observed `code:1, signal:null, output:''` vs asserted POSIX `code:null, signal:'SIGKILL'`. Root cause: `process.kill(pid,'SIGKILL')` maps to `TerminateProcess` on Windows — the child really dies at the boundary, but Windows reports a plain exit code, no signal. Not a bootstrap failure: the fixture is silent on success (`output:''` consistent) and the persisted `killedAt` checkpoint — the actual death proof — is asserted immediately after but was unreachable behind the POSIX-shaped exit assertion.
+  - `tests/context-result-host.test.ts` (main-owned, not in PR delta): AVAILABLE vs FULL_RESULT_UNAVAILABLE/range failures. The exercised production path (`context-results.ts`, `context-result-custody.ts`, non-program `service.tool()`) is byte-identical to main; M12's `service.ts` delta only intercepts `PROGRAM_TOOL_NAMES`. Windows-fragile primitives in the custody identity path (rename-onto-existing EPERM, `realpath` string-compare, `dev`/`ino` pinning) are candidate causes; main's own CI on `4bcdc82a` was queued — pending comparison. Classified inherited/main-side; no M04/M16-owned changes made.
+- **Shard 4 job 135179485799: FAIL** — 7 M12 real-owned-process cases in `tests/tool-program-recovery-v3.test.ts` (same death-report root cause; single assertion site in `crashed()`) + 1 separate M04 context-result-custody case (same main-owned cluster).
+- Shards 1, 3 and "Windows checks", "Hermes contracts", "Browser tests", "Desktop build" jobs: PASS.
+
+**Fix committed at `3ea402be`**: shared discriminator `assertCrashDeath` (`tests/fixtures/tool-program-crash-death-v3.ts`) used by both M12 suites — POSIX keeps `{code:null, signal:'SIGKILL'}`; win32 accepts `{code:1, signal:null}` + silent output; persisted `killedAt` checkpoint and all recovery/no-duplicate assertions unchanged. 48/48 PASS on linux-arm64 (receipt `logs/r05/`). Windows execution pending — **no Windows pass claimed from Linux**.
