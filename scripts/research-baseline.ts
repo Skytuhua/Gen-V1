@@ -169,6 +169,8 @@ function git(rootDir: string, args: string[]): string {
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
   const issues: EvidenceIssue[] = [];
   sourceLockV3Schema.parse(lock);
+  try { git(rootDir, ['merge-base', '--is-ancestor', lock.auditAncestorSha, lock.executionBaseSha]); }
+  catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
     if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
@@ -177,7 +179,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
     const drift = approved.get(inspected.path);
     if (actual === inspected.blobSha) continue;
-    if (drift && drift.fromBlob === inspected.blobSha)
+    if (drift && drift.fromBlob === inspected.blobSha && drift.toBlob === actual)
       issues.push({ code: 'APPROVED_DRIFT_PRESENT', message: `${inspected.path}: recorded approved drift to ${drift.toBlob} — ${drift.note}` });
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
@@ -208,7 +210,12 @@ const cell = (value: number | null, suffix = '') => `<td>${value === null ? 'una
 // unavailable measurement, failed check and expected-negative reproduction.
 // Byte budgets are labelled bytes, never tokens.
 export function benchmarkReportHtml(records: readonly BenchmarkRecord[]): string {
-  const rows = records.flatMap(record => [record.baseline, record.candidate].filter((run): run is NonNullable<typeof run> => run !== null).map(run => {
+  const rows = records.flatMap(record => (['baseline', 'candidate'] as const).map(role => {
+    const run = record[role] ?? { role, status: 'UNAVAILABLE', measurement: {
+      elapsedMs: null, coldStartMs: null, firstPublicResponseMs: null, requests: null,
+      inputBytes: null, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
+      totalCostBytes: null, backgroundCostBytes: null, completionQuality: null,
+    } };
     const m = run.measurement;
     return `<tr class="${run.status.toLowerCase()}"><td>${escapeHtml(record.fixture)}</td><td>${escapeHtml(record.config)}</td><td>${record.model ? escapeHtml(record.model) : 'unavailable'}</td><td>${run.role}</td><td class="status">${run.status}</td><td>${record.seed}</td>`
       + cell(m.elapsedMs, ' ms') + cell(m.coldStartMs, ' ms') + cell(m.firstPublicResponseMs, ' ms') + cell(m.requests)

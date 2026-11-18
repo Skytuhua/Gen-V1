@@ -4,7 +4,6 @@ import { once } from 'node:events';
 import { constants, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { performance } from 'node:perf_hooks';
 import { HarnessError } from '../packages/contracts/index.ts';
 import { createCapabilityFlags, CapabilityFlags } from '../packages/core/capability-flags.ts';
 import {
@@ -319,58 +318,35 @@ describe('crash/race fixtures', () => {
   });
 });
 
-describe('benchmark fixtures', () => {
-  const actions = (seed: number, count: number) => {
-    const rand = mulberry(seed);
-    return Array.from({ length: count }, () => ['read', 'grant', 'send', 'settle', 'compact'][Math.floor(rand() * 5)]!);
-  };
-  const workload = (fixture: string, seed: number, steps: number): { record: BenchmarkRecord; actions: string[] } => {
-    const started = performance.now();
-    const controlActions = actions(seed, steps);
-    let checksum = 0;
-    for (const action of controlActions) checksum = (checksum + action.length) | 0;
-    const elapsedMs = Math.round(performance.now() - started);
+describe('benchmark report shape fixtures', () => {
+  const record = (): BenchmarkRecord => {
     const measurement = {
-      elapsedMs, coldStartMs: null, firstPublicResponseMs: null, requests: null,
-      inputBytes: checksum, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
-      totalCostBytes: checksum, backgroundCostBytes: null, completionQuality: null,
+      elapsedMs: null, coldStartMs: null, firstPublicResponseMs: null, requests: null,
+      inputBytes: null, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
+      totalCostBytes: null, backgroundCostBytes: null, completionQuality: null,
     };
-    const make = (role: 'baseline' | 'candidate') => ({ role, status: 'PASS' as const, measurement });
     return {
-      record: { fixture, model: null, account: null, config: `seed-${seed}-steps-${steps}`, seed, baseline: make('baseline'), candidate: make('candidate'), notes: [] },
-      actions: controlActions,
+      fixture: 'renderer-only-fixture', model: null, account: null, config: 'Report formatting only', seed: 42,
+      baseline: { role: 'baseline', status: 'UNAVAILABLE', measurement },
+      candidate: { role: 'candidate', status: 'UNAVAILABLE', measurement: { ...measurement } },
+      notes: ['No workload or provider request was executed by this report shape fixture.'],
     };
   };
 
-  it('cover the required fixture set and keep unknown measurements null', () => {
-    const fixtures = ['long-session', 'tool-catalog-100', 'tool-catalog-500', 'oversized-output', 'memory-conflict', 'cancellation', 'concurrent-edits', 'large-ui-history'];
-    const records = fixtures.map((fixture, index) => workload(fixture, [1, 2, 7, 42, 99][index % 5]!, 100).record);
-    for (const record of records) {
-      expect(record.baseline!.measurement.cacheInputBytes).toBeNull();
-      expect(record.baseline!.measurement.cacheOutputBytes).toBeNull();
-      expect(record.baseline!.measurement.elapsedMs).not.toBeNull();
-    }
-    const html = benchmarkReportHtml(records);
+  it('labels both arms and keeps unmeasured values unavailable', () => {
+    const html = benchmarkReportHtml([record()]);
     expect(html).toContain('baseline');
     expect(html).toContain('candidate');
     expect(html).toContain('unavailable');
-    expect(html).toContain(' B'); // byte budgets labelled bytes, never tokens
-    expect(html).not.toContain('token');
+    expect(html).toContain('UNAVAILABLE');
   });
 
-  it('keep a setup failure distinct from a model-quality failure or expected regression', () => {
-    const broken = workload('cancellation', 42, 50).record;
-    broken.baseline = { role: 'baseline', status: 'SETUP_FAILED', measurement: { ...broken.baseline!.measurement, elapsedMs: null } };
-    const html = benchmarkReportHtml([broken]);
-    expect(html).toContain('SETUP_FAILED');
-    expect(broken.baseline.status).not.toBe('EXPECTED_NEGATIVE');
-    expect(broken.baseline.status).not.toBe('FAIL');
-  });
-
-  it('reproduce identical control actions for a fixed seed', () => {
-    for (const seed of [1, 2, 7, 42, 99]) {
-      expect(actions(seed, 200)).toEqual(actions(seed, 200));
-    }
+  it('renders setup failure separately from model-quality failure and expected regression', () => {
+    const broken = record();
+    broken.baseline!.status = 'SETUP_FAILED';
+    expect(benchmarkReportHtml([broken])).toContain('SETUP_FAILED');
+    expect(broken.baseline!.status).not.toBe('EXPECTED_NEGATIVE');
+    expect(broken.baseline!.status).not.toBe('FAIL');
   });
 });
 

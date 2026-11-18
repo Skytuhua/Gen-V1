@@ -1,10 +1,10 @@
 import {afterEach,expect,it} from 'vitest';
-import {mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
+import {mkdir,readdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {Store} from '../packages/storage/store.ts';
-import {ProjectTools} from '../packages/workspace/tools.ts';
+import {ProjectTools,discardUnboundWorktree} from '../packages/workspace/tools.ts';
 
 const cleanup:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanup.splice(0).reverse())await close();});
@@ -37,3 +37,18 @@ it('keeps Git status inside the enrolled root even when repository config names 
  const receipt=await tools.connect({id:'scope',type:'workspace.project.connect',payload:{name:'Fixture',path}}),projectId=(receipt.result as {projects:{id:string}[]}).projects[0]!.id;
  git('config','core.worktree',other);const status=await tools.gitStatus(projectId);expect(status.diff).not.toContain('Other folder contents');expect(status.files).toHaveLength(0);
 });
+it('discards an unbound working copy together with the branch it created',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'gen-discard-')),source=join(root,'source'),bare=join(root,'family.git'),worktree=join(root,'staged'),branch='gen/stale-0000';
+ const git=(cwd:string,...args:string[])=>execFileSync('git',['-C',cwd,...args],{windowsHide:true,encoding:'utf8'}).trim();
+ await mkdir(source);git(source,'init','-q');git(source,'config','user.name','Fixture');git(source,'config','user.email','fixture@example.invalid');
+ await writeFile(join(source,'one.txt'),'base\n');git(source,'add','.');git(source,'commit','-qm','base');
+ execFileSync('git',['clone','-q','--bare',source,bare],{windowsHide:true});
+ execFileSync('git',['--git-dir='+bare,'worktree','add','-b',branch,worktree,'HEAD'],{windowsHide:true});
+ expect(execFileSync('git',['--git-dir='+bare,'rev-parse','--verify','refs/heads/'+branch],{windowsHide:true,encoding:'utf8'}).trim()).toMatch(/^[0-9a-f]{40}$/);
+ await discardUnboundWorktree('git',bare,worktree,branch);
+ expect(await readdir(worktree).catch(()=>[])).toEqual([]);
+ expect(()=>execFileSync('git',['--git-dir='+bare,'rev-parse','--verify','refs/heads/'+branch],{windowsHide:true,stdio:'pipe'})).toThrow();
+ const listed=execFileSync('git',['--git-dir='+bare,'worktree','list','--porcelain'],{windowsHide:true,encoding:'utf8'});
+ expect(listed).not.toContain(worktree);
+ await rm(root,{recursive:true,force:true,maxRetries:5});
+},60000);
