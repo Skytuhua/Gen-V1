@@ -130,6 +130,11 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
   }
   // Exclusive ownership prevents adoption or replacement of old command receipts.
   await mkdir(out);
+  if (realpathSync(out) !== out) {
+    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: 'Evidence output changed during directory creation.' });
+    receipt.endedAt = new Date().toISOString();
+    return receipt;
+  }
   let lock: SourceLockV3 | undefined;
   try {
     const lockBytes = readFileSync(sourceLockPath, 'utf8');

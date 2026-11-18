@@ -2665,6 +2665,7 @@
     "tests/dark-default.test.ts",
     "tests/debug-policy-v3.test.ts",
     "tests/dependency-contract-execution-v3.test.ts",
+    "tests/dependency-output-parent-race-v3.test.mjs",
     "tests/desktop-account-login.test.ts",
     "tests/desktop-auth-launcher.test.ts",
     "tests/desktop-control-v3.test.ts",
