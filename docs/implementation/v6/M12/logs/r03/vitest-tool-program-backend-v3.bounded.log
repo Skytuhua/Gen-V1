@@ -1,0 +1,23 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+ [32m✓[39m tests/tool-program-backend-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 7151[2mms[22m[39m
+     [33m[2m✓[22m[39m verifies its actual WASM memory maximum before claiming a bounded backend [33m 751[2mms[22m[39m
+     [33m[2m✓[22m[39m has no ambient filesystem, network, process, console, or module loader [33m 573[2mms[22m[39m
+     [33m[2m✓[22m[39m snapshots and deeply freezes inputs before asynchronous execution [33m 744[2mms[22m[39m
+     [33m[2m✓[22m[39m returns private tool values through a frozen bridge and emits only the aggregate [33m 736[2mms[22m[39m
+     [33m[2m✓[22m[39m reproduces random values and virtual clocks from identical immutable start data [33m 339[2mms[22m[39m
+     [33m[2m✓[22m[39m journals a failed tool promise before rejecting it into the guest [33m 439[2mms[22m[39m
+     [33m[2m✓[22m[39m registers all issued identities promptly while the host owns read concurrency [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects excess calls before dispatching work outside the budget [33m 433[2mms[22m[39m
+     [33m[2m✓[22m[39m kills a non-settling guest independently of its event loop: for (;;) {} [33m 671[2mms[22m[39m
+     [33m[2m✓[22m[39m kills a non-settling guest independently of its event loop: for (;;) await Promise.resolve(); [33m 473[2mms[22m[39m
+     [33m[2m✓[22m[39m cancels pending delivery and never admits queued work after cancellation [33m 460[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a guest aggregate above its byte limit [33m 576[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 10:23:01
+[2m   Duration [22m 8.36s[2m (transform 303ms, setup 0ms, import 228ms, tests 7.15s, environment 0ms)[22m
+

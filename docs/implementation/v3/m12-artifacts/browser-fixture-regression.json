@@ -32,8 +32,8 @@
       "boundedLogRef": "docs/implementation/v3/m12-logs/validation-02-browser.log",
       "logDigest": "996c03b14edb929bba7433027b8ec045c2464d68433cd364b8e497887d7aea48",
       "recordSource": {
-        "path": "/tmp/m12-command-records/validation-02-browser.json",
-        "ref": "/tmp/m12-command-records/validation-02-browser.json",
+        "path": "<tmp>/m12-command-records/validation-02-browser.json",
+        "ref": "<tmp>/m12-command-records/validation-02-browser.json",
         "sha256": "4ce03b6a441c7748f0e21293fc080905aeb40fbd806c093645631e68a0e82eda",
         "bytes": 589
       },
@@ -144,7 +144,7 @@
         "terminal-excerpts"
       ],
       "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-      "executableIdentity": "/tmp/m12-bin/pnpm",
+      "executableIdentity": "<tmp>/m12-bin/pnpm",
       "startedAt": "2026-11-15T11:58:22.636022+00:00",
       "endedAt": "2026-11-15T11:58:52.349219+00:00",
       "exitCode": 1,
@@ -153,8 +153,8 @@
       "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log",
       "logDigest": "af745b9287c31b00c7ddc6678c94da00990f72d783e0248ffabaddb39d6c931a",
       "recordSource": {
-        "path": "/tmp/m12-command-records/fixture-01-terminal-program-response-red.json",
-        "ref": "/tmp/m12-command-records/fixture-01-terminal-program-response-red.json",
+        "path": "<tmp>/m12-command-records/fixture-01-terminal-program-response-red.json",
+        "ref": "<tmp>/m12-command-records/fixture-01-terminal-program-response-red.json",
         "sha256": "dc342cfd8b52db6ba6eebb3db5b60af880f6c5e4081f64db51c23ad48df2a293",
         "bytes": 549
       },
@@ -688,7 +688,7 @@
           "terminal-excerpts"
         ],
         "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-        "executableIdentity": "/tmp/m12-bin/pnpm",
+        "executableIdentity": "<tmp>/m12-bin/pnpm",
         "startedAt": "2026-11-15T12:00:34.323458+00:00",
         "endedAt": "2026-11-15T12:01:02.852441+00:00",
         "exitCode": 0,
@@ -697,8 +697,8 @@
         "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-02-terminal-program-response-green.log",
         "logDigest": "177c91b1cc10764fcc7e643406f2b02c382de8acc1d97ee854bb8add1e1f2dfe",
         "recordSource": {
-          "path": "/tmp/m12-command-records/fixture-02-terminal-program-response-green.json",
-          "ref": "/tmp/m12-command-records/fixture-02-terminal-program-response-green.json",
+          "path": "<tmp>/m12-command-records/fixture-02-terminal-program-response-green.json",
+          "ref": "<tmp>/m12-command-records/fixture-02-terminal-program-response-green.json",
           "sha256": "ec2acee031024a7990be5317c0ca308dcad59c7a574946f79496804b443e0284",
           "bytes": 551
         },
@@ -1176,7 +1176,7 @@
           "saved-drafts"
         ],
         "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-        "executableIdentity": "/tmp/m12-bin/pnpm",
+        "executableIdentity": "<tmp>/m12-bin/pnpm",
         "startedAt": "2026-11-15T12:01:23.304939+00:00",
         "endedAt": "2026-11-15T12:06:58.315373+00:00",
         "exitCode": 1,
@@ -1185,8 +1185,8 @@
         "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log",
         "logDigest": "1e9e47981130a22cd144020c8c8aa168bbfc7e5f8efbf6712428c9eab208d1af",
         "recordSource": {
-          "path": "/tmp/m12-command-records/fixture-03-saved-drafts.json",
-          "ref": "/tmp/m12-command-records/fixture-03-saved-drafts.json",
+          "path": "<tmp>/m12-command-records/fixture-03-saved-drafts.json",
+          "ref": "<tmp>/m12-command-records/fixture-03-saved-drafts.json",
           "sha256": "fb4bbddda96a76a00cd533df96a3e69caa74390aca3075f376863dd0e4efd1af",
           "bytes": 527
         },
@@ -2533,7 +2533,7 @@
           "conversation-find"
         ],
         "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-        "executableIdentity": "/tmp/m12-bin/pnpm",
+        "executableIdentity": "<tmp>/m12-bin/pnpm",
         "startedAt": "2026-11-15T12:02:44.887632+00:00",
         "endedAt": "2026-11-15T12:03:03.710508+00:00",
         "exitCode": 0,
@@ -2542,8 +2542,8 @@
         "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-04-conversation-find.log",
         "logDigest": "d5f669b3f2b4f6f65587c9f7a165c434aff23d31caabd6bf1f0e1210ff67e36f",
         "recordSource": {
-          "path": "/tmp/m12-command-records/fixture-04-conversation-find.json",
-          "ref": "/tmp/m12-command-records/fixture-04-conversation-find.json",
+          "path": "<tmp>/m12-command-records/fixture-04-conversation-find.json",
+          "ref": "<tmp>/m12-command-records/fixture-04-conversation-find.json",
           "sha256": "ba080b2bfbaa568973dfdd278c173ce90d4c55ee41905a92be6ea46085076d06",
           "bytes": 537
         },
@@ -3021,7 +3021,7 @@
           "wo5-app-integration"
         ],
         "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-        "executableIdentity": "/tmp/m12-bin/pnpm",
+        "executableIdentity": "<tmp>/m12-bin/pnpm",
         "startedAt": "2026-11-15T12:03:12.640589+00:00",
         "endedAt": "2026-11-15T12:05:31.988702+00:00",
         "exitCode": 1,
@@ -3030,8 +3030,8 @@
         "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-05-wo5-app-integration.log",
         "logDigest": "c2984fbfacb138c20fbf2d3f86c5a7477ddfc9feb413765407d5e5d6df400edd",
         "recordSource": {
-          "path": "/tmp/m12-command-records/fixture-05-wo5-app-integration.json",
-          "ref": "/tmp/m12-command-records/fixture-05-wo5-app-integration.json",
+          "path": "<tmp>/m12-command-records/fixture-05-wo5-app-integration.json",
+          "ref": "<tmp>/m12-command-records/fixture-05-wo5-app-integration.json",
           "sha256": "cced85f468097beff3e5bdbaeb7f6603a28ae38f89393810da1470da2a975a0a",
           "bytes": 541
         },
@@ -3587,7 +3587,7 @@
           "redundant-ui"
         ],
         "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-        "executableIdentity": "/tmp/m12-bin/pnpm",
+        "executableIdentity": "<tmp>/m12-bin/pnpm",
         "startedAt": "2026-11-15T12:06:31.198279+00:00",
         "endedAt": "2026-11-15T12:07:36.640659+00:00",
         "exitCode": 1,
@@ -3596,8 +3596,8 @@
         "boundedLogRef": "docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log",
         "logDigest": "5f6953e650c17b92c1f13c7d45603a59d400a9d1f8f4d747c54d66766686b753",
         "recordSource": {
-          "path": "/tmp/m12-command-records/fixture-06-redundant-ui.json",
-          "ref": "/tmp/m12-command-records/fixture-06-redundant-ui.json",
+          "path": "<tmp>/m12-command-records/fixture-06-redundant-ui.json",
+          "ref": "<tmp>/m12-command-records/fixture-06-redundant-ui.json",
           "sha256": "946db38e03daf4606517d2fefc4a571dd4aef35ddadcdd53564f2acae1305945",
           "bytes": 527
         },

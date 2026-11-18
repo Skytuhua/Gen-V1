@@ -1,0 +1,26 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:438759) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [31m❯[39m tests/tool-program-integration-v3.test.ts [2m([22m[2m0 test[22m[2m)[22m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/tool-program-integration-v3.test.ts[2m [ tests/tool-program-integration-v3.test.ts ][22m
+[31m[1mError[22m: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-arm64: Error: Cannot find module './prebuilds/linux-arm64//pty.node'
+Require stack:
+- <worktree:m12-r03>/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/utils.js
+- <worktree:m12-r03>/node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/lib/index.js[39m
+[90m [2m❯[22m Object.loadNativeModule node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:[2m28:8[22m[39m
+[90m [2m❯[22m Object.<anonymous> node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:[2m15:15[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [2mno tests[22m
+[2m   Start at [22m 10:31:02
+[2m   Duration [22m 44.08s[2m (transform 34.26s, setup 0ms, import 0ms, tests 0ms, environment 0ms)[22m
+

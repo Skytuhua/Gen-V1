@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
-const root = '/home/piadmin/Gen-V1-m12-v6';
+const root = '<worktree:m12-v6>';
 const logsDir = resolve(root, 'docs/implementation/v6/M12/logs');
 mkdirSync(logsDir, { recursive: true });
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
@@ -31,7 +31,7 @@ if (!argv) { console.error(`unknown command: ${name}`); process.exit(2); }
 const startedAt = new Date().toISOString();
 const run = spawnSync(argv[0], argv.slice(1), {
   cwd: root,
-  env: { ...process.env, PATH: `/home/piadmin/tools/node24/bin:${process.env.PATH}` },
+  env: { ...process.env, PATH: `<toolchain>:${process.env.PATH}` },
   encoding: 'utf8',
   maxBuffer: 256 * 1024 * 1024,
   timeout: 4 * 60 * 60 * 1000,
@@ -50,7 +50,7 @@ writeFileSync(logPath, log);
 const receipt = {
   argv,
   cwdIdentity: root,
-  executableIdentity: execFileSync('sh', ['-c', `command -v ${argv[0]}`], { env: { ...process.env, PATH: `/home/piadmin/tools/node24/bin:${process.env.PATH}` }, encoding: 'utf8' }).trim(),
+  executableIdentity: execFileSync('sh', ['-c', `command -v ${argv[0]}`], { env: { ...process.env, PATH: `<toolchain>:${process.env.PATH}` }, encoding: 'utf8' }).trim(),
   startedAt,
   endedAt,
   exitCode,

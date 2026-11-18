@@ -22,8 +22,8 @@
     "boundedLogRef": "docs/implementation/v3/m12-logs/validation-02-browser.log",
     "logDigest": "996c03b14edb929bba7433027b8ec045c2464d68433cd364b8e497887d7aea48",
     "recordSource": {
-      "path": "/tmp/m12-command-records/validation-02-browser.json",
-      "ref": "/tmp/m12-command-records/validation-02-browser.json",
+      "path": "<tmp>/m12-command-records/validation-02-browser.json",
+      "ref": "<tmp>/m12-command-records/validation-02-browser.json",
       "sha256": "4ce03b6a441c7748f0e21293fc080905aeb40fbd806c093645631e68a0e82eda",
       "bytes": 589
     },

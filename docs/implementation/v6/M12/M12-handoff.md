@@ -14,12 +14,12 @@ The machine-readable record is [M12-verification.json](M12-verification.json) (`
 | --- | --- |
 | Repository | `https://github.com/skytuhua-org/Gen-V1.git` (`skytuhua-org/Gen-V1`) |
 | Branch | `agent/m12-v3` (PR [#355](https://github.com/skytuhua-org/Gen-V1/pull/355)) |
-| Isolated worktree | `/home/piadmin/Gen-V1-m12-v6` — original checkout and other worktrees untouched |
+| Isolated worktree | `<worktree:m12-v6>` — original checkout and other worktrees untouched |
 | Preserved task head | `f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc` |
 | Merge base / merged main | `1c09d492278b1014bc3ab5455191b1f5913c96d8` / `4aef753ec272d6ab9f9f9eec1df0ca232386975b` |
 | Round-2 merge commit | `0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19` (`git merge --no-commit --no-ff`, 14 conflict paths composed semantically) |
 | Round-1 merge (preserved) | `44c19075a3341f85a0f6c2c8e8455f2f70a970df` against main `1c09d49` |
-| Platform | linux-arm64, Node `v24.11.1`, pnpm `10.30.3` (`/home/piadmin/tools/node24/bin`) |
+| Platform | linux-arm64, Node `v24.11.1`, pnpm `10.30.3` (`<toolchain>`) |
 
 ## Gate results on the merged tree
 
@@ -53,7 +53,7 @@ Load-only failures observed under the shared box (each passes standalone): `tool
 
 Main moved to `ff38c62c` while the frozen cut was under test. The R03 merge was composed in-memory (`git merge-tree` + plumbing; zero writes to the frozen worktree) and pushed as `2e949a66`, resolving the PR's only conflict (`scripts/public-source-files.json`: sorted union of ours' 43 M12 entries + theirs' 5 new entries; base `6c09647` / ours `db479e1` / theirs `19c6aab` / result `8b990c8` — recorded under `r03` in `merge-resolution.json`).
 
-Scoped smoke on the merged tree `2e949a66` (separate worktree `/home/piadmin/Gen-V1-m12-r03`, receipts committed at `fd871d72` under `logs/r03/`): typecheck PASS (retry; first attempt V8-heap OOM under load) + 7 focused M12 vitest suites PASS, including the default 64/65 boundary. First-attempt failures are preserved and classified (heap OOM, fresh-worktree prerequisites — `build:widgets`, node-pty linux-arm64 — and two 15s-bound cases that passed on calmer rerun). This is scoped smoke only, not a full gate; the full/browser gates remain bound to `e816a081`.
+Scoped smoke on the merged tree `2e949a66` (separate worktree `<worktree:m12-r03>`, receipts committed at `fd871d72` under `logs/r03/`): typecheck PASS (retry; first attempt V8-heap OOM under load) + 7 focused M12 vitest suites PASS, including the default 64/65 boundary. First-attempt failures are preserved and classified (heap OOM, fresh-worktree prerequisites — `build:widgets`, node-pty linux-arm64 — and two 15s-bound cases that passed on calmer rerun). This is scoped smoke only, not a full gate; the full/browser gates remain bound to `e816a081`.
 
 Current `origin/main` is now `153cb47a` (post-R03 drift); in-memory `merge-tree` of `fd871d72` × `153cb47a` produces zero conflicts — recorded, not integrated (no merge or flags in this handoff).
 
@@ -94,3 +94,14 @@ Not run at this cut: `pnpm lint`, `pnpm test` (full), `pnpm build`, `pnpm test:b
 - No production readiness, no platform support beyond linux-arm64 bounded receipts.
 - No claim that the full `pnpm test` or `pnpm test:browser` failure sets are resolved — the inherited environmental cluster requires privileged host infrastructure this box lacks.
 - No live model/evaluation endpoint was invoked; offline fixed fixtures only.
+
+## Raw-artifact policy remediation (CONTRIBUTING L112/L120)
+
+CONTRIBUTING.md prohibits raw tool/test output and private workstation paths in source commits. The branch previously carried 234 raw `.log` files across `docs/implementation/v3/m12-logs/` and `docs/implementation/v6/M12/logs/` plus private paths in receipts/artifacts. Remediation at this commit:
+
+- **Preserved, not deleted**: all raw artifacts were first copied to owned storage outside the repo (`/home/piadmin/m12-evidence-raw/`, 289 files). This is local custody only — **nothing was uploaded** and no artifact is claimed beyond this host.
+- **Removed from source**: all raw `.log`/`.err` files added by the PR delta are removed. Pre-existing `docs/implementation/v3/logs/*.log` files from `main` are untouched (not this PR's delta).
+- **Curated excerpts**: `logs/**/*.bounded.log` files hold head/tail-bounded, redacted excerpts (`<worktree:m12-*>`, `<toolchain>`) sufficient to verify outcomes.
+- **Custody manifests**: `docs/implementation/v3/m12-logs/CUSTODY.json` and `docs/implementation/v6/M12/logs/CUSTODY.json` map each removed raw artifact to its SHA-256 digest and owned-storage location.
+- **Digest separation**: receipts carry `logDigest`/`boundedLogDigest` = SHA-256 of the **committed excerpt**, and `rawLogDigest` = SHA-256 of the **raw artifact in custody** — independently verifiable.
+- Receipt `cwdIdentity`/`executableIdentity` are redacted (`<worktree:m12-v6>`, `<toolchain>/pnpm`); `M12-verification.json` re-validates schema-clean, `bundleStatus` remains **FAIL** (honest — full-gates fail, platform bounds blocked).

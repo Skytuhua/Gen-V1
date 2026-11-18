@@ -1,0 +1,233 @@
+{
+  "note": "Raw tool/test output removed from the source commit per CONTRIBUTING (no raw test output, no private paths). Each entry records the byte size and sha256 of the retained raw artifact; custody reference is honest owned storage, not an upload.",
+  "entries": [
+    {
+      "path": "docs/implementation/v6/M12/logs/build.log",
+      "bytes": 9041,
+      "rawDigest": "sha256:b79be864c14503580723c1fe1676011aa9cd6d5a3172483c828d2641c5bccb6c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/build.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/build.wrapper.err",
+      "bytes": 0,
+      "rawDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/build.wrapper.err (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/lint.log",
+      "bytes": 442,
+      "rawDigest": "sha256:92b252a689e343d204d82b07e789b0bcc0c149de514330074824492e0f79e767",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/lint.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/test-browser.log",
+      "bytes": 63187,
+      "rawDigest": "sha256:3f4dfe25487df771f452ac01f6ee3b904088298ab06349de04d83281cec0962d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test-browser.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/test-browser.wrapper.err",
+      "bytes": 0,
+      "rawDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test-browser.wrapper.err (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/test-run1-prefix-fixes.log",
+      "bytes": 59928,
+      "rawDigest": "sha256:e105cec0bbb8268bd71bdec8ecbc231297aabd9f1234167510178e4c6d15403c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test-run1-prefix-fixes.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/test.log",
+      "bytes": 60353,
+      "rawDigest": "sha256:b16aae0aca08cd5bf807f5ef2cfb820e39ec254a4c6a6235f70e970d6904a2ba",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/test.wrapper.err",
+      "bytes": 0,
+      "rawDigest": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/test.wrapper.err (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/typecheck.log",
+      "bytes": 308,
+      "rawDigest": "sha256:9ad3ce8faa00d90220a00eceee449305ae4a3cfe2930ae8991769dc63f0bb959",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/vitest-continuation-v6.log",
+      "bytes": 1468,
+      "rawDigest": "sha256:a7d40508083f1986b08f8096496c07a2c0c7f27bfb1122cc85d2a64d3ca5bc2a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-continuation-v6.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/vitest-python-kernel-v3.log",
+      "bytes": 2709,
+      "rawDigest": "sha256:c138e9e89153905906f1e3c0f37597add6e54d57e8d18a0e0899d2737ca62828",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-python-kernel-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/vitest-replay-v3.log",
+      "bytes": 3934,
+      "rawDigest": "sha256:6c252fd06e8bef2ae323d15e30a4e6dae59fc5a60c4cb040f8a186e3b4351361",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-replay-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/vitest-tool-program-v3-run1-loaded.log",
+      "bytes": 4484,
+      "rawDigest": "sha256:56e566e70eb4558da714d38110b9976413d93ea2c0dfd7cac53b0048fccf4439",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-tool-program-v3-run1-loaded.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/vitest-tool-program-v3.log",
+      "bytes": 2365,
+      "rawDigest": "sha256:56027f14cdfa881756eda9fde6e9e2eb7d1cc82bb5c5155cb85b14b8460bb73b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/vitest-tool-program-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/public-source.log",
+      "bytes": 994,
+      "rawDigest": "sha256:4c9172385a53b04035de4319ae90cb0984dc5cf8cd22e11cc622d9cccf745488",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/public-source.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/typecheck.log",
+      "bytes": 82,
+      "rawDigest": "sha256:44d5303f4810c9bea61105cb82194a3fd75bfe938a0d437bad635a7bc2469cab",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-continuation-v6.log",
+      "bytes": 1633,
+      "rawDigest": "sha256:ca82d1be507f585b666207050dfbe93bfa014fa2eba2f7ef7f389798cf03b144",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-continuation-v6.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-python-kernel-v3.log",
+      "bytes": 3389,
+      "rawDigest": "sha256:4b13f5e2816e5f5ba200cd7c55b0a1e9345bfc6cb0823b7b496b32307dae6c0a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-python-kernel-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-replay-v3.log",
+      "bytes": 5087,
+      "rawDigest": "sha256:309467812dce29ce5693af43aa1007b84f0978e108ee2fafb15854feb6e736a1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-replay-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-tool-program-backend-v3.log",
+      "bytes": 1160,
+      "rawDigest": "sha256:b5fd33226d1246dfed2cda83e471a73b7a6292ba16dd9566528be1dd18dfd173",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-backend-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-tool-program-integration-v3.log",
+      "bytes": 1493,
+      "rawDigest": "sha256:70ead6ead412ac4e7333d131bab320f7f810376ee5b8f4bdb7999995383dc192",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-integration-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-tool-program-recovery-v3.log",
+      "bytes": 2607,
+      "rawDigest": "sha256:119bb38d4b511d1312b16789757b69fbb05fb9ff5bee47da2ca3cb24ccb64736",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-recovery-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-tool-program-v3-retry.log",
+      "bytes": 2981,
+      "rawDigest": "sha256:c8c7ef07202b872f701e81d796cfa5657a070a3eaaffbff2bc14669671b42aa3",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-v3-retry.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r04/vitest-tool-program-v3-run1.log",
+      "bytes": 4711,
+      "rawDigest": "sha256:51f9d0a4acdaad89257eb056e89a6ea5395de66c3423254b984f7a0c1db8b25d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r04/vitest-tool-program-v3-run1.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/build-widgets.log",
+      "bytes": 108,
+      "rawDigest": "sha256:ea604ae3ffd105a8bd37d1ba7de09b5a87c38dacc961f085a37e013611bb443d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/build-widgets.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/typecheck-run1-oom.log",
+      "bytes": 988,
+      "rawDigest": "sha256:18a77f6d3e7fc8e1fc8f783786f2ef01fc75dcb9e96edb92c2428df9d0b6ee8d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/typecheck-run1-oom.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/typecheck.log",
+      "bytes": 82,
+      "rawDigest": "sha256:44d5303f4810c9bea61105cb82194a3fd75bfe938a0d437bad635a7bc2469cab",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-continuation-v6.log",
+      "bytes": 1636,
+      "rawDigest": "sha256:ba057db492fcc75e24c9e47802227cd2b6d7ac3b21f3391772fd93be2d6e5a0c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-continuation-v6.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-python-kernel-v3.log",
+      "bytes": 3391,
+      "rawDigest": "sha256:b0678894f78fe34c8eb69371dc1f5fbb77d12697aa920c7fd42eed49eef019da",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-python-kernel-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-replay-v3.log",
+      "bytes": 5109,
+      "rawDigest": "sha256:d6929c1f0dc21029f8dfcbd14e16ecdc13933d730f4a6e75a5588bb11355862a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-replay-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-backend-v3.log",
+      "bytes": 1998,
+      "rawDigest": "sha256:7b8a89938f544a6862c5b6682c83c62b3514c3a5237d89dc5309e79201a4a13d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-backend-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3-rerun1.log",
+      "bytes": 1897,
+      "rawDigest": "sha256:c4d066d7f06e331eee5301ba1644ac2739970ff1607bc771cb497614f7cabcee",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3-rerun1.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3-rerun2.log",
+      "bytes": 1493,
+      "rawDigest": "sha256:12394a9d2a28dacbbd655c957c7dbac62f93de052e8e3463e3b9823d5afe951f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3-rerun2.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3.log",
+      "bytes": 1693,
+      "rawDigest": "sha256:86ea0287f04be84944f7e682b5406bcd804e4875a5b522c3732995f04ceffb33",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-integration-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3-committed-rerun.log",
+      "bytes": 1012,
+      "rawDigest": "sha256:70e330848c93b5e787b657f57162c0fbb752cc0039b96119612fb854a3d96637",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3-committed-rerun.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3-rerun2.log",
+      "bytes": 4112,
+      "rawDigest": "sha256:b0277f0132566b4b39232d8000203eecb0a7824a6f8208b400edce2d543e850f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3-rerun2.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3.log",
+      "bytes": 4137,
+      "rawDigest": "sha256:ca790a87b3f13e49e5c64fc59ce022b73689876a4ff0fcf0f6c91a136f19843b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-recovery-v3.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v6/M12/logs/r03/vitest-tool-program-v3.log",
+      "bytes": 2971,
+      "rawDigest": "sha256:786a53e39bf877baee13a3f1bfeaa9a6f932acce76f0800bf59e540446dc05e3",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v6/M12/logs/r03/vitest-tool-program-v3.log (not uploaded; retained on the producing host)"
+    }
+  ]
+}

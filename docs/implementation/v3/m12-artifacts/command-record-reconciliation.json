@@ -11,7 +11,7 @@
   "builderMergeOrder": [
     "prior-audit/M12-verification.json phase commands",
     "m12-artifacts/command-records.json if present",
-    "/tmp/m12-command-records/*.json"
+    "<tmp>/m12-command-records/*.json"
   ],
   "archiveProvenance": {
     "path": "docs/implementation/v3/m12-artifacts/prior-audit/M12-verification.json",
@@ -69,7 +69,7 @@
         }
       },
       "staleRecorderRecord": {
-        "sourcePath": "/tmp/m12-command-records/core-01-prerequisite-tests.json",
+        "sourcePath": "<tmp>/m12-command-records/core-01-prerequisite-tests.json",
         "sourceFileSha256": "01af6dc61bc574308531cfedcdb2b3fd220661ec33130059c55514c1cb285ef9",
         "sourceFileBytes": 1018,
         "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"exec\",\n    \"vitest\",\n    \"run\",\n    \"tests/research-baseline.test.ts\",\n    \"tests/m01-m02-compatibility.test.ts\",\n    \"tests/tool-authority-v3.test.ts\",\n    \"tests/tool-effects-v3.test.ts\",\n    \"tests/effect-recovery-v3.test.ts\",\n    \"tests/execution-boundary-v3.test.ts\",\n    \"tests/project-trust-v3.test.ts\",\n    \"tests/secret-custody-v3.test.ts\",\n    \"tests/store.test.ts\",\n    \"tests/context-efficiency.test.ts\",\n    \"--maxWorkers=2\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:57:05.180417+00:00\",\n  \"endedAt\": \"2026-11-15T09:57:11.101009+00:00\",\n  \"exitCode\": 1,\n  \"termination\": \"NONE\",\n  \"status\": \"FAIL\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log\",\n  \"logDigest\": \"fba56c1f1674e6dbd55732f770a404a140283143e4b94c2d62561ab413c4e1ba\"\n}\n",
@@ -213,7 +213,7 @@
         }
       },
       "staleRecorderRecord": {
-        "sourcePath": "/tmp/m12-command-records/core-02-reproduce-granted-read.json",
+        "sourcePath": "<tmp>/m12-command-records/core-02-reproduce-granted-read.json",
         "sourceFileSha256": "1e783456d277a9cb94dab7c2f49e3f23ac06cfbb4c0e5640015df2748124b33b",
         "sourceFileBytes": 782,
         "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"exec\",\n    \"vitest\",\n    \"run\",\n    \"tests/project-trust-v3.test.ts\",\n    \"-t\",\n    \"reading an ordinary granted text file still works while execution approval stays distinct\",\n    \"--maxWorkers=1\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:58:32.840572+00:00\",\n  \"endedAt\": \"2026-11-15T09:58:33.869469+00:00\",\n  \"exitCode\": 1,\n  \"termination\": \"NONE\",\n  \"status\": \"FAIL\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log\",\n  \"logDigest\": \"383964b45aaf5f70fa9a268d13935be3ee130485ca008c61dbc3392849b2ae33\"\n}\n",
@@ -337,7 +337,7 @@
         }
       },
       "staleRecorderRecord": {
-        "sourcePath": "/tmp/m12-command-records/baseline-02-typecheck.json",
+        "sourcePath": "<tmp>/m12-command-records/baseline-02-typecheck.json",
         "sourceFileSha256": "b76a6c53832021b542eca07ff47081c7ee7601c097510d292a1767e4b3c5044e",
         "sourceFileBytes": 586,
         "sourceFileUtf8": "{\n  \"argv\": [\n    \"corepack\",\n    \"pnpm@10.30.3\",\n    \"typecheck\"\n  ],\n  \"cwdIdentity\": \"/workspace/scratch/dbebe44a9817/m12-v3\",\n  \"executableIdentity\": \"/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/corepack.js\",\n  \"startedAt\": \"2026-11-15T09:57:05.174300+00:00\",\n  \"endedAt\": \"2026-11-15T09:57:32.153604+00:00\",\n  \"exitCode\": 0,\n  \"termination\": \"NONE\",\n  \"status\": \"PASS\",\n  \"boundedLogRef\": \"docs/implementation/v3/m12-logs/baseline-02-typecheck.log\",\n  \"logDigest\": \"1d933a2a5ae5226bae24e918f44bd6040ffde805ed399bf225338f50005507f5\"\n}\n",

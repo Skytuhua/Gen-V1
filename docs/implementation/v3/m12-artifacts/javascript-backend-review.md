@@ -92,11 +92,11 @@ Fresh targeted verification: node node_modules/vitest/vitest.mjs run tests/tool-
 
 Evidence files:
 
-- /tmp/m12-js-probes/inspect-result.json
-- /tmp/m12-js-probes/results.json
-- /tmp/m12-js-probes/backend-red.txt
-- /tmp/m12-js-probes/backend-attempt-1.txt
-- /tmp/m12-js-probes/backend-attempt-2.txt
-- /tmp/m12-js-probes/backend-attempt-2-command.json
+- <tmp>/m12-js-probes/inspect-result.json
+- <tmp>/m12-js-probes/results.json
+- <tmp>/m12-js-probes/backend-red.txt
+- <tmp>/m12-js-probes/backend-attempt-1.txt
+- <tmp>/m12-js-probes/backend-attempt-2.txt
+- <tmp>/m12-js-probes/backend-attempt-2-command.json
 
 An initial pnpm exec invocation used the ambient pnpm 11 wrapper, attempted its automatic install check and aborted on non-TTY before tests. No dependency installation completed. All reported backend test outcomes used the already-installed Vitest entry directly. Repository-wide verification remains the integrating root agent's responsibility; this report does not claim the whole repository suite passed.

@@ -1,0 +1,439 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "test"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T12:39:57.837Z",
+  "endedAt": "2026-11-18T14:02:10.669Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": true
+}
+
+
+> gen-v1@0.6.5 test <worktree:m12-v6>
+> pnpm build:credential-lease && pnpm build:widgets && vitest run
+
+
+> gen-v1@0.6.5 build:credential-lease <worktree:m12-v6>
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+
+> gen-v1@0.6.5 build:widgets <worktree:m12-v6>
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/source-handoff-v3.test.ts (28 tests) 3152ms
+     ✓ acknowledges only an untouched owner whose source, text and pending recovery all failed  1037ms
+     ✓ keeps failed source imports blocked until an atomic import retry commits the exact bundle  1068ms
+ ❯ tests/tool-program-v3.test.ts (22 tests | 1 failed) 90925ms
+     ✓ bounds every program budget and rejects ambient capability fields 45ms
+     ✓ requires durable owner, digests and state on programs and calls 71ms
+...
+     ✓ denies account drift after preparation and before any read  2022ms
+     ✓ bounds admitted concurrency and call count before dispatch  29513ms
+     ✓ retains a rejected source as failed even when its thrown value is undefined  547ms
+     ✓ retains a rejected source as failed even when its thrown value is null  474ms
+     ✓ retains a rejected source as failed even when its thrown value is false  1376ms
+     ✓ retains a rejected source as failed even when its thrown value is 0  5948ms
+     ✓ retains a rejected source as failed even when its thrown value is Error: ordinary source error  1823ms
+     ✓ preserves a source failure even if a script catches it and returns an aggregate  1318ms
+     ✓ rejects oversized visible aggregates and cancellation fences queued reads  1745ms
+     ✓ admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget  1950ms
+     × bounds failure envelopes and references after exhausting a small visible budget 31776ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"}  1118ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"ok":false}  3723ms
+...
+     ✓ commands without an approved execution profile stay HOLD_EXECUTION_PROFILE  518ms
+     ✓ captures exact process identity, bounded cursor output and an exit receipt  1832ms
+     ✓ failed exit codes settle FAILED, never SUCCEEDED  1660ms
+     ✓ PID reuse yields UNKNOWN and never signals the reused PID  3105ms
+     ✓ host loss marks RUNNING commands UNKNOWN until the exact owned exit receipt resolves them  754ms
+...
+     ✓ G03: rollback stops owned running commands and preserves their receipts  2136ms
+ ↓ tests/split-app-browser.test.ts (57 tests | 57 skipped)
+ ❯ tests/workspace-action-outcomes.test.ts (27 tests | 25 failed) 63552ms
+   ✓ accepts canonical Unicode review text without normalizing a leading BOM or whitespace 20ms
+   ✓ bounds created receipt URLs to their repository while preserving canonical case differences 8ms
+   × a create preflight refusal is not-applied and permits a fresh reviewed intent 973ms
+   × retains an uncertain create command across restart without repeating its effect 2050ms
+   × keeps a post-push create failure uncertain without pushing the original intent again 7438ms
+   × recovers an admitted legacy create receipt without a new effect or extra result fields 3583ms
+   × refuses a recovered PR request whose pinned repository changed 1515ms
+   × never publishes a created result for a different repository or reviewed revision 3031ms
+   × commits intent before local write and private result before event, then replays after Store restart 1598ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 2896ms
+   × serializes same-ID attempts across separate Store connections without a double write 2691ms
+   × denies reuse of an ID with a changed payload 2892ms
+   × denies reuse of an ID with a changed type 2958ms
+   × denies reuse of an ID with a changed threadId 1021ms
+   × denies reuse of an ID with a changed projectId 1699ms
+   × inspects original payload/revision without current diff, review reads, or any write 2825ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 2713ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 2892ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 3028ms
+   × records not-applied only after host rejection before starting and never restarts that ID 2706ms
+   × keeps failures after started uncertain even when there is no receipt 2795ms
+   × keeps completed external write uncertain if durable result commit fails 1365ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 471ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 559ms
+   × pins profile access while GitHubTools is awaiting remote validation 3620ms
+   × rejects a profile replaced between inspection identity capture and credential read 2347ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 3842ms
+ ❯ tests/context-request-observation.test.ts (81 tests | 1 failed) 235367ms
+   ✓ only projects minimal, current request observations under the host flag  2199ms
+   ✓ spills only large catalog results and retrieves the exact range under the same live owner  2774ms
+...
+   ✓ retains owned compaction model observations after an applied result and bounded M11 eviction  7862ms
+   ✓ retains owned compaction model observations after an refused result and bounded M11 eviction  16000ms
+   × retains exact owned terminal compaction measurements during stop drainage only 4057ms
+   ✓ retains exact owned terminal compaction measurements during dispose drainage only  1367ms
+   ✓ retains exact owned terminal compaction measurements during model change drainage only  4511ms
+...
+   ✓ applies only the protected source-cut CAS and records the exact native receipt  3484ms
+   ✓ requires the protected adapter even when a native history reader exists  2953ms
+   ✓ records a failed verdict when the native source-cut CAS refuses  3235ms
+   ✓ owns native compaction callbacks and advances durable generation once  2742ms
+   ✓ preserves the legacy session account when a provider default is selected  3905ms
+...
+   ✓ rejects a silent native result  5844ms
+   ✓ rejects a settled without compaction native result  1931ms
+   ✓ rejects a failed native result  2185ms
+   ✓ rejects a receipt without host admission native result  1803ms
+   ✓ refuses compaction when stop changes while the source snapshot is pending  1944ms
+...
+   ✓ admits first-account source custody for a truly empty task (host artifact fixture, M04 true)  1346ms
+   ✓ preserves unsent captured custody when an ordinary first input pins its account  1815ms
+   ✓ rolls back initial source-account custody with a failed input commit and retries the same identity  4085ms
+   ✓ retries the same explicit M04 preparation after initial source-account persistence rolls back  2722ms
+   ✓ rejects a selected-account change during first-source admission without creating a custody witness  4893ms
+...
+[bounded: elided 522138 chars]
+re materializing an oversized saved document
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[153/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[154/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[155/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[156/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[157/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[158/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[159/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[160/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[161/372]⎯
+
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[162/372]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ packages/core/service.ts:1094:92
+
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[163/372]⎯
+
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+AssertionError: expected 'failed' to be 'succeeded' // Object.is equality
+
+Expected: "succeeded"
+Received: "failed"
+
+ ❯ vi.waitFor.timeout tests/task-memory-recovery.test.ts:126:85
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[164/372]⎯
+
+ FAIL  tests/tool-program-backend-v3.test.ts > M12 checked QuickJS worker boundary > commits each delivery before the VM resumes and includes all four issued identities
+AssertionError: expected 3 to be 4 // Object.is equality
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[165/372]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > keeps actual JavaScript nested host results private and returns only the explicit aggregate
+HarnessError: Tool effect unavailable
+ ❯ ToolEffectLedger.transition packages/core/tool-effects.ts:156:26
+    154|   private transition(invocationId: string, type: string, update: (effe…
+    155|     const existing = this.get(invocationId);
+    156|     if (!existing) throw new HarnessError("NOT_FOUND", "Tool effect un…
+       |                          ^
+    157|     let record!: ToolEffectRecord;
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[166/372]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > deduplicates a top-level program command without running its script a second time
+HarnessError: Tool effect unavailable
+ ❯ ToolEffectLedger.transition packages/core/tool-effects.ts:156:26
+    154|   private transition(invocationId: string, type: string, update: (effe…
+    155|     const existing = this.get(invocationId);
+    156|     if (!existing) throw new HarnessError("NOT_FOUND", "Tool effect un…
+       |                          ^
+    157|     let record!: ToolEffectRecord;
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[167/372]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > cancels a prepared JavaScript card when another program already owns the execution lane
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/tool-program-integration-v3.test.ts:65:1
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[168/372]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > supports authenticated retained inspection after settlement without renewing execution authority
+HarnessError: Tool effect unavailable
+ ❯ ToolEffectLedger.transition packages/core/tool-effects.ts:156:26
+    154|   private transition(invocationId: string, type: string, update: (effe…
+    155|     const existing = this.get(invocationId);
+    156|     if (!existing) throw new HarnessError("NOT_FOUND", "Tool effect un…
+       |                          ^
+    157|     let record!: ToolEffectRecord;
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[169/372]⎯
+
+ FAIL  tests/tool-program-integration-v3.test.ts > serves only authenticated bounded retained result pages and metadata, with current owner checks
+HarnessError: Tool effect unavailable
+ ❯ ToolEffectLedger.transition packages/core/tool-effects.ts:156:26
+    154|   private transition(invocationId: string, type: string, update: (effe…
+    155|     const existing = this.get(invocationId);
+    156|     if (!existing) throw new HarnessError("NOT_FOUND", "Tool effect un…
+       |                          ^
+    157|     let record!: ToolEffectRecord;
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[170/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.effect_committed without execution or inference
+AssertionError: expected { …(17) } to deeply equal { …(17) }
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[171/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.read_returned without execution or inference
+AssertionError: expected { …(17) } to deeply equal { …(17) }
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[172/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after call.result_committed without execution or inference
+AssertionError: expected 'UNKNOWN_EXTERNAL_OUTCOME' to be 'SUCCEEDED' // Object.is equality
+
+Expected: "SUCCEEDED"
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[173/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > reconciles only M12 receipts after program.result_committed without execution or inference
+AssertionError: expected 'UNKNOWN_EXTERNAL_OUTCOME' to be 'SUCCEEDED' // Object.is equality
+
+Expected: "SUCCEEDED"
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[174/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > settles a committed failed source receipt without exposing its retained private error
+AssertionError: expected { …(17) } to match object { state: 'FAILED', …(2) }
+(21 matching properties omitted from actual)
+
+...
+-   },
+-   "providerReceiptRef": "result_159af0ccc0db7d736ae814ec474582b7",
+-   "state": "FAILED",
++   "providerReceiptRef": null,
++   "state": "UNKNOWN_EXTERNAL_OUTCOME",
+...
+    151|     expect(f.store.get<ToolEffectRecord>('toolEffect', call.invocation…
+       |                                                                            ^
+    152|       state: 'FAILED', providerReceiptRef: prepared.resultRef, outcome…
+    153|     });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[175/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > does not attribute the latest terminal result to an earlier unfinished parent attempt
+AssertionError: expected { Object (effectId, invocationId, ...) } to match object { state: 'SUCCEEDED', …(1) }
+(21 matching properties omitted from actual)
+
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[176/372]⎯
+
+ FAIL  tests/tool-program-recovery-v3.test.ts > M12 default-off Service recovery after real process death > keeps a nested outcome unknown when its retained private receipt fails integrity
+AssertionError: expected { …(17) } to deeply equal { …(17) }
+
+- Expected
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[177/372]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 actual JavaScript durable replay > reuses private receipts and reproduces out-of-order delivery, RNG and virtual clocks without another read
+AssertionError: expected { …(6) } to match object { state: 'SUCCEEDED', …(2) }
+(10 matching properties omitted from actual)
+
+...
+    ],
+-   "state": "SUCCEEDED",
++   "state": "FAILED",
+  }
+
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[178/372]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > bounds failure envelopes and references after exhausting a small visible budget
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(1) }
+(9 matching properties omitted from actual)
+
+...
+  {
+    "error": {
+-     "code": "CALL_LIMIT",
++     "code": "PROGRAM_DEADLINE",
+    },
+    "state": "FAILED",
+  }
+
+...
+    210|     const program = await prepare(f.programs, executor, { limits: { ma…
+    211|     const result = await f.programs.run(program.programId, owner, exec…
+    212|     expect(result).toMatchObject({ state: 'FAILED', error: { code: 'CA…
+       |                    ^
+    213|     expect(Buffer.byteLength(JSON.stringify(result))).toBeLessThanOrEq…
+...
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[179/372]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 5 unhandled errors during the test run.
+...
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+...
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+...
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences expire during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ withAccountLogin packages/runtime-login/account-login.ts:18:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+This error originated in "tests/account-login.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not admit a successor sign-in when an expired lease still has a live owner". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: Tool effect unavailable
+ ❯ ToolEffectLedger.transition packages/core/tool-effects.ts:156:26
+    154|   private transition(invocationId: string, type: string, update: (effe…
+    155|     const existing = this.get(invocationId);
+    156|     if (!existing) throw new HarnessError("NOT_FOUND", "Tool effect un…
+       |                          ^
+    157|     let record!: ToolEffectRecord;
+    158|     this.store.internal(type, existing.threadId, () => {
+ ❯ ToolEffectLedger.settle packages/core/tool-effects.ts:236:17
+ ❯ ToolPrograms.execute packages/core/tool-programs.ts:537:40
+ ❯ packages/core/tool-programs.ts:178:52
+ ❯ ToolPrograms.run packages/core/tool-programs.ts:180:18
+ ❯ ToolProgramHost.tool packages/core/tool-program-host.ts:105:18
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'NOT_FOUND', details: undefined }
+This error originated in "tests/tool-program-integration-v3.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "cancels a prepared JavaScript card when another program already owns the execution lane". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+

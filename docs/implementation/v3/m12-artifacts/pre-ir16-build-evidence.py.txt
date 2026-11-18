@@ -21,7 +21,7 @@ for phase in read(artifacts/'prior-audit/M12-verification.json')['phases']:
  for record in phase['commands']:
   records[Path(record['boundedLogRef']).stem]=record
 if (artifacts/'command-records.json').exists():records.update(read(artifacts/'command-records.json'))
-for path in sorted(Path('/tmp/m12-command-records').glob('*.json')):records[path.stem]=read(path)
+for path in sorted(Path('<tmp>/m12-command-records').glob('*.json')):records[path.stem]=read(path)
 for name,record in records.items():
  path=root/record['boundedLogRef']
  assert path.exists(),name

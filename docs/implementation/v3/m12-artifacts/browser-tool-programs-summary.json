@@ -15,7 +15,7 @@
       "tool-programs"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:18:08.317744+00:00",
     "endedAt": "2026-11-15T11:18:15.354604+00:00",
     "exitCode": 0,
@@ -24,8 +24,8 @@
     "boundedLogRef": "docs/implementation/v3/m12-logs/final-09-program-browser.log",
     "logDigest": "6301dc428fefaa29948bff60c6f77461e55bc30110ec9721bcaf1b9afd582627",
     "recordSource": {
-      "path": "/tmp/m12-command-records/final-09-program-browser.json",
-      "ref": "/tmp/m12-command-records/final-09-program-browser.json",
+      "path": "<tmp>/m12-command-records/final-09-program-browser.json",
+      "ref": "<tmp>/m12-command-records/final-09-program-browser.json",
       "sha256": "5b3ef1fbd70a4f5fef5fc30b24f3fa10a7b06a7ceff0088705ad28c61ffa3db0",
       "bytes": 529
     },

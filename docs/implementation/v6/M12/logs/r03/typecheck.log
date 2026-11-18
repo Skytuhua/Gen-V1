@@ -1,5 +1,0 @@
-
-> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m12-r03
-> tsc --noEmit
-
-TSC_EXIT=0

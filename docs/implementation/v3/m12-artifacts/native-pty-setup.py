@@ -1,7 +1,7 @@
 from pathlib import Path
 import hashlib, json, subprocess, tarfile
 root=Path.cwd()
-cache=Path('/tmp/m12-node-headers');cache.mkdir(exist_ok=True)
+cache=Path('<tmp>/m12-node-headers');cache.mkdir(exist_ok=True)
 version=subprocess.check_output(['node','--version'],text=True).strip()
 name=f'node-{version}-headers.tar.gz'
 base=f'https://nodejs.org/download/release/{version}/'

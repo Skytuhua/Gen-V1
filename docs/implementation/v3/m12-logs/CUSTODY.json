@@ -1,0 +1,1181 @@
+{
+  "note": "Raw tool/test output removed from the source commit per CONTRIBUTING (no raw test output, no private paths). Each entry records the byte size and sha256 of the retained raw artifact; custody reference is honest owned storage, not an upload.",
+  "entries": [
+    {
+      "path": "docs/implementation/v3/m12-logs/authority-01-red.log",
+      "bytes": 4340,
+      "rawDigest": "sha256:8f72f410f4ed5f12af7c25361d4d19c9f7299c3eae28d9cb8d1905bb0b2ff5d8",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/authority-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/authority-02-green.log",
+      "bytes": 718,
+      "rawDigest": "sha256:858b81fc281247e4478ee1c8eb6ece33812600c6e4ac787371df9544fbf42844",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/authority-02-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-01-build.log",
+      "bytes": 8748,
+      "rawDigest": "sha256:8bf98e4a25aa895953dacb260659f989fbdc5f399bf9127f30ccef0720e27086",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-01-build.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-01-full-test.log",
+      "bytes": 1850,
+      "rawDigest": "sha256:db1ff76a0a45006c57eb35db8698b1113e6a93f5bfc72279762a73108ce4b5c5",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-01-full-test.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-02-build-widgets.log",
+      "bytes": 413,
+      "rawDigest": "sha256:b6b16a88456ea95701258cba541bc5e2445bbb3c64a3c94e221ad4565d96516c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-02-build-widgets.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-02-typecheck.log",
+      "bytes": 368,
+      "rawDigest": "sha256:36f85fe12605a02ad94e78024f957854ee0bc4cd474044c8c4d301160be01db7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-02-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-03-full-test-loader.log",
+      "bytes": 12818,
+      "rawDigest": "sha256:9819bfc050cfc9b69e8abee910ef883b797b7a7793d2ff105f69fc079467cc76",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-03-full-test-loader.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/baseline-04-summary-preservation.log",
+      "bytes": 935,
+      "rawDigest": "sha256:7ba0752c2d55ae0ed7afcb101d11199d36a0f31122c20615fd951110fea2e0c4",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/baseline-04-summary-preservation.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-01-browser-launch.log",
+      "bytes": 1403,
+      "rawDigest": "sha256:f10b1b0f816c11189fd84e0868bb118af02781b1ba5f0c8ff4c6d02afe0fbd24",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-01-browser-launch.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-02-browser-loader.log",
+      "bytes": 1271,
+      "rawDigest": "sha256:1d061f0fd3f5cba8287e972b10b2277cc5636e09fd94317493dc762cdbc10a46",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-02-browser-loader.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-03-red.log",
+      "bytes": 1587,
+      "rawDigest": "sha256:1e0fcbc33e7b322f5fb6401419c4446adbd6160125028e47823017017f29c3b4",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-03-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-04-green.log",
+      "bytes": 578,
+      "rawDigest": "sha256:3e665ac5ff692d09c3739e82372fd64bf8df2013b20e0a912ba8015d53d84e61",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-04-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-05-unit-launch.log",
+      "bytes": 442,
+      "rawDigest": "sha256:17236334c3ca38dfe33c64e9582f31c28737de118ca5af16de64cd0e66cf320c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-05-unit-launch.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-06-typecheck.log",
+      "bytes": 472,
+      "rawDigest": "sha256:bacad89f11e3c78212f93b5befdee96e4b5b6bd7e2ce6f2d3273b43e82cfadde",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-06-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-07-bytes-only-record.log",
+      "bytes": 19140,
+      "rawDigest": "sha256:59479cab2919dc53c592d212017c88f5263cba19d42a6ec6ed4e2736f02f1bd1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-07-bytes-only-record.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-08-token-red.log",
+      "bytes": 1639,
+      "rawDigest": "sha256:2755b4a43dbf34533e1d2bf3e40ea15bab259a9455f16dd91a9feba4a0966bb9",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-08-token-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-09-cursor-red.log",
+      "bytes": 1653,
+      "rawDigest": "sha256:94e80a3cc74f5eaefd3f5a2ecb091e55500d554fde16581030e483408cc7295e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-09-cursor-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-10-token-cursor-green.log",
+      "bytes": 578,
+      "rawDigest": "sha256:4e05bf107cbdede0e8d8a6295fbeb0aede2fec1cf2d4071a8726d0bea218cf09",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-10-token-cursor-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/benchmark-11-host-envelope.log",
+      "bytes": 578,
+      "rawDigest": "sha256:4608ad1f042f3d632f38a289aa52f085f76772bd98e40065e7b9e5f33929add7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/benchmark-11-host-envelope.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/browser-evidence-01-full.log",
+      "bytes": 1650,
+      "rawDigest": "sha256:344d7ed7e2ff7b4d63d85777b655d4b3b20081a828e836919f2713d4cad08450",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/browser-evidence-01-full.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-01-base-browser.log",
+      "bytes": 2606,
+      "rawDigest": "sha256:f7f0bf0f1a99a6d4aefb8853ee8cc218797e27f3326c66a7fd38b3952ff9cc8e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-01-base-browser.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-02-base-browser.log",
+      "bytes": 33166,
+      "rawDigest": "sha256:3e0e630ae3b41fc7f56733d9c4992798577d45733a2d12cc77ba91ef04a9a063",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-02-base-browser.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-03-candidate-focus.log",
+      "bytes": 2000,
+      "rawDigest": "sha256:0db4fcd4c6f3bcac92f08316b1f4aeb4996d6c05cfbf1f699a841de4abac56cc",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-03-candidate-focus.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-04-reporter-probe.log",
+      "bytes": 512,
+      "rawDigest": "sha256:0b6419b1c5437905311aa7d9193f5b328a8eb95a6370580982f248cdf6f0a9de",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-04-reporter-probe.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-05-script-self-comparison.log",
+      "bytes": 1626,
+      "rawDigest": "sha256:d348d993e2bc334bbd6a2328c00de22cfcc8415a559d4c3eb168dc7e26cd4290",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-05-script-self-comparison.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-06-full-unit-diff.log",
+      "bytes": 1781,
+      "rawDigest": "sha256:b771d4fec6b6517a1d867d0245d8ac17dddd98bb5e3cdbfa97a0b4ef9e7523b5",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-06-full-unit-diff.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-07-plugin-dock-recheck.log",
+      "bytes": 2096,
+      "rawDigest": "sha256:f5e0be359c403c430c11f0984192db185a297cac86145b046c7374cc91f7700c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-07-plugin-dock-recheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-07-preserve-before-packaging.log",
+      "bytes": 1050,
+      "rawDigest": "sha256:fccd755a81bb3e34789f3ab8cb8f4a1f1d0426a2faeaefe387d72001aa479cfd",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-07-preserve-before-packaging.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-08-first-candidate-diagnosis.log",
+      "bytes": 624,
+      "rawDigest": "sha256:a22042001b14df3e213547c53eeabfd261049071c4ea4e1fa6282f0966b81a1f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-08-first-candidate-diagnosis.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-08-plugin-dock-source-proof.log",
+      "bytes": 1697,
+      "rawDigest": "sha256:c0e1c69854696e82745dab0db1a6e765ec11e8f3a1955fbfb7685f88cbd85c3b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-08-plugin-dock-source-proof.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-09-plugin-dock-controlled-source-proof.log",
+      "bytes": 3240,
+      "rawDigest": "sha256:3e70042235eb314ab429960634d7856c742c17f1ac4255209d7d681db462215a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-09-plugin-dock-controlled-source-proof.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-09-preserve-after-review.log",
+      "bytes": 590,
+      "rawDigest": "sha256:fce7c84c8b1d8cfad7fc8d7ae4bfe108c59eb99cc01a5f11298a92afd188991c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-09-preserve-after-review.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-10-final-unit-diff.log",
+      "bytes": 1923,
+      "rawDigest": "sha256:5feab9f04408d0fba6789fca78f44b0f0fa4e742e9f48b20afbcbc786cd4f2a2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-10-final-unit-diff.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/comparison-11-final-assessment.log",
+      "bytes": 904,
+      "rawDigest": "sha256:cbe3e5fec06a37737c42e95024a8107e4aa0ca0a6ee625c0168050468b978874",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/comparison-11-final-assessment.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log",
+      "bytes": 2458,
+      "rawDigest": "sha256:652ea4a38c9da4f484d59601916bae2a2266e181827da82f418b314fc8c2b78b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/core-01-prerequisite-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log",
+      "bytes": 1907,
+      "rawDigest": "sha256:515ed1ad85c9645ad5366a3d7ca80c28464f8a3ac67c01ab3275c5a8038bf0c7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/core-02-reproduce-granted-read.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/dependency-01-tokenizer-review.log",
+      "bytes": 12137,
+      "rawDigest": "sha256:1e54320a990e4191c088976ce3d93d05b2e3fa07db8d03cea2f3778ded3725be",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/dependency-01-tokenizer-review.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/dependency-02-tokenizer-lock.log",
+      "bytes": 4760,
+      "rawDigest": "sha256:4f452a9fbce9cd81c77983ccb1df6c06be9f7d6c3320495a275032eb8475a2f3",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/dependency-02-tokenizer-lock.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/dependency-03-frozen-install.log",
+      "bytes": 1699,
+      "rawDigest": "sha256:ae3072d4c912b3ea6a551dba34e32b526da799bc5ee722ba61346172d8e76b31",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/dependency-03-frozen-install.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/diagnostics-01-red.log",
+      "bytes": 15966,
+      "rawDigest": "sha256:4c65cc3822df806e693553172e1e9939403553d9b7bf48ab1d270360fcfc02ac",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/diagnostics-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/diagnostics-02-green.log",
+      "bytes": 604,
+      "rawDigest": "sha256:403c031908cb38f7fbc14eccd983a22410016a4116bd63d54797b7a043506d36",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/diagnostics-02-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-01-build-record-integrity-red.log",
+      "bytes": 584,
+      "rawDigest": "sha256:b80652d9ede7f5f1f2b847490fec2c6899c7906b8fd5bcc038fb1cb123a5e58f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-01-build-record-integrity-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-01-validation.log",
+      "bytes": 1205,
+      "rawDigest": "sha256:9222a02c5a6f0b5af835e1855ea84e54db4c8f6840fdc7a80502ef5832049852",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-01-validation.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-02-build-record-integrity-green.log",
+      "bytes": 1323,
+      "rawDigest": "sha256:cf78ba18dfb51556b05e9f05e3f48cf1b7bec79ba35dc2076594de3d2ea34119",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-02-build-record-integrity-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-02-validation-native.log",
+      "bytes": 509,
+      "rawDigest": "sha256:23a6e4cb0b7f644d8d29e382a70b8ff8b6c5cbd1776a44f41b60bf24765fd350",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-02-validation-native.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-03-source-inventory-red.log",
+      "bytes": 3758,
+      "rawDigest": "sha256:2795ef4b0c967fb564a29f47107d6cc467cb654d56488f244b54d4590d3239d1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-03-source-inventory-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/evidence-04-source-inventory-green.log",
+      "bytes": 7595,
+      "rawDigest": "sha256:872ca5243ca80c8ccaeebeb3a44e5c367a9ddca286ff477171641d4c0adb30b4",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/evidence-04-source-inventory-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-00-frozen-lockfile.log",
+      "bytes": 1472,
+      "rawDigest": "sha256:a705fbb11d2e671f4bb4116f112a1ab394943e76248b2f596168021a8254b252",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-00-frozen-lockfile.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-01-protocol.log",
+      "bytes": 546,
+      "rawDigest": "sha256:5ae32ca4223960c819c59f52545c710d7c7e6b30adf3231a5815878be86930a6",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-01-protocol.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-02-replay.log",
+      "bytes": 553,
+      "rawDigest": "sha256:112f39527d9441cf514500dd27875ed87c2fbc9cd93a342f42ff17c1dd983731",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-02-replay.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-03-python-kernel.log",
+      "bytes": 546,
+      "rawDigest": "sha256:99c347904f3d7c3c0bf4edaa812a5c00c346733831689ed819c4b2c1320a138c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-03-python-kernel.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-04-core-contracts.log",
+      "bytes": 1403,
+      "rawDigest": "sha256:ef09871ac40c8eaa76ef33e9661d395c6e2d7f8d3dbd6b2985390e6ba65b7b30",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-04-core-contracts.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-05-runtime-integration.log",
+      "bytes": 1034,
+      "rawDigest": "sha256:d53bf4b7abb52bde51d6351683a7ef4fb5ece626cef9cbf6ddb726db107c13d0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-05-runtime-integration.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-06-typecheck.log",
+      "bytes": 2605,
+      "rawDigest": "sha256:bfcffa7656e18c20915067874d138d1e23c517804ddbeb9da5c9b71acd4a2f44",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-06-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-07-full-test.log",
+      "bytes": 33324,
+      "rawDigest": "sha256:a182530830ebb5333e17685dfc0bc41c57f8ed21656164dedcf831f2ace1463e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-07-full-test.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-08-build.log",
+      "bytes": 8543,
+      "rawDigest": "sha256:45d37101f930a5e190118e2abda54221a494e8920fb5b17a6b9c2f7ebec46b70",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-08-build.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-09-program-browser.log",
+      "bytes": 2403,
+      "rawDigest": "sha256:6301dc428fefaa29948bff60c6f77461e55bc30110ec9721bcaf1b9afd582627",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-09-program-browser.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-10-typecheck.log",
+      "bytes": 402,
+      "rawDigest": "sha256:1bf0ae9de2b883d3668a3c804895067e489160aa28318452e97bada9f9175025",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-10-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-11-full-test-after-review.log",
+      "bytes": 33337,
+      "rawDigest": "sha256:58295cce2bbf79dad176b6e65c038d002841bab0d9c334462d7eaa553d168837",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-11-full-test-after-review.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log",
+      "bytes": 402,
+      "rawDigest": "sha256:56361f43245b0be2929e7b4fe16feaf2c0929cde4f6d29cae8c428a40aa42166",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-12-typecheck-after-review.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-13-benchmark.log",
+      "bytes": 578,
+      "rawDigest": "sha256:558d719a719fd36ebb619746e9a18bd1832edce0d7d577acda26b5a5cc38ab0e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-13-benchmark.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-14-evidence-validation.log",
+      "bytes": 586,
+      "rawDigest": "sha256:a9d7373e380dbc0faa162b55cb961127705ed03f5b668369afe13b5cf318806f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-14-evidence-validation.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-15-typecheck-after-browser-fixtures.log",
+      "bytes": 369,
+      "rawDigest": "sha256:6ef3bbac640980a333043420b79302f09d62aadedc16ebbbd8ac25ceadfe9982",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-15-typecheck-after-browser-fixtures.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-16-benchmark-after-browser-fixtures.log",
+      "bytes": 578,
+      "rawDigest": "sha256:897e96dc2302aea78ca04bbb0656522b8ac4957324143eefd25bfb5d0c90fb53",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-16-benchmark-after-browser-fixtures.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-17-benchmark-provenance-after-browser-fixtures.log",
+      "bytes": 1017,
+      "rawDigest": "sha256:1018977f52034b144cb7602647f960569978b57fe6b51a5efb575a63aa5a7b69",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-17-benchmark-provenance-after-browser-fixtures.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/final-18-evidence-after-source-drift.log",
+      "bytes": 586,
+      "rawDigest": "sha256:4384f706d53682489b2e9e6d46982555d734efc84bc9ff77908c22f0cae486f1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/final-18-evidence-after-source-drift.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log",
+      "bytes": 13868,
+      "rawDigest": "sha256:af745b9287c31b00c7ddc6678c94da00990f72d783e0248ffabaddb39d6c931a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-01-terminal-program-response-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-02-terminal-program-response-green.log",
+      "bytes": 2941,
+      "rawDigest": "sha256:177c91b1cc10764fcc7e643406f2b02c382de8acc1d97ee854bb8add1e1f2dfe",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-02-terminal-program-response-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log",
+      "bytes": 33141,
+      "rawDigest": "sha256:1e9e47981130a22cd144020c8c8aa168bbfc7e5f8efbf6712428c9eab208d1af",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-03-saved-drafts.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-04-conversation-find.log",
+      "bytes": 2729,
+      "rawDigest": "sha256:d5f669b3f2b4f6f65587c9f7a165c434aff23d31caabd6bf1f0e1210ff67e36f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-04-conversation-find.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-05-wo5-app-integration.log",
+      "bytes": 28617,
+      "rawDigest": "sha256:c2984fbfacb138c20fbf2d3f86c5a7477ddfc9feb413765407d5e5d6df400edd",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-05-wo5-app-integration.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log",
+      "bytes": 24338,
+      "rawDigest": "sha256:5f6953e650c17b92c1f13c7d45603a59d400a9d1f8f4d747c54d66766686b753",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-06-redundant-ui.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/fixture-evidence-01-summary.log",
+      "bytes": 4294,
+      "rawDigest": "sha256:aeeb225ffdd491726a84c78c071c12b2e91ccacc9a98461e8e8554da0af9f15d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/fixture-evidence-01-summary.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-01-default-whitespace.log",
+      "bytes": 13235,
+      "rawDigest": "sha256:dbc1de683397418f6ed258b8ddbbccdb6a11febf81b9f2fdcbec349e685420b0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-01-default-whitespace.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-02-preserved-crlf.log",
+      "bytes": 495,
+      "rawDigest": "sha256:03d5ae36bfedcbd27ca2a9b5fa0992626bc58a0a2b3d5de28fce819a124ccbd5",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-02-preserved-crlf.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-03-staged-source-whitespace.log",
+      "bytes": 375,
+      "rawDigest": "sha256:b793a3ec1a88f4e8800840cd740b039c91b682e4c7c7c326d14a2b839b3fcb26",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-03-staged-source-whitespace.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-04-retained-log-whitespace.log",
+      "bytes": 33200,
+      "rawDigest": "sha256:30e626574233cc3e462d00aaf314a4f9b9feac727423dcd53b0b55cd930f14eb",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-04-retained-log-whitespace.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-05-source-and-doc-whitespace.log",
+      "bytes": 669,
+      "rawDigest": "sha256:942d11e93aef535cfff85d1c94d0ae2187946a35a0e9abdf5bf7e43f18e9c5ae",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-05-source-and-doc-whitespace.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/hygiene-06-source-drift-docs.log",
+      "bytes": 370,
+      "rawDigest": "sha256:90eed675d3f7fb2cc95110df1f9cba5700c4d8402d58e86012b3009ca969acd2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/hygiene-06-source-drift-docs.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/implementation-01-typecheck.log",
+      "bytes": 699,
+      "rawDigest": "sha256:f34fd5c22bf299f328dcf87fca6014bde9ed28ce265e7e20bb551b045211f9a0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/implementation-01-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/independent-review-01-deadline.log",
+      "bytes": 2176,
+      "rawDigest": "sha256:f6e9bd1e811a48d633263f7736712ae3c77b855d90aa78e569dca3a45d2e63dd",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/independent-review-01-deadline.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/independent-review-02-input-amplification.log",
+      "bytes": 1420,
+      "rawDigest": "sha256:7ee07fbb538cd8ec0e13103015c81f1404fb2b034a5b7c8f9ad1a5804251489c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/independent-review-02-input-amplification.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/input-budget-01-red.log",
+      "bytes": 16341,
+      "rawDigest": "sha256:290d0c9c892975503a9800205dc409d7e39b1dd8434c60a1b8793fb13fb78cd2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/input-budget-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/input-budget-02-green.log",
+      "bytes": 605,
+      "rawDigest": "sha256:e9cf200d4f81708408028a5978f0dbb40c549e61d31f5d1bbb17f585333283b7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/input-budget-02-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/input-budget-03-focused-regression.log",
+      "bytes": 789,
+      "rawDigest": "sha256:b22935ff42f42e56f4b1651031948f90f3af2a7aa888214fa4d3589c124f2844",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/input-budget-03-focused-regression.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/integration-01-red.log",
+      "bytes": 3762,
+      "rawDigest": "sha256:70ba7bed5a587b2d0f087460df70bbbca6e7adf11286ec5606f70db6f05b59f2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/integration-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/integration-02-tests.log",
+      "bytes": 679,
+      "rawDigest": "sha256:589508cca6c54f84472ac4b769d073aaa84c0e431cdb1cab4e65ab868aafc39f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/integration-02-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/integration-03-typecheck.log",
+      "bytes": 369,
+      "rawDigest": "sha256:f7653a66f8ba306c8d08e2803d67da846397aa848c97477e7c240d3fd2225521",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/integration-03-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/kernel-01-red.log",
+      "bytes": 1370,
+      "rawDigest": "sha256:2a694bc38b5403e4f0dac5721b4f3cbb765a95516d0b1ada4c5c95b51d40427e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/kernel-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/kernel-02-tests.log",
+      "bytes": 1832,
+      "rawDigest": "sha256:dbe91607be043dd882890e53de09f67eb2d0563014c18aa88438d18292225870",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/kernel-02-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-01-red.log",
+      "bytes": 3897,
+      "rawDigest": "sha256:caa2d20067e0dcfc4fdd2f1208ae918538073ea665844bf7c500dad62cb99480",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-02-boundary-red.log",
+      "bytes": 11263,
+      "rawDigest": "sha256:1949b0a550fe830a21c0861efe4e4583a5c1ffe8b0e82f98cd66365dae17ce37",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-02-boundary-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-03-green-attempt.log",
+      "bytes": 2250,
+      "rawDigest": "sha256:788778037882f88c7f325e9dd5419ef6e301c249a2fc1948d40f0566eeaba730",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-03-green-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-04-identity-red.log",
+      "bytes": 2778,
+      "rawDigest": "sha256:7d1c557c407e7f42a5ec29b562279d8444b48d461c5c99b45c5a0c5d47f623cd",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-04-identity-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-05-native-green.log",
+      "bytes": 672,
+      "rawDigest": "sha256:770df920b7d062f20033633d4a8da4ec22a6b3b01215a193a67edb5e8a97d376",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-05-native-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-06-typecheck.log",
+      "bytes": 1683,
+      "rawDigest": "sha256:49bc5d09731fff506439da06029a55d41639b5439e3d93213f606d82f080e77b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-06-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/linux-read-07-integration-green.log",
+      "bytes": 8587,
+      "rawDigest": "sha256:18c9c644d6c41699072bff9169b8bdf640f56b5327e93e4df3cb858b047e2941",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/linux-read-07-integration-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-01-public-source-red.log",
+      "bytes": 7411,
+      "rawDigest": "sha256:f4542d089a8c6344dd36897d6dd9e8fa0d298982ed05bc50c4d1b00642c83879",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/packaging-01-public-source-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-02-public-source-green.log",
+      "bytes": 578,
+      "rawDigest": "sha256:63e46470c41263bedcd6c468172e2e97f68328f9f6a790cfb6575c974431315d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/packaging-02-public-source-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-03-token-review-red.log",
+      "bytes": 1615,
+      "rawDigest": "sha256:9a8f6ccac2943293d675c3f4484c7866d1629872e0914c031e58171e64f7a885",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/packaging-03-token-review-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log",
+      "bytes": 578,
+      "rawDigest": "sha256:994cf5a1fc6b852c3e8f39359d32c4a3505909f36058d04cd3bee8287df0c56e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/packaging-04-public-source-final-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/platform-01-linux-guard-preconditions.log",
+      "bytes": 1533,
+      "rawDigest": "sha256:12567d8be2cf36586603e4e4afef51d2586a1ed275fadde1b89a4203af9a04b0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/platform-01-linux-guard-preconditions.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/prereq-01-red.log",
+      "bytes": 1520,
+      "rawDigest": "sha256:d2f97a5caeaf51a9313048a88190bef7ec0e3165327c3f30ee98ccdd03d321f9",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/prereq-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/prereq-02-tests.log",
+      "bytes": 606,
+      "rawDigest": "sha256:a82e43182909de524561376ece5a9bf21c01ba264ae553d272cff536599925dc",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/prereq-02-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/prereq-03-typecheck.log",
+      "bytes": 1067,
+      "rawDigest": "sha256:2dae4854938ec6d7ed9cea60a02dd06a3c280f5914967bc6b19dde29ec5da5ff",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/prereq-03-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/prereq-04-edge-red.log",
+      "bytes": 3387,
+      "rawDigest": "sha256:8c346c17639ad98e2af319ba82341beb2c1565512fdc6dd934b250e0253b696c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/prereq-04-edge-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/prereq-05-edge-green.log",
+      "bytes": 606,
+      "rawDigest": "sha256:41609553d5bf03a92a5847840f45c9674c5814c4b2b571fb099d4960e5dd566d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/prereq-05-edge-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/program-host-01-red.log",
+      "bytes": 1409,
+      "rawDigest": "sha256:6309266f21be39837e1e462ab02f94ce0719256a26b7e1fdcd12ef0117d807d7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/program-host-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/program-host-02-tests.log",
+      "bytes": 7567,
+      "rawDigest": "sha256:f27e048319b4bf4d6fa707eb140a7cd70fa023ddbef8937670b52802fd15d9c0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/program-host-02-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/program-host-03-tests.log",
+      "bytes": 690,
+      "rawDigest": "sha256:bf2263619d46f71230f945fbf00fb16fc6ea336217973ec191687d92d0029344",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/program-host-03-tests.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/protocol-01-red.log",
+      "bytes": 1243,
+      "rawDigest": "sha256:6edab0b915575fcd1aa493d6e41c801ee51214a3040c0fa13c02fe55f3e864f3",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/protocol-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/protocol-02-green.log",
+      "bytes": 566,
+      "rawDigest": "sha256:57ee3cf21b112a17495a8a43c1adc3c0a73a854e9f123179ec93a463732f708b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/protocol-02-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-01-red.log",
+      "bytes": 1356,
+      "rawDigest": "sha256:fd00eb84afdd6689bf4a83b18af7dbecb95c3bbc0cd61d59b2a7164386590373",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-02-green-attempt.log",
+      "bytes": 590,
+      "rawDigest": "sha256:716a0d82bccf7e111d167987fc7f3717b75d47003f2bb28017131cbefc219b8c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-02-green-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-03-typecheck.log",
+      "bytes": 416,
+      "rawDigest": "sha256:79dde0dbf6bebe347c165155915415288ed338f9fe613f430b80a9bff819a36a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-03-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-04-boundary-red.log",
+      "bytes": 2578,
+      "rawDigest": "sha256:9499fb4420a33a47d092c56ca48f26317a6bcc6dddd55b050496c4f927d04e68",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-04-boundary-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-05-boundary-green.log",
+      "bytes": 589,
+      "rawDigest": "sha256:ab8afc06602c7cfc182d73a7cca5794f9e1fe0c3858122beaff53f1d741d5973",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-05-boundary-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-06-typecheck.log",
+      "bytes": 1121,
+      "rawDigest": "sha256:6a092bbec72acd2ebdcc7f614a854f629334ce65b2731e10e4c0d139d73db76d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-06-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-07-runtime-pins.log",
+      "bytes": 1738,
+      "rawDigest": "sha256:eb01d775c390097680ed65635357b465b9360ae321ea7e90baca068a7d294651",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-07-runtime-pins.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-08-runtime-pins.log",
+      "bytes": 2707,
+      "rawDigest": "sha256:09ca37b6f96972ee4e01f011f91c7f5f33f7caeccf07171a1e4d73a6edea790f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-08-runtime-pins.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-09-reset-red.log",
+      "bytes": 1621,
+      "rawDigest": "sha256:24e17d15f51926026a237958d5dda1fc7054923e6f2a185ba208bf0ddbb70640",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-09-reset-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-10-reset-green.log",
+      "bytes": 589,
+      "rawDigest": "sha256:0b5334a85c786ee62ec53575287ac8377f919a0e6e44aebcb29888578aeca126",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-10-reset-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-11-completion-red.log",
+      "bytes": 1575,
+      "rawDigest": "sha256:6808b6aa381acfdd00f34d108e2276c865da852ff2b6695d294ec7563807c9a8",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-11-completion-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-12-supervisor-attempt.log",
+      "bytes": 2391,
+      "rawDigest": "sha256:6025854d3032004daad291212b707e43c90334778e99e7ef3127158e45159d65",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-12-supervisor-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-13-supervisor-green-attempt.log",
+      "bytes": 2401,
+      "rawDigest": "sha256:f9f23e7e2a649bca9c409e8a3669b43f7e908ea462e39fdc1c072e94dffb4f76",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-13-supervisor-green-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-14-supervisor-diagnostic.log",
+      "bytes": 597,
+      "rawDigest": "sha256:511e4510bce487c4fc252c0f6cd6dbb3dca5935eba17fd8bd907b2f9d28cbd2e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-14-supervisor-diagnostic.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-15-supervisor-native-state.log",
+      "bytes": 612,
+      "rawDigest": "sha256:7ab632f0b294903626f75914ae9d47321e348adc365c29c086d85a96d95ebb32",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-15-supervisor-native-state.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-16-quiescence-green.log",
+      "bytes": 692,
+      "rawDigest": "sha256:80e600590d4460e1df68bb2a1dbe175083870b299de4bda7b695ab1d4931fe98",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-16-quiescence-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-26-preflight-red.log",
+      "bytes": 3336,
+      "rawDigest": "sha256:396c1a42e6a7b01c4a1b2f1c8b8d1fa3002e6e16c37bf621afb6957c27702aa2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-26-preflight-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-backend-27-preflight-green.log",
+      "bytes": 650,
+      "rawDigest": "sha256:55668f4af5fc9dcad0b1968f9de10d1ba054e5af9e5be952b52d8b950f465460",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-backend-27-preflight-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-19-admission-red.log",
+      "bytes": 10157,
+      "rawDigest": "sha256:61a82412adeac4083bd27af95f51739f2f5d7c3c3887715a616656d132b66857",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-19-admission-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-20-admission-green.log",
+      "bytes": 580,
+      "rawDigest": "sha256:22b394b8f456b9e7283a4c0a71b979def05d31865eefc3e3648f024628afdd4c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-20-admission-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-21-owner-races-red.log",
+      "bytes": 3470,
+      "rawDigest": "sha256:859d83827b434ad6f65d4a46368191cc53bf7f1db35c1429b0bab463a8068d9a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-21-owner-races-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-22-prepare-red.log",
+      "bytes": 1865,
+      "rawDigest": "sha256:5877601d62fe8f4ef3dd89288d11f864501e30ffa5ebea314fc999a60d306834",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-22-prepare-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-23-owner-prepare-green.log",
+      "bytes": 580,
+      "rawDigest": "sha256:c30ed31bb84f3ad1c6cab74e321976b37b8e531ed076647b5233c9adc1740baa",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-23-owner-prepare-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-24-failure-custody-red.log",
+      "bytes": 1708,
+      "rawDigest": "sha256:e0b337883cd9ac7528e940c407ee6165cc9fe1bfb3ca418b165acde365eca659",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-24-failure-custody-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log",
+      "bytes": 580,
+      "rawDigest": "sha256:43e9af93c1d92c6a922af2f2a96097ca2d6c862fa1fda041931cd88b76ef585c",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-kernel-25-custody-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-17-combined-green.log",
+      "bytes": 643,
+      "rawDigest": "sha256:7917f94270fc76cbcfca566c64203dc0cedafe63a3244c78cab347f40308f023",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-native-17-combined-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-18-runtime-pins.log",
+      "bytes": 3144,
+      "rawDigest": "sha256:2f59ea73f76a12104a169651c93afc217eb1e17b09f605e05a09e6c62dda6922",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-native-18-runtime-pins.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-28-review-regression.log",
+      "bytes": 681,
+      "rawDigest": "sha256:dd352292e2a23b51e268dc1003d10d87eb7b9840cde5d2e60c06feb255d0eb91",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-native-28-review-regression.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-29-final-runtime-pins.log",
+      "bytes": 6278,
+      "rawDigest": "sha256:6dec9db051974388aff640a651cd72b8b99ee0c703301cc68c4bd641e93605b0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-native-29-final-runtime-pins.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-native-30-publish-review.log",
+      "bytes": 856,
+      "rawDigest": "sha256:892b9f8a7891685bbb5249f29d6ef36f073fa754b50a90eff417b779ff69d0bd",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-native-30-publish-review.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-01-red.log",
+      "bytes": 1521,
+      "rawDigest": "sha256:a8b885d87994532e7c5e8a5483841ba73ecacf01bbf051a0d3d16d31abc33086",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-02-green-attempt.log",
+      "bytes": 2582,
+      "rawDigest": "sha256:184febbc6bcde25e6dac535d61cf770cac3dbca30d7cd16626431f2cca5838e5",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-02-green-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-03-nested-diagnostic.log",
+      "bytes": 2679,
+      "rawDigest": "sha256:79625bf6ad8f83e10a850e34492a4c7d18f968cba6050921260feca77a3a63f9",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-03-nested-diagnostic.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-04-typecheck.log",
+      "bytes": 303,
+      "rawDigest": "sha256:91941f9bb36cb96ec0c8fb83991c700690fae48fa93da8d33969c31f7351e761",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-04-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-05-revocation.log",
+      "bytes": 651,
+      "rawDigest": "sha256:6dac7eb522fa7a96d561e38f7273a73470ccfc4fadbaf88040fb7446ff9a5693",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-05-revocation.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-06-typecheck-bounded.log",
+      "bytes": 1135,
+      "rawDigest": "sha256:448bd02fb56995dec38d2e0c7b67018d164d7757abc542064cb779092a32043b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-06-typecheck-bounded.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/python-provider-07-storage-red.log",
+      "bytes": 2600,
+      "rawDigest": "sha256:7480ddddd0aacc6937d5de8e6b2c58fcffffecfff84cded171182d67f9762a68",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/python-provider-07-storage-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/recovery-01-red.log",
+      "bytes": 10937,
+      "rawDigest": "sha256:24ebfe2962a5a417d1ecec2040114746e907c0d01e8d424d6e66524e78aa2e50",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/recovery-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/recovery-02-green.log",
+      "bytes": 601,
+      "rawDigest": "sha256:49fd8c660ee52016a51ef6f9b7f1a8c215c9ad7870c834ce055c63c46ecf5f13",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/recovery-02-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/recovery-03-focused-regression.log",
+      "bytes": 698,
+      "rawDigest": "sha256:dab256c5f7856fae87a4241d20c351cb9305826c2a9b2ddc7fa8ce9d36bf51a4",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/recovery-03-focused-regression.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-01-red.log",
+      "bytes": 7994,
+      "rawDigest": "sha256:7b47620970316d6a1bc5f0b9fc194b9962e8cbbd8601d6535a2ddac8a80cbfdf",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-02-error-red.log",
+      "bytes": 4061,
+      "rawDigest": "sha256:19416a80580061589b12cab0f7919dbc5674f0ec257c8812e3f9630fc8a68014",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-02-error-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-03-green-attempt.log",
+      "bytes": 682,
+      "rawDigest": "sha256:10ab669499b20c09e78a10dd691970a67d2a636cc4eef006a17efc42371b59c2",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-03-green-attempt.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-04-count-red.log",
+      "bytes": 1807,
+      "rawDigest": "sha256:9c4fa6bc308ed4c6fc2f75a283ffb3ce1bc471d8aa4112645ce4265668575efc",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-04-count-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-05-green.log",
+      "bytes": 732,
+      "rawDigest": "sha256:348fe099db4f56fb6c75d99063dbffb83575fa7b2fe8cbee8e799523892e3174",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-05-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/replay-06-typecheck.log",
+      "bytes": 339,
+      "rawDigest": "sha256:590be9afc1b3d102436304e9907930ad4e2786f22177175ee3c27fd05f41c2a1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/replay-06-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-01-host-red.log",
+      "bytes": 4345,
+      "rawDigest": "sha256:31130d6ca172555d69faaefb42189999a5e53237d7b3b6c8153d2d917eb3a304",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-01-host-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-02-host-green.log",
+      "bytes": 686,
+      "rawDigest": "sha256:43a4e9f1df9527364878db58f351f885677a0abd769db2e11b8909be89ce2f8b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-02-host-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-03-concurrency-red.log",
+      "bytes": 459,
+      "rawDigest": "sha256:444c5e52f2b652737df2c19fb65f00db6e27ad879f09c6b9ab61e3cb32bdc2f7",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-03-concurrency-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-04-rollback-red.log",
+      "bytes": 3088,
+      "rawDigest": "sha256:c619b8a814d77ea9e7baceeed989a6832b5c53e3528112cac6008d52890fb1f0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-04-rollback-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-05-rollback-green.log",
+      "bytes": 679,
+      "rawDigest": "sha256:9a1296f570b22a8b745d3189a234c91c55c51a6a68cf791696de7a6e9b97f366",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-05-rollback-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-06-memory-scope-red.log",
+      "bytes": 1910,
+      "rawDigest": "sha256:218ddcd182268d9c02c4706ba9e9804bc2088d4037d7e5efdb811c84c584261e",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-06-memory-scope-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-07-memory-scope-green.log",
+      "bytes": 613,
+      "rawDigest": "sha256:fa5ae5673080423229358d3a2101136625c88cbb1fd8a41e9120b26ed646021a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-07-memory-scope-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-08-planning-read-red.log",
+      "bytes": 2898,
+      "rawDigest": "sha256:ecdf354da4f93cb147fb73e67101709e59e4cf2f9cc0c377737ce924f50799b3",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-08-planning-read-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-09-planning-read-green.log",
+      "bytes": 602,
+      "rawDigest": "sha256:95795ac998ade6678e08b5c4b0304060fe155863d2db7b321f704718222f0e26",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-09-planning-read-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-10-falsy-source-red.log",
+      "bytes": 2326,
+      "rawDigest": "sha256:c4dbccd1548b51cfd3c689b575d4d4dc79e856215d4ebf8f7769769ca08a1603",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-10-falsy-source-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-11-falsy-source-green.log",
+      "bytes": 613,
+      "rawDigest": "sha256:ab4c3ddd1c8f18c880e6129702be9cb97d2e4f195d2da26b9ce10f9a4b03d942",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-11-falsy-source-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-12-crash-gaps-red.log",
+      "bytes": 3781,
+      "rawDigest": "sha256:aec0fbf9b5fdbdf9869ab94add2112cee02e37c8235d3f35a6eaa33ea27852e5",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-12-crash-gaps-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-13-crash-gaps-green.log",
+      "bytes": 577,
+      "rawDigest": "sha256:08fdb4c25a232a2d67eb5052c9e37c6219134cff1604027d9c23ee2897dc8624",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-13-crash-gaps-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-14-javascript-busy-red.log",
+      "bytes": 1673,
+      "rawDigest": "sha256:d2a59af6c654e28ee272f16bf16b2f6bc7fdbaa85b5058bb037e7b72f1c96369",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-14-javascript-busy-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-15-javascript-busy-green.log",
+      "bytes": 578,
+      "rawDigest": "sha256:dc5308050fbfd8a3a7c1f8e1989d7e946a7517f1cf71b268de1cbae037defc34",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-15-javascript-busy-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-16-benchmark-provenance-red.log",
+      "bytes": 929,
+      "rawDigest": "sha256:49d6c999069c180ad8cd8b8e54a48bc35fcf0a26cfeaeb5d7ead5e1bb636a132",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-16-benchmark-provenance-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/review-17-benchmark-provenance-green.log",
+      "bytes": 1017,
+      "rawDigest": "sha256:f6933dbecdb190af81bedd8ea5ee07394e47cd184d2192ee9d354c2c8f0613b0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/review-17-benchmark-provenance-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/setup-01-pnpm-version.log",
+      "bytes": 296,
+      "rawDigest": "sha256:e160f70ff58a391829eb7e3eb4254feff6b9876f1bfca78500bf3ef6c8a9294a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/setup-01-pnpm-version.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/setup-02-frozen-install.log",
+      "bytes": 8950,
+      "rawDigest": "sha256:861eb776493b01ba32b8f8b988f38295b95a3f94ba766afad28328ade84998fe",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/setup-02-frozen-install.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/setup-03-native-pty.log",
+      "bytes": 3321,
+      "rawDigest": "sha256:48c5120fae2f305f032bd12b3cf3ef361d1adc92714d9066d4e9fa73e9a56c04",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/setup-03-native-pty.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/setup-04-test-launch-red.log",
+      "bytes": 1614,
+      "rawDigest": "sha256:c5287718bf2987ce90065514250887f4197bbbe102cf88f900e48e92ce2266d1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/setup-04-test-launch-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/source-01-custody.log",
+      "bytes": 4280,
+      "rawDigest": "sha256:d7ef31c15b8c0730dbfbd4636871f9df26c99e9899645b8ef328039ae225fc15",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/source-01-custody.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log",
+      "bytes": 1058,
+      "rawDigest": "sha256:689570899c3ad51934aa1ff9203c8b003790a4e2c978d52592a66879a06309b1",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/source-02-current-main-merge-preview.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/source-03-current-main-audit.log",
+      "bytes": 864,
+      "rawDigest": "sha256:83e9afdaec65db26575f67f72d84a61de1d72c2dc4d42c720aeb926e6484b889",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/source-03-current-main-audit.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/transport-01-red.log",
+      "bytes": 5213,
+      "rawDigest": "sha256:73e24aa702293d2b6e8e8b530b45e8a2e68881062b274b8dfed6e50d54fcd113",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/transport-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/transport-02-hermes-red.log",
+      "bytes": 1365,
+      "rawDigest": "sha256:ba8be25ca7c4e9d22e530d03fb1551a77cc5b0cdded4b644e2dc0acf04888d16",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/transport-02-hermes-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/transport-03-green.log",
+      "bytes": 1248,
+      "rawDigest": "sha256:d3e08fdf971a0b30e6a66f92ff55ed0e5eda857c18cc0e023803d43d1fcc1f09",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/transport-03-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/transport-04-green.log",
+      "bytes": 680,
+      "rawDigest": "sha256:58178db8841ee19d329fb5d8e299d4e9f224a98e4664a54c57e8b47a0d07a8aa",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/transport-04-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-01-red.log",
+      "bytes": 7892,
+      "rawDigest": "sha256:35f37f0b1377517eef7472e5c6e2c13587a168910510e6f26d0ae293aa6aa4bf",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-01-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-02-browser.log",
+      "bytes": 2010,
+      "rawDigest": "sha256:b9301bd5adbf6140ae1cf9541aaf415faa4bf7fe5bc0745a2b745ccc2771126a",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-02-browser.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-03-typecheck.log",
+      "bytes": 467,
+      "rawDigest": "sha256:24e3a5523475df5460784b70ef1c7dfb4f7dfeddb10448c2fae1b3e9943deca8",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-03-typecheck.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-04-elapsed-red.log",
+      "bytes": 3675,
+      "rawDigest": "sha256:fd43dd26cacf08b2a659c7da287a291d705e1c87f46b05f2f2cd3b3808d45cf0",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-04-elapsed-red.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-05-elapsed-green.log",
+      "bytes": 1351,
+      "rawDigest": "sha256:f97469ed7b3b336c45662d5a54b26ca9b4d91e2516196395f563f7a7cf1f904f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-05-elapsed-green.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-06-research-launch-before.log",
+      "bytes": 2394,
+      "rawDigest": "sha256:42c33d87c7ff8f2319489a19c9b1c077d13080dd51fb52a7476093afb0fbcc4b",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-06-research-launch-before.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-07-research-loader-identity.log",
+      "bytes": 1700,
+      "rawDigest": "sha256:d91a556f07690f793b299a168e81149fd42f29e9e720cf1286b450dbba6c1a5d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-07-research-loader-identity.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/ui-08-research-launch-after.log",
+      "bytes": 2512,
+      "rawDigest": "sha256:9311326e38601c13b005edbb980d10022a6f21790c809953c2b021e46e489d7f",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/ui-08-research-launch-after.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/validation-01-full-test.log",
+      "bytes": 33108,
+      "rawDigest": "sha256:3dfbd8ee87af249b161ed503e73a00d199b4d814ddc4b40185309e3aab62229d",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/validation-01-full-test.log (not uploaded; retained on the producing host)"
+    },
+    {
+      "path": "docs/implementation/v3/m12-logs/validation-02-browser.log",
+      "bytes": 33118,
+      "rawDigest": "sha256:996c03b14edb929bba7433027b8ec045c2464d68433cd364b8e497887d7aea48",
+      "custody": "owned-storage: <host>/m12-evidence-raw/docs/implementation/v3/m12-logs/validation-02-browser.log (not uploaded; retained on the producing host)"
+    }
+  ]
+}

@@ -1,7 +1,7 @@
 {
   "records": [
     {
-      "logPath": "/tmp/m12-js-probes/backend-red.txt",
+      "logPath": "<tmp>/m12-js-probes/backend-red.txt",
       "bytes": 13770,
       "sha256": "802d033c6f6d4486cf81138401bd65cb94adbe36cf0bd0ac9aa56d841f0f52ac",
       "argvFromObservedInvocation": [
@@ -19,7 +19,7 @@
       "retainedArtifact": "docs/implementation/v3/m12-artifacts/javascript-backend-red.txt"
     },
     {
-      "logPath": "/tmp/m12-js-probes/backend-attempt-1.txt",
+      "logPath": "<tmp>/m12-js-probes/backend-attempt-1.txt",
       "bytes": 1166,
       "sha256": "7e3776c3d5b9de9a6e99b6dc0252141dc5f28ec0aa445e2773c4446f55f98d19",
       "originalCommandMetadata": {
@@ -39,7 +39,7 @@
       "retainedArtifact": "docs/implementation/v3/m12-artifacts/javascript-backend-attempt-1.txt"
     },
     {
-      "logPath": "/tmp/m12-js-probes/backend-attempt-2.txt",
+      "logPath": "<tmp>/m12-js-probes/backend-attempt-2.txt",
       "bytes": 224,
       "sha256": "005a82f9f851073bfd9bfcf22f8b283bfc5e8b502a1c07fc4c282500de8a2d20",
       "originalCommandMetadata": {
@@ -65,5 +65,5 @@
     "observedError": "ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY",
     "note": "Ambient pnpm 11 automatic install check aborted before test execution; no dependency install completed; no separate complete command log was retained."
   },
-  "warning": "No historical timestamps, missing logs, or passing outcomes have been reconstructed. Fresh commands are recorded separately with /tmp/m12-record-command.py."
+  "warning": "No historical timestamps, missing logs, or passing outcomes have been reconstructed. Fresh commands are recorded separately with <tmp>/m12-record-command.py."
 }

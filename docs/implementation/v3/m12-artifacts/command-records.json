@@ -261,7 +261,7 @@
   "baseline-03-full-test-loader": {
     "argv": [
       "env",
-      "npm_config_script_shell=/tmp/m12-base-script-shell",
+      "npm_config_script_shell=<tmp>/m12-base-script-shell",
       "corepack",
       "pnpm@10.30.3",
       "test",
@@ -282,7 +282,7 @@
   "baseline-04-summary-preservation": {
     "argv": [
       "python",
-      "/tmp/m12-baseline-summarize.py"
+      "<tmp>/m12-baseline-summarize.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -507,7 +507,7 @@
       "--run-dir",
       "test-results/browser/run-1794739312340-a6b7828f-39d9-4d87-8493-9cae76ca9c9f",
       "--command-record",
-      "/tmp/m12-command-records/validation-02-browser.json",
+      "<tmp>/m12-command-records/validation-02-browser.json",
       "--output",
       "docs/implementation/v3/m12-artifacts/browser-full-summary.json"
     ],
@@ -578,7 +578,7 @@
       "test-results/m12-focused-regression"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:09:25.143289+00:00",
     "endedAt": "2026-11-15T11:09:42.471436+00:00",
     "exitCode": 0,
@@ -590,7 +590,7 @@
   "comparison-04-reporter-probe": {
     "argv": [
       "node",
-      "/tmp/m12-comparison-probes/check-reporter.mjs"
+      "<tmp>/m12-comparison-probes/check-reporter.mjs"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -611,11 +611,11 @@
       "--candidate-root",
       "/workspace/scratch/dbebe44a9817/m12-base-fcaa52",
       "--candidate-unhandled",
-      "/tmp/m12-comparison-probes/no-unhandled-sidecar.json",
+      "<tmp>/m12-comparison-probes/no-unhandled-sidecar.json",
       "--output",
-      "/tmp/m12-comparison-probes/self-comparison.json",
+      "<tmp>/m12-comparison-probes/self-comparison.json",
       "--markdown",
-      "/tmp/m12-comparison-probes/self-comparison.md"
+      "<tmp>/m12-comparison-probes/self-comparison.md"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -657,7 +657,7 @@
       "--outputFile.json=docs/implementation/v3/m12-artifacts/plugin-tools-dock-recheck.json"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:41:38.717466+00:00",
     "endedAt": "2026-11-15T11:41:50.317960+00:00",
     "exitCode": 0,
@@ -669,7 +669,7 @@
   "comparison-07-preserve-before-packaging": {
     "argv": [
       "python",
-      "/tmp/m12-comparison-probes/preserve-before-packaging.py"
+      "<tmp>/m12-comparison-probes/preserve-before-packaging.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -684,7 +684,7 @@
   "comparison-08-first-candidate-diagnosis": {
     "argv": [
       "python",
-      "/tmp/m12-comparison-probes/record-first-diagnosis.py"
+      "<tmp>/m12-comparison-probes/record-first-diagnosis.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -701,7 +701,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-plugin-dock-source-proof.mts"
+      "<tmp>/m12-plugin-dock-source-proof.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -718,7 +718,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-plugin-dock-source-proof.mts"
+      "<tmp>/m12-plugin-dock-source-proof.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -733,7 +733,7 @@
   "comparison-09-preserve-after-review": {
     "argv": [
       "python",
-      "/tmp/m12-comparison-probes/preserve-after-review.py"
+      "<tmp>/m12-comparison-probes/preserve-after-review.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -769,7 +769,7 @@
   "comparison-11-final-assessment": {
     "argv": [
       "python",
-      "/tmp/m12-comparison-probes/final-assessment.py"
+      "<tmp>/m12-comparison-probes/final-assessment.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -784,7 +784,7 @@
   "dependency-01-tokenizer-review": {
     "argv": [
       "python3",
-      "/tmp/m12-review-tokenizer.py"
+      "<tmp>/m12-review-tokenizer.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -898,7 +898,7 @@
       "--ignore-scripts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:15:29.829689+00:00",
     "endedAt": "2026-11-15T11:15:30.996092+00:00",
     "exitCode": 0,
@@ -916,7 +916,7 @@
       "tests/tool-program-v3.test.ts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:24:47.463976+00:00",
     "endedAt": "2026-11-15T11:24:48.892648+00:00",
     "exitCode": 0,
@@ -934,7 +934,7 @@
       "tests/tool-program-replay-v3.test.ts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:28:31.450958+00:00",
     "endedAt": "2026-11-15T11:28:41.972724+00:00",
     "exitCode": 0,
@@ -952,7 +952,7 @@
       "tests/python-kernel-v3.test.ts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:28:38.228127+00:00",
     "endedAt": "2026-11-15T11:28:39.483821+00:00",
     "exitCode": 0,
@@ -984,7 +984,7 @@
       "--maxWorkers=2"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:28:50.691983+00:00",
     "endedAt": "2026-11-15T11:28:54.909338+00:00",
     "exitCode": 0,
@@ -1013,7 +1013,7 @@
       "--maxWorkers=2"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:29:23.556446+00:00",
     "endedAt": "2026-11-15T11:29:51.777676+00:00",
     "exitCode": 0,
@@ -1050,7 +1050,7 @@
       "--outputFile.json=docs/implementation/v3/m12-artifacts/candidate-vitest.json"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:30:59.663367+00:00",
     "endedAt": "2026-11-15T11:37:13.430862+00:00",
     "exitCode": 1,
@@ -1065,7 +1065,7 @@
       "build"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:50:37.612206+00:00",
     "endedAt": "2026-11-15T11:50:46.878713+00:00",
     "exitCode": 0,
@@ -1083,7 +1083,7 @@
       "tool-programs"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:18:08.317744+00:00",
     "endedAt": "2026-11-15T11:18:15.354604+00:00",
     "exitCode": 0,
@@ -1120,7 +1120,7 @@
       "--outputFile.json=docs/implementation/v3/m12-artifacts/candidate-vitest-after-review.json"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:43:53.172038+00:00",
     "endedAt": "2026-11-15T11:49:26.114070+00:00",
     "exitCode": 1,
@@ -1224,7 +1224,7 @@
       "terminal-excerpts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:58:22.636022+00:00",
     "endedAt": "2026-11-15T11:58:52.349219+00:00",
     "exitCode": 1,
@@ -1242,7 +1242,7 @@
       "terminal-excerpts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T12:00:34.323458+00:00",
     "endedAt": "2026-11-15T12:01:02.852441+00:00",
     "exitCode": 0,
@@ -1260,7 +1260,7 @@
       "saved-drafts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T12:01:23.304939+00:00",
     "endedAt": "2026-11-15T12:06:58.315373+00:00",
     "exitCode": 1,
@@ -1278,7 +1278,7 @@
       "conversation-find"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T12:02:44.887632+00:00",
     "endedAt": "2026-11-15T12:03:03.710508+00:00",
     "exitCode": 0,
@@ -1296,7 +1296,7 @@
       "wo5-app-integration"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T12:03:12.640589+00:00",
     "endedAt": "2026-11-15T12:05:31.988702+00:00",
     "exitCode": 1,
@@ -1314,7 +1314,7 @@
       "redundant-ui"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T12:06:31.198279+00:00",
     "endedAt": "2026-11-15T12:07:36.640659+00:00",
     "exitCode": 1,
@@ -1326,7 +1326,7 @@
   "fixture-evidence-01-summary": {
     "argv": [
       "python3",
-      "/tmp/m12-summarize-fixture-regression.py"
+      "<tmp>/m12-summarize-fixture-regression.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -2137,7 +2137,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/capture-runtime.ts"
+      "<tmp>/m12-python-probes/capture-runtime.ts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2154,7 +2154,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/capture-runtime.mts"
+      "<tmp>/m12-python-probes/capture-runtime.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2267,7 +2267,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/supervisor-debug.mts"
+      "<tmp>/m12-python-probes/supervisor-debug.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2284,7 +2284,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/supervisor-debug.mts"
+      "<tmp>/m12-python-probes/supervisor-debug.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2510,7 +2510,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/capture-runtime-supervised.mts"
+      "<tmp>/m12-python-probes/capture-runtime-supervised.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2547,7 +2547,7 @@
       "node",
       "--import",
       "tsx",
-      "/tmp/m12-python-probes/capture-runtime-final.mts"
+      "<tmp>/m12-python-probes/capture-runtime-final.mts"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
@@ -2562,7 +2562,7 @@
   "python-native-30-publish-review": {
     "argv": [
       "python",
-      "/tmp/m12-python-probes/publish-review-report.py"
+      "<tmp>/m12-python-probes/publish-review-report.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
@@ -3032,7 +3032,7 @@
       "--maxWorkers=1"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:00:00.731426+00:00",
     "endedAt": "2026-11-15T11:00:04.675535+00:00",
     "exitCode": 0,
@@ -3053,7 +3053,7 @@
       "granted byte reader|delegated byte reads"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:00:45.594398+00:00",
     "endedAt": "2026-11-15T11:00:47.394132+00:00",
     "exitCode": 1,
@@ -3073,7 +3073,7 @@
       "--maxWorkers=1"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:01:06.379023+00:00",
     "endedAt": "2026-11-15T11:01:09.410034+00:00",
     "exitCode": 0,
@@ -3094,7 +3094,7 @@
       "thrown value"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:01:43.175909+00:00",
     "endedAt": "2026-11-15T11:01:44.492672+00:00",
     "exitCode": 1,
@@ -3114,7 +3114,7 @@
       "--maxWorkers=1"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:02:27.302119+00:00",
     "endedAt": "2026-11-15T11:02:37.890658+00:00",
     "exitCode": 0,
@@ -3135,7 +3135,7 @@
       "recovers call.effect_committed|recovers call.read_returned"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:02:49.617531+00:00",
     "endedAt": "2026-11-15T11:02:52.954043+00:00",
     "exitCode": 1,
@@ -3154,7 +3154,7 @@
       "--maxWorkers=1"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:03:39.573862+00:00",
     "endedAt": "2026-11-15T11:03:55.615224+00:00",
     "exitCode": 0,
@@ -3175,7 +3175,7 @@
       "another program already"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:21:35.127839+00:00",
     "endedAt": "2026-11-15T11:21:37.994465+00:00",
     "exitCode": 1,
@@ -3194,7 +3194,7 @@
       "--maxWorkers=1"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:22:11.532974+00:00",
     "endedAt": "2026-11-15T11:22:14.217166+00:00",
     "exitCode": 0,
@@ -3236,7 +3236,7 @@
   "setup-03-native-pty": {
     "argv": [
       "python3",
-      "/tmp/m12-prepare-native.py"
+      "<tmp>/m12-prepare-native.py"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
     "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",

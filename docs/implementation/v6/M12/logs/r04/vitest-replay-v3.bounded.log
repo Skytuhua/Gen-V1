@@ -1,0 +1,46 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:541719) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/tool-program-replay-v3.test.ts [2m([22m[2m33 tests[22m[2m)[22m[33m 92268[2mms[22m[39m
+     [33m[2m✓[22m[39m reuses private receipts and reproduces out-of-order delivery, RNG and virtual clocks without another read [33m 2816[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed source with REPLAY_DIVERGED before any additional read [33m 1558[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed runtime with REPLAY_DIVERGED before any additional read [33m 1018[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed arguments with REPLAY_DIVERGED before any additional read [33m 1268[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed call sequence with REPLAY_DIVERGED before any additional read [33m 1011[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed nested owner with REPLAY_DIVERGED before any additional read [33m 978[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed issued count with REPLAY_DIVERGED before any additional read [33m 839[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects an actual registry definition change even after the host discloses the replacement [33m 922[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in threadId before replay admission [33m 627[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in runId before replay admission [33m 428[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in epoch before replay admission [33m 442[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in projectId before replay admission [33m 1135[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in workspaceId before replay admission [33m 529[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects current owner drift in accountBinding before replay admission [33m 444[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects changed VM arguments and cannot turn the rejected call into a successful caught aggregate [33m 2261[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a worker that returns before reproducing committed call identities and deliveries [33m 1602[2mms[22m[39m
+     [33m[2m✓[22m[39m compares the actual VM issued count before releasing a replayed first delivery [33m 1676[2mms[22m[39m
+     [33m[2m✓[22m[39m does not admit an extra call after a completed original sequence has been reproduced [33m 1584[2mms[22m[39m
+     [33m[2m✓[22m[39m reuses the original absolute deadline instead of granting a new replay budget [33m 8240[2mms[22m[39m
+     [33m[2m✓[22m[39m retains FAILED private sources on replay even when the real script catches the tool rejection [33m 1328[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves an uncaught failed source classification without exposing its private error message [33m 645[2mms[22m[39m
+     [33m[2m✓[22m[39m retains a known backend script-failure code while replacing a private guest error message [33m 696[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers program.prepared without repeating a committed or unknown read [33m 5095[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers journal.start_committed without repeating a committed or unknown read [33m 5702[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.identity_committed without repeating a committed or unknown read [33m 3849[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.before_dispatch without repeating a committed or unknown read [33m 7553[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.effect_committed without repeating a committed or unknown read [33m 6385[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.dispatched without repeating a committed or unknown read [33m 6624[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.read_returned without repeating a committed or unknown read [33m 5562[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers call.result_committed without repeating a committed or unknown read [33m 7751[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers journal.delivery_committed without repeating a committed or unknown read [33m 3690[2mms[22m[39m
+     [33m[2m✓[22m[39m recovers program.result_committed without repeating a committed or unknown read [33m 3346[2mms[22m[39m
+     [33m[2m✓[22m[39m permits an explicitly requested first run after a PREPARED-only crash without inventing a replay journal [33m 4337[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m33 passed[39m[22m[90m (33)[39m
+[2m   Start at [22m 14:04:54
+[2m   Duration [22m 96.56s[2m (transform 2.25s, setup 0ms, import 3.62s, tests 92.27s, environment 0ms)[22m
+

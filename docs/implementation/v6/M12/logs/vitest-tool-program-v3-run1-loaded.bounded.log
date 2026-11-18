@@ -1,0 +1,96 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T12:29:01.798Z",
+  "endedAt": "2026-11-18T12:32:39.193Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ❯ tests/tool-program-v3.test.ts (22 tests | 2 failed) 211864ms
+     ✓ bounds every program budget and rejects ambient capability fields 9ms
+     ✓ requires durable owner, digests and state on programs and calls 9ms
+     ✓ requires deterministic journal start data and an explicit kernel generation 3ms
+     ✓ registers exactly the three requested default-off flags 2ms
+     ✓ persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events  15591ms
+     ✓ denies repository_log before an executor dispatch  479ms
+     ✓ denies file_replace_prepare before an executor dispatch  449ms
+     ✓ denies unregistered before an executor dispatch  2386ms
+     ✓ denies account drift after preparation and before any read  1142ms
+     × bounds admitted concurrency and call count before dispatch 43373ms
+     ✓ retains a rejected source as failed even when its thrown value is undefined  5097ms
+     ✓ retains a rejected source as failed even when its thrown value is null  9256ms
+     ✓ retains a rejected source as failed even when its thrown value is false  1038ms
+     ✓ retains a rejected source as failed even when its thrown value is 0  24484ms
+     ✓ retains a rejected source as failed even when its thrown value is Error: ordinary source error  1887ms
+     ✓ preserves a source failure even if a script catches it and returns an aggregate  1353ms
+     ✓ rejects oversized visible aggregates and cancellation fences queued reads  26869ms
+     ✓ admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget  723ms
+     × bounds failure envelopes and references after exhausting a small visible budget 50636ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"}  3817ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"ok":false}  21207ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"success":false}  2027ms
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 20 passed (22)
+   Start at  04:29:02
+   Duration  216.02s (transform 3.54s, setup 0ms, import 3.89s, tests 211.86s, environment 0ms)
+
+
+(node:105661) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > bounds admitted concurrency and call count before dispatch
+AssertionError: expected 'PROGRAM_DEADLINE' to be 'CALL_LIMIT' // Object.is equality
+
+Expected: "CALL_LIMIT"
+Received: "PROGRAM_DEADLINE"
+
+ ❯ tests/tool-program-v3.test.ts:142:32
+    140|     const result = await f.programs.run(program.programId, owner, exec…
+    141|     expect(result.state).toBe('FAILED');
+    142|     expect(result.error?.code).toBe('CALL_LIMIT');
+       |                                ^
+    143|     expect(calls).toBe(64);
+    144|     expect(maximum).toBe(4);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/tool-program-v3.test.ts > M12 non-replaying synthetic host protocol > bounds failure envelopes and references after exhausting a small visible budget
+AssertionError: expected { …(6) } to match object { state: 'FAILED', …(1) }
+(9 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+    "error": {
+-     "code": "CALL_LIMIT",
++     "code": "PROGRAM_DEADLINE",
+    },
+    "state": "FAILED",
+  }
+
+ ❯ tests/tool-program-v3.test.ts:212:20
+    210|     const program = await prepare(f.programs, executor, { limits: { ma…
+    211|     const result = await f.programs.run(program.programId, owner, exec…
+    212|     expect(result).toMatchObject({ state: 'FAILED', error: { code: 'CA…
+       |                    ^
+    213|     expect(Buffer.byteLength(JSON.stringify(result))).toBeLessThanOrEq…
+    214|     expect(result.usage.visibleBytes).toBe(Buffer.byteLength(JSON.stri…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+

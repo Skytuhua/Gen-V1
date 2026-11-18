@@ -86,7 +86,7 @@
       "--outputFile.json=docs/implementation/v3/m12-artifacts/plugin-tools-dock-recheck.json"
     ],
     "cwdIdentity": "/workspace/scratch/dbebe44a9817/m12-v3",
-    "executableIdentity": "/tmp/m12-bin/pnpm",
+    "executableIdentity": "<tmp>/m12-bin/pnpm",
     "startedAt": "2026-11-15T11:41:38.717466+00:00",
     "endedAt": "2026-11-15T11:41:50.317960+00:00",
     "exitCode": 0,

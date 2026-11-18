@@ -61,7 +61,7 @@
   "commandRecord": {
     "argv": [
       "env",
-      "npm_config_script_shell=/tmp/m12-base-script-shell",
+      "npm_config_script_shell=<tmp>/m12-base-script-shell",
       "corepack",
       "pnpm@10.30.3",
       "test",
@@ -82,7 +82,7 @@
   "launchAdaptation": {
     "reason": "Original pnpm test stopped before tests because tsx CLI tried to create a Unix IPC socket prohibited in this host.",
     "originalAttempt": "docs/implementation/v3/m12-logs/baseline-01-full-test.log",
-    "override": "npm_config_script_shell=/tmp/m12-base-script-shell",
+    "override": "npm_config_script_shell=<tmp>/m12-base-script-shell",
     "shim": "#!/bin/bash\nset -e\nif [ \"$1\" = '-c' ]; then\n  script=$2\n  shift 2\n  exec /bin/bash -c 'tsx() { command node --import tsx \"$@\"; }\n'\"$script\" -- \"$@\"\nfi\nexec /bin/bash \"$@\"\n",
     "scope": "Maps the tsx shell command to node --import tsx; preserves pnpm test, its build prerequisites, and all base source."
   },

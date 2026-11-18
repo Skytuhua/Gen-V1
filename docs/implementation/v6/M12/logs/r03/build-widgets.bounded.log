@@ -1,0 +1,6 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+> gen-v1@0.6.5 build:widgets <worktree:m12-r03>
+> node scripts/build-widgets.mjs
+
+WIDGETS_EXIT=0

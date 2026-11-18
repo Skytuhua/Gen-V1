@@ -4,9 +4,9 @@ All changes are uncommitted in /workspace/scratch/dbebe44a9817/m12-v3. No depend
 
 ## JavaScript executor
 
-The checked quickjs-wasi 3.6.2 Worker implementation and 14 native backend fixtures are in packages/runtime/tool-program-worker.ts, packages/runtime/tool-program-worker-child.mjs and tests/tool-program-backend-v3.test.ts. Exact installed content pins, upstream commit/blob references, API probes, WASM memory maximum transformation, actual memory/deadline outcomes and limitations are in /tmp/m12-js-feasibility.md. The guest QuickJS/WASM linear-memory ceiling is 128 MiB; Node/V8 wrapper overhead is separate. Runtime self-test evidence is not release approval.
+The checked quickjs-wasi 3.6.2 Worker implementation and 14 native backend fixtures are in packages/runtime/tool-program-worker.ts, packages/runtime/tool-program-worker-child.mjs and tests/tool-program-backend-v3.test.ts. Exact installed content pins, upstream commit/blob references, API probes, WASM memory maximum transformation, actual memory/deadline outcomes and limitations are in <tmp>/m12-js-feasibility.md. The guest QuickJS/WASM linear-memory ceiling is 128 MiB; Node/V8 wrapper overhead is separate. Runtime self-test evidence is not release approval.
 
-The original 14-failure absent-executor red log, first 13/14 implementation attempt, and subsequent 14/14 pass remain unchanged under /tmp/m12-js-probes. /tmp/m12-js-probes/historical-command-evidence.json records SHA-256 values and the original retained metadata. The red log lacks separately retained absolute timestamp/executable metadata and is explicitly labeled partial historical evidence. The earlier ambient pnpm 11 non-TTY auto-install check failure is retained as an observation, without inventing a missing log or timestamps.
+The original 14-failure absent-executor red log, first 13/14 implementation attempt, and subsequent 14/14 pass remain unchanged under <tmp>/m12-js-probes. <tmp>/m12-js-probes/historical-command-evidence.json records SHA-256 values and the original retained metadata. The red log lacks separately retained absolute timestamp/executable metadata and is explicitly labeled partial historical evidence. The earlier ambient pnpm 11 non-TTY auto-install check failure is retained as an observation, without inventing a missing log or timestamps.
 
 ## Real replay and crash recovery
 
@@ -60,11 +60,11 @@ Recorded evidence:
 | linux-read-06-typecheck | Failed only because the new fixture used nonexistent grant kind directory; corrected to the actual project kind, with final typecheck delegated to root |
 | linux-read-07-integration-green | Transitional FAIL: 64 passed, 7 Python supervisor failures, one unhandled Python rejection while its independent owner was repairing completion/quiescence. All file-read, project-trust, existing guard and JS integration cases passed. The failed record is retained and is not a passing gate |
 
-The Python owner requested no concurrent rerun during that repair. Root owns final stable-cut verification. Every recorded attempt has its retained bounded log under docs/implementation/v3/m12-logs and command metadata under /tmp/m12-command-records.
+The Python owner requested no concurrent rerun during that repair. Root owns final stable-cut verification. Every recorded attempt has its retained bounded log under docs/implementation/v3/m12-logs and command metadata under <tmp>/m12-command-records.
 
 ## Exact external-source report
 
-/tmp/m12-source-reference-audit.md contains the four requested Pi/Hermes commit and verified blob cuts, their observed replay/kernel/disclosure/spill behavior, and specific unsafe reuse boundaries. Source verification is distinct from native runtime proof and from release approval.
+<tmp>/m12-source-reference-audit.md contains the four requested Pi/Hermes commit and verified blob cuts, their observed replay/kernel/disclosure/spill behavior, and specific unsafe reuse boundaries. Source verification is distinct from native runtime proof and from release approval.
 
 ## Final integrated validation addendum
 

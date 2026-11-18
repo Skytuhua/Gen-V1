@@ -12,10 +12,10 @@ import sys
 import time
 
 root = Path('/workspace/scratch/dbebe44a9817/m12-v3')
-os.environ['PATH'] = '/tmp/m12-bin:' + os.environ['PATH']
+os.environ['PATH'] = '<tmp>/m12-bin:' + os.environ['PATH']
 cwd = Path(os.environ.get('M12_COMMAND_CWD', str(root)))
 logs = root / 'docs/implementation/v3/m12-logs'
-records = Path('/tmp/m12-command-records')
+records = Path('<tmp>/m12-command-records')
 logs.mkdir(parents=True, exist_ok=True)
 records.mkdir(parents=True, exist_ok=True)
 identifier, seconds, *argv = sys.argv[1:]
@@ -46,7 +46,7 @@ try:
             if len(output) > limit:
                 output = output[:limit // 2] + output[-limit // 2:]
                 truncated = True
-            live = Path('/tmp/m12-running-logs'); live.mkdir(exist_ok=True)
+            live = Path('<tmp>/m12-running-logs'); live.mkdir(exist_ok=True)
             (live / (identifier + '.txt')).write_bytes(output)
     code = process.wait()
 except OSError as error:

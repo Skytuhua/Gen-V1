@@ -1,0 +1,20 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m<worktree:m12-r03>[39m
+
+(node:438069) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/tool-program-continuation-v6.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 18793[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps x=7 visible to a second cell in one generation, then drops it after reset [33m 1376[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed recorded argument with REPLAY_DIVERGED and no new calls [33m 3538[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed recorded tool-definition digest with REPLAY_DIVERGED and no new calls [33m 1440[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a changed recorded result order with REPLAY_DIVERGED and no new calls [33m 5407[2mms[22m[39m
+     [33m[2m✓[22m[39m revokes the resource grant between preparation and nested dispatch, retaining a denial receipt and no tool call [33m 2054[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps wholeExecutorMemoryLimitBytes null and cannot enable Python admission [33m 1527[2mms[22m[39m
+     [33m[2m✓[22m[39m never confirms, replaces or releases a cancelled read that ignores the abort signal [33m 2941[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m7 passed[39m[22m[90m (7)[39m
+[2m   Start at [22m 10:30:15
+[2m   Duration [22m 22.00s[2m (transform 2.05s, setup 0ms, import 2.75s, tests 18.79s, environment 0ms)[22m
+

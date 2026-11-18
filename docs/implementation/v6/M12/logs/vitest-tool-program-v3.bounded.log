@@ -1,0 +1,48 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/tool-program-v3.test.ts"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T14:16:44.977Z",
+  "endedAt": "2026-11-18T14:17:48.235Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/tool-program-v3.test.ts (22 tests) 56089ms
+     ✓ persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events  1612ms
+     ✓ denies repository_log before an executor dispatch  781ms
+     ✓ denies file_replace_prepare before an executor dispatch  750ms
+     ✓ denies unregistered before an executor dispatch  663ms
+     ✓ denies account drift after preparation and before any read  2929ms
+     ✓ bounds admitted concurrency and call count before dispatch  11560ms
+     ✓ retains a rejected source as failed even when its thrown value is undefined  391ms
+     ✓ retains a rejected source as failed even when its thrown value is null  340ms
+     ✓ retains a rejected source as failed even when its thrown value is false  398ms
+     ✓ retains a rejected source as failed even when its thrown value is 0  840ms
+     ✓ retains a rejected source as failed even when its thrown value is Error: ordinary source error  2306ms
+     ✓ preserves a source failure even if a script catches it and returns an aggregate  1648ms
+     ✓ rejects oversized visible aggregates and cancellation fences queued reads  1045ms
+     ✓ admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget  636ms
+     ✓ bounds failure envelopes and references after exhausting a small visible budget  26888ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"}  1380ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"ok":false}  1106ms
+     ✓ retains explicitly unsuccessful source outcomes as failures: {"success":false}  733ms
+
+ Test Files  1 passed (1)
+      Tests  22 passed (22)
+   Start at  06:16:48
+   Duration  59.26s (transform 1.49s, setup 0ms, import 2.48s, tests 56.09s, environment 0ms)
+
+
+(node:203554) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

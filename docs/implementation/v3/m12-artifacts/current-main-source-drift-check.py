@@ -66,7 +66,7 @@ assert not [path for path in git('ls-files', '--others', '--exclude-standard').s
 log_path = directory / 'm12-logs/source-02-current-main-merge-preview.log'
 record = json.loads((directory / 'm12-artifacts/command-records.json').read_text()).get('source-02-current-main-merge-preview')
 if record is None:
-    record = json.loads(Path('/tmp/m12-command-records/source-02-current-main-merge-preview.json').read_text())
+    record = json.loads(Path('<tmp>/m12-command-records/source-02-current-main-merge-preview.json').read_text())
 assert sha256(log_path) == record['logDigest']
 header_text, body = log_path.read_text().split('\n\n', 1)
 header = json.loads(header_text)

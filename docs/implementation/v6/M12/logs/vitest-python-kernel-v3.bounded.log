@@ -1,0 +1,50 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/python-kernel-v3.test.ts"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T12:07:41.313Z",
+  "endedAt": "2026-11-18T12:08:06.787Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+ RUN  v4.1.12 <worktree:m12-v6>
+
+ ✓ tests/python-kernel-v3.test.ts (21 tests) 19450ms
+   ✓ keeps one process between successful cells with fresh program admission each time  2031ms
+   ✓ persists a new generation before reset accepts another cell and never reruns history  1853ms
+   ✓ fails exact owner checks for Stop and Reset without killing another owner process  2471ms
+   ✓ marks failed, cancelled or wedged cells reset-required and invalidates variables  2226ms
+   ✓ does not reconstruct retained variables after host recovery  621ms
+   ✓ invalidates generations on host rollback without replaying or removing receipts  521ms
+   ✓ disposes an initial factory that resolves after Stop without resurrecting READY  515ms
+   ✓ cannot replace a reset generation with a late initial factory  884ms
+   ✓ disposes a late initial factory after host rollback and keeps the invalidated generation  1755ms
+   ✓ disposes a late initial factory after exact owner revocation  662ms
+   ✓ rejects a late initial factory after recovery changes its admission record without changing generation  503ms
+   ✓ revokes a pending initial factory when a changed configuration selects another kernel for the same owner  719ms
+   ✓ rejects an executor whose explicit language is not Python even if its isolation claim matches  398ms
+   ✓ lets only the latest different-key create acquire the owner after a pending stop  429ms
+   ✓ lets reset supersede a different-key create while preserving custody of the stopping executor  409ms
+   ✓ resets a previously selected key only after stopping the current different-key kernel  657ms
+   ✓ cancels an old program prepared after stop without dispatching it or changing the new kernel state  670ms
+   ✓ cancels an old program prepared after reset without dispatching it or changing the new kernel state  805ms
+   ✓ keeps cleanup custody after a failed result until reset can replace the process  812ms
+   ✓ keeps cleanup custody after a prepare rejection until reset can replace the process  476ms
+
+ Test Files  1 passed (1)
+      Tests  21 passed (21)
+   Start at  04:07:44
+   Duration  21.74s (transform 966ms, setup 0ms, import 1.54s, tests 19.45s, environment 0ms)
+
+
+(node:89563) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

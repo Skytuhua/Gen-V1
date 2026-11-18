@@ -1,0 +1,92 @@
+[curated excerpt — raw output removed per CONTRIBUTING; raw artifact digest recorded in the receipt and CUSTODY.json]
+{
+  "argv": [
+    "pnpm",
+    "build"
+  ],
+  "cwd": "<worktree:m12-v6>",
+  "startedAt": "2026-11-18T14:18:23.525Z",
+  "endedAt": "2026-11-18T14:19:34.383Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "truncated": false
+}
+
+
+> gen-v1@0.6.5 build <worktree:m12-v6>
+> node scripts/build.mjs
+
+vite v7.3.7 building client environment for production...
+transforming...
+vite v7.3.7 building client environment for production...
+transforming...
+✓ 1792 modules transformed.
+✓ 2164 modules transformed.
+rendering chunks...
+rendering chunks...
+computing gzip size...
+dist/plugin-runtime/assets/pdf-draft.worker-BsXEv1s_.js    438.34 kB
+dist/plugin-runtime/runtime.css                          1,058.27 kB │ gzip: 667.42 kB
+dist/plugin-runtime/runtime.js                           2,970.51 kB │ gzip: 961.95 kB
+✓ built in 1m 4s
+...
+../../dist/web/assets/EverydayData-73YFHHqC.css                                9.21 kB │ gzip:   2.16 kB
+../../dist/web/assets/InteractionTools-iS4QBct-.css                           13.44 kB │ gzip:   2.90 kB
+../../dist/web/assets/ExplorationTools-MVI1ne0-.css                           13.60 kB │ gzip:   3.07 kB
+../../dist/web/assets/SoftwareDevelopment-CbQ8JQ2M.css                        14.24 kB │ gzip:   3.10 kB
+../../dist/web/assets/WorkObjects-Bm1FZWAj.css                                14.80 kB │ gzip:   3.27 kB
+../../dist/web/assets/index-DSN4cUe_.css                                      44.36 kB │ gzip:  10.04 kB
+../../dist/web/assets/DesktopEntry-B5jNum7G.css                              290.16 kB │ gzip:  50.03 kB
+../../dist/web/assets/pdf.worker.min-OGYDhRwp.js                               0.07 kB │ gzip:   0.09 kB
+../../dist/web/assets/database-DMAW9MeV.js                                     0.25 kB │ gzip:   0.21 kB
+../../dist/web/assets/focus-DPJTFum5.js                                        0.34 kB │ gzip:   0.23 kB
+../../dist/web/assets/addon-fit-DX4qG4td.js                                    1.21 kB │ gzip:   0.51 kB
+../../dist/web/assets/WorkbenchActivity-BmibshEB.js                            1.55 kB │ gzip:   0.87 kB
+../../dist/web/assets/CompactSettings-Dyx0_4Bn.js                              3.38 kB │ gzip:   1.42 kB
+../../dist/web/assets/ImageCompare-CHEYcmRE.js                                 6.31 kB │ gzip:   2.54 kB
+../../dist/web/assets/WorkbenchOutput-0lsSeEYc.js                              7.23 kB │ gzip:   2.91 kB
+../../dist/web/assets/SignaturePad-CYclSnvu.js                                12.39 kB │ gzip:   4.97 kB
+../../dist/web/assets/ProjectMemoryReview-oipxQmD1.js                         16.06 kB │ gzip:   5.25 kB
+../../dist/web/assets/WorkbenchPanelContent-Cw-KxO7E.js                       16.09 kB │ gzip:   5.45 kB
+../../dist/web/assets/EverydayData-D8VCdhrK.js                                16.25 kB │ gzip:   5.75 kB
+../../dist/web/assets/InteractionTools-C8-Yzfs_.js                            21.50 kB │ gzip:   7.13 kB
+../../dist/web/assets/ExplorationTools-D2qq4iqQ.js                            21.98 kB │ gzip:   7.60 kB
+../../dist/web/assets/SoftwareDevelopment-BC7b7KMe.js                         24.49 kB │ gzip:   7.38 kB
+../../dist/web/assets/DocumentPreview-BQfPFpG6.js                             25.15 kB │ gzip:   9.51 kB
+../../dist/web/assets/WorkObjects-B76ciQgC.js                                 27.97 kB │ gzip:   9.47 kB
+../../dist/web/assets/Settings-DRToKinF.js                                    79.81 kB │ gzip:  24.98 kB
+../../dist/web/assets/index-0nI7QsHG.js                                      194.76 kB │ gzip:  61.38 kB
+../../dist/web/assets/xterm-B-qIQCd3.js                                      329.31 kB │ gzip:  83.04 kB
+../../dist/web/assets/pdf-CL8ynlU4.js                                        495.58 kB │ gzip: 151.29 kB
+../../dist/web/assets/DesktopEntry-D1JLIs7B.js                             1,258.85 kB │ gzip: 389.25 kB
+✓ built in 1m 1s
+
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.

@@ -3,7 +3,7 @@
   "bundleId": "M12",
   "revision": "v6-continuation-terminal",
   "branch": "agent/m12-v3",
-  "worktree": "/home/piadmin/Gen-V1-m12-v6",
+  "worktree": "<worktree:m12-v6>",
   "preservedStartingHead": "f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc",
   "mergedMainSha": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
   "mergeCommitSha": "0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19",

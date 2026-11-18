@@ -68,7 +68,7 @@ def merge_record(name,record):
 for name,record in archive_records.items():merge_record(name,record)
 if (artifacts/'command-records.json').exists():
  for name,record in read(artifacts/'command-records.json').items():merge_record(name,record)
-for path in sorted(Path('/tmp/m12-command-records').glob('*.json')):merge_record(path.stem,read(path))
+for path in sorted(Path('<tmp>/m12-command-records').glob('*.json')):merge_record(path.stem,read(path))
 for name,record in records.items():
  path=root/record['boundedLogRef']
  assert path.exists(),name

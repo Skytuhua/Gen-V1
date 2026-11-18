@@ -6,7 +6,7 @@ import { readFileSync, existsSync, writeFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 
-const root = '/home/piadmin/Gen-V1-m12-v6';
+const root = new URL('../../../..', import.meta.url).pathname;
 const v6 = `${root}/docs/implementation/v6/M12`;
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const receipt = name => existsSync(`${v6}/logs/${name}.receipt.json`) ? JSON.parse(readFileSync(`${v6}/logs/${name}.receipt.json`)) : null;
@@ -36,6 +36,8 @@ const changedFiles = git('diff', '--name-only', 'fcaa52f7fcdc9f39420118a79f9a825
   .concat(git('ls-files', '--others', '--exclude-standard').split('\n').filter(p => p.startsWith('docs/implementation/v6/') || p === 'tests/tool-program-continuation-v6.test.ts'))
   .filter(p => p && !p.startsWith('docs/implementation/v3/'));
 const statusOf = r => r.status ?? (r.exitCode === 0 ? 'PASS' : 'FAIL');
+const COMMAND_KEYS = ['argv', 'cwdIdentity', 'executableIdentity', 'startedAt', 'endedAt', 'exitCode', 'termination', 'status', 'boundedLogRef', 'logDigest', 'expectedNegative'];
+const toCommand = r => r ? Object.fromEntries(COMMAND_KEYS.filter(k => r[k] !== undefined).map(k => [k, r[k]])) : r;
 // Optional secondary run of tool-program-v3 (calmer-host retry). The primary
 // receipt stays canonical; a preserved loaded-failure pair documents the
 // observed wall-clock PROGRAM_DEADLINE under host contention.
@@ -54,19 +56,19 @@ const evidence = {
   baseSha: lock.executionBaseSha,
   sourceLockDigest,
   platform: 'linux-arm64',
-  nodeVersion: execFileSync('/home/piadmin/tools/node24/bin/node', ['--version'], { encoding: 'utf8' }).trim(),
+  nodeVersion: process.version,
   packageManagerVersion: '10.30.3',
   phases: [
     {
       id: 'V6.custody-merge-and-focus',
       get status() { return caseStatus(this.requiredCases.map(x => x.status)); },
       requiredCases: [
-        { id: 'exact-head-recovery', status: 'PASS', evidence: 'Isolated worktree /home/piadmin/Gen-V1-m12-v6 at pre-merge branch head f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc (itself carrying round-1 merge 44c19075 + evidence commits); original checkout and other worktrees untouched.' },
+        { id: 'exact-head-recovery', status: 'PASS', evidence: 'Isolated worktree <worktree:m12-v6> at pre-merge branch head f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc (itself carrying round-1 merge 44c19075 + evidence commits); original checkout and other worktrees untouched.' },
         { id: 'merge-current-main', status: 'PASS', evidence: 'Merged main 4aef753ec272d6ab9f9f9eec1df0ca232386975b via merge --no-commit --no-ff; all 14 conflict paths composed semantically (merge-resolution.json records base/ours/theirs/result blob identities; round-1 merge 44c19075 preserved in the same record); committed as 0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19.' },
         { id: 'focused-m12-suites-on-merged-tree', status: statusOf(receipts['vitest-tool-program-v3']) === 'PASS' && statusOf(receipts['vitest-replay-v3']) === 'PASS' && statusOf(receipts['vitest-python-kernel-v3']) === 'PASS' ? 'PASS' : 'FAIL', evidence: 'Three named v3 vitest files re-run against the combined tree; receipts under docs/implementation/v6/M12/logs/. tests/tool-program-v3.test.ts carries the required M12-S03 default-limit boundary (64 admitted / 65th denied, maxCalls 64, maxConcurrentCalls 4, 30s deadline); under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT — preserved as vitest-tool-program-v3-run1-loaded.receipt.json; the required coverage was not reduced.' },
         { id: 'v6-continuation-D01-D05', status: statusOf(receipts['vitest-continuation-v6']), evidence: 'tests/tool-program-continuation-v6.test.ts: persistent-cell generation/reset, replay divergence on argument/digest/order corruption, grant revocation before dispatch, guest-memory-scope label, noncooperative-cancellation uncertainty.' },
       ],
-      commands: [...tpv3Commands, receipts['vitest-replay-v3'], receipts['vitest-python-kernel-v3'], receipts['vitest-continuation-v6'], receipts['typecheck']],
+      commands: [...tpv3Commands, receipts['vitest-replay-v3'], receipts['vitest-python-kernel-v3'], receipts['vitest-continuation-v6'], receipts['typecheck']].map(toCommand),
       artifactRefs: ['docs/implementation/v6/M12/requirements.json', 'docs/implementation/v6/M12/merge-resolution.json', 'docs/implementation/v6/M12/M12-source-lock.json'],
     },
     {
@@ -78,7 +80,7 @@ const evidence = {
         { id: 'build', status: statusOf(receipts['build']), evidence: 'pnpm build.' },
         { id: 'browser', status: statusOf(receipts['test-browser']), evidence: 'pnpm test:browser on the actual configured platform terminated at the evidence-runner 4h bound (termination TIMEOUT, receipt exitCode 0 because the harness killed it) after ~30 of ~68 suite configs. Executed suites recorded real failures under host contention (e.g. clarity-software 33 failed / 1 passed, toBeVisible timeouts); suites requiring the chrome channel additionally cannot pass on this host (/opt/google/chrome/chrome absent, bundled headless shell only; channel was not changed to obtain passes). Browser coverage is not established.' },
       ],
-      commands: [receipts['lint'], receipts['test'], testRun1, receipts['build'], receipts['test-browser']].filter(Boolean),
+      commands: [receipts['lint'], receipts['test'], testRun1, receipts['build'], receipts['test-browser']].filter(Boolean).map(toCommand),
       artifactRefs: [],
     },
     {
