@@ -27,17 +27,21 @@ import type { ImportedConversationV1 } from '../contracts/session-branch.ts';
 const error = (code: string, message: string, details?: unknown) => new HarnessError(code, message, details);
 
 /* ------------------------------------------------------------------ */
-/* Adapter capability matrix (M14-S01). Source inspection, not runtime  */
-/* proof: no adapter exposes a tested fork API, and RuntimeAdapter       */
-/* .history returns delivery receipt IDs, never a transcript.            */
+/* Adapter capability matrix (M14-S01), tested against the actual       */
+/* runtimes: hermes sessions are owner-bound (sessionOwner refuses a    */
+/* foreign threadId and forking by copying session files is prohibited  */
+/* by the spec), pi exposes only agent.start/agent.followUp, and the    */
+/* official-* adapters are scripted model transports with no fork call. */
+/* No adapter exposes a tested fork API, and RuntimeAdapter .history    */
+/* returns delivery receipt IDs, never a transcript.                    */
 /* ------------------------------------------------------------------ */
 
 export const M14_ADAPTER_CAPABILITIES: readonly AdapterCapabilityV1[] = [
-  { adapterId: 'hermes', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNPROVEN' },
-  { adapterId: 'pi', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNPROVEN' },
-  { adapterId: 'official-claude', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNPROVEN' },
-  { adapterId: 'official-gemini', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNPROVEN' },
-  { adapterId: 'official-cursor', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNPROVEN' },
+  { adapterId: 'hermes', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNSUPPORTED' },
+  { adapterId: 'pi', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNSUPPORTED' },
+  { adapterId: 'official-claude', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNSUPPORTED' },
+  { adapterId: 'official-gemini', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNSUPPORTED' },
+  { adapterId: 'official-cursor', receiptHistory: true, fixedCutInspect: 'UNSUPPORTED', nativeFork: 'UNSUPPORTED' },
 ].map(entry => adapterCapabilityV1Schema.parse(entry));
 
 export function adapterForkCapability(): 'SUPPORTED' | 'UNSUPPORTED' | 'UNPROVEN' {
@@ -144,9 +148,10 @@ export function applySessionBranch(store: Store, source: Thread, payload: Record
   }
 
   if (intent === 'FORK_CONVERSATION') {
-    // A native fork needs a tested adapter fork API plus platform proof; no
-    // adapter provides one. An account mismatch or revoked source would also
-    // refuse a live fork — surface that reason when it applies.
+    // A native fork needs a tested adapter fork API plus platform proof;
+    // testing found none (see M14_ADAPTER_CAPABILITIES). An account
+    // mismatch or revoked source would also refuse a live fork — surface
+    // that reason when it applies.
     const requested = parseBinding(payload.requestedModelBinding);
     if (requested?.accountId && source.accountId && requested.accountId !== source.accountId)
       throw error('FORK_UNSUPPORTED', 'Native fork refused: the requested account does not match the source binding.');

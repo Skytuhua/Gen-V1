@@ -48,14 +48,14 @@ const rejectsHarness = async (work: Promise<unknown>): Promise<HarnessError> => 
 };
 
 describe('adapter capability matrix', () => {
-  it('reports receipt history without claiming a tested native fork anywhere', () => {
+  it('reports receipt history and records the tested absence of a native fork API', () => {
     expect(M14_ADAPTER_CAPABILITIES.length).toBeGreaterThan(0);
     for (const entry of M14_ADAPTER_CAPABILITIES) {
       expect(entry.receiptHistory).toBe(true);
       expect(entry.fixedCutInspect).toBe('UNSUPPORTED');
-      expect(entry.nativeFork).toBe('UNPROVEN');
+      expect(entry.nativeFork).toBe('UNSUPPORTED');
     }
-    expect(adapterForkCapability()).toBe('UNPROVEN');
+    expect(adapterForkCapability()).toBe('UNSUPPORTED');
   });
 });
 

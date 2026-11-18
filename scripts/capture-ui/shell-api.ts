@@ -30,7 +30,7 @@ export async function shellRoute(route: Route, snapshot: Snapshot, error: boolea
   // M14 surface: the App asks for the per-thread branch overview and workbench
   // catalogue on every conversation. Serve the real contract shapes with the
   // capability-gated features off — a malformed body crashes SessionBranchMenu.
-  if (path.startsWith('/api/session-branches/')) return reply({ enabled: { branch: false, import: false }, capabilities: { inspect: 'SUPPORTED', quote: 'SUPPORTED', nativeFork: 'UNPROVEN', adapters: [] }, captures: [], branch: null, children: [], imports: [] });
+  if (path.startsWith('/api/session-branches/')) return reply({ enabled: { branch: false, import: false }, capabilities: { inspect: 'SUPPORTED', quote: 'SUPPORTED', nativeFork: 'UNSUPPORTED', adapters: [] }, captures: [], branch: null, children: [], imports: [] });
   if (path.startsWith('/api/workbench/threads/')) {
     const logicalOwner = { threadId: decodeURIComponent(path.split('/')[4] ?? ''), projectId: null, workspaceId: null };
     if (path.endsWith('/inputs')) return reply({ logicalOwner, inputs: [] });
