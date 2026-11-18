@@ -7,12 +7,15 @@ import { openCaptureBrowser, recordWindow, closeCapture } from './review-capture
 const root=resolve('docs/evidence/frontend-review/initiated-20261030');
 const cases=[{id:'account',source:'genuine-natural-confirm/account/resumed/after.json'},{id:'agreement',source:'genuine-agreement-confirm/agreement/continued.json'},{id:'conflict',source:'genuine-conflict-confirm/conflict/continued.json'}];
 const requested=process.argv.indexOf('--case'),outputIndex=process.argv.indexOf('--output');
+const flagValue=(index:number,name:string)=>{if(index<0)return undefined;const value=process.argv[index+1];if(!value||value.startsWith('--'))throw Error(name+' requires a value');return value;};
+const caseId=flagValue(requested,'--case'),outputName=flagValue(outputIndex,'--output');
+if(caseId!==undefined&&!cases.some(item=>item.id===caseId))throw Error('Unknown --case '+caseId);
 const api=await request.newContext({baseURL:'http://127.0.0.1:4317'});await api.get('/api/bootstrap');
 const snapshot=async():Promise<Snapshot>=>await(await api.get('/api/snapshot')).json();
 const browser=await openCaptureBrowser();
-try{for(const item of cases.filter(item=>requested<0||item.id===process.argv[requested+1])){
+try{for(const item of cases.filter(item=>caseId===undefined||item.id===caseId)){
   const original:Snapshot=JSON.parse(await readFile(join(root,item.source),'utf8')),threadId=original.threads[0].id,artifactId=original.artifacts[0].id;
-  const folder=join(root,outputIndex<0?'inspection':process.argv[outputIndex+1],item.id);await mkdir(folder,{recursive:true});
+  const folder=join(root,outputName??'inspection',item.id);await mkdir(folder,{recursive:true});
   await browser.page.goto('http://127.0.0.1:4317');await browser.page.evaluate(id=>localStorage.setItem('harness:selected-thread',id),threadId);await browser.page.reload();
   const artifact=browser.page.locator('.artifact').first();await expect(artifact).toBeVisible();await artifact.evaluate(node=>node.scrollIntoView({block:'start'}));await browser.page.waitForTimeout(1000);
   const stop=await recordWindow(browser.server,browser.page,join(folder,'inspection.mp4')),started=performance.now();
