@@ -7,13 +7,14 @@ import type {ModelCapacity} from '../runtime/model-capacity.ts';
 import {hermesRequestScheduler,requestClassFor,type RequestBudget,type RequestScheduler} from '../runtime/request-scheduler.ts';
 import type {ModelRequestStage} from '../runtime/request-metrics.ts';
 import {RequestMetrics} from '../runtime/request-metrics.ts';
+import type {NativeContextCompilation} from './context.ts';
 
-export interface ModelRequest {sequence:number;inputIds:string[];phase:'foreground'|'background_review'}
+export interface ModelRequest {sequence:number;inputIds:string[];phase:'foreground'|'background_review';nativeContext?:NativeContextCompilation;nativeSourcesUnavailable?:'UNSUPPORTED_ADAPTER'}
 export interface HermesBrokerOptions {
  input:StartRun;createRuntime:()=>RuntimeAdapter;
  onInput?:(ids:string[])=>void|Promise<void>;
  onUsage?:(usage:RuntimeUsage,request:ModelRequest)=>void;
- onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number})=>void;
+ onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number;nativeContext?:NativeContextCompilation;nativeSourcesUnavailable?:'UNSUPPORTED_ADAPTER'})=>void;
  onStage?:(stage:ModelRequestStage|'queued',request:ModelRequest)=>void;
  onObservation?:(observation:ModelRequestObservationV1,request:ModelRequest)=>void;
  capacity?:ModelCapacity;
@@ -84,7 +85,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
      }});
      stage('runtimeReady');
-     if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size});}catch{/* Observations do not affect admission or teardown. */}
+     if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size,...(metadata.nativeContext?{nativeContext:metadata.nativeContext}:{}),...(metadata.nativeSourcesUnavailable?{nativeSourcesUnavailable:metadata.nativeSourcesUnavailable}:{})});}catch{/* Observations do not affect admission or teardown. */}
      await runtime.start(nativeInput);dispatched=true;stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }catch(error){
      if(failure===undefined)failure=error;

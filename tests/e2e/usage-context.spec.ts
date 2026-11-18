@@ -250,6 +250,30 @@ test('shows admitted instruction revisions, overlap precedence and refused direc
   await expect(instructions).toContainText('GEMINI.md · resource project · excluded: unsupported directive');
 });
 
+test('distinguishes incremental native source metadata from the opaque provider request', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-native-sources');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await expect(context(page)).toContainText('120 observed prompt bytes');
+  await expect(context(page)).toContainText('Native context is opaque');
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  const native = context(page).getByRole('region', { name: 'Original Hermes source metadata' });
+  await expect(native).toContainText('Source generation 1 · 3 source records · 90 serialized source bytes');
+  await expect(native).toContainText('2 compiled records reused · 1 new records compiled');
+  await expect(native).toContainText('native worker fingerprinted 3 records');
+  await expect(native).toContainText('Provider context remains opaque; tokens were not inferred');
+  await expect(native).toContainText('tool · native:1:2 · revision 1 · 40 bytes');
+  await expect(native).toContainText('c'.repeat(64));
+  await update(page, 'restart'); await expect(native).toHaveCount(0);
+});
+
+test('reports unavailable native source metadata without claiming a reconstructed context', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-native-unavailable');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  await expect(context(page)).toContainText('Native source capture unavailable: source limit');
+  await expect(context(page).getByRole('region', { name: 'Original Hermes source metadata' })).toHaveCount(0);
+});
+
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
   await page.goto('/usage-context?requests'); await update(page, 'empty');
   await page.getByRole('button', { name: 'Open Usage', exact: true }).click();

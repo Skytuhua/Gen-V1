@@ -39,6 +39,12 @@ it('only projects minimal, current request observations under the host flag', as
   expect(observed()).toEqual({ ...ctx, sequence: 4, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' });
   callbacks.onEvent({ ...ctx, type: 'usage', usage: { lastRequest: { rawText: 'synthetic private text' } } });
   expect(observed()).toMatchObject({ sequence: 4, promptBytes: 13 });
+  const nativeSources = { source: 'ORIGINAL_ACP_MESSAGES', measurement: 'BYTE_ONLY', generation: 1, revisionDigest: 'a'.repeat(64), change: 'RESET', sourceCount: 1, sourceBytes: 30,
+    reusedSources: 0, compiledSources: 1, inspectedSources: 1, newToolResults: null, newToolResultBytes: null,
+    sources: [{ category: 'USER', sourceId: 'native:1:0', sourceRevision: 1, utf8Bytes: 30, sha256: 'b'.repeat(64) }], omittedSources: 0 };
+  emit(5, { nativeSources }); expect(observed()).toMatchObject({ sequence: 5, nativeSources, visibility: 'OPAQUE_NATIVE_CONTEXT' });
+  emit(6, { nativeSources: { ...nativeSources, rawText: 'synthetic private text' } });
+  expect(observed()).toMatchObject({ sequence: 6, nativeSourcesUnavailable: 'UNSUPPORTED_SOURCE' }); expect(observed()).not.toHaveProperty('nativeSources');
   expect(JSON.stringify(store.eventsAfter(0))).not.toContain('synthetic private text');
 });
 
