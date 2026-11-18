@@ -151,11 +151,11 @@ export class ProjectTrustLedger {
     const envelope: TrustEnvelope = { version: 1, record, revokedAt: null };
     this.records.set(record.trustId, Object.freeze(envelope));
     this.persist(envelope);
-    return record;
+    return structuredClone(record);
   }
   get(trustId: string): Readonly<TrustEnvelope> | null {
     const envelope = this.records.get(trustId);
-    return envelope ? { ...envelope, record: { ...envelope.record } } : null;
+    return envelope ? structuredClone(envelope) : null;
   }
   revoke(trustId: string): boolean {
     const envelope = this.records.get(trustId);
