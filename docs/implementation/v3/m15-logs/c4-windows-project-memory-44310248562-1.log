@@ -1,0 +1,30 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","project-memory"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795007417966-86f895db-6aa9-4687-893f-522aa9881263
+
+Browser suite: project-memory (1 spec files)
+
+Running 18 tests using 1 worker
+
+  ok  1 tests\e2e\project-memory.spec.ts:358:1 › opens lazily, keeps all four tabs keyboard accessible and fits a narrow viewport (3.5s)
+  ok  2 tests\e2e\project-memory.spec.ts:401:1 › requires an explicit source selection before enabling the project (1.4s)
+  ok  3 tests\e2e\project-memory.spec.ts:428:1 › disabled host prevents new opt-in and preserves correction of retained records (1.3s)
+  ok  4 tests\e2e\project-memory.spec.ts:460:1 › opens an exact source as inert text and accepts a proposal by its reviewed revision (1.6s)
+  ok  5 tests\e2e\project-memory.spec.ts:493:1 › retains the exact correction draft when the reviewed revision is stale (1.3s)
+  ok  6 tests\e2e\project-memory.spec.ts:517:1 › conflict resolution requires explicit revisions and a note before preserving both (1.4s)
+  ok  7 tests\e2e\project-memory.spec.ts:555:1 › a completed conflict draft cannot be submitted after the review becomes read-only (1.2s)
+  ok  8 tests\e2e\project-memory.spec.ts:596:1 › forget names invalidated artifacts before committing and shows pending purge afterward (1.5s)
+  ok  9 tests\e2e\project-memory.spec.ts:629:1 › owner change closes the old review without retaining the previous project text (1.2s)
+  ok 10 tests\e2e\project-memory.spec.ts:643:1 › explicit export produces only the host redacted export envelope (1.2s)
+  ok 11 tests\e2e\project-memory.spec.ts:656:1 › recall explains exact source and disables exclusion without a request preparation adapter (628ms)
+  ok 12 tests\e2e\project-memory.spec.ts:678:1 › confirms a reusable preference only after explicit project-only confirmation (1.4s)
+  ok 13 tests\e2e\project-memory.spec.ts:712:1 › prepares the exact draft with terminal excerpts, excludes a revision, and sends its host token (748ms)
+  ok 14 tests\e2e\project-memory.spec.ts:754:1 › keeps a confirmed exclusion when the unchanged draft is inspected again (821ms)
+  ok 15 tests\e2e\project-memory.spec.ts:787:1 › keeps a failed exclusion blocked when the unchanged draft is inspected again (761ms)
+  ok 16 tests\e2e\project-memory.spec.ts:827:1 › invalidates exclusions when the draft changes and does not reuse its previous token (752ms)
+  ok 17 tests\e2e\project-memory.spec.ts:859:1 › blocks send during exclusion and after failure until explicit refresh (803ms)
+  ok 18 tests\e2e\project-memory.spec.ts:920:1 › an empty draft shows the last captured request with exclusion disabled (725ms)
+
+  18 passed (24.9s)

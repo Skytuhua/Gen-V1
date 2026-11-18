@@ -116,7 +116,12 @@ export class IntegrationManager {
   session={id,key,scope:{...effectiveScope,...(scoped.epoch===undefined?{}:{epoch:scoped.epoch,runId:scoped.runId})},generation:this.generations.get(id)??0,client,transport,starting:Promise.resolve(),ready:false,controllers:new Set()};this.sessions.set(key,session);
   permit?.selected(session);
   const selected=session;client.onclose=()=>{void this.closeSession(selected).catch(()=>this.failures.set(id,'Integration teardown did not confirm completion'));};client.onerror=()=>{void this.closeSession(selected).catch(()=>this.failures.set(id,'Integration teardown did not confirm completion'));};session.starting=(async()=>{try{
-   await mkdir(directory,{recursive:true});permit?.assertCurrent();if(id==='context7'){const secret=permit?await permit.resolveSecret():await this.options.context7Key?.();if(secret)env.CONTEXT7_API_KEY=secret;}
+   await mkdir(directory,{recursive:true});permit?.assertCurrent();if(id==='context7'){const secret=permit?await permit.resolveSecret():await this.options.context7Key?.();if(secret){
+    // The declared redactor cannot track short secrets. Never deliver one to a
+    // child that can echo it into a model-visible result or error.
+    if(!createSecretRedactor([secret]).tracked)throw new HarnessError('SECRET_REF_REDACTION_UNSUPPORTED','Context7 credential cannot be protected by the supported output-redaction scope.');
+    env.CONTEXT7_API_KEY=secret;
+   }}
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
    if(id==='promptfoo'){const token=randomBytes(32).toString('hex');env.HARNESS_PROMPTFOO_BRIDGE_URL=await this.completionBridge(selected,token);env.HARNESS_PROMPTFOO_BRIDGE_TOKEN=token;}
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
@@ -170,7 +175,14 @@ export class IntegrationManager {
  private redactFailure<T>(session:Session,error:T):T{
   // A child that fails can echo the values it was given; the model still sees
   // the message, so it crosses the same boundary as a successful result.
-  const redactor=session.redactor;if(redactor?.tracked&&error instanceof Error)error.message=redactor.redact(error.message).text;
+  const redactor=session.redactor;
+  if(redactor?.tracked&&error instanceof Error){
+   // Error.stack can already contain the original child message even after
+   // error.message changes. Both fields cross the same logging boundary.
+   const stack=error.stack;
+   error.message=redactor.redact(error.message).text;
+   if(typeof stack==='string')error.stack=redactor.redact(stack).text;
+  }
   return error;
  }
  private redactOutput<T>(session:Session,value:T):T{

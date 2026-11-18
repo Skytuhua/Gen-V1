@@ -1,8 +1,10 @@
 import {test,expect} from '@playwright/test';
+import {BOOT_TIMEOUT,warmApp} from './app-ready';
 const fixture='/@fs/'+process.cwd().replaceAll('\\','/')+'/tests/e2e/frontend-refinement-fixture.tsx';
+test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
 test.beforeEach(async({page})=>{
  await page.route('**/frontend-refinement-check',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
- await page.goto('/frontend-refinement-check');await expect(page.getByRole('scrollbar',{name:'Scroll conversation'})).toBeVisible();
+ await page.goto('/frontend-refinement-check');await expect(page.getByRole('scrollbar',{name:'Scroll conversation'})).toBeVisible({timeout:BOOT_TIMEOUT});
 });
 test('left ticked scrollbar supports keys, track clicks, dragging, and history during updates',async({page})=>{
  const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});

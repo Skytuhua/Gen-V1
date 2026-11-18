@@ -1,0 +1,33 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","workbench"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795007236242-16c0240e-de13-4fc4-b019-d44523a26fb8
+
+Browser suite: workbench (1 spec files)
+
+Running 21 tests using 1 worker
+
+  ok  1 tests\e2e\workbench.spec.ts:31:1 › M15 selected visible text exposes explicit actions (2.5s)
+  ok  2 tests\e2e\workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action clears its unchanged own range (634ms)
+  ok  3 tests\e2e\workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range (680ms)
+  ok  4 tests\e2e\workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source (759ms)
+  ok  5 tests\e2e\workbench.spec.ts:202:1 › M15 forged DOM attributes cannot register a selection (351ms)
+  ok  6 tests\e2e\workbench.spec.ts:211:1 › M15 hidden and clipped source text is refused (389ms)
+  ok  7 tests\e2e\workbench.spec.ts:233:1 › M15 refuses a clipped interior span even when both selection endpoints are visible (377ms)
+  ok  8 tests\e2e\workbench.spec.ts:261:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence (380ms)
+  ok  9 tests\e2e\workbench.spec.ts:280:1 › M15 Escape respects IME and dismisses pointing without activating buttons (396ms)
+  ok 10 tests\e2e\workbench.spec.ts:300:1 › M15 toolbar stays reachable at both viewports and 200 percent zoom (586ms)
+  ok 11 tests\e2e\workbench.spec.ts:335:1 › M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom (7.6s)
+  ok 12 tests\e2e\workbench.spec.ts:461:3 › M15 source toolbar scroll ownership › M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it (492ms)
+  ok 13 tests\e2e\workbench.spec.ts:513:1 › M15 output window stays bounded while streaming preserves the logical anchor (684ms)
+  ok 14 tests\e2e\workbench.spec.ts:546:1 › M15 full copy and search use the declared reader fixture beyond mounted DOM (623ms)
+  ok 15 tests\e2e\workbench.spec.ts:584:1 › M15 delayed full-result response cannot write into a new owner view (696ms)
+  ok 16 tests\e2e\workbench.spec.ts:617:1 › M15 discards a delayed search result when its query changes (522ms)
+  ok 17 tests\e2e\workbench.spec.ts:649:1 › M15 real browser journal reload retains canonical draft, source refs and scroll anchor (714ms)
+  ok 18 tests\e2e\workbench.spec.ts:671:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor (736ms)
+  ok 19 tests\e2e\workbench.spec.ts:684:1 › M15 uncertain handoff and failed flush retain explicit conflict copies in the browser journal (1.0s)
+  ok 20 tests\e2e\workbench.spec.ts:713:1 › M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom (1.3s)
+  ok 21 tests\e2e\workbench.spec.ts:816:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines (38.2s)
+
+  21 passed (1.1m)
