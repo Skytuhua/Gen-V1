@@ -19,7 +19,7 @@ export const nativeCompactionReferenceSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('DECISION'), ...reference, content: boundedText(4096) }),
   z.strictObject({ kind: z.literal('PENDING_APPROVAL'), ...reference }),
   z.strictObject({ kind: z.literal('ACTIVE_WORK'), ...reference }),
-  z.strictObject({ kind: z.literal('SOURCE_EVIDENCE'), ...reference }),
+  z.strictObject({ kind: z.literal('SOURCE_EVIDENCE'), ...reference, revision: z.union([count, boundedText(200)]) }),
 ]);
 export const nativeCompactionPlanSchema = z.strictObject({
   version: z.literal(1), candidateId: boundedText(1024), owner: nativeCompactionOwnerSchema,

@@ -402,7 +402,8 @@ class WorkerFixture(unittest.TestCase):
         kept = [index for index, message in enumerate(source["messages"]) if message.get("role") in ("user", "system", "developer", "tool") or message.get("tool_calls") or index >= last_user]
         plan = {"version": 1, "candidateId": "candidate-protected", "owner": {"threadId": "m04-protected", "runId": "compact-run", "epoch": 2, "workspaceId": "workspace", "modelId": "fixture-model", "accountId": None,
                  "generation": 1, "instructionDigest": "b" * 64, "toolRegistryDigest": "c" * 64}, "sourceSha256": source["historySha256"], "retainedIndices": kept,
-                "references": [{"kind": "PENDING_APPROVAL", "id": "request:approval", "revision": 3, "digest": "d" * 64}], "maxRetainedBytes": 65536}
+                "references": [{"kind": "PENDING_APPROVAL", "id": "request:approval", "revision": 3, "digest": "d" * 64},
+                               {"kind": "SOURCE_EVIDENCE", "id": "capture:source", "revision": "captured-file-revision-7", "digest": "e" * 64}], "maxRetainedBytes": 65536}
         protection = {"plan": plan, "planDigest": hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()}
         compact = {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": source["historySha256"], "compactionProtection": protection,
                    "compactionContext": {key: plan["owner"][key] for key in ("threadId", "runId", "epoch")}}
@@ -426,12 +427,25 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(receipt["sourceSha256"], source["historySha256"])
         self.assertIn("$context.compaction.commit", self.host_calls)
         self.assertIn("request:approval", json.dumps(applied["messages"]))
+        self.assertIn("captured-file-revision-7", json.dumps(applied["messages"]))
+        self.assertEqual(receipt["referenceCount"], 2)
         archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
         self.assertEqual(json.loads(archive.read_text(encoding="utf8")), source["messages"])
         self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), source["historySha256"])
         self.assertEqual(self.request("agent.history", {})["messages"], applied["messages"])
         self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], applied["messages"])
         self.assertLess(receipt["afterBytes"], receipt["beforeBytes"])
+
+    def test_m04_protection_refuses_opaque_revisions_for_pending_approvals(self):
+        params, source, plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        plan["references"][0]["revision"] = "not-an-approval-revision"
+        compact["compactionProtection"]["planDigest"] = hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()
+        failure = self.request("agent.compact", compact, error_code="ProtectionError")
+        self.assertIn("SOURCE_MISMATCH", failure["message"])
+        self.assertEqual(self.host_calls, calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
 
     def test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary(self):
         params, source, _plan, compact = self.protected_compaction_fixture()

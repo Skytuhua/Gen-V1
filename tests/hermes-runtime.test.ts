@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {spawn} from 'node:child_process';
 import type {RuntimeAdapter,RuntimeCallbacks,RuntimeEvent,StartRun} from '../packages/contracts/index.ts';
 import type {MemoryCheckpointAckV1,MemoryCheckpointRequestV1} from '../packages/contracts/memory-checkpoint.ts';
-import {NATIVE_COMPACTION_CAPABILITY,type NativeCompactionOwnerV1,type NativeCompactionPlanV1,type NativeCompactionEnvelopeV1,type NativeCompactionReceiptV1,type NativeCompactionAckV1} from '../packages/contracts/native-compaction.ts';
+import {NATIVE_COMPACTION_CAPABILITY,nativeCompactionPlanSchema,type NativeCompactionOwnerV1,type NativeCompactionPlanV1,type NativeCompactionEnvelopeV1,type NativeCompactionReceiptV1,type NativeCompactionAckV1} from '../packages/contracts/native-compaction.ts';
 import {createHermesRuntime,type HermesRuntimeOptions,type HermesSourceClient} from '../packages/runtime-hermes/index.ts';
 import type {HermesClient,HermesEvent} from '../packages/runtime-hermes/client.ts';
 import {__setCapabilityFlagForTests} from '../packages/core/capability-flags.ts';
@@ -584,4 +584,12 @@ it('keeps protected native compaction unavailable to a read-only task engine',as
   await expect(child.compactProtected!(protectedMaintenance,source.sessionPath as string,'openai/model',null,protectedEnvelope())).rejects.toMatchObject({code:'HERMES_COMPACTION_UNSUPPORTED'});
   expect(f.source().calls.some(call=>call.method==='agent.compact')).toBe(false);expect(admit).not.toHaveBeenCalled();
  }finally{await child.dispose();await f.runtime.dispose();}
+});
+
+it('preserves opaque source evidence revisions while approvals still require integer revisions',()=>{
+ const plan=protectedEnvelope().plan;
+ plan.references=[{kind:'SOURCE_EVIDENCE',id:'capture:source',revision:'captured-file-revision-7',digest:'e'.repeat(64)}];
+ expect(nativeCompactionPlanSchema.parse(plan).references).toEqual(plan.references);
+ expect(nativeCompactionPlanSchema.safeParse({...plan,references:[{...plan.references[0],kind:'PENDING_APPROVAL'}]}).success).toBe(false);
+ expect(nativeCompactionPlanSchema.safeParse({...plan,references:[{...plan.references[0],revision:'x'.repeat(201)}]}).success).toBe(false);
 });

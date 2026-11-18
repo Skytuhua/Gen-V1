@@ -158,7 +158,9 @@ class ProtectedCompaction:
         if not isinstance(refs, list) or len(refs) > 64:
             raise ProtectionError("PROTECTION_LIMIT")
         for ref in refs:
-            if not isinstance(ref, dict) or ref.get("kind") not in ("DECISION", "PENDING_APPROVAL", "ACTIVE_WORK", "SOURCE_EVIDENCE") or set(ref) != ({"kind", "id", "revision", "digest", "content"} if ref["kind"] == "DECISION" else {"kind", "id", "revision", "digest"}) or not _text(ref.get("id")) or type(ref.get("revision")) is not int or ref["revision"] < 0 or not _hash(ref.get("digest")) or ref["kind"] == "DECISION" and not _text(ref.get("content"), 4096):
+            revision = ref.get("revision") if isinstance(ref, dict) else None
+            valid_revision = type(revision) is int and revision >= 0 or isinstance(ref, dict) and ref.get("kind") == "SOURCE_EVIDENCE" and _text(revision, 200)
+            if not isinstance(ref, dict) or ref.get("kind") not in ("DECISION", "PENDING_APPROVAL", "ACTIVE_WORK", "SOURCE_EVIDENCE") or set(ref) != ({"kind", "id", "revision", "digest", "content"} if ref["kind"] == "DECISION" else {"kind", "id", "revision", "digest"}) or not _text(ref.get("id")) or not valid_revision or not _hash(ref.get("digest")) or ref["kind"] == "DECISION" and not _text(ref.get("content"), 4096):
                 raise ProtectionError("SOURCE_MISMATCH")
             identity = (ref["kind"], ref["id"])
             if identity in identities:
