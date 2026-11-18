@@ -1,3 +1,4 @@
+import { REPOSITORY_MAP } from "../core/repository-map-tool.ts";
 import {createPiCheckpointExtension,type PiCheckpointOptions} from './memory-checkpoint.ts';
 import { Type, type TSchema } from "@sinclair/typebox";
 import type { ToolDefinition } from "@earendil-works/pi-coding-agent";
@@ -57,7 +58,7 @@ export async function loadDomainTools(): Promise<ToolMetadata[]> {
 }
 
 export function createHostTools(domain: readonly ToolMetadata[], call: (toolCallId: string, name: string, args: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown>): ToolDefinition[] {
-  const metadata = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY,...SKILL_TOOLS, ...domain];
+  const metadata = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY,...SKILL_TOOLS, REPOSITORY_MAP, ...domain];
   const seen = new Set<string>();
   return metadata.map(tool => {
     if (!/^[a-z][a-z0-9_]*$/.test(tool.name) || ["bash", "powershell", "read", "write", "edit", "find", "grep", "ls", "codemode", "tool_search"].includes(tool.name) || seen.has(tool.name)) throw new HarnessError("PI_TOOL_POLICY", "Invalid or duplicate host tool metadata.");

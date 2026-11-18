@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "root"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T11:04:05.808Z",
+  "endedAt": "2026-11-18T11:13:20.869Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-browser-root.log",
+  "logDigest": "2042a1e8237820b4cf83c6de5bbb2354350d65a4c539a2bb987d3c3a7403c414"
+}

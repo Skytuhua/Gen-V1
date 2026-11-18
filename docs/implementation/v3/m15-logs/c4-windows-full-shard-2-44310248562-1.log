@@ -1,0 +1,455 @@
+argv: ["C:\\Program Files\\PowerShell\\7\\pwsh.exe","-NoLogo","-NoProfile","-NonInteractive","-Command","$ErrorActionPreference = 'Stop'\r\npnpm test --maxWorkers=2 --shard=2/4 --reporter=default --reporter=json --outputFile=test-results/m15/full-results.json\r\nexit $LASTEXITCODE"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 1
+termination: NONE
+
+> gen-v1@0.6.5 test D:\a\Gen-V1\Gen-V1
+> pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=2/4" "--reporter=default" "--reporter=json" "--outputFile=test-results/m15/full-results.json"
+
+
+> gen-v1@0.6.5 build:credential-lease D:\a\Gen-V1\Gen-V1
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+windows-credential-lease.cc
+   Creating library windows-credential-lease.lib and object windows-credential-lease.exp
+Windows credential lease built.
+
+> gen-v1@0.6.5 build:widgets D:\a\Gen-V1\Gen-V1
+> node scripts/build-widgets.mjs
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/a/Gen-V1/Gen-V1[39m
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ [32m✓[39m tests/browser-verification-v3.test.ts [2m([22m[2m40 tests[22m[2m)[22m[33m 10204[2mms[22m[39m
+   [33m[2m✓[22m[39m a schema-valid record or image alone never produces PASS [33m 691[2mms[22m[39m
+   [33m[2m✓[22m[39m an asserted item still needs its required screenshot [33m 1351[2mms[22m[39m
+   [33m[2m✓[22m[39m screenshot evidence cannot verify before host artifact custody exists [33m 513[2mms[22m[39m
+   [33m[2m✓[22m[39m executed browser assertions without screenshots remain verifiable [33m 732[2mms[22m[39m
+   [33m[2m✓[22m[39m a deleted required screenshot cannot verify through the gate, task_finish or panel [33m 2292[2mms[22m[39m
+   [33m[2m✓[22m[39m bounded console and network failure collection fails the run [33m 304[2mms[22m[39m
+ [32m✓[39m tests/artifact-settle.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 28294[2mms[22m[39m
+     [33m[2m✓[22m[39m deliberate collapse shrinks the whole artifact and lifts following content, reopen restores the saved input [33m 5591[2mms[22m[39m
+     [33m[2m✓[22m[39m restoration reserves final layout while held and keeps following content fixed (split stability invariant) [33m 1797[2mms[22m[39m
+     [33m[2m✓[22m[39m journal restoration gates the entrance: nothing plays while held, one body reveal after release [33m 1424[2mms[22m[39m
+     [33m[2m✓[22m[39m one body entrance keeps outer geometry stable and cleans up when publication is interrupted [33m 1341[2mms[22m[39m
+     [33m[2m✓[22m[39m nested disclosures, sibling evidence and focus safety shrink without blank slots [33m 2838[2mms[22m[39m
+     [33m[2m✓[22m[39m a Steps panel inside a disclosure collapses and restores its saved step input [33m 2693[2mms[22m[39m
+     [33m[2m✓[22m[39m an inline artifact body keeps no empty reserve below its content [33m 1834[2mms[22m[39m
+     [33m[2m✓[22m[39m reduced and off motion collapse instantly and rapid reversal settles the last state [33m 3501[2mms[22m[39m
+     [33m[2m✓[22m[39m streaming answer growth moves following content down in flow without a gap [33m 2453[2mms[22m[39m
+     [33m[2m✓[22m[39m a failed disclosure action keeps error and retry truthful [33m 957[2mms[22m[39m
+     [33m[2m✓[22m[39m journal reload restores the bound disclosure state without replaying the entrance [33m 2426[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-hermes-v3.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 26183[2mms[22m[39m
+   [33m[2m✓[22m[39m retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport] [33m 14925[2mms[22m[39m
+   [33m[2m✓[22m[39m delivers prepared M05 memory and retained M15 file evidence through one real Hermes history [Windows, scripted model transport] [33m 11255[2mms[22m[39m
+ [32m✓[39m tests/skill-invocation.test.ts [2m([22m[2m36 tests[22m[2m)[22m[33m 54479[2mms[22m[39m
+   [33m[2m✓[22m[39m materializes exact entry bytes and captured support without changing prompt or resources [33m 1479[2mms[22m[39m
+   [33m[2m✓[22m[39m denies stale support, forged identity, cross-source and private-provider references [33m 2729[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects every changed authority dimension before admission [33m 460[2mms[22m[39m
+   [33m[2m✓[22m[39m fences authority changes during catalog awaits and again before commit/runtime/support reads [33m 1958[2mms[22m[39m
+   [33m[2m✓[22m[39m honors pre-abort and an abort that wins a catalog await without producing an admission [33m 976[2mms[22m[39m
+   [33m[2m✓[22m[39m denies support-bytes between fresh catalog custody and materialization [33m 1367[2mms[22m[39m
+   [33m[2m✓[22m[39m denies entry-bytes between fresh catalog custody and materialization [33m 1433[2mms[22m[39m
+   [33m[2m✓[22m[39m denies file-swap between fresh catalog custody and materialization [33m 1394[2mms[22m[39m
+   [33m[2m✓[22m[39m denies directory-swap between fresh catalog custody and materialization [33m 1468[2mms[22m[39m
+   [33m[2m✓[22m[39m denies hardlink between fresh catalog custody and materialization [33m 1425[2mms[22m[39m
+   [33m[2m✓[22m[39m denies junction between fresh catalog custody and materialization [33m 984[2mms[22m[39m
+   [33m[2m✓[22m[39m denies extra-file between fresh catalog custody and materialization [33m 1409[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates the canonical source after capture rather than accepting its earlier index [33m 1412[2mms[22m[39m
+   [33m[2m✓[22m[39m restores authenticated exact bytes across host restart without rediscovering changed skills [33m 1443[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects command-ID reuse with changed content, model, thinking, reference or authority [33m 1431[2mms[22m[39m
+   [33m[2m✓[22m[39m denies replay tampering and key loss instead of falling back to rediscovery [33m 1407[2mms[22m[39m
+   [33m[2m✓[22m[39m denies forged admissions, mismatched runtime owners and arbitrary support paths [33m 1437[2mms[22m[39m
+   [33m[2m✓[22m[39m reads the exact Harness version/document with no latest-name or ambient projection fallback [33m 543[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a package exceeding files instead of silently truncating it [33m 1813[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a package exceeding fileBytes instead of silently truncating it [33m 1414[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a package exceeding packageBytes instead of silently truncating it [33m 1437[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects malformed payloads rather than accepting browser supplied text, paths or authority grants [33m 478[2mms[22m[39m
+   [33m[2m✓[22m[39m selection preserves every reference field without a body read or admission capability, and bundles for browsers [33m 557[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a changed runtime thinking level even when the model is unchanged [33m 1414[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves UTF-8 BOM and original line endings in admitted guidance [33m 1899[2mms[22m[39m
+   [33m[2m✓[22m[39m admits all selected references in order, never silently dropping a stale second selection [33m 4343[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds Harness entry bytes before materializing an oversized saved document [33m 549[2mms[22m[39m
+   [33m[2m✓[22m[39m captures only a verified installed App package, without activating its host, and rechecks registry revocation [33m 2939[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the bundled manifest pin and denies an index replacement between custody and capture [33m 2831[2mms[22m[39m
+   [33m[2m✓[22m[39m resolves only the connected canonical project/worktree and denies its root identity changing [33m 1933[2mms[22m[39m
+   [33m[2m✓[22m[39m aborts after capture while the final source recheck is in flight [33m 1399[2mms[22m[39m
+   [33m[2m✓[22m[39m returns cancellation while an obsolete catalog read is still pending [33m 943[2mms[22m[39m
+   [33m[2m✓[22m[39m replays the same command after an actual Store reopen without another message or current-source read [33m 1522[2mms[22m[39m
+   [33m[2m✓[22m[39m precommit authority revalidation leaves message/outbox/capture storage empty on a race [33m 1449[2mms[22m[39m
+   [33m[2m✓[22m[39m sanitizes authority-provider failures at precommit without leaking host paths [33m 1399[2mms[22m[39m
+   [33m[2m✓[22m[39m accepts the parent raw skills array while taking expected authority only from host options [33m 1401[2mms[22m[39m
+ [32m✓[39m tests/memory-retrieval-v3.test.ts [2m([22m[2m23 tests[22m[2m)[22m[32m 79[2mms[22m[39m
+ [32m✓[39m tests/scoped-conversation-reader.test.ts [2m([22m[2m29 tests[22m[2m)[22m[32m 128[2mms[22m[39m
+fatal: Not a valid commit name a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ [32m✓[39m tests/research-baseline.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 3172[2mms[22m[39m
+     [33m[2m✓[22m[39m times out a hung child and kills its process tree [33m 1588[2mms[22m[39m
+     [33m[2m✓[22m[39m reproduce identical control actions and effect counts per fixed seed [33m 527[2mms[22m[39m
+ [32m✓[39m tests/agent-follow-up.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 3740[2mms[22m[39m
+   [33m[2m✓[22m[39m exposes exact active target and ticket metadata through authenticated no-store reads without a global snapshot [33m 339[2mms[22m[39m
+ [31m❯[39m tests/hermes-original-integration.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 140584[2mms[22m[39m
+   [33m[2m✓[22m[39m persists actual original-worker source generations through the real broker and Service without copying native content [33m 8368[2mms[22m[39m
+   [33m[2m✓[22m[39m runs original Python and ACP through the native broker, persists a skill and finishes through the real Service [33m 11068[2mms[22m[39m
+[31m   [31m×[31m applies protected original Hermes compaction through authenticated Service HTTP[39m[33m 60703[2mms[22m[39m
+[31m   [31m×[31m rejects original Hermes compaction when a host decision changes during its summary[39m[33m 60442[2mms[22m[39m
+ [32m✓[39m tests/runtime-router.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 3376[2mms[22m[39m
+   [33m[2m✓[22m[39m lazily isolates account adapters, pins routing and denies cross-account sessions [33m 985[2mms[22m[39m
+   [33m[2m✓[22m[39m scopes named-account model discovery to its provider and blocks a profile being signed in [33m 477[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected named-account directories before any auth or session adapter call [33m 881[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a resolver that changes the provider of an already acquired account profile [33m 497[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a descendant Pi junction before actual session validation can resolve another account history [33m 455[2mms[22m[39m
+ [32m✓[39m tests/context-result-host.test.ts [2m([22m[2m32 tests[22m[2m)[22m[33m 5054[2mms[22m[39m
+ [32m✓[39m tests/workspace-action-outcomes.test.ts [2m([22m[2m27 tests[22m[2m)[22m[33m 207084[2mms[22m[39m
+   [33m[2m✓[22m[39m a create preflight refusal is not-applied and permits a fresh reviewed intent [33m 12412[2mms[22m[39m
+   [33m[2m✓[22m[39m retains an uncertain create command across restart without repeating its effect [33m 8500[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps a post-push create failure uncertain without pushing the original intent again [33m 8917[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers an admitted legacy create receipt without a new effect or extra result fields [33m 6305[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses a recovered PR request whose pinned repository changed [33m 4382[2mms[22m[39m
+   [33m[2m✓[22m[39m never publishes a created result for a different repository or reviewed revision [33m 5854[2mms[22m[39m
+   [33m[2m✓[22m[39m commits intent before local write and private result before event, then replays after Store restart [33m 7626[2mms[22m[39m
+   [33m[2m✓[22m[39m retains interrupted remote write as uncertain across restart without submitting it again [33m 10884[2mms[22m[39m
+   [33m[2m✓[22m[39m serializes same-ID attempts across separate Store connections without a double write [33m 14028[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed payload [33m 6496[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed type [33m 5845[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed threadId [33m 5886[2mms[22m[39m
+   [33m[2m✓[22m[39m denies reuse of an ID with a changed projectId [33m 5818[2mms[22m[39m
+   [33m[2m✓[22m[39m inspects original payload/revision without current diff, review reads, or any write [33m 6943[2mms[22m[39m
+   [33m[2m✓[22m[39m returns revoked after working copy or account access changes, including confirmed receipts [33m 11413[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps private intent, result, credentials and errors out of events, receipts and snapshots [33m 5795[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps missing and legacy records uncertain without adopting unbound receipts [33m 5611[2mms[22m[39m
+   [33m[2m✓[22m[39m records not-applied only after host rejection before starting and never restarts that ID [33m 8839[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps failures after started uncertain even when there is no receipt [33m 5162[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps completed external write uncertain if durable result commit fails [33m 9395[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers a confirmed review when the remote branch name differs from the managed local branch [33m 6965[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps an active prepared reservation uncertain until its owner durably proves no execution began [33m 9299[2mms[22m[39m
+   [33m[2m✓[22m[39m pins profile access while GitHubTools is awaiting remote validation [33m 5793[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a profile replaced between inspection identity capture and credential read [33m 6974[2mms[22m[39m
+   [33m[2m✓[22m[39m supports local unstage and commit through the original revision and replays a commit without a second write [33m 21932[2mms[22m[39m
+ [32m✓[39m tests/review-regressions.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 2494[2mms[22m[39m
+ [32m✓[39m tests/service.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 3754[2mms[22m[39m
+     [33m[2m✓[22m[39m records a completed effect arriving after Stop without reviving its run [33m 1099[2mms[22m[39m
+     [33m[2m✓[22m[39m a generated operation button leads to native approval and cannot approve by its label [33m 627[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 406[2mms[22m[39m
+ [32m✓[39m tests/plan-key-connections.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 7187[2mms[22m[39m
+     [33m[2m✓[22m[39m captures openai-completions Go SDK transport through the fixed plan boundary [33m 435[2mms[22m[39m
+     [33m[2m✓[22m[39m captures openai-responses Go SDK transport through the fixed plan boundary [33m 445[2mms[22m[39m
+     [33m[2m✓[22m[39m captures anthropic-messages Go SDK transport through the fixed plan boundary [33m 502[2mms[22m[39m
+     [33m[2m✓[22m[39m never resolves a foreign command credential during native provider background refresh [33m 850[2mms[22m[39m
+ [32m✓[39m tests/accounts.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 6057[2mms[22m[39m
+   [33m[2m✓[22m[39m persists bounded local account metadata and receipt identity without credential fields [33m 308[2mms[22m[39m
+   [33m[2m✓[22m[39m soft-removes an account, clears its future default and preserves bound thread routing [33m 357[2mms[22m[39m
+   [33m[2m✓[22m[39m pins account discovery before awaits and rejects a default changed before first admission [33m 365[2mms[22m[39m
+   [33m[2m✓[22m[39m rechecks the login reservation after asynchronous model discovery before committing a message [33m 344[2mms[22m[39m
+   [33m[2m✓[22m[39m retains account use after Stop clears the thread until native cancellation completes [33m 567[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps failed cancellation fail-closed until disposal proves native teardown [33m 611[2mms[22m[39m
+   [33m[2m✓[22m[39m does not forward natural settlement until the native adapter has stopped using credentials [33m 506[2mms[22m[39m
+   [33m[2m✓[22m[39m retains account use when a native error revokes thread authority before cancellation finishes [33m 479[2mms[22m[39m
+   [33m[2m✓[22m[39m holds account use throughout model probes and keeps failed probe teardown fail-closed [33m 544[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds persisted account records and preserves disabled metadata across store reopen [33m 484[2mms[22m[39m
+ [32m✓[39m tests/memory-extraction-scheduler-v3.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 6605[2mms[22m[39m
+   [33m[2m✓[22m[39m queues behind the same account limit as background work without source bytes or provider calls [33m 469[2mms[22m[39m
+   [33m[2m✓[22m[39m aborts queued acquisition on cancel with no factory, calls or source bytes [33m 444[2mms[22m[39m
+   [33m[2m✓[22m[39m aborts queued acquisition on timeout with no factory, calls or source bytes [33m 407[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates forget after queued admission and before creating a runtime [33m 475[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates consent after queued admission and before creating a runtime [33m 385[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates source after queued admission and before creating a runtime [33m 405[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates model after queued admission and before creating a runtime [33m 446[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates account after queued admission and before creating a runtime [33m 486[2mms[22m[39m
+   [33m[2m✓[22m[39m releases a late grant after cancellation without creating a runtime [33m 422[2mms[22m[39m
+   [33m[2m✓[22m[39m retains its permit until both startup and native cleanup settle after cancellation [33m 440[2mms[22m[39m
+   [33m[2m✓[22m[39m retains the shared permit when native cancel fails [33m 367[2mms[22m[39m
+   [33m[2m✓[22m[39m retains the shared permit when native dispose fails [33m 386[2mms[22m[39m
+   [33m[2m✓[22m[39m joins the original cancellation promise when it settles instead of releasing through a second cancel call [33m 465[2mms[22m[39m
+   [33m[2m✓[22m[39m joins the original cancellation promise when it rejects instead of releasing through a second cancel call [33m 498[2mms[22m[39m
+   [33m[2m✓[22m[39m production Service composition forwards the shared per-account background admission through its memory host [33m 327[2mms[22m[39m
+ [32m✓[39m tests/workspace-action-outcome-authority.test.ts [2m([22m[2m24 tests[22m[2m)[22m[33m 3043[2mms[22m[39m
+ [32m✓[39m tests/task-memory-recovery.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 4178[2mms[22m[39m
+   [33m[2m✓[22m[39m reopens SQLite and restores only current owning notes with revision history across deletion [33m 912[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery [33m 1593[2mms[22m[39m
+   [33m[2m✓[22m[39m injects restored notes once into an installed Pi SDK session and refreshes them after disk restoration and reload [33m 1671[2mms[22m[39m
+ [32m✓[39m tests/tool-effects-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 2780[2mms[22m[39m
+   [33m[2m✓[22m[39m issues an approval on operation.approve and consumes it at the single dispatch [33m 323[2mms[22m[39m
+   [33m[2m✓[22m[39m denies dispatch when the approved owner drifts (epoch bump) [33m 351[2mms[22m[39m
+ [32m✓[39m tests/project-memory-request-http-v3.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 5279[2mms[22m[39m
+   [33m[2m✓[22m[39m requires the Personal host session and CSRF before preparing or excluding memory [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m returns only captured requests from latest and does not start a runtime during preview [33m 425[2mms[22m[39m
+   [33m[2m✓[22m[39m dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable [33m 328[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a prepared token with a changed model before command admission [33m 559[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a prepared token with a changed thinking before command admission [33m 514[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a prepared token with a changed thread before command admission [33m 385[2mms[22m[39m
+   [33m[2m✓[22m[39m returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request [33m 692[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks native dispatch when HTTP forget revokes a selection during asynchronous finalization [33m 611[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps plaintext matched terms ephemeral before and after forgotten memory reaches purge completion [33m 570[2mms[22m[39m
+ [32m✓[39m tests/browser-consent-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1150[2mms[22m[39m
+ [32m✓[39m tests/keyboard-bindings.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 91[2mms[22m[39m
+ [32m✓[39m tests/model-transport-v3.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 488[2mms[22m[39m
+ [32m✓[39m tests/execution-boundary-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 164[2mms[22m[39m
+ [32m✓[39m tests/memory-extraction-runtime-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 1831[2mms[22m[39m
+ [32m✓[39m tests/project-memory-preparation-ui.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 5737[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps visible prepared controls on their committed disabled during a suspended render [33m 3058[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps visible prepared controls on their committed input during a suspended render [33m 2599[2mms[22m[39m
+ [32m✓[39m tests/cursor-driver.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2913[2mms[22m[39m
+     [33m[2m✓[22m[39m contains Cursor stdout errors and settles even when the error observer throws [33m 335[2mms[22m[39m
+     [33m[2m✓[22m[39m starts the actual fixed worker and exits it on startup cancellation without SDK login [33m 1086[2mms[22m[39m
+     [33m[2m✓[22m[39m starts and closes the actual discovery worker without accepting an unproven private credential file [33m 1002[2mms[22m[39m
+ [32m✓[39m tests/widget-action-owner.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 8067[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old action error in B [33m 1183[2mms[22m[39m
+     [33m[2m✓[22m[39m waits for the queued action before explicitly releasing its lease [33m 519[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps A lease until its checkpoint settles after B mounts [33m 472[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps A lease until its queued action settles after B mounts [33m 433[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the imperative release handle [33m 358[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old checkpoint success in B [33m 530[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old checkpoint error in B [33m 500[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps old A lease success bound to its original generation after A-B-A [33m 499[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps old A lease error bound to its original generation after A-B-A [33m 556[2mms[22m[39m
+     [33m[2m✓[22m[39m lets B act without waiting for A lease [33m 440[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old lease error in B [33m 528[2mms[22m[39m
+     [33m[2m✓[22m[39m retains A action ownership after A lease settles [33m 451[2mms[22m[39m
+ [32m✓[39m tests/desktop-control-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+[90mstdout[2m | tests/baseline-workloads-v3.test.ts[2m > [22m[2mmeasures real SQLite source reads for a 1,024-source growing context
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"long-session","model":null,"account":null,"seed":42,"config":"16 growing cuts of 64 sources: fresh compiler per cut versus incremental compiler reuse","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":124.15289999999999,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":4628828,"outputBytes":1530331,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":38.20799999999997,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":544682,"outputBytes":1530331,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes are actual SQLite source text reads, including repeated reads; output bytes are serialized metadata receipts. Fixture writes and output serialization are outside the timer."]},"observations":{"sourceCount":1024,"cuts":16,"baselineSourceReads":8704,"candidateSourceReads":1024,"identicalReceipts":true}}
+
+[90mstdout[2m | tests/baseline-workloads-v3.test.ts[2m > [22m[2mmeasures independent eager and progressive 100-tool schema projections
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"tool-catalog-100","model":null,"account":null,"seed":42,"config":"Same admitted schemas, two request projections: all direct versus one direct plus one described deferred tool","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":1.7667999999999893,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":22291,"outputBytes":40176,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":0.5724999999999909,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":22489,"outputBytes":609,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes serialize registered catalog entries; output bytes sum the two actual frozen tool-schema arrays. Discovery permissions are identical; no invocation occurred."]},"observations":{"registeredTools":100,"baselineVisibleTools":[99,99],"candidateVisibleTools":[1,2]}}
+
+[90mstdout[2m | tests/baseline-workloads-v3.test.ts[2m > [22m[2mmeasures independent eager and progressive 500-tool schema projections
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"tool-catalog-500","model":null,"account":null,"seed":42,"config":"Same admitted schemas, two request projections: all direct versus one direct plus one described deferred tool","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":3.9594000000000733,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":111891,"outputBytes":203374,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":1.963200000000029,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":112889,"outputBytes":609,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes serialize registered catalog entries; output bytes sum the two actual frozen tool-schema arrays. Discovery permissions are identical; no invocation occurred."]},"observations":{"registeredTools":500,"baselineVisibleTools":[499,499],"candidateVisibleTools":[1,2]}}
+
+[90mstdout[2m | tests/baseline-workloads-v3.test.ts[2m > [22m[2mmeasures bounded inspection of 2,000 actual SQLite operation records
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"large-ui-history","model":null,"account":null,"seed":42,"config":"Same retained operations: full same-thread Store read versus bounded task-inspection metadata projection","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":37.58330000000001,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":16936671,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":30.30529999999999,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":3249,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Read-model response bytes only; this does not measure browser rendering or history virtualization. SQLite page input bytes are unmeasured; retained full results are checked after inspection."]},"observations":{"retainedOperations":2000,"resultBytesPerOperation":8192,"fullResultsPreserved":true}}
+
+ [32m✓[39m tests/baseline-workloads-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 833[2mms[22m[39m
+   [33m[2m✓[22m[39m measures real SQLite source reads for a 1,024-source growing context [33m 354[2mms[22m[39m
+   [33m[2m✓[22m[39m measures bounded inspection of 2,000 actual SQLite operation records [33m 458[2mms[22m[39m
+ [32m✓[39m tests/credential-store.test.ts [2m([22m[2m34 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 375[2mms[22m[39m
+ [32m✓[39m tests/verification-executor-binding.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 456[2mms[22m[39m
+ [32m✓[39m tests/workbench-recovery-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 316[2mms[22m[39m
+ [32m✓[39m tests/verification-artifact-gate-v3.test.ts [2m([22m[2m19 tests[22m[2m)[22m[33m 7240[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds the full current artifact read cut and leaves omitted required artifacts blocked [33m 4560[2mms[22m[39m
+ [32m✓[39m tests/project-memory-ui.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 819[2mms[22m[39m
+   [33m[2m✓[22m[39m makes project memory reachable from an owning main project context without making a request [33m 447[2mms[22m[39m
+ [32m✓[39m tests/context7-approved-operation-v3.test.mjs [2m([22m[2m21 tests[22m[2m)[22m[33m 15999[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes the strict preparation tool through the actual authenticated host registry [33m 323[2mms[22m[39m
+     [33m[2m✓[22m[39m prepares bound opaque metadata without approval or credential delivery [33m 553[2mms[22m[39m
+     [33m[2m✓[22m[39m delivers the exact configured credential once after signed approval and closes that session [33m 1488[2mms[22m[39m
+     [33m[2m✓[22m[39m supports approved tool discovery without starting a child from an ordinary list request [33m 1336[2mms[22m[39m
+     [33m[2m✓[22m[39m does not dispatch a prepared request without the native user approval command [33m 474[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a reference after credential replace [33m 505[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a reference after credential clear [33m 419[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects changed entry bytes before credential resolution [33m 589[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects changed manifest bytes before credential resolution [33m 596[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects a replaced working-directory identity even with the same path [33m 590[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a native custody denial closed without a fallback child [33m 476[2mms[22m[39m
+     [33m[2m✓[22m[39m rechecks the exact owner after asynchronous custody acquisition [33m 568[2mms[22m[39m
+     [33m[2m✓[22m[39m redacts a known credential before the approved result reaches public Store records [33m 1281[2mms[22m[39m
+     [33m[2m✓[22m[39m drains a real pending child and records uncertainty after native loss [33m 1256[2mms[22m[39m
+     [33m[2m✓[22m[39m drains a real pending child and records uncertainty after key revocation [33m 1288[2mms[22m[39m
+     [33m[2m✓[22m[39m drains a real pending child and records uncertainty after Stop [33m 1264[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves the observed result when native custody rejects after confirmed child teardown [33m 1203[2mms[22m[39m
+     [33m[2m✓[22m[39m retains known uncertainty when native release rejects after interrupted child work [33m 1271[2mms[22m[39m
+ [32m✓[39m tests/theme-contrast.test.ts [2m([22m[2m29 tests[22m[2m)[22m[33m 1502[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps every custom accent the settings accept readable as text and as a fill [33m 1478[2mms[22m[39m
+ [32m✓[39m tests/workspace-canvas-layout.test.ts [2m([22m[2m17 tests[22m[2m)[22m[32m 38[2mms[22m[39m
+ [32m✓[39m tests/composer-prediction.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 692[2mms[22m[39m
+ [32m✓[39m tests/host-effect-authenticator-v3.test.ts [2m([22m[2m17 tests[22m[2m)[22m[33m 12785[2mms[22m[39m
+     [33m[2m✓[22m[39m persists through real CurrentUser DPAPI and reopens the same authority [33m 2530[2mms[22m[39m
+     [33m[2m✓[22m[39m allows only one competing initializer and never overwrites its key [33m 1524[2mms[22m[39m
+     [33m[2m✓[22m[39m holds read-only file custody until close [33m 1402[2mms[22m[39m
+     [33m[2m✓[22m[39m owns custody independently after an ambient native guard closes [33m 1757[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses lost keys and refuses to recreate a partially initialized profile [33m 1589[2mms[22m[39m
+     [33m[2m✓[22m[39m binds the key to its exact profile and requested key identity [33m 1821[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses multi-link key files and hides unprotect failure details [33m 1361[2mms[22m[39m
+     [33m[2m✓[22m[39m revokes synchronous authority when its actual owned native guard exits [33m 785[2mms[22m[39m
+ [32m✓[39m tests/source-composer-v3.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 103[2mms[22m[39m
+ [32m✓[39m tests/official-runtime-cursor-integration.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 780[2mms[22m[39m
+   [33m[2m✓[22m[39m owns discovery children before awaiting SDK results and waits for their cancellation on dispose [33m 318[2mms[22m[39m
+ [32m✓[39m tests/packaged-providers.test.ts [2m([22m[2m9 tests[22m[2m)[22m[33m 1761[2mms[22m[39m
+     [33m[2m✓[22m[39m imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper [33m 1423[2mms[22m[39m
+ [32m✓[39m tests/memory-host-lifecycle-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1850[2mms[22m[39m
+   [33m[2m✓[22m[39m registers durable compaction checkpoints for immediate Forget invalidation and eventual purge [33m 439[2mms[22m[39m
+   [33m[2m✓[22m[39m records use only for exact dispatched revisions, without extending expiry or restoring forgotten memory [33m 356[2mms[22m[39m
+ [32m✓[39m tests/tool-effect-public-projection-v3.test.mjs [2m([22m[2m5 tests[22m[2m)[22m[33m 771[2mms[22m[39m
+ [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 4357[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 1122[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 1121[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 459[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 1398[2mms[22m[39m
+ [32m✓[39m tests/capture-ui/outputs.test.ts [2m([22m[2m57 tests[22m[2m)[22m[32m 23[2mms[22m[39m
+ [32m✓[39m tests/package-screening-cache-v3.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 42[2mms[22m[39m
+ [32m✓[39m tests/context-efficiency.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 397[2mms[22m[39m
+ [32m✓[39m tests/windows-credential-lease.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1178[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a pre-existing writable mapping after its originating file stream closes [33m 462[2mms[22m[39m
+ [32m✓[39m tests/sidebar-reorder.test.ts [2m([22m[2m28 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/account-profile.test.ts [2m([22m[2m10 tests[22m[2m)[22m[33m 5670[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects an accounts junction and holds the acquired namespace against replacement [33m 973[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects native descendant directory redirects and hardlinked credential files before entry [33m 947[2mms[22m[39m
+   [33m[2m✓[22m[39m pins native directories while allowing legitimate atomic credential replacement [33m 528[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps each writable account directory nonempty with a pinned ordinary marker [33m 1235[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a missing writable account directory before entering native work [33m 447[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects missing and file-valued writable directories without an explicit ancestor scope [33m 891[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps official home namespaces pinned while native credential files remain atomically replaceable [33m 641[2mms[22m[39m
+ [32m✓[39m tests/verification-source-authority.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1357[2mms[22m[39m
+ [32m✓[39m tests/managed-git-family.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 12486[2mms[22m[39m
+   [33m[2m✓[22m[39m requires host attestation for linked worktrees and retains ordinary repositories [33m 1490[2mms[22m[39m
+   [33m[2m✓[22m[39m snapshots the attested worktree HEAD, index and source, without other worktrees or hooks [33m 1562[2mms[22m[39m
+   [33m[2m✓[22m[39m passes only the host-resolved family for the granted domain repository root [33m 1587[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects unsupported common config even when the worktree provides a config override [33m 808[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses an unrelated linked worktree even with another trusted binding [33m 493[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed identity [33m 790[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed common identity [33m 703[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed git identity [33m 774[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed pointer [33m 808[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed backref [33m 851[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed commondir [33m 805[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed config [33m 811[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses changed managed alternates [33m 990[2mms[22m[39m
+ [32m✓[39m tests/usage-context.test.ts [2m([22m[2m15 tests[22m[2m)[22m[32m 14[2mms[22m[39m
+ [32m✓[39m tests/account-login.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 2444[2mms[22m[39m
+   [33m[2m✓[22m[39m does not admit a successor sign-in when an expired lease still has a live owner [33m 571[2mms[22m[39m
+   [33m[2m✓[22m[39m reserves the exact named profile for sign-in and releases it after a failed native login [33m 580[2mms[22m[39m
+   [33m[2m✓[22m[39m retains a durable account hold when native login shutdown is unconfirmed [33m 580[2mms[22m[39m
+ [32m✓[39m tests/tool-effect-late-progress-v3.test.mjs [2m([22m[2m4 tests[22m[2m)[22m[33m 1143[2mms[22m[39m
+   [33m[2m✓[22m[39m handles a late operation callback after 'stop then archive' without losing the historical effect [33m 451[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-follow-up.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 81[2mms[22m[39m
+ [32m✓[39m tests/tool-effect-approval-review-v3.test.mjs [2m([22m[2m2 tests[22m[2m)[22m[33m 360[2mms[22m[39m
+ [32m✓[39m tests/research-service-integration.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 429[2mms[22m[39m
+ [32m✓[39m tests/baseline-package-manager-v3.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 3590[2mms[22m[39m
+     [33m[2m✓[22m[39m inherits only the configured Corepack cache for offline commands, unless explicitly overridden [33m 857[2mms[22m[39m
+     [33m[2m✓[22m[39m runs the declared baseline commands with installed pnpm when Corepack is absent [33m 872[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses a shell shim that has no installed JavaScript entry [33m 449[2mms[22m[39m
+     [33m[2m✓[22m[39m refuses an installed version mismatch before running project scripts [33m 555[2mms[22m[39m
+     [33m[2m✓[22m[39m disables Corepack downloads for the version probe and every baseline command [33m 805[2mms[22m[39m
+[90mstdout[2m | tests/baseline-cancellation-v3.test.ts[2m > [22m[2mrecords normal completion and explicit cancellation of the same ready owned process
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"sampleCountPerArm":1,"record":{"fixture":"cancellation","model":null,"account":null,"seed":42,"config":"Identical ready owned Node child: explicit normal-release control versus AbortSignal cancellation scenario","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":87.56020000000001,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":12800,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":130.25080000000003,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":0,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Both arms use the real shell-free runProcess launcher and the same child readiness handshake.","The control is released to produce deterministic output. The scenario is cancelled while waiting and must produce no output.","Elapsed covers child launch through actual process settlement; abort-to-close latency is separately observed.","Output bytes are captured stdout plus stderr. Process, filesystem, and provider input bytes are not measured and remain null.","The arms intentionally have different successful fixture outcomes. This is cancellation behavior, not an optimization or historical-build comparison.","This does not certify native confinement, arbitrary descendants, model cancellation, or a full application workflow."]},"observations":{"expected":{"baseline":"succeeded","candidate":"cancelled"},"baseline":{"status":"succeeded","exitCode":0,"signal":null,"cancelled":false,"timedOut":false,"pid":6632,"readinessObserved":true,"readinessMs":57.48070000000001,"abortToCloseMs":null},"candidate":{"status":"cancelled","exitCode":1,"signal":null,"cancelled":true,"timedOut":false,"pid":1476,"readinessObserved":true,"readinessMs":55.322,"abortToCloseMs":74.92720000000003}},"limitations":["Current code and owned deterministic inputs, with no provider or model request.","Each arm is one measured local sequence. This is not an end-to-end product or statistical performance certification.","PASS means the stated fixture invariants were observed. Actual underlying operation outcomes are recorded separately."]}
+
+ [32m✓[39m tests/baseline-cancellation-v3.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 239[2mms[22m[39m
+ [32m✓[39m tests/tool-authority-v3.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 40[2mms[22m[39m
+ [32m✓[39m tests/inference-budget.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/project-memory-http-v3.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 1169[2mms[22m[39m
+   [33m[2m✓[22m[39m serves account-scoped memory and exact sources only behind host session authentication [33m 382[2mms[22m[39m
+   [33m[2m✓[22m[39m requires CSRF and exact owner/revision for review while preserving retry receipts [33m 317[2mms[22m[39m
+   [33m[2m✓[22m[39m retains read and correction operations after host rollback but refuses new opt-in [33m 468[2mms[22m[39m
+[90mstdout[2m | tests/baseline-memory-conflict-v3.test.ts[2m > [22m[2mmeasures serial memory edits and explicit stale-edit recovery to the same desired final note
+[22m[39mM01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","workflowSha":"840bb636fb072be137f99e854597b5259e120f7f","runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"sampleCountPerArm":1,"record":{"fixture":"memory-conflict","model":null,"account":null,"seed":42,"config":"32 pairs of identical desired note edits: serial current revisions versus stale rejection and explicit reread/retry","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":437.4809999999999,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":12579,"outputBytes":19165,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":289.2101,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":18868,"outputBytes":22237,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Both arms execute the current Service memory.save command and real SQLite transactions, and commit the same desired sequence/final note.","Input bytes are serialized command envelopes; output bytes are actual receipts or typed public error envelopes.","The measured sequence includes command receipt serialization and source rereads; thread/setup/cleanup and final assertions are outside it.","The scenario includes 32 extra rejected commands. This compares conflict-recovery overhead, not a product optimization or historical implementation."]},"observations":{"rounds":32,"baseline":{"accepted":64,"rejected":0,"final":{"key":"decision","content":"seed-42-final-edit-31","revision":65,"author":"user"}},"candidate":{"accepted":64,"rejected":32,"final":{"key":"decision","content":"seed-42-final-edit-31","revision":65,"author":"user"}},"rejectedCode":"STALE_MEMORY","rejectedCommandsPersisted":0,"runtimeCalls":0},"limitations":["Current code and owned deterministic inputs, with no provider or model request.","Each arm is one measured local sequence. This is not an end-to-end product or statistical performance certification.","PASS means the stated fixture invariants were observed. Actual underlying operation outcomes are recorded separately."]}
+
+ [32m✓[39m tests/baseline-memory-conflict-v3.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1068[2mms[22m[39m
+   [33m[2m✓[22m[39m measures serial memory edits and explicit stale-edit recovery to the same desired final note [33m 1067[2mms[22m[39m
+ [32m✓[39m tests/usage-accounting-v3.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 294[2mms[22m[39m
+ [32m✓[39m tests/execution-platform-proof-v3.test.ts [2m([22m[2m9 tests[22m[2m)[22m[32m 67[2mms[22m[39m
+ [32m✓[39m tests/startup-feedback.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 3291[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps all feedback below OS controls without overflow at 420x190 [33m 578[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps startup feedback accessible and self-contained without fake controls or scripts [33m 316[2mms[22m[39m
+ [32m✓[39m tests/side-draft-owner.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 3688[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps errors from typing during migration with the destination owner [33m 781[2mms[22m[39m
+     [33m[2m✓[22m[39m still reports a failure for the current draft owner [33m 509[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old draft error after A to B [33m 564[2mms[22m[39m
+     [33m[2m✓[22m[39m does not show an old draft error after A to B to A [33m 525[2mms[22m[39m
+ [32m✓[39m tests/compact-draft-transfer.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/ci-merged-pr-cleanup.test.ts [2m([22m[2m12 tests[22m[2m)[22m[32m 130[2mms[22m[39m
+ [32m✓[39m tests/thread-messages-owner.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 21[2mms[22m[39m
+ [32m✓[39m tests/saved-drafts-suspended-audit.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 2579[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps a pending restore available when a disabled render suspends [33m 1172[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks the pending restore when disabled commits and recovers after enabling [33m 598[2mms[22m[39m
+ [32m✓[39m tests/runtime-model-only.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 1698[2mms[22m[39m
+   [33m[2m✓[22m[39m configures the installed Pi SDK as a text model with no ambient or host tools [33m 1529[2mms[22m[39m
+ [32m✓[39m tests/compact-settings.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 121[2mms[22m[39m
+ [32m✓[39m tests/copy-clarity.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 70[2mms[22m[39m
+ [32m✓[39m tests/cursor-mcp.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 656[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves supported host-operation lifetime without a shorter proxy deadline or late header writes [33m 363[2mms[22m[39m
+ [32m✓[39m tests/project-context-committed-action.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 2124[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores old A action success after A-C [33m 442[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores old A action error after A-C [33m 308[2mms[22m[39m
+     [33m[2m✓[22m[39m ignores old A action error after A-C-A [33m 302[2mms[22m[39m
+ [32m✓[39m tests/github-device-policy.test.ts [2m([22m[2m51 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/tooltip-escape.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 12[2mms[22m[39m
+ [32m✓[39m tests/attachment-grant-boundary-v3.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 48[2mms[22m[39m
+ [32m✓[39m tests/repository-map-custody.test.ts [2m([22m[2m4 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 2785[2mms[22m[39m
+   [33m[2m✓[22m[39m retains all actual native file guards through map publication [33m 1069[2mms[22m[39m
+   [33m[2m✓[22m[39m binds a fresh read to changed source bytes instead of returning the old parsed entry [33m 1068[2mms[22m[39m
+   [33m[2m✓[22m[39m denies a private native-history target behind a real directory junction [33m 647[2mms[22m[39m
+ [32m✓[39m tests/project-trust-custody-v3.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 53[2mms[22m[39m
+ [32m✓[39m tests/tool-effect-read-owner-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 1398[2mms[22m[39m
+ [32m✓[39m tests/hermes-multi-original.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 10724[2mms[22m[39m
+   [33m[2m✓[22m[39m runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls [33m 10722[2mms[22m[39m
+ [32m✓[39m tests/project-trust-hardlinks-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 87[2mms[22m[39m
+ [32m✓[39m tests/plugin-validation-policy.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 11990[2mms[22m[39m
+   [33m[2m✓[22m[39m boots the actual presentation bundle in an opaque browser frame without Node globals or dynamic code [33m 11967[2mms[22m[39m
+ [32m✓[39m tests/benchmark-report-availability-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/thinking-level.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 425[2mms[22m[39m
+ [32m✓[39m tests/settings-search-filter.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 51[2mms[22m[39m
+ [32m✓[39m tests/secret-resolution-races-v3.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/capture-ui/review-coverage.test.ts [2m([22m[2m53 tests[22m[2m)[22m[32m 28[2mms[22m[39m
+ [32m✓[39m tests/terminal-excerpts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 59[2mms[22m[39m
+ [32m✓[39m tests/official-runtime-mcp.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 217[2mms[22m[39m
+ [32m✓[39m tests/copy-button-ownership.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 9[2mms[22m[39m
+ [32m✓[39m tests/task-composition.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 25[2mms[22m[39m
+ [32m✓[39m tests/layout-profile.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/preferences-appearance.test.ts [2m([22m[2m10 tests[22m[2m)[22m[32m 20[2mms[22m[39m
+ [32m✓[39m tests/split-tool-placement.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 36[2mms[22m[39m
+ [32m✓[39m tests/workspace-host-agents.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 65[2mms[22m[39m
+ [32m✓[39m tests/desktop-backend-handoff.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 8[2mms[22m[39m
+ [32m✓[39m tests/resource-tree.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 1163[2mms[22m[39m
+   [33m[2m✓[22m[39m lists one granted directory lazily, omits unsafe leaves and denies traversal [33m 1161[2mms[22m[39m
+ [32m✓[39m tests/tool-registry-validation-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[32m 90[2mms[22m[39m
+ [32m✓[39m tests/desktop-preload-accounts.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 19[2mms[22m[39m
+ [32m✓[39m tests/verification-source-digest.test.ts [2m([22m[2m5 tests[22m[2m)[22m[33m 431[2mms[22m[39m
+ [32m✓[39m tests/summary-collapse-state.test.ts [2m([22m[2m5 tests[22m[2m)[22m[32m 6[2mms[22m[39m
+ [32m✓[39m tests/composer-prediction-client.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 72[2mms[22m[39m
+ [32m✓[39m tests/plugin-frame.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/proactive-presentation.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 33[2mms[22m[39m
+ [32m✓[39m tests/composer-commands.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/ui-focus-retention.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/chat-gesture-audit.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 2268[2mms[22m[39m
+     [33m[2m✓[22m[39m cancels an active drag on window blur [33m 553[2mms[22m[39m
+ [32m✓[39m tests/host-fixture-cleanup.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 1251[2mms[22m[39m
+   [33m[2m✓[22m[39m shares host fixture cleanup across concurrent and repeated teardown calls [33m 766[2mms[22m[39m
+   [33m[2m✓[22m[39m closes the replacement generation after a real fixture restart [33m 482[2mms[22m[39m
+ [32m✓[39m tests/desktop-host-ipc.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 11[2mms[22m[39m
+ [32m✓[39m tests/desktop-host-controls.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/process.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 244[2mms[22m[39m
+ [32m✓[39m tests/granted-resource-api.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 188[2mms[22m[39m
+ [32m✓[39m tests/shell-shortcut-roundtrip.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/ci-concurrency-policy.test.ts [2m([22m[2m1 test[22m[2m)[22m[32m 5[2mms[22m[39m
+ [32m✓[39m tests/document-window.test.ts [2m([22m[2m2 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/task-status.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 4[2mms[22m[39m
+ [32m✓[39m tests/context7-native-admission-v3.test.mjs [2m([22m[2m1 test[22m[2m)[22m[33m 1470[2mms[22m[39m
+   [33m[2m✓[22m[39m holds actual Windows native custody through one approved owned MCP action and teardown [33m 1469[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/hermes-original-integration.test.ts[2m > [22mapplies protected original Hermes compaction through authenticated Service HTTP
+[41m[1m FAIL [22m[49m tests/hermes-original-integration.test.ts[2m > [22mrejects original Hermes compaction when a host decision changes during its summary
+[31m[1mAssertionError[22m: expected 'processing' to be 'handled' // Object.is equality[39m
+
+Expected: [32m"handled"[39m
+Received: [31m"processing"[39m
+
+[36m [2m❯[22m vi.waitFor.timeout tests/hermes-original-integration.test.ts:[2m118:81[22m[39m
+    [90m116|[39m    [35mconst[39m id[33m=[39m[32m'protected-source-input-'[39m[33m+[39mindex[33m;[39m
+    [90m117|[39m    await command({id,type:'message.send',threadId:thread.id,payload:{c…
+    [90m118|[39m    await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)…
+    [90m   |[39m                                                                                 [31m^[39m
+    [90m119|[39m    [35mawait[39m runtime[33m.[39m[34mcancelBackground[39m()[33m;[39m
+    [90m120|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m124 passed[39m[22m[90m (125)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m1369 passed[39m[22m[2m | [22m[33m2 skipped[39m[90m (1373)[39m
+[2m   Start at [22m 13:07:44
+[2m   Duration [22m 376.09s[2m (transform 7.24s, setup 0ms, import 46.37s, tests 677.23s, environment 17ms)[22m
+
+JSON report written to D:/a/Gen-V1/Gen-V1/test-results/m15/full-results.json
+ ELIFECYCLE  Test failed. See above for more details.

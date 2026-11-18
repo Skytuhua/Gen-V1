@@ -28,20 +28,5 @@
     "scripts",
     "evals",
     "*.ts"
-  ],
-  "exclude": [
-    "apps/web/src/company/**",
-    "apps/server/company-*.ts",
-    "apps/desktop/company-task-policy.ts",
-    "packages/company-*/**",
-    "tests/company-*.test.ts",
-    "tests/company/**",
-    "tests/desktop-company-task.test.ts",
-    "tests/e2e/company*",
-    "tests/e2e/fixtures/company*",
-    "scripts/package-company-*.ts",
-    "scripts/company-host/**",
-    "scripts/company-requirements.ts",
-    "evals/company-manager.ts"
   ]
 }

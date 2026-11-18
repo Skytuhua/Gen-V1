@@ -17,7 +17,7 @@ export function buildInstructionManifest(files: readonly HostAdmittedInstruction
   const seen = new Map<string, string>();
   const entries: { path: string; scope: string; precedence: number; digest: string; bytes: number }[] = [];
   const duplicates: { path: string; retainedPath: string }[] = [];
-  for (const file of files.toSorted((a, b) => a.precedence - b.precedence || compare(a.path, b.path))) {
+  for (const file of files.toSorted((a, b) => a.precedence - b.precedence || compare(a.path.split('/').at(-1)!, b.path.split('/').at(-1)!) || compare(a.path, b.path))) {
     const { path, physicalId, scope, precedence } = file;
     if (!relative(path) || !nameApproved.test(path.split('/').at(-1)!) || !physicalId || !Number.isSafeInteger(precedence) ||
       (scope && (!relative(scope) || !path.startsWith(scope + '/')))) throw new Error('Invalid host-admitted instruction identity');
