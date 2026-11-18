@@ -8,8 +8,7 @@ async function open(page:Page){
  await page.route('**/chat-view-escape-check',route=>route.fulfill({contentType:'text/html',body:`<html data-theme="dark"><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${encodeURI(fixture)}');</script></body></html>`}));
  await page.goto('/chat-view-escape-check');
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
- await page.getByRole('button',{name:'Switch layout',exact:true}).click();
- await page.getByRole('menuitemcheckbox',{name:'Pop-up',exact:true}).click();
+ await page.getByRole('button',{name:'Detach chat',exact:true}).click();
  await expect(panel(page)).toHaveAttribute('data-chat-mode','popup');
  await expect.poll(()=>panel(page).evaluate(element=>element.getAnimations().filter(effect=>effect.playState==='running'||effect.playState==='paused').length)).toBe(0);
 }
