@@ -6,12 +6,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { expect, it } from 'vitest';
 
-it('matches reported tracked and untracked paths against literal Git names', () => {
+it.each([['café notes.txt', '資料.txt'], [' café notes.txt', ' 資料.txt']])('matches literal Git paths %s and %s', (tracked, untracked) => {
   const source = fileURLToPath(new URL('../', import.meta.url));
   const root = mkdtempSync(join(tmpdir(), 'm05-inventory-'));
   const git = (...args: string[]) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', windowsHide: true }).trim();
   try {
-    const tracked = 'café notes.txt', untracked = '資料.txt';
     const directory = 'docs/implementation/v3';
     for (const path of ['scripts', 'packages/contracts', directory]) mkdirSync(join(root, path), { recursive: true });
     for (const path of ['scripts/verify-m05-evidence.ts', 'packages/contracts/implementation-evidence.ts'])
