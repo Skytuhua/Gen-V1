@@ -10,6 +10,7 @@ import {
  readConversationPlacement,
  capturePlacementExpectation,
  expectationHolds,
+ detachDesiredMainSelection,
  planVisible,
  type ConversationPlacementRecord,
 } from '../apps/web/src/conversation-placement.ts';
@@ -273,5 +274,26 @@ describe('plan visibility',()=>{
   expect(planVisible(run(opened,'pane.collapse',{paneId:'pane-main',collapsed:true}),'a')).toBe(false);
   expect(planVisible(opened,'b')).toBe(false);
   expect(planVisible(run(opened,'view.park',{viewId:'plan:a'}),'a')).toBe(false);
+ });
+});
+
+describe('detachDesiredMainSelection',()=>{
+ it('keeps the main thread selection when a non-main view is detached (R02)',()=>{
+  let layout=createSplitWorkspaceLayout();
+  layout=open(layout,A);
+  layout=applySplitWorkspaceCommand(layout,'pane.split',{workspaceId:layout.id,baseRevision:layout.revision,paneId:'pane-main',newPaneId:'pane-side',splitId:'split-1',axis:'horizontal',before:false,view:layout.views[viewId(A)]});
+  layout=open(layout,B);
+  expect(layout.panes['pane-main']?.activeViewId).toBe(viewId(B));
+  expect(detachDesiredMainSelection(layout,viewId(A),{kind:'thread',threadId:'b'},'pane-main')).toEqual({kind:'thread',threadId:'b'});
+ });
+ it('empties main only when its active thread is detached',()=>{
+  const layout=open(createSplitWorkspaceLayout(),B);
+  expect(detachDesiredMainSelection(layout,viewId(B),{kind:'thread',threadId:'b'},'pane-main')).toEqual({kind:'empty'});
+ });
+ it('keeps an explicit empty main when a docked secondary is detached',()=>{
+  let layout=createSplitWorkspaceLayout();
+  layout=open(layout,A);
+  layout=applySplitWorkspaceCommand(layout,'pane.split',{workspaceId:layout.id,baseRevision:layout.revision,paneId:'pane-main',newPaneId:'pane-side',splitId:'split-1',axis:'horizontal',before:false,view:layout.views[viewId(A)]});
+  expect(detachDesiredMainSelection(layout,viewId(A),{kind:'empty'},'pane-main')).toEqual({kind:'empty'});
  });
 });
