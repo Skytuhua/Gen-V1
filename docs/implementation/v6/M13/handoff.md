@@ -515,3 +515,52 @@ observed aggregate failures are outside M13 where demonstrated
 sibling `wo8.spec.ts` — zero M13 files). Computed `bundleStatus` is now
 FAIL (observed required-case failure); evidence integrity still validates
 (schema clean, digests match committed files).
+
+## M17-main integration merge bb5cdbfc (2026-11-19, LOCAL — not pushed)
+
+Forward-merged the exact main cut `16fa007e6ea9bd230cd880815fd24dc6e3c9e510`
+(feat(M17): default-off paired clients + bounded read sync) into
+`agent/m13-v6` at `645ac5f7`. Exact conflict set matched the manager's
+prediction — two files:
+
+- `packages/core/capability-flags.ts` — resolved by union: both
+  `M13_FLAG_KEYS`/`M13FlagKey` and `M17_FLAG_KEYS`/`M17FlagKey` retained
+  with their own comments and owners (`m13`, `m17`); `CapabilityFlagKey`
+  union extended to include both. All 27 flags verified default-false via
+  direct registry check on the merged cut.
+- `scripts/public-source-files.json` — resolved per authorization as
+  theirs (4369/285) ∪ exact M13-owned admissions (35 source / 4 runtime),
+  then +7 canonical merge-run summaries = 4411/289; sorted, zero removals.
+
+Auto-merge inspection (`server.ts`): both scopes intact — M13
+`isolatedExtensions` option + `IsolatedExtensionHost` import +
+`registerPluginRoutes(...,isolatedExtensions)`; M17 `DevicePairingHost`/
+`ReadSyncHost` imports + `registerDevicePairingRoutes` (device surface
+never mounted, per its comment).
+
+Merged-cut validation (receipts `*-bb5cdbfc`, canonical summaries
+`logs/vitest-*-bb5cdbfc.summary.json` — M17 convention; raw bounded logs
+preserved verbatim in agent-owned out-of-source custody
+`m13-custody/bb5cdbfc` with per-file sha256, never published):
+- PASS: public-source 11/11, plugin-worker-v3 18/18, plugin-lifecycle-v3
+  15/15, plugin-protocol-decisions-v6 5/5.
+- FAIL, environment-bound (not merge regressions): `host-capability-flags`
+  and `device-pairing-v3` fail at suite load — `node-pty` linux-arm64
+  prebuild absent on this host (zero tests ran); `capabilities.test.ts`
+  13/24 fail, all `linux-path-guard` CAPABILITY_DENIED custody family (the
+  same environment family in the d249c566 census). Flag registry verified
+  directly instead: all keys present, all default false.
+- Evidence validator: PASS integrity (schema, lock digest, all committed
+  `boundedLogRef` digests); computed `bundleStatus` remains FAIL.
+
+Evidence-commit correction: the first local evidence commit (superseded,
+sha `73b326a3…` retained in custody) committed seven raw-form `.log`
+files; CONTRIBUTING.md excludes raw test output from source, so the
+replacement commit on `bb5cdbfc` carries canonical `.summary.json` files
+(command, testedSha, exit, counts, bounded failure reason) and the raw
+artifacts live only in out-of-source custody with their sha256 values.
+The push range never includes raw or private files; `d249c566` and all
+prior accepted receipts are preserved under their actual tested cuts.
+
+Merge stays LOCAL per instruction — Windows run 44414394897 still has
+active jobs; no push, no CI dispatch, no flag changes.
