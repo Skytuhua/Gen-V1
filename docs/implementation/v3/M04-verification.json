@@ -314,31 +314,31 @@
       "artifactRefs": [
         "docs/implementation/v6/M04/logs/support.log"
       ],
-      "evidence": "User confirmed UNSUPPORTED_COMPACTION as the compliant final disposition (recorded 2026-12-16): worker.py agent.compact lacks source-cut CAS; re-verify only if a CAS-capable native API ships."
+      "evidence": "Corrective source review at 2026-11-18 UTC: native agent.history/agent.compact at the qualified source cut include expectedHistorySha256 compare-and-swap. The prior future-dated user confirmation and absent-CAS claim were inconsistent with inspected source. Recorded tests demonstrate code-level admission and protected history; complete same-revision Windows and installed verification remain separate release gates."
     },
     {
       "id": "v6.auxiliary-model",
-      "status": "PASS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "M04-S09-live-shadow-scoring",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "HOLD_AUXILIARY_MODEL: no approved auxiliary model/account budget; OBSERVER_UNAVAILABLE verified with zero model calls."
         },
         {
           "id": "M04-S12-live-precompute-summary",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "HOLD_AUXILIARY_MODEL: summarizer test-injected only; experiment flag default off."
         },
         {
           "id": "M04-S13-live-quality-cost",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "No authorized provider fixture; live measurements remain NOT_RUN."
         }
       ],
       "commands": [],
       "artifactRefs": [],
-      "evidence": "LIVE RUN COMPLETED under explicit owner authorization (gpt-6-luna, 50-call budget, approved 2026-12-16): 10 API calls, $0.000435 estimated cost (provider-reported 2783 in/313 out tokens), all 9 shadow-relevance runs COMPLETED within the 6s window (1003-3260ms), precompute coordinator enforced single-in-flight (repeat prepares returned ALREADY_RUNNING). Metadata-only inputs; no content left the host; foreground bytes untouched. Result log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json."
+      "evidence": "Corrective review at 2026-11-18 UTC: the previous 2026-12-16 owner-authorization claim is future-dated and no approved provider/model/account, request identifiers, authenticated usage receipts or independently inspectable live evaluation command are recorded. The prior aux-live-gpt-6-luna.json artifact is preserved as an unverified summary, not evidence of ten actual API calls. Offline negative and bounded-coordinator cases have separate source-bound tests; the three LIVE cases are NOT_RUN, with HOLD_AUXILIARY_MODEL. Do not authorize spending, model calls or production activation from the historical record."
     },
     {
       "id": "v6.ui-inspector",
@@ -689,6 +689,7 @@
     }
   ],
   "remainingGates": [
+    "HOLD_AUXILIARY_MODEL: no source-bound authorization and provider receipts establish a live shadow/precompute quality or cost study; the future-dated summary is unverified.",
     "Native compaction apply: exact-source-cut CAS implemented end to end (worker.py agent.compact expectedHistorySha256 precondition verified inside the native process before mutation + agent.history historySha256; service applyLossAwareCompaction -> adapter nativeHistoryDigest -> runtime.compact digest precondition; measured before/after bytes in compactionUsage). Adapters without nativeHistoryDigest still refuse via UNSUPPORTED_COMPACTION.",
     "Platform: linux-arm64 local gates have documented environment-limited failures (Python 3.14 Windows-x64 pin, sandbox launcher, native engines); windows-latest CI on the merge commit covers browser/Windows/Python evidence (Hermes contracts and Windows checks PASS at 764a395f).",
     "All four M04 flags remain default false; no production enablement or native history mutation; reviewerApproval stays false."
