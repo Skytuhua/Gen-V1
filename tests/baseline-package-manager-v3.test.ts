@@ -1,10 +1,11 @@
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { spawnSync } from 'node:child_process';
 import { constants, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { runRecordedCommand } from '../scripts/research-baseline.ts';
 
 const repository = new URL('../', import.meta.url);
 const runner = new URL('../scripts/research-baseline.ts', import.meta.url).href;
@@ -51,6 +52,24 @@ if (process.argv[2] === '--version') console.log(${JSON.stringify(version)});
 }
 
 describe('M01 installed package manager admission', () => {
+  it('inherits only the configured Corepack cache for offline commands, unless explicitly overridden', async () => {
+    const cache = join(directory, 'configured cache'), override = join(directory, 'other cache');
+    vi.stubEnv('COREPACK_HOME', cache);
+    vi.stubEnv('M01_UNRELATED_SETTING', 'unrelated');
+    try {
+      const probe = async (environment: NodeJS.ProcessEnv) => {
+        const result = await runRecordedCommand(process.execPath, ['-e',
+          'console.log(JSON.stringify([process.env.COREPACK_HOME, process.env.M01_UNRELATED_SETTING]))',
+        ], { cwd: directory, environment });
+        expect(result.exitCode, result.stderr).toBe(0);
+        return JSON.parse(result.stdout);
+      };
+      expect(await probe({ COREPACK_ENABLE_NETWORK: '0' })).toEqual([cache, null]);
+      expect(await probe({ COREPACK_ENABLE_NETWORK: '0', COREPACK_HOME: override })).toEqual([override, null]);
+      expect(await probe({})).toEqual([null, null]);
+    } finally { vi.unstubAllEnvs(); }
+  });
+
   it('runs the declared baseline commands with installed pnpm when Corepack is absent', () => {
     const value = fixture();
     const result = value.execute();
