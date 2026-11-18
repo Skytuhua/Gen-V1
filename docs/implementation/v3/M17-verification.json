@@ -467,6 +467,101 @@
    "artifactRefs": [
     "scripts/public-source-files.json"
    ]
+  },
+  {
+   "id": "INTEGRATED_CUT_REVALIDATION",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-integrated-cut-a71dd850",
+     "status": "PASS",
+     "evidence": "origin/main advanced to 89142de980df86c4236dc49c28f280d78fe79e0d; merged into agent/m17-v6 as a71dd850d10afb2a7163ddd3c401d92f4f0d0e0e resolving the sole conflict (scripts/public-source-files.json, union of upstream manifest + 22 task-owned source/3 runtime entries). Upstream delta touched only M03/desktop-packaging files; zero overlap with M17 sources. All receipts below bind to integrated cut a71dd850; prior receipts remain bound to their original cuts."
+    },
+    {
+     "id": "M17-integrated-m17-suite",
+     "status": "PASS",
+     "evidence": "Full M17 suite at a71dd850: device-pairing-v3 12/12, read-sync-v3 16/16, read-sync-decisions-v6 6/6, remote-transport-v3 1/1 (owned-test TLS lifecycle), public-source 11/11 \u2014 46/46 PASS in 61.37s."
+    },
+    {
+     "id": "M17-integrated-typecheck-note",
+     "status": "PASS",
+     "evidence": "tsc --noEmit exit 0 at a71dd850. Environment note: the first run under default 2GB V8 heap OOM-aborted (exit 134, mark-compact at heap limit after ~270s under shared-box contention); re-run with NODE_OPTIONS=--max-old-space-size=6144 passed cleanly. Not a code defect \u2014 same binary/flags pass."
+    },
+    {
+     "id": "M17-integrated-lint-build",
+     "status": "PASS",
+     "evidence": "pnpm lint exit 0 (UI guard: 619 sources, 0 violations); pnpm build exit 0 (built in ~35s) at a71dd850, both with the 6GB heap allowance."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/device-pairing-v3.test.ts",
+      "tests/read-sync-v3.test.ts",
+      "tests/read-sync-decisions-v6.test.ts",
+      "tests/remote-transport-v3.test.ts",
+      "tests/public-source.test.ts"
+     ],
+     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
+     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "startedAt": "2026-11-18T13:51:53Z",
+     "endedAt": "2026-11-18T13:52:54Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.log",
+     "logDigest": "d0ed513c8f6864c03089df9c5b1d077b446521516256535fa207839834817c96",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
+     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "startedAt": "2026-11-18T14:02:00Z",
+     "endedAt": "2026-11-18T14:07:09Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.log",
+     "logDigest": "d06fe179002b2f6c3f6cc671e410103ff39869dd1cf70e66e196a3a9f34c076f",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
+     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "startedAt": "2026-11-18T14:07:09Z",
+     "endedAt": "2026-11-18T14:11:16Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.log",
+     "logDigest": "e402c49e49038496682743a122c8e1b945c17df8238c5d9f4029cf9ef41918dc",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "build"
+     ],
+     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
+     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "startedAt": "2026-11-18T14:11:16Z",
+     "endedAt": "2026-11-18T14:11:59Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.log",
+     "logDigest": "5b12169253dc67c9ab5e89de778834db89cb299eca403c020d6dd47a0c8a3697",
+     "status": "PASS"
+    }
+   ]
   }
  ],
  "changedFiles": [
