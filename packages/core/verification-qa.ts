@@ -175,10 +175,19 @@ export class VerificationQa {
   }
   private receipt(session: Session, state: 'RUNNING' | 'COMPLETED_REPORTED' | 'FAILED', cleanupConfirmed: boolean | null): void {
     const workId = session.intent.qa!.admission.workId;
-    this.hooks.store.internal('verification.qa.lifecycle', session.parent.threadId, () => this.hooks.store.put('verificationQaLifecycle', workId, session.parent.threadId,
+    this.hooks.store.internal('verification.qa.lifecycle', session.parent.threadId, () => {
+      this.hooks.store.put('verificationQaLifecycle', workId, session.parent.threadId,
       {version: 1, workId, operationId: session.operationId, executionId: session.intent.executionId, owner: session.intent.owner, state, evidenceQuality: 'ADVISORY',
         budget: session.intent.qa!.admission.budget, observedTokens: session.tokens, toolCalls: session.toolCalls, deadline: new Date(session.deadline).toISOString(), cleanupConfirmed,
-        stopReason: session.fault instanceof HarnessError ? session.fault.code : session.fault ? 'QA_RUNTIME_FAILED' : null, updatedAt: new Date().toISOString()}));
+        stopReason: session.fault instanceof HarnessError ? session.fault.code : session.fault ? 'QA_RUNTIME_FAILED' : null, updatedAt: new Date().toISOString()});
+      const child = session.child ? this.hooks.store.get<Thread>('thread', session.child.threadId) : undefined;
+      // Reporting a result is not native teardown. Retire only this completed
+      // child after cleanup, retaining the historical AgentWork child owner.
+      if (cleanupConfirmed === true && session.child && child?.status === 'completed' && child.kind === 'delegate' &&
+        child.parentThreadId === session.parent.threadId && child.jobId === workId && child.modelId === session.intent.qa!.model.modelId &&
+        digest(ownerFor(child)) === digest({...session.intent.owner, ...session.child}))
+        this.hooks.store.put('thread', child.id, child.id, {...child, runId: null});
+    });
   }
   async dispose(): Promise<void> {
     const sessions = [...this.sessions.values()];
