@@ -210,25 +210,25 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
     const missing: string[] = [];
-    if (!bound.length) missing.push(`no observation bound to ${req.id}`);
+    if (!req.checkRefs.length) missing.push(`no observation bound to ${req.id}`);
+    // Every declared reference is required. An execution reference includes
+    // all checks it produced, so one fresh PASS cannot hide a missing, stale
+    // or unsettled sibling check. Advisory and audit-only evidence cannot
+    // satisfy a reference even when its recorded outcome is PASS.
+    for (const ref of new Set(req.checkRefs)) {
+      const checks = bound.filter(obs => match(obs, ref));
+      if (!checks.length) missing.push(`no observation bound to ${ref} for ${req.id}`);
+      else if (checks.some(obs => observationFreshness(obs, current) === 'STALE'))
+        missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
+      else if (checks.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
+        !checks.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs) && obs.observationKind !== 'review-advisory'))
+        missing.push(`evidence for ${req.id} (${ref}) is indeterminate or missing`);
+    }
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
-    if (bound.length) {
-      const fresh = bound.filter(obs => observationFreshness(obs, current) === 'CURRENT');
-      const stale = bound.filter(obs => observationFreshness(obs, current) === 'STALE');
-      if (bound.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
-        assessment = bound.some(obs => obs.outcome === 'BLOCKED') && !bound.some(obs => obs.outcome === 'FAIL') ? 'BLOCKED' : 'FAILED';
-      } else if (stale.length === bound.length) {
-        assessment = 'UNVERIFIED';
-        missing.push(`evidence for ${req.id} is stale against the current source`);
-      // M07 review-advisory observations (language diagnostics, debug state)
-      // inform review but are not executed checks: like audit markers their
-      // PASS cannot verify, while their FAIL/BLOCKED/CANCELLED stay effective.
-      } else if (fresh.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs) && obs.observationKind !== 'review-advisory')) {
-        assessment = 'VERIFIED';
-      } else {
-        assessment = 'UNVERIFIED';
-        missing.push(`evidence for ${req.id} is indeterminate or missing`);
-      }
+    if (bound.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
+      assessment = bound.some(obs => obs.outcome === 'BLOCKED') && !bound.some(obs => obs.outcome === 'FAIL') ? 'BLOCKED' : 'FAILED';
+    } else if (req.checkRefs.length && !missing.length) {
+      assessment = 'VERIFIED';
     }
     return { id: req.id, checkRefs: req.checkRefs, assessment, missing };
   });
