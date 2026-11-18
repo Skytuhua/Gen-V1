@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import * as childProcess from 'node:child_process';
+import type { ChildProcess, SpawnOptions } from 'node:child_process';
 import { once } from 'node:events';
 import { copyFile, link, mkdir, mkdtemp, readFile, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -11,6 +11,23 @@ import {
 import { assertNotStorage } from '../packages/core/security.ts';
 import type { SecretCodec } from '../packages/core/environment-settings.ts';
 import { withPathGuard } from '../packages/core/file-access.ts';
+
+// The native guard is a real child process, so the only way to reach it is the
+// spawn that creates it. An ESM namespace cannot be spied on, so the module is
+// wrapped once here and every spawn still goes to the real implementation.
+const spawned = vi.hoisted(() => ({ guards: [] as ChildProcess[] }));
+vi.mock('node:child_process', async importOriginal => {
+  const actual = await importOriginal<typeof import('node:child_process')>();
+  return {
+    ...actual,
+    spawn: ((file: string, args?: readonly string[], options?: SpawnOptions) => {
+      const realSpawn = actual.spawn as (file: string, args?: readonly string[], options?: SpawnOptions) => ChildProcess;
+      const child = realSpawn(file, args, options);
+      if (Array.isArray(args) && args.some(value => String(value).endsWith('windows-path-guard.ps1'))) spawned.guards.push(child);
+      return child;
+    }) as typeof actual.spawn,
+  };
+});
 
 const keyId = '00000000-0000-4000-8000-000000000001';
 const otherId = '00000000-0000-4000-8000-000000000002';
@@ -158,15 +175,10 @@ describe.runIf(process.platform === 'win32')('real Windows effect-key custody', 
   });
 
   it('revokes synchronous authority when its actual owned native guard exits', async () => {
-    const root = await directory(), originalSpawn = childProcess.spawn;
-    const guards: childProcess.ChildProcess[] = [];
-    vi.spyOn(childProcess, 'spawn').mockImplementation((...args: Parameters<typeof childProcess.spawn>) => {
-      const child = originalSpawn(...args);
-      if (Array.isArray(args[1]) && args[1].some(value => String(value).endsWith('windows-path-guard.ps1'))) guards.push(child);
-      return child;
-    });
+    const root = await directory();
+    spawned.guards.length = 0;
     const custody = owned(await initializeEffectKey(root, { codec }));
-    const guard = guards.filter(child => child.exitCode === null && child.signalCode === null).at(-1);
+    const guard = spawned.guards.filter(child => child.exitCode === null && child.signalCode === null).at(-1);
     expect(guard?.pid).toBeTruthy();
     const stopped = once(guard!, 'exit');
     expect(guard!.kill()).toBe(true); await stopped;
