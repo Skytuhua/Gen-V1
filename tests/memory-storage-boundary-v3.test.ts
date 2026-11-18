@@ -109,3 +109,15 @@ it('denies stored environment values and checkpoint blobs through direct and anc
   }
   await expect(security.resolveGrant(f.grant(f.ordinary), undefined, false, f.profile)).resolves.toBe(f.ordinary);
 });
+
+
+it('denies host approval key through direct and ancestor resource grants', async () => {
+  const f = await fixture(), key = join(f.profile, 'effect-authority', 'key.json');
+  await mkdir(dirname(key), { recursive: true });
+  await writeFile(key, 'synthetic approval key fixture');
+  for (const write of [false, true]) {
+    await expect(security.resolveGrant(f.grant(key), undefined, write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(security.resolveGrant(f.grant(f.root), 'profile/effect-authority/key.json', write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+  }
+  await expect(security.resolveGrant(f.grant(f.ordinary), undefined, false, f.profile)).resolves.toBe(f.ordinary);
+});
