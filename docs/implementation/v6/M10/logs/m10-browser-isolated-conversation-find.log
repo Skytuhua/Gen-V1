@@ -1,0 +1,16 @@
+
+Running 11 tests using 1 worker
+
+  ✓   1 tests/e2e/conversation-find.spec.ts:49:1 › literal ranges cross formatting without modifying markup or copied code (8.4s)
+  ✓   2 tests/e2e/conversation-find.spec.ts:54:1 › find skips screen-reader-only labels without removing them from the transcript (3.7s)
+  ✓   3 tests/e2e/conversation-find.spec.ts:66:1 › wraps both directions; Escape restores opener and draft caret (3.9s)
+  ✓   4 tests/e2e/conversation-find.spec.ts:69:1 › ignores composing keyboard events (3.5s)
+  ✓   5 tests/e2e/conversation-find.spec.ts:72:1 › extends loaded history beyond 100; keeps the selected range when older messages mount (4.9s)
+  ✓   6 tests/e2e/conversation-find.spec.ts:75:1 › scoped reader keeps partial scope and exposes real loading and retry errors (2.2s)
+  ✓   7 tests/e2e/conversation-find.spec.ts:79:1 › keyboard and reduced/off motion find paths are immediate at desktop and smoke widths (5.3s)
+  ✓   8 tests/e2e/conversation-find.spec.ts:86:1 › owner switch clears find and excluded composer text is never counted (4.2s)
+  ✓   9 tests/e2e/conversation-find.spec.ts:90:1 › retains active match and reading position on rendered background additions (4.7s)
+  ✓  10 tests/e2e/conversation-find.spec.ts:96:1 › Enter activates the focused previous, close and history buttons (5.3s)
+  ✓  11 tests/e2e/conversation-find.spec.ts:102:1 › Escape and Close restore the rendered Find trigger (3.4s)
+
+  11 passed (54.7s)

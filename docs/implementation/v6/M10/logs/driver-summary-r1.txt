@@ -1,0 +1,6 @@
+EXIT 0 :: pnpm exec vitest run tests/background-work-v3.test.ts --maxWorkers=1
+EXIT 0 :: pnpm exec vitest run tests/human-handoff-v3.test.ts --maxWorkers=1
+EXIT 0 :: pnpm exec vitest run tests/external-intake-v3.test.ts --maxWorkers=1
+EXIT 0 :: pnpm exec vitest run tests/background-contract-decisions-v6.test.ts --maxWorkers=1
+EXIT 0 :: pnpm typecheck
+EXIT 0 :: pnpm lint

@@ -1,0 +1,12 @@
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (populated rollup) (4.2s)
+  ✓  2 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (empty rollup) (1.6s)
+  ✓  3 tests/e2e/m08-restore-ui.spec.ts:15:1 › plan shows confirmation with planned paths; cancel resets; confirm applies (1.7s)
+  ✓  4 tests/e2e/m08-restore-ui.spec.ts:49:1 › conflict apply result names the skipped files (1.4s)
+  ✓  5 tests/e2e/m08-restore-ui.spec.ts:65:1 › disabled restore adapter shows its reason and no file checkboxes (1.0s)
+  ✓  6 tests/e2e/m08-restore-ui.spec.ts:72:1 › uncertain partial recovery never claims files were restored (1.3s)
+  ✓  7 tests/e2e/m08-restore-ui.spec.ts:85:1 › actual App reports an uncertain restore without claiming success (7.5s)
+
+  7 passed (23.4s)

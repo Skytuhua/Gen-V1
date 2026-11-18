@@ -20,6 +20,7 @@ import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
+import {registerBackgroundRoutes} from './background-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
@@ -227,6 +228,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerOperationProjectTrustRoutes(app,service);
   registerOperationExecutionReviewRoutes(app,service);
   registerAttentionRoutes(app,service);
+  registerBackgroundRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
