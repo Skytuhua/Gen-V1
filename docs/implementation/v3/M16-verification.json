@@ -352,15 +352,15 @@
       ],
       "commands": [],
       "artifactRefs": []
-    }
+    },
     {
       "id": "M16_WINDOWS_CONTROL_BRIDGE_FOLLOWUP",
-      "status": "PARTIAL",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "bridge-targeted-tests",
           "status": "PASS",
-          "evidence": "WIN-M0N0V07LGM1 @ bdf5e27c (a4cb7824 + 2 fix commits): vitest 5 files 56/56 PASS — browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 17, control-runtime-v6 6."
+          "evidence": "WIN-M0N0V07LGM1 @ bdf5e27c: vitest 5 files 56/56 PASS — browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 17, control-runtime-v6 6."
         },
         {
           "id": "bridge-typecheck-lint",
@@ -379,7 +379,7 @@
         },
         {
           "id": "bridge-window-slice",
-          "status": "BLOCKED",
+          "status": "NOT_RUN",
           "evidence": "HOLD_PICKER_BINDING: GraphicsCapturePicker returns no authoritative HWND mapping; the EnumWindows name/size heuristic was removed rather than trusted. Window path fails closed until an approved same-object binding exists. GraphicsCapturePicker drive and WGC capture acceptance NOT_RUN."
         },
         {
@@ -387,6 +387,18 @@
           "status": "NOT_RUN",
           "evidence": "HOLD_PLATFORM_PROOF: browser-tab slice compiles and registers but live consented capture/input acceptance against the installed app was not run on this pass."
         }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "apps/desktop/control-bridge.ts",
+        "apps/server/host.ts",
+        "apps/server/desktop-controls.ts",
+        "packages/core/control-runtime.ts",
+        "packages/core/control-sidecar-driver.ts",
+        "packages/core/windows-control-bridge.cc",
+        "scripts/build-windows-control-bridge.ts",
+        "tests/control-bridge-v6.test.ts",
+        "tests/control-runtime-v6.test.ts"
       ]
     }
   ],
