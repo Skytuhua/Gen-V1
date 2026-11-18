@@ -920,10 +920,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const placeSplitThread=async(threadId:string,paneId=convSplitState.layout?.focusedPaneId,edge:SplitDropEdge='center',outer=false)=>{
     const current=convSplitState.layout;if(!current||!paneId)throw Error('Wait for the workspace to load.');
     const next=threadPlacementCommand(current,snapshotRef.current.threads,threadId,paneId,edge,outer);
-    const existing=current.panes[paneId]?.viewIds.find(id=>current.views[id]?.kind==='thread'&&current.views[id]?.binding.authority.kind==='local'&&current.views[id]?.binding.threadId===threadId);
-    if(edge==='center'&&existing){await journalFlush();next.type='view.activate';next.payload={workspaceId:current.id,baseRevision:current.revision,paneId,viewId:existing};}
-    // Tab and split placement retain every view body and its editor lease.
-    else await journalFlush();
+    await journalFlush();
     const placed=await convSplitState.send(next.type,next.payload);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Current selection remains usable. */}placedThread.current=threadId;setSelectedId(threadId);setSelectedPluginId(null);setSelectedPluginWorkspace(null);publishMainSelection(placed);
   };
   useEffect(()=>{
