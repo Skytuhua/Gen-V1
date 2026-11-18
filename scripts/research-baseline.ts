@@ -195,7 +195,11 @@ export const CONTRACT_SOURCES: Record<string, string> = {
 };
 
 function git(rootDir: string, args: string[]): string {
-  return execFileSync('git', ['-C', rootDir, ...args], { encoding: 'utf8', windowsHide: true }).trim();
+  // Evidence checks inspect only the checkout. A partial clone must not
+  // fetch an unknown pin implicitly or hang waiting for a promisor remote.
+  return execFileSync('git', ['-C', rootDir, ...args], {
+    encoding: 'utf8', windowsHide: true, env: { ...process.env, GIT_NO_LAZY_FETCH: '1' },
+  }).trim();
 }
 
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
@@ -216,7 +220,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
   for (const sha of lock.acceptedDependencyCommits) {
-    try { execFileSync('git', ['-C', rootDir, 'merge-base', '--is-ancestor', sha, lock.executionBaseSha], { windowsHide: true }); }
+    try { git(rootDir, ['merge-base', '--is-ancestor', sha, lock.executionBaseSha]); }
     catch { issues.push({ code: 'DEPENDENCY_NOT_ACCEPTED', message: `Accepted dependency commit ${sha} is not an ancestor of ${lock.executionBaseSha}.` }); }
   }
   for (const contract of lock.publicContracts) {
