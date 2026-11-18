@@ -389,3 +389,64 @@ process supervisor.** Exact findings and what is missing:
 Status unchanged: `plugins.isolatedV1` off, HOLD_BACKEND_SELECTION +
 HOLD_PLATFORM_PROOF + HOLD_MIGRATION_PLAN stand. This is a decision input,
 not an implementation — no backend was built, selected, or substituted.
+
+## DEP-M13-BACKEND-01 — pinned dependency record (2026-11-18)
+
+Ownership check: **no current owner for the M03 launcher/backend.** Open
+PRs in the space are repair-family only (#848 Context7 redaction, #832
+browser DOM redaction, #817 advisory exceptions, #825 dev-launcher child
+cleanup, #801 M04 shadow isolation — none implements or registers a
+backend); no remote branch names an m03/backend/launcher effort. No
+competing backend is implemented here.
+
+A candidate backend is pinned **against the existing execution-policy
+sources** — it is a dependency, not new contract surface:
+
+- `packages/core/execution-policy.ts` — must implement `ExecutionBackend`
+  exactly: `backendId` (unique, operator-supplied via `approvedBackendId`),
+  `platform === 'linux'` on this host, `installed: true` and
+  `approved: true` **by operator/source lock only**, `proof: PlatformProof`
+  with `platform === backend.platform`, `status: 'PASS'`, a
+  `platformProofRef` an `ExecutionProfileV1` can pin, `recordedAt`, and a
+  real `evidenceRef` (the verification-executor admission requires it).
+  `launch(ApprovedLaunch)` must enforce the declared `readRoots`,
+  `writeRoots`, `networkPolicy` and `secretRefs` at spawn — confinement is
+  a launch-time kernel property, never a post-hoc check.
+- `packages/core/verification-executor-binding.ts` — the observed-launch
+  superset shows the required handle semantics: atomic confinement,
+  `LaunchedProcess{pid, tree(), wait(), terminate(), log()}`, tree-only
+  termination, `assertCurrent` re-checked immediately before native spawn.
+- `packages/plugins/isolated-host.ts` — a production `WorkerLauncher` must
+  bind the backend launch to `WorkerTransport` over host-created private
+  pipes; `ExecutionHandle`/`LaunchedProcess` carry no stdio, so the
+  candidate additionally needs an fd-passing or socket-rendezvous
+  convention (broker precedent: `linux-path-guard` uses inherited fd 3
+  socket + fd 4 root) — flagged here as a known contract extension point,
+  not implemented.
+- Admission stays exactly `selectBackend` + `hasCurrentPlatformProof`;
+  the candidate changes nothing in the gate.
+
+**Platform proof prerequisite (unchanged):** a linux-arm64 `PlatformProof`
+produced by the M03 native negative matrix on this platform. M03 recorded
+the Windows matrix BLOCKED and no non-Windows proof attempted — the proof
+is a separate work item that must land before any candidate qualifies.
+
+## Exact merge scope of draft #838 (for manager review)
+
+**In scope — default-off, inert without flag+backend+proof:**
+contracts (`plugin-worker.ts`), lane implementation (`isolated-host.ts`,
+`lifecycle.ts`, `worker-entry.ts`), host seam + flag
+(`capability-flags.ts`, `host.ts` options), additive catalog/UI rows and
+gated lifecycle routes (`server.ts`, `plugin-routes.ts`, `App.tsx`,
+`PluginFrame.tsx`, `WorkspaceControls.tsx`), tests, evidence docs, and
+manifest admissions. Merging this PR changes zero runtime behavior:
+`plugins.isolatedV1` default-false means the lane never registers a
+package, and even enabled it cannot activate without an approved proven
+backend that does not exist.
+
+**Out of scope / unqualified by this PR:** real confined worker execution
+(no backend, no linux-arm64 proof), migration execution (no approved plan;
+the contract only gates it), backend implementation/selection, flag
+enablement, any change to trusted V1 plugin behavior, Hermes ambient
+plugins (stay disabled). These remain held work items, not defects in the
+merged surface.
