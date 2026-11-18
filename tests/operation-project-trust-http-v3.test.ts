@@ -44,6 +44,16 @@ it('returns an authenticated disabled review without writing trust or approving 
   expect(f.store.get<Operation>('operation', f.target.operationId)?.approved).toBe(false);
 });
 
+it('reads disabled trust status without creating a review token or changing the operation', async () => {
+  const f = await fixture(), sequence = f.store.sequence;
+  const response = await f.app.inject({ url: f.url.replace('project-trust?', 'project-trust/status?'), headers: f.headers });
+  expect(response.statusCode).toBe(200);
+  expect(response.headers['cache-control']).toBe('no-store');
+  expect(response.json()).toEqual({ version: 1, enabled: false, reason: 'PROJECT_TRUST_DISABLED', ...f.target });
+  expect(f.store.sequence).toBe(sequence);
+  expect(f.store.get<Operation>('operation', f.target.operationId)?.approved).toBe(false);
+});
+
 it('rejects malformed and caller-supplied trust metadata in review queries', async () => {
   const f = await fixture(), sequence = f.store.sequence;
   for (const suffix of ['&rootPath=C%3A%2Felsewhere', '&threadId=other', '&operationRevision=3', '&version=2']) {

@@ -9,7 +9,7 @@ import { resolveGrant } from '../packages/core/security.ts';
 import { Service } from '../packages/core/service.ts';
 import { Store } from '../packages/storage/store.ts';
 import { ProjectTrustLedger } from '../packages/core/project-trust.ts';
-import { operationProjectTrustReviewSchema, operationProjectTrustReceiptSchema } from '../packages/contracts/operation-project-trust.ts';
+import { operationProjectTrustReviewSchema, operationProjectTrustReceiptSchema, operationProjectTrustStatusSchema } from '../packages/contracts/operation-project-trust.ts';
 import * as domain from '../packages/capabilities/index.ts';
 
 // Only native path leases are replaced. Store, public Service commands, owning
@@ -100,6 +100,13 @@ async function reviewed(f: Awaited<ReturnType<typeof fixture>>) {
     decision: 'trusted' as const, executionMode: 'TRUSTED_HOST' as const } };
 }
 
+async function recordedStatus(f: Awaited<ReturnType<typeof fixture>>) {
+  const host = f.service.projectTrust;
+  // The original host exposes only preview. Keep that real read as the red
+  // baseline: it rejects approved operations and issues review authority.
+  return typeof host.status === 'function' ? host.status(f.target) : host.preview(f.target);
+}
+
 it('returns host-computed metadata, requires explicit unrestricted selection, then separate exact operation approval', async () => {
   const f = await fixture(), { view, decision } = await reviewed(f);
   expect(view.current.decision).toBe('required');
@@ -184,21 +191,28 @@ it('does not turn a persisted decision into admission after its awaited owner ch
 
 it('rechecks trust after approval and native acquisition immediately before the launcher', async () => {
   const f = await fixture(), { decision } = await reviewed(f), receipt = await f.service.projectTrust.decide(decision);
+  let recorded: unknown;
   seam.beforeGuard = async () => {
     seam.beforeGuard = undefined; await Promise.resolve();
     expect(f.store.get<Operation>('operation', f.operation.id)?.status).toBe('running');
+    const sequence = f.store.sequence;
+    try { recorded = await recordedStatus(f); } catch (error) { recorded = { error: (error as HarnessError).code }; return; }
+    expect(f.store.sequence).toBe(sequence);
     f.service.projectTrust.revoke({ ...f.target, trustId: receipt.current.trustId, expectedTrustRevision: receipt.current.revision });
   };
   await f.approve(); await f.service.dispatchOperation(f.operation.id);
+  expect(recorded).toMatchObject({ ...f.target, version: 1, enabled: true, current: { decision: 'trusted', revision: 1 } });
+  expect(recorded).not.toHaveProperty('reviewId');
   expect(f.store.get<Operation>('operation', f.operation.id)).toMatchObject({ status: 'failed', error: 'Project trust or the operation owner changed before launch' });
   expect(seam.launches).toBe(0);
 });
 
 it('drops pending reviews across actual Store close/reopen and keeps durable decisions as history', async () => {
-  const f = await fixture(), first = await reviewed(f);
+  const f = await fixture(), first = await reviewed(f), priorHost = f.service.projectTrust;
   await f.service.projectTrust.decide({ ...first.decision, decision: 'declined', executionMode: undefined });
   const pending = await reviewed(f);
   await f.reopen();
+  expect(() => priorHost.status(f.target)).toThrow(expect.objectContaining({ code: 'HOST_CLOSING' }));
   await expect(f.service.projectTrust.decide(pending.decision)).rejects.toMatchObject({ code: 'PROJECT_TRUST_REVIEW_STALE' });
   expect(f.store.all('projectTrust')).toHaveLength(1);
   expect(f.store.get<Thread>('thread', f.thread.id)?.status).toBe('interrupted');
@@ -270,10 +284,84 @@ it('revokes an approved operation while the real Service queue still holds it', 
   try {
     await waiting; await f.approve();
     expect(f.store.get<Operation>('operation', f.operation.id)).toMatchObject({ approved: true, status: 'prepared' });
+    const sequence = f.store.sequence, pendingStatus = recordedStatus(f);
+    await expect(pendingStatus).resolves.toMatchObject({ ...f.target, version: 1, enabled: true, current: { decision: 'trusted', revision: 1 } });
+    const recorded = await pendingStatus;
+    expect(recorded).not.toHaveProperty('reviewId'); expect(f.store.sequence).toBe(sequence);
     expect(f.service.projectTrust.revoke({ ...f.target, trustId: receipt.current.trustId, expectedTrustRevision: receipt.current.revision }).current.decision).toBe('revoked');
   } finally { release(); await blocking; }
   await f.service.dispatchOperation(f.operation.id);
   expect(f.store.get<Operation>('operation', f.operation.id)?.status).toBe('failed'); expect(seam.launches).toBe(0);
+});
+
+it('reads recorded trust repeatedly without writing state or issuing or consuming a decision token', async () => {
+  const f = await fixture(), { decision } = await reviewed(f), sequence = f.store.sequence;
+  for (let index = 0; index < 140; index++) {
+    const recorded = await recordedStatus(f);
+    expect(recorded).toMatchObject({ ...f.target, version: 1, enabled: true, current: { decision: 'required', revision: 0 } });
+    expect(recorded).not.toHaveProperty('reviewId');
+  }
+  expect(f.store.sequence).toBe(sequence); expect(f.store.all('operationProjectTrust')).toEqual([]);
+  expect((await f.service.projectTrust.decide(decision)).current.decision).toBe('trusted');
+  expect(seam.launches).toBe(0);
+});
+
+it('returns a strict recorded status with current owner and rejects review authority in that response', async () => {
+  const f = await fixture(), { decision } = await reviewed(f);
+  await f.service.projectTrust.decide(decision);
+  const recorded = operationProjectTrustStatusSchema.parse(f.service.projectTrust.status(f.target));
+  if (!recorded.enabled) throw new Error('The owned test requires project trust enabled');
+  expect(recorded.current).toMatchObject({ decision: 'trusted', revision: 1 });
+  expect(recorded.owner).toMatchObject({ threadId: f.thread.id, epoch: 1 });
+  for (const changed of [{ ...recorded, version: 2 }, { ...recorded, reviewId: 'unissued' },
+    { ...recorded, expiresAt: new Date().toISOString() }, { ...recorded, owner: { ...recorded.owner, threadId: 'foreign-owner' } }])
+    expect(operationProjectTrustStatusSchema.safeParse(changed).success).toBe(false);
+  recorded.owner.epoch++;
+  expect(f.service.projectTrust.status(f.target)).toMatchObject({ owner: { epoch: 1 }, current: { decision: 'trusted' } });
+  await expect(f.service.projectTrust.decide({ ...f.target, reviewId: recorded.current.trustId, expectedTrustRevision: 1,
+    decision: 'trusted', executionMode: 'TRUSTED_HOST' })).rejects.toMatchObject({ code: 'PROJECT_TRUST_REVIEW_STALE' });
+});
+
+it('reports recorded trust without claiming that current file bytes were reverified', async () => {
+  const f = await fixture(), { decision } = await reviewed(f);
+  await f.service.projectTrust.decide(decision);
+  await appendFile(join(f.project, 'owned.test.cjs'), '// external edit after recorded trust\n');
+  const sequence = f.store.sequence, recorded = f.service.projectTrust.status(f.target);
+  expect(recorded).toMatchObject({ current: { decision: 'trusted', revision: 1 } });
+  expect(recorded).not.toHaveProperty('approvedDigests'); expect(recorded).not.toHaveProperty('reviewId');
+  expect(f.store.sequence).toBe(sequence);
+  await f.approve(); await f.service.dispatchOperation(f.operation.id);
+  expect(f.store.get<Operation>('operation', f.operation.id)?.status).toBe('failed'); expect(seam.launches).toBe(0);
+});
+
+it('invalidates recorded status for changed owners and denies foreign, stale and stopped reads', async () => {
+  const f = await fixture(), { decision } = await reviewed(f);
+  await f.service.projectTrust.decide(decision);
+  const owner = f.store.get<Thread>('thread', f.thread.id)!;
+  f.store.internal('fixture.owner.changed', owner.id, () => f.store.put('thread', owner.id, owner.id, { ...owner, accountId: 'changed-account' }));
+  const sequence = f.store.sequence;
+  expect(f.service.projectTrust.status(f.target)).toMatchObject({ owner: { accountBinding: 'changed-account' }, current: { decision: 'invalidated', revision: 1 } });
+  expect(() => f.service.projectTrust.status({ ...f.target, threadId: 'foreign-owner' })).toThrow(expect.objectContaining({ code: 'NOT_FOUND' }));
+  expect(() => f.service.projectTrust.status({ ...f.target, operationRevision: 2 })).toThrow(expect.objectContaining({ code: 'PROJECT_TRUST_REVIEW_STALE' }));
+  expect(f.store.sequence).toBe(sequence);
+  f.store.internal('fixture.owner.stopped', owner.id, () => f.store.put('thread', owner.id, owner.id, { ...owner, status: 'stopped' }));
+  expect(() => f.service.projectTrust.status(f.target)).toThrow(expect.objectContaining({ code: 'PROJECT_TRUST_REVIEW_STALE' }));
+});
+
+it.each([false, true])('keeps disabled recorded status read-only without weakening a prepared requirement (prepared enabled=%s)', async preparedEnabled => {
+  const f = await fixture(preparedEnabled);
+  if (preparedEnabled) {
+    await f.reopen(false);
+    await f.service.command({ id: randomUUID(), type: 'run.resume', threadId: f.thread.id, payload: { modelId: 'test/model' } });
+    await f.service.deliverOutbox(f.thread.id);
+  }
+  const sequence = f.store.sequence;
+  if (preparedEnabled) expect(() => f.service.projectTrust.status(f.target)).toThrow(expect.objectContaining({ code: 'PROJECT_TRUST_DISABLED' }));
+  else expect(operationProjectTrustStatusSchema.parse(f.service.projectTrust.status(f.target))).toEqual({
+    ...f.target, version: 1, enabled: false, reason: 'PROJECT_TRUST_DISABLED',
+  });
+  expect(f.store.sequence).toBe(sequence); expect(f.store.all('operationProjectTrust')).toEqual([]);
+  expect(f.store.all('projectTrust')).toEqual([]); expect(seam.launches).toBe(0);
 });
 
 it.each(['no decision', 'failed publication'] as const)('retains the preparation trust requirement across disabled restart (%s)', async scenario => {
