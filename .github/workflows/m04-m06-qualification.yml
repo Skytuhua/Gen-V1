@@ -1,0 +1,332 @@
+name: M04 M05 M06 qualification
+
+on:
+  pull_request:
+    paths: ['.github/workflows/m04-m06-qualification.yml', 'tests/hermes-original-integration.test.ts']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m04-m06-qualification-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
+
+jobs:
+  qualification:
+    name: ${{ matrix.scope }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            scope: Linux protocol host and browser qualification
+          - os: windows-latest
+            scope: Windows native custody and qualification
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out the immutable source
+        id: checkout
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Record source identity and prepare command receipts
+        id: source
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $directory = Join-Path $env:GITHUB_WORKSPACE 'test-results/qualification'
+          New-Item -ItemType Directory -Force -Path $directory | Out-Null
+          $source = [ordered]@{
+            version = 1
+            repository = $env:GITHUB_REPOSITORY
+            commit = (git rev-parse HEAD).Trim()
+            tree = (git rev-parse 'HEAD^{tree}').Trim()
+            workflowBlob = (git rev-parse 'HEAD:.github/workflows/m04-m06-qualification.yml').Trim()
+            platform = $env:RUNNER_OS
+            architecture = $env:RUNNER_ARCH
+            runId = $env:GITHUB_RUN_ID
+            runAttempt = $env:GITHUB_RUN_ATTEMPT
+            scope = 'Focused host/protocol/browser and native file custody. No live provider, installed-app, sandbox-confinement or production-activation claim.'
+          }
+          $source | ConvertTo-Json -Depth 5 | Set-Content -Encoding utf8 (Join-Path $directory 'source.json')
+          Write-Host ('QUALIFICATION_SOURCE=' + ($source | ConvertTo-Json -Compress))
+          "QUALIFICATION_SOURCE_SHA=$($source.commit)" >> $env:GITHUB_ENV
+          $helper = Join-Path $env:RUNNER_TEMP 'm04-m06-qualification.ps1'
+          @'
+          function Invoke-Qualification {
+            param([string]$Name, [string]$Executable, [string[]]$Arguments, [bool]$Enabled = $true, [string]$BlockedBy = '', [switch]$NativeUnittest, [int]$MinimumTests = 1)
+            $PSNativeCommandUseErrorActionPreference = $false
+            $directory = Join-Path $env:GITHUB_WORKSPACE 'test-results/qualification'
+            $log = Join-Path $directory ($Name + '.log')
+            $receipt = [ordered]@{name=$Name; sourceSha=$env:QUALIFICATION_SOURCE_SHA; platform=$env:RUNNER_OS; executable=$Executable; arguments=$Arguments; startedAt=[DateTime]::UtcNow.ToString('o'); finishedAt=$null; exitCode=$null; status='NOT_RUN'; reason=$BlockedBy}
+            if ($NativeUnittest) { $receipt.minimumTests = $MinimumTests }
+            if ($Enabled) {
+              try {
+                $global:LASTEXITCODE = 0
+                & $Executable @Arguments 2>&1 | Tee-Object -FilePath $log | Out-Host
+                $receipt.exitCode = $LASTEXITCODE
+              } catch {
+                ($_ | Out-String) | Tee-Object -FilePath $log -Append | Out-Host
+                $receipt.exitCode = $null
+                $receipt.reason = 'Command invocation or log collection failed before a reliable exit code was captured.'
+              }
+              $receipt.status = if ($null -eq $receipt.exitCode) { 'ERROR' } elseif ($receipt.exitCode -eq 0) { 'PASS' } else { 'FAIL' }
+              if ($null -ne $receipt.exitCode) { $receipt.reason = $null }
+              if ($NativeUnittest -and $null -ne $receipt.exitCode) {
+                $output = [string](Get-Content -Raw -LiteralPath $log -ErrorAction SilentlyContinue)
+                $count = [regex]::Match($output, 'Ran (\d+) tests?')
+                $skips = [regex]::Match($output, 'skipped=(\d+)')
+                $receipt.tests = if ($count.Success) { [int]$count.Groups[1].Value } else { 0 }
+                $receipt.skipped = if ($skips.Success) { [int]$skips.Groups[1].Value } else { 0 }
+                if ($receipt.tests -lt $MinimumTests -or $receipt.skipped -ne 0) {
+                  $receipt.status = 'FAIL'
+                  $receipt.reason = "Native offline qualification requires at least $MinimumTests executed cases and zero skips."
+                }
+              }
+            }
+            $receipt.finishedAt = [DateTime]::UtcNow.ToString('o')
+            $receipt | ConvertTo-Json -Depth 6 | Set-Content -Encoding utf8 (Join-Path $directory ($Name + '-command.json'))
+            Write-Host ('QUALIFICATION_COMMAND=' + ($receipt | ConvertTo-Json -Depth 6 -Compress))
+            return $receipt.status -eq 'PASS'
+          }
+          '@ | Set-Content -Encoding utf8 -LiteralPath $helper
+          "QUALIFICATION_HELPER=$helper" >> $env:GITHUB_ENV
+
+      - name: Install the pinned Node and pnpm toolchain
+        id: node
+        uses: ./.github/actions/setup
+
+      - name: Install the pinned Python interpreter
+        id: python
+        if: ${{ always() && !cancelled() && steps.source.outcome == 'success' }}
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.14'
+          architecture: x64
+
+      - name: Install the pinned original-Hermes dependency closure
+        id: hermes
+        if: ${{ always() && !cancelled() && steps.python.outcome == 'success' }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          # The integration lock contains Windows wheels and is not an input to
+          # these offline workers. Do not install it on the Linux qualification lane.
+          $ok = Invoke-Qualification 'hermes-dependencies' 'python' @('-m','pip','install','--disable-pip-version-check','--no-warn-script-location','--target','.harness-hermes-python-deps','-r','third-party/hermes-agent/runtime-requirements.txt')
+          if (-not $ok) { exit 1 }
+          "HARNESS_HERMES_PYTHON=$((Get-Command python).Source)" >> $env:GITHUB_ENV
+          exit 0
+
+      - name: Build the platform native prerequisites
+        id: native
+        if: ${{ always() && !cancelled() && steps.node.outcome == 'success' && steps.python.outcome == 'success' }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          if ($env:RUNNER_OS -eq 'Windows') {
+            $ok = Invoke-Qualification 'native-prerequisite' 'pnpm' @('build:credential-lease')
+          } else {
+            # node-pty install scripts are intentionally not in onlyBuiltDependencies.
+            # Build the already locked node-pty 1.1.0 with the locked node-gyp 12.4.0.
+            $ok = Invoke-Qualification 'native-prerequisite' 'node' @('node_modules/.pnpm/node-gyp@12.4.0/node_modules/node-gyp/bin/node-gyp.js','rebuild','--directory','node_modules/node-pty')
+          }
+          if (-not $ok) { exit 1 }
+          exit 0
+
+      - name: Build widget prerequisites independently of the web build
+        id: widgets
+        if: ${{ always() && !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          if (-not (Invoke-Qualification 'widgets-build' 'pnpm' @('build:widgets'))) { exit 1 }
+          exit 0
+
+      - name: Install the locked Playwright browser
+        id: browser
+        if: ${{ always() && !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          $arguments = if ($env:RUNNER_OS -eq 'Linux') { @('exec','playwright','install','--with-deps','chromium') } else { @('exec','playwright','install','chromium') }
+          if (-not (Invoke-Qualification 'browser-install' 'pnpm' $arguments)) { exit 1 }
+          exit 0
+
+      - name: Build the production App for actual-host browser tests
+        id: build
+        if: ${{ always() && !cancelled() && steps.node.outcome == 'success' }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          if (-not (Invoke-Qualification 'web-build' 'pnpm' @('build'))) { exit 1 }
+          exit 0
+
+      - name: Run independent focused qualifications and retain all outcomes
+        if: ${{ always() && !cancelled() && steps.source.outcome == 'success' }}
+        env:
+          NODE_OUTCOME: ${{ steps.node.outcome }}
+          PYTHON_OUTCOME: ${{ steps.python.outcome }}
+          HERMES_OUTCOME: ${{ steps.hermes.outcome }}
+          NATIVE_OUTCOME: ${{ steps.native.outcome }}
+          WIDGETS_OUTCOME: ${{ steps.widgets.outcome }}
+          BROWSER_OUTCOME: ${{ steps.browser.outcome }}
+          BUILD_OUTCOME: ${{ steps.build.outcome }}
+        run: |
+          . $env:QUALIFICATION_HELPER
+          $directory = Join-Path $env:GITHUB_WORKSPACE 'test-results/qualification'
+          $setup = [ordered]@{node=$env:NODE_OUTCOME; python=$env:PYTHON_OUTCOME; hermes=$env:HERMES_OUTCOME; native=$env:NATIVE_OUTCOME; widgets=$env:WIDGETS_OUTCOME; browser=$env:BROWSER_OUTCOME; build=$env:BUILD_OUTCOME}
+          $setup | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $directory 'setup-outcomes.json')
+          $nodeReady = $env:NODE_OUTCOME -eq 'success'
+          $unitReady = $nodeReady -and $env:NATIVE_OUTCOME -eq 'success' -and $env:WIDGETS_OUTCOME -eq 'success'
+          $pythonReady = $env:PYTHON_OUTCOME -eq 'success' -and $env:HERMES_OUTCOME -eq 'success'
+          $browserReady = $unitReady -and $env:BROWSER_OUTCOME -eq 'success' -and $env:BUILD_OUTCOME -eq 'success'
+          $failed = $false
+          if (-not (Invoke-Qualification 'typecheck' 'pnpm' @('typecheck') $nodeReady 'Node toolchain unavailable')) { $failed = $true }
+          $groups = '{"m02":["tests/tool-effect-operation-owner-v3.test.ts","tests/tool-effect-snapshot-v3.test.ts"],"m04":["tests/context-compiler-v3.test.ts","tests/context-contract-preservation-v6.test.ts","tests/context-request-observation.test.ts","tests/context-results-v3.test.ts","tests/context-result-custody.test.ts","tests/context-result-host.test.ts","tests/context-relevance-host.test.ts","tests/context-discovery-v3.test.ts","tests/project-instructions-host.test.ts","tests/project-instructions-custody.test.ts","tests/repository-map-host.test.ts","tests/repository-map-custody.test.ts","tests/repository-map-packaging.test.ts","tests/compaction-v3.test.ts","tests/compaction-model-requests.test.ts","tests/native-compaction-protection.test.ts","tests/inference-admission.test.ts","tests/inference-budget.test.ts","tests/native-context-projection.test.ts"],"m05":["tests/project-memory-service-v3.test.ts","tests/project-memory-request-http-v3.test.ts","tests/memory-consolidation-v3.test.ts","tests/project-memory-ui.test.ts","tests/project-memory-file-sources-v3.test.ts","tests/installed-desktop-verification.test.ts","tests/project-memory-maintenance-host.test.ts","tests/memory-forget-v3.test.ts","tests/project-memory-v3.test.ts","tests/memory-host-lifecycle-v3.test.ts","tests/memory-retrieval-v3.test.ts","tests/host-capability-flags.test.ts","tests/memory-extraction-runtime-v3.test.ts","tests/memory-extraction-scheduler-v3.test.ts","tests/memory-enrollment-recovery-v3.test.ts","tests/memory-restored-index-v3.test.ts","tests/memory-storage-boundary-v3.test.ts","tests/memory-native-checkpoint-v3.test.ts","tests/memory-checkpoint-worker-ownership-v3.test.ts","tests/memory-study-v3.test.ts","tests/project-memory-http-v3.test.ts","tests/source-workbench-memory-v3.test.ts","tests/memory-source-reuse-v3.test.ts"],"m06":["tests/verification-v3.test.ts","tests/browser-verification-v3.test.ts","tests/qa-delegation-v3.test.ts","tests/generated-ui-endurance-v3.test.ts","tests/verification-artifact-gate-v3.test.ts","tests/verification-artifact-routes.test.ts","tests/verification-artifacts-v3.test.ts","tests/verification-evidence-owner-v3.test.ts","tests/verification-executor-binding.test.ts","tests/verification-executor.test.ts","tests/verification-host-composition.test.ts","tests/verification-managed-recipe.test.ts","tests/verification-qa-admission.test.ts","tests/verification-qa-source.test.ts","tests/verification-read-models-v3.test.ts","tests/verification-source-authority.test.ts","tests/verification-source-digest.test.ts","tests/verification-workflow.test.ts"],"generated_ui":["tests/widget-isolation.test.ts","tests/widget-action-owner.test.ts","tests/widget-committed-owner.test.ts"],"native_host":["tests/hermes-runtime.test.ts","tests/official-runtime-service.test.ts","tests/hermes-broker.test.ts"],"inventory":["tests/public-source.test.ts","tests/browser-runner.test.ts"],"windows_host":["tests/hermes-original-integration.test.ts"]}' | ConvertFrom-Json -AsHashtable
+          foreach ($name in @('m02','m04','m05','m06','generated_ui','native_host','windows_host','inventory')) {
+            $targetPlatform = $name -ne 'windows_host' -or $env:RUNNER_OS -eq 'Windows'
+            $ready = if ($name -eq 'generated_ui') { $nodeReady -and $env:WIDGETS_OUTCOME -eq 'success' -and $env:BROWSER_OUTCOME -eq 'success' } else { $unitReady -and $targetPlatform -and ($name -notin @('native_host','windows_host') -or $pythonReady) }
+            $paths = @($groups[$name])
+            $missing = @($paths | Where-Object { -not (Test-Path -LiteralPath $_) })
+            if ($missing.Count) { Write-Host ("Missing source tests for $($name): " + ($missing -join ', ')); $ready = $false }
+            $report = Join-Path $directory ($name + '-tests.json')
+            $arguments = @('exec','vitest','run') + $paths + @('--maxWorkers=1','--reporter=default','--reporter=json','--outputFile',$report)
+            $blockedBy = if (-not $targetPlatform) { 'NOT_RUN_ON_TARGET_PLATFORM: real Hermes home custody requires Windows' } elseif ($name -eq 'generated_ui') { 'Required source tests or Node/widget/Chromium prerequisites unavailable' } else { 'Required source tests, Node/native/widget or original-Hermes prerequisites unavailable' }
+            $passed = Invoke-Qualification ($name + '-tests') 'pnpm' $arguments $ready $blockedBy
+            if (-not $passed -and $targetPlatform) { $failed = $true }
+            if (Test-Path -LiteralPath $report) {
+              try {
+                $data = Get-Content -Raw -LiteralPath $report | ConvertFrom-Json
+                Write-Host ('QUALIFICATION_VITEST=' + (@{group=$name; sourceSha=$env:QUALIFICATION_SOURCE_SHA; total=$data.numTotalTests; passed=$data.numPassedTests; failed=$data.numFailedTests; skipped=$data.numPendingTests; todo=$data.numTodoTests} | ConvertTo-Json -Compress))
+                if ($data.numTotalTests -lt 1 -or ($name -in @('windows_host','generated_ui') -and ($data.numPendingTests -gt 0 -or $data.numTodoTests -gt 0))) { $failed = $true }
+                if ($name -eq 'generated_ui') {
+                  foreach ($path in $paths) {
+                    $files = @($data.testResults | Where-Object { ($_.name -replace '\\','/').EndsWith($path) })
+                    $executed = @($files.assertionResults | Where-Object { $_.status -in @('passed','failed') })
+                    Write-Host ('QUALIFICATION_GENERATED_UI=' + (@{sourceSha=$env:QUALIFICATION_SOURCE_SHA; file=$path; matched=$files.Count; executed=$executed.Count; skipped=@($files.assertionResults | Where-Object { $_.status -notin @('passed','failed') }).Count} | ConvertTo-Json -Compress))
+                    if ($files.Count -ne 1 -or $executed.Count -lt 1) { $failed = $true }
+                  }
+                }
+                if ($name -eq 'windows_host') {
+                  foreach ($title in @('applies protected original Hermes compaction through authenticated Service HTTP','rejects original Hermes compaction when a host decision changes during its summary')) {
+                    $hostAssertions = @($data.testResults.assertionResults | Where-Object { $_.title -eq $title -or $_.fullName -eq $title })
+                    $passed = $hostAssertions.Count -eq 1 -and $hostAssertions[0].status -eq 'passed'
+                    Write-Host ('QUALIFICATION_WINDOWS_HOST=' + (@{sourceSha=$env:QUALIFICATION_SOURCE_SHA; test=$title; matched=$hostAssertions.Count; observed=@($hostAssertions.status); passed=$passed} | ConvertTo-Json -Compress))
+                    if (-not $passed) { $failed = $true }
+                  }
+                }
+              } catch { Write-Host "Invalid Vitest report: $name"; $failed = $true }
+            } elseif ($ready) { Write-Host "Missing Vitest report: $name"; $failed = $true }
+          }
+          # The full original-worker suite includes the pinned Windows PE post-edit hook.
+          # Preserve it as a mandatory Windows gate; Linux runs only the named portable subset.
+          $workerTarget = $env:RUNNER_OS -eq 'Windows'
+          $workerReady = $pythonReady -and $workerTarget
+          $workerBlocked = if ($workerTarget) { 'Pinned Python/Hermes prerequisites unavailable' } else { 'NOT_RUN_ON_TARGET_PLATFORM: full original-worker suite requires the pinned Windows native post-edit executable' }
+          $workerPassed = Invoke-Qualification 'hermes_source_worker' 'python' @('-I','-S','-B','tests/hermes_source_worker.py','-v') $workerReady $workerBlocked -NativeUnittest -MinimumTests 45
+          if ($workerTarget -and -not $workerPassed) { $failed = $true }
+          $workerStatus = if (-not $workerTarget) { 'NOT_RUN_ON_TARGET_PLATFORM' } elseif (-not $pythonReady) { 'NOT_RUN' } elseif ($workerPassed) { 'PASS' } else { 'FAIL' }
+          $workerSubsetStatus = 'NOT_RUN_ON_TARGET_PLATFORM'
+          if ($env:RUNNER_OS -eq 'Linux') {
+            $portableWorkerTests = @(
+              'ContextCaptureFixture.test_append_reports_only_new_tool_metadata_and_exact_unicode_bytes',
+              'ContextCaptureFixture.test_in_place_native_mutation_rebuilds_instead_of_reusing_object_identity',
+              'ContextCaptureFixture.test_rewind_binding_and_native_schema_changes_retire_the_prefix',
+              'ContextCaptureFixture.test_source_limits_and_unsupported_shapes_retire_metadata_without_returning_content',
+              'ContextCaptureFixture.test_deep_or_cyclic_native_content_is_unavailable_without_escaping_the_observer',
+              'AutomaticContainmentFixture.test_all_native_call_shapes_refuse_without_replacing_or_mutating_the_live_list',
+              'AutomaticContainmentFixture.test_cancellation_and_exception_restore_every_original_instance_override',
+              'AutomaticContainmentFixture.test_flag_off_leaves_native_and_manual_calls_unchanged',
+              'AutomaticContainmentFixture.test_missing_capability_or_invalid_required_policy_cannot_fall_back',
+              'AutomaticContainmentFixture.test_m05_checkpoint_remains_outermost_and_failure_never_reaches_compaction',
+              'WorkerFixture.test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary',
+              'WorkerFixture.test_m04_required_automatic_protection_preserves_original_user_and_tool_history',
+              'WorkerFixture.test_m04_required_protection_contains_configured_native_proactive_pruning',
+              'WorkerFixture.test_m04_required_protection_contains_configured_native_post_turn_micro_compaction',
+              'WorkerFixture.test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent',
+              'WorkerFixture.test_m04_original_request_cut_reuses_only_an_unchanged_native_prefix',
+              'WorkerFixture.test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive',
+              'WorkerFixture.test_m04_protection_refuses_opaque_revisions_for_pending_approvals',
+              'WorkerFixture.test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary',
+              'WorkerFixture.test_m04_protection_requires_an_explicit_same_thread_maintenance_context',
+              'WorkerFixture.test_m04_protection_cannot_replace_the_retained_source_context',
+              'WorkerFixture.test_m04_protection_refuses_when_native_normalization_makes_the_old_prose_part_of_a_required_tool_group',
+              'WorkerFixture.test_m04_protection_refuses_changed_archive_after_host_commit_wait',
+              'WorkerFixture.test_m04_archive_unavailable_refuses_before_summary_and_preserves_native_history',
+              'WorkerFixture.test_m04_archive_unavailable_refuses_when_native_summary_fallback_is_enabled',
+              'WorkerFixture.test_m04_protection_overflow_never_starts_summary_or_native_mutation',
+              'WorkerFixture.test_m04_required_checkpoint_failure_blocks_protected_summary_and_archive',
+              'WorkerFixture.test_m04_revoked_commit_retains_the_archive_but_never_changes_active_native_history'
+            )
+            $arguments = @('-I','-S','-B','tests/hermes_source_worker.py','-v') + $portableWorkerTests
+            $subsetPassed = Invoke-Qualification 'hermes_source_worker-m04-subset' 'python' $arguments $pythonReady 'Pinned Python/Hermes prerequisites unavailable' -NativeUnittest -MinimumTests 28
+            if (-not $subsetPassed) { $failed = $true }
+            $workerSubsetStatus = if (-not $pythonReady) { 'NOT_RUN' } elseif ($subsetPassed) { 'PASS' } else { 'FAIL' }
+          }
+          foreach ($script in @('memory_native_checkpoint_v3','memory_native_checkpoint_worker_v3')) {
+            $minimum = if ($script -eq 'memory_native_checkpoint_v3') { 5 } else { 3 }
+            if (-not (Invoke-Qualification $script 'python' @('-B',"tests/$script.py",'-v') $pythonReady 'Pinned Python/Hermes prerequisites unavailable' -NativeUnittest -MinimumTests $minimum)) { $failed = $true }
+          }
+          $browserSuites = @('project-memory','project-memory-host','verification-host','usage-context')
+          foreach ($suite in $browserSuites) {
+            if (-not (Invoke-Qualification ('browser-' + $suite) 'pnpm' @('test:browser','--suite',$suite) $browserReady 'Node/native/widget/browser/web-build prerequisites unavailable')) { $failed = $true }
+          }
+          foreach ($suite in $browserSuites) {
+            $reports = @(Get-ChildItem -Path 'test-results/browser' -Filter 'results.json' -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.Directory.Name -eq $suite })
+            if ($reports.Count -ne 1) { Write-Host "Missing or ambiguous browser report: $suite"; $failed = $true; continue }
+            try {
+              $data = Get-Content -Raw -LiteralPath $reports[0].FullName | ConvertFrom-Json
+              Write-Host ('QUALIFICATION_BROWSER=' + (@{suite=$suite; sourceSha=$env:QUALIFICATION_SOURCE_SHA; expected=$data.stats.expected; unexpected=$data.stats.unexpected; flaky=$data.stats.flaky; skipped=$data.stats.skipped} | ConvertTo-Json -Compress))
+              $validCounts = $null -ne $data.stats
+              foreach ($field in @('expected','unexpected','flaky','skipped')) {
+                $value = $data.stats.$field
+                if (($value -isnot [long] -and $value -isnot [int]) -or $value -lt 0) { $validCounts = $false }
+              }
+              if (-not $validCounts -or $data.stats.expected -lt 1 -or $data.stats.unexpected -ne 0 -or $data.stats.flaky -ne 0 -or $data.stats.skipped -ne 0) { $failed = $true }
+            } catch { Write-Host "Invalid browser report: $suite"; $failed = $true }
+          }
+          $requiredNative = '[["m04","tests/project-instructions-custody.test.ts","holds the actual native file guard until instruction admission finishes"],["m04","tests/project-instructions-custody.test.ts","rejects revoked source custody before dispatch under actual native file protection"],["m04","tests/repository-map-custody.test.ts","retains all actual native file guards through map publication"],["m04","tests/repository-map-custody.test.ts","binds a fresh read to changed source bytes instead of returning the old parsed entry"],["m04","tests/repository-map-custody.test.ts","denies a private native-history target behind a real directory junction"],["m04","tests/context-result-custody.test.ts","uses the native Windows grant guard for retained domain output and revocation"],["m05","tests/project-memory-file-sources-v3.test.ts","extracts an actually captured/sent FILE_RANGE through native Windows admission and Service settlement (Keep captured false)"],["m05","tests/project-memory-file-sources-v3.test.ts","extracts an actually captured/sent FILE_RANGE through native Windows admission and Service settlement (Keep captured true)"],["m06","tests/verification-workflow.test.ts","records a source-bound advisory through the actual Windows file guard and approved fixture QA execution"],["m04","tests/project-instructions-custody.test.ts","retains actual read-only selected-file custody before and after the private Service commit"]]' | ConvertFrom-Json
+          $checks = @()
+          foreach ($case in $requiredNative) {
+            $report = Join-Path $directory ($case[0] + '-tests.json')
+            $assertionsFound = @()
+            if (Test-Path -LiteralPath $report) {
+              try {
+                $data = Get-Content -Raw -LiteralPath $report | ConvertFrom-Json
+                $files = @($data.testResults | Where-Object { ($_.name -replace '\\','/').EndsWith($case[1]) })
+                $assertionsFound = @($files.assertionResults | Where-Object { $_.title -eq $case[2] -or $_.fullName -eq $case[2] })
+              } catch {}
+            }
+            $passed = $assertionsFound.Count -eq 1 -and $assertionsFound[0].status -eq 'passed'
+            $checks += @{file=$case[1]; test=$case[2]; matched=$assertionsFound.Count; observed=@($assertionsFound.status); passed=$passed}
+          }
+          $nativeStatus = if ($env:RUNNER_OS -ne 'Windows') { 'NOT_RUN_ON_TARGET_PLATFORM' } elseif (@($checks | Where-Object { -not $_.passed }).Count) { 'FAIL' } else { 'PASS' }
+          if ($nativeStatus -eq 'FAIL') { $failed = $true }
+          $native = @{sourceSha=$env:QUALIFICATION_SOURCE_SHA; platform=$env:RUNNER_OS; status=$nativeStatus; scope='Actual Windows file-custody assertions. Does not certify execution sandbox confinement.'; checks=$checks}
+          $native | ConvertTo-Json -Depth 7 | Set-Content -Encoding utf8 (Join-Path $directory 'windows-custody.json')
+          Write-Host ('QUALIFICATION_WINDOWS_CUSTODY=' + (@{sourceSha=$env:QUALIFICATION_SOURCE_SHA; status=$nativeStatus; required=$checks.Count; passed=@($checks | Where-Object passed).Count} | ConvertTo-Json -Compress))
+          $summary = @{sourceSha=$env:QUALIFICATION_SOURCE_SHA; platform=$env:RUNNER_OS; status=$(if ($failed) {'FAIL'} else {'PASS_WITH_DECLARED_SCOPE'}); windowsCustody=$nativeStatus; originalWorker=$workerStatus; portableWorkerSubset=$workerSubsetStatus; fullRepositoryAcceptance='NOT_RUN'; installedAppAcceptance='NOT_RUN'; liveProviderAcceptance='NOT_RUN'; approvedExecutionBackendAcceptance='BLOCKED'}
+          $summary | ConvertTo-Json | Set-Content -Encoding utf8 (Join-Path $directory 'summary.json')
+          Write-Host ('QUALIFICATION_SUMMARY=' + ($summary | ConvertTo-Json -Compress))
+          if ($failed) { exit 1 }
+          exit 0
+
+      - name: Preserve source-bound results and fixture evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: m04-m06-qualification-${{ runner.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: |
+            test-results/qualification/**
+            test-results/browser/**/results.json
+            test-results/browser/**/artifacts/**/*.json
+            test-results/browser/**/artifacts/**/*.png
+            test-results/browser/**/artifacts/**/trace.zip
