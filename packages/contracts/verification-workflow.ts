@@ -46,6 +46,9 @@ export const verificationPrepareSchema = z.strictObject({
   }
 });
 export type VerificationPrepareInput = z.infer<typeof verificationPrepareSchema>;
+/** A rerun chooses the current retained execution; the host reconstructs its
+ * recipe and captures a fresh source, owner and environment approval. */
+export const verificationRerunSchema = z.strictObject({executionId: id});
 
 export const verificationBindingMetadataSchema = z.strictObject({
   profile: executionProfileV1Schema, profileDigest: sha256HexSchema, backendId: id, platformProofRef: z.string().min(1).max(500), environmentId: id,

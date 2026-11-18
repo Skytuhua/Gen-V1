@@ -7,14 +7,14 @@ import {Store} from '../packages/storage/store.ts';
 import {VerificationWorkflow} from '../packages/core/verification-workflow.ts';
 import {Service, type ServiceOptions} from '../packages/core/service.ts';
 import {__setEffectFaultHookForTests} from '../packages/core/tool-effects.ts';
-import type {VerificationPrepareInput} from '../packages/contracts/verification-workflow.ts';
+import type {VerificationIntent, VerificationPrepareInput} from '../packages/contracts/verification-workflow.ts';
 import {verificationPanelModel} from '../packages/core/verification-read-models.ts';
 import {ProjectTrustLedger} from '../packages/core/project-trust.ts';
 import {SecretReferenceLedger} from '../packages/core/secret-references.ts';
 import {digestFileSha256} from '../packages/core/execution-policy.ts';
 import {createVerificationExecutorFactory} from '../packages/core/verification-executor.ts';
 import type {ObservedVerificationBackend, VerificationExecutorHostConfig} from '../packages/core/verification-executor-binding.ts';
-import type {Operation, RuntimeAdapter, RuntimeCallbacks, Thread} from '../packages/contracts/index.ts';
+import type {HostCommand, Operation, RuntimeAdapter, RuntimeCallbacks, Thread} from '../packages/contracts/index.ts';
 import type {CheckObservationV1, DeliverableAssessmentV1} from '../packages/contracts/verification.ts';
 import type {ApprovalV1, ToolEffectRecord} from '../packages/contracts/tool-effects.ts';
 
@@ -245,6 +245,75 @@ it('prepares a reviewable manifest and reaches the observed executor only throug
   expect(effect.state).toBe('SUCCEEDED'); expect(effect.approvalId).not.toBeNull(); expect(f.store.get<ApprovalV1>('approval', effect.approvalId!)?.issuer).toBe('authenticated_user');
   expect(f.store.all<CheckObservationV1>('checkObservation', f.thread.id).some(value => value.phase === 'TEST' && value.outcome === 'PASS')).toBe(true);
   await f.service.dispatchOperation(operation.id); expect(f.launched).toHaveLength(1);
+});
+
+it('public verification preparation commits one reviewable operation and receipt for concurrent retries', async () => {
+  const f = await fixture(), command: HostCommand = {id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: f.input};
+  const [first, retry] = await Promise.all([f.service.command(command), f.service.command(structuredClone(command))]);
+  expect(retry).toEqual(first); expect(f.store.receipt(command)).toEqual(first);
+  expect(first.result).toMatchObject({kind: 'verification.run', status: 'prepared', approved: false});
+  expect(f.store.all('operation')).toHaveLength(1); expect(f.store.all('approval')).toEqual([]); expect(f.store.all('checkObservation')).toEqual([]); expect(f.launched).toEqual([]);
+  await expect(f.service.command({...command, payload: {...f.input, profileId: 'different'}})).rejects.toMatchObject({code: 'DUPLICATE_COMMAND'});
+});
+
+it('public verification preparation admits only one of two distinct concurrent operations', async () => {
+  const f = await fixture(), results = await Promise.allSettled(Array.from({length: 2}, () => f.service.command({id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: f.input})));
+  expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1);
+  expect(results.find(result => result.status === 'rejected')).toMatchObject({reason: {code: 'VERIFICATION_BUSY'}});
+  expect(f.store.all('operation')).toHaveLength(1); expect(f.launched).toEqual([]);
+});
+
+it('public verification preparation captures command content before asynchronous host description', async () => {
+  const f = await fixture(), original: HostCommand = {id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: structuredClone(f.input)}, command = structuredClone(original);
+  const describe = f.factory.describe.bind(f.factory); let entered!: () => void, release!: () => void;
+  const reached = new Promise<void>(resolve => {entered = resolve;}), barrier = new Promise<void>(resolve => {release = resolve;});
+  vi.spyOn(f.factory, 'describe').mockImplementation(async input => {entered(); await barrier; return describe(input);});
+  const work = f.service.command(command); await Promise.race([reached, work.then(() => {throw Error('Preparation returned before host description');})]); command.payload.profileId = 'changed-after-admission'; release();
+  const receipt = await work; expect(f.store.receipt(original)).toEqual(receipt);
+  expect((receipt.result as Operation).args).toMatchObject({intent: {binding: {profile: {profileId: 'fixture-profile'}}}});
+  await expect(f.service.command(command)).rejects.toMatchObject({code: 'DUPLICATE_COMMAND'});
+});
+
+it('public verification retry returns its committed receipt even when its redundant preparation later loses authority', async () => {
+  const f = await fixture(), command: HostCommand = {id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: f.input};
+  const describe = f.factory.describe.bind(f.factory); let calls = 0, entered!: () => void, release!: () => void;
+  const reached = new Promise<void>(resolve => {entered = resolve;}), barrier = new Promise<void>(resolve => {release = resolve;});
+  vi.spyOn(f.factory, 'describe').mockImplementation(async input => {if (++calls === 2) {entered(); await barrier;} return describe(input);});
+  const first = f.service.command(command), redundant = f.service.command(command); await reached; const committed = await first;
+  f.trust.revoke('fixture-trust'); release();
+  expect(await redundant).toEqual(committed); expect(f.store.all('operation')).toHaveLength(1); expect(f.launched).toEqual([]);
+});
+
+it('public verification rerun derives the current recipe but requires fresh approval and source evidence', async () => {
+  const f = await fixture(), first = await f.execute(), previous = first.args.intent as VerificationIntent;
+  writeFileSync(join(f.root, 'app.ts'), 'export const ready = "new source";\n');
+  const receipt = await f.service.command({id: randomUUID(), type: 'verification.rerun', threadId: f.thread.id, payload: {executionId: previous.executionId}}), next = receipt.result as Operation;
+  const intent = next.args.intent as VerificationIntent;
+  expect(next).toMatchObject({status: 'prepared', approved: false}); expect(next.id).not.toBe(first.id); expect(intent.executionId).not.toBe(previous.executionId);
+  expect(intent.recipe).toEqual(previous.recipe); expect(intent.requirements).toEqual(previous.requirements); expect(intent.sourceCut.codeDigest).not.toBe(previous.sourceCut.codeDigest);
+  expect(f.launched).toHaveLength(1); expect(f.store.all<ApprovalV1>('approval').every(value => value.remainingUses === 0)).toBe(true);
+  await expect(f.service.dispatchOperation(next.id)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  await f.approve(next); await f.service.dispatchOperation(next.id);
+  expect(f.launched).toHaveLength(2); expect(f.store.all<CheckObservationV1>('checkObservation').filter(value => value.phase === 'TEST')).toHaveLength(2);
+  expect(f.store.get<{intent: VerificationIntent}>('verificationManaged', f.thread.id)?.intent.executionId).toBe(intent.executionId);
+  await expect(f.service.command({id: randomUUID(), type: 'verification.rerun', threadId: f.thread.id, payload: {executionId: previous.executionId}})).rejects.toMatchObject({code: 'STALE_REVISION'});
+});
+
+it.each(['projectId', 'workspaceId', 'accountId'] as const)('public verification rerun cannot carry an old recipe into a different %s', async field => {
+  const f = await fixture(), operation = await f.execute(), intent = operation.args.intent as VerificationIntent;
+  f.store.internal('fixture.owner.changed', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.thread, [field]: 'different-owner'}));
+  await expect(f.service.command({id: randomUUID(), type: 'verification.rerun', threadId: f.thread.id, payload: {executionId: intent.executionId}})).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  expect(f.store.all('operation')).toHaveLength(1); expect(f.launched).toHaveLength(1);
+});
+
+it('public verification commands reject undeclared authority, invalid rerun fields and missing backend without preparation', async () => {
+  const f = await fixture();
+  await expect(f.service.command({id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: {...f.input, rootPath: f.root}})).rejects.toThrow();
+  await expect(f.service.command({id: randomUUID(), type: 'verification.rerun', threadId: f.thread.id, payload: {executionId: 'old', approved: true}})).rejects.toThrow();
+  const runtime: RuntimeAdapter = {configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {}};
+  const unavailable = new Service(f.store, runtime); cleanups.push(() => unavailable.dispose());
+  await expect(unavailable.command({id: randomUUID(), type: 'verification.prepare', threadId: f.thread.id, payload: f.input})).rejects.toMatchObject({code: 'VERIFICATION_BACKEND_UNAVAILABLE'});
+  expect(f.store.all('operation')).toEqual([]); expect(f.launched).toEqual([]);
 });
 
 it.each(['runId', 'epoch', 'accountId', 'projectId', 'workspaceId'] as const)('an approval cannot move a prepared verification intent to another %s', async field => {

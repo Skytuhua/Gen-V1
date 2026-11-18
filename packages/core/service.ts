@@ -718,6 +718,7 @@ export class Service {
     };
   }
   async command(command: HostCommand): Promise<CommandReceipt> {
+    if (command.type === 'verification.prepare' || command.type === 'verification.rerun') return this.commandAdmitted(structuredClone(command));
     if (command.type !== 'message.send') return this.commandAdmitted(command);
     const accepted = this.store.receipt(command); if (accepted) return accepted;
     const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
@@ -806,6 +807,11 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type === 'verification.prepare' || command.type === 'verification.rerun') {
+      const input = command.type === 'verification.rerun' ? this.verification.rerunInput(ownerFor(thread), p) : p;
+      await this.prepareVerification(thread.id, input, undefined, command);
+      return this.store.receipt(command)!;
+    }
     if (command.type.startsWith('agentWork.')) {
       const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
       return this.agentWorkCommand(ctx, command);
@@ -1679,16 +1685,27 @@ export class Service {
     const basis = await this.readVerificationBasis(threadId);
     return verificationPanelModel(this.store, threadId, basis);
   }
-  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext): Promise<Operation> {
+  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext, command?: HostCommand): Promise<Operation> {
+    const duplicate = command && this.store.receipt(command); if (duplicate) return duplicate.result as Operation;
     this.assertMutation(threadId);
+    const assertPreparation = () => {
+      this.assertMutation(threadId); if (ctx) this.assertRun(ctx);
+      if (command && this.store.all<Operation>('operation', threadId).some(operation => isVerificationOperation(operation) && ['prepared', 'running', 'unknown'].includes(operation.status))) throw new HarnessError('VERIFICATION_BUSY', 'Resolve the outstanding verification operation before preparing another.');
+    };
+    assertPreparation();
     const thread=ctx?this.assertRun(ctx):this.thread(threadId),owner=ownerFor(thread,ctx),control=this.aborts.get(threadId)??new AbortController();
     this.aborts.set(threadId,control);this.retainController(control);
     const assertCurrent=()=>{if(this.closed||this.updateClosing||control.signal.aborted||digest(ownerFor(this.thread(threadId)))!==digest(owner))throw new HarnessError('CANCELLED_RUN','Verification preparation lost its current owner.');};
     try {
       const args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
+      const existing = command && this.store.receipt(command); if (existing) return existing.result as Operation;
       if(args.intent.qa)this.verificationQa.assertAvailable();
       const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.${intent.qa?' The QA token budget stops further actions after measured usage reaches its threshold; an in-flight model response may exceed the remaining amount. Its wall-time deadline and 32-tool-call bound are enforced by the host.':''}`;
-      return this.context(threadId,control.signal,undefined,ctx).prepareOperation('verification.run',args,[],{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description);
+      const operation:Operation={id:randomUUID(),threadId,revision:1,kind:'verification.run',args,resourceIds:[],preconditions:{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description,status:'prepared',approved:false,createdAt:now()};
+      const persist=()=>{assertCurrent();assertPreparation();this.store.put('operation',operation.id,threadId,operation);this.operationData(operation);return operation;};
+      return command?(this.store.command(command,persist).result as Operation):this.store.internal('operation.prepared',threadId,persist) as Operation;
+    } catch(error) {
+      const committed=command&&this.store.receipt(command);if(committed)return committed.result as Operation;throw error;
     } finally {this.releaseController(threadId,control);}
   }
   private async executeVerificationOperation(op:Operation,control:AbortController):Promise<unknown> {
