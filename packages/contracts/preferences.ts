@@ -2,6 +2,18 @@ import { z } from 'zod';
 
 const font = z.enum(['system', 'Inter', 'Arial', 'Georgia']);
 export const PROJECT_PALETTE = { blue: '#4F6EFF', violet: '#9855F7', cyan: '#00A6BD', orange: '#F07524', rose: '#E84876', green: '#16A36D' } as const;
+export const PROJECT_ACCENT_INK = { blue: '#3151D6', violet: '#7530CE', cyan: '#007888', orange: '#A34708', rose: '#BC2850', green: '#087748' } as const;
+/** WCAG relative luminance: the shell's ink decision and the contrast audit share one definition. */
+export function relativeLuminance(color: string): number {
+  const linear = [1, 3, 5].map(index => parseInt(color.slice(index, index + 2), 16) / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
+  return linear[0]! * .2126 + linear[1]! * .7152 + linear[2]! * .0722;
+}
+/** The luminance where an accent solid crosses 4.5:1 with white, so its label flips to black. */
+export const ACCENT_INK_LUMINANCE = .179;
+/** The label colour an accent solid carries. */
+export function accentInk(color: string): string {
+  return relativeLuminance(color) > ACCENT_INK_LUMINANCE ? '#000000' : '#FFFFFF';
+}
 export type ProjectAccent = keyof typeof PROJECT_PALETTE;
 export const projectColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Choose a six-digit hex color, such as #4F6EFF.');
 const projectColorKey = z.string().max(1000).refine(value => {

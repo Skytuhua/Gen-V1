@@ -4,7 +4,19 @@ const MESSAGE_WINDOW = 300;
 
 import { mkdirSync, realpathSync } from "node:fs";
 import { join } from "node:path";
-import { HarnessError, type CommandReceipt, type HostCommand, type Message, type Snapshot, type WorkspaceEvent } from "../contracts/index.ts";
+import { HarnessError, type CommandReceipt, type HostCommand, type Message, type RuntimeUsage, type Snapshot, type Thread, type WorkspaceEvent } from "../contracts/index.ts";
+import type { CompactionCandidateV1, CompactionMetadataV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
+import type { NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
+
+/** Private admission record, never an authorization or a native replay request. */
+export interface CompactionAttemptRecord {
+  id: string; threadId: string; ownerKey: string;
+  metadata: CompactionMetadataV1; candidate: CompactionCandidateV1;
+  verdict: CompactionProjectionV1['candidates'][number]['verdict'];
+}
+export function compactionOwnerKey(thread: Thread, modelId: string, accountId: string | null): string {
+  return digest([thread.id, thread.projectId ?? null, thread.workspaceId ?? null, modelId, accountId, thread.sessionPath]);
+}
 
 function normalized(value: unknown): unknown {
   if (Array.isArray(value)) return value.map(normalized);
@@ -94,7 +106,37 @@ export class Store {
   }
   get<T = unknown>(kind: string, id: string): T | null {
     const row = this.statements.get.get(kind, id) as { body: string } | undefined;
-    return row ? JSON.parse(row.body) as T : null;
+    if (!row) return null;
+    const value = JSON.parse(row.body);
+    if (kind === 'usage' && value?.value && typeof value.value === 'object') {
+      // A cached projection cannot follow a changed project, account or session.
+      // Pre-ledger projections remain stored, but their historical owner is unknown.
+      const {compaction: _historical, ...usage} = value.value as RuntimeUsage;
+      const compaction = this.compactionProjection(id);
+      return {...value, value: {...usage, ...(compaction ? {compaction} : {})}} as T;
+    }
+    return value as T;
+  }
+  compactionProjection(threadId: string): CompactionProjectionV1 | undefined {
+    const thread = this.get<Thread>('thread', threadId);
+    // A retained model/session is already account-bound. As in Service.binding,
+    // its absent legacy field means null; it never uses the selected default.
+    if (!thread?.modelId) return;
+    const ownerKey = compactionOwnerKey(thread, thread.modelId, thread.accountId ?? null);
+    const joined = "FROM entities a LEFT JOIN entities u ON u.kind='compactionUsage' AND u.id=a.id AND u.thread_id=a.thread_id WHERE a.kind='compactionAttempt' AND a.thread_id=? AND json_extract(a.body,'$.ownerKey')=?";
+    const proved = "(json_extract(u.body,'$.nativeReceipt.status')='APPLIED' AND json_extract(u.body,'$.nativeReceipt.candidateId')=a.id)";
+    const counts = this.db.prepare(`SELECT COUNT(*) AS attempts, COALESCE(SUM(CASE WHEN json_extract(a.body,'$.candidate.status')='FAILED' AND COALESCE(${proved},0)=0 THEN 1 ELSE 0 END),0) AS failed, COALESCE(SUM(CASE WHEN json_extract(a.body,'$.candidate.status')='DISCARDED' AND COALESCE(${proved},0)=0 THEN 1 ELSE 0 END),0) AS discarded ${joined}`).get(threadId, ownerKey) as {attempts: number; failed: number; discarded: number};
+    if (!counts.attempts) return;
+    const rows = this.db.prepare(`SELECT a.body, u.body AS usage ${joined} ORDER BY a.rowid DESC LIMIT 8`).all(threadId, ownerKey) as {body: string; usage: string | null}[];
+    const candidates = rows.reverse().map(row => {
+      const entry = JSON.parse(row.body) as CompactionAttemptRecord;
+      const usage = row.usage ? JSON.parse(row.usage) as {nativeReceipt?: NativeCompactionReceiptV1} : null;
+      const proof = usage?.nativeReceipt?.status === 'APPLIED' && usage.nativeReceipt.candidateId === entry.id ? usage.nativeReceipt : undefined;
+      return {metadata: entry.metadata, status: proof ? 'APPLIED' as const : entry.candidate.status,
+        verdict: proof ? 'APPLIED' as const : entry.verdict, retainedConstraints: [...entry.candidate.retained], toolPairs: entry.candidate.toolPairs.length,
+        estimatedByteReduction: null, measuredBeforeBytes: proof?.beforeBytes ?? null, measuredAfterBytes: proof?.afterBytes ?? null};
+    });
+    return {version: 1, candidates, accounting: {...counts, costBytes: 0}};
   }
   all<T = unknown>(kind: string, threadId?: string): T[] {
     const rows = (threadId === undefined ? this.statements.allKind.all(kind) : this.statements.allKindThread.all(kind, threadId)) as { body: string }[];
@@ -200,7 +242,7 @@ export class Store {
     return {
       seq: this.sequence, threads, archivedThreads: allThreads.filter(thread => archived.has(thread.id)), messages, messagesTruncated, artifacts, userStates: visible("userState"),
       data, requests, accounts: this.all('account'), skills:this.all<import('../contracts/skills.ts').SkillSummary>('skill').map(skill=>{const usage=skillUsage.get(skill.name);return usage?{...skill,useCount:usage.count,lastUsedAt:usage.lastUsedAt}:skill;}),skillProposals:(this.db.prepare("SELECT json_remove(body,'$.operations') AS body FROM entities WHERE kind=? AND json_extract(body,'$.status')='pending'").all('skillProposal') as {body:string}[]).map(row=>JSON.parse(row.body)),learning:this.get('learningStatus','global')??{supported:false,status:'idle',lastReview:null},operations: visible("operation"), resources: visible("resource"), memory: visible('taskMemory'),
-      usage: Object.fromEntries(visible<{ id: string; value: unknown }>("usage").map(x => [x.id, x.value])) as Snapshot["usage"],
+      usage: Object.fromEntries(visible<{ id: string; value: unknown }>("usage").map(x => [x.id, this.get<{value: RuntimeUsage}>('usage', x.id)!.value])) as Snapshot["usage"],
       modelRequests: visible<{ id: string; value: import('../contracts/model-request.ts').ModelRequestObservationV1 }>("modelRequest").reduce((grouped, item) => { const owner = item.value?.owner?.threadId; if (owner) (grouped[owner] ??= []).push(item.value); return grouped; }, {} as Record<string, import('../contracts/model-request.ts').ModelRequestObservationV1[]>),
       settings: this.get("settings", "global") ?? { theme: "dark", modelId: null },
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null

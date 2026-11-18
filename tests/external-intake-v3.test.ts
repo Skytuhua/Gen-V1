@@ -76,6 +76,25 @@ describe("M10-S09 polling intake", () => {
     expect(f.intake.records()).toHaveLength(1);
     expect(f.executorCalls).toHaveLength(0);
   });
+  it("reads past a short PR-only page: 30 PRs on page one, a real issue on page two", async () => {
+    const urls: string[] = [];
+    const f = fixture({ fetchImpl: async url => { urls.push(String(url)); const page = Number(new URL(String(url)).searchParams.get("page")); return jsonResponse(page === 1 ? Array.from({ length: 30 }, (_, i) => pr(i)) : [issue()]); } });
+    const result = await f.intake.pollOnce();
+    expect(result).toMatchObject({ status: "OK", proposals: 1, duplicates: 0, rejected: 0 });
+    expect(urls).toHaveLength(2);
+    expect(urls[1]).toContain("page=2");
+    expect(f.intake.records().map(record => record.proposedTask.issueNumber)).toEqual([7]);
+    expect(f.executorCalls).toHaveLength(0);
+  });
+  it("ends a PR-only walk on an empty page without spending the page budget", async () => {
+    const urls: string[] = [];
+    const f = fixture({ fetchImpl: async url => { urls.push(String(url)); const page = Number(new URL(String(url)).searchParams.get("page")); return jsonResponse(page === 1 ? Array.from({ length: 30 }, (_, i) => pr(i)) : []); } });
+    const result = await f.intake.pollOnce();
+    expect(result).toMatchObject({ status: "OK", proposals: 0, rejected: 0 });
+    expect(urls).toHaveLength(2);
+    expect(f.intake.records()).toHaveLength(0);
+    expect(f.executorCalls).toHaveLength(0);
+  });
   it("bounds pagination on PR-saturated pages instead of reading forever", async () => {
     const urls: string[] = [];
     const pr = (i: number, base: number) => ({ node_id: `PR_${base + i}`, number: base + i, title: `PR ${base + i}`, html_url: `https://github.com/skytuhua-org/Gen-V1/pull/${base + i}`, updated_at: "2026-11-16T00:00:00Z", repository_url: `https://api.github.com/repositories/${REPO}`, pull_request: { url: "x" } });

@@ -3,7 +3,7 @@ import {resolve,join,relative,dirname,isAbsolute} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {build,type Configuration} from 'electron-builder';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
+import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,stageRepositoryMapParser,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
 import {collectHermesPayload,discoverHermesPython,stageHermesPayload,verifyHermesPayload,verifyRelocatedHermesPython} from './hermes-assets.ts';
 import {collectIntegrationPayload,stageIntegrationPayload,verifyIntegrationPayload,verifyRelocatedIntegrations} from './integration-assets.ts';
 import {collectGitTools,stageGitTools} from './git-assets.ts';
@@ -31,6 +31,7 @@ await stageGitTools(root,host);
 await stageRuntimeInstall(root,host);
 const pnpm=process.env.npm_execpath;if(!pnpm)throw Error('Use pnpm desktop:package so the locked package manager is available');
 const install=packageManagerInvocation(pnpm,process.execPath,runtimeInstallArguments(host));await run(install.file,install.args,host);
+await stageRepositoryMapParser(root,host);
 await stageIntegrationPayload(host,integrations);
 const archive=resolve(cache,`node-v${NODE_VERSION}-win-x64.zip`);let bytes:Buffer;
 try{bytes=await readFile(archive);validateNodeArchive(bytes);}catch{const response=await fetch(`https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-win-x64.zip`);if(!response.ok)throw Error('Node distribution unavailable');bytes=Buffer.from(await response.arrayBuffer());validateNodeArchive(bytes);await writeFile(archive,bytes);}
