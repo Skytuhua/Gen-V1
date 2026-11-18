@@ -99,10 +99,10 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.goto(origin+'/split-app-check',{timeout:20000});
   if(mode==='split'){
    if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
-   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible',timeout:20000});
   }else if(mode==='default'){
-   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible'});
-  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible'});
+   await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible',timeout:20000});
+  }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible',timeout:20000});
   return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
  }
 
