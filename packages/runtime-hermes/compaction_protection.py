@@ -149,7 +149,7 @@ class ProtectedCompaction:
         owner = plan["owner"]
         if not isinstance(owner, dict) or set(owner) != {"threadId", "runId", "epoch", "workspaceId", "modelId", "accountId", "generation", "instructionDigest", "toolRegistryDigest"} or any(not _text(owner.get(key)) for key in ("threadId", "runId", "workspaceId", "modelId")) or any(type(owner.get(key)) is not int or owner[key] < 0 for key in ("epoch", "generation")) or any(not _hash(owner.get(key)) for key in ("instructionDigest", "toolRegistryDigest")):
             raise ProtectionError("SOURCE_MISMATCH")
-        if owner["threadId"] != binding["threadId"] or owner["modelId"] != binding["modelId"] or owner["accountId"] != binding["accountId"]:
+        if any(owner[key] != binding.get(key) for key in ("threadId", "runId", "epoch", "modelId", "accountId")):
             raise ProtectionError("SOURCE_MISMATCH")
         indices = plan["retainedIndices"]
         if not isinstance(indices, list) or len(indices) > 4096 or any(type(index) is not int or not 0 <= index < 4096 for index in indices) or indices != sorted(set(indices)):
