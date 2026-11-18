@@ -35,7 +35,7 @@ it('includes real tracked and untracked Unicode paths in the M15 source cut', ()
     put(untracked, 'new\n');
     rmSync(join(cwd, 'removed.ts'));
     run([join(scripts, 'm15-record.mjs'), 'fixture', process.execPath, '--version']);
-    const tsx = fileURLToPath(import.meta.resolve('tsx'));
+    const tsx = import.meta.resolve('tsx');
     run(['--import', tsx, join(scripts, 'm15-evidence.mts'), '--assemble']);
     const cut = JSON.parse(readFileSync(join(root, 'M15-source-cut.json'), 'utf8'));
     expect(cut.files.map((entry: { path: string }) => entry.path)).toEqual([tracked, untracked].sort());
