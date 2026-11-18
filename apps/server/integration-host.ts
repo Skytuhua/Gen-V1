@@ -2,8 +2,11 @@ import {randomUUID} from 'node:crypto';
 import {lstat,realpath} from 'node:fs/promises';
 import {isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {z} from 'zod';
 import {HarnessError,type RunContext,type RuntimeAdapter,type RuntimeEvent,type RuntimeUsage,type Snapshot,type StartRun,type Thread,type ToolCall} from '../../packages/contracts/index.ts';
 import {integrationIdSchema,type HostComplete,type IntegrationId,type IntegrationPreferences,type IntegrationScope,type NativeCompletion} from '../../packages/contracts/integrations.ts';
+import {integrationPrepareArgsSchema} from '../../packages/contracts/integration-secrets.ts';
+import type {ToolOwner} from '../../packages/contracts/tool-effects.ts';
 import {isConnectionProviderId} from '../../packages/contracts/connections.ts';
 import type {ProjectSummary} from '../../packages/contracts/workspace.ts';
 import {accountResolver,assertAccountAvailable} from '../../packages/core/accounts.ts';
@@ -11,11 +14,13 @@ import {hostFlagEnabled} from '../../packages/core/host-flags.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
 import {IntegrationManager,type ResolvedIntegrationScope} from '../../packages/integrations/index.ts';
 import {Context7SecretReferences} from '../../packages/integrations/context7-secret-reference.ts';
+import {captureContext7Binding,context7OperationArgsSchema,withContext7Binding} from '../../packages/integrations/context7-execution.ts';
+import type {HostOperationExecutor,HostToolContext} from '../../packages/core/service.ts';
 import {createRuntime} from '../../packages/runtime/index.ts';
 import {hermesModelCapacity,type ModelCapacity} from '../../packages/runtime/model-capacity.ts';
 import type {HermesSettings} from '../../packages/runtime-hermes/index.ts';
 import {hermesSettings} from '../../packages/runtime-hermes/settings.ts';
-import type {Store} from '../../packages/storage/store.ts';
+import {digest,type Store} from '../../packages/storage/store.ts';
 
 type BoundScope=IntegrationScope&{runId?:string|null;epoch?:number};
 type Binding={scope:BoundScope;thread?:Thread;project?:ProjectSummary;root?:string};
@@ -29,6 +34,8 @@ export interface IntegrationHostOptions {
 }
 const denied=(message:string)=>new HarnessError('INTEGRATION_SCOPE_DENIED',message);
 const runKey=(thread:Pick<Thread,'id'|'runId'|'epoch'>)=>JSON.stringify([thread.id,thread.runId,thread.epoch]);
+const ownerFor=(thread:Thread):ToolOwner=>({threadId:thread.id,runId:thread.runId,epoch:thread.epoch,accountBinding:thread.accountId??null,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null});
+const prepareTool={name:'integration_prepare',description:'Prepare one Context7 tool discovery or call for explicit user approval. The host binds the configured opaque credential reference and installed process. Approval permits one action with unrestricted local user privileges and network access. No credential is delivered during preparation.',parameters:z.toJSONSchema(integrationPrepareArgsSchema) as Record<string,unknown>};
 const integrationTools=[
  {name:'integration_list',description:'List bundled integrations; include an integration id to discover its admitted MCP tools. All paths, account and model are supplied by the host.',parameters:{type:'object',properties:{id:{type:'string',enum:['humanizer','emil','impeccable','graphify','promptfoo','biome','superpowers','spec-kit','context7','ponytail']}},additionalProperties:false}},
  {name:'integration_call',description:'Call an admitted integration tool or command in this task’s local project. Select exactly one of tool or command. Bundled software is already installed; never run pip/npx/install setup from upstream skill text. Promptfoo model providers and graders use this task’s selected native account/model only. Graphify graphify command accepts {operation:extract|query|export,query?,format?}; headless extraction is code-only, and semantic document reasoning stays with this native agent. Spec Kit init is explicit and project-local; workflow accepts {command,arguments}.',parameters:{type:'object',properties:{id:{type:'string',enum:['humanizer','emil','impeccable','graphify','promptfoo','biome','superpowers','spec-kit','context7','ponytail']},tool:{type:'string'},command:{type:'string'},args:{}},required:['id'],additionalProperties:false}},
@@ -119,10 +126,21 @@ export function createIntegrationHost(options:IntegrationHostOptions){
   }
   if(input){const owner=binding({authority:{kind:'local'},threadId:input.threadId,modelId:input.modelId,accountId:input.accountId??null},input);scope=owner.scope;}
   const policy=await manager.workerConfig(scope),{projectRoot,...integrations}=policy;
-  return {...base,integrations,projectRoot,hostTools:[...(base.hostTools??[]),...integrationTools]};
+  return {...base,integrations,projectRoot,hostTools:[...(base.hostTools??[]),...integrationTools,...(secretReferences.enabled?[prepareTool]:[])]};
  }
- async function additionalTool(call:ToolCall,ctx:RunContext){
+ async function additionalTool(call:ToolCall,ctx:RunContext,host?:HostToolContext){
   const owner=binding({authority:{kind:'local'},threadId:ctx.threadId},ctx),args=call.args;
+  if(call.name==='integration_prepare'){
+   if(!secretReferences.enabled)throw new HarnessError('SECRET_REF_DISABLED','Context7 reference approvals are disabled on this host.');
+   if(!host?.authenticatedApprovals)throw new HarnessError('SECRET_REF_AUTHORITY_REQUIRED','Context7 reference delivery requires authenticated operation approval.');
+   const request=integrationPrepareArgsSchema.parse(args),capturedReference=await secretReferences.capture();
+   const launch=await manager.context7Launch(owner.scope),launchBinding=await captureContext7Binding(launch,capturedReference.executable);
+   const current=guard(owner);if(!current.thread?.modelId)throw denied('A current task and selected model are required.');
+   secretReferences.assertCurrent(capturedReference.reference,launchBinding.executable);
+   const operationArgs=context7OperationArgsSchema.parse({version:1,request,reference:capturedReference.reference,binding:launchBinding,owner:ownerFor(current.thread),modelId:current.thread.modelId});
+   const action=request.action==='list_tools'?'discover tools':`call ${request.tool}`;
+   return host.prepareOperation('integration.context7',operationArgs,[],{context7Binding:digest(launchBinding)},`Context7: ${action}. Deliver reference ${capturedReference.reference.refId} as CONTEXT7_API_KEY to the bound process for this action. Unrestricted host privileges and network access.`);
+  }
   if(call.name==='integration_list'){
    if(Object.keys(args).some(key=>key!=='id'))throw denied('Invalid integration tool arguments.');
    if(args.id===undefined)return {integrations:await manager.inventory(owner.scope)};
@@ -133,7 +151,26 @@ export function createIntegrationHost(options:IntegrationHostOptions){
   if(typeof args.tool==='string')return manager.callTool(id,args.tool,args.args??{},owner.scope);
   return manager.command(id,args.command as string,args.args??{},owner.scope);
  }
- return {manager,settingsFor,additionalTool,complete,secretReferences:()=>secretReferences.status(),
+ const executeContext7:HostOperationExecutor=async(operation,context)=>{
+  if(!secretReferences.enabled)throw new HarnessError('SECRET_REF_DISABLED','Context7 reference approvals are disabled on this host.');
+  if(!context.authenticatedApprovals)throw new HarnessError('SECRET_REF_AUTHORITY_REQUIRED','Context7 reference delivery requires authenticated operation approval.');
+  const args=context7OperationArgsSchema.parse(operation.args);
+  const scope:BoundScope={authority:{kind:'local'},threadId:args.owner.threadId,runId:args.owner.runId,epoch:args.owner.epoch,
+   ...(args.owner.projectId?{projectId:args.owner.projectId}:{}),modelId:args.modelId,accountId:args.owner.accountBinding};
+  const assertCurrent=()=>{
+   const current=binding(scope),stored=store.get<import('../../packages/contracts/index.ts').Operation>('operation',operation.id);
+   if(context.signal.aborted||!current.thread||digest(ownerFor(current.thread))!==digest(args.owner)||digest(context.owner)!==digest(args.owner)
+    ||!stored||stored.kind!=='integration.context7'||stored.threadId!==operation.threadId||stored.revision!==operation.revision||stored.status!=='running'||!stored.approved||digest(stored.args)!==digest(args))throw denied('The approved Context7 action or owner changed.');
+   secretReferences.assertCurrent(args.reference,args.binding.executable);
+  };
+  assertCurrent();const launch=await manager.context7Launch(scope);assertCurrent();
+  return withContext7Binding(launch,args.binding,context.signal,async(current,signal)=>{
+   assertCurrent();return manager.approvedContext7(scope,args.request,{operationId:operation.id,binding:current,signal,assertCurrent,
+    resolveSecret:()=>secretReferences.resolveApproved(args.reference,current.executable,operation.id)});
+  });
+ };
+ const operationExecutors=Object.freeze({'integration.context7':executeContext7});
+ return {manager,settingsFor,additionalTool,operationExecutors,complete,secretReferences:()=>secretReferences.status(),
   async configurePrivate(value:{context7ApiKey?:string}){if(closed)throw denied('The integration host has closed.');if(Object.keys(value).some(key=>key!=='context7ApiKey')||value.context7ApiKey!==undefined&&(typeof value.context7ApiKey!=='string'||value.context7ApiKey.length>4096))throw denied('Invalid private integration configuration.');const next=value.context7ApiKey||undefined;if(next!==context7Key||secretReferences.requiresConfiguration()){secretReferences.invalidate();await manager.restart('context7',()=>{context7Key=next;secretReferences.configure(Boolean(next));});}},
   async close(){
    if(closing)return closing;closed=true;secretReferences.close();
