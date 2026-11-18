@@ -1,7 +1,8 @@
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
-import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
+import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
+import { createContextResultLineage } from './context-result-lineage.ts';
 import { openContextResultCustody } from './context-result-custody.ts';
 import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
@@ -136,6 +137,7 @@ export class Service {
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
+  private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
   private readonly relevanceObserver = createHostRelevanceObserver();
   private readonly repositoryMaps = createRepositoryMapReader();
   private relevanceOwner(thread: Thread) {
@@ -165,16 +167,24 @@ export class Service {
   private contextResultOwner(thread: Thread) {
     return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
   }
-  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null]); }
+  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null,
+    thread.accountId ?? null, thread.projectId ?? null, thread.workspaceId ?? null, thread.thinkingLevel ?? null, thread.mode ?? null,
+    this.hostToolRegistryDigest, thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+    thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null]); }
   private contextResultVault() {
     const open = () => this.contextStorage ??= openContextResultCustody(this.store.dataDir).catch(cause => { this.contextStorage = undefined; throw cause; });
     return this.contextResults ??= createContextResults({
       now: Date.now,
-      isAuthorized: (owner, invocation) => {
-        const thread = this.store.get<Thread>('thread', owner.threadId);
-        if (this.closed || !this.contextResultsEnabled() || !thread?.runId || thread.kind === 'delegate' || thread.sideParentId) return false;
-        const current = this.contextResultOwner(thread);
-        return invocation.startsWith(this.contextResultInvocation(thread) + ':') && current.workspaceId === owner.workspaceId && current.accountId === owner.accountId;
+      isAuthorized: async (owner, invocation) => {
+        const proof = this.contextResultAuthorities.get(invocation);
+        if (!proof || proof.expiresAtMs <= Date.now()) { this.contextResultAuthorities.delete(invocation); return false; }
+        const current = () => {
+          const thread = this.store.get<Thread>('thread', owner.threadId);
+          if (this.closed || !this.contextResultsEnabled() || !thread?.runId || !['working', 'awaiting_input'].includes(thread.status) || thread.kind === 'delegate' || thread.sideParentId || this.store.get('archivedThread', thread.id)) return false;
+          const binding = this.contextResultOwner(thread);
+          return invocation.startsWith(this.contextResultInvocation(thread) + ':') && binding.workspaceId === owner.workspaceId && binding.accountId === owner.accountId;
+        };
+        return current() && await proof.authorized() && current();
       },
       storage: {
         put: async (key, bytes, record) => (await open()).put(key, bytes, record),
@@ -183,6 +193,27 @@ export class Service {
         pruneExpired: async now => (await open()).pruneExpired?.(now) ?? 0,
       },
     });
+  }
+  private async deliverContextResult(value: unknown, publicCatalog: boolean, thread: Thread, assertCurrent: () => void, lineage?: ReturnType<typeof createContextResultLineage>) {
+    const encoded = encodeContextResult(value);
+    const absent = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: '', omittedBytes: encoded.totalBytes, totalBytes: encoded.totalBytes };
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { return absent; }
+    if (encoded.bytes && encoded.totalBytes! <= CONTEXT_PREVIEW_CAP_BYTES) return value;
+    if (lineage?.observed && !await lineage.authorized()) return absent;
+    try { assertCurrent(); } catch { return absent; }
+    const fallback = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: encoded.preview, omittedBytes: encoded.omittedBytes, totalBytes: encoded.totalBytes };
+    if (!encoded.bytes || !publicCatalog && !lineage?.observed) return fallback;
+    const now = Date.now();
+    for (const [id, proof] of this.contextResultAuthorities) if (proof.expiresAtMs <= now) this.contextResultAuthorities.delete(id);
+    if (this.contextResultAuthorities.size >= MAX_TRACKED_RESULTS) return fallback;
+    const invocationId = this.contextResultInvocation(thread) + ':' + randomUUID(), expiresAtMs = now + 60 * 60_000;
+    this.contextResultAuthorities.set(invocationId, { expiresAtMs, authorized: async () => {
+      try { assertCurrent(); return publicCatalog || Boolean(lineage && await lineage.authorized()); } catch { return false; }
+    } });
+    const result = await this.contextResultVault().spill({ owner: this.contextResultOwner(thread), invocationId, bytes: encoded.bytes, mediaType: encoded.mediaType, expiresAtMs });
+    if (!result.handle) this.contextResultAuthorities.delete(invocationId);
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { this.contextResultAuthorities.delete(invocationId); return absent; }
+    return { ...result, totalBytes: encoded.totalBytes };
   }
   private readonly requestCustody:RequestContextCustody;
   private readonly requestRegistryDigest=digest(buildToolRegistry());
@@ -1565,20 +1596,35 @@ export class Service {
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
+    const bound = this.contextResultsEnabled() && call.name !== 'context_result_read', basis = bound ? this.contextResultInvocation(owningThread) : undefined;
+    const publicCatalog = call.name === 'ui_discover';
+    const assertResultCurrent = () => {
+      if (!this.contextResultsEnabled() || this.contextResultInvocation(this.assertRun(ctx)) !== basis) throw new HarnessError('STALE_REQUEST_CONTEXT', 'Tool result owner changed.');
+    };
+    const definition = this.authority.definition(call.name);
+    const lineage = bound && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE'
+      ? createContextResultLineage({ store: this.store, threadId: ctx.threadId, signal: this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, assertCurrent: assertResultCurrent }) : undefined;
     let ticket: ReturnType<typeof this.relevanceObserver.begin>;
     try {
       const definition = this.authority.definition(call.name), owner = this.relevanceOwner(owningThread);
       if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
     } catch { /* Observation is optional for an otherwise authorized tool result. */ }
-    const result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
-      ? this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread)) : this.toolBody(call,ctx,owningThread));
+    let entered = false;
+    const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
+    let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
+      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
+    // A cached effect skips the domain guard. Its previous bytes cannot mint
+    // fresh resource authority, including when the old result was small.
+    if (bound) result = lineage && !entered && !publicCatalog
+      ? { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null }
+      : await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
     try {
       const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
       if (owner) this.relevanceObserver.complete(ticket, owner, result);
     } catch { /* Never change the delivered result because diagnostics failed. */ }
     return result;
   }
-  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
+  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread, lineage?: ReturnType<typeof createContextResultLineage>): Promise<unknown> {
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
     const controller = this.aborts.get(ctx.threadId);
     const args = call.args;
@@ -1615,19 +1661,7 @@ export class Service {
       try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
       catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
     }
-    if (call.name === "ui_discover") {
-      const value = await discoverCapabilities(args);
-      if (!this.contextResultsEnabled()) return value;
-      const bytes = Buffer.from(JSON.stringify(value));
-      if (bytes.length <= CONTEXT_PREVIEW_CAP_BYTES) return value;
-      const current = this.assertRun(ctx);
-      const result = await this.contextResultVault().spill({
-        owner: this.contextResultOwner(current), invocationId: this.contextResultInvocation(current) + ':' + randomUUID(),
-        bytes, mediaType: 'application/json', expiresAtMs: Date.now() + 60 * 60_000,
-      });
-      this.assertRun(ctx);
-      return { ...result, totalBytes: bytes.length };
-    }
+    if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
@@ -1637,7 +1671,8 @@ export class Service {
     }
     const domain = await import("../capabilities/index.ts");
     this.assertRun(ctx);
-    return domain.handleDomainTool(call.name, args, this.context(ctx.threadId, controller?.signal, undefined, { ...ctx }));
+    const context = this.context(ctx.threadId, controller?.signal, undefined, { ...ctx });
+    return domain.handleDomainTool(call.name, args, lineage ? lineage.wrap(context) : context);
   }
   private async uiTool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     if (call.name === "ui_create_widget" && !GENERATED_APPS_ENABLED) throw new HarnessError("CAPABILITY_UNAVAILABLE", "Generated apps are disabled until execution isolation passes its integrity gates");
@@ -1911,7 +1946,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
