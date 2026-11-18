@@ -364,14 +364,39 @@
    "status": "BLOCKED",
    "requiredCases": [
     {
+     "id": "M17-S01-owned-test-transport",
+     "status": "PASS",
+     "evidence": "Owned disposable loopback proof on this cut: ephemeral test CA + server certificate, buildRemoteReadSyncServer bound to 127.0.0.1 only. Exercised over real TLS: wrong-CA client never completes the handshake; plain HTTP bytes get no HTTP reply; missing/malformed/unknown bearer \u2192 401; the only unauthenticated route is /remote/pair/claim (claim \u2192 host confirm \u2192 grant + device token); authenticated snapshot returns a schema-valid bounded page containing only approved-project public task projections with socket.authorized=true; resnapshot + completed-cursor replay + advance succeed; /remote/input/submit and /remote/operations/approve deny with REMOTE_INPUT_DISABLED; revocation denies with DEVICE_GRANT_REVOKED; teardown refuses further connections. Private keys exist only in the test tmpdir \u2014 none committed. This proves owned-test transport only; no production listener, endpoint setting or flag was enabled."
+    },
+    {
      "id": "M17-S01",
      "status": "NOT_RUN",
      "evidence": "Usable-transport proof requires an exact configured authenticated endpoint with TLS identity and clientAuth:true plus a separate deployment gate. No deployment configuration was supplied on this source cut; buildRemoteReadSyncServer stays a no-listen builder that fail-closes to REMOTE_TRANSPORT_DISABLED on missing/malformed config (gate behavior is tested; a live authenticated endpoint is not proven)."
     }
    ],
-   "commands": [],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/remote-transport-v3.test.ts"
+     ],
+     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
+     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "startedAt": "2026-11-18T18:30:14Z",
+     "endedAt": "2026-11-18T18:30:37Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-remote-transport-v3.log",
+     "logDigest": "c585f695827a7230dc4e38f7aae592d3632302f2810a444a4ebc79a1ff898554",
+     "status": "PASS"
+    }
+   ],
    "artifactRefs": [
-    "apps/server/device-pairing.ts"
+    "apps/server/device-pairing.ts",
+    "tests/remote-transport-v3.test.ts"
    ]
   },
   {
@@ -459,7 +484,8 @@
   "scripts/public-source-files.json",
   "tests/device-pairing-v3.test.ts",
   "tests/read-sync-decisions-v6.test.ts",
-  "tests/read-sync-v3.test.ts"
+  "tests/read-sync-v3.test.ts",
+  "tests/remote-transport-v3.test.ts"
  ],
  "dependencyContracts": [
   {
@@ -504,7 +530,7 @@
   }
  ],
  "remainingGates": [
-  "HOLD_REMOTE_TRANSPORT: a usable remote device surface requires an exact configured authenticated endpoint (TLS cert/key + clientAuth) that passes the separate deployment gate; none was configured on this cut, so buildRemoteReadSyncServer remains a no-listen builder and the remote routes are unproven end-to-end. The localhost application API is unchanged and unexposed.",
+  "HOLD_REMOTE_TRANSPORT: a usable production remote surface still requires an exact configured authenticated endpoint (TLS cert/key + clientAuth) that passes the separate deployment gate; none was supplied. Owned-test transport was proven on this cut (tests/remote-transport-v3.test.ts + vitest-remote-transport-v3.log): real loopback TLS through buildRemoteReadSyncServer with ephemeral test certificates \u2014 but that is test-owned proof only, not deployment authorization. The localhost application API is unchanged and unexposed.",
   "HOLD_REMOTE_INPUT: submitInputV1 remains default-off; remote input and operation approval reject REMOTE_INPUT_DISABLED before durable admission until independent durable-input (M09) and authority (M02) contracts are proven.",
   "INHERITED: public-source.test.ts staged host/worker runtime build fails on this base because packages/{contracts,core}/verification-artifacts.ts are absent from scripts/public-source-files.json `runtime` at c77d4716; fixed upstream by PR #765 (8442085c) which was deliberately not integrated into this cut. Evidence: vitest-public-source-inherited.log.",
   "pnpm test aggregate recorded exit 1 with 53 failed test files, all environment-bound or pre-existing (server.test.ts, skills-integration, hermes-*, M16-D06 platform expectation PLATFORM_UNSUPPORTED-vs-DRIVER_UNAVAILABLE on Linux, and the device-pairing-v3 flake fixed post-run); M17-scope suites pass independently.",

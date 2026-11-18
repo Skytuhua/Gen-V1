@@ -340,6 +340,16 @@ export async function buildRemoteReadSyncServer(pairing: DevicePairingHost, sync
     throw new HarnessError(REMOTE_TRANSPORT_DISABLED, 'The configured TLS certificate or key is unreadable; remote access stays disabled.');
   }
   const app = Fastify({ https: { cert, key }, logger: false, bodyLimit: 64 * 1024 });
+  // Typed denials only: a HarnessError surfaces its code without any internal
+  // detail; everything else collapses to a generic failure.
+  app.setErrorHandler((error, _request, reply) => {
+    const known = error instanceof HarnessError, malformed = error instanceof z.ZodError;
+    const code = known ? error.code : malformed ? 'INVALID_INPUT' : 'HOST_ERROR';
+    const status = code === 'NOT_FOUND' ? 404
+      : code === 'REMOTE_INPUT_DISABLED' || code === 'CAPABILITY_DENIED' || code === 'DEVICE_GRANT_REVOKED' ? 403
+      : known || malformed ? 400 : 500;
+    reply.code(status).send({ error: { code, message: known || malformed ? error.message : 'The remote host could not complete this request' } });
+  });
   app.addHook('onRequest', async (request, reply) => {
     if (request.url === '/remote/pair/claim') return;
     reply.header('Cache-Control', 'no-store');

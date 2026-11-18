@@ -37,11 +37,11 @@ branch refs/heads/fix/t10-agents-grid-v3
 - C2 host-authorized read handlers: `packages/core/read-sync.ts` (ReadSyncHost: Store-custodied HMAC-SHA-256 cursor key with rotation, fixed-cut snapshots, 1,000-delta/1-MiB bounded pages, owner/filter/generation/schema/bounds binding, filtered-vs-retention-gap distinction with RESYNC_REQUIRED, pre-emission grant recheck, reserved submit/approve rejects; ReadSyncClient: whole-page validation, request-generation staleness, OFFLINE/RESYNCING/STALE/SYNCED, draft separation, explicit cache clear).
 - C4 bounded remote display/recovery: `ReadSyncClient` state model + `apps/web/src/PairedDevicesPanel.tsx` management surface wired into `Settings.tsx` (fingerprint, project scopes, read-only label, evidence consent, revoke with last-seen; no mutation control exists on the panel).
 - G02 flags: `remote.readSyncV1` and `remote.submitInputV1` added to the owner registry, default false, owner `m17`, host-test injection only; never added to UI preferences.
-- Tests: `tests/device-pairing-v3.test.ts` (12), `tests/read-sync-v3.test.ts` (16), `tests/read-sync-decisions-v6.test.ts` (6) — all D01–D06 cases bound to real assertions.
+- Tests: `tests/device-pairing-v3.test.ts` (12), `tests/read-sync-v3.test.ts` (16), `tests/read-sync-decisions-v6.test.ts` (6) — all D01–D06 cases bound to real assertions — plus `tests/remote-transport-v3.test.ts` (1) owned-test TLS lifecycle.
 
 ## Holds (recorded reasons, not status)
 
-- HOLD_REMOTE_TRANSPORT: no TLS certificate/endpoint configuration was supplied; `buildRemoteReadSyncServer` stays unbuilt and no listener was opened. The remote surface exists only as the gate-tested `buildRemoteReadSyncServer` — deployment proof is a separate gate.
+- HOLD_REMOTE_TRANSPORT: no production TLS/endpoint configuration was supplied and no production listener exists; usable production transport remains a separate deployment gate. Owned-test transport was proven on this cut (manager-approved): `tests/remote-transport-v3.test.ts` runs the real `buildRemoteReadSyncServer` on a disposable loopback endpoint with ephemeral CA/server certificates (wrong-CA handshake rejection, no-HTTP fallback, 401 bearer gate, claim→confirm→bounded authenticated read→resnapshot→advance, `REMOTE_INPUT_DISABLED` on both input routes, `DEVICE_GRANT_REVOKED` after revoke, clean teardown). Test-owned proof only; private keys live and die in the test tmpdir — none committed.
 - HOLD_REMOTE_INPUT: `remote.submitInputV1` remains denied; the M09 durable-input and M02 authority bindings were never proved on this cut. Both `/remote/input/submit` and `/remote/operations/approve` (and their local mirrors) fail closed with REMOTE_INPUT_DISABLED.
 - HOLD_CURSOR_KEY_CUSTODY is NOT held: the host-custodied key binds to the Store `hostSecret` entity with rotation; a malformed record fails closed with CURSOR_KEY_UNAVAILABLE (tested).
 
@@ -58,7 +58,7 @@ branch refs/heads/fix/t10-agents-grid-v3
 
 ## Untested / remaining gates
 
-- No real remote listener ran: C3 usable-transport deployment proof is BLOCKED until an exact TLS+auth configuration exists and passes the separate deployment gate.
+- No production remote listener ran: C3 usable-transport deployment proof stays BLOCKED until an exact approved TLS+auth configuration exists and passes the separate deployment gate (owned-test transport evidence above does not satisfy it).
 - `pnpm test` and `pnpm test:browser` outcomes are recorded verbatim in the verification doc; environment-bound failures outside M17 scope are named, not reclassified.
 - Production flags `remote.readSyncV1` and `remote.submitInputV1` remain false; reviewerApproval remains false; publication stays LOCAL_ONLY.
 - Evidence set: `docs/implementation/v3/M17-source-lock.json`, `docs/implementation/v3/M17-verification.json`, `docs/implementation/v6/M17/requirements.json`, `docs/implementation/v6/M17/logs/*` — all bound to base `c77d4716`.
