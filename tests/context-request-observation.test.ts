@@ -362,6 +362,11 @@ it.each(['before native receipt', 'after native receipt'] as const)('restores ad
       expect(projection.candidates).toEqual([expect.objectContaining(cut === 'after native receipt' ?
         {status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192} :
         {status: 'READY', verdict: null, measuredBeforeBytes: null, measuredAfterBytes: null})]);
+      const candidate = projection.candidates[0];
+      expect(candidate.metadata.usageObservationRef).toBe(cut === 'after native receipt' ? `compactionUsage:${candidate.metadata.candidateId}` : null);
+      expect(restoredStore.get('compactionAttempt', candidate.metadata.candidateId)).toMatchObject({metadata: candidate.metadata});
+      if (cut === 'after native receipt') expect(restoredStore.get('compactionUsage', candidate.metadata.candidateId)).toMatchObject({
+        id: candidate.metadata.candidateId, threadId: f.threadId, nativeReceipt: {candidateId: candidate.metadata.candidateId, status: 'APPLIED'}});
       expect(restoredService.thread(f.threadId)).toMatchObject(cut === 'before native receipt' ?
         {runId: null, epoch: 6, status: 'interrupted'} : {runId: null, epoch: 5, status: 'ready'});
       expect(restoredRuntime.start).not.toHaveBeenCalled();
@@ -382,7 +387,8 @@ it('applies only the protected source-cut CAS and records the exact native recei
     workspaceId: 'thread:' + f.threadId, modelId: 'test/model', accountId: null, generation: 1});
   const usage = f.store.get<{value: {compaction: {candidates: unknown[]}}}>('usage', f.threadId);
   expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192,
-    metadata: expect.objectContaining({sourceInterval: null}), retainedConstraints: expect.arrayContaining(['native-record:' + 'd'.repeat(64) + ':0'])})]);
+    metadata: expect.objectContaining({sourceInterval: null, usageObservationRef: `compactionUsage:${envelope.plan.candidateId}`}), retainedConstraints: expect.arrayContaining(['native-record:' + 'd'.repeat(64) + ':0'])})]);
+  expect(f.store.get('compactionAttempt', envelope.plan.candidateId)).toMatchObject({metadata: {usageObservationRef: `compactionUsage:${envelope.plan.candidateId}`}});
   expect(f.store.all('compactionUsage', f.threadId)).toEqual([expect.objectContaining({nativeReceipt: nativeProof(envelope), settled: true})]);
 });
 
@@ -400,7 +406,8 @@ it('records a failed verdict when the native source-cut CAS refuses', async () =
   vi.mocked(f.runtime.compactProtected!).mockRejectedValue(Object.assign(new Error('Native history changed.'), {code: 'HERMES_COMPACTION_MISMATCH'}));
   await expect(f.service.command(f.command)).rejects.toMatchObject({code: 'COMPACTION_FAILED'});
   const usage = f.store.get<{value: {compaction: {candidates: unknown[]}}}>('usage', f.threadId);
-  expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'FAILED', verdict: 'FAILED', measuredBeforeBytes: null})]);
+  expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'FAILED', verdict: 'FAILED', measuredBeforeBytes: null,
+    metadata: expect.objectContaining({usageObservationRef: null})})]);
   expect(f.service.thread(f.threadId)).toMatchObject({status: 'ready', runId: null});
 });
 
