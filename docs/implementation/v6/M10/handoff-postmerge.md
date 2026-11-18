@@ -156,12 +156,65 @@ Verbatim report + per-command receipts: `logs-pm/win-verifier-report.md`,
   cannot be merged with current main without a prohibited blanket
   resolution; moot because the task content is already on main.
 - Windows: native vitest + scoped-browser evidence now exists (session 6,
-  above). Installed-desktop proof still absent — all declared packaging
-  prerequisites were recovered via pinned, hash-verified inputs, but
-  packaging itself stalls inside its own `powershell.exe` spawn (box defect,
-  UNSUPPORTED_ENV_STALL); verify lane NOT RUN, no artifact SHA produced.
+  above). Local installed-desktop proof on WIN-M0N0V07LGM1 stays
+  UNSUPPORTED_ENV_STALL (box-broken powershell.exe spawn inside packaging).
+  Session-7 CI-artifact follow-up below shows the declared installed
+  verifier DID run and PASS at the same cut on windows-latest (provenance
+  receipts committed) — and that no downloadable exact-cut binary pair
+  exists for a box-local rerun.
   No live GitHub polling or live model execution (fixture-injected
   auth/fetch only).
+
+## Session 7 — CI installed-lane artifact follow-up (ff38c62c)
+
+Manager decision: do not repeat the failing local PowerShell packaging
+step; check authenticated GitHub workflow artifacts for a
+provenance-verifiable Setup.exe + win-unpacked pair from the standard
+installed-memory lane at the cut; if absent, name the exact artifact gap.
+
+**Inventory (authenticated API, 2026-11-18):**
+
+- `runs?head_sha=ff38c62c…` → 48 runs, all `CI queue guard`
+  (workflow_run) — no artifacts.
+- `workflows/ci.yml/runs?head_sha=ff38c62c…` → run **44356008329** `CI`
+  push, completed success (2026-11-18T17:12Z). Job **134984166865**
+  `Installed desktop memory retention and opt-in` — success
+  (17:12:21→17:41:12Z) on `windows-latest`.
+- Run artifacts: `installed-memory-44356008329-1` (id 14455070587,
+  1,797,843 B — receipts + screenshots only) and `browser-44356008329-1`.
+
+**Exact artifact gap:** the lane does not upload binaries —
+`Gen-V1-Setup-0.6.5-win-x64.exe` (477,528,078 B) and `win-unpacked/` are
+NOT retained. No downloadable exact-cut pair exists → box-local
+`verify-installed-desktop.ts` cannot be fed → local packaging was not
+rerun; the prior UNSUPPORTED_ENV_STALL record stands.
+
+**Compatible installed lane that ran at the cut (not inferred from
+packaging):** job 134984166865 executed the declared verifier itself —
+`tsx scripts/verify-installed-desktop.ts --project-memory-retention
+--project-memory-enabled <Setup.exe> <win-unpacked>` → `passed: true`:
+
+- install exit 0 (512,884 ms), owned per-user dir + HKCU NSIS keys.
+- 4 owned personal launches: all `passed`, `verifiedOwner`, exit 0
+  (pids 2500/6428 memoryMode `default-off`; 8956/8772 `enabled`).
+- `payloadCustody` matches — 92,944 files / 2,577,916,985 B, sha256
+  `a8ff5f5f0ef9c8116ff2d551bece0b2671c2920678bc17f6c5bf8fc24ddbcea5`.
+- Setup.exe sha256 `afa42167eac4af0dad6651043237da3cc2b6b68bc29c0d810056f9da35d87753`
+  (build-manifest + owner.json agree).
+- `providerVerification` passed; packaged-providers receipt `passed: true`.
+- `cleanup`: owned uninstall exit 0; cached Setup removed (sha match);
+  shortcuts / installationKeys / nativeProcesses `absent`.
+- `inference: false`, `auth: false`.
+
+Receipts committed: `logs-pm/ci-installed-lane/` (raw artifact zip +
+extracted JSONs + `artifact-inventory.md` with the full query chain and
+file digests).
+
+**Scope honesty:** this is the installed-memory job's own lane
+configuration (its declared flags include the enabled-memory phase) — the
+default-off launch pair covers the M10 lane's lifecycle phases, but this
+is not a no-flag M10 invocation on the target box, and it does not remove
+the WIN-M0N0V07LGM1 stall record.
 
 ## Publication
 
