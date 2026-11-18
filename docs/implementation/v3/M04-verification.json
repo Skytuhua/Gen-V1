@@ -243,21 +243,21 @@
     },
     {
       "id": "v6.host-custody-integration",
-      "status": "PASS",
+      "status": "BLOCKED",
       "requiredCases": [
         {
           "id": "M04-D01-request-preparation-replay",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "Merged cut 161953c7: D01 case in tests/context-contract-preservation-v6.test.ts passes \u2014 identical prepared send replayed under the same command id admits exactly one input/one runtime.start; token reuse under a new id, prompt mutation and owner mutation reject before native dispatch; preparation identity unchanged."
         },
         {
           "id": "M04-C3-composer-custody-admission",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "Merged cut: service send path admits through RequestContextCustody.prepare/claim/finalize/assertFinalized (main b4281a42 core, retained). 34 tests in request-preparation-service-v3.test.ts pass."
         },
         {
           "id": "M04-U02-chip-refresh-keep-wiring",
-          "status": "PASS",
+          "status": "NOT_RUN",
           "evidence": "Satisfied by merged SourceWorkbench (revisions/digests, bounded previews, sourceRefs on next unsent draft, STALE_SOURCE refresh + KEEP_CAPTURED recovery, 8-ref/64 KiB bounds, owner/grant checks); context-draft-sources reducer retained+tested. source-workbench-host-v3/selection suites pass (56). Browser proof BLOCKED (msedge/chrome absent on linux-arm64)."
         }
       ],
@@ -689,6 +689,7 @@
     }
   ],
   "remainingGates": [
+    "M04 host-custody integration: recorded D01, C3 and U02 behavior is preserved as historical text, but this acceptance phase has no executed command receipts; a same-source source-bound command record is required before PASS.",
     "HOLD_AUXILIARY_MODEL: no source-bound authorization and provider receipts establish a live shadow/precompute quality or cost study; the future-dated summary is unverified.",
     "Native compaction apply: exact-source-cut CAS implemented end to end (worker.py agent.compact expectedHistorySha256 precondition verified inside the native process before mutation + agent.history historySha256; service applyLossAwareCompaction -> adapter nativeHistoryDigest -> runtime.compact digest precondition; measured before/after bytes in compactionUsage). Adapters without nativeHistoryDigest still refuse via UNSUPPORTED_COMPACTION.",
     "Platform: linux-arm64 local gates have documented environment-limited failures (Python 3.14 Windows-x64 pin, sandbox launcher, native engines); windows-latest CI on the merge commit covers browser/Windows/Python evidence (Hermes contracts and Windows checks PASS at 764a395f).",
