@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { WCAG, accentInk, colorMix, contrast, requireTokens, resolveTokens, themeTokens, type Tokens } from '../scripts/theme-contrast.ts';
-import { PROJECT_ACCENT_INK, PROJECT_PALETTE, type ProjectAccent } from '../packages/contracts/preferences.ts';
+import { WCAG, contrast, evaluateColor, requireTokens, resolveTokens, themeTokens, type Tokens } from '../scripts/theme-contrast.ts';
+import { PROJECT_ACCENT_INK, PROJECT_PALETTE, accentInk, type ProjectAccent } from '../packages/contracts/preferences.ts';
 
 // Every ratio below is derived from the stylesheets, so editing a token moves the audit.
 const source = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
@@ -35,10 +35,11 @@ const accents = Object.keys(PROJECT_PALETTE) as ProjectAccent[];
  * applyAppearance writes the chosen palette colour and its ink onto the root element and
  * appearance.css feeds those into the accent tokens; the audit reproduces exactly that.
  */
-function themed(name: keyof typeof shells, accent: ProjectAccent): Tokens {
-  const ink = PROJECT_ACCENT_INK[accent], runtime = { '--project-accent': PROJECT_PALETTE[accent], '--project-accent-ink': ink, '--accent-ink': accentInk(ink) };
-  const tokens = requireTokens(resolveTokens({ ...shells[name], ...ACCENT_RULES.any, ...(name.startsWith('dark') ? ACCENT_RULES.dark : {}), ...runtime }), REQUIRED);
-  return Object.fromEntries(Object.entries(tokens).map(([token, value]) => [token, value.startsWith('color-mix(') ? colorMix(value) : value]));
+function themed(name: keyof typeof shells, accent: ProjectAccent | string): Tokens {
+  const named = accent in PROJECT_PALETTE ? accent as ProjectAccent : undefined;
+  const palette = named ? PROJECT_PALETTE[named] : accent, ink = named ? PROJECT_ACCENT_INK[named] : accent;
+  const runtime = { '--project-accent': palette, '--project-accent-ink': ink, '--accent-ink': accentInk(ink) };
+  return requireTokens(resolveTokens({ ...shells[name], ...ACCENT_RULES.any, ...(name.startsWith('dark') ? ACCENT_RULES.dark : {}), ...runtime }), REQUIRED);
 }
 
 type Pair = { foreground: string; background: string; minimum: number; where: string };
@@ -92,28 +93,25 @@ const PAIRS: readonly Pair[] = [
   nonText('--accent', '--selection-bg', 'the selected sidebar filter icon'),
 ];
 
+/** A token the audit cannot turn into a colour is reported as unmeasured, not as a crash. */
 function failures(tokens: Tokens): string[] {
   return PAIRS.flatMap(pair => {
-    const ratio = contrast(tokens[pair.foreground]!, tokens[pair.background]!);
+    const foreground = evaluateColor(tokens[pair.foreground]!, tokens), background = evaluateColor(tokens[pair.background]!, tokens);
+    if (!foreground || !background) return [`${pair.foreground} on ${pair.background} could not be measured: ${tokens[pair.foreground]} on ${tokens[pair.background]} — ${pair.where}`];
+    const ratio = contrast(foreground, background);
     return ratio + 1e-9 >= pair.minimum ? [] : [`${pair.foreground} on ${pair.background} is ${ratio.toFixed(2)}:1, needs ${pair.minimum}:1 — ${pair.where}`];
   });
 }
 
 const contexts = (Object.keys(shells) as (keyof typeof shells)[]).flatMap(name => accents.map(accent => ({ name: `${name} with the ${accent} accent`, tokens: themed(name, accent) })));
-
-// The shell owns the tinted-accent formula; the audit owns the proof that any accent the
-// settings accept stays readable, custom colours included.
-const tint = /^color-mix\(in srgb, var\(--accent\) ([\d.]+)%, var\(--text\)\)$/.exec((themeTokens(styles, ':root')['--accent-text'] ?? '').replace(/\s+/g, ' '));
-if (!tint) throw Error('--accent-text must stay a single color-mix of the accent with the theme text');
-const weight = Number(tint[1]) / 100;
 const SURFACES = ['--canvas', '--surface', '--subtle', '--hover', '--selection-bg'] as const;
-const tinted = (accent: string, tokens: Tokens) => colorMix(`color-mix(in srgb, ${accent} ${weight * 100}%, ${tokens['--text']})`);
 
 describe('appearance theme contrast audit', () => {
-  it('reads the four shells the settings can produce out of the stylesheets', () => {
-    for (const name of Object.keys(shells) as (keyof typeof shells)[]) for (const accent of accents) expect(themed(name, accent)).toBeDefined();
-    expect(weight).toBeGreaterThan(0);
-    expect(weight).toBeLessThan(1);
+  it('measures every audited token in every shell', () => {
+    const unmeasured = contexts.flatMap(({ name, tokens }) => [...new Set(PAIRS.flatMap(pair => [pair.foreground, pair.background]))]
+      .filter(token => !evaluateColor(tokens[token]!, tokens))
+      .map(token => `${name}: ${token} is ${tokens[token]}`));
+    expect(unmeasured).toEqual([]);
   });
 
   it.each(contexts)('$name keeps every primary surface at AA', ({ tokens }) => {
@@ -135,15 +133,25 @@ describe('appearance theme contrast audit', () => {
     ]));
   });
 
+  it('reports a token it cannot evaluate instead of failing to load', () => {
+    expect(failures({ ...contexts[0]!.tokens, '--accent-text': 'oklch(0.6 0.1 250)' }).some(entry => entry.startsWith('--accent-text on --canvas could not be measured'))).toBe(true);
+  });
+
+  // The shell owns the tinted-accent formula; the audit owns the proof that any accent the
+  // settings accept stays readable, custom colours included.
   it('keeps every custom accent the settings accept readable as text and as a fill', () => {
     const failures: string[] = [];
     for (let red = 0; red < 256; red += 8) for (let green = 0; green < 256; green += 8) for (let blue = 0; blue < 256; blue += 8) {
       const accent = '#' + [red, green, blue].map(channel => channel.toString(16).padStart(2, '0')).join('');
       // AppearanceSettings rejects the colours below 3:1 on either shell surface.
       if (Math.min(contrast(accent, '#0F0F0F'), contrast(accent, '#FFFFFF')) < WCAG.nonText) continue;
-      for (const tokens of [themed('light', 'blue'), themed('dark', 'blue')]) {
-        const value = tinted(accent, tokens);
-        for (const surface of SURFACES) if (contrast(value, tokens[surface]!) < WCAG.text) failures.push(`${accent} tinted on ${surface}`);
+      for (const shell of ['light', 'dark'] as const) {
+        const tokens = themed(shell, accent);
+        for (const surface of SURFACES) {
+          const value = evaluateColor(tokens['--accent-text']!, tokens), background = evaluateColor(tokens[surface]!, tokens);
+          if (!value || !background) failures.push(`${accent}: ${value ?? tokens['--accent-text']} could not be measured`);
+          else if (contrast(value, background) < WCAG.text) failures.push(`${accent} tinted on ${surface} is ${contrast(value, background).toFixed(2)}:1`);
+        }
         if (contrast(accentInk(accent), accent) < WCAG.text) failures.push(`${accentInk(accent)} on ${accent} as a primary fill`);
       }
     }

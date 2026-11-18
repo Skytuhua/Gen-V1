@@ -4,6 +4,8 @@
  * The audit reads the theme's own custom properties out of the stylesheets and
  * resolves them, so a token change moves the audit with it instead of aging it out.
  */
+import { relativeLuminance } from '../packages/contracts/preferences.ts';
+
 export type Tokens = Record<string, string>;
 
 export const WCAG = { text: 4.5, nonText: 3 } as const;
@@ -40,7 +42,7 @@ export function resolveTokens(overrides: Tokens, inherited: Tokens = {}): Tokens
   for (let pass = 0; pass <= pending.size; pass++) {
     let progress = false;
     for (const [name, value] of pending) {
-      const expanded = expand(value, resolved);
+      const expanded = resolveVars(value, resolved);
       if (expanded === undefined) continue;
       resolved[name] = expanded;
       pending.delete(name);
@@ -52,12 +54,12 @@ export function resolveTokens(overrides: Tokens, inherited: Tokens = {}): Tokens
   return resolved;
 }
 
-function expand(value: string, scope: Tokens): string | undefined {
+export function resolveVars(value: string, scope: Tokens): string | undefined {
   const reference = /var\(\s*(--[a-z0-9-]+)\s*(?:,\s*([^()]*))?\)/i.exec(value);
   if (!reference) return value;
   const replacement = scope[reference[1]!] ?? reference[2];
   if (replacement === undefined) return undefined;
-  return expand(value.slice(0, reference.index) + replacement + value.slice(reference.index + reference[0].length), scope);
+  return resolveVars(value.slice(0, reference.index) + replacement + value.slice(reference.index + reference[0].length), scope);
 }
 
 function channels(color: string): number[] {
@@ -66,10 +68,9 @@ function channels(color: string): number[] {
   return [0, 2, 4].map(index => parseInt(digits.slice(index, index + 2), 16));
 }
 
-/** WCAG relative luminance; sRGB transfer pinned to the 0.04045 knee the settings guard already uses. */
+/** WCAG relative luminance; the transfer knee and coefficients come from the contract the shell uses. */
 export function luminance(color: string): number {
-  const linear = channels(color).map(value => value / 255).map(value => value <= .04045 ? value / 12.92 : ((value + .055) / 1.055) ** 2.4);
-  return linear[0]! * .2126 + linear[1]! * .7152 + linear[2]! * .0722;
+  return relativeLuminance('#' + channels(color).map(channel => channel.toString(16).padStart(2, '0')).join(''));
 }
 
 export function contrast(foreground: string, background: string): number {
@@ -77,15 +78,24 @@ export function contrast(foreground: string, background: string): number {
   return (Math.max(first, second) + .05) / (Math.min(first, second) + .05);
 }
 
-/** `color-mix(in srgb, first weight%, second)`: the stylesheets own the formula, the audit owns its value. */
-export function colorMix(value: string): string {
-  const mixed = /^color-mix\(in srgb,\s*(#[0-9a-f]{6})\s+([\d.]+)%,\s*(#[0-9a-f]{6})\)$/i.exec(value.replace(/\s+/g, ' ').trim());
-  if (!mixed) throw Error(`The audit evaluates only color-mix(in srgb, <hex> <weight>%, <hex>), not ${value}`);
-  const first = channels(mixed[1]!), second = channels(mixed[3]!), weight = Number(mixed[2]) / 100;
-  return '#' + first.map((channel, index) => Math.round(channel * weight + second[index]! * (1 - weight)).toString(16).padStart(2, '0')).join('');
+/**
+ * `color-mix(in srgb, <colour> <weight>%, <colour>)`, in either argument order; the unweighted
+ * operand takes the remainder and a mixture with no weight is even. Shapes this cannot evaluate
+ * return undefined so the caller reports an unmeasured pair instead of failing to load.
+ */
+export function colorMix(value: string): string | undefined {
+  const mixed = /^color-mix\(\s*in srgb\s*,\s*(#[0-9a-f]{3,6})\s*(?:([\d.]+)%)?\s*,\s*(#[0-9a-f]{3,6})\s*(?:([\d.]+)%)?\s*\)$/i.exec(value.trim());
+  if (!mixed) return undefined;
+  const [, firstColor, firstWeight, secondColor, secondWeight] = mixed;
+  if (firstWeight !== undefined && secondWeight !== undefined) return undefined;
+  const weight = Number(firstWeight ?? secondWeight ?? 50) / 100, second = firstWeight === undefined && secondWeight !== undefined;
+  const weighted = channels(second ? secondColor! : firstColor!), rest = channels(second ? firstColor! : secondColor!);
+  return '#' + weighted.map((channel, index) => Math.round(channel * weight + rest[index]! * (1 - weight)).toString(16).padStart(2, '0')).join('');
 }
 
-/** Mirrors the black-or-white ink the shell derives for an accent solid. */
-export function accentInk(solid: string): string {
-  return luminance(solid) > .179 ? '#000000' : '#FFFFFF';
+/** A resolved colour from a token value: hex as written, or a `color-mix` this audit can evaluate. */
+export function evaluateColor(value: string, scope: Tokens = {}): string | undefined {
+  const expanded = resolveVars(value, scope)?.trim();
+  if (!expanded) return undefined;
+  return /^#[0-9a-f]{6}$/i.test(expanded) || /^#[0-9a-f]{3}$/i.test(expanded) ? expanded : colorMix(expanded);
 }

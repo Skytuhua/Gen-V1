@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { PROJECT_ACCENT_INK, PROJECT_PALETTE, getPreferences, type UiPreferences } from '../../../packages/contracts/preferences.ts';
+import { PROJECT_ACCENT_INK, PROJECT_PALETTE, accentInk, getPreferences, type UiPreferences } from '../../../packages/contracts/preferences.ts';
 import './appearance.css';
 
 export type AppearancePreferences = Pick<UiPreferences, 'appearanceAccent' | 'backgroundStyle' | 'backgroundImage' | 'backgroundOpacity'> & Partial<UiPreferences>;
@@ -11,11 +11,9 @@ export function applyAppearance(preferences: AppearancePreferences): void {
   root.dataset.appearanceAccent = parsed.appearanceAccent;
   root.dataset.workspaceBackground = parsed.backgroundStyle;
   root.style.setProperty('--project-accent', parsed.customAccent ?? PROJECT_PALETTE[parsed.appearanceAccent]);
-  root.style.setProperty('--project-accent-ink', parsed.customAccent ?? PROJECT_ACCENT_INK[parsed.appearanceAccent]);
-  const accent = root.style.getPropertyValue('--project-accent-ink');
-  const rgb = [1,3,5].map(index=>parseInt(accent.slice(index,index+2),16)/255).map(value=>value<=.04045?value/12.92:((value+.055)/1.055)**2.4);
-  const luminance = rgb[0]*.2126+rgb[1]*.7152+rgb[2]*.0722;
-  root.style.setProperty('--accent-ink', luminance > .179 ? '#000000' : '#FFFFFF');
+  const solid = parsed.customAccent ?? PROJECT_ACCENT_INK[parsed.appearanceAccent];
+  root.style.setProperty('--project-accent-ink', solid);
+  root.style.setProperty('--accent-ink', accentInk(solid));
   root.dataset.density = parsed.density;
   root.dataset.motion = parsed.motion;
   root.style.setProperty('--control-radius', parsed.controlRadius + 'px');
