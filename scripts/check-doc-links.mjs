@@ -19,7 +19,7 @@ const external = process.argv.includes('--external'), verbose = process.argv.inc
 
 const blank = text => text.replace(/[^\n]/g, ' ');
 export const readable = (source, keepInlineCode = false) => {
-  let fence = '', fenceDepth = 0, comment = false, indented = false, blankBefore = true, listed = false;
+  let fence = '', fenceDepth = 0, comment = false, commentBlock = false, indented = false, blankBefore = true, listed = false;
   const removeComments = line => {
     let cursor = 0, cleaned = '';
     const hide = text => keepInlineCode ? '' : blank(text);
@@ -51,6 +51,14 @@ export const readable = (source, keepInlineCode = false) => {
     if (fence && depth < fenceDepth) { fence = ''; blankBefore = true; }
     if (fence) {
       if (depth === fenceDepth && opener && !quoted.slice(opener[0].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
+      return '';
+    }
+    // HTML comment blocks consume the entire closing line. Removing only the
+    // delimiters can turn trailing source into a heading that never rendered.
+    if (keepInlineCode && (commentBlock || (!comment && /^ {0,3}<!--/.test(quoted)))) {
+      commentBlock = !quoted.includes('-->');
+      indented = false;
+      blankBefore = false;
       return '';
     }
     if (!comment && opener) { fence = opener[1]; fenceDepth = depth; indented = blankBefore = false; return ''; }

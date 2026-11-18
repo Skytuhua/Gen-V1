@@ -176,3 +176,17 @@ it('retains real anchors around comments and quoted code fences',()=>{
     expect(result.status,result.output).toBe(0);
   }finally{bench.cleanup();}
 });
+
+it('does not turn trailing text in HTML comment blocks into anchors',()=>{
+  const bench=fixture({
+    'README.md':'[real](guide.md#example) [invented](guide.md#example-1) [also invented](guide.md#outside)',
+    'guide.md':['<!-- note -->## Example','', '## Example','', '<!--', '--> ## Outside'].join('\n'),
+  });
+  try {
+    const result=bench.run();
+    expect(result.status,result.output).toBe(1);
+    expect(result.output).toContain('no heading or anchor "#example-1"');
+    expect(result.output).toContain('no heading or anchor "#outside"');
+    expect(result.output).not.toContain('no heading or anchor "#example"');
+  } finally { bench.cleanup(); }
+});
