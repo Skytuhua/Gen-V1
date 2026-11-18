@@ -72,6 +72,16 @@ it('rejects compaction of a different retained task, account or model',async()=>
  await f.runtime.compact(run({runId:'compact',epoch:2}),path,'openai/model',null);expect(f.source().calls.filter(call=>call.method==='agent.compact')).toHaveLength(1);
  }finally{await f.runtime.dispose();}
 });
+it.each([undefined,'d'.repeat(64)])('does not publish successful compaction when the native source reports no change (digest %s)',async expectedHistorySha256=>{
+ const f=await fixture();try{
+  await f.runtime.start(run());const path=f.start().sessionPath as string;await f.settle();
+  const source=f.source(),request=source.client.request.bind(source.client);
+  source.client.request=async<T>(method:string,params:Record<string,unknown>={})=>method==='agent.compact'?{compacted:false,messages:[]} as T:request<T>(method,params);
+  const ctx=run({runId:'compact-no-change',epoch:2});
+  await expect(f.runtime.compact(ctx,path,'openai/model',null,undefined,expectedHistorySha256)).rejects.toMatchObject({code:'HERMES_COMPACTION_UNCONFIRMED'});
+  expect(f.events.filter(event=>event.runId===ctx.runId&&['compaction.end','settled'].includes(event.type))).toEqual([]);
+ }finally{await f.runtime.dispose();}
+});
 const requiredCheckpoint={apiVersion:2,required:true} as const;
 const checkpointAck=(request:MemoryCheckpointRequestV1):MemoryCheckpointAckV1=>({apiVersion:2,requestId:request.requestId,checkpointId:'pool-checkpoint',digest:'a'.repeat(64),persisted:true});
 function manualCheckpointSource(f:Awaited<ReturnType<typeof fixture>>){

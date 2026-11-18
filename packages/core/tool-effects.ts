@@ -36,6 +36,13 @@ export function ownerFor(thread: Thread, ctx?: { threadId: string; runId?: strin
   };
 }
 
+/** A cached outcome is private to the complete original owner and schema. */
+function matchesInvocation(prior: ToolEffectRecord, owner: ToolOwner, definition: RegistryEntry, commitment: string): boolean {
+  return prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch
+    && prior.owner.accountBinding === owner.accountBinding && prior.owner.projectId === owner.projectId && prior.owner.workspaceId === owner.workspaceId
+    && prior.toolId === definition.id && prior.definitionDigest === definition.schemaDigest && prior.privateArgumentCommitment === commitment;
+}
+
 const stripControl = (args: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(Object.entries(args).filter(([key]) => !CONTROL_KEYS.has(key)));
 
@@ -75,13 +82,6 @@ export function actionCommitment(operation: Operation, thread: Thread): string {
     workspaceId: thread.workspaceId ?? null,
     epoch: thread.epoch,
   });
-}
-
-function matchesInvocation(prior: ToolEffectRecord, owner: ToolOwner, definition: RegistryEntry, commitment: string): boolean {
-  return prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch
-    && prior.owner.accountBinding === owner.accountBinding && prior.owner.projectId === owner.projectId
-    && prior.owner.workspaceId === owner.workspaceId && prior.toolId === definition.id
-    && prior.definitionDigest === definition.schemaDigest && prior.privateArgumentCommitment === commitment;
 }
 
 const settled = (state: EffectState): boolean => ["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(state);
@@ -253,7 +253,7 @@ export class ToolEffectLedger {
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     if (approval.actionCommitment !== actionCommitment(operation, thread)) throw new HarnessError("APPROVAL_REQUIRED", "The approved action changed; approve the current intent again");
-    if (approval.owner.accountBinding !== (thread.accountId ?? null) || approval.owner.projectId !== (thread.projectId ?? null) || approval.owner.workspaceId !== (thread.workspaceId ?? null) || approval.owner.epoch !== thread.epoch)
+    if (approval.owner.threadId !== thread.id || approval.owner.runId !== (thread.runId ?? null) || approval.owner.accountBinding !== (thread.accountId ?? null) || approval.owner.projectId !== (thread.projectId ?? null) || approval.owner.workspaceId !== (thread.workspaceId ?? null) || approval.owner.epoch !== thread.epoch)
       throw new HarnessError("APPROVAL_REQUIRED", "The approved owner changed; approve the current intent again");
   }
 
@@ -280,6 +280,12 @@ export class ToolEffectLedger {
       throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason);
     if (prior) {
       if (matchesInvocation(prior, owner, definition, privateArgumentCommitment(call))) {
+        // Reusing a receipt is still a read under today's authority. Refusal
+        // must not overwrite the original effect or its historical outcome.
+        if (decision.kind === "DENY")
+          throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason, { effectId: prior.effectId });
+        if (decision.kind === "REQUIRE_APPROVAL")
+          throw new HarnessError("APPROVAL_REQUIRED", "This effect requires explicit user approval before dispatch", { effectId: prior.effectId });
         if (prior.state === "SUCCEEDED") return prior.outcome?.value;
         if (prior.state === "FAILED" || prior.state === "DENIED" || prior.state === "CANCELLED")
           throw new HarnessError("EFFECT_" + prior.state, prior.outcome?.error ?? "This invocation already settled: " + prior.state);

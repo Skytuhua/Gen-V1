@@ -11,7 +11,7 @@ const run = (command: string, args: string[]) => new Promise<string>((resolve, r
   const child = spawn(command, args, { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] }); let out = '', error = '';
   const timeout = setTimeout(() => { child.kill(); reject(new Error(command + ' exceeded its verification deadline')); }, 180_000);
   child.stdout.on('data', value => { out += value; }); child.stderr.on('data', value => { error += value; });
-  child.on('error', reject); child.on('exit', code => { clearTimeout(timeout); code === 0 ? resolve(out) : reject(new Error(error)); });
+  child.on('error', reject); child.on('close', code => { clearTimeout(timeout); code === 0 ? resolve(out) : reject(new Error(error)); });
 });
 const captures = [...manifest.captures, ...(manifest.genuinePi?.captures ?? [])];
 if (manifest.captures.length !== 9 || manifest.captures.some((capture: { failed?: boolean }) => capture.failed)) throw new Error('All nine successful demonstrations are required.');

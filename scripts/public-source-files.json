@@ -3175,6 +3175,7 @@
     "tests/source-draft-transfer-v3.test.ts",
     "tests/source-handoff-v3.test.ts",
     "tests/source-lock-ancestry-v3.test.ts",
+    "tests/source-lock-drift-v3.test.ts",
     "tests/source-selection-dom-v3.test.ts",
     "tests/source-selection-v3.test.ts",
     "tests/source-workbench-hermes-v3.test.ts",
