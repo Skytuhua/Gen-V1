@@ -1,19 +1,33 @@
 import {randomUUID} from 'node:crypto';
 import {HarnessError, type Operation, type Thread} from '../contracts/index.ts';
-import type {ToolOwner} from '../contracts/tool-effects.ts';
-import type {VerificationRecipeV1} from '../contracts/verification.ts';
+import type {ApprovalV1, ToolEffectRecord, ToolOwner} from '../contracts/tool-effects.ts';
+import type {CheckObservationV1, VerificationDeclarationV1, VerificationRecipeV1, VisualObservationV1} from '../contracts/verification.ts';
 import {verificationIntentSchema, verificationOperationArgumentsSchema, verificationPrepareSchema, type VerificationIntent} from '../contracts/verification-workflow.ts';
 import {digest, type Store} from '../storage/store.ts';
-import {assertVerificationSourceRoot, recipeDigest, sourceDigest} from './project-verification.ts';
-import type {VerificationExecutorFactory} from './verification-executor.ts';
+import {assertVerificationSourceRoot, ProjectVerificationService, recipeDigest, sourceDigest, type RecipeExecutionResult} from './project-verification.ts';
+import type {VerificationExecutorBinding, VerificationExecutorFactory} from './verification-executor.ts';
 import {hostFlagEnabled} from './host-flags.ts';
-import {ownerFor} from './tool-effects.ts';
+import {actionCommitment, ownerFor} from './tool-effects.ts';
+import {observationMatchesThreadOwner} from './verification-gate.ts';
 
 const nativePhases = new Set(['BOOTSTRAP', 'BUILD', 'TEST', 'START']);
+const drift = (message: string) => new HarnessError('BLOCKED_SOURCE_DRIFT', message);
 export const isVerificationOperation = (operation: Pick<Operation, 'kind'>): boolean => operation.kind === 'verification.run';
+interface PreparedExecution {operationId: string; intent: VerificationIntent; binding: VerificationExecutorBinding; assertBasis: () => void}
+export interface VerificationReadBasis {readonly environmentId: string; readonly recipeDigest: string}
+const readSeals = new WeakMap<VerificationReadBasis, {store: Store; threadId: string; assertCurrent: () => void}>();
+/** A serialized descriptor or caller-created object never grants read-side authority. */
+export function assertVerificationReadBasis(store: Store, threadId: string, basis: VerificationReadBasis | null | undefined): asserts basis is VerificationReadBasis {
+  const seal = basis && readSeals.get(basis);
+  if (!seal || seal.store !== store || seal.threadId !== threadId) throw new HarnessError('VERIFICATION_BASIS_UNAVAILABLE', 'Current approved execution authority is unavailable.');
+  seal.assertCurrent();
+}
+export interface ManagedVerificationRecord {operationId: string; intent: VerificationIntent; status: Operation['status']; outcome?: RecipeExecutionResult['outcome']; cleanupFailures?: string[]}
+
 /** Connects ordinary M02 operation approval to the admitted M03 executor.
  * All executable capabilities and seals remain private host objects. */
 export class VerificationWorkflow {
+  private readonly prepared = new WeakMap<PreparedExecution, 'prepared' | 'admitted'>();
   constructor(private readonly store: Store, private readonly factory?: VerificationExecutorFactory, private readonly env: Readonly<Record<string, string | undefined>> = process.env) {}
 
   private enabled(): VerificationExecutorFactory {
@@ -34,6 +48,10 @@ export class VerificationWorkflow {
   }
   private origins(intent: Pick<VerificationIntent, 'readiness' | 'checklist'>): string[] {
     return [...new Set([...(intent.checklist?.approvedOrigins ?? []), ...(intent.readiness ? [`http://${intent.readiness.host}:${intent.readiness.port}`] : [])])].sort();
+  }
+  private async describe(intent: Pick<VerificationIntent, 'owner' | 'recipe' | 'binding' | 'readiness' | 'checklist'>, signal: AbortSignal, assertCurrent: () => void) {
+    return this.enabled().describe({owner: intent.owner, rootPath: intent.recipe.workspaceIdentity.canonicalPath, profileId: intent.binding.profile.profileId,
+      executableIds: [...new Set(intent.recipe.phases.filter(phase => nativePhases.has(phase.name)).map(phase => phase.executableId))], approvedOrigins: this.origins(intent), browserRequired: Boolean(intent.checklist), signal, assertCurrent});
   }
   private async cut(root: string, sourceFiles: string[], dependencyFiles: string[]) {
     return {codeDigest: await sourceDigest(root, sourceFiles), dependencyDigest: await sourceDigest(root, dependencyFiles)};
@@ -78,5 +96,101 @@ export class VerificationWorkflow {
     this.current(intent.owner);
     if (operation.threadId !== intent.owner.threadId || !isVerificationOperation(operation) || intent.recipe.approvedDigest !== recipeDigest(intent.recipe)) throw new HarnessError('APPROVAL_REQUIRED', 'The prepared verification intent changed.');
     return intent;
+  }
+  private assertUnchanged(operation: Operation, intent: VerificationIntent): void {
+    const current = this.store.get<Operation>('operation', operation.id);
+    if (!current || current.revision !== operation.revision || current.status !== 'prepared' || !current.approved || digest(current.args) !== digest(operation.args)) throw new HarnessError('APPROVAL_REQUIRED', 'The prepared verification operation changed.');
+    this.assertApproval(current);
+    const prior = this.prior(intent.owner, intent.recipe.recipeId);
+    if ((prior?.revision ?? 0) !== intent.baseRecipeRevision || digest(this.store.get('verificationDeclaration', intent.owner.threadId)) !== intent.priorDeclarationDigest) throw drift('The recipe or declared requirements changed after preparation.');
+    assertVerificationSourceRoot(this.store, intent.owner.threadId, intent.recipe.workspaceIdentity.canonicalPath);
+  }
+  async preflight(operation: Operation, signal: AbortSignal, assertCurrent: () => void): Promise<PreparedExecution> {
+    const intent = this.assertApproval(operation), fence = () => {this.assertUnchanged(operation, intent); assertCurrent();};
+    fence();
+    const binding = await this.describe(intent, signal, fence), cut = await this.cut(intent.recipe.workspaceIdentity.canonicalPath, intent.sourceFiles, intent.dependencyFiles); fence();
+    if (digest(binding) !== digest(intent.binding) || digest(cut) !== digest(intent.sourceCut)) throw drift('BLOCKED_SOURCE_DRIFT: source, configuration or execution environment changed after preparation.');
+    const assertBasis = () => this.enabled().assertCurrent(binding, {owner: intent.owner, signal, assertCurrent: fence});
+    assertBasis();
+    const prepared = {operationId: operation.id, intent, binding, assertBasis}; this.prepared.set(prepared, 'prepared'); return prepared;
+  }
+  /** Called only inside the M02 DISPATCHED transaction, after approval consumption. */
+  admit(operation: Operation, prepared: PreparedExecution): void {
+    if (prepared.operationId !== operation.id || this.prepared.get(prepared) !== 'prepared') throw new HarnessError('CAPABILITY_DENIED', 'Verification admission has no host custody.');
+    this.assertUnchanged(operation, prepared.intent); prepared.assertBasis();
+    const intent = prepared.intent, effect = this.store.get<ToolEffectRecord>('toolEffect', `operation:${operation.id}@${operation.revision}`);
+    const approval = effect?.approvalId ? this.store.get<ApprovalV1>('approval', effect.approvalId) : null;
+    if (!effect || effect.state !== 'DISPATCHED' || effect.toolId !== 'operation:verification.run' || effect.definitionDigest !== digest({kind: operation.kind, args: operation.args}) || digest(effect.owner) !== digest(intent.owner) || !approval || approval.remainingUses !== 0 || digest(approval.owner) !== digest(intent.owner) || approval.actionCommitment !== actionCommitment(operation, this.current(intent.owner)))
+      throw new HarnessError('APPROVAL_REQUIRED', 'Recipe registration requires the exact durable M02 dispatch and consumed approval.');
+    this.prepared.set(prepared, 'admitted');
+    this.store.put('verificationRecipe', intent.recipe.recipeId, intent.owner.threadId, intent.recipe);
+    this.store.put('verificationDeclaration', intent.owner.threadId, intent.owner.threadId, this.declaration(intent, []));
+    const record: ManagedVerificationRecord = {operationId: operation.id, intent, status: 'running'};
+    this.store.put('verificationManaged', intent.owner.threadId, intent.owner.threadId, record);
+    this.store.put('verificationExecution', intent.executionId, intent.owner.threadId, record);
+  }
+  private declaration(intent: VerificationIntent, observations: (CheckObservationV1 | VisualObservationV1)[]): VerificationDeclarationV1 {
+    return {version: 1, rootPath: intent.recipe.workspaceIdentity.canonicalPath, sourceFiles: intent.sourceFiles, dependencyFiles: intent.dependencyFiles, environmentId: intent.binding.environmentId,
+      requirements: intent.requirements.map(requirement => ({id: requirement.id, checkRefs: [intent.executionId, ...requirement.checks.map(check => observations.find(observation => {
+        if ('phase' in check) return observation.phase === check.phase && ['process', 'readiness'].includes(observation.observationKind);
+        return 'checklistItemId' in observation && observation.checklistItemId === check.checklistItemId && observation.observationKind === 'browser';
+      })?.checkId ?? `expected:${intent.executionId}:${digest(check).slice(0, 16)}`)]}))};
+  }
+  async run(prepared: PreparedExecution, signal: AbortSignal, assertCurrent: () => void): Promise<RecipeExecutionResult> {
+    if (this.prepared.get(prepared) !== 'admitted') throw new HarnessError('CAPABILITY_DENIED', 'Verification execution was not durably admitted.');
+    const intent = prepared.intent, factory = this.enabled();
+    const fence = () => {this.current(intent.owner); assertVerificationSourceRoot(this.store, intent.owner.threadId, intent.recipe.workspaceIdentity.canonicalPath); assertCurrent();};
+    const session = await factory.open({owner: intent.owner, executionId: intent.executionId, binding: prepared.binding, signal, assertCurrent: fence});
+    let cleanupInvoked = false;
+    try {
+      if (intent.checklist && (!session.browser || !session.browserProfileDir)) throw new HarnessError('CAPABILITY_DENIED', 'The approved backend did not provide an owned browser capability.');
+      return await new ProjectVerificationService(this.store, this.env).runRecipe(intent.owner, {executionId: intent.executionId, recipeId: intent.recipe.recipeId, sourceFiles: intent.sourceFiles, dependencyFiles: intent.dependencyFiles, ...(intent.readiness ? {readiness: intent.readiness} : {})}, session.launcher, session.probe,
+        {signal, assertCurrent: fence, environmentId: intent.binding.environmentId, expectedSource: intent.sourceCut,
+          ...(intent.checklist ? {browser: {checklist: intent.checklist, driver: session.browser!, profileDir: session.browserProfileDir!}} : {}),
+          cleanup: async () => {cleanupInvoked = true; await session.close();}});
+    } finally {if (!cleanupInvoked) await session.close();}
+  }
+  /** Fresh host-only seal for a synchronous completion/read-model cut. This
+   * never opens an executor, consumes approval or resolves a secret. */
+  async readBasis(threadId: string, signal: AbortSignal, assertHost: () => void): Promise<VerificationReadBasis | null> {
+    const saved = this.store.get<ManagedVerificationRecord>('verificationManaged', threadId);
+    if (!saved) return null;
+    try {
+      const factory = this.enabled(), intent = verificationIntentSchema.parse(saved.intent), thread = this.store.get<Thread>('thread', threadId);
+      if (!observationMatchesThreadOwner({owner: intent.owner}, thread)) return null;
+      const owner = ownerFor(thread!), managedDigest = digest(saved), declarationDigest = digest(this.store.get('verificationDeclaration', threadId));
+      const assertCurrent = () => {
+        if (signal.aborted) throw new HarnessError('CANCELLED_RUN', 'Verification read was cancelled.');
+        assertHost(); this.current(owner); assertVerificationSourceRoot(this.store, threadId, intent.recipe.workspaceIdentity.canonicalPath);
+        if (digest(this.store.get('verificationManaged', threadId)) !== managedDigest || digest(this.store.get('verificationDeclaration', threadId)) !== declarationDigest || digest(this.prior(owner, intent.recipe.recipeId)) !== digest(intent.recipe)) throw drift('The current approved recipe changed.');
+        const operation = this.store.get<Operation>('operation', saved.operationId), effect = this.store.get<ToolEffectRecord>('toolEffect', `operation:${saved.operationId}@${operation?.revision}`);
+        const approval = effect?.approvalId ? this.store.get<ApprovalV1>('approval', effect.approvalId) : null;
+        if (!operation || !['succeeded', 'failed', 'cancelled'].includes(operation.status) || operation.status !== saved.status || digest(operation.args) !== digest({intent}) || !operation.approved || !effect || !['SUCCEEDED', 'FAILED', 'CANCELLED'].includes(effect.state) || digest(effect.owner) !== digest(intent.owner) || !approval || approval.remainingUses !== 0 || digest(approval.owner) !== digest(intent.owner) || approval.actionCommitment !== actionCommitment(operation, {...thread!, epoch: intent.owner.epoch, runId: intent.owner.runId})) throw drift('The approved execution has no settled authority receipt.');
+        const observed = [...this.store.all<CheckObservationV1>('checkObservation', threadId), ...this.store.all<VisualObservationV1>('visualObservation', threadId)].filter(value => value.executionId === intent.executionId && digest(value.owner) === digest(intent.owner));
+        if (digest(this.declaration(intent, observed)) !== declarationDigest) throw drift('The approved requirement bindings changed.');
+      };
+      assertCurrent();
+      const binding = await this.describe({...intent, owner}, signal, assertCurrent);
+      if (digest(binding) !== digest(intent.binding)) throw drift('The approved execution environment changed.');
+      const basis = Object.freeze({environmentId: binding.environmentId, recipeDigest: intent.recipe.approvedDigest});
+      readSeals.set(basis, {store: this.store, threadId, assertCurrent: () => factory.assertCurrent(binding, {owner, signal, assertCurrent})});
+      assertVerificationReadBasis(this.store, threadId, basis); return basis;
+    } catch {return null;}
+  }
+  recordFailure(operation: Operation): void {
+    const current = this.store.get<ManagedVerificationRecord>('verificationManaged', operation.threadId);
+    if (!current || current.operationId !== operation.id) return;
+    const record: ManagedVerificationRecord = {...current, status: operation.status, outcome: 'BLOCKED'};
+    this.store.put('verificationManaged', operation.threadId, operation.threadId, record);
+    this.store.put('verificationExecution', record.intent.executionId, operation.threadId, record);
+  }
+  /** Synchronous companion of the ordinary operation terminal receipt. */
+  recordResult(operation: Operation, prepared: PreparedExecution, result: RecipeExecutionResult): void {
+    const intent = prepared.intent, record: ManagedVerificationRecord = {operationId: operation.id, intent, status: operation.status, outcome: result.outcome, cleanupFailures: result.cleanupFailures};
+    this.store.put('verificationExecution', intent.executionId, intent.owner.threadId, record);
+    if (this.store.get<ManagedVerificationRecord>('verificationManaged', intent.owner.threadId)?.intent.executionId === intent.executionId) {
+      this.store.put('verificationManaged', intent.owner.threadId, intent.owner.threadId, record);
+      this.store.put('verificationDeclaration', intent.owner.threadId, intent.owner.threadId, this.declaration(intent, result.observations));
+    }
   }
 }

@@ -24,8 +24,8 @@ const MAX_REPAIR_ATTEMPTS = 3;
 /* stored outcome.                                                      */
 /* ------------------------------------------------------------------ */
 
-export function observationFreshness(observation: Pick<CheckObservationV1, 'codeDigest' | 'dependencyDigest' | 'environmentId'>, current: { codeDigest: string; dependencyDigest: string; environmentId: string }): ObservationFreshness {
-  if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId) return 'CURRENT';
+export function observationFreshness(observation: Pick<CheckObservationV1, 'codeDigest' | 'dependencyDigest' | 'environmentId'> & Partial<Pick<CheckObservationV1, 'recipeDigest'>>, current: { codeDigest: string; dependencyDigest: string; environmentId: string; recipeDigest?: string }): ObservationFreshness {
+  if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId && (current.recipeDigest === undefined || observation.recipeDigest === current.recipeDigest)) return 'CURRENT';
   if (!observation.codeDigest || !observation.dependencyDigest) return 'INDETERMINATE';
   return 'STALE';
 }
@@ -224,6 +224,8 @@ export interface AssessmentInput {
   observations: (CheckObservationV1 | VisualObservationV1)[];
   /** Host-only current byte attestations. Never a model or browser argument. */
   artifactAttestations?: readonly VerificationArtifactAttestation[];
+  /** Current host-approved recipe identity, when a managed recipe is active. */
+  recipeDigest?: string;
   unresolvedEffects: string[];
   verifierIdentity: string;
   provenance: string;
@@ -266,7 +268,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
         !proofs.some(proof => proof?.kind === 'SCREENSHOT' && proof.sha256 === obs.screenshotDigest && digest(proof.viewport) === digest(obs.viewport)))) return 'screenshot';
     return proofs.some(proof => !proof) ? 'artifact' : null;
   };
-  const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
+  const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId, recipeDigest: input.recipeDigest };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
     // Direct check bindings still inherit the terminal state of the execution

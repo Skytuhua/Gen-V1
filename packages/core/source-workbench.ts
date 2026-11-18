@@ -1,3 +1,4 @@
+import {assertVerificationReadBasis, type VerificationReadBasis} from './verification-workflow.ts';
 import {attestVerificationArtifacts, VerificationArtifactStore} from './verification-artifacts.ts';
 import {createHash, randomUUID} from 'node:crypto';
 import {closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync} from 'node:fs';
@@ -14,7 +15,7 @@ import {capabilityEnabled} from './capability-flags.ts';
 import {hostFlagEnabled} from './host-flags.ts';
 import {readBoundFile, withResourceGrant} from './file-access.ts';
 import {assertNotStorage, inside} from './security.ts';
-import {computeAssessment, observationMatchesThreadOwner} from './verification-gate.ts';
+import {computeAssessment, observationFreshness, observationMatchesThreadOwner} from './verification-gate.ts';
 import {assertVerificationSourceRoot, sourceDigestSync} from './project-verification.ts';
 import type {ToolEffectRecord} from '../contracts/tool-effects.ts';
 
@@ -39,6 +40,7 @@ export interface WorkbenchModuleRead {
   readonly assertCurrent: () => void;
 }
 export interface SourceWorkbenchHostReaders {
+  readonly readVerificationBasis?: (threadId: string) => Promise<VerificationReadBasis | null>;
   readonly requestContextEnabled?: () => boolean;
   readonly readMemoryModule?: (owner: Readonly<LogicalOwnerV1 & {projectId: string}>) => Promise<WorkbenchModuleRead>;
 }
@@ -473,14 +475,16 @@ export class SourceWorkbench {
       module('M11', 'Request timings', capabilityEnabled('models.requestMetricsV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('models.requestMetricsV1') ? null : 'Measured request timings are disabled. Unknown timings remain unknown.', '/api/snapshot'),
       module('M14', 'Conversation branches', 'UNSUPPORTED', 'No tested conversation-branch contract is registered for this panel.', null),
     ];
+    const verificationBasis = await this.hostReaders.readVerificationBasis?.(threadId) ?? null;
     memoryRead?.assertCurrent();
     if (this.assertOwner(logicalOwner) !== ownerStamp) denied('The evidence owner changed during this read.');
     // Finish verification after every metadata await so source, declaration and
     // effect changes cannot leave an earlier green cut in the returned model.
     const currentThread = this.store.get<Thread>('thread', threadId), declaration = this.store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
     const verificationItems: WorkbenchEvidenceItemV1[] = [];
+    const managed = Boolean(this.store.get('verificationManaged', threadId));
     let current: {codeDigest: string; dependencyDigest: string; environmentId: string} | null = null;
-    if (declaration) try {assertVerificationSourceRoot(this.store, threadId, declaration.rootPath); current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId};} catch {/* Unknown freshness remains unknown. */}
+    if (declaration) try {if (managed) assertVerificationReadBasis(this.store, threadId, verificationBasis); assertVerificationSourceRoot(this.store, threadId, declaration.rootPath); current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: verificationBasis?.environmentId ?? declaration.environmentId}; if (managed) assertVerificationReadBasis(this.store, threadId, verificationBasis);} catch {current = null; /* Unknown freshness remains unknown. */}
     const observations: CheckObservationV1[] = [], checkRows=latest('checkObservation',101), visualRows=latest('visualObservation',101);
     // One extra row proves whether the displayed cut is complete. A bound
     // failure outside that cut must never disappear into a Verified summary.
@@ -494,9 +498,9 @@ export class SourceWorkbench {
     // An old-account observation cannot supply a hidden Verified requirement.
     const recorded = latest<DeliverableAssessmentV1>('assessment', 1)[0];
     const unresolvedEffects = this.store.all<ToolEffectRecord>('toolEffect', threadId).filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state)).map(effect => effect.invocationId);
-    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
+    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), recipeDigest: verificationBasis?.recipeDigest, verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
     const assessed = new Map(assessment?.requirements.map(requirement => [requirement.id, requirement]));
-    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? check.codeDigest === current.codeDigest && check.dependencyDigest === current.dependencyDigest && check.environmentId === current.environmentId ? 'CURRENT' : 'STALE' : 'UNKNOWN';
+    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? observationFreshness(check, {...current, recipeDigest: verificationBasis?.recipeDigest}) === 'CURRENT' ? 'CURRENT' : 'STALE' : 'UNKNOWN';
     const artifactMetadata = new VerificationArtifactStore(this.store);
     for (const check of observations) {
       const freshness = freshnessOf(check);
@@ -510,12 +514,13 @@ export class SourceWorkbench {
     for (const requirement of declaration?.requirements ?? []) {
       const bound = observations.filter(check => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
       const freshness = !observationsComplete || !bound.length || !current ? 'UNKNOWN' : bound.some(check => freshnessOf(check) === 'STALE') ? 'STALE' : 'CURRENT';
-      const assessedOutcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? 'UNVERIFIED' : 'UNVERIFIED_PARTIAL';
+      const assessedOutcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? (managed && !current ? 'BLOCKED' : 'UNVERIFIED') : 'UNVERIFIED_PARTIAL';
       const outcome = assessedOutcome === 'VERIFIED' && unresolvedEffects.length ? 'BLOCKED' : assessedOutcome;
       verificationItems.push({id: 'requirement:' + requirement.id, kind: 'REQUIREMENT', label: requirement.id, grade: outcome === 'VERIFIED' && freshness === 'CURRENT' ? 'VERIFIED' : 'REPORTED', freshness, outcome, sourceRevision: current?.codeDigest ?? null, command: null, logRefs: [], screenshotRefs: []});
     }
     if(!observationsComplete)verificationItems.push({id:'verification-partial',kind:'CLAIM',label:'Verification history exceeds this panel\'s read limit. Displayed checks are partial; requirements are not verified from this cut.',grade:'REPORTED',freshness:'UNKNOWN',outcome:'PARTIAL',sourceRevision:null,command:null,logRefs:[],screenshotRefs:[]});
     if (declaration && unresolvedEffects.length) verificationItems.push({id: 'verification-effects', kind: 'CLAIM', label: `${unresolvedEffects.length} unresolved external effects block current verification.`, grade: 'REPORTED', freshness: 'CURRENT', outcome: 'BLOCKED', sourceRevision: null, command: null, logRefs: [], screenshotRefs: []});
+    if (managed && !current) verificationItems.push({id: 'verification-authority', kind: 'CLAIM', label: 'Current approved execution authority or source inputs are unavailable.', grade: 'REPORTED', freshness: 'UNKNOWN', outcome: 'BLOCKED', sourceRevision: null, command: null, logRefs: [], screenshotRefs: []});
     items.unshift(...verificationItems);
     return {logicalOwner, items, modules};
   }

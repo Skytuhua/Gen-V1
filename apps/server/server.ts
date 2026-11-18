@@ -34,7 +34,6 @@ import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
-import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
@@ -158,7 +157,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header('Cache-Control', 'no-store');
     const { id } = request.params;
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
-    return { seq: service.store.sequence, verification: verificationPanelModel(service.store, id) };
+    return { seq: service.store.sequence, verification: await service.verificationPanel(id) };
   });
   app.get<{ Params: { id: string; artifactId: string } }>('/api/threads/:id/verification/artifacts/:artifactId', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');

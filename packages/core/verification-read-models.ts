@@ -1,3 +1,4 @@
+import {assertVerificationReadBasis, type VerificationReadBasis} from './verification-workflow.ts';
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import type { Store } from '../storage/store.ts';
 import type { Thread } from '../contracts/index.ts';
@@ -67,8 +68,8 @@ function checkDetails(obs: CheckObservationV1 | VisualObservationV1): Verificati
   };
 }
 
-export function verificationPanelModel(store: Store, threadId: string): VerificationPanelModel {
-  const thread = store.get<Thread>('thread', threadId);
+export function verificationPanelModel(store: Store, threadId: string, basis: VerificationReadBasis | null = null): VerificationPanelModel {
+  const thread = store.get<Thread>('thread', threadId), managed = Boolean(store.get('verificationManaged', threadId));
   const declaration = store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
   const assessments = store.all<DeliverableAssessmentV1>('assessment', threadId);
   const latest = assessments.at(-1) ?? null;
@@ -83,12 +84,14 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
   let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null = null;
   if (declaration) {
     try {
+      if (managed) assertVerificationReadBasis(store, threadId, basis);
       assertVerificationSourceRoot(store, threadId, declaration.rootPath);
       current = {
         codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles),
         dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles),
-        environmentId: declaration.environmentId,
+        environmentId: basis?.environmentId ?? declaration.environmentId,
       };
+      if (managed) assertVerificationReadBasis(store, threadId, basis);
     } catch {
       current = null;
     }
@@ -112,19 +115,21 @@ export function verificationPanelModel(store: Store, threadId: string): Verifica
       unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',
+      recipeDigest: basis?.recipeDigest,
     }) : null;
   if (!current && recomputed) {
     // A fallback digest is serialization plumbing, never evidence that a live
     // source matches. Even a matching historical value cannot establish this.
     for (const requirement of recomputed.requirements) {
       if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
-      requirement.missing = [...requirement.missing, declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
+      if (managed && requirement.assessment === 'UNVERIFIED') requirement.assessment = 'BLOCKED';
+      requirement.missing = [...requirement.missing, managed ? 'current approved execution authority or source inputs are unavailable' : declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
     }
-    if (recomputed.label === 'VERIFIED') recomputed.label = 'COMPLETED_UNVERIFIED';
+    if (recomputed.label === 'VERIFIED' || managed && recomputed.label === 'COMPLETED_UNVERIFIED') recomputed.label = managed ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
   }
 
   const matches = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
-  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
+  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, {...current, recipeDigest: basis?.recipeDigest}) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
   const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
