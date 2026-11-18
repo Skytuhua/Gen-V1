@@ -212,3 +212,10 @@ A third review pass on `596ce44c` surfaced two genuine defects:
 ## Session 7 continued — round-5 finding fixed on `2f64f7ac`
 
 - **deliverHeld gated at the unit, not the call site** (`durable-wakeups.ts`): the enablement check added in `12f9dcbe` covered only `recover()`'s sweep; the explicit `background.wakeup.resume` command path reaches `deliverHeld` too, so an operator resume on a disabled feature could still execute a held firing. The gate now lives inside `deliverHeld`, covering `resume()`, `resumeBlockedForWork()` and `recover()` uniformly.
+
+## Session 7 continued — full-repo gate failures proven environmental
+
+- **Root cause identified for `pnpm test` FAIL**: the failures share one signature — `HarnessError: File access check failed — the folder could not be opened safely for this action` from `packages/core/linux-path-guard.ts`. The Linux file guard requires the test process to inherit fd 3 (broker socketpair) + fd 4 (verified ext4 workspace root), provisioned by `linux-path-guard.py`, which itself requires root/`CAP_SYS_ADMIN` and a private mount namespace. Plain `vitest run` cannot satisfy that boundary, so every `withPathGuard` callsite denies.
+- **Branch is not the cause**: `tests/github-workspace.test.ts` run in isolation fails identically (23 failed / 14 passed) on a detached `origin/main` (`8e7093ae`) worktree with the same node_modules — the failure matrix is pre-existing on this host, not introduced by M10.
+- **CI never exercises this path**: `ci.yml` runs `pnpm test` on `windows-latest` where `process.platform==='win32'` routes through the PowerShell guard instead; the Linux broker path is only provisioned by the deployed host supervisor.
+- **`m10.gates` stays FAIL honestly**: full-repo `pnpm test` on this Linux host cannot PASS without the guard broker; that is a platform gap, not an M10 regression. Focused M10 suites (73 tests) and all other gates PASS on real runs.
