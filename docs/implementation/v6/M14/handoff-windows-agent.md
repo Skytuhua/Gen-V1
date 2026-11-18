@@ -4,14 +4,22 @@ Audience: the next agent running on a **Windows x64** host. Goal: clear the
 remaining environmental blockers recorded on Linux/aarch64, rerun the gates,
 and update the evidence + PR #343 truthfully.
 
-## Status update (2026-11-18, head `14c0b70b`)
+## Status update (2026-11-18, head `50da8ae6` LOCAL)
 
-- Branch resumed at `3c40a31e`, merged `origin/main` `89142de9` (one
-  conflict: `scripts/public-source-files.json`, sorted union), then
+- Branch resumed at `3c40a31e`, merged `origin/main` `89142de9`, then
   upstream `14c0b70b` recorded `nativeFork: UNSUPPORTED` (tested absence
   of a callable fork API — fail-closed) across all adapters.
-- Source lock + evidence rebound to `14c0b70b`; `verify-evidence.mjs`
-  passes; focused M14 + evidence-gates + public-source = 51/51 PASS.
+- **Post-M17 forward merge prepared locally**: main `16fa007e` merged as
+  `50da8ae6` (parents `04b4ae0e` + `16fa007e`). Two conflicts, both in
+  M14 custody: `capability-flags.ts` (kept M17 keys block; union now
+  includes `M14FlagKey` AND `M17FlagKey`, all defaults false) and
+  `scripts/public-source-files.json` (sorted union — **both** `source`
+  4418 and `runtime` 289 arrays; missing the `runtime` union broke the
+  staged-build test once). `server.ts` auto-merged retaining BOTH
+  `registerSessionBranchReadRoutes` and `registerDevicePairingRoutes`.
+- Source lock + evidence rebound to `50da8ae6`; `verify-evidence.mjs`
+  passes; focused M14 + evidence-gates + public-source = 51/51 PASS;
+  `host-capability-flags` 6/6; typecheck, lint PASS.
 - **Windows W1–W4 was run on a real Windows Server 2025 x64 host** (see
   `handoff.md` "Windows x64 continuation"): typecheck/lint/build PASS,
   contract suites 147/147, packaged natives 27/27, full suite 4086/67,
@@ -20,8 +28,11 @@ and update the evidence + PR #343 truthfully.
 - PR-body "63/63 custody manifest on WSL2" claim: **UNVERIFIED** —
   in-tree WSL2 receipts are 27/42 at a pre-broker-extension cut; needs
   exact command + SHA + dedicated-broker receipt before PASS.
-- PR-triggered CI run `44412564541` queued on `14c0b70b`; dispatched
-  run `44409599408` in progress — do not push a head that cancels them.
+- **LOCAL, not pushed** — PR-triggered run `44412564541` on `14c0b70b`
+  still active; pushing would cancel it (pull_request cancel-in-progress).
+  Next step: push `50da8ae6` + rebind commit once that run concludes or
+  the manager clears it. Main has since moved to `c74add6b` (+1 audit PR,
+  no new M14 conflicts expected but re-check at push time).
 
 ## Pointers
 

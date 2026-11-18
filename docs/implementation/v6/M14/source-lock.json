@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "14c0b70b7e653cd2c8836e07235eeebd73596589",
+  "executionBaseSha": "50da8ae6791ee3c1a17387e558cf4bde4f6c98af",
   "inspectedPaths": [
     {
       "path": "apps/server/server.ts",
-      "blobSha": "370c9dd5d6201a4a7f44116cf55fc4a212a1963b"
+      "blobSha": "a2a05c77acdd391e37073808f5c1681ee434a449"
     },
     {
       "path": "apps/server/session-branch-routes.ts",
@@ -53,7 +53,7 @@
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "7c1282a3749a3d28fa9156e09850286ec7211630"
+      "blobSha": "1299f7b5d238e93a56760238331e8fefccf08633"
     },
     {
       "path": "packages/core/conversation-read-models.ts",
@@ -101,7 +101,7 @@
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "91ee7e6302ef2ee0f945d4e7bf7fc4f778b5edd5"
+      "blobSha": "b38d28b25132fc48f2c30ab69dc48022cac27bbd"
     },
     {
       "path": "tests/history-import-decisions-v6.test.ts",

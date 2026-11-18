@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M14",
-  "baseSha": "14c0b70b7e653cd2c8836e07235eeebd73596589",
-  "sourceLockDigest": "d10f9e0b62163801b660dab80e9898307d722106907a1c21ced6e35ef60b16bc",
+  "baseSha": "50da8ae6791ee3c1a17387e558cf4bde4f6c98af",
+  "sourceLockDigest": "18a0a15c94d9dab6dd9e91eabed9196c8f23bafe10e914625dbc29ad11e3b7de",
   "platform": "linux-arm64",
   "nodeVersion": "v24.11.1",
   "packageManagerVersion": "10.30.3",
@@ -1107,7 +1107,7 @@
     },
     {
       "name": "M01.CapabilityFlags",
-      "version": "7c1282a3749a3d28fa9156e09850286ec7211630",
+      "version": "1299f7b5d238e93a56760238331e8fefccf08633",
       "testIds": [
         "tests/session-branch-v3.test.ts",
         "tests/history-import-v3.test.ts"
