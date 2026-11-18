@@ -1,11 +1,11 @@
 argv: ["node","C:/Users/user/AppData/Local/Temp/m16-desktop-launch.cjs"]
 cwd: C:/Users/user/repos/Gen-V1-m16-bridge
-exitCode: 0
-termination: NONE
+exitCode: TIMEOUT
+termination: SIGKILL(130s runner timeout; Electron self-exited 0 — driver reaper lagged)
 
-ELECTRON_SPAWNED pid=24256
+ELECTRON_SPAWNED pid=39800
 
-[24256:1118/105715.105:ERROR:net\socket\tcp_socket_win.cc:590] bind() returned an error: Only one usage of each socket address (protocol/network address/port) is normally permitted. (0x2740)
-[24256:1118/105715.106:ERROR:content\browser\devtools\devtools_http_handler.cc:322] Cannot start http server for devtools.
+[39800:1118/114938.899:ERROR:net\socket\tcp_socket_win.cc:590] bind() returned an error: Only one usage of each socket address (protocol/network address/port) is normally permitted. (0x2740)
+[39800:1118/114938.900:ERROR:content\browser\devtools\devtools_http_handler.cc:322] Cannot start http server for devtools.
 Gen V1 startup failed: The local backend did not become ready
 ELECTRON_EXIT 0

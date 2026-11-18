@@ -1,10 +1,14 @@
 argv: ["pnpm","build:control-bridge"]
 cwd: C:/Users/user/repos/Gen-V1-m16-bridge
-exitCode: 0
-termination: NONE
+exitCode: TIMEOUT
+termination: SIGKILL(180s runner timeout; build output complete)
 
 
 > gen-v1@0.6.5 build:control-bridge C:\Users\user\repos\Gen-V1-m16-bridge
 > node --import tsx scripts/build-windows-control-bridge.ts
 
+windows-control-bridge.cc
+C:\Users\user\repos\Gen-V1-m16-bridge\packages\core\windows-control-bridge.cc(1): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+C:\Users\user\repos\Gen-V1-m16-bridge\packages\core\windows-control-bridge.cc(631): warning C4819: The file contains a character that cannot be represented in the current code page (936). Save the file in Unicode format to prevent data loss
+   Creating library windows-control-bridge.lib and object windows-control-bridge.exp
 Windows control bridge built.

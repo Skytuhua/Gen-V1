@@ -4,5 +4,5 @@ exitCode: 0
 termination: NONE
 
 SHA256 hash of packages/core/windows-control-bridge.node:
-aaa362f62062862345222fb982d69eb129cb2d02d529edde3e2488243baba27a
+3c0ecafed1cb6ecb7c9667758bf5cebbb1249832ffd6051e9eff859cef39ff4c
 CertUtil: -hashfile command completed successfully.

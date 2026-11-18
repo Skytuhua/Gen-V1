@@ -360,17 +360,17 @@
         {
           "id": "bridge-targeted-tests",
           "status": "PASS",
-          "evidence": "WIN-M0N0V07LGM1 @ 636d9095: vitest 5 files 59/59 PASS - browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 20, control-runtime-v6 6."
+          "evidence": "WIN-M0N0V07LGM1 @ e4531ae2: vitest 5 files 59/59 PASS - browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 20, control-runtime-v6 6. See vitest-m16-bridge.log."
         },
         {
           "id": "bridge-typecheck-lint",
           "status": "PASS",
-          "evidence": "@ 636d9095: pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
+          "evidence": "@ e4531ae2: pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
         },
         {
           "id": "bridge-native-compile",
           "status": "PASS",
-          "evidence": "@ 636d9095: pnpm build:control-bridge exit 0 (bound-item .cc); windows-control-bridge.node SHA-256 320823347bc3acff52a247b31d2532892374436c0d68511b25be03b975e74553. NOTE: a3fced63 adds env-teardown binding drain (0xC0000005 fix) — rebuild/hash pending re-verification."
+          "evidence": "@ e4531ae2: pnpm build:control-bridge printed \"Windows control bridge built.\" but the pnpm process then hung on the degraded box (180s TIMEOUT — output complete; the same host wedged ~30 processes incl. powershell). Artifact receipted via certutil: windows-control-bridge.node SHA-256 3c0ecafed1cb6ecb7c9667758bf5cebbb1249832ffd6051e9eff859cef39ff4c (filehash-m16-bridge.log, exit 0). Build-step anomaly logged as environmental, matching the fixture exit-hang anomaly; pending one clean-box re-run. See build-m16-bridge.log (raw evidence, TIMEOUT)."
         },
         {
           "id": "bridge-hold-refuse",
@@ -385,94 +385,93 @@
         {
           "id": "bridge-browser-live",
           "status": "NOT_RUN",
-          "evidence": "@ 1b69eef2 live attempt BLOCKED pre-API: backend sidecar misses the 60s backend-deadline under Electron spawn (3 runs, verbatim \"Gen V1 startup failed: The local backend did not become ready\"). Env fix applied on this box (isolated Hermes deps were absent; installed into .harness-hermes-python-deps): backend alone then boots (Harness host: http://127.0.0.1:4317) but still exceeds the desktop deadline here. See fixture-browser-m16-bridge.log."
+          "evidence": "@ e4531ae2 live attempt BLOCKED pre-API: backend sidecar misses the 60s backend-deadline under Electron spawn (verbatim \"Gen V1 startup failed: The local backend did not become ready\"; Electron self-exited 0). Same run logged port-9222 in use (0x2740 \"Cannot start http server for devtools\" — Chrome fleet on the box). Backend boots standalone (Harness host: http://127.0.0.1:4317) but still exceeds the desktop deadline here. See fixture-browser-m16-bridge.log (raw evidence, TIMEOUT driver-side)."
         }
       ],
       "commands": [
-        {
-          "argv": ["pnpm","build:control-bridge"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
-          "startedAt": "2026-11-18T18:47:06.347Z",
-          "endedAt": "2026-11-18T18:47:07.004Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/build-m16-bridge.log",
-          "logDigest": "3948cebffc57c79c1096d6f88a6519da3c9b8893a726921e0bbce805ef130029"
-        },
-        {
-          "argv": ["certutil","-hashfile","packages/core/windows-control-bridge.node","SHA256"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Windows/System32/certutil.exe",
-          "startedAt": "2026-11-18T18:53:44.302Z",
-          "endedAt": "2026-11-18T18:53:44.332Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
-          "logDigest": "96f69fb20c50fadcc6c0058967e12f54ae1594453706fee37087fab44510ce40"
-        },
-        {
-          "argv": ["node","node_modules/vitest/vitest.mjs","run","tests/browser-consent-v3.test.ts","tests/desktop-control-v3.test.ts","tests/interactive-control-decisions-v6.test.ts","tests/control-bridge-v6.test.ts","tests/control-runtime-v6.test.ts"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-18T18:53:46.932Z",
-          "endedAt": "2026-11-18T18:53:54.908Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
-          "logDigest": "67de3ec8db62bcea9b89e6fdf83eb9acaf1d2f8b88e723e4d073b812c5ad09ef"
-        },
-        {
-          "argv": ["pnpm","typecheck"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
-          "startedAt": "2026-11-18T18:53:58.624Z",
-          "endedAt": "2026-11-18T18:54:50.483Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
-          "logDigest": "0f21ef30218aacfd877d9b2dd042651aa8d7982bdc8336e55eb6aef6a497e37b"
-        },
-        {
-          "argv": ["pnpm","lint"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
-          "startedAt": "2026-11-18T18:54:50.534Z",
-          "endedAt": "2026-11-18T18:55:20.222Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
-          "logDigest": "d0dc991c4e1bdd7dadbec470837297e8565cb476bc63ed0eacd437da95369ad8"
-        },
-        {
-          "argv": ["node","C:/Users/user/AppData/Local/Temp/m16-chooser-fixture.cjs"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-18T18:57:08.332Z",
-          "endedAt": "2026-11-18T18:57:08.838Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "PASS",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/fixture-window-m16-bridge.log",
-          "logDigest": "258cd9c25b3b5160a24892b6fc427633a5b8577c3a64c4482f60a92ec9b2bfa6"
-        },
-        {
-          "argv": ["node","C:/Users/user/AppData/Local/Temp/m16-desktop-launch.cjs"],
-          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
-          "executableIdentity": "C:/Program Files/nodejs/node.exe",
-          "startedAt": "2026-11-18T18:57:13.533Z",
-          "endedAt": "2026-11-18T18:58:25.352Z",
-          "exitCode": 0,
-          "termination": "NONE",
-          "status": "BLOCKED",
-          "boundedLogRef": "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log",
-          "logDigest": "b9dbb221d58117e760f154dd3139350cd7948f39911ba28e821e4a444cb52a40"
-        }
+{
+              "argv": [
+                      "node",
+                      "node_modules/vitest/vitest.mjs",
+                      "run",
+                      "tests/browser-consent-v3.test.ts",
+                      "tests/desktop-control-v3.test.ts",
+                      "tests/interactive-control-decisions-v6.test.ts",
+                      "tests/control-bridge-v6.test.ts",
+                      "tests/control-runtime-v6.test.ts"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T19:45:40.022Z",
+              "endedAt": "2026-11-18T19:45:42.292Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+              "logDigest": "85e01f27c4d7e034adc19eaa3a9d3907175cdeb6e0f44e4113e198c8c527bda9"
+      },
+{
+              "argv": [
+                      "pnpm",
+                      "typecheck"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Users/user/AppData/Local/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
+              "startedAt": "2026-11-18T19:45:45.141Z",
+              "endedAt": "2026-11-18T19:46:19.707Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+              "logDigest": "0f21ef30218aacfd877d9b2dd042651aa8d7982bdc8336e55eb6aef6a497e37b"
+      },
+{
+              "argv": [
+                      "pnpm",
+                      "lint"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Users/user/AppData/Local/pnpm/.tools/pnpm-exe/10.30.3/pnpm.exe",
+              "startedAt": "2026-11-18T19:46:19.758Z",
+              "endedAt": "2026-11-18T19:46:47.243Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+              "logDigest": "d0dc991c4e1bdd7dadbec470837297e8565cb476bc63ed0eacd437da95369ad8"
+      },
+{
+              "argv": [
+                      "certutil",
+                      "-hashfile",
+                      "packages/core/windows-control-bridge.node",
+                      "SHA256"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Windows/System32/certutil.exe",
+              "startedAt": "2026-11-18T19:45:30.315Z",
+              "endedAt": "2026-11-18T19:45:30.359Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+              "logDigest": "435d651186bb6826001ecda3bf6952326330b0ec21c214d52e01f39d691ac4e0"
+      },
+{
+              "argv": [
+                      "node",
+                      "C:/Users/user/AppData/Local/Temp/m16-smoke-v2.cjs"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T19:46:51.066Z",
+              "endedAt": "2026-11-18T19:46:51.187Z",
+              "exitCode": 0,
+              "termination": "NONE",
+              "status": "PASS",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
+              "logDigest": "315cfe651d1f947ee57e690dcf9fcb2190f7a985a844a4349fe148fd246eb8a2"
+      }
       ],
       "artifactRefs": [
         "apps/desktop/control-bridge.ts",
@@ -521,7 +520,10 @@
     "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
     "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
     "docs/implementation/v6/M16/logs/build-m16-bridge.log",
-    "docs/implementation/v6/M16/logs/filehash-m16-bridge.log"
+    "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/fixture-window-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log"
   ],
   "dependencyContracts": [
     {

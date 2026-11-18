@@ -6,20 +6,20 @@ termination: NONE
 
  RUN  v4.1.12 C:/Users/user/repos/Gen-V1-m16-bridge
 
- ✓ tests/control-bridge-v6.test.ts (19 tests) 17ms
- ✓ tests/desktop-control-v3.test.ts (11 tests) 12ms
- ✓ tests/control-runtime-v6.test.ts (6 tests) 242ms
- ✓ tests/browser-consent-v3.test.ts (14 tests) 405ms
- ✓ tests/interactive-control-decisions-v6.test.ts (8 tests) 404ms
+(node:2600) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:36436) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/control-bridge-v6.test.ts (20 tests) 19ms
+ ✓ tests/desktop-control-v3.test.ts (11 tests) 9ms
+ ✓ tests/control-runtime-v6.test.ts (6 tests) 192ms
+ ✓ tests/browser-consent-v3.test.ts (14 tests) 330ms
+ ✓ tests/interactive-control-decisions-v6.test.ts (8 tests) 110ms
 
  Test Files  5 passed (5)
-      Tests  58 passed (58)
-   Start at  10:53:47
-   Duration  6.92s (transform 2.82s, setup 0ms, import 10.29s, tests 1.08s, environment 0ms)
+      Tests  59 passed (59)
+   Start at  11:45:40
+   Duration  1.82s (transform 1.52s, setup 0ms, import 2.59s, tests 661ms, environment 0ms)
 
-(node:39456) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
-(node:50192) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
-(node:54024) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)

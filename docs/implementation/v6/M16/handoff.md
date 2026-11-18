@@ -183,6 +183,8 @@ production flag change.
   (`9ffed8e5`) removed the AV but the drain hook then deadlocked on a busy
   STA; final fix (`e4531ae2`) deletes the hook — nothing destructs at
   teardown while runtime drop paths release bindings. Verified `e4531ae2`:
+  `windows-control-bridge.node` SHA-256
+  `3c0ecafed1cb6ecb7c9667758bf5cebbb1249832ffd6051e9eff859cef39ff4c`;
   smoke exits clean; fixture assertions all PASS but the fixture process
   hung at exit on a degraded box (pnpm build — which never loads the addon
   — hung the same way; ~30 wedged processes + dead powershell; identical

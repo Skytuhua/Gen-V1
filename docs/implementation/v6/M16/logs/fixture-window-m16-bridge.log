@@ -1,14 +1,20 @@
-argv: ["node","C:/Users/user/AppData/Local/Temp/m16-chooser-fixture.cjs"]
+argv: ["node","C:/Users/user/AppData/Local/Temp/m16-bound-fixture.cjs"]
 cwd: C:/Users/user/repos/Gen-V1-m16-bridge
-exitCode: 0
-termination: NONE
+exitCode: TIMEOUT
+termination: SIGKILL(120s runner timeout; qualification complete, process hung at exit)
 
-fixture: launched notepad via cmd start C:\Users\user\AppData\Local\Temp\m16-chooser-fixture-9d4e7.txt, expected title ends "m16-chooser-fixture-9d4e7.txt - Notepad"
-listWindows() -> 9 enumerable app windows
-fixture row: {"handle":265416,"processId":32996,"title":"m16-chooser-fixture-9d4e7.txt - Notepad","bounds":{"x":190,"y":117,"width":1280,"height":902},"dpiScale":1.5}
-fixture row carries own HWND: 265416 (hex 0x40cc8), pid 32996
-windowIdentity(265416) -> {"handle":265416,"processId":32996,"title":"m16-chooser-fixture-9d4e7.txt - Notepad","bounds":{"x":190,"y":117,"width":1280,"height":902},"dpiScale":1.5}
-captureWindow(265416) -> 39596 bytes, 1906x1346; PNG sig ok=true; IHDR 1906x1346; saved C:/Users/user/repos/Gen-V1-m16-bridge/m16-chooser-capture.png
-windowIdentity(0) -> null (expect null/fail-closed)
-pickWindow(null) rejected = CONTROL_PICKER_BINDING_UNSUPPORTED: the capture picker cannot return an authoritative window identity; selected-window control is held.
-fixture: left window pid 32996 open (shared notepad process); chooser qualification complete
+fixture: launched notepad C:\Users\user\AppData\Local\Temp\m16-bound-fixture-7c31a.txt, expected title "m16-bound-fixture-7c31a.txt - Notepad"
+listWindows() -> 7 rows
+fixture row: {"handle":789386,"processId":46148,"title":"m16-bound-fixture-7c31a.txt - Notepad","bounds":{"x":190,"y":118,"width":1280,"height":901},"dpiScale":1.5,"bindingId":"wgc-300000006"}
+bindingId = wgc-300000006 | hwnd 789386 (0xc0b8a) pid 46148
+windowIdentity(bid) -> {"handle":789386,"processId":46148,"title":"m16-bound-fixture-7c31a.txt - Notepad","bounds":{"x":190,"y":118,"width":1280,"height":901},"dpiScale":1.5,"bindingId":"wgc-300000006"}
+captureWindow(bid) -> 46491 bytes, 1906x1345; PNG sig ok=true; saved C:/Users/user/repos/Gen-V1-m16-bridge/m16-bound-item-capture.png
+fixture: sent WM_CLOSE via taskkill window-title filter (no /F — other notepad windows untouched)
+windowIdentity(old bid) after destroy -> null (binding closed)
+fixture: relaunched notepad on same file (same-process replacement, same title)
+listWindows() after recreate -> 7 rows; replacement row: {"handle":1444540,"processId":51896,"title":"m16-bound-fixture-7c31a.txt - Notepad","bounds":{"x":190,"y":118,"width":1280,"height":901},"dpiScale":1.5,"bindingId":"wgc-500000006"}
+windowIdentity(old bid) post-replacement -> null
+captureWindow(old bid) rejected = The selected window binding is closed; the target no longer exists or cannot be re-proven.
+dropBinding(replacement bid) done; windowIdentity -> null
+captureWindow(dropped bid) rejected = The selected window binding is closed; the target no longer exists or cannot be re-proven.
+fixture: qualification complete
