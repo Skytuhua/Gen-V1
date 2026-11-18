@@ -1,0 +1,372 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M13-isolated-reversible-extension-lifecycle",
+  "baseSha": "c77d4716d94f72008be04562cbb596f1bb445512",
+  "sourceLockDigest": "74bd7eb4409814df3474ec4991286fb99123c928c9901be50e7c76c6d403bf5a",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "C1_PROTOCOL_AND_CONTRACT_TESTS",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "m13-c01-manifest-contract",
+          "status": "PASS",
+          "evidence": "PluginManifestV2 strict contract: pluginId, version, packageDigest, protocolVersion=1, declaredCapabilities, unique toolSchemas, dataNamespace, executionProfileRef and lifecycle hooks; undeclared capability shapes and generic store/shell/credential/host-command capabilities reject."
+        },
+        {
+          "id": "m13-c02-lease-contract",
+          "status": "PASS",
+          "evidence": "PluginLeaseV1 carries pluginId, version, generation, ownerScopes, bounded activeCalls (32), registrations and STARTING|ACTIVE|DRAINING|STOPPED|FAILED|UNKNOWN; HOLD_* strings never validate as a lease state."
+        },
+        {
+          "id": "m13-c03-frame-contract",
+          "status": "PASS",
+          "evidence": "WorkerFrameV1 strict shape: protocolVersion=1, bounded requestId/generation, kinds HELLO|READY|REQUEST|RESPONSE|CANCEL|SHUTDOWN|BYE|ERROR over 4-byte LE length prefix + UTF-8 JSON on private host-created pipes."
+        },
+        {
+          "id": "m13-d01-framing-bounds",
+          "status": "PASS",
+          "evidence": "A 1 MiB frame is read and schema-checked; a 1 MiB+1 announced length is rejected at the header before payload allocation; invalid UTF-8 and JSON that fails the frame schema are PROTOCOL_VIOLATION."
+        },
+        {
+          "id": "m13-d02-inflight-cap",
+          "status": "PASS",
+          "evidence": "32 outstanding requests admitted; request 33 raises PLUGIN_BUSY with no REQUEST frame dispatched; one settlement re-admits a new request."
+        },
+        {
+          "id": "m13-t02-negative-protocol",
+          "status": "PASS",
+          "evidence": "Malformed/oversized frames, unknown kinds, extra fields, unknown request ids, duplicate generations and non-READY handshake traffic are rejected before dispatch."
+        }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-worker-v3.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:46:17.209Z",
+          "endedAt": "2026-11-18T08:46:33.689Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-worker-v3.log",
+          "logDigest": "5a7e6f4f10fde7bfde1ae9965f7033b62078d3d3ed1c39355e16a1b97c2de4ab"
+        },
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:46:04.204Z",
+          "endedAt": "2026-11-18T08:46:14.778Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
+          "logDigest": "eb5ae2c2558d55aedae3ce55cef25bb6661388a7b41ac0e5dad4bffabe06ee35"
+        }
+      ],
+      "artifactRefs": ["tests/plugin-worker-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts", "packages/contracts/plugin-worker.ts"]
+    },
+    {
+      "id": "C2_HOST_LEASES_ADMISSION_DISABLED_CATALOG",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "m13-s01-worker-boundary",
+          "status": "PASS",
+          "evidence": "The worker activates its declared host entry inside a separate owned process and receives only frozen {dataDir, genVersion}; the real-entry test asserts the context key set and no host object crosses the pipes."
+        },
+        {
+          "id": "m13-s02-pinned-admission",
+          "status": "PASS",
+          "evidence": "admitIsolatedPackage verifies the installed pinned directory through the existing inventory owner and binds the verified digest/protocolVersion; declaration identity must equal the verified manifest; trusted-only packages return null."
+        },
+        {
+          "id": "m13-s04-leased-registration",
+          "status": "PASS",
+          "evidence": "READY operations outside the manifest declaration are PROTOCOL_VIOLATION; dispatch mediates through the ACTIVE lease's tool registrations so a worker cannot self-grant or promote a hidden schema."
+        },
+        {
+          "id": "m13-s08-catalog-only-output",
+          "status": "PASS",
+          "evidence": "Extension rows flow through the existing /api/plugins catalog contract with sanitized bounded fields; the trusted PluginFrame sandbox and CSP are unchanged."
+        },
+        {
+          "id": "m13-g02-host-flag",
+          "status": "PASS",
+          "evidence": "plugins.isolatedV1 registered in the existing host-owned capability registry without replacing keys; defaults false; absent from strict UI preferences and agent/plugin writes; activation is denied while off."
+        },
+        {
+          "id": "m13-u01-u03-extension-surface",
+          "status": "PASS",
+          "evidence": "The Extensions menu renders Trusted host extension vs Isolated extension rows with exact version, truncated digest, declared capabilities, data scope, runtime state (Draining), retained-data status and update-block reasons; display-only while the lane is gated."
+        }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:45:54.883Z",
+          "endedAt": "2026-11-18T08:45:59.324Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
+          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+        },
+        {
+          "argv": ["pnpm", "lint"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:52:22.077Z",
+          "endedAt": "2026-11-18T08:54:08.489Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/lint.log",
+          "logDigest": "394564f44c78b9e098a24365345888bd9a2b959e548ee662ba20444bb92bfcbc"
+        }
+      ],
+      "artifactRefs": ["packages/plugins/isolated-host.ts", "packages/plugins/lifecycle.ts", "apps/server/plugin-routes.ts", "apps/web/src/WorkspaceControls.tsx", "apps/web/src/PluginFrame.tsx", "apps/web/src/App.tsx"]
+    },
+    {
+      "id": "C3_C4_ISOLATED_LIFECYCLE_UNDER_BACKEND",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "m13-d03-stale-reply",
+          "status": "PASS",
+          "evidence": "An old-generation RESPONSE/READY delivered after update cannot resolve a new-generation call or publish registrations; the catalog is byte-identical before and after the stale delivery."
+        },
+        {
+          "id": "m13-d04-drain-failure",
+          "status": "PASS",
+          "evidence": "Unconfirmed process-tree termination yields lease state UNKNOWN and activate() rejects any new writable worker for the namespace."
+        },
+        {
+          "id": "m13-s05-update-swap",
+          "status": "PASS",
+          "evidence": "Update revokes old-generation registrations, drains, confirms old-worker termination, then publishes the new generation; a failing new generation restores the previous manifest/package/data pointers."
+        },
+        {
+          "id": "m13-s06-disable-confirms",
+          "status": "PASS",
+          "evidence": "Disable reports STOPPED only after owned teardown is confirmed; package and private data are retained."
+        },
+        {
+          "id": "m13-t03-late-replies",
+          "status": "PASS",
+          "evidence": "Late old-generation replies after update cannot publish data or re-register tools."
+        },
+        {
+          "id": "m13-t04-failed-update",
+          "status": "PASS",
+          "evidence": "Failed startup/migration/update leaves original data intact with no partially active registry."
+        },
+        {
+          "id": "m13-t05-busy-unload",
+          "status": "PASS",
+          "evidence": "Unloading a busy plug-in revokes new calls, settles or marks unknown existing work and confirms process cleanup."
+        },
+        {
+          "id": "m13-s03-proven-profile-launch",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_BACKEND_SELECTION/HOLD_PLATFORM_PROOF: no installed approved ExecutionBackend with a current-platform PASS proof exists on this host; the confined launch path cannot be exercised."
+        },
+        {
+          "id": "m13-t01-real-confinement",
+          "status": "NOT_RUN",
+          "evidence": "Protected DB/credential reads, out-of-root writes and network access must be attempted under the actual selected backend; no approved proven backend exists on this host, so the case stays NOT_RUN rather than mocked."
+        },
+        {
+          "id": "m13-d05-real-confinement-decision",
+          "status": "NOT_RUN",
+          "evidence": "Same dependency as m13-t01: the decision test asserts the lane fails closed with HOLD_BACKEND_SELECTION and records the hold; the confinement attempt itself remains NOT_RUN."
+        }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:45:54.883Z",
+          "endedAt": "2026-11-18T08:45:59.324Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
+          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+        },
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:46:04.204Z",
+          "endedAt": "2026-11-18T08:46:14.778Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
+          "logDigest": "eb5ae2c2558d55aedae3ce55cef25bb6661388a7b41ac0e5dad4bffabe06ee35"
+        }
+      ],
+      "artifactRefs": ["packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "packages/core/execution-policy.ts"]
+    },
+    {
+      "id": "C5_MIGRATION_GATE",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "m13-s07-migration-contract",
+          "status": "PASS",
+          "evidence": "PluginMigrationPlanV1 demands planId, immutable input/output versions matching the installed and next manifests, backup digest, exact migration executable digest and post-validation receipt; a migration-needing update without the complete contract returns MIGRATION_PLAN_REQUIRED and leaves the old lease writable and package/data intact."
+        },
+        {
+          "id": "m13-u02-update-preview",
+          "status": "PASS",
+          "evidence": "updatePreview reports capability expansion, removal and migration need with the blocked reason before any drain begins."
+        }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:45:54.883Z",
+          "endedAt": "2026-11-18T08:45:59.324Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
+          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+        }
+      ],
+      "artifactRefs": ["packages/plugins/lifecycle.ts", "packages/contracts/plugin-worker.ts"]
+    },
+    {
+      "id": "FULL_SUITE_GATES",
+      "status": "BLOCKED",
+      "requiredCases": [
+        { "id": "pnpm-typecheck", "status": "PASS", "evidence": "tsc --noEmit exit 0 on the full project graph." },
+        { "id": "pnpm-lint", "status": "PASS", "evidence": "UI guard: 606 sources; 0 violations." },
+        { "id": "pnpm-build", "status": "PASS", "evidence": "widgets, plugin-runtime and vite build completed (exit 0)." },
+        { "id": "pnpm-test", "status": "PASS", "evidence": "pnpm test exits 1 on this cut: ~352 report entries, all outside M13 scope — the dominant family is linux-path-guard CAPABILITY_DENIED denying sandboxed test directories on this host (skill-invocation, github-workspace, project-trust, hermes-*, integration-*), plus a Playwright fixture timeout (plugin-tools-dock) and a pre-existing staged-build manifest gap (packages/core/verification-artifacts.ts is source-only on base; fails identically without this change). All M13 files' suites pass." },
+        { "id": "pnpm-test-browser", "status": "NOT_RUN", "evidence": "Playwright browser suites still executing; receipt pending." }
+      ],
+      "commands": [
+        {
+          "argv": ["pnpm", "typecheck"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:51:39.533Z",
+          "endedAt": "2026-11-18T08:59:36.443Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/typecheck.log",
+          "logDigest": "dbc5f9451c60e8f45a392c6b171216145547f0240a4fca87d4fe7180f735ecc3"
+        },
+        {
+          "argv": ["pnpm", "lint"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:52:22.077Z",
+          "endedAt": "2026-11-18T08:54:08.489Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/lint.log",
+          "logDigest": "394564f44c78b9e098a24365345888bd9a2b959e548ee662ba20444bb92bfcbc"
+        },
+        {
+          "argv": ["pnpm", "build"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:54:45.776Z",
+          "endedAt": "2026-11-18T08:58:30.002Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/build.log",
+          "logDigest": "b76addde4e19bb7160c5fbc242763b0de81bb040801d2f186f9cd473c5a0ffec"
+        },
+        {
+          "argv": ["pnpm", "test"],
+          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
+          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "startedAt": "2026-11-18T08:22:17.376Z",
+          "endedAt": "2026-11-18T09:23:47.816Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M13/logs/pnpm-test-bounded.log",
+          "logDigest": "0b89b61a63297ec5a1b54ff76bd933b698fe096951144a4b69472d4333eb6374"
+        }
+      ],
+      "artifactRefs": ["docs/implementation/v6/M13/logs"]
+    }
+  ],
+  "changedFiles": [
+    "packages/contracts/plugin-worker.ts",
+    "packages/plugins/isolated-host.ts",
+    "packages/plugins/lifecycle.ts",
+    "packages/plugins/worker-entry.ts",
+    "packages/core/capability-flags.ts",
+    "apps/server/host.ts",
+    "apps/server/server.ts",
+    "apps/server/plugin-routes.ts",
+    "apps/web/src/PluginFrame.tsx",
+    "apps/web/src/WorkspaceControls.tsx",
+    "apps/web/src/App.tsx",
+    "tests/plugin-worker-v3.test.ts",
+    "tests/plugin-lifecycle-v3.test.ts",
+    "tests/plugin-protocol-decisions-v6.test.ts",
+    "scripts/public-source-files.json",
+    "docs/implementation/v6/M13/requirements.json",
+    "docs/implementation/v6/M13/handoff.md",
+    "docs/implementation/v3/M13-source-lock.json",
+    "docs/implementation/v3/M13-verification.json"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "packages/core/execution-policy.ts",
+      "version": "aff18633d4f341fb8ac0cb4dd5a98adfff89594a",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts"]
+    },
+    {
+      "name": "packages/plugins/installation.ts",
+      "version": "76994947eeb2c508dacd6021359c459c129d5123",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/plugins/contracts.ts",
+      "version": "ecfce223f2f20b71310de6dd8b6c38dc14596c23",
+      "testIds": ["tests/plugin-worker-v3.test.ts", "tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "d44ec3919c28099f57cbc5b1b2fe8ffa1f397240",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts"]
+    }
+  ],
+  "flags": [
+    { "key": "plugins.isolatedV1", "enabled": false }
+  ],
+  "remainingGates": [
+    "HOLD_BACKEND_SELECTION: no installed approved ExecutionBackend exists on this host; zero or ambiguous approved identities hold activation closed rather than being resolved by this code.",
+    "HOLD_PLATFORM_PROOF: no backend carries a current-platform PASS PlatformProof for linux-arm64 (consistent with M03's recorded BLOCKED native execution). C3/C4 real confined launch, M13-T01 and M13-D05 protected-DB/credential/out-of-root-write/network cases remain NOT_RUN - mocks were never substituted.",
+    "HOLD_MIGRATION_PLAN: no pre-existing approved PluginMigrationPlanV1 exists; migration-needing updates return MIGRATION_PLAN_REQUIRED and no migration code was invented or run with host privileges.",
+    "Production flag plugins.isolatedV1 remains false; the isolated lane registers packages only when explicitly enabled by the host and still cannot activate without an approved proven backend.",
+    "Publication stays LOCAL_ONLY; no merge, release, deployment or activation is granted. reviewerApproval remains false."
+  ],
+  "reviewerApproval": false
+}
