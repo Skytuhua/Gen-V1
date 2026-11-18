@@ -239,7 +239,16 @@ const baselineCommands = (pm: PackageManagerResolution): BaselineCommand[] => [
   { id: 'test-browser', args: [...pm.prefix, 'test:browser'], required: true },
 ];
 
-export async function runBaseline(outDir: string, repoRoot = root): Promise<{ commands: CommandEvidence[]; platform: string; nodeVersion: string; packageManagerVersion: string }> {
+export interface BaselineOptions { commandTimeoutMs?: number }
+function baselineCommandTimeout(value: unknown): number {
+  // Node timers overflow beyond this finite signed 32-bit range.
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1 || value > 2_147_483_647)
+    throw new HarnessError('INVALID_INPUT', 'Command timeout must be an integer from 1 to 2147483647 milliseconds.');
+  return value;
+}
+
+export async function runBaseline(outDir: string, repoRoot = root, options: BaselineOptions = {}): Promise<{ commands: CommandEvidence[]; platform: string; nodeVersion: string; packageManagerVersion: string; commandTimeoutMs: number }> {
+  const commandTimeoutMs = baselineCommandTimeout(options.commandTimeoutMs === undefined ? DEFAULT_TIMEOUT_MS : options.commandTimeoutMs);
   if (existsSync(outDir)) throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
   const pm = resolvePackageManager(repoRoot);
   const commands: CommandEvidence[] = [];
@@ -250,21 +259,31 @@ export async function runBaseline(outDir: string, repoRoot = root): Promise<{ co
   if (!pm.declaredVersion || packageManagerVersion !== pm.declaredVersion)
     throw new HarnessError('INCOMPATIBLE_TOOLCHAIN', `Installed pnpm ${packageManagerVersion} does not match the declared version ${pm.declaredVersion ?? 'unavailable'}.`);
   for (const item of baselineCommands(pm)) {
-    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: DEFAULT_TIMEOUT_MS, environment });
+    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: commandTimeoutMs, environment });
     commands.push(await writeCommandEvidence(observation, outDir, `10-${item.id}`, statusFromObservation(observation)));
   }
-  return { commands, platform: `${process.platform}-${process.arch}`, nodeVersion: process.version, packageManagerVersion };
+  return { commands, platform: `${process.platform}-${process.arch}`, nodeVersion: process.version, packageManagerVersion, commandTimeoutMs };
 }
 
 export function baselineMain(args: string[]): Promise<number> {
-  const outIndex = args.indexOf('--out');
-  if (outIndex < 0 || !args[outIndex + 1] || args.length !== 2) {
-    console.error('Usage: tsx scripts/research-baseline.ts --out <NEW-directory>');
+  const usage = () => {
+    console.error('Usage: tsx scripts/research-baseline.ts --out <NEW-directory> [--command-timeout-ms <1..2147483647>]');
     return Promise.resolve(2);
+  };
+  let outDir: string | undefined, commandTimeoutMs: number | undefined;
+  for (let index = 0; index < args.length; index += 2) {
+    const name = args[index], value = args[index + 1];
+    if (!value || value.startsWith('--')) return usage();
+    if (name === '--out' && outDir === undefined) outDir = value;
+    else if (name === '--command-timeout-ms' && commandTimeoutMs === undefined && /^[1-9][0-9]*$/.test(value)) {
+      try { commandTimeoutMs = baselineCommandTimeout(Number(value)); }
+      catch { return usage(); }
+    } else return usage();
   }
-  return runBaseline(resolve(args[outIndex + 1])).then(result => {
+  if (outDir === undefined) return usage();
+  return runBaseline(resolve(outDir), root, { commandTimeoutMs }).then(result => {
     const failed = result.commands.filter(command => command.status === 'FAIL' || command.status === 'BLOCKED');
-    console.log(JSON.stringify({ platform: result.platform, nodeVersion: result.nodeVersion, packageManagerVersion: result.packageManagerVersion, commands: result.commands.map(command => ({ status: command.status, argv: command.argv, exitCode: command.exitCode, termination: command.termination })) }, null, 2));
+    console.log(JSON.stringify({ platform: result.platform, nodeVersion: result.nodeVersion, packageManagerVersion: result.packageManagerVersion, commandTimeoutMs: result.commandTimeoutMs, commands: result.commands.map(command => ({ status: command.status, argv: command.argv, exitCode: command.exitCode, termination: command.termination })) }, null, 2));
     return failed.length ? 1 : 0;
   });
 }
