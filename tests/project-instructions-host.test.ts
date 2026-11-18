@@ -139,11 +139,11 @@ it('orders explicitly granted nested project scopes from physical root to leaf b
   expect(context!.instructionText).toContain('Host policy takes precedence over user task instructions, which take precedence over these project instructions');
 });
 
-it('orders exact instruction file grants in the same physical directory by filename before grant ID', async () => {
-  const f = fixture({'AGENTS.md': 'FIRST_FILENAME', 'CLAUDE.md': 'SECOND_FILENAME'});
+it.each(['AGENTS.md', 'agents.md'])('preserves canonical recognized-name precedence for exact %s and CLAUDE.md grants', async agentsFilename => {
+  const f = fixture({[agentsFilename]: 'FIRST_FILENAME', 'CLAUDE.md': 'SECOND_FILENAME'});
   f.store.internal('fixture', 'thread', () => {
     f.store.remove('resource', f.grant.id);
-    for (const [id, filename] of [['z-agents', 'AGENTS.md'], ['a-claude', 'CLAUDE.md']] as const) {
+    for (const [id, filename] of [['z-agents', agentsFilename], ['a-claude', 'CLAUDE.md']] as const) {
       const path = join(f.root, filename), info = statSync(path, {bigint: true});
       f.store.put('resource', id, 'thread', {...f.grant, id, kind: 'file', path, identity: {dev: String(info.dev), ino: String(info.ino)}});
     }
@@ -151,8 +151,56 @@ it('orders exact instruction file grants in the same physical directory by filen
   __setCapabilityFlagForTests('context.compilerV1', true);
   await f.deliver();
   const context = f.starts[0]?.approvedProjectContext;
-  expect(context?.instructions.entries.map(entry => entry.filename)).toEqual(['AGENTS.md', 'CLAUDE.md']);
+  expect(context?.instructions.entries.map(entry => entry.filename)).toEqual([agentsFilename, 'CLAUDE.md']);
+  expect(context?.instructions.entries.map(entry => entry.precedence)).toEqual([0, 1]);
+  expect(context?.instructions.precedence).toContain('case-insensitive canonical precedence');
   expect(context!.instructionText.indexOf('FIRST_FILENAME')).toBeLessThan(context!.instructionText.indexOf('SECOND_FILENAME'));
+  expect(context?.instructions.overlaps).toEqual([{scope: expect.stringMatching(/^directory-[a-f0-9]{16}$/), filenames: [agentsFilename, 'CLAUDE.md']}]);
+});
+
+it('reports distinct equal-precedence instruction sources without conflating physical aliases', async () => {
+  const f = fixture({'AGENTS.md': 'Use tabs.', 'agents.md': 'Use spaces.'});
+  const physical = new Set<string>();
+  f.store.internal('fixture', 'thread', () => {
+    f.store.remove('resource', f.grant.id);
+    for (const [id, filename] of [['upper-instructions', 'AGENTS.md'], ['lower-instructions', 'agents.md']] as const) {
+      const path = join(f.root, filename), info = statSync(path, {bigint: true});
+      physical.add(String(info.dev) + ':' + String(info.ino));
+      f.store.put('resource', id, 'thread', {...f.grant, id, kind: 'file', path, identity: {dev: String(info.dev), ino: String(info.ino)}});
+    }
+  });
+  __setCapabilityFlagForTests('context.compilerV1', true);
+  await f.deliver();
+  const context = f.starts[0]!.approvedProjectContext!, entries = context.instructions.entries;
+  expect(entries).toHaveLength(physical.size);
+  if (physical.size === 2) {
+    expect(entries.map(entry => entry.precedence)).toEqual([0, 0]);
+    expect(entries.map(entry => entry.filename)).toEqual(['AGENTS.md', 'agents.md']);
+    expect(context.instructions.overlaps).toEqual([{scope: expect.stringMatching(/^directory-[a-f0-9]{16}$/), filenames: entries.map(entry => entry.filename)}]);
+    const frames = context.instructionText.split('\n').filter(line => line.startsWith('{')).map(line => JSON.parse(line) as {resourceId: string});
+    expect(frames.map(frame => frame.resourceId)).toEqual(entries.map(entry => entry.resourceId));
+    expect(context.instructions.precedence).toContain('Equal-precedence sources use lexicographic filename order, then resource-scope identifier order');
+    expect(context.instructions.precedence).toContain('Equal-precedence conflict:');
+    for (const entry of entries) expect(context.instructions.precedence).toContain(entry.filename + ' [' + entry.scope + ']');
+    expect(context.instructionText).toContain('Equal-precedence sources conflict and use lexicographic filename order, then resource-scope identifier order');
+  } else {
+    expect(context.instructions.duplicates).toHaveLength(1);
+    expect(context.instructions.overlaps).toEqual([]);
+  }
+});
+
+it('does not report instruction overlaps between distinct canonical directories', async () => {
+  const f = fixture({'AGENTS.md': 'Parent instruction.'});
+  const child = join(f.root, 'src'); mkdirSync(child); writeFileSync(join(child, 'CLAUDE.md'), 'Child instruction.');
+  const info = statSync(child, {bigint: true});
+  f.store.internal('fixture', 'thread', () => f.store.put('resource', 'child', 'thread', {
+    ...f.grant, id: 'child', path: child, identity: {dev: String(info.dev), ino: String(info.ino)},
+  }));
+  __setCapabilityFlagForTests('context.compilerV1', true);
+  await f.deliver();
+  expect(f.starts[0]?.approvedProjectContext?.instructions.entries).toHaveLength(2);
+  expect(f.starts[0]?.approvedProjectContext?.instructions.overlaps).toEqual([]);
+  expect(f.starts[0]?.approvedProjectContext?.instructions.precedence).not.toContain('Equal-precedence conflict:');
 });
 
 it('refuses outside symlinks and executable includes without opening their target content', async () => {
