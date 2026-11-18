@@ -155,6 +155,13 @@ describe('AgentMessageV1 board', () => {
     for (let i = 0; i < 100; i++) f.inbox.postMessage(sender, {messageId: 'm-' + i, taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'});
     expect(() => f.inbox.postMessage(sender, {messageId: 'm-over', taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'})).toThrow(/100/);
   });
+  it('releases the active-message cap once earlier messages expire', () => {
+    const f = fixture();
+    const expired = new Date(Date.now() - 60_000).toISOString();
+    for (let i = 0; i < 100; i++) f.inbox.postMessage(sender, {messageId: 'e-' + i, taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi', expiresAt: expired});
+    expect(f.inbox.messages('t-parent')).toHaveLength(0);
+    expect(f.inbox.postMessage(sender, {messageId: 'm-fresh', taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'}).messageId).toBe('m-fresh');
+  });
   it('artifact-ref messages carry no embedded text and replies chain by messageId', () => {
     const f = fixture();
     const posted = f.inbox.postMessage(sender, {messageId: 'm-art', taskId: 't-parent', recipientOwner: recipient, topic: 'data', artifactRef: {id: 'art-1', revision: 1}});

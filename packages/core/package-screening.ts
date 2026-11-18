@@ -63,12 +63,22 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const key = cacheKey(pkg);
   const cached = options.cache?.get(key);
   let staleCache = false;
+  let previousCacheAgeMs = 0;
   if (cached) {
-    const age = cached.cacheAgeMs === null ? Number.POSITIVE_INFINITY : now() - Date.parse(cached.checkedAt);
-    if (Number.isFinite(age) && age <= maxAge) {
-      return { record: packageScreeningV1Schema.parse(cached), cacheHit: true, staleCache: false };
+    const parsed = packageScreeningV1Schema.parse(cached);
+    const age = now() - Date.parse(parsed.checkedAt);
+    const validAge = Number.isSafeInteger(age) && age >= 0;
+    const sameIdentity = parsed.pkg.name === pkg.name && parsed.pkg.version === pkg.version &&
+      parsed.pkg.digest === pkg.digest && parsed.advisory.database === advisory.database;
+    // Cached screening facts cannot carry an operator's earlier authority.
+    // Unavailable results are rechecked and use only this request's exception.
+    const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
+      parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY';
+    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && age <= maxAge) {
+      return { record: { ...parsed, cacheAgeMs: age }, cacheHit: true, staleCache: false };
     }
     staleCache = true;
+    if (validAge) previousCacheAgeMs = age;
   }
   const checkedAt = new Date(now()).toISOString();
   let result: AdvisoryQueryResult;
@@ -101,7 +111,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     source: { kind: 'registry', locator: advisory.database },
     advisory: { database: advisory.database, asOf },
     status, decision, reason, checkedAt,
-    cacheAgeMs: staleCache && cached ? now() - Date.parse(cached.checkedAt) : 0,
+    cacheAgeMs: previousCacheAgeMs,
   });
   options.cache?.put(key, record);
   const exception = options.exception && decision === 'OPERATOR_EXCEPTION'
