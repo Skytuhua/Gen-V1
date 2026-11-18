@@ -2,7 +2,7 @@ import type { Page } from '@playwright/test';
 import { join } from 'node:path';
 import { memoryPreparedRequestSchema, type MemoryPreparedRequest, type MemoryTombstoneV1 } from '../../packages/contracts/project-memory.ts';
 import { MEMORY_STUDY_POLICY, runMemoryStudy } from '../../evals/project-memory-study.ts';
-import { MEMORY_CLAIM, MEMORY_FIXTURE_LABEL, MEMORY_HOST_URL, MEMORY_SOURCE, MEMORY_SOURCE_PROMPT, type MemoryHostFixture, test, expect } from '../project-memory-host-fixture.ts';
+import { COMPACTION_HISTORY_PROMPT, COMPACTION_TAIL_PROMPT, MEMORY_CLAIM, MEMORY_FIXTURE_LABEL, MEMORY_HOST_URL, MEMORY_SOURCE, MEMORY_SOURCE_PROMPT, type MemoryHostFixture, test, expect } from '../project-memory-host-fixture.ts';
 
 const review = (page: Page) => page.getByRole('dialog', { name: 'Project memory', exact: true });
 const inspector = (page: Page) => page.getByRole('dialog', { name: 'Context inspector', exact: true });
@@ -78,6 +78,66 @@ async function createMemoryProject(page: Page, memoryHost: MemoryHostFixture) {
   await expect.poll(() => memoryHost.extractions[0]!.disposed).toBe(true);
   return { thread, proposed };
 }
+
+for (const compilerObservation of [true, false]) test.describe(`manual compaction through the real App and host with compiler observation ${compilerObservation ? 'on' : 'off'}`, () => {
+  test.use({memoryCompaction: true, memoryCompilerObservation: compilerObservation});
+  test('retains the applied compaction panel after the admitted maintenance epoch and inspector reopen', async ({page, memoryHost}, info) => {
+    const {thread} = await createMemoryProject(page, memoryHost);
+    for (const prompt of [COMPACTION_HISTORY_PROMPT, COMPACTION_TAIL_PROMPT]) {
+      const deliveries = memoryHost.runtime.deliveries.length;
+      await writeDraft(page, prompt);
+      await page.getByRole('button', {name: 'Send message', exact: true}).click();
+      await expect.poll(() => memoryHost.runtime.deliveries.length).toBe(deliveries + 1);
+      await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+      await expect(composer(page)).toHaveValue('');
+    }
+    const before = memoryHost.service.thread(thread.id);
+    const priorRequest = memoryHost.store.snapshot().usage[thread.id].lastRequest;
+    if (compilerObservation) expect(priorRequest?.epoch).toBe(before.epoch);
+    else expect(priorRequest).toBeUndefined();
+    await page.getByRole('button', {name: 'Inspect context usage', exact: true}).click();
+    if (compilerObservation) await inspector(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+    const response = page.waitForResponse(value => value.url().endsWith('/api/commands') &&
+      value.request().method() === 'POST' && value.request().postDataJSON()?.type === 'run.compact');
+    await inspector(page).getByRole('button', {name: 'Compact now', exact: true}).click();
+    expect((await response).status()).toBe(200);
+    expect(memoryHost.runtime.compactions).toHaveLength(1);
+    const observed = memoryHost.runtime.compactions[0]!;
+    expect(observed.ctx).toMatchObject({threadId: thread.id, epoch: before.epoch + 1});
+    expect(observed.envelope.plan.owner).toMatchObject({...observed.ctx});
+    expect(observed.checkpoint.persisted).toBe(true);
+    expect(observed.admission).toEqual({version: 1, accepted: true, planDigest: observed.envelope.planDigest});
+    expect(memoryHost.service.thread(thread.id)).toMatchObject({epoch: before.epoch + 1, runId: null, status: 'ready'});
+    expect(memoryHost.store.get<{nativeReceipt: unknown}>('compactionUsage', observed.receipt.candidateId)?.nativeReceipt).toEqual(observed.receipt);
+    expect(memoryHost.store.snapshot().usage[thread.id].lastRequest).toEqual(priorRequest);
+    expect(memoryHost.store.snapshot().usage[thread.id].compaction?.candidates).toEqual([
+      expect.objectContaining({status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: observed.receipt.beforeBytes, measuredAfterBytes: observed.receipt.afterBytes}),
+    ]);
+    const retainedPanel = async () => {
+      const tab = inspector(page).getByRole('tab', {name: 'Compaction', exact: true});
+      await expect(tab).toBeVisible(); await tab.click();
+      const candidates = inspector(page).getByRole('list', {name: 'Compaction candidates', exact: true});
+      await expect(candidates).toContainText(`candidate ${observed.receipt.candidateId.slice(0, 8)} · applied`);
+      const displayedBytes = await page.evaluate(values => {
+        const format = new Intl.NumberFormat(undefined, {notation: 'compact', maximumFractionDigits: 1});
+        return values.map(value => format.format(value));
+      }, [observed.receipt.beforeBytes, observed.receipt.afterBytes!]);
+      await expect(candidates).toContainText(`Measured source: ${displayedBytes[0]} bytes; measured result: ${displayedBytes[1]} bytes.`);
+      await inspector(page).getByRole('tab', {name: 'Last request', exact: true}).click();
+      await expect(inspector(page)).toContainText('Current request observation unavailable.');
+      await expect(inspector(page)).not.toContainText('observed prompt bytes.');
+      await tab.click();
+    };
+    await retainedPanel();
+    await page.keyboard.press('Escape'); await expect(inspector(page)).toHaveCount(0);
+    await page.getByRole('button', {name: 'Inspect context usage', exact: true}).click();
+    await retainedPanel();
+    expect(memoryHost.runtime.compactions).toHaveLength(1);
+    expect(memoryHost.requests.filter(value => value.method === 'POST' && value.url === '/api/commands' &&
+      (value.body as {type?: string} | null)?.type === 'run.compact')).toEqual([expect.objectContaining({status: 200, csrf: true})]);
+    await page.screenshot({path: info.outputPath('manual-compaction-retained-panel.png'), fullPage: true});
+  });
+});
 
 test('enabled project memory uses real HTTP through proposal, recall, request exclusion, Forget and Store restart', async ({ page, memoryHost }, info) => {
   // No page.route(), injected fetch/EventSource or seeded memory records.
