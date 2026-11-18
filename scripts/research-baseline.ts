@@ -147,6 +147,8 @@ function git(rootDir: string, args: string[]): string {
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
   const issues: EvidenceIssue[] = [];
   sourceLockV3Schema.parse(lock);
+  try { git(rootDir, ['merge-base', '--is-ancestor', lock.auditAncestorSha, lock.executionBaseSha]); }
+  catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
     if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
@@ -155,7 +157,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
     const drift = approved.get(inspected.path);
     if (actual === inspected.blobSha) continue;
-    if (drift && drift.fromBlob === inspected.blobSha)
+    if (drift && drift.fromBlob === inspected.blobSha && drift.toBlob === actual)
       issues.push({ code: 'APPROVED_DRIFT_PRESENT', message: `${inspected.path}: recorded approved drift to ${drift.toBlob} — ${drift.note}` });
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
