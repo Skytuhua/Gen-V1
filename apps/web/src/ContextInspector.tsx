@@ -1,13 +1,16 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type RefObject } from 'react';
 import type { CompactionProjectionV1, ContextRequestObservationV1, HostRequestProjectionV1, Thread } from '../../../packages/contracts';
+import type { ContextInferenceBudgetV1 } from '../../../packages/contracts/request-context';
 import { Popover } from '../../../packages/ui-shell/Popover';
-import { command } from './api';
+import { authenticated, command, read } from './api';
 import { ContextMeter, contextNumber, contextSegments, contextTokenCount, type ContextUsage } from './ContextMeter';
 import { unavailableCompaction } from './runtime-presentation';
 import './context-inspector.css';
 import {useSourceWorkbench} from './SourceWorkbench';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {memoryItemV1Schema, memoryRecallV1Schema, type MemoryItemV1, type MemoryRecallV1, type MemoryRevisionRef} from '../../../packages/contracts/project-memory';
+import {MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1} from '../../../packages/contracts/model-request';
+import {ModelRequestDetails} from './UsageDialog';
 
 /** Only the owner of a real host-prepared request may supply this adapter. */
 export interface MemoryRequestExclusionAdapter {
@@ -59,18 +62,37 @@ export function acceptedCompaction(thread: Thread | undefined, report: ContextCo
 }
 export interface ContextInspectorProps {
   usage: ContextUsage | undefined; thread: Thread | undefined;
+  /** Key used by the caller to select this row from the current host snapshot. */
+  usageThreadId?: string;
+  open?: boolean;
   close: () => void; refresh: () => Promise<void>; onError?: (message: string) => void;
   anchor?: RefObject<HTMLElement | null>; compaction?: ContextCompactionReport; memoryRecall?: ContextMemoryRecall;
   memoryPreparation?: {pending: boolean; error: string; refresh: () => void; disabled?: boolean};
 }
 export function ContextInspector(props: ContextInspectorProps) {
   const fallback = useRef<HTMLElement | null>(null);
-  const identity = JSON.stringify([props.thread?.id, props.thread?.sessionPath, props.thread?.epoch, props.thread?.projectId, props.thread?.accountId, props.memoryRecall?.requestId, props.memoryRecall?.contextGeneration]);
+  // The composer keeps this boundary mounted while the popover is closed.
+  // This invalidates cached candidate IDs; current host snapshots own the proof.
+  const candidateOwners = useRef(new Map<string, string>());
+  const owner = JSON.stringify([props.thread?.id, props.thread?.sessionPath, props.thread?.projectId ?? null, props.thread?.workspaceId ?? null, props.thread?.modelId, props.thread?.accountId ?? null]);
+  let compactionHistory = currentCompactionHistory(props.thread, props.usage, props.usageThreadId);
+  if (compactionHistory?.candidates.some(entry => candidateOwners.current.has(entry.metadata.candidateId) && candidateOwners.current.get(entry.metadata.candidateId) !== owner)) compactionHistory = undefined;
+  for (const entry of compactionHistory?.candidates ?? []) candidateOwners.current.set(entry.metadata.candidateId, owner);
+  if (props.open === false) return null;
+  const identity = JSON.stringify([owner, props.thread?.epoch, props.memoryRecall?.requestId, props.memoryRecall?.contextGeneration]);
   return <><span hidden ref={node => { fallback.current = node?.parentElement?.querySelector('button') ?? null; }} />
-    <ContextSession key={identity} {...props} anchor={props.anchor ?? fallback} />
+    <ContextSession key={identity} {...props} compactionHistory={compactionHistory} anchor={props.anchor ?? fallback} />
   </>;
 }
-function ContextSession({ usage, thread, close, refresh, onError, anchor, compaction, memoryRecall, memoryPreparation }: ContextInspectorProps & { anchor: RefObject<HTMLElement | null> }) {
+function currentCompactionHistory(thread: Thread | undefined, usage: ContextUsage | undefined, usageThreadId: string | undefined): CompactionProjectionV1 | undefined {
+  if (!thread?.modelId || !usage?.compaction?.candidates.length) return;
+  const witnesses = [usageThreadId, usage.lastRequest?.threadId, usage.hostProjection?.threadId].filter(value => value !== undefined);
+  if (!witnesses.length || witnesses.some(value => value !== thread.id)) return;
+  const workspaceId = thread.workspaceId ?? (thread.projectId ? 'project:' + thread.projectId : 'thread:' + thread.id);
+  if (usage.compaction.candidates.some(({metadata: {binding}}) => binding.workspaceId !== workspaceId || binding.modelId !== thread.modelId || binding.accountId !== (thread.accountId ?? null))) return;
+  return usage.compaction;
+}
+function ContextSession({ usage, thread, close, refresh, onError, anchor, compaction, compactionHistory, memoryRecall, memoryPreparation }: ContextInspectorProps & { anchor: RefObject<HTMLElement | null>; compactionHistory?: CompactionProjectionV1 }) {
   const workbench=useSourceWorkbench();
   const [error, setError] = useState(''), [submitting, setSubmitting] = useState(false), [requested, setRequested] = useState(false);
   const [animateReceipt, setAnimateReceipt] = useState(false);
@@ -84,6 +106,9 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   const projection = usage?.hostProjection;
   const hostSources = projection?.threadId === thread?.id && projection?.epoch === thread?.epoch &&
     (!thread?.runId || projection?.runId === thread.runId) ? projection : undefined;
+  const budgetObservation = usage?.inferenceBudget;
+  const budget = budgetObservation?.threadId === thread?.id && budgetObservation?.epoch === thread?.epoch &&
+    (!thread?.runId || budgetObservation?.runId === thread.runId) ? budgetObservation?.budget : undefined;
   const reported = ownedCompaction(thread, compaction), accepted = acceptedCompaction(thread, compaction, usage);
   const lastReceipt = useRef(accepted?.receipt.id);
   const playingReceipt = Boolean(accepted && (animateReceipt || lastReceipt.current !== accepted.receipt.id));
@@ -123,13 +148,14 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     requested ? 'Result not reported' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : unavailable?.status ?? 'Context';
   const failure = error || (reported?.status === 'failed' ? reported.error || 'Context could not be compacted. Try again.' : '');
   const recalled = ownedMemoryRecall(thread, memoryRecall);
-  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={(measured?.categories.length ? 282 : 200) + (failure ? 48 : 0) + (lastRequest ? 84 : 0) + (recalled ? 180 : 0) + (workbench?.enabled?48:0)}
+  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={(measured?.categories.length ? 282 : 200) + (failure ? 48 : 0) + (lastRequest || compactionHistory ? 84 : 0) + (budget ? 120 : 0) + (recalled ? 180 : 0) + (workbench?.enabled?48:0)}
     role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
     {workbench?.enabled&&<nav aria-label="Context views"><button type="button" onClick={()=>{close();workbench.show('request');}}>Last request</button><button type="button" onClick={()=>{close();workbench.show('sources');}}>Sources</button><button type="button" onClick={()=>{close();workbench.show('tools');}}>Tools</button><span aria-current="page">Compaction</span></nav>}
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
     <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
-      {lastRequest && <RequestEvidence request={lastRequest} sources={hostSources} compaction={usage?.compaction} />}
+      {(lastRequest || compactionHistory) && <RequestEvidence request={lastRequest} sources={hostSources} compaction={compactionHistory} thread={thread} />}
+      {budget && <InferenceBudget value={budget}/>}
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
       {memoryPreparation?.pending && <p role="status">Preparing project memory…</p>}
       {memoryPreparation?.error && <ErrorState message={memoryPreparation.error}/>}
@@ -145,11 +171,25 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
 
 const requestViews = ['Last request', 'Sources', 'Tools', 'Compaction'] as const;
 
-function RequestEvidence({ request, sources, compaction }: { request: ContextRequestObservationV1; sources?: HostRequestProjectionV1; compaction?: CompactionProjectionV1 }) {
+function InferenceBudget({ value }: { value: ContextInferenceBudgetV1 }) {
+  const previous = value.previousRequest, reported = (count: number | null) => count === null ? 'not reported' : contextNumber(count);
+  return <section aria-label="Next inference budget">
+    <p className="context-categories-note">Request {value.sequence}: {contextNumber(value.promptBytes)} prompt bytes of a {contextNumber(value.maxPromptBytes)} byte limit.</p>
+    <p className="context-categories-note">{value.byteAdmission === 'BLOCKED' ? 'Request blocked by the host byte limit. No provider call was started.' : 'Prompt byte limit satisfied.'}</p>
+    {previous && <>
+      <p className="context-categories-note">Previous request: {reported(previous.inputTokens)} provider-reported input tokens; {reported(previous.cacheReadTokens)} cache-read tokens. Their accounting convention was not normalized.</p>
+      <p className="context-categories-note">Reported context: {reported(previous.reportedContextTokens)} tokens. Its measurement type was not reported; it was not substituted for input usage.</p>
+    </>}
+    <p className="context-categories-note">{value.sourceContinuity === 'VERIFIED' ? `Since the previous request: ${contextNumber(value.newSourceBytes!)} native source bytes, including ${contextNumber(value.newToolResultBytes!)} tool-result bytes across ${value.newToolResults} ${value.newToolResults === 1 ? 'result' : 'results'}.` : 'Source continuity is unavailable. Newly unreported tool bytes were not inferred.'}</p>
+    <p className="context-categories-note">Token budget unavailable. Normalized input usage, a compatible tokenizer and the actual output reserve were not reported. No automatic compaction decision was made from unknown token counts.</p>
+  </section>;
+}
+
+function RequestEvidence({ request, sources, compaction, thread }: { request?: ContextRequestObservationV1; sources?: HostRequestProjectionV1; compaction?: CompactionProjectionV1; thread?: Thread }) {
   const id = useId();
-  const [selected, select] = useState(0);
+  const [selected, select] = useState(request ? 0 : 3);
   const buttons = useRef<Array<HTMLButtonElement | null>>([]);
-  return <section aria-label="Last request" className="context-request-evidence">
+  return <section aria-label={request ? 'Last request' : 'Compaction history'} className="context-request-evidence">
     <div role="tablist" aria-label="Request evidence" className="context-request-tabs">
       {requestViews.map((label, index) => <button key={label} type="button" role="tab"
         ref={node => { buttons.current[index] = node; }}
@@ -166,10 +206,30 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
     </div>
     {requestViews.map((label, index) => <div key={label} role="tabpanel" hidden={selected !== index}
       id={id + '-panel-' + index} aria-labelledby={id + '-tab-' + index} tabIndex={selected === index ? 0 : -1}>
-      {index === 0 && <><p className="context-categories-note">{contextNumber(request.promptBytes)} observed prompt bytes.</p>
-        <p className="context-categories-note">Native context is opaque. Provider tokens and roles were not inferred.</p></>}
-      {index === 1 && <>
-        <p className="context-categories-note">{request.knownInputs} known {request.knownInputs === 1 ? 'input' : 'inputs'} at the broker. Native sources and revisions were not reported.</p>
+      {index === 0 && (request ? <><p className="context-categories-note">{contextNumber(request.promptBytes)} observed prompt bytes.</p>
+        <p className="context-categories-note">Native context is opaque. Provider tokens and roles were not inferred.</p></> : <p className="context-categories-note">Current request observation unavailable.</p>)}
+      {index === 1 && !request && <p className="context-categories-note">Current source observation unavailable.</p>}
+      {index === 1 && request && <>
+        <p className="context-categories-note">{request.knownInputs} known {request.knownInputs === 1 ? 'input' : 'inputs'} at the broker.{!request.nativeSources && ' Native sources and revisions were not reported.'}</p>
+        {request.nativeSources && <section aria-label="Original Hermes source metadata">
+          <p className="context-categories-note">Source generation {request.nativeSources.generation} · {request.nativeSources.sourceCount} source records · {contextNumber(request.nativeSources.sourceBytes)} serialized source bytes.</p>
+          <p className="context-categories-note">{request.nativeSources.reusedSources} compiled records reused · {request.nativeSources.compiledSources} new records compiled. The native worker fingerprinted {request.nativeSources.inspectedSources} records to verify the cut.</p>
+          <p className="context-categories-note">These are original Hermes source records before ACP flattening. Provider context remains opaque; tokens were not inferred.</p>
+          <ul>{request.nativeSources.sources.map(source => <li key={source.sourceId}>{source.category.toLowerCase()} · {source.sourceId} · revision {source.sourceRevision} · {contextNumber(source.utf8Bytes)} bytes · SHA-256 <span style={{ overflowWrap: 'anywhere' }}>{source.sha256}</span></li>)}</ul>
+          {Boolean(request.nativeSources.omittedSources) && <p className="context-categories-note">{request.nativeSources.omittedSources} source records omitted from this bounded view.</p>}
+        </section>}
+        {request.nativeSourcesUnavailable && <p className="context-categories-note">Native source capture unavailable: {request.nativeSourcesUnavailable.toLowerCase().replaceAll('_', ' ')}.</p>}
+        {sources?.projectInstructions && <section aria-label="Approved project instructions">
+          <p className="context-categories-note">{sources.projectInstructions.precedence}</p>
+          <ul>{sources.projectInstructions.entries.map(entry => <li key={entry.resourceId + ':' + entry.filename}>
+            {entry.filename} · resource {entry.resourceId} · scope {entry.scope} · precedence {entry.precedence} · {contextNumber(entry.utf8Bytes)} bytes
+            <span style={{ overflowWrap: 'anywhere' }}> · SHA-256 {entry.digest}</span>
+          </li>)}</ul>
+          {sources.projectInstructions.overlaps.map(overlap => <p key={overlap.scope} className="context-categories-note">Overlapping instruction sources in {overlap.scope}: {overlap.filenames.join(', ')}. Applied in the declared order; semantic contradictions were not inferred.</p>)}
+          {sources.projectInstructions.duplicates.map(duplicate => <p key={duplicate.path} className="context-categories-note">{duplicate.path}: same physical file as {duplicate.retainedPath}; loaded once.</p>)}
+          {sources.projectInstructions.exclusions.map(exclusion => <p key={exclusion.resourceId + ':' + exclusion.filename} className="context-categories-note">{exclusion.filename} · resource {exclusion.resourceId} · excluded: {exclusion.reason.toLowerCase().replaceAll('_', ' ')}</p>)}
+          {Boolean(sources.projectInstructions.omittedRoots) && <p className="context-categories-note">{sources.projectInstructions.omittedRoots} roots outside the instruction discovery limit.</p>}
+        </section>}
         {Boolean(sources?.sources.length) && <ul aria-label="Observed app submission fragments">
           {sources?.sources.map((source, sourceIndex) => <li key={source.category + ':' + sourceIndex}>
             {source.category.toLowerCase()} · revision {source.revision} · {contextNumber(source.utf8Bytes)} bytes
@@ -180,22 +240,95 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
           {Boolean(sources?.omittedSources) && <li>{sources?.omittedSources} additional fragments omitted from this view.</li>}
         </ul>}
       </>}
-      {index === 2 && <p className="context-categories-note">{request.toolSnapshot ? `${request.toolSnapshot.count} host tool schemas · ${contextNumber(request.toolSnapshot.schemaBytes)} serialized bytes.` : 'Schema counts were not reported by this adapter.'}</p>}
+      {index === 2 && <p className="context-categories-note">{request?.toolSnapshot ? `${request.toolSnapshot.count} host tool schemas · ${contextNumber(request.toolSnapshot.schemaBytes)} serialized bytes.` : 'Schema counts were not reported by this adapter.'}</p>}
       {index === 3 && <>
+        {request?.relevance && <section aria-label="Read-only relevance observation">
+          <p className="context-categories-note">{request.relevance.candidateIds.length} old host read {request.relevance.candidateIds.length === 1 ? 'result' : 'results'} for review · {contextNumber(request.relevance.estimatedSavingsBytes)} bytes potential savings (estimate).</p>
+          <p className="context-categories-note">Nothing was removed. Native context is opaque; these results require semantic review before compaction.</p>
+          <p className="context-categories-note">{request.relevance.protectedResults} protected · {request.relevance.omittedResults} outside the observation window · {contextNumber(request.relevance.inspectionBudgetBytes)} byte inspection cap.</p>
+          {Boolean(request.relevance.candidateIds.length) && <details><summary>Candidate result observations</summary><ul>{request.relevance.candidateIds.map(candidate => <li key={candidate}>{candidate}</li>)}</ul></details>}
+        </section>}
         {!compaction?.candidates.length && <p className="context-categories-note">No loss-aware compaction receipt. An observation is not a history change.</p>}
         {Boolean(compaction?.candidates.length) && <ul aria-label="Compaction candidates">
-          {compaction?.candidates.map(entry => <li key={entry.metadata.candidateId}>
-            candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replace('_', ' ')}` : ''}
-            {' · '}{entry.retainedConstraints.length ? `${entry.retainedConstraints.length} retained constraints` : 'no retained constraints'} · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
-            {' · '}est. reduction {entry.estimatedByteReduction === null ? 'not estimated' : `${contextNumber(entry.estimatedByteReduction)} bytes (estimate)`}
-            {entry.measuredBeforeBytes !== null && ` · measured ${contextNumber(entry.measuredBeforeBytes)} → ${entry.measuredAfterBytes === null ? 'unavailable' : contextNumber(entry.measuredAfterBytes)} bytes`}
-          </li>)}
+          {compaction?.candidates.map(entry => <CompactionCandidateDetails key={entry.metadata.candidateId} entry={entry} thread={thread}/>)}
         </ul>}
-        {Boolean(compaction?.candidates.length) && <p className="context-categories-note">
-          {compaction?.accounting.attempts} {compaction?.accounting.attempts === 1 ? 'attempt' : 'attempts'} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed · cost {compaction?.accounting.costBytes ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'not measured'}
-        </p>}
+        {Boolean(compaction?.candidates.length) && <>
+          <p className="context-categories-note">Omitted native categories: unavailable.</p>
+          <p className="context-categories-note">Recorded admitted candidates: {compaction?.accounting.attempts} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed. Historical completeness and provider-call counts are unavailable.</p>
+          <p className="context-categories-note">Auxiliary byte accounting: {contextTokenCount(compaction?.accounting.costBytes) && compaction.accounting.costBytes > 0 ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'unavailable'}. Complete auxiliary model cost: unavailable. Retained request costs can be loaded for each candidate.</p>
+        </>}
       </>}
     </div>)}
+  </section>;
+}
+function CompactionCandidateDetails({entry, thread}: {entry: CompactionProjectionV1['candidates'][number]; thread?: Thread}) {
+  const [shown, setShown] = useState(32);
+  const remaining = Math.max(0, entry.retainedConstraints.length - shown);
+  const measured = (bytes: number | null) => contextTokenCount(bytes) ? contextNumber(bytes) + ' bytes' : 'unavailable';
+  return <li data-compaction-candidate={entry.metadata.candidateId}>
+    candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replaceAll('_', ' ')}` : ''}
+    {' · '}{entry.retainedConstraints.length} retained constraints · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
+    {entry.verdict === null && (entry.status === 'READY' || entry.status === 'PREPARING') && <p className="context-categories-note">Native outcome unconfirmed. No applied receipt was recorded.</p>}
+    <p className="context-categories-note">Estimated reduction: {contextTokenCount(entry.estimatedByteReduction) ? contextNumber(entry.estimatedByteReduction) + ' bytes (estimate)' : 'unavailable'}.</p>
+    <p className="context-categories-note">Measured source: {measured(entry.measuredBeforeBytes)}; measured result: {measured(entry.measuredAfterBytes)}.</p>
+    {Boolean(entry.retainedConstraints.length) && <details>
+      <summary>Retained constraint references</summary>
+      <p className="context-categories-note">Protection plan references. An applied receipt confirms that history changed.</p>
+      <ul aria-label="Retained constraint references">{entry.retainedConstraints.slice(0, shown).map((reference, index) => <li key={index} style={{overflowWrap: 'anywhere'}}>{reference}</li>)}</ul>
+      {remaining > 0 && <><p className="context-categories-note">Showing {shown} of {entry.retainedConstraints.length} references.</p>
+        <button type="button" onClick={() => setShown(value => value + Math.min(32, remaining))}>Show {Math.min(32, remaining)} more references</button></>}
+    </details>}
+    {thread && <CompactionModelRequests key={JSON.stringify([entry.metadata, entry.status, entry.verdict])} thread={thread} entry={entry}/>}
+  </li>;
+}
+function CompactionModelRequests({thread, entry}: {thread: Thread; entry: CompactionProjectionV1['candidates'][number]}) {
+  const owner = JSON.stringify([thread.id, thread.projectId ?? null, thread.workspaceId ?? null, thread.sessionPath, thread.modelId, thread.accountId ?? null, thread.epoch, entry.metadata]);
+  const currentOwner = useRef(owner); currentOwner.current = owner;
+  const pending = useRef<AbortController | null>(null), active = useRef(true);
+  const [state, setState] = useState<{owner: string; requests?: ModelRequestObservationV1[]; older: boolean; loading: boolean; error: string}>({owner, older: false, loading: false, error: ''});
+  useLayoutEffect(() => {active.current = true; return () => {active.current = false; pending.current?.abort(); pending.current = null;};}, []);
+  const visible = state.owner === owner ? state : {owner, requests: undefined, older: false, loading: false, error: ''};
+  const load = async (older = false) => {
+    if (pending.current || !active.current) return;
+    const before = older ? visible.requests?.at(-1)?.requestId : undefined;
+    if (older && !before) return;
+    const retained = before ? visible.requests ?? [] : [], control = new AbortController(), capturedOwner = owner;
+    pending.current = control;
+    const current = () => active.current && !control.signal.aborted && pending.current === control && currentOwner.current === capturedOwner;
+    setState({owner, requests: before ? retained : undefined, older: false, loading: true, error: ''});
+    try {
+      const url = `/api/threads/${encodeURIComponent(thread.id)}/compaction/${encodeURIComponent(entry.metadata.candidateId)}/model-requests` +
+        (before ? '?beforeRequestId=' + encodeURIComponent(before) : '');
+      const response = await authenticated(() => fetch(url, {method: 'GET', credentials: 'same-origin', cache: 'no-store', signal: control.signal}));
+      const value = await read<unknown>(response);
+      if (!current()) return;
+      const parsed = modelRequestObservationV1Schema.array().max(MODEL_REQUEST_OBSERVATION_LIMIT).safeParse(value);
+      const invalid = () => new Error('Compaction measurement response could not be verified.');
+      if (!parsed.success) throw invalid();
+      const seen = new Set(retained.map(request => request.requestId)), binding = entry.metadata.binding;
+      let epoch = retained[0]?.owner.epoch;
+      for (const request of parsed.data) {
+        epoch ??= request.owner.epoch;
+        if (seen.has(request.requestId) || request.owner.threadId !== thread.id || request.owner.runId !== 'compaction:' + entry.metadata.candidateId ||
+          request.owner.epoch !== epoch || !Number.isSafeInteger(thread.epoch) || request.owner.epoch > thread.epoch ||
+          request.binding.modelId !== binding.modelId || request.binding.accountId !== binding.accountId || request.binding.providerId !== binding.modelId.split('/')[0]) throw invalid();
+        seen.add(request.requestId);
+      }
+      setState({owner, requests: [...retained, ...parsed.data], older: parsed.data.length === MODEL_REQUEST_OBSERVATION_LIMIT, loading: false, error: ''});
+    } catch (cause) {
+      if (current()) setState({owner, older: false, loading: false, error: cause instanceof Error ? cause.message : 'Compaction model costs are unavailable.'});
+    } finally {if (pending.current === control) pending.current = null;}
+  };
+  return <section aria-label="Compaction model costs">
+    <button type="button" className="usage-refresh" disabled={visible.loading} onClick={() => void load()}>{visible.requests ? 'Refresh model request costs' : 'Load model request costs'}</button>
+    {visible.loading && <p role="status" className="context-categories-note">Loading model request costs…</p>}
+    {visible.error && <ErrorState message={visible.error}/>}
+    <p className="context-categories-note">Retained request observations may omit unreported or interrupted requests. Complete spend is unavailable.</p>
+    {visible.requests && <>
+      {!visible.requests.length && <p className="context-categories-note">No retained model request measurements are available.</p>}
+      {visible.requests.map(request => <ModelRequestDetails key={request.requestId} request={request}/>)}
+      {visible.older && <button type="button" className="usage-refresh" disabled={visible.loading} onClick={() => void load(true)}>Load older model requests</button>}
+    </>}
   </section>;
 }
 function MemoryRecallDetails({value}: {value: ContextMemoryRecall}) {
