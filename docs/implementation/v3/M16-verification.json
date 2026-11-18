@@ -388,7 +388,91 @@
           "evidence": "HOLD_PLATFORM_PROOF: browser-tab slice compiles and registers but live consented capture/input acceptance against the installed app was not run on this pass."
         }
       ],
-      "commands": [],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/browser-consent-v3.test.ts",
+            "tests/desktop-control-v3.test.ts",
+            "tests/interactive-control-decisions-v6.test.ts",
+            "tests/control-bridge-v6.test.ts",
+            "tests/control-runtime-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+          "executableIdentity": "C:/Program Files/nodejs/node.exe",
+          "startedAt": "2026-11-18T13:33:08.753Z",
+          "endedAt": "2026-11-18T13:33:11.695Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+          "logDigest": "fdc071b789206b88b6fe8c5e2a3c2999b1f48a48e2009212576feac9fbd3a039"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/pnpm.CMD",
+          "startedAt": "2026-11-18T13:31:15.311Z",
+          "endedAt": "2026-11-18T13:32:01.938Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+          "logDigest": "0f21ef30218aacfd877d9b2dd042651aa8d7982bdc8336e55eb6aef6a497e37b"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/pnpm.CMD",
+          "startedAt": "2026-11-18T13:32:01.939Z",
+          "endedAt": "2026-11-18T13:32:38.062Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+          "logDigest": "d0dc991c4e1bdd7dadbec470837297e8565cb476bc63ed0eacd437da95369ad8"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:control-bridge"
+          ],
+          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+          "executableIdentity": "C:/Users/user/AppData/Local/pnpm/pnpm.CMD",
+          "startedAt": "2026-11-18T13:32:38.063Z",
+          "endedAt": "2026-11-18T13:32:38.506Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/build-m16-bridge.log",
+          "logDigest": "3948cebffc57c79c1096d6f88a6519da3c9b8893a726921e0bbce805ef130029"
+        },
+        {
+          "argv": [
+            "powershell",
+            "-NoProfile",
+            "-Command",
+            "Get-FileHash -Algorithm SHA256 packages/core/windows-control-bridge.node"
+          ],
+          "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+          "executableIdentity": "C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe",
+          "startedAt": "2026-11-18T13:32:38.507Z",
+          "endedAt": "2026-11-18T13:32:38.984Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+          "logDigest": "1313d537d7884c0ffbe52e2a383b14b412f5468deade3b85db18b536981116df"
+        }
+      ],
       "artifactRefs": [
         "apps/desktop/control-bridge.ts",
         "apps/server/host.ts",
@@ -431,7 +515,12 @@
     "scripts/public-source-files.json",
     "tests/browser-consent-v3.test.ts",
     "tests/desktop-control-v3.test.ts",
-    "tests/interactive-control-decisions-v6.test.ts"
+    "tests/interactive-control-decisions-v6.test.ts",
+    "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/build-m16-bridge.log",
+    "docs/implementation/v6/M16/logs/filehash-m16-bridge.log"
   ],
   "dependencyContracts": [
     {

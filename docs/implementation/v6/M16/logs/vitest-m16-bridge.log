@@ -1,0 +1,25 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/browser-consent-v3.test.ts","tests/desktop-control-v3.test.ts","tests/interactive-control-decisions-v6.test.ts","tests/control-bridge-v6.test.ts","tests/control-runtime-v6.test.ts"]
+cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+
+ RUN  v4.1.12 C:/Users/user/repos/Gen-V1-m16-bridge
+
+ ✓ tests/control-bridge-v6.test.ts (17 tests) 18ms
+ ✓ tests/desktop-control-v3.test.ts (11 tests) 10ms
+ ✓ tests/control-runtime-v6.test.ts (6 tests) 215ms
+ ✓ tests/browser-consent-v3.test.ts (14 tests) 382ms
+ ✓ tests/interactive-control-decisions-v6.test.ts (8 tests) 119ms
+
+ Test Files  5 passed (5)
+      Tests  56 passed (56)
+   Start at  05:33:09
+   Duration  2.40s (transform 1.57s, setup 0ms, import 3.43s, tests 745ms, environment 0ms)
+
+(node:43820) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:40564) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:43000) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)

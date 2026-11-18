@@ -1,0 +1,10 @@
+argv: ["pnpm","build:control-bridge"]
+cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+
+> gen-v1@0.6.5 build:control-bridge C:\Users\user\repos\Gen-V1-m16-bridge
+> node --import tsx scripts/build-windows-control-bridge.ts
+
+Windows control bridge built.
