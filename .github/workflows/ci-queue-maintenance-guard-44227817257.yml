@@ -1,0 +1,19 @@
+name: CI queue maintenance guard-44227817257
+
+on:
+  push:
+    branches: [ops/ci-queue-cleanup-20261118]
+
+permissions: {}
+
+concurrency:
+  group: ci-queue-guard-44227817257
+  cancel-in-progress: true
+
+jobs:
+  cleanup:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 1
+    steps:
+      - run: ':'
