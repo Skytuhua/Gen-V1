@@ -1,0 +1,38 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/hermes-original-integration.test.ts","--maxWorkers=1","--reporter=default"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ❯ tests/hermes-original-integration.test.ts (4 tests | 2 failed) 144394ms
+   ✓ persists actual original-worker source generations through the real broker and Service without copying native content  9311ms
+   ✓ runs original Python and ACP through the native broker, persists a skill and finishes through the real Service  13577ms
+   × applies protected original Hermes compaction through authenticated Service HTTP 61206ms
+   × rejects original Hermes compaction when a host decision changes during its summary 60298ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/hermes-original-integration.test.ts > applies protected original Hermes compaction through authenticated Service HTTP
+ FAIL  tests/hermes-original-integration.test.ts > rejects original Hermes compaction when a host decision changes during its summary
+AssertionError: expected 'processing' to be 'handled' // Object.is equality
+
+Expected: "handled"
+Received: "processing"
+
+ ❯ vi.waitFor.timeout tests/hermes-original-integration.test.ts:118:81
+    116|    const id='protected-source-input-'+index;
+    117|    await command({id,type:'message.send',threadId:thread.id,payload:{c…
+    118|    await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)…
+       |                                                                                 ^
+    119|    await runtime.cancelBackground();
+    120|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 2 passed (4)
+   Start at  10:28:25
+   Duration  147.01s (transform 2.49s, setup 0ms, import 2.45s, tests 144.39s, environment 0ms)
+

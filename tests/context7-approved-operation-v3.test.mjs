@@ -134,6 +134,18 @@ describe('Context7 SecretRef through the real approved Operation lifecycle', () 
     expect(JSON.stringify(x.store.db.prepare('SELECT kind,body FROM entities').all())).not.toContain(key);
   });
 
+  it('rejects a credential below the redactor tracking minimum before any child starts', async () => {
+    const shortCredential = 'v1Q4';
+    const x = await fixture({ echoCredential: true });
+    await x.host.configurePrivate({ context7ApiKey: shortCredential });
+    const operation = await x.prepare();
+    const result = await x.execute(operation);
+    expect(result.status).toBe('failed');
+    expect(await x.starts()).toEqual([]);
+    expect(await x.calls()).toEqual([]);
+    expect(JSON.stringify(x.store.db.prepare('SELECT kind,body FROM entities').all())).not.toContain(shortCredential);
+  });
+
   it.each(['native loss', 'key revocation', 'Stop'])('drains a real pending child and records uncertainty after %s', async cause => {
     const x = await fixture({ holdCall: true }), operation = await x.prepare(), pending = x.execute(operation);
     await expect.poll(x.calls, { timeout: 5000 }).toHaveLength(1);
