@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser/desktop write test needs an approved installed driver (HOLD_DRIVER_SPECIFICATION). No live browser desktop driver exists in this task."
+      "reason": "Real-account browser/desktop write test still needs a built, platform-qualified driver artifact (HOLD_PLATFORM_PROOF). The first-party bridge now exists (apps/desktop/control-bridge.ts); live write acceptance is NOT_RUN until Windows receipts land."
     },
     {
       "id": "M16-S09",
@@ -110,7 +110,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "STOP closeout against a live driver is untestable without an approved driver (HOLD_DRIVER_SPECIFICATION); Stop semantics are unit-tested on the dispatcher but the live closeout verification is not run."
+      "reason": "STOP closeout against a live driver still untestable until the built artifact is qualified on Windows (HOLD_PLATFORM_PROOF). Dispatcher-level Stop semantics are unit-tested; live closeout NOT_RUN."
     },
     {
       "id": "M16-T01",
@@ -138,14 +138,14 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-target browser capture/interaction acceptance requires an installed approved driver (HOLD_DRIVER_SPECIFICATION, HOLD_PLATFORM_PROOF). NOT_RUN."
+      "reason": "Real-target browser capture/interaction acceptance requires the built driver artifact on the real platform (HOLD_PLATFORM_PROOF). Adapter implemented (capturePage + target-bound sendInputEvent in apps/desktop/control-bridge.ts); acceptance NOT_RUN."
     },
     {
       "id": "M16-T05",
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance requires the installed driver on the real platform (HOLD_PLATFORM_PROOF). NOT_RUN."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance requires the built driver artifact on the real platform (HOLD_PLATFORM_PROOF). Native WGC bridge implemented (packages/core/windows-control-bridge.cc); NOT_RUN."
     },
     {
       "id": "M16-G01",
@@ -208,7 +208,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
       "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
-      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval; without one it is recorded BLOCKED/NOT_RUN (HOLD_PLATFORM_PROOF)."
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval; the bridge artifact is built pending Windows receipts, recorded BLOCKED/NOT_RUN (HOLD_PLATFORM_PROOF)."
     }
   ]
 }
