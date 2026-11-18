@@ -451,7 +451,7 @@ void identityOnSta(void* raw) {
 // ---- napi entry points ----------------------------------------------------
 
 template <typename Result>
-Work* makeWork(napi_env env, napi_callback_info info, size_t argc, napi_value* argv, Work::Kind kind, napi_value* promise) {
+Work* makeWork(napi_env env, napi_callback_info info, size_t& argc, napi_value* argv, Work::Kind kind, napi_value* promise) {
   napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
   auto* work = new Work();
   work->kind = kind;
@@ -491,11 +491,12 @@ Work* makeWork(napi_env env, napi_callback_info info, size_t argc, napi_value* a
 }
 
 napi_value pickWindow(napi_env env, napi_callback_info info) {
-  napi_value argv[1];
+  napi_value argv[1] = {nullptr};
+  size_t argc = 1;
   napi_value promise;
-  Work* work = makeWork<PickResult>(env, info, 1, argv, Work::Kind::Pick, &promise);
-  napi_valuetype type;
-  napi_typeof(env, argv[0], &type);
+  Work* work = makeWork<PickResult>(env, info, argc, argv, Work::Kind::Pick, &promise);
+  napi_valuetype type = napi_undefined;
+  if (argc > 0) napi_typeof(env, argv[0], &type);
   if (type == napi_object) { // Buffer with the owner HWND bytes
     void* data = nullptr;
     size_t length = 0;
@@ -508,22 +509,24 @@ napi_value pickWindow(napi_env env, napi_callback_info info) {
 }
 
 napi_value windowIdentity(napi_env env, napi_callback_info info) {
-  napi_value argv[1];
+  napi_value argv[1] = {nullptr};
+  size_t argc = 1;
   napi_value promise;
-  Work* work = makeWork<PickResult>(env, info, 1, argv, Work::Kind::Identity, &promise);
+  Work* work = makeWork<PickResult>(env, info, argc, argv, Work::Kind::Identity, &promise);
   double handle = 0;
-  napi_get_value_double(env, argv[0], &handle);
+  if (argc > 0) napi_get_value_double(env, argv[0], &handle);
   work->hwnd = (HWND)(intptr_t)(int64_t)handle;
   napi_queue_async_work(env, work->work);
   return promise;
 }
 
 napi_value captureWindow(napi_env env, napi_callback_info info) {
-  napi_value argv[1];
+  napi_value argv[1] = {nullptr};
+  size_t argc = 1;
   napi_value promise;
-  Work* work = makeWork<CaptureResult>(env, info, 1, argv, Work::Kind::Capture, &promise);
+  Work* work = makeWork<CaptureResult>(env, info, argc, argv, Work::Kind::Capture, &promise);
   double handle = 0;
-  napi_get_value_double(env, argv[0], &handle);
+  if (argc > 0) napi_get_value_double(env, argv[0], &handle);
   work->hwnd = (HWND)(intptr_t)(int64_t)handle;
   napi_queue_async_work(env, work->work);
   return promise;
