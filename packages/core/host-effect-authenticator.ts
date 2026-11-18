@@ -62,10 +62,10 @@ const profileBinding = (profile: string) => profile.toLowerCase();
 
 /** Explicit first creation. Existing or partially initialized custody is never
  * overwritten. Ordinary reopen must use openEffectKey instead. */
-export async function initializeEffectKey(dataDir: string, options: Pick<KeyOptions, 'codec'> = {}): Promise<EffectKeyCustody> {
+export async function initializeEffectKey(dataDir: string, options: Pick<KeyOptions, 'codec'> & { keyId?: string } = {}): Promise<EffectKeyCustody> {
   let key: Buffer | undefined;
   try {
-    const profile = await canonicalProfile(dataDir), keyId = randomUUID();
+    const profile = await canonicalProfile(dataDir), keyId = keyIdentity.parse(options.keyId ?? randomUUID());
     const directory = join(profile, 'effect-authority'), path = join(directory, 'key.json');
     key = randomBytes(32);
     const protectedKey = await (options.codec ?? windowsSecretCodec()).protect(JSON.stringify({ version: 1, keyId, profile: profileBinding(profile), key: key.toString('hex') }));
@@ -78,7 +78,7 @@ export async function initializeEffectKey(dataDir: string, options: Pick<KeyOpti
         finally { await file.close(); }
       });
     }, undefined, { startupAcquisition: true });
-    return await openEffectKey(profile, { ...options, expectedKeyId: keyId });
+    return await openEffectKey(profile, { codec: options.codec, expectedKeyId: keyId });
   } catch { throw unavailable(); }
   finally { key?.fill(0); }
 }

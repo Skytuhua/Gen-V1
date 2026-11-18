@@ -145,8 +145,8 @@ describe.runIf(process.platform === 'win32')('real Windows effect-key custody', 
 
   it('binds the key to its exact profile and requested key identity', async () => {
     const root = await directory(), other = await directory();
-    const custody = owned(await initializeEffectKey(root, { codec }));
-    expect(custody.authenticator.keyId).not.toBe(otherId);
+    const custody = owned(await initializeEffectKey(root, { codec, keyId }));
+    expect(custody.authenticator.keyId).toBe(keyId);
     await expect(openEffectKey(root, { codec, expectedKeyId: otherId })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
     await mkdir(join(other, 'effect-authority')); await copyFile(keyFile(root), keyFile(other));
     await expect(openEffectKey(other, { codec })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });

@@ -48,6 +48,25 @@ export class Context7SecretReferences {
   requiresConfiguration(): boolean { return this.invalidated; }
   close(): void { this.invalidate(); this.configured = false; }
 
+  async capture(): Promise<{ reference: Context7SecretReferenceMetadata; executable: ObservedContext7Executable }> {
+    const status = await this.status();
+    if (!status.references.length || !this.current || status.references[0]!.refId !== this.current.metadata.refId) throw unavailable();
+    return structuredClone({ reference: this.current.metadata, executable: this.current.observation });
+  }
+  assertCurrent(reference: Context7SecretReferenceMetadata, executable: ObservedContext7Executable): void {
+    if (!this.enabled || !this.configured || this.invalidated || !this.current || JSON.stringify(reference) !== JSON.stringify(this.current.metadata)
+      || JSON.stringify(executable) !== JSON.stringify(this.current.observation)) throw unavailable();
+  }
+  /** Delegates only the already approved host operation's delivery. The host
+   * calls this while exact native launch custody is held, never at startup. */
+  async resolveApproved(reference: Context7SecretReferenceMetadata, executable: ObservedContext7Executable, operationId: string): Promise<string> {
+    this.assertCurrent(reference, executable);
+    const approval = this.ledger.approve(reference.refId, reference.destination, { actor: operationId });
+    const delivery = await this.ledger.resolve(reference.refId, reference.destination, approval);
+    this.assertCurrent(reference, executable);
+    const value = delivery.env?.CONTEXT7_API_KEY; if (!value) throw unavailable(); return value;
+  }
+
   async status(): Promise<IntegrationSecretReferenceStatus> {
     const base = { version: 1 as const, enabled: this.enabled, configured: this.configured, references: [] };
     if (!this.enabled || !this.configured) return base;
