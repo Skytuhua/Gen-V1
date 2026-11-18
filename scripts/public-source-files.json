@@ -2694,6 +2694,7 @@
     "tests/chat-gesture-audit.test.ts",
     "tests/chat-layout.test.ts",
     "tests/checkpoint-restore-v3.test.ts",
+    "tests/ci-concurrency-policy.test.ts",
     "tests/ci-draft-policy.test.ts",
     "tests/ci-merged-pr-cleanup.test.ts",
     "tests/ci-queue-guard.test.ts",
