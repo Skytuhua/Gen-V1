@@ -35,4 +35,10 @@ function PreparedFixture() {
   }
   return <main style={{padding: 24, maxWidth: 900}}><p>Synthetic request API fixture. Production request owner and context inspector.</p><label>Request draft<textarea value={draft} onChange={event => setDraft(event.target.value)}/></label><label><input type="checkbox" checked={attached} onChange={event => setAttached(event.target.checked)}/>Attach terminal excerpt</label><button ref={anchor} onClick={() => setContext(true)}>Inspect prepared context</button><button disabled={busy || prepared.blocked || !prompt} onClick={() => void send()}>Send draft</button>{error && <p role="alert">{error}</p>}{context && <ContextInspector thread={owner} usage={undefined} anchor={anchor} close={() => setContext(false)} refresh={async () => {}} memoryRecall={prepared.memoryRecall} memoryPreparation={{pending: prepared.pending, error: prepared.error, refresh: prepared.refresh, disabled: busy}}/>}</main>;
 }
-createRoot(document.getElementById('root')!).render(new URL(location.href).searchParams.has('prepare') ? <PreparedFixture/> : <Fixture/>);
+const root = createRoot(document.getElementById('root')!), params = new URL(location.href).searchParams;
+if (params.has('review-permissions')) {
+  const {ProjectMemoryReview} = await import('../../apps/web/src/ProjectMemoryReview');
+  const renderReview = (readOnly: boolean) => root.render(<ProjectMemoryReview owner={{projectId: 'project-a', threadId: 'thread-a', accountId: 'account-a'}} readOnly={readOnly} close={() => root.unmount()}/>);
+  Object.assign(window, {setReviewReadOnly: renderReview});
+  renderReview(false);
+} else root.render(params.has('prepare') ? <PreparedFixture/> : <Fixture/>);
