@@ -41,6 +41,15 @@ export interface WakeupSchedulerOptions {
 
 const iso = (ms: number) => new Date(ms).toISOString();
 
+export async function waitForBackgroundDrain(work: Promise<unknown>, boundedMs: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([work, new Promise<void>(resolve => { timer = setTimeout(resolve, boundedMs); })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export class DurableWakeupScheduler {
   private readonly store: Store;
   private readonly now: () => number;
@@ -496,7 +505,7 @@ export class DurableWakeupScheduler {
     });
     const waiters = [...this.inFlight.values()].map(owner => owner.promise);
     let uncertain = 0;
-    await Promise.race([Promise.allSettled(waiters), new Promise(resolve => setTimeout(resolve, boundedMs))]);
+    await waitForBackgroundDrain(Promise.allSettled(waiters), boundedMs);
     this.store.internal("background.wakeups.drained", null, () => {
       const stamp = this.now();
       for (const [key] of this.inFlight) {
