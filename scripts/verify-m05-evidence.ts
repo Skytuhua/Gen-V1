@@ -32,7 +32,7 @@ for (const phase of evidence.phases) {
     const contained = relative(root, path);
     if (!contained || contained.startsWith('..') || isAbsolute(contained) || !existsSync(path)) { errors.push(`Missing log: ${command.boundedLogRef}`); continue; }
     if (statSync(path).size > 65536) errors.push(`Unbounded log: ${command.boundedLogRef}`);
-    if (sha256(readFileSync(path)) !== command.logDigest) errors.push(`Log digest mismatch: ${command.boundedLogRef}`);
+    else if (sha256(readFileSync(path)) !== command.logDigest) errors.push(`Log digest mismatch: ${command.boundedLogRef}`);
     if (Date.parse(command.endedAt) < Date.parse(command.startedAt)) errors.push(`Invalid command times: ${command.boundedLogRef}`);
   }
   for (const path of phase.artifactRefs) if (!existsSync(resolve(root, path))) errors.push(`Missing artifact: ${path}`);
