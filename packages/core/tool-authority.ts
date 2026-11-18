@@ -1,4 +1,5 @@
 import { HarnessError } from "../contracts/index.ts";
+import { integrationPrepareArgsSchema } from "../contracts/integration-secrets.ts";
 import {
   actorRoleSchema,
   toolDefinitionSchema,
@@ -58,6 +59,7 @@ const CLASSIFICATION: Row[] = [
   ["harness_session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["integration_list", "READ", "READ_RETRYABLE", RUN, "network", "none"],
   ["integration_call", "NETWORK_WRITE", "PROVIDER_IDEMPOTENT", RUN, "network", "explicit"],
+  ["integration_prepare", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain-prepare", "operation"],
   ["repository_files", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_read", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_status", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
@@ -74,6 +76,7 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
+  if (name === "integration_prepare") return z.toJSONSchema(integrationPrepareArgsSchema) as Record<string, unknown>;
   const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
