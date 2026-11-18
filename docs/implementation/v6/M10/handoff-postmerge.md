@@ -87,10 +87,12 @@ and the drift record stands for the branch line itself.
   Chromium (drawer states, Respond/Decline, schedules, inbox, close
   warning, cancel custody).
 - `pnpm test:browser` (full, 78 suites) — launched as a separate observed
-  command; still in-flight at handoff writing
-  `logs-pm/test-browser-full.log` (early non-M10 specs fail in the same
-  environmental classes; the scoped M10 suite already passed 11/11). Its
-  `logs-pm/tbf.exit` marker and final log land autonomously; the prior
+  command; **still in-flight at handoff with no terminal receipt** (early
+  non-M10 specs fail in the same environmental classes; the scoped M10
+  suite already passed 11/11). Its mutable log lives only in the local
+  worktree `logs-pm/test-browser-full.log` (uncommitted — excluded from
+  published evidence per the evidence-only-draft rule); the `tbf.exit`
+  marker lands autonomously when the runner finishes. The prior
   characterization (60-minute runner TIMEOUT on this environment) is
   unchanged. To append its receipt and refresh the verification phase:
   `python3 docs/implementation/v6/M10/build-postmerge-receipts.py` then
