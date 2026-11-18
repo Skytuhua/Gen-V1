@@ -1,3 +1,5 @@
+import type { ModelExecutionProfileV1 } from '../contracts/model-request.ts';
+
 type Segment = {
   readonly id: string;
   readonly inputSequence: number;
@@ -39,7 +41,7 @@ export function createRelevanceObserver() {
 export const SHADOW_OBSERVER_TIMEOUT_MS = 6000;
 type ShadowCut = { cutId: string; retainedTailStart: number; inspectionBudgetBytes: number; segments: readonly Segment[] };
 type ShadowObservation = { candidateIds: readonly string[]; estimatedSavingsBytes: number };
-type ShadowApproval = { modelId: string; accountId: string; budgetCalls: number };
+type ShadowApproval = { modelId: string; accountId: ModelExecutionProfileV1['allowedProviderAccount']['accountId']; budgetCalls: number };
 type ShadowStatus = 'OBSERVER_UNAVAILABLE' | 'COMPLETED' | 'TIMED_OUT' | 'FAILED' | 'CANCELLED';
 type ShadowResult = { status: ShadowStatus; observation: ShadowObservation | null };
 
@@ -54,7 +56,11 @@ export function createShadowRelevancePhase(options: {
   const schedule = options.schedule ?? ((callback, ms) => setTimeout(callback, ms));
   const unschedule = options.unschedule ?? (handle => clearTimeout(handle as ReturnType<typeof setTimeout>));
   let budget = options.approval && Number.isSafeInteger(options.approval.budgetCalls) ? options.approval.budgetCalls : 0;
-  const approved = () => Boolean(options.approval?.modelId && options.approval?.accountId && budget > 0);
+  const approved = () => {
+    const approval = options.approval;
+    return Boolean(typeof approval?.modelId === 'string' && approval.modelId.length > 0 && budget > 0 && (approval.accountId === null ||
+      typeof approval.accountId === 'string' && approval.accountId.length > 0));
+  };
   const seen = new Set<string>();
   let cancelled = false;
   type Pending = { resolve: (result: ShadowResult) => void; timer: unknown };
