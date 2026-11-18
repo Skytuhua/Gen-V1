@@ -85,7 +85,7 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
    else foregroundCalls++;
    callbacks.onEvent({...input,type:'input.processing',inputIds:[input.inputId]});
    callbacks.onEvent({...input,type:'assistant.message',content:isSummary?'Earlier explanatory work is complete. Exact protected records retain requirements and current evidence.':
-    foregroundCalls<5?'Completed explanatory investigation. '.repeat(600):'The current response remains in the recent native tail.'});
+    foregroundCalls<5?'Completed explanatory investigation. '.repeat(150):'The current response remains in the recent native tail.'});
    callbacks.onEvent({...input,type:'usage',usage:{inputTokens:111,outputTokens:9,contextTokens:120,contextWindow:200000,cost:null}});
    callbacks.onEvent({...input,type:'settled',aborted:false});
   },followUp:async()=>{},cancel:async()=>{releaseSummary();},compact:async()=>{},history:async()=>[],dispose:async()=>{releaseSummary();},
@@ -115,7 +115,7 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
   for(let index=0;index<5;index++){
    const id='protected-source-input-'+index;
    await command({id,type:'message.send',threadId:thread.id,payload:{content:'M04_EXACT_USER_'+index+': retain the original public API and this 日本語 requirement.',modelId:'openai/protected-source'}});
-   await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)?.status).toBe('handled'),{timeout:60000,interval:100});
+   await vi.waitFor(()=>{const item=store.get<{status:string;enteredRuntime?:boolean}>('outbox',id);expect(item?.status,JSON.stringify({outboxStatus:item?.status,enteredRuntime:item?.enteredRuntime,threadStatus:service.thread(thread.id).status,foregroundCalls,summaryCalls})).toBe('handled');},{timeout:60000,interval:100});
    await runtime.cancelBackground();
   }
   expect(foregroundCalls).toBe(5);
