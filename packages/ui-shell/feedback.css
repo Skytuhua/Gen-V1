@@ -83,7 +83,9 @@
 .ui-empty > p { max-width: 340px; margin: 0; }
 @keyframes ui-state-in { from { opacity:0; transform:translateY(3px); } }
 :where(.ui-empty, .ui-error) { animation: ui-state-in var(--ui-motion-status) var(--ui-ease-enter) both; }
-@media (prefers-reduced-motion: reduce) { :where(.ui-empty, .ui-error) { animation-duration:var(--ui-motion-press); } }
+@media (prefers-reduced-motion: reduce) {
+  :where(.ui-empty, .ui-error) { animation-name: ui-feedback-fade; animation-duration:var(--ui-motion-press); }
+}
 
 .ui-error {
   display: flex;
