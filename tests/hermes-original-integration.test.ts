@@ -73,7 +73,7 @@ it('runs original Python and ACP through the native broker, persists a skill and
 
 async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
  const directory=await mkdtemp(join(tmpdir(),'m04-original-protected-')),store=new Store(directory);
- const privateCommits:HermesHostCall[]=[],providerPrompts:string[]=[];
+ const privateCommits:HermesHostCall[]=[],providerPrompts:string[]=[],sourceEvents:string[]=[];
  let summary=false,summaryStarted=false,foregroundCalls=0,summaryCalls=0,releaseSummary!:()=>void;
  const summaryGate=new Promise<void>(resolve=>{releaseSummary=resolve;});
  const native=():RuntimeAdapter=>{let callbacks!:RuntimeCallbacks;return{
@@ -93,6 +93,7 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
  const runtime=createHermesRuntime({dataDir:directory,nativeCatalog:native(),systemPrompt:'Stable host policy. Retain the exact user requirements.',
   hostTools:[],skillPolicy:{enabled:false},config:{compression:{enabled:true,protect_first_n:0,protect_last_n:2,abort_on_summary_failure:true},
    auxiliary:{background_review:{enabled:false}}}},{
+  onSourceEvent:event=>{if(sourceEvents.length<32)sourceEvents.push(event.event);},
   createNativeRuntime:options=>{expect(options.modelOnly).toBe(true);return native();},
   createClient:options=>new HermesClient({...options,onHostCall:async call=>{
    if(call.name==='$context.compaction.commit')privateCommits.push(structuredClone(call));
@@ -119,6 +120,10 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
    // A plain 'processing' does not reveal whether the native worker was invoked.
    await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)?.status,JSON.stringify({
     index,threadStatus:store.get<Thread>('thread',thread.id)?.status,
+    // Only disclose allowlisted failure categories and event types, not native
+    // prompts, error text, history, paths, or any provider-supplied output.
+    failureCode:String(store.get<Thread>('thread',thread.id)?.error??'').match(/(?:HERMES|STALE|REQUEST|ACCOUNT|RUN|CANCELLED|SOURCE|MODEL)_[A-Z0-9_]+/)?.[0]??'UNCLASSIFIED',
+    sourceEvents,
     foregroundCalls,summaryCalls,summaryStarted,
    })).toBe('handled'),{timeout:60000,interval:100});
    await runtime.cancelBackground();
