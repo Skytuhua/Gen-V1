@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -25,7 +26,8 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-replay-authority-'));
   const store = new Store(join(root, 'state'));
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
-  const create = (entry = definition()) => new ToolEffectLedger(store, new ToolAuthority([entry]), createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  const signer = testEffectAuthenticator();
+  const create = (entry = definition()) => new ToolEffectLedger(store, new ToolAuthority([entry]), createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), signer);
   const ledger = create();
   const executor = vi.fn(async () => ({ content: 'account-one-only' }));
   await ledger.invoke({ call, ctx, thread: thread(), role: 'run' }, executor);
