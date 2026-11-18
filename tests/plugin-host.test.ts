@@ -68,7 +68,7 @@ it('counts a dispatch as busy while its package verification is still pending',a
 const shutdownError='A plug-in host could not confirm shutdown.';
 const shutdownHost=(synchronousFailure=false)=>`
  function deferred(){let resolve,reject;const promise=new Promise((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
- export const control={gate:deferred(),entered:deferred(),request:deferred(),busy:deferred(),checking:deferred(),holdBusy:false,closes:0,aborted:false};
+  export const control={gate:deferred(),entered:deferred(),request:deferred(),busy:deferred(),checking:deferred(),holdBusy:false,closes:0,aborted:false};
  control.gate.promise.catch(()=>{});
  export default {async activate(){return {
   operations:{wait:async(_input,signal)=>{control.request.resolve();return new Promise(resolve=>signal.addEventListener('abort',()=>{control.aborted=true;resolve(null);},{once:true}));}},

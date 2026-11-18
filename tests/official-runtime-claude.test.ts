@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { mkdtemp, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -5,7 +6,6 @@ import { describe, expect, it, vi } from 'vitest';
 import type { RuntimeEvent, StartRun } from '../packages/contracts/index.ts';
 import { createOfficialRuntime, type OfficialRuntimeDependencies } from '../packages/runtime-official/index.ts';
 
-function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(r => { resolve = r; }); return { promise, resolve }; }
 function queue<T>() { const values: T[] = []; let wake = deferred<void>(); let stopped = false; return { push(value: T) { values.push(value); wake.resolve(); }, stop() { stopped = true; wake.resolve(); }, async *[Symbol.asyncIterator]() { while (!stopped) { if (!values.length) { await wake.promise; wake = deferred<void>(); } while (values.length) yield values.shift()!; } } }; }
 function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty', subscriptionType: 'Claude Max', apiKeySource: 'none' }) {
   const events = queue<any>();

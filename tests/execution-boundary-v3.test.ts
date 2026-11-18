@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach,vi} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync,renameSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {mkdirSync,writeFileSync,renameSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {
  evaluateExecution,selectBackend,classifyShellCommand,digestFileSha256,
@@ -10,9 +11,7 @@ import {createProjectTrust} from '../packages/core/project-trust';
 import {executionProfileV1Schema,WORKSPACE_EXECUTE_NO_NETWORK,TRUSTED_HOST,type ExecutionProfileV1} from '../packages/contracts/execution-profile';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});vi.restoreAllMocks();});
+afterEach(()=>{cleanTempDirs();vi.restoreAllMocks();});
 const FLAGS_ON={HARNESS_FLAG_SECURITY_EXECUTION_PROFILES_V1:'1',HARNESS_FLAG_SECURITY_PROJECT_TRUST_V1:'1',HARNESS_FLAG_SECURITY_SECRET_REFS_V1:'1'};
 
 function fixture(){
