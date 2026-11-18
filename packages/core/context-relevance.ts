@@ -57,10 +57,10 @@ export function createShadowRelevancePhase(options: {
   const approved = () => Boolean(options.approval?.modelId && options.approval?.accountId && budget > 0);
   const seen = new Set<string>();
   let cancelled = false;
-  let pending: { resolve: (result: ShadowResult) => void; timer: unknown } | null = null;
-  const settle = (status: ShadowStatus, observation: ShadowObservation | null) => {
-    if (!pending) return;
-    const current = pending;
+  type Pending = { resolve: (result: ShadowResult) => void; timer: unknown };
+  let pending: Pending | null = null;
+  const settle = (current: Pending, status: ShadowStatus, observation: ShadowObservation | null) => {
+    if (pending !== current) return;
     pending = null;
     unschedule(current.timer);
     current.resolve({ status, observation });
@@ -72,17 +72,18 @@ export function createShadowRelevancePhase(options: {
       seen.add(cut.cutId);
       budget--;
       return new Promise(resolve => {
-        const timer = schedule(() => settle('TIMED_OUT', null), SHADOW_OBSERVER_TIMEOUT_MS);
-        pending = { resolve, timer };
+        const current: Pending = { resolve, timer: undefined };
+        pending = current;
+        current.timer = schedule(() => settle(current, 'TIMED_OUT', null), SHADOW_OBSERVER_TIMEOUT_MS);
         let observation: Promise<ShadowObservation>;
-        try { observation = options.observe(cut); } catch { settle('FAILED', null); return; }
+        try { observation = options.observe(cut); } catch { settle(current, 'FAILED', null); return; }
         void observation.then(result => {
           if (result && Array.isArray(result.candidateIds) && Number.isSafeInteger(result.estimatedSavingsBytes))
-            settle('COMPLETED', Object.freeze({ candidateIds: Object.freeze([...result.candidateIds]), estimatedSavingsBytes: result.estimatedSavingsBytes }));
-          else settle('FAILED', null);
-        }, () => settle('FAILED', null));
+            settle(current, 'COMPLETED', Object.freeze({ candidateIds: Object.freeze([...result.candidateIds]), estimatedSavingsBytes: result.estimatedSavingsBytes }));
+          else settle(current, 'FAILED', null);
+        }, () => settle(current, 'FAILED', null));
       });
     },
-    cancel() { cancelled = true; settle('CANCELLED', null); },
+    cancel() { cancelled = true; if (pending) settle(pending, 'CANCELLED', null); },
   };
 }
