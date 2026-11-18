@@ -48,7 +48,7 @@ import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
-import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1 } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
@@ -123,6 +123,7 @@ export class Service {
   private readonly compactionRegistry = createCompactionCandidateRegistry();
   private readonly compactionInflight = new Map<string, Promise<void>>();
   private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
+  private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -219,7 +220,7 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
-    runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}), onBeforeInference: request => this.beforeInference(request), onCompactionCommit: request => this.commitNativeCompaction(request) });
+    runtime.configure({ onEvent: event => {this.recordCompactionModelObservation(event);this.onRuntimeEvent(event);}, onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}), onBeforeInference: request => this.beforeInference(request), onCompactionCommit: request => this.commitNativeCompaction(request) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
@@ -463,6 +464,31 @@ export class Service {
     gate.accepted = true;
     return {version: 1, accepted: true, planDigest: gate.request.planDigest};
   }
+  private recordCompactionModelObservation(event: RuntimeEvent): void {
+    if(event.type!=='model.observation'||!capabilityEnabled('models.requestMetricsV1'))return;
+    const admitted=this.compactionModelOwners.get(event.runId);
+    if(!admitted||event.threadId!==admitted.ctx.threadId||event.epoch!==admitted.ctx.epoch)return;
+    const parsed=modelRequestObservationV1Schema.safeParse(event.observation);
+    if(!parsed.success)return;
+    const value=parsed.data,owner=value.owner,binding=admitted.binding;
+    if(owner.threadId!==admitted.ctx.threadId||owner.runId!==admitted.ctx.runId||owner.epoch!==admitted.ctx.epoch||
+      value.binding.modelId!==binding.modelId||value.binding.accountId!==binding.accountId||value.binding.providerId!==binding.modelId.split('/')[0])return;
+    const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',admitted.candidateId);
+    if(!attempt||attempt.id!==admitted.candidateId||attempt.threadId!==admitted.ctx.threadId||attempt.ownerKey!==admitted.ownerKey||
+      attempt.metadata.candidateId!==admitted.candidateId||digest(attempt.metadata.binding)!==digest(binding))return;
+    const id=`compactionModelRequest:${value.requestId}`;
+    const old=this.store.get<{candidateId:string;ownerKey:string;ctx:RunContext;value:ModelRequestObservationV1}>('compactionModelRequest',id);
+    // The broker may publish firstPublicDelta after its final observation. No
+    // repeated request may change identity, usage or outcome, or charge twice.
+    const immutable=(observation:ModelRequestObservationV1)=>digest({...observation,timings:{...observation.timings,firstPublicDelta:null}});
+    if(old&&(old.candidateId!==admitted.candidateId||old.ownerKey!==admitted.ownerKey||digest(old.ctx)!==digest(admitted.ctx)||immutable(old.value)!==immutable(value)||
+      old.value.timings.firstPublicDelta!==null&&old.value.timings.firstPublicDelta!==value.timings.firstPublicDelta))return;
+    if(old&&digest(old.value)===digest(value))return;
+    // This is a historical observation under the still-owned native call,
+    // not permission to update a stopped/new owner or a complete spend total.
+    this.store.internal('context.compaction.model_observed',admitted.ctx.threadId,()=>this.store.put('compactionModelRequest',id,admitted.ctx.threadId,
+      {id,candidateId:admitted.candidateId,ownerKey:admitted.ownerKey,ctx:admitted.ctx,value}));
+  }
   private async applyLossAwareCompactionInner(command:HostCommand,thread:Thread) {
     const duplicate=this.store.receipt(command);if(duplicate)return duplicate;
     const receipt=this.latestRequestReceipt(thread.id);
@@ -558,11 +584,13 @@ export class Service {
               if(!ref){
                 gate.assertCurrent();
                 this.nativeCompactionAdmissions.set(metadata.candidateId,gate);
+                if(capabilityEnabled('models.requestMetricsV1'))this.compactionModelOwners.set(ctx.runId,{ctx:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch},
+                  candidateId:metadata.candidateId,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),binding:structuredClone(binding)});
                 try{
                   const result=await this.runtime.compactProtected!(ctx,thread.sessionPath!,thread.modelId!,binding.accountId,structuredClone(envelope),memoryCheckpoint);
                   if(!gate.accepted)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The native source bypassed the host commit gate.');
                   completed.receipt=requireNativeCompactionReceipt(result,envelope,prepared.toolPairs.length);
-                }finally{this.nativeCompactionAdmissions.delete(metadata.candidateId);}
+                }finally{this.compactionModelOwners.delete(ctx.runId);this.nativeCompactionAdmissions.delete(metadata.candidateId);}
                 return;
               }
               if(ref.keepCaptured||ref.source.kind!=='FILE_RANGE')return retainSourceFiles(index+1);
@@ -1999,6 +2027,7 @@ export class Service {
     this.closed=true;this.nativeCompactionAdmissions.clear();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
+    this.compactionModelOwners.clear();
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
 }
