@@ -228,8 +228,13 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${source}`]); } catch { /* missing */ }
     if (actual !== contract.version)
       issues.push({ code: 'CONTRACT_VERSION_MISMATCH', message: `Contract ${contract.name} version ${contract.version} does not match ${source} blob ${actual ?? 'missing'} at base.` });
-    for (const testId of contract.testIds)
-      if (!existsSync(join(rootDir, testId))) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test is absent: ${testId}` });
+    for (const testId of contract.testIds) {
+      let isFile = false;
+      // Missing or inaccessible test files cannot establish compatibility.
+      try { isFile = statSync(join(rootDir, testId), { throwIfNoEntry: false })?.isFile() ?? false; }
+      catch { /* collect the issue and continue checking the other entries */ }
+      if (!isFile) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test is not an accessible regular file: ${testId}` });
+    }
   }
   return issues;
 }
