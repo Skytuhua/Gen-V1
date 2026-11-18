@@ -163,13 +163,6 @@ export class Service {
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
-  private projectTrustHostInstance?:OperationProjectTrustHost;
-  get projectTrust(): OperationProjectTrustHost {
-    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
-      enabled: hostFlagEnabled('security.projectTrustV1'),
-      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
-    });
-  }
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
     this.requestCustody=new RequestContextCustody(store,{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
@@ -205,6 +198,13 @@ export class Service {
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
+  }
+  private projectTrustHostInstance?:OperationProjectTrustHost;
+  get projectTrust(): OperationProjectTrustHost {
+    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
+      enabled: hostFlagEnabled('security.projectTrustV1'),
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+    });
   }
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
