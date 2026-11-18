@@ -2,6 +2,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest';
 import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {reserveDesktopRelease} from '../scripts/desktop-assets.ts';
 import {
   aggregateStatus,blockedResult,buildManifest,childEnvironment,detectBrowserPrerequisite,
   redactSecrets,runCheck,readinessPackageChecks,windowsVerificationPlan,type CheckResult,type CheckSpec,
@@ -85,6 +86,31 @@ describe('runCheck child-process contract',()=>{
     expect(existsSync(result.artifact)).toBe(false);
   });
 
+  it('returns a failed check when the log parent cannot be created',async()=>{
+    const directory=temporaryDirectory(),file=join(directory,'not-a-directory');
+    writeFileSync(file,'occupied');
+    await expect(runCheck(specFor(directory,{logPath:join(file,'probe.log')}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
+  });
+
+  it('returns a failed check when opening the log fails before the child exits',async()=>{
+    const directory=temporaryDirectory();
+    await expect(runCheck(specFor(directory,{logPath:directory,args:['-e','setTimeout(()=>{},15_000)']}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
+  });
+
+  it.skipIf(process.platform!=='linux'||!existsSync('/dev/full'))('kills a running child when a log write fails after opening',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      logPath:'/dev/full',
+      args:['-e','require("node:fs").writeFileSync("child.pid",String(process.pid));console.log("post-open write");setTimeout(()=>{},10_000);'],
+      timeoutMs:10_000,
+    }));
+    // The child writes the marker only after startup, which follows successful log opening.
+    expect(result).toMatchObject({status:'FAIL',errorKind:'log-error'});
+    const pid=Number(readFileSync(join(directory,'child.pid'),'utf8'));
+    expect(Number.isSafeInteger(pid)).toBe(true);
+    await expect.poll(()=>existsSync('/proc/'+pid),{timeout:3000}).toBe(false);
+  });
+
   it('child output is captured to the log artifact',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{args:['-e','console.log("f01-log-marker")']}));
@@ -132,7 +158,7 @@ describe('prerequisite gating',()=>{
   });
 
   it('packaged Windows verification is BLOCKED off Windows and records the exact Windows commands',()=>{
-    const plan=windowsVerificationPlan('linux','0.6.5');
+    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory());
     expect(plan.blocked).toBe(true);
     expect(plan.errorKind).toBe('platform-unavailable');
     const serialized=JSON.stringify(plan.commands);
@@ -145,8 +171,21 @@ describe('prerequisite gating',()=>{
     expect(result.status).toBe('BLOCKED');
   });
 
+  it('gives each readiness run its own immutable Windows release destination',async()=>{
+    const runA=join(temporaryDirectory(),'release output');
+    const runB=join(temporaryDirectory(),'release output');
+    for(const outputRoot of [runA,runB]){
+      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot);
+      expect(plan.commands[0]?.args).toEqual(['desktop:package','--output-root',outputRoot]);
+      const release=await reserveDesktopRelease(plan.commands[0]!.args[2]!,'0.6.5');
+      expect(plan.commands[1]?.args.slice(-2)).toEqual([
+        join(release,'Gen-V1-Setup-0.6.5-win-x64.exe'),join(release,'win-unpacked'),
+      ]);
+    }
+  });
+
   it('packaged Windows verification is runnable on Windows x64',()=>{
-    const plan=windowsVerificationPlan('win32','0.6.5');
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory());
     expect(plan.blocked).toBe(false);
     expect(plan.errorKind).toBeNull();
     expect(plan.commands.length).toBe(2);
