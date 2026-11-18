@@ -103,7 +103,7 @@ export function createRepositoryMapReader() {
                 }
               }
               files.push(entry); captured = true; return visit(index + 1);
-            });
+            }, { readOnly: true });
           } catch (error) {
             if (captured) throw error;
             assertCurrent();
