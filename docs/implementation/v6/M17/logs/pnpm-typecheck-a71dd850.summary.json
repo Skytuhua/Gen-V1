@@ -1,0 +1,22 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store \u2014 not published/uploaded.",
+ "command": [
+  "pnpm",
+  "typecheck"
+ ],
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T14:02:00Z",
+ "endedAt": "2026-11-18T14:07:09Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "resultLines": [],
+ "rawArtifact": {
+  "file": "pnpm-typecheck-a71dd850.log",
+  "sha256": "d06fe179002b2f6c3f6cc671e410103ff39869dd1cf70e66e196a3a9f34c076f",
+  "bytes": 70,
+  "retention": "agent-owned local evidence store",
+  "published": false
+ }
+}
