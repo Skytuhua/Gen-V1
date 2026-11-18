@@ -5,8 +5,9 @@ import { expect } from '@playwright/test';
 import { openReviewHost } from './review-host.ts';
 import { openCaptureBrowser, recordWindow, closeCapture } from './review-capture.ts';
 
-const outputArgument=process.argv.indexOf('--output');
-const output = resolve(outputArgument>=0?process.argv[outputArgument+1]:'docs/evidence/t3-centered-workspace-20261031'); await mkdir(output, { recursive: true });
+const outputArgument=process.argv.indexOf('--output'),outputValue=process.argv[outputArgument+1];
+if(outputArgument>=0&&(!outputValue||outputValue.startsWith('--')))throw Error('--output requires a value');
+const output = resolve(outputArgument>=0?outputValue!:'docs/evidence/t3-centered-workspace-20261031'); await mkdir(output, { recursive: true });
 const port = 4397, host = await openReviewHost(join(output, 'fixture-' + randomUUID().slice(0, 8)), port);
 const browser = await openCaptureBrowser(), page = browser.page;
 const thread = host.threads.get('catalog')!;
