@@ -9,7 +9,7 @@ import { approvedContext7 as fixture, context7FixtureKey as key, context7Fixture
 // Only the native lease is substituted. Real Store, Service commands, signed
 // admission, file hashes, SDK stdio and owned Node child remain in this test.
 // These cases establish host composition, not Windows native acceptance.
-const seam = vi.hoisted(() => ({ before: undefined, deny: false, paths: [], loss: undefined }));
+const seam = vi.hoisted(() => ({ before: undefined, deny: false, paths: [], loss: undefined, failAfter: false }));
 vi.mock('../packages/core/file-access.ts', async original => {
   const actual = await original();
   return { ...actual, withPathGuard: async (paths, signal, action, onLoss) => {
@@ -17,10 +17,15 @@ vi.mock('../packages/core/file-access.ts', async original => {
     seam.paths.push(structuredClone(paths)); await seam.before?.();
     if (signal.aborted) throw new HarnessError('CANCELLED', 'Owned lease fixture cancelled');
     if (seam.deny) throw new HarnessError('CAPABILITY_DENIED', 'Owned lease fixture denied');
-    return action([]);
+    try { return await action([]); }
+    finally {
+      // An ambient withPathGuard session releases its group in finally. Its
+      // release rejection can replace either callback success or failure.
+      if (seam.failAfter) throw new HarnessError('CAPABILITY_DENIED', 'Owned post-result custody failure');
+    }
   } };
 });
-afterEach(() => { seam.before = undefined; seam.deny = false; seam.paths.length = 0; seam.loss = undefined; });
+afterEach(() => { seam.before = undefined; seam.deny = false; seam.paths.length = 0; seam.loss = undefined; seam.failAfter = false; });
 
 describe('Context7 SecretRef through the real approved Operation lifecycle', () => {
   it('exposes the strict preparation tool through the actual authenticated host registry', async () => {
@@ -140,6 +145,30 @@ describe('Context7 SecretRef through the real approved Operation lifecycle', () 
     expect(result.status).toBe('unknown');
     expect(x.store.get('toolEffect', 'operation:' + operation.id + '@1').state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
     expect(() => process.kill(pid, 0)).toThrow();
+    expect(JSON.stringify(x.store.db.prepare('SELECT kind,body FROM entities').all())).not.toContain(key);
+  });
+
+  it('preserves the observed result when native custody rejects after confirmed child teardown', async () => {
+    const x = await fixture(), operation = await x.prepare(); seam.failAfter = true;
+    const result = await x.execute(operation);
+    expect(await x.starts()).toEqual([{ credential: true, credentialMatched: true }]);
+    const pid = (await x.calls())[0].pid;
+    expect(() => process.kill(pid, 0)).toThrow();
+    expect(result).toMatchObject({ status: 'unknown', result: { observedResult: { content: [{ type: 'text', text: 'Owned public documentation result' }], isError: false } } });
+    expect(x.store.get('toolEffect', 'operation:' + operation.id + '@1').state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
+  });
+
+  it('retains known uncertainty when native release rejects after interrupted child work', async () => {
+    const x = await fixture({ holdCall: true }), operation = await x.prepare(); seam.failAfter = true;
+    const pending = x.execute(operation);
+    await expect.poll(x.calls, { timeout: 5000 }).toHaveLength(1);
+    const pid = (await x.calls())[0].pid;
+    await x.host.configurePrivate({ context7ApiKey: '' });
+    const result = await pending;
+    expect(await x.starts()).toEqual([{ credential: true, credentialMatched: true }]);
+    expect(() => process.kill(pid, 0)).toThrow();
+    expect(result.status).toBe('unknown');
+    expect(x.store.get('toolEffect', 'operation:' + operation.id + '@1').state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
     expect(JSON.stringify(x.store.db.prepare('SELECT kind,body FROM entities').all())).not.toContain(key);
   });
 });
