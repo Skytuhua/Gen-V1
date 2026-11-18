@@ -177,14 +177,19 @@ describe('executable resolution', () => {
     writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({ name: 'pnpm', version: '9.15.0' }));
     writeFileSync(join(packageRoot, 'bin', 'pnpm.cjs'), "process.stdout.write('9.15.0\\n');\n");
     symlinkSync(join(packageRoot, 'bin', 'pnpm.cjs'), join(bin, 'pnpm'));
+    // Corepack's per-manager dispatcher sits beside node, not on PATH, so the
+    // fallback is only reachable once this run has no dispatcher next to it.
+    const node = join(dir('mismatch-node'), process.platform === 'win32' ? 'node.exe' : 'node');
+    writeFileSync(node, '');
     vi.stubEnv('PATH', bin);
+    const execPath = vi.spyOn(process, 'execPath', 'get').mockReturnValue(node);
     try {
       // No corepack here, so the mismatch is reported by the caller as the
       // observed version rather than as a missing toolchain.
       const pm = resolvePackageManager(process.cwd());
       expect(pm.declaredVersion).toBe('10.30.3');
       expect(pm.prefix.at(-1)).toContain(join('pnpm', 'bin', 'pnpm.cjs'));
-    } finally { vi.unstubAllEnvs(); }
+    } finally { execPath.mockRestore(); vi.unstubAllEnvs(); }
   });
 });
 
