@@ -59,7 +59,7 @@ describe('reviewed public source allowlist',()=>{
       'docs/implementation/v3/m12-artifacts/tokenizer-dependency-review.json',
       'tests/e2e/tool-programs-fixture.tsx','tests/e2e/tool-programs.playwright.config.ts',
       'tests/e2e/tool-programs.spec.ts','tests/e2e/tool-programs.vite.config.ts',
-      'tests/fixtures/tool-program-benchmark-v3.ts','tests/fixtures/tool-program-crash-v3.mts','tests/fixtures/tool-program-replay-harness-v3.ts',
+      'tests/fixtures/tool-program-benchmark-v3.ts','tests/fixtures/tool-program-crash-death-v3.ts','tests/fixtures/tool-program-crash-v3.mts','tests/fixtures/tool-program-replay-harness-v3.ts',
       'tests/linux-bound-read-v3.test.ts','tests/python-kernel-v3.test.ts','tests/python-program-backend-v3.test.ts','tests/python-program-integration-v3.test.ts',
       'tests/tool-program-authority-v3.test.ts','tests/tool-program-backend-v3.test.ts','tests/tool-program-benchmark-v3.test.ts',
       'tests/tool-program-diagnostics-v3.test.ts','tests/tool-program-input-budget-v3.test.ts','tests/tool-program-integration-v3.test.ts',

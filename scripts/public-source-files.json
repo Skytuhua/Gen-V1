@@ -3151,6 +3151,7 @@
     "tests/fixtures/offline-command-benchmark.ts",
     "tests/fixtures/pi-trace-table.md",
     "tests/fixtures/tool-program-benchmark-v3.ts",
+    "tests/fixtures/tool-program-crash-death-v3.ts",
     "tests/fixtures/tool-program-crash-v3.mts",
     "tests/fixtures/tool-program-replay-harness-v3.ts",
     "tests/fixtures/trusted-plugin-frame.ts",

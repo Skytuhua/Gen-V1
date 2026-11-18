@@ -311,7 +311,9 @@ describe('M12 real process death and explicit exact-owner restart', () => {
     const dir = directory();
     const exit = await killAt(dir, 'program.prepared');
     assertCrashDeath(exit);
-    const f = fixture({}, dir), programId = f.state().programId!;
+    const f = fixture({}, dir);
+    expect(f.state()).toMatchObject({ owner: REPLAY_OWNER, killedAt: 'program.prepared' });
+    const programId = f.state().programId!;
     expect(f.store.get('programJournal', programId)).toBeNull();
     const result = await f.programs.run(programId, REPLAY_OWNER, executor);
     expect(result).toMatchObject({ state: 'SUCCEEDED', aggregate: { total: 7 } });
