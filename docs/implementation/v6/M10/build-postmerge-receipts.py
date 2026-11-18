@@ -1,5 +1,9 @@
 #!/usr/bin/env python3
-"""Build receipts-postmerge.jsonl from observed exit markers + logs.
+"""Build receipts-postmerge.jsonl from observed exit markers + curated summary logs.
+
+Raw command output was replaced by curated *.summary.md files per CONTRIBUTING
+shared-evidence rules; originals are preserved byte-for-byte out of source and
+their sha256s live in logs-pm/provenance-map.json.
 
 Each row matches the repo's observed-receipt schema (argv, cwdIdentity,
 executableIdentity, startedAt, endedAt, exitCode, termination, status,
@@ -8,28 +12,28 @@ boundedLogRef, logDigest). Times are taken from the .exit file mtime
 """
 import json, hashlib, os, sys, datetime
 
-ROOT = "/home/piadmin/gv1-m10-v6-pmcheck"
+ROOT = "<worktree>"
 L = "docs/implementation/v6/M10/logs-pm"
 OUT = os.path.join(ROOT, "docs/implementation/v6/M10/receipts-postmerge.jsonl")
 
 # (key, logfile, argv)
 RUNS = [
-    ("wg", "build-widgets.log", ["pnpm", "build:widgets"]),
-    ("bw", "vitest-background-work.log", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
-    ("bw2", "vitest-background-work-r2.log", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
-    ("bw3", "vitest-background-work-r3.log", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
-    ("hh", "vitest-human-handoff.log", ["pnpm", "exec", "vitest", "run", "tests/human-handoff-v3.test.ts", "--maxWorkers=1"]),
-    ("ei", "vitest-external-intake.log", ["pnpm", "exec", "vitest", "run", "tests/external-intake-v3.test.ts", "--maxWorkers=1"]),
-    ("dc", "vitest-decisions.log", ["pnpm", "exec", "vitest", "run", "tests/background-contract-decisions-v6.test.ts", "--maxWorkers=1"]),
-    ("tc", "typecheck.log", ["pnpm", "typecheck"]),
-    ("tc2", "typecheck-r2.log", ["pnpm", "typecheck"]),
-    ("tc3", "typecheck-r3.log", ["pnpm", "typecheck"]),
-    ("tc4", "typecheck-r4.log", ["pnpm", "typecheck"]),
-    ("ln", "lint.log", ["pnpm", "lint"]),
-    ("bd", "build.log", ["pnpm", "build"]),
-    ("tf", "test-full.log", ["pnpm", "test", "--maxWorkers=2"]),
-    ("bb", "browser-background-work.log", ["pnpm", "test:browser", "--suite", "background-work"]),
-    ("tbf", "test-browser-full.log", ["pnpm", "test:browser"]),
+    ("wg", "build-widgets.summary.md", ["pnpm", "build:widgets"]),
+    ("bw", "vitest-background-work.summary.md", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
+    ("bw2", "vitest-background-work-r2.summary.md", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
+    ("bw3", "vitest-background-work-r3.summary.md", ["pnpm", "exec", "vitest", "run", "tests/background-work-v3.test.ts", "--maxWorkers=1"]),
+    ("hh", "vitest-human-handoff.summary.md", ["pnpm", "exec", "vitest", "run", "tests/human-handoff-v3.test.ts", "--maxWorkers=1"]),
+    ("ei", "vitest-external-intake.summary.md", ["pnpm", "exec", "vitest", "run", "tests/external-intake-v3.test.ts", "--maxWorkers=1"]),
+    ("dc", "vitest-decisions.summary.md", ["pnpm", "exec", "vitest", "run", "tests/background-contract-decisions-v6.test.ts", "--maxWorkers=1"]),
+    ("tc", "typecheck.summary.md", ["pnpm", "typecheck"]),
+    ("tc2", "typecheck-r2.summary.md", ["pnpm", "typecheck"]),
+    ("tc3", "typecheck-r3.summary.md", ["pnpm", "typecheck"]),
+    ("tc4", "typecheck-r4.summary.md", ["pnpm", "typecheck"]),
+    ("ln", "lint.summary.md", ["pnpm", "lint"]),
+    ("bd", "build.summary.md", ["pnpm", "build"]),
+    ("tf", "test-full.summary.md", ["pnpm", "test", "--maxWorkers=2"]),
+    ("bb", "browser-background-work.summary.md", ["pnpm", "test:browser", "--suite", "background-work"]),
+    ("tbf", "test-browser-full.summary.md", ["pnpm", "test:browser"]),
 ]
 
 def iso(ts):

@@ -54,11 +54,11 @@ installed verifier end-to-end at `head_sha=ff38c62c`:
 
 | File | sha256 | Content |
 |---|---|---|
-| `installed-memory-44356008329-1.zip` (not committed per CONTRIBUTING shared-evidence rules — raw bundle retained locally at `/home/piadmin/m10-evidence-local/`; re-fetchable from artifact id `14455070587` while within its 7-day retention, expiry ≈ 2026-11-25) | `e61b74779107aba45efcdaad236cc823c5274538adb99e2c4bd47439ec935c54` | Byte-identical GitHub artifact download (provenance object; digest + artifact id recorded) |
-| `build-manifest.json` | `3be1b2988f2d6bb60489c9b423728e9f07614899b3b898b59ad322708b55e30b` | Package manifest incl. Setup.exe sha256 |
-| `owner.json` | `4c7e4e5e1e40751173a44bf22fb5c8bf7653e6bfc04c1fdfa268f626beffbc06` | Install ownership + setup sha256 |
-| `installed-verification.json` | `6b0ccde44e8d73657734dcc17889a212c0ce60f396226b6d692b21351f62ed54` | Full verifier receipt, `passed: true` |
-| `packaged-providers-verification.json` | `c1f8f51a11fa9a9a89c16685823a4a5bc4ed185433259442fbf1872e44bd1461` | Provider custody receipt, `passed: true` |
+| `installed-memory-44356008329-1.zip` (not committed per CONTRIBUTING shared-evidence rules — raw bundle retained locally at a local out-of-source directory; re-fetchable from artifact id `14455070587` while within its 7-day retention, expiry ≈ 2026-11-25) | `e61b74779107aba45efcdaad236cc823c5274538adb99e2c4bd47439ec935c54` | Byte-identical GitHub artifact download (provenance object; digest + artifact id recorded) |
+| `build-manifest.summary.md` (curated; raw preserved out-of-source) | `3be1b2988f2d6bb60489c9b423728e9f07614899b3b898b59ad322708b55e30b` | Package manifest incl. Setup.exe sha256 |
+| `owner.summary.md` (curated) | `4c7e4e5e1e40751173a44bf22fb5c8bf7653e6bfc04c1fdfa268f626beffbc06` | Install ownership + setup sha256 |
+| `installed-verification.summary.md` (curated) | `6b0ccde44e8d73657734dcc17889a212c0ce60f396226b6d692b21351f62ed54` | Full verifier receipt, `passed: true` |
+| `packaged-providers-verification.summary.md` (curated) | `c1f8f51a11fa9a9a89c16685823a4a5bc4ed185433259442fbf1872e44bd1461` | Provider custody receipt, `passed: true` |
 
 ## Honesty notes
 

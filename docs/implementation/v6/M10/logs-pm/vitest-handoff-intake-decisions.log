@@ -1,5 +1,0 @@
-
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/gv1-m10-v6-pmcheck[39m
-
-(node:36097) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)

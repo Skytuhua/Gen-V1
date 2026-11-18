@@ -87,7 +87,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:41:43.276Z",
      "endedAt": "2026-11-17T07:42:26.670Z",
@@ -106,7 +106,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:03.000Z",
      "endedAt": "2026-11-17T22:14:20.616Z",
@@ -125,7 +125,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:17.332Z",
      "endedAt": "2026-11-17T22:47:31.157Z",
@@ -144,7 +144,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:09:53.634Z",
      "endedAt": "2026-11-17T23:10:11.921Z",
@@ -163,7 +163,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:24:19.148Z",
      "endedAt": "2026-11-17T23:24:40.736Z",
@@ -182,7 +182,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:36:59.882Z",
      "endedAt": "2026-11-17T23:37:25.023Z",
@@ -201,7 +201,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:45:10.044Z",
      "endedAt": "2026-11-17T23:45:34.168Z",
@@ -220,7 +220,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:43:13.952Z",
      "endedAt": "2026-11-17T07:43:17.254Z",
@@ -239,7 +239,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:30.180Z",
      "endedAt": "2026-11-17T22:14:35.152Z",
@@ -258,7 +258,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:54.480Z",
      "endedAt": "2026-11-17T22:47:57.844Z",
@@ -277,7 +277,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:33.461Z",
      "endedAt": "2026-11-17T23:10:37.839Z",
@@ -296,7 +296,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:25:06.423Z",
      "endedAt": "2026-11-17T23:25:11.877Z",
@@ -357,7 +357,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:41:43.276Z",
      "endedAt": "2026-11-17T07:42:26.670Z",
@@ -376,7 +376,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:03.000Z",
      "endedAt": "2026-11-17T22:14:20.616Z",
@@ -395,7 +395,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:17.332Z",
      "endedAt": "2026-11-17T22:47:31.157Z",
@@ -414,7 +414,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:09:53.634Z",
      "endedAt": "2026-11-17T23:10:11.921Z",
@@ -433,7 +433,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:24:19.148Z",
      "endedAt": "2026-11-17T23:24:40.736Z",
@@ -452,7 +452,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:36:59.882Z",
      "endedAt": "2026-11-17T23:37:25.023Z",
@@ -471,7 +471,7 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:45:10.044Z",
      "endedAt": "2026-11-17T23:45:34.168Z",
@@ -521,7 +521,7 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:42:26.743Z",
      "endedAt": "2026-11-17T07:43:03.099Z",
@@ -540,7 +540,7 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:20.704Z",
      "endedAt": "2026-11-17T22:14:30.127Z",
@@ -559,7 +559,7 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:31.218Z",
      "endedAt": "2026-11-17T22:47:40.003Z",
@@ -578,7 +578,7 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:11.972Z",
      "endedAt": "2026-11-17T23:10:21.265Z",
@@ -597,7 +597,7 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:24:56.785Z",
      "endedAt": "2026-11-17T23:25:06.306Z",
@@ -616,7 +616,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:43:13.952Z",
      "endedAt": "2026-11-17T07:43:17.254Z",
@@ -635,7 +635,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:30.180Z",
      "endedAt": "2026-11-17T22:14:35.152Z",
@@ -654,7 +654,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:54.480Z",
      "endedAt": "2026-11-17T22:47:57.844Z",
@@ -673,7 +673,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:33.461Z",
      "endedAt": "2026-11-17T23:10:37.839Z",
@@ -692,7 +692,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:25:06.423Z",
      "endedAt": "2026-11-17T23:25:11.877Z",
@@ -747,7 +747,7 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:43:03.217Z",
      "endedAt": "2026-11-17T07:43:13.898Z",
@@ -766,7 +766,7 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:13:47.175Z",
      "endedAt": "2026-11-17T22:14:02.858Z",
@@ -785,7 +785,7 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:43.475Z",
      "endedAt": "2026-11-17T22:47:54.430Z",
@@ -804,7 +804,7 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:21.322Z",
      "endedAt": "2026-11-17T23:10:33.381Z",
@@ -823,7 +823,7 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:24:40.801Z",
      "endedAt": "2026-11-17T23:24:56.696Z",
@@ -842,7 +842,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:43:13.952Z",
      "endedAt": "2026-11-17T07:43:17.254Z",
@@ -861,7 +861,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:30.180Z",
      "endedAt": "2026-11-17T22:14:35.152Z",
@@ -880,7 +880,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:47:54.480Z",
      "endedAt": "2026-11-17T22:47:57.844Z",
@@ -899,7 +899,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:33.461Z",
      "endedAt": "2026-11-17T23:10:37.839Z",
@@ -918,7 +918,7 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:25:06.423Z",
      "endedAt": "2026-11-17T23:25:11.877Z",
@@ -966,7 +966,7 @@
       "--suite",
       "background-work"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T08:04:58.416Z",
      "endedAt": "2026-11-17T08:05:35.433Z",
@@ -983,7 +983,7 @@
       "--suite",
       "background-work"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:52:00.594Z",
      "endedAt": "2026-11-17T22:52:37.574Z",
@@ -1000,7 +1000,7 @@
       "--suite",
       "background-work"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:16:07.518Z",
      "endedAt": "2026-11-17T23:16:49.226Z",
@@ -1051,7 +1051,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:43:17.306Z",
      "endedAt": "2026-11-17T07:45:21.732Z",
@@ -1066,7 +1066,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:14:38.668Z",
      "endedAt": "2026-11-17T22:17:11.473Z",
@@ -1081,7 +1081,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:48:03.661Z",
      "endedAt": "2026-11-17T22:50:07.937Z",
@@ -1096,7 +1096,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:10:41.395Z",
      "endedAt": "2026-11-17T23:13:01.375Z",
@@ -1111,7 +1111,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:25:11.974Z",
      "endedAt": "2026-11-17T23:27:48.264Z",
@@ -1126,7 +1126,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:37:25.160Z",
      "endedAt": "2026-11-17T23:39:51.606Z",
@@ -1141,7 +1141,7 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:45:34.228Z",
      "endedAt": "2026-11-17T23:48:05.280Z",
@@ -1156,7 +1156,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:45:21.901Z",
      "endedAt": "2026-11-17T07:46:52.457Z",
@@ -1171,7 +1171,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:17:11.593Z",
      "endedAt": "2026-11-17T22:18:53.242Z",
@@ -1186,7 +1186,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:50:08.020Z",
      "endedAt": "2026-11-17T22:51:27.361Z",
@@ -1201,7 +1201,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:13:01.500Z",
      "endedAt": "2026-11-17T23:14:39.777Z",
@@ -1216,7 +1216,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:29:25.361Z",
      "endedAt": "2026-11-17T23:30:39.256Z",
@@ -1231,7 +1231,7 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:39:51.667Z",
      "endedAt": "2026-11-17T23:40:58.517Z",
@@ -1247,7 +1247,7 @@
       "test",
       "--maxWorkers=2"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T07:46:52.532Z",
      "endedAt": "2026-11-17T08:04:28.113Z",
@@ -1262,7 +1262,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T08:04:28.171Z",
      "endedAt": "2026-11-17T08:04:58.329Z",
@@ -1277,7 +1277,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:18:53.318Z",
      "endedAt": "2026-11-17T22:19:33.501Z",
@@ -1292,7 +1292,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T22:51:27.411Z",
      "endedAt": "2026-11-17T22:51:57.767Z",
@@ -1307,7 +1307,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:14:39.835Z",
      "endedAt": "2026-11-17T23:15:16.118Z",
@@ -1322,7 +1322,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:30:39.304Z",
      "endedAt": "2026-11-17T23:31:06.042Z",
@@ -1337,7 +1337,7 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T23:40:58.573Z",
      "endedAt": "2026-11-17T23:41:28.651Z",
@@ -1352,7 +1352,7 @@
       "pnpm",
       "test:browser"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m10-v6",
+     "cwdIdentity": "<task-worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-17T08:05:35.498Z",
      "endedAt": "2026-11-17T09:11:45.673Z",
@@ -1376,52 +1376,52 @@
     {
      "id": "M10-C01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-C02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-C03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-C04",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-S01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S04",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S05",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-S06",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S07",
@@ -1431,117 +1431,117 @@
     {
      "id": "M10-S08",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-S09",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-S10",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-S11",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-S12",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-U01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-U02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-U03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-U04",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-T01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-T02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-T03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-T04",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-human-handoff.log"
+     "evidence": "logs-pm/vitest-human-handoff.summary.md"
     },
     {
      "id": "M10-T05",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-external-intake.log"
+     "evidence": "logs-pm/vitest-external-intake.summary.md"
     },
     {
      "id": "M10-T06",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-G01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-G02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-G03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-background-work-r3.log"
+     "evidence": "logs-pm/vitest-background-work-r3.summary.md"
     },
     {
      "id": "M10-D01",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-decisions.log"
+     "evidence": "logs-pm/vitest-decisions.summary.md"
     },
     {
      "id": "M10-D02",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-decisions.log"
+     "evidence": "logs-pm/vitest-decisions.summary.md"
     },
     {
      "id": "M10-D03",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-decisions.log"
+     "evidence": "logs-pm/vitest-decisions.summary.md"
     },
     {
      "id": "M10-D04",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-decisions.log"
+     "evidence": "logs-pm/vitest-decisions.summary.md"
     },
     {
      "id": "M10-D05",
      "status": "PASS",
-     "evidence": "logs-pm/vitest-decisions.log"
+     "evidence": "logs-pm/vitest-decisions.summary.md"
     }
    ],
    "commands": [
@@ -1550,14 +1550,14 @@
       "pnpm",
       "build:widgets"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T10:29:18.269Z",
      "endedAt": "2026-11-18T10:29:18.269Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build-widgets.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build-widgets.summary.md",
      "logDigest": "8598f9e20c77d748788f3214e6da8d0740890a4ea0ba2c1ad85f02ac4847d80f"
     },
     {
@@ -1569,14 +1569,14 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T10:34:10.633Z",
      "endedAt": "2026-11-18T11:03:16.261Z",
      "exitCode": 1,
      "termination": "NONE",
      "status": "FAIL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work.summary.md",
      "logDigest": "576b38322900b1ac203ffa510e779f5dd689f3f78f9010bf1e776df5c17d262e"
     },
     {
@@ -1588,14 +1588,14 @@
       "tests/background-work-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:16:01.618Z",
      "endedAt": "2026-11-18T11:16:02.007Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r3.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r3.summary.md",
      "logDigest": "21b02569985b53306f01b58080cb0e78235506e1dc8ba046bf264a88a22de214"
     },
     {
@@ -1607,14 +1607,14 @@
       "tests/human-handoff-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:13:33.179Z",
      "endedAt": "2026-11-18T11:13:33.510Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-human-handoff.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-human-handoff.summary.md",
      "logDigest": "ed1e2b00a30d3c1a791b3562c07ea1614542792b85be0364e00839e35cbf2208"
     },
     {
@@ -1626,14 +1626,14 @@
       "tests/external-intake-v3.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:15:25.761Z",
      "endedAt": "2026-11-18T11:15:26.182Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-external-intake.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-external-intake.summary.md",
      "logDigest": "c6eaa32f107d921b6102d9ea86d45f76e65cb641059793f0710c67ee20d61f41"
     },
     {
@@ -1645,14 +1645,14 @@
       "tests/background-contract-decisions-v6.test.ts",
       "--maxWorkers=1"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:15:45.358Z",
      "endedAt": "2026-11-18T11:15:45.499Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-decisions.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-decisions.summary.md",
      "logDigest": "8caed8a34350467ee1321b236a719610303b1de62139f891fd387a4426869e46"
     },
     {
@@ -1660,14 +1660,14 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:22:23.893Z",
      "endedAt": "2026-11-18T11:22:24.057Z",
      "exitCode": 134,
      "termination": "NONE",
      "status": "FAIL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck.summary.md",
      "logDigest": "134765f9d96be3493af36df134815cb762fe061c407d0b2861287cf4c4526c6b"
     },
     {
@@ -1675,14 +1675,14 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:38:03.836Z",
      "endedAt": "2026-11-18T11:38:04.924Z",
      "exitCode": 134,
      "termination": "NONE",
      "status": "FAIL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r2.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r2.summary.md",
      "logDigest": "42313d1f5bd6f2fe67184ff66946cd2e381595fe808c32623345e3c57a00c522"
     },
     {
@@ -1690,14 +1690,14 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T13:18:02.708Z",
      "endedAt": "2026-11-18T13:18:02.963Z",
      "exitCode": 134,
      "termination": "NONE",
      "status": "FAIL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r3.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r3.summary.md",
      "logDigest": "c97d58fa2e71a4a1ddd4932e153bd273c197425ac5e80cdbed8fc0da0b49caf1"
     },
     {
@@ -1705,14 +1705,14 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T13:19:21.027Z",
      "endedAt": "2026-11-18T13:22:22.782Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r4.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r4.summary.md",
      "logDigest": "f27513dc97180506c628931e7fbc3c7da7d7647ca5821aa2fcae850787270c2f"
     },
     {
@@ -1720,14 +1720,14 @@
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:26:13.061Z",
      "endedAt": "2026-11-18T11:26:14.529Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/lint.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/lint.summary.md",
      "logDigest": "c035c4112e75813d5c06b9ed92244cbbeb487ab0761a876ba8ae9f4a370167bd"
     },
     {
@@ -1735,14 +1735,14 @@
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T11:27:24.558Z",
      "endedAt": "2026-11-18T11:27:25.470Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build.summary.md",
      "logDigest": "ce6d75a31a10e4947edf0b4df869308e91fab004d745e7a01b7780b83525199a"
     },
     {
@@ -1751,14 +1751,14 @@
       "test",
       "--maxWorkers=2"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T13:06:33.473Z",
      "endedAt": "2026-11-18T13:06:37.942Z",
      "exitCode": 1,
      "termination": "NONE",
      "status": "FAIL",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/test-full.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/test-full.summary.md",
      "logDigest": "b9c69a13f62770dca40c66e8f2f3bc19d957babd7e4ad40ec966842f7ea85795"
     },
     {
@@ -1768,14 +1768,14 @@
       "--suite",
       "background-work"
      ],
-     "cwdIdentity": "/home/piadmin/gv1-m10-v6-pmcheck",
+     "cwdIdentity": "<worktree>",
      "executableIdentity": "pnpm",
      "startedAt": "2026-11-18T13:08:55.231Z",
      "endedAt": "2026-11-18T13:08:55.521Z",
      "exitCode": 0,
      "termination": "NONE",
      "status": "PASS",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/browser-background-work.log",
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/browser-background-work.summary.md",
      "logDigest": "b9ab1ce610049a64d83001aef59053747467b34c515674cee5f65e1f48016de6"
     }
    ],
@@ -2192,7 +2192,7 @@
      "status": "PASS",
      "classification": "CI_OWNED_INSTALLED_LANE",
      "result": "verify-installed-desktop passed:true at head_sha ff38c62c on windows-latest: install exit0 512.9s; 4 owned launches passed/verifiedOwner/exit0 (2 default-off + 2 enabled); payloadCustody matches 92,944 files sha256 a8ff5f5f\u2026cea5; providerVerification passed; uninstall exit0 + shortcuts/keys/processes absent; inference:false auth:false. Setup.exe sha256 afa42167\u20267753.",
-     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.json"
+     "boundedLogRef": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.summary.md"
     }
    ],
    "artifactRefs": [

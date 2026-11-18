@@ -3,7 +3,7 @@
 docs/implementation/v3/M10-verification.json. Historical phases untouched."""
 import json, os, sys
 
-ROOT = "/home/piadmin/gv1-m10-v6-pmcheck"
+ROOT = "<worktree>"
 VP = os.path.join(ROOT, "docs/implementation/v3/M10-verification.json")
 RP = os.path.join(ROOT, "docs/implementation/v6/M10/receipts-postmerge.jsonl")
 
@@ -19,10 +19,10 @@ def rc(logname):
 
 # case-id -> evidence log(s)
 ev = {
-    "bw": "vitest-background-work-r3.log",
-    "hh": "vitest-human-handoff.log",
-    "ei": "vitest-external-intake.log",
-    "dc": "vitest-decisions.log",
+    "bw": "vitest-background-work-r3.summary.md",
+    "hh": "vitest-human-handoff.summary.md",
+    "ei": "vitest-external-intake.summary.md",
+    "dc": "vitest-decisions.summary.md",
 }
 CASES = {
     "M10-C01": "bw", "M10-C02": "bw", "M10-C03": "hh", "M10-C04": "ei",
@@ -43,8 +43,8 @@ for cid, k in CASES.items():
         cases.append({"id": cid, "status": rc(ev[k]), "evidence": "logs-pm/" + ev[k]})
 
 phase_status = "PASS" if all(c["status"] in ("PASS", "BLOCKED") for c in cases) and \
-    rc("vitest-background-work-r3.log") == "PASS" and rc("vitest-human-handoff.log") == "PASS" and \
-    rc("vitest-external-intake.log") == "PASS" and rc("vitest-decisions.log") == "PASS" else "FAIL"
+    rc("vitest-background-work-r3.summary.md") == "PASS" and rc("vitest-human-handoff.summary.md") == "PASS" and \
+    rc("vitest-external-intake.summary.md") == "PASS" and rc("vitest-decisions.summary.md") == "PASS" else "FAIL"
 
 phase = {
     "id": "m10.postmerge-v6-s5",

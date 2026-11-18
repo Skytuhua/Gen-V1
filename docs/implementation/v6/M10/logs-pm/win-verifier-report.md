@@ -3,11 +3,11 @@
 Verifier: isolated T3 thread on linked Windows env WIN-M0N0V07LGM1
 (`t3-thread://v2/17662262-856e-45f7-98fb-56c92cacfa8f/mcp:launch:26d517050bbdc5deb6d809892770f014e64161daca9195c3328ee6ae092b7a20`,
 model gpt-6.1-sol, run 2026-11-18T18:26:38Z -> 18:42:02Z).
-Worktree `C:\Users\user\.t3\worktrees\Generative Harness\t3-bda7e1cb-57082b926f0db7f0`
+Worktree `<windows-worktree>`
 (branch `t3/bda7e1cb`), verification-only: no commits, pushes, docs edits,
 or flag changes; final `git status` clean.
 This file reproduces the verifier's final report verbatim; supporting artifacts
-remain on the box at `C:/Users/user/AppData/Local/Temp/m10-windows-2026-11-18T18-29-57-729Z/`.
+remain on the box at `C:/Users/<redacted>/AppData/Local/Temp/m10-windows-2026-11-18T18-29-57-729Z/`.
 
 ---
 
@@ -42,7 +42,7 @@ First three failure identities: **none in any test lane**. Packaging had one
 failure, `collectHermesPayload → ordinaryDirectory → lstat`:
 
 ```text
-Error: ENOENT: no such file or directory, lstat 'C:\Users\user\.t3\worktrees\Generative Harness\t3-bda7e1cb-57082b926f0db7f0\.harness-hermes-python-deps'
+Error: ENOENT: no such file or directory, lstat '<windows-worktree>\.harness-hermes-python-deps'
 ```
 
 No `{"artifacts":...}` output, Setup.exe, or `win-unpacked` was produced; the

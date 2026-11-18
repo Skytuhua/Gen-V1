@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "task": "M10 V6 durable background work and human handoffs",
  "branch": "agent/m10-v6",
- "worktree": "/home/piadmin/Gen-V1-m10-v6",
+ "worktree": "<task-worktree>",
  "auditAnchorSha": "4805af4680094d2af48ecf666688e750797e9dda",
  "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution \u2014 capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
@@ -466,7 +466,7 @@
     }
    ]
   },
-  "verificationWorktree": "/home/piadmin/gv1-m10-v6-pmcheck (detached at 4aef753e; /tmp scratch worktree destroyed by /tmp wipe mid-session, first-pass results re-verified here)",
+  "verificationWorktree": "<worktree> (detached at 4aef753e; /tmp scratch worktree destroyed by /tmp wipe mid-session, first-pass results re-verified here)",
   "receipts": "docs/implementation/v6/M10/receipts-postmerge.jsonl",
   "handoff": "docs/implementation/v6/M10/handoff-postmerge.md",
   "session6WindowsLane": {

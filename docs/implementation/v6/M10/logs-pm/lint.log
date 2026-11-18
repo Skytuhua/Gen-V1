@@ -1,5 +1,0 @@
-
-> gen-v1@0.6.5 lint /home/piadmin/gv1-m10-v6-pmcheck
-> tsx scripts/lint-ui.ts --check
-
-UI guard: 615 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

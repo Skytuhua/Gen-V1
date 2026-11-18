@@ -2,10 +2,10 @@
 
 ## Custody
 
-- Worktree for this verification: `/home/piadmin/gv1-m10-v6-pmcheck` — detached
+- Worktree for this verification: `<worktree>` — detached
   worktree of `https://github.com/skytuhua-org/Gen-V1.git` (numeric repository
   ID 1442565952) at captured `origin/main` `4aef753ec272d6ab9f9f9eec1df0ca232386975b`.
-- Assigned task branch/worktree: `agent/m10-v6` at `/home/piadmin/Gen-V1-m10-v6`,
+- Assigned task branch/worktree: `agent/m10-v6` at `<task-worktree>`,
   preserved. The remote ref `agent/m10-v6` was deleted when PR #501
   (`016738f7b57117ffe9dbbd756cb3cd173c01e202`, squash merge) landed; the
   recorded stale remote-tracking tip `a5aa3798f25163e117d0709503343cc890f29ac8`
@@ -17,14 +17,14 @@
   `git worktree list` marking them prunable); the first targeted-suite pass
   observed there (43/43, 11/11, 24/24, 5/5 all exit 0) was re-verified from
   this stable worktree so every cited receipt is backed by a live log file.
-- The original checkout `/home/piadmin/Gen-V1` (on `fix/t10-agents-grid-v3`
+- The original checkout `<original-checkout>` (on `fix/t10-agents-grid-v3`
   with uncommitted user edits and untracked `qwencloud-api-key.txt`), all
   sibling task worktrees and the `review-m10-v6` .t3 worktree were not
   touched. No reset/clean/stash/account change. `git worktree prune` removed
   only bookkeeping for directories that no longer existed after the /tmp
   wipe.
-- Toolchain: `/home/piadmin/tools/node24` Node `v24.11.1` (>=24.10.0),
-  `/home/piadmin/tools/pnpm` `10.30.3` (exact `packageManager` pin). No
+- Toolchain: `<toolchain>/node24` Node `v24.11.1` (>=24.10.0),
+  `<toolchain>/pnpm` `10.30.3` (exact `packageManager` pin). No
   toolchain download. `pnpm install --frozen-lockfile`; lockfile unchanged.
   `@lydell/node-pty-linux-arm64` prebuild re-provisioned into
   `node_modules/node-pty/prebuilds/linux-arm64/pty.node`
@@ -90,7 +90,7 @@ and the drift record stands for the branch line itself.
   command; **still in-flight at handoff with no terminal receipt** (early
   non-M10 specs fail in the same environmental classes; the scoped M10
   suite already passed 11/11). Its mutable log lives only in the local
-  worktree `logs-pm/test-browser-full.log` (uncommitted — excluded from
+  worktree `logs-pm/test-browser-full.summary.md` (uncommitted — excluded from
   published evidence per the evidence-only-draft rule); the `tbf.exit`
   marker lands autonomously when the runner finishes. The prior
   characterization (60-minute runner TIMEOUT on this environment) is
@@ -206,8 +206,8 @@ packaging):** job 134984166865 executed the declared verifier itself —
   shortcuts / installationKeys / nativeProcesses `absent`.
 - `inference: false`, `auth: false`.
 
-Receipts committed: `logs-pm/ci-installed-lane/` (raw artifact zip +
-extracted JSONs + `artifact-inventory.md` with the full query chain and
+Receipts committed: `logs-pm/ci-installed-lane/` (raw artifact digest refs +
+curated JSON summaries + `artifact-inventory.md` with the full query chain and
 file digests).
 
 **Scope honesty:** this is the installed-memory job's own lane
@@ -297,10 +297,21 @@ unchanged. The `installed-memory` block is byte-identical between
 output) removed from the commit — curated extracted receipts kept,
 with zip sha256 `e61b7477…` + artifact id `14455070587` + retention note
 recorded in `artifact-inventory.md` (bundle retained locally at
-`/home/piadmin/m10-evidence-local/`). Bounded logs and `cwdIdentity`
+`a local out-of-source retention directory`). Bounded logs and `cwdIdentity`
 paths follow the merged provenance-tree convention (see
 `docs/implementation/v6/M10/logs/` on main); credential scan clean —
 only provider-package filenames (`mint-api-key.d.ts`) appear.
+
+**Session-10 curation (this commit):** all raw command output in this delta
+(`*.log` incl. `test-full.log` 677 KB, `test-browser-full.log` 2.65 MB,
+vitest/typecheck/build/lint logs) and the raw extracted CI JSONs were
+replaced by curated `*.summary.md` files; originals preserved
+byte-for-byte out of source. `logs-pm/provenance-map.json` records each
+original sha256 + bytes beside its summary sha256; receipts carry
+`originalOutputDigest` next to the summary digest, and `cwdIdentity`
+values are redacted to `<worktree>`/`<windows-worktree>` per CONTRIBUTING
+shared-evidence rules. Failure/termination classifications, bound cuts
+(`4aef753e`/`ff38c62c`) and artifact availability notes are unchanged.
 
 **Not done (correctly):** no workflow_dispatch fired (would re-run the
 same memory-flag job), no new job created (cannot share artifacts across

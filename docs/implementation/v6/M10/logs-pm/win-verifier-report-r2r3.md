@@ -17,7 +17,7 @@ ancestry verified run 1); worktree clean; no commits/pushes/flags.
 
 | Command / declared step | Exit / outcome | Observed time | Result |
 |---|---|---:|---|
-| CPython identity probe | 0 | 0.34s | **PASS:** CPython 3.14.3 x64 (`C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\python.exe`, used as `HARNESS_HERMES_PYTHON`; default `python` is 3.10.11) |
+| CPython identity probe | 0 | 0.34s | **PASS:** CPython 3.14.3 x64 (`C:\Users\<redacted>\AppData\Local\Python\pythoncore-3.14-64\python.exe`, used as `HARNESS_HERMES_PYTHON`; default `python` is 3.10.11) |
 | Hermes `pip --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt` | 0 | 50.11s | **PASS: 33/33 distributions** |
 | Integration-wheel staging via `pwsh -NoProfile` | KILLED before script entry | 135.15s | Shell startup stalled; no wheel directory created |
 | Authorized `cmd`-equivalent wheel staging (Python 3.14; same URLs/SHA-256/filename checks/timeouts) | 0 | 14.56s | **PASS: 91/91 archive hashes** |
@@ -55,7 +55,7 @@ hashes**. Install / owned launch / CDP identity revalidation / UI
 acceptance / uninstall all **NOT_RUN**.
 
 Verifier artifacts on box:
-`C:/Users/user/AppData/Local/Temp/m10-windows-followup-2026-11-18T19-00-28-208Z/`
+`C:/Users/<redacted>/AppData/Local/Temp/m10-windows-followup-2026-11-18T19-00-28-208Z/`
 (observed-followup-results.json, first-failure.txt).
 
 Supervisor/fork remain **HELD**. No feature flags or reviewerApproval set.
