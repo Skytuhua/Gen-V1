@@ -1,3 +1,4 @@
+    "tests/control-runtime-v6.test.ts",
 {
   "version": 1,
   "baseline": "6d32290f4d0e4c820e6ed0c3eb56a4bd14f7891c",
@@ -32,6 +33,7 @@
     "apps/desktop/browser-bounds.ts",
     "apps/desktop/browser-lifecycle.ts",
     "apps/desktop/browser-proxy.ts",
+    "apps/desktop/control-bridge.ts",
     "apps/desktop/display-layout.ts",
     "apps/desktop/docked-browser.ts",
     "apps/desktop/github-device-policy.ts",
@@ -2371,6 +2373,8 @@
     "packages/core/context-result-tool.ts",
     "packages/core/context-results.ts",
     "packages/core/context-tool-discovery.ts",
+    "packages/core/control-runtime.ts",
+    "packages/core/control-sidecar-driver.ts",
     "packages/core/conversation-read-models.ts",
     "packages/core/credential-slots.ts",
     "packages/core/debug-session.ts",
@@ -2433,6 +2437,7 @@
     "packages/core/verification-gate.ts",
     "packages/core/verification-read-models.ts",
     "packages/core/widgets.ts",
+    "packages/core/windows-control-bridge.cc",
     "packages/core/windows-credential-lease.cc",
     "packages/core/windows-credential-lease.ts",
     "packages/core/windows-path-guard.ps1",
@@ -2600,6 +2605,7 @@
     "scripts/build-review-index.ts",
     "scripts/build-task-design-review.mjs",
     "scripts/build-widgets.mjs",
+    "scripts/build-windows-control-bridge.ts",
     "scripts/build-windows-credential-lease.ts",
     "scripts/capture-repository-screenshots.ts",
     "scripts/capture-ui/browser-data.ts",
@@ -4449,6 +4455,8 @@
     "packages/core/context-result-tool.ts",
     "packages/core/context-results.ts",
     "packages/core/context-tool-discovery.ts",
+    "packages/core/control-runtime.ts",
+    "packages/core/control-sidecar-driver.ts",
     "packages/core/conversation-read-models.ts",
     "packages/core/credential-slots.ts",
     "packages/core/debug-session.ts",
@@ -4511,6 +4519,7 @@
     "packages/core/verification-gate.ts",
     "packages/core/verification-read-models.ts",
     "packages/core/widgets.ts",
+    "packages/core/windows-control-bridge.cc",
     "packages/core/windows-credential-lease.ts",
     "packages/core/windows-path-guard.ps1",
     "packages/core/workspace-layout.ts",
@@ -4628,3 +4637,4 @@
     "packages/workspace/tools.ts"
   ]
 }
+    "tests/control-bridge-v6.test.ts",
