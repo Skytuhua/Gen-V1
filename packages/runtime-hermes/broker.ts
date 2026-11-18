@@ -7,13 +7,20 @@ import type {ModelCapacity} from '../runtime/model-capacity.ts';
 import {hermesRequestScheduler,requestClassFor,type RequestBudget,type RequestScheduler} from '../runtime/request-scheduler.ts';
 import type {ModelRequestStage} from '../runtime/request-metrics.ts';
 import {RequestMetrics} from '../runtime/request-metrics.ts';
+import type {NativeContextCompilation} from './context.ts';
+import type {ContextInferenceBudgetV1} from '../contracts/request-context.ts';
+import {createInferenceBudgetLedger,type InferenceBudgetAnchor} from './context-budget.ts';
 
-export interface ModelRequest {sequence:number;inputIds:string[];phase:'foreground'|'background_review'}
+export interface ModelRequest {sequence:number;inputIds:string[];phase:'foreground'|'background_review';nativeContext?:NativeContextCompilation;nativeSourcesUnavailable?:'UNSUPPORTED_ADAPTER'}
 export interface HermesBrokerOptions {
  input:StartRun;createRuntime:()=>RuntimeAdapter;
  onInput?:(ids:string[])=>void|Promise<void>;
  onUsage?:(usage:RuntimeUsage,request:ModelRequest)=>void;
- onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number})=>void;
+ beforeInference?:(request:ModelRequest&{promptBytes:number})=>void|Promise<void>;
+ contextBudget?:{scope:string|null;previous?:InferenceBudgetAnchor};
+ onContextBudget?:(budget:ContextInferenceBudgetV1)=>void;
+ onBudgetAnchor?:(anchor:InferenceBudgetAnchor|undefined)=>void;
+ onContextRequest?:(summary:{sequence:number;promptBytes:number;knownInputs:number;nativeContext?:NativeContextCompilation;nativeSourcesUnavailable?:'UNSUPPORTED_ADAPTER'})=>void;
  onStage?:(stage:ModelRequestStage|'queued',request:ModelRequest)=>void;
  onObservation?:(observation:ModelRequestObservationV1,request:ModelRequest)=>void;
  capacity?:ModelCapacity;
@@ -43,6 +50,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
  let closed=false,pending:ModelRequest|undefined,lastSequence=0,closing:Promise<void>|undefined,cleanupError:unknown;
  let active:{runtime?:RuntimeAdapter;ctx:StartRun;controller:AbortController;cancelled:boolean;completion:ReturnType<typeof deferred<void>>;operation:Promise<unknown>;cancel?:Promise<void>}|undefined;
  const usages=new Map<number,RuntimeUsage>(),observations=new Map<number,ModelRequestObservationV1>();
+ const contextBudget=options.contextBudget?createInferenceBudgetLedger(options.contextBudget.scope,options.contextBudget.previous):undefined;
  const scheduler=options.scheduler??(options.capacity?undefined:hermesRequestScheduler);
  const cancel=()=>{const owner=active;if(!owner)return Promise.resolve();return owner.cancel??=(async()=>{owner.cancelled=true;owner.controller.abort();try{await owner.runtime?.cancel(owner.ctx);owner.completion.reject(new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.'));}catch(error){cleanupError=error;owner.completion.reject(error);throw error;}})();};
  const send=(response:ServerResponse,status:number,value:unknown)=>{if(response.destroyed)return;const text=JSON.stringify(value);if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES)throw invalid();response.writeHead(status,{'content-type':'application/json','cache-control':'no-store'});response.end(text);};
@@ -54,7 +62,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
    const chunks:Buffer[]=[];let size=0;
    for await(const chunk of request){size+=Buffer.byteLength(chunk);if(size>MODEL_ONLY_MAX_WIRE_BYTES){response.writeHead(413).end();return;}chunks.push(Buffer.from(chunk));}
    const body:unknown=JSON.parse(Buffer.concat(chunks).toString('utf8'));
-   if(!record(body)||Object.keys(body).some(name=>!['sessionId','modelId','prompt'].includes(name))||typeof body.sessionId!=='string'||!/^[A-Za-z0-9_-]{1,200}$/.test(body.sessionId)||body.modelId!==input.modelId||typeof body.prompt!=='string'||Buffer.byteLength(body.prompt)>MODEL_ONLY_MAX_PROMPT_BYTES)throw invalid();
+   if(!record(body)||Object.keys(body).some(name=>!['sessionId','modelId','prompt'].includes(name))||typeof body.sessionId!=='string'||!/^[A-Za-z0-9_-]{1,200}$/.test(body.sessionId)||body.modelId!==input.modelId||typeof body.prompt!=='string')throw invalid();
    if(closed||response.destroyed||active||!pending)throw invalid();
    const metadata=pending;pending=undefined;
    const id=randomUUID(),nativeInput:StartRun={threadId:'hermes-model-'+id,runId:id,epoch:1,inputId:id,modelId:input.modelId,accountId:input.accountId??null,thinkingLevel:input.thinkingLevel,sessionPath:null,prompt:body.prompt,resources:[]};
@@ -73,6 +81,11 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      else release=await options.capacity!.acquire(providerId,input.accountId??null,owned.controller.signal);
      stage('acquired');
      if(closed||owned.cancelled)throw new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.');
+     if(metadata.phase==='foreground')await options.beforeInference?.({...metadata,promptBytes:Buffer.byteLength(nativeInput.prompt)});
+     if(closed||owned.cancelled)throw new HarnessError('HERMES_MODEL_CANCELLED','The owned model request was cancelled.');
+     const promptBytes=Buffer.byteLength(nativeInput.prompt);
+     if(metadata.phase==='foreground'&&contextBudget){const budget=contextBudget.preview(metadata,promptBytes);try{options.onContextBudget?.(budget);}catch{/* Budget projection cannot change the independently enforced byte bound. */}}
+     if(promptBytes>MODEL_ONLY_MAX_PROMPT_BYTES)throw new HarnessError('HERMES_CONTEXT_BYTE_LIMIT','The next inference exceeds the admitted prompt byte limit.');
      const runtime=owned.runtime=options.createRuntime();
      runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){
     if(active!==owned||owned.cancelled||event.threadId!==nativeInput.threadId||event.runId!==nativeInput.runId||event.epoch!==nativeInput.epoch)return;
@@ -84,15 +97,16 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
      }});
      stage('runtimeReady');
-     if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size});}catch{/* Observations do not affect admission or teardown. */}
+     if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size,...(metadata.nativeContext?{nativeContext:metadata.nativeContext}:{}),...(metadata.nativeSourcesUnavailable?{nativeSourcesUnavailable:metadata.nativeSourcesUnavailable}:{})});}catch{/* Observations do not affect admission or teardown. */}
      await runtime.start(nativeInput);dispatched=true;stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }catch(error){
      if(failure===undefined)failure=error;
      throw error;
     }finally{
-     if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
+     if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);if(usages.size>256)usages.delete(usages.keys().next().value!);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
      try{await owned.runtime?.dispose();release?.();if(owned.runtime)stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
       const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
+      if(contextBudget){contextBudget.record(metadata,id,usage,outcome);try{options.onBudgetAnchor?.(contextBudget.anchor());}catch{/* Future measurement reuse cannot prevent teardown. */}}
       // Adapter errors can contain source text or credentials. This telemetry
       // lives outside memory Forget custody, so publish only a fixed diagnosis.
       const diagnostic=outcome==='failed'?'The owned model request failed.':outcome==='cancelled'?'The owned model request was cancelled.':undefined;
@@ -115,7 +129,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
     send(response,200,result);
     if(content){metrics.mark('firstPublicDelta');const published=metrics.result;if(published){observations.set(metadata.sequence,published);try{options.onObservation?.(published,metadata);}catch{/* Observation cannot prevent native teardown. */}}}
    }
-  })().catch(()=>{if(!response.headersSent)send(response,400,{error:'The owned model request could not finish.'});else response.destroy();});
+  })().catch(cause=>{if(!response.headersSent)send(response,cause instanceof HarnessError&&cause.code==='HERMES_CONTEXT_BYTE_LIMIT'?413:400,{error:'The owned model request could not finish.',...(cause instanceof HarnessError&&cause.code==='HERMES_CONTEXT_BYTE_LIMIT'?{code:'HERMES_CONTEXT_BYTE_LIMIT'}:{})});else response.destroy();});
  });
  await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>{server.off('error',reject);resolve();});});
  const address=server.address();if(!address||typeof address==='string')throw invalid();

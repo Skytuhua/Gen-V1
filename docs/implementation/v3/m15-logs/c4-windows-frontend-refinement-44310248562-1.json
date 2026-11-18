@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "frontend-refinement"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T13:10:44.387Z",
+  "endedAt": "2026-11-18T13:14:55.874Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-windows-frontend-refinement-44310248562-1.log",
+  "logDigest": "8c08ba921b31a3151cff72997d3633a2c9410b79e680b23890370dd21fb11092"
+}

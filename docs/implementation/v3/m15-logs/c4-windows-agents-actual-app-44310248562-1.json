@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "tests/e2e/agents-workspace.playwright.config.ts",
+    "tests/e2e/agents-workspace.spec.ts",
+    "--output",
+    "test-results/m15/agents-actual-app/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T13:20:41.763Z",
+  "endedAt": "2026-11-18T13:21:40.106Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-windows-agents-actual-app-44310248562-1.log",
+  "logDigest": "25f1d3aa6fe630fff65bcdbcf41916dfb0ba22d790d99be7074f6b4b82277c8b"
+}

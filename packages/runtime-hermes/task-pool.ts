@@ -23,6 +23,7 @@ export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:H
   async start(input){return task(input.threadId).start(input);},async followUp(input){check();const engine=main.get(input.threadId);if(!engine)throw new HarnessError('HERMES_STALE_RUN','This thread has no source owner.');return engine.followUp(input);},
   cancel(ctx){return main.get(ctx.threadId)?.cancel(ctx)??Promise.resolve();},
   async compact(ctx,path,modelId,accountId,memoryCheckpoint,expectedHistorySha256){check();const engine=main.get(ctx.threadId);if(!engine)throw new HarnessError('HERMES_SESSION_INVALID','Compaction requires the retained source task.');return engine.compact(ctx,path,modelId,accountId,memoryCheckpoint,expectedHistorySha256);},
+  async compactProtected(ctx,path,modelId,accountId,protection,memoryCheckpoint){check();const engine=main.get(ctx.threadId);if(!engine?.compactProtected)throw new HarnessError('HERMES_COMPACTION_UNSUPPORTED','Protected compaction requires a retained capable source task.');return engine.compactProtected(ctx,path,modelId,accountId,protection,memoryCheckpoint);},
   nativeHistoryDigest(ctx,path,accountId){check();const engine=main.get(ctx.threadId);if(!engine?.nativeHistoryDigest)return Promise.resolve(null);return engine.nativeHistoryDigest(ctx,path,accountId);},
   history(path,account){check();return canonical.history(path,account);},
   sourceRequest(method,params){check();return canonical.sourceRequest(method,params);},sourceTool(params,authority){check();return canonical.sourceTool(params,authority);},
