@@ -1,6 +1,7 @@
 export interface BrowserSuite { name:string; config:string; specs:string[]; project?:string; env?:Record<string,string> }
 
 export const rootBrowserSpecs = [
+  'operation-execution-advice.spec.ts',
   'artifact-acknowledgment.spec.ts', 'clarity-data-work.spec.ts', 'dark-default.spec.ts',
   'document-window.spec.ts', 'host-loop.spec.ts', 'journal-reload.spec.ts', 'latency.spec.ts',
   'map-theme.spec.ts', 'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',

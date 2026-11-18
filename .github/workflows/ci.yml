@@ -56,6 +56,9 @@ jobs:
       - name: Check TypeScript and enforce UI architecture policy
         run: pnpm lint
 
+      - name: Check the repository type program
+        run: pnpm typecheck
+
       - name: Check and build the optional visuals plug-in
         run: |
           pnpm --dir plugins/personal-visuals typecheck
