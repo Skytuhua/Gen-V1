@@ -94,6 +94,46 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('1 Markdown files, 1 links');
     }finally{bench.cleanup();}
   });
+  it('accepts custom anchors and GitHub colliding heading suffixes',()=>{
+    const bench=fixture({
+      'guide.md':'# Guide\n\n## Foo\n\n## Foo\n\n## Foo-1\n\n<a id="custom"></a>\n<a name="legacy"></a>\n',
+      'README.md':'# Readme\n\nTo [a](guide.md#foo-1-1), [b](guide.md#foo-1), [c](guide.md#custom), [d](guide.md#legacy) and [e](guide.md#absent).\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('error README.md:3 guide.md#absent\n    no heading or anchor "#absent" in guide.md');
+      expect(result.output).toContain('1 broken');
+    }finally{bench.cleanup();}
+  });
+  it('reads both destinations of a linked image',()=>{
+    const bench=fixture({'README.md':'# Readme\n\n[![diagram](missing-image.png)](missing-page.md)\n'});
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('error README.md:3 missing-image.png');
+      expect(result.output).toContain('error README.md:3 missing-page.md');
+      expect(result.output).toContain('2 broken');
+    }finally{bench.cleanup();}
+  });
+  it('ignores example links inside blockquote fences and indented code',()=>{
+    const bench=fixture({'README.md':'# Readme\n\n> ```\n> [quoted](nowhere-quoted.md)\n> ```\n\n    [indented](nowhere-indented.md)\n\nReal [link](#readme).\n'});
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(0);
+      expect(result.output).not.toContain('nowhere-quoted.md');
+      expect(result.output).not.toContain('nowhere-indented.md');
+      expect(result.output).toContain('1 Markdown files, 1 links');
+    }finally{bench.cleanup();}
+  });
+  it('flags the pre-move clone URL as well as the plain one',()=>{
+    const bench=fixture({'README.md':'# Readme\n\n[clone](https://github.com/Skytuhua/Gen-V1.git) and [tree](https://github.com/Skytuhua/Gen-V1/tree/main)\n'});
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output.match(/stale repository URL/g)).toHaveLength(2);
+    }finally{bench.cleanup();}
+  });
   it('leaves the repository itself clean',()=>{
     const options={cwd:fileURLToPath(new URL('..',import.meta.url)),encoding:'utf8' as const,windowsHide:true,stdio:['ignore','pipe','pipe'] as ['ignore','pipe','pipe']};
     expect(execFileSync(process.execPath,[script],options)).toContain('broken, 0 warnings');
