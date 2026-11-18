@@ -41,9 +41,52 @@ export function resolveExecutable(name: string): ResolvedExecutable {
 }
 
 export interface PackageManagerResolution { file: string; prefix: string[]; declaredVersion: string | null }
+interface InstalledPnpm { resolution: PackageManagerResolution; matchesDeclared: boolean }
+// Resolve an installed pnpm (npm's symlink or the JavaScript entry beside its
+// Windows shim) and read the version from its own package metadata. A shim is
+// never returned: `shell:false` cannot run a .cmd file, and corepack shims
+// resolve to corepack's dispatcher, which is handled separately.
+function installedPnpm(declared: string | null): InstalledPnpm | null {
+  // A corepack shim is not an installed copy: it is the dispatcher, which the
+  // caller falls back to only after this search fails to produce a match.
+  const shimmed = (path: string) => path.split(/[\\/]/).includes('corepack');
+  let fallback: InstalledPnpm | null = null;
+  for (const directory of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
+    for (const name of ['pnpm', 'pnpm.exe', 'pnpm.cmd', 'pnpm.CMD']) {
+      const target = join(directory, name);
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      const actual = realpathSync(target);
+      if (/\.exe$/i.test(actual)) {
+        if (!shimmed(actual)) fallback ??= { resolution: { file: actual, prefix: [], declaredVersion: declared }, matchesDeclared: false };
+        continue;
+      }
+      for (const entry of [actual, join(dirname(actual), 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'), join(dirname(actual), '..', 'pnpm', 'bin', 'pnpm.cjs')]) {
+        if (!/\.[cm]?js$/i.test(entry) || !existsSync(entry) || !statSync(entry).isFile() || shimmed(entry)) continue;
+        let version: string | null = null;
+        for (const metadataPath of [join(dirname(entry), 'package.json'), join(dirname(entry), '..', 'package.json')]) {
+          if (!existsSync(metadataPath)) continue;
+          try {
+            const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'));
+            if (metadata?.name === 'pnpm' && typeof metadata.version === 'string') { version = metadata.version; break; }
+          } catch { /* Unreadable metadata is not a version claim. */ }
+        }
+        const resolution = { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
+        // A later PATH entry may still carry the declared version.
+        if (version !== null && version === declared) return { resolution, matchesDeclared: true };
+        fallback ??= { resolution, matchesDeclared: false };
+      }
+    }
+  }
+  return fallback;
+}
 export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
   const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
   const declared = typeof pkg.packageManager === 'string' ? pkg.packageManager.split('@').at(-1)! : null;
+  // An installed copy that names the declared version answers `--version`
+  // offline. Corepack may sit beside node and still be unable to fetch that
+  // version with COREPACK_ENABLE_NETWORK=0, so it never outranks this match.
+  const installed = installedPnpm(declared);
+  if (installed?.matchesDeclared) return installed.resolution;
   // `corepack enable` lays down POSIX/.cmd shims, not a PE image, so the real
   // entry on Windows is node.exe plus corepack's per-manager dispatcher.
   const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
@@ -54,21 +97,10 @@ export function resolvePackageManager(repoRoot: string): PackageManagerResolutio
   } catch (error) {
     if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
   }
-  // Corepack is optional when the declared pnpm is already installed. Resolve
-  // npm's symlink or the JavaScript entry beside its Windows shim; never run
-  // a .cmd file through shell:false or download a replacement toolchain.
-  for (const directory of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
-    for (const name of ['pnpm', 'pnpm.exe', 'pnpm.cmd', 'pnpm.CMD']) {
-      const target = join(directory, name);
-      if (!existsSync(target) || !statSync(target).isFile()) continue;
-      const actual = realpathSync(target);
-      if (/\.exe$/i.test(actual)) return { file: actual, prefix: [], declaredVersion: declared };
-      for (const entry of [actual, join(dirname(actual), 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'), join(dirname(actual), '..', 'pnpm', 'bin', 'pnpm.cjs')]) {
-        if (/\.[cm]?js$/i.test(entry) && existsSync(entry) && statSync(entry).isFile())
-          return { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
-      }
-    }
-  }
+  // Corepack is optional when the declared pnpm is already installed; a
+  // different installed version is still preferred over refusing to run, so
+  // the caller reports the observed mismatch instead of a missing toolchain.
+  if (installed) return installed.resolution;
   throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
 }
 
