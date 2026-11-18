@@ -143,9 +143,16 @@ struct HeldBinding {
 
 // Every binding op runs on the single STA thread, so the map needs no lock;
 // the Closed event also marshals onto that apartment.
+//
+// The registry is intentionally heap-allocated and leaked: its destructor
+// would release GraphicsCaptureItems during CRT teardown, which can run
+// after the WinRT apartment is already gone (observed 0xC0000005). Items
+// are released during runtime through dropBinding/dropAllOnSta; at process
+// exit the map is abandoned rather than destructed, so no item release can
+// ever happen outside a live apartment.
 std::unordered_map<std::string, HeldBinding>& bindings() {
-  static std::unordered_map<std::string, HeldBinding> map;
-  return map;
+  static auto* map = new std::unordered_map<std::string, HeldBinding>();
+  return *map;
 }
 
 std::atomic<uint64_t>& bindingSerial() {
@@ -210,10 +217,9 @@ void dropBinding(HeldBinding& binding) {
   binding.closed = true;
 }
 
-// Held items are WinRT objects owned by the STA apartment — releasing them
-// during CRT static teardown (after the apartment dies) crashes the host
-// (0xC0000005). The registry is therefore drained on env teardown while the
-// STA thread is still alive, never from a static destructor.
+// Best-effort graceful drain (env cleanup hook): releases items+props on the
+// STA thread while it is still alive. Inconsequential if it cannot run —
+// the leaked registry guarantees teardown never destructs the items anyway.
 void dropAllOnSta(void*) {
   for (auto& entry : bindings()) dropBinding(entry.second);
   bindings().clear();
@@ -759,8 +765,9 @@ napi_value init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "windowIdentity", ([&] { napi_value f; napi_create_function(env, "windowIdentity", NAPI_AUTO_LENGTH, windowIdentity, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "captureWindow", ([&] { napi_value f; napi_create_function(env, "captureWindow", NAPI_AUTO_LENGTH, captureWindow, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "dropBinding", ([&] { napi_value f; napi_create_function(env, "dropBinding", NAPI_AUTO_LENGTH, dropBindingOp, nullptr, &f); return f; })());
-  // Drain held bindings on env teardown — before WinRT/CRT teardown — so the
-  // process never releases a GraphicsCaptureItem into a dead apartment.
+  // Best-effort graceful drain on env teardown. The leaked registry is the
+  // actual teardown-ordering guarantee; this just returns props/items early
+  // when a graceful env teardown exists (e.g. addon env reload).
   napi_add_env_cleanup_hook(env, [](void*) { try { onSta(dropAllOnSta, nullptr); } catch (...) {} }, nullptr);
   return exports;
 }
