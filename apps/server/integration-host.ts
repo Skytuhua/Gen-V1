@@ -7,8 +7,10 @@ import {integrationIdSchema,type HostComplete,type IntegrationId,type Integratio
 import {isConnectionProviderId} from '../../packages/contracts/connections.ts';
 import type {ProjectSummary} from '../../packages/contracts/workspace.ts';
 import {accountResolver,assertAccountAvailable} from '../../packages/core/accounts.ts';
+import {hostFlagEnabled} from '../../packages/core/host-flags.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
 import {IntegrationManager,type ResolvedIntegrationScope} from '../../packages/integrations/index.ts';
+import {Context7SecretReferences} from '../../packages/integrations/context7-secret-reference.ts';
 import {createRuntime} from '../../packages/runtime/index.ts';
 import {hermesModelCapacity,type ModelCapacity} from '../../packages/runtime/model-capacity.ts';
 import type {HermesSettings} from '../../packages/runtime-hermes/index.ts';
@@ -21,6 +23,7 @@ type Retained={runtime:RuntimeAdapter;release:()=>void};
 export interface IntegrationHostOptions {
  store:Store;workspace?:WorkspaceRepository;runtime:{refreshIntegrations(disabledIds:IntegrationId[]):Promise<void>};
  root?:string;nodeExecutable?:string;pythonExecutable?:string;capacity?:ModelCapacity;
+ secretRefsEnabled?:boolean;
  createNativeRuntime?:()=>RuntimeAdapter;
  resolveProjectRoot?:(scope:IntegrationScope,thread:Thread|undefined,project:ProjectSummary)=>Promise<string|undefined>;
 }
@@ -35,6 +38,7 @@ const integrationTools=[
 export function createIntegrationHost(options:IntegrationHostOptions){
  const {store}=options,workspace=options.workspace??new WorkspaceRepository(store),captured=new Map<string,{preferences:IntegrationPreferences;scope:BoundScope;root?:string}>(),retained=new Set<Retained>(),operations=new Set<Promise<NativeCompletion>>(),stops=new Set<()=>void>(),releases=new Set<Promise<void>>();
  let closed=false,closing:Promise<void>|undefined,context7Key:string|undefined;
+ const secretReferences=new Context7SecretReferences(options.secretRefsEnabled??hostFlagEnabled('security.secretRefsV1'),options.nodeExecutable??process.execPath,()=>context7Key);
  function binding(input:IntegrationScope,ctx?:RunContext):Binding{
   if(closed)throw denied('The integration host has closed.');
   if(input.authority.kind!=='local')throw denied('Company authority cannot use personal integrations.');
@@ -94,7 +98,7 @@ export function createIntegrationHost(options:IntegrationHostOptions){
   })();operations.add(operation);void operation.finally(()=>operations.delete(operation)).catch(()=>{});return operation;
  };
  const manager=new IntegrationManager({root:options.root??fileURLToPath(new URL('../..',import.meta.url)),dataRoot:store.dataDir,nodeExecutable:options.nodeExecutable,pythonExecutable:options.pythonExecutable,
-  authorize,hostComplete:complete,context7Key:async()=>context7Key,
+  authorize,hostComplete:complete,context7Key:async()=>{if(secretReferences.enabled&&context7Key)throw new HarnessError('SECRET_REF_APPROVAL','Context7 credential delivery requires an approved operation.');return context7Key;},
   getPreferences:scope=>{if(scope?.threadId){const owner=binding(scope);if(owner.thread){const value=captured.get(runKey(owner.thread));if(value)return value.preferences;}}return workspace.read().state.integrations;},
   setPreference:async(id,preference)=>{workspace.command({id:randomUUID(),type:'workspace.integrations.update',payload:{id,...preference}});},
   onDisable:async id=>{await options.runtime.refreshIntegrations([id]);},
@@ -129,10 +133,10 @@ export function createIntegrationHost(options:IntegrationHostOptions){
   if(typeof args.tool==='string')return manager.callTool(id,args.tool,args.args??{},owner.scope);
   return manager.command(id,args.command as string,args.args??{},owner.scope);
  }
- return {manager,settingsFor,additionalTool,complete,
-  async configurePrivate(value:{context7ApiKey?:string}){if(closed)throw denied('The integration host has closed.');if(Object.keys(value).some(key=>key!=='context7ApiKey')||value.context7ApiKey!==undefined&&(typeof value.context7ApiKey!=='string'||value.context7ApiKey.length>4096))throw denied('Invalid private integration configuration.');const next=value.context7ApiKey||undefined;if(next!==context7Key)await manager.restart('context7',()=>{context7Key=next;});},
+ return {manager,settingsFor,additionalTool,complete,secretReferences:()=>secretReferences.status(),
+  async configurePrivate(value:{context7ApiKey?:string}){if(closed)throw denied('The integration host has closed.');if(Object.keys(value).some(key=>key!=='context7ApiKey')||value.context7ApiKey!==undefined&&(typeof value.context7ApiKey!=='string'||value.context7ApiKey.length>4096))throw denied('Invalid private integration configuration.');const next=value.context7ApiKey||undefined;if(next!==context7Key||secretReferences.requiresConfiguration()){secretReferences.invalidate();await manager.restart('context7',()=>{context7Key=next;secretReferences.configure(Boolean(next));});}},
   async close(){
-   if(closing)return closing;closed=true;
+   if(closing)return closing;closed=true;secretReferences.close();
    // One settlement: concurrent or repeated close calls must not dispose twice.
    closing=(async()=>{unsubscribeOwners();captured.clear();context7Key=undefined;for(const stop of stops)stop();await manager.dispose();await Promise.allSettled([...operations,...releases]);releases.clear();for(const owner of retained){await owner.runtime.dispose();owner.release();retained.delete(owner);}})();
    return closing;
