@@ -159,6 +159,18 @@ describe('regression test selection', () => {
     expect(result.coverage).toBe('PARTIAL');
   });
 
+  it('indexes files, not folders whose names end with a test suffix', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-discovery-'));
+    try {
+      const nested = join(root, 'fixture.test.ts');
+      mkdirSync(nested);
+      writeFileSync(join(nested, 'actual.test.ts'), '');
+      expect(discoverTestFiles(root)).toEqual(['fixture.test.ts/actual.test.ts']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('discovers the real suite inventory', () => {
     const found = discoverTestFiles(testsDir);
     expect(found.length).toBeGreaterThan(200);

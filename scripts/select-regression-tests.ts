@@ -50,6 +50,7 @@ function normalizedRepoPath(path: string): string | null {
 
 export function discoverTestFiles(testDir: string): string[] {
   return readdirSync(testDir, { recursive: true, withFileTypes: true })
+    // Directory names can end in a test suffix; a symlinked test file is still a test.
     .filter(entry => !entry.isDirectory())
     .map(entry => relative(testDir, join(entry.parentPath, entry.name)).replaceAll(sep, '/'))
     .filter(path => /\.test\.[cm]?[jt]sx?$/.test(path));
