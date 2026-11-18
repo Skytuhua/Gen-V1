@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "project-memory"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T13:10:17.743Z",
+  "endedAt": "2026-11-18T13:10:44.015Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-windows-project-memory-44310248562-1.log",
+  "logDigest": "77da7080b3503625d898a3861241ecb4bfd65f5819a1f854cf5dd8f25ef06f6a"
+}

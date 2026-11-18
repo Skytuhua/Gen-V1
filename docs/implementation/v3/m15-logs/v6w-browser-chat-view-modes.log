@@ -1,0 +1,112 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","chat-view-modes"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+Browser results: C:\Users\Administrator\repos\Gen-V1-m15-v6\test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be
+
+Browser suite: chat-view-modes (2 spec files)
+
+Running 6 tests using 1 worker
+
+  x  1 tests\e2e\chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership (30.1s)
+  x  2 tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag (30.0s)
+  x  3 tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 (30.0s)
+  ok 4 tests\e2e\chat-view-modes.spec.ts:27:1 › the conversation lives in the split plane with its messages, composer and attachments (4.3s)
+  ok 5 tests\e2e\chat-view-modes.spec.ts:39:1 › draft, selection and reading position survive the workspace panel opening (2.5s)
+  ok 6 tests\e2e\chat-view-modes.spec.ts:81:1 › reduced motion settles instantly and keyboard focus stays in the composer (1.3s)
+
+
+  1) tests\e2e\chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Switch layout', exact: true })[22m
+
+
+       9 |  await page.goto('/chat-view-escape-check');
+      10 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+    > 11 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+         |                                                                   ^
+      12 |  await page.getByRole('menuitemcheckbox',{name:'Pop-up',exact:true}).click();
+      13 |  await expect(panel(page)).toHaveAttribute('data-chat-mode','popup');
+      14 |  await expect.poll(()=>panel(page).evaluate(element=>element.getAnimations().filter(effect=>effect.playState==='running'||effect.playState==='paused').length)).toBe(0);
+        at open (C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:11:67)
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:23:2
+
+    Error Context: test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-5ef24-releases-keyboard-ownership\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-5ef24-releases-keyboard-ownership\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-5ef24-releases-keyboard-ownership\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Switch layout', exact: true })[22m
+
+
+       9 |  await page.goto('/chat-view-escape-check');
+      10 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+    > 11 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+         |                                                                   ^
+      12 |  await page.getByRole('menuitemcheckbox',{name:'Pop-up',exact:true}).click();
+      13 |  await expect(panel(page)).toHaveAttribute('data-chat-mode','popup');
+      14 |  await expect.poll(()=>panel(page).evaluate(element=>element.getAnimations().filter(effect=>effect.playState==='running'||effect.playState==='paused').length)).toBe(0);
+        at open (C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:11:67)
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:33:2
+
+    Error Context: test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-f3486-e-with-IME-composition-flag\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-f3486-e-with-IME-composition-flag\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-f3486-e-with-IME-composition-flag\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 ──
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Switch layout', exact: true })[22m
+
+
+       9 |  await page.goto('/chat-view-escape-check');
+      10 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+    > 11 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+         |                                                                   ^
+      12 |  await page.getByRole('menuitemcheckbox',{name:'Pop-up',exact:true}).click();
+      13 |  await expect(panel(page)).toHaveAttribute('data-chat-mode','popup');
+      14 |  await expect.poll(()=>panel(page).evaluate(element=>element.getAnimations().filter(effect=>effect.playState==='running'||effect.playState==='paused').length)).toBe(0);
+        at open (C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:11:67)
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\chat-view-escape.spec.ts:33:2
+
+    Error Context: test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-67b8e-ape-with-IME-legacy-key-229\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-67b8e-ape-with-IME-legacy-key-229\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998148960-b66ea668-d32b-41d2-b73a-8739e81c96be\chat-view-modes\artifacts\chat-view-escape-active-dr-67b8e-ape-with-IME-legacy-key-229\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests\e2e\chat-view-escape.spec.ts:47:1 › active drag Escape cancels before an open tooltip and then releases keyboard ownership 
+    tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME composition flag ─
+    tests\e2e\chat-view-escape.spec.ts:75:5 › active drag ignores Escape with IME legacy key 229 ───
+  3 passed (1.7m)
+
+Failed browser suites: chat-view-modes (exit 1)

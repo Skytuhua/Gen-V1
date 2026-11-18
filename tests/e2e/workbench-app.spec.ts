@@ -114,7 +114,7 @@ test('real activity integration bounds mounted rows and searches the authorized 
  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();
  await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');
  const [returned]=await Promise.all([
-  page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.activate'&&command.payload.viewId==='thread:task-thread';},{timeout:5000}),
+  page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.id==='thread:task-thread';},{timeout:5000}),
   page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),
  ]);
  expect(returned.status()).toBe(200);const receipt=await returned.json();expect(receipt.result.panes[receipt.result.focusedPaneId].activeViewId).toBe('thread:task-thread');
