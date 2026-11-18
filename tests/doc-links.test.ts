@@ -158,3 +158,21 @@ it('checks anchors from rendered headings, not comments or fenced code',()=>{
     expect(result.output).toContain('3 broken');
   }finally{bench.cleanup();}
 });
+
+it('retains real anchors around comments and quoted code fences',()=>{
+  const bench=fixture({
+    'README.md':'[compact](guide.md#ab) [outside](guide.md#real-between) [after](guide.md#after-quote)',
+    'guide.md':[
+      '## A<!-- description -->B', '',
+      '```html', '<!--', '```', '',
+      '## Real between', '',
+      '```html', '-->', '```', '',
+      '> ```markdown', '> ## Example', '',
+      '## After quote',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status,result.output).toBe(0);
+  }finally{bench.cleanup();}
+});

@@ -19,17 +19,45 @@ const external = process.argv.includes('--external'), verbose = process.argv.inc
 
 const blank = text => text.replace(/[^\n]/g, ' ');
 export const readable = (source, keepInlineCode = false) => {
-  let fence = '', indented = false, blankBefore = true, listed = false;
-  return source.replace(/\r\n?/g, '\n').replace(/<!--[\s\S]*?-->/g, blank).split('\n').map(line => {
-    const quoted = line.replace(/^(?: {0,3}>[ \t]?)+/, ''), opener = /^ {0,3}(`{3,}|~{3,})/.exec(quoted);
+  let fence = '', fenceDepth = 0, comment = false, indented = false, blankBefore = true, listed = false;
+  const removeComments = line => {
+    let cursor = 0, cleaned = '';
+    const hide = text => keepInlineCode ? '' : blank(text);
+    while (cursor < line.length) {
+      if (comment) {
+        const end = line.indexOf('-->', cursor);
+        const next = end < 0 ? line.length : end + 3;
+        cleaned += hide(line.slice(cursor, next));
+        cursor = next;
+        if (end >= 0) comment = false;
+        continue;
+      }
+      // Inline examples consume their delimiters before HTML comments can open.
+      const next = /(`+)(.+?)\1|<!--/g;
+      next.lastIndex = cursor;
+      const match = next.exec(line);
+      if (!match) return cleaned + line.slice(cursor);
+      cleaned += line.slice(cursor, match.index);
+      cursor = next.lastIndex;
+      if (match[0] === '<!--') { cleaned += hide(match[0]); comment = true; }
+      else cleaned += match[0];
+    }
+    return cleaned;
+  };
+  return source.replace(/\r\n?/g, '\n').split('\n').map(line => {
+    const prefix = /^(?: {0,3}>[ \t]?)+/.exec(line)?.[0] ?? '';
+    const depth = prefix.split('>').length - 1;
+    const quoted = line.slice(prefix.length), opener = /^ {0,3}(`{3,}|~{3,})/.exec(quoted);
+    if (fence && depth < fenceDepth) { fence = ''; blankBefore = true; }
     if (fence) {
-      if (opener && !quoted.slice(opener[0].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
+      if (depth === fenceDepth && opener && !quoted.slice(opener[0].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
       return '';
     }
-    if (opener) { fence = opener[1]; indented = blankBefore = false; return ''; }
-    if (listMarker.test(line)) listed = true;
-    else if (/^\S/.test(line)) listed = false;
-    if (!listed && /^(?: {4}|\t)/.test(line) && (blankBefore || indented)) { indented = true; blankBefore = false; return ''; }
+    if (!comment && opener) { fence = opener[1]; fenceDepth = depth; indented = blankBefore = false; return ''; }
+    if (!comment && listMarker.test(line)) listed = true;
+    else if (!comment && /^\S/.test(line)) listed = false;
+    if (!comment && !listed && /^(?: {4}|\t)/.test(line) && (blankBefore || indented)) { indented = true; blankBefore = false; return ''; }
+    line = removeComments(line);
     if (line.trim()) indented = false;
     blankBefore = !line.trim();
     return keepInlineCode ? line : line.replace(/(`+)(.+?)\1/g, (span, ticks, body) => ticks + blank(body) + ticks);
