@@ -32,6 +32,7 @@ import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
+import {registerOperationProjectTrustRoutes} from './operation-project-trust-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -204,6 +205,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerSourceWorkbenchRoutes(app,service);
   registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
+  registerOperationProjectTrustRoutes(app,service);
   registerAttentionRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
