@@ -9,6 +9,7 @@ import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authorit
 import { createToolEffectFlags, ToolEffectLedger } from '../packages/core/tool-effects.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -26,7 +27,8 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'effect-operation-owner-'));
   const store = new Store(join(root, 'state'));
   const flags = { 'audit.effectsV1': true, 'security.authorityV1': true } as const;
-  const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()), createToolEffectFlags(flags));
+  const authenticator = testEffectAuthenticator();
+  const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()), createToolEffectFlags(flags), authenticator);
   let callbacks!: RuntimeCallbacks;
   const starts: StartRun[] = [];
   const runtime: RuntimeAdapter = {
@@ -36,7 +38,7 @@ async function fixture() {
     followUp: async () => {}, cancel: async () => {}, compact: async () => {},
     history: async () => [], dispose: async () => {},
   };
-  const service = new Service(store, runtime, { toolEffectFlags: flags });
+  const service = new Service(store, runtime, { toolEffectFlags: flags, toolEffectAuthenticator: authenticator });
   const command = (type: string, threadId?: string, payload: Record<string, unknown> = {}) =>
     service.command({ id: crypto.randomUUID(), type, threadId, payload });
   const first = (await command('thread.create')).result as Thread;
