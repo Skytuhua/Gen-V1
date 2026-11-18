@@ -1,11 +1,11 @@
 {
   "schemaVersion": 3,
   "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
-  "executionBaseSha": "aca5f0612e52a494040d7a78585ac1cf8de06c08",
+  "executionBaseSha": "689b61f4e461d037fd51d93bd27e36692dde5acf",
   "inspectedPaths": [
     {
       "path": "apps/server/server.ts",
-      "blobSha": "7b4dd123085bcf567d5b5829d1cbb925c7856cb4"
+      "blobSha": "370c9dd5d6201a4a7f44116cf55fc4a212a1963b"
     },
     {
       "path": "apps/server/session-branch-routes.ts",
@@ -13,11 +13,11 @@
     },
     {
       "path": "apps/web/src/App.tsx",
-      "blobSha": "513fafb0f5e3e4c3f545f640ed1310c148ab5e95"
+      "blobSha": "8282e6d576f489dbc92624c151853cf045445115"
     },
     {
       "path": "apps/web/src/SessionBranchMenu.tsx",
-      "blobSha": "ddeda77afe7b5cbccfe0cfcef21fe2ca2595ec11"
+      "blobSha": "aef69a7e37a25c3ec39d72389e2ba6493caeab51"
     },
     {
       "path": "apps/web/src/session-branch-api.ts",
@@ -29,11 +29,11 @@
     },
     {
       "path": "packages/contracts/implementation-evidence.ts",
-      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+      "blobSha": "6851e571feeaf0fdade155011a4604f499383564"
     },
     {
       "path": "packages/contracts/index.ts",
-      "blobSha": "4543457cd2b748280b7264868f5c3151c5444d8e"
+      "blobSha": "a9d196f949239a8de432e0faf2e0ecba7d772ce4"
     },
     {
       "path": "packages/contracts/project-memory.ts",
@@ -41,7 +41,7 @@
     },
     {
       "path": "packages/contracts/request-context.ts",
-      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+      "blobSha": "0efc0f5312a34743df9fdfd70cc74226b135d204"
     },
     {
       "path": "packages/contracts/session-branch.ts",
@@ -49,11 +49,11 @@
     },
     {
       "path": "packages/contracts/tool-effects.ts",
-      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+      "blobSha": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0"
     },
     {
       "path": "packages/core/capability-flags.ts",
-      "blobSha": "c2ec030eb8eaf52096ac50c1d78bbb997fd70600"
+      "blobSha": "7c1282a3749a3d28fa9156e09850286ec7211630"
     },
     {
       "path": "packages/core/conversation-read-models.ts",
@@ -65,19 +65,19 @@
     },
     {
       "path": "packages/core/project-memory-host.ts",
-      "blobSha": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+      "blobSha": "1e982200362b597991f52db2dc5b452fbb7c6358"
     },
     {
       "path": "packages/core/project-memory.ts",
-      "blobSha": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+      "blobSha": "97212622236425238928b0ebbfcb68d5a776a729"
     },
     {
       "path": "packages/core/request-custody.ts",
-      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+      "blobSha": "25c3775dd9263080ba9da27991d1d2aebca1ba96"
     },
     {
       "path": "packages/core/service.ts",
-      "blobSha": "1f0d3ab448a74203e27bb341d1053f518c8b55f2"
+      "blobSha": "c6a9abe6297c978afbe757561b88f0e1e8b1683f"
     },
     {
       "path": "packages/core/session-branches.ts",
@@ -85,7 +85,7 @@
     },
     {
       "path": "packages/runtime-hermes/worker.py",
-      "blobSha": "c736b8a9165b8265b6de527021d50f8068900549"
+      "blobSha": "f216c7a1542cbca0980686f844a81b116a1e3457"
     },
     {
       "path": "packages/runtime-official/history.ts",
@@ -97,11 +97,11 @@
     },
     {
       "path": "packages/storage/store.ts",
-      "blobSha": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326"
+      "blobSha": "4a078eb988ebe9c25b00f203c25aeae7679e8bde"
     },
     {
       "path": "scripts/public-source-files.json",
-      "blobSha": "35a13330af3306e7177047c8532f968b51c222b3"
+      "blobSha": "91ee7e6302ef2ee0f945d4e7bf7fc4f778b5edd5"
     },
     {
       "path": "tests/history-import-decisions-v6.test.ts",
@@ -119,7 +119,7 @@
   "publicContracts": [
     {
       "name": "runtime-adapter",
-      "version": "4543457cd2b748280b7264868f5c3151c5444d8e",
+      "version": "a9d196f949239a8de432e0faf2e0ecba7d772ce4",
       "testIds": [
         "tests/runtime-pi.test.ts",
         "tests/hermes-runtime.test.ts",
@@ -128,7 +128,7 @@
     },
     {
       "name": "store-command",
-      "version": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326",
+      "version": "4a078eb988ebe9c25b00f203c25aeae7679e8bde",
       "testIds": [
         "tests/store.test.ts",
         "tests/conversation-read-models.test.ts"
