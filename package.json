@@ -16,6 +16,7 @@
     "typecheck": "tsc --noEmit",
     "lint:ui": "tsx scripts/lint-ui.ts",
     "lint": "tsx scripts/lint-ui.ts --check",
+    "check:docs-links": "node scripts/check-doc-links.mjs",
     "test:ui-guard": "vitest run tests/ui-guard.test.ts tests/ui-numeric-children.test.ts --maxWorkers=1",
     "test": "pnpm build:credential-lease && pnpm build:widgets && vitest run",
     "test:no-lease": "pnpm build:widgets && vitest run",
