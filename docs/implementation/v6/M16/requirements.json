@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); chooser fixture receipts landed @ e4531ae2 (owned capture PNG + HWND-recycling refusal) but browser-tab qualification remains env-blocked (backend-deadline / port-9222) and the system picker stays held (HOLD_PICKER_BINDING)."
+      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); chooser fixture receipts landed @ e4531ae2 (owned capture PNG + HWND-recycling refusal) but browser-tab qualification remains env-blocked — isolated-ports re-run confirmed backend-deadline (backend emitted 0 stdout bytes in 60s on fresh ephemeral ports + owned data dir; port collision excluded) — and the system picker stays held (HOLD_PICKER_BINDING)."
     },
     {
       "id": "M16-S09",

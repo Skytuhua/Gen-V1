@@ -385,7 +385,7 @@
         {
           "id": "bridge-browser-live",
           "status": "NOT_RUN",
-          "evidence": "@ e4531ae2 live attempt BLOCKED pre-API: backend sidecar misses the 60s backend-deadline under Electron spawn (verbatim \"Gen V1 startup failed: The local backend did not become ready\"; Electron self-exited 0). Same run logged port-9222 in use (0x2740 \"Cannot start http server for devtools\" — Chrome fleet on the box). Backend boots standalone (Harness host: http://127.0.0.1:4317) but still exceeds the desktop deadline here. See fixture-browser-m16-bridge.log (raw evidence, TIMEOUT driver-side)."
+          "evidence": "@ e4531ae2 (39d1d6da) isolated-ports re-run: backend-deadline CONFIRMED, port collision excluded — fresh ephemeral ports 54968/54969/54970 (listen(0), no 9222/4317/4318), owned data dir, nonce verified (NONCE_OK). CDP ready in ~0.5s; backend emitted 0 stdout/169 stderr bytes in 60s → backend-deadline → startup-failed (verbatim \"Gen V1 startup failed: The local backend did not become ready\"; Electron self-exited 0; driver exit 3 = main-page-deadline). Standalone backend boots but exceeds the desktop deadline on this box (slow Hermes Python-worker startup). Consent/capture/Stop sequence never reachable → BLOCKED. See fixture-browser-m16-bridge.log."
         }
       ],
       "commands": [
@@ -471,6 +471,21 @@
               "status": "PASS",
               "boundedLogRef": "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
               "logDigest": "315cfe651d1f947ee57e690dcf9fcb2190f7a985a844a4349fe148fd246eb8a2"
+      },
+      {
+              "argv": [
+                      "node",
+                      "C:/Users/user/AppData/Local/Temp/m16-desktop-launch-v2.cjs"
+              ],
+              "cwdIdentity": "C:/Users/user/repos/Gen-V1-m16-bridge",
+              "executableIdentity": "C:/Program Files/nodejs/node.exe",
+              "startedAt": "2026-11-18T20:29:52.811Z",
+              "endedAt": "2026-11-18T20:33:52.815Z",
+              "exitCode": 3,
+              "termination": "NONE",
+              "status": "BLOCKED",
+              "boundedLogRef": "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log",
+              "logDigest": "1c7c210bdbaff6daadb95f2d1a80d5d1f9c6133144ddd8c8a993ca869c2c658b"
       }
       ],
       "artifactRefs": [

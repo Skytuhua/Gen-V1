@@ -164,8 +164,11 @@ production flag change.
   9222 collision was in the *verifier's own launch script*, not checked-in
   config — `verificationPorts()`/`installedVerificationEnvironment()`
   allocate fresh ephemeral ports + owned data dir per run. Isolation re-run
-  of installed-browser consent/capture/Stop on fresh owned ports is in
-  flight; if backend-deadline persists there it becomes the classification.
+  confirmed: fresh ephemeral ports 54968–54970 + owned data dir + verified
+  nonce → CDP ready in ~0.5s, backend still emitted 0 stdout bytes in 60s
+  → `backend-deadline` → `startup-failed` (driver exit 3). Classification:
+  the deadline is real (slow backend startup on this box), not the port
+  collision. Consent/capture/Stop never reachable → browser slice BLOCKED.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
