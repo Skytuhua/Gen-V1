@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -7,7 +8,6 @@ import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authorit
 import { __setEffectFaultHookForTests, ToolEffectLedger, createToolEffectFlags } from '../packages/core/tool-effects.ts';
 import { disableEffects, observationFreshness, reconcileEffect, recoverEffects, retryDecision } from '../packages/core/effect-recovery.ts';
 import { ToolEffectReadModels } from '../packages/core/tool-effect-read-models.ts';
-import type { ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { Thread, ToolCall } from '../packages/contracts/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
@@ -28,7 +28,7 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-effect-recovery-'));
   const store = new Store(join(root, 'state'));
   const authority = new ToolAuthority(buildToolRegistry());
-  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), testEffectAuthenticator());
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
   return { store, authority, ledger };
 }
@@ -66,13 +66,16 @@ it('fails undispatched prepared effects as interrupted and keeps transitions', a
 
 it('retries reads only under a fresh valid owner, never ambiguous effects', async () => {
   const { authority, ledger } = await fixture();
-  const unknown = { ...ledger.get('x') ?? {} } as ToolEffectRecord;
+  await ledger.invoke({ call: call('retry-source'), ctx, thread: thread(), role: 'run' }, async () => 1);
+  const unknown = { ...ledger.get('retry-source')!, state: 'UNKNOWN_EXTERNAL_OUTCOME' as const };
   const read = authority.require('repository_read');
-  expect(retryDecision({ ...unknown, state: 'UNKNOWN_EXTERNAL_OUTCOME' }, read, true)).toEqual({ retry: true, reason: 'read_retryable' });
-  expect(retryDecision({ ...unknown, state: 'UNKNOWN_EXTERNAL_OUTCOME' }, read, false).reason).toBe('owner_revoked');
+  expect(retryDecision(unknown, read, true)).toEqual({ retry: true, reason: 'read_retryable' });
+  expect(retryDecision(unknown, read, false).reason).toBe('owner_revoked');
   expect(retryDecision({ ...unknown, state: 'DISPATCHED' }, read, true).reason).toBe('not_retryable_state');
-  expect(retryDecision({ ...unknown, state: 'UNKNOWN_EXTERNAL_OUTCOME' }, authority.require('operation_execute'), true)).toEqual({ retry: false, reason: 'not_replayable' });
-  expect(retryDecision({ ...unknown, state: 'UNKNOWN_EXTERNAL_OUTCOME' }, authority.require('integration_call'), true)).toEqual({ retry: true, reason: 'provider_idempotent_same_key' });
+  const mutation = authority.require('operation_execute');
+  expect(retryDecision({ ...unknown, toolId: mutation.id, definitionDigest: mutation.schemaDigest }, mutation, true)).toEqual({ retry: false, reason: 'not_replayable' });
+  const provider = authority.require('integration_call');
+  expect(retryDecision({ ...unknown, toolId: provider.id, definitionDigest: provider.schemaDigest }, provider, true)).toEqual({ retry: false, reason: 'provider_idempotency_unproven' });
 });
 
 it('settles an OPERATION_OUTCOME_UNKNOWN error as uncertain, not failed', async () => {
@@ -181,4 +184,41 @@ it('does not inherit an operation outcome onto a forged invocation identity', as
   const outcome = recoverEffects(store);
   expect(outcome.uncertain).toEqual(['operation:op-crash@1']);
   expect(ledger.get('operation:op-crash@1')?.state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
+});
+
+it.each(['id', 'schemaDigest'] as const)('refuses retry after the registered %s changes', async field => {
+  const { authority, ledger } = await fixture();
+  await ledger.invoke({ call: call('retry-drift'), ctx, thread: thread(), role: 'run' }, async () => 1);
+  const effect = { ...ledger.get('retry-drift')!, state: 'UNKNOWN_EXTERNAL_OUTCOME' as const };
+  const before = structuredClone(effect);
+  expect(retryDecision(effect, { ...authority.require('repository_read'), [field]: 'changed' }, true))
+    .toEqual({ retry: false, reason: 'definition_changed' });
+  expect(effect).toEqual(before);
+});
+
+it.each(['UNKNOWN_EXTERNAL_OUTCOME', 'FAILED'] as const)('quarantines %s provider effects without a proven contract and exact key', async state => {
+  const { authority, ledger } = await fixture();
+  const definition = authority.require('integration_call');
+  const effect = ledger.admit({ call: { name: definition.id, args: { invocationId: 'provider-retry' } },
+    owner: { threadId: 'thread-1', runId: 'run-1', epoch: 1, projectId: 'p1', workspaceId: 'w1', accountBinding: 'acct-1' }, definition });
+  const before = structuredClone(effect);
+  expect(retryDecision({ ...effect, state }, definition, true)).toEqual({ retry: false, reason: 'provider_idempotency_unproven' });
+  expect(ledger.get(effect.invocationId)).toEqual(before);
+});
+
+it('does not admit a write merely because it is marked READ_RETRYABLE', async () => {
+  const { authority, ledger } = await fixture();
+  await ledger.invoke({ call: call('retry-write'), ctx, thread: thread(), role: 'run' }, async () => 1);
+  const effect = { ...ledger.get('retry-write')!, state: 'FAILED' as const };
+  expect(retryDecision(effect, { ...authority.require('repository_read'), risk: 'NETWORK_WRITE' }, true))
+    .toEqual({ retry: false, reason: 'not_read_only' });
+});
+
+it('fails closed for an unclassified replay value', async () => {
+  const { authority, ledger } = await fixture();
+  await ledger.invoke({ call: call('retry-unknown'), ctx, thread: thread(), role: 'run' }, async () => 1);
+  const definition = authority.require('repository_read');
+  expect(retryDecision({ ...ledger.get('retry-unknown')!, state: 'FAILED' },
+    { ...definition, replayClass: 'FUTURE' as typeof definition.replayClass }, true))
+    .toEqual({ retry: false, reason: 'unclassified_replay' });
 });
