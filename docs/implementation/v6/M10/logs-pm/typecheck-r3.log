@@ -1,0 +1,23 @@
+
+> gen-v1@0.6.5 typecheck /home/piadmin/gv1-m10-v6-pmcheck
+> tsc --noEmit
+
+
+<--- Last few GCs --->
+
+[142074:0xffffb8520000]   474903 ms: Mark-Compact 2041.2 (2050.8) -> 2036.0 (2048.8) MB, pooled: 3 MB, 1618.59 / 0.00 ms  (average mu = 0.168, current mu = 0.042) allocation failure; scavenge might not succeed
+
+FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
+----- Native stack trace -----
+
+ 1: 0x72846c node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
+ 2: 0xb2cd5c  [node]
+ 3: 0xb2ce34  [node]
+ 4: 0xda7f1c  [node]
+ 5: 0xda7f4c  [node]
+ 6: 0xda82a4  [node]
+ 7: 0xdb7a44  [node]
+ 8: 0xdbb6a4  [node]
+ 9: 0x17a1ed4  [node]
+Aborted (core dumped)
+ ELIFECYCLE  Command failed with exit code 134.

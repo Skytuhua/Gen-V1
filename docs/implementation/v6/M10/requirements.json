@@ -5,7 +5,7 @@
   "worktree": "/home/piadmin/Gen-V1-m10-v6",
   "auditAnchorSha": "4805af4680094d2af48ecf666688e750797e9dda",
   "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
-  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution — capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
+  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution \u2014 capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
   "ownershipSearch": {
     "localWorktrees": [
       "Gen-V1 (fix/t10-agents-grid-v3, preserved)",
@@ -25,7 +25,7 @@
   "requirements": [
     {
       "id": "M10-C01",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/contracts/background-work.ts"
       ],
@@ -33,11 +33,11 @@
         "tests/background-work-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "BackgroundWorkV1 strict contract absent on base; created reusing toolOwnerSchema from packages/contracts/tool-effects.ts. SETTLED requires observed terminal outcome; UNKNOWN forces outcome=null; RUN default lifetime."
+      "reason": "BackgroundWorkV1 strict contract absent on base; created reusing toolOwnerSchema from packages/contracts/tool-effects.ts. SETTLED requires observed terminal outcome; UNKNOWN forces outcome=null; RUN default lifetime. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
     },
     {
       "id": "M10-C02",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/contracts/background-work.ts"
       ],
@@ -45,11 +45,11 @@
         "tests/background-work-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "WakeupV1 tagged AT_UTC/INTERVAL_UTC/HOST_EVENT triggers, display-only scheduleTimezone, occurrence identity, claim generation and lease fields; payloads carry no authority."
+      "reason": "WakeupV1 tagged AT_UTC/INTERVAL_UTC/HOST_EVENT triggers, display-only scheduleTimezone, occurrence identity, claim generation and lease fields; payloads carry no authority. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
     },
     {
       "id": "M10-C03",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/contracts/background-work.ts",
         "packages/core/background-work.ts"
@@ -57,11 +57,11 @@
       "testIds": [
         "tests/human-handoff-v3.test.ts"
       ],
-      "reason": "HumanStepV1 correlates one request revision to owner and resume binding; action approval still requires the exact M02 envelope."
+      "reason": "HumanStepV1 correlates one request revision to owner and resume binding; action approval still requires the exact M02 envelope. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
     },
     {
       "id": "M10-C04",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/contracts/background-work.ts",
         "packages/core/external-intake.ts"
@@ -69,11 +69,11 @@
       "testIds": [
         "tests/external-intake-v3.test.ts"
       ],
-      "reason": "IntakeV1 records source installation, numeric repository, event/delivery identity, payload digest and REJECTED/PROPOSED/APPROVED disposition; external content never supplies authority."
+      "reason": "IntakeV1 records source installation, numeric repository, event/delivery identity, payload digest and REJECTED/PROPOSED/APPROVED disposition; external content never supplies authority. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
     },
     {
       "id": "M10-S01",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/durable-wakeups.ts"
       ],
@@ -81,11 +81,11 @@
         "tests/background-work-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "One scheduler over the existing Store: 1000ms tick, at most 50 due records inspected per tick (shared budget across due wakeups and expired claims), synchronous claim transactions, 30000ms lease, 10000ms heartbeat, claimGeneration increment, exact occurrenceKey formulas, restart reconciliation before replacement delivery. No second database."
+      "reason": "One scheduler over the existing Store: 1000ms tick, at most 50 due records inspected per tick (shared budget across due wakeups and expired claims), synchronous claim transactions, 30000ms lease, 10000ms heartbeat, claimGeneration increment, exact occurrenceKey formulas, restart reconciliation before replacement delivery. No second database. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S02",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/service.ts",
@@ -94,22 +94,22 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Owned RUN-lifetime command state with exact process identity (pid + creation token), bounded output with cursor retrieval; command launch bound to the M03 evaluateExecution policy through the production host. Remaining gap: the foreground-timeout Continue-in-background offer is not wired to the operation timeout UI (recorded in remainingGates)."
+      "reason": "Owned RUN-lifetime command state with exact process identity (pid + creation token), bounded output with cursor retrieval; command launch bound to the M03 evaluateExecution policy through the production host. Remaining gap: the foreground-timeout Continue-in-background offer is not wired to the operation timeout UI (recorded in remainingGates). Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S03",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts"
       ],
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Host loss marks RUN-lifetime commands UNKNOWN until an exact owned-process exit/teardown receipt; APPROVED_SERVICE admission blocked with HOLD_SUPERVISOR because no installed supervisor has target-platform PASS evidence. No supervisor selected or installed."
+      "reason": "Host loss marks RUN-lifetime commands UNKNOWN until an exact owned-process exit/teardown receipt; APPROVED_SERVICE admission blocked with HOLD_SUPERVISOR because no installed supervisor has target-platform PASS evidence. No supervisor selected or installed. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S04",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/durable-wakeups.ts",
         "packages/core/background-work.ts"
@@ -117,11 +117,11 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Delivery revalidates current task state, owner run/epoch, project, account binding and a host-injected account/grant/budget authority hook (Service binds assertAccountAvailable); stale lease/epoch triggers reconciliation only; missing provider/permission yields BLOCKED without tight retry."
+      "reason": "Delivery revalidates current task state, owner run/epoch, project, account binding and a host-injected account/grant/budget authority hook (Service binds assertAccountAvailable); stale lease/epoch triggers reconciliation only; missing provider/permission yields BLOCKED without tight retry. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S05",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/service.ts"
@@ -130,11 +130,11 @@
         "tests/human-handoff-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Human steps pause automatic retries; accepted response correlates exact request revision and owner and enqueues one durable follow-up; credential entry never uses plaintext message content; stale answers to superseded revisions rejected."
+      "reason": "Human steps pause automatic retries; accepted response correlates exact request revision and owner and enqueues one durable follow-up; credential entry never uses plaintext message content; stale answers to superseded revisions rejected. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S06",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/durable-wakeups.ts"
@@ -142,7 +142,7 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Persisted per-project/profile idle opt-in, >=60000ms interval, one idle job per profile, read-only verification/organization proposals only; foreground admission cancels queued idle work; running idle keeps its permit until confirmed teardown. Actual idle review model execution stays behind jobs.idleReviewV1 and the C5 fork gate."
+      "reason": "Persisted per-project/profile idle opt-in, >=60000ms interval, one idle job per profile, read-only verification/organization proposals only; foreground admission cancels queued idle work; running idle keeps its permit until confirmed teardown. Actual idle review model execution stays behind jobs.idleReviewV1 and the C5 fork gate. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S07",
@@ -155,11 +155,11 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "HOLD_FORK_API: the pinned Hermes wrapper exposes no callable fork API. Review fork admission returns UNSUPPORTED_FORK; auxiliary budget absence blocks. A new parent turn invalidates actionable fork output (tested) while late results remain historical. Live fork execution is not claimed."
+      "reason": "HOLD_FORK_API: the pinned Hermes wrapper exposes no callable fork API. Review fork admission returns UNSUPPORTED_FORK; auxiliary budget absence blocks. A new parent turn invalidates actionable fork output (tested) while late results remain historical. Live fork execution is not claimed. Session-5 post-merge: hold unchanged; UNSUPPORTED_FORK path verified on cut 4aef753e."
     },
     {
       "id": "M10-S08",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/runtime/model-capacity.ts"
@@ -167,11 +167,11 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Model capacity permits released only after confirmed native teardown of each occurrence (success or cancellation); account lease release never inferred from timeout or closed UI; advisory outputs kept separate from foreground messages until structured settlement."
+      "reason": "Model capacity permits released only after confirmed native teardown of each occurrence (success or cancellation); account lease release never inferred from timeout or closed UI; advisory outputs kept separate from foreground messages until structured settlement. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S09",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/external-intake.ts",
         "packages/workspace/github-auth.ts"
@@ -180,11 +180,11 @@
         "tests/external-intake-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Authenticated read-only polling through the existing GitHubAuth connection once per 60000ms while explicitly enabled; only the configured numeric repository ID and issue records; dedupe by repository ID + issue node ID + updated_at; payload digest retained; no webhook listener."
+      "reason": "Authenticated read-only polling through the existing GitHubAuth connection once per 60000ms while explicitly enabled; only the configured numeric repository ID and issue records; dedupe by repository ID + issue node ID + updated_at; payload digest retained; no webhook listener. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S10",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/external-intake.ts",
         "packages/core/service.ts"
@@ -192,11 +192,11 @@
       "testIds": [
         "tests/external-intake-v3.test.ts"
       ],
-      "reason": "Approved external tasks route through the same thread.create/message.send project, role and execution gates as manual tasks; unknown senders/inferred tasks stay proposals; source links and decisions stored; no auto-push/merge/publish/recurring schedule from external text."
+      "reason": "Approved external tasks route through the same thread.create/message.send project, role and execution gates as manual tasks; unknown senders/inferred tasks stay proposals; source links and decisions stored; no auto-push/merge/publish/recurring schedule from external text. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S11",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/durable-wakeups.ts",
         "packages/core/external-intake.ts"
@@ -206,11 +206,11 @@
         "tests/external-intake-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Retry only host-classified transient read failures: 3 attempts, 1000ms/2000ms delays; no retry after cancellation/authorization/validation failure or uncertain nonreplayable dispatch; every intended missed occurrence persisted (100k host memory guard for pathological jumps); only the latest due occurrence admitted, never burst-replayed."
+      "reason": "Retry only host-classified transient read failures: 3 attempts, 1000ms/2000ms delays; no retry after cancellation/authorization/validation failure or uncertain nonreplayable dispatch; every intended missed occurrence persisted (100k host memory guard for pathological jumps); only the latest due occurrence admitted, never burst-replayed. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-S12",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/durable-wakeups.ts",
@@ -219,11 +219,11 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Shutdown drain: no new admission, cancel eligible work, bounded wait for owned teardown, uncertainty recorded; vanished process never settles work by itself."
+      "reason": "Shutdown drain: no new admission, cancel eligible work, bounded wait for owned teardown, uncertainty recorded; vanished process never settles work by itself. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
     },
     {
       "id": "M10-U01",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "apps/web/src/BackgroundWork.tsx",
         "apps/server/background-routes.ts"
@@ -231,22 +231,22 @@
       "testIds": [
         "tests/e2e/background-work.spec.ts"
       ],
-      "reason": "Task-owned background drawer: Waiting/Running/Waiting for you/Blocked/Completed/Outcome unknown; command, owner, elapsed, output and Open child task visible."
+      "reason": "Task-owned background drawer: Waiting/Running/Waiting for you/Blocked/Completed/Outcome unknown; command, owner, elapsed, output and Open child task visible. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
     },
     {
       "id": "M10-U02",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "apps/web/src/BackgroundWork.tsx"
       ],
       "testIds": [
         "tests/e2e/background-work.spec.ts"
       ],
-      "reason": "Human-action cards explain the exact blocked step with secure Respond/Decline through the existing handoff command path; a regression test proves attention dismiss-popup neither completes nor approves the step; credential steps route to the secure host surface."
+      "reason": "Human-action cards explain the exact blocked step with secure Respond/Decline through the existing handoff command path; a regression test proves attention dismiss-popup neither completes nor approves the step; credential steps route to the secure host surface. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
     },
     {
       "id": "M10-U03",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "apps/web/src/BackgroundWork.tsx",
         "apps/server/background-routes.ts"
@@ -254,11 +254,11 @@
       "testIds": [
         "tests/e2e/background-work.spec.ts"
       ],
-      "reason": "External inbox separates proposed from approved work with repository, authenticated source and duplicate/rejected state; schedules expose next occurrence, display timezone, pause and last actual run."
+      "reason": "External inbox separates proposed from approved work with repository, authenticated source and duplicate/rejected state; schedules expose next occurrence, display timezone, pause and last actual run. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
     },
     {
       "id": "M10-U04",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "apps/web/src/BackgroundWork.tsx",
         "packages/core/background-work.ts"
@@ -266,7 +266,7 @@
       "testIds": [
         "tests/e2e/background-work.spec.ts"
       ],
-      "reason": "Close warning states work stops with the app because no proven service supervisor exists; no laptop-sleep execution promise."
+      "reason": "Close warning states work stops with the app because no proven service supervisor exists; no laptop-sleep execution promise. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
     },
     {
       "id": "M10-T01",
@@ -277,7 +277,7 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Two-scheduler race and restart before/after claim acceptance cases."
+      "reason": "Two-scheduler race and restart before/after claim acceptance cases. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-T02",
@@ -288,7 +288,7 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "PID reuse, orphan process, broken supervisor connection, missing exit acknowledgment yield UNKNOWN."
+      "reason": "PID reuse, orphan process, broken supervisor connection, missing exit acknowledgment yield UNKNOWN. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-T03",
@@ -299,7 +299,7 @@
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "Foreground preemption of eligible idle jobs without releasing a still-active account permit."
+      "reason": "Foreground preemption of eligible idle jobs without releasing a still-active account permit. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-T04",
@@ -310,7 +310,7 @@
       "testIds": [
         "tests/human-handoff-v3.test.ts"
       ],
-      "reason": "Stale/duplicate/cross-thread human responses never resume the wrong work."
+      "reason": "Stale/duplicate/cross-thread human responses never resume the wrong work. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-T05",
@@ -321,7 +321,7 @@
       "testIds": [
         "tests/external-intake-v3.test.ts"
       ],
-      "reason": "Forged webhook, wrong repository, duplicate delivery and prompt injection create no unauthorized execution."
+      "reason": "Forged webhook, wrong repository, duplicate delivery and prompt injection create no unauthorized execution. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-T06",
@@ -334,11 +334,11 @@
         "tests/background-work-v3.test.ts",
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Wall-clock jump and DST-display transitions preserve occurrence identity; shutdown prevents new admission."
+      "reason": "Wall-clock jump and DST-display transitions preserve occurrence identity; shutdown prevents new admission. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
     },
     {
       "id": "M10-G01",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/capability-flags.ts"
@@ -347,22 +347,22 @@
         "tests/background-work-v3.test.ts",
         "tests/external-intake-v3.test.ts"
       ],
-      "reason": "Contracts and ordinary owned RUN jobs pass independently of an OS service; APPROVED_SERVICE and idle/source forks unavailable until demonstrated; external approval never inferred from repository write access."
+      "reason": "Contracts and ordinary owned RUN jobs pass independently of an OS service; APPROVED_SERVICE and idle/source forks unavailable until demonstrated; external approval never inferred from repository write access. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
     },
     {
       "id": "M10-G02",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/capability-flags.ts"
       ],
       "testIds": [
         "tests/background-work-v3.test.ts"
       ],
-      "reason": "jobs.backgroundV1, jobs.serviceLifetimeV1, jobs.idleReviewV1, integrations.intakeV1 added to the existing host registry without replacing other keys; default false; absent from strict UI preferences; no agent/plugin toggle."
+      "reason": "jobs.backgroundV1, jobs.serviceLifetimeV1, jobs.idleReviewV1, integrations.intakeV1 added to the existing host registry without replacing other keys; default false; absent from strict UI preferences; no agent/plugin toggle. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
     },
     {
       "id": "M10-G03",
-      "disposition": "IMPLEMENT",
+      "disposition": "PRESERVE_EXISTING",
       "sourcePaths": [
         "packages/core/background-work.ts",
         "packages/core/durable-wakeups.ts",
@@ -372,7 +372,7 @@
         "tests/background-work-v3.test.ts",
         "tests/external-intake-v3.test.ts"
       ],
-      "reason": "Rollback pauses wakeups and intake, preserves occurrence/effect receipts, stops owned running jobs (identity-verified) and cancels eligible queued work; uncertain processes stay quarantined for inspection."
+      "reason": "Rollback pauses wakeups and intake, preserves occurrence/effect receipts, stops owned running jobs (identity-verified) and cancels eligible queued work; uncertain processes stay quarantined for inspection. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
     },
     {
       "id": "M10-D01",
@@ -383,7 +383,7 @@
       "testIds": [
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Two claimers race one occurrence; exactly one successful admission receipt."
+      "reason": "Two claimers race one occurrence; exactly one successful admission receipt. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
     },
     {
       "id": "M10-D02",
@@ -394,7 +394,7 @@
       "testIds": [
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Lease expiry after uncertain external dispatch: no second submit, UNKNOWN until reconciliation."
+      "reason": "Lease expiry after uncertain external dispatch: no second submit, UNKNOWN until reconciliation. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
     },
     {
       "id": "M10-D03",
@@ -405,7 +405,7 @@
       "testIds": [
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key."
+      "reason": "Forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
     },
     {
       "id": "M10-D04",
@@ -416,7 +416,7 @@
       "testIds": [
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Human answer replay: identical answer one delivery, changed answer CONFLICT, no new approval grant."
+      "reason": "Human answer replay: identical answer one delivery, changed answer CONFLICT, no new approval grant. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
     },
     {
       "id": "M10-D05",
@@ -427,7 +427,47 @@
       "testIds": [
         "tests/background-contract-decisions-v6.test.ts"
       ],
-      "reason": "Polling intake: wrong repository, repeated revision and injected commands create no executor call; authorized new issue creates one proposal only."
+      "reason": "Polling intake: wrong repository, repeated revision and injected commands create no executor call; authorized new issue creates one proposal only. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
     }
-  ]
+  ],
+  "postMergeVerification": {
+    "session": 5,
+    "remoteBranchDeleted": "origin/agent/m10-v6 absent post-merge of PR #501 (squash 016738f7); stale tracking tip a5aa3798 is the recovered published head",
+    "branchCustody": "local agent/m10-v6 fast-forwarded 23a311b7..a5aa3798 (pure FF to recovered head); no force update",
+    "capturedMain": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
+    "mergeAttempt": {
+      "command": "git merge --no-commit --no-ff 4aef753ec272d6ab9f9f9eec1df0ca232386975b on agent/m10-v6 at a5aa3798",
+      "result": "conflicts on 4 paths; git merge --abort per R03; join marked HOLD_SOURCE_DRIFT (stale pre-squash line only; all task content already on main)",
+      "mergeBase": "3f7f96840255f3f21c1983ef23c5dee946f5ce05",
+      "conflicts": [
+        {
+          "path": "packages/core/external-intake.ts",
+          "base": null,
+          "ours": "6988becfe7dd8a9c7a6af57e60de2bfcbea09acc",
+          "theirs": "59d104f037ae99992c70a3c4ee5a88c1021a7cd6"
+        },
+        {
+          "path": "packages/core/service.ts",
+          "base": "03b6ee8bac50547083848a1fab3a98438058a15b",
+          "ours": "986b00f61dd152bf1e36ea336f6fdf2ff633f153",
+          "theirs": "83415577c6186558a1100daf933de4e9e5be0602"
+        },
+        {
+          "path": "scripts/public-source-files.json",
+          "base": "2e5d94227e916525e7d23a40a34b4fe0c5805d8b",
+          "ours": "9d3d2c5756fb5df5327f876602af28ada81f544e",
+          "theirs": "6c0964767f162de858e4425354d8064c74353703"
+        },
+        {
+          "path": "tests/external-intake-v3.test.ts",
+          "base": null,
+          "ours": "16bc877c8e2fd927da265a6c9f6ebb7e624b0f17",
+          "theirs": "8f9892af7208a57dfd89cd8aa80d4c09464804d6"
+        }
+      ]
+    },
+    "verificationWorktree": "/home/piadmin/gv1-m10-v6-pmcheck (detached at 4aef753e; /tmp scratch worktree destroyed by /tmp wipe mid-session, first-pass results re-verified here)",
+    "receipts": "docs/implementation/v6/M10/receipts-postmerge.jsonl",
+    "handoff": "docs/implementation/v6/M10/handoff-postmerge.md"
+  }
 }

@@ -1,0 +1,51 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/gv1-m10-v6-pmcheck[39m
+
+(node:36096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/background-work-v3.test.ts [2m([22m[2m43 tests[22m[2m)[22m[33m 188988[2mms[22m[39m
+     [33m[2m✓[22m[39m keeps background admission disabled until the host enables its own key [33m 1759[2mms[22m[39m
+     [33m[2m✓[22m[39m two racing schedulers create exactly one admission for one occurrence [33m 2206[2mms[22m[39m
+     [33m[2m✓[22m[39m restart before claim delivers once; restart after uncertain claim never redelivers without reconciliation [33m 4288[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects unsupported schedule kinds with SCHEDULE_KIND_UNSUPPORTED [33m 2178[2mms[22m[39m
+     [33m[2m✓[22m[39m blocks delivery when the owner epoch changed and never revives prior authority [33m 4896[2mms[22m[39m
+     [33m[2m✓[22m[39m requires persisted opt-in, a >=60s interval and one idle job per profile [33m 3227[2mms[22m[39m
+     [33m[2m✓[22m[39m foreground admission cancels queued idle work and keeps a running permit until confirmed teardown [33m 3025[2mms[22m[39m
+     [33m[2m✓[22m[39m review forks require an auxiliary budget and report UNSUPPORTED_FORK on the pinned wrapper [33m 4328[2mms[22m[39m
+     [33m[2m✓[22m[39m APPROVED_SERVICE stays blocked without a proven installed supervisor [33m 2364[2mms[22m[39m
+     [33m[2m✓[22m[39m commands without an approved execution profile stay HOLD_EXECUTION_PROFILE [33m 7504[2mms[22m[39m
+     [33m[2m✓[22m[39m captures exact process identity, bounded cursor output and an exit receipt [33m 3444[2mms[22m[39m
+     [33m[2m✓[22m[39m failed exit codes settle FAILED, never SUCCEEDED [33m 2199[2mms[22m[39m
+     [33m[2m✓[22m[39m PID reuse yields UNKNOWN and never signals the reused PID [33m 6354[2mms[22m[39m
+     [33m[2m✓[22m[39m host loss marks RUNNING commands UNKNOWN until the exact owned exit receipt resolves them [33m 2181[2mms[22m[39m
+     [33m[2m✓[22m[39m a repeated or concurrent start never spawns a second owned process [33m 746[2mms[22m[39m
+     [33m[2m✓[22m[39m a settled command releases its session so busy readiness clears [33m 4206[2mms[22m[39m
+     [33m[2m✓[22m[39m a scheduled command stays parked while a human step is pending, then runs after the answer [33m 5002[2mms[22m[39m
+     [33m[2m✓[22m[39m a blocked AT_UTC wakeup re-arms on resume instead of staying permanently dead [33m 2733[2mms[22m[39m
+     [33m[2m✓[22m[39m a human-deferred host-event firing delivers on resume without a new event [33m 4039[2mms[22m[39m
+     [33m[2m✓[22m[39m a held firing stranded before resume redelivers through recover() [33m 6492[2mms[22m[39m
+     [33m[2m✓[22m[39m recovery never executes a held firing while the feature is disabled [33m 3975[2mms[22m[39m
+     [33m[2m✓[22m[39m an auto-resumed schedule keeps an operator pause [33m 8509[2mms[22m[39m
+     [33m[2m✓[22m[39m a scheduled firing during an in-flight manual start waits instead of blocking [33m 3782[2mms[22m[39m
+     [33m[2m✓[22m[39m a direct start on a revoked owner blocks instead of launching [33m 3030[2mms[22m[39m
+     [33m[2m✓[22m[39m an answer after the owner run changed is denied before any follow-up [33m 4689[2mms[22m[39m
+     [33m[2m✓[22m[39m host-event wakeups deliver when the host publishes an allowlisted event [33m 3249[2mms[22m[39m
+     [33m[2m✓[22m[39m drain prevents new admission, cancels eligible work and records uncertainty [33m 2408[2mms[22m[39m
+     [33m[2m✓[22m[39m wall-clock jumps preserve occurrence identity and timezone stays display metadata [33m 1341[2mms[22m[39m
+     [33m[2m✓[22m[39m pauses wakeups, preserves receipts and quarantines uncertain work [33m 3812[2mms[22m[39m
+     [33m[2m✓[22m[39m admits background work through Service.command with host-derived ownership [33m 5971[2mms[22m[39m
+     [33m[2m✓[22m[39m routes human respond/decline and intake configuration through the same command path [33m 3818[2mms[22m[39m
+     [33m[2m✓[22m[39m S04: account mismatch and host authority revalidation block delivery without retry [33m 1521[2mms[22m[39m
+     [33m[2m✓[22m[39m S04: injected grant/budget authority hook blocks delivery [33m 2506[2mms[22m[39m
+     [33m[2m✓[22m[39m S01: one tick inspects at most 50 due records across wakeups and expired claims [33m 48075[2mms[22m[39m
+     [33m[2m✓[22m[39m S11: every missed occurrence is persisted, not only a bounded sample [33m 2056[2mms[22m[39m
+     [33m[2m✓[22m[39m S08: a confirmed successful idle teardown releases its permit [33m 2138[2mms[22m[39m
+     [33m[2m✓[22m[39m S07: a new parent turn invalidates actionable fork output while history remains [33m 4721[2mms[22m[39m
+     [33m[2m✓[22m[39m admission rejects malformed command specs and non-read-only idle kinds [33m 6443[2mms[22m[39m
+     [33m[2m✓[22m[39m G03: rollback stops owned running commands and preserves their receipts [33m 3705[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m43 passed[39m[22m[90m (43)[39m
+[2m   Start at [22m 03:11:37
+[2m   Duration [22m 263.78s[2m (transform 65.02s, setup 0ms, import 69.07s, tests 188.99s, environment 0ms)[22m
+
