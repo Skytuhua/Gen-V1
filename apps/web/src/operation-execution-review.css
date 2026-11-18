@@ -1,0 +1,8 @@
+.operation-execution-review { min-width: 0; margin-block: 12px; border-top: 1px solid var(--border); }
+.operation-execution-review > details { margin-block: 10px; }
+.operation-execution-review summary { cursor: pointer; color: var(--text); }
+.execution-review-content { display: grid; gap: 12px; margin-top: 12px; min-width: 0; overflow-wrap: anywhere; }
+.execution-review-content section { min-width: 0; }
+.execution-review-content h3 { margin: 0 0 6px; font-size: inherit; font-weight: 600; color: var(--text); }
+.execution-review-content p { margin: 6px 0; }
+.execution-review-content > button { justify-self: start; }

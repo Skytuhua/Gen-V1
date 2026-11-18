@@ -1,0 +1,16 @@
+.project-trust-summary { display: grid; gap: 8px; margin-block: 12px; padding: 12px; border: 1px solid var(--border); border-radius: 8px; }
+.project-trust-summary p { margin: 0; }
+.project-trust-summary > .quiet { justify-self: start; }
+.project-trust-dialog { width: min(760px, calc(100vw - 32px)); }
+.project-trust-content { display: grid; gap: 18px; min-width: 0; }
+.project-trust-content section { min-width: 0; }
+.project-trust-content h3 { margin: 0 0 8px; font-size: 1rem; }
+.project-trust-content p { margin: 8px 0; }
+.project-trust-content code { display: block; overflow-wrap: anywhere; white-space: pre-wrap; }
+.project-trust-content dl { margin: 8px 0; }
+.project-trust-content dt { margin-top: 10px; font-weight: 600; }
+.project-trust-content dd { margin: 4px 0 8px; }
+.project-trust-content .project-trust-scope { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 16px; }
+.project-trust-content .project-trust-scope dt, .project-trust-content .project-trust-scope dd { margin: 3px 0; }
+.project-trust-content .check-field { margin-top: 12px; }
+.project-trust-content .dialog-actions { flex-wrap: wrap; }
