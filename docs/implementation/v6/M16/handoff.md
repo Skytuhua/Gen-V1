@@ -170,14 +170,30 @@ production flag change.
   the deadline is real, not the port collision. Root cause then named by
   per-stage `launchHost` bisect: everything completes ≈110 ms except
   `service.recover()` → `source.library.initialize()` — a `skills.list`
-  request into the Hermes worker (`py.exe -3.14 -I -S -B worker.py`) that
-  never settles and has no timeout (standalone backend >300 s, zero output;
-  event loop alive → unbounded promise, not a sync block). On this degraded
-  box the worker spawn likely wedges, but the code path is unbounded
-  regardless. Consent/capture/Stop unreachable → browser slice BLOCKED.
-  Owner decision pending: bound the recover-path call → fail-closed
-  `harness.error` (no deadline extension) vs. environmental verdict on a
-  clean verifier.
+  request that never settles (standalone backend >300 s, zero output; event
+  loop alive → unbounded promise, not a sync block). Manager-authorized
+  discriminator then isolated the exact seam @ `98d8f599`: a bounded direct
+  `py.exe -3.14 -I -S -B worker.py` spawn under the checked-in
+  `environment(home)` answered `hello` in ~2.5 s and correctly refused
+  `skills.list` before `hello` — **the worker is healthy**; a bare launch
+  idles on stdin as designed. But the real `HermesClient.request` stayed
+  PENDING at 90 s with `guardAcquired=false` — it never left `ensure()` →
+  `withHermesHome` → `withPathGuard`. Verbatim replication showed the guard
+  child `powershell.exe -NoLogo -NoProfile -NonInteractive -File
+  windows-path-guard.ps1` spawning then emitting 0 bytes (wedged
+  powershell, environmental); the 45 s acquire bound DOES fire
+  (`rpc result=DENIED` at 45,013 ms); but the teardown in the `finally`
+  (`child.stdin.end()`; `kill` at +2 s; `await closed`,
+  `packages/core/file-access.ts`) never settles because the wedged
+  powershell cannot be killed — even `taskkill /F` — so `withPathGuard`
+  never returns and the bounded denial becomes a permanent hang. Exact
+  seam for the minimal fail-closed fix (owner decision): bound the
+  close wait (`Promise.race([closed, timeout])`) and let the original
+  `CAPABILITY_DENIED` win over teardown; the latent sibling is the
+  unbounded `child.once('spawn'|'error')` in
+  `packages/runtime-hermes/client.ts`. Consent/capture/Stop unreachable →
+  browser slice BLOCKED. Side effect disclosed: one orphaned owned
+  powershell pid survived `taskkill /F` on the box.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
@@ -209,9 +225,11 @@ production flag change.
   op sequences incl. 40×listWindows all exit 0) → environmental
   process-reaping anomaly, not an addon defect — pending one clean-box
   fixture re-run for final teardown confirmation. Browser slice BLOCKED on
-  the deterministic `backend-deadline` environment issue (backend alone
-  boots; Electron-spawned sidecar misses the 60s deadline; port-9222 also
-  held by the host Chrome fleet).
+  `backend-deadline`: the backend never publishes `harness.ready` even
+  standalone (>300 s silent) because `service.recover()` →
+  `source.library.initialize()` hangs inside `withPathGuard`'s unbounded
+  teardown `await closed` when its wedged powershell guard child won't
+  die — proven by the discriminator above.
 - Older receipts @ `bdf5e27c` (hold cut): vitest 56/56, typecheck/lint 0,
   artifact `FC7F2161…C1E4`, all three exports refusing — preserved in git
   history and superseded by the `636d9095` bound-item receipts above.
