@@ -11,6 +11,11 @@ const logRef = `${dir}/${id}.log`, recordRef = `${dir}/${id}.json`;
 if (existsSync(recordRef)) throw Error('Use a new ID; failed evidence is immutable.');
 const startedAt = new Date().toISOString(), cwdIdentity = realpathSync('.');
 const executablePath = /[/\\]/.test(executable) ? resolve(executable) : (process.env.PATH ?? '').split(delimiter).map(p => join(p, executable)).find(existsSync);
+// An unavailable canonical path must not hide the actual spawn result.
+let executableIdentity = executable;
+if (executablePath) {
+  try { executableIdentity = realpathSync(executablePath); } catch { /* retain the requested name */ }
+}
 // Claim the ID before starting the process. A second recorder cannot run under
 // the same ID, and a recorder interrupted before completion cannot recycle it.
 const logHandle = (() => {
@@ -22,14 +27,14 @@ const logHandle = (() => {
 })();
 let output = '', ended = false;
 const child = spawn(executable, args, {cwd: cwdIdentity, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], shell: false});
-const collect = chunk => {output += chunk.toString(); if (output.length > 240000) output = '[earlier output truncated]\n' + output.slice(-200000);};
-child.stdout.on('data', collect); child.stderr.on('data', collect);
+const collect = chunk => {output += chunk; if (output.length > 240000) output = '[earlier output truncated]\n' + output.slice(-200000);};
+child.stdout.setEncoding('utf8').on('data', collect); child.stderr.setEncoding('utf8').on('data', collect);
 function finish(exitCode, termination, error) {
   if (ended) return; ended = true;
   if (error) output += `\n${error.message}\n`;
   const log = `argv: ${JSON.stringify([executable, ...args])}\ncwd: ${cwdIdentity}\nexitCode: ${exitCode}\ntermination: ${termination}\n${output}`;
   try { writeFileSync(logHandle, log); } finally { closeSync(logHandle); }
-  const record = {argv: [executable, ...args], cwdIdentity, executableIdentity: executablePath ? realpathSync(executablePath) : executable,
+  const record = {argv: [executable, ...args], cwdIdentity, executableIdentity,
     startedAt, endedAt: new Date().toISOString(), exitCode, termination, status: termination !== 'NONE' ? 'BLOCKED' : exitCode === 0 ? 'PASS' : 'FAIL',
     boundedLogRef: logRef, logDigest: createHash('sha256').update(log).digest('hex')};
   writeFileSync(recordRef, JSON.stringify(record, null, 2) + '\n', {flag:'wx'});
