@@ -208,7 +208,10 @@ export class AgentInbox {
       createdAt: now,
     });
     // Mailboxes are data, not control: posting never creates grants or runs commands.
+    // The cap bounds active messages, exactly as messages() reports them: an
+    // expired message no longer holds a board slot.
     const active = store.all<AgentMessageV1>(MESSAGE_KIND).filter(message => message.taskId === spec.taskId
+      && message.expiresAt > now
       && (message.receipt.status === 'POSTED' || message.receipt.status === 'DELIVERED'));
     if (active.length >= AGENT_WORK_LIMITS.activeMessagesPerTask) throw new HarnessError('INVALID_AGENT_MESSAGE', `Task ${spec.taskId} already has ${AGENT_WORK_LIMITS.activeMessagesPerTask} active messages`);
     store.internal('agentMessage.post', spec.taskId, () => store.put(MESSAGE_KIND, record.messageId, spec.taskId, record));
