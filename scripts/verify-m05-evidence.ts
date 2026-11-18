@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { isAbsolute, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { bundleStatus, implementationEvidenceV3Schema, sourceLockV3Schema, validateImplementationEvidence } from '../packages/contracts/implementation-evidence.ts';
 
@@ -29,7 +29,8 @@ for (const phase of evidence.phases) {
   for (const command of phase.commands) {
     commandCount++;
     const path = resolve(root, command.boundedLogRef);
-    if (!path.startsWith(root + '/') || !existsSync(path)) { errors.push(`Missing log: ${command.boundedLogRef}`); continue; }
+    const contained = relative(root, path);
+    if (!contained || contained.startsWith('..') || isAbsolute(contained) || !existsSync(path)) { errors.push(`Missing log: ${command.boundedLogRef}`); continue; }
     if (statSync(path).size > 65536) errors.push(`Unbounded log: ${command.boundedLogRef}`);
     if (sha256(readFileSync(path)) !== command.logDigest) errors.push(`Log digest mismatch: ${command.boundedLogRef}`);
     if (Date.parse(command.endedAt) < Date.parse(command.startedAt)) errors.push(`Invalid command times: ${command.boundedLogRef}`);
