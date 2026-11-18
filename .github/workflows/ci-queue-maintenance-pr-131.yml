@@ -1,0 +1,16 @@
+# One-time cancellation of the obsolete CI run from merged PR #131.
+# This file exists only on the isolated operations branch and is removed after verification.
+name: CI
+on:
+  push:
+    branches: [ops/ci-queue-cleanup-20261118]
+permissions: {}
+concurrency:
+  group: CI-refs/pull/131/merge
+  cancel-in-progress: true
+jobs:
+  cleanup:
+    if: ${{ false }}
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "No runner required"
