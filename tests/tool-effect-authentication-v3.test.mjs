@@ -143,6 +143,18 @@ it.each(['kind', 'args', 'preconditions', 'resourceIds'])
     expect(x.store.sequence).toBe(sequence);
   });
 
+it.each(['commandId', 'invocationId', 'operationId'])
+  ('refuses an operation payload that overrides host %s identity', async field => {
+    const x = await fixture(), altered = { ...x.operation, args: { ...x.operation.args, [field]: 'forged-effect-id' } };
+    const before = x.store.sequence, mark = vi.fn();
+    expect(() => x.ledger.admitOperationDispatch(altered, x.thread, mark))
+      .toThrow(expect.objectContaining({ code: 'INVOCATION_CONFLICT' }));
+    expect(mark).not.toHaveBeenCalled();
+    expect(x.store.sequence).toBe(before);
+    expect(x.ledger.get('operation:' + x.operation.id + '@1')).toBeNull();
+    expect(x.ledger.get('forged-effect-id')).toBeNull();
+  });
+
 it('survives Store restart with the same key and preserves the single dispatch receipt', async () => {
   const x = await fixture(), approval = x.approve(); x.reopen(signer());
   const effect = x.dispatch(); x.ledger.settle(effect.invocationId, { value: { writes: 1 } }, 'SUCCEEDED');

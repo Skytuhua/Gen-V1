@@ -263,6 +263,9 @@ export class ToolEffectLedger {
    * schema/grant/epoch) changes the commitment and denies before dispatch. */
   admitOperationDispatch(operation: Operation, thread: Thread, markRunning: () => void): ToolEffectRecord | null {
     const invocationId = "operation:" + operation.id + "@" + operation.revision;
+    // Callers cannot replace the host's effect identity through operation payload.
+    if (["commandId", "invocationId", "operationId"].some(key => Object.hasOwn(operation.args, key)))
+      throw new HarnessError("INVOCATION_CONFLICT", "Operation arguments must not override ledger control fields");
     if (operation.threadId !== thread.id)
       throw new HarnessError("INVOCATION_CONFLICT", "The operation and current thread do not share an owner");
     const owner = ownerFor(thread);
