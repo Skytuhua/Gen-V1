@@ -5,11 +5,11 @@
   ],
   "cwdIdentity": "/home/piadmin/Gen-V1-m12-v6",
   "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
-  "startedAt": "2026-11-16T14:52:47.879Z",
-  "endedAt": "2026-11-16T17:27:07.877Z",
-  "exitCode": 1,
-  "termination": "NONE",
+  "startedAt": "2026-11-18T14:18:27.660Z",
+  "endedAt": "2026-11-18T18:18:28.389Z",
+  "exitCode": 0,
+  "termination": "TIMEOUT",
   "status": "FAIL",
   "boundedLogRef": "docs/implementation/v6/M12/logs/test-browser.log",
-  "logDigest": "ebc5bff51a336478df666bda8a813107be040e885be397ccabce78477ab022cf"
+  "logDigest": "3f4dfe25487df771f452ac01f6ee3b904088298ab06349de04d83281cec0962d"
 }

@@ -4,8 +4,8 @@
     "lint"
   ],
   "cwd": "/home/piadmin/Gen-V1-m12-v6",
-  "startedAt": "2026-11-16T13:45:22.358Z",
-  "endedAt": "2026-11-16T13:47:05.421Z",
+  "startedAt": "2026-11-18T12:16:59.441Z",
+  "endedAt": "2026-11-18T12:19:06.969Z",
   "exitCode": 0,
   "termination": "NONE",
   "truncated": false
@@ -15,5 +15,5 @@
 > gen-v1@0.6.5 lint /home/piadmin/Gen-V1-m12-v6
 > tsx scripts/lint-ui.ts --check
 
-UI guard: 552 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.
+UI guard: 631 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.
 

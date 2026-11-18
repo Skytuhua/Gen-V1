@@ -35,7 +35,18 @@ const sourceLockDigest = sha256(readFileSync(`${v6}/M12-source-lock.json`));
 const changedFiles = git('diff', '--name-only', 'fcaa52f7fcdc9f39420118a79f9a8250ba83c563', 'HEAD').split('\n')
   .concat(git('ls-files', '--others', '--exclude-standard').split('\n').filter(p => p.startsWith('docs/implementation/v6/') || p === 'tests/tool-program-continuation-v6.test.ts'))
   .filter(p => p && !p.startsWith('docs/implementation/v3/'));
-const statusOf = r => r.exitCode === 0 ? 'PASS' : 'FAIL';
+const statusOf = r => r.status ?? (r.exitCode === 0 ? 'PASS' : 'FAIL');
+// Optional secondary run of tool-program-v3 (calmer-host retry). The primary
+// receipt stays canonical; a preserved loaded-failure pair documents the
+// observed wall-clock PROGRAM_DEADLINE under host contention.
+const tpv3Run1 = receipt('vitest-tool-program-v3-run1-loaded');
+if (tpv3Run1) tpv3Run1.logDigest = sha256(readFileSync(`${root}/${tpv3Run1.boundedLogRef}`));
+const tpv3Commands = [receipts['vitest-tool-program-v3'], tpv3Run1].filter(Boolean);
+// Pre-fix full-suite run retained for provenance (fixture-parity failures it
+// exposed were fixed and the rerun is the canonical test receipt).
+const testRun1 = receipt('test-run1-prefix-fixes');
+if (testRun1) testRun1.logDigest = sha256(readFileSync(`${root}/${testRun1.boundedLogRef}`));
+const caseStatus = c => c.every(x => x === 'PASS') ? 'PASS' : (c.includes('FAIL') ? 'FAIL' : 'NOT_RUN');
 
 const evidence = {
   schemaVersion: 3,
@@ -48,26 +59,26 @@ const evidence = {
   phases: [
     {
       id: 'V6.custody-merge-and-focus',
-      status: 'PASS',
+      get status() { return caseStatus(this.requiredCases.map(x => x.status)); },
       requiredCases: [
-        { id: 'exact-head-recovery', status: 'PASS', evidence: 'Isolated worktree /home/piadmin/Gen-V1-m12-v6 created at recorded remote head 16cd0311a45b755f8ade87fe0637c77dc319f74d; original checkout and other worktrees untouched.' },
-        { id: 'merge-current-main', status: 'PASS', evidence: 'Merged main 1c09d492278b1014bc3ab5455191b1f5913c96d8 via merge --no-commit --no-ff; all 10 conflict paths composed semantically (merge-resolution.json records base/ours/theirs/result blob identities); committed as 44c19075a3341f85a0f6c2c8e8455f2f70a970df.' },
-        { id: 'focused-m12-suites-on-merged-tree', status: statusOf(receipts['vitest-tool-program-v3']) === 'PASS' && statusOf(receipts['vitest-replay-v3']) === 'PASS' && statusOf(receipts['vitest-python-kernel-v3']) === 'PASS' ? 'PASS' : 'FAIL', evidence: 'Three named v3 vitest files re-run against the combined tree; receipts under docs/implementation/v6/M12/logs/.' },
+        { id: 'exact-head-recovery', status: 'PASS', evidence: 'Isolated worktree /home/piadmin/Gen-V1-m12-v6 at pre-merge branch head f04cb74eff8d36a7ebcbfb51ca43c6e30ff23ffc (itself carrying round-1 merge 44c19075 + evidence commits); original checkout and other worktrees untouched.' },
+        { id: 'merge-current-main', status: 'PASS', evidence: 'Merged main 4aef753ec272d6ab9f9f9eec1df0ca232386975b via merge --no-commit --no-ff; all 14 conflict paths composed semantically (merge-resolution.json records base/ours/theirs/result blob identities; round-1 merge 44c19075 preserved in the same record); committed as 0548ebc51ea9f8b55a6bd2b68b7d711cc8d32a19.' },
+        { id: 'focused-m12-suites-on-merged-tree', status: statusOf(receipts['vitest-tool-program-v3']) === 'PASS' && statusOf(receipts['vitest-replay-v3']) === 'PASS' && statusOf(receipts['vitest-python-kernel-v3']) === 'PASS' ? 'PASS' : 'FAIL', evidence: 'Three named v3 vitest files re-run against the combined tree; receipts under docs/implementation/v6/M12/logs/. tests/tool-program-v3.test.ts carries the required M12-S03 default-limit boundary (64 admitted / 65th denied, maxCalls 64, maxConcurrentCalls 4, 30s deadline); under host contention (load avg >11 from a parallel foreign-worktree vitest on this shared box) the two 64-call cases recorded PROGRAM_DEADLINE before CALL_LIMIT — preserved as vitest-tool-program-v3-run1-loaded.receipt.json; the required coverage was not reduced.' },
         { id: 'v6-continuation-D01-D05', status: statusOf(receipts['vitest-continuation-v6']), evidence: 'tests/tool-program-continuation-v6.test.ts: persistent-cell generation/reset, replay divergence on argument/digest/order corruption, grant revocation before dispatch, guest-memory-scope label, noncooperative-cancellation uncertainty.' },
       ],
-      commands: [receipts['vitest-tool-program-v3'], receipts['vitest-replay-v3'], receipts['vitest-python-kernel-v3'], receipts['vitest-continuation-v6'], receipts['typecheck']],
+      commands: [...tpv3Commands, receipts['vitest-replay-v3'], receipts['vitest-python-kernel-v3'], receipts['vitest-continuation-v6'], receipts['typecheck']],
       artifactRefs: ['docs/implementation/v6/M12/requirements.json', 'docs/implementation/v6/M12/merge-resolution.json', 'docs/implementation/v6/M12/M12-source-lock.json'],
     },
     {
       id: 'V6.full-gates',
-      status: [receipts['lint'], receipts['test'], receipts['build'], receipts['test-browser']].every(r => r.exitCode === 0) ? 'PASS' : 'FAIL',
+      status: [receipts['lint'], receipts['test'], receipts['build'], receipts['test-browser']].every(r => statusOf(r) === 'PASS') ? 'PASS' : 'FAIL',
       requiredCases: [
         { id: 'lint', status: statusOf(receipts['lint']), evidence: 'pnpm lint (UI guard check).' },
-        { id: 'full-test', status: statusOf(receipts['test']), evidence: 'pnpm test = build:credential-lease + build:widgets + full vitest run on linux-arm64. Recorded FAIL: failing files cluster in confined-directory-guard paths (workspace-action-outcomes, skill-invocation, capabilities, path-access, project-search-host, desktop-native) whose privileged CAP_SYS_ADMIN broker is unavailable on this host — reproduced identically on unmodified main 1c09d49 via a clean-worktree control run, so not a merge regression; plus 2 replay timing cases that pass in a clean single-file rerun (33/33).' },
+        { id: 'full-test', status: statusOf(receipts['test']), evidence: 'pnpm test = build:credential-lease + build:widgets + full vitest run on linux-arm64 under a shared box (load avg 15-21 from parallel foreign-worktree sessions). The post-fix rerun is authoritative; the earlier pre-fix run is preserved as test-run1-prefix-fixes.receipt.json. Non-M12 failing files match a same-base clean-main control run at 4aef753e (59 files — confinement-guard paths needing the privileged CAP_SYS_ADMIN broker, desktop/server/service timing suites), so inherited/environmental, not a merge regression. Merge-attributable failures found and fixed: integration-v3/recovery-v3 lacked audit-mode key custody (fixture parity; verified 6/6 and 15/15 standalone). Load-only failures: backend-v3 delivery-concurrency, replay-v3 deadline, tool-program-v3 64-call boundary — each passes standalone (47/47, 22/22).' },
         { id: 'build', status: statusOf(receipts['build']), evidence: 'pnpm build.' },
-        { id: 'browser', status: statusOf(receipts['test-browser']), evidence: 'pnpm test:browser on the actual configured platform. Suites requiring the chrome channel fail on this host: /opt/google/chrome/chrome absent and only the bundled headless shell is installed; channel was not changed to obtain passes.' },
+        { id: 'browser', status: statusOf(receipts['test-browser']), evidence: 'pnpm test:browser on the actual configured platform terminated at the evidence-runner 4h bound (termination TIMEOUT, receipt exitCode 0 because the harness killed it) after ~30 of ~68 suite configs. Executed suites recorded real failures under host contention (e.g. clarity-software 33 failed / 1 passed, toBeVisible timeouts); suites requiring the chrome channel additionally cannot pass on this host (/opt/google/chrome/chrome absent, bundled headless shell only; channel was not changed to obtain passes). Browser coverage is not established.' },
       ],
-      commands: [receipts['lint'], receipts['test'], receipts['build'], receipts['test-browser']],
+      commands: [receipts['lint'], receipts['test'], testRun1, receipts['build'], receipts['test-browser']].filter(Boolean),
       artifactRefs: [],
     },
     {

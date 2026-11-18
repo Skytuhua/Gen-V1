@@ -4,8 +4,8 @@
     "test"
   ],
   "cwd": "/home/piadmin/Gen-V1-m12-v6",
-  "startedAt": "2026-11-16T12:46:48.991Z",
-  "endedAt": "2026-11-16T13:10:08.208Z",
+  "startedAt": "2026-11-18T14:18:13.374Z",
+  "endedAt": "2026-11-18T15:48:46.658Z",
   "exitCode": 1,
   "termination": "NONE",
   "truncated": true
@@ -26,636 +26,864 @@
 
  RUN  v4.1.12 /home/piadmin/Gen-V1-m12-v6
 
- ↓ tests/split-app-browser.test.ts (27 tests | 27 skipped)
- ✓ tests/hermes-runtime.test.ts (47 tests) 11894ms
-   ✓ passes host-selected bounded program tools to Hermes while keeping its native transport model-only  496ms
-   ✓ passes only a matching idle receipt through the optional host channel and rejects stale delivery  639ms
-   ✓ boots the shared source for library recovery, captures async settings and excludes legacy skill schemas  309ms
-   ✓ maps only actual native receipts and returns actual usage to the original source client  446ms
-   ✓ holds the account through the actual review barrier and settles the UI only once  420ms
-   ✓ buffers steering without claiming entry and denies changed account/model ownership  377ms
-   ✓ production pool forwards required manual checkpoints and waits for host persistence before source compaction  325ms
-   ✓ owns a fresh authenticated broker for the original skills.curate maintenance RPC  425ms
-   ✓ launches the actual ACP server with an absolute loader from an isolated working directory  2960ms
-   ✓ serializes original reviews across workers and cancels a queued review admission  323ms
- ❯ tests/runtime-pi.test.ts (32 tests | 1 failed) 38741ms
-     ✓ extracts only complete, leading application envelopes from persisted user entries 27ms
-     ✓ does not mistake IDs embedded in user text for delivered envelope IDs 3ms
-     ✓ persists explicit batch IDs independently of quoted markers in opaque prompt text 42ms
-     ✓ creates independent task sessions and opens the exact supplied persisted file  6172ms
-     ✓ refuses missing or corrupt explicit sessions instead of silently creating replacements  326ms
-     ✓ binds consecutive leading application batches to the response, never quoted or foreign input IDs 9ms
-     ✓ retains the input batch through tool continuations and retries without treating settled as processing 38ms
-     ✓ streams deltas once and keeps the finalized authoritative message under the same ID 14ms
-     ✓ never settles on agent_end, during retries, or before the SDK is idle 7ms
-     ✓ correlates activity by SDK toolCallId and reports unavailable subscription quotas as null 23ms
-     ✓ ignores mismatched epochs and tool IDs even when the request ID matches 23ms
-     ✓ rejects unallowed and stale calls before parent callbacks run 7ms
-     ✓ cancels a pending callback without pretending the host completed it 3ms
-     ✓ advertises the seven implemented host handlers and real JSON domain schemas 296ms
-     ✓ activates only application tools and delegates all execution to the host 116ms
-     ✓ rejects built-in tool metadata and Zod objects at the registration boundary 2ms
-     ✓ tracks actual SDK initial and batched follow-up user events without network (abort queued: false) 143ms
-     ✓ tracks actual SDK initial and batched follow-up user events without network (abort queued: true) 48ms
-     ✓ uses SDK followUp behavior and treats preflight as acceptance, never durable delivery 8ms
-     ✓ rejects failed preflight and reports a failure after acceptance without an unhandled rejection 111ms
-     ✓ rejects a follow-up queued behind startup when that run already settled 254ms
-     ✓ revokes a start before its serial queue callback runs 131ms
-     ✓ revokes a replacement queued behind another run's asynchronous startup acknowledgement 55ms
-     ✓ revokes asynchronous mkdir setup without cancelling a newer run on the same thread 74ms
-     ✓ rechecks cancel after asynchronous worker creation before sending start 68ms
-     ✓ rechecks dispose after asynchronous worker creation before sending start 57ms
-     ✓ rechecks revocation while terminating the previous run before replacement setup 44ms
-     ✓ terminates the real worker process tree, including a descendant  359ms
-     ✓ keeps actionable auth prose while redacting credentials and OAuth redirect URLs 3ms
-     ✓ does not start a new worker after disposal races with asynchronous setup 64ms
-     × returns useful subscription auth errors with the original run context, never API-key fallback 30071ms
-     ✓ uses one stable app installation ID across logins, including concurrent first use 89ms
- ✓ tests/memory-consolidation-v3.test.ts (73 tests) 31596ms
-     ✓ rejects 'passwd assignment' before provider or derived publication  1297ms
-     ✓ rejects 'generic secret assignment' before provider or derived publication  1269ms
-     ✓ rejects 'client secret assignment' before provider or derived publication  719ms
-     ✓ rejects 'bare bearer credential' before provider or derived publication  1192ms
-     ✓ rejects 'JWT credential' before provider or derived publication  518ms
-     ✓ stores only accepted current references and emits no memory prose in events  569ms
-     ✓ skips further provider calls for unchanged accepted input and validated output  801ms
-     ✓ supplies only changed accepted bodies to an optional provider and keeps corrected references  1472ms
-     ✓ refuses publication after correction races provider completion  722ms
-     ✓ refuses publication after forget races provider completion  926ms
-     ✓ refuses publication after watermark races provider completion  413ms
-     ✓ refuses publication after binding races provider completion  825ms
-     ✓ does not dispatch captured prose after pre-dispatch correction  618ms
-     ✓ does not dispatch captured prose after pre-dispatch forget  692ms
-     ✓ does not dispatch captured prose after pre-dispatch source-revocation  517ms
-     ✓ does not dispatch captured prose after pre-dispatch lease-token  607ms
-     ✓ does not dispatch captured prose after pre-dispatch lease-expiry  665ms
-     ✓ durably records an unknown-cost attempt before the optional provider receives source text  514ms
-     ✓ rechecks forget caused by a pending-usage observer before provider dispatch  641ms
-     ✓ rechecks lease-token caused by a pending-usage observer before provider dispatch  1362ms
-     ✓ rechecks cancel caused by a pending-usage observer before provider dispatch  944ms
-     ✓ counts synchronous provider cancellation as dispatched and holds capacity until its actual promise settles  1409ms
-     ✓ honors a shared lease across coordinator instances without duplicate paid work  935ms
-     ✓ rejects a stolen or expired lease before publishing the result  818ms
-     ✓ excludes tombstoned source claims even when replayed under a new item id  1227ms
-     ✓ rejects fabricated provider references and leaves no usable derived index  740ms
-     ✓ keeps a cancelled orphan in the capacity count until its real call settles  742ms
-     ✓ separates same-project account indexes and refuses mismatched snapshot ownership  684ms
-     ✓ times out publication while retaining the global pending cap for an orphaned call  380ms
-     ✓ does not start paid work when cancellation wins before provider dispatch  328ms
-     ✓ records late provider spend after timeout without losing pending accounting or memory privacy  316ms
-     ✓ detaches deadline listeners while preserving an orphan hold and avoids writes after Store close  363ms
-     ✓ persists accepted constraints and exact pointers before authorizing compaction  479ms
-     ✓ refuses unsupported checkpoint capability null without touching history  542ms
-     ✓ refuses unsupported checkpoint capability {"adapterId":"legacy-adapter","apiVersion":1,"hostOwned":true} without touching history  473ms
-     ✓ refuses unsupported checkpoint capability {"adapterId":"unknown-adapter","apiVersion":3,"hostOwned":true} without touching history  613ms
-     ✓ refuses unsupported checkpoint capability {"adapterId":"untrusted-adapter","apiVersion":2,"hostOwned":false} without touching history  514ms
-     ✓ blocks required compaction on persistence failure without exposing raw private errors  656ms
-     ✓ requires durable acknowledgement of the exact saved checkpoint digest  419ms
-     ✓ blocks compaction when correction changes while checkpoint persistence is pending  473ms
-     ✓ blocks compaction when forget changes while checkpoint persistence is pending  571ms
-     ✓ blocks compaction when account changes while checkpoint persistence is pending  425ms
-     ✓ keeps existing compaction behavior when checkpointing is explicitly optional and unsupported  358ms
- ✓ tests/installed-desktop-verification.test.ts (33 tests) 6180ms
-     ✓ compares all installed payload files while allowing only the fixed added uninstaller  307ms
-     ✓ seeds source-linked records in place and reopens them with the production default-off policy and no model owner  3259ms
-     ✓ rejects a replaced backend directory before an installed launch can adopt it  1674ms
- ✓ tests/project-memory-service-v3.test.ts (29 tests) 68782ms
-   ✓ uses one shared host ProjectMemory authority for routes and Service lifecycle  1493ms
-   ✓ carries the same prepared memory request identity through actual Service send and final dispatch  3215ms
-   ✓ excludes an exact revision only from the same preparing token and never mutates captured prompt bytes  2745ms
-   ✓ includes M04 framing within the real 4 KiB MEMORY segment and eight-item limit  5071ms
-   ✓ rejects a request exclusion with changed generation and preserves the prepared selection  2560ms
-   ✓ rejects a request exclusion with changed revision and preserves the prepared selection  2467ms
-   ✓ rejects a request exclusion with changed account and preserves the prepared selection  1851ms
-   ✓ rejects a request exclusion with changed project and preserves the prepared selection  2283ms
-   ✓ records use only after the actual native input.processing event and ignores replayed or unrelated input IDs  3502ms
-   ✓ denies stale final memory bytes when an authenticated edit wins during awaited finalization  2909ms
-   ✓ denies stale final memory bytes when an authenticated forget wins during awaited finalization  2544ms
-   ✓ automatically recalls into the first send of a new unbound thread without borrowing an older request identity  1358ms
-   ✓ extracts only the actual settled run through a fresh pinned tool-free auxiliary factory and publishes proposals  2520ms
-   ✓ defers optional extraction while an admitted M09 child is awaiting its runtime factory  2104ms
-   ✓ makes pending extraction spend visible synchronously at settled while its factory is unresolved  2210ms
-   ✓ counts a scheduled and dispatched extraction as one pending auxiliary owner  1931ms
-   ✓ recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend  767ms
-   ✓ refuses host recovery while a current auxiliary owner remains active  2006ms
-   ✓ rechecks auxiliary ownership after awaited library initialization during recovery  3304ms
-   ✓ cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals  2349ms
-   ✓ drains auxiliary extraction before dispatching an executor-generated outbox input  2723ms
-   ✓ drains scheduled source cleanup before cancellation completes even before an extraction runtime exists  2309ms
-   ✓ rejects a native checkpoint when its session changes while host access is awaited  1384ms
-   ✓ acknowledges a host checkpoint only after durable accepted-revision persistence and registers it for Forget  1439ms
-   ✓ refuses a native checkpoint request with a stale epoch binding  1177ms
-   ✓ refuses a native checkpoint request with a stale model binding  3138ms
-   ✓ refuses a native checkpoint request with a stale account binding  2319ms
-   ✓ refuses a native checkpoint request with a stale session binding  2410ms
-   ✓ blocks native manual compaction on a required host checkpoint failure and retains the original session path  2622ms
-stdout | tests/widget-isolation.test.ts > real browser worker isolation > trusted composing iframe Escape never forwards shell dismissal (native)
-Trusted composing Escape observation native {"isTrusted":true,"key":"Escape","keyCode":27,"isComposing":true}
+ ✓ tests/operation-execution-advice-v3.test.mjs (17 tests) 593850ms
+   ✓ records real repository.test preparation advice without issuing approval or starting a child  53560ms
+   ✓ records real integration.context7 preparation advice without issuing approval or starting a child  36054ms
+   ✓ projects stored provenance separately from current recorded state and actual host policy  40722ms
+   ✓ labels recorded advice stale after the current owner/state changes epoch  35367ms
+   ✓ labels recorded advice stale after the current owner/state changes accountId  30741ms
+   ✓ labels recorded advice stale after the current owner/state changes mode  26766ms
+   ✓ labels recorded advice stale after the current owner/state changes status  34508ms
+   ✓ detects changed arguments under the same operation revision without exposing the private commitment  32093ms
+   ✓ retains historical preparation provenance after cancellation instead of reporting it as the current decision  37608ms
+   ✓ keeps a real declined trust decision authoritative even when preparation advice exists  31418ms
+   ✓ does not pretend a metadata GET revalidated changed executable/configuration bytes  37899ms
+   ✓ does not rewrite recorded classifier provenance if preparation recording is repeated  22743ms
+   ✓ makes advice unavailable when its computation fails without altering the required approval  34250ms
+   ✓ rejects corrupted private metadata in extra field without publishing it  36126ms
+   ✓ rejects corrupted private metadata in rationale without publishing it  33411ms
+   ✓ rejects caller-selected metadata, duplicate targets and stale operation revisions  31189ms
+   ✓ keeps the metadata read behind the existing real authenticated session  39355ms
+ ❯ tests/inference-admission.test.ts (20 tests | 1 failed) 623621ms
+   ✓ rechecks an admitted owner before each actual inference without reading task history or changing input  2597ms
+   ✓ rejects a next inference after run authority changes  3489ms
+   ✓ rejects a next inference after epoch authority changes  2238ms
+   ✓ rejects a next inference after model authority changes  1682ms
+   ✓ rejects a next inference after account authority changes  21825ms
+   ✓ rejects a next inference after thinking authority changes  2378ms
+   ✓ rejects a next inference after workspace authority changes  2832ms
+   ✓ rejects a next inference after project authority changes  21034ms
+   ✓ rejects a next inference after mode authority changes  2411ms
+   ✓ rejects a next inference after grant authority changes  2919ms
+   ✓ rejects a next inference after removed-grant authority changes  1284ms
+   ✓ rejects a next inference after physical-source authority changes  33718ms
+   ✓ rejects a forged model in the runtime admission request  1853ms
+   ✓ rejects a forged account in the runtime admission request  35998ms
+   ✓ rejects a forged thinking in the runtime admission request  1091ms
+   ✓ rejects a forged input in the runtime admission request  4069ms
+   ✓ rejects a forged sequence in the runtime admission request  30719ms
+   ✓ rejects a repeated sequence and retires admission after settlement  4251ms
+   ✓ allows a canonical session update and new task notes without granting changed structural authority  27255ms
+   × retires stopped owners across 129 public conversations and ignores old settlement after a replacement starts 419964ms
+ ✓ tests/background-contract-decisions-v6.test.ts (5 tests) 10753ms
+     ✓ racing two host scheduler instances at one occurrence creates exactly one successful admission receipt  1213ms
+     ✓ expires a lease after external submission but before receipt: no second submit, UNKNOWN until reconciliation  2520ms
+     ✓ forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key  1791ms
+     ✓ replays one delivery for the identical answer, conflicts on changed content, and grants no new approval  2444ms
+     ✓ wrong repository, repeated issue revision and injected commands create no executor call; an authorized new issue creates one proposal only  2772ms
+ ❯ tests/request-preparation-service-v3.test.ts (34 tests | 1 failed) 665712ms
+   ✓ retains the same immutable preparation identity through the actual admitted request  2149ms
+   ✓ rejects a preview token used with a changed prompt before accepting the draft  1546ms
+   ✓ rejects a preview token used with a changed model before accepting the draft  2882ms
+   ✓ rejects a preview token used with a changed owner before accepting the draft  1405ms
+   ✓ rejects a removed grant and changed task note before accepting a prepared draft  1810ms
+   ✓ checks physical project identity again after preview  3470ms
+   ✓ checks current account selection and model binding again after preview  19278ms
+   ✓ prevents token reuse while preserving a retry of the accepted command  2628ms
+   ✓ retries an explicit preparation after a synchronous projection failure rolls back admission  2257ms
+   ✓ retries an explicit preparation after a synchronous commit failure rolls back admission  21289ms
+   ✓ keeps a committed preparation claimed when its acknowledgement fails after commit  2203ms
+   ✓ keeps the original owner fence after an uncommitted preparation claim rolls back  2435ms
+   ✓ keeps the original epoch fence after an uncommitted preparation claim rolls back  1181ms
+   ✓ keeps the original grant fence after an uncommitted preparation claim rolls back  32878ms
+   ✓ rolls back a later failed claim without releasing another accepted request  2637ms
+   ✓ keeps an accepted queued request dispatchable after a later input fails at COMMIT  35873ms
+   ✓ undoes a rolled-back lifecycle advance for every exactly touched claimed preparation  1016ms
+   ✓ fails preparation before message admission when the trusted preparation hook fails  2605ms
+   ✓ fails dispatch when the trusted finalization hook fails and retains the accepted input  12383ms
+   ✓ revalidates after asynchronous finalization when stop changes  21166ms
+   ✓ revalidates after asynchronous finalization when note changes  12505ms
+   ✓ revalidates after asynchronous finalization when grant changes  19067ms
+   ✓ revalidates after asynchronous finalization when hook assertion changes  2573ms
+   ✓ dispatches queued token-bound follow-ups separately without losing later outbox inputs  26192ms
+   ✓ allocates default-send identity but leaves the default-off path unchanged  32974ms
+   ✓ rejects attached skills in preview exactly as the existing send path does  2487ms
+   ✓ increments the durable owner generation after Service replacement and rejects the old token  29767ms
+   ✓ expires abandoned previews, calls cleanup, and never resurrects the same identity  1485ms
+   ✓ preserves an accepted queued token across the prior native session lifecycle event  31131ms
+   ✓ preserves an accepted queued token across the prior native settled lifecycle event  2212ms
+   ✓ preserves separately accepted previews queued before the first epoch is admitted  3992ms
+   × bounds abandoned preparations and retains only the newest 128 metadata receipts 305422ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle  19417ms
+   ✓ resolves the source learn expansion once and dispatches the same captured text  3386ms
+ ❯ tests/context-result-host.test.ts (32 tests | 24 failed) 101467ms
+   × spills a real domain result and returns its exact captured JSON through a bounded range 11655ms
+   × retains original captured bytes when an authorized file is edited in place 3105ms
+   × observes only the delivered preview envelope when compiler and retention are both enabled 3619ms
+   × denies retained bytes after the original grant is removed 2560ms
+   × denies retained bytes after the original grant is changed 3103ms
+   × denies retained bytes after the original grant is foreign 2786ms
+   × denies a physically replaced source even when its grant envelope is unchanged 3543ms
+   × denies a retained result after the current model binding changes 3747ms
+   × denies a retained result after the current account binding changes 4842ms
+   × denies a retained result after the current workspace binding changes 3710ms
+   × denies a retained result after the current project binding changes 1763ms
+   × denies a retained result after the current thinking binding changes 4529ms
+   × denies a retained result after the current mode binding changes 2541ms
+   × rejects replaced grant roots and new hard links to captured sources 2895ms
+   × suppresses a preview when the captured physical source is replaced during persistence 1263ms
+   × does not reconstruct live invocation authority from persisted result metadata after Service reopen 1673ms
+   × suppresses both preview and handle when grant authority disappears during spill persistence 1930ms
+   × rechecks the original grant after retained bytes are read 3544ms
+   ✓ does not derive authority for an integration result from caller supplied resourceId  2949ms
+   ✓ freezes catalog authority before an integration callback can mutate the call object  3072ms
+   × does not let a mutated original call bypass the grant required by its retained handle 2860ms
+   ✓ suppresses a cached 32-byte effect result without fresh resource authority (retention enabled: true)  2512ms
+   ✓ suppresses a cached 48000-byte effect result without fresh resource authority (retention enabled: true)  2737ms
+   ✓ suppresses a cached 32-byte effect result without fresh resource authority (retention enabled: false)  2911ms
+   ✓ suppresses a cached 48000-byte effect result without fresh resource authority (retention enabled: false)  2078ms
+   ✓ leaves small authorized domain results unchanged and keeps the default-off path unchanged  2871ms
+   ✓ does not wrap a small result merely because retained retrieval is enabled  3228ms
+   × does not replay a cached range after its original grant is revoked 855ms
+   × admits at most four actual context reads with deferred schemas true 2913ms
+   × admits at most four actual context reads with deferred schemas false 4518ms
+   × releases a context-read admission after a guarded read fails 2429ms
+   × keeps the legacy read behavior when the context compiler is disabled 2688ms
+ ❯ tests/path-access.test.ts (32 tests | 12 failed) 74069ms
+   ✓ bounds only the cold source guard acquire without extending ordinary or release RPCs 22ms
+   ✓ denies resource content when its parent becomes a protected junction after resolveResource  3470ms
+   ✓ rejects grants when protected pi is redirected to an external directory  3249ms
+   ✓ rejects grants when protected artifacts is redirected to an external directory  3140ms
+   ✓ rejects grants when protected official is redirected to an external directory  3119ms
+   ✓ denies native claude-code storage both directly and through an ancestor grant  3095ms
+   ✓ denies native gemini-cli storage both directly and through an ancestor grant  2389ms
+   ✓ denies a hardlink alias of a protected temporary file  2345ms
+   × denies alternate streams and device namespace spellings at grant admission 2743ms
+   × serves approved ordinary bytes and holds every directory ancestor through final access 1446ms
+   × allows ordinary child replacement while its parent directory is guarded 2369ms
+   × rejects a substituted replacement source and preserves a nonowned cleanup inode 3968ms
+   × denies an approved replacement after the resolved parent is swapped to protected storage 2009ms
+   ✓ domain text reads do not follow a parent swap after the host resolver returns  3124ms
+   × keeps the original database parent and journal inode pinned through actual COMMIT 3111ms
+   ✓ denies preexisting SQLite journal aliases without changing their temporary sentinel  2496ms
+   × performs approved ordinary replacement and PDF export under native guards 1964ms
+   × retains a user save made after the final capability read but before replacement 793ms
+   ✓ does not bypass another read-only destination lease during conditional replacement  1094ms
+   ✓ rejects Git metadata redirect git-junction before launching Git  988ms
+   ✓ rejects Git metadata redirect metadata-junction before launching Git  860ms
+   ✓ rejects Git metadata redirect metadata-hardlink before launching Git  1144ms
+   ✓ rejects Git metadata redirect commondir before launching Git  586ms
+   ✓ rejects Git metadata redirect alternates before launching Git  2070ms
+   ✓ rejects Git metadata redirect include before launching Git  3285ms
+   ✓ rejects Git metadata redirect includeIf before launching Git  1623ms
+   ✓ rejects Git metadata redirect filter before launching Git  1327ms
+   × does not consume a protected temporary ignore file configured by a selected repository 1698ms
+   ✓ does not expose a protected sentinel through a tracked working-directory junction in a whole-repository diff  5943ms
+   × diffs the acquired deletion when a protected junction is inserted immediately before real Git launch 3384ms
+   × ignores metadata paths inserted after acquisition immediately before real Git status 2893ms
+   × does not let repository config redirect snapshot Git to a post-acquisition metadata file 2308ms
+ ✓ tests/repository-map-host.test.ts (20 tests) 34373ms
+   ✓ returns verified import edges and export lines through the actual Service tool with held custody  5100ms
+   ✓ returns the same bounded host evidence through the actual native tool executor metadata  1037ms
+   ✓ filters private paths before reading and never expands the request into a directory crawl  1508ms
+   ✓ rejects a public file alias to a private source before reading bytes  3792ms
+   ✓ rejects a public directory alias to private native history before reading bytes  2578ms
+   ✓ retains an ordinary in-root directory alias when its physical source is public  1984ms
+   ✓ discards captured map bytes after grant revocation before any result is published  1846ms
+   ✓ discards captured map bytes after account drift before any result is published  1676ms
+   ✓ discards captured map bytes after workspace drift before any result is published  888ms
+   ✓ discards captured map bytes after model drift before any result is published  1617ms
+   ✓ discards captured map bytes after reasoning drift before any result is published  1352ms
+   ✓ discards captured map bytes after epoch drift before any result is published  3739ms
+   ✓ reuses only local parsed metadata while rechecking current bytes and invalidates changed content  1377ms
+   ✓ reports actual export aliases, default exports and destructured bindings at their source lines  822ms
+   ✓ does not invent a content revision for files outside the byte budget  628ms
+   ✓ keeps combined reads and returned metadata bounded with explicit omission counts  2034ms
+   ✓ refuses a fifth concurrent map while admitted readers hold their file custody  884ms
+   ✓ denies absent, foreign and escaping grants before reading source bytes  585ms
+   ✓ does not deliver an old-owner result when grant authority is revoked during publication  886ms
+ ✓ tests/context-request-observation.test.ts (81 tests) 191426ms
+   ✓ only projects minimal, current request observations under the host flag  4074ms
+   ✓ spills only large catalog results and retrieves the exact range under the same live owner  6604ms
+   ✓ projects only metadata for admitted host input without changing the model-visible prompt  3839ms
+   ✓ captures the automatic compaction requirement from the host flag without adding model-visible instructions  6503ms
+   ✓ does not implement loss-aware compaction by calling legacy native compaction  1375ms
+   ✓ retains owned compaction model observations after an applied result and bounded M11 eviction  14503ms
+   ✓ retains owned compaction model observations after an refused result and bounded M11 eviction  16991ms
+   ✓ retains exact owned terminal compaction measurements during stop drainage only  3794ms
+   ✓ retains exact owned terminal compaction measurements during dispose drainage only  1974ms
+   ✓ retains exact owned terminal compaction measurements during model change drainage only  751ms
+   ✓ rejects foreign or changed compaction observation identity while preserving a repeated public-delta update  5823ms
+   ✓ does not move a recorded model request ID to another admitted compaction attempt  3331ms
+   ✓ retains earlier measurements but stops recording when request metrics are disabled during compaction  1606ms
+   ✓ keeps disabled compaction request metrics unavailable without changing the host flag  1348ms
+   ✓ counts every recorded admitted compaction candidate beyond eight and across host restart  3255ms
+   ✓ keeps recorded compaction facts private after a same-thread projectId change  1776ms
+   ✓ keeps recorded compaction facts private after a same-thread workspaceId change  3167ms
+   ✓ keeps recorded compaction facts private after a same-thread modelId change  1592ms
+   ✓ keeps recorded compaction facts private after a same-thread accountId change  1220ms
+   ✓ keeps recorded compaction facts private after a same-thread sessionPath change  1074ms
+   ✓ counts recorded candidates for the admitted account separately from the selected default and another saved account  5606ms
+   ✓ restores admitted candidate facts before native receipt without replaying native work  4033ms
+   ✓ restores admitted candidate facts after native receipt without replaying native work  3117ms
+   ✓ applies only the protected source-cut CAS and records the exact native receipt  937ms
+   ✓ requires the protected adapter even when a native history reader exists  1113ms
+   ✓ records a failed verdict when the native source-cut CAS refuses  1571ms
+   ✓ owns native compaction callbacks and advances durable generation once  4010ms
+   ✓ preserves the legacy session account when a provider default is selected  1628ms
+   ✓ preserves the saved session account when a provider default is selected  934ms
+   ✓ delivers queued input before source admission only after recording the compaction result  1434ms
+   ✓ delivers queued input after native application only after recording the compaction result  1345ms
+   ✓ retains native application when prepared input changes after the commit but before receipt return  799ms
+   ✓ retains native application when stop changes after the commit but before receipt return  988ms
+   ✓ retains native application when model changes after the commit but before receipt return  708ms
+   ✓ rejects a queued draft generation that changes before the native commit gate  592ms
+   ✓ returns the same admitted compaction through authenticated HTTP and exposes its measured result  8534ms
+   ✓ rejects a silent native result  660ms
+   ✓ rejects a settled without compaction native result  1414ms
+   ✓ rejects a failed native result  1590ms
+   ✓ rejects a receipt without host admission native result  2212ms
+   ✓ refuses compaction when stop changes while the source snapshot is pending  2051ms
+   ✓ refuses compaction when account changes while the source snapshot is pending  1082ms
+   ✓ refuses compaction when model changes while the source snapshot is pending  4514ms
+   ✓ refuses compaction when thinking changes while the source snapshot is pending  999ms
+   ✓ refuses compaction when workspace changes while the source snapshot is pending  483ms
+   ✓ refuses compaction when session changes while the source snapshot is pending  464ms
+   ✓ refuses compaction when receipt changes while the source snapshot is pending  350ms
+   ✓ rejects a private commit with wrong threadId even if the adapter returns an applied receipt  511ms
+   ✓ rejects a private commit with wrong runId even if the adapter returns an applied receipt  768ms
+   ✓ rejects a private commit with wrong epoch even if the adapter returns an applied receipt  4071ms
+   ✓ rejects a private commit with wrong workspaceId even if the adapter returns an applied receipt  6634ms
+   ✓ rejects a private commit with wrong generation even if the adapter returns an applied receipt  2198ms
+   ✓ rejects a private commit with wrong instructionDigest even if the adapter returns an applied receipt  1260ms
+   ✓ rejects a private commit with wrong toolRegistryDigest even if the adapter returns an applied receipt  1003ms
+   ✓ rejects a private commit with wrong modelId even if the adapter returns an applied receipt  679ms
+   ✓ rejects a private commit with wrong accountId even if the adapter returns an applied receipt  551ms
+   ✓ does not share mutable expected owner or source identity with the adapter  671ms
+   ✓ rechecks current run authority after asynchronous native work and before commit  1694ms
+   ✓ rechecks current epoch authority after asynchronous native work and before commit  1727ms
+   ✓ rechecks current workspace authority after asynchronous native work and before commit  1783ms
+   ✓ rechecks current generation authority after asynchronous native work and before commit  2831ms
+   ✓ rechecks current instruction authority after asynchronous native work and before commit  1752ms
+   ✓ rechecks current registry authority after asynchronous native work and before commit  1489ms
+   ✓ rechecks current decision authority after asynchronous native work and before commit  2460ms
+   ✓ rechecks current approval authority after asynchronous native work and before commit  1255ms
+   ✓ rechecks current work authority after asynchronous native work and before commit  1414ms
+   ✓ rechecks current flag authority after asynchronous native work and before commit  1087ms
+   ✓ validates all nine retained captures through bounded SourceWorkbench batches  3090ms
+   ✓ refuses selected content drift after source preparation  893ms
+   ✓ refuses capture record drift after source preparation  939ms
+   ✓ refuses explicit choice drift after source preparation  573ms
+   ✓ uses an older input recovery choice only after delivery and keeps the explicitly retained source version  1290ms
+   ✓ does not record application for invalid native proof {"archiveRef":null}  935ms
+   ✓ does not record application for invalid native proof {"archiveSha256":null}  613ms
+   ✓ does not record application for invalid native proof {"afterBytes":20000}  800ms
+   ✓ does not record application for invalid native proof {"afterBytes":0}  724ms
+   ✓ does not record application for invalid native proof {"referenceCount":1}  692ms
+   ✓ does not record application for invalid native proof {"toolPairs":1}  1641ms
+   ✓ refuses a source with no reducible records before invoking native summary work  2465ms
+   ✓ consumes the exact private commit once and removes its authority after completion  2860ms
+ ❯ tests/review-host.test.ts (9 tests | 2 failed) 76644ms
+   ✓ closes the fixture store when initialization fails after allocating the services  11673ms
+     ✓ serves the actual local HTTP host with nine fixture threads and an honest model label 176ms
+     ✓ provides a decodable 256 by 144 color image with correct PNG chunks 200ms
+     × prepares and exports a real local PDF only after exact native operation approval 22081ms
+     × shows actual before/after SQLite rows and valid row-change annotations 290ms
+     ✓ keeps the faq topic free of an automatic question form and preserves state through composer continuation  2424ms
+     ✓ keeps pr-dark outcomes illustrative and denies a source mutation with a stale original epoch  10516ms
+     ✓ keeps pr-light outcomes illustrative and denies a source mutation with a stale original epoch  9346ms
+     ✓ admits map and catalog through the service instead of production scenario routes  3196ms
+ ✓ tests/runtime-model-only.test.ts (12 tests) 16447ms
+   ✓ bounds the larger model-only prompt before native startup without truncating it  1187ms
+   ✓ configures the installed Pi SDK as a text model with no ambient or host tools  15095ms
+ ❯ tests/server.test.ts (13 tests | 1 failed) 62076ms
+   ✓ routes authenticated model discovery through thread scope and rejects malformed queries  2399ms
+   ✓ reuses one serialized snapshot per committed sequence without bypassing authentication or invalidation  1921ms
+   ✓ does not retain a serialized snapshot over the response-cache byte limit  4915ms
+   ✓ requires a browser session plus CSRF token for mutations  1816ms
+   ✓ rejects a multi
+[bounded: elided 521200 chars]
+      |                                                  ^
+    108| });
+    109|
 
-stdout | tests/widget-isolation.test.ts > real browser worker isolation > trusted composing iframe Escape never forwards shell dismissal (legacy)
-Trusted composing Escape observation legacy {"isTrusted":true,"key":"Escape","keyCode":229,"isComposing":false}
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[151/388]⎯
 
- ❯ tests/skill-invocation.test.ts (36 tests | 36 failed) 5764ms
-   × materializes exact entry bytes and captured support without changing prompt or resources 270ms
-   × denies stale support, forged identity, cross-source and private-provider references 24ms
-   × rejects every changed authority dimension before admission 301ms
-   × fences authority changes during catalog awaits and again before commit/runtime/support reads 238ms
-   × honors pre-abort and an abort that wins a catalog await without producing an admission 134ms
-   × denies support-bytes between fresh catalog custody and materialization 150ms
-   × denies entry-bytes between fresh catalog custody and materialization 92ms
-   × denies file-swap between fresh catalog custody and materialization 141ms
-   × denies directory-swap between fresh catalog custody and materialization 182ms
-   × denies hardlink between fresh catalog custody and materialization 216ms
-   × denies junction between fresh catalog custody and materialization 59ms
-   × denies extra-file between fresh catalog custody and materialization 79ms
-   × revalidates the canonical source after capture rather than accepting its earlier index 70ms
-   × restores authenticated exact bytes across host restart without rediscovering changed skills 53ms
-   × rejects command-ID reuse with changed content, model, thinking, reference or authority 103ms
-   × denies replay tampering and key loss instead of falling back to rediscovery 144ms
-   × denies forged admissions, mismatched runtime owners and arbitrary support paths 53ms
-   × reads the exact Harness version/document with no latest-name or ambient projection fallback 55ms
-   × denies a package exceeding files instead of silently truncating it 412ms
-   × denies a package exceeding fileBytes instead of silently truncating it 457ms
-   × denies a package exceeding packageBytes instead of silently truncating it 826ms
-   × rejects malformed payloads rather than accepting browser supplied text, paths or authority grants 375ms
-   × selection preserves every reference field without a body read or admission capability, and bundles for browsers 132ms
-   × denies a changed runtime thinking level even when the model is unchanged 59ms
-   × preserves UTF-8 BOM and original line endings in admitted guidance 170ms
-   × admits all selected references in order, never silently dropping a stale second selection 111ms
-   × bounds Harness entry bytes before materializing an oversized saved document 110ms
-   × captures only a verified installed App package, without activating its host, and rechecks registry revocation 66ms
-   × uses the bundled manifest pin and denies an index replacement between custody and capture 125ms
-   × resolves only the connected canonical project/worktree and denies its root identity changing 144ms
-   × aborts after capture while the final source recheck is in flight 73ms
-   × returns cancellation while an obsolete catalog read is still pending 80ms
-   × replays the same command after an actual Store reopen without another message or current-source read 116ms
-   × precommit authority revalidation leaves message/outbox/capture storage empty on a race 107ms
-   × sanitizes authority-provider failures at precommit without leaking host paths 11ms
-   × accepts the parent raw skills array while taking expected authority only from host options 5ms
- ✓ tests/widget-isolation.test.ts (22 tests) 68522ms
-     ✓ fails closed with an actionable error when the fixed trusted receiver asset is missing  1983ms
-     ✓ starts the trusted receiver generated by the production node --import tsx loader  1393ms
-     ✓ denies recovered native storage getters host journal reads and mutations intrinsically by worker origin  2252ms
-     ✓ keeps markup hidden inside comments, templates and raw-text elements inert in the worker  1549ms
-     ✓ releases a widget lease only after host acceptance, preserves drafts on failure, and resumes under the same action identity  5830ms
-     ✓ forwards trusted iframe Escape to Widget while rejecting forged worker and wrong-source shell controls  4641ms
-     ✓ trusted composing iframe Escape never forwards shell dismissal (native)  6803ms
-     ✓ trusted composing iframe Escape never forwards shell dismissal (legacy)  4985ms
-     ✓ reuses a resumed dirty lease when iframe focus acquisition completes before the generated action  6148ms
-     ✓ executes novel code using the production tsx-generated shell and the built receiver  1483ms
-     ✓ rejects a huge sparse root in Chromium without blocking host controls  2635ms
-     ✓ rejects a huge sparse children in Chromium without blocking host controls  2759ms
-     ✓ rejects huge sparse bridge arrays before host JSON serialization  2979ms
-     ✓ runs novel HTML/CSS/JS forms, dirty/checkpoint/emit and theme updates in the same iframe  3708ms
-     ✓ blocks worker network/imports/nested workers and never executes markup or navigates the iframe  3019ms
-     ✓ terminates a scheduled infinite worker loop while host Settings and main-frame evaluation respond  5608ms
-     ✓ rejects forged remote DOM navigation and executable mutations at the host receiver boundary  2653ms
- ✓ tests/agents-workspace-composer.test.ts (27 tests) 660ms
- ✓ tests/hermes-library.test.ts (49 tests) 33650ms
-   ✓ migrates authoritative legacy usage before the source projection replaces cached counters  957ms
-   ✓ persists intent before source mutation, verifies projection and returns one durable receipt  660ms
-   ✓ retains uncertain intent and never blindly repeats a source write after refresh fails  1244ms
-   ✓ preserves full source frontmatter at the single UI body translation boundary  491ms
-   ✓ preserves conflicting legacy bytes and versions without overwriting canonical source  383ms
-   ✓ rejects malformed user intent before calling source: 'skill.decide'  331ms
-   ✓ rejects malformed user intent before calling source: 'skill.flags'  321ms
-   ✓ rejects malformed user intent before calling source: 'skill.manage'  460ms
-   ✓ clears a definite pre-dispatch refusal: HERMES_SOURCE_BUSY  535ms
-   ✓ clears a definite pre-dispatch refusal: HERMES_CONFIG_BUSY  1328ms
-   ✓ clears a confirmed original skill refusal without recording success  1309ms
-   ✓ migrates compatible committed legacy bytes repeatably without overwriting old revisions  958ms
-   ✓ keeps oversized atomic legacy imports readable while gating only their activation and mutation  1179ms
-   ✓ does not link a proposal ID unless the canonical pending payload was persisted  1285ms
-   ✓ does not acknowledge a pending command when its source record is missing  952ms
-   ✓ labels retained and retired source history from one canonical inspection without changing captured evidence  975ms
-   ✓ keeps current reads independent when their historical source ID retires  935ms
-   ✓ pages source availability without extra captures and leaves ledger-less history unqualified  2216ms
-   ✓ refuses retired revision before rollback dispatch while preserving immutable versions and unrelated uncertainty  696ms
-   ✓ refuses retired support before rollback dispatch while preserving immutable versions and unrelated uncertainty  628ms
-   ✓ preserves historical read failures without inferring retirement: HERMES_SOURCE_BUSY  691ms
-   ✓ preserves historical read failures without inferring retirement: PermissionError  633ms
-   ✓ preserves historical read failures without inferring retirement: HERMES_PROTOCOL  421ms
-   ✓ preserves historical read failures without inferring retirement: INVALID_SKILL  360ms
-   ✓ preserves historical read failures without inferring retirement: NOT_FOUND  686ms
-   ✓ keeps unverified ledger history retryable while current content remains readable: PermissionError  1275ms
-   ✓ keeps unverified ledger history retryable while current content remains readable: OSError  811ms
-   ✓ keeps unverified ledger history retryable while current content remains readable: UnicodeDecodeError  954ms
-   ✓ refuses A metadata with B body after a canonical change and commits no partial refresh  706ms
-   ✓ refuses an invalid successful capture DTO before commit: missing  420ms
-   ✓ refuses an invalid successful capture DTO before commit: missingMain  481ms
-   ✓ refuses an invalid successful capture DTO before commit: malformed  429ms
-   ✓ refuses an invalid successful capture DTO before commit: sourceId  462ms
-   ✓ keeps real catalog custody unchanged on refused capture, then exposes coherent B bytes  729ms
-   ✓ keeps unchanged usage refresh cheap and captures archived, disabled and protected controls coherently  353ms
-   ✓ retains captured immutable text for a genuinely ledger-less package  363ms
-   ✓ translates capture refusal STALE_SKILL without retry or Store writes  605ms
-   ✓ translates capture refusal FileNotFoundError without retry or Store writes  523ms
-   ✓ translates capture refusal ValueError without retry or Store writes  746ms
-   ✓ translates capture refusal PermissionError without retry or Store writes  453ms
-   ✓ translates capture refusal HERMES_PROTOCOL without retry or Store writes  906ms
-   ✓ does not commit an earlier successful package when a later capture fails  484ms
-   ✓ retains the uncertain command intent when post-write capture fails and never repeats the write  664ms
- ✓ tests/cursor-worker.test.ts (24 tests) 12077ms
-     ✓ cancels oversized prediction output during streaming before waiting for completion  368ms
-     ✓ rejects unavailable models and arbitrary credential provenance before creating an agent  346ms
-     ✓ correlates idempotency and canonical current user history, never echo-only messages  524ms
-     ✓ accepts native MCP capability frames only for the registered host server and tool  484ms
-     ✓ reports a redacted protocol error before terminal settlement when native tools escape  521ms
-     ✓ reads actual installed SDK local history with fetch forbidden and without native auth or agent creation  5112ms
-     ✓ fails actual SDK agent bootstrap closed when the native catalog network is forbidden  739ms
-     ✓ creates and resumes the actual SDK using only a synthetic official model-metadata transport fixture  532ms
-     ✓ blocks concurrent MCP execution until exact native entry and parent durable receipt acknowledgment  619ms
- ✓ tests/planning.test.ts (24 tests) 24750ms
-   ✓ forwards the parent-owned granted byte reader to delegates without exposing descriptor aliases  2422ms
-   ✓ revokes delegated byte reads again after asynchronous delivery  421ms
-   ✓ lets auxiliary readers load shared skills while denying library mutations  758ms
-   ✓ persists real delegate threads and deduplicated transcripts without settling the parent  588ms
-   ✓ pins auxiliary readers to the parent account before asynchronous runtime creation  693ms
-   ✓ retains auxiliary account use after parent revocation until native cancellation completes  1096ms
-     ✓ retains cancelled job history without overriding a later run of the same stable step  1907ms
-     ✓ retains actual running job assignments across replans and never accepts 100% as host approval  1021ms
-     ✓ advertises only strict bounded JSON schemas and rejects forged or oversized plan state  538ms
-     ✓ publishes one same-thread versioned data identity, preserving host-owned agents  468ms
-     ✓ runs three isolated jobs concurrently and awaits local completion plus settlement  1215ms
-     ✓ accepts progress only from actual reports and rejects unknown completed criteria  871ms
-     ✓ rejects all UI, operation, nested delegation and write paths under parent authority  1149ms
-     ✓ coalesces identical pending retries, returns terminal results, and rejects changed command content  1850ms
-     ✓ revokes Stop authority, terminates all workers, and ignores late success or forged events  615ms
-     ✓ streams bounded usage and does not complete the parent task  446ms
-     ✓ reserves startup slots and cancels a queued factory before any child starts  664ms
-     ✓ shares pending factory teardown between abort, cancel and dispose and never starts its late adapter  2074ms
-     ✓ retains the final usage measurement even when intermediate events are coalesced  809ms
-     ✓ cancels and disposes the exact child context after runtime failure  565ms
-     ✓ bounds Unicode completion summaries in bytes and rejects oversized progress reports  1131ms
-     ✓ requires a fresh local completion claim after later progress or reading  656ms
-     ✓ maps actual source reads to the captured parent context and prevents publication after Stop  848ms
-     ✓ marks crash-left work interrupted and refuses automatic billing replay on the old command ID  1907ms
- ✓ tests/artifact-settle.test.ts (11 tests) 117160ms
-     ✓ deliberate collapse shrinks the whole artifact and lifts following content, reopen restores the saved input  12396ms
-     ✓ restoration reserves final layout while held and keeps following content fixed (split stability invariant)  5934ms
-     ✓ journal restoration gates the entrance: nothing plays while held, one body reveal after release  5552ms
-     ✓ one body entrance keeps outer geometry stable and cleans up when publication is interrupted  7446ms
-     ✓ nested disclosures, sibling evidence and focus safety shrink without blank slots  9605ms
-     ✓ a Steps panel inside a disclosure collapses and restores its saved step input  9802ms
-     ✓ an inline artifact body keeps no empty reserve below its content  7652ms
-     ✓ reduced and off motion collapse instantly and rapid reversal settles the last state  16488ms
-     ✓ streaming answer growth moves following content down in flow without a gap  7647ms
-     ✓ a failed disclosure action keeps error and retry truthful  8128ms
-     ✓ journal reload restores the bound disclosure state without replaying the entrance  18871ms
- ✓ tests/agent-work-v3.test.ts (29 tests) 31200ms
-     ✓ stays fully closed while agents.workV1 is off, including the registry default  737ms
-     ✓ admits read-only work, binds the child to parent grants with write rights stripped, and caps three slots  1093ms
-     ✓ rejects grant ids outside the parent thread and unknown grants before dispatch  893ms
-     ✓ exposes CODE_WORKTREE/QA as unavailable without their registered proofs while PLAN_READ continues  1706ms
-     ✓ admits CODE_WORKTREE only with the M08 write flag and a managed-worktree profile proof  1157ms
-     ✓ denies recursive spawn from a delegate child thread  4010ms
-     ✓ replays the durable receipt on a retried admit  2857ms
-     ✓ refuses to overwrite an existing thread as a child  2192ms
-     ✓ keeps the concurrent-slot cap per parent task, not store-wide  2999ms
-     ✓ strips write rights on grants outside the proven worktree path  1528ms
-     ✓ repairs invalid output exactly once, then fails with OUTPUT_SCHEMA_INVALID and a private bounded artifact  1519ms
-     ✓ records COMPLETED_REPORTED output and requires host evidence re-check for VERIFIED  1254ms
-     ✓ never upgrades fabricated evidence to VERIFIED  703ms
-     ✓ verifies real evidence records belonging to the parent task  556ms
-     ✓ denies direct, script, MCP and sibling-worktree escalation before any effect  736ms
-     ✓ permits read tools through the injected resolver without write rights  617ms
-     ✓ rejects admission beyond the global reserved budget and counts failed and cancelled work  833ms
-     ✓ revokes dispatch before cancelling children on parent stop and keeps late results historical  547ms
-     ✓ resume creates a new child epoch and refuses stale account, project or grant bindings  461ms
-     ✓ reconstructs the visible graph after restart from durable facts with interrupted non-terminal work  596ms
-     ✓ marks waiting human as an explicit state reachable only while live  414ms
-     ✓ keeps steering queued-after-current when the adapter cannot live-steer  303ms
-     ✓ live-steer adapter delivers steering into the active run and marks it ENTERED_RUNTIME  317ms
-     ✓ marks follow-up UNKNOWN instead of returning a stale ACCEPTED snapshot  378ms
-     ✓ never dispatches work cancelled while the runtime was still starting  487ms
-     ✓ denies child calls on grants the parent no longer holds  637ms
-     ✓ re-derives write rights on resume instead of replaying the stale admission grants  1288ms
-     ✓ counts completed work against the lifetime global budget  347ms
- ✓ tests/verification-v3.test.ts (19 tests) 27942ms
-   ✓ the verification workflow stays disabled until the host flag enables it  609ms
-   ✓ recipe registration requires an exact M02 approval for this recipe and owner  662ms
-   ✓ an approved recipe runs the fixed phase order and records bound observations  3297ms
-   ✓ a failing phase prevents the start, readiness and browser phases  715ms
-   ✓ readiness requires the launched process tree to own the approved endpoint  5643ms
-   ✓ freshness is derived from the current source cut and never rewrites the recorded outcome  3271ms
-   ✓ a drifted workspace identity blocks the run before any launch  818ms
-   ✓ cleanup failures are recorded as their own observation  732ms
-   ✓ a START server stays owned and alive; early exit fails the phase  2708ms
-   ✓ owned processes are terminated even when a phase throws outside its error handling  517ms
-   ✓ verification_declare is published to runtimes with strict metadata and a real authority schema  2367ms
-   ✓ an audited task_finish does not block its own completion assessment  3679ms
-   ✓ verification_declare accepts commandId for receipts without polluting the declaration  700ms
-   ✓ the panel shows no completion label until task_finish saved an assessment  903ms
-   ✓ the panel read model re-digests declared inputs so edits never keep a green Verified  305ms
-     ✓ records review-advisory observations that inform review without satisfying requirements  486ms
- ❯ tests/capabilities.test.ts (24 tests | 13 failed) 20039ms
-     ✓ publishes strict schemas and valid examples for every requested component  700ms
-     ✓ admits local disclosure state and table selection state without expressions 31ms
-     ✓ accepts opaque resource UUIDs starting with digits independently of state aliases 1ms
-     ✓ rejects unknown props, types, references, cycles and executable styling 134ms
-     ✓ enforces node, byte and deepest graph path limits including shared children 58ms
-     ✓ accepts exact graph bounds and rejects UTF-8 byte overflow across valid props 66ms
-     ✓ advertises strict metadata and rejects unknown tool/argument/command admission 45ms
-     × publishes resource sourced text with an exact content hash 135ms
-     × prepares without writing and rejects absent approval and changed source bytes 151ms
-     × executes approved replacement, publishes actual results and re-resolves write permissions 62ms
-     × rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch 43ms
-     × reconciles before/after replacement hashes read-only and leaves changed bytes unknown 9ms
-     × runs the exact node-test recipe and reports actual success and failure exits 24ms
-     × cancels the actual process tree and records cancellation instead of success 11ms
-     × inspects real rows and applies exact prepared counts with integrity/version checks 176ms
-     × bounds inspect rows by serialized bytes and reports truncation 1759ms
-     × rolls back wrong counts, denies attachment and rejects stale database versions 139ms
-     × reports actual migration DML counts independently from schema statements 197ms
-     × inspects fields, fills supported types and places typed/drawn marks in a new local export 805ms
-     × creates fixtures only at an exclusive new destination including real git conflict 2497ms
-     ✓ freezes 12 cases and keeps category and novel gates pending without real model results 27ms
-     ✓ writes a pending unexecuted eval report and never promotes fabricated results through reviews 172ms
-     ✓ runs the installed CLI entry points in disposable destinations with honest pending exit  12740ms
-     ✓ enforces independent category and mandatory novel gates over real-run evidence 20ms
- ✓ tests/memory-retrieval-v3.test.ts (23 tests) 790ms
-     ✓ never recalls another profile, account, project, unaccepted state or unavailable source  465ms
- ❯ tests/path-access.test.ts (32 tests | 12 failed) 33393ms
-   ✓ bounds only the cold source guard acquire without extending ordinary or release RPCs 16ms
-   ✓ denies resource content when its parent becomes a protected junction after resolveResource  3939ms
-   ✓ rejects grants when protected pi is redirected to an external directory  1590ms
-   ✓ rejects grants when protected artifacts is redirected to an external directory  870ms
-   ✓ rejects grants when protected official is redirected to an external directory  1032ms
-   ✓ denies native claude-code storage both directly and through an ancestor grant  1255ms
-   ✓ denies native gemini-cli storage both directly and through an ancestor grant  1397ms
-   ✓ denies a hardlink alias of a protected temporary file  819ms
-   × denies alternate streams and device namespace spellings at grant admission 582ms
-   × serves approved ordinary bytes and holds every directory ancestor through final access 977ms
-   × allows ordinary child replacement while its parent directory is guarded 611ms
-   × rejects a substituted replacement source and preserves a nonowned cleanup inode 759ms
-   × denies an approved replacement after the resolved parent is swapped to protected storage 927ms
-   ✓ domain text reads do not follow a parent swap after the host resolver returns  777ms
-   × keeps the original database parent and journal inode pinned through actual COMMIT 1189ms
-   ✓ denies preexisting SQLite journal aliases without changing their temporary sentinel  783ms
-   × performs approved ordinary replacement and PDF export under native guards 773ms
-   × retains a user save made after the final capability read but before replacement 634ms
-   ✓ does not bypass another read-only destination lease during conditional replacement  584ms
-   ✓ rejects Git metadata redirect git-junction before launching Git  557ms
-   ✓ rejects Git metadata redirect metadata-junction before launching Git  857ms
-   ✓ rejects Git metadata redirect metadata-hardlink before launching Git  769ms
-   ✓ rejects Git metadata redirect commondir before launching Git  459ms
-   ✓ rejects Git metadata redirect alternates before launching Git  1083ms
-   ✓ rejects Git metadata redirect include before launching Git  1302ms
-   ✓ rejects Git metadata redirect includeIf before launching Git  869ms
-   ✓ rejects Git metadata redirect filter before launching Git  911ms
-   × does not consume a protected temporary ignore file configured by a selected repository 1167ms
-   ✓ does not expose a protected sentinel through a tracked working-directory junction in a whole-repository diff  1752ms
-   × diffs the acquired deletion when a protected junction is inserted immediately before real Git launch 1953ms
-   × ignores metadata paths inserted after acquisition immediately before real Git status 967ms
-   × does not let repository config redirect snapshot Git to a post-acquisition metadata file 1185ms
- ❯ tests/desktop-native.test.ts (35 tests | 1 failed) 18664ms
-     ✓ accepts the exact owned ready message after the former 25-second limit 133ms
-     ✓ still refuses a backend that never becomes ready at the 60-second bound 10ms
-     ✓ ignores foreign tokens, origins, PIDs and errors until its own ready message 11ms
-     ✓ fails immediately on a child error and removes readiness listeners 18ms
-     ✓ fails immediately on child exit with the bounded diagnostic tail 16ms
-     ✓ fails immediately when the startup sidecar loses its IPC channel 38ms
-     ✓ fails immediately on an authenticated backend startup error 14ms
-     ✓ retains the original personal sidecar and immutable native document URL 10ms
-     ✓ restricts plug-in native IPC to its window lifecycle 29ms
-     ✓ keeps plug-in task ownership distinct from personal surfaces 215ms
-     ✓ passes only an explicitly supported subscription provider into the fixed sign-in helper 7ms
-     ✓ rejects unrecognized provider or executable-shaped sign-in input before process creation 23ms
-     ✓ launches the real Node sidecar loader through a file URL, including Windows paths with spaces  2179ms
-     ✓ admits only bounded typed identities and registered surface properties 7ms
-     ✓ keeps task-specific windows distinct without accepting arbitrary window URLs 2ms
-     ✓ requires the original main frame, exact URL and webContents identity 1ms
-     ✓ requires the actual matching editor to flush when detachment starts in a sidebar 1ms
-     ✓ resolves once and returns a numeric destination, rejecting private rebinds and custom ports 30ms
-     ✓ sends HTTP only to the approved numeric address and rejects a later private response 103ms
-     ✓ pins CONNECT to the approved numeric address and rejects loopback before opening a socket 37ms
-     ✓ allows independent X/Y placement on a connected negative-coordinate display 3ms
-     ✓ recovers removed-monitor bounds and oversized/invalid values inside a reachable work area 1ms
-     ✓ closes explicitly removed browser views and frees their budget while preserving a reparented view 3ms
-     ✓ rejects local/private/credentialled/non-web pages before native navigation 41ms
-     ✓ fails closed for DNS failures and mixed public/private DNS responses 40ms
-     ✓ does not admit mapped/private IPv6 addresses or arbitrary browser control arguments 4ms
-     ✓ classifies only native error kinds and known codes without reading private error text 33ms
-     ✓ emits fixed metadata and swallows an optional sink failure 27ms
-     ✓ observes only authenticated backend errors and retains the original rejection 2ms
-     ✓ rejects extra diagnostic fields without changing an authenticated error 10ms
-     ✓ cannot change exact ready admission or rejection when the optional observer throws 1ms
-     ✓ records the actual backend exit boundary without extending readiness 17ms
-     ✓ records the actual backend disconnect boundary without extending readiness 1ms
-     ✓ records the actual backend deadline boundary without extending readiness 24ms
-   × preserves real sidecar error IPC and stderr while emitting a private fixed fallback on owned stdout 15457ms
- ✓ tests/scoped-conversation-reader.test.ts (29 tests) 441ms
- ❯ tests/project-search-host.test.ts (51 tests | 2 failed) 109486ms
-     ✓ counts Unicode code points, trims queries, and rejects unknown or malformed input 117ms
-     ✓ rejects unsafe result paths: "/absolute" 8ms
-     ✓ rejects unsafe result paths: "../secret" 9ms
-     ✓ rejects unsafe result paths: "a/../secret" 4ms
-     ✓ rejects unsafe result paths: "./a" 3ms
-     ✓ rejects unsafe result paths: "a//b" 42ms
-     ✓ rejects unsafe result paths: "a/" 16ms
-     ✓ rejects unsafe result paths: "C:/file" 10ms
-     ✓ rejects unsafe result paths: "a\\b" 15ms
-     ✓ rejects unsafe result paths: "a\u0000b" 15ms
-     ✓ rejects unsafe result paths: "a:stream" 12ms
-     ✓ rejects unsafe result paths: ".git/config" 9ms
-     ✓ rejects unsafe result paths: "a/.GIT/config" 9ms
-     ✓ rejects unsafe result paths: "a/CON.txt" 2ms
-     ✓ rejects unsafe result paths: "nul" 3ms
-     ✓ rejects unsafe result paths: "a/COM¹.txt" 2ms
-     ✓ rejects unsafe result paths: "a/LPT9" 3ms
-     ✓ rejects unsafe result paths: "a/foo." 2ms
-     ✓ rejects unsafe result paths: "a/foo " 2ms
-     ✓ rejects unsafe result paths: "harness.sqlite" 2ms
-     ✓ rejects unsafe result paths: "a/.harness-directory-guard" 2ms
-     ✓ rejects unsafe result paths: "ééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééééé" 7ms
-     ✓ keeps all response objects strict and preserves the exact nullable owner/match fields  3086ms
-   ✓ reads live untracked path/content hits, sorts paths then kinds/lines, and hashes complete raw bytes  4221ms
-   ✓ includes a late matching term in its bounded preview and keeps the full line column  2455ms
-   ✓ treats query metacharacters and shell syntax as literal text and preserves code-point columns/previews  1891ms
-   ✓ matches Unicode case folds and reports columns in the original unexpanded line  2110ms
-   ✓ uses the exact admitted main-thread working copy, including files under host worktrees  1995ms
-   ✓ discloses binary, per-file size and deliberate exclusions without marking an otherwise complete scan incomplete  1383ms
-   ✓ never descends into protected host storage, including checkpoint bytes  917ms
-   × bounds the issue list and reports truncation 3421ms
-   ✓ stops at the 1,000-match cap and leaves an exactly full finished scan complete  962ms
-   ✓ stops before reading more than 32 MiB of ordinary file bytes  3247ms
-   × stops at 10,000 ordinary files, without visiting the next file 62723ms
-   ✓ bounds UTF-8 snapshot and response sizes, reports response_limit, and emits every retained match exactly once  1920ms
-   ✓ pages immutable results with stale hashes and rejects tampering, query/page/owner changes and restart  1821ms
-   ✓ expires cursors at five minutes and evicts the oldest snapshot after 100 retained scans  5596ms
-   ✓ invalidates a page after root rebinding and denies an initial response if admission is revoked during scanning  1322ms
-   ✓ returns partial 200 data at the two-second deadline and never starts work after a late guard acquisition  518ms
-   ✓ honors pre-cancellation and mid-scan cancellation without scheduling later file reads  498ms
-   ✓ reports a lost native guard as an incomplete scan  853ms
-   ✓ surfaces unreadable files without raw host errors or absolute paths  636ms
-   ✓ excludes live symlinks/junctions and hard links without following their targets  1093ms
-   ✓ denies a race-swapped symlink at the read boundary  1057ms
-   ✓ denies a race-swapped hardlink at the read boundary  665ms
-   ✓ denies a race-swapped ordinary at the read boundary  921ms
-   ✓ denies a race-swapped directory at the read boundary  1014ms
-   ✓ detects in-place content changes during a read and emits no stale file matches  785ms
-   ✓ rejects malformed UTF-8 names and duplicate Windows path names  624ms
-   ✓ uses an acquired real Windows guard for ordinary reads; unsupported platforms fail closed  646ms
-   ✓ sizes multibyte search pages without repeatedly serializing the growing response  775ms
- ❯ tests/workspace-action-outcomes.test.ts (20 tests | 19 failed) 21866ms
-   ✓ accepts canonical Unicode review text without normalizing a leading BOM or whitespace 13ms
-   × commits intent before local write and private result before event, then replays after Store restart 1062ms
-   × retains interrupted remote write as uncertain across restart without submitting it again 767ms
-   × serializes same-ID attempts across separate Store connections without a double write 603ms
-   × denies reuse of an ID with a changed payload 931ms
-   × denies reuse of an ID with a changed type 820ms
-   × denies reuse of an ID with a changed threadId 745ms
-   × denies reuse of an ID with a changed projectId 1175ms
-   × inspects original payload/revision without current diff, review reads, or any write 1167ms
-   × returns revoked after working copy or account access changes, including confirmed receipts 1035ms
-   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 1439ms
-   × keeps missing and legacy records uncertain without adopting unbound receipts 1455ms
-   × records not-applied only after host rejection before starting and never restarts that ID 931ms
-   × keeps failures after started uncertain even when there is no receipt 1935ms
-   × keeps completed external write uncertain if durable result commit fails 1317ms
-   × recovers a confirmed review when the remote branch name differs from the managed local branch 934ms
-   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 1674ms
-   × pins profile access while GitHubTools is awaiting remote validation 1567ms
-   × rejects a profile replaced between inspection identity capture and credential read 1277ms
-   × supports local unstage and commit through the original revision and replays a commit without a second write 1010ms
- ✓ tests/plugin-host.test.ts (26 tests) 6944ms
-     ✓ installs verified immutable versions and gives the host only its own data directory and Gen version  429ms
-     ✓ rejects absent operations, oversized JSON and preaborted requests without dispatch  428ms
-     ✓ validates native surfaces only through the installed host and refuses URL or personal identity fields  551ms
-     ✓ does not expose failures from private host operations or credentials in errors  597ms
-     ✓ reports data-lease contention as already open in another window  339ms
-   ✓ counts a dispatch as busy while its package verification is still pending  369ms
-   ✓ keeps pending and failed registry shutdown busy  436ms
-   ✓ successful registry shutdown is idempotent and idle  969ms
-   ✓ waits for every host and preserves aggregate shutdown failure (synchronous=false)  307ms
- ✓ tests/capture-ui/helpers.test.ts (45 tests) 487ms
- ✓ tests/personal-visuals-ui.test.ts (7 tests) 59393ms
-   ✓ keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame  7306ms
-   ✓ oversized formatted import retains every previous state owner  6746ms
-   ✓ accepted import survives replacement confirmation autosave handoff reload save and export  11877ms
-   ✓ rejected import preserves pending autosave and unconfirmed save identity  6002ms
-   ✓ explains the workspace purpose until dismissed and restores it from About Visuals  2977ms
-   ✓ persists intro dismissal through the host presentation bridge  10319ms
-   ✓ keeps a preexisting compact near-limit durable record and raw draft recoverable  14151ms
- ✓ tests/tool-program-recovery-v3.test.ts (15 tests) 54673ms
-     ✓ reconciles only M12 receipts after call.effect_committed without execution or inference  6734ms
-     ✓ reconciles only M12 receipts after call.read_returned without execution or inference  5104ms
-     ✓ reconciles only M12 receipts after call.result_committed without execution or inference  5580ms
-     ✓ reconciles only M12 receipts after program.result_committed without execution or inference  5630ms
-     ✓ settles a committed failed source receipt without exposing its retained private error  8522ms
-     ✓ does not attribute the latest terminal result to an earlier unfinished parent attempt  10354ms
-     ✓ keeps a nested outcome unknown when its retained private receipt fails integrity  9596ms
-     ✓ verifies historical success and failure without exposing payloads or renewing owner/input authority  461ms
-     ✓ rejects a recovery metadata threadId binding mismatch  383ms
-     ✓ rejects a recovery metadata runId binding mismatch  421ms
-     ✓ rejects a recovery metadata epoch binding mismatch  331ms
-     ✓ rejects a recovery metadata workspaceId binding mismatch  345ms
-     ✓ rejects a recovery metadata accountBinding binding mismatch  519ms
-     ✓ requires the exact program and invocation, including an absent invocation for aggregate receipts  407ms
- ✓ tests/workspace-action-outcome-authority.test.ts (24 tests) 20005ms
-   ✓ denies admission when binding changes during credential read  833ms
-   ✓ denies admission when selection changes during credential read  571ms
-   ✓ denies admission when authority changes during credential read  491ms
-   ✓ denies admission when epoch-aba changes during credential read  471ms
-   ✓ denies admission when selection changes during native family validation  518ms
-   ✓ does not publish stale inspection after a credential await  712ms
-   ✓ rechecks inspect at the final public Promise continuation  895ms
-   ✓ rechecks replay at the final public Promise continuation  685ms
-   ✓ does not dispatch after a binding change in the final credential read  1516ms
-   ✓ does not dispatch local writes after ownership changes during gitStatus  1296ms
-   ✓ retains known write evidence while revoking the current binding projection  1177ms
-   ✓ retains known write evidence while revoking the current selection projection  899ms
-   ✓ retains known write evidence while revoking the current epoch-aba projection  891ms
-   ✓ rechecks authority after synchronous outcome subscribers before returning confirmation  788ms
-   ✓ does not dispatch after a started-event subscriber changes the owner  633ms
-   ✓ preserves an unknown dispatched result and never retries after revocation  784ms
-   ✓ does not revoke an owner for unrelated Store changes  1869ms
-   ✓ recovers the accepted command ID action:63 without resubmission  950ms
-   ✓ recovers the accepted command ID A_.-9 without resubmission  863ms
-   ✓ recovers the accepted command ID xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx without resubmission  990ms
-   ✓ recovers the accepted command ID e2bea952-716b-42b6-9c03-8c1e9ad00339 without resubmission  831ms
-   ✓ rejects invalid command ID  before persistence or dispatch  599ms
-   ✓ rejects invalid command ID bad/id before persistence or dispatch  421ms
- ✓ tests/workspace-linked-pr.test.ts (14 tests) 9513ms
-   ✓ keeps the default repository list separate from saved linked associations  1307ms
-   ✓ stores independent thread links to the same PR without overwriting either owner  511ms
-   ✓ keeps duplicate link commands idempotent and repeated links singular  443ms
-   ✓ reads legacy links by body scope and prefers a new link without deleting history  758ms
-   ✓ isolates project, thread and current repository, including an unbound owner  1391ms
-   ✓ checks authoritative binding before reading cached links or repository metadata  993ms
-   ✓ rejects unsupported linked query value 0 without falling back to repository-wide data  317ms
-   ✓ rejects unsupported linked query value true without falling back to repository-wide data  336ms
-   ✓ rejects unsupported linked query value 2 without falling back to repository-wide data  303ms
-   ✓ starts, polls and cancels profile sign-in without resolving a project or thread  431ms
-   ✓ rejects project and thread fields on profile auth while keeping project actions gated  424ms
-   ✓ keeps profile auth beneath real host, origin, session cookie and CSRF hooks  574ms
-   ✓ routes exact local and remote comparison reads without substituting action revisions or paths  507ms
-   ✓ protects comparison routes with the actual host, origin and Personal session hooks  1174ms
- ✓ tests/workspace-layout.test.ts (10 tests) 4972ms
-   ✓ creates a default workspace, persists a snapped panel and saves/restores only layout preferences  771ms
-   ✓ deduplicates commands, rejects stale profile application and retains current state on invalid input  368ms
-   ✓ gives each terminal panel a stable host-owned reference across profile and placement changes  533ms
-   ✓ hiding windows never changes running task state or account records  364ms
-   ✓ keeps legacy retired-canvas bindings on the explicit stored thread, never the active server thread (T05/R12)  1053ms
-   ✓ selects Code Review and changes its owner in one transaction, preserving the previous canvas on failure  908ms
-   ✓ supports only Workspace and All Agents for new creation while retired presets stay readable (T05/R12)  696ms
- ✓ tests/tool-program-v3.test.ts (22 tests) 39389ms
-     ✓ persists identity and M02 dispatch before the read and keeps bulk out of snapshots and events  2142ms
-     ✓ denies repository_log before an executor dispatch  767ms
-     ✓ denies file_replace_prepare before an executor dispatch  680ms
-     ✓ denies unregistered before an executor dispatch  787ms
-     ✓ denies account drift after preparation and before any read  697ms
-     ✓ bounds admitted concurrency and call count before dispatch  14569ms
-     ✓ retains a rejected source as failed even when its thrown value is undefined  571ms
-     ✓ retains a rejected source as failed even when its thrown value is null  610ms
-     ✓ retains a rejected source as failed even when its thrown value is false  653ms
-     ✓ retains a rejected source as failed even when its thrown value is 0  1707ms
-     ✓ retains a rejected source as failed even when its thrown value is Error: ordinary source error  1127ms
-     ✓ preserves a source failure even if a script catches it and returns an aggregate  551ms
-     ✓ rejects oversized visible aggregates and cancellation fences queued reads  518ms
-     ✓ admits only one owned program at a time so parallel tool envelopes cannot multiply the read budget  556ms
-     ✓ bounds failure envelopes and references after exhausting a small visible budget  11448ms
-     ✓ retains explicitly unsuccessful source outcomes as failures: {"error":"explicit source failure"}  953ms
-     ✓ retains explicitly unsuccessful source outcomes as failures: {"ok":false}  610ms
-     ✓ retains explicitly unsuccessful source outcomes as failures: {"success":false}  381ms
- ✓ tests/widget-action-owner.test.ts (12 tests) 27462ms
-     ✓ does not show an old action error in B  2107ms
-     ✓ waits for the queued action before explicitly releasing its lease  1821ms
-     ✓ keeps A lease until its checkpoint settles after B mounts  1956ms
-     ✓ keeps A lease until its queued action settles after B mounts  2207ms
-     ✓ preserves the imperative release handle  1919ms
-     ✓ does not show an old checkpoint success in B  2622ms
-     ✓ does not show an old checkpoint error in B  1688ms
-     ✓ keeps old A lease success bound to its original generation after A-B-A  2209ms
-     ✓ keeps old A lease error bound to its original generation after A-B-A  2310ms
-     ✓ lets B act without waiting for A lease  2145ms
-     ✓ does not show an old lease error in B  1931ms
-     ✓ retains A action ownership after A lease settles  1403ms
- ❯ tests/tool-program-replay-v3.test.ts (33 tests | 2 failed) 137956ms
-     ✓ reuses private receipts and reproduces out-of-order delivery, RNG and virtual clocks without another read  6049ms
-     ✓ rejects a changed source with REPLAY_DIVERGED before any additional read  2034ms
-     ✓ rejects a changed runtime with REPLAY_DIVERGED before any additional read  2331ms
-     ✓ rejects a changed arguments with REPLAY_DIVERGED before any additional read  2371ms
-     ✓ rejects a changed call sequence with REPLAY_DIVERGED before any additional read  2962ms
-     ✓ rejects a changed nested owner with REPLAY_DIVERGED before any additional read  1619ms
-     ✓ rejects a changed issued count with REPLAY_DIVERGED before any additional read  1899ms
-     ✓ rejects an actual registry definition change even after the host discloses the replacement  2422ms
-     ✓ rejects current owner drift in threadId before replay admission  2320ms
-     ✓ rejects current owner drift in runId before replay admission  2229ms
-     ✓ rejects current owner drift in epoch before replay admission  2144ms
-     ✓ rejects current owner drift in projectId before replay admission  2320ms
-     ✓ rejects current owner drift in workspaceId before replay admission  2369ms
-     ✓ rejects current owner drift in accountBinding before replay admission  2164ms
-     ✓ rejects changed VM arguments and cannot turn the rejected call into a successful caught aggregate  2007ms
-     ✓ rejects a worker that returns before reproducing committed call identities and deliveries  2720ms
-     × compares the actual VM issued count before releasing a replayed first delivery 2161ms
-     ✓ does not admit an extra call after a completed original sequence has been reproduced  2515ms
-     × reuses the original absolute deadline instead of granting a new replay budget 2197ms
-     ✓ retains FAILED private sources on replay even when the real script catches the tool rejection  2169ms
-     ✓ preserves an uncaught failed source classification without exposing its private error message  2841ms
-     ✓ retains a known backend script-failure code while replacing a private guest error message  2241ms
-     ✓ recovers program.prepared without repeating a committed or unknown read  8526ms
-     ✓ recovers journal.start_committed without repeating a committed or unknown read  6883ms
-     ✓ recovers call.identity_committed without repeating a committed or unknown read  6501ms
-     ✓ recovers call.
-[bounded: truncated 302630 chars]
+ FAIL  tests/skill-catalog.test.ts > detects replacement during capture and never returns mixed metadata/custody
+AssertionError: expected undefined to be null
+
+- Expected:
+null
+
++ Received:
+undefined
+
+ ❯ tests/skill-catalog.test.ts:117:103
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[152/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > uses canonical connected project/worktree bindings and separates unavailable project authority
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/skill-catalog.test.ts:125:92
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[153/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > discovers only the selected worktree and invalidates its references after rebinding or revocation
+AssertionError: expected [] to deeply equal [ 'Worktree only' ]
+
+- Expected
++ Received
+
+- [
+-   "Worktree only",
+- ]
++ []
+
+ ❯ tests/skill-catalog.test.ts:141:37
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[154/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated title updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated status updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated project metadata updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated working-copy branch updates
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ tests/skill-catalog.test.ts:156:134
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[155/388]⎯
+
+ FAIL  tests/skill-catalog.test.ts > reuses the real bundled integration inventory and covers all declared skills across pages
+AssertionError: expected [] to have a length of 40 but got +0
+
+- Expected
++ Received
+
+- 40
++ 0
+
+ ❯ tests/skill-catalog.test.ts:171:18
+    169|  const manifest=JSON.parse(await readFile(resolve('third-party/integra…
+    170|  const repo=new SkillCatalogRepository([bundledCatalog(resolve('.'))])…
+    171|  expect(entries).toHaveLength(manifest.integrations.reduce((sum,i)=>su…
+       |                  ^
+    172|  expect(entries.every(e=>e.availability.status==='available')).toBe(tr…
+    173|  expect(entries.some(e=>e.name==='test-driven-development')).toBe(true…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[156/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > materializes exact entry bytes and captured support without changing prompt or resources
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:41:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[157/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies stale support, forged identity, cross-source and private-provider references
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:52:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[158/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects every changed authority dimension before admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:62:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[159/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > fences authority changes during catalog awaits and again before commit/runtime/support reads
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:70:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[160/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > honors pre-abort and an abort that wins a catalog await without producing an admission
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:81:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[161/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies support-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies entry-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies file-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies directory-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies hardlink between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies junction between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies extra-file between fresh catalog custody and materialization
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:89:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[162/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > revalidates the canonical source after capture rather than accepting its earlier index
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:111:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[163/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > restores authenticated exact bytes across host restart without rediscovering changed skills
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:117:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[164/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects command-ID reuse with changed content, model, thinking, reference or authority
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:128:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[165/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies replay tampering and key loss instead of falling back to rediscovery
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:137:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[166/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies forged admissions, mismatched runtime owners and arbitrary support paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:147:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[167/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > reads the exact Harness version/document with no latest-name or ambient projection fallback
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:156:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[168/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding files instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding fileBytes instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding packageBytes instead of silently truncating it
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:171:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[169/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > rejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:182:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[170/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > selection preserves every reference field without a body read or admission capability, and bundles for browsers
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:187:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[171/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > denies a changed runtime thinking level even when the model is unchanged
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:197:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[172/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > preserves UTF-8 BOM and original line endings in admitted guidance
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:203:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[173/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > admits all selected references in order, never silently dropping a stale second selection
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:211:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[174/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > bounds Harness entry bytes before materializing an oversized saved document
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:224:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[175/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:236:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[176/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:258:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[177/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:274:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[178/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:293:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[179/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:299:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[180/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:310:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[181/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:333:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[182/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:344:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[183/388]⎯
+
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+     27|   await writeFile(join(folder, 'SKILL.md'), document); await writeFile…
+     28|   const catalog = new SkillCatalogRepository([directoryCatalog({id: 'p…
+     29|   const ref = (await catalog.list()).skills[0].ref!;
+       |                                                ^
+     30|   let current = authority();
+     31|   const records = new Map<string, unknown>(), key = randomBytes(32), s…
+ ❯ tests/skill-invocation.test.ts:352:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[184/388]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ packages/core/service.ts:1094:92
+
+ ❯ Service.command packages/core/service.ts:1099:17
+ ❯ tests/skills-integration.test.ts:52:61
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[185/388]⎯
+
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+AssertionError: expected 'failed' to be 'succeeded' // Object.is equality
+
+Expected: "succeeded"
+Received: "failed"
+
+ ❯ vi.waitFor.timeout tests/task-memory-recovery.test.ts:126:85
+    124|   expect(readFileSync(filename, 'utf8')).toBe('before');
+    125|   await x.command('operation.approve', { operationId: op.id, revision:…
+    126|   await vi.waitFor(() => expect(x.store.get<Operation>('operation', op…
+       |                                                                                     ^
+    127|   const receipt = x.store.get<Operation>('operation', op.id)!;
+    128|   const evidence = x.store.get('data', op.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[186/388]⎯
+
+ FAIL  tests/tool-effect-hard-crash-v3.test.mjs > retains exact effect certainty after hard termination at 'admission'
+ FAIL  tests/tool-effect-hard-crash-v3.test.mjs > retains exact effect certainty after hard termination at 'prepared-record'
+Error: Owned crash worker exceeded its time/output bound: 
+ ❯ ChildProcess.<anonymous> tests/tool-effect-hard-crash-v3.test.mjs:54:40
+     52|     child.once('close', (code, signal) => {
+     53|       clear();
+     54|       if (timedOut || overflow) reject(new Error('Owned crash worker e…
+       |                                        ^
+     55|       else if (pauseError) reject(pauseError);
+     56|       else resolve({ code, signal, stdout, stderr, killAccepted, pause…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[187/388]⎯
+
+ FAIL  tests/tool-program-replay-v3.test.ts > M12 real process death and explicit exact-owner restart > recovers call.effect_committed without repeating a committed or unknown read
+Error: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/tool-program-replay-v3.test.ts:271:23
+    269|
+    270| describe('M12 real process death and explicit exact-owner restart', ()…
+    271|   it.each(CRASH_POINTS)('recovers %s without repeating a committed or …
+       |                       ^
+    272|     const dir = directory();
+    273|     const exit = await killAt(dir, point);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[188/388]⎯
+
+ FAIL  tests/verification-artifact-gate-v3.test.ts > current artifact custody in the verification gate > bounds the full current artifact read cut and leaves omitted required artifacts blocked
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/verification-artifact-gate-v3.test.ts:113:3
+    111|   });
+    112|
+    113|   it('bounds the full current artifact read cut and leaves omitted req…
+       |   ^
+    114|     const f = fixture(), observations = [];
+    115|     for (let index = 0; index <= VERIFICATION_ARTIFACT_LIMITS.assessme…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[189/388]⎯
+
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences cancel during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences replace during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences expire during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+
+⎯⎯⎯⎯ Unhandled Rejection ⎯⎯⎯⎯⎯
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ withAccountLogin packages/runtime-login/account-login.ts:18:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+This error originated in "tests/account-login.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not admit a successor sign-in when an expired lease still has a live owner". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+
