@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workbench-recovery-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:36:48.126Z",
+  "endedAt": "2026-11-15T21:36:50.041Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/recovery-stage-green-01.log",
+  "logDigest": "57985800bb2cbc9d7713a773865353280bfefa4086dbeaba1865176d7bd73cb2"
+}

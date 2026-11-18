@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "usage-app-integration"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-16T03:41:35.145Z",
+  "endedAt": "2026-11-16T03:43:26.025Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c3-windows-usage-app-integration-43797606300-1.log",
+  "logDigest": "cf8c900d349f7fad5bf5320d8b6f7d070a5926778ac75d6d8b593de1c2d79372"
+}

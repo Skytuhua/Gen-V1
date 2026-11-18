@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "pnpm",
+    "test:browser",
+    "--suite",
+    "workbench"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:35:08.912Z",
+  "endedAt": "2026-11-15T21:35:09.512Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/toolbar-browser-first.log",
+  "logDigest": "cbdbc5f0a17ab51807e69c3ab911898e24329365d12b009b48490c01949192a4"
+}

@@ -1,0 +1,6482 @@
+{
+  "scope": "Temporary diagnostic instrumentation; original assertions and deadlines unchanged; no source text recorded",
+  "snapshots": [
+    {
+      "label": "before-reload",
+      "timeOrigin": 1794796663394.8,
+      "at": 5931.199999999255,
+      "events": [
+        {
+          "at": 1494.300000000745,
+          "kind": "native-bridge:get-context",
+          "windows": [
+            "main"
+          ]
+        },
+        {
+          "at": 1534.6000000014901,
+          "kind": "native-bridge:listen"
+        },
+        {
+          "at": 1650.800000000745,
+          "kind": "native-effect",
+          "component": "shell",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "alreadyHandled": false
+        },
+        {
+          "at": 1833.3999999985099,
+          "kind": "native-bridge:ready",
+          "windows": [
+            "main"
+          ]
+        },
+        {
+          "at": 1833.3999999985099,
+          "kind": "native-effect",
+          "component": "shell",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": false,
+          "alreadyHandled": false
+        },
+        {
+          "at": 1928.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 1,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1929.300000000745,
+          "kind": "idb-request:start",
+          "id": 1,
+          "transaction": 1,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking"
+          }
+        },
+        {
+          "at": 1929.3999999985099,
+          "kind": "idb-transaction:start",
+          "id": 2,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1929.3999999985099,
+          "kind": "idb-request:start",
+          "id": 2,
+          "transaction": 2,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-excerpts"
+          }
+        },
+        {
+          "at": 1929.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 3,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1930.1000000014901,
+          "kind": "idb-request:start",
+          "id": 3,
+          "transaction": 3,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-skills"
+          }
+        },
+        {
+          "at": 1930.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 4,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1930.199999999255,
+          "kind": "idb-request:start",
+          "id": 4,
+          "transaction": 4,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "mode"
+          }
+        },
+        {
+          "at": 1930.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 5,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1930.300000000745,
+          "kind": "idb-request:start",
+          "id": 5,
+          "transaction": 5,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft"
+          }
+        },
+        {
+          "at": 2061.39999999851,
+          "kind": "native-effect",
+          "component": "task-thread",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "task-thread",
+          "pinnedThreadId": "task-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 2072.10000000149,
+          "kind": "native-effect",
+          "component": "shell",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": true,
+          "resolvedMainId": "task-thread",
+          "alreadyHandled": false,
+          "revision": 1
+        },
+        {
+          "at": 2148.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 6,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2148.89999999851,
+          "kind": "idb-request:start",
+          "id": 6,
+          "transaction": 6,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2156.39999999851,
+          "kind": "idb-request:success",
+          "id": 1,
+          "operation": "get"
+        },
+        {
+          "at": 2156.5,
+          "kind": "idb-request:success",
+          "id": 2,
+          "operation": "get"
+        },
+        {
+          "at": 2170.10000000149,
+          "kind": "idb-request:success",
+          "id": 3,
+          "operation": "get"
+        },
+        {
+          "at": 2170.39999999851,
+          "kind": "idb-request:success",
+          "id": 4,
+          "operation": "get"
+        },
+        {
+          "at": 2170.60000000149,
+          "kind": "idb-request:success",
+          "id": 5,
+          "operation": "get"
+        },
+        {
+          "at": 2170.60000000149,
+          "kind": "idb-request:success",
+          "id": 6,
+          "operation": "get"
+        },
+        {
+          "at": 2178.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 1
+        },
+        {
+          "at": 2178.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 2
+        },
+        {
+          "at": 2178.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 3
+        },
+        {
+          "at": 2178.5,
+          "kind": "idb-transaction:complete",
+          "id": 4
+        },
+        {
+          "at": 2178.5,
+          "kind": "idb-transaction:complete",
+          "id": 5
+        },
+        {
+          "at": 2286.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 7,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2286.39999999851,
+          "kind": "idb-request:start",
+          "id": 7,
+          "transaction": 7,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 2286.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 8,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2286.39999999851,
+          "kind": "idb-request:start",
+          "id": 8,
+          "transaction": 8,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 9,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.10000000149,
+          "kind": "idb-request:start",
+          "id": 9,
+          "transaction": 9,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-drafts",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 10,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 10,
+          "transaction": 10,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 11,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 11,
+          "transaction": 11,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 12,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 12,
+          "transaction": 12,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-ticket",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 13,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 13,
+          "transaction": 13,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 14,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 14,
+          "transaction": 14,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-skills",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 15,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.300000000745,
+          "kind": "idb-request:start",
+          "id": 15,
+          "transaction": 15,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-excerpts",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 16,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.39999999851,
+          "kind": "idb-request:start",
+          "id": 16,
+          "transaction": 16,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 17,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.39999999851,
+          "kind": "idb-request:start",
+          "id": 17,
+          "transaction": 17,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2287.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 18,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2287.800000000745,
+          "kind": "idb-request:start",
+          "id": 18,
+          "transaction": 18,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2287.800000000745,
+          "kind": "idb-request:start",
+          "id": 19,
+          "transaction": 18,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2292.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 6
+        },
+        {
+          "at": 2306.60000000149,
+          "kind": "idb-request:success",
+          "id": 7,
+          "operation": "get"
+        },
+        {
+          "at": 2307.39999999851,
+          "kind": "idb-request:success",
+          "id": 8,
+          "operation": "get"
+        },
+        {
+          "at": 2307.60000000149,
+          "kind": "idb-request:success",
+          "id": 9,
+          "operation": "get"
+        },
+        {
+          "at": 2308.60000000149,
+          "kind": "idb-transaction:start",
+          "id": 19,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2308.60000000149,
+          "kind": "idb-request:start",
+          "id": 20,
+          "transaction": 19,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-draft-thread",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2308.699999999255,
+          "kind": "idb-request:success",
+          "id": 10,
+          "operation": "get"
+        },
+        {
+          "at": 2308.800000000745,
+          "kind": "idb-request:success",
+          "id": 11,
+          "operation": "get"
+        },
+        {
+          "at": 2308.800000000745,
+          "kind": "idb-request:success",
+          "id": 12,
+          "operation": "get"
+        },
+        {
+          "at": 2308.800000000745,
+          "kind": "idb-request:success",
+          "id": 13,
+          "operation": "get"
+        },
+        {
+          "at": 2308.89999999851,
+          "kind": "idb-request:success",
+          "id": 14,
+          "operation": "get"
+        },
+        {
+          "at": 2308.89999999851,
+          "kind": "idb-request:success",
+          "id": 15,
+          "operation": "get"
+        },
+        {
+          "at": 2386.10000000149,
+          "kind": "idb-request:success",
+          "id": 16,
+          "operation": "get"
+        },
+        {
+          "at": 2386.10000000149,
+          "kind": "idb-request:success",
+          "id": 17,
+          "operation": "get"
+        },
+        {
+          "at": 2400.60000000149,
+          "kind": "idb-request:success",
+          "id": 18,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2460.89999999851,
+          "kind": "native-effect",
+          "component": "task-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "task-thread",
+          "pinnedThreadId": "task-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 2463.60000000149,
+          "kind": "idb-request:success",
+          "id": 19,
+          "operation": "getAll"
+        },
+        {
+          "at": 2464.5,
+          "kind": "idb-transaction:complete",
+          "id": 7
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 8
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 9
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 10
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 11
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 12
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 13
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 14
+        },
+        {
+          "at": 2464.60000000149,
+          "kind": "idb-request:success",
+          "id": 20,
+          "operation": "get"
+        },
+        {
+          "at": 2464.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 20,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2464.699999999255,
+          "kind": "idb-request:start",
+          "id": 21,
+          "transaction": 20,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2464.699999999255,
+          "kind": "idb-request:start",
+          "id": 22,
+          "transaction": 20,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2464.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 15
+        },
+        {
+          "at": 2464.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 16
+        },
+        {
+          "at": 2464.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 17
+        },
+        {
+          "at": 2464.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 18
+        },
+        {
+          "at": 2465.800000000745,
+          "kind": "idb-request:success",
+          "id": 21,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2465.800000000745,
+          "kind": "idb-transaction:complete",
+          "id": 19
+        },
+        {
+          "at": 2465.800000000745,
+          "kind": "idb-request:success",
+          "id": 22,
+          "operation": "getAll"
+        },
+        {
+          "at": 2470.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 20
+        },
+        {
+          "at": 3386.60000000149,
+          "kind": "idb-transaction:start",
+          "id": 21,
+          "mode": "readwrite",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 3386.699999999255,
+          "kind": "idb-request:start",
+          "id": 23,
+          "transaction": 21,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 3392.5,
+          "kind": "idb-request:success",
+          "id": 23,
+          "operation": "get"
+        },
+        {
+          "at": 3401.5,
+          "kind": "idb-transaction:complete",
+          "id": 21
+        },
+        {
+          "at": 3815.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 22,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 3815.39999999851,
+          "kind": "idb-request:start",
+          "id": 24,
+          "transaction": 22,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 3823.10000000149,
+          "kind": "idb-request:success",
+          "id": 24,
+          "operation": "get"
+        },
+        {
+          "at": 3824.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 23,
+          "mode": "readwrite",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 3824.300000000745,
+          "kind": "idb-request:start",
+          "id": 25,
+          "transaction": 23,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 3826.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 22
+        },
+        {
+          "at": 3826.699999999255,
+          "kind": "idb-request:success",
+          "id": 25,
+          "operation": "get"
+        },
+        {
+          "at": 3828.5,
+          "kind": "idb-transaction:complete",
+          "id": 23
+        },
+        {
+          "at": 3850.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 24,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 3850.89999999851,
+          "kind": "idb-request:start",
+          "id": 26,
+          "transaction": 24,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 3850.89999999851,
+          "kind": "idb-request:start",
+          "id": 27,
+          "transaction": 24,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 3853.699999999255,
+          "kind": "idb-request:success",
+          "id": 26,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 3853.89999999851,
+          "kind": "idb-request:success",
+          "id": 27,
+          "operation": "getAll"
+        },
+        {
+          "at": 3854.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 24
+        },
+        {
+          "at": 4537.5,
+          "kind": "editor-handoff:start",
+          "handoff": 1,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+          ]
+        },
+        {
+          "at": 4603.5,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4603.60000000149,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4603.60000000149,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4603.699999999255,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4603.699999999255,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4603.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 4603.89999999851,
+          "kind": "idb-transaction:start",
+          "id": 25,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4604.10000000149,
+          "kind": "idb-request:start",
+          "id": 28,
+          "transaction": 25,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 4604.699999999255,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4605.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 26,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4605.800000000745,
+          "kind": "idb-request:start",
+          "id": 29,
+          "transaction": 26,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 4605.800000000745,
+          "kind": "idb-request:start",
+          "id": 30,
+          "transaction": 26,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 4605.800000000745,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 4606,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 4614.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 27,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4614.699999999255,
+          "kind": "idb-request:start",
+          "id": 31,
+          "transaction": 27,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 4614.699999999255,
+          "kind": "idb-request:start",
+          "id": 32,
+          "transaction": 27,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 4615,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4615.10000000149,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4615.300000000745,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4615.300000000745,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4615.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 28,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4615.39999999851,
+          "kind": "idb-request:start",
+          "id": 33,
+          "transaction": 28,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4615.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 29,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4615.5,
+          "kind": "idb-request:start",
+          "id": 34,
+          "transaction": 29,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4615.5,
+          "kind": "idb-transaction:start",
+          "id": 30,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4615.5,
+          "kind": "idb-request:start",
+          "id": 35,
+          "transaction": 30,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4624.699999999255,
+          "kind": "idb-request:success",
+          "id": 28,
+          "operation": "get"
+        },
+        {
+          "at": 4633.199999999255,
+          "kind": "idb-request:success",
+          "id": 29,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 4640.39999999851,
+          "kind": "idb-request:success",
+          "id": 30,
+          "operation": "getAll"
+        },
+        {
+          "at": 4651.199999999255,
+          "kind": "idb-request:success",
+          "id": 31,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 4651.199999999255,
+          "kind": "idb-request:success",
+          "id": 32,
+          "operation": "getAll"
+        },
+        {
+          "at": 4651.199999999255,
+          "kind": "idb-request:success",
+          "id": 33,
+          "operation": "get"
+        },
+        {
+          "at": 4651.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 4651.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 4651.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4651.300000000745,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4651.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "idb-request:success",
+          "id": 34,
+          "operation": "get"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "idb-request:success",
+          "id": 35,
+          "operation": "get"
+        },
+        {
+          "at": 4651.39999999851,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 4651.5,
+          "kind": "editor-handoff:end",
+          "handoff": 1,
+          "failed": false
+        },
+        {
+          "at": 4651.699999999255,
+          "kind": "native-bridge:state",
+          "windows": [
+            "main",
+            "detached-a"
+          ]
+        },
+        {
+          "at": 4652.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 25
+        },
+        {
+          "at": 4652.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 26
+        },
+        {
+          "at": 4652.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 27
+        },
+        {
+          "at": 4684.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 28
+        },
+        {
+          "at": 4684.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 29
+        },
+        {
+          "at": 4684.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 30
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "select:prepare-start",
+          "component": "shell",
+          "target": "second-thread",
+          "resolvedMainId": "task-thread"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "workspace-prepare:start",
+          "component": "shell"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "source-journal:start",
+          "component": "shell"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "source-journal:flush-start",
+          "component": "shell"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "source-journal:end",
+          "component": "shell"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell"
+        },
+        {
+          "at": 4786.699999999255,
+          "kind": "editor-handoff:start",
+          "handoff": 2,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+          ]
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "source-journal:start",
+          "component": "shell"
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "source-journal:flush-start",
+          "component": "shell"
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4786.800000000745,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4786.89999999851,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+        },
+        {
+          "at": 4786.89999999851,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4786.89999999851,
+          "kind": "source-journal:end",
+          "component": "shell"
+        },
+        {
+          "at": 4787.10000000149,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4787.10000000149,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 4787.199999999255,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4787.199999999255,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4787.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 31,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4787.39999999851,
+          "kind": "idb-request:start",
+          "id": 36,
+          "transaction": 31,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4787.60000000149,
+          "kind": "idb-transaction:start",
+          "id": 32,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4787.60000000149,
+          "kind": "idb-request:start",
+          "id": 37,
+          "transaction": 32,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "idb-request:success",
+          "id": 36,
+          "operation": "get"
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4795.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4797.199999999255,
+          "kind": "idb-request:success",
+          "id": 37,
+          "operation": "get"
+        },
+        {
+          "at": 4797.199999999255,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+        },
+        {
+          "at": 4797.199999999255,
+          "kind": "editor-handoff:end",
+          "handoff": 2,
+          "failed": false
+        },
+        {
+          "at": 4797.199999999255,
+          "kind": "workspace-prepare:end",
+          "component": "shell"
+        },
+        {
+          "at": 4797.199999999255,
+          "kind": "select:prepare-end",
+          "component": "shell",
+          "target": "second-thread"
+        },
+        {
+          "at": 4797.39999999851,
+          "kind": "select-now:start",
+          "component": "shell",
+          "target": "second-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "revision": 1,
+          "resolvedMainId": "task-thread"
+        },
+        {
+          "at": 4797.39999999851,
+          "kind": "select-now:split",
+          "component": "shell",
+          "target": "second-thread",
+          "paneId": "pane-main",
+          "revision": 1
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "place-thread:prepare-start",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 1
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "workspace-prepare:start",
+          "component": "shell"
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "source-journal:start",
+          "component": "shell"
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "source-journal:flush-start",
+          "component": "shell"
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "source-journal:end",
+          "component": "shell"
+        },
+        {
+          "at": 4797.699999999255,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-handoff:start",
+          "handoff": 3,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+          ]
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "source-journal:start",
+          "component": "shell"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "source-journal:flush-start",
+          "component": "shell"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 4797.800000000745,
+          "kind": "source-journal:end",
+          "component": "shell"
+        },
+        {
+          "at": 4798.199999999255,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 4798.199999999255,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 4798.199999999255,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4798.300000000745,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4798.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 33,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4798.39999999851,
+          "kind": "idb-request:start",
+          "id": 38,
+          "transaction": 33,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4798.5,
+          "kind": "idb-transaction:start",
+          "id": 34,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4798.5,
+          "kind": "idb-request:start",
+          "id": 39,
+          "transaction": 34,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 4801.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 31
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "idb-request:success",
+          "id": 38,
+          "operation": "get"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "idb-request:success",
+          "id": 39,
+          "operation": "get"
+        },
+        {
+          "at": 4801.39999999851,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:true:3"
+        },
+        {
+          "at": 4801.5,
+          "kind": "editor-handoff:end",
+          "handoff": 3,
+          "failed": false
+        },
+        {
+          "at": 4801.5,
+          "kind": "workspace-prepare:end",
+          "component": "shell"
+        },
+        {
+          "at": 4801.5,
+          "kind": "place-thread:prepare-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 1
+        },
+        {
+          "at": 4801.699999999255,
+          "kind": "place-thread:send",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "type": "view.open",
+          "revision": 1
+        },
+        {
+          "at": 4803.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 32
+        },
+        {
+          "at": 4803.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 33
+        },
+        {
+          "at": 4804,
+          "kind": "idb-transaction:complete",
+          "id": 34
+        },
+        {
+          "at": 4820,
+          "kind": "place-thread:receipt",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 2
+        },
+        {
+          "at": 4878.699999999255,
+          "kind": "native-effect",
+          "component": "second-thread",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "pinnedThreadId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 4961.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 35,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4961.10000000149,
+          "kind": "idb-request:start",
+          "id": 40,
+          "transaction": 35,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 4962.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 36,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4962.300000000745,
+          "kind": "idb-request:start",
+          "id": 41,
+          "transaction": 36,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 4962.39999999851,
+          "kind": "idb-transaction:start",
+          "id": 37,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 4962.39999999851,
+          "kind": "idb-request:start",
+          "id": 42,
+          "transaction": 37,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 4962.39999999851,
+          "kind": "idb-request:start",
+          "id": 43,
+          "transaction": 37,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 4970.60000000149,
+          "kind": "idb-request:success",
+          "id": 40,
+          "operation": "get"
+        },
+        {
+          "at": 5009.800000000745,
+          "kind": "idb-request:success",
+          "id": 41,
+          "operation": "get"
+        },
+        {
+          "at": 5025.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 38,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5025.199999999255,
+          "kind": "idb-request:start",
+          "id": 44,
+          "transaction": 38,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 5025.199999999255,
+          "kind": "idb-request:start",
+          "id": 45,
+          "transaction": 38,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 5026.89999999851,
+          "kind": "idb-request:success",
+          "id": 42,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 5168.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 39,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5168.10000000149,
+          "kind": "idb-request:start",
+          "id": 46,
+          "transaction": 39,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 5168.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 40,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5168.199999999255,
+          "kind": "idb-request:start",
+          "id": 47,
+          "transaction": 40,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5168.89999999851,
+          "kind": "idb-transaction:start",
+          "id": 41,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169,
+          "kind": "idb-request:start",
+          "id": 48,
+          "transaction": 41,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-drafts",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169,
+          "kind": "idb-transaction:start",
+          "id": 42,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169,
+          "kind": "idb-request:start",
+          "id": 49,
+          "transaction": 42,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169,
+          "kind": "idb-transaction:start",
+          "id": 43,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.10000000149,
+          "kind": "idb-request:start",
+          "id": 50,
+          "transaction": 43,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 44,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.10000000149,
+          "kind": "idb-request:start",
+          "id": 51,
+          "transaction": 44,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-ticket",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 45,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.10000000149,
+          "kind": "idb-request:start",
+          "id": 52,
+          "transaction": 45,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 46,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.199999999255,
+          "kind": "idb-request:start",
+          "id": 53,
+          "transaction": 46,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-skills",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 47,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-request:start",
+          "id": 54,
+          "transaction": 47,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-excerpts",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 48,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-request:start",
+          "id": 55,
+          "transaction": 48,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 49,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.300000000745,
+          "kind": "idb-request:start",
+          "id": 56,
+          "transaction": 49,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5169.5,
+          "kind": "idb-transaction:start",
+          "id": 50,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5169.699999999255,
+          "kind": "idb-request:start",
+          "id": 57,
+          "transaction": 50,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 5169.699999999255,
+          "kind": "idb-request:start",
+          "id": 58,
+          "transaction": 50,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 5198.60000000149,
+          "kind": "idb-request:success",
+          "id": 43,
+          "operation": "getAll"
+        },
+        {
+          "at": 5252.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 35
+        },
+        {
+          "at": 5252.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 36
+        },
+        {
+          "at": 5295.199999999255,
+          "kind": "idb-request:success",
+          "id": 44,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 5301.199999999255,
+          "kind": "native-effect",
+          "component": "second-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "pinnedThreadId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 5307.199999999255,
+          "kind": "idb-request:success",
+          "id": 45,
+          "operation": "getAll"
+        },
+        {
+          "at": 5307.39999999851,
+          "kind": "idb-request:success",
+          "id": 46,
+          "operation": "get"
+        },
+        {
+          "at": 5307.699999999255,
+          "kind": "idb-request:success",
+          "id": 47,
+          "operation": "get"
+        },
+        {
+          "at": 5307.800000000745,
+          "kind": "idb-request:success",
+          "id": 48,
+          "operation": "get"
+        },
+        {
+          "at": 5318.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 51,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5318.199999999255,
+          "kind": "idb-request:start",
+          "id": 59,
+          "transaction": 51,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-draft-thread",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5318.199999999255,
+          "kind": "idb-request:success",
+          "id": 49,
+          "operation": "get"
+        },
+        {
+          "at": 5318.300000000745,
+          "kind": "idb-request:success",
+          "id": 50,
+          "operation": "get"
+        },
+        {
+          "at": 5318.300000000745,
+          "kind": "idb-request:success",
+          "id": 51,
+          "operation": "get"
+        },
+        {
+          "at": 5318.39999999851,
+          "kind": "idb-request:success",
+          "id": 52,
+          "operation": "get"
+        },
+        {
+          "at": 5318.39999999851,
+          "kind": "idb-request:success",
+          "id": 53,
+          "operation": "get"
+        },
+        {
+          "at": 5318.39999999851,
+          "kind": "idb-request:success",
+          "id": 54,
+          "operation": "get"
+        },
+        {
+          "at": 5394.5,
+          "kind": "idb-request:success",
+          "id": 55,
+          "operation": "get"
+        },
+        {
+          "at": 5394.60000000149,
+          "kind": "idb-request:success",
+          "id": 56,
+          "operation": "get"
+        },
+        {
+          "at": 5399.699999999255,
+          "kind": "idb-request:success",
+          "id": 57,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 5406.10000000149,
+          "kind": "idb-request:success",
+          "id": 58,
+          "operation": "getAll"
+        },
+        {
+          "at": 5406.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 37
+        },
+        {
+          "at": 5406.5,
+          "kind": "idb-transaction:complete",
+          "id": 38
+        },
+        {
+          "at": 5407,
+          "kind": "idb-transaction:complete",
+          "id": 39
+        },
+        {
+          "at": 5407,
+          "kind": "idb-transaction:complete",
+          "id": 40
+        },
+        {
+          "at": 5407,
+          "kind": "idb-request:success",
+          "id": 59,
+          "operation": "get"
+        },
+        {
+          "at": 5407.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 52,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5407.39999999851,
+          "kind": "idb-request:start",
+          "id": 60,
+          "transaction": 52,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 5407.39999999851,
+          "kind": "idb-request:start",
+          "id": 61,
+          "transaction": 52,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 41
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 42
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 43
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 44
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 45
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 46
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 47
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 48
+        },
+        {
+          "at": 5407.5,
+          "kind": "idb-transaction:complete",
+          "id": 49
+        },
+        {
+          "at": 5407.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 50
+        },
+        {
+          "at": 5450.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 53,
+          "mode": "readwrite",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5450.10000000149,
+          "kind": "idb-request:start",
+          "id": 62,
+          "transaction": 53,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5451.10000000149,
+          "kind": "idb-request:success",
+          "id": 60,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 5475.60000000149,
+          "kind": "idb-request:success",
+          "id": 61,
+          "operation": "getAll"
+        },
+        {
+          "at": 5481.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 51
+        },
+        {
+          "at": 5481.39999999851,
+          "kind": "idb-transaction:complete",
+          "id": 52
+        },
+        {
+          "at": 5484.699999999255,
+          "kind": "idb-request:success",
+          "id": 62,
+          "operation": "get"
+        },
+        {
+          "at": 5486.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 53
+        },
+        {
+          "at": 5820.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 54,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5820.89999999851,
+          "kind": "idb-request:start",
+          "id": 63,
+          "transaction": 54,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5834.5,
+          "kind": "idb-request:success",
+          "id": 63,
+          "operation": "get"
+        },
+        {
+          "at": 5834.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 55,
+          "mode": "readwrite",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5834.800000000745,
+          "kind": "idb-request:start",
+          "id": 64,
+          "transaction": 55,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 5838.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 54
+        },
+        {
+          "at": 5838.300000000745,
+          "kind": "idb-request:success",
+          "id": 64,
+          "operation": "get"
+        },
+        {
+          "at": 5847.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 55
+        },
+        {
+          "at": 5874.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 56,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 5874.300000000745,
+          "kind": "idb-request:start",
+          "id": 65,
+          "transaction": 56,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 5874.300000000745,
+          "kind": "idb-request:start",
+          "id": 66,
+          "transaction": 56,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 5880.300000000745,
+          "kind": "idb-request:success",
+          "id": 65,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 5898.39999999851,
+          "kind": "idb-request:success",
+          "id": 66,
+          "operation": "getAll"
+        },
+        {
+          "at": 5899.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 56
+        }
+      ],
+      "nativeCalls": [
+        {
+          "type": "detach",
+          "surface": {
+            "kind": "thread",
+            "threadId": "task-thread"
+          }
+        }
+      ],
+      "selectedThread": "second-thread",
+      "placement": "{\"version\":1,\"workspaceId\":\"workspace\",\"mainPaneId\":\"pane-main\",\"mainSelection\":{\"kind\":\"thread\",\"threadId\":\"second-thread\"},\"floating\":{},\"mainBasis\":{\"paneId\":\"pane-main\",\"activeViewId\":\"thread:second-thread\",\"viewIds\":[\"thread:task-thread\",\"thread:second-thread\"],\"revision\":2}}"
+    },
+    {
+      "label": "finally",
+      "timeOrigin": 1794796669373,
+      "at": 2915.10000000149,
+      "events": [
+        {
+          "at": 712.4000000022352,
+          "kind": "native-bridge:get-context",
+          "windows": [
+            "main",
+            "detached-a"
+          ]
+        },
+        {
+          "at": 731.5,
+          "kind": "native-bridge:listen"
+        },
+        {
+          "at": 830,
+          "kind": "native-effect",
+          "component": "shell",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 972.1999999992549,
+          "kind": "native-bridge:ready",
+          "windows": [
+            "main",
+            "detached-a"
+          ]
+        },
+        {
+          "at": 972.1999999992549,
+          "kind": "native-effect",
+          "component": "shell",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1004.1000000014901,
+          "kind": "idb-transaction:start",
+          "id": 1,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1004.1999999992549,
+          "kind": "idb-request:start",
+          "id": 1,
+          "transaction": 1,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1007.3000000007451,
+          "kind": "idb-request:success",
+          "id": 1,
+          "operation": "get"
+        },
+        {
+          "at": 1009.6000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 1
+        },
+        {
+          "at": 1071.199999999255,
+          "kind": "native-bridge:state",
+          "windows": [
+            "main"
+          ],
+          "focusKind": "thread",
+          "focusThreadId": "task-thread"
+        },
+        {
+          "at": 1094.800000000745,
+          "kind": "native-effect",
+          "component": "shell",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1094.9000000022352,
+          "kind": "native-effect:wait-layout",
+          "component": "shell"
+        },
+        {
+          "at": 1166.300000000745,
+          "kind": "native-effect",
+          "component": "task-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "task-thread",
+          "pinnedThreadId": "task-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1167.6000000014901,
+          "kind": "native-effect",
+          "component": "second-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": false,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "pinnedThreadId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1167.800000000745,
+          "kind": "native-effect",
+          "component": "shell",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": true,
+          "resolvedMainId": "second-thread",
+          "alreadyHandled": false,
+          "revision": 2
+        },
+        {
+          "at": 1167.800000000745,
+          "kind": "native-effect:consume",
+          "component": "shell",
+          "returningSplitThread": true,
+          "resolvedMainId": "second-thread",
+          "targetThreadId": "task-thread"
+        },
+        {
+          "at": 1167.800000000745,
+          "kind": "select:prepare-start",
+          "component": "shell",
+          "target": "task-thread",
+          "resolvedMainId": "second-thread"
+        },
+        {
+          "at": 1167.800000000745,
+          "kind": "workspace-prepare:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1167.800000000745,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1210,
+          "kind": "idb-transaction:start",
+          "id": 2,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1210,
+          "kind": "idb-request:start",
+          "id": 2,
+          "transaction": 2,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1223.1000000014901,
+          "kind": "idb-request:success",
+          "id": 2,
+          "operation": "get"
+        },
+        {
+          "at": 1224,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1224.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 3,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1224.199999999255,
+          "kind": "idb-request:start",
+          "id": 3,
+          "transaction": 3,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1241.199999999255,
+          "kind": "idb-request:success",
+          "id": 3,
+          "operation": "get"
+        },
+        {
+          "at": 1241.4000000022352,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1241.5,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1241.6000000014901,
+          "kind": "idb-transaction:start",
+          "id": 4,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1241.6000000014901,
+          "kind": "idb-request:start",
+          "id": 4,
+          "transaction": 4,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 2
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "idb-request:success",
+          "id": 4,
+          "operation": "get"
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1246.4000000022352,
+          "kind": "editor-handoff:start",
+          "handoff": 1,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "source-workbench::0::false:false:0",
+            "composer-journal:task-thread",
+            "composer-journal:second-thread",
+            "source-workbench::0::true:false:1"
+          ]
+        },
+        {
+          "at": 1246.5,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 1246.5,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 1246.5,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "source-workbench::0::false:false:0"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "source-journal:start",
+          "component": "task-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "source-journal:start",
+          "component": "second-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "source-journal:flush-start",
+          "component": "second-thread"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "editor-guard:start",
+          "handoff": 1,
+          "key": "source-workbench::0::true:false:1"
+        },
+        {
+          "at": 1246.6000000014901,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "source-workbench::0::false:false:0"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "source-journal:end",
+          "component": "task-thread"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "source-journal:end",
+          "component": "second-thread"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "source-workbench::0::true:false:1"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 1246.699999999255,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 1247,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1247,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1247.1000000014901,
+          "kind": "idb-transaction:start",
+          "id": 5,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1247.199999999255,
+          "kind": "idb-request:start",
+          "id": 5,
+          "transaction": 5,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1448,
+          "kind": "native-effect",
+          "component": "shell",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "splitSelectionReady": true,
+          "resolvedMainId": "second-thread",
+          "alreadyHandled": true,
+          "revision": 2
+        },
+        {
+          "at": 1497.5,
+          "kind": "idb-transaction:start",
+          "id": 6,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1497.6000000014901,
+          "kind": "idb-request:start",
+          "id": 6,
+          "transaction": 6,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 1497.9000000022352,
+          "kind": "idb-transaction:start",
+          "id": 7,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1497.9000000022352,
+          "kind": "idb-request:start",
+          "id": 7,
+          "transaction": 7,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "source-context",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1498.4000000022352,
+          "kind": "idb-transaction:start",
+          "id": 8,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1498.5,
+          "kind": "idb-request:start",
+          "id": 8,
+          "transaction": 8,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 1499.5,
+          "kind": "idb-transaction:start",
+          "id": 9,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.6000000014901,
+          "kind": "idb-request:start",
+          "id": 9,
+          "transaction": 9,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-drafts",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1499.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 10,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.800000000745,
+          "kind": "idb-request:start",
+          "id": 10,
+          "transaction": 10,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1499.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 11,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.800000000745,
+          "kind": "idb-request:start",
+          "id": 11,
+          "transaction": 11,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1499.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 12,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.9000000022352,
+          "kind": "idb-request:start",
+          "id": 12,
+          "transaction": 12,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-ticket",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1499.9000000022352,
+          "kind": "idb-transaction:start",
+          "id": 13,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.9000000022352,
+          "kind": "idb-request:start",
+          "id": 13,
+          "transaction": 13,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1499.9000000022352,
+          "kind": "idb-transaction:start",
+          "id": 14,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1499.9000000022352,
+          "kind": "idb-request:start",
+          "id": 14,
+          "transaction": 14,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-skills",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1500,
+          "kind": "idb-transaction:start",
+          "id": 15,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500,
+          "kind": "idb-request:start",
+          "id": 15,
+          "transaction": 15,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-excerpts",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1500,
+          "kind": "idb-transaction:start",
+          "id": 16,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.1000000014901,
+          "kind": "idb-request:start",
+          "id": 16,
+          "transaction": 16,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1500.1000000014901,
+          "kind": "idb-transaction:start",
+          "id": 17,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.1000000014901,
+          "kind": "idb-request:start",
+          "id": 17,
+          "transaction": 17,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1500.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 18,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.300000000745,
+          "kind": "idb-request:start",
+          "id": 18,
+          "transaction": 18,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-drafts",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 19,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.4000000022352,
+          "kind": "idb-request:start",
+          "id": 19,
+          "transaction": 19,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.5,
+          "kind": "idb-transaction:start",
+          "id": 20,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.5,
+          "kind": "idb-request:start",
+          "id": 20,
+          "transaction": 20,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-ticket",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.5,
+          "kind": "idb-transaction:start",
+          "id": 21,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.5,
+          "kind": "idb-request:start",
+          "id": 21,
+          "transaction": 21,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.5,
+          "kind": "idb-transaction:start",
+          "id": 22,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-request:start",
+          "id": 22,
+          "transaction": 22,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-skills",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 23,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-request:start",
+          "id": 23,
+          "transaction": 23,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "draft-excerpts",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 24,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-request:start",
+          "id": 24,
+          "transaction": 24,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "thinking",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 25,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1500.699999999255,
+          "kind": "idb-request:start",
+          "id": 25,
+          "transaction": 25,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1501.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 26,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1501.300000000745,
+          "kind": "idb-request:start",
+          "id": 26,
+          "transaction": 26,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1502,
+          "kind": "idb-request:start",
+          "id": 27,
+          "transaction": 26,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1502,
+          "kind": "idb-transaction:start",
+          "id": 27,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1502,
+          "kind": "idb-request:start",
+          "id": 28,
+          "transaction": 27,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1502,
+          "kind": "idb-request:start",
+          "id": 29,
+          "transaction": 27,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1509.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 3
+        },
+        {
+          "at": 1545,
+          "kind": "idb-transaction:complete",
+          "id": 4
+        },
+        {
+          "at": 1545,
+          "kind": "idb-request:success",
+          "id": 5,
+          "operation": "get"
+        },
+        {
+          "at": 1545,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 1545,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1545,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545,
+          "kind": "editor-guard:end",
+          "handoff": 1,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 1545,
+          "kind": "editor-handoff:end",
+          "handoff": 1,
+          "failed": false
+        },
+        {
+          "at": 1545,
+          "kind": "workspace-prepare:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545,
+          "kind": "select:prepare-end",
+          "component": "shell",
+          "target": "task-thread"
+        },
+        {
+          "at": 1545.1000000014901,
+          "kind": "select-now:start",
+          "component": "shell",
+          "target": "task-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "revision": 2,
+          "resolvedMainId": "second-thread"
+        },
+        {
+          "at": 1545.1000000014901,
+          "kind": "select-now:split",
+          "component": "shell",
+          "target": "task-thread",
+          "paneId": "pane-main",
+          "revision": 2
+        },
+        {
+          "at": 1545.1000000014901,
+          "kind": "place-thread:prepare-start",
+          "component": "shell",
+          "threadId": "task-thread",
+          "paneId": "pane-main",
+          "revision": 2
+        },
+        {
+          "at": 1545.1000000014901,
+          "kind": "workspace-prepare:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545.1000000014901,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545.199999999255,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1545.4000000022352,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545.4000000022352,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1545.5,
+          "kind": "idb-transaction:start",
+          "id": 28,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1545.5,
+          "kind": "idb-request:start",
+          "id": 30,
+          "transaction": 28,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1545.6000000014901,
+          "kind": "idb-request:success",
+          "id": 6,
+          "operation": "get"
+        },
+        {
+          "at": 1546,
+          "kind": "idb-request:success",
+          "id": 7,
+          "operation": "get"
+        },
+        {
+          "at": 1546.1000000014901,
+          "kind": "idb-request:success",
+          "id": 8,
+          "operation": "get"
+        },
+        {
+          "at": 1546.199999999255,
+          "kind": "idb-request:success",
+          "id": 9,
+          "operation": "get"
+        },
+        {
+          "at": 1546.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 29,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:start",
+          "id": 31,
+          "transaction": 29,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-draft-thread",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 10,
+          "operation": "get"
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 11,
+          "operation": "get"
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 12,
+          "operation": "get"
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 13,
+          "operation": "get"
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 14,
+          "operation": "get"
+        },
+        {
+          "at": 1546.4000000022352,
+          "kind": "idb-request:success",
+          "id": 15,
+          "operation": "get"
+        },
+        {
+          "at": 1575.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 30,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1575.800000000745,
+          "kind": "idb-request:start",
+          "id": 32,
+          "transaction": 30,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1575.800000000745,
+          "kind": "idb-request:start",
+          "id": 33,
+          "transaction": 30,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1575.9000000022352,
+          "kind": "idb-transaction:start",
+          "id": 31,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1575.9000000022352,
+          "kind": "idb-request:start",
+          "id": 34,
+          "transaction": 31,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1575.9000000022352,
+          "kind": "idb-request:start",
+          "id": 35,
+          "transaction": 31,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1576,
+          "kind": "idb-request:success",
+          "id": 16,
+          "operation": "get"
+        },
+        {
+          "at": 1576,
+          "kind": "idb-request:success",
+          "id": 17,
+          "operation": "get"
+        },
+        {
+          "at": 1576.1000000014901,
+          "kind": "idb-request:success",
+          "id": 18,
+          "operation": "get"
+        },
+        {
+          "at": 1576.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 32,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1576.199999999255,
+          "kind": "idb-request:start",
+          "id": 36,
+          "transaction": 32,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "saved-draft-thread",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1576.300000000745,
+          "kind": "idb-request:success",
+          "id": 19,
+          "operation": "get"
+        },
+        {
+          "at": 1576.300000000745,
+          "kind": "idb-request:success",
+          "id": 20,
+          "operation": "get"
+        },
+        {
+          "at": 1576.300000000745,
+          "kind": "idb-request:success",
+          "id": 21,
+          "operation": "get"
+        },
+        {
+          "at": 1576.300000000745,
+          "kind": "idb-request:success",
+          "id": 22,
+          "operation": "get"
+        },
+        {
+          "at": 1576.300000000745,
+          "kind": "idb-request:success",
+          "id": 23,
+          "operation": "get"
+        },
+        {
+          "at": 1641.9000000022352,
+          "kind": "idb-request:success",
+          "id": 24,
+          "operation": "get"
+        },
+        {
+          "at": 1642.199999999255,
+          "kind": "idb-request:success",
+          "id": 25,
+          "operation": "get"
+        },
+        {
+          "at": 1653.4000000022352,
+          "kind": "idb-request:success",
+          "id": 26,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1702.699999999255,
+          "kind": "native-effect",
+          "component": "task-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "task-thread",
+          "pinnedThreadId": "task-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1702.699999999255,
+          "kind": "native-effect:consume",
+          "component": "task-thread",
+          "returningSplitThread": false,
+          "resolvedMainId": "task-thread",
+          "targetThreadId": "task-thread"
+        },
+        {
+          "at": 1703.300000000745,
+          "kind": "native-effect",
+          "component": "second-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "pinnedThreadId": "second-thread",
+          "alreadyHandled": false
+        },
+        {
+          "at": 1703.300000000745,
+          "kind": "native-effect:consume",
+          "component": "second-thread",
+          "returningSplitThread": false,
+          "resolvedMainId": "second-thread",
+          "targetThreadId": "task-thread"
+        },
+        {
+          "at": 1718.1000000014901,
+          "kind": "idb-request:success",
+          "id": 27,
+          "operation": "getAll"
+        },
+        {
+          "at": 1741.800000000745,
+          "kind": "idb-request:success",
+          "id": 28,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1776.4000000022352,
+          "kind": "idb-request:success",
+          "id": 29,
+          "operation": "getAll"
+        },
+        {
+          "at": 1777.9000000022352,
+          "kind": "native-effect",
+          "component": "task-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "task-thread",
+          "pinnedThreadId": "task-thread",
+          "alreadyHandled": true
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "native-effect",
+          "component": "second-thread",
+          "targetKind": "thread",
+          "targetThreadId": "task-thread",
+          "loaded": true,
+          "splitEnabled": false,
+          "splitSelectionReady": false,
+          "resolvedMainId": "second-thread",
+          "pinnedThreadId": "second-thread",
+          "alreadyHandled": true
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 5
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 6
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 7
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 8
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 9
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 10
+        },
+        {
+          "at": 1778.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 11
+        },
+        {
+          "at": 1778.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 12
+        },
+        {
+          "at": 1778.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 13
+        },
+        {
+          "at": 1778.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 14
+        },
+        {
+          "at": 1778.4000000022352,
+          "kind": "idb-request:success",
+          "id": 30,
+          "operation": "get"
+        },
+        {
+          "at": 1778.4000000022352,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-handoff:start",
+          "handoff": 2,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "composer-journal:second-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1",
+            "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2"
+          ]
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "source-journal:start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1"
+        },
+        {
+          "at": 1778.5,
+          "kind": "editor-guard:start",
+          "handoff": 2,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2"
+        },
+        {
+          "at": 1778.6000000014901,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 1778.699999999255,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1778.699999999255,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1778.699999999255,
+          "kind": "source-journal:source-read",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 1779,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1779.199999999255,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 1779.199999999255,
+          "kind": "source-journal:composed",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1779.199999999255,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1779.300000000745,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 1779.300000000745,
+          "kind": "source-journal:ack-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1779.4000000022352,
+          "kind": "idb-transaction:start",
+          "id": 33,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.4000000022352,
+          "kind": "idb-request:start",
+          "id": 37,
+          "transaction": 33,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1779.5,
+          "kind": "idb-transaction:start",
+          "id": 34,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.5,
+          "kind": "idb-request:start",
+          "id": 38,
+          "transaction": 34,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1779.6000000014901,
+          "kind": "idb-transaction:start",
+          "id": 35,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.6000000014901,
+          "kind": "idb-request:start",
+          "id": 39,
+          "transaction": 35,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1779.6000000014901,
+          "kind": "idb-transaction:start",
+          "id": 36,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.6000000014901,
+          "kind": "idb-request:start",
+          "id": 40,
+          "transaction": 36,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1779.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 37,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.699999999255,
+          "kind": "idb-request:start",
+          "id": 41,
+          "transaction": 37,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 1779.699999999255,
+          "kind": "idb-request:success",
+          "id": 31,
+          "operation": "get"
+        },
+        {
+          "at": 1779.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 38,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1779.800000000745,
+          "kind": "idb-request:start",
+          "id": 42,
+          "transaction": 38,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1779.800000000745,
+          "kind": "idb-request:start",
+          "id": 43,
+          "transaction": 38,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1779.9000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 15
+        },
+        {
+          "at": 1783.199999999255,
+          "kind": "idb-request:success",
+          "id": 32,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1785,
+          "kind": "idb-request:success",
+          "id": 33,
+          "operation": "getAll"
+        },
+        {
+          "at": 1785,
+          "kind": "idb-request:success",
+          "id": 34,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1785,
+          "kind": "idb-request:success",
+          "id": 35,
+          "operation": "getAll"
+        },
+        {
+          "at": 1785,
+          "kind": "idb-transaction:complete",
+          "id": 16
+        },
+        {
+          "at": 1785,
+          "kind": "idb-transaction:complete",
+          "id": 17
+        },
+        {
+          "at": 1785,
+          "kind": "idb-transaction:complete",
+          "id": 18
+        },
+        {
+          "at": 1785.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 19
+        },
+        {
+          "at": 1785.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 20
+        },
+        {
+          "at": 1785.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 21
+        },
+        {
+          "at": 1785.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 22
+        },
+        {
+          "at": 1785.1000000014901,
+          "kind": "idb-request:success",
+          "id": 36,
+          "operation": "get"
+        },
+        {
+          "at": 1785.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 39,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1785.199999999255,
+          "kind": "idb-request:start",
+          "id": 44,
+          "transaction": 39,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1785.199999999255,
+          "kind": "idb-request:start",
+          "id": 45,
+          "transaction": 39,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1785.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 23
+        },
+        {
+          "at": 1785.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 24
+        },
+        {
+          "at": 1785.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 25
+        },
+        {
+          "at": 1785.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 26
+        },
+        {
+          "at": 1786.1000000014901,
+          "kind": "idb-transaction:complete",
+          "id": 27
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "idb-request:success",
+          "id": 37,
+          "operation": "get"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "idb-request:success",
+          "id": 38,
+          "operation": "get"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "idb-request:success",
+          "id": 39,
+          "operation": "get"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "source-journal:end",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1786.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 1786.4000000022352,
+          "kind": "idb-request:success",
+          "id": 40,
+          "operation": "get"
+        },
+        {
+          "at": 1786.4000000022352,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::false:false:1"
+        },
+        {
+          "at": 1786.4000000022352,
+          "kind": "idb-request:success",
+          "id": 41,
+          "operation": "get"
+        },
+        {
+          "at": 1786.4000000022352,
+          "kind": "editor-guard:end",
+          "handoff": 2,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::true:false:2"
+        },
+        {
+          "at": 1786.5,
+          "kind": "editor-handoff:end",
+          "handoff": 2,
+          "failed": false
+        },
+        {
+          "at": 1786.5,
+          "kind": "workspace-prepare:end",
+          "component": "shell",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 1786.5,
+          "kind": "place-thread:prepare-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "paneId": "pane-main",
+          "revision": 2
+        },
+        {
+          "at": 1786.5,
+          "kind": "place-thread:send",
+          "component": "shell",
+          "threadId": "task-thread",
+          "paneId": "pane-main",
+          "type": "view.open",
+          "revision": 2
+        },
+        {
+          "at": 1786.9000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 28
+        },
+        {
+          "at": 1787.199999999255,
+          "kind": "idb-request:success",
+          "id": 42,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1787.4000000022352,
+          "kind": "idb-request:success",
+          "id": 43,
+          "operation": "getAll"
+        },
+        {
+          "at": 1787.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 29
+        },
+        {
+          "at": 1787.4000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 30
+        },
+        {
+          "at": 1787.699999999255,
+          "kind": "idb-transaction:complete",
+          "id": 31
+        },
+        {
+          "at": 1788.1000000014901,
+          "kind": "idb-request:success",
+          "id": 44,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 1788.199999999255,
+          "kind": "idb-request:success",
+          "id": 45,
+          "operation": "getAll"
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 32
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 33
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 34
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 35
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 36
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 37
+        },
+        {
+          "at": 1788.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 38
+        },
+        {
+          "at": 1788.5,
+          "kind": "idb-transaction:complete",
+          "id": 39
+        },
+        {
+          "at": 1795.9000000022352,
+          "kind": "place-thread:receipt",
+          "component": "shell",
+          "threadId": "task-thread",
+          "paneId": "pane-main",
+          "revision": 3
+        },
+        {
+          "at": 1940.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 40,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1940.199999999255,
+          "kind": "idb-request:start",
+          "id": 46,
+          "transaction": 40,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 1940.9000000022352,
+          "kind": "idb-transaction:start",
+          "id": 41,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1940.9000000022352,
+          "kind": "idb-request:start",
+          "id": 47,
+          "transaction": 41,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 1941.4000000022352,
+          "kind": "idb-transaction:start",
+          "id": 42,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1941.4000000022352,
+          "kind": "idb-request:start",
+          "id": 48,
+          "transaction": 42,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 1941.5,
+          "kind": "idb-transaction:start",
+          "id": 43,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1941.5,
+          "kind": "idb-request:start",
+          "id": 49,
+          "transaction": 43,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1941.5,
+          "kind": "idb-request:start",
+          "id": 50,
+          "transaction": 43,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1941.6000000014901,
+          "kind": "idb-transaction:start",
+          "id": 44,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1941.6000000014901,
+          "kind": "idb-request:start",
+          "id": 51,
+          "transaction": 44,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1941.6000000014901,
+          "kind": "idb-request:start",
+          "id": 52,
+          "transaction": 44,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1951.4000000022352,
+          "kind": "idb-request:success",
+          "id": 46,
+          "operation": "get"
+        },
+        {
+          "at": 1982.199999999255,
+          "kind": "idb-request:success",
+          "id": 47,
+          "operation": "get"
+        },
+        {
+          "at": 1982.300000000745,
+          "kind": "idb-request:success",
+          "id": 48,
+          "operation": "get"
+        },
+        {
+          "at": 1988.1000000014901,
+          "kind": "idb-transaction:start",
+          "id": 45,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1988.199999999255,
+          "kind": "idb-request:start",
+          "id": 53,
+          "transaction": 45,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1988.300000000745,
+          "kind": "idb-request:start",
+          "id": 54,
+          "transaction": 45,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1988.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 46,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 1988.4000000022352,
+          "kind": "idb-request:start",
+          "id": 55,
+          "transaction": 46,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 1988.4000000022352,
+          "kind": "idb-request:start",
+          "id": 56,
+          "transaction": 46,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 1990.800000000745,
+          "kind": "idb-request:success",
+          "id": 49,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2015.1000000014901,
+          "kind": "idb-request:success",
+          "id": 50,
+          "operation": "getAll"
+        },
+        {
+          "at": 2040.6000000014901,
+          "kind": "idb-request:success",
+          "id": 51,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2042.199999999255,
+          "kind": "idb-request:success",
+          "id": 52,
+          "operation": "getAll"
+        },
+        {
+          "at": 2042.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 40
+        },
+        {
+          "at": 2042.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 41
+        },
+        {
+          "at": 2042.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 42
+        },
+        {
+          "at": 2042.300000000745,
+          "kind": "idb-request:success",
+          "id": 53,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2042.300000000745,
+          "kind": "idb-request:success",
+          "id": 54,
+          "operation": "getAll"
+        },
+        {
+          "at": 2042.300000000745,
+          "kind": "idb-request:success",
+          "id": 55,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2042.5,
+          "kind": "idb-request:success",
+          "id": 56,
+          "operation": "getAll"
+        },
+        {
+          "at": 2042.5,
+          "kind": "idb-transaction:complete",
+          "id": 43
+        },
+        {
+          "at": 2042.9000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 44
+        },
+        {
+          "at": 2043.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 45
+        },
+        {
+          "at": 2043.9000000022352,
+          "kind": "idb-transaction:complete",
+          "id": 46
+        },
+        {
+          "at": 2410.199999999255,
+          "kind": "select:prepare-start",
+          "component": "shell",
+          "target": "second-thread",
+          "resolvedMainId": "task-thread"
+        },
+        {
+          "at": 2410.199999999255,
+          "kind": "workspace-prepare:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2410.199999999255,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2410.5,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2410.60000000149,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2410.60000000149,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2410.699999999255,
+          "kind": "idb-transaction:start",
+          "id": 47,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2410.699999999255,
+          "kind": "idb-request:start",
+          "id": 57,
+          "transaction": 47,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2418.199999999255,
+          "kind": "idb-request:success",
+          "id": 57,
+          "operation": "get"
+        },
+        {
+          "at": 2418.199999999255,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2418.199999999255,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2418.199999999255,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2418.199999999255,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2418.300000000745,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2418.400000002235,
+          "kind": "editor-handoff:start",
+          "handoff": 3,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "composer-journal:second-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2",
+            "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+          ]
+        },
+        {
+          "at": 2418.400000002235,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 2418.400000002235,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 2418.400000002235,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2418.5,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 2418.5,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2418.5,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 2418.5,
+          "kind": "source-journal:start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2418.5,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 2418.5,
+          "kind": "editor-guard:start",
+          "handoff": 3,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+        },
+        {
+          "at": 2418.5,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 2418.699999999255,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2418.800000000745,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2418.800000000745,
+          "kind": "source-journal:source-read",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:composed",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2419,
+          "kind": "source-journal:ack-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2419.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 48,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2419.10000000149,
+          "kind": "idb-request:start",
+          "id": 58,
+          "transaction": 48,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2419.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 49,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2419.199999999255,
+          "kind": "idb-request:start",
+          "id": 59,
+          "transaction": 49,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 50,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-request:start",
+          "id": 60,
+          "transaction": 50,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 51,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-request:start",
+          "id": 61,
+          "transaction": 51,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 52,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2419.300000000745,
+          "kind": "idb-request:start",
+          "id": 62,
+          "transaction": 52,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 2423.199999999255,
+          "kind": "idb-request:success",
+          "id": 58,
+          "operation": "get"
+        },
+        {
+          "at": 2423.199999999255,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2423.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2423.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2423.300000000745,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2423.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "idb-request:success",
+          "id": 59,
+          "operation": "get"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 2423.400000002235,
+          "kind": "idb-request:success",
+          "id": 60,
+          "operation": "get"
+        },
+        {
+          "at": 2423.5,
+          "kind": "source-journal:ack-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 2423.5,
+          "kind": "source-journal:handoff-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2423.5,
+          "kind": "source-journal:flush-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2423.5,
+          "kind": "source-journal:end",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2423.5,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 2425.10000000149,
+          "kind": "idb-request:success",
+          "id": 61,
+          "operation": "get"
+        },
+        {
+          "at": 2425.10000000149,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 2425.10000000149,
+          "kind": "idb-request:success",
+          "id": 62,
+          "operation": "get"
+        },
+        {
+          "at": 2425.10000000149,
+          "kind": "editor-guard:end",
+          "handoff": 3,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "editor-handoff:end",
+          "handoff": 3,
+          "failed": false
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "workspace-prepare:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "select:prepare-end",
+          "component": "shell",
+          "target": "second-thread"
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "select-now:start",
+          "component": "shell",
+          "target": "second-thread",
+          "loaded": true,
+          "splitEnabled": true,
+          "revision": 3,
+          "resolvedMainId": "task-thread"
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "select-now:split",
+          "component": "shell",
+          "target": "second-thread",
+          "paneId": "pane-main",
+          "revision": 3
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "place-thread:prepare-start",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 3
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "workspace-prepare:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2425.199999999255,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2425.400000002235,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2425.400000002235,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2425.400000002235,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2425.400000002235,
+          "kind": "idb-transaction:start",
+          "id": 53,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2425.5,
+          "kind": "idb-request:start",
+          "id": 63,
+          "transaction": 53,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2425.5,
+          "kind": "idb-transaction:complete",
+          "id": 47
+        },
+        {
+          "at": 2425.5,
+          "kind": "idb-transaction:complete",
+          "id": 48
+        },
+        {
+          "at": 2425.5,
+          "kind": "idb-transaction:complete",
+          "id": 49
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 50
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 51
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "idb-request:success",
+          "id": 63,
+          "operation": "get"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "workspace-prepare:source-end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-handoff:start",
+          "handoff": 4,
+          "guards": [
+            "workspace-host-journal",
+            "composer-journal:shell",
+            "composer-journal:task-thread",
+            "composer-journal:second-thread",
+            "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2",
+            "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+          ]
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "source-journal:start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 2427.199999999255,
+          "kind": "editor-guard:start",
+          "handoff": 4,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+        },
+        {
+          "at": 2427.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "workspace-host-journal"
+        },
+        {
+          "at": 2427.5,
+          "kind": "source-journal:source-read",
+          "component": "shell",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2427.5,
+          "kind": "source-journal:source-read",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2427.5,
+          "kind": "source-journal:source-read",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "sourceCount": 1
+        },
+        {
+          "at": 2428,
+          "kind": "source-journal:composed",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2428.10000000149,
+          "kind": "source-journal:composed",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2428.10000000149,
+          "kind": "source-journal:composed",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2428.199999999255,
+          "kind": "source-journal:ack-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2428.199999999255,
+          "kind": "source-journal:ack-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2428.199999999255,
+          "kind": "source-journal:ack-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2428.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 54,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2428.300000000745,
+          "kind": "idb-request:start",
+          "id": 64,
+          "transaction": 54,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2428.400000002235,
+          "kind": "idb-transaction:start",
+          "id": 55,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2428.400000002235,
+          "kind": "idb-request:start",
+          "id": 65,
+          "transaction": 55,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2428.800000000745,
+          "kind": "idb-transaction:start",
+          "id": 56,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2428.900000002235,
+          "kind": "idb-request:start",
+          "id": 66,
+          "transaction": 56,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 2429,
+          "kind": "idb-transaction:start",
+          "id": 57,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2429,
+          "kind": "idb-request:start",
+          "id": 67,
+          "transaction": 57,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "A"
+          }
+        },
+        {
+          "at": 2429,
+          "kind": "idb-transaction:start",
+          "id": 58,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2429.10000000149,
+          "kind": "idb-request:start",
+          "id": 68,
+          "transaction": 58,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "agents-pending",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 2429.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 52
+        },
+        {
+          "at": 2429.10000000149,
+          "kind": "idb-request:success",
+          "id": 64,
+          "operation": "get"
+        },
+        {
+          "at": 2429.199999999255,
+          "kind": "source-journal:ack-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2429.199999999255,
+          "kind": "source-journal:handoff-end",
+          "component": "shell",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2429.199999999255,
+          "kind": "source-journal:flush-start",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2429.199999999255,
+          "kind": "source-journal:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2429.199999999255,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "composer-journal:shell"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "idb-request:success",
+          "id": 65,
+          "operation": "get"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "pending": false
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "task-thread",
+          "threadId": "task-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:end",
+          "component": "task-thread",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "composer-journal:task-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "idb-request:success",
+          "id": 66,
+          "operation": "get"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:ack-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "pending": false
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:handoff-end",
+          "component": "second-thread",
+          "threadId": "second-thread",
+          "status": "READY"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:flush-start",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "source-journal:end",
+          "component": "second-thread",
+          "threadId": "second-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "composer-journal:second-thread"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "idb-request:success",
+          "id": 67,
+          "operation": "get"
+        },
+        {
+          "at": 2429.300000000745,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "source-workbench:[\"task-thread\",null,\"source-copy-a\"]:0::true:false:2"
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "idb-request:success",
+          "id": 68,
+          "operation": "get"
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "editor-guard:end",
+          "handoff": 4,
+          "key": "source-workbench:[\"second-thread\",null,\"source-copy-b\"]:0::false:false:3"
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "editor-handoff:end",
+          "handoff": 4,
+          "failed": false
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "workspace-prepare:end",
+          "component": "shell",
+          "threadId": "task-thread"
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "place-thread:prepare-end",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 3
+        },
+        {
+          "at": 2429.400000002235,
+          "kind": "place-thread:send",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "type": "view.open",
+          "revision": 3
+        },
+        {
+          "at": 2430.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 53
+        },
+        {
+          "at": 2430.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 54
+        },
+        {
+          "at": 2430.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 55
+        },
+        {
+          "at": 2430.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 56
+        },
+        {
+          "at": 2431.400000002235,
+          "kind": "idb-transaction:complete",
+          "id": 57
+        },
+        {
+          "at": 2432.5,
+          "kind": "idb-transaction:complete",
+          "id": 58
+        },
+        {
+          "at": 2441.800000000745,
+          "kind": "place-thread:receipt",
+          "component": "shell",
+          "threadId": "second-thread",
+          "paneId": "pane-main",
+          "revision": 4
+        },
+        {
+          "at": 2590.300000000745,
+          "kind": "idb-transaction:start",
+          "id": 59,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2590.400000002235,
+          "kind": "idb-request:start",
+          "id": 69,
+          "transaction": 59,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 2591,
+          "kind": "idb-transaction:start",
+          "id": 60,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2591.10000000149,
+          "kind": "idb-request:start",
+          "id": 70,
+          "transaction": 60,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "workbench-views"
+          }
+        },
+        {
+          "at": 2591.900000002235,
+          "kind": "idb-transaction:start",
+          "id": 61,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2592,
+          "kind": "idb-request:start",
+          "id": 71,
+          "transaction": 61,
+          "operation": "get",
+          "store": "entries",
+          "key": {
+            "prefix": "side-draft",
+            "owner": "B"
+          }
+        },
+        {
+          "at": 2592,
+          "kind": "idb-transaction:start",
+          "id": 62,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2592.10000000149,
+          "kind": "idb-request:start",
+          "id": 72,
+          "transaction": 62,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2592.10000000149,
+          "kind": "idb-request:start",
+          "id": 73,
+          "transaction": 62,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2592.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 63,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2592.10000000149,
+          "kind": "idb-request:start",
+          "id": 74,
+          "transaction": 63,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2592.10000000149,
+          "kind": "idb-request:start",
+          "id": 75,
+          "transaction": 63,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2600.5,
+          "kind": "idb-request:success",
+          "id": 69,
+          "operation": "get"
+        },
+        {
+          "at": 2646.5,
+          "kind": "idb-request:success",
+          "id": 70,
+          "operation": "get"
+        },
+        {
+          "at": 2646.60000000149,
+          "kind": "idb-request:success",
+          "id": 71,
+          "operation": "get"
+        },
+        {
+          "at": 2667.10000000149,
+          "kind": "idb-transaction:start",
+          "id": 64,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2667.10000000149,
+          "kind": "idb-request:start",
+          "id": 76,
+          "transaction": 64,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2667.10000000149,
+          "kind": "idb-request:start",
+          "id": 77,
+          "transaction": 64,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2667.199999999255,
+          "kind": "idb-transaction:start",
+          "id": 65,
+          "mode": "readonly",
+          "stores": [
+            "entries"
+          ]
+        },
+        {
+          "at": 2667.199999999255,
+          "kind": "idb-request:start",
+          "id": 78,
+          "transaction": 65,
+          "operation": "getAllKeys",
+          "store": "entries"
+        },
+        {
+          "at": 2667.199999999255,
+          "kind": "idb-request:start",
+          "id": 79,
+          "transaction": 65,
+          "operation": "getAll",
+          "store": "entries"
+        },
+        {
+          "at": 2669.699999999255,
+          "kind": "idb-request:success",
+          "id": 72,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2753.10000000149,
+          "kind": "idb-request:success",
+          "id": 73,
+          "operation": "getAll"
+        },
+        {
+          "at": 2778.60000000149,
+          "kind": "idb-request:success",
+          "id": 74,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2784.5,
+          "kind": "idb-request:success",
+          "id": 75,
+          "operation": "getAll"
+        },
+        {
+          "at": 2785.199999999255,
+          "kind": "idb-transaction:complete",
+          "id": 59
+        },
+        {
+          "at": 2785.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 60
+        },
+        {
+          "at": 2785.300000000745,
+          "kind": "idb-transaction:complete",
+          "id": 61
+        },
+        {
+          "at": 2785.300000000745,
+          "kind": "idb-request:success",
+          "id": 76,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2785.400000002235,
+          "kind": "idb-request:success",
+          "id": 77,
+          "operation": "getAll"
+        },
+        {
+          "at": 2785.400000002235,
+          "kind": "idb-request:success",
+          "id": 78,
+          "operation": "getAllKeys"
+        },
+        {
+          "at": 2785.400000002235,
+          "kind": "idb-request:success",
+          "id": 79,
+          "operation": "getAll"
+        },
+        {
+          "at": 2785.400000002235,
+          "kind": "idb-transaction:complete",
+          "id": 62
+        },
+        {
+          "at": 2786.10000000149,
+          "kind": "idb-transaction:complete",
+          "id": 63
+        },
+        {
+          "at": 2786.60000000149,
+          "kind": "idb-transaction:complete",
+          "id": 64
+        },
+        {
+          "at": 2786.900000002235,
+          "kind": "idb-transaction:complete",
+          "id": 65
+        }
+      ],
+      "nativeCalls": [],
+      "selectedThread": "second-thread",
+      "placement": "{\"version\":1,\"workspaceId\":\"workspace\",\"mainPaneId\":\"pane-main\",\"mainSelection\":{\"kind\":\"thread\",\"threadId\":\"second-thread\"},\"floating\":{},\"mainBasis\":{\"paneId\":\"pane-main\",\"activeViewId\":\"thread:second-thread\",\"viewIds\":[\"thread:task-thread\",\"thread:second-thread\"],\"revision\":4}}"
+    }
+  ],
+  "events": [
+    {
+      "kind": "captured",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "captureId": "native-capture-1"
+    },
+    {
+      "kind": "description-held",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      }
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "ab840dd5-2d47-41af-9f70-a670592494b8",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 1,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:second-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "second-thread"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "captured",
+      "owner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      },
+      "captureId": "native-capture-2"
+    },
+    {
+      "kind": "description-released"
+    },
+    {
+      "kind": "description-completed",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      },
+      "outcome": "fulfilled",
+      "requestFailure": {
+        "errorText": "net::ERR_ABORTED"
+      }
+    },
+    {
+      "kind": "layout-read-held"
+    },
+    {
+      "kind": "native-return-intent",
+      "threadId": "task-thread"
+    },
+    {
+      "kind": "layout-reads-released",
+      "reads": 1
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "16aec8db-9125-4d1f-aaea-7bc29953e568",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 2,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:task-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "task-thread"
+            }
+          }
+        }
+      }
+    },
+    {
+      "kind": "split-command",
+      "command": {
+        "id": "dee4b26b-a305-413f-86c4-4fd2286388e9",
+        "type": "split-workspace.view.open",
+        "payload": {
+          "workspaceId": "workspace",
+          "baseRevision": 3,
+          "paneId": "pane-main",
+          "view": {
+            "id": "thread:second-thread",
+            "kind": "thread",
+            "binding": {
+              "authority": {
+                "kind": "local"
+              },
+              "threadId": "second-thread"
+            }
+          }
+        }
+      }
+    }
+  ],
+  "splitCommands": [
+    {
+      "id": "ab840dd5-2d47-41af-9f70-a670592494b8",
+      "type": "split-workspace.view.open",
+      "payload": {
+        "workspaceId": "workspace",
+        "baseRevision": 1,
+        "paneId": "pane-main",
+        "view": {
+          "id": "thread:second-thread",
+          "kind": "thread",
+          "binding": {
+            "authority": {
+              "kind": "local"
+            },
+            "threadId": "second-thread"
+          }
+        }
+      }
+    },
+    {
+      "id": "16aec8db-9125-4d1f-aaea-7bc29953e568",
+      "type": "split-workspace.view.open",
+      "payload": {
+        "workspaceId": "workspace",
+        "baseRevision": 2,
+        "paneId": "pane-main",
+        "view": {
+          "id": "thread:task-thread",
+          "kind": "thread",
+          "binding": {
+            "authority": {
+              "kind": "local"
+            },
+            "threadId": "task-thread"
+          }
+        }
+      }
+    },
+    {
+      "id": "dee4b26b-a305-413f-86c4-4fd2286388e9",
+      "type": "split-workspace.view.open",
+      "payload": {
+        "workspaceId": "workspace",
+        "baseRevision": 3,
+        "paneId": "pane-main",
+        "view": {
+          "id": "thread:second-thread",
+          "kind": "thread",
+          "binding": {
+            "authority": {
+              "kind": "local"
+            },
+            "threadId": "second-thread"
+          }
+        }
+      }
+    }
+  ],
+  "captureOwners": [
+    {
+      "captureId": "native-capture-1",
+      "owner": {
+        "threadId": "task-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-a"
+      }
+    },
+    {
+      "captureId": "native-capture-2",
+      "owner": {
+        "threadId": "second-thread",
+        "projectId": null,
+        "workspaceId": "source-copy-b"
+      }
+    }
+  ],
+  "commands": []
+}

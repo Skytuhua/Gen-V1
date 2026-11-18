@@ -1,0 +1,4 @@
+
+> gen-v1@0.6.5 build:credential-lease /home/piadmin/Gen-V1-m04-v6
+> tsx scripts/build-windows-credential-lease.ts
+

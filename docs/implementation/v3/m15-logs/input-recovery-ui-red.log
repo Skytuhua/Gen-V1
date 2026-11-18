@@ -1,0 +1,10 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","workbench-app","--grep","accepted stale input|rollback permits cancellation"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Error: Usage: tsx scripts/test-browser.ts [--suite name] [--list]
+    at browserTestMain (/workspace/scratch/1b47eb428672/m15-v3/scripts/test-browser.ts:48:16)
+    at <anonymous> (/workspace/scratch/1b47eb428672/m15-v3/scripts/test-browser.ts:59:24)
+    at ModuleJob.run (node:internal/modules/esm/module_job:561:25)
+    at async node:internal/modules/esm/loader:647:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5)

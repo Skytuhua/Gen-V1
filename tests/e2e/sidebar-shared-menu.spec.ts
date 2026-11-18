@@ -28,7 +28,7 @@ test('options open a shared menu without selecting or detaching its thread', asy
   await options(page).click();
   await expect(menu(page)).toBeVisible();
   await expect(options(page)).toHaveAttribute('aria-haspopup', 'menu');
-  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Move to top', 'Move to bottom', 'Archive thread']);
+  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Archive thread']);
   await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'}).locator('kbd')).toHaveText('Alt Enter');
   expect(await calls(page)).toEqual([]);
   await expect(page.locator('.thread-item[aria-current="page"]')).toHaveAttribute('aria-label', 'Selected conversation Ready');
@@ -37,13 +37,13 @@ test('options open a shared menu without selecting or detaching its thread', asy
 test('keyboard navigation skips disabled archive, supports typeahead and ignores IME', async ({page}) => {
   const trigger = options(page);
   await trigger.focus(); await page.keyboard.press('ArrowUp');
-  await expect(menu(page).getByRole('menuitem', {name: 'Move to bottom'})).toBeFocused();
+  await expect(menu(page).getByRole('menuitem', {name: 'Settle thread'})).toBeFocused();
   const archive = menu(page).getByRole('menuitem', {name: 'Archive thread'});
   await expect(archive).toBeDisabled();
   await expect(archive).toHaveAttribute('title', 'Stop the task before archiving.');
   await archive.dispatchEvent('click'); expect(await calls(page)).toEqual([]);
   await page.keyboard.press('Home'); await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'})).toBeFocused();
-  await page.keyboard.press('ArrowUp'); await expect(menu(page).getByRole('menuitem', {name: 'Move to bottom'})).toBeFocused();
+  await page.keyboard.press('ArrowUp'); await expect(menu(page).getByRole('menuitem', {name: 'Settle thread'})).toBeFocused();
   await page.keyboard.press('r'); const rename = menu(page).getByRole('menuitem', {name: 'Rename thread'}); await expect(rename).toBeFocused();
   for (const key of ['Enter', ' ', 'Escape', 'ArrowDown', 'p']) await rename.dispatchEvent('keydown', {key, isComposing: true});
   await rename.dispatchEvent('keydown', {key: 'Enter', keyCode: 229});
@@ -55,7 +55,7 @@ test('keyboard navigation skips disabled archive, supports typeahead and ignores
   await expect(menu(page)).toHaveCount(0); await expect(page.getByRole('button', {name: 'Outside target', exact: true})).toBeFocused();
 });
 
-for (const [label, value] of [['Pin thread', {pinned: true}], ['Mark as unread', {unread: true}], ['Settle thread', {settled: true}], ['Move to top', {order: -51}], ['Move to bottom', {order: 81}]] as const) {
+for (const [label, value] of [['Pin thread', {pinned: true}], ['Mark as unread', {unread: true}], ['Settle thread', {settled: true}]] as const) {
   test(`${label} preserves the exact thread owner and presentation payload`, async ({page}) => {
     await options(page).click(); await menu(page).getByRole('menuitem', {name: label, exact: true}).click();
     expect(await calls(page)).toEqual([{presentation: expect.objectContaining({id: 'thread-1', projectId: 'project-1', workspaceId: 'copy-1', runId: 'run-other'}), value}]);
@@ -64,11 +64,11 @@ for (const [label, value] of [['Pin thread', {pinned: true}], ['Mark as unread',
 }
 
 test('inverse flags and fallback ordering preserve existing payloads', async ({page}) => {
-  await page.goto('/sidebar-shared-menu-check?flags&fallback');
-  for (const label of ['Unpin thread', 'Mark as read', 'Return to inbox', 'Move to top', 'Move to bottom']) {
+  await page.goto('/sidebar-shared-menu-check?flags');
+  for (const label of ['Unpin thread', 'Mark as read', 'Return to inbox']) {
     await options(page).click(); await menu(page).getByRole('menuitem', {name: label, exact: true}).click();
   }
-  expect((await calls(page)).map(value => (value as {value: unknown}).value)).toEqual([{pinned: false}, {unread: false}, {settled: false}, {order: -5}, {order: 1}]);
+  expect((await calls(page)).map(value => (value as {value: unknown}).value)).toEqual([{pinned: false}, {unread: false}, {settled: false}]);
 });
 
 test('placement and rename hand off the original owner while runless working archive stays enabled', async ({page}) => {
@@ -90,7 +90,7 @@ test('Custom has no placement action or shortcut and row context keys add no men
   await row.dispatchEvent('contextmenu'); await row.focus(); await page.keyboard.press('Shift+F10');
   await row.dispatchEvent('keydown', {key: 'ContextMenu'}); await expect(page.getByRole('menu')).toHaveCount(0);
   await page.keyboard.press('Alt+Enter'); expect(await calls(page)).toEqual([]);
-  await expect(row).not.toHaveAttribute('aria-keyshortcuts');
+  await expect(row).toHaveAttribute('aria-keyshortcuts', 'Alt+ArrowUp Alt+ArrowDown');
   await options(page).click(); await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'})).toHaveCount(0);
 });
 
@@ -140,7 +140,7 @@ test('short viewport keeps the portalled menu bounded and its last enabled item 
   const box = (await popup.boundingBox())!;
   expect(box.x).toBeGreaterThanOrEqual(8); expect(box.y).toBeGreaterThanOrEqual(8);
   expect(box.x + box.width).toBeLessThanOrEqual(752); expect(box.y + box.height).toBeLessThanOrEqual(232);
-  await page.keyboard.press('End'); const last = popup.getByRole('menuitem', {name: 'Move to bottom'}); await expect(last).toBeFocused();
+  await page.keyboard.press('End'); const last = popup.getByRole('menuitem', {name: 'Settle thread'}); await expect(last).toBeFocused();
   const lastBox = (await last.boundingBox())!; expect(lastBox.y).toBeGreaterThanOrEqual(box.y); expect(lastBox.y + lastBox.height).toBeLessThanOrEqual(box.y + box.height);
   await page.screenshot({path: info.outputPath('short-sidebar-menu.png')});
 });
@@ -152,3 +152,29 @@ for (const theme of ['dark', 'light']) test(`${theme} menu retains shared surfac
   expect((await options(page).boundingBox())!.height).toBe(23);
   await page.screenshot({path: info.outputPath(`${theme}-sidebar-menu.png`)});
 });
+
+
+for(const settled of [false,true])for(const outcome of ['accepted','rejected'] as const){
+ test(`${settled?'return':'settle'} announces success only after an ${outcome} presentation write`,async({page})=>{
+  if(settled)await page.goto('/sidebar-shared-menu-check?settled');
+  await expect(options(page,'Selected conversation')).toBeVisible();
+  await page.evaluate(()=>{window.sidebarPresentation.mode='hold';});
+  await options(page,'Selected conversation').click();
+  await menu(page,'Selected conversation').getByRole('menuitem',{name:settled?'Return to inbox':'Settle thread',exact:true}).click();
+  await expect.poll(()=>calls(page)).toHaveLength(1);
+  const settledRow=page.locator('.thread-group-settled .thread-item[aria-current="page"]');
+  await expect(settledRow).toHaveCount(settled?1:0);
+  expect(await page.locator('.ui-toast').count()).toBe(0);
+  await expect.poll(()=>page.evaluate(()=>typeof window.sidebarPresentation.accept)).toBe('function');
+  if(outcome==='rejected'){
+   await page.evaluate(()=>window.sidebarPresentation.reject!());
+   await expect(page.getByRole('alert')).toHaveText('Presentation was rejected.');
+   await expect(page.locator('.ui-toast[data-tone="info"]')).toHaveCount(0);
+   await expect(settledRow).toHaveCount(settled?1:0);
+  }else{
+   await page.evaluate(()=>window.sidebarPresentation.accept!());
+   await expect(page.getByRole('status').filter({hasText:settled?'returned to your threads':'settled'})).toHaveCount(1);
+   await expect(settledRow).toHaveCount(settled?0:1);
+  }
+ });
+}

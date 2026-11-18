@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "preparedAt": "2026-11-16T06:19:26.329480+00:00",
+  "state": "PROPOSED_NOT_EXECUTED",
+  "oldHelper": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody.py",
+    "bytes": 10456,
+    "sha256": "1dc96315cf9bda333adcc810e1d7516996789a781543654aee9d2fcfbbafb419"
+  },
+  "newHelper": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2.py",
+    "bytes": 14618,
+    "sha256": "facae1b76710059ef7bf4c2c50c0642acf91d318dba18446e24100aaa3083634"
+  },
+  "patch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-custody-v2-proposal-01/helper.patch",
+    "bytes": 6899,
+    "sha256": "6bc31eb2ca290ad2f141d2f196949beeec27e572030fb444ff2d9b52bffc5672"
+  },
+  "incomingArchive": {
+    "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/external-publication-cut-98db97d/archive-manifest.json",
+    "bytes": 1567,
+    "sha256": "37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954"
+  },
+  "fixedTestedParent": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "fixedPublishedParent": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+  "sourceCutSha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260",
+  "checks": [
+    "Python AST parses; this does not execute the checker.",
+    "Exact pinned direct-child relation and exact two changed tree paths, including Git mode/kind/blob, required.",
+    "Pinned dedicated archive manifest; exact canonical destinations, no symlink parents, regular files/modes, byte/digest and original Git content checked.",
+    "Retained historical log/artifact index/mode/bytes are checked against actual published parent98.",
+    "Tested-cut head remains local HEAD eeda; all original six archives, original clean checkout, lockfile/ordinary CI, source continuity/public admission and whitespace assertions retained.",
+    "Incoming historical metadata is preserved byte-for-byte, including its own 34d8 historical base; it is not normalized to accepted b4aa or promoted to a new test."
+  ],
+  "repositoryWrites": 0,
+  "checkerExecuted": false,
+  "testsExecuted": false
+}

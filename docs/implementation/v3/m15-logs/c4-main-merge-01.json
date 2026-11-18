@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "git",
+    "merge",
+    "--no-commit",
+    "--no-ff",
+    "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/usr/local/bin/git",
+  "startedAt": "2026-11-16T03:24:01.345Z",
+  "endedAt": "2026-11-16T03:24:14.222Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-main-merge-01.log",
+  "logDigest": "dbebbae06df9a68f4eb1a05d8a4bc3d97577b63fd67b98efdb6cb7357ec24129"
+}

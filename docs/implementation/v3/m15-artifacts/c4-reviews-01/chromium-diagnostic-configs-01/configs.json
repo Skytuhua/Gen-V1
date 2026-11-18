@@ -1,0 +1,53 @@
+{
+  "sourceCutSha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+  "configs": [
+    {
+      "suite": "usage-app-integration",
+      "runId": "c4-usage-chromium-initial-01",
+      "declaredConfig": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.playwright.config.ts",
+      "declaredSha256": "d9537fb08383c2d0bff2ce90db83d6a4e98a40a57d2e573595be67ed1a8a1673",
+      "declaredChannel": "msedge",
+      "overrideConfig": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-01/usage-app-integration.chromium.playwright.config.ts",
+      "overrideSha256": "e23788dc8b3e81937f80b67a6e67788bb564ec82a442d2740c121a82bb514f80",
+      "actualChannel": "Playwright default Chromium",
+      "changes": [
+        "clear use.channel to use default Chromium",
+        "resolve testDir to the original absolute tests/e2e directory after config relocation"
+      ],
+      "qualification": "Private Linux Chromium diagnostic evidence; no declared Edge execution or installed desktop proof."
+    },
+    {
+      "suite": "workspace-host",
+      "runId": "c4-workspace-chromium-initial-01",
+      "declaredConfig": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workspace-host.playwright.config.ts",
+      "declaredSha256": "00ed403cf5ff103af97519e45e910c0003db11e7062bf6f49bc2b948cb13c30e",
+      "declaredChannel": "msedge",
+      "overrideConfig": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-01/workspace-host.chromium.playwright.config.ts",
+      "overrideSha256": "031174af822fe8a5889c054dbb760b68d3677658fb9c95d28b21035f02766b96",
+      "actualChannel": "Playwright default Chromium",
+      "changes": [
+        "clear use.channel to use default Chromium",
+        "resolve testDir to the original absolute tests/e2e directory after config relocation"
+      ],
+      "qualification": "Private Linux Chromium diagnostic evidence; no declared Edge execution or installed desktop proof."
+    },
+    {
+      "suite": "saved-layout-chooser",
+      "runId": "c4-layout-chromium-initial-01",
+      "declaredConfig": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-layout-chooser.playwright.config.ts",
+      "declaredSha256": "43898e25e3781aaeaa659a786281c384b3db7ef7bf2ee7ee34d4d0d6d888b037",
+      "declaredChannel": "msedge",
+      "overrideConfig": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-01/saved-layout-chooser.chromium.playwright.config.ts",
+      "overrideSha256": "35a38fe8afe5fd3d35fe887898986c638b901051c8bb29509b5451cfb6f79de2",
+      "actualChannel": "Playwright default Chromium",
+      "changes": [
+        "clear use.channel to use default Chromium",
+        "resolve testDir to the original absolute tests/e2e directory after config relocation"
+      ],
+      "qualification": "Private Linux Chromium diagnostic evidence; no declared Edge execution or installed desktop proof."
+    }
+  ],
+  "repositoryDeclarationsModified": false,
+  "timeoutsChanged": false,
+  "assertionsChanged": false
+}

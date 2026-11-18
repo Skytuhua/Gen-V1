@@ -1,0 +1,74 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+(node:1245829) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/project-search-host.test.ts (49 tests | 2 failed) 86421ms
+   × bounds the issue list and reports truncation 2512ms
+   × stops at 10,000 ordinary files, without visiting the next file 64003ms
+ ❯ tests/plugin-tools-dock.test.ts (12 tests | 2 failed) 53947ms
+   × keeps tools, diagram controls and readable inspector separate at 1024px, including recovered free placement 3516ms
+   × keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement 3252ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/plugin-tools-dock.test.ts > keeps tools, diagram controls and readable inspector separate at 1024px, including recovered free placement
+ FAIL  tests/plugin-tools-dock.test.ts > keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement
+TimeoutError: page.goto: Timeout 3000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
+
+ ❯ fixture tests/plugin-tools-dock.test.ts:56:13
+     54|   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+     55|  });
+     56|  await page.goto('http://127.0.0.1/plugin-dock-test');
+       |             ^
+     57|  const frame=page.frames().find(value=>value.parentFrame())!;
+     58|  try{
+ ❯ tests/plugin-tools-dock.test.ts:84:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/project-search-host.test.ts > bounds the issue list and reports truncation
+AssertionError: expected { owner: { …(4) }, matches: [], …(6) } to match object { complete: true, …(1) }
+(15 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "complete": true,
+-   "issuesTruncated": true,
++   "complete": false,
++   "issuesTruncated": false,
+  }
+
+ ❯ tests/project-search-host.test.ts:144:18
+    142|   const f = await fixture(); await Promise.all(Array.from({ length: 10…
+    143|   const result = await f.search.search(f.projectId, { q: 'x' });
+    144|   expect(result).toMatchObject({ complete: true, issuesTruncated: true…
+       |                  ^
+    145| });
+    146|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/project-search-host.test.ts:166:1
+    164| });
+    165|
+    166| it('stops at 10,000 ordinary files, without visiting the next file', a…
+       | ^
+    167|   const f = await fixture({ now: () => 0, monotonic: () => 0 });
+    168|   for (let batch = 0; batch < 101; batch++) await Promise.all(Array.fr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  2 failed | 4 passed (6)
+      Tests  4 failed | 75 passed (79)
+   Start at  18:23:56
+   Duration  106.90s (transform 3.60s, setup 0ms, import 11.48s, tests 280.53s, environment 2ms)
+

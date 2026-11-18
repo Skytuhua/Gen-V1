@@ -51,6 +51,8 @@ describe('structure-matched first-load feedback', () => {
     await page.clock.install({time}); await page.clock.pauseAt(new Date(time.getTime() + 1000));
     await page.setContent(`<html data-theme="dark"><body><main id="root" class="${view === 'settings' ? 'ui-modal settings-dialog' : view === 'agents' ? 'workspace-host-bootstrap agents-workspace' : 'workspace-host-bootstrap'}"></main></body></html>`);
     await page.addStyleTag({content: css});
+    // Wait for injected app CSS before measuring the reserved layout.
+    await expect.poll(()=>page.evaluate(()=>getComputedStyle(document.body).margin)).toBe('0px');
     await page.evaluate(view => {(window as unknown as FixtureWindow).view = view;}, view);
     await page.addScriptTag({content: script});
     await page.locator('.loading-state-skeleton').waitFor({state: 'attached'});
@@ -65,7 +67,8 @@ describe('structure-matched first-load feedback', () => {
       const skeleton = page.locator('.loading-state-skeleton');
       const before = await skeleton.boundingBox();
       const beforeStructure = await Promise.all(structure.map(selector => skeleton.locator(selector).first().boundingBox()));
-      expect(before?.width).toBeGreaterThan(width === 1440 && view === 'settings' ? 1000 : width - 50);
+      if(view==='settings')expect(before?.width).toBe(Math.min(960,width-32));
+      else expect(before?.width).toBeGreaterThan(width-50);
       expect(before?.height).toBeGreaterThan(600);
       expect(await skeleton.isVisible()).toBe(false);
       expect(await page.getByRole('status').count()).toBe(0);

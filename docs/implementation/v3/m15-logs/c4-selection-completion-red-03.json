@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench.playwright.config.ts",
+    "--grep",
+    "M15 completed selection action",
+    "--reporter=line,json",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T05:26:34.263Z",
+  "endedAt": "2026-11-16T05:26:55.901Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-selection-completion-red-03.log",
+  "logDigest": "52e37438a4dab1a1e8be879165b3d3558c6a6c88c5bf36c711d6cd8c58fcf5fb"
+}

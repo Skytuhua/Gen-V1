@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 1,
+  "status": "FROZEN_OUTSIDE_REPOSITORY_NOT_RUN",
+  "phase": "A_OBSERVATION_AND_STRICT_EXTRACTION",
+  "createdAt": "2026-11-16T04:49:33.825428+00:00",
+  "policy": "The source guard remains strict; no cold-recovery allowance, import barrier wiring, source retry acknowledgment, or source-action marker is active in Phase A. Observation APIs are present for executable behavioral fixtures.",
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "baseSha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+      "proposedSha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "bytes": 17089
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "baseSha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+      "proposedSha256": "bb3bf735759b8cda44163d353d604ffb8ebbdcce9fea2a270cca07cf9f244237",
+      "bytes": 11529
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "baseSha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe",
+      "proposedSha256": "2b2487818ec1badfc9df9cb5a27c01b907f32c83a3532216aa94701aa2fb315d",
+      "bytes": 22277
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "baseSha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d",
+      "proposedSha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "bytes": 161584
+    }
+  ],
+  "test": {
+    "path": "tests/source-handoff-v3.test.ts",
+    "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df",
+    "bytes": 23223,
+    "plainCases": 16,
+    "twoRowParameterizedDeclarations": 2,
+    "declaredCases": 20,
+    "status": "NOT_RUN"
+  },
+  "patches": {
+    "phase-a.patch": {
+      "sha256": "b6f9a7c54e76fb2a75d156a5c1f2c3a604fc7bf363d76dcdf536bfc115bc2026",
+      "bytes": 22146
+    },
+    "boundary-tests.patch": {
+      "sha256": "6007a5d1d3b11a5c786344795c2e57ccb7444a8aab6f25f89c26c835ddb4ecd8",
+      "bytes": 23757
+    }
+  },
+  "syntaxOnly": "syntax-only.json",
+  "limitations": [
+    "No test collection or execution.",
+    "No typecheck, browser, native or installed-desktop execution.",
+    "Phase A retains the known cold-recovery failure and is intended to establish behavioral red evidence for the new fixture.",
+    "Existing c4-desktop-regression-01 failure remains unchanged evidence."
+  ]
+}

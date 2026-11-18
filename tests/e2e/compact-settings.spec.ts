@@ -105,7 +105,7 @@ test('actual compact draft export preserves the signature guard and sends only e
     localStorage.setItem('harness:signature-assets:v1:signature-only:state', JSON.stringify([{id: 'mark', stateKey: 'signature', base64: 'mark'}]));
   });
   await host.dialog.getByRole('button', {name: 'Export local drafts', exact: true}).click();
-  await expect(host.dialog.getByRole('alert')).toContainText('pending signature'); expect(requested).toEqual([{keys: ['draft:new']}]);
+  await expect(host.dialog.getByRole('status').filter({hasText:'pending signature'})).toContainText('pending signature'); expect(requested).toEqual([{keys: ['draft:new']}]);
   await page.evaluate(() => localStorage.removeItem('harness:signature-assets:v1:signature-only:state'));
   const download = page.waitForEvent('download'); await host.dialog.getByRole('button', {name: 'Export local drafts', exact: true}).click();
   expect((await download).suggestedFilename()).toBe('harness-drafts.json');
@@ -124,4 +124,20 @@ test('accepted appearance applies immediately in the standalone compact consumer
   await host.dialog.getByRole('combobox', {name: 'Color scheme', exact: true}).click(); await page.getByRole('option', {name: 'Light', exact: true}).click();
   await host.dialog.getByRole('button', {name: 'Apply', exact: true}).click();
   await expect(page.locator('html')).toHaveAttribute('data-density', 'touch'); await expect(page.locator('html')).toHaveAttribute('data-theme', 'light');
+});
+
+test('the shortcut reference is revealed by search and follows a saved rebinding', async ({page}) => {
+  const host = await setup(page); await host.open();
+  await host.nav.getByRole('button', {name: 'General', exact: true}).click();
+  await host.dialog.getByRole('searchbox', {name: 'Search all settings', exact: true}).fill('cheat sheet');
+  await host.dialog.getByRole('button', {name: /Shortcut reference/}).click();
+  const reference = host.dialog.locator('[data-setting-id="harness-keyboard-reference"]');
+  await expect(reference).toBeVisible();
+  await expect(reference.locator('[data-binding-id="search"] kbd')).toHaveText(/^(Ctrl\+K|⌘K)$/);
+  await expect(reference.locator('[data-binding-id="find-in-conversation"] kbd')).toHaveText(/^(Ctrl\+F|⌘F)$/);
+  await expect(reference.locator('[data-binding-id="window-move"]')).toContainText('Shift to resize');
+  const recorder = host.dialog.getByRole('textbox', {name: 'Search threads shortcut', exact: true});
+  await recorder.click(); await page.keyboard.press('Alt+k');
+  await expect.poll(() => host.commands.filter(command => command.type === 'settings.update').map(command => command.payload)).toContainEqual({preferences: {keybindings: {search: 'Alt+K'}}});
+  await expect(reference.locator('[data-binding-id="search"] kbd')).toHaveText(/^(Alt\+K|⌥K)$/);
 });

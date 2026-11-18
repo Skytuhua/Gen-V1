@@ -1,0 +1,204 @@
+{
+  "stats": {
+    "startTime": "2026-11-15T22:00:03.477Z",
+    "duration": 346439.23400000005,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 27,
+    "flaky": 0
+  },
+  "source": "test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/results.json",
+  "target": "docs/implementation/v3/m15-artifacts/saved-drafts-browser-full-01-results.json",
+  "sha256": "8c02fad4ed672df6e61046b29afc5dfbb5a87df45d0838bb72f802258469de3f",
+  "failures": [
+    {
+      "title": "named save, reload, delete/cancel and empty state stay local",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "stale restore is rejected atomically after a concurrent window edit",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "rich records list missing/revoked references but restore text only, preserving current excerpts",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "account/profile/thread/project/working-copy libraries remain isolated",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "quota failure and corrupt records keep the active draft and offer retry",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "keyboard/IME does not save or send a composing name; focus returns to the trigger",
+      "status": "unexpected",
+      "errors": [
+        "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeDisabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: 'Drafts', exact: true })\nExpected: disabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeDisabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "approved list captures and stress names remain usable at 1440/1024/768 with reduced motion",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts",
+      "status": "unexpected",
+      "errors": [
+        "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+      ]
+    },
+    {
+      "title": "empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "new excerpt-only saves remain reviewable after the original selection is gone",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "new skill-only saves remain reviewable after the original selection is gone",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "source-only named metadata remains inspectable after selection removal without changing the current send mode",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "approved thread capacity blocks a new draft with an alert and keeps records in every working copy",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "idle expiry refreshes an open list and deletes only the expired saved record",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "global retention evicts inactive threads and copies on load",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "global retention evicts inactive threads and copies on list",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "global retention evicts inactive threads and copies on switch",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "empty active library schedules expiry for inactive threads and copies without reading their owner",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "another window adding an inactive library reschedules the empty active library deadline",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "malformed inactive library does not block valid load or inactive expiry",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "malformed inactive library does not block valid save or inactive expiry",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "malformed inactive library does not block valid list or inactive expiry",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "malformed inactive library does not block valid switch or inactive expiry",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    },
+    {
+      "title": "malformed inactive library does not stop the global expiry deadline",
+      "status": "unexpected",
+      "errors": [
+        "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture\nCall log:\n\u001b[2m  - navigating to \"http://127.0.0.1:5522/fixture\", waiting until \"load\"\u001b[22m\n"
+      ]
+    }
+  ]
+}

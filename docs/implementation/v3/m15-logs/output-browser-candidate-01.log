@@ -1,0 +1,61 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","workbench"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794779116324-f8cfa6fd-7ddc-4036-bcf8-c09e0e268209
+
+Browser suite: workbench (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 12 tests using 1 worker
+
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:86) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/e2e/workbench.spec.ts:26:1 › M15 selected visible text exposes explicit actions (600ms)
+  ✓   2 tests/e2e/workbench.spec.ts:41:1 › M15 forged DOM attributes cannot register a selection (512ms)
+  ✓   3 tests/e2e/workbench.spec.ts:50:1 › M15 hidden and clipped source text is refused (500ms)
+  ✓   4 tests/e2e/workbench.spec.ts:72:1 › M15 Escape respects IME and dismisses pointing without activating buttons (459ms)
+  ✓   5 tests/e2e/workbench.spec.ts:92:1 › M15 toolbar stays reachable at both viewports and 200 percent zoom (811ms)
+  ✓   6 tests/e2e/workbench.spec.ts:134:1 › M15 output window stays bounded while streaming preserves the logical anchor (910ms)
+  ✓   7 tests/e2e/workbench.spec.ts:167:1 › M15 full copy and search use the declared reader fixture beyond mounted DOM (852ms)
+  ✓   8 tests/e2e/workbench.spec.ts:204:1 › M15 delayed full-result response cannot write into a new owner view (802ms)
+  ✓   9 tests/e2e/workbench.spec.ts:237:1 › M15 real browser journal reload retains canonical draft, source refs and scroll anchor (1.2s)
+  ✓  10 tests/e2e/workbench.spec.ts:259:1 › M15 uncertain handoff and failed flush retain explicit conflict copies in the browser journal (1.2s)
+  ✓  11 tests/e2e/workbench.spec.ts:288:1 › M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom (2.3s)
+  ✘  12 tests/e2e/workbench.spec.ts:385:1 › M15 measures paired controlled renderer latency with 100,000 retained lines (2.0m)
+
+
+  1) tests/e2e/workbench.spec.ts:385:1 › M15 measures paired controlled renderer latency with 100,000 retained lines 
+
+    [31mTest timeout of 120000ms exceeded.[39m
+
+    Error: page.evaluate: Test timeout of 120000ms exceeded.
+
+      145 |   });
+      146 |   await page.locator('[data-benchmark-interaction]').click();
+    > 147 |   const sample = await page.evaluate(() => (window as unknown as {__m15Observation: Promise<LocalInteractionSample>}).__m15Observation);
+          |                             ^
+      148 |   await settleOutput(page);
+      149 |   return sample;
+      150 | }
+        at observeLocalInteraction (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:147:29)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:157:48
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794779116324-f8cfa6fd-7ddc-4036-bcf8-c09e0e268209/workbench/artifacts/workbench-M15-measures-pai-2a256-with-100-000-retained-lines/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794779116324-f8cfa6fd-7ddc-4036-bcf8-c09e0e268209/workbench/artifacts/workbench-M15-measures-pai-2a256-with-100-000-retained-lines/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/workbench.spec.ts:385:1 › M15 measures paired controlled renderer latency with 100,000 retained lines 
+  11 passed (2.2m)
+
+Failed browser suites: workbench (exit 1)

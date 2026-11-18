@@ -1,0 +1,82 @@
+--- /workspace/scratch/1b47eb428672/m15-publication/c3/prepare-payload.py
++++ /workspace/scratch/1b47eb428672/m15-publication/c4/prepare-payload.py
+@@ -16,7 +16,7 @@
+ 
+ REPOSITORY = "skytuhua-org/Gen-V1"
+ BRANCH = "agent/m15-v3"
+-ACCEPTED_BASE = "49cd633273a3f61c14a4191a9877e99ab23ec88f"
++ACCEPTED_BASE = "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73"
+ PREFIX = "docs/implementation/v3/M15-"
+ LOG_PREFIX = "docs/implementation/v3/m15-logs/"
+ ARTIFACT_PREFIX = "docs/implementation/v3/m15-artifacts/"
+@@ -102,7 +102,7 @@
+     def __post_init__(self):
+         for label, value in (("published parent", self.head), ("published tree", self.tree)):
+             require(isinstance(value, str) and len(value) == 40 and all(character in "0123456789abcdef" for character in value), f"Invalid {label} SHA")
+-        require(self.head != ACCEPTED_BASE, "Published first parent must differ from the accepted second parent")
++        require(self.head != ACCEPTED_BASE, "Published first parent must differ from the accepted base")
+ 
+ 
+ @dataclass(frozen=True)
+@@ -263,7 +263,7 @@
+     plan = snapshot.document(PREFIX + "evidence-plan.json")
+     summary = snapshot.document(PREFIX + "validation-summary.json")
+     require(evidence["schemaVersion"] == 3 and evidence["bundleId"] == "M15-source-aware-workbench", "Unexpected M15 reviewed manifest identity")
+-    require(evidence["baseSha"] == lock["executionBaseSha"] == cut["executionBaseSha"] == plan["executionBaseSha"] == accepted_base, "Reviewed M15 manifest has not been reconciled to the accepted cut3 base")
++    require(evidence["baseSha"] == lock["executionBaseSha"] == cut["executionBaseSha"] == plan["executionBaseSha"] == accepted_base, "Reviewed M15 manifest has not been reconciled to the accepted cut4 base")
+     require(evidence["sourceLockDigest"] == sha256(snapshot.file(PREFIX + "source-lock.json")), "Indexed source-lock digest mismatch")
+     changed = snapshot.changed_paths(accepted_base)
+     require(evidence["changedFiles"] == changed, "Reviewed changedFiles differ from the complete final staged diff against accepted base")
+@@ -343,10 +343,10 @@
+ 
+ 
+ def validate_retained_evidence(snapshot, published_entries):
+-    """C3 adds evidence without rewriting or deleting the published C2 history."""
++    """C4 adds evidence without rewriting or deleting published history."""
+     retained = [path for path in published_entries if path.startswith(LOG_PREFIX) or path.startswith(ARTIFACT_PREFIX)]
+     for path in retained:
+-        require(snapshot.entries.get(path) == published_entries[path], f"Published C2 evidence was removed, rewritten or had its mode changed: {path}")
++        require(snapshot.entries.get(path) == published_entries[path], f"Published evidence was removed, rewritten or had its mode changed: {path}")
+     return len(retained)
+ 
+ 
+@@ -457,10 +457,10 @@
+     """Validate the dynamic parent contract only after its manifest seal is checked."""
+     require(manifest["schemaVersion"] == 3 and manifest["repository"] == REPOSITORY and manifest["branch"] == BRANCH, "Unexpected publication payload identity")
+     publication = PublicationBase(manifest["parent"], manifest["baseTree"])
+-    require(manifest["additionalParents"] == [ACCEPTED_BASE] and manifest["acceptedBase"] == ACCEPTED_BASE, "Accepted merge-parent contract differs")
++    require(manifest["additionalParents"] == [] and manifest["acceptedBase"] == ACCEPTED_BASE, "Accepted base or single-parent contract differs")
+     final_tree = manifest["expectedTree"]
+     require(isinstance(final_tree, str) and len(final_tree) == 40 and all(character in "0123456789abcdef" for character in final_tree), "Invalid final tree SHA")
+-    require(manifest["commitParameters"] == {"repository_full_name": REPOSITORY, "parent_sha": publication.head, "additional_parent_shas": [ACCEPTED_BASE], "tree_sha": final_tree}, "Merge commit parameters differ")
++    require(manifest["commitParameters"] == {"repository_full_name": REPOSITORY, "parent_sha": publication.head, "additional_parent_shas": [], "tree_sha": final_tree}, "Single-parent commit parameters differ")
+     return publication
+ 
+ 
+@@ -550,13 +550,14 @@
+         require(snapshot.expected_tree == args.expected_tree, "Final staged tree differs from the supplied reviewed git write-tree identity")
+         require(snapshot.git("cat-file", "-t", publication.head).strip() == b"commit", "Published first parent is not a commit object")
+         require(snapshot.git("rev-parse", f"{publication.head}^{{tree}}").decode().strip() == publication.tree, "Published parent/tree identity differs")
++        snapshot.git("merge-base", "--is-ancestor", ACCEPTED_BASE, publication.head)
+         old, accepted = snapshot.read_tree(publication.head), snapshot.read_tree(ACCEPTED_BASE)
+         reviewed = validate_review(snapshot, ACCEPTED_BASE, accepted)
+         reviewed["retainedPublishedEvidenceFiles"] = validate_retained_evidence(snapshot, old)
+         with tempfile.TemporaryDirectory(prefix="payload-building-", dir=out.parent) as temporary:
+             folder = Path(temporary)
+             payload = plan_payload(snapshot, old, accepted, folder, args.inline_limit, args.request_limit, publication)
+-            manifest = {"schemaVersion": 3, "repository": REPOSITORY, "branch": BRANCH, "parent": publication.head, "additionalParents": [ACCEPTED_BASE], "acceptedBase": ACCEPTED_BASE, "baseTree": publication.tree, "expectedTree": snapshot.expected_tree, "contextHead": snapshot.head, "indexSha256": snapshot.index_sha256, "sourceIdentity": reviewed, "preparedAt": datetime.now(timezone.utc).isoformat(), "helperSha256": sha256(Path(__file__).read_bytes()), "limits": {"inlineBytes": args.inline_limit, "treeRequestBytes": args.request_limit}, "commitParameters": {"repository_full_name": REPOSITORY, "parent_sha": publication.head, "additional_parent_shas": [ACCEPTED_BASE], "tree_sha": snapshot.expected_tree}, **payload}
++            manifest = {"schemaVersion": 3, "repository": REPOSITORY, "branch": BRANCH, "parent": publication.head, "additionalParents": [], "acceptedBase": ACCEPTED_BASE, "baseTree": publication.tree, "expectedTree": snapshot.expected_tree, "contextHead": snapshot.head, "indexSha256": snapshot.index_sha256, "sourceIdentity": reviewed, "preparedAt": datetime.now(timezone.utc).isoformat(), "helperSha256": sha256(Path(__file__).read_bytes()), "limits": {"inlineBytes": args.inline_limit, "treeRequestBytes": args.request_limit}, "commitParameters": {"repository_full_name": REPOSITORY, "parent_sha": publication.head, "additional_parent_shas": [], "tree_sha": snapshot.expected_tree}, **payload}
+             encoded = (json.dumps(manifest, ensure_ascii=True, indent=2) + "\n").encode("ascii")
+             (folder / "manifest.json").write_bytes(encoded)
+             (folder / "manifest.sha256").write_text(sha256(encoded) + "\n", encoding="ascii")
+@@ -573,8 +574,8 @@
+     parser.add_argument("--repo", default="/workspace/scratch/1b47eb428672/m15-v3")
+     parser.add_argument("--out", required=True)
+     parser.add_argument("--expected-tree", required=True, help="Root-supplied final git write-tree SHA after reviewed staging")
+-    parser.add_argument("--published-parent", required=True, help="Actual C2 published commit SHA supplied by the root controller")
+-    parser.add_argument("--published-tree", required=True, help="Measured tree of the actual C2 published commit")
++    parser.add_argument("--published-parent", required=True, help="Actual published parent SHA supplied by the root controller")
++    parser.add_argument("--published-tree", required=True, help="Measured tree of the actual published parent")
+     parser.add_argument("--inline-limit", type=int, default=160000)
+     parser.add_argument("--request-limit", type=int, default=250000)
+     args = parser.parse_args()

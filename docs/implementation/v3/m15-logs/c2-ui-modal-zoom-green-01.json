@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "playwright",
+    "test",
+    "--config",
+    "tests/e2e/workbench-app.playwright.config.ts",
+    "--grep",
+    "actual source modal and shared controls",
+    "--output",
+    "docs/implementation/v3/m15-artifacts/c2-ui-modal-zoom-green-01/artifacts",
+    "--reporter=list,json"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-16T01:25:23.142Z",
+  "endedAt": "2026-11-16T01:25:39.019Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-ui-modal-zoom-green-01.log",
+  "logDigest": "e34f501313e8f3ba53918f93fe9de4cd2d06f31d9f03fedb60f758cecd3cb9b6"
+}

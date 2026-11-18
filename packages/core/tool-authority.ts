@@ -1,4 +1,5 @@
 import { HarnessError } from "../contracts/index.ts";
+import { integrationPrepareArgsSchema } from "../contracts/integration-secrets.ts";
 import {
   actorRoleSchema,
   toolDefinitionSchema,
@@ -12,6 +13,8 @@ import { OPERATION_EXECUTE, SKILL_TOOLS, TASK_FINISH, TASK_MEMORY, UI_TOOLS, VER
 import { PLANNING_TOOLS } from "./planning-tools.ts";
 import { toolSchemas } from "../capabilities/schemas.ts";
 import { z } from "zod";
+import { CONTEXT_RESULT_READ } from "./context-result-tool.ts";
+import { REPOSITORY_MAP } from "./repository-map-tool.ts";
 import { digest } from "../storage/store.ts";
 
 /** Where a call's effect is executed. "internal" bindings only mutate the
@@ -29,6 +32,11 @@ export interface RegistryEntry extends ToolDefinitionV1 {
   approval: "operation" | "explicit" | "none";
 }
 
+const registryEntrySchema = toolDefinitionSchema.extend({
+  executorBinding: z.enum(["read", "store", "presentation", "domain-prepare", "domain", "process", "network"]),
+  approval: z.enum(["operation", "explicit", "none"]),
+});
+
 type Row = [name: string, risk: ToolRisk, replay: ReplayClass, roles: ActorRole[], binding: ExecutorBinding, approval: RegistryEntry["approval"]];
 
 const RUN: ActorRole[] = ["run"];
@@ -36,6 +44,7 @@ const READ_ROLES: ActorRole[] = ["run", "planning_child", "learning"];
 
 const CLASSIFICATION: Row[] = [
   ["ui_discover", "READ", "READ_RETRYABLE", RUN, "read", "none"],
+  ["context_result_read", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["ui_inspect", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["ui_present", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["ui_create_widget", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
@@ -56,6 +65,8 @@ const CLASSIFICATION: Row[] = [
   ["harness_session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["integration_list", "READ", "READ_RETRYABLE", RUN, "network", "none"],
   ["integration_call", "NETWORK_WRITE", "PROVIDER_IDEMPOTENT", RUN, "network", "explicit"],
+  ["integration_prepare", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain-prepare", "operation"],
+  ["repository_map", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["repository_files", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_read", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_status", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
@@ -72,7 +83,8 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
-  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS].find(tool => tool.name === name);
+  if (name === "integration_prepare") return z.toJSONSchema(integrationPrepareArgsSchema) as Record<string, unknown>;
+  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
   if (schema) return z.toJSONSchema(schema) as Record<string, unknown>;
@@ -123,8 +135,11 @@ export class ToolAuthority {
   private readonly entries = new Map<string, RegistryEntry>();
   constructor(registry: RegistryEntry[]) {
     for (const entry of registry) {
-      if (this.entries.has(entry.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + entry.id);
-      this.entries.set(entry.id, entry);
+      const definition = registryEntrySchema.parse(entry);
+      if (!INTERNAL_BINDINGS.has(definition.executorBinding) && definition.approval === "none" && definition.risk !== "READ")
+        throw new HarnessError("REGISTRY_CONFLICT", "Unclassified external effect requires an approval path: " + definition.id);
+      if (this.entries.has(definition.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + definition.id);
+      this.entries.set(definition.id, definition);
     }
   }
   definition(name: string): RegistryEntry | undefined { return this.entries.get(name); }

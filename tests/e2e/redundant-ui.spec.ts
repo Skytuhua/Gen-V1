@@ -2,6 +2,7 @@ import {expect,test,type Page} from '@playwright/test';
 import {applySplitWorkspaceCommand,createSplitWorkspaceLayout} from '../../packages/core/split-workspace-layout';
 import {shellInit,shellRoute,shellSnapshot} from '../../scripts/capture-ui/shell-api';
 import {projectContext} from '../../scripts/capture-ui/browser-data';
+import {serveTaskSplitLayout} from './task-interface-fixture';
 
 test.beforeEach(async({page})=>{
  await page.addInitScript(()=>localStorage.setItem('harness:summary:usage:v1',JSON.stringify({collapsed:false})));
@@ -94,6 +95,7 @@ test('production App hides the equivalent overview route and opens same-owner Ch
   }
   return shellRoute(route,snapshot,false);
  });
+ await serveTaskSplitLayout(page,snapshot);
  await page.goto('/actual-app');
  await page.getByRole('button',{name:'Expand Project overview',exact:true}).click();
  await expect(page.locator('.project-context-card')).toContainText('Audit project');
@@ -115,9 +117,9 @@ for(const width of [1440,1024,768])test(`reduced UI keeps its destinations at ${
  await expect(dialog).toContainText('0.012345');
  await page.screenshot({path:info.outputPath(`6-usage-${width}.png`),fullPage:true});
  await dialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(dialog).toContainText('18,321');await expect(dialog).toContainText('791');
- await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.456%');await expect(dialog).toContainText('67.89%');
+ await dialog.getByRole('tab',{name:'Limits',exact:true}).click();await expect(dialog).toContainText('23.5%');await expect(dialog).toContainText('67.9%');
  await page.keyboard.press('Escape');await expect(open).toBeFocused();
- await page.getByRole('button',{name:'Usage panel',exact:true}).click();await expect(page.locator('.usage-context')).toContainText('18%');
+ await page.getByRole('button',{name:'Usage panel',exact:true}).click();await expect(page.locator('.usage-context')).toContainText('18.0%');
  await page.getByRole('button',{name:'Recorded changes',exact:true}).click();await expect(page.getByRole('region',{name:'Tool destination'})).toContainText('new recorded value');
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
  await expect(page.getByRole('textbox',{name:'Prompt',exact:true})).toHaveValue('Keep my composer draft');
@@ -128,7 +130,7 @@ for(const mode of ['custom','scoped','detached'])test(`retains the overview rout
  await expect(page.getByRole('region',{name:'Tool destination'})).toContainText('new live value');
  await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toHaveCount(0);
  if(mode==='detached'){
-  await expect(page.locator('.floating-usage-details')).toContainText('18,321');await expect(page.locator('.floating-usage-details')).toContainText('67.89%');
+  await expect(page.locator('.floating-usage-details')).toContainText('18,321');await expect(page.locator('.floating-usage-details')).toContainText('67.9%');
   await expect(page.getByRole('button',{name:'Open Usage',exact:true})).toHaveCount(0);
  }
 });
@@ -151,7 +153,7 @@ test('Notes preserves its unsaved draft through navigation and reload',async({pa
  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);
 });
 test('retained destinations surface actual loading/error/empty boundaries',async({page})=>{
- await page.goto('/redundant-ui?state=loading');await expect(page.locator('.project-context-card')).toContainText('Reading project');
+ await page.goto('/redundant-ui?state=loading');await expect(page.locator('.project-context-card')).toContainText('Loading project');
  await page.evaluate(()=>window.dispatchEvent(new Event('redundant-release')));await expect(page.getByRole('button',{name:'work/layout',exact:true})).toBeVisible();
  await page.goto('/redundant-ui?state=error');await expect(page.locator('.project-context-card').getByRole('alert')).toContainText('could not load');
  await page.goto('/redundant-ui?state=empty');await expect(page.locator('.project-context-card')).toContainText('No project connected.');

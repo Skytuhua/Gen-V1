@@ -1,10 +1,21 @@
+import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
+import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
+import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
+import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
+import { createContextResultLineage } from './context-result-lineage.ts';
+import { openContextResultCustody } from './context-result-custody.ts';
+import { contextResultReadArgs } from './context-result-tool.ts';
+import { projectHostRequest } from './host-context-projection.ts';
+import { createHostRelevanceObserver } from './context-relevance-host.ts';
+import { withApprovedProjectContext } from './approved-project-context.ts';
+import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
-import { Store, digest } from "../storage/store.ts";
+import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant, readResourceGrant } from "./file-access.ts";
@@ -35,26 +46,40 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
-import { computeAssessment } from "./verification-gate.ts";
-import { sourceDigestSync } from "./project-verification.ts";
+import { OperationProjectTrustHost } from './operation-project-trust.ts';
+import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
+import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
+import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
-import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1 } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
+import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
+import { recoverEffects, disableEffects } from "./effect-recovery.ts";
 import { ToolProgramHost, type ToolProgramHostOptions } from './tool-program-host.ts';
 import { PROGRAM_TOOL_NAMES } from './tool-program-tools.ts';
-import { recoverEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import type { RequestPreparationV1 } from '../contracts/request-context.ts';
+import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
+import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
+import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
+import type { NativeCompactionAdmissionV1, NativeCompactionAckV1, NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
+import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1 } from '../contracts/request-context.ts';
+import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
+import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
+import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
+import {BackgroundWorkCoordinator,type BackgroundWorkOptions} from './background-work.ts';
+import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
+import type {ModelRequestGate} from '../runtime/model-capacity.ts';
+import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
-type Outbox = { id: string; threadId: string; content: string; status: "persisted" | "processing" | "handled"; runId: string | null; requestContextId?:string; enteredRuntime?: boolean;messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic };
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -67,11 +92,19 @@ const object = (value: unknown): Record<string, unknown> => {
 };
 const now = () => new Date().toISOString();
 interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
+export interface HostToolContext {
+  readonly authenticatedApprovals:boolean;
+  prepareOperation(kind:string,args:Record<string,unknown>,resourceIds:string[],preconditions:Record<string,string>,description:string):Operation;
+}
+export interface HostOperationContext { readonly signal:AbortSignal; readonly owner:Readonly<ToolOwner>; readonly authenticatedApprovals:boolean }
+export type HostOperationExecutor = (operation:Readonly<Operation>,context:HostOperationContext)=>Promise<unknown>;
 export interface ServiceOptions {
   canonicalPlanJobs?:CanonicalPlanJobProvider;
   approvedWriteHooks?:boolean;
   /** Host constructor only; absent in user preferences. */
   toolEffectFlags?: Partial<Record<ToolEffectFlag, boolean>>;
+  /** Preloaded trusted host custody; never supplied by UI commands or preferences. */
+  toolEffectAuthenticator?: EffectAuthenticator;
   toolPrograms?: ToolProgramHostOptions;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
@@ -82,14 +115,28 @@ export interface ServiceOptions {
   requestContextHooks?:RequestContextHooks;
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
-  additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  additionalTool?:(call:ToolCall,ctx:RunContext,host:HostToolContext)=>Promise<unknown>;
+  /** Constructor-owned integration bindings; ordinary capability kinds cannot be replaced. */
+  hostOperationExecutors?:Readonly<Record<string,HostOperationExecutor>>;
+  /** Trusted host injection for M10 background work; absent gates stay off. */
+  background?:{
+    gate?:ModelRequestGate;
+    executionGate?:BackgroundWorkOptions['executionGate'];
+    idleExecutor?:BackgroundWorkOptions['idleExecutor'];
+    intakeAuth?:IntakeAuth;
+    intakeFetch?:typeof fetch;
+  };
 }
 export class Service {
+  readonly sourceWorkbench: SourceWorkbench;
+  readonly controlConsent: BrowserConsentHost;
   readonly research:PersonalResearchRepository;
   readonly planning: PlanningCoordinator;
   readonly agentWork: AgentWorkCoordinator;
   readonly planExtensions: PlanExtensionStore;
   readonly learning:LearningCoordinator;
+  readonly backgroundWork:BackgroundWorkCoordinator;
+  readonly intake:ExternalIntakeCoordinator;
   private aborts = new Map<string, AbortController>();
   private controllerWork = new WeakMap<AbortController, number>();
   private pending = new Set<Promise<unknown>>();
@@ -108,36 +155,139 @@ export class Service {
   private skillIndexes=new Map<string,string>();
   private learningSupported:boolean;
   private lastActivity=Date.now();
+  private readonly compactionRegistry = createCompactionCandidateRegistry();
+  private readonly compactionInflight = new Map<string, Promise<void>>();
+  private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
+  private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
   private readonly deliveries=new Map<string,Promise<void>>();
+  private readonly messageAdmissions=new Map<string,{commitment:string;work:Promise<CommandReceipt>}>();
   private readonly mainAdmissions=new Set<string>();
   private readonly teardowns=new Map<string,{ctx:RunContext;side:boolean;promise:Promise<void>}>();
   private readonly authority:ToolAuthority;
+  private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private readonly programHost: ToolProgramHost;
+  private contextStorage?: Promise<ContextResultStorage>;
+  private contextResults?: ReturnType<typeof createContextResults>;
+  private activeContextReads = 0;
+  private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
+  private readonly relevanceObserver = createHostRelevanceObserver();
+  private readonly repositoryMaps = createRepositoryMapReader();
+  private relevanceOwner(thread: Thread) {
+    if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
+    const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
+    if (resources.length > 256) return null;
+    return { threadId: thread.id, binding: digest([thread.runId, thread.epoch, thread.modelId, thread.thinkingLevel ?? null,
+      this.binding(thread, modelProvider(thread.modelId)).accountId, thread.projectId ?? null, thread.workspaceId ?? null,
+      thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+      thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null, resources]) };
+  }
+  private observeReadRelevance(thread: Thread, sequence: number) {
+    try {
+      const owner = this.relevanceOwner(thread);
+      if (!owner) return undefined;
+      // Limit both the query and its projection. If history overflows this
+      // window, unknown older work is protected rather than scanned or assumed settled.
+      const unresolved = (kind: string, pending: readonly string[]) => {
+        const rows = this.store.db.prepare("SELECT json_extract(body,'$.status') AS status FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid DESC LIMIT 129").all(kind, thread.id) as { status: unknown }[];
+        return rows.length > 128 || rows.some(row => typeof row.status !== 'string' || pending.includes(row.status));
+      };
+      const protect = unresolved('request', ['pending']) || unresolved('operation', ['prepared', 'running', 'unknown']);
+      return this.relevanceObserver.observe(owner, sequence, protect);
+    } catch { return undefined; } // Read-only diagnostics cannot block a foreground request.
+  }
+  private contextResultsEnabled() { return capabilityEnabled('context.compilerV1') && capabilityEnabled('tools.deferredV1'); }
+  private contextResultOwner(thread: Thread) {
+    return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
+  }
+  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null,
+    thread.accountId ?? null, thread.projectId ?? null, thread.workspaceId ?? null, thread.thinkingLevel ?? null, thread.mode ?? null,
+    this.hostToolRegistryDigest, thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+    thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null]); }
+  private contextResultVault() {
+    const open = () => this.contextStorage ??= openContextResultCustody(this.store.dataDir).catch(cause => { this.contextStorage = undefined; throw cause; });
+    return this.contextResults ??= createContextResults({
+      now: Date.now,
+      isAuthorized: async (owner, invocation) => {
+        const proof = this.contextResultAuthorities.get(invocation);
+        if (!proof || proof.expiresAtMs <= Date.now()) { this.contextResultAuthorities.delete(invocation); return false; }
+        const current = () => {
+          const thread = this.store.get<Thread>('thread', owner.threadId);
+          if (this.closed || !this.contextResultsEnabled() || !thread?.runId || !['working', 'awaiting_input'].includes(thread.status) || thread.kind === 'delegate' || thread.sideParentId || this.store.get('archivedThread', thread.id)) return false;
+          const binding = this.contextResultOwner(thread);
+          return invocation.startsWith(this.contextResultInvocation(thread) + ':') && binding.workspaceId === owner.workspaceId && binding.accountId === owner.accountId;
+        };
+        return current() && await proof.authorized() && current();
+      },
+      storage: {
+        put: async (key, bytes, record) => (await open()).put(key, bytes, record),
+        get: async key => (await open()).get(key),
+        getRecord: async key => (await open()).getRecord?.(key),
+        pruneExpired: async now => (await open()).pruneExpired?.(now) ?? 0,
+      },
+    });
+  }
+  private async deliverContextResult(value: unknown, publicCatalog: boolean, thread: Thread, assertCurrent: () => void, lineage?: ReturnType<typeof createContextResultLineage>) {
+    const encoded = encodeContextResult(value);
+    const absent = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: '', omittedBytes: encoded.totalBytes, totalBytes: encoded.totalBytes };
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { return absent; }
+    if (encoded.bytes && encoded.totalBytes! <= CONTEXT_PREVIEW_CAP_BYTES) return value;
+    if (lineage?.observed && !await lineage.authorized()) return absent;
+    try { assertCurrent(); } catch { return absent; }
+    const fallback = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: encoded.preview, omittedBytes: encoded.omittedBytes, totalBytes: encoded.totalBytes };
+    if (!encoded.bytes || !publicCatalog && !lineage?.observed) return fallback;
+    const now = Date.now();
+    for (const [id, proof] of this.contextResultAuthorities) if (proof.expiresAtMs <= now) this.contextResultAuthorities.delete(id);
+    if (this.contextResultAuthorities.size >= MAX_TRACKED_RESULTS) return fallback;
+    const invocationId = this.contextResultInvocation(thread) + ':' + randomUUID(), expiresAtMs = now + 60 * 60_000;
+    this.contextResultAuthorities.set(invocationId, { expiresAtMs, authorized: async () => {
+      try { assertCurrent(); return publicCatalog || Boolean(lineage && await lineage.authorized()); } catch { return false; }
+    } });
+    const result = await this.contextResultVault().spill({ owner: this.contextResultOwner(thread), invocationId, bytes: encoded.bytes, mediaType: encoded.mediaType, expiresAtMs });
+    if (!result.handle) this.contextResultAuthorities.delete(invocationId);
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { this.contextResultAuthorities.delete(invocationId); return absent; }
+    return { ...result, totalBytes: encoded.totalBytes };
+  }
   private readonly requestCustody:RequestContextCustody;
+  private readonly inferenceOwners = new Map<string, { ctx: RunContext; basis: string; sequence: number }>();
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
+  private readonly hostOperationExecutors:ReadonlyMap<string,HostOperationExecutor>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    const hostExecutors=Object.entries(options.hostOperationExecutors??{});
+    if(hostExecutors.length>32||hostExecutors.some(([kind,executor])=>!/^integration\.[a-z][a-z0-9._-]{0,79}$/.test(kind)||typeof executor!=='function'))
+      throw new HarnessError('INVALID_HOST_OPERATION','Host operations require explicit integration executor bindings.');
+    this.hostOperationExecutors=new Map(hostExecutors);
     this.requestCustody=new RequestContextCustody(store,{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
       released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
     });
+    this.controlConsent = new BrowserConsentHost(store, {registry: hostControlDriverRegistry});
+    this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
+      requestContextEnabled: () => this.requestContextEnabled(),
+      readMemoryModule: async owner => {
+        const memory = this.projectMemory, access = await memory.access(owner.projectId, owner.threadId), view = memory.read(access);
+        return {state: !view.available ? 'DISABLED' : view.items.length || view.tombstones.length ? 'AVAILABLE' : 'EMPTY', reason: view.available ? null : view.disabledReason,
+          href: '/api/projects/' + encodeURIComponent(owner.projectId) + '/memory?threadId=' + encodeURIComponent(owner.threadId), assertCurrent: () => memory.assertAccess(access)};
+      },
+    });
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
-    this.authority=new ToolAuthority(buildToolRegistry());this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
+    this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags,options.toolEffectAuthenticator);
     this.programHost = new ToolProgramHost(store, { authority: this.authority, effects: this.effects,
       currentOwner: id => this.programOwner(id), retainedOwner: owner => this.assertRetainedProgramOwner(owner),
       executeRead: (call, owner, signal) => this.executeProgramRead(call, owner, signal) }, options.toolPrograms);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute();}});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
     // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
     // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
@@ -146,15 +296,46 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
-    runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}) });
+    runtime.configure({ onEvent: event => {this.recordCompactionModelObservation(event);this.onRuntimeEvent(event);}, onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}), onBeforeInference: request => this.beforeInference(request), onCompactionCommit: request => this.commitNativeCompaction(request) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
+    this.backgroundWork=new BackgroundWorkCoordinator({store,isEnabled:key=>capabilityEnabled(key),currentThread:id=>this.store.get<Thread>('thread',id)??null,
+      enqueueFollowUp:input=>{this.enqueueInput({id:input.id,threadId:input.threadId,content:input.content,status:'persisted',runId:null});queueMicrotask(()=>this.background(this.deliverOutbox(input.threadId)));},
+      gate:options.background?.gate,executionGate:options.background?.executionGate,idleExecutor:options.background?.idleExecutor,
+      revalidateAuthority:work=>{try{const thread=this.store.get<Thread>('thread',work.owner.threadId);if(thread?.modelId)assertAccountAvailable(this.store,modelProvider(thread.modelId),thread.accountId??null);return{ok:true};}catch(error){return{ok:false,blockedReason:error instanceof HarnessError?error.code:'ACCOUNT_UNAVAILABLE'};}},
+      onPaused:()=>{this.intake.stop();}});
+    this.intake=new ExternalIntakeCoordinator({store,auth:options.background?.intakeAuth,fetchImpl:options.background?.intakeFetch,
+      createTask:async request=>{
+        // S10: the approved external task enters the same project, role and
+        // execution gates as a manual task; external text carries no authority.
+        const created=await this.command({id:randomUUID(),type:'thread.create',payload:{title:request.title.slice(0,140),...(request.projectId?{projectId:request.projectId}:{})}});
+        const thread=created.result as Thread;
+        await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
+        return {threadId:thread.id};
+      }});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
+  }
+  private executionAdviceHostInstance?:OperationExecutionAdviceHost;
+  get executionAdvice(): OperationExecutionAdviceHost {
+    return this.executionAdviceHostInstance ??= new OperationExecutionAdviceHost(this.store, {
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+      sourceCommitment: op => this.effects.privateArgumentCommitment({ name: 'operation.executionAdvice', args: {
+        operation: { id: op.id, threadId: op.threadId, revision: op.revision, kind: op.kind, args: op.args, resourceIds: op.resourceIds, preconditions: op.preconditions },
+      } }),
+    });
+  }
+  private projectTrustHostInstance?:OperationProjectTrustHost;
+  get projectTrust(): OperationProjectTrustHost {
+    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
+      enabled: hostFlagEnabled('security.projectTrustV1'),
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+    });
   }
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
     return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,extractionAdmission:this.options.memoryExtractionAdmission,
+      readFileSource:(owner,ref)=>this.sourceWorkbench.retainedFile({logicalOwner:owner,ref}),
       canExtract:()=>!this.closed&&!this.updateClosing&&!this.predictionMutations&&!this.store.all<Thread>('thread').some(thread=>!!thread.runId||thread.status==='working'||thread.status==='awaiting_input'),
       beforeExtract:async()=>{if(this.reviewing)await this.cancelReview();},
     });
@@ -190,6 +371,8 @@ export class Service {
   }
   private cancelRun(input:RunContext,side:boolean):Promise<void>{
     const ctx:RunContext={threadId:input.threadId,runId:input.runId,epoch:input.epoch};
+    const inference=this.inferenceOwners.get(ctx.threadId);
+    if(inference?.ctx.runId===ctx.runId&&inference.ctx.epoch===ctx.epoch)this.inferenceOwners.delete(ctx.threadId);
     const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
     const control=this.aborts.get(ctx.threadId);
     const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
@@ -211,7 +394,7 @@ export class Service {
   /** Host-owned evidence; cancelling work during shutdown never turns a busy
    * close into permission to install an update. */
   isUpdateIdle():boolean {
-    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.source?.runtime.sourceBusy
+    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.backgroundWork.busy&&!this.intake.busy&&!this.source?.runtime.sourceBusy
       &&!this.store.all<Thread>('thread').some(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id))
       &&!this.store.all<Operation>('operation').some(operation=>['prepared','running','unknown'].includes(operation.status))
       &&!this.store.all<Outbox>('outbox').some(input=>input.status!=='handled')
@@ -275,6 +458,7 @@ export class Service {
     return source;
   }
   private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult {
+    this.effects.assertAdmissionsEnabled();
     this.assertLearningSource(job);
     if(!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
     if(call.name==='session_search')return {value:searchSessions(this.store,call.args)};
@@ -309,7 +493,7 @@ export class Service {
   private enqueueInput(input: Outbox): void {
     const thread = this.store.get<Thread>("thread", input.threadId);
     const finish = thread?.runId ? this.store.get<FinishRecord>("finish", thread.runId) : null;
-    if (finish && thread?.runId) this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
+    if (finish && thread?.runId && input.sendMode !== 'AFTER_CURRENT') this.store.put("finish", thread.runId, input.threadId, { ...finish, invalidated: true });
     this.store.put("outbox", input.id, input.threadId, input);
   }
   private afterMaintenance(threadId: string, previous: Thread["status"]): Thread["status"] {
@@ -395,7 +579,226 @@ export class Service {
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
   private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
-  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
+  /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
+   * Never mutates native history; candidates carry metadata only. */
+  private latestRequestReceipt(threadId:string):RequestContextV1|null {
+    const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
+    if(!row)return null;
+    const receipt=(JSON.parse(row.body) as {receipt?:RequestContextV1}).receipt;
+    return receipt??null;
+  }
+  private compactionBindingOf(receipt:RequestContextV1){
+    return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
+  }
+  private async applyLossAwareCompaction(command:HostCommand,thread:Thread) {
+    const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(command,thread));
+    const tail=run.then(()=>undefined,()=>undefined);
+    this.compactionInflight.set(thread.id,tail);
+    this.background(tail);
+    tail.finally(()=>{
+      if(this.compactionInflight.get(thread.id)!==tail)return;
+      this.compactionInflight.delete(thread.id);
+      if(!this.closed)this.background(this.deliverOutbox(thread.id));
+    });
+    return run;
+  }
+  private commitNativeCompaction(request: NativeCompactionAdmissionV1): NativeCompactionAckV1 {
+    const gate = this.nativeCompactionAdmissions.get(request.candidateId);
+    if (!gate || gate.attempted) throw new HarnessError('HERMES_COMPACTION_OWNER', 'No unused host admission owns this native commit.');
+    gate.attempted = true;
+    if (digest(request) !== digest(gate.request)) throw new HarnessError('HERMES_COMPACTION_OWNER', 'The native commit differs from its captured host owner.');
+    gate.assertCurrent();
+    gate.accepted = true;
+    return {version: 1, accepted: true, planDigest: gate.request.planDigest};
+  }
+  private recordCompactionModelObservation(event: RuntimeEvent): void {
+    if(event.type!=='model.observation'||!capabilityEnabled('models.requestMetricsV1'))return;
+    const admitted=this.compactionModelOwners.get(event.runId);
+    if(!admitted||event.threadId!==admitted.ctx.threadId||event.epoch!==admitted.ctx.epoch)return;
+    const parsed=modelRequestObservationV1Schema.safeParse(event.observation);
+    if(!parsed.success)return;
+    const value=parsed.data,owner=value.owner,binding=admitted.binding;
+    if(owner.threadId!==admitted.ctx.threadId||owner.runId!==admitted.ctx.runId||owner.epoch!==admitted.ctx.epoch||
+      value.binding.modelId!==binding.modelId||value.binding.accountId!==binding.accountId||value.binding.providerId!==binding.modelId.split('/')[0])return;
+    const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',admitted.candidateId);
+    if(!attempt||attempt.id!==admitted.candidateId||attempt.threadId!==admitted.ctx.threadId||attempt.ownerKey!==admitted.ownerKey||
+      attempt.metadata.candidateId!==admitted.candidateId||digest(attempt.metadata.binding)!==digest(binding))return;
+    const id=`compactionModelRequest:${value.requestId}`;
+    const old=this.store.get<{candidateId:string;ownerKey:string;ctx:RunContext;value:ModelRequestObservationV1}>('compactionModelRequest',id);
+    // The broker may publish firstPublicDelta after its final observation. No
+    // repeated request may change identity, usage or outcome, or charge twice.
+    const immutable=(observation:ModelRequestObservationV1)=>digest({...observation,timings:{...observation.timings,firstPublicDelta:null}});
+    if(old&&(old.candidateId!==admitted.candidateId||old.ownerKey!==admitted.ownerKey||digest(old.ctx)!==digest(admitted.ctx)||immutable(old.value)!==immutable(value)||
+      old.value.timings.firstPublicDelta!==null&&old.value.timings.firstPublicDelta!==value.timings.firstPublicDelta))return;
+    if(old&&digest(old.value)===digest(value))return;
+    // This is a historical observation under the still-owned native call,
+    // not permission to update a stopped/new owner or a complete spend total.
+    this.store.internal('context.compaction.model_observed',admitted.ctx.threadId,()=>this.store.put('compactionModelRequest',id,admitted.ctx.threadId,
+      {id,candidateId:admitted.candidateId,ownerKey:admitted.ownerKey,ctx:admitted.ctx,value}));
+  }
+  private async applyLossAwareCompactionInner(command:HostCommand,thread:Thread) {
+    const duplicate=this.store.receipt(command);if(duplicate)return duplicate;
+    const receipt=this.latestRequestReceipt(thread.id);
+    if(!receipt||typeof this.runtime.nativeHistoryDigest!=='function'||typeof this.runtime.compactProtected!=='function')
+      throw new HarnessError('UNSUPPORTED_COMPACTION','This adapter has no verified protected native compare-and-swap for loss-aware compaction');
+    const currentGeneration=()=>this.store.get<{generation:number}>('requestContextGeneration',thread.id)?.generation??receipt.contextGeneration;
+    const generation=currentGeneration();
+    if(!Number.isSafeInteger(generation)||generation<receipt.contextGeneration||generation>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+    const captured=this.requestBasis(thread,thread.modelId!,thread.thinkingLevel),receiptDigest=digest(receipt);
+    if(receipt.owner.threadId!==thread.id||receipt.owner.workspaceId!==captured.workspaceId||receipt.modelBinding.modelId!==captured.modelId||receipt.modelBinding.accountId!==captured.accountId)
+      throw new HarnessError('STALE_REQUEST_CONTEXT','The last request belongs to a different compaction owner.');
+    const stable=(basis:RequestContextBasis)=>{const {admissionDigest:_admission,...rest}=basis;return digest(rest);};
+    const stableDigest=stable(captured);
+    const beforeAdmission=()=>{
+      const current=this.thread(thread.id);
+      if(!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==thread.epoch||current.runId!==thread.runId||current.status!==thread.status||
+        digest(this.requestBasis(current,thread.modelId!,thread.thinkingLevel))!==digest(captured)||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during admission.');
+      this.assertNoOtherRun(thread.id);
+    };
+    const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
+    beforeAdmission();
+    // This reads the retained source without replacing its conversation owner.
+    const inspection={threadId:thread.id,runId:'compaction-inspect:'+randomUUID(),epoch:thread.epoch};
+    const snapshot=await this.runtime.nativeHistoryDigest(inspection,thread.sessionPath!,captured.accountId);
+    beforeAdmission();
+    if(!snapshot)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The retained native history is unavailable.');
+    const hostCut=readCompactionHostCut(this.store,thread.id,receipt);
+    const prepared=prepareNativeCompaction(snapshot,hostCut.references);
+    const sourceContexts:PreparedSourceContext[]=[];
+    const assertHostCut=()=>{
+      if(readCompactionHostCut(this.store,thread.id,receipt).revisionDigest!==hostCut.revisionDigest)
+        throw new HarnessError('STALE_REQUEST_CONTEXT','A protected decision, approval, work item or source choice changed.');
+      for(const source of sourceContexts)source.assertCurrent();
+    };
+    const sourceOwner=this.sourceWorkbench.owner(thread.id);
+    for(let offset=0;offset<hostCut.sourceRefs.length;offset+=WORKBENCH_LIMITS.maxSourceRefs){
+      sourceContexts.push(await this.sourceWorkbench.prepareSend(sourceOwner,hostCut.sourceRefs.slice(offset,offset+WORKBENCH_LIMITS.maxSourceRefs),{accepted:true}));
+      beforeAdmission();assertHostCut();
+    }
+    const binding={...this.compactionBindingOf(receipt),generation,sourceCut:digest([receipt.sourceCut.revisionDigest,prepared.sourceSha256,hostCut.revisionDigest])};
+    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:prepared.retainedRefs,toolPairs:prepared.toolPairs,sourceInterval:prepared.sourceInterval});
+    if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
+    const ctx=Object.freeze({threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch+1,accountId:binding.accountId});
+    const envelope=nativeCompactionEnvelope(prepared,metadata.candidateId,{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch,
+      workspaceId:binding.workspaceId,modelId:binding.modelId,accountId:binding.accountId,generation,
+      instructionDigest:binding.instructionDigest,toolRegistryDigest:binding.toolRegistryDigest});
+    const accepted=this.store.command(command,()=>{
+      beforeAdmission();assertHostCut();
+      this.store.put('runtimeIntent',ctx.runId,thread.id,{kind:'compaction',previousStatus:thread.status});
+      this.store.put('thread',thread.id,thread.id,{...thread,runId:ctx.runId,epoch:ctx.epoch,status:'working',error:null,updatedAt:now()});
+      const entry=this.compactionRegistry.get(metadata.candidateId)!;
+      const attempt:CompactionAttemptRecord={id:metadata.candidateId,threadId:thread.id,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),...entry,verdict:null};
+      this.store.put('compactionAttempt',attempt.id,thread.id,attempt);
+      this.writeCompactionProjection(thread.id);
+      return ctx;
+    });
+    const assertCurrent=()=>{
+      const current=this.thread(thread.id);
+      if(this.closed||!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==ctx.epoch||current.runId!==ctx.runId||
+        !['working','awaiting_input'].includes(current.status)||current.sessionPath!==thread.sessionPath||current.modelId!==thread.modelId||
+        this.binding(current,modelProvider(thread.modelId!)).accountId!==binding.accountId||
+        stable(this.requestBasis(current,thread.modelId!,current.thinkingLevel))!==stableDigest||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during native work.');
+      assertHostCut();
+    };
+    let nativeError:unknown;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,
+      retainedTailBytes:prepared.retainedBytes,maxRetainedTailBytes:64*1024,nativeApply:async()=>{
+      try{
+        assertCurrent();
+        let ended=false,settled=false,completionError:unknown;
+        const completed:{receipt?:NativeCompactionReceiptV1}={};
+        const unsubscribe=this.store.subscribe(event=>{
+          const payload=(event.payload as {result?:{runId?:string}}|null)?.result;
+          if(event.threadId!==thread.id||payload?.runId!==ctx.runId)return;
+          if(event.type==='runtime.compaction.end')ended=true;
+          if(event.type==='runtime.settled'&&ended)settled=true;
+        });
+        const control=this.aborts.get(thread.id)??new AbortController();this.aborts.set(thread.id,control);this.retainController(control);
+        try{
+          const expected=receipt.segments.find(segment=>segment.sourceId==='approved-project-instructions');
+          const compact=async(projectContext:StartRun['approvedProjectContext'],assertProjectCurrent:()=>void)=>{
+            const current=projectContext?.instructionText?'sha256:'+projectContext.instructionDigest:null;
+            if((expected?.contentRef??null)!==current||expected&&current===null)throw new HarnessError('STALE_REQUEST_CONTEXT','Project instruction sources changed or are unavailable. Start a new turn before compacting.');
+            const gate={request:{version:1 as const,candidateId:metadata.candidateId,planDigest:envelope.planDigest,sourceSha256:prepared.sourceSha256,owner:structuredClone(envelope.plan.owner)},
+              attempted:false,accepted:false,assertCurrent:()=>{
+                if(control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Native compaction was cancelled.');
+                assertCurrent();assertProjectCurrent();
+              }};
+            const retainSourceFiles=async(index:number):Promise<void>=>{
+              const ref=hostCut.sourceRefs[index];
+              if(!ref){
+                gate.assertCurrent();
+                this.nativeCompactionAdmissions.set(metadata.candidateId,gate);
+                if(capabilityEnabled('models.requestMetricsV1'))this.compactionModelOwners.set(ctx.runId,{ctx:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch},
+                  candidateId:metadata.candidateId,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),binding:structuredClone(binding)});
+                try{
+                  const result=await this.runtime.compactProtected!(ctx,thread.sessionPath!,thread.modelId!,binding.accountId,structuredClone(envelope),memoryCheckpoint);
+                  if(!gate.accepted)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The native source bypassed the host commit gate.');
+                  completed.receipt=requireNativeCompactionReceipt(result,envelope,prepared.toolPairs.length);
+                }finally{this.compactionModelOwners.delete(ctx.runId);this.nativeCompactionAdmissions.delete(metadata.candidateId);}
+                return;
+              }
+              if(ref.keepCaptured||ref.source.kind!=='FILE_RANGE')return retainSourceFiles(index+1);
+              const grant=this.store.get<ResourceGrant>('resource',ref.source.sourceId);
+              if(!grant||grant.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A retained file source lost its original grant.');
+              await withResourceGrant(grant,this.store.dataDir,ref.source.path,false,control.signal,async()=>{
+                gate.assertCurrent();
+                await retainSourceFiles(index+1);
+              },{readOnly:true});
+            };
+            gate.assertCurrent();
+            await retainSourceFiles(0);
+          };
+          if(expected||capabilityEnabled('context.compilerV1')){
+            const nativeInput:StartRun={...ctx,modelId:thread.modelId!,thinkingLevel:thread.thinkingLevel,sessionPath:thread.sessionPath!,inputId:ctx.runId,prompt:'',resources:this.store.all<ResourceGrant>('resource',thread.id)};
+            await withApprovedProjectContext(this.store,nativeInput,control.signal,compact);
+          }else await compact(undefined,()=>{});
+        }catch(cause){
+          // A checked native receipt records an applied historical fact. A later
+          // guard cleanup failure cannot undo it or authorize another commit.
+          if(!completed.receipt)throw cause;
+          completionError=cause;
+        }finally{unsubscribe();this.releaseController(thread.id,control);}
+        if(!completed.receipt)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The protected native source did not confirm application.');
+        const proof=completed.receipt,usageObservationRef=`compactionUsage:${metadata.candidateId}`;
+        const appliedGeneration=this.store.internal('context.compaction.applied',thread.id,()=>{
+          const previous=currentGeneration();
+          if(!Number.isSafeInteger(previous)||previous<binding.generation||previous>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+          this.store.put('requestContextGeneration',thread.id,thread.id,{generation:previous+1});
+          this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,
+            beforeBytes:proof.beforeBytes,afterBytes:proof.afterBytes,nativeReceipt:proof,settled,
+            completionError:completionError instanceof Error?completionError.message:completionError?String(completionError):null});
+          // Keep the reference with its checked receipt even if terminal bookkeeping is interrupted.
+          const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+          if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,metadata:{...attempt.metadata,usageObservationRef}});
+          return previous+1;
+        }) as number;
+        // Only clean up this still-owned maintenance run; a newer owner is untouched.
+        if(!settled)this.runtimeFailure(ctx,new HarnessError('HERMES_COMPACTION_UNCONFIRMED','Native compaction applied, but maintenance settlement was not confirmed.'));
+        return {generation:appliedGeneration,usageObservationRef};
+      }catch(cause){nativeError=cause;throw cause;}
+    }});
+    if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
+    else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
+    else this.compactionRegistry.markDiscarded(metadata.candidateId);
+    if(verdict.status!=='APPLIED')this.runtimeFailure(ctx,nativeError??new Error('Native compaction was not applied.'));
+    if(!this.closed)this.store.internal('context.compaction.observed',thread.id,()=>{
+      const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+      if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,candidate:this.compactionRegistry.get(attempt.id)!.candidate,verdict:verdict.status});
+      this.writeCompactionProjection(thread.id);
+      if(this.store.get<Thread>('thread',thread.id)?.runId===null){const usage=this.store.get<{value:RuntimeUsage}>('usage',thread.id)!;this.store.put('usage',thread.id,thread.id,{...usage,value:{...usage.value,activity:'idle'}});}
+    });
+    if(verdict.status!=='APPLIED')throw new HarnessError('COMPACTION_FAILED',nativeError instanceof Error?nativeError.message:'The verified native compaction apply failed.');
+    return accepted;
+  }
+  private writeCompactionProjection(threadId:string):void {
+    const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:this.store.compactionProjection(threadId)}});
+  }
+  private requestAuthorityBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):Omit<RequestContextBasis,'sourceCutDigest'|'admissionDigest'> {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
     const physical=(path:string,expected?:{dev:string;ino:string})=>{
@@ -410,17 +813,43 @@ export class Service {
     if(thread.projectId&&(!project||project.authority.kind!=='local'||!root)||thread.workspaceId&&(!workspace||workspace.id!==thread.workspaceId||workspace.threadId!==thread.id||workspace.projectId!==thread.projectId))throw new HarnessError('STALE_REQUEST_CONTEXT','The project or workspace binding is unavailable.');
     const rootIdentity=root?physical(root.path,root.identity):null,workspaceIdentity=workspace?physical(workspace.path,workspace.identity):null;
     const resources=(this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body) as ResourceGrant);
-    const notes=(this.store.db.prepare("SELECT body FROM entities WHERE kind='taskMemory' AND thread_id=? ORDER BY id LIMIT 13").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body));
-    if(resources.length>256||notes.length>12)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
+    if(resources.length>256)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
     const grantDigest=digest(resources.map(resource=>{if(resource.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A resource grant changed owner.');return{resource,physical:physical(resource.path,resource.identity)};}));
-    const catalog=this.source?null:skillIndex(this.store),plan=this.planning.inspect(thread.id),side=thread.sideParentId?this.store.get('sideContext',thread.id):null;
-    const sourceCut={notes,catalog,plan,side};if(Buffer.byteLength(JSON.stringify(sourceCut))>512*1024)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its byte limit.');
     const workspaceId=thread.workspaceId??(thread.projectId?'project:'+thread.projectId:'thread:'+thread.id);
     const instructionDigest=digest([PLAN_RUNTIME_GUIDANCE,LEARN_REQUEST,thread.mode??'build',Boolean(this.source),Boolean(thread.sideParentId)]);
     return{profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,modelId,accountId,thinkingLevel:thinkingLevel??null,
       bindingDigest:digest({profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,project,root,workspace,rootIdentity,workspaceIdentity,sideParentId:thread.sideParentId??null,kind:thread.kind??'main',mode:thread.mode??'build',modelId,accountId,thinkingLevel:thinkingLevel??null}),
-      grantDigest,sourceCutDigest:digest(sourceCut),instructionDigest,toolRegistryDigest:this.requestRegistryDigest,
+      grantDigest,instructionDigest,toolRegistryDigest:this.requestRegistryDigest};
+  }
+  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
+    const authority=this.requestAuthorityBasis(thread,modelId,thinkingLevel);
+    const notes=(this.store.db.prepare("SELECT body FROM entities WHERE kind='taskMemory' AND thread_id=? ORDER BY id LIMIT 13").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body));
+    if(notes.length>12)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
+    const catalog=this.source?null:skillIndex(this.store),plan=this.planning.inspect(thread.id),side=thread.sideParentId?this.store.get('sideContext',thread.id):null;
+    const sourceCut={notes,catalog,plan,side};if(Buffer.byteLength(JSON.stringify(sourceCut))>512*1024)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its byte limit.');
+    return{...authority,sourceCutDigest:digest(sourceCut),
       admissionDigest:digest({epoch:thread.epoch,runId:thread.runId,sessionPath:thread.sessionPath,modelId:thread.modelId,thinkingLevel:thread.thinkingLevel??null,accountId:thread.accountId??null})};
+  }
+  private captureInferenceOwner(input:StartRun,continuing:boolean):void {
+    const thread=this.assertRun(input),basis=digest(this.requestAuthorityBasis(thread,input.modelId,input.thinkingLevel)),previous=this.inferenceOwners.get(thread.id);
+    if(previous&&previous.ctx.runId===input.runId&&previous.ctx.epoch===input.epoch){
+      if(previous.basis!==basis)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference authority changed.');
+      return;
+    }
+    if(continuing||this.inferenceOwners.size>=128)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference owner is unavailable.');
+    this.inferenceOwners.set(thread.id,{ctx:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},basis,sequence:0});
+  }
+  private beforeInference(request:InferenceAdmissionV1):void {
+    const thread=this.assertRun(request.ctx),owner=this.inferenceOwners.get(thread.id);
+    const stale=()=>new HarnessError('STALE_REQUEST_CONTEXT','The next inference no longer matches its admitted owner.');
+    if(!capabilityEnabled('context.compilerV1')||!owner||owner.ctx.runId!==request.ctx.runId||owner.ctx.epoch!==request.ctx.epoch||
+      !Number.isSafeInteger(request.sequence)||request.sequence<=owner.sequence||!Array.isArray(request.inputIds)||request.inputIds.length>4096||new Set(request.inputIds).size!==request.inputIds.length||
+      thread.modelId!==request.modelId||(thread.thinkingLevel??null)!==request.thinkingLevel)throw stale();
+    const basis=this.requestAuthorityBasis(thread,request.modelId,request.thinkingLevel);
+    if(basis.accountId!==request.accountId||digest(basis)!==owner.basis)throw stale();
+    for(const id of request.inputIds){const input=typeof id==='string'&&id.length<=256?this.store.get<Outbox>('outbox',id):null;
+      if(!input||input.threadId!==thread.id||input.runId!==request.ctx.runId||!['processing','handled'].includes(input.status))throw stale();}
+    owner.sequence=request.sequence;
   }
   /** A preview does not increment run epochs, start a runtime, or edit native history. */
   async prepareRequestContext(threadId:string,prompt:string,options:RequestPreparationOptions={}):Promise<RequestPreparationV1> {
@@ -484,6 +913,7 @@ export class Service {
     return models;
   }
   private assertMutation(threadId: string): void {
+    this.effects.assertAdmissionsEnabled();
     const thread = this.thread(threadId);
     if(thread.mode==='plan')throw new HarnessError('PLAN_MODE','Plan mode is read-only. Switch to Build before preparing or approving a change.');
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("CANCELLED_RUN", "Resume this thread before starting operations");
@@ -536,6 +966,7 @@ export class Service {
   /** M09 read-role domain context: resources resolve read-only, operation
    * preparation is denied before effects, evidence publishing stays open. */
   private agentReadDomain(threadId: string) {
+    this.effects.assertAdmissionsEnabled();
     const signal = new AbortController().signal, domain = this.context(threadId, signal);
     return {
       threadId, signal,
@@ -590,6 +1021,7 @@ export class Service {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
       threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -627,10 +1059,10 @@ export class Service {
         for (const id of resourceIds) { const grant = this.store.get<ResourceGrant>("resource", id); if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Operation resource is not granted"); }
         const op: Operation = { id: randomUUID(), threadId, revision: 1, kind, args, resourceIds, preconditions, description, status: "prepared", approved: false, createdAt: now() };
         const thread=this.thread(threadId),capture=this.options.approvedWriteHooks&&kind==='file.replace'?{revision:op.revision,origin:this.writeOrigin(thread,authority),unavailable:thread.projectId&&thread.workspaceId?'scope_unavailable' as const:'no_project' as const}:undefined;
-        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
+        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.projectTrust.markPrepared(op); this.executionAdvice.recordPrepared(op,thread); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
-        if (this.closed) return;
+        if (this.closed || signal?.aborted || this.store.get("archivedThread", threadId)) return;
         // Process/abort event callbacks can arrive after revocation. Drop stale
         // presentation progress instead of throwing out of an event listener.
         if (authority) {
@@ -647,7 +1079,26 @@ export class Service {
       }
     };
   }
-  async command(command: HostCommand) {
+  async command(command: HostCommand): Promise<CommandReceipt> {
+    if (command.type !== 'message.send') return this.commandAdmitted(command);
+    const accepted = this.store.receipt(command); if (accepted) return accepted;
+    const commitment = digest(command), pending = this.messageAdmissions.get(command.id);
+    if (pending) {if (pending.commitment !== commitment) throw new HarnessError('DUPLICATE_COMMAND', 'A pending send command already belongs to different content.'); return pending.work;}
+    if (this.messageAdmissions.size >= 128) throw new HarnessError('SEND_BUSY', 'Too many messages are being admitted.', {sendAccepted: false});
+    const captured = structuredClone(command);
+    const work = Promise.resolve().then(async () => {
+      try {return await this.commandAdmitted(captured);} catch (error) {
+        const receipt = this.store.receipt(captured); if (receipt) return receipt;
+        // There is exactly one matching admission while this entry is held.
+        // Typed precommit denial can therefore unlock an edited new command.
+        if (error instanceof HarnessError && !this.store.get('outbox', captured.id)) throw new HarnessError(error.code, error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), sendAccepted: false});
+        throw error;
+      }
+    });
+    this.messageAdmissions.set(command.id, {commitment, work});
+    try {return await work;} finally {if (this.messageAdmissions.get(command.id)?.work === work) this.messageAdmissions.delete(command.id);}
+  }
+  private async commandAdmitted(command: HostCommand): Promise<CommandReceipt> {
     if(this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');
     if(command.type==='agent.followUp'){if(this.closed)throw new HarnessError('CANCELLED_RUN','The workspace has closed.');this.lastActivity=Date.now();return this.planning.followUp(command);}
     // Retired commands must not replay old write receipts.
@@ -682,9 +1133,23 @@ export class Service {
       if(command.type==='skill.decide')return decideSkillProposal(this.store,text(p,'proposalId',200),p.approve as boolean);
       throw new HarnessError('UNKNOWN_CAPABILITY','Unknown skill command.');
     });
+    if(command.type==='control.request')return this.store.command(command,()=>{
+      const thread=this.thread(command.threadId!),mode=p.mode;
+      if(mode!=='FRESH_VERIFICATION_BROWSER'&&mode!=='CONSENTED_EXISTING_TAB'&&mode!=='SELECTED_DESKTOP_APPLICATION')throw new HarnessError('INVALID_INPUT','Choose a control mode.');
+      const owner={threadId:thread.id,runId:null,epoch:thread.epoch,projectId:thread.projectId??null,workspaceId:thread.workspaceId??null,accountBinding:thread.accountId??null};
+      const OPS=['CLICK','TYPE','KEYPRESS','UPLOAD','DOWNLOAD','NAVIGATE'] as const;
+      const operations=Array.isArray(p.operations)?p.operations.filter((o):o is (typeof OPS)[number]=>typeof o==='string'&&(OPS as readonly string[]).includes(o)):[];
+      const request=this.controlConsent.requestConsent(owner,{mode,observe:p.observe===true,operations,allowedOrigins:Array.isArray(p.allowedOrigins)?p.allowedOrigins.filter((o):o is string=>typeof o==='string'):[]});
+      return {consent:request,control:this.controlConsent.surfaceModel(thread.id)};
+    });
+    if(command.type==='control.stop')return this.store.command(command,()=>{
+      const thread=this.thread(command.threadId!);
+      return {control:this.controlConsent.stop(thread.id)};
+    });
     if(command.type==='learning.cancel')return this.store.command(command,()=>({cancelled:true}));
     if(command.type==='learning.curate')return this.store.command(command,()=>({changes:curateSkills(this.store)}));
     if(command.type.startsWith('account.'))return this.store.command(command,()=>changeAccount(this.store,command));
+    if(command.type.startsWith('background.')||command.type.startsWith('intake.'))return this.backgroundCommand(command);
     if (command.type === "thread.create") return this.store.command(command, () => {
       const parent=p.sideParentId===undefined?undefined:this.thread(text(p,'sideParentId',200));
       if(parent?.sideParentId||parent?.kind==='delegate')throw new HarnessError('INVALID_INPUT','Open side questions from the main conversation.');
@@ -743,12 +1208,21 @@ export class Service {
       const domain = await import("../capabilities/index.ts");
       const observed = await domain.reconcileDomainOperation(operation, this.context(thread.id));
       return this.store.command(command, () => {
-        const current = this.store.get<Operation>("operation", operation.id)!;
+        const current = this.store.get<Operation>("operation", operation.id), currentThread = this.store.get<Thread>("thread", thread.id);
+        if (this.closed || !currentThread || this.store.get("archivedThread", thread.id)
+          || digest(ownerFor(currentThread)) !== digest(ownerFor(thread)) || !current || digest(current) !== digest(operation))
+          throw new HarnessError("STALE_OPERATION", "The action or its owner changed while inspecting its outcome. Reload the action before inspecting again.");
         const next = { ...current, status: observed.status, ...(observed.result !== undefined ? { result: observed.result } : {}), error: observed.status === "unknown" ? observed.message : undefined };
         this.store.put("operation", operation.id, thread.id, next); this.operationData(next); return observed;
       });
     }
     if (command.type === "run.compact") {
+      if (capabilityEnabled('context.lossAwareCompactionV1')) {
+        if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
+        if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
+        this.assertNoOtherRun(thread.id);
+        return this.applyLossAwareCompaction(command,thread);
+      }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
       this.assertNoOtherRun(thread.id);
@@ -782,6 +1256,76 @@ export class Service {
       for (const op of this.store.all<Operation>("operation", thread.id).filter(o => o.approved && o.status === "prepared")) this.background(this.dispatchOperation(op.id));
     }
     return receipt;
+  }
+  private async backgroundCommand(command: HostCommand): Promise<CommandReceipt> {
+    const p = command.payload;
+    const ownerFor = (thread: Thread) => ({ threadId: thread.id, runId: thread.runId, epoch: thread.epoch, projectId: thread.projectId ?? null, workspaceId: thread.workspaceId ?? null, accountBinding: thread.accountId ?? null });
+    const sync = (result: unknown): CommandReceipt => this.store.receipt(command) ?? this.store.command(command, () => result);
+    switch (command.type) {
+      case 'background.work.admit': {
+        const thread = this.thread(command.threadId);
+        const kind = String(p.kind) as BackgroundWorkKind;
+        if (!['COMMAND', 'REVIEW', 'MAINTENANCE', 'EXTERNAL_TASK'].includes(kind)) throw new HarnessError('INVALID_INPUT', 'Unknown background work kind.');
+        const record = this.backgroundWork.admit(command, {
+          owner: ownerFor(thread), kind, title: text(p, 'title', 200),
+          ...(p.lifetime === 'APPROVED_SERVICE' ? { lifetime: 'APPROVED_SERVICE' as const } : {}),
+          ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}),
+          ...(typeof p.effectId === 'string' ? { effectId: p.effectId } : {}),
+          ...(p.command && typeof p.command === 'object' ? { command: p.command as { executable: string; argv: string[]; cwd: string; profileId: string } } : {}),
+          ...(p.idle && typeof p.idle === 'object' ? { idle: p.idle as { projectId: string; profileId: string; intervalMs: number } } : {}),
+          ...(typeof p.parentThreadId === 'string' ? { parentThreadId: p.parentThreadId } : {}),
+          ...(p.advisory === true ? { advisory: true } : {}),
+          ...(typeof p.intakeId === 'string' ? { intakeId: p.intakeId } : {}),
+        });
+        return sync(record);
+      }
+      case 'background.work.cancel': return sync(this.backgroundWork.cancel(command, text(p, 'workId', 200)));
+      case 'background.work.stop': {
+        const result = await this.backgroundWork.stopCommand(text(p, 'workId', 200));
+        return this.store.command(command, () => result);
+      }
+      case 'background.work.reconcile': {
+        const receipt = p.receipt as { pid: number; creationToken: string | null; exitCode: number | null; signal: string | null; observedAt: string };
+        return sync(this.backgroundWork.resolveProcessExit(text(p, 'workId', 200), receipt));
+      }
+      case 'background.command.start': {
+        const result = await this.backgroundWork.startCommand(text(p, 'workId', 200));
+        return this.store.command(command, () => result);
+      }
+      case 'background.wakeup.register': {
+        const thread = this.thread(command.threadId);
+        const taskId = text(p, 'taskId', 200);
+        const work = this.backgroundWork.work(taskId);
+        if (work.owner.threadId !== thread.id) throw new HarnessError('CAPABILITY_DENIED', 'The wakeup belongs to another task.');
+        return sync(this.backgroundWork.scheduler.register(command, { taskId, trigger: p.trigger, ...(typeof p.scheduleTimezone === 'string' ? { scheduleTimezone: p.scheduleTimezone } : {}), ...(typeof p.deadlineMs === 'number' ? { deadlineMs: p.deadlineMs } : {}) }));
+      }
+      case 'background.wakeup.pause': return sync(this.backgroundWork.scheduler.pause(command, text(p, 'wakeupId', 200)));
+      case 'background.wakeup.resume': return sync(this.backgroundWork.scheduler.resume(command, text(p, 'wakeupId', 200)));
+      case 'background.wakeup.cancel': return sync(this.backgroundWork.scheduler.cancel(command, text(p, 'wakeupId', 200)));
+      case 'background.occurrence.reconcile': return sync(this.backgroundWork.scheduler.reconcile(command, text(p, 'occurrenceKey', 600), p.receipt as { observed: 'DELIVERED' | 'NOT_DISPATCHED'; receiptRef?: string }));
+      case 'background.human.request': {
+        const thread = this.thread(command.threadId);
+        return sync(this.backgroundWork.requestHumanStep(command, {
+          requestId: text(p, 'requestId', 200), owner: ownerFor(thread), questionRevision: Number(p.questionRevision),
+          responseSchema: object(p.responseSchema), requiredAction: p.requiredAction as 'answer' | 'approval' | 'credential', workId: text(p, 'workId', 200),
+        }));
+      }
+      case 'background.human.respond': return sync(this.backgroundWork.respondHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision), response: p.response }));
+      case 'background.human.decline': return sync(this.backgroundWork.declineHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision) }));
+      case 'background.idle.configure': return sync(this.backgroundWork.configureIdle(command, { projectId: text(p, 'projectId', 160), profileId: text(p, 'profileId', 160), enabled: p.enabled === true, intervalMs: Number(p.intervalMs) }));
+      case 'background.pauseAll': return sync(this.backgroundWork.pauseAll(command));
+      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) }));
+      case 'intake.poll': {
+        const result = await this.intake.pollOnce();
+        return this.store.command(command, () => result);
+      }
+      case 'intake.approve': {
+        const result = await this.intake.approve(command, { intakeId: text(p, 'intakeId', 200), modelId: text(p, 'modelId', 300), ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) });
+        return this.store.command(command, () => result);
+      }
+      case 'intake.reject': return sync(this.intake.reject(command, { intakeId: text(p, 'intakeId', 200), ...(typeof p.reason === 'string' ? { reason: p.reason } : {}) }));
+      default: throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+    }
   }
   private applyCommand(command: HostCommand, thread: Thread): unknown {
     const p = command.payload;
@@ -866,6 +1410,7 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        this.projectTrust.assertApproval(op, thread);
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
         if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
@@ -954,15 +1499,23 @@ export class Service {
     if(busy.size>=3)throw new HarnessError('RUN_BUSY','Three main agents are working; your draft is preserved.',{threadIds:[...busy]});
   }
   private async sendMessage(command: HostCommand, thread: Thread) {
+    let rollbackClaim: (() => void) | undefined, rollbackAdmission: (() => void) | undefined;
+    try {
     // Replaced by explicit verified admission when the runtime adapter is connected.
     // Until then a selected reference must never become an ordinary unpinned send.
     if (command.payload.skills !== undefined) throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE', 'Selected skills are unavailable for this runtime. Your draft is retained.', {sendAccepted: false});
+    const sourceRefs = sourceRefsV1Schema.parse(command.payload.sourceRefs ?? []), sendMode = sendModeV1Schema.parse(command.payload.sendMode ?? 'NOW');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && !capabilityEnabled('ui.sourceWorkbenchV1')) throw new HarnessError('CAPABILITY_DENIED', 'The source workbench is disabled on this host.');
+    if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && (thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit source workbench mutations.');
+    const sourceOwner = sourceRefs.length ? this.sourceWorkbench.owner(thread.id) : null;
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
-    const model=(await this.runtime.models({accountId:binding.accountId})).find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
+    const availableModels = await this.runtime.models({accountId:binding.accountId});
+    const concurrentReceipt = this.store.receipt(command); if (concurrentReceipt) return concurrentReceipt;
+    const model=availableModels.find(m=>m.id===modelId);if(!model)throw new HarnessError("MODEL_UNAVAILABLE", "Connect this account and choose an available model");
     if(this.reviewing)await this.cancelReview();
     this.assertNoOtherRun(thread.id);
     let current = this.thread(thread.id);
@@ -975,18 +1528,42 @@ export class Service {
     if(command.payload.requestContextId!==undefined){requestContextId=text(command.payload,'requestContextId',200);if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');this.getRequestPreparation(thread.id,requestContextId);}
     else if(this.requestContextEnabled())requestContextId=(await this.prepareRequestContext(thread.id,content,{modelId,thinkingLevel})).requestId;
     if(requestContextId){this.assertNoOtherRun(thread.id);current=this.thread(thread.id);this.assertBinding(current,providerId,binding);}
+    // Source I/O completes before the single synchronous accepted-input commit.
+    // Its final checks run again inside that commit and at runtime dispatch.
+    const preparedSources = sourceOwner ? await this.sourceWorkbench.prepareSend(sourceOwner, sourceRefs) : null;
+    if (preparedSources) {current = this.thread(thread.id); if (current.epoch !== thread.epoch || current.runId !== thread.runId || ['stopped', 'interrupted'].includes(current.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while validating the selected sources.');}
     const receipt = this.store.command(command, () => {
       this.assertBinding(this.thread(thread.id),providerId,binding);
+      if (sourceRefs.length || sendMode === 'AFTER_CURRENT') {
+        const latest = this.thread(thread.id);
+        if (!capabilityEnabled('ui.sourceWorkbenchV1') || latest.sideParentId || latest.kind === 'side' || latest.kind === 'delegate') throw new HarnessError('CAPABILITY_DENIED', 'This task no longer admits source workbench mutations.');
+        if (latest.epoch !== thread.epoch || ['stopped', 'interrupted'].includes(latest.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing this input.');
+        this.assertNoOtherRun(thread.id);
+      }
+      preparedSources?.assertCurrent();
+      const bindCapturedAccount = this.sourceWorkbench.prepareInitialAccountBinding(thread.id, command.id, binding.accountId);
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
-      if(requestContextId)this.requestCustody.claim(requestContextId,command.id,content,before!);
-      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId };
-      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}) };
+      if(requestContextId)rollbackClaim=this.requestCustody.claim(requestContextId,command.id,content,before!);
+      const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
+      const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
+      const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
       this.store.put("thread", thread.id, thread.id, { ...current, accountId:binding.accountId,modelId, thinkingLevel, error: null, ...(["completed", "failed"].includes(current.status) ? { status: "ready" } : {}), updatedAt: now(), ...(current.title === "New thread" ? { title: content.slice(0, 65) } : {}) });
-      if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
+      bindCapturedAccount?.();
+      preparedSources?.assertCurrent();
+      if(before)rollbackAdmission=this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(thread.id),modelId,thinkingLevel));
       return { messageId: message.id, inputId: input.id };
     });
+    this.backgroundWork.noteForegroundAdmission(thread.id);
     this.background(this.deliverOutbox(thread.id)); return receipt;
+    } catch (error) {
+      // A concurrent replay can finish its asynchronous admission after the
+      // original input has already advanced the run. A prior matching receipt
+      // acknowledges that accepted input; it does not send it a second time.
+      const accepted = this.store.receipt(command); if (accepted) return accepted;
+      if ((rollbackAdmission || rollbackClaim) && !this.store.get('outbox', command.id)) {rollbackAdmission?.(); rollbackClaim?.();}
+      throw error;
+    }
   }
   private async resume(command: HostCommand, thread: Thread) {
     this.assertNoOtherRun(thread.id);
@@ -1009,22 +1586,47 @@ export class Service {
       const current = this.thread(thread.id);
       this.assertBinding(current,providerId,binding);
       if (current.epoch !== thread.epoch || current.runId !== thread.runId || current.status !== thread.status) throw new HarnessError("CANCELLED_RUN", "Thread authority changed while preparing resume");
-      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
+      for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, thread.id, { ...input, requestContextId:undefined, sourceFailure:undefined, ...(input.sourceRecovery?{sourceRecovery:{...input.sourceRecovery,resumeRequired:false}}:{}), status: "persisted", content: history.includes(input.id) ? "Continue the unfinished handling of previously delivered input " + input.id + ". Do not repeat completed operations; inspect their receipts first." : input.content });}
       if (!this.store.all<Outbox>("outbox", thread.id).some(i => i.status === "persisted")) this.store.put("outbox", command.id, thread.id, { id: command.id, threadId: thread.id, content: "Resume this task from saved state and evidence.", status: "persisted", runId: null });
       this.store.put("thread", thread.id, thread.id, { ...thread,accountId:binding.accountId, modelId,thinkingLevel,status: this.hasGate(thread.id) ? "awaiting_input" : "ready", updatedAt: now(), error: null }); return { resumed: true };
-    }); this.background(this.deliverOutbox(thread.id)); return receipt;
+    }); this.backgroundWork.noteForegroundAdmission(thread.id); this.background(this.deliverOutbox(thread.id)); return receipt;
   }
   async deliverOutbox(threadId: string): Promise<void> {
     const previous=this.deliveries.get(threadId),work=previous?previous.catch(()=>{}).then(()=>this.deliverInputs(threadId)):this.deliverInputs(threadId);
     this.deliveries.set(threadId,work);
     try{await work;}finally{if(this.deliveries.get(threadId)===work)this.deliveries.delete(threadId);}
   }
+  private assertSavedInput(input: Outbox): void {
+    const current = this.store.get<Outbox>('outbox', input.id);
+    if (!current || current.status !== 'persisted' || digest(current) !== digest(input)) throw new HarnessError('INPUT_CHANGED', 'The accepted input changed during preparation.');
+  }
+  /** A failed preparation is recoverable only with local proof that the
+   * runtime call was never entered. A dispatched input remains ambiguous. */
+  private blockSourceInputs(inputs: Outbox[], error: unknown, undispatchedRunId?: string): void {
+    if (!inputs.length) return;
+    this.store.internal('input.source_blocked', inputs[0].threadId, () => {
+      const blocked: string[] = [];
+      for (const input of inputs) {
+        if (input.runId !== null || input.enteredRuntime === true) continue;
+        const current = this.store.get<Outbox>('outbox', input.id);
+        if (!current || current.threadId !== input.threadId || current.content !== input.content || digest(current.sourceRefs) !== digest(input.sourceRefs) || current.enteredRuntime === true || current.status === 'handled') continue;
+        const proven = current.status === 'persisted' && current.runId === null || undispatchedRunId !== undefined && current.status === 'processing' && current.runId === undispatchedRunId;
+        if (!proven) continue;
+        this.store.put('outbox', current.id, current.threadId, {...current, status: 'persisted', runId: null, enteredRuntime: false, sourceFailure: {code: error instanceof HarnessError ? error.code : 'SOURCE_PREPARATION_FAILED', reason: (error instanceof Error ? error.message : 'Source preparation failed.').slice(0, 1000)}});
+        blocked.push(input.id);
+      }
+      return {inputIds: blocked, reason: 'Source preparation failed before runtime entry; explicit recovery is available.'};
+    });
+  }
   private async deliverInputs(threadId:string):Promise<void>{
+    // Native settlement clears runId before loss-aware compaction records its
+    // final digest and generation. Keep the next input behind that entire fence.
+    if(this.compactionInflight.has(threadId))return;
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
     this.assertNoOtherRun(threadId);
-    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite)))return;
+    if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT')))return;
     // Executor completions can enqueue input without a user command. Re-read
     // the thread after teardown; no captured state survives the async boundary.
     if(this.predictions.busy||this.memoryHostInstance?.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
@@ -1032,10 +1634,14 @@ export class Service {
     if(preparing)this.mainAdmissions.add(threadId);
     const preparingEpoch=thread.epoch;
     let requestContextId:string|undefined;
+    let separatedSourceInputs = false;
+    let sourceInputs: Outbox[] = [];
     try{
     if(preparing&&this.options.prepareWorkspace){const captured=thread;await this.options.prepareWorkspace(thread);thread=this.thread(threadId);if(thread.epoch!==captured.epoch||thread.runId!==captured.runId||thread.status!==captured.status)throw new HarnessError('CANCELLED_RUN','The task changed while preparing its workspace.');}
-    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&(!thread.runId||!i.completedWrite));
-    const inputs=this.requestContextEnabled()?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    const eligible=this.store.all<Outbox>('outbox',threadId).filter(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT'));
+    separatedSourceInputs = eligible.some(input=>input.sourceRefs?.length);
+    const inputs=this.requestContextEnabled()||separatedSourceInputs?eligible.slice(0,1):eligible;if(!inputs.length)return;
+    sourceInputs = inputs.filter(input => input.sourceRefs?.length);
     const modelId=thread.modelId;if(!modelId)throw new HarnessError('MODEL_UNAVAILABLE','Choose a model before starting the prepared workspace.');
     if(this.requestContextEnabled()){
       requestContextId=inputs[0].requestContextId;
@@ -1043,16 +1649,21 @@ export class Service {
         requestContextId=(await this.prepareRequestContext(threadId,inputs[0].content,{modelId,thinkingLevel:thread.thinkingLevel})).requestId;
         thread=this.thread(threadId);
         const basis=this.requestBasis(thread,modelId,thread.thinkingLevel);
-        this.store.internal('request.context.claimed',threadId,()=>{this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
+        this.store.internal('request.context.claimed',threadId,()=>{this.assertSavedInput(inputs[0]);this.requestCustody.claim(requestContextId!,inputs[0].id,inputs[0].content,basis);this.store.put('outbox',inputs[0].id,threadId,{...inputs[0],requestContextId});return{requestId:requestContextId,inputId:inputs[0].id};});
         inputs[0]={...inputs[0],requestContextId};
       }
       this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,this.requestBasis(thread,modelId,thread.thinkingLevel));
     }else if(inputs.some(input=>input.requestContextId))throw new HarnessError('REQUEST_CONTEXT_DISABLED','This accepted input requires request context custody.');
+    const sourceContexts: PreparedSourceContext[] = [];
+    for (const input of inputs) if (input.sourceRefs?.length) sourceContexts.push(await this.sourceWorkbench.prepareSend(this.sourceWorkbench.owner(threadId), input.sourceRefs, {accepted: true}));
+    if (sourceContexts.length) {const latest = this.thread(threadId); if (latest.epoch !== thread.epoch || latest.runId !== thread.runId || latest.status !== thread.status) throw new HarnessError('CANCELLED_RUN', 'The task changed while preparing source evidence.');}
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
     const binding=this.binding(thread,modelProvider(modelId));
     const completedWrites:CompletedWriteReceipt[]=[];
     this.store.internal("input.processing", threadId, () => {
+      for (const input of inputs) this.assertSavedInput(input);
       this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
+      for (const context of sourceContexts) context.assertCurrent();
       const before=requestContextId?this.requestBasis(this.thread(threadId),modelId,thread.thinkingLevel):null;
       if(requestContextId)this.requestCustody.assertClaim(requestContextId,inputs[0].id,inputs[0].content,before!);
       this.store.put("thread", threadId, threadId, { ...thread, ...ctx,accountId:binding.accountId, id: threadId, status: this.hasGate(threadId) ? "awaiting_input" : "working", updatedAt: now() });
@@ -1080,37 +1691,65 @@ export class Service {
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const programTools = thread.sideParentId ? [] : this.programToolMetadata();
-    let input: StartRun = { ...ctx, ...(programTools.length ? { programTools } : {}),accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}),prompt: guidance+userPrompt };
+    const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
+    let input: StartRun = { ...ctx, ...(programTools.length ? { programTools } : {}),accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
     try {
+      const admit = async (approvedProjectContext: StartRun['approvedProjectContext'], assertProjectCurrent: () => void) => {
+      if (approvedProjectContext) input = { ...input, approvedProjectContext };
+      if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
+        try {
+          const current = this.assertRun(ctx);
+          const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
+            guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
+          this.store.internal('runtime.context.host', threadId, () => {
+            const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
+            const usage = { ...old, hostProjection };
+            this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
+            return { runId: ctx.runId, usage };
+          });
+        } catch { /* A metadata projection cannot prevent the admitted request. */ }
+      }
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
+      if(!thread.sideParentId&&capabilityEnabled('context.lossAwareCompactionV1'))input={...input,automaticCompactionProtection:{apiVersion:1,required:true}};
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(approvedProjectContext?.instructionText)sources.splice(1,0,{id:'approved-project-instructions',revision:1,category:'INSTRUCTION',text:approvedProjectContext.instructionText,contentRef:'sha256:'+approvedProjectContext.instructionDigest,inclusionReason:'Recognized project instructions under current explicit resource grants; host authorization takes precedence'});
+        if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});
         input=await this.requestCustody.finalize(requestContextId,input,sources,()=>this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
         this.requestCustody.assertFinalized(requestContextId,input,this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
       }
-      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);dispatched=true;
+      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();assertProjectCurrent();
+      if(!thread.sideParentId&&capabilityEnabled('context.compilerV1'))this.captureInferenceOwner(input,Boolean(thread.runId));
+      dispatched=true;
       if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input);
+      };
+      if(!thread.sideParentId&&capabilityEnabled('context.compilerV1'))await withApprovedProjectContext(this.store,input,control.signal,admit);
+      else await admit(undefined,()=>{});
     }
-    catch (error) { this.runtimeFailure(ctx, error); }
+    catch (error) { if (!dispatched) this.blockSourceInputs(sourceInputs, error, ctx.runId); this.runtimeFailure(ctx, error); }
     finally { if(requestContextId)this.requestCustody.release(requestContextId,dispatched?'dispatched':'failed');this.releaseController(threadId,control); }
     }catch(error){
       const current=this.store.get<Thread>('thread',threadId);
       if(requestContextId)this.requestCustody.release(requestContextId,'failed');
+      if (error instanceof HarnessError && error.code === 'INPUT_CHANGED') return;
+      this.blockSourceInputs(sourceInputs, error);
       if(!this.closed&&preparing&&current?.epoch===preparingEpoch&&!current.runId&&!['stopped','interrupted'].includes(current.status))this.store.internal('input.preparation_failed',threadId,()=>{this.store.put('thread',threadId,threadId,{...current,status:'interrupted',error:error instanceof Error?error.message:String(error),updatedAt:now()});return{error:'Workspace preparation failed; the input remains saved.'};});
       else if(this.requestContextEnabled()&&current?.runId&&current.epoch===thread.epoch&&current.runId===thread.runId)this.runtimeFailure({threadId,epoch:current.epoch,runId:current.runId},error);
       else throw error;
     }finally{if(preparing)this.mainAdmissions.delete(threadId);}
-    if(this.requestContextEnabled()&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'))await this.deliverInputs(threadId);
+    const activeRun = this.thread(threadId).runId;
+    if((this.requestContextEnabled()||separatedSourceInputs)&&this.store.all<Outbox>('outbox',threadId).some(input=>input.status==='persisted'&&!input.sourceFailure&&!input.sourceRecovery?.resumeRequired&&(!activeRun||!input.completedWrite&&input.sendMode!=='AFTER_CURRENT')))await this.deliverInputs(threadId);
   }
   private runtimeFailure(ctx: RunContext, error: unknown): void {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", ctx.threadId);
     if (!thread || thread.epoch !== ctx.epoch || thread.runId !== ctx.runId) return;
+    this.inferenceOwners.delete(thread.id);
     this.flushDeltas(thread.id);
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
@@ -1160,6 +1799,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
+    if (['context.request','context.budget'].includes(event.type) && !capabilityEnabled('context.compilerV1')) return;
     if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
     if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
     // Preserve event order: buffered deltas precede every other commit here.
@@ -1167,7 +1807,16 @@ export class Service {
     const control=this.aborts.get(thread.id);
     this.commitRuntimeProjection(thread, event);
     if(event.type==='input.processing')try{this.memoryHostInstance?.acceptedInput(event);}catch{/* Runtime acceptance remains authoritative; revoked memory cannot be re-read for a usage projection. */}
-    if (event.type === "settled") { this.retireController(thread.id,control); this.background(this.programHost.cancelRun(event)); }
+    if (event.type === "settled") {
+      this.retireController(thread.id,control);
+      // Allowlisted host event for HOST_EVENT wakeups; schedules may correlate
+      // on the settled run or its thread. Never supplies execution authority.
+      try {
+        this.backgroundWork.notifyHostEvent("runtime.settled", event.runId, `runtime.settled:${event.runId}`);
+        this.backgroundWork.notifyHostEvent("runtime.settled", thread.id, `runtime.settled:${event.runId}`);
+      } catch { /* A disabled background surface must not break settlement. */ }
+      this.background(this.programHost.cancelRun(event));
+    }
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
       // accepted transition mints the slot; request admission waits for cleanup.
@@ -1213,9 +1862,48 @@ export class Service {
         // snapshot instead of re-fetching it for every streamed chunk.
         return { runId: event.runId, message };
       }
+      if (event.type === 'context.budget') {
+        const parsed=inferenceBudgetSchema.safeParse(event.budget),old=this.store.get<{value:RuntimeUsage}>('usage',thread.id)?.value??EMPTY_USAGE;
+        if(!parsed.success||event.provider!=='hermes'||old.inferenceBudget?.runId===event.runId&&old.inferenceBudget.epoch===event.epoch&&old.inferenceBudget.budget.sequence>=parsed.data.sequence)return{runId:event.runId};
+        const inferenceBudget={threadId:thread.id,runId:event.runId,epoch:event.epoch,budget:parsed.data},usage={...old,inferenceBudget};
+        this.store.put('usage',thread.id,thread.id,{id:thread.id,value:usage});return{runId:event.runId,usage};
+      }
+      if(event.type==='context.compaction.refused'){
+        const parsed=automaticCompactionRefusalSchema.safeParse(event.refusal);
+        if(!capabilityEnabled('context.lossAwareCompactionV1')||!parsed.success||!thread.modelId)return{runId:event.runId};
+        const owner=parsed.data.owner;
+        if(owner.ctx.threadId!==thread.id||owner.ctx.runId!==event.runId||owner.ctx.epoch!==event.epoch||owner.modelId!==thread.modelId||thread.sessionPath!==null&&owner.sessionPath!==thread.sessionPath||owner.accountId!==this.binding(thread,modelProvider(thread.modelId)).accountId)return{runId:event.runId};
+        return{runId:event.runId,refusal:parsed.data};
+      }
+      if (event.type === 'context.request') {
+        const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
+        const { sequence, promptBytes, knownInputs } = event;
+        const old = this.store.get<{ value: RuntimeUsage }>('usage', thread.id)?.value ?? EMPTY_USAGE;
+        const last = old.lastRequest;
+        if (event.provider !== 'hermes' || !count(sequence, Number.MAX_SAFE_INTEGER) || sequence < 1 ||
+          !count(promptBytes, MODEL_ONLY_MAX_PROMPT_BYTES) || !count(knownInputs, 4096) ||
+          (last?.runId === event.runId && last.epoch === event.epoch && last.sequence >= sequence)) return { runId: event.runId };
+        const tool = event.toolSnapshot as Record<string, unknown> | undefined;
+        const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
+          typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
+          ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
+        const relevance = this.observeReadRelevance(thread, sequence), native = nativeContextProjectionSchema.safeParse(event.nativeSources);
+        const nativeSourcesUnavailable = ['SOURCE_LIMIT', 'UNSUPPORTED_SOURCE', 'UNSUPPORTED_ADAPTER'].includes(String(event.nativeSourcesUnavailable)) ? event.nativeSourcesUnavailable as 'SOURCE_LIMIT' | 'UNSUPPORTED_SOURCE' | 'UNSUPPORTED_ADAPTER' : event.nativeSources !== undefined && !native.success ? 'UNSUPPORTED_SOURCE' as const : undefined;
+        const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}), ...(relevance ? { relevance } : {}),
+          ...(native.success ? { nativeSources: native.data } : nativeSourcesUnavailable ? { nativeSourcesUnavailable } : {}) };
+        const usage = { ...old, lastRequest: observation };
+        this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
+        return { runId: event.runId, usage };
+      }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        let lastRequest = old.lastRequest;
+        if (event.type === 'compaction.end' && event.aborted === false) {
+          this.relevanceObserver.forget(thread.id);
+          if (lastRequest) { const { relevance: _retired, ...retained } = lastRequest; lastRequest = retained; }
+        }
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest, inferenceBudget: old.inferenceBudget, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }
@@ -1236,6 +1924,8 @@ export class Service {
         }
       }
       if (event.type === "settled") {
+        this.inferenceOwners.delete(thread.id);
+        this.relevanceObserver.forget(thread.id);
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
         const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", event.runId);
         const finished = this.store.get<FinishRecord>("finish", event.runId), finalized = this.store.get<{inputIds: string[]}>("responseCheckpoint", event.runId);
@@ -1243,7 +1933,8 @@ export class Service {
         for (const input of this.store.all<Outbox>("outbox", thread.id).filter(i => i.runId === event.runId && i.status !== "handled" && i.enteredRuntime && handled.has(i.id))) this.store.put("outbox", input.id, thread.id, { ...input, status:"handled" });
         const unresolved = this.store.all<Outbox>("outbox", thread.id).some(i => i.runId === event.runId && i.status !== "handled");
         if(intent?.kind!=="compaction")this.planning.endRun(event,event.aborted?"cancelled":unresolved?"interrupted":"review_required");
-        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated ? "completed" : "ready", updatedAt: now() });
+        const queuedNext = this.store.all<Outbox>('outbox', thread.id).some(input => input.status === 'persisted' && (input.sendMode === 'AFTER_CURRENT' || input.sourceFailure || input.sourceRecovery?.resumeRequired));
+        this.store.put("thread", thread.id, thread.id, { ...thread, runId: null, status: event.aborted ? "stopped" : unresolved ? "interrupted" : intent?.kind === "compaction" ? this.afterMaintenance(thread.id, intent.previousStatus) : this.hasGate(thread.id) ? "awaiting_input" : finished && !finished.invalidated && !queuedNext ? "completed" : "ready", updatedAt: now() });
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE; this.store.put("usage", thread.id, thread.id, { id: thread.id, value: { ...old, activity: "idle" } });
         advanceLifecycle();
         if(!event.aborted&&!unresolved&&intent?.kind!=='compaction')this.memoryHostInstance?.scheduleSettled(event);
@@ -1253,17 +1944,55 @@ export class Service {
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
+    this.effects.assertAdmissionsEnabled();
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     if (PROGRAM_TOOL_NAMES.has(call.name)) {
       if (call.name === 'python_cell' && owningThread.mode === 'plan') throw new HarnessError('PLAN_MODE_READ_ONLY', 'Switch to Build before running a Python cell');
       return this.programHost.tool(call, ownerFor(owningThread, ctx));
     }
-    const role:ActorRole=owningThread.sideParentId?'side':'run';
-    if(this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1"))return this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
-    return this.toolBody(call,ctx,owningThread);
+    const limited = capabilityEnabled('context.compilerV1') && this.authority.definition(call.name)?.risk === 'READ';
+    if (limited && this.activeContextReads >= 4) throw new HarnessError('CONTEXT_READ_LIMIT', 'Wait for an admitted context read to finish before requesting another.');
+    if (limited) this.activeContextReads++;
+    // A revoked call retains its slot until actual read/retention work settles.
+    // Releasing on cancellation alone would allow abandoned reads to accumulate.
+    try { return await this.admittedTool(call, ctx, owningThread); }
+    finally { if (limited) this.activeContextReads--; }
   }
-  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
+  private async admittedTool(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
+    const role:ActorRole=owningThread.sideParentId?'side':'run';
+    const rangeRead = call.name === 'context_result_read';
+    const bound = this.contextResultsEnabled() && !rangeRead, basis = bound ? this.contextResultInvocation(owningThread) : undefined;
+    const publicCatalog = call.name === 'ui_discover';
+    const assertResultCurrent = () => {
+      if (!this.contextResultsEnabled() || this.contextResultInvocation(this.assertRun(ctx)) !== basis) throw new HarnessError('STALE_REQUEST_CONTEXT', 'Tool result owner changed.');
+    };
+    const definition = this.authority.definition(call.name);
+    const readRetryable = definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE';
+    const lineage = bound && readRetryable
+      ? createContextResultLineage({ store: this.store, threadId: ctx.threadId, signal: this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, assertCurrent: assertResultCurrent }) : undefined;
+    let ticket: ReturnType<typeof this.relevanceObserver.begin>;
+    try {
+      const definition = this.authority.definition(call.name), owner = this.relevanceOwner(owningThread);
+      if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
+    } catch { /* Observation is optional for an otherwise authorized tool result. */ }
+    let entered = false;
+    const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
+    let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
+      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
+    // A cached effect skips the domain guard. Its previous bytes cannot mint
+    // fresh resource authority, including when the old result was small.
+    if (readRetryable && !entered && !publicCatalog) result = rangeRead
+      ? { status: 'UNAVAILABLE' }
+      : { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null };
+    else if (bound) result = await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
+    try {
+      const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
+      if (owner) this.relevanceObserver.complete(ticket, owner, result);
+    } catch { /* Never change the delivered result because diagnostics failed. */ }
+    return result;
+  }
+  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread, lineage?: ReturnType<typeof createContextResultLineage>): Promise<unknown> {
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
     const controller = this.aborts.get(ctx.threadId);
     const args = call.args;
@@ -1280,14 +2009,31 @@ export class Service {
       return args.commandId === undefined ? this.store.internal('memory.updated', ctx.threadId, apply) : this.store.command({ id: text(args, 'commandId', 200), type: 'task_memory', threadId: ctx.threadId, payload: args }, apply).result;
     }
     if(call.name==='plan_update')return this.planning.updatePlan({...ctx},args);
-    if(call.name==='integration_list'||call.name==='integration_call'){
+    if(call.name==='integration_list'||call.name==='integration_call'||call.name==='integration_prepare'){
       if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
       const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
-      const result=await this.options.additionalTool(call,{...ctx}),current=this.assertRun(ctx);
+      const context=this.context(ctx.threadId,controller?.signal,undefined,{...ctx});
+      const host=Object.freeze<HostToolContext>({authenticatedApprovals:this.effectFlags.enabled('security.authorityV1'),prepareOperation:(kind,args,resourceIds,preconditions,description)=>{
+        if(!this.hostOperationExecutors.has(kind))throw new HarnessError('HOST_OPERATION_UNAVAILABLE','This host operation is unavailable.');
+        return context.prepareOperation(kind,args,resourceIds,preconditions,description);
+      }});
+      const result=await this.options.additionalTool(call,{...ctx},host),current=this.assertRun(ctx);
       if(current.modelId!==selected.modelId||(current.accountId??null)!==selected.accountId||current.projectId!==selected.projectId)throw new HarnessError('CANCELLED_RUN','The integration scope changed during execution.');return result;
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
+    if(call.name==='repository_map')return this.repositoryMaps.read({store:this.store,ctx,signal:controller?.signal??new AbortController().signal,owner:()=>this.assertRun(ctx)},args,(value,provenance)=>this.publishData(ctx.threadId,value,provenance));
+    if (call.name === 'context_result_read') {
+      if (!this.contextResultsEnabled()) throw new HarnessError('CAPABILITY_UNAVAILABLE', 'Context result retrieval is disabled');
+      const parsed = contextResultReadArgs.safeParse(args);
+      if (!parsed.success) throw new HarnessError('INVALID_INPUT', 'Choose a valid context result range');
+      const result = await this.contextResultVault().read({ owner: this.contextResultOwner(owningThread), ...parsed.data });
+      this.assertRun(ctx);
+      if (result.status !== 'OK') return result;
+      const { bytes, ...summary } = result;
+      try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
+      catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
+    }
     if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
@@ -1298,7 +2044,8 @@ export class Service {
     }
     const domain = await import("../capabilities/index.ts");
     this.assertRun(ctx);
-    return domain.handleDomainTool(call.name, args, this.context(ctx.threadId, controller?.signal, undefined, { ...ctx }));
+    const context = this.context(ctx.threadId, controller?.signal, undefined, { ...ctx });
+    return domain.handleDomainTool(call.name, args, lineage ? lineage.wrap(context) : context);
   }
   private async uiTool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     if (call.name === "ui_create_widget" && !GENERATED_APPS_ENABLED) throw new HarnessError("CAPABILITY_UNAVAILABLE", "Generated apps are disabled until execution isolation passes its integrity gates");
@@ -1366,12 +2113,13 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }
       if (call.name === "task_finish") {
         if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
-        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled");
+        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled" && !(i.status === 'persisted' && (i.sendMode === 'AFTER_CURRENT' || i.sourceFailure || i.sourceRecovery?.resumeRequired) && i.runId === null));
         const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
         if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
         this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
@@ -1390,39 +2138,54 @@ export class Service {
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
   private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+    const thread = this.assertRun(ctx);
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
       ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
       ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
-    ];
+    ].filter(observation => observationMatchesThreadOwner(observation, thread));
     if (!declaration && !observations.length) return null;
     // When effect auditing wraps task_finish, the ledger admits this very call
     // as DISPATCHED and settles it only after the body returns. That record is
     // the invocation itself, not an outstanding external effect — exclude it by
     // its argument commitment so audited completion does not block on itself.
-    const selfCommitment = privateArgumentCommitment(call);
+    const selfCommitment = this.effects.privateArgumentCommitment(call);
     const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
       .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
-      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
-      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
+      try {
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
+        sourceAvailable = true;
+      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
       const last = observations.at(-1)!;
       sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
     }
-    return computeAssessment({
+    const assessment = computeAssessment({
       threadId: ctx.threadId,
       sourceCut,
       requirements: declaration?.requirements ?? [],
       observations,
+      artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration?.requirements ?? []),
       unresolvedEffects,
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
     });
+    if (!sourceAvailable) {
+      for (const requirement of assessment.requirements) {
+        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
+      }
+      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
+    }
+    return assessment;
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
@@ -1450,13 +2213,39 @@ export class Service {
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-      this.effects.verifyOperationApproval(op, this.thread(op.threadId));
-      this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      try {
+        this.effects.verifyOperationApproval(op, this.thread(op.threadId));
+        this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      } catch (error) {
+        if (error instanceof HarnessError && error.code === "APPROVAL_REQUIRED") {
+          const current = this.store.get<Operation>("operation", id);
+          if (current?.status === "prepared" && current.approved && current.revision === op.revision)
+            this.store.internal("operation.approval_required", op.threadId, () => {
+              const review = { ...current, approved: false };
+              this.store.put("operation", id, op.threadId, review); this.operationData(review);
+              return { operationId: id };
+            });
+        }
+        throw error;
+      }
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");
+      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
+        // Module loading yields after admission. Revalidate the durable owner
+        // before the executor can submit an effect; the approval stays spent.
+        const admitted = this.effects.get("operation:" + id + "@" + op.revision), current = this.thread(op.threadId);
+        const owner = admitted?.owner;
+        if (!owner || admitted.state !== "DISPATCHED" || owner.threadId !== current.id || owner.runId !== (current.runId ?? null)
+          || owner.epoch !== current.epoch || owner.accountBinding !== (current.accountId ?? null)
+          || owner.projectId !== (current.projectId ?? null) || owner.workspaceId !== (current.workspaceId ?? null))
+          throw new HarnessError("AUTHORITY_DENIED", "The admitted owner changed before dispatch");
+      }
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
+      const hostExecutor=this.hostOperationExecutors.get(op.kind),running={...op,status:'running' as const};
+      const result = hostExecutor
+        ? await hostExecutor(running,Object.freeze({signal:control.signal,owner:Object.freeze(ownerFor(this.thread(op.threadId))),authenticatedApprovals:this.effectFlags.enabled('security.authorityV1')}))
+        : await domain.executeDomainOperation(running, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
@@ -1566,16 +2355,22 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, input.threadId, { ...input, requestContextId:undefined, status: "persisted" });}
       return { inferenceCalls: 0 };
     });
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    if (this.effects.admissionsDisabled()) disableEffects(this.store);
+    else if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    this.backgroundWork.recover();
+    this.backgroundWork.start();
+    this.intake.start();
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.programHost.close(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    const settled=await Promise.allSettled([this.programHost.close(),this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
+    this.compactionModelOwners.clear();
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
 }

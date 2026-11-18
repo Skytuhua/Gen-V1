@@ -1,0 +1,327 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-11-16T03:46:47.058485+00:00",
+  "externalCommit": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "archives": [
+    {
+      "archive": "publication-cut-03",
+      "files": 18,
+      "manifestSha256": "5b89a48b085ee56548a21ee5844f129dff8fcc4c9f3245b75d111673ce9584f2"
+    },
+    {
+      "archive": "external-publication-cut-0f487aa",
+      "files": 34,
+      "manifestSha256": "7252082ac746d3e29ac9c46e57a1e170b9cfa95804864c7236e114c3f31338db"
+    }
+  ],
+  "historicalReceiptVersions": [
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.log",
+      "recordSha256": "cbaf892974537490508dc686bceb999867e81b44ff3e2930393563e6088e2299",
+      "logSha256": "ce3a4b187bfde3e5e8a892475af28172221d74a043a7dec0c58a359675908c4a",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857",
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-chat-view-modes/cbaf892974537490/reconcile-e2e-chat-view-modes.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-chat-view-modes/cbaf892974537490/reconcile-e2e-chat-view-modes.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-chat-view-modes.log",
+      "recordSha256": "e38ead1996dc7da1b3deb6472f551b8285811d9d0ad3d04833916538ab91da39",
+      "logSha256": "089ff9eceba81928da994d719e97e3e71c380cebe30e62a43941759bc9faff58",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-chat-view-modes/e38ead1996dc7da1/reconcile-e2e-chat-view-modes.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-chat-view-modes/e38ead1996dc7da1/reconcile-e2e-chat-view-modes.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-chat-view-modes-e38ead1996.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.log",
+      "recordSha256": "99c58f9ac750de165de4e6365120619d98e3bef7d2ea906ca8701d43f6bcd2aa",
+      "logSha256": "69625815af3b7860c089b7ba9b3a30538a38abdd3500dccc1d9305c456681531",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857",
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-saved-drafts/99c58f9ac750de16/reconcile-e2e-saved-drafts.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-saved-drafts/99c58f9ac750de16/reconcile-e2e-saved-drafts.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-saved-drafts.log",
+      "recordSha256": "ea0cc6b8a9c3e2090965530e253afe1336dcb8493956ce26de0834f05ea545ea",
+      "logSha256": "2d541795cae335c962d04468296140bc8d20dc90f1c4b6d107adb93778df858d",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-saved-drafts/ea0cc6b8a9c3e209/reconcile-e2e-saved-drafts.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-saved-drafts/ea0cc6b8a9c3e209/reconcile-e2e-saved-drafts.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-saved-drafts-ea0cc6b8a9.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.log",
+      "recordSha256": "21263dab8c6b228a633ab728ada74d0237f84231547fb40d4def9b8b05575d09",
+      "logSha256": "4a28ea38c0fe4f3e1e3da6942a9758f42b7236459c859404eff9ed1bd7f26b75",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857",
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench-app/21263dab8c6b228a/reconcile-e2e-workbench-app.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench-app/21263dab8c6b228a/reconcile-e2e-workbench-app.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench-app.log",
+      "recordSha256": "59332159f9787b2f5d7b9fabd8861b5a1888ae48b8e7fb5e635d2497f1c09171",
+      "logSha256": "c39a3236174700d8ad8e160df2de202576e0186c49bd1a499dc1d89a20f3935c",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench-app/59332159f9787b2f/reconcile-e2e-workbench-app.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench-app/59332159f9787b2f/reconcile-e2e-workbench-app.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-app-59332159f9.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.log",
+      "recordSha256": "abfac64f2161830268495c5b48a9ea9059eb04c18ba1df9145a6a7e88b16e789",
+      "logSha256": "089d415068b677a1a2ceaa514c3393cd749ebc376a69704668a45813b0e034b4",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857",
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench/abfac64f21618302/reconcile-e2e-workbench.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench/abfac64f21618302/reconcile-e2e-workbench.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-e2e-workbench.log",
+      "recordSha256": "bfc9af6b02ddbe9b455b082d5d3aab0dbecc8b164b86c69fed8152c17cc2f341",
+      "logSha256": "c70cf53d395c180f8887f4565702d5ea47a3b5fec42508f58921d0b87f86cbb7",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench/bfc9af6b02ddbe9b/reconcile-e2e-workbench.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-e2e-workbench/bfc9af6b02ddbe9b/reconcile-e2e-workbench.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-bfc9af6b02.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "recordSha256": "b6e7ac2619d66a71ea665820c52eab90d243d5499df397ab7b35a3e9c1a16e7c",
+      "logSha256": "c2875f5a68a36f246fb4d6976fdfc4399979d71e8b4db01a9f65e624a31a4896",
+      "observedAtCommits": [
+        "0f487aa82fba616131d7f9e547076d3a14d67f48"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/b6e7ac2619d66a71/reconcile-focused-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/b6e7ac2619d66a71/reconcile-focused-vitest.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "recordSha256": "ad8ae63c259f2ea50877ba3c09375938fa9c4b91c33a7d4b3fa42a5b420404d7",
+      "logSha256": "2be197018ecc608794fa872a64133e10e91865f05fa5a1651f024fb859b39a03",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857"
+      ],
+      "originalStatus": "FAIL",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/ad8ae63c259f2ea5/reconcile-focused-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/ad8ae63c259f2ea5/reconcile-focused-vitest.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-ad8ae63c25.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "recordSha256": "f359df0af73a6a36419d0049d41389705c830b1c1918eb2fc5198a944ccd0414",
+      "logSha256": "5d2c32407c6613964cfb56339cb7ea3e2e3ae1165d52eda9c1071b0c87c0d5ea",
+      "observedAtCommits": [
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "FAIL",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/f359df0af73a6a36/reconcile-focused-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/f359df0af73a6a36/reconcile-focused-vitest.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-f359df0af7.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-focused-vitest.log",
+      "recordSha256": "3a16d69f556816e93ad7e1cbf35b908b8f85eca4693fc020ef843072fa362456",
+      "logSha256": "a8722c4a6dfbc39acd8118a54f99b5a50e4334500cc8d786ffb2482d8d7b7449",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/3a16d69f556816e9/reconcile-focused-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-focused-vitest/3a16d69f556816e9/reconcile-focused-vitest.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-3a16d69f55.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
+      "recordSha256": "c308ee76e3586cde4dfc76f2ca30e5dd832a58aa5258f12be4ffe12f4d564fc4",
+      "logSha256": "d3ecda4eef16d3caae9d67c1f66f6f5069bf5b07c167f729438c2b4688f9ba9d",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857",
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "FAIL",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-full-vitest/c308ee76e3586cde/reconcile-full-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-full-vitest/c308ee76e3586cde/reconcile-full-vitest.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-full-vitest.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-full-vitest.log",
+      "recordSha256": "52ec1936d25699ad02bf9a059025eb30a6b839036ae7c1499ca7a3c01c424548",
+      "logSha256": "a50cbda0fd818e8886cdc2eac8aae0998a0e6b9ab1114a07b37c1de45f605b6f",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "FAIL",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-full-vitest/52ec1936d25699ad/reconcile-full-vitest.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-full-vitest/52ec1936d25699ad/reconcile-full-vitest.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-52ec1936d2.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-lint.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-lint.log",
+      "recordSha256": "fb633547fb5ab5b274b4669c7b749035e0f46502d1cff149111c72d67c07e035",
+      "logSha256": "fb37a8b8e8ebcf4c3e2259abfbea836dabae8dbd862461d941a9462efeb82eb5",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/fb633547fb5ab5b2/reconcile-lint.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/fb633547fb5ab5b2/reconcile-lint.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-lint.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-lint.log",
+      "recordSha256": "6db662aab2635511806ddbc5da69ef1f379c054d287332b1f3400c43295e605f",
+      "logSha256": "fb37a8b8e8ebcf4c3e2259abfbea836dabae8dbd862461d941a9462efeb82eb5",
+      "observedAtCommits": [
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/6db662aab2635511/reconcile-lint.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/6db662aab2635511/reconcile-lint.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-6db662aab2.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-lint.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-lint.log",
+      "recordSha256": "4dea2f09aab0ebd70f0bbd4bff6a01332d7416b8f171e4cc3da93da33612df9d",
+      "logSha256": "849851a54f55df1098ce9d2165a94c909045e08aa285c805f4aeac9246648542",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/4dea2f09aab0ebd7/reconcile-lint.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-lint/4dea2f09aab0ebd7/reconcile-lint.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-4dea2f09aa.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-typecheck.log",
+      "recordSha256": "c1fc9819f55e01ad9ab6acc5d7cfe9bbd98fdaf416ba5b474c6c7ce4bea993d7",
+      "logSha256": "61b1bbe56429a5810c84e80ba55d1b178bcb7889e944d517d2ec4db108527ca2",
+      "observedAtCommits": [
+        "238edfcd09ecaa7d1626c0a1e6c0a4fbfbf318e3",
+        "eb1f9d9ed98edff92a31454704c835372a586857"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/c1fc9819f55e01ad/reconcile-typecheck.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/c1fc9819f55e01ad/reconcile-typecheck.log"
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-typecheck.log",
+      "recordSha256": "e352e07c02c1f02a9e92c8fe3b83cfa94102c18a580c3279ea45c28eb9e73522",
+      "logSha256": "61b1bbe56429a5810c84e80ba55d1b178bcb7889e944d517d2ec4db108527ca2",
+      "observedAtCommits": [
+        "e0edf2dd88406a5a4643f7683f63bf7bc8539ee5"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/e352e07c02c1f02a/reconcile-typecheck.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/e352e07c02c1f02a/reconcile-typecheck.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-e352e07c02.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    },
+    {
+      "originalPath": "docs/implementation/v3/m15-logs/reconcile-typecheck.json",
+      "originalLogRef": "docs/implementation/v3/m15-logs/reconcile-typecheck.log",
+      "recordSha256": "02df932368c5ab4349ada912f555f33d27d6cd9e04292467bf5106bcd87c36d7",
+      "logSha256": "61b1bbe56429a5810c84e80ba55d1b178bcb7889e944d517d2ec4db108527ca2",
+      "observedAtCommits": [
+        "6f6cfaff25c97e4de370d11f55339ce79cea3919",
+        "27474be64de29ab7ab968f087566f053466275fc",
+        "035c9350e0373a2db6804cd182e06372e9955217"
+      ],
+      "originalStatus": "PASS",
+      "archiveRecord": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/02df932368c5ab43/reconcile-typecheck.json",
+      "archiveLog": "docs/implementation/v3/m15-artifacts/external-reconciliation-history/reconcile-typecheck/02df932368c5ab43/reconcile-typecheck.log",
+      "normalizedReceipt": "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-02df932368.json",
+      "normalization": "Only boundedLogRef changed; log bytes and all other receipt fields retained exactly."
+    }
+  ],
+  "normalizedOlderReceipts": [
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-chat-view-modes-e38ead1996.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-saved-drafts-ea0cc6b8a9.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-app-59332159f9.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-e2e-workbench-bfc9af6b02.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-ad8ae63c25.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-f359df0af7.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-focused-vitest-3a16d69f55.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-52ec1936d2.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-6db662aab2.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-lint-4dea2f09aa.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-e352e07c02.json",
+    "docs/implementation/v3/m15-logs/c4-external-reconcile-typecheck-02df932368.json"
+  ],
+  "scope": "Preserve externally rewritten attempts without promoting their source compatibility or historical result to this continuation."
+}

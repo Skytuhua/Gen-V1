@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "status": "OUTSIDE_REPOSITORY_NOT_RUN",
+  "path": "tests/e2e/desktop-surfaces.spec.ts",
+  "baseSha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2",
+  "proposedSha256": "07f9b179504a44fc6297f4050663630dd95fd240a58fac756d5eccb9daef773d",
+  "additionSha256": "ac488f308074e8206309232b293dc61e310de22a2fdeb7acf82f4293dbd9edbf",
+  "patchSha256": "a9f5106e8b78f1af5efaa1218f6e7637655b1ee47631273225a39d284550df39",
+  "addedCases": 1,
+  "scope": "Real App/DraftTransfer/journal/registry with scripted native bridge, storage fault and host HTTP. Held File.text, same-close failed source CAS, no detach/send, retained UI, and exact explicit import retry.",
+  "existingTestsAndDeadlinesChanged": false,
+  "nativePlatformClaim": false
+}

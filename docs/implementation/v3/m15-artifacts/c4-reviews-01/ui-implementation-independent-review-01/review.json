@@ -1,0 +1,157 @@
+{
+  "scope": "Independent review of three UI files plus exact App opener guard and the six selected Chromium checks. No source edits by reviewer.",
+  "reviewedAt": "2026-11-16T04:01:31.686038+00:00",
+  "head": "0f487aa82fba616131d7f9e547076d3a14d67f48",
+  "proposal02Sha256": "ff6a6f597cb6261d106977df4f6d46e99061a59ea350bd98a790dceb98687718",
+  "proposal03Path": "/workspace/scratch/1b47eb428672/m15-publication/c4/ui-implementation-proposal-03/implementation.patch",
+  "proposal03Sha256": "ed790ba57db7b87357b0c1d991f6f463c13f5f1f0bc68011a4c2de2ca3846678",
+  "initialSourceCutSha256": "45c8c271338bfda89e8411636d0786430ae387a204cf1187d1f2eed5f7e38141",
+  "greenSourceCutPath": "docs/implementation/v3/m15-artifacts/c4-integration-green-01/source-cut.json",
+  "greenSourceCutSha256": "692fe4b7bfd8bf7de881d11f2a0603e82e88ad9b7c3d55b289b506893010689a",
+  "greenSourceVerifications": [
+    "before memory run",
+    "after memory run and before panel run",
+    "after panel run"
+  ],
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/ProjectMemoryReview.tsx",
+      "sha256": "de2f5e3634eb8904726c308faf05bdf993d6cd8d815d4c235170d9a0aac57c68"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "sha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe"
+    },
+    {
+      "path": "apps/web/src/WorkbenchPanelContent.tsx",
+      "sha256": "08e5b4523806ba4dbce159f01d558f7d6c8c87c8b168adfffe4aed7da1948fd7"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "sha256": "f3941173ffdb488278162a168b7e3eb83b1f8175d1d7e5c95a11b8262a211d06"
+    },
+    {
+      "path": "apps/web/src/project-memory-api.ts",
+      "sha256": "3710c8daaea9cdebb78eb603d4aa7de0021e9aaf3058b5f23b8bb4ba634182f0"
+    },
+    {
+      "path": "packages/ui-shell/Modal.tsx",
+      "sha256": "3b07a74846a4c15c9e7497ee8d8d1ffee8e17ea95d089d2db68026b018cba4eb"
+    },
+    {
+      "path": "packages/ui-shell/focus-retention.ts",
+      "sha256": "3b4bd0ffe9f36f79678f05678cfe0d6adc66fda12831314531c732b3f24415dc"
+    },
+    {
+      "path": "tests/e2e/workbench-app.spec.ts",
+      "sha256": "0532ea8364fa8984fa368232e72f467704f53366d72149bac3ab26dbf993fae7"
+    },
+    {
+      "path": "tests/e2e/desktop-surfaces.spec.ts",
+      "sha256": "ac297e23346e5964394920bec2b17a874328f8a9d0d81b5cb61ede8e45f01ef2"
+    }
+  ],
+  "disposition": "No blocking defect found in the reviewed delta.",
+  "reviewFindings": [
+    "Mutation controls and the mutation handler enforce readOnly; forget preview and editor entry are guarded. Accepted/proposed/conflict pinned sources remain readable, including older conflict revisions. Existing writable callers default to readOnly=false.",
+    "The launcher requires current thread/project/working-copy ownership and the exact current-owner M05 read URL, readOnly=true, and a non-UNSUPPORTED module state. DISABLED and EMPTY retained reads are supported.",
+    "Memory owner-key remount and existing active/generation/AbortController checks remain intact. SourceWorkbench provider scope includes the App account/epoch and active/held fences.",
+    "The memory component runtime import remains behind explicit launch. The existing workbench shell, provider and composer subtree stay mounted. Proposal03 accurately asks for a window reload after import failure.",
+    "The two native Modal instances share existing primitives. Focus retention only rescues focus dropped to body and does not steal a deliberate move to the top dialog; cleanup restores the parent launcher. The browser cases verify both Escape returns.",
+    "The App header opener is restricted to pinnedThreadId&&!embeddedThreadId, removing the duplicate ordinary-main control while retaining the native pinned-thread control."
+  ],
+  "runs": [
+    {
+      "id": "c4-workbench-memory-initial-01",
+      "resultsPath": "docs/implementation/v3/m15-artifacts/c4-workbench-memory-initial-01/results.json",
+      "resultsSha256": "4060590577b93f2fbb450923df9c2870a173fbd856adde03dfb477f1cdd904df",
+      "logPath": "docs/implementation/v3/m15-logs/c4-workbench-memory-initial-01.log",
+      "logSha256": "4bc66e13637dcc5d8614a968e37160f681b742acd02d0b146c8a9dcf74da4215",
+      "stats": {
+        "startTime": "2026-11-16T03:53:21.160Z",
+        "duration": 40390.385,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 3,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "id": "c4-panel-opener-initial-01",
+      "resultsPath": "docs/implementation/v3/m15-artifacts/c4-panel-opener-initial-01/results.json",
+      "resultsSha256": "81a3e21d4ba0b79c45ef91c52fa74e3643fb8dc62c55bde637311790abe77ce0",
+      "logPath": "docs/implementation/v3/m15-logs/c4-panel-opener-initial-01.log",
+      "logSha256": "65cfc4996c9d3075474958795f11375e112c4298161096565da4b50a953d8e14",
+      "stats": {
+        "startTime": "2026-11-16T03:55:02.549Z",
+        "duration": 16904.279,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "id": "c4-workbench-memory-green-01",
+      "resultsPath": "docs/implementation/v3/m15-artifacts/c4-workbench-memory-green-01/results.json",
+      "resultsSha256": "5103515a13fc72496b316a1c187dea121f44347333eb1e69fe4b224e5ca68a39",
+      "logPath": "docs/implementation/v3/m15-logs/c4-workbench-memory-green-01.log",
+      "logSha256": "5290cf750b5c9a8b3c64c0a129c83091eb8159abbf2d375ee8eedffd8ceb4c68",
+      "stats": {
+        "startTime": "2026-11-16T03:58:48.584Z",
+        "duration": 26899.988,
+        "expected": 4,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    },
+    {
+      "id": "c4-panel-opener-green-01",
+      "resultsPath": "docs/implementation/v3/m15-artifacts/c4-panel-opener-green-01/results.json",
+      "resultsSha256": "3eb5bb945fa5afa43b06667c90c0a83f29d44955dbb758e8f0e59cbc08c720ac",
+      "logPath": "docs/implementation/v3/m15-logs/c4-panel-opener-green-01.log",
+      "logSha256": "327b31b8bdaab2bc4c6aae48ded1be83aaa2932826c8ad392bf8f5219f3cb09b",
+      "stats": {
+        "startTime": "2026-11-16T03:59:44.432Z",
+        "duration": 11889.394999999999,
+        "expected": 2,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "errors": []
+    }
+  ],
+  "attachments": [
+    {
+      "name": "memory-source-queued-command.json",
+      "sha256": "3d24b2c8d91370724c41d90cf3811e5d5c070d09c1deb656a9a1e6381c083e23",
+      "bytes": 4684,
+      "origin": "Exact base64-decoded attachment bytes from c4-workbench-memory-green-01/results.json"
+    },
+    {
+      "name": "memory-read-only-review.json",
+      "sha256": "dede7e0dd46b8163e19122aa641f048e34e3e094a7d9d9d953aaad03f1c70f36",
+      "bytes": 3580,
+      "origin": "Exact base64-decoded attachment bytes from c4-workbench-memory-green-01/results.json"
+    },
+    {
+      "name": "memory-owner-transition.json",
+      "sha256": "15632e5be4329f18ea0d10a3f88458b9aacf14992390b0dfbe93347dd9fdf13e",
+      "bytes": 4216,
+      "origin": "Exact base64-decoded attachment bytes from c4-workbench-memory-green-01/results.json"
+    }
+  ],
+  "limits": [
+    "Initial three memory failures all stopped at the missing Open memory review launcher; deeper readOnly and owner assertions were not reached in those failing runs.",
+    "Initial panel main case stopped at count 2 versus expected 1; native pinned case passed. No timeout or assertion was changed between red and green.",
+    "The queued memory/source case passed before and after this UI implementation. It is integration coverage, not a newly repaired defect.",
+    "The old in-flight source request was aborted with net::ERR_ABORTED. A separate newly opened wrong-account memory envelope was delivered and rejected by the actual client. Do not claim an uncancellable stale source response was delivered.",
+    "Memory/source HTTP and desktop bridge are typed scripted fixtures. These browser checks do not prove host authorization, real model dispatch, installed desktop, Windows or Edge behavior.",
+    "Only four selected workbench-app cases and two selected desktop-surfaces cases were run. Complete suites and other current gates remain owned by the parent."
+  ]
+}

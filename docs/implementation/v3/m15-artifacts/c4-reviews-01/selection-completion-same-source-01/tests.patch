@@ -1,0 +1,33 @@
+--- a/tests/e2e/workbench.spec.ts
++++ b/tests/e2e/workbench.spec.ts
+@@ -28,6 +28,30 @@
+   await expect(page.locator('[data-held-action]')).toHaveText(captured);
+   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});
+   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);
++ });
++ test('M15 completed selection action preserves a newer range and toolbar in the same source',async({page})=>{
++  await page.goto('/fixture?fixture=selection-held');await select(page);
++  const source=page.locator('#source-text'),toolbar=page.getByRole('toolbar',{name:'Selected source',exact:true});
++  await toolbar.getByRole('button',{name:'Attach to prompt',exact:true}).click();
++  await expect(page.locator('[data-held-state]')).toHaveText('pending');
++  const captured=JSON.stringify({kind:'attach',start:8,end:21,text:'selected text'});
++  await expect(page.locator('[data-held-action]')).toHaveText(captured);
++  await page.locator('.source-selection-text').focus();await select(page,'#source-text',0,7);
++  const readState=async()=>({
++   selection:await source.evaluate(element=>{
++    const selection=getSelection(),range=selection?.rangeCount===1?selection.getRangeAt(0):null;
++    return {text:selection?.toString()??'',ranges:selection?.rangeCount??0,start:range?.startOffset??null,end:range?.endOffset??null,withinTarget:!!range&&element.contains(range.startContainer)&&element.contains(range.endContainer)};
++   }),
++   toolbarVisible:await toolbar.isVisible(),
++   attachEnabled:await toolbar.getByRole('button',{name:'Attach to prompt',exact:true}).evaluateAll(buttons=>buttons.some(button=>button instanceof HTMLButtonElement&&!button.disabled)),
++  });
++  const selection={text:'Visible',ranges:1,start:0,end:7,withinTarget:true};
++  await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:false});
++  // Complete only the held acknowledgment; preserve the user's newer source range and action intent.
++  await page.locator('[data-complete-selection]').evaluate((element:HTMLButtonElement)=>element.click());
++  await expect(page.locator('[data-held-state]')).toHaveText('complete');
++  await expect(page.locator('[data-held-action]')).toHaveText(captured);
++  await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:true});
+  });
+ });
+ test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});

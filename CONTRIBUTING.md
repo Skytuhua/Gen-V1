@@ -11,8 +11,9 @@ Gen V1 is a private Windows x64 beta. Coordinate source contributions with the m
 - Share accessibility or usability feedback, including the task you were trying to complete.
 - Confirm whether an existing issue still occurs on a named version, using sample data.
 - Suggest a focused improvement and explain the problem it would solve.
+- Improve test coverage for a contract, coordinator or recovery path you understand.
 
-Use the matching [issue form](https://github.com/Skytuhua/Gen-V1/issues/new/choose). Search existing issues first; a useful reproduction or clarification can help more than a duplicate report. For sensitive findings, follow [SECURITY.md](SECURITY.md) instead of posting details in an issue.
+Use the matching [issue form](https://github.com/skytuhua-org/Gen-V1/issues/new/choose). Search existing issues first; a useful reproduction or clarification can help more than a duplicate report. For sensitive findings, follow [SECURITY.md](SECURITY.md) instead of posting details in an issue.
 
 ## Your first contribution
 
@@ -38,6 +39,15 @@ For a bug, include the application version, Windows/Node/Python versions where r
 
 Keep changes small and preserve unrelated work. Prefer existing components, contracts and coordinators. Changes involving cancellation, account selection, drafts, approvals or recovery need explicit ownership/error-path coverage.
 
+### Working agreements
+
+- One concern per pull request. A rename, a fix and a refactor are three pull requests.
+- Match the surrounding style: the codebase favors dense single-line statements and named functions over cleverness. Do not reformat files you are not changing.
+- Contracts come first: schema changes in `packages/contracts` land with their readers and writers in the same pull request.
+- Every new behavior needs a decision-level test: a pure unit test for classification/authorization logic, a scoped Playwright spec for surface behavior.
+- New source files must be added to `scripts/public-source-files.json` (both `source` and, when packaged, `runtime`); the manifest validates on import.
+- Never bypass a merge gate (required checks, approvals, protected branches). Ask for help instead.
+
 ## Local checks
 
 Run commands from the repository root after completing source setup. For documentation-only changes, review wording, links and formatting; application tests are usually unnecessary. For code changes, start with a focused test, then run the relevant broader checks:
@@ -47,6 +57,13 @@ pnpm exec playwright install chromium
 pnpm typecheck
 pnpm build
 pnpm test --maxWorkers=1
+```
+
+Every tracked Markdown file is link-checked except the provenance trees `docs/implementation` and `docs/review-evidence` and the retained upstream bytes under `third-party`. The check runs on every pull request that changes a `.md` file, so run it after moving, renaming or re-anchoring a target; add `--external` to request the remote URLs that scheduled runs probe:
+
+```powershell
+pnpm check:docs-links
+pnpm check:docs-links --external
 ```
 
 Some tests inspect or exercise the built interface, so build it before running the full suite. `pnpm test` builds widget assets automatically.
@@ -68,6 +85,17 @@ pnpm test:e2e
 See [browser prerequisites and scoped commands](docs/getting-started.md#run-the-checks). The GitHub `Browser tests` job checks the split workspace, not every local Playwright suite.
 
 Use the matching scoped Playwright configuration for a particular surface. Keep output in an ignored directory and review traces before sharing them. Freeze edits before final browser verification so hot reload does not invalidate observations.
+
+### Check selection
+
+| Change area | Minimum checks |
+| --- | --- |
+| Contracts (`packages/contracts`) | `pnpm typecheck` + the contract's vitest file |
+| Core behavior (`packages/core`) | `pnpm typecheck`, focused vitest file, `pnpm build` |
+| Web UI (`apps/web`) | `pnpm typecheck`, `pnpm build`, scoped Playwright spec for the surface |
+| Server (`apps/server`) | `pnpm typecheck`, `pnpm build`, endpoint test |
+| Desktop (`apps/desktop`, packaging) | `pnpm build`, packaging smoke on Windows |
+| Docs / media | Review wording, links and formatting locally |
 
 Original Hermes checks run separately from Vitest:
 
@@ -92,3 +120,14 @@ Use the pull request template to describe the problem, resulting behavior and re
 Never include generated installers, `node_modules`, credentials, profile databases or raw test output in a source commit. Release binaries belong in release assets, with hashes and verification notes.
 
 Maintainers review correctness, simplicity, accessibility, ownership and recovery behavior. They may ask for a smaller scope, a reproduction or another check. Update the same branch when responding, and explain any feedback you need help with. Review timing varies, and submitting a PR does not guarantee a merge.
+
+### Before you request review
+
+- The pull request explains the problem in one paragraph a reviewer who never saw your code can follow.
+- Every acceptance claim in the description has a check, screenshot or command behind it.
+- CI is green or each failure is named in the description with a reason.
+- Reviewer feedback is answered on the same branch; unresolved threads get a reply, not silence.
+
+## Media and demos
+
+Interface recordings and screenshots live in [docs/public/media](docs/public/media). Reproduce them with `node --import tsx scripts/record-readme-launch.ts <output-dir>` from the repository root (see the [recording notes](docs/public/media/launch-demos.md#recording-notes)). New scenarios belong in that script's `Demo` list with scripted fixture responses, real cursor movement and end-state assertions — never a live model, personal account or external system.

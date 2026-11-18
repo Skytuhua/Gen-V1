@@ -1,0 +1,339 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\tests\\e2e\\chat-view-modes.playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/browser/run-1794800130611-14ef0216-5095-47d8-86ce-dbb3680c62ce/chat-view-modes/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "chat-view-modes.spec.ts",
+          "chat-view-escape.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --host 127.0.0.1 --port 5491 --strictPort",
+      "cwd": "D:\\a\\Gen-V1\\Gen-V1",
+      "url": "http://127.0.0.1:5491",
+      "reuseExistingServer": false,
+      "env": {
+        "GEN_E2E": "1"
+      }
+    }
+  },
+  "suites": [
+    {
+      "title": "chat-view-escape.spec.ts",
+      "file": "chat-view-escape.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "active drag Escape cancels before an open tooltip and then releases keyboard ownership",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2156,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:34.332Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-8b26bda87fa30921d4ba",
+          "file": "chat-view-escape.spec.ts",
+          "line": 47,
+          "column": 1
+        },
+        {
+          "title": "active drag ignores Escape with IME composition flag",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1607,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:36.585Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-f67262f7afbbfa01c60e",
+          "file": "chat-view-escape.spec.ts",
+          "line": 75,
+          "column": 5
+        },
+        {
+          "title": "active drag ignores Escape with IME legacy key 229",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1588,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:38.207Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "d71efe5681ab4df086c4-42e5abeefeef16c1b624",
+          "file": "chat-view-escape.spec.ts",
+          "line": 75,
+          "column": 5
+        }
+      ]
+    },
+    {
+      "title": "chat-view-modes.spec.ts",
+      "file": "chat-view-modes.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "the conversation lives in the split plane with its messages, composer and attachments",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4263,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:39.979Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-3043e066181997d2314d",
+          "file": "chat-view-modes.spec.ts",
+          "line": 24,
+          "column": 1
+        },
+        {
+          "title": "draft, selection and reading position survive the workspace panel opening",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2697,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:44.257Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-ec4e9c6296e956956fd8",
+          "file": "chat-view-modes.spec.ts",
+          "line": 36,
+          "column": 1
+        },
+        {
+          "title": "reduced motion settles instantly and keyboard focus stays in the composer",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2361,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:46.973Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "56ac61cd017fc7a81a8f-ef940d8385c1571ba767",
+          "file": "chat-view-modes.spec.ts",
+          "line": 78,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:35:31.693Z",
+    "duration": 17779.481,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

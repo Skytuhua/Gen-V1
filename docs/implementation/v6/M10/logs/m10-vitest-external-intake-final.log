@@ -1,0 +1,24 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
+
+(node:1693249) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m22 tests[22m[2m)[22m[33m 6809[2mms[22m[39m
+     [33m[2m✓[22m[39m polls only the configured numeric repository through the authenticated connection [33m 459[2mms[22m[39m
+     [33m[2m✓[22m[39m bounds pagination on PR-saturated pages instead of reading forever [33m 307[2mms[22m[39m
+     [33m[2m✓[22m[39m deduplicates by repository, issue node ID and updated_at [33m 352[2mms[22m[39m
+     [33m[2m✓[22m[39m stays disabled without the host flag or explicit enablement, and unavailable without authentication [33m 470[2mms[22m[39m
+     [33m[2m✓[22m[39m retries only transient read failures with 1000ms and 2000ms delays [33m 329[2mms[22m[39m
+     [33m[2m✓[22m[39m a transient repository lookup failure defers instead of permanently rejecting [33m 426[2mms[22m[39m
+     [33m[2m✓[22m[39m a forged repository_url is rejected without ever fetching the foreign origin [33m 315[2mms[22m[39m
+     [33m[2m✓[22m[39m a repeated issue revision creates no executor call; an authorized new issue creates one proposal only [33m 314[2mms[22m[39m
+     [33m[2m✓[22m[39m a concurrent approval while the first still executes creates no duplicate task [33m 489[2mms[22m[39m
+     [33m[2m✓[22m[39m approval is an explicit host command, never inferred from repository access [33m 345[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes no webhook listener or push ingestion surface [33m 662[2mms[22m[39m
+     [33m[2m✓[22m[39m routes approval through thread.create and message.send on the real Service [33m 429[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m22 passed[39m[22m[90m (22)[39m
+[2m   Start at [22m 15:24:42
+[2m   Duration [22m 13.63s[2m (transform 4.72s, setup 0ms, import 6.43s, tests 6.81s, environment 0ms)[22m
+

@@ -1,14 +1,28 @@
 import { randomUUID } from 'node:crypto';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve, sep } from 'node:path';
 import { crc32, inflateSync } from 'node:zlib';
 import { DatabaseSync } from 'node:sqlite';
 import { PDFDocument } from 'pdf-lib';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
+import { Store } from '../packages/storage/store';
 import { openReviewHost, reviewColorStudyPng, type Scenario } from '../scripts/review-host';
 import type { ArtifactRecord, DataRecord, Operation, RunContext, UserStateRecord } from '../packages/contracts';
 import { relationshipData, tableChangesData } from '../packages/ui-catalog/workflow';
+
+it('closes the fixture store when initialization fails after allocating the services', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'harness-review-startup-'));
+  const close = vi.spyOn(Store.prototype, 'close');
+  try {
+    await mkdir(join(folder, 'resources', 'export-panel.svg'), { recursive: true });
+    await expect(openReviewHost(folder, 0)).rejects.toThrow(/export-panel.svg/);
+    expect(close).toHaveBeenCalledOnce();
+  } finally {
+    close.mockRestore();
+    await rm(folder, { recursive: true, force: true });
+  }
+});
 
 describe('isolated actual-host recording fixtures', () => {
   let folder: string;

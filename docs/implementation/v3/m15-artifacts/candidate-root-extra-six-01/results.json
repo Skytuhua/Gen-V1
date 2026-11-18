@@ -1,0 +1,343 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/candidate-root-extra-six-01/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "artifact-acknowledgment.spec.ts",
+          "clarity-data-work.spec.ts",
+          "dark-default.spec.ts",
+          "document-window.spec.ts",
+          "host-loop.spec.ts",
+          "journal-reload.spec.ts",
+          "latency.spec.ts",
+          "map-theme.spec.ts",
+          "migration-redesign.spec.ts",
+          "operational-motion.spec.ts",
+          "overnight-shell.spec.ts",
+          "plan-timeline.spec.ts",
+          "review-capture-theme.spec.ts",
+          "shell-micro-motion.spec.ts",
+          "signing-motion.spec.ts",
+          "skills.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts",
+      "url": "http://127.0.0.1:5499",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "artifact-acknowledgment.spec.ts",
+      "file": "artifact-acknowledgment.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5785,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:32:28",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                      "column": 28,
+                      "line": 32
+                    },
+                    "snippet": "  30 |     await page.goto('/');\n  31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 32 |     await expect(selected).toBeChecked();\n     |                            ^\n  33 |     await selected.click();\n  34 |     await expect.poll(() => saves.length).toBe(1);\n  35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                        "column": 28,
+                        "line": 32
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeChecked\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('checkbox', { name: 'Select row 1', exact: true })\nExpected: checked\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeChecked\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('checkbox', { name: 'Select row 1', exact: true })\u001b[22m\n\n\n  30 |     await page.goto('/');\n  31 |     const selected = page.getByRole('checkbox', { name: 'Select row 1', exact: true });\n> 32 |     await expect(selected).toBeChecked();\n     |                            ^\n  33 |     await selected.click();\n  34 |     await expect.poll(() => saves.length).toBe(1);\n  35 |     expect(saves[0]).toMatchObject({ revision: 2, values: { selection: [] } });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts:32:28"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:18:37.866Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/candidate-root-extra-six-01/artifacts/artifact-acknowledgment-an-4ab50-ewer-acknowledged-selection/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/artifact-acknowledgment.spec.ts",
+                    "column": 28,
+                    "line": 32
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "ca95034a0976bbb06b7b-d0bf9461f5cbb7a75941",
+          "file": "artifact-acknowledgment.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "clarity-data-work.spec.ts",
+      "file": "clarity-data-work.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "trend gives its actual scale and units without hiding gaps or fabricating a zero baseline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3510,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:18:45.441Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daf79c46dd78337f781d-ea48ad70b8a1c69c07a3",
+          "file": "clarity-data-work.spec.ts",
+          "line": 16,
+          "column": 1
+        },
+        {
+          "title": "flat and unavailable trends describe only supplied values",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3217,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:18:49.131Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daf79c46dd78337f781d-4d7607d9ab011494fc53",
+          "file": "clarity-data-work.spec.ts",
+          "line": 63,
+          "column": 1
+        },
+        {
+          "title": "light architecture is legible before selecting a node",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7144,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:18:52.392Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daf79c46dd78337f781d-5ec53389da05f3c820ab",
+          "file": "clarity-data-work.spec.ts",
+          "line": 162,
+          "column": 40
+        },
+        {
+          "title": "dark architecture is legible before selecting a node",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6303,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:18:59.613Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "daf79c46dd78337f781d-e3212f7b0771a4073428",
+          "file": "clarity-data-work.spec.ts",
+          "line": 162,
+          "column": 40
+        }
+      ]
+    },
+    {
+      "title": "document-window.spec.ts",
+      "file": "document-window.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "large edited source fits the real host state limit without duplicating the source text",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 15329,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:19:06.315Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "02442a6f451933db14db-e7b49aede76a5c797f44",
+          "file": "document-window.spec.ts",
+          "line": 251,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:18:34.830Z",
+    "duration": 46999.927,
+    "expected": 5,
+    "skipped": 0,
+    "unexpected": 1,
+    "flaky": 0
+  }
+}

@@ -1,0 +1,24 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/desktop-surfaces.playwright.config.ts","--grep","M15 panel opener:","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-panel-opener-green-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 2 tests using 1 worker
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/2] tests/e2e/desktop-surfaces.spec.ts:1239:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control
+[1A[2K[2/2] tests/e2e/desktop-surfaces.spec.ts:1256:1 › M15 panel opener: a pinned native thread retains its workspace control
+[1A[2K  2 passed (11.9s)

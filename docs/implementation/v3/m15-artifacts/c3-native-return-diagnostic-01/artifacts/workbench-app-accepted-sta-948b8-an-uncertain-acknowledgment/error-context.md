@@ -1,0 +1,168 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e31]:
+        - button "Source-bound task fixture Ready" [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: RT
+              - generic [ref=e36]: Reusable task surfaces
+            - time [ref=e38]: 17d
+          - generic [ref=e39]: Source-bound task fixture
+          - generic [ref=e40]: Ready
+        - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+    - generic "App controls" [ref=e47]:
+      - button "Settings" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e52]: Settings
+      - button "Pull requests" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e58]: PRs
+      - button "Usage" [ref=e59] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: Usage
+      - button "Update" [disabled] [ref=e63]:
+        - img [ref=e64]
+        - generic [ref=e67]: Update
+  - separator "Resize sidebar" [ref=e68]
+  - generic [ref=e69]:
+    - generic [ref=e70]:
+      - status [ref=e71]:
+        - generic [ref=e72]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e73] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e74]:
+        - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+        - button "All Agents" [ref=e76] [cursor=pointer]
+        - button "Open workspace panel" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - button "Layouts" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+          - text: Layouts
+          - img [ref=e86]
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - region "Source-bound task fixture" [ref=e95]:
+          - generic [ref=e96]:
+            - button "Split this area" [ref=e97]: ◩
+            - tablist "Area views" [ref=e98]:
+              - tab "Source-bound task fixture" [selected] [ref=e99] [cursor=pointer]:
+                - generic [ref=e100]: Source-bound task fixture
+            - button "Area actions" [ref=e102] [cursor=pointer]:
+              - img [ref=e103]
+            - button "Minimize area" [expanded] [ref=e107] [cursor=pointer]: ▴
+        - generic [ref=e116]:
+          - generic [ref=e118]:
+            - main "Chat" [ref=e119]:
+              - generic [ref=e120]:
+                - generic [ref=e121]:
+                  - img [ref=e122]
+                  - generic [ref=e124]: Reusable task surfaces
+                  - generic [ref=e125]: /
+                  - strong [ref=e126]: Source-bound task fixture
+                - button "Find in conversation" [ref=e129] [cursor=pointer]:
+                  - img [ref=e130]
+              - generic "Conversation" [ref=e134]:
+                - generic [ref=e137]:
+                  - generic [ref=e138]: Assistant
+                  - generic [ref=e139]:
+                    - button "Copy message" [ref=e140] [cursor=pointer]:
+                      - img [ref=e141]
+                    - status [ref=e144]
+                    - paragraph [ref=e148]: Visible exact source sentence for the workbench.
+              - generic [ref=e152]:
+                - region "Prompt source context" [ref=e153]:
+                  - generic [ref=e154]:
+                    - strong [ref=e155]: "Destination: Source-bound task fixture"
+                    - generic [ref=e156]: Current task
+                    - button "Sources and evidence" [ref=e157] [cursor=pointer]
+                    - generic [ref=e158]:
+                      - text: Delivery
+                      - generic [ref=e159]:
+                        - combobox "Source delivery mode" [ref=e160] [cursor=pointer]:
+                          - generic [ref=e161]: After current run
+                          - img [ref=e162]
+                        - combobox [ref=e164]
+                  - paragraph [ref=e165]:
+                    - button "Inspect queued source inputs" [ref=e166] [cursor=pointer]
+                    - text: 1 accepted input with retained sources. A recovery acknowledgment is unconfirmed.
+                - generic [ref=e168]:
+                  - textbox "Message" [ref=e170]:
+                    - /placeholder: Ask anything…
+                  - group "Task actions" [ref=e171]:
+                    - button "Inspect changes" [ref=e172] [cursor=pointer]:
+                      - img [ref=e173]
+                      - generic [ref=e175]: Changes
+                    - button "Create PR" [ref=e176] [cursor=pointer]:
+                      - img [ref=e177]
+                      - generic [ref=e182]: Create PR
+                - status [ref=e183]
+                - generic [ref=e185]:
+                  - group "Project and runtime" [ref=e186]:
+                    - button "Saved drafts" [ref=e187] [cursor=pointer]
+                    - button "Attach files" [ref=e188] [cursor=pointer]:
+                      - img [ref=e189]
+                    - button "Select project" [ref=e190] [cursor=pointer]:
+                      - img [ref=e191]
+                      - generic [ref=e193]: Reusable task surfaces
+                    - generic "Local workspace" [ref=e194]:
+                      - img [ref=e195]
+                      - text: Local
+                    - button "Task mode" [ref=e197] [cursor=pointer]:
+                      - img [ref=e198]
+                      - generic [ref=e201]: Build
+                    - button "Show live usage" [ref=e202] [cursor=pointer]:
+                      - img [ref=e203]
+                  - group "Model and voice" [ref=e205]:
+                    - combobox "Model" [ref=e206] [cursor=pointer]:
+                      - img [ref=e207]
+                      - generic [ref=e210]: Fixture
+                      - img [ref=e211]
+                    - button "Inspect context usage" [ref=e214] [cursor=pointer]:
+                      - img [ref=e215]
+                    - button "Start voice input" [ref=e216] [cursor=pointer]:
+                      - img [ref=e217]
+                    - button "Send message" [disabled] [ref=e221]:
+                      - img [ref=e222]
+            - generic:
+              - img
+              - generic: Dock chat
+          - dialog "Sources and evidence" [ref=e225]:
+            - banner [ref=e226]:
+              - heading "Sources and evidence" [level=2] [ref=e227]
+              - button "Close dialog" [active] [ref=e228] [cursor=pointer]:
+                - img [ref=e229]
+            - paragraph [ref=e232]: Task task-thread · Workspace none
+            - navigation "Workbench views" [ref=e233]:
+              - button "Last request" [ref=e234] [cursor=pointer]
+              - button "Tools" [ref=e235] [cursor=pointer]
+              - button "Run" [pressed] [ref=e236] [cursor=pointer]
+              - button "Sources" [ref=e237] [cursor=pointer]
+              - button "Evidence" [ref=e238] [cursor=pointer]
+            - status [ref=e239]: Loading source views.
+      - complementary "Conversation summaries" [ref=e240]:
+        - region "Project overview window" [ref=e241]:
+          - button "Expand Project overview" [ref=e243] [cursor=pointer]:
+            - strong [ref=e244]: Project overview
+            - img [ref=e245]
+  - region "Notifications"
+```

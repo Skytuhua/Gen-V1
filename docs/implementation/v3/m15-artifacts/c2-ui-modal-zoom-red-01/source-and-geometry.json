@@ -1,0 +1,99 @@
+{
+  "schemaVersion": 1,
+  "receiptId": "c2-ui-modal-zoom-red-01",
+  "exitCode": 1,
+  "logDigest": "3f4f7c934e96af5d2dc2a79edfa7ae6e8968a7b3550c7b4126f2a0153679c67f",
+  "resultSha256": "c693cdcf98e1b73198188613d8ae9e4c0677f920841f9605b9ff4482de6ff2b4",
+  "sourceNote": "Captured after the filtered red and before any sizing correction; only geometry diagnostics and stricter post-Evidence bounds were added to the existing test before this run. No production source changed during the run.",
+  "sourceDigests": {
+    "packages/ui-shell/controls.css": "f9b0798408972e5b931a87dafb5cbfb92670d2cb0186484dfae221c0e9ff30d8",
+    "apps/web/src/source-workbench.css": "61e90e24151b466536dab9a5803d4edf859efcfcdb3e2fd377027173364e2940",
+    "tests/e2e/workbench-app.spec.ts": "f7d8151795a3ee1706f65d381aa1f6c5df9d5e3f1993229ada00ee0065e73912"
+  },
+  "geometry": {
+    "sources": {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "2",
+      "panel": {
+        "x": 80,
+        "y": 76.53125,
+        "width": 1120,
+        "height": 646.9375,
+        "top": 76.53125,
+        "right": 1200,
+        "bottom": 723.46875,
+        "left": 80
+      },
+      "close": {
+        "x": 1086,
+        "y": 126.53125,
+        "width": 64,
+        "height": 64,
+        "top": 126.53125,
+        "right": 1150,
+        "bottom": 190.53125,
+        "left": 1086
+      },
+      "navigation": {
+        "x": 130,
+        "y": 316.71875,
+        "width": 1020,
+        "height": 38,
+        "top": 316.71875,
+        "right": 1150,
+        "bottom": 354.71875,
+        "left": 130
+      },
+      "height": "323.469px",
+      "maxHeight": "784px",
+      "clientHeight": 321,
+      "scrollHeight": 321,
+      "scrollTop": 0
+    },
+    "evidence": {
+      "viewport": {
+        "width": 1280,
+        "height": 800
+      },
+      "zoom": "2",
+      "panel": {
+        "x": 80,
+        "y": -384,
+        "width": 1120,
+        "height": 1568,
+        "top": -384,
+        "right": 1200,
+        "bottom": 1184,
+        "left": 80
+      },
+      "close": {
+        "x": 1086,
+        "y": -334,
+        "width": 64,
+        "height": 64,
+        "top": -334,
+        "right": 1150,
+        "bottom": -270,
+        "left": 1086
+      },
+      "navigation": {
+        "x": 130,
+        "y": -143.8125,
+        "width": 1020,
+        "height": 38,
+        "top": -143.8125,
+        "right": 1150,
+        "bottom": -105.8125,
+        "left": 130
+      },
+      "height": "784px",
+      "maxHeight": "784px",
+      "clientHeight": 782,
+      "scrollHeight": 932,
+      "scrollTop": 0
+    }
+  }
+}

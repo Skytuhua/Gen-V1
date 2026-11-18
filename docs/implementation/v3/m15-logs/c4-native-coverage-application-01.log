@@ -1,0 +1,31 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/native-coverage-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "kind": "REVIEWED_NATIVE_COVERAGE_APPLICATION",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "files": [
+    {
+      "path": "tests/source-workbench-hermes-v3.test.ts",
+      "proposal": "m15-publication/c4/native-source-memory-proposal-01/proposed.ts",
+      "beforeSha256": "426c80e3f443dffb10dc797c8618155a260dc740daad53d33262bf982de722b5",
+      "afterSha256": "21a8fc6e282809d51632ba21547a0715ab45acf0ba92a762f6e0cfe2f07eee35"
+    },
+    {
+      "path": ".github/workflows/m15-evidence.yml",
+      "proposal": "m15-publication/c4/workflow-v4-proposal-01/m15-evidence.yml",
+      "beforeSha256": "05819a7992e6c9933ebbf95b1ef7736265efc07eefde2eba3cd65d6f1f29d250",
+      "afterSha256": "2503858a5fa3cae35d4123e90001abe9d324ad11c9cf9a8d6d45a47c0537ac44"
+    }
+  ],
+  "indexUnchanged": true,
+  "originalCheckoutClean": true,
+  "nativeTestExecuted": false,
+  "workflowNativeFileCount": 37,
+  "sourceHandoffFile": "Pending reviewed PhaseA/B application; do not publish before the selected file exists and is explicitly admitted.",
+  "independentReviewDigests": {
+    "combinedNative": "a44606f96d3d8228fa86c587682d001a37f2c63b56bcdd4c8f7f65f2d199844a",
+    "workflowV4": "594009a82dcf1be34028c25e4705a6a1a8b7447b5a37864eddb6c16dac2ab1cf"
+  }
+}

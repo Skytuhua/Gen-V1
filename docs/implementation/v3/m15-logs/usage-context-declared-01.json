@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "node",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "usage-context"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "startedAt": "2026-11-15T22:23:26.750Z",
+  "endedAt": "2026-11-15T22:24:03.742Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/usage-context-declared-01.log",
+  "logDigest": "9b61742966201144aeba91663992e6175352975378202dda3c87d8335cf6e87e"
+}

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "reviewType": "READ_ONLY_STATIC_FULL_SOURCE",
+  "outcome": "NO_MATERIAL_DEFECT_FOUND",
+  "helperExecution": "NOT_RUN",
+  "payloadGeneration": "NOT_RUN",
+  "repositoryMutation": false,
+  "predecessor": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c3/prepare-payload.py",
+    "sha256": "8f74b038122602759439ebeccc68da253db0d3b73092b178d48ef58c4c2f92dc",
+    "bytes": 39289,
+    "lines": 591
+  },
+  "reviewed": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/prepare-payload.py",
+    "sha256": "605f8233c54c7d91c7051d3c61b2996a6d2486a9d03a50c03504edcb3eed3945",
+    "bytes": 39314,
+    "lines": 592
+  },
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "unacceptedObservedMain": "109797cb195b842d44dfc05dafaa6100531396df",
+  "staticParseOnly": true,
+  "unchangedDeclarations": [
+    "Entry",
+    "Snapshot",
+    "checked_path",
+    "js_sorted",
+    "json_bytes",
+    "object_sha",
+    "payload_file",
+    "plan_payload",
+    "request_bytes",
+    "require",
+    "sha256",
+    "tree_sha",
+    "validate_command",
+    "validate_phase_status",
+    "verify_payload"
+  ],
+  "changedDeclarations": [
+    "PublicationBase",
+    "main",
+    "prepare",
+    "publication_from_manifest",
+    "validate_retained_evidence",
+    "validate_review"
+  ],
+  "addedDeclarations": [],
+  "removedDeclarations": [],
+  "findings": [],
+  "limitations": [
+    "No helper execution, isolated self-test, staged-source inspection, payload generation, upload or commit by this review.",
+    "Root must supply the final reviewed staged tree and actual fresh published parent/tree; remote branch concurrency is outside this helper.",
+    "C3 predecessor evidence is not promoted to C4 runtime or transport proof.",
+    "Archive/public-admission/original-checkout custody checks remain separate from this payload helper."
+  ]
+}

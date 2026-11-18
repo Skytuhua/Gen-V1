@@ -177,7 +177,8 @@ for(const policy of ['off','reduced'] as const){
 
 test('halo replacement and unmount cancel previously owned animation work',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});const {host}=await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');const node=page.getByRole('button',{name:'Bounded parser',exact:true});await node.click();
- await page.locator('.work-selection-halo').evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();Object.assign(window,{previousHalo:animation});});
+ const tone=await page.locator('.work-selection-halo').evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();animation.currentTime=Number(animation.effect!.getTiming().duration)*.35;Object.assign(window,{previousHalo:animation});const probe=document.createElement('span');probe.style.color='var(--ui-focus-ring,#808080)';document.body.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();const style=getComputedStyle(node);return{neutral,color:style.borderColor,shadow:style.boxShadow};});
+ expect(tone.color).toBe(tone.neutral);expect(tone.shadow).toBe('none');
  await node.evaluate(node=>(node as HTMLElement).click());
  expect(await page.evaluate(()=>(window as unknown as {previousHalo:Animation}).previousHalo.playState)).toBe('idle');
  await page.locator('.work-selection-halo').evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();Object.assign(window,{lastHalo:animation});});

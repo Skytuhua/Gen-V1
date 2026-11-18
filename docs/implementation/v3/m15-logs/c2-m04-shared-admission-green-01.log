@@ -1,0 +1,20 @@
+argv: ["pnpm","exec","vitest","run","tests/request-preparation-service-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-selection-v3.test.ts","tests/accounts.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-green-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ✓ tests/request-preparation-service-v3.test.ts (34 tests) 1409ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  707ms
+ ✓ tests/source-workbench-host-v3.test.ts (47 tests | 2 skipped) 2789ms
+   ✓ uses the existing authenticated host and CSRF boundaries for captures and source reads  1135ms
+ ✓ tests/accounts.test.ts (16 tests) 433ms
+ ✓ tests/source-selection-v3.test.ts (8 tests) 120ms
+
+ Test Files  4 passed (4)
+      Tests  103 passed | 2 skipped (105)
+   Start at  08:43:35
+   Duration  8.31s (transform 2.02s, setup 0ms, import 2.54s, tests 4.75s, environment 1ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-m04-shared-admission-green-01-results.json

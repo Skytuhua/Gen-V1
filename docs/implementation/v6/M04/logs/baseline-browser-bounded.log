@@ -1,0 +1,202 @@
+# Bounded receipt derived from baseline-browser.log (full log: /home/piadmin/m04-v6-notes/baseline-browser.log).
+# Derivation: suite markers, exit codes and per-suite summary counts.
+=== BASELINE SUITE root ===
+Running 113 tests using 1 worker
+  40 failed
+  73 passed (15.4m)
+=== EXIT root 1 ===
+=== BASELINE SUITE artifact-settle ===
+=== EXIT artifact-settle 1 ===
+=== BASELINE SUITE code-review-host ===
+Running 45 tests using 1 worker
+  45 failed
+=== EXIT code-review-host 1 ===
+=== BASELINE SUITE m08-restore ===
+Running 5 tests using 1 worker
+  1 failed
+  4 passed (27.2s)
+=== EXIT m08-restore 1 ===
+=== BASELINE SUITE redundant-ui ===
+Running 18 tests using 1 worker
+  6 failed
+  12 passed (2.1m)
+=== EXIT redundant-ui 1 ===
+=== BASELINE SUITE research-host ===
+Running 31 tests using 1 worker
+  31 failed
+=== EXIT research-host 1 ===
+=== BASELINE SUITE saved-drafts ===
+Running 26 tests using 1 worker
+  26 failed
+=== EXIT saved-drafts 1 ===
+=== BASELINE SUITE sidebar-collapse ===
+Running 32 tests using 1 worker
+  1 failed
+  31 passed (2.9m)
+=== EXIT sidebar-collapse 1 ===
+=== BASELINE SUITE terminal-excerpts ===
+Running 9 tests using 1 worker
+  9 passed (1.8m)
+=== EXIT terminal-excerpts 0 ===
+=== BASELINE SUITE micro-motion ===
+Running 83 tests using 1 worker
+  12 failed
+  71 passed (10.1m)
+=== EXIT micro-motion 1 ===
+=== BASELINE SUITE motion-tokens ===
+Running 25 tests using 1 worker
+  5 failed
+  20 passed (4.7m)
+=== EXIT motion-tokens 1 ===
+=== BASELINE SUITE clarity-software ===
+Running 34 tests using 1 worker
+  17 failed
+  17 passed (4.7m)
+=== EXIT clarity-software 1 ===
+=== BASELINE SUITE clarity-review-parameters ===
+Running 35 tests using 1 worker
+  14 failed
+  21 passed (6.1m)
+=== EXIT clarity-review-parameters 1 ===
+=== BASELINE SUITE clarity-schedule-logs ===
+Running 26 tests using 1 worker
+  4 failed
+  22 passed (3.5m)
+=== EXIT clarity-schedule-logs 1 ===
+=== BASELINE SUITE fidelity ===
+Running 17 tests using 1 worker
+  3 failed
+  14 passed (2.1m)
+=== EXIT fidelity 1 ===
+=== BASELINE SUITE model-picker ===
+Running 8 tests using 1 worker
+  5 failed
+  3 passed (3.8m)
+=== EXIT model-picker 1 ===
+=== BASELINE SUITE workspace ===
+Running 33 tests using 1 worker
+  13 failed
+  20 passed (5.8m)
+=== EXIT workspace 1 ===
+=== BASELINE SUITE compact-tools-cleanup ===
+Running 9 tests using 1 worker
+  9 failed
+=== EXIT compact-tools-cleanup 1 ===
+=== BASELINE SUITE composer-commands ===
+Running 12 tests using 1 worker
+  2 failed
+  10 passed (1.5m)
+=== EXIT composer-commands 1 ===
+=== BASELINE SUITE composer-prediction ===
+Running 12 tests using 1 worker
+  7 failed
+  5 passed (2.4m)
+=== EXIT composer-prediction 1 ===
+=== BASELINE SUITE composer-press ===
+Running 18 tests using 1 worker
+  4 failed
+  14 passed (1.6m)
+=== EXIT composer-press 1 ===
+=== BASELINE SUITE context-connections ===
+Running 5 tests using 1 worker
+  5 failed
+=== EXIT context-connections 1 ===
+=== BASELINE SUITE desktop-surfaces ===
+Running 28 tests using 1 worker
+  7 failed
+  21 passed (5.1m)
+=== EXIT desktop-surfaces 1 ===
+=== BASELINE SUITE everyday ===
+Running 11 tests using 1 worker
+  7 failed
+  4 passed (1.7m)
+=== EXIT everyday 1 ===
+=== BASELINE SUITE floating ===
+Running 12 tests using 1 worker
+  8 failed
+  4 passed (3.0m)
+=== EXIT floating 1 ===
+=== BASELINE SUITE inline-surfaces ===
+Running 10 tests using 1 worker
+  7 failed
+  3 passed (2.1m)
+=== EXIT inline-surfaces 1 ===
+=== BASELINE SUITE pdf ===
+Running 21 tests using 1 worker
+  16 failed
+  5 passed (4.0m)
+=== EXIT pdf 1 ===
+=== BASELINE SUITE plan-presentation ===
+Running 3 tests using 1 worker
+  1 failed
+  2 passed (29.6s)
+=== EXIT plan-presentation 1 ===
+=== BASELINE SUITE project-search ===
+Running 38 tests using 1 worker
+  25 failed
+  13 passed (7.2m)
+=== EXIT project-search 1 ===
+=== BASELINE SUITE wo5-app-integration ===
+Running 9 tests using 1 worker
+  9 failed
+=== EXIT wo5-app-integration 1 ===
+=== BASELINE SUITE runtime-presentation ===
+Running 9 tests using 1 worker
+  6 failed
+  3 passed (2.3m)
+=== EXIT runtime-presentation 1 ===
+=== BASELINE SUITE shared-panels ===
+Running 30 tests using 1 worker
+  7 failed
+  23 passed (3.5m)
+=== EXIT shared-panels 1 ===
+=== BASELINE SUITE shell ===
+Running 69 tests using 1 worker
+  4 failed
+  63 passed (10.8m)
+=== EXIT shell 1 ===
+=== BASELINE SUITE side-chat ===
+Running 18 tests using 1 worker
+  5 failed
+  13 passed (3.0m)
+=== EXIT side-chat 1 ===
+=== BASELINE SUITE chat-view-modes ===
+Running 21 tests using 1 worker
+  3 failed
+  18 passed (3.0m)
+=== EXIT chat-view-modes 1 ===
+=== BASELINE SUITE smooth-operational ===
+Running 7 tests using 1 worker
+  4 failed
+  3 passed (1.1m)
+=== EXIT smooth-operational 1 ===
+=== BASELINE SUITE snapshot-performance ===
+Running 4 tests using 1 worker
+  2 failed
+  2 passed (3.3m)
+=== EXIT snapshot-performance 1 ===
+=== BASELINE SUITE t3-centered ===
+Running 7 tests using 1 worker
+  4 failed
+  3 passed (1.1m)
+=== EXIT t3-centered 1 ===
+=== BASELINE SUITE tabs-identity ===
+Running 4 tests using 1 worker
+  3 failed
+  1 passed (45.9s)
+=== EXIT tabs-identity 1 ===
+=== BASELINE SUITE table-controls ===
+Running 20 tests using 1 worker
+  15 failed
+  5 passed (3.3m)
+=== EXIT table-controls 1 ===
+=== BASELINE SUITE task-design ===
+Running 6 tests using 1 worker
+  2 failed
+  4 passed (51.1s)
+=== EXIT task-design 1 ===
+=== BASELINE SUITE task-interface ===
+Running 7 tests using 1 worker
+  2 failed
+  4 passed (1.2m)
+=== EXIT task-interface 1 ===

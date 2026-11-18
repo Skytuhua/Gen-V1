@@ -1,0 +1,99 @@
+argv: ["python3","/workspace/scratch/1b47eb428672/m15-publication/c4/browser-corrections-application-01/apply.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "schemaVersion": 1,
+  "kind": "REVIEWED_BROWSER_CORRECTIONS_AND_C4_WORKFLOW_APPLICATION",
+  "appliedAt": "2026-11-16T04:27:43.398437+00:00",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "files": [
+    {
+      "path": "apps/web/src/App.tsx",
+      "proposal": "browser-product-proposal-01",
+      "beforeSha256": "f3941173ffdb488278162a168b7e3eb83b1f8175d1d7e5c95a11b8262a211d06",
+      "afterSha256": "932c29c2db7d6fe8ae072c3b0b6c219db2551c41ddaa1212eaee64f354ee2ae8",
+      "beforeBytes": 160347,
+      "afterBytes": 160453,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "apps/web/src/DesktopEntry.tsx",
+      "proposal": "browser-product-proposal-01",
+      "beforeSha256": "ea05a88b5687073d113197590ff792f729eb1c9e66e0f3f1bd4511ccb76abb1d",
+      "afterSha256": "da0b285af5b935f26ecf69fb891f8e216d95918710ec4a02a5a1af6bbd157ee8",
+      "beforeBytes": 10077,
+      "afterBytes": 10076,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "apps/web/src/DraftTransfer.tsx",
+      "proposal": "browser-product-proposal-01",
+      "beforeSha256": "836ea93febf3f21796684cdf45ec2a9ffa92c3d3ee0109783c38ed653f473191",
+      "afterSha256": "8d70dfe8b25bcd13e9f9af968445b79299d5fd38d2321af3601a9dc3cf067793",
+      "beforeBytes": 2836,
+      "afterBytes": 2835,
+      "beforeCRLF": 10,
+      "afterCRLF": 10
+    },
+    {
+      "path": "tests/e2e/workspace-host.spec.ts",
+      "proposal": "browser-test-proposal-02",
+      "beforeSha256": "9f35e05deaa3dadb03b8ffce74a08b3e60fbd7a21a80ec01a150260817a299d8",
+      "afterSha256": "3bcd00ac11265447989e86cb7b41a2f7c17b13b0196d7ab53762b1a19ece814f",
+      "beforeBytes": 61185,
+      "afterBytes": 61459,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/saved-layout-chooser.spec.ts",
+      "proposal": "browser-test-proposal-02",
+      "beforeSha256": "0d18bf02ec72e1d0f2e086bd6ab75a2bb785d0bc154e63f393b32d8e6bd54718",
+      "afterSha256": "f1bd163d59308658bd3f3374d492503a5a2a1c3fba75cc09e3ec96f07bf47a99",
+      "beforeBytes": 13480,
+      "afterBytes": 13753,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/usage-app-integration.spec.ts",
+      "proposal": "browser-test-proposal-02",
+      "beforeSha256": "d7ab8d35a4471f4a49ec77e3680ac19fe9f01331e2249798ead284fa25222aaf",
+      "afterSha256": "c2595840613b47d8354c437c3e2a588005bdf7df410ce424af6ae166d93ccf5d",
+      "beforeBytes": 11619,
+      "afterBytes": 12954,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": "tests/e2e/mobile-navigation.spec.ts",
+      "proposal": "browser-test-proposal-02",
+      "beforeSha256": "70fbbe60fb81fbbfadbe23d73688a091957e27d7ddf90f8cee65055b576b7be2",
+      "afterSha256": "cf0af397eab466d1ae4882b36b9b769a894822905b306ee0ac812d40a24a66ab",
+      "beforeBytes": 1855,
+      "afterBytes": 2019,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    },
+    {
+      "path": ".github/workflows/m15-evidence.yml",
+      "proposal": "workflow-v3-proposal-01",
+      "beforeSha256": "b44f440617d959f913c8238bf88cd5c7bcc7fd93e2ee845a387f03d02560cd58",
+      "afterSha256": "05819a7992e6c9933ebbf95b1ef7736265efc07eefde2eba3cd65d6f1f29d250",
+      "beforeBytes": 27719,
+      "afterBytes": 28999,
+      "beforeCRLF": 0,
+      "afterCRLF": 0
+    }
+  ],
+  "limits": [
+    "Application and byte verification only; this is not a test result.",
+    "Native cold-recovery close guard remains unfixed at this application cut.",
+    "Browser test proposal01 remains preserved but was never applied.",
+    "No test expectation deadline, overall deadline, geometry threshold, lockfile, ordinary CI or capability default changes."
+  ]
+}

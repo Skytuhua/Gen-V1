@@ -82,7 +82,31 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
       {(loading || refreshing) && <p className="usage-dialog-status" role="status">{reports.length ? 'Refreshing usage…' : 'Loading usage…'}</p>}
     </div>
     <div className="usage-provider-list" role="tabpanel" id={`${id}-rows`} aria-labelledby={`${id}-${tab}`} aria-busy={loading || refreshing} tabIndex={0}>
-      {isRequests ? (visibleRequests.length ? visibleRequests.map(request => <section className="usage-request" key={request.requestId}>
+      {isRequests ? (visibleRequests.length ? visibleRequests.map(request => <ModelRequestDetails key={request.requestId} request={request}/>) : <p className="usage-dialog-empty">No measured model requests match this view yet.</p>) : <>
+      {!visible.length && !loading && (reports.length
+        ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
+        : <div className="usage-dialog-empty-state">
+          <BarChart3 size={20} aria-hidden="true" />
+          <strong>No usage reported yet</strong>
+
+          {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
+        </div>)}
+      {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
+      {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
+        <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>
+        {report.error && <ErrorState className="usage-dialog-error" message={report.error}/>}
+        {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
+        {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd><dt>Cache read tokens</dt><dd>{usageCount(report.cacheReadTokens)}</dd><dt>Cache write tokens</dt><dd>{usageCount(report.cacheWriteTokens)}</dd></dl>}
+        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
+      </section>)}
+      </>}
+    </div>
+  </Modal>;
+}
+
+/** The same measured request fields are used in the usage view and candidate history. */
+export function ModelRequestDetails({request}: {request: ModelRequestObservationV1}) {
+  return <section className="usage-request" aria-label={'Model request ' + request.owner.sequence}>
         <header>
           <strong>{request.binding.modelId}</strong>
           <span className="usage-request-meta">{request.binding.providerId}</span>
@@ -106,24 +130,5 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
           </li>
         </ul>
         {request.error && <p className="usage-dialog-error">{request.error}</p>}
-      </section>) : <p className="usage-dialog-empty">No measured model requests match this view yet.</p>) : <>
-      {!visible.length && !loading && (reports.length
-        ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
-        : <div className="usage-dialog-empty-state">
-          <BarChart3 size={20} aria-hidden="true" />
-          <strong>No usage reported yet</strong>
-          <p>Cost, tokens and limits appear here once a connected account reports usage. Run a conversation, then refresh.</p>
-          {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
-        </div>)}
-      {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
-      {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
-        <header><strong>{report.providerLabel}</strong><span>{report.scopeLabel}</span></header>
-        {report.error && <ErrorState className="usage-dialog-error" message={report.error}/>}
-        {tab === 'Cost' && <dl><dt>Reported cost</dt><dd>{usageCost(report.cost)}</dd></dl>}
-        {tab === 'Tokens' && <dl><dt>Input tokens</dt><dd>{usageCount(report.inputTokens)}</dd><dt>Output tokens</dt><dd>{usageCount(report.outputTokens)}</dd><dt>Cache read tokens</dt><dd>{usageCount(report.cacheReadTokens)}</dd><dt>Cache write tokens</dt><dd>{usageCount(report.cacheWriteTokens)}</dd></dl>}
-        {tab === 'Limits' && (report.limits?.length ? report.limits : [{ id: 'unknown', label: 'Provider limit' }]).map(limit => <div key={limit.id} className="usage-limit"><dl><dt>{limit.label}</dt><dd>{usagePercent(limit.usedPercent)}</dd><dt>Reset</dt><dd>{usageReset(limit.reset)}</dd></dl></div>)}
-      </section>)}
-      </>}
-    </div>
-  </Modal>;
+      </section>;
 }

@@ -8,7 +8,7 @@ import {
 } from '../contracts/tool-program.ts';
 import { digest, type Store } from '../storage/store.ts';
 import { authorize, type ToolAuthority, type RegistryEntry } from './tool-authority.ts';
-import { ToolEffectLedger, privateArgumentCommitment } from './tool-effects.ts';
+import { ToolEffectLedger } from './tool-effects.ts';
 import { ToolDisclosure, toolDefinitionDigest } from './tool-disclosure.ts';
 import { PrivateToolResults } from './tool-results.ts';
 import type { M12FlagKey } from './capability-flags.ts';
@@ -419,7 +419,7 @@ export class ToolPrograms {
           throw new HarnessError('TOOL_ARGUMENTS_DENIED', 'Nested arguments cannot change ownership or invocation identity');
         if (Buffer.byteLength(JSON.stringify(args)) > 64 * 1024) throw new HarnessError('INPUT_LIMIT', 'Nested arguments exceed 64 KiB');
         const definition = this.host.disclosure.require(owner, name, privateProgram.definitions[name]);
-        const commitment = privateArgumentCommitment({ name, args });
+        const commitment = this.host.effects.privateArgumentCommitment({ name, args });
         let nested: NestedCallV1;
         if (replayJournal && issued < replayJournal.committedIssuedCount) {
           const prior = this.store.get<NestedCallV1>('nestedCall', `${programId}:${key}`);
@@ -608,8 +608,8 @@ export class ToolPrograms {
         const suffix = effect.invocationId.slice(prefix.length), attempt = Number(suffix);
         if (!/^[1-9][0-9]*$/.test(suffix) || !Number.isSafeInteger(attempt) || attempt > attempts ||
           effect.threadId !== owner.threadId || !sameOwner(effect.owner, owner) || effect.parentInvocationId !== null ||
-          effect.toolId !== definition.id || effect.definitionDigest !== toolDefinitionDigest(definition) ||
-          effect.privateArgumentCommitment !== privateArgumentCommitment({ name: definition.id, args: { sourceDigest: program.sourceDigest } })) continue;
+          effect.toolId !== definition.id || effect.definitionDigest !== definition.schemaDigest ||
+          effect.privateArgumentCommitment !== this.host.effects.privateArgumentCommitment({ name: definition.id, args: { sourceDigest: program.sourceDigest } })) continue;
         parents.set(effect.invocationId, { effect, attempt });
       }
       for (const storedCall of this.store.all<NestedCallV1>('nestedCall', owner.threadId)) {
@@ -620,9 +620,11 @@ export class ToolPrograms {
           !sameOwner(call.owner, owner) || !program.allowedTools.includes(call.toolName) ||
           call.definitionDigest !== privateProgram?.definitions?.[call.toolName]) continue;
         const effect = this.host.effects.get(call.invocationId);
+        let callDefinition: RegistryEntry | undefined;
+        try { callDefinition = this.host.authority.require(call.toolName); } catch { callDefinition = undefined; }
         const bound = effect && effect.threadId === owner.threadId && sameOwner(effect.owner, owner) &&
           effect.invocationId === call.invocationId && effect.toolId === call.toolName &&
-          effect.definitionDigest === call.definitionDigest && effect.privateArgumentCommitment === call.argumentsCommitment &&
+          effect.definitionDigest === callDefinition?.schemaDigest && effect.privateArgumentCommitment === call.argumentsCommitment &&
           effect.parentInvocationId !== null && parents.has(effect.parentInvocationId);
         let verified = false;
         if (call.resultRef && (call.state === 'SUCCEEDED' || call.state === 'FAILED')) {

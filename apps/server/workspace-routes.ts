@@ -7,6 +7,7 @@ import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
 import {ComparisonFileRequestSchema,ComparisonScopeSchema} from '../../packages/contracts/code-review.ts';
 import {workspaceHost,githubFor} from './workspace-host.ts';
 import {registerEnvironmentRoutes} from './environment-routes.ts';
+import {registerIntegrationSecretReferenceRoutes} from './integration-secret-reference-routes.ts';
 import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
@@ -29,6 +30,7 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.post('/api/split-workspace/commands',{bodyLimit:128*1024},async request=>split.command(envelope.parse(request.body)));
  registerEnvironmentRoutes(app,service);
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
+ registerIntegrationSecretReferenceRoutes(app,host);
  const actionOutcomes=new WorkspaceActionOutcomes(projects,github);
  // Read-only inspection uses POST so private journal payloads never enter URLs.
  app.post('/api/projects/:projectId/action-outcomes/inspect',{bodyLimit:1024*1024},async(request,reply)=>{
@@ -133,12 +135,11 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
    reply.code(outcome.state==='revoked'?403:409);
    const code=outcome.state==='revoked'?'CAPABILITY_DENIED':outcome.state==='not-applied'?'REVISION_CHANGED':'ACTION_UNCERTAIN';
    const message=outcome.state==='revoked'?'Project access changed. Refresh before acting.':outcome.state==='not-applied'?'The reviewed changes are out of date. Refresh before acting.':'The outcome is uncertain. Inspect the original action before retrying.';
-   return{...outcome,error:{code,message}};
+   return{...outcome,error:{code,message,details:{state:outcome.state,operationId:input.id}}};
   }
   const existing=service.store.receipt({...input,type:'project.'+input.type,payload:{...input.payload,projectId}});if(existing)return existing;
   const command={...input,type:'project.'+input.type,payload:{...input.payload,projectId}},p=input.payload,binding=await projects.binding(projectId,input.threadId);
   if(input.type==='refresh'){const context=await projects.context(projectId,input.threadId);return service.store.command(command,()=>context);}
-  if(input.type==='create-pr'){const created=await github.create(projectId,input.threadId,p);return service.store.command(command,()=>created);}
   if(input.type==='link-pr'){const pullNumber=z.number().int().positive().parse(p.number),details=await github.details(projectId,input.threadId,pullNumber),key=JSON.stringify([projectId,input.threadId??null,details.repo,pullNumber]);return service.store.command(command,()=>{service.store.put('linkedPullRequest',key,input.threadId??null,{projectId,threadId:input.threadId,...details,linkedAt:new Date().toISOString()});return details;});}
   if(input.type==='add-script'){const script={id:randomUUID(),projectId,name:z.string().trim().min(1).max(100).parse(p.name),command:z.string().trim().min(1).max(8000).parse(p.command)};return service.store.command(command,()=>{service.store.put('projectScript',script.id,null,script);return script;});}
   if(input.type==='run-script'){const script=service.store.get<{projectId:string;command:string}>('projectScript',identifier.parse(p.scriptId));if(!script||script.projectId!==projectId)throw new HarnessError('NOT_FOUND','Project script is unavailable.');return terminals.open({projectId,threadId:input.threadId,command:script.command});}

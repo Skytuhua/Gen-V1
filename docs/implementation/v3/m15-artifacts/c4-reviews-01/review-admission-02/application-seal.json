@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "status": "PREPARED_NOT_EXECUTED",
+  "files": [
+    {
+      "path": "apply-fixed-admission.py",
+      "sha256": "7071179c0f8cb561b803acedec0e881097bd30c821ca3dee049ad39dbc0ecced",
+      "bytes": 13468
+    },
+    {
+      "path": "admission-manifest.json",
+      "sha256": "0f3587320e84e918195ac3001ed70feebddac33b5354b989fc93fd937e626a9c",
+      "bytes": 18752
+    },
+    {
+      "path": "final-addendum-manifest.json",
+      "sha256": "60f98c3019ca2792fbb23bad4599893fc77039c4dfb35d524e2d43862d5980b9",
+      "bytes": 2966
+    },
+    {
+      "path": "metadata-admission-manifest.json",
+      "sha256": "ba5691f6c1c5a1e38027fff8a907e275b1c21311460dcfed4d489efae50a9d43",
+      "bytes": 1301
+    },
+    {
+      "path": "public-manifest.json",
+      "sha256": "f112c8a6d5a5a9e5b61c05c2291860a170c940cdf01381b5b3209cef00e15e3a",
+      "bytes": 17004
+    },
+    {
+      "path": "summary.md",
+      "sha256": "213e564dc3555334e00c3c267ac58aaddc7638ffcd16cda7f527b78a671542c7",
+      "bytes": 2884
+    },
+    {
+      "path": "application-README.md",
+      "sha256": "0ff26bc66b08704f385c93382ca0392576f53c7bf26d0476ef9ddc7d9e6c74cd",
+      "bytes": 2208
+    },
+    {
+      "path": "application-plan.json",
+      "sha256": "abce0734c4210f6fbb7e979eb99d8a4747b81b4bff661f3ac29795347f76dff4",
+      "bytes": 2307
+    }
+  ]
+}

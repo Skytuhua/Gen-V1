@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "python",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/adopt-eeda.py",
+    "apply",
+    "--repo",
+    "/workspace/scratch/1b47eb428672/m15-v3",
+    "--out",
+    "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/prepared-adoption-01",
+    "--plan-sha256",
+    "022a10079827bb3381c572a81af7c8d8c429b4ea7eb1d6181af301a53be85d12"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+  "startedAt": "2026-11-16T05:13:10.423Z",
+  "endedAt": "2026-11-16T05:13:11.622Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-incoming-ux-adoption-01.log",
+  "logDigest": "874d7bbbb0d11e41d5b7f6f33f8cb04cffb0b2c7d5ea0b5f92e7ba646e04b2bd"
+}

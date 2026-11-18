@@ -1,0 +1,5 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-diagnostic-01/apply-tests.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{"status": "APPLIED_NOT_EXECUTED", "patchSha256": "6240e39f4e4288875a0e089eaaea0b163912f72f3a0bd956b0e0c7aa66d7bdc6", "files": [{"path": "tests/e2e/workbench-fixture.tsx", "beforeSha256": "e59ee834615e3c3a9a393bf2b399e502bcdaed5d843b3189eadf8fdaac0e1e71", "proposedSha256": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9"}, {"path": "tests/e2e/workbench.spec.ts", "beforeSha256": "f5e7a26bdb830ac77967796dd6091cdb09714aee11ca7a65550fdbe1243d1fde", "proposedSha256": "d9db1c91ba7e39850a2cd77d1937631b9ec87f3e9ab47a3b0c66e551d833f608"}], "productionChanged": false}

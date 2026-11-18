@@ -1,0 +1,374 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "49cd633273a3f61c14a4191a9877e99ab23ec88f",
+  "inspectedPaths": [
+    {
+      "path": ".github/actions/setup/action.yml",
+      "blobSha": "1751a7153b9ef0b30c8a081774e47990827613ef"
+    },
+    {
+      "path": ".github/workflows/ci.yml",
+      "blobSha": "f5e248c2da4f661f37e518cf9894c31b590ac68b"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "71098c4e07f7ac2c68e7a68df6d616fd29eed56f"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "blobSha": "aa2ff3d0986a962f58ce1756740b806e9cfbfa07"
+    },
+    {
+      "path": "apps/web/src/ContextInspector.tsx",
+      "blobSha": "0fa748ae093ea5541d2a194aa408471c8fd02aea"
+    },
+    {
+      "path": "apps/web/src/FileCheckpoints.tsx",
+      "blobSha": "3c0c56f8c6ebe358985f3c03f5383ef354fb922c"
+    },
+    {
+      "path": "apps/web/src/Markdown.tsx",
+      "blobSha": "87c2fd9228f3e3bf53564adfffd687d6aecb730c"
+    },
+    {
+      "path": "apps/web/src/SurfaceBoundary.tsx",
+      "blobSha": "6f3cb0c2a589ca9c6d7397372ed0979aaf812dd0"
+    },
+    {
+      "path": "apps/web/src/UsageDialog.tsx",
+      "blobSha": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f"
+    },
+    {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "blobSha": "13032a7b12ceae0a2de39366e38e0d022da93196"
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "blobSha": "ab46274986562b7b51ebae5e6aaa3452059f7c7f"
+    },
+    {
+      "path": "apps/web/src/agents-workspace/composer.ts",
+      "blobSha": "b171a53e881ed8efad16fd29a50eddc61cd67aa8"
+    },
+    {
+      "path": "apps/web/src/conversation-workspace/reader.ts",
+      "blobSha": "fcf2d5c3f0a13801e99e1786a69de54ac40fc8c6"
+    },
+    {
+      "path": "apps/web/src/editor-handoff.ts",
+      "blobSha": "6922dbbf25e605dd09d95db1c657bdeb15b76a93"
+    },
+    {
+      "path": "apps/web/src/journal.ts",
+      "blobSha": "9ba410e9ce0d510f00fe2227aba19d7a721eafa1"
+    },
+    {
+      "path": "apps/web/src/project-api.ts",
+      "blobSha": "73d17a1661e87173a238d07042e2a1945137234b"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "7030ba17f06722387a14816ee239f4bb67508c57"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "blobSha": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/contracts/workspace.ts",
+      "blobSha": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "829f51f534524beaafe81010ba4fc9aa25498537"
+    },
+    {
+      "path": "packages/core/effect-recovery.ts",
+      "blobSha": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+    },
+    {
+      "path": "packages/core/request-custody.ts",
+      "blobSha": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "cdef7f205a6d19357478d9676f9c43c26be512b1"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/core/ui-admission.ts",
+      "blobSha": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920"
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "blobSha": "09c95164b7065a5bb255f802a67f978f24d74a3e"
+    },
+    {
+      "path": "packages/runtime-hermes/acp-server.ts",
+      "blobSha": "9751c58c09c1f8ebd1bf2adcf503305766e9cd70"
+    },
+    {
+      "path": "packages/runtime-hermes/client.ts",
+      "blobSha": "c83ab13d1347c592df98ddf258788415bb971873"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "blobSha": "3e9a425b28b150874cfee1a29725308133bf193b"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "ce8d20eae27cc81716669365257bb34ce9575420"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+    },
+    {
+      "path": "packages/ui-shell/ChatView.tsx",
+      "blobSha": "12812060fba6247e96992ddca1c46a215e868e76"
+    },
+    {
+      "path": "packages/ui-shell/Modal.tsx",
+      "blobSha": "8feed2a14d3a4f3806aebe79550f16128a815338"
+    },
+    {
+      "path": "packages/ui-shell/Popover.tsx",
+      "blobSha": "1c9178cc0296d3152f09a747decdbbb143bdb925"
+    },
+    {
+      "path": "packages/ui-shell/Select.tsx",
+      "blobSha": "697e15e7e96b5bfbb9698bd75f4e73418f86210c"
+    },
+    {
+      "path": "packages/ui-shell/controls.css",
+      "blobSha": "3bb85ed443471a313fddcfe1460e8d4caa72fe9f"
+    },
+    {
+      "path": "packages/ui-shell/overlay-position.ts",
+      "blobSha": "29498b225f471e40aba1d1626163a9f75ae3690c"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "42051c22c746a00191b232cee3f46ae297b27941"
+    },
+    {
+      "path": "tests/e2e/chat-view-modes.spec.ts",
+      "blobSha": "2aab5d30fb70e73eab431239a26b24ec14122520"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-effects.ts",
+      "version": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/effect-recovery.ts",
+      "version": "e2addef2f65df69a504495e0b3c9954d0006ac5c",
+      "testIds": [
+        "tests/effect-recovery-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/tool-authority.ts",
+      "version": "1d654522d9842838276d162a33dac6141f731c26",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "829f51f534524beaafe81010ba4fc9aa25498537",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/storage/store.ts",
+      "version": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/index.ts",
+      "version": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "testIds": [
+        "tests/source-workbench-host-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/request-context.ts",
+      "version": "30185cc5e66a74ef438af8ec8e9ec1d91989c614",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/source-workbench-host-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/request-custody.ts",
+      "version": "b7f0946c0ae48acc8d0673739c6960a5601b8841",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "f331cf16b268282da888a41da42fc776ea7befd5",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+  ],
+  "approvedDrift": [
+    {
+      "path": ".github/workflows/ci.yml",
+      "fromBlob": "40a16ef4a302732d5e846966d59bde35cebfb149",
+      "toBlob": "f5e248c2da4f661f37e518cf9894c31b590ac68b",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/server/server.ts",
+      "fromBlob": "460872b318c3a2b6e9510c3a6d436eafcce89091",
+      "toBlob": "71098c4e07f7ac2c68e7a68df6d616fd29eed56f",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "fromBlob": "75d67d9c68cb6619caabbe3623ec67f85156b34f",
+      "toBlob": "aa2ff3d0986a962f58ce1756740b806e9cfbfa07",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/FileCheckpoints.tsx",
+      "fromBlob": "3e1c92c5318e9604a260583922e5e23e061383f2",
+      "toBlob": "3c0c56f8c6ebe358985f3c03f5383ef354fb922c",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/UsageDialog.tsx",
+      "fromBlob": "9c190e07fa319738d3782fdfff8c30f0f47fa276",
+      "toBlob": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/WorkspaceHost.tsx",
+      "fromBlob": "ac996c547e8a3aeb4727c4ea26261f63261bf7a6",
+      "toBlob": "13032a7b12ceae0a2de39366e38e0d022da93196",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+      "fromBlob": "5d17e2634387996267ef74d87239a5a85e82ec42",
+      "toBlob": "ab46274986562b7b51ebae5e6aaa3452059f7c7f",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "apps/web/src/project-api.ts",
+      "fromBlob": "a2d0d12b550f7d53379549e98bb7fd4cad802c38",
+      "toBlob": "73d17a1661e87173a238d07042e2a1945137234b",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "fromBlob": "15e6c254349ac6ad6ce1d1b16898d40bd1ea31d8",
+      "toBlob": "7030ba17f06722387a14816ee239f4bb67508c57",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/contracts/workspace.ts",
+      "fromBlob": "88e08fbaee575c8ab5414ad055ec5639c812fdc2",
+      "toBlob": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/core/service.ts",
+      "fromBlob": "eab452b47b375d23961989fc07da7815cbebda78",
+      "toBlob": "cdef7f205a6d19357478d9676f9c43c26be512b1",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/core/workspace-layout.ts",
+      "fromBlob": "3d8a899ec3a69ac53fbed128299e09c117d2dd82",
+      "toBlob": "09c95164b7065a5bb255f802a67f978f24d74a3e",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/runtime-hermes/acp-server.ts",
+      "fromBlob": "8a41fcc0d9410148f32f2f0831b7db4d62f80100",
+      "toBlob": "9751c58c09c1f8ebd1bf2adcf503305766e9cd70",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "fromBlob": "ca15682cd2ad86f296247e71a7b18a190c0968f4",
+      "toBlob": "3e9a425b28b150874cfee1a29725308133bf193b",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "fromBlob": "a1fe7014a0ad6b570e88e8db4d867bf9d8c6ee0b",
+      "toBlob": "ce8d20eae27cc81716669365257bb34ce9575420",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "fromBlob": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "toBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "packages/ui-shell/Modal.tsx",
+      "fromBlob": "3e0db6b5f2beba2086779753779fb560590f14ef",
+      "toBlob": "8feed2a14d3a4f3806aebe79550f16128a815338",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "fromBlob": "800aa98314856a9e3920babd2ff351e7605ffc5f",
+      "toBlob": "42051c22c746a00191b232cee3f46ae297b27941",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    },
+    {
+      "path": "tests/e2e/chat-view-modes.spec.ts",
+      "fromBlob": "94e809cff0e97ab578651f755b1e6d73b854988c",
+      "toBlob": "2aab5d30fb70e73eab431239a26b24ec14122520",
+      "note": "Inspected execution-base changes and current caller contracts; see M15-dependency-review.md and M15-handoff.md. This records reviewed source drift, not release permission."
+    }
+  ]
+}

@@ -1,0 +1,61 @@
+--- a/tests/e2e/workbench-fixture.tsx
++++ b/tests/e2e/workbench-fixture.tsx
+@@ -10,6 +10,19 @@
+ import type {OutputScrollAnchor,WorkbenchOutputRow} from '../../apps/web/src/workbench-window';
+ const transformedMessage='| Column |\n| --- |\n| left\\|right |\n\nPlain later left|right';
+ function Fixture(){const [action,setAction]=useState('');return <main style={{padding:24}}><SourceSelectionActions text="Visible selected text from an assistant." enabled onAction={(kind,selection)=>setAction(kind+':'+selection.text)}><p id="source-text">Visible selected text from an assistant.</p></SourceSelectionActions><button id="background">Other pane</button><output>{action}</output><div data-source-id="forged">Forged selected text</div><section id="transformed-source"><SourceSelectionActions text={transformedMessage} enabled onAction={(kind,selection)=>setAction(kind+':'+selection.start)}><Markdown text={transformedMessage}/></SourceSelectionActions></section></main>;}
++
++function HeldSelectionFixture(){
++ const [action,setAction]=useState(''),[state,setState]=useState('idle'),release=useRef<(()=>void)|null>(null);
++ return <main style={{padding:24}}>
++  <SourceSelectionActions text="Visible selected text from an assistant." enabled onAction={async(kind,selection)=>{
++   setAction(JSON.stringify({kind,...selection}));setState('pending');
++   await new Promise<void>(resolve=>{release.current=resolve;});release.current=null;setState('complete');
++  }}><p id="source-text">Visible selected text from an assistant.</p></SourceSelectionActions>
++  <section id="foreign-root" tabIndex={0}><p id="foreign-text">A newer foreign selection belongs to another pane.</p></section>
++  <button type="button" data-complete-selection onClick={()=>release.current?.()}>Complete held action</button>
++  <output data-held-state>{state}</output><output data-held-action>{action}</output>
++ </main>;
++}
+ 
+ const tallCanonicalText=Array.from({length:150},(_,index)=>index===75?'Visible selected canonical text from the current owner.':`Retained canonical line ${index}.`).join('\n');
+ function ModalSelectionFixture(){
+@@ -131,4 +144,4 @@
+ }
+ 
+ const fixtureKind=new URLSearchParams(location.search).get('fixture');
+-createRoot(document.getElementById('root')!).render(fixtureKind==='output'?<OutputFixture/>:fixtureKind==='selection-modal'?<ModalSelectionFixture/>:<Fixture/>);
++createRoot(document.getElementById('root')!).render(fixtureKind==='output'?<OutputFixture/>:fixtureKind==='selection-modal'?<ModalSelectionFixture/>:fixtureKind==='selection-held'?<HeldSelectionFixture/>:<Fixture/>);
+--- a/tests/e2e/workbench.spec.ts
++++ b/tests/e2e/workbench.spec.ts
+@@ -7,6 +7,30 @@
+ test.use({trace:'off'});
+ async function select(page:Page,selector='#source-text',start=8,end=21){await page.locator(selector).evaluate((element,{start,end})=>{const node=element.firstChild!,range=document.createRange();range.setStart(node,start);range.setEnd(node,end);const selection=window.getSelection()!;selection.removeAllRanges();selection.addRange(range);element.dispatchEvent(new MouseEvent('pointerup',{bubbles:true}));document.dispatchEvent(new Event('selectionchange'));},{start,end});}
+ test('M15 selected visible text exposes explicit actions',async({page})=>{await page.goto('/fixture');await select(page);await expect(page.getByRole('button',{name:'Attach to prompt',exact:true})).toBeVisible();await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(page.locator('output')).toHaveText('attach:selected text');});
++test.describe('M15 selection action completion',()=>{
++ test.use({trace:'retain-on-failure'});
++ for(const newerForeignSelection of [false,true])test(`M15 completed selection action ${newerForeignSelection?'preserves a newer foreign range':'clears its unchanged own range'}`,async({page})=>{
++  await page.goto('/fixture?fixture=selection-held');await select(page);
++  const attach=page.getByRole('button',{name:'Attach to prompt',exact:true});await attach.click();
++  await expect(page.locator('[data-held-state]')).toHaveText('pending');await expect(attach).toBeDisabled();
++  const captured=JSON.stringify({kind:'attach',start:8,end:21,text:'selected text'});
++  await expect(page.locator('[data-held-action]')).toHaveText(captured);
++  if(newerForeignSelection){await page.locator('#foreign-root').focus();await select(page,'#foreign-text',2,25);}
++  const selected=page.locator(newerForeignSelection?'#foreign-text':'#source-text');
++  const readSelection=()=>selected.evaluate(element=>{
++   const selection=getSelection(),range=selection?.rangeCount===1?selection.getRangeAt(0):null;
++   return {text:selection?.toString()??'',ranges:selection?.rangeCount??0,start:range?.startOffset??null,end:range?.endOffset??null,withinTarget:!!range&&element.contains(range.startContainer)&&element.contains(range.endContainer)};
++  });
++  const expected={text:newerForeignSelection?'newer foreign selection':'selected text',ranges:1,start:newerForeignSelection?2:8,end:newerForeignSelection?25:21,withinTarget:true};
++  await expect.poll(readSelection).toEqual(expected);
++  // Settle the fixture acknowledgment without a pointer/focus action that could itself change the range.
++  await page.locator('[data-complete-selection]').evaluate((element:HTMLButtonElement)=>element.click());
++  await expect(page.locator('[data-held-state]')).toHaveText('complete');
++  await expect(page.locator('[data-held-action]')).toHaveText(captured);
++  await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});
++  await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);
++ });
++});
+ test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
+ test('M15 hidden and clipped source text is refused',async({page})=>{await page.goto('/fixture');await page.locator('#source-text').evaluate(el=>{el.style.opacity='0';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await page.locator('#source-text').evaluate(el=>{el.style.opacity='1';el.style.width='2px';el.style.overflow='hidden';el.style.whiteSpace='nowrap';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
+ test('M15 refuses a clipped interior span even when both selection endpoints are visible',async({page})=>{

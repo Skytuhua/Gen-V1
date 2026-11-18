@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "pnpm",
+    "test:no-lease"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\pnpm.CMD",
+  "startedAt": "2026-11-16T02:18:57.614Z",
+  "endedAt": "2026-11-16T02:35:56.084Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-external-reconcile-full-vitest-52ec1936d2.log",
+  "logDigest": "a50cbda0fd818e8886cdc2eac8aae0998a0e6b9ab1114a07b37c1de45f605b6f"
+}

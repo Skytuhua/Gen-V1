@@ -1,0 +1,17 @@
+{
+  "capturedAt": "2026-11-15T22:39:55.297862+00:00",
+  "stage": "Before the final renderer suite, after the source freeze and completed isolated acknowledgment test.",
+  "sourceDigests": {
+    "apps/web/src/WorkbenchOutput.tsx": "97af6b234bd842ada92ef37258942128370acb07cc4534c32dc9a8c2848d63a0",
+    "apps/web/src/workbench-window.ts": "f60e74407b09c9bea6956153f65a90fc124c009d8b06cf6d10f2c3943e856a2d",
+    "apps/web/src/workbench-output.css": "56474ef2de65a728ba58a448775ae5b2d56cb2ffb4d7c696da0a9c14517774f2",
+    "apps/web/src/workbench-recovery.ts": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+    "apps/web/src/journal.ts": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+    "apps/web/src/SourceSelectionActions.tsx": "96f2144595c7bbd5a42696e96e617077533731d0de7cae6fe2d8dfd2470d6ced",
+    "apps/web/src/source-workbench.css": "32c8a4284c227f423a12e803a7960c7e2649c0ce4393587016d3064407f2d536",
+    "apps/web/src/Markdown.tsx": "b590c8746468fd7d2eeb894cd22599cb1075ae35ff49bcb4b787288424938297",
+    "packages/contracts/source-selection.ts": "e63ce5749be5468b122df211f2663275bec8deb01d83b9fb908dc636fb4a7f25",
+    "tests/e2e/workbench-fixture.tsx": "a034670e9e36084cefca381bed941c0daefd6d7c985d26bc44cf4cdd8f7bef7d",
+    "tests/e2e/workbench.spec.ts": "a6e5f5445dc82ffa0b7b2be71b23ff49fb44c38d2b3d882a9472cb10fce75821"
+  }
+}

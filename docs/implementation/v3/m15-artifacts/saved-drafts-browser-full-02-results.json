@@ -1,0 +1,1164 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.playwright.config.ts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "saved-drafts.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "command": "exec timeout --kill-after=5s 300s pnpm exec vite --config tests/e2e/saved-drafts.vite.config.ts --configLoader runner",
+      "url": "http://127.0.0.1:5522/fixture",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "saved-drafts.spec.ts",
+      "file": "saved-drafts.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "named save, reload, delete/cancel and empty state stay local",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 8105,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:08:16.276Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-2e6eee4bc4f04cdd5e76",
+          "file": "saved-drafts.spec.ts",
+          "line": 283,
+          "column": 1
+        },
+        {
+          "title": "replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5695,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:08:24.697Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-1571454870c78027923e",
+          "file": "saved-drafts.spec.ts",
+          "line": 319,
+          "column": 1
+        },
+        {
+          "title": "stale restore is rejected atomically after a concurrent window edit",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 12189,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\nExpected substring: \u001b[32m\"current draft changed\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\nExpected substring: \u001b[32m\"current draft changed\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:495",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 495,
+                      "line": 64
+                    },
+                    "snippet": "  62 | });\n  63 | test('stale restore is rejected atomically after a concurrent window edit',async({page,context})=>{\n> 64 |  await setup(page);await save(page,'Saved text','Named prompt');await draft(page).fill('Original current');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();const other=await context.newPage();await setup(other);await draft(other).fill('Concurrent edit');await expect(draft(page)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Replace text'}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft'}).getByRole('alert')).toContainText('current draft changed');await expect(draft(other)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Cancel',exact:true}).click();await open(page);await expect(page.getByText(/Before replacing ·/)).toHaveCount(0);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^\n  65 | });\n  66 | test('rich records list missing/revoked references but restore text only, preserving current excerpts',async({page})=>{\n  67 |  const writes=await setup(page);await seed(page,'rich');await draft(page).fill('Current text');await open(page);await page.getByRole('button',{name:'Restore text only',exact:true}).click();await expect(page.getByText(/Resource revoked-resource: unvalidated/)).toBeVisible();await expect(page.getByText(/Skill review: unvalidated revision/)).toBeVisible();await expect(page.getByText(/Terminal saved-terminal: saved excerpt not restored/)).toBeVisible();await expect(page.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await page.getByRole('button',{name:'Replace text'}).click();await expect(draft(page)).toHaveValue('Recovered text');await expect(page.getByRole('button',{name:'Terminal selection · current-terminal',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Terminal selection · saved-terminal',exact:true})).toBeHidden();expect(writes).toEqual([]);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 495,
+                        "line": 64
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\nExpected substring: \u001b[32m\"current draft changed\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Restore saved draft' }).getByRole('alert')\u001b[22m\n\n\n  62 | });\n  63 | test('stale restore is rejected atomically after a concurrent window edit',async({page,context})=>{\n> 64 |  await setup(page);await save(page,'Saved text','Named prompt');await draft(page).fill('Original current');await open(page);await page.getByRole('button',{name:'Restore',exact:true}).click();const other=await context.newPage();await setup(other);await draft(other).fill('Concurrent edit');await expect(draft(page)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Replace text'}).click();await expect(page.getByRole('dialog',{name:'Restore saved draft'}).getByRole('alert')).toContainText('current draft changed');await expect(draft(other)).toHaveValue('Concurrent edit');await page.getByRole('button',{name:'Cancel',exact:true}).click();await open(page);await expect(page.getByText(/Before replacing ·/)).toHaveCount(0);\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ^\n  65 | });\n  66 | test('rich records list missing/revoked references but restore text only, preserving current excerpts',async({page})=>{\n  67 |  const writes=await setup(page);await seed(page,'rich');await draft(page).fill('Current text');await open(page);await page.getByRole('button',{name:'Restore text only',exact:true}).click();await expect(page.getByText(/Resource revoked-resource: unvalidated/)).toBeVisible();await expect(page.getByText(/Skill review: unvalidated revision/)).toBeVisible();await expect(page.getByText(/Terminal saved-terminal: saved excerpt not restored/)).toBeVisible();await expect(page.getByRole('button',{name:'Restore with references unavailable'})).toBeDisabled();await page.getByRole('button',{name:'Replace text'}).click();await expect(draft(page)).toHaveValue('Recovered text');await expect(page.getByRole('button',{name:'Terminal selection · current-terminal',exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Terminal selection · saved-terminal',exact:true})).toBeHidden();expect(writes).toEqual([]);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:495"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:08:30.408Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 495,
+                    "line": 64
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-03d87d9ee9950d001228",
+          "file": "saved-drafts.spec.ts",
+          "line": 361,
+          "column": 1
+        },
+        {
+          "title": "rich records list missing/revoked references but restore text only, preserving current excerpts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3689,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:08:44.420Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-4712bddea200ed5a2188",
+          "file": "saved-drafts.spec.ts",
+          "line": 391,
+          "column": 1
+        },
+        {
+          "title": "account/profile/thread/project/working-copy libraries remain isolated",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 12974,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:08:48.607Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5279dfda3e4bb93d2883",
+          "file": "saved-drafts.spec.ts",
+          "line": 422,
+          "column": 1
+        },
+        {
+          "title": "quota failure and corrupt records keep the active draft and offer retry",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8332,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected substring: \u001b[32m\"Quota\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected substring: \u001b[32m\"Quota\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:622",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 622,
+                      "line": 73
+                    },
+                    "snippet": "  71 | });\n  72 | test('quota failure and corrupt records keep the active draft and offer retry',async({page})=>{\n> 73 |  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^\n  74 | });\n  75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{\n  76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Saved drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 622,
+                        "line": 73
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected substring: \u001b[32m\"Quota\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n\n  71 | });\n  72 | test('quota failure and corrupt records keep the active draft and offer retry',async({page})=>{\n> 73 |  await setup(page);await draft(page).fill('Keep through quota');await page.evaluate(()=>{const original=IDBObjectStore.prototype.put;IDBObjectStore.prototype.put=function(value,key){if(String(key).startsWith('saved-drafts:'))throw new DOMException('Quota exhausted','QuotaExceededError');return original.call(this,value,key);};});await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Quota prompt');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toContainText('Quota');await page.getByRole('button',{name:'Cancel',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');await page.reload();await expect(draft(page)).toHaveValue('Keep through quota');await seed(page,'corrupt');await open(page);await expect(page.getByRole('dialog',{name:'Saved drafts'}).getByRole('alert')).toContainText('could not load');await page.getByRole('button',{name:'Retry',exact:true}).click();await expect(draft(page)).toHaveValue('Keep through quota');\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ^\n  74 | });\n  75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{\n  76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Saved drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Saved drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:622"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:01.595Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 622,
+                    "line": 73
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-78a4c0e85f26e5f515de",
+          "file": "saved-drafts.spec.ts",
+          "line": 442,
+          "column": 1
+        },
+        {
+          "title": "keyboard/IME does not save or send a composing name; focus returns to the trigger",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2436,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:11.272Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-b9d1bc51d73ceea6c38f",
+          "file": "saved-drafts.spec.ts",
+          "line": 484,
+          "column": 1
+        },
+        {
+          "title": "approved list captures and stress names remain usable at 1440/1024/768 with reduced motion",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 11874,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:81:464",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 464,
+                      "line": 81
+                    },
+                    "snippet": "  79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);\n  80 |  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}\n> 81 |  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^\n  82 | });\n  83 |\n  84 | for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure shows a keyboard-reachable alert and preserves drafts`,async({page},info)=>{"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 464,
+                        "line": 81
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt' }).getByRole('alert')\u001b[22m\n\n\n  79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);\n  80 |  for(const width of [1440,1024,768]){await page.setViewportSize({width,height:900});await expect(page.getByRole('dialog',{name:'Saved drafts'})).toBeInViewport();expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:info.outputPath(`2-after-${width}.png`)});}\n> 81 |  await page.emulateMedia({reducedMotion:'reduce'});await page.keyboard.press('Escape');await seed(page,'full');await open(page);await page.screenshot({path:info.outputPath('stress-list.png')});await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name').fill('Overflow');await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt'}).getByRole('alert')).toBeVisible();await page.screenshot({path:info.outputPath('save-error.png')});\n     |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                ^\n  82 | });\n  83 |\n  84 | for(const failure of ['quota','abort','conflict'] as const)test(`empty-composer ${failure} restore failure shows a keyboard-reachable alert and preserves drafts`,async({page},info)=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:81:464"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:13.830Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 464,
+                    "line": 81
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5b78d6907434a555290b",
+          "file": "saved-drafts.spec.ts",
+          "line": 520,
+          "column": 1
+        },
+        {
+          "title": "empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7048,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:27.303Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-5a10a0ac5536a8cb85df",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6540,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:34.522Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-18569b93b7d45a1c5995",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7599,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:41.074Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-fe46e5d9096cdeca0643",
+          "file": "saved-drafts.spec.ts",
+          "line": 565,
+          "column": 55
+        },
+        {
+          "title": "new excerpt-only saves remain reviewable after the original selection is gone",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6657,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:48.714Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-1663358a27c001e52695",
+          "file": "saved-drafts.spec.ts",
+          "line": 651,
+          "column": 42
+        },
+        {
+          "title": "new skill-only saves remain reviewable after the original selection is gone",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "timedOut",
+                  "duration": 30226,
+                  "error": {
+                    "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m",
+                    "stack": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                  },
+                  "errors": [
+                    {
+                      "message": "\u001b[31mTest timeout of 30000ms exceeded.\u001b[39m"
+                    },
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 165,
+                        "line": 47
+                      },
+                      "message": "Error: locator.fill: Test timeout of 30000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByLabel('Draft name', { exact: true })\u001b[22m\n\u001b[2m    - locator resolved to <input value=\"\" maxlength=\"120\" aria-label=\"Draft name\"/>\u001b[22m\n\u001b[2m    - fill(\"References only\")\u001b[22m\n\u001b[2m  - attempting fill action\u001b[22m\n\u001b[2m    - waiting for element to be visible, enabled and editable\u001b[22m\n\u001b[2m  - element was detached from the DOM, retrying\u001b[22m\n\n\n  45 | async function open(page:Page){await page.getByRole('button',{name:'Saved drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}\n  46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){\n> 47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();\n     |                                                                                                                                                                     ^\n  48 | }\n  49 | async function seed(page:Page,kind:'rich'|'full'|'corrupt'){\n  50 |  await page.evaluate(async({owner,kind})=>{const path='/apps/web/src/saved-drafts.ts',journalPath='/apps/web/src/journal.ts',excerptPath='/apps/web/src/terminal-excerpts.ts';const s=await import(path),j=await import(journalPath),e=await import(excerptPath);const ref={version:1,scope:{kind:'personal'},sourceId:'personal:test',skillId:'review',locator:'a'.repeat(64),revision:'b'.repeat(64),digest:'c'.repeat(64),sourceBinding:'d'.repeat(64)};\n    at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:165)\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:104:2"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:09:55.397Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/trace.zip"
+                    }
+                  ]
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-4abcb020f636d8da1116",
+          "file": "saved-drafts.spec.ts",
+          "line": 651,
+          "column": 42
+        },
+        {
+          "title": "source-only named metadata remains inspectable after selection removal without changing the current send mode",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7036,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:10:27.519Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-3b53d16a2ccde2895f62",
+          "file": "saved-drafts.spec.ts",
+          "line": 739,
+          "column": 1
+        },
+        {
+          "title": "legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 7197,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:10:34.686Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-86aa2f26799054625f82",
+          "file": "saved-drafts.spec.ts",
+          "line": 868,
+          "column": 1
+        },
+        {
+          "title": "approved thread capacity blocks a new draft with an alert and keeps records in every working copy",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8648,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\nExpected substring: \u001b[32m\"20 per thread\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\nExpected substring: \u001b[32m\"20 per thread\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:163:92",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                      "column": 92,
+                      "line": 163
+                    },
+                    "snippet": "  161 |  },owner);\n  162 |  await draft(page).fill('Keep this current text');await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Over capacity');await page.getByRole('button',{name:'Save draft',exact:true}).click();\n> 163 |  await expect(page.getByRole('dialog',{name:'Save prompt',exact:true}).getByRole('alert')).toContainText('20 per thread');await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep this current text');\n      |                                                                                            ^\n  164 |  expect(await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp);return [(await s.loadSavedDrafts(owner)).library.records.length,(await s.loadSavedDrafts({...owner,workingCopyId:'other-copy'})).library.records.length];},owner)).toEqual([19,1]);expect(writes).toEqual([]);\n  165 | });\n  166 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                        "column": 92,
+                        "line": 163
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoContainText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\nExpected substring: \u001b[32m\"20 per thread\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toContainText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Save prompt', exact: true }).getByRole('alert')\u001b[22m\n\n\n  161 |  },owner);\n  162 |  await draft(page).fill('Keep this current text');await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill('Over capacity');await page.getByRole('button',{name:'Save draft',exact:true}).click();\n> 163 |  await expect(page.getByRole('dialog',{name:'Save prompt',exact:true}).getByRole('alert')).toContainText('20 per thread');await page.keyboard.press('Escape');await expect(draft(page)).toHaveValue('Keep this current text');\n      |                                                                                            ^\n  164 |  expect(await page.evaluate(async owner=>{const sp='/apps/web/src/saved-drafts.ts',s=await import(sp);return [(await s.loadSavedDrafts(owner)).library.records.length,(await s.loadSavedDrafts({...owner,workingCopyId:'other-copy'})).library.records.length];},owner)).toEqual([19,1]);expect(writes).toEqual([]);\n  165 | });\n  166 |\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:163:92"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:10:41.913Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-approved-thre-4f8d3-cords-in-every-working-copy/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780490507-b7d0e65b-2a7e-4e26-aafb-9f1fb4b0a5b8/saved-drafts/artifacts/saved-drafts-approved-thre-4f8d3-cords-in-every-working-copy/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts",
+                    "column": 92,
+                    "line": 163
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-8c61f6aa073d9b8634d2",
+          "file": "saved-drafts.spec.ts",
+          "line": 967,
+          "column": 1
+        },
+        {
+          "title": "idle expiry refreshes an open list and deletes only the expired saved record",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5123,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:10:52.692Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-713958bd80870190dbe8",
+          "file": "saved-drafts.spec.ts",
+          "line": 1016,
+          "column": 1
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on load",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4917,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:10:57.931Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-febb25d518bc41c80695",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on list",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2267,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:02.875Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-a03578e9c28967879757",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "global retention evicts inactive threads and copies on switch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4083,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:05.170Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-a5be6d5687743be2c34e",
+          "file": "saved-drafts.spec.ts",
+          "line": 1128,
+          "column": 50
+        },
+        {
+          "title": "empty active library schedules expiry for inactive threads and copies without reading their owner",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5283,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:09.299Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-250c7fbb06160a9a3cb6",
+          "file": "saved-drafts.spec.ts",
+          "line": 1139,
+          "column": 1
+        },
+        {
+          "title": "another window adding an inactive library reschedules the empty active library deadline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5259,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:14.610Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-18f9c66efd3c383d4a5c",
+          "file": "saved-drafts.spec.ts",
+          "line": 1158,
+          "column": 1
+        },
+        {
+          "title": "malformed inactive library does not block valid load or inactive expiry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4514,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:19.886Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-ba00e9cb40b7edff55a1",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid save or inactive expiry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3906,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:24.416Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-6900127859d4d7eb7136",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid list or inactive expiry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3307,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:28.365Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-d3935d19c746af0361a7",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not block valid switch or inactive expiry",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4133,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:31.789Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-52489ab2b0ec516c0363",
+          "file": "saved-drafts.spec.ts",
+          "line": 1255,
+          "column": 58
+        },
+        {
+          "title": "malformed inactive library does not stop the global expiry deadline",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5280,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-15T22:11:35.943Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "dfe46acd7ed52462a86d-89770e2643bbe964c71a",
+          "file": "saved-drafts.spec.ts",
+          "line": 1295,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-15T22:08:11.792Z",
+    "duration": 209714.635,
+    "expected": 22,
+    "skipped": 0,
+    "unexpected": 5,
+    "flaky": 0
+  }
+}

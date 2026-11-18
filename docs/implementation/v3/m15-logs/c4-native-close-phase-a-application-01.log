@@ -1,0 +1,48 @@
+argv: ["python","/workspace/scratch/1b47eb428672/m15-publication/c4/native-close-application-01/apply-phase-a.py"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+{
+  "phase": "A_OBSERVATION_AND_STRICT_EXTRACTION",
+  "head": "082264877e3bb61e8c87f257ccd831b5c1438472",
+  "manifestSha256": "93d4ec819d74ed536a102ddc5ebb756575b81ea671ac470e83f1d258bd5b959d",
+  "sourceFiles": [
+    {
+      "path": "apps/web/src/journal.ts",
+      "baseSha256": "80684a124d51aaade5d4674a481f8291760ce1220f51196ad9321327c472fb1c",
+      "proposedSha256": "a212c969a005b0658cfe03fc108d6d9573bf4f7a63cfb07698c05070984c9580",
+      "bytes": 17089
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "baseSha256": "63204f9de4b62e52e275ad5c30f0cbf41a8082efe090430df1a1fa357b123ab8",
+      "proposedSha256": "bb3bf735759b8cda44163d353d604ffb8ebbdcce9fea2a270cca07cf9f244237",
+      "bytes": 11529
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "baseSha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe",
+      "proposedSha256": "2b2487818ec1badfc9df9cb5a27c01b907f32c83a3532216aa94701aa2fb315d",
+      "bytes": 22277
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "baseSha256": "8d3430ff909d8ea4d5ee3de45453b15d24c1775e56bb142fda48b7b8e4a9fb2d",
+      "proposedSha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b",
+      "bytes": 161584
+    }
+  ],
+  "test": {
+    "path": "tests/source-handoff-v3.test.ts",
+    "sha256": "0091b68efa2be49c10daf7d4a8d9650ba2fe08a5634826e44ddc0c369cd827df",
+    "bytes": 23223,
+    "plainCases": 16,
+    "twoRowParameterizedDeclarations": 2,
+    "declaredCases": 20,
+    "status": "NOT_RUN"
+  },
+  "indexUnchanged": true,
+  "originalCheckoutClean": true,
+  "runtimeResult": "NOT_RUN",
+  "policy": "Cold allowance and PhaseB wiring have not been applied. The upcoming run establishes behavioral results on this intermediate source."
+}

@@ -1,0 +1,92 @@
+--- final-custody.py
++++ final-custody-v2.py
+@@ -11,6 +11,11 @@
+ PREFIX = 'docs/implementation/v3/'
+ ARTIFACTS = PREFIX + 'm15-artifacts/'
+ LOGS = PREFIX + 'm15-logs/'
++TESTED_PARENT = 'eeda4a89879aa1f3baaa04e60dd4a2d9c520761c'
++PUBLISHED_PARENT = '98db97d1d0a1910f47879f0e3d54477bcc59feed'
++PUBLICATION_DELTA_ARCHIVE = ARTIFACTS + 'external-publication-cut-98db97d/archive-manifest.json'
++PUBLICATION_DELTA_ARCHIVE_SHA256 = '37ea9450c8c2667eb2d8ae409c2ca6c6851257c0be64778aed98698bb2fe4954'
++PUBLICATION_DELTA_PATHS = [PREFIX + 'M15-source-cut.json', PREFIX + 'M15-validation-summary.json']
+ ARCHIVES = [
+     ('publication-cut-01', 'fd17d9f1b3931eb2b974b86ccc5a3892da47ba33', 16),
+     ('publication-cut-02', 'a1349b0a7ffa1420566da9c7770faf80d6be5bf3', 17),
+@@ -22,6 +27,7 @@
+ 
+ parser = argparse.ArgumentParser()
+ parser.add_argument('--parent', required=True)
++parser.add_argument('--published-parent', required=True)
+ parser.add_argument('--tested-cut', type=Path, required=True)
+ parser.add_argument('--tested-cut-sha256', required=True)
+ parser.add_argument('--tested-public-manifest', type=Path, required=True)
+@@ -53,7 +59,11 @@
+         result[name.decode()] = (mode, kind, oid)
+     return result
+ 
+-require(rev('HEAD') == args.parent, 'Publication parent changed.')
++require(args.parent == TESTED_PARENT, 'Unexpected tested-context parent.')
++require(args.published_parent == PUBLISHED_PARENT, 'Unexpected published parent.')
++require(rev('HEAD') == args.parent, 'Tested-context HEAD changed.')
++require(git('rev-list', '--parents', '-n', '1', args.published_parent).decode().split() == [args.published_parent, args.parent], 'Published parent is not the exact admitted direct child.')
++subprocess.run(['git', 'merge-base', '--is-ancestor', args.parent, args.published_parent], check=True, env=env)
+ require(not Path(git('rev-parse', '--path-format=absolute', '--git-path', 'MERGE_HEAD').decode().strip()).exists(), 'Unexpected unfinished merge.')
+ require(not git('ls-files', '-u'), 'Unresolved index entries.')
+ subprocess.run(['git', 'merge-base', '--is-ancestor', BASE, args.parent], check=True, env=env)
+@@ -96,6 +106,39 @@
+             require((row['mode'], row['kind'], row['blob']) == tree[source], 'Archive Git identity differs: ' + source)
+     archives.append({'path': str(path), 'sourceCommit': commit, 'files': count, 'sha256': sha(raw)})
+ 
++# This is an exact two-document publication delta, not a general source-drift allowance.
++tested_tree = read_tree(args.parent)
++published_tree = read_tree(args.published_parent)
++delta_paths = sorted(name for name in set(tested_tree) | set(published_tree) if tested_tree.get(name) != published_tree.get(name))
++require(delta_paths == PUBLICATION_DELTA_PATHS, 'Incoming publication delta exceeds the admitted two documentation paths.')
++delta_path = Path(PUBLICATION_DELTA_ARCHIVE)
++require(not any(parent.is_symlink() for parent in delta_path.parents if parent != Path('.')), 'Publication delta archive parent is a symlink.')
++require(stat.S_ISREG(delta_path.lstat().st_mode), 'Publication delta manifest is not a regular file.')
++delta_raw = delta_path.read_bytes()
++require(sha(delta_raw) == PUBLICATION_DELTA_ARCHIVE_SHA256, 'Publication delta manifest digest differs.')
++delta = json.loads(delta_raw)
++require(type(delta.get('schemaVersion')) is int and delta['schemaVersion'] == 1 and delta.get('kind') == 'EXACT_INCOMING_DOCUMENT_DELTA', 'Publication delta manifest schema differs.')
++require(delta.get('sourceCommit') == args.published_parent and delta.get('sourceTree') == rev(args.published_parent + '^{tree}') and delta.get('previousCommit') == args.parent, 'Publication delta identity differs.')
++require(delta.get('deltaPaths') == PUBLICATION_DELTA_PATHS and delta.get('productSourceDelta') == [] and delta.get('testExecutionCreated') is False, 'Publication delta scope differs.')
++delta_rows = delta['files']
++require(len(delta_rows) == 2 and [row['sourcePath'] for row in delta_rows] == PUBLICATION_DELTA_PATHS, 'Publication delta archive membership differs.')
++for row in delta_rows:
++    source = row['sourcePath']
++    expected_destination = delta_path.parent / source.removeprefix(PREFIX)
++    require(row['archivedPath'] == expected_destination.as_posix(), 'Noncanonical publication delta destination.')
++    destination = Path(row['archivedPath'])
++    require(not any(parent.is_symlink() for parent in destination.parents if parent != Path('.')), 'Publication delta destination parent is a symlink.')
++    info = destination.lstat()
++    identity = published_tree[source]
++    require(identity[1] == 'blob' and identity[0] in ('100644', '100755') and (row['mode'], row['kind'], row['blob']) == identity, 'Publication delta Git identity differs: ' + source)
++    require(stat.S_ISREG(info.st_mode) and bool(info.st_mode & 0o111) == (identity[0] == '100755'), 'Publication delta destination type/mode differs: ' + source)
++    data = destination.read_bytes()
++    require(len(data) == row['bytes'] and sha(data) == row['sha256'], 'Publication delta archive bytes/digest differ: ' + source)
++    require(data == git('show', args.published_parent + ':' + source), 'Publication delta archive differs from exact Git bytes: ' + source)
++publication_delta = {'path': PUBLICATION_DELTA_ARCHIVE, 'sha256': sha(delta_raw), 'previousCommit': args.parent,
++    'sourceCommit': args.published_parent, 'sourceTree': rev(args.published_parent + '^{tree}'),
++    'files': 2, 'deltaPaths': delta_paths, 'testExecutionCreated': False}
++
+ entries = {}
+ for row in git('ls-files', '--stage', '-z').split(b'\0'):
+     if row:
+@@ -104,7 +147,7 @@
+         require(stage == '0', 'Unmerged entry.')
+         entries[name.decode()] = (mode, oid)
+ retained = 0
+-for name, (mode, kind, oid) in read_tree(args.parent).items():
++for name, (mode, kind, oid) in published_tree.items():
+     if not name.startswith((LOGS, ARTIFACTS)):
+         continue
+     require(kind == 'blob' and mode in ('100644', '100755'), 'Unexpected historical file mode.')
+@@ -155,6 +198,7 @@
+ require(changed <= set(manifest['source']), 'Current changed paths missing explicit admission: ' + str(sorted(changed - set(manifest['source']))))
+ subprocess.run(['git', '-c', 'core.whitespace=cr-at-eol', 'diff', '--check', BASE, '--', '.', ':(exclude)' + LOGS + '**', ':(exclude)' + ARTIFACTS + '**'], env=env, check=True)
+ print(json.dumps({'status': 'PASS', 'originalCheckout': 'clean', 'originalHead': ORIGINAL, 'parent': args.parent,
++    'testedContextHead': args.parent, 'publishedParent': args.published_parent, 'incomingPublicationDelta': publication_delta,
+     'acceptedBase': BASE, 'archives': archives, 'publishedEvidenceFilesUnchanged': retained,
+     'lockfileSha256': lock, 'ordinaryCiSha256': ci, 'testedCutSha256': args.tested_cut_sha256,
+     'testedNonManifestSourceFilesUnchanged': len(current_source), 'publicSourceEntries': len(manifest['source']),

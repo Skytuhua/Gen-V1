@@ -1,0 +1,438 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-11-16T06:18:05.356414+00:00",
+  "scope": "Seven outside draft inputs; result/publication placeholders remain pending substitutions rather than execution claims. This is the host reviewer scope finding and contract readback, separate from the existing final rendered-doc review.",
+  "status": "TWO_WORDING_FINDINGS_CORRECTED_BY_PARENT",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "testedSourceCut": {
+    "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
+    "bytes": 548158,
+    "sha256": "0c4ceab16a33448876d38b5a3d4e1877c0adf7d267cb587dfa60853db21ff260"
+  },
+  "testedContextHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "intendedPublicationParent": "98db97d1d0a1910f47879f0e3d54477bcc59feed",
+  "draftInputs": [
+    {
+      "path": "M15-handoff.template.md",
+      "bytes": 15914,
+      "sha256": "22bd04797670e9ab436603e9428997391c067455b2c9820b2c29bc5acd277dde"
+    },
+    {
+      "path": "M15-original-prompt-audit.template.md",
+      "bytes": 11678,
+      "sha256": "5a04f81cea82e2162ad2a08c3045ed6c620d25a888d7e43fea1009866063575d"
+    },
+    {
+      "path": "M15-feature-comparison.template.md",
+      "bytes": 12296,
+      "sha256": "fb4b751ff58f2fb847dc310d3901f4194ee602171440fd3ae5454dd8c1ca59af"
+    },
+    {
+      "path": "M15-final-review.template.md",
+      "bytes": 8878,
+      "sha256": "f66891011ee577dd974c65e6acbc68ffded25ab786a5082f88929848fe2c9cd6"
+    },
+    {
+      "path": "M15-dependency-review.md",
+      "bytes": 11866,
+      "sha256": "47b8331a5b023fd976e4a0513871409815cb0104bc0361e413d9897457f538b9"
+    },
+    {
+      "path": "M15-plan.md",
+      "bytes": 6161,
+      "sha256": "1e8ac866f1c2c9f9488d18ff6d70cc17a455788ebf21f8aae98e06f5145a0d4d"
+    },
+    {
+      "path": "dependency-inputs.json",
+      "bytes": 9822,
+      "sha256": "e25e226b89d4c9341e1a0e7848398e3276d0afebf87cfdfec43c259daa6a3b35"
+    }
+  ],
+  "sourceInputs": [
+    {
+      "path": "packages/core/service.ts",
+      "bytes": 160368,
+      "sha256": "c65007b5f1b181d4ee7e444400e70a2fbb76afd9fdf4803c769050b41fba1909"
+    },
+    {
+      "path": "packages/core/source-workbench.ts",
+      "bytes": 52861,
+      "sha256": "9fc076adf608a620156fc39e49c34e92f4bb69ed58da6d8e7c4fc2d915fa0227"
+    },
+    {
+      "path": "apps/web/src/App.tsx",
+      "bytes": 161584,
+      "sha256": "ad251275255c3f40a1aaa18196f6782722daf3b46b3bae4d5d2f214b337ad88b"
+    },
+    {
+      "path": "apps/web/src/SourceWorkbench.tsx",
+      "bytes": 22799,
+      "sha256": "de0cac5c3f3575621a12822d8c1b963932bc47911591f78ffbead2a61cd34965"
+    },
+    {
+      "path": "apps/web/src/workbench-recovery.ts",
+      "bytes": 13673,
+      "sha256": "2c4c50c7300d3960a0be2d8a18f089150b9a5a8b3d3cc5f0776a77de36ecc5a3"
+    }
+  ],
+  "findings": [
+    {
+      "id": "research-backend-retirement-scope",
+      "finding": "The original dependency draft described Research/Code Review hosts as retired, but accepted-b4aa Service constructs PersonalResearchRepository and dispatches research.* commands. Backend retirement belongs to unaccepted later main.",
+      "correctionObserved": "Parent confines retirement to workspace presets/UI creation and explicitly preserves current Research repository/commands.",
+      "status": "CORRECTED"
+    },
+    {
+      "id": "workspace-opener-versus-memory-owner",
+      "finding": "The original App row conflated panel opening with canonical main placement/M05 eligibility. Main WorkspaceControls may retain an opener without canonical conversation; pinned native threads need a header opener and embedded views suppress the duplicate. M05 checks an eligible main-kind exact owner, not canonical placement.",
+      "correctionObserved": "Parent final-review row separately states main WorkspaceControls/pinned-native/embedded behavior and no canonical-main-placement requirement for M05.",
+      "status": "CORRECTED"
+    }
+  ],
+  "independentChecks": {
+    "acceptedContractCount": 17,
+    "inspectedPathCount": 58,
+    "acceptedContracts": [
+      {
+        "path": "packages/contracts/implementation-evidence.ts",
+        "acceptedBaseBlob": "559b720ccead1d29c9a1bd4db528af52534105c3"
+      },
+      {
+        "path": "packages/contracts/tool-effects.ts",
+        "acceptedBaseBlob": "41b6fff1364825122c33761c0bfaac66da03bca0"
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "acceptedBaseBlob": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+      },
+      {
+        "path": "packages/core/effect-recovery.ts",
+        "acceptedBaseBlob": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "acceptedBaseBlob": "1d654522d9842838276d162a33dac6141f731c26"
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "acceptedBaseBlob": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "acceptedBaseBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "acceptedBaseBlob": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+      },
+      {
+        "path": "packages/contracts/request-context.ts",
+        "acceptedBaseBlob": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+      },
+      {
+        "path": "packages/core/request-custody.ts",
+        "acceptedBaseBlob": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+      },
+      {
+        "path": "packages/contracts/project-memory.ts",
+        "acceptedBaseBlob": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+      },
+      {
+        "path": "packages/core/project-memory.ts",
+        "acceptedBaseBlob": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+      },
+      {
+        "path": "packages/core/project-memory-host.ts",
+        "acceptedBaseBlob": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+      },
+      {
+        "path": "apps/server/project-memory-routes.ts",
+        "acceptedBaseBlob": "831de697aa0961028c5d91874a45a1d2dee51b3c"
+      },
+      {
+        "path": "packages/runtime/memory-checkpoint.ts",
+        "acceptedBaseBlob": "f7f90985d8b2d62dc389337bf0bb1f802a94f472"
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "acceptedBaseBlob": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+      },
+      {
+        "path": "packages/core/security.ts",
+        "acceptedBaseBlob": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+      }
+    ],
+    "inspectedPaths": [
+      {
+        "path": ".github/actions/setup/action.yml",
+        "acceptedBaseBlob": "1751a7153b9ef0b30c8a081774e47990827613ef"
+      },
+      {
+        "path": ".github/workflows/ci.yml",
+        "acceptedBaseBlob": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a"
+      },
+      {
+        "path": "apps/server/project-memory-routes.ts",
+        "acceptedBaseBlob": "831de697aa0961028c5d91874a45a1d2dee51b3c"
+      },
+      {
+        "path": "apps/server/server.ts",
+        "acceptedBaseBlob": "c4151c1eeb491eaca0d395d744077084e645fcbc"
+      },
+      {
+        "path": "apps/web/src/App.tsx",
+        "acceptedBaseBlob": "85409cb90709ed3cc1c3e623bbdf2469e2c7437e"
+      },
+      {
+        "path": "apps/web/src/ContextInspector.tsx",
+        "acceptedBaseBlob": "0548641327ee0b0e728e3a8d031095e8cb5a658a"
+      },
+      {
+        "path": "apps/web/src/DraftTransfer.tsx",
+        "acceptedBaseBlob": "908da828392bc9f9fe515cc295980d280c1962f3"
+      },
+      {
+        "path": "apps/web/src/FileCheckpoints.tsx",
+        "acceptedBaseBlob": "3c0c56f8c6ebe358985f3c03f5383ef354fb922c"
+      },
+      {
+        "path": "apps/web/src/Markdown.tsx",
+        "acceptedBaseBlob": "87c2fd9228f3e3bf53564adfffd687d6aecb730c"
+      },
+      {
+        "path": "apps/web/src/ProjectMemoryReview.tsx",
+        "acceptedBaseBlob": "c8f26f9ebf4d8c8b04b3748ba97e10898064189a"
+      },
+      {
+        "path": "apps/web/src/SurfaceBoundary.tsx",
+        "acceptedBaseBlob": "6f3cb0c2a589ca9c6d7397372ed0979aaf812dd0"
+      },
+      {
+        "path": "apps/web/src/UsageDialog.tsx",
+        "acceptedBaseBlob": "2396e2d1b25d28d3243edfc4b05e5e9c2e1a1c6f"
+      },
+      {
+        "path": "apps/web/src/UsageFooter.tsx",
+        "acceptedBaseBlob": "ae83fd6d48d68abb9c7b1526a9eb22acb0c8bd63"
+      },
+      {
+        "path": "apps/web/src/WorkspaceHost.tsx",
+        "acceptedBaseBlob": "13032a7b12ceae0a2de39366e38e0d022da93196"
+      },
+      {
+        "path": "apps/web/src/WorkspaceSplitLayout.tsx",
+        "acceptedBaseBlob": "ab46274986562b7b51ebae5e6aaa3452059f7c7f"
+      },
+      {
+        "path": "apps/web/src/agents-workspace/composer.ts",
+        "acceptedBaseBlob": "7a94caf228cae1bb7c844f9f6cbf1f1c14bbabb3"
+      },
+      {
+        "path": "apps/web/src/conversation-placement.ts",
+        "acceptedBaseBlob": "0fb7bc91ee04f8f39c9021a55feec4d3c3ad77b9"
+      },
+      {
+        "path": "apps/web/src/conversation-workspace/reader.ts",
+        "acceptedBaseBlob": "fcf2d5c3f0a13801e99e1786a69de54ac40fc8c6"
+      },
+      {
+        "path": "apps/web/src/desktop-context.tsx",
+        "acceptedBaseBlob": "aebecbb594f4bb866e69374976b1a54fe4aa0246"
+      },
+      {
+        "path": "apps/web/src/draft-transfer.ts",
+        "acceptedBaseBlob": "d50d53d4fe61da005ac1bc01c136dae4ca96856c"
+      },
+      {
+        "path": "apps/web/src/editor-handoff.ts",
+        "acceptedBaseBlob": "6922dbbf25e605dd09d95db1c657bdeb15b76a93"
+      },
+      {
+        "path": "apps/web/src/journal.ts",
+        "acceptedBaseBlob": "9ba410e9ce0d510f00fe2227aba19d7a721eafa1"
+      },
+      {
+        "path": "apps/web/src/project-api.ts",
+        "acceptedBaseBlob": "73d17a1661e87173a238d07042e2a1945137234b"
+      },
+      {
+        "path": "apps/web/src/project-memory-api.ts",
+        "acceptedBaseBlob": "f5ef97a2a52b076d86bacb166b35ad030ea055ca"
+      },
+      {
+        "path": "apps/web/src/project-memory-preparation.ts",
+        "acceptedBaseBlob": "ea5a90610481baa1a1059700a79b2762a459506e"
+      },
+      {
+        "path": "packages/contracts/implementation-evidence.ts",
+        "acceptedBaseBlob": "559b720ccead1d29c9a1bd4db528af52534105c3"
+      },
+      {
+        "path": "packages/contracts/index.ts",
+        "acceptedBaseBlob": "a35b1b14c4143a6a5d56c7777339e5aa73734d9d"
+      },
+      {
+        "path": "packages/contracts/project-memory.ts",
+        "acceptedBaseBlob": "760aaecd420b260b7d8c948f89ef0d32718b17e7"
+      },
+      {
+        "path": "packages/contracts/request-context.ts",
+        "acceptedBaseBlob": "30185cc5e66a74ef438af8ec8e9ec1d91989c614"
+      },
+      {
+        "path": "packages/contracts/tool-effects.ts",
+        "acceptedBaseBlob": "41b6fff1364825122c33761c0bfaac66da03bca0"
+      },
+      {
+        "path": "packages/contracts/workspace.ts",
+        "acceptedBaseBlob": "1ba9a79e3ff01a7e416453e5c5ddb69cbf2a1427"
+      },
+      {
+        "path": "packages/core/capability-flags.ts",
+        "acceptedBaseBlob": "02783eb029b618f9bf1abe0b9f51ff8f5c27076a"
+      },
+      {
+        "path": "packages/core/effect-recovery.ts",
+        "acceptedBaseBlob": "e2addef2f65df69a504495e0b3c9954d0006ac5c"
+      },
+      {
+        "path": "packages/core/file-access.ts",
+        "acceptedBaseBlob": "818fcb763fb73df85d4249ef5fc6b0cfc3805c9c"
+      },
+      {
+        "path": "packages/core/memory-retrieval.ts",
+        "acceptedBaseBlob": "85b8ca85a57b5033cf5178ebb112d9ac809c4c79"
+      },
+      {
+        "path": "packages/core/project-memory-host.ts",
+        "acceptedBaseBlob": "a197333efb3bd12cd0c1c3512eb335cd7a421c1c"
+      },
+      {
+        "path": "packages/core/project-memory.ts",
+        "acceptedBaseBlob": "08f522d2ebd1e82851f26c2a16575c1d469ab66b"
+      },
+      {
+        "path": "packages/core/request-custody.ts",
+        "acceptedBaseBlob": "b7f0946c0ae48acc8d0673739c6960a5601b8841"
+      },
+      {
+        "path": "packages/core/security.ts",
+        "acceptedBaseBlob": "b676d8f33fe10e52c3395116f0fa1cb4be52c6e2"
+      },
+      {
+        "path": "packages/core/service.ts",
+        "acceptedBaseBlob": "d15a6bfb9bbdf81018cf7756851cd3c233525cae"
+      },
+      {
+        "path": "packages/core/tool-authority.ts",
+        "acceptedBaseBlob": "1d654522d9842838276d162a33dac6141f731c26"
+      },
+      {
+        "path": "packages/core/tool-effects.ts",
+        "acceptedBaseBlob": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+      },
+      {
+        "path": "packages/core/ui-admission.ts",
+        "acceptedBaseBlob": "50a4006f6bd3056ebe7af75b7f40ea595a1f7920"
+      },
+      {
+        "path": "packages/core/workspace-layout.ts",
+        "acceptedBaseBlob": "09c95164b7065a5bb255f802a67f978f24d74a3e"
+      },
+      {
+        "path": "packages/runtime-hermes/acp-server.ts",
+        "acceptedBaseBlob": "9751c58c09c1f8ebd1bf2adcf503305766e9cd70"
+      },
+      {
+        "path": "packages/runtime-hermes/client.ts",
+        "acceptedBaseBlob": "c83ab13d1347c592df98ddf258788415bb971873"
+      },
+      {
+        "path": "packages/runtime-hermes/index.ts",
+        "acceptedBaseBlob": "83d5d7856551b3d4a52d9a6a2cd8c1363c09abe1"
+      },
+      {
+        "path": "packages/runtime-hermes/worker.py",
+        "acceptedBaseBlob": "c736b8a9165b8265b6de527021d50f8068900549"
+      },
+      {
+        "path": "packages/runtime/memory-checkpoint.ts",
+        "acceptedBaseBlob": "f7f90985d8b2d62dc389337bf0bb1f802a94f472"
+      },
+      {
+        "path": "packages/storage/store.ts",
+        "acceptedBaseBlob": "bff67fade13b7813ba89aff98cbf853acb7e3723"
+      },
+      {
+        "path": "packages/ui-shell/ChatView.tsx",
+        "acceptedBaseBlob": "12812060fba6247e96992ddca1c46a215e868e76"
+      },
+      {
+        "path": "packages/ui-shell/Modal.tsx",
+        "acceptedBaseBlob": "8feed2a14d3a4f3806aebe79550f16128a815338"
+      },
+      {
+        "path": "packages/ui-shell/Popover.tsx",
+        "acceptedBaseBlob": "1c9178cc0296d3152f09a747decdbbb143bdb925"
+      },
+      {
+        "path": "packages/ui-shell/Select.tsx",
+        "acceptedBaseBlob": "697e15e7e96b5bfbb9698bd75f4e73418f86210c"
+      },
+      {
+        "path": "packages/ui-shell/controls.css",
+        "acceptedBaseBlob": "3bb85ed443471a313fddcfe1460e8d4caa72fe9f"
+      },
+      {
+        "path": "packages/ui-shell/overlay-position.ts",
+        "acceptedBaseBlob": "29498b225f471e40aba1d1626163a9f75ae3690c"
+      },
+      {
+        "path": "scripts/browser-suites.ts",
+        "acceptedBaseBlob": "021117cacbd3970428be2d79e31008fb3183ae13"
+      },
+      {
+        "path": "tests/e2e/chat-view-modes.spec.ts",
+        "acceptedBaseBlob": "2aab5d30fb70e73eab431239a26b24ec14122520"
+      }
+    ],
+    "unchangedAgainstAcceptedBase": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "bytes": 12556,
+        "sha256": "49c2af68e504addc4e4ecf01f1ac2bd5f2f9d1c9c82dd56afbc47a69d48aa804",
+        "acceptedBaseBlob": "8a6b3dc275978f2882de8324ca63af2dc2e5a28a",
+        "equalsAcceptedBaseBytes": true
+      },
+      {
+        "path": "pnpm-lock.yaml",
+        "bytes": 355786,
+        "sha256": "2269337714e848fd47cca88f898e6d9fd5f70e276a04061e435546ddc9eb9fb9",
+        "acceptedBaseBlob": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+        "equalsAcceptedBaseBytes": true
+      },
+      {
+        "path": "scripts/public-source.ts",
+        "bytes": 1941,
+        "sha256": "065d26c59adc5fef4fe82ea75985304278804d8cb3978ed8cd8f383f6d47abd7",
+        "acceptedBaseBlob": "caa93bfab926b3fc82f5dfc307bfb2d4502e0682",
+        "equalsAcceptedBaseBytes": true
+      }
+    ],
+    "otherChecks": [
+      "M05 owning metadata/read-only integration is not blanket unsupported; final access and complete owner checks remain explicit.",
+      "First-account witness and M04 rollback claims remain bounded; no new authority or Store callback await is claimed.",
+      "FIFO is separate per-invocation validation with normal31 red/green; earlier cached-read evidence is bounded.",
+      "Two earlier App startup/reload causes remain unclassified despite current passes.",
+      "Native scripted-model/seeded-null-account, Linux Chromium/Edge, installed desktop and renderer measurement limits remain separate."
+    ]
+  },
+  "limits": [
+    "No tests, browser, packaging, custody, controller or publication job executed by this review.",
+    "Original-checkout cleanliness and ordinary CI execution were not established by accepted-base byte comparison.",
+    "Final rendered-doc identity/counts remain a separate readback; placeholders are not claims.",
+    "No current latest-main compatibility or broad browser causal claim."
+  ],
+  "repositoryWrites": 0,
+  "testsExecuted": false
+}

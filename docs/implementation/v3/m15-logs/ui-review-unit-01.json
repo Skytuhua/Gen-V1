@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-composer-v3.test.ts",
+    "tests/agents-workspace-composer.test.ts",
+    "tests/agents-workspace-dispatch.test.ts",
+    "tests/source-selection-dom-v3.test.ts",
+    "--maxWorkers=1"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+  "startedAt": "2026-11-15T21:58:52.044Z",
+  "endedAt": "2026-11-15T21:58:59.775Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/ui-review-unit-01.log",
+  "logDigest": "8d0d9ea6fbcd8d2b715e1eba055d25a3b9f790bdce68498f8ea973a7e0b4d4ae"
+}

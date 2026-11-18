@@ -1,0 +1,27 @@
+argv: ["git","merge","--no-commit","--no-ff","b4aa2caa5a3cedb29a0fddb510e49b5abd802a73"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Auto-merging apps/server/server.ts
+CONFLICT (content): Merge conflict in apps/server/server.ts
+Auto-merging apps/web/src/App.tsx
+CONFLICT (content): Merge conflict in apps/web/src/App.tsx
+Auto-merging apps/web/src/ContextInspector.tsx
+CONFLICT (content): Merge conflict in apps/web/src/ContextInspector.tsx
+Auto-merging apps/web/src/agents-workspace/composer.ts
+CONFLICT (content): Merge conflict in apps/web/src/agents-workspace/composer.ts
+Auto-merging packages/contracts/index.ts
+CONFLICT (content): Merge conflict in packages/contracts/index.ts
+Auto-merging packages/core/capability-flags.ts
+CONFLICT (content): Merge conflict in packages/core/capability-flags.ts
+Auto-merging packages/core/service.ts
+CONFLICT (content): Merge conflict in packages/core/service.ts
+Auto-merging scripts/browser-suites.ts
+Auto-merging scripts/public-source-files.json
+CONFLICT (content): Merge conflict in scripts/public-source-files.json
+Auto-merging tests/agents-workspace-composer.test.ts
+Auto-merging tests/e2e/agents-workspace.spec.ts
+Auto-merging tests/e2e/artifact-acknowledgment.spec.ts
+Auto-merging tests/e2e/task-interface-fixture.ts
+CONFLICT (content): Merge conflict in tests/e2e/task-interface-fixture.ts
+Automatic merge failed; fix conflicts and then commit the result.

@@ -1,0 +1,30 @@
+argv: ["pnpm","exec","vitest","run","tests/source-selection-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-selection-v3.test.ts (8 tests | 1 failed) 494ms
+     × selects only declared JSON array entries while preserving ordinary object properties 7ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-selection-v3.test.ts > exact source selection from authorized read models > selects only declared JSON array entries while preserving ordinary object properties
+AssertionError: expected function to throw an error, but it didn't
+ ❯ tests/source-selection-v3.test.ts:67:128
+     65|     const source={...common,sourceRevision:observed.sourceRevision,con…
+     66|     expect(select(source,observed)).toBe('"declared row"');
+     67|     for(const pointer of ['/length','/01','/-1','/1'])expect(()=>selec…
+       |                                                                                                                                ^
+     68|     const objectText='{"length":17}',objectObserved={text:objectText,s…
+     69|     expect(select({...source,sourceRevision:objectObserved.sourceRevis…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 7 passed (8)
+   Start at  06:31:05
+   Duration  820ms (transform 368ms, setup 0ms, import 88ms, tests 494ms, environment 0ms)
+

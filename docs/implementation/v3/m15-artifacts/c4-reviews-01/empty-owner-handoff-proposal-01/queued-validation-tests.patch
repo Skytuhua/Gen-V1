@@ -1,0 +1,102 @@
+--- a/tests/source-handoff-v3.test.ts
++++ b/tests/source-handoff-v3.test.ts
+@@ -452,4 +452,99 @@
+     } finally {held?.release(); await Promise.all([recovering, handing.result]); sentinel.mockRestore(); removeApp(); removeWorkbench();}
+   });
+ 
++
++  it('revalidates a same-owner failure that begins after the earlier call has inspected its source', async () => {
++    const local = storage({macrotasks: true}), textBefore = local.put('draft:thread-a', 'Keep this intervening prompt');
++    const journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const failure = Error('A new source operation failed after the earlier validation');
++    let injected = false, began!: () => void, attempted: ReturnType<typeof watch<boolean>> | undefined;
++    const begun = new Promise<void>(resolve => {began = resolve;});
++    const observe = journal.journalHandoffState; let inspections = 0;
++    const sentinel = vi.spyOn(journal, 'journalHandoffState').mockImplementation(names => {
++      if (++inspections > 64) throw Error('Queued validations did not settle after 64 metadata inspections.');
++      const states = observe(names);
++      // Queue real source work after a completed empty-read snapshot. The first
++      // validation may finish; a separately queued call must inspect the new work.
++      if (!injected && states[0].readSucceeded && !states[0].pending) {
++        injected = true;
++        queueMicrotask(() => {
++          local.state.failCommit = failure;
++          attempted = watch(journal.journalCompareAndSwap(sourceKey, undefined, metadata));
++          began();
++        });
++      }
++      return states;
++    });
++    const first = watch(recovery.prepareSourceOwnerHandoff(owner));
++    const second = watch(recovery.prepareSourceOwnerHandoff(owner));
++    try {
++      await begun;
++      expect(await first.result).toEqual({ok: true, value: undefined});
++      expect(await attempted!.result).toEqual({ok: false, error: failure});
++      expect(await second.result).toEqual({ok: false, error: failure});
++      expect(local.rows.has(sourceKey)).toBe(false); expect(local.rows.get('draft:thread-a')).toEqual(textBefore);
++      expect(observe(keys)[0].failure?.cause).toBe(failure);
++    } finally {await Promise.all([first.result, second.result, attempted?.result]); sentinel.mockRestore();}
++  });
++
++  it('orders different logical owners on the same thread and preserves the next owner failure', async () => {
++    const local = storage({macrotasks: true}), journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const nextOwner = {...owner, workspaceId: 'copy-b'}, nextKey = recovery.sourceDraftKey(nextOwner);
++    const nextMetadata = {...metadata, logicalOwner: nextOwner, sourceRefs: [{...sourceRef, source: {...sourceRef.source, logicalOwner: nextOwner}}]};
++    const held = local.holdRead(sourceKey), first = watch(recovery.prepareSourceOwnerHandoff(owner));
++    await held.entered;
++    const failure = Error('The next logical owner has an uncommitted source operation'); local.state.failCommit = failure;
++    await expect(journal.journalCompareAndSwap(nextKey, undefined, nextMetadata)).rejects.toBe(failure);
++    const second = watch(recovery.prepareSourceOwnerHandoff(nextOwner));
++    try {
++      await turn(); expect(first.settled).toBe(false); expect(second.settled).toBe(false);
++      held.release();
++      expect(await first.result).toEqual({ok: true, value: undefined});
++      expect(await second.result).toEqual({ok: false, error: failure});
++      expect(local.rows.size).toBe(0); expect(local.staged.size).toBe(0);
++      expect(journal.journalHandoffState([nextKey])[0].failure?.cause).toBe(failure);
++    } finally {held.release(); await Promise.all([first.result, second.result]);}
++  });
++
++  it('drains a queued owner first hydration before checking its retained source and pending send', async () => {
++    const local = storage({macrotasks: true}), journal = await import('../apps/web/src/journal');
++    const recovery = await import('../apps/web/src/workbench-recovery');
++    const nextOwner = {...owner, workspaceId: 'copy-b'}, nextKey = recovery.sourceDraftKey(nextOwner);
++    const nextRef = {...sourceRef, source: {...sourceRef.source, logicalOwner: nextOwner}};
++    const nextMetadata = {...metadata, logicalOwner: nextOwner, sourceRefs: [nextRef]};
++    const sourceBefore = local.put(nextKey, nextMetadata), textBefore = local.put('draft:thread-a', 'Keep queued-owner prompt');
++    const pendingBefore = local.put('agents-pending:thread-a', {inputId: 'uncertain-next-owner'});
++    const firstRead = local.holdRead(sourceKey), hydration = local.holdRead(nextKey);
++    const recovering = journal.journalReadRecord(nextKey); await hydration.entered;
++    const first = watch(recovery.prepareSourceOwnerHandoff(owner)); await firstRead.entered;
++    const second = watch(recovery.prepareSourceOwnerHandoff(nextOwner));
++    try {
++      firstRead.release(); expect(await first.result).toEqual({ok: true, value: undefined});
++      await turn(); expect(second.settled).toBe(false);
++      hydration.release(); expect(await recovering).toEqual(sourceBefore);
++      const result = await second.result;
++      expect(result.ok).toBe(false); if (result.ok) throw Error('Retained sources with an uncertain send cannot authorize handoff.');
++      expect(String(result.error)).toMatch(/acknowledgment|conflict/i);
++      expect(local.rows.get(nextKey)).toEqual(sourceBefore); expect(local.rows.get('draft:thread-a')).toEqual(textBefore);
++      expect(local.rows.get('agents-pending:thread-a')).toEqual(pendingBefore); expect(local.rows.has(sourceKey)).toBe(false);
++      expect([...local.rows].filter(([key]) => key.startsWith('workbench-conflict:')).map(([, record]) => record.value)).toEqual([
++        expect.objectContaining({draft: expect.objectContaining({logicalOwner: nextOwner, text: 'Keep queued-owner prompt', sourceRefs: [nextRef]})}),
++      ]);
++    } finally {firstRead.release(); hydration.release(); await Promise.all([recovering, first.result, second.result]);}
++  });
++
++  it('does not pass an earlier owner rejection to the next independent validation', async () => {
++    const local = storage({macrotasks: true}), recovery = await import('../apps/web/src/workbench-recovery');
++    const nextOwner = {...owner, workspaceId: 'copy-b'};
++    const foreign = local.put(sourceKey, {...metadata, logicalOwner: {...owner, workspaceId: 'wrong-copy'}});
++    const first = watch(recovery.prepareSourceOwnerHandoff(owner)), second = watch(recovery.prepareSourceOwnerHandoff(nextOwner));
++    const result = await first.result;
++    expect(result.ok).toBe(false); if (result.ok) throw Error('The foreign source owner must reject.');
++    expect(String(result.error)).toMatch(/owner|workspace/i);
++    expect(await second.result).toEqual({ok: true, value: undefined});
++    expect(local.rows.get(sourceKey)).toEqual(foreign); expect(local.rows.has(recovery.sourceDraftKey(nextOwner))).toBe(false);
++  });
++
+ });

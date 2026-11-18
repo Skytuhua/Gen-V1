@@ -1,0 +1,49 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--output","test-results/browser/m15-view-race-red-01","--grep","rapid presentation"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:84) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 tests/e2e/workbench.spec.ts:298:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor (7.1s)
+
+
+  1) tests/e2e/workbench.spec.ts:298:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('[data-burst-result]')
+    Expected: [32m"Saved:32:line:31"[39m
+    Received: [31m"Workbench presentation changed in another window. The current draft remains unchanged."[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('[data-burst-result]')[22m
+    [2m    4 × locator resolved to <output data-burst-result="true">Saving</output>[22m
+    [2m      - unexpected value "Saving"[22m
+    [2m    4 × locator resolved to <output data-burst-result="true">Workbench presentation changed in another window.…</output>[22m
+    [2m      - unexpected value "Workbench presentation changed in another window. The current draft remains unchanged."[22m
+
+
+      108 |   await openOutput(page);
+      109 |   await page.getByRole('button',{name:'Burst presentation writes'}).click();
+    > 110 |   await expect(page.locator('[data-burst-result]')).toHaveText('Saved:32:line:31');
+          |                                                     ^
+      111 |   await page.reload();
+      112 |   await expect(page.locator('[data-fixture-ready]')).toHaveText('Ready');
+      113 |   await expect(page.locator('[data-output-anchor]')).toHaveText('line:31:0');
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:110:53
+
+    Error Context: test-results/browser/m15-view-race-red-01/workbench-M15-rapid-presen-82b5d--acknowledged-scroll-anchor/error-context.md
+
+  1 failed
+    tests/e2e/workbench.spec.ts:298:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor 

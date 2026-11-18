@@ -1,0 +1,43 @@
+argv: ["pnpm","exec","playwright","test","--config","tests/e2e/workbench.playwright.config.ts","--reporter=line,json","--output","docs/implementation/v3/m15-artifacts/c4-workbench-final-01/artifacts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 0
+termination: NONE
+[1A[2K[2m[WebServer] [22m(node:43) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+[1A[2K[2m[WebServer] [22m(node:55) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+Running 21 tests using 1 worker
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:79) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/21] tests/e2e/workbench.spec.ts:31:1 › M15 selected visible text exposes explicit actions
+[1A[2K[2/21] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action clears its unchanged own range
+[1A[2K[3/21] tests/e2e/workbench.spec.ts:47:54 › M15 selection action completion › M15 completed selection action preserves a newer foreign range
+[1A[2K[4/21] tests/e2e/workbench.spec.ts:107:3 › M15 selection action completion › M15 completed selection action preserves a newer range and toolbar in the same source
+[1A[2K[5/21] tests/e2e/workbench.spec.ts:202:1 › M15 forged DOM attributes cannot register a selection
+[1A[2K[6/21] tests/e2e/workbench.spec.ts:211:1 › M15 hidden and clipped source text is refused
+[1A[2K[7/21] tests/e2e/workbench.spec.ts:233:1 › M15 refuses a clipped interior span even when both selection endpoints are visible
+[1A[2K[8/21] tests/e2e/workbench.spec.ts:261:1 › M15 refuses transformed Markdown whose visible selection could match a different canonical occurrence
+[1A[2K[9/21] tests/e2e/workbench.spec.ts:280:1 › M15 Escape respects IME and dismisses pointing without activating buttons
+[1A[2K[10/21] tests/e2e/workbench.spec.ts:300:1 › M15 toolbar stays reachable at both viewports and 200 percent zoom
+[1A[2K[11/21] tests/e2e/workbench.spec.ts:335:1 › M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom
+[1A[2K[12/21] tests/e2e/workbench.spec.ts:461:3 › M15 source toolbar scroll ownership › M15 internal toolbar scrolling retains the selected action while ancestor scrolling dismisses it
+[1A[2K[13/21] tests/e2e/workbench.spec.ts:513:1 › M15 output window stays bounded while streaming preserves the logical anchor
+[1A[2K[14/21] tests/e2e/workbench.spec.ts:546:1 › M15 full copy and search use the declared reader fixture beyond mounted DOM
+[1A[2K[15/21] tests/e2e/workbench.spec.ts:584:1 › M15 delayed full-result response cannot write into a new owner view
+[1A[2K[16/21] tests/e2e/workbench.spec.ts:617:1 › M15 discards a delayed search result when its query changes
+[1A[2K[17/21] tests/e2e/workbench.spec.ts:649:1 › M15 real browser journal reload retains canonical draft, source refs and scroll anchor
+[1A[2K[18/21] tests/e2e/workbench.spec.ts:671:1 › M15 rapid presentation writes preserve the last acknowledged scroll anchor
+[1A[2K[19/21] tests/e2e/workbench.spec.ts:684:1 › M15 uncertain handoff and failed flush retain explicit conflict copies in the browser journal
+[1A[2K[20/21] tests/e2e/workbench.spec.ts:713:1 › M15 output supports keyboard scrolling, offline retention and reachable controls at both viewports and zoom
+[1A[2K[21/21] tests/e2e/workbench.spec.ts:816:3 › M15 controlled renderer benchmark › M15 measures paired controlled renderer latency with 100,000 retained lines
+[1A[2K  21 passed (1.7m)

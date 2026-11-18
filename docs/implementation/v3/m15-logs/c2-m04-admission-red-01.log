@@ -1,0 +1,126 @@
+argv: ["pnpm","exec","vitest","run","tests/request-preparation-service-v3.test.ts","tests/source-workbench-host-v3.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c2-m04-admission-red-01-results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-workbench-host-v3.test.ts (47 tests | 1 failed | 2 skipped) 3125ms
+   ✓ admits first-account source custody for a truly empty task (host artifact fixture, M04 false) 94ms
+   ✓ admits first-account source custody for a truly empty task (host artifact fixture, M04 true) 33ms
+   ✓ preserves unsent captured custody when an ordinary first input pins its account 11ms
+   ✓ rolls back initial source-account custody with a failed input commit and retries the same identity 35ms
+   × retries the same explicit M04 preparation after initial source-account persistence rolls back 77ms
+   ✓ rejects a selected-account change during first-source admission without creating a custody witness 41ms
+   ✓ denies captured source reuse after a settled account is replaced, even when captured bytes are retained 26ms
+   ✓ preserves initial source custody when the admitted account is the default profile 16ms
+   ✓ requires recapture for legacy sources without proof of initial unbound account custody 20ms
+   ✓ captures exact UTF16 text once, rejects forged revisions and prevents surrogate splitting 31ms
+   ✓ keeps historical bytes immutable and requires explicit retained-version send after source changes 40ms
+   ↓ reauthorizes retained file bytes after grant revocation and never grants source context [Windows required]
+   ↓ admits the first captured file under its selected account [Windows native guard, runtime fixture]
+   ✓ reads artifact rows only through a declared same-owner structured binding 26ms
+   ✓ rejects mutation during model discovery and preserves the accepted command identity on retries 36ms
+   ✓ queues AFTER_CURRENT and starts the next native epoch after settlement (context custody false) 73ms
+   ✓ queues AFTER_CURRENT and starts the next native epoch after settlement (context custody true) 70ms
+   ✓ measures selected references through M04 without replacing its original prompt claim 18ms
+   ✓ blocks dispatch if a source mutates during the M04 finalize boundary 20ms
+   ✓ keeps file captures unavailable under the real unsupported Linux leaf guard 29ms
+   ✓ keeps diff capture disabled until its owning service supplies an atomic comparison witness 10ms
+   ✓ labels quoted assistant claims as reported and leaves unmeasured evidence freshness unknown 13ms
+   ✓ reads complete authorized activity beyond the mounted window and rejects stale or foreign rows 168ms
+   ✓ rejects missing, duplicate and oversized full activity reads rather than returning partial copy data 135ms
+   ✓ preserves a terminal newline in a complete 100000-line authorized output 38ms
+   ✓ does not commit a capture or disclose retained text after its account owner changes 7ms
+   ✓ rechecks the workbench flag before committing a source-free queued send after model discovery 45ms
+   ✓ returns the accepted receipt for a concurrent retry that finishes model discovery after dispatch 16ms
+   ✓ drains multiple persisted NOW inputs through ordinary follow-up delivery when M04 is disabled 10ms
+   ✓ keeps the flag off by default and retains saved-source read access after rollback 7ms
+   ✓ reads only request receipts bound to the current logical owner and account 17ms
+   ✓ denies evidence assembled across an account change 7ms
+   ✓ uses the existing authenticated host and CSRF boundaries for captures and source reads  1282ms
+   ✓ composes unrelated host routes without exposing workbench APIs when its owning service is absent 87ms
+   ✓ reports definitive rollback source rejection, then admits an ordinary edited send 10ms
+   ✓ reports definitive revoked source rejection, then admits an ordinary edited send 12ms
+   ✓ coalesces same-command admission so a concurrent retry cannot report rejection while the first can commit 13ms
+   ✓ explicitly retains a blocked accepted input without automatic resume (M04 false) 76ms
+   ✓ explicitly retains a blocked accepted input without automatic resume (M04 true) 140ms
+   ✓ cancels only a proven undispatched accepted input after rollback and preserves its canonical message 75ms
+   ✓ does not dispatch an old input snapshot after concurrent CANCEL recovery 18ms
+   ✓ does not dispatch an old input snapshot after concurrent KEEP_CAPTURED recovery 19ms
+   ✓ coalesces recovery retries while retained-source authorization is pending 87ms
+   ✓ hides prior-account capture identities and denies recovery once runtime delivery has started 33ms
+   ✓ grades a requirement only from linked evidence authorized to the current account (null) 30ms
+   ✓ grades a requirement only from linked evidence authorized to the current account (prior-account) 24ms
+   ✓ does not verify an execution when a bound failure falls outside the displayed observation window 51ms
+ ❯ tests/request-preparation-service-v3.test.ts (32 tests | 3 failed) 1087ms
+   ✓ retains the same immutable preparation identity through the actual admitted request 38ms
+   ✓ rejects a preview token used with a changed prompt before accepting the draft 14ms
+   ✓ rejects a preview token used with a changed model before accepting the draft 14ms
+   ✓ rejects a preview token used with a changed owner before accepting the draft 13ms
+   ✓ rejects a removed grant and changed task note before accepting a prepared draft 14ms
+   ✓ checks physical project identity again after preview 16ms
+   ✓ checks current account selection and model binding again after preview 10ms
+   ✓ prevents token reuse while preserving a retry of the accepted command 13ms
+   × retries an explicit preparation after a synchronous projection failure rolls back admission 23ms
+   × retries an explicit preparation after a synchronous commit failure rolls back admission 12ms
+   ✓ keeps a committed preparation claimed when its acknowledgement fails after commit 14ms
+   ✓ keeps the original owner fence after an uncommitted preparation claim rolls back 12ms
+   ✓ keeps the original epoch fence after an uncommitted preparation claim rolls back 14ms
+   ✓ keeps the original grant fence after an uncommitted preparation claim rolls back 11ms
+   × rolls back a later failed claim without releasing another accepted request 12ms
+   ✓ fails preparation before message admission when the trusted preparation hook fails 7ms
+   ✓ fails dispatch when the trusted finalization hook fails and retains the accepted input 10ms
+   ✓ revalidates after asynchronous finalization when stop changes 11ms
+   ✓ revalidates after asynchronous finalization when note changes 11ms
+   ✓ revalidates after asynchronous finalization when grant changes 11ms
+   ✓ revalidates after asynchronous finalization when hook assertion changes 14ms
+   ✓ dispatches queued token-bound follow-ups separately without losing later outbox inputs 21ms
+   ✓ allocates default-send identity but leaves the default-off path unchanged 20ms
+   ✓ rejects attached skills in preview exactly as the existing send path does 7ms
+   ✓ increments the durable owner generation after Service replacement and rejects the old token 11ms
+   ✓ expires abandoned previews, calls cleanup, and never resurrects the same identity 8ms
+   ✓ preserves an accepted queued token across the prior native session lifecycle event 16ms
+   ✓ preserves an accepted queued token across the prior native settled lifecycle event 20ms
+   ✓ preserves separately accepted previews queued before the first epoch is admitted 13ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  581ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle 85ms
+   ✓ resolves the source learn expansion once and dispatches the same captured text 9ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > retries an explicit preparation after a synchronous projection failure rolls back admission
+ FAIL  tests/request-preparation-service-v3.test.ts > retries an explicit preparation after a synchronous commit failure rolls back admission
+HarnessError: This request preparation is not available for changes.
+ ❯ packages/core/service.ts:569:92
+
+ ❯ Service.command packages/core/service.ts:574:17
+ ❯ tests/request-preparation-service-v3.test.ts:120:20
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/request-preparation-service-v3.test.ts > rolls back a later failed claim without releasing another accepted request
+HarnessError: This request preparation is not available for changes.
+ ❯ packages/core/service.ts:569:92
+
+ ❯ Service.command packages/core/service.ts:574:17
+ ❯ tests/request-preparation-service-v3.test.ts:169:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/source-workbench-host-v3.test.ts > retries the same explicit M04 preparation after initial source-account persistence rolls back
+HarnessError: This request preparation is not available for changes.
+ ❯ packages/core/service.ts:569:92
+
+ ❯ Service.command packages/core/service.ts:574:17
+ ❯ tests/source-workbench-host-v3.test.ts:100:19
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 73 passed | 2 skipped (79)
+   Start at  08:38:34
+   Duration  7.97s (transform 2.66s, setup 0ms, import 3.04s, tests 4.21s, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c2-m04-admission-red-01-results.json

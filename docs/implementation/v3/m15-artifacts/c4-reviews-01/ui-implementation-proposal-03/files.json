@@ -1,0 +1,17 @@
+[
+  {
+    "path": "apps/web/src/ProjectMemoryReview.tsx",
+    "beforeSha256": "b6af97fffa57a9964cb3a99de5f2c6dd6e099913f4b23ffe04f9bddb75b4c90f",
+    "afterSha256": "de2f5e3634eb8904726c308faf05bdf993d6cd8d815d4c235170d9a0aac57c68"
+  },
+  {
+    "path": "apps/web/src/SourceWorkbench.tsx",
+    "beforeSha256": "309199491dcede75bffbb08bc73bf7fd5d2493601191fd11fc5392c77820e419",
+    "afterSha256": "3816300e0b87e8b13dec5d1b54847022e8c27e1cdf675af64caed53e8f420cbe"
+  },
+  {
+    "path": "apps/web/src/WorkbenchPanelContent.tsx",
+    "beforeSha256": "baf2e842d74dbbb66a02ecaf25a25299fa42da5fae8c5c6a951be34c2a4bfa33",
+    "afterSha256": "08e5b4523806ba4dbce159f01d558f7d6c8c87c8b168adfffe4aed7da1948fd7"
+  }
+]

@@ -68,6 +68,12 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     if (path === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'fixture-csrf', widgetOrigin: 'http://localhost:4318' } });
     if (path === '/api/models') return route.fulfill({ json: { models: [{ id: 'test/model', provider: 'test', name: 'Fixture' }] } });
     if (path === '/api/snapshot') return route.fulfill({ json: snapshot });
+    if (path === '/api/operation-project-trust' || path === '/api/operation-project-trust/status') {
+      const query = new URL(route.request().url()).searchParams;
+      const operation = snapshot.operations.find(item => item.id === query.get('operationId') && item.threadId === query.get('threadId') && item.revision === Number(query.get('operationRevision')));
+      if (!operation) return route.fulfill({ status: 404 });
+      return route.fulfill({ json: { version: 1, enabled: false, reason: 'PROJECT_TRUST_DISABLED', threadId: operation.threadId, operationId: operation.id, operationRevision: operation.revision } });
+    }
     if (path === '/api/shell-settings') return route.fulfill({json: snapshot.settings});
     if (path === '/api/split-workspace') return route.fulfill({json: splitLayout});
     if (path === '/api/split-workspace/profiles') return route.fulfill({json: []});
@@ -96,8 +102,14 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
   };
 }
 // Opt in for fixtures that navigate real App conversations in the canonical split workspace.
-export async function serveTaskSplitLayout(page: Page, snapshot?: Snapshot) {
+export async function serveTaskSplitLayout(page: Page, initial?: string | Snapshot) {
+  const snapshot = typeof initial === 'string' ? undefined : initial;
   let layout = taskSplitLayout(snapshot);
+  // Main conversation selection now comes from durable pane placement rather
+  // than the snapshot's activeThreadId fallback.
+  if (typeof initial === 'string') layout = applySplitWorkspaceCommand(layout, 'view.open', {
+    view: {id: `thread:${initial}`, kind: 'thread', binding: {authority: {kind: 'local'}, threadId: initial}},
+  });
   await page.route('**/api/split-workspace?workspaceId=workspace', route => route.fulfill({json: layout}));
   await page.route('**/api/split-workspace/profiles?workspaceId=workspace', route => route.fulfill({json: []}));
   await page.route('**/api/split-workspace/commands', route => {

@@ -6,6 +6,7 @@ import {promisify} from 'node:util';
 import {z} from 'zod';
 import {HarnessError} from '../contracts/index.ts';
 import {processEnvironment} from '../capabilities/process.ts';
+import {createSecretRedactor} from '../core/secret-references.ts';
 import type {ProjectTools} from './tools.ts';
 import type {TerminalHost} from './terminal.ts';
 import {GitHubAuth} from './github-auth.ts';
@@ -26,7 +27,19 @@ export class GitHubTools{
  constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir);}
  private environment(){const root=join(this.projects.store.dataDir,'github');return{...processEnvironment(),HOME:root,USERPROFILE:root,GH_CONFIG_DIR:join(root,'config'),GH_HOST:'github.com',GH_PROMPT_DISABLED:'1',GH_NO_UPDATE_NOTIFIER:'1',GIT_TERMINAL_PROMPT:'0'};}
  private parseOutput(output:string){try{return JSON.parse(output) as unknown;}catch{throw new HarnessError('GITHUB_CLI_OUTPUT_INVALID','The GitHub CLI returned unreadable output. Check the bundled gh tool and the repository state.');}}
- private async run(path:string,args:string[]){const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});return(await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:60000,maxBuffer:2*1024*1024,encoding:'utf8'})).stdout;}
+ private async run(path:string,args:string[]){
+  const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});
+  let stdout:string;
+  try{({stdout}=await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:60000,maxBuffer:2*1024*1024,encoding:'utf8'}));}
+  catch{throw new HarnessError('GITHUB_CLI_FAILED','The GitHub CLI did not complete. Check repository access and the bundled tool.');}
+  const redactor=createSecretRedactor([token]);
+  // Decode JSON strings before redaction so escaped ANSI fragments cannot hide
+  // this command's known token. Plain URL output still uses the same redactor.
+  let decoded:unknown;
+  try{decoded=JSON.parse(stdout);}catch{return redactor.redact(stdout).text;}
+  const encoded=JSON.stringify(decoded,(_key:string,value:unknown)=>typeof value==='string'?redactor.redact(value).text:value);
+  return redactor.redact(encoded).text;
+ }
  private async withInput<T>(text:string,target:{url:string;head:string;revision:string;repo:string},action:(path:string)=>Promise<T>):Promise<T>{
   const parent=await secureDirectory(this.projects.store.dataDir,join(this.projects.store.dataDir,'github','requests')),directory=await mkdtemp(join(parent,'request-')),directoryIdentity=await lstat(directory,{bigint:true}),path=join(directory,'input'),bytes=Buffer.from(text,'utf8'),signal=new AbortController().signal;
   let identity:{dev:bigint;ino:bigint}|undefined,value:T|undefined,entered=false,failed=false,failure:unknown;
@@ -44,18 +57,18 @@ export class GitHubTools{
  }
  async repo(projectId:string,threadId?:string){const{path}=await this.projects.binding(projectId,threadId),url=(await this.projects.git(path,['remote','get-url','origin'])).trim(),match=/^(?:https:\/\/github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(url);if(!match)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an origin remote hosted on github.com.');return{path,repo:repository.parse(match[1])};}
  async list(projectId:string,threadId?:string){const{path,repo}=await this.repo(projectId,threadId),items=this.parseOutput(await this.run(path,['pr','list','--repo',repo,'--state','all','--limit','50','--json','number,title,url,state,headRefOid,headRefName,isDraft'])) as PullRequest[];return{repo,items};}
- async create(projectId:string,threadId:string|undefined,input:Record<string,unknown>){
+ async create(projectId:string,threadId:string|undefined,input:Record<string,unknown>,beforeWrite?:()=>void){
   const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId);if(status.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request creation requires a writable managed working copy.');if(input.revision!==status.revision||input.head!==status.head)throw new HarnessError('REVISION_CHANGED','The reviewed working copy changed. Refresh before creating the pull request.');
   if(status.files.length)throw new HarnessError('UNCOMMITTED_CHANGES','Commit the reviewed changes before creating the pull request.');
   const title=z.string().trim().min(1).max(200).refine(value=>!value.includes('\0')&&Buffer.from(value,'utf8').toString('utf8')===value,'Pull request title must be valid text.').parse(input.title),body=bodyText.parse(input.body??''),base=z.string().regex(/^[A-Za-z0-9][A-Za-z0-9/_-]{0,150}$/).parse(input.base??'main');if(!status.branch)throw new HarnessError('BRANCH_REQUIRED','Create a branch before opening a pull request.');
   const created={url:'',head:status.head,revision:status.revision,repo};return this.withInput(body,created,async bodyFile=>{
   if(input.push===true){
    const helper='!'+quote(this.executable)+' auth git-credential',environment={...this.environment(),GH_TOKEN:await this.auth.token()};
-   await this.projects.git(path,['-c','credential.https://github.com.helper='+helper,'push','--','https://github.com/'+repo+'.git',status.head+':refs/heads/'+status.branch],undefined,environment);
+   beforeWrite?.();await this.projects.git(path,['-c','credential.https://github.com.helper='+helper,'push','--','https://github.com/'+repo+'.git',status.head+':refs/heads/'+status.branch],undefined,environment);
   }
   const remote=this.parseOutput(await this.run(path,['api',`repos/${repo}/git/ref/heads/${encodeURIComponent(status.branch)}`])) as {object?:{sha?:string}};if(remote.object?.sha!==status.head)throw new HarnessError('REVISION_CHANGED','The GitHub branch does not match the reviewed local commit. Push the reviewed branch first.');
   const after=await this.projects.gitStatus(projectId,threadId);if(after.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','The working copy is no longer writable.');if(after.head!==status.head||after.revision!==status.revision)throw new HarnessError('REVISION_CHANGED','The working copy changed while preparing publication.');
-  const result=await this.run(path,['pr','create','--repo',repo,'--draft','--title',title,'--body-file',bodyFile,'--base',base,'--head',status.branch]);created.url=result.trim();
+  beforeWrite?.();const result=await this.run(path,['pr','create','--repo',repo,'--draft','--title',title,'--body-file',bodyFile,'--base',base,'--head',status.branch]);created.url=result.trim();
   let createdHead:string;
   try{createdHead=z.object({headRefOid:z.string().min(1).max(128)}).parse(this.parseOutput(await this.run(path,['pr','view',created.url,'--repo',repo,'--json','headRefOid']))).headRefOid;}
   catch{throw new HarnessError('PR_VERIFICATION_FAILED',`The pull request was created, but its commit could not be verified. Inspect ${created.url} before retrying.`,created);}

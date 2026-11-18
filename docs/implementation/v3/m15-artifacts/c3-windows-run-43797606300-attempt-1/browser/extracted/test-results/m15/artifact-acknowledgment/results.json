@@ -1,0 +1,171 @@
+{
+  "config": {
+    "configFile": "D:\\a\\Gen-V1\\Gen-V1\\playwright.config.ts",
+    "rootDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "ci": {
+        "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+        "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+      },
+      "gitCommit": {
+        "shortHash": "3f68a8f",
+        "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+        "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+        "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+        "author": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "committer": {
+          "name": "Skytuhua",
+          "email": "99881928+Skytuhua@users.noreply.github.com",
+          "time": 1794799227000
+        },
+        "branch": "HEAD"
+      },
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "D:/a/Gen-V1/Gen-V1/test-results/m15/artifact-acknowledgment/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "ci": {
+            "commitHref": "https://github.com/skytuhua-org/Gen-V1/commit/3f68a8f1bc1ca5a588862571d905163861e94492",
+            "commitHash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "buildHref": "https://github.com/skytuhua-org/Gen-V1/actions/runs/43797606300"
+          },
+          "gitCommit": {
+            "shortHash": "3f68a8f",
+            "hash": "3f68a8f1bc1ca5a588862571d905163861e94492",
+            "subject": "M15: reconcile accepted host baseline and publish C3 verification",
+            "body": "M15: reconcile accepted host baseline and publish C3 verification\n\nPreserve source ownership and queued draft custody through the accepted49 host layout changes. Add exact-head Windows, native, Edge and full-repository evidence jobs.\n\nRetain historical failures and partial acceptance. Keep sourceWorkbenchV1 and reviewer approval disabled.",
+            "author": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "committer": {
+              "name": "Skytuhua",
+              "email": "99881928+Skytuhua@users.noreply.github.com",
+              "time": 1794799227000
+            },
+            "branch": "HEAD"
+          },
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "D:/a/Gen-V1/Gen-V1/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "artifact-acknowledgment.spec.ts",
+          "clarity-data-work.spec.ts",
+          "dark-default.spec.ts",
+          "document-window.spec.ts",
+          "host-loop.spec.ts",
+          "journal-reload.spec.ts",
+          "latency.spec.ts",
+          "map-theme.spec.ts",
+          "migration-redesign.spec.ts",
+          "operational-motion.spec.ts",
+          "overnight-shell.spec.ts",
+          "plan-timeline.spec.ts",
+          "review-capture-theme.spec.ts",
+          "shell-micro-motion.spec.ts",
+          "signing-motion.spec.ts",
+          "skills.spec.ts"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts",
+      "url": "http://127.0.0.1:5499",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "artifact-acknowledgment.spec.ts",
+      "file": "artifact-acknowledgment.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "an older snapshot cannot replace a newer acknowledged selection",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 6576,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T03:35:53.792Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "ca95034a0976bbb06b7b-d0bf9461f5cbb7a75941",
+          "file": "artifact-acknowledgment.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T03:35:51.044Z",
+    "duration": 9545.526,
+    "expected": 1,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

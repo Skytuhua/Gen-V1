@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--exit-code",
+    "399cde39ff4ee82272c7a7700944325c44b36070",
+    "138b1356495bb3a2c9b35020240513f8faa84964",
+    "--",
+    "packages/core/file-access.ts",
+    "packages/core/linux-path-guard.ts",
+    "packages/contracts/code-review.ts",
+    "packages/workspace/tools.ts",
+    "packages/workspace/github.ts",
+    "packages/core/task-memory.ts",
+    "packages/contracts/verification.ts",
+    "packages/core/verification-read-models.ts"
+  ],
+  "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+  "executableIdentity": "/usr/local/bin/git",
+  "startedAt": "2026-11-16T00:28:08.149Z",
+  "endedAt": "2026-11-16T00:28:08.168Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c2-host-owners-unchanged-01.log",
+  "logDigest": "2a69064ffabe2d1b42c9f77c92a12d6dafe43c60bf744dadf471bb9f02d37d3a"
+}

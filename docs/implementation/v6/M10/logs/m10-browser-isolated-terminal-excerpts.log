@@ -1,0 +1,43 @@
+
+Running 9 tests using 1 worker
+
+  ✓  1 tests/e2e/terminal-excerpts.spec.ts:52:1 › real xterm selection is copied before focus/scroll, edited and persisted without terminal input or Send (12.9s)
+  ✘  2 tests/e2e/terminal-excerpts.spec.ts:56:1 › keyboard selection and action are immediate; remove releases geometry immediately (3.9s)
+  ✓  3 tests/e2e/terminal-excerpts.spec.ts:59:1 › uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment (4.9s)
+  ✓  4 tests/e2e/terminal-excerpts.spec.ts:62:1 › owner switch and read-only/unavailable composer do not transfer excerpts (9.1s)
+  ✓  5 tests/e2e/terminal-excerpts.spec.ts:65:1 › renders approved leaf UI at 1440/1024/768 and immediate reduced-motion attachment geometry (5.4s)
+  ✓  6 tests/e2e/terminal-excerpts.spec.ts:70:1 › authenticated precommit rejection retains excerpts for review and a fresh Send (3.6s)
+  ✓  7 tests/e2e/terminal-excerpts.spec.ts:74:1 › expired host output is captured from the current xterm selection, without rereading old output (3.8s)
+  ✓  8 tests/e2e/terminal-excerpts.spec.ts:82:1 › uncertain retry retains a newer A to B to A generation from another window after reload (11.8s)
+  ✓  9 tests/e2e/terminal-excerpts.spec.ts:89:1 › real scoped retry permits review, edit and removal without changing the frozen send (6.2s)
+
+
+  1) tests/e2e/terminal-excerpts.spec.ts:56:1 › keyboard selection and action are immediate; remove releases geometry immediately 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32m0[39m
+    Received: [31m1[39m
+
+      55 | });
+      56 | test('keyboard selection and action are immediate; remove releases geometry immediately',async({page})=>{
+    > 57 |  const f=await setup(page);await select(page);await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeFocused();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();expect(f.terminalCommands).toEqual([]);expect(await page.locator('.composer').last().evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      58 | });
+      59 | test('uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment',async({page})=>{
+      60 |  const f=await setup(page);await add(page);f.uncertain();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send'})).toBeVisible();await page.getByRole('textbox',{name:'Message',exact:true}).fill('New draft');await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.getByLabel('Excerpt text').fill('Newer excerpt');await page.getByRole('button',{name:'Save excerpt'}).click();const previous=f.sends.length;f.accept();await page.getByRole('button',{name:'Retry send'}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();expect(f.sends.at(-1)).toEqual(f.sends[0]);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('New draft');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();
+        at /home/piadmin/Gen-V1-m10-v6/tests/e2e/terminal-excerpts.spec.ts:57:513
+
+    Error Context: .harness-ui-shell/terminal-excerpts/terminal-excerpts-keyboard-811e0-leases-geometry-immediately/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    .harness-ui-shell/terminal-excerpts/terminal-excerpts-keyboard-811e0-leases-geometry-immediately/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace .harness-ui-shell/terminal-excerpts/terminal-excerpts-keyboard-811e0-leases-geometry-immediately/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/terminal-excerpts.spec.ts:56:1 › keyboard selection and action are immediate; remove releases geometry immediately 
+  8 passed (1.1m)

@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { open, lstat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { assertNotStorage, canonical, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
 import { readLinuxBoundFile, withLinuxBoundFileRead, type LinuxReadWitness } from './linux-file-read.ts';
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
@@ -19,6 +19,12 @@ export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, 
   return metadataImport ? 120_000 : command === 'acquire' && startupAcquisition ? 45_000 : 15_000;
 }
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
+
+/** A returned custody handle can outlive its caller's guard callback. Give it
+ * its own native session so a parent's normal teardown cannot release its pins. */
+export function withOwnedPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>, onLoss?: () => void, options?: { startupAcquisition?: boolean }): Promise<T> {
+  return sessions.exit(() => withPathGuard(paths, signal, action, onLoss, options));
+}
 
 /** Application-scoped namespace guard; never an OS sandbox for project code. */
 export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void,options?:{startupAcquisition?:boolean}): Promise<T> {
@@ -114,9 +120,12 @@ export async function replaceOwnedFile(source: string, destination: string, iden
   });
 }
 
-export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string, relativePath: string | undefined, write: boolean, signal: AbortSignal, action: (path: string) => Promise<T>): Promise<T> {
+/** Request readOnly explicitly when the admitted bytes must stay unchanged through action. */
+export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string, relativePath: string | undefined, write: boolean, signal: AbortSignal, action: (path: string) => Promise<T>, options?: { readOnly?: boolean }): Promise<T> {
+  if (write && options?.readOnly === true) throw new HarnessError('CAPABILITY_DENIED', 'Read-only custody cannot authorize a write.');
   const path = await resolveGrant(grant, relativePath, write, dataDir);
-  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path: dirname(projectMemoryDeletionLedgerPath(dataDir)), leaf: false }, { path, leaf: !write }];
+  const readOnly = options?.readOnly === true || !write;
+  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path: dirname(projectMemoryDeletionLedgerPath(dataDir)), leaf: false }, { path, leaf: !write, ...(readOnly ? { readOnly: true } : {}) }];
   for (const child of PROTECTED_STORAGE_DIRECTORIES) {
     const protectedPath = join(dataDir, child);
     try { await lstat(protectedPath); paths.push({ path: protectedPath, leaf: false }); }
@@ -126,7 +135,9 @@ export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string
     active(signal);
     const stable = await resolveGrant(grant, relativePath, write, dataDir);
     if (stable !== path) throw denied();
-    assertNotStorage(stable, dataDir);
+    // Re-check containment against the same grant root the first resolution used,
+    // so a stored attachment stays readable only through its own conversation.
+    assertNotStorage(stable, dataDir, await canonical(grant.path));
     return action(stable);
   });
 }

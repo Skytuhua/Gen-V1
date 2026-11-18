@@ -1,0 +1,877 @@
+[
+  {
+    "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-real-activit-45647-es-the-authorized-full-read/trace.zip",
+    "sha256": "9c786f2614518225a1715b9187e13c188581d1b729af63112054dfcca241e706",
+    "actions": [
+      {
+        "id": "call@482",
+        "time": 88074.939,
+        "method": "goto",
+        "params": {
+          "url": "/",
+          "timeout": 0,
+          "waitUntil": "load"
+        }
+      },
+      {
+        "id": "call@484",
+        "time": 88230.347,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 15000
+        }
+      },
+      {
+        "id": "call@520",
+        "time": 90752.896,
+        "method": "click",
+        "params": {
+          "selector": "details.activity summary",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@522",
+        "time": 91131.492,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Copy full result\"s]",
+          "expression": "to.be.enabled",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@528",
+        "time": 91377.976,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Search full result\"s]",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@532",
+        "time": 91797.764,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s]",
+          "expression": "to.have.text",
+          "expectedText": [
+            {
+              "string": "1 of 1 matching lines",
+              "matchSubstring": true,
+              "normalizeWhiteSpace": true
+            }
+          ],
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@534",
+        "time": 91839.5,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> [data-output-row-id=\"activity:1198\"]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@538",
+        "time": 91975.739,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> internal:role=button[name=\"Search full result\"s]",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@542",
+        "time": 92123.284,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=region[name=\"Retained work activity\"s] >> [data-output-row-id=\"activity:1199\"]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@550",
+        "time": 92212.569,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=button[name=\"Other task\"i] >> nth=0",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@552",
+        "time": 92603.054,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=tab[name=\"Other task\"s]",
+          "expression": "to.have.attribute.value",
+          "expressionArg": "aria-selected",
+          "expectedText": [
+            {
+              "string": "true"
+            }
+          ],
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      }
+    ],
+    "network": [
+      {
+        "time": 89533.142,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 89817.66,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 89943.265,
+        "method": "GET",
+        "path": "workbench/threads/task-thread",
+        "status": 200
+      },
+      {
+        "time": 90066.736,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 90741.5,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 90747.85,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 91714.944,
+        "method": "POST",
+        "path": "workbench/output/read",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "messageIds": [
+            "activity"
+          ],
+          "sourceRevision": "8d4f78179c2405e6c4fd405eb8a74ff057e1f7fc3588b76c256900562dcb206c"
+        }
+      },
+      {
+        "time": 92060.582,
+        "method": "POST",
+        "path": "workbench/output/read",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "messageIds": [
+            "activity"
+          ],
+          "sourceRevision": "8d4f78179c2405e6c4fd405eb8a74ff057e1f7fc3588b76c256900562dcb206c"
+        }
+      },
+      {
+        "time": 92196.846,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 92199.736,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-rollback-per-e1a69-ut-exposing-revoked-sources/trace.zip",
+    "sha256": "6862559bc6b5f01e359ae758c75ec8b5a2f3392141b3c0182027d70f09a44bb5",
+    "actions": [
+      {
+        "id": "call@420",
+        "time": 141062.996,
+        "method": "goto",
+        "params": {
+          "url": "/",
+          "timeout": 0,
+          "waitUntil": "load"
+        }
+      },
+      {
+        "id": "call@422",
+        "time": 141362.907,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 15000
+        }
+      }
+    ],
+    "network": []
+  },
+  {
+    "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-source-aware-cd04e-nd-preserves-text-on-reload/trace.zip",
+    "sha256": "06cadf45b0f1f6d7d3d126d5227c621dc1b19375237c8aa58696e8d7b029dcef",
+    "actions": [
+      {
+        "id": "call@20",
+        "time": 108337.193,
+        "method": "goto",
+        "params": {
+          "url": "/",
+          "timeout": 0,
+          "waitUntil": "load"
+        }
+      },
+      {
+        "id": "call@22",
+        "time": 108549.892,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 15000
+        }
+      },
+      {
+        "id": "call@66",
+        "time": 111671.871,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=toolbar[name=\"Selected source\"i]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@68",
+        "time": 111692.524,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=button[name=\"Attach to prompt\"s]",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@74",
+        "time": 111971.665,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=article[name=\"Selected source Assistant message\"i]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@78",
+        "time": 112025.539,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=button[name=\"Other task\"i] >> nth=0",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@82",
+        "time": 112127.091,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.have.value",
+          "expectedText": [
+            {
+              "string": ""
+            }
+          ],
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@100",
+        "time": 112625.643,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=button[name=\"Source-bound task fixture\"i] >> nth=0",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@108",
+        "time": 112708.682,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.have.value",
+          "expectedText": [
+            {
+              "string": "Retain this source-aware draft"
+            }
+          ],
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      }
+    ],
+    "network": [
+      {
+        "time": 110243.153,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 110585.198,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 110719.219,
+        "method": "GET",
+        "path": "workbench/threads/task-thread",
+        "status": 200
+      },
+      {
+        "time": 110846.354,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 111447.369,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 111447.619,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 111953.179,
+        "method": "POST",
+        "path": "workbench/sources/describe",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "locator": {
+            "kind": "MESSAGE",
+            "sourceId": "reply"
+          }
+        }
+      },
+      {
+        "time": 111964.42,
+        "method": "POST",
+        "path": "workbench/sources/capture",
+        "status": 200,
+        "body": {
+          "commandId": "b19898c6-89f6-4064-ad38-80ecc2184068",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "capturedAt": "2026-11-16T05:39:02.463Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+            }
+          }
+        }
+      },
+      {
+        "time": 112018.999,
+        "method": "POST",
+        "path": "workbench/sources/open",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "ref": {
+            "captureId": "capture-1",
+            "source": {
+              "kind": "MESSAGE",
+              "sourceId": "reply",
+              "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "logicalOwner": {
+                "threadId": "task-thread",
+                "projectId": null,
+                "workspaceId": null
+              },
+              "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "capturedAt": "2026-11-16T05:39:02.463Z",
+              "range": {
+                "encoding": "UTF16",
+                "start": 0,
+                "end": 20,
+                "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+              }
+            },
+            "keepCaptured": false
+          }
+        }
+      },
+      {
+        "time": 112027.304,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 112128.186,
+        "method": "POST",
+        "path": "split-workspace/commands",
+        "status": 200,
+        "body": {
+          "id": "72aef887-4706-4c71-963c-83e9dfba7e2a",
+          "type": "split-workspace.view.open",
+          "payload": {
+            "workspaceId": "workspace",
+            "baseRevision": 1,
+            "paneId": "pane-main",
+            "view": {
+              "id": "thread:other",
+              "kind": "thread",
+              "binding": {
+                "authority": {
+                  "kind": "local"
+                },
+                "threadId": "other"
+              }
+            }
+          }
+        }
+      },
+      {
+        "time": 112285.897,
+        "method": "GET",
+        "path": "workbench/threads/task-thread",
+        "status": 200
+      },
+      {
+        "time": 112286.139,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 112325.771,
+        "method": "POST",
+        "path": "workbench/sources/open",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "ref": {
+            "captureId": "capture-1",
+            "source": {
+              "kind": "MESSAGE",
+              "sourceId": "reply",
+              "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "logicalOwner": {
+                "threadId": "task-thread",
+                "projectId": null,
+                "workspaceId": null
+              },
+              "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "capturedAt": "2026-11-16T05:39:02.463Z",
+              "range": {
+                "encoding": "UTF16",
+                "start": 0,
+                "end": 20,
+                "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+              }
+            },
+            "keepCaptured": false
+          }
+        }
+      },
+      {
+        "time": 112461.838,
+        "method": "GET",
+        "path": "workbench/threads/other",
+        "status": 404
+      },
+      {
+        "time": 112624.998,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 112633.478,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 112633.8,
+        "method": "GET",
+        "path": "workbench/threads/other/inputs",
+        "status": 200
+      }
+    ]
+  },
+  {
+    "path": "docs/implementation/v3/m15-artifacts/c4-workbench-app-final-01/artifacts/workbench-app-stale-captur-6cdd7-h-and-opens-retained-output/trace.zip",
+    "sha256": "9f0ba194226790f547544add056535b0e5fc1efae2dd1001a8bf61cbe76def71",
+    "actions": [
+      {
+        "id": "call@279",
+        "time": 37178.956,
+        "method": "goto",
+        "params": {
+          "url": "/",
+          "timeout": 0,
+          "waitUntil": "load"
+        }
+      },
+      {
+        "id": "call@281",
+        "time": 37378.003,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=textbox[name=\"Message\"s]",
+          "expression": "to.be.enabled",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 15000
+        }
+      },
+      {
+        "id": "call@317",
+        "time": 41342.045,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=toolbar[name=\"Selected source\"i]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@319",
+        "time": 41352.504,
+        "method": "click",
+        "params": {
+          "selector": "internal:role=button[name=\"Attach to prompt\"s]",
+          "strict": true,
+          "timeout": 0
+        }
+      },
+      {
+        "id": "call@325",
+        "time": 41702.564,
+        "method": "expect",
+        "params": {
+          "selector": "internal:role=article[name=\"Selected source Assistant message\"i]",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      },
+      {
+        "id": "call@337",
+        "time": 42013.265,
+        "method": "reload",
+        "params": {
+          "timeout": 0,
+          "waitUntil": "load"
+        }
+      },
+      {
+        "id": "call@339",
+        "time": 45970.376,
+        "method": "expect",
+        "params": {
+          "selector": "internal:text=\"The source has changed.\"i",
+          "expression": "to.be.visible",
+          "expectedValue": {
+            "value": {
+              "v": "undefined"
+            },
+            "handles": []
+          },
+          "isNot": false,
+          "timeout": 5000
+        }
+      }
+    ],
+    "network": [
+      {
+        "time": 39672.932,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 40956.143,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 41089.815,
+        "method": "GET",
+        "path": "workbench/threads/task-thread",
+        "status": 200
+      },
+      {
+        "time": 41214.82,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 41658.729,
+        "method": "POST",
+        "path": "workbench/sources/describe",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "locator": {
+            "kind": "MESSAGE",
+            "sourceId": "reply"
+          }
+        }
+      },
+      {
+        "time": 41681.356,
+        "method": "POST",
+        "path": "workbench/sources/capture",
+        "status": 200,
+        "body": {
+          "commandId": "b237590e-54dc-4fbe-a872-a26a675e7275",
+          "source": {
+            "kind": "MESSAGE",
+            "sourceId": "reply",
+            "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "logicalOwner": {
+              "threadId": "task-thread",
+              "projectId": null,
+              "workspaceId": null
+            },
+            "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+            "capturedAt": "2026-11-16T05:37:52.170Z",
+            "range": {
+              "encoding": "UTF16",
+              "start": 0,
+              "end": 20,
+              "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+            }
+          }
+        }
+      },
+      {
+        "time": 41758.703,
+        "method": "POST",
+        "path": "workbench/sources/open",
+        "status": 200,
+        "body": {
+          "logicalOwner": {
+            "threadId": "task-thread",
+            "projectId": null,
+            "workspaceId": null
+          },
+          "ref": {
+            "captureId": "capture-1",
+            "source": {
+              "kind": "MESSAGE",
+              "sourceId": "reply",
+              "sourceRevision": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "logicalOwner": {
+                "threadId": "task-thread",
+                "projectId": null,
+                "workspaceId": null
+              },
+              "contentDigest": "80916e70e88ca657794d6419c3c1f9c436996c331b6b0f1e44b51bacc5efd7e0",
+              "capturedAt": "2026-11-16T05:37:52.170Z",
+              "range": {
+                "encoding": "UTF16",
+                "start": 0,
+                "end": 20,
+                "selectedTextDigest": "f63b687276313a3e7a20fa3072aafedb1a974ebba75aca99d2a752d26dd6e2ea"
+              }
+            },
+            "keepCaptured": false
+          }
+        }
+      },
+      {
+        "time": 41770.264,
+        "method": "GET",
+        "path": "workbench/threads/task-thread/inputs",
+        "status": 200
+      },
+      {
+        "time": 41995.86,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      },
+      {
+        "time": 41996.952,
+        "method": "GET",
+        "path": "snapshot",
+        "status": 200
+      }
+    ]
+  }
+]

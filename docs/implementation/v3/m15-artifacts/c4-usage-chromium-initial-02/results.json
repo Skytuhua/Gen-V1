@@ -1,0 +1,817 @@
+{
+  "config": {
+    "configFile": "/workspace/scratch/1b47eb428672/m15-publication/c4/chromium-diagnostic-configs-02/usage-app-integration.chromium.playwright.config.mts",
+    "rootDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "line"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "",
+        "name": "",
+        "testDir": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "usage-app-integration.spec.ts",
+          "shell-error-ownership.spec.ts",
+          "mobile-navigation.spec.ts"
+        ],
+        "timeout": 15000
+      }
+    ],
+    "shard": null,
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.56.1",
+    "workers": 1,
+    "webServer": {
+      "command": "pnpm exec vite --config tests/e2e/vite.config.ts --port 5623 --strictPort",
+      "cwd": "/workspace/scratch/1b47eb428672/m15-v3",
+      "url": "http://127.0.0.1:5623",
+      "reuseExistingServer": false
+    }
+  },
+  "suites": [
+    {
+      "title": "mobile-navigation.spec.ts",
+      "file": "mobile-navigation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "mobile navigation backdrop remains clickable after a nested Settings dialog closes",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 5843,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts:9:184",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts",
+                      "column": 184,
+                      "line": 9
+                    },
+                    "snippet": "   7 |  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];\n   8 |  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};\n>  9 |  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');\n     |                                                                                                                                                                                        ^\n  10 |  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);\n  11 |  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);\n  12 |  await scrim.click({position:{x:590,y:100}});await expect(scrim).toHaveCount(0);await expect(opener).toBeFocused();await expect(draft).toHaveValue('Keep this mobile draft');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts",
+                        "column": 184,
+                        "line": 9
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeEnabled\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('textbox', { name: 'Message', exact: true })\nExpected: enabled\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeEnabled\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })\u001b[22m\n\n\n   7 |  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic mobile navigation'}}}});snapshot.artifacts=[];snapshot.userStates=[];snapshot.messages=[];snapshot.data=[];\n   8 |  const host=await serveTaskFixture(page,snapshot),envelope={state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}},projects:[]};\n>  9 |  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this mobile draft');\n     |                                                                                                                                                                                        ^\n  10 |  const opener=page.getByRole('button',{name:'Open navigation',exact:true});await opener.click();const scrim=page.locator('.sidebar-scrim');await expect(scrim).toBeVisible();await expect(scrim).toHaveJSProperty('inert',false);\n  11 |  await page.getByRole('button',{name:'Settings',exact:true}).click();const settings=page.getByRole('dialog',{name:'Settings',exact:true});await expect(settings).toBeVisible();await page.keyboard.press('Escape');await expect(settings).toHaveCount(0);await expect(scrim).toHaveJSProperty('inert',false);\n  12 |  await scrim.click({position:{x:590,y:100}});await expect(scrim).toHaveCount(0);await expect(opener).toBeFocused();await expect(draft).toHaveValue('Keep this mobile draft');\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts:9:184"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:15.132Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/mobile-navigation-mobile-n-606b5-sted-Settings-dialog-closes/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/mobile-navigation.spec.ts",
+                    "column": 184,
+                    "line": 9
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "c5769ca8d3a9eeb2f0b2-5876ce0aef459a148c49",
+          "file": "mobile-navigation.spec.ts",
+          "line": 4,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "shell-error-ownership.spec.ts",
+      "file": "shell-error-ownership.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "failed handoffs have one dismissible shell presenter and keep drafts and commands guarded",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 1,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8093,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:16:156",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                      "column": 156,
+                      "line": 16
+                    },
+                    "snippet": "  14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');\n  15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);\n> 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);\n     |                                                                                                                                                            ^\n  17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);\n  18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);\n  19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                        "column": 156,
+                        "line": 16
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveCount\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator:  getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\nExpected: \u001b[32m1\u001b[39m\nReceived: \u001b[31m0\u001b[39m\nTimeout:  5000ms\n\nCall log:\n\u001b[2m  - Expect \"toHaveCount\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'The plug-in could not confirm saved state.' })\u001b[22m\n\u001b[2m    9 × locator resolved to 0 elements\u001b[22m\n\u001b[2m      - unexpected value \"0\"\u001b[22m\n\n\n  14 |  await page.goto('/');const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();await draft.fill('Keep this draft after a failed handoff');\n  15 |  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);\n> 16 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);\n     |                                                                                                                                                            ^\n  17 |  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);\n  18 |  await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);\n  19 |  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:16:156"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:22.516Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-fail-767c2-drafts-and-commands-guarded/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                    "column": 156,
+                    "line": 16
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "575196a403c43be31cad-1c8940738f7ff2cdda8c",
+          "file": "shell-error-ownership.spec.ts",
+          "line": 4,
+          "column": 1
+        },
+        {
+          "title": "the shell error remains visible while a plug-in workspace owns the main surface and Usage preserves its selection",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 2,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 8075,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:33:195",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                      "column": 195,
+                      "line": 33
+                    },
+                    "snippet": "  31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);\n  32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});\n> 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();\n     |                                                                                                                                                                                                   ^\n  34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);\n  35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();\n  36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                        "column": 195,
+                        "line": 33
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('alert').filter({ hasText: 'Source edits must be confirmed before leaving.' })\u001b[22m\n\n\n  31 |  const iframe=page.getByTitle('Studio',{exact:true});await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);\n  32 |  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});\n> 33 |  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();\n     |                                                                                                                                                                                                   ^\n  34 |  await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);\n  35 |  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();\n  36 |  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts:33:195"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:32.250Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/shell-error-ownership-the--6673d-age-preserves-its-selection/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/shell-error-ownership.spec.ts",
+                    "column": 195,
+                    "line": 33
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "575196a403c43be31cad-61b8532a462c85f41af6",
+          "file": "shell-error-ownership.spec.ts",
+          "line": 93,
+          "column": 1
+        }
+      ]
+    },
+    {
+      "title": "usage-app-integration.spec.ts",
+      "file": "usage-app-integration.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "actual App sidebar Usage opens canonical modal and retains the conversation draft",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2301,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:41.466Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-d30d11b83913e9ab705f",
+          "file": "usage-app-integration.spec.ts",
+          "line": 146,
+          "column": 1
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 375px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 3331,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:43.894Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-4f610f8d09cbf9592b39",
+          "file": "usage-app-integration.spec.ts",
+          "line": 171,
+          "column": 39
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 768px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4229,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:47.239Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-c15ad9d834bedf69d2ee",
+          "file": "usage-app-integration.spec.ts",
+          "line": 171,
+          "column": 39
+        },
+        {
+          "title": "actual App live usage launcher starts closed and toggles the summary at 1440px",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 4409,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:51.478Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-3a990c2e8eb3c81ebfff",
+          "file": "usage-app-integration.spec.ts",
+          "line": 171,
+          "column": 39
+        },
+        {
+          "title": "actual App Live usage preference controls the composer launcher without opening the summary",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 2687,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:55.900Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-c9bb6d16ca591b2d4dcb",
+          "file": "usage-app-integration.spec.ts",
+          "line": 217,
+          "column": 1
+        },
+        {
+          "title": "split conversation launchers control the shared summary for the active pane and start closed after reload",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 3,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 7717,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:62:97",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                      "column": 97,
+                      "line": 62
+                    },
+                    "snippet": "  60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();\n  61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');\n> 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');\n     |                                                                                                 ^\n  63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');\n  64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();\n  65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                        "column": 97,
+                        "line": 62
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoHaveText\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\nExpected: \u001b[32m\"999\"\u001b[39m\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toHaveText\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('region', { name: 'Live usage', exact: true }).getByRole('region', { name: 'Runtime usage details' }).locator('dd').first()\u001b[22m\n\n\n  60 |  await summary.getByRole('button',{name:'Inspect live usage',exact:true}).click();\n  61 |  await second.getByRole('textbox',{name:'Message',exact:true}).fill('Keep the second pane draft');\n> 62 |  await expect(summary.getByRole('region',{name:'Runtime usage details'}).locator('dd').first()).toHaveText('999');\n     |                                                                                                 ^\n  63 |  await expect(second.getByRole('button',{name:'Hide live usage',exact:true})).toHaveAttribute('aria-pressed','true');\n  64 |  await second.getByRole('button',{name:'Hide live usage',exact:true}).click();await expect(summary).toBeHidden();\n  65 |  await second.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(summary).toBeVisible();\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:62:97"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:10:58.615Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-spli-128e3-d-start-closed-after-reload/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                    "column": 97,
+                    "line": 62
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-f4768210edda31599e38",
+          "file": "usage-app-integration.spec.ts",
+          "line": 251,
+          "column": 1
+        },
+        {
+          "title": "actual App dock header remains a disclosure and its body opens the same Usage modal",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1913,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:07.671Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-557766a6da9452ba8bf2",
+          "file": "usage-app-integration.spec.ts",
+          "line": 337,
+          "column": 1
+        },
+        {
+          "title": "actual App context portal protects IME, retains its owner command, and never infers a receipt",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1973,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:09.691Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-92daf6c1e6eca2958690",
+          "file": "usage-app-integration.spec.ts",
+          "line": 364,
+          "column": 1
+        },
+        {
+          "title": "actual App captured usage scope does not switch to another thread on snapshots",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1837,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:11.689Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-27e4bcdef7b68d045d9b",
+          "file": "usage-app-integration.spec.ts",
+          "line": 395,
+          "column": 1
+        },
+        {
+          "title": "actual App restores the old single Usage route to modal and leaves saved Thread memory reachable",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 4,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6919,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:93:45",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                      "column": 45,
+                      "line": 93
+                    },
+                    "snippet": "  91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{\n  92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));\n> 93 |  await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');\n     |                                             ^\n  94 |  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');\n  95 |  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);\n  96 |  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                        "column": 45,
+                        "line": 93
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n\n  91 | test('actual App restores the old single Usage route to modal and leaves saved Thread memory reachable',async({page})=>{\n  92 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true,rightPanelWidth:380,sidebarCollapsed:false,folded:{}})));\n> 93 |  await host(page);await expect(modal(page)).toBeVisible();await page.keyboard.press('Escape');\n     |                                             ^\n  94 |  expect(await page.evaluate(()=>JSON.parse(localStorage.getItem('harness:shell-layout:v1')??'null')?.activeTab)).toBe('notes');\n  95 |  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);\n  96 |  await expect(page.getByRole('textbox',{name:'Note preserved',exact:true})).toHaveValue('Keep the existing source decision.');\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:93:45"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:13.543Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-actu-1c879-ved-Thread-memory-reachable/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                    "column": 45,
+                    "line": 93
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-6f0148f608e7840ef7f6",
+          "file": "usage-app-integration.spec.ts",
+          "line": 421,
+          "column": 1
+        },
+        {
+          "title": "review: a closed remembered Usage tab must not open a blocking dialog on launch",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 1575,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:21.455Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-7f22aca341ee3cbd5417",
+          "file": "usage-app-integration.spec.ts",
+          "line": 447,
+          "column": 1
+        },
+        {
+          "title": "review: an open restored Usage tab resolves its loaded conversation scope",
+          "ok": false,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 15000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "",
+              "projectName": "",
+              "results": [
+                {
+                  "workerIndex": 5,
+                  "parallelIndex": 0,
+                  "status": "failed",
+                  "duration": 6551,
+                  "error": {
+                    "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n",
+                    "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:106:45",
+                    "location": {
+                      "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                      "column": 45,
+                      "line": 106
+                    },
+                    "snippet": "  104 | test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{\n  105 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));\n> 106 |  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();\n      |                                             ^\n  107 |  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');\n  108 | });\n  109 |"
+                  },
+                  "errors": [
+                    {
+                      "location": {
+                        "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                        "column": 45,
+                        "line": 106
+                      },
+                      "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('dialog', { name: 'Usage', exact: true })\nExpected: visible\nTimeout: 5000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 5000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true })\u001b[22m\n\n\n  104 | test('review: an open restored Usage tab resolves its loaded conversation scope',async({page})=>{\n  105 |  await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:'usage',rightPanelOpen:true})));\n> 106 |  await host(page);await expect(modal(page)).toBeVisible();await modal(page).getByRole('tab',{name:'Tokens',exact:true}).click();\n      |                                             ^\n  107 |  await expect(modal(page)).toContainText('7');await expect(modal(page)).toContainText('Source-bound task fixture');\n  108 | });\n  109 |\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts:106:45"
+                    }
+                  ],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-16T04:11:23.140Z",
+                  "annotations": [],
+                  "attachments": [
+                    {
+                      "name": "error-context",
+                      "contentType": "text/markdown",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/error-context.md"
+                    },
+                    {
+                      "name": "trace",
+                      "contentType": "application/zip",
+                      "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-usage-chromium-initial-02/artifacts/usage-app-integration-revi-f858d-s-loaded-conversation-scope/trace.zip"
+                    }
+                  ],
+                  "errorLocation": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/usage-app-integration.spec.ts",
+                    "column": 45,
+                    "line": 106
+                  }
+                }
+              ],
+              "status": "unexpected"
+            }
+          ],
+          "id": "920d059a3af45d4ac13e-2044096e88ca5a54f7a1",
+          "file": "usage-app-integration.spec.ts",
+          "line": 457,
+          "column": 1
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-16T04:10:11.214Z",
+    "duration": 78668.843,
+    "expected": 9,
+    "skipped": 0,
+    "unexpected": 6,
+    "flaky": 0
+  }
+}

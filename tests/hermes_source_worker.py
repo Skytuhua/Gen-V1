@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import hashlib
+import importlib.util
 import os
 from pathlib import Path
 import queue
@@ -14,6 +15,7 @@ import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
 WORKER = ROOT / "packages/runtime-hermes/worker.py"
+sys.dont_write_bytecode = True
 
 
 def scripted_acp() -> None:
@@ -50,6 +52,14 @@ def scripted_acp() -> None:
             elif "AUTO_SKILL_FIXTURE" in prompt and "Review the conversation above and update the skill library." in prompt and '"success": true' not in prompt:
                 skill = "---\nname: auto-source\ndescription: Reuse verified source-backed workflows.\n---\n\n# Source-backed workflows\n\nRun the original source and retain its behavior.\n"
                 content = '<tool_call>' + json.dumps({"id": "auto-create", "type": "function", "function": {"name": "skill_manage", "arguments": json.dumps({"operations": [{"action": "create", "name": "auto-source", "content": skill}]})}}) + '</tool_call>'
+            elif "M04_EXPOSURE_FIXTURE" in prompt:
+                direct = '"name": "m04_direct_fixture"' in prompt
+                deferred = '"name": "m04_deferred_fixture"' in prompt
+                content = "M04 visibility: direct=" + str(int(direct)) + ", deferred=" + str(int(deferred))
+            elif "M04_INSTRUCTION_FIXTURE" in prompt:
+                first = "M04_INSTRUCTION_ONE_SENTINEL" in prompt
+                second = "M04_INSTRUCTION_TWO_SENTINEL" in prompt
+                content = "Project instructions: first=" + str(int(first)) + ", second=" + str(int(second))
             elif "PLAIN_REPLY_ONLY" in prompt:
                 content = "A plain source reply."
             elif '"success": true' in prompt or '"success":true' in prompt:
@@ -61,6 +71,192 @@ def scripted_acp() -> None:
             result = {"stopReason": "end_turn"}
         if "id" in msg:
             print(json.dumps({"jsonrpc": "2.0", "id": msg["id"], "result": result}), flush=True)
+
+
+class ContextCaptureFixture(unittest.TestCase):
+    def setUp(self):
+        spec = importlib.util.spec_from_file_location("context_capture_fixture", ROOT / "packages/runtime-hermes/context_capture.py")
+        self.module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(self.module)
+        self.capture = self.module.NativeContextCapture()
+
+    def test_append_reports_only_new_tool_metadata_and_exact_unicode_bytes(self):
+        messages = [{"role": "system", "content": "Stable policy"}, {"role": "user", "content": "Private 日本語"}]
+        first = self.capture.capture(messages, "a" * 64, [])
+        expected = sum(len(json.dumps(message, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")) for message in messages)
+        self.assertEqual(first["sourceBytes"], expected)
+        tool = {"role": "tool", "tool_call_id": "call-one", "content": "Private result 日本語"}
+        messages.append(tool)
+        next_cut = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(next_cut["reusedSources"], 2)
+        self.assertEqual(len(next_cut["sources"]), 1)
+        self.assertEqual(next_cut["inspectedSources"], 3)
+        self.assertEqual(next_cut["newToolResults"], 1)
+        self.assertEqual(next_cut["newToolResultBytes"], len(json.dumps(tool, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")))
+        self.assertNotIn("Private", json.dumps(next_cut))
+        unchanged = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(unchanged["change"], "UNCHANGED")
+        self.assertEqual(unchanged["sources"], [])
+
+    def test_in_place_native_mutation_rebuilds_instead_of_reusing_object_identity(self):
+        messages = [{"role": "user", "content": "Before"}]
+        first = self.capture.capture(messages, "a" * 64, [])
+        messages[0]["content"] = "After"
+        next_cut = self.capture.capture(messages, "a" * 64, [])
+        self.assertEqual(next_cut["change"], "RESET")
+        self.assertEqual(next_cut["reusedSources"], 0)
+        self.assertGreater(next_cut["generation"], first["generation"])
+        self.assertNotEqual(next_cut["sources"][0]["sha256"], first["sources"][0]["sha256"])
+
+    def test_rewind_binding_and_native_schema_changes_retire_the_prefix(self):
+        messages = [{"role": "user", "content": "One"}, {"role": "assistant", "content": "Two"}]
+        prior = self.capture.capture(messages, "a" * 64, [])
+        for next_messages, binding, tools in [(messages[:1], "a" * 64, []), (messages[:1], "b" * 64, []), (messages[:1], "b" * 64, [{"name": "new-tool"}])]:
+            current = self.capture.capture(next_messages, binding, tools)
+            self.assertEqual(current["change"], "RESET")
+            self.assertGreater(current["generation"], prior["generation"])
+            self.assertIsNone(current["newToolResults"])
+            prior = current
+
+    def test_source_limits_and_unsupported_shapes_retire_metadata_without_returning_content(self):
+        first = self.capture.capture([{"role": "user", "content": "Before"}], "a" * 64, [])
+        self.assertEqual(self.capture.capture([{}] * 4097, "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "SOURCE_LIMIT"})
+        self.assertEqual(self.capture.capture(["Private source"], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        next_cut = self.capture.capture([{"role": "user", "content": "Before"}], "a" * 64, [])
+        self.assertEqual(next_cut["change"], "RESET")
+        self.assertGreater(next_cut["generation"], first["generation"])
+        with self.assertRaises(OverflowError):
+            self.module.fingerprint({"content": "Native source too large for remaining bytes"}, 8)
+
+    def test_deep_or_cyclic_native_content_is_unavailable_without_escaping_the_observer(self):
+        first = self.capture.capture([{"role": "user", "content": "Original"}], "a" * 64, [])
+        deep = []
+        for _ in range(1100):
+            deep = [deep]
+        self.assertEqual(self.capture.capture([{"role": "tool", "content": deep}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "SOURCE_LIMIT"})
+        cycle = []
+        cycle.append(cycle)
+        self.assertEqual(self.capture.capture([{"role": "tool", "content": cycle}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        self.assertEqual(self.capture.capture([{"role": "user", "content": "\ud800"}], "a" * 64, []), {"version": 1, "status": "UNAVAILABLE", "reason": "UNSUPPORTED_SOURCE"})
+        recovered = self.capture.capture([{"role": "user", "content": "Original"}], "a" * 64, [])
+        self.assertEqual(recovered["change"], "RESET")
+        self.assertGreater(recovered["generation"], first["generation"])
+
+
+class AutomaticContainmentFixture(unittest.TestCase):
+    def setUp(self):
+        def load(name, file):
+            spec = importlib.util.spec_from_file_location(name, ROOT / "packages/runtime-hermes" / file)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+        self.protection = load("automatic_protection_fixture", "compaction_protection.py")
+        self.checkpoint = load("automatic_checkpoint_fixture", "memory_checkpoint.py")
+        class Compressor:
+            def prune_tool_results_only(self, messages, **kwargs):
+                return messages[1:], 1
+            def _micro_compact(self, messages, **kwargs):
+                return messages[1:]
+        class Agent:
+            def __init__(self):
+                self.context_compressor = Compressor()
+            def _compress_context(self, messages, system_message, **kwargs):
+                return messages[1:], "rewritten system"
+        self.agent = Agent()
+        self.binding = {"ctx": {"threadId": "thread", "runId": "run", "epoch": 2}, "sessionPath": "/fixture/session.json", "modelId": "fixture-model", "accountId": None}
+        self.required = {"apiVersion": 1, "required": True}
+        self.capability = {"apiVersion": 1, "strategy": "REFUSE_UNPROTECTED_FOREGROUND"}
+        self.receipts = []
+        self.messages = [{"role": "user", "content": "unresolved instruction"}, {"role": "tool", "content": "exact retained source"}]
+
+    def scope(self, requirement=None, current=lambda: None):
+        return self.protection.contain_automatic(self.agent, self.required if requirement is None else requirement, self.binding, current, self.receipts.append, self.capability)
+
+    def test_all_native_call_shapes_refuse_without_replacing_or_mutating_the_live_list(self):
+        before = json.loads(json.dumps(self.messages))
+        with self.scope():
+            for trigger in ("turn_start_threshold", "pre_api", "post_tool", "overflow", "idle", "engine_preflight"):
+                with self.subTest(trigger=trigger):
+                    messages, system = self.agent._compress_context(self.messages, "exact system", trigger=trigger, bypass_cooldown=trigger == "overflow")
+                    self.assertIs(messages, self.messages)
+                    self.assertEqual(system, "exact system")
+            messages, count = self.agent.context_compressor.prune_tool_results_only(self.messages, current_tokens=30000)
+            self.assertIs(messages, self.messages)
+            self.assertEqual(count, 0)
+            self.assertIs(self.agent.context_compressor._micro_compact(self.messages, turn_session_id="session"), self.messages)
+        self.assertEqual(self.messages, before)
+        self.assertEqual([value["method"] for value in self.receipts], ["compress"] * 6 + ["prune", "micro"])
+        for value in self.receipts:
+            self.assertEqual(value["status"], "REFUSED")
+            self.assertEqual(value["reason"], "AUTOMATIC_PROTECTION_UNAVAILABLE")
+            self.assertEqual(value["owner"], self.binding)
+            self.assertNotIn("afterBytes", value)
+
+    def test_cancellation_and_exception_restore_every_original_instance_override(self):
+        compressor = self.agent.context_compressor
+        for target, name in ((self.agent, "_compress_context"), (compressor, "prune_tool_results_only"), (compressor, "_micro_compact")):
+            setattr(target, name, getattr(target, name))
+        original_agent, original_compressor = vars(self.agent).copy(), vars(compressor).copy()
+        cancelled = False
+        def current():
+            if cancelled:
+                raise RuntimeError("cancelled")
+        with self.assertRaises(KeyboardInterrupt):
+            with self.scope(current=current):
+                cancelled = True
+                self.assertIs(self.agent._compress_context(self.messages, "system")[0], self.messages)
+                raise KeyboardInterrupt()
+        self.assertEqual(vars(self.agent), original_agent)
+        self.assertEqual(vars(compressor), original_compressor)
+        self.assertEqual(self.receipts[0]["reason"], "HOST_REVOKED")
+        self.assertEqual(self.agent._compress_context(self.messages, "system"), (self.messages[1:], "rewritten system"))
+
+    def test_flag_off_leaves_native_and_manual_calls_unchanged(self):
+        before_agent, before_compressor = vars(self.agent).copy(), vars(self.agent.context_compressor).copy()
+        with self.protection.contain_automatic(self.agent, None, None, None, None, None):
+            self.assertEqual(self.agent._compress_context(self.messages, "system", force=True), (self.messages[1:], "rewritten system"))
+            self.assertEqual(self.agent.context_compressor.prune_tool_results_only(self.messages), (self.messages[1:], 1))
+            self.assertEqual(self.agent.context_compressor._micro_compact(self.messages), self.messages[1:])
+        self.assertEqual(vars(self.agent), before_agent)
+        self.assertEqual(vars(self.agent.context_compressor), before_compressor)
+        self.assertEqual(self.receipts, [])
+
+    def test_missing_capability_or_invalid_required_policy_cannot_fall_back(self):
+        for policy in ({"apiVersion": True, "required": True}, {"apiVersion": 1, "required": False}, {"apiVersion": 2, "required": True}, {"apiVersion": 1, "required": True, "extra": True}):
+            with self.subTest(policy=policy), self.assertRaises(self.protection.ProtectionError):
+                self.protection.assert_automatic_requirement(policy, self.capability)
+        with self.assertRaises(self.protection.ProtectionError):
+            self.protection.assert_automatic_requirement(self.required, None)
+        for key, value in (("runId", ""), ("threadId", ""), ("epoch", True)):
+            with self.subTest(owner=key), self.assertRaises(self.protection.ProtectionError):
+                original = self.binding["ctx"][key]
+                try:
+                    self.binding["ctx"][key] = value
+                    with self.scope():
+                        self.fail("Invalid foreground owner reached native work")
+                finally:
+                    self.binding["ctx"][key] = original
+        self.assertEqual(self.receipts, [])
+
+    def test_m05_checkpoint_remains_outermost_and_failure_never_reaches_compaction(self):
+        order = []
+        def persist(request):
+            order.append("checkpoint")
+            return {"apiVersion": 2, "requestId": request["requestId"], "checkpointId": "receipt", "digest": "a" * 64, "persisted": True}
+        self.receipts = order
+        with self.scope(), self.checkpoint.native_memory_checkpoint(self.agent, {"apiVersion": 2, "required": True}, self.binding, persist, lambda: None, {"apiVersion": 2, "hostOwned": True}):
+            self.assertIs(self.agent._compress_context(self.messages, "system")[0], self.messages)
+        self.assertEqual(order[0], "checkpoint")
+        self.assertEqual(order[1]["status"], "REFUSED")
+        order.clear()
+        def fail(request):
+            order.append("checkpoint failed")
+            raise RuntimeError("persistence denied")
+        with self.scope(), self.checkpoint.native_memory_checkpoint(self.agent, {"apiVersion": 2, "required": True}, self.binding, fail, lambda: None, {"apiVersion": 2, "hostOwned": True}):
+            with self.assertRaisesRegex(RuntimeError, "persistence denied"):
+                self.agent._compress_context(self.messages, "system")
+        self.assertEqual(order, ["checkpoint failed"])
+        self.assertNotIn("_compress_context", vars(self.agent))
 
 
 class WorkerFixture(unittest.TestCase):
@@ -75,6 +271,11 @@ class WorkerFixture(unittest.TestCase):
         threading.Thread(target=lambda: [self.stderr.append(line) for line in self.proc.stderr], daemon=True).start()
         self.counter = 0
         self.host_calls = []
+        self.m04_snapshot = None
+        self.compaction_commit = True
+        self.on_compaction_commit = None
+        self.transport_usage = None
+        self.gate_result = None
 
     def tearDown(self):
         self.proc.terminate()
@@ -97,7 +298,16 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                if call["name"] == "$transport.usage" and self.transport_usage is not None:
+                    result = self.transport_usage
+                if call["name"] == "host_gate" and self.gate_result is not None:
+                    result = self.gate_result
+                if call["name"] == "$context.compaction.commit":
+                    if self.on_compaction_commit is not None:
+                        self.on_compaction_commit()
+                    result = {"version": 1, "accepted": self.compaction_commit, "planDigest": call["args"]["planDigest"]}
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             elif frame.get("id") == self.counter:
                 if error_code is not None:
@@ -119,7 +329,12 @@ class WorkerFixture(unittest.TestCase):
             if "hostCall" in frame:
                 call = frame["hostCall"]
                 self.host_calls.append(call["name"])
-                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": {"acquired": True} if call["name"] == "$background.acquire" else {}}}) + "\n")
+                result = {"acquired": True} if call["name"] == "$background.acquire" else self.m04_snapshot if call["name"] == "$context.tools.snapshot" else {}
+                if call["name"] == "$transport.usage" and self.transport_usage is not None:
+                    result = self.transport_usage
+                if call["name"] == "host_gate" and self.gate_result is not None:
+                    result = self.gate_result
+                self.proc.stdin.write(json.dumps({"hostResult": {"id": call["id"], "result": result}}) + "\n")
                 self.proc.stdin.flush()
             else:
                 events.append(frame)
@@ -177,6 +392,28 @@ class WorkerFixture(unittest.TestCase):
         self.assertEqual(saved["messages"], self.request("agent.history", {})["messages"])
         self.assertEqual(saved["format"], "hermes-source-session-v1")
 
+    def test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary(self):
+        self.hello(config={"tools": {"tool_search": {"enabled": "off"}}, "auxiliary": {"background_review": {"enabled": False}}})
+        self.m04_snapshot = {"names": ["m04_direct_fixture"]}
+        names = ["m04_direct_fixture", "m04_deferred_fixture"]
+        params = {
+            "ctx": {"threadId": "m04-exposure", "runId": "m04-first", "epoch": 1},
+            "sessionId": "m04-exposure", "modelId": "fixture-model", "accountId": None,
+            "prompt": "M04_EXPOSURE_FIXTURE", "hostTools": [
+                {"name": name, "description": "Synthetic host tool", "parameters": {"type": "object"}} for name in names
+            ], "progressiveTools": True, "maxIterations": 2,
+            "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-exposure"),
+        }
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertIn("$context.tools.snapshot", self.host_calls)
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=0")
+        self.m04_snapshot = {"names": names}
+        params["ctx"] = {"threadId": "m04-exposure", "runId": "m04-second", "epoch": 2}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        self.assertEqual(events[-1]["data"]["text"], "M04 visibility: direct=1, deferred=1")
+
     def test_original_summary_compaction_executes_with_the_retained_dependency_subset(self):
         self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
         history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"Declared synthetic checkpoint {index}: approved edits retain their reviewed SHA and stale work needs new review. " * 8)} for index in range(12)]
@@ -191,6 +428,339 @@ class WorkerFixture(unittest.TestCase):
         self.assertLess(len(result["messages"]), len(before))
         self.assertEqual(result["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
         self.assertEqual(self.host_calls, ["$transport.usage", "$transport.observation", "$transport.usage", "$transport.observation"])
+
+    def test_m04_required_automatic_protection_preserves_original_user_and_tool_history(self):
+        # Scripted usage forces the original engine's pressure branch; no real
+        # provider, token accounting or host token-fit admission is claimed.
+        self.transport_usage = {"inputTokens": 30000, "outputTokens": 4}
+        self.hello(config={"compression": {"enabled": True, "threshold_tokens": 2000, "protect_first_n": 0, "protect_last_n": 2,
+                                          "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user", "content": "M04_UNRESOLVED_AUTO_REQUIREMENT: retain this exact instruction until the user resolves it."},
+                   {"role": "assistant", "content": None, "tool_calls": [{"id": "original-tool", "type": "function", "function": {"name": "host_gate", "arguments": "{}"}}]},
+                   {"role": "tool", "tool_call_id": "original-tool", "content": "M04_EXACT_AUTO_SOURCE: selected source bytes 日本語, revision original-7."}]
+        history += [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"Older conversation turn {index}. Preserve approved work and exact source revisions. " * 32)} for index in range(12)]
+        params = {"ctx": {"threadId": "auto-protected", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None,
+                  "prompt": "PLAIN_REPLY_ONLY current user request", "history": history, "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("auto-protected"),
+                  "automaticCompactionProtection": {"apiVersion": 1, "required": True}}
+        # The original engine defers its first unanchored estimate. Prime its
+        # native pressure state with the explicitly synthetic usage above.
+        self.request("agent.start", {**params, "history": [], "prompt": "PLAIN_REPLY_ONLY prime native usage policy"})
+        self.until_settled()
+        params["ctx"] = {"threadId": "auto-protected", "runId": "protected", "epoch": 2}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        active = self.request("agent.history", {})["messages"]
+        public = lambda message: {key: value for key, value in message.items() if not key.startswith("_")}
+        retained = [public(message) for message in active]
+        for message in history:
+            self.assertIn(message, retained, "Unprotected automatic compaction discarded an exact original record")
+        self.assertTrue(any(message.get("role") == "user" and message.get("content") == params["prompt"] for message in retained))
+        refused = [event["data"] for event in events if event.get("event") == "compaction_refused"]
+        self.assertTrue(refused, "The required automatic-compaction refusal was not reported: " + "".join(self.stderr[-30:]))
+        self.assertTrue(all(value["status"] == "REFUSED" and value["reason"] == "AUTOMATIC_PROTECTION_UNAVAILABLE" for value in refused))
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], active)
+        self.assertNotIn("$context.compaction.commit", self.host_calls)
+        self.assertFalse(list(Path(params["sessionPath"]).parent.glob("*.history-*.json")))
+        # Dispose the original agent, then reopen the same immutable saved source.
+        self.request("agent.dispose", {})
+        resumed = {key: value for key, value in params.items() if key != "history"}
+        resumed.update(ctx={"threadId": "auto-protected", "runId": "reopen", "epoch": 3}, prompt="PLAIN_REPLY_ONLY after reopen")
+        self.request("agent.start", resumed)
+        self.until_settled()
+        reopened = [public(message) for message in self.request("agent.history", {})["messages"]]
+        for message in retained:
+            self.assertIn(message, reopened, "Reopening the session lost an original input or tool record")
+
+    def automatic_direct_fixture(self, method):
+        compression = {"enabled": True, "threshold_tokens": 200000, "protect_first_n": 0, "protect_last_n": 2,
+                       "abort_on_summary_failure": True, "proactive_prune_tokens": 1,
+                       "proactive_prune_min_result_chars": 100, "proactive_prune_min_reclaim_tokens": 1,
+                       "micro_compact": method == "micro"}
+        self.hello(config={"compression": compression, "auxiliary": {"background_review": {"enabled": False}}})
+        self.transport_usage = {"inputTokens": 30000, "outputTokens": 4}
+        self.gate_result = {"gate": "released"}
+        history = [{"role": "user", "content": "M04_CONFIGURED_AUTO: exact unresolved source requirement."},
+                   {"role": "assistant", "content": None, "tool_calls": [{"id": "old-call", "type": "function", "function": {"name": "host_gate", "arguments": "{}"}}]},
+                   {"role": "tool", "tool_call_id": "old-call", "content": "ORIGINAL_SELECTED_TOOL_BYTES_日本語 " * 1000}]
+        history += [{"role": "user" if index % 2 == 0 else "assistant", "content": f"Exact original turn {index}. " * 12} for index in range(8)]
+        params = {"ctx": {"threadId": "direct-auto", "runId": method, "epoch": 1}, "modelId": "fixture-model", "accountId": None,
+                  "prompt": "HOST_GATE_FIXTURE" if method == "prune" else "PLAIN_REPLY_ONLY", "history": history,
+                  "hostTools": [{"name": "host_gate", "description": "Return the declared fixture result", "parameters": {"type": "object"}}],
+                  "maxIterations": 3, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("direct-auto"),
+                  "automaticCompactionProtection": {"apiVersion": 1, "required": True}}
+        self.request("agent.start", params)
+        events = self.until_settled()
+        refusals = [event["data"] for event in events if event.get("event") == "compaction_refused"]
+        self.assertTrue(any(value["method"] == method and value["status"] == "REFUSED" for value in refusals), refusals)
+        messages = self.request("agent.history", {})["messages"]
+        public = [{key: value for key, value in message.items() if not key.startswith("_")} for message in messages]
+        for message in history:
+            self.assertIn(message, public, "Configured native maintenance changed an exact original record")
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], messages)
+        self.assertNotIn("$context.compaction.commit", self.host_calls)
+
+    def test_m04_required_protection_contains_configured_native_proactive_pruning(self):
+        self.automatic_direct_fixture("prune")
+
+    def test_m04_required_protection_contains_configured_native_post_turn_micro_compaction(self):
+        self.automatic_direct_fixture("micro")
+
+    def test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent(self):
+        self.hello()
+        params = {"ctx": {"threadId": "m04-instructions", "runId": "one", "epoch": 1},
+                  "modelId": "fixture-model", "accountId": None, "prompt": "M04_INSTRUCTION_FIXTURE",
+                  "systemPrompt": "Host policy. M04_INSTRUCTION_ONE_SENTINEL", "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-instructions")}
+        self.request("agent.start", params)
+        first = self.until_settled()[-1]["data"]
+        self.assertEqual(first["text"], "Project instructions: first=1, second=0")
+        before = self.request("agent.history", {})["messages"]
+        params["systemPrompt"] = "Host policy. M04_INSTRUCTION_TWO_SENTINEL"
+        params["ctx"] = {"threadId": "m04-instructions", "runId": "two", "epoch": 2}
+        self.request("agent.start", params)
+        second = self.until_settled()[-1]["data"]
+        self.assertEqual(second["text"], "Project instructions: first=0, second=1")
+        self.assertNotEqual(first["agentInstance"], second["agentInstance"])
+        self.assertEqual(self.request("agent.history", {})["messages"][:len(before)], before)
+        params["ctx"] = {"threadId": "m04-instructions", "runId": "three", "epoch": 3}
+        self.request("agent.start", params)
+        third = self.until_settled()[-1]["data"]
+        self.assertEqual(third["agentInstance"], second["agentInstance"])
+        self.assertEqual(third["text"], "Project instructions: first=0, second=1")
+
+    def test_m04_original_request_cut_reuses_only_an_unchanged_native_prefix(self):
+        self.hello()
+        params = {"ctx": {"threadId": "m04-native-cut", "runId": "one", "epoch": 1},
+                  "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY private-first-input",
+                  "systemPrompt": "Stable host policy.", "hostTools": [], "maxIterations": 2,
+                  "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-native-cut"),
+                  "contextCapture": {"apiVersion": 1, "bindingDigest": "a" * 64}}
+        self.request("agent.start", params)
+        first_events = self.until_settled()
+        first = next(event["data"] for event in first_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(first["change"], "RESET")
+        self.assertGreater(first["sourceCount"], 0)
+        self.assertEqual(first["reusedSources"], 0)
+        self.assertNotIn("private-first-input", json.dumps(first))
+        params["ctx"] = {"threadId": "m04-native-cut", "runId": "two", "epoch": 2}
+        params["prompt"] = "PLAIN_REPLY_ONLY private-next-input"
+        self.request("agent.start", params)
+        second_events = self.until_settled()
+        second = next(event["data"] for event in second_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(second["change"], "APPEND")
+        self.assertEqual(second["generation"], first["generation"])
+        self.assertEqual(second["previousDigest"], first["revisionDigest"])
+        self.assertEqual(second["reusedSources"], first["sourceCount"])
+        self.assertEqual(len(second["sources"]), second["sourceCount"] - first["sourceCount"])
+        self.assertNotIn("private-next-input", json.dumps(second))
+        params["ctx"] = {"threadId": "m04-native-cut", "runId": "three", "epoch": 3}
+        params["systemPrompt"] = "Changed approved instructions."
+        params["contextCapture"]["bindingDigest"] = "b" * 64
+        self.request("agent.start", params)
+        third_events = self.until_settled()
+        third = next(event["data"] for event in third_events if event.get("event") == "model_request")["nativeContextCut"]
+        self.assertEqual(third["change"], "RESET")
+        self.assertGreater(third["generation"], second["generation"])
+        self.assertEqual(third["reusedSources"], 0)
+
+    def test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest(self):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 4, "abort_on_summary_failure": True}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user" if index % 2 == 0 else "assistant", "content": (f"CAS fixture segment {index}: the worker must refuse a stale digest and only replace the exact approved history. " * 8)} for index in range(12)]
+        params = {"ctx": {"threadId": "compact-cas", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "history": history, "hostTools": [], "maxIterations": 2, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("compact-cas")}
+        self.request("agent.start", params)
+        self.until_settled()
+        snapshot = self.request("agent.history", {})
+        self.assertIn("historySha256", snapshot)
+        expected = hashlib.sha256(json.dumps(snapshot["messages"], sort_keys=True, default=str).encode("utf8")).hexdigest()
+        self.assertEqual(snapshot["historySha256"], expected)
+        stale = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": hashlib.sha256(b"stale-source-cut").hexdigest()})
+        self.assertFalse(stale["compacted"])
+        self.assertTrue(stale["mismatch"])
+        self.assertEqual(stale["historySha256"], expected)
+        self.assertEqual(self.request("agent.history", {})["messages"], snapshot["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], snapshot["messages"])
+        applied = self.request("agent.compact", {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": expected})
+        errors = Path(self.tmp.name) / "logs/errors.log"
+        self.assertTrue(applied["compacted"], errors.read_text(encoding="utf8")[-6000:] if errors.exists() else applied)
+        self.assertLess(len(applied["messages"]), len(snapshot["messages"]))
+        self.assertEqual(applied["messages"], json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"])
+
+    def protected_compaction_fixture(self, distinct_turns=True, extra_user_text="", abort_on_summary_failure=True):
+        self.hello(config={"compression": {"enabled": True, "protect_first_n": 0, "protect_last_n": 2, "abort_on_summary_failure": abort_on_summary_failure}, "auxiliary": {"background_review": {"enabled": False}}})
+        history = [{"role": "user", "content": "M04_UNRESOLVED_REQUIREMENT: retain the old API and evidence source src/api.ts revision 7." + extra_user_text}]
+        for index in range(6):
+            history += [{"role": "assistant", "content": f"Old explanatory paragraph {index}: " + "This completed investigation may be summarized. " * 80}]
+            if distinct_turns:
+                history += [{"role": "user", "content": f"Completed question {index}; continue with the retained API constraint."}]
+        history += [{"role": "assistant", "content": None, "tool_calls": [{"id": "m04-read", "type": "function", "function": {"name": "repository_read", "arguments": '{"resourceId":"approved"}'}}]},
+                    {"role": "tool", "tool_call_id": "m04-read", "content": "M04_SOURCE_EVIDENCE: verified revision 7"},
+                    {"role": "user", "content": "M04_RECENT_USER: preserve this exact 日本語 text."}]
+        params = {"ctx": {"threadId": "m04-protected", "runId": "first", "epoch": 1}, "modelId": "fixture-model", "accountId": None, "prompt": "PLAIN_REPLY_ONLY", "history": history,
+                  "hostTools": [], "maxIterations": 2, "skillPolicy": {"enabled": False}, "sessionPath": self.session_path("m04-protected")}
+        self.request("agent.start", params)
+        self.until_settled()
+        source = self.request("agent.history", {})
+        last_user = max(index for index, message in enumerate(source["messages"]) if message.get("role") == "user")
+        kept = [index for index, message in enumerate(source["messages"]) if message.get("role") in ("user", "system", "developer", "tool") or message.get("tool_calls") or index >= last_user]
+        plan = {"version": 1, "candidateId": "candidate-protected", "owner": {"threadId": "m04-protected", "runId": "compact-run", "epoch": 2, "workspaceId": "workspace", "modelId": "fixture-model", "accountId": None,
+                 "generation": 1, "instructionDigest": "b" * 64, "toolRegistryDigest": "c" * 64}, "sourceSha256": source["historySha256"], "retainedIndices": kept,
+                "references": [{"kind": "PENDING_APPROVAL", "id": "request:approval", "revision": 3, "digest": "d" * 64},
+                               {"kind": "SOURCE_EVIDENCE", "id": "capture:source", "revision": "captured-file-revision-7", "digest": "e" * 64}], "maxRetainedBytes": 65536}
+        protection = {"plan": plan, "planDigest": hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()}
+        compact = {**params, "brokerURL": "http://127.0.0.1:1", "jobKey": "synthetic-unused", "expectedHistorySha256": source["historySha256"], "compactionProtection": protection,
+                   "compactionContext": {key: plan["owner"][key] for key in ("threadId", "runId", "epoch")}}
+        return params, source, plan, compact
+
+    def test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive(self):
+        params, source, plan, compact = self.protected_compaction_fixture()
+        applied = self.request("agent.compact", compact)
+        receipt = applied.get("protection")
+        self.assertIn("M04_UNRESOLVED_REQUIREMENT", json.dumps(applied["messages"]), "Native compaction discarded the unresolved user requirement")
+        self.assertTrue(applied["compacted"], receipt)
+        public = lambda message: {key: value for key, value in message.items() if not key.startswith("_")}
+        after = [public(message) for message in applied["messages"]]
+        position = 0
+        for index in plan["retainedIndices"]:
+            expected = public(source["messages"][index])
+            self.assertIn(expected, after[position:], "Protected native record was lost or reordered")
+            position = after.index(expected, position) + 1
+        self.assertIsInstance(receipt, dict, "Native application lacks a checked protection/archive receipt")
+        self.assertEqual(receipt["status"], "APPLIED")
+        self.assertEqual(receipt["sourceSha256"], source["historySha256"])
+        self.assertIn("$context.compaction.commit", self.host_calls)
+        self.assertIn("request:approval", json.dumps(applied["messages"]))
+        self.assertIn("captured-file-revision-7", json.dumps(applied["messages"]))
+        self.assertEqual(receipt["referenceCount"], 2)
+        archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
+        self.assertEqual(json.loads(archive.read_text(encoding="utf8")), source["messages"])
+        self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), source["historySha256"])
+        self.assertEqual(self.request("agent.history", {})["messages"], applied["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], applied["messages"])
+        self.assertLess(receipt["afterBytes"], receipt["beforeBytes"])
+
+    def test_m04_protection_refuses_opaque_revisions_for_pending_approvals(self):
+        params, source, plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        plan["references"][0]["revision"] = "not-an-approval-revision"
+        compact["compactionProtection"]["planDigest"] = hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()
+        failure = self.request("agent.compact", compact, error_code="ProtectionError")
+        self.assertIn("SOURCE_MISMATCH", failure["message"])
+        self.assertEqual(self.host_calls, calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for key, value in (("runId", "wrong-maintenance"), ("epoch", 3)):
+            with self.subTest(field=key):
+                attempt = json.loads(json.dumps(compact))
+                plan = attempt["compactionProtection"]["plan"]
+                plan["owner"][key] = value
+                attempt["compactionProtection"]["planDigest"] = hashlib.sha256(json.dumps(plan, ensure_ascii=False, separators=(",", ":")).encode("utf8")).hexdigest()
+                failure = self.request("agent.compact", attempt, error_code="ProtectionError")
+                self.assertIn("SOURCE_MISMATCH", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_requires_an_explicit_same_thread_maintenance_context(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for context in (None, {**compact["compactionContext"], "threadId": "other-thread"}, {**compact["compactionContext"], "epoch": True}):
+            with self.subTest(context=context):
+                failure = self.request("agent.compact", {**compact, "compactionContext": context}, error_code="ProtectionError")
+                self.assertIn("SOURCE_MISMATCH", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_cannot_replace_the_retained_source_context(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        calls = list(self.host_calls)
+        for key, value in (("runId", "wrong-source-run"), ("epoch", 2)):
+            with self.subTest(field=key):
+                failure = self.request("agent.compact", {**compact, "ctx": {**compact["ctx"], key: value}}, error_code="PermissionError")
+                self.assertIn("Maintenance context does not own this source session", failure["message"])
+                self.assertEqual(self.host_calls, calls)
+                self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+                self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_protection_refuses_when_native_normalization_makes_the_old_prose_part_of_a_required_tool_group(self):
+        params, source, _plan, compact = self.protected_compaction_fixture(distinct_turns=False)
+        refused = self.request("agent.compact", compact)
+        self.assertFalse(refused["compacted"])
+        self.assertEqual(refused["protection"]["reason"], "NO_REDUCTION")
+        self.assertNotIn("$context.compaction.commit", self.host_calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
+
+    def test_m04_protection_refuses_changed_archive_after_host_commit_wait(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
+        self.on_compaction_commit = lambda: archive.write_bytes(b"changed archived source")
+        refused = self.request("agent.compact", compact)
+        self.assertFalse(refused["compacted"])
+        self.assertEqual(refused["protection"]["reason"], "ARCHIVE_FAILED")
+        self.assertIsNone(refused["protection"]["archiveRef"])
+        self.assertIsNone(refused["protection"]["archiveSha256"])
+        self.assertIn("$context.compaction.commit", self.host_calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
+
+    def test_m04_archive_unavailable_refuses_before_summary_and_preserves_native_history(self):
+        self.assert_archive_unavailable_refuses(abort_on_summary_failure=True)
+
+    def test_m04_archive_unavailable_refuses_when_native_summary_fallback_is_enabled(self):
+        self.assert_archive_unavailable_refuses(abort_on_summary_failure=False)
+
+    def assert_archive_unavailable_refuses(self, abort_on_summary_failure):
+        params, source, _plan, compact = self.protected_compaction_fixture(abort_on_summary_failure=abort_on_summary_failure)
+        archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
+        archive.mkdir()
+        calls = list(self.host_calls)
+        refused = self.request("agent.compact", compact)
+        self.assertFalse(refused["compacted"])
+        self.assertEqual(refused["protection"]["status"], "REFUSED")
+        self.assertEqual(refused["protection"]["reason"], "ARCHIVE_FAILED")
+        self.assertIsNone(refused["protection"]["archiveRef"])
+        self.assertIsNone(refused["protection"]["archiveSha256"])
+        self.assertEqual(self.host_calls, calls, "An unavailable original archive must prevent summary spend and host commit")
+        self.assertTrue(archive.is_dir(), "The refusing archive must not replace an existing path")
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
+
+    def test_m04_protection_overflow_never_starts_summary_or_native_mutation(self):
+        params, source, _plan, compact = self.protected_compaction_fixture(extra_user_text="x" * 65536)
+        calls = list(self.host_calls)
+        failure = self.request("agent.compact", compact, error_code="ProtectionError")
+        self.assertIn("PROTECTION_LIMIT", failure["message"])
+        self.assertEqual(self.host_calls, calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_required_checkpoint_failure_blocks_protected_summary_and_archive(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        compact["memoryCheckpoint"] = {"apiVersion": 2, "required": True}
+        calls = len(self.host_calls)
+        self.request("agent.compact", compact, error_code="RuntimeError")
+        self.assertEqual(self.host_calls[calls:], ["$memory.checkpoint"])
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertFalse(Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json").exists())
+
+    def test_m04_revoked_commit_retains_the_archive_but_never_changes_active_native_history(self):
+        params, source, _plan, compact = self.protected_compaction_fixture()
+        self.compaction_commit = False
+        refused = self.request("agent.compact", compact)
+        self.assertFalse(refused["compacted"], "A revoked host owner reached native history mutation")
+        self.assertEqual(refused["protection"]["status"], "REFUSED")
+        self.assertEqual(refused["protection"]["reason"], "HOST_REVOKED")
+        self.assertIn("$context.compaction.commit", self.host_calls)
+        self.assertEqual(self.request("agent.history", {})["messages"], source["messages"])
+        self.assertEqual(json.loads(Path(params["sessionPath"]).read_text(encoding="utf8"))["messages"], source["messages"])
+        archive = Path(params["sessionPath"] + ".history-" + source["historySha256"] + ".json")
+        self.assertEqual(json.loads(archive.read_text(encoding="utf8")), source["messages"])
 
     def test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate(self):
         self.hello()

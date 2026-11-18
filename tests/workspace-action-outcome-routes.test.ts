@@ -5,6 +5,7 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store.ts';
+import {HarnessError} from '../packages/contracts/index.ts';
 import {ProjectTools} from '../packages/workspace/tools.ts';
 import {GitHubTools} from '../packages/workspace/github.ts';
 import type {TerminalHost} from '../packages/workspace/terminal.ts';
@@ -52,6 +53,17 @@ import Fastify from 'fastify';
 import {registerWorkspaceRoutes} from '../apps/server/workspace-routes.ts';
 import {registerWorkspaceHost} from '../apps/server/workspace-host.ts';
 import type {Service} from '../packages/core/service.ts';
+it('admits one create-PR effect when the original command is repeated before acknowledgment',async()=>{
+ const f=await fixture(),status=await f.projects.gitStatus(f.projectId,f.thread.id),app=Fastify(),service={store:f.store} as Service;
+ registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
+ let release!:()=>void,entered!:()=>void,writes=0;const held=new Promise<void>(resolve=>{release=resolve;}),started=new Promise<void>(resolve=>{entered=resolve;});
+ const result={url:'https://github.com/example/fixture/pull/14',head:status.head,revision:status.revision,repo:'example/fixture'};
+ vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{beforeWrite?.();writes++;entered();await held;return result;});const bindings=vi.spyOn(f.projects,'binding');
+ const input={id:randomUUID(),type:'create-pr',threadId:f.thread.id,payload:{title:'One draft',body:'One submitted description',base:'main',push:false,head:status.head,revision:status.revision}},url='/api/projects/'+f.projectId+'/actions';
+ const first=app.inject({method:'POST',url,payload:input});let second:typeof first|undefined;
+ try{await started;const count=bindings.mock.calls.length;second=app.inject({method:'POST',url,payload:input});await expect.poll(()=>bindings.mock.calls.length).toBeGreaterThan(count);release();const responses=await Promise.all([first,second]);expect(responses[0].statusCode).toBe(200);expect([200,409]).toContain(responses[1].statusCode);expect(writes).toBe(1);const replay=await app.inject({method:'POST',url,payload:input});expect(replay.json()).toEqual(responses[0].json());expect(replay.json().result).toEqual(result);expect(writes).toBe(1);}
+ finally{release();await Promise.allSettled(second?[first,second]:[first]);}
+});
 it('routes supported writes through durable identity and keeps inspection read-only',async()=>{
  const f=await fixture(),{input,operation}=await f.operation('review-pr'),app=Fastify(),service={store:f.store} as Service;let writes=0;
  remote(f,async()=>{writes++;return{id:77,body:'private remote response'};});
@@ -96,4 +108,36 @@ it('returns an unsuccessful response for an unconfirmed action so existing contr
  registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
  const mutation=vi.spyOn(f.projects,'gitAction'),response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});
  expect(response.statusCode).toBe(409);expect(response.json()).toMatchObject({state:'not-applied',error:{code:'REVISION_CHANGED'}});expect(mutation).not.toHaveBeenCalled();
+},60000);
+
+
+it.each(['before write','after write'] as const)('keeps credential-bearing %s failures outside HTTP results and durable events',async(phase)=>{
+ const f=await fixture(),status=await f.projects.gitStatus(f.projectId,f.thread.id),app=Fastify(),service={store:f.store} as Service;
+ registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});
+ registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
+ const token=await f.github.auth.token(),encoded=Buffer.from(token).toString('base64');
+ // Only the failed external write edge is injected. The real action owner,
+ // credential fence, HTTP route and durable intent/event handling remain active.
+ const create=vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{
+  if(phase==='after write')beforeWrite?.();
+  throw new HarnessError('GIT_ERROR','Private child diagnostic: '+token,{stdout:token,stderr:encoded,exitCode:17});
+ });
+ const input={id:randomUUID(),type:'create-pr',threadId:f.thread.id,payload:{
+  title:'Owned privacy fixture',body:'Public test body',base:'main',push:true,head:status.head,revision:status.revision,
+ }};
+ const sequence=f.store.sequence;
+ const response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});
+ expect(create).toHaveBeenCalledTimes(1);
+ expect(response.statusCode).toBe(409);
+ expect(response.headers['cache-control']).toBe('no-store');
+ expect(response.json()).toMatchObject({
+  state:phase==='after write'?'uncertain':'not-applied',
+  error:{
+   code:phase==='after write'?'ACTION_UNCERTAIN':'REVISION_CHANGED',
+   details:{state:phase==='after write'?'uncertain':'not-applied',operationId:input.id},
+  },
+ });
+ const publicAndDurable=JSON.stringify([response.json(),f.store.eventsAfter(sequence),f.store.all('workspaceActionOutcome')]);
+ expect(publicAndDurable).not.toContain(token);
+ expect(publicAndDurable).not.toContain(encoded);
 },60000);

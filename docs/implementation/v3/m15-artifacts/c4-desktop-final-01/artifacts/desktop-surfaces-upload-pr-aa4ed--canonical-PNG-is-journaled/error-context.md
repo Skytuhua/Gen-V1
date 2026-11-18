@@ -1,0 +1,222 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e3]:
+  - complementary "Thread navigation" [ref=e4]:
+    - generic [ref=e5]:
+      - img [ref=e7]
+      - strong [ref=e9]: Gen V1
+      - button "Collapse sidebar" [ref=e10] [cursor=pointer]:
+        - img [ref=e11]
+    - generic [ref=e14]:
+      - generic [ref=e15]:
+        - img [ref=e16]
+        - textbox "Search threads" [ref=e19]:
+          - /placeholder: Search
+      - button "Filter threads" [ref=e20] [cursor=pointer]:
+        - img [ref=e21]
+      - button "Connect project" [ref=e22] [cursor=pointer]:
+        - img [ref=e23]
+      - button "New thread" [ref=e25] [cursor=pointer]:
+        - img [ref=e26]
+    - navigation "Threads" [ref=e29]:
+      - generic [ref=e31]:
+        - button "Source-bound task fixture Ready" [ref=e32]:
+          - generic [ref=e33]:
+            - generic [ref=e34]:
+              - generic [ref=e35]: RT
+              - generic [ref=e36]: Reusable task surfaces
+            - time [ref=e38]: 17d
+          - generic [ref=e39]: Source-bound task fixture
+          - generic [ref=e40]: Ready
+        - button "Options for Source-bound task fixture" [ref=e42] [cursor=pointer]:
+          - img [ref=e43]
+    - generic "App controls" [ref=e47]:
+      - button "Settings" [ref=e48] [cursor=pointer]:
+        - img [ref=e49]
+        - generic [ref=e52]: Settings
+      - button "Pull requests" [ref=e53] [cursor=pointer]:
+        - img [ref=e54]
+        - generic [ref=e58]: PRs
+      - button "Usage" [ref=e59] [cursor=pointer]:
+        - img [ref=e60]
+        - generic [ref=e62]: Usage
+      - button "Update" [disabled] [ref=e63]:
+        - img [ref=e64]
+        - generic [ref=e67]: Update
+  - separator "Resize sidebar" [ref=e68]
+  - generic [ref=e69]:
+    - generic [ref=e70]:
+      - status [ref=e71]:
+        - generic [ref=e72]: Plug-ins could not be loaded.
+        - button "Retry" [ref=e73] [cursor=pointer]
+      - generic "Workspace layouts" [ref=e74]:
+        - button "Workspace" [pressed] [ref=e75] [cursor=pointer]
+        - button "All Agents" [ref=e76] [cursor=pointer]
+        - button "Open workspace panel" [ref=e77] [cursor=pointer]:
+          - img [ref=e78]
+        - button "Layouts" [ref=e81] [cursor=pointer]:
+          - img [ref=e82]
+          - text: Layouts
+          - img [ref=e86]
+    - generic [ref=e92]:
+      - generic [ref=e93]:
+        - generic [ref=e95]:
+          - region "Source-bound task fixture" [ref=e96]:
+            - generic [ref=e97]:
+              - button "Split this area" [ref=e98]: ◩
+              - tablist "Area views" [ref=e99]:
+                - tab "Source-bound task fixture" [selected] [ref=e100] [cursor=pointer]:
+                  - generic [ref=e101]: Source-bound task fixture
+              - button "Area actions" [ref=e103] [cursor=pointer]:
+                - img [ref=e104]
+              - button "Minimize area" [expanded] [ref=e108] [cursor=pointer]: ▴
+          - separator "Resize columns" [ref=e110]
+          - region "Task plan" [ref=e111]:
+            - generic [ref=e112]:
+              - button "Split this area" [ref=e113]: ◩
+              - tablist "Area views" [ref=e114]:
+                - tab "Task plan" [selected] [ref=e115] [cursor=pointer]:
+                  - generic [ref=e116]: Task plan
+              - button "Area actions" [ref=e118] [cursor=pointer]:
+                - img [ref=e119]
+              - button "Minimize area" [expanded] [ref=e123] [cursor=pointer]: ▴
+        - generic:
+          - generic [ref=e134]:
+            - main "Chat" [ref=e135]:
+              - generic [ref=e137]:
+                - img [ref=e138]
+                - generic [ref=e140]: Reusable task surfaces
+                - generic [ref=e141]: /
+                - strong [ref=e142]: Source-bound task fixture
+              - generic "Conversation" [ref=e144]:
+                - generic [ref=e147]:
+                  - generic [ref=e148]: Assistant
+                  - generic [ref=e149]:
+                    - button "Copy message" [ref=e150] [cursor=pointer]:
+                      - img [ref=e151]
+                    - status [ref=e154]
+                    - paragraph [ref=e156]: Synthetic local source data for the reusable renderer.
+                  - region "Task surface" [ref=e157]:
+                    - generic [ref=e158]:
+                      - strong [ref=e160]: Task surface
+                      - generic [ref=e161]:
+                        - button "Saved" [disabled] [ref=e162]:
+                          - img [ref=e163]
+                          - generic [ref=e165]: Saved
+                        - generic [ref=e166]:
+                          - button "View artifact source" [ref=e167] [cursor=pointer]:
+                            - img [ref=e168]
+                          - button "Pin artifact" [ref=e172] [cursor=pointer]:
+                            - img [ref=e173]
+                          - button "Archive artifact" [ref=e175] [cursor=pointer]:
+                            - img [ref=e176]
+                        - button "Expand artifact" [disabled] [ref=e179]:
+                          - img [ref=e180]
+                        - button "Open artifact in workspace" [disabled] [ref=e185]:
+                          - img [ref=e186]
+                    - alert [ref=e189]:
+                      - text: Wait for the signature mark to finish saving before moving this artifact.
+                      - button "Dismiss artifact error" [ref=e190] [cursor=pointer]:
+                        - img [ref=e191]
+                    - region "Your signature" [ref=e196]:
+                      - generic [ref=e198]: Your signature
+                      - group "Signature input method" [ref=e199]:
+                        - button "Generate" [ref=e200] [cursor=pointer]:
+                          - img [ref=e201]
+                          - text: Generate
+                        - button "Draw" [ref=e203] [cursor=pointer]:
+                          - img [ref=e204]
+                          - text: Draw
+                        - button "Upload" [pressed] [ref=e206] [cursor=pointer]:
+                          - img [ref=e207]
+                          - text: Upload
+                      - generic [ref=e210]:
+                        - generic [ref=e211] [cursor=pointer]:
+                          - img [ref=e212]
+                          - strong [ref=e215]: Upload your signature
+                          - generic [ref=e216]: PNG up to 2 MiB
+                          - button "Upload PNG signature" [ref=e217]
+                        - button "Clear" [ref=e219] [cursor=pointer]:
+                          - img [ref=e220]
+                          - text: Clear
+                      - group [ref=e224]:
+                        - generic "Signature help" [ref=e225] [cursor=pointer]
+              - generic [ref=e229]:
+                - generic [ref=e230]:
+                  - textbox "Message" [ref=e232]:
+                    - /placeholder: Ask anything…
+                  - group "Task actions" [ref=e233]:
+                    - button "Inspect changes" [ref=e234] [cursor=pointer]:
+                      - img [ref=e235]
+                      - generic [ref=e237]: Changes
+                    - button "Create PR" [ref=e238] [cursor=pointer]:
+                      - img [ref=e239]
+                      - generic [ref=e244]: Create PR
+                - status [ref=e245]
+                - generic [ref=e247]:
+                  - group "Project and runtime" [ref=e248]:
+                    - button "Saved drafts" [disabled] [ref=e249]
+                    - button "Attach files" [ref=e250] [cursor=pointer]:
+                      - img [ref=e251]
+                    - button "Select project" [ref=e252] [cursor=pointer]:
+                      - img [ref=e253]
+                      - generic [ref=e255]: Reusable task surfaces
+                    - generic "Local workspace" [ref=e256]:
+                      - img [ref=e257]
+                      - text: Local
+                    - button "Task mode" [ref=e259] [cursor=pointer]:
+                      - img [ref=e260]
+                      - generic [ref=e263]: Build
+                    - button "Show live usage" [ref=e264] [cursor=pointer]:
+                      - img [ref=e265]
+                  - group "Model and voice" [ref=e267]:
+                    - combobox "Model" [ref=e268] [cursor=pointer]:
+                      - img [ref=e269]
+                      - generic [ref=e272]: Fixture
+                      - img [ref=e273]
+                    - button "Inspect context usage" [ref=e276] [cursor=pointer]:
+                      - img [ref=e277]
+                    - button "Start voice input" [ref=e278] [cursor=pointer]:
+                      - img [ref=e279]
+                    - button "Send message" [disabled] [ref=e283]:
+                      - img [ref=e284]
+            - generic:
+              - img
+              - generic: Dock chat
+          - 'region "Task plan: Repair checkout failures" [ref=e289]':
+            - generic [ref=e290]:
+              - generic "Plan progress and actions" [ref=e291]:
+                - generic [ref=e292]: 0/1 complete
+                - generic [ref=e293]: 0 agents
+                - generic [ref=e294]: Rev 1
+                - generic [ref=e295]:
+                  - button "Jump to current" [ref=e296] [cursor=pointer]:
+                    - img [ref=e297]
+                  - button "Plan actions" [ref=e300] [cursor=pointer]:
+                    - img [ref=e301]
+                    - text: Plan actions
+              - progressbar "Completed or accepted steps" [ref=e305]
+            - paragraph [ref=e306]:
+              - text: Start
+              - generic [ref=e307]: Proposed plan
+            - list [ref=e308]:
+              - listitem [ref=e309]:
+                - button "Inspect the task boundary Step 1 Running" [expanded] [ref=e310] [cursor=pointer]:
+                  - img [ref=e312]
+                  - generic [ref=e314]:
+                    - strong [ref=e315]: Inspect the task boundary
+                    - generic [ref=e316]:
+                      - text: Step 1
+                      - generic [ref=e317]: Running
+                  - img [ref=e318]
+                - paragraph [ref=e322]: No details reported.
+            - paragraph [ref=e323]: End of published plan
+      - complementary "Conversation summaries" [ref=e324]:
+        - region "Project overview window" [ref=e325]:
+          - button "Expand Project overview" [ref=e327] [cursor=pointer]:
+            - strong [ref=e328]: Project overview
+            - status [ref=e329]: Update available
+            - img [ref=e330]
+  - region "Notifications"
+```

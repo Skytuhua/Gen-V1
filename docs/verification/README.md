@@ -1,7 +1,7 @@
 # Verification scope
 
 Gen V1 is a beta. Reproducible checks and observed provider behavior are separate
-claims. The current GitHub workflow is available under [Actions](https://github.com/Skytuhua/Gen-V1/actions/workflows/ci.yml).
+claims. The current GitHub workflow is available under [Actions](https://github.com/skytuhua-org/Gen-V1/actions/workflows/ci.yml).
 
 The preceding 0.6.0 implementation passed all 1,040 application regression tests,
 23 original-Hermes worker/custody/control checks and 14 packaged native checks.

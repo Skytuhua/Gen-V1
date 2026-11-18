@@ -1,0 +1,904 @@
+argv: ["node","--import","tsx","scripts/test-browser.ts","--suite","saved-drafts"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/m15-v3/test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f
+
+Browser suite: saved-drafts (1 spec files)
+[2m[WebServer] [22m(node:39) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 27 tests using 1 worker
+
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:78) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   1 tests/e2e/saved-drafts.spec.ts:283:1 › named save, reload, delete/cancel and empty state stay local (30.3s)
+(node:163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:163) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   2 tests/e2e/saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input (30.7s)
+(node:241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:241) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   3 tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit (31.0s)
+(node:326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:326) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   4 tests/e2e/saved-drafts.spec.ts:391:1 › rich records list missing/revoked references but restore text only, preserving current excerpts (30.4s)
+(node:422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:422) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   5 tests/e2e/saved-drafts.spec.ts:422:1 › account/profile/thread/project/working-copy libraries remain isolated (30.5s)
+(node:506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   6 tests/e2e/saved-drafts.spec.ts:442:1 › quota failure and corrupt records keep the active draft and offer retry (31.1s)
+(node:590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:590) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   7 tests/e2e/saved-drafts.spec.ts:484:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger (9.3s)
+(node:677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:677) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   8 tests/e2e/saved-drafts.spec.ts:520:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion (31.3s)
+(node:761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:761) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘   9 tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts (30.2s)
+(node:841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  10 tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts (30.3s)
+(node:924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:924) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  11 tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts (199ms)
+(node:1002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1002) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 tests/e2e/saved-drafts.spec.ts:651:42 › new excerpt-only saves remain reviewable after the original selection is gone (250ms)
+(node:1081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1081) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 tests/e2e/saved-drafts.spec.ts:651:42 › new skill-only saves remain reviewable after the original selection is gone (188ms)
+(node:1161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1161) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode (248ms)
+(node:1242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  15 tests/e2e/saved-drafts.spec.ts:868:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority (227ms)
+(node:1320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1320) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  16 tests/e2e/saved-drafts.spec.ts:967:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy (298ms)
+(node:1400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  17 tests/e2e/saved-drafts.spec.ts:1016:1 › idle expiry refreshes an open list and deletes only the expired saved record (414ms)
+(node:1482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1482) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  18 tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on load (188ms)
+(node:1560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1560) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  19 tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on list (165ms)
+(node:1638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1638) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  20 tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on switch (175ms)
+(node:1716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1716) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  21 tests/e2e/saved-drafts.spec.ts:1139:1 › empty active library schedules expiry for inactive threads and copies without reading their owner (185ms)
+(node:1795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1795) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  22 tests/e2e/saved-drafts.spec.ts:1158:1 › another window adding an inactive library reschedules the empty active library deadline (412ms)
+(node:1873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1873) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  23 tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid load or inactive expiry (246ms)
+(node:1951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:1951) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  24 tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid save or inactive expiry (225ms)
+(node:2030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2030) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  25 tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid list or inactive expiry (576ms)
+(node:2109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2109) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  26 tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid switch or inactive expiry (173ms)
+(node:2187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:2187) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  27 tests/e2e/saved-drafts.spec.ts:1295:1 › malformed inactive library does not stop the global expiry deadline (226ms)
+
+
+  1) tests/e2e/saved-drafts.spec.ts:283:1 › named save, reload, delete/cancel and empty state stay local 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:58:39
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-named-save-re-5f419--and-empty-state-stay-local/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:61:20
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-replace-keeps-b7750-cel-preserves-current-input/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Target crashed 
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:64:20
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-stale-restore-d4216-er-a-concurrent-window-edit/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/saved-drafts.spec.ts:391:1 › rich records list missing/revoked references but restore text only, preserving current excerpts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:67:102
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-rich-records--891c3-preserving-current-excerpts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-rich-records--891c3-preserving-current-excerpts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-rich-records--891c3-preserving-current-excerpts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/saved-drafts.spec.ts:422:1 › account/profile/thread/project/working-copy libraries remain isolated 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:70:20
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-account-profi-3def2-y-libraries-remain-isolated/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-account-profi-3def2-y-libraries-remain-isolated/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-account-profi-3def2-y-libraries-remain-isolated/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/saved-drafts.spec.ts:442:1 › quota failure and corrupt records keep the active draft and offer retry 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:73:337
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-quota-failure-ef0d5-ctive-draft-and-offer-retry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/saved-drafts.spec.ts:484:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeDisabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('button', { name: 'Drafts', exact: true })
+    Expected: disabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeDisabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      74 | });
+      75 | test('keyboard/IME does not save or send a composing name; focus returns to the trigger',async({page})=>{
+    > 76 |  const writes=await setup(page);await draft(page).fill('IME draft');await draft(page).dispatchEvent('compositionstart');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeDisabled();await draft(page).dispatchEvent('compositionend');await page.getByRole('button',{name:'Drafts',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.getByRole('button',{name:'Save current prompt'})).toBeFocused();await page.keyboard.press('Enter');await expect(page.getByLabel('Draft name')).toBeFocused();await page.getByLabel('Draft name').fill('Name');await page.getByLabel('Draft name').dispatchEvent('keydown',{key:'Enter',isComposing:true});await expect(page.getByRole('dialog',{name:'Save prompt'})).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Drafts',exact:true})).toBeFocused();expect(writes).toEqual([]);
+         |                                                                                                                                                                                           ^
+      77 | });
+      78 | test('approved list captures and stress names remain usable at 1440/1024/768 with reduced motion',async({page},info)=>{
+      79 |  await setup(page);await save(page);await save(page,'Group the notes by theme and cite each source.','Summarize interview notes');await draft(page).fill('');await open(page);
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:76:187
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-keyboard-IME--7cf9d-ocus-returns-to-the-trigger/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-keyboard-IME--7cf9d-ocus-returns-to-the-trigger/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-keyboard-IME--7cf9d-ocus-returns-to-the-trigger/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/saved-drafts.spec.ts:520:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:79:20
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-list-931be-024-768-with-reduced-motion/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:33
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-c5f00--alert-and-preserves-drafts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Drafts', exact: true })[22m
+
+
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    > 45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+         |                                                                                          ^
+      46 | async function save(page:Page,text='Compare the changes with the checklist and flag anything missing.',name='Review the release notes'){
+      47 |  await draft(page).fill(text);await open(page);await page.getByRole('button',{name:'Save current prompt'}).click();await page.getByLabel('Draft name',{exact:true}).fill(name);await page.getByRole('button',{name:'Save draft',exact:true}).click();await expect(page.getByRole('dialog',{name:'Save prompt',exact:true})).toBeHidden();
+      48 | }
+        at open (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:45:90)
+        at save (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:47:37)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:33
+
+    Error Context: test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-71a20--alert-and-preserves-drafts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:85:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-compose-31440--alert-and-preserves-drafts/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/saved-drafts.spec.ts:651:42 › new excerpt-only saves remain reviewable after the original selection is gone 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-excerpt-o-462ab--original-selection-is-gone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-excerpt-o-462ab--original-selection-is-gone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/saved-drafts.spec.ts:651:42 › new skill-only saves remain reviewable after the original selection is gone 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:100:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-new-skill-onl-5cf08--original-selection-is-gone/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:113:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-source-only-n-847a1-nging-the-current-send-mode/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-source-only-n-847a1-nging-the-current-send-mode/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/saved-drafts.spec.ts:868:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:144:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-legacy-refere-3ca9f-without-restoring-authority/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/e2e/saved-drafts.spec.ts:967:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:159:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-thre-4f8d3-cords-in-every-working-copy/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-approved-thre-4f8d3-cords-in-every-working-copy/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/e2e/saved-drafts.spec.ts:1016:1 › idle expiry refreshes an open list and deletes only the expired saved record 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:168:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-idle-expiry-r-1cffe-ly-the-expired-saved-record/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-idle-expiry-r-1cffe-ly-the-expired-saved-record/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on load 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-8e742--threads-and-copies-on-load/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-8e742--threads-and-copies-on-load/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on list 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-16565--threads-and-copies-on-list/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-16565--threads-and-copies-on-list/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  20) tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on switch 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:190:15
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-de1bd-hreads-and-copies-on-switch/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-global-retent-de1bd-hreads-and-copies-on-switch/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  21) tests/e2e/saved-drafts.spec.ts:1139:1 › empty active library schedules expiry for inactive threads and copies without reading their owner 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:195:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-active--22f2c-without-reading-their-owner/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-empty-active--22f2c-without-reading-their-owner/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/e2e/saved-drafts.spec.ts:1158:1 › another window adding an inactive library reschedules the empty active library deadline 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:202:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-another-windo-a3522-pty-active-library-deadline/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-another-windo-a3522-pty-active-library-deadline/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  23) tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid load or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-27f09-lid-load-or-inactive-expiry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-27f09-lid-load-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  24) tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid save or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-e7ac3-lid-save-or-inactive-expiry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-e7ac3-lid-save-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  25) tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid list or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-c346f-lid-list-or-inactive-expiry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-c346f-lid-list-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  26) tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid switch or inactive expiry 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:218:133
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-dbecf-d-switch-or-inactive-expiry/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-dbecf-d-switch-or-inactive-expiry/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27) tests/e2e/saved-drafts.spec.ts:1295:1 › malformed inactive library does not stop the global expiry deadline 
+
+    Error: page.goto: net::ERR_CONNECTION_REFUSED at http://127.0.0.1:5522/fixture
+    Call log:
+    [2m  - navigating to "http://127.0.0.1:5522/fixture", waiting until "load"[22m
+
+
+      40 | const owner={profileId:'fixture-profile',accountId:'fixture-account',threadId:'one',projectId:'capture-project',workingCopyId:'fixture-copy'};
+      41 | async function setup(page:Page,query=''){
+    > 42 |  const snapshot=shellSnapshot(),writes:string[]=[];await page.addInitScript(shellInit);await page.route('**/api/**',async r=>{if(r.request().method()!=='GET')writes.push(new URL(r.request().url()).pathname);return shellRoute(r,snapshot,false);});await page.goto('/fixture'+query);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();return writes;
+         |                                                                                                                                                                                                                                                                  ^
+      43 | }
+      44 | const draft=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+      45 | async function open(page:Page){await page.getByRole('button',{name:'Drafts',exact:true}).click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toBeVisible();}
+        at setup (/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:42:258)
+        at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/saved-drafts.spec.ts:223:42
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-934cd--the-global-expiry-deadline/trace.zip
+    Usage:
+
+        npx playwright show-trace test-results/browser/run-1794780001673-be8f98b6-6e0f-425b-9522-1e439024ad2f/saved-drafts/artifacts/saved-drafts-malformed-ina-934cd--the-global-expiry-deadline/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  27 failed
+    tests/e2e/saved-drafts.spec.ts:283:1 › named save, reload, delete/cancel and empty state stay local 
+    tests/e2e/saved-drafts.spec.ts:319:1 › replace keeps recoverable text, insert respects caret and preserves selection, cancel preserves current input 
+    tests/e2e/saved-drafts.spec.ts:361:1 › stale restore is rejected atomically after a concurrent window edit 
+    tests/e2e/saved-drafts.spec.ts:391:1 › rich records list missing/revoked references but restore text only, preserving current excerpts 
+    tests/e2e/saved-drafts.spec.ts:422:1 › account/profile/thread/project/working-copy libraries remain isolated 
+    tests/e2e/saved-drafts.spec.ts:442:1 › quota failure and corrupt records keep the active draft and offer retry 
+    tests/e2e/saved-drafts.spec.ts:484:1 › keyboard/IME does not save or send a composing name; focus returns to the trigger 
+    tests/e2e/saved-drafts.spec.ts:520:1 › approved list captures and stress names remain usable at 1440/1024/768 with reduced motion 
+    tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer quota restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer abort restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:565:55 › empty-composer conflict restore failure shows a keyboard-reachable alert and preserves drafts 
+    tests/e2e/saved-drafts.spec.ts:651:42 › new excerpt-only saves remain reviewable after the original selection is gone 
+    tests/e2e/saved-drafts.spec.ts:651:42 › new skill-only saves remain reviewable after the original selection is gone 
+    tests/e2e/saved-drafts.spec.ts:739:1 › source-only named metadata remains inspectable after selection removal without changing the current send mode 
+    tests/e2e/saved-drafts.spec.ts:868:1 › legacy reference-only records expose IDs and keyboard-copyable excerpt text without restoring authority 
+    tests/e2e/saved-drafts.spec.ts:967:1 › approved thread capacity blocks a new draft with an alert and keeps records in every working copy 
+    tests/e2e/saved-drafts.spec.ts:1016:1 › idle expiry refreshes an open list and deletes only the expired saved record 
+    tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on load 
+    tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on list 
+    tests/e2e/saved-drafts.spec.ts:1128:50 › global retention evicts inactive threads and copies on switch 
+    tests/e2e/saved-drafts.spec.ts:1139:1 › empty active library schedules expiry for inactive threads and copies without reading their owner 
+    tests/e2e/saved-drafts.spec.ts:1158:1 › another window adding an inactive library reschedules the empty active library deadline 
+    tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid load or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid save or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid list or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1255:58 › malformed inactive library does not block valid switch or inactive expiry 
+    tests/e2e/saved-drafts.spec.ts:1295:1 › malformed inactive library does not stop the global expiry deadline 
+
+Failed browser suites: saved-drafts (exit 1)

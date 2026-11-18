@@ -1,0 +1,136 @@
+argv: ["pnpm","exec","node","--import","tsx","scripts/test-browser.ts","--suite","chat-view-modes"]
+cwd: /workspace/scratch/1b47eb428672/gen-v1
+exitCode: 1
+termination: NONE
+Browser results: /workspace/scratch/1b47eb428672/gen-v1/test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122
+
+Browser suite: chat-view-modes (1 spec files)
+[2m[WebServer] [22m(node:51) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22m(node:63) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[2m[WebServer] [22m(Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 21 tests using 1 worker
+
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:95) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+[2m[WebServer] [22m
+[2m[WebServer] [22m- /workspace/scratch/1b47eb428672/gen-v1
+[2m[WebServer] [22m- /workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/vite@7.3.7_@types+node@24.10.0_jiti@2.7.0_tsx@4.20.6_yaml@2.9.0/node_modules/vite/dist/client
+[2m[WebServer] [22m
+[2m[WebServer] [22mRefer to docs https://vite.dev/config/server-options.html#server-fs-allow for configurations and more details.
+[2m[WebServer] [22m
+  ✘   1 tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll (5.4s)
+(node:176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:176) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   2 tests/e2e/chat-view-modes.spec.ts:57:3 › full → popup keeps the live composer, draft, selection, messages, attachments and scroll (4.3s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   3 tests/e2e/chat-view-modes.spec.ts:57:3 › drawer → full keeps the live composer, draft, selection, messages, attachments and scroll (4.6s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   4 tests/e2e/chat-view-modes.spec.ts:57:3 › drawer → popup keeps the live composer, draft, selection, messages, attachments and scroll (4.2s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   5 tests/e2e/chat-view-modes.spec.ts:57:3 › popup → full keeps the live composer, draft, selection, messages, attachments and scroll (4.1s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   6 tests/e2e/chat-view-modes.spec.ts:57:3 › popup → drawer keeps the live composer, draft, selection, messages, attachments and scroll (4.2s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   7 tests/e2e/chat-view-modes.spec.ts:97:1 › keyboard menu, checked state, Escape, shortcut and pop-up expand keep focus in chat (2.6s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   8 tests/e2e/chat-view-modes.spec.ts:126:1 › rapid switching retargets from the visible rect and reduced motion settles instantly, including mid-flight (4.0s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓   9 tests/e2e/chat-view-modes.spec.ts:162:42 › drawer edge/corner resize tracks via transform, clamps, and remembers its own size (7.2s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  10 tests/e2e/chat-view-modes.spec.ts:162:42 › popup edge/corner resize tracks via transform, clamps, and remembers its own size (8.1s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✘  11 tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target (6.6s)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:421) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  12 tests/e2e/chat-view-modes.spec.ts:239:1 › detach/dock button and keyboard paths preserve the live draft and drawer size (4.8s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  13 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1440px and stays usable after viewport shrink (5.8s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  14 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 1024px and stays usable after viewport shrink (6.0s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  15 tests/e2e/chat-view-modes.spec.ts:270:40 › every mode fits 768px and stays usable after viewport shrink (6.1s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  16 tests/e2e/chat-view-modes.spec.ts:298:1 › a resized docked drawer keeps its right margin as the viewport grows and reloads (5.6s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  17 tests/e2e/chat-view-modes.spec.ts:323:1 › a saved docked drawer from a narrow window restores at the wider right edge (1.5s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  18 tests/e2e/chat-view-modes.spec.ts:342:1 › a pointer transition retargets exactly from its visible bounds and animates only transform (3.0s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  19 tests/e2e/chat-view-modes.spec.ts:390:1 › pointer cancellation rolls back a resize and writes no in-flight preference (3.7s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  20 tests/e2e/chat-view-modes.spec.ts:411:1 › dragging the docked header detaches it and the dock button restores its right anchor (3.8s)
+[2m[WebServer] [22mThe request id "/workspace/scratch/1b47eb428672/m15-v3/node_modules/.pnpm/@fontsource-variable+inter@5.3.0/node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2" is outside of Vite serving allow list.
+  ✓  21 tests/e2e/chat-view-modes.spec.ts:433:1 › blocked preference storage keeps every mode and resize usable (5.3s)
+
+
+  1) tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeEnabled[2m([22m[2m)[22m failed
+
+    Locator: getByRole('textbox', { name: 'Message', exact: true })
+    Expected: enabled
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeEnabled" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Message', exact: true })[22m
+    [2m    - locator resolved to <textarea disabled rows="1" aria-label="Message" placeholder="Ask anything…"></textarea>[22m
+    [2m    - unexpected value "disabled"[22m
+
+
+       6 | const panel=(page:Page)=>page.getByRole('main',{name:'Chat',exact:true});
+       7 | const input=(page:Page)=>page.getByRole('textbox',{name:'Message',exact:true});
+    >  8 | async function open(page:Page,long=false){await serveChatFixture(page,long);await page.goto('/');await expect(input(page)).toBeEnabled();}
+         |                                                                                                                            ^
+       9 | async function mode(page:Page,value:ChatMode){
+      10 |  await page.getByRole('button',{name:'Switch layout',exact:true}).click();
+      11 |  await page.getByRole('menuitemcheckbox',{name:names[value],exact:true}).click();
+        at open (/workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:8:124)
+        at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:24:3
+
+    Error Context: test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122/chat-view-modes/artifacts/chat-view-modes-full-→-dra-18f80-ages-attachments-and-scroll/error-context.md
+
+  2) tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeCloseTo[2m([22m[32mexpected[39m[2m, [22mprecision[2m)[22m
+
+    Expected: [32m850[39m
+    Received: [31m770[39m
+
+    Expected precision:    0
+    Expected difference: < [32m0.5[39m
+    Received difference:   [31m80[39m
+
+      73 |  await drag(page,'Move chat panel',-220,-100);const moved=await bounds(page);expect(moved.x).toBeCloseTo(before.x-220,0);expect(moved.y).toBeCloseTo(before.y-100,0);
+      74 |  await page.reload();await expect(input(page)).toBeEnabled();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);
+    > 75 |  await drag(page,'Move chat panel',-80,-40,false);await page.keyboard.press('Escape');await page.mouse.up();expect((await bounds(page)).x).toBeCloseTo(moved.x,0);
+         |                                                                                                                                            ^
+      76 |  await page.getByRole('button',{name:'Move chat panel',exact:true}).focus();await page.keyboard.press('Shift+ArrowLeft');expect((await bounds(page)).x).toBeCloseTo(moved.x-32,0);
+      77 |  const handle=await page.getByRole('button',{name:'Move chat panel',exact:true}).boundingBox();if(!handle)throw Error('No header');
+      78 |  await page.mouse.move(handle.x+12,handle.y+12);await page.mouse.down();await page.mouse.move(1420,150,{steps:15});
+        at /workspace/scratch/1b47eb428672/gen-v1/tests/e2e/chat-view-modes.spec.ts:75:140
+
+    Error Context: test-results/browser/run-1794780308029-533ef00b-ca0e-44f8-a854-a46da9656122/chat-view-modes/artifacts/chat-view-modes-header-dra-d4736-nd-snaps-to-the-dock-target/error-context.md
+
+  2 failed
+    tests/e2e/chat-view-modes.spec.ts:57:3 › full → drawer keeps the live composer, draft, selection, messages, attachments and scroll 
+    tests/e2e/chat-view-modes.spec.ts:201:1 › header drag is 1:1, stores position, cancels cleanly, and snaps to the dock target 
+  19 passed (1.8m)
+
+Failed browser suites: chat-view-modes (exit 1)

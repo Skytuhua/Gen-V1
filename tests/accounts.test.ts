@@ -56,7 +56,8 @@ it('pins account discovery before awaits and rejects a default changed before fi
  let release!:(models:{id:string;provider:string;name:string}[])=>void;
  vi.mocked(f.runtime.models).mockImplementationOnce(()=>new Promise(done=>{release=done;}));
  const pending=f.send('message.send',{content:'First',modelId:'openai/model'},thread.id);
- expect(f.runtime.models).toHaveBeenLastCalledWith({accountId:a.id});
+ await vi.waitFor(()=>expect(f.runtime.models).toHaveBeenLastCalledWith({accountId:a.id}));
+ expect(f.store.all('message',thread.id)).toEqual([]);expect(f.store.get<Thread>('thread',thread.id)?.accountId).toBeUndefined();
  await f.send('account.select',{providerId:'openai',accountId:b.id});release([{id:'openai/model',provider:'openai',name:'Model'}]);
  await expect(pending).rejects.toMatchObject({code:'ACCOUNT_SELECTION_CHANGED'});
  expect(f.store.all('message',thread.id)).toEqual([]);
@@ -106,7 +107,10 @@ it('reserves login atomically, denies bound active runs and releases only the ex
 it('rechecks the login reservation after asynchronous model discovery before committing a message',async()=>{
  const f=fixture(),account=await f.account(),thread=await f.thread();await f.send('account.select',{providerId:'openai',accountId:account.id});
  let release!:(models:{id:string;provider:string;name:string}[])=>void;vi.mocked(f.runtime.models).mockImplementationOnce(()=>new Promise(done=>{release=done;}));
- const pending=f.send('message.send',{content:'First',modelId:'openai/model'},thread.id),lease=beginAccountLogin(f.store,'openai',account.id);release([{id:'openai/model',provider:'openai',name:'Model'}]);
+ const pending=f.send('message.send',{content:'First',modelId:'openai/model'},thread.id);
+ await vi.waitFor(()=>expect(f.runtime.models).toHaveBeenLastCalledWith({accountId:account.id}));
+ expect(f.store.all('message',thread.id)).toEqual([]);expect(f.store.get<Thread>('thread',thread.id)?.accountId).toBeUndefined();
+ const lease=beginAccountLogin(f.store,'openai',account.id);release([{id:'openai/model',provider:'openai',name:'Model'}]);
  await expect(pending).rejects.toMatchObject({code:'ACCOUNT_SIGNING_IN'});expect(f.store.all('message',thread.id)).toEqual([]);endAccountLogin(f.store,lease);
 });
 

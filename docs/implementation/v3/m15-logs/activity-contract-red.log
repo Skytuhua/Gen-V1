@@ -1,0 +1,129 @@
+argv: ["pnpm","exec","vitest","run","tests/activity-output-v3.test.ts","--maxWorkers=1"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/activity-output-v3.test.ts (4 tests | 4 failed) 49ms
+   × uses identical host and production presentation row identities for "first\nsecond" 34ms
+   × uses identical host and production presentation row identities for "first\nsecond\n" 4ms
+   × uses identical host and production presentation row identities for "first\n" 6ms
+   × uses identical host and production presentation row identities for "first" 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/activity-output-v3.test.ts > uses identical host and production presentation row identities for "first\nsecond"
+AssertionError: expected [ { id: 'message-0:1', …(1) }, …(1) ] to deeply equal [ { id: 'message-0:0', …(1) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "id": "message-0:0",
++     "id": "message-0:1",
+      "text": "first",
+    },
+    {
+-     "id": "message-0:1",
++     "id": "message-0:2",
+      "text": "second",
+    },
+  ]
+
+ ❯ tests/activity-output-v3.test.ts:17:40
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/activity-output-v3.test.ts > uses identical host and production presentation row identities for "first\nsecond\n"
+AssertionError: expected [ { id: 'message-0:1', …(1) }, …(2) ] to deeply equal [ { id: 'message-0:0', …(1) }, …(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "id": "message-0:0",
++     "id": "message-0:1",
+      "text": "first",
+    },
+    {
+-     "id": "message-0:1",
++     "id": "message-0:2",
+      "text": "second",
++   },
++   {
++     "id": "message-0:3",
++     "text": "",
+    },
+  ]
+
+ ❯ tests/activity-output-v3.test.ts:17:40
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/activity-output-v3.test.ts > uses identical host and production presentation row identities for "first\n"
+AssertionError: expected [ { id: 'message-0:1', …(1) }, …(3) ] to deeply equal [ { id: 'message-0:0', …(1) }, …(2) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "id": "message-0:0",
++     "id": "message-0:1",
+      "text": "first",
+    },
+    {
+-     "id": "message-0:1",
++     "id": "message-0:2",
+      "text": "",
+    },
+    {
+-     "id": "message-1:0",
++     "id": "message-1:1",
+      "text": "next",
++   },
++   {
++     "id": "message-1:2",
++     "text": "",
+    },
+  ]
+
+ ❯ tests/activity-output-v3.test.ts:17:40
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/activity-output-v3.test.ts > uses identical host and production presentation row identities for "first"
+AssertionError: expected [ { id: 'message-0:1', …(1) }, …(1) ] to deeply equal [ Array(1) ]
+
+- Expected
++ Received
+
+  [
+    {
+-     "id": "message-0:0",
++     "id": "message-0:1",
+      "text": "first",
++   },
++   {
++     "id": "message-1:1",
++     "text": "",
+    },
+  ]
+
+ ❯ tests/activity-output-v3.test.ts:17:40
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed (4)
+   Start at  06:08:51
+   Duration  939ms (transform 392ms, setup 0ms, import 584ms, tests 49ms, environment 0ms)
+

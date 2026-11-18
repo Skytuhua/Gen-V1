@@ -1,0 +1,113 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m04-v6
+
+(node:766474) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/plugin-tools-dock.test.ts (12 tests | 1 failed) 57597ms
+   × uses the settled split on its first visible frame after a delayed read at 1024 px (preferred 720) 3204ms
+ ❯ tests/integration-mcp.test.ts (12 tests | 5 failed) 61454ms
+   × builds a real Graphify code graph, queries its stdio server and exports GraphML without a model 388ms
+   × initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host 48ms
+   × executes the pinned native Biome and Impeccable engines 3169ms
+   × refuses linked Graphify graph input and linked export directories inside the owned fixture 409ms
+   × routes Biome proposals through the registered granted-file approval flow 984ms
+ ❯ tests/project-search-host.test.ts (49 tests | 1 failed) 74316ms
+   × stops at 10,000 ordinary files, without visiting the next file 60958ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 7 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/home/piadmin/Gen-V1-m04-v6/.harness-integrations-python-deps/graphify'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:39:2
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/7]⎯
+
+ FAIL  tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+Error: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/home/piadmin/Gen-V1-m04-v6/.harness-integrations-python-deps/specify_cli'
+ ❯ IntegrationManager.admitted packages/integrations/index.ts:63:354
+
+ ❯ IntegrationManager.command packages/integrations/index.ts:171:23
+ ❯ tests/integration-mcp.test.ts:55:53
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/7]⎯
+
+ FAIL  tests/integration-mcp.test.ts > executes the pinned native Biome and Impeccable engines
+Error: Command failed: /home/piadmin/Gen-V1-m04-v6/node_modules/@biomejs/cli-win32-x64/biome.exe --version
+/home/piadmin/Gen-V1-m04-v6/node_modules/@biomejs/cli-win32-x64/biome.exe: 1: MZ����@���: not found
+/home/piadmin/Gen-V1-m04-v6/node_modules/@biomejs/cli-win32-x64/biome.exe: 1: Syntax error: Unterminated quoted string
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/7]⎯
+
+ FAIL  tests/integration-mcp.test.ts > refuses linked Graphify graph input and linked export directories inside the owned fixture
+AssertionError: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E…'
+
+- Expected:
+/link|guard|resource|access/i
+
++ Received:
+"Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/home/piadmin/Gen-V1-m04-v6/.harness-integrations-python-deps/graphify'"
+
+ ❯ tests/integration-mcp.test.ts:92:66
+     90|  // Both ends of each junction belong to this disposable fixture.
+     91|  await symlink(other,join(dataRoot,'graphify-out'),'junction');
+     92|  await expect(manager.callTool('graphify','graph_stats',{},scope)).rej…
+       |                                                                  ^
+     93|  await rm(join(dataRoot,'graphify-out'));await mkdir(join(dataRoot,'gr…
+     94|  await writeFile(join(dataRoot,'graphify-out/graph.json'),'{}');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/7]⎯
+
+ FAIL  tests/integration-mcp.test.ts > routes Biome proposals through the registered granted-file approval flow
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+      9| type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+     10| interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+       |                  ^
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+     13| export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ IntegrationManager.command packages/integrations/index.ts:181:34
+ ❯ tests/integration-mcp.test.ts:121:15
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/7]⎯
+
+ FAIL  tests/plugin-tools-dock.test.ts > uses the settled split on its first visible frame after a delayed read at 1024 px (preferred 720)
+TimeoutError: page.goto: Timeout 3000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
+
+ ❯ fixture tests/plugin-tools-dock.test.ts:56:13
+     54|   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+     55|  });
+     56|  await page.goto('http://127.0.0.1/plugin-dock-test');
+       |             ^
+     57|  const frame=page.frames().find(value=>value.parentFrame())!;
+     58|  try{
+ ❯ tests/plugin-tools-dock.test.ts:103:28
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/7]⎯
+
+ FAIL  tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/project-search-host.test.ts:166:1
+    164| });
+    165|
+    166| it('stops at 10,000 ordinary files, without visiting the next file', a…
+       | ^
+    167|   const f = await fixture({ now: () => 0, monotonic: () => 0 });
+    168|   for (let batch = 0; batch < 101; batch++) await Promise.all(Array.fr…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/7]⎯
+
+
+ Test Files  3 failed (3)
+      Tests  7 failed | 66 passed (73)
+   Start at  05:26:58
+   Duration  76.97s (transform 2.44s, setup 0ms, import 6.33s, tests 193.37s, environment 1ms)
+

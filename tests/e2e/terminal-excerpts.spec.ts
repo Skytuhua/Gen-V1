@@ -1,47 +1,6 @@
 import {test,expect,type Page} from '@playwright/test';
-import type { Route } from '@playwright/test';
-import type { Snapshot, Thread } from '../../packages/contracts';
+import {shellInit,shellRoute,shellSnapshot} from '../../scripts/capture-ui/shell-api';
 
-// Adapted from frontend.spec.ts's host/snapshot protocol pattern. Independent
-// synthetic data; the spec is neither imported nor modified.
-export function shellSnapshot(empty = false): Snapshot {
-  const stamp = '2026-11-06T12:00:00.000Z';
-  const threads: Thread[] = empty ? [] : ['one', 'two'].map((id, index) => ({ id, title: index ? 'Review keyboard navigation' : 'Audit the workspace', projectName: null, createdAt: stamp, updatedAt: stamp, status: 'ready', epoch: 0, runId: null, modelId: 'test/model', sessionPath: 'capture-session' }));
-  return { seq: 1, threads, messages: empty ? [] : [{ id: 'assistant-one', threadId: 'one', role: 'assistant', content: 'Review the workspace, sidebar and composer. This is synthetic audit content.', createdAt: stamp, runId: null }], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: 'test/model' }, activeThreadId: empty ? null : 'one' };
-}
-export async function shellRoute(route: Route, snapshot: Snapshot, error: boolean): Promise<void> {
-  const url = new URL(route.request().url()), path = url.pathname;
-  if (error) return route.fulfill({ status: 503, json: { error: { code: 'CAPTURE_503', message: 'Synthetic host unavailable. Retry workspace.' } } });
-  const reply = (json: unknown) => route.fulfill({ json });
-  if (/^\/api\/threads\/[^/]*\/tool-programs(?:\/|$)/.test(path)) {
-    const knownThread = snapshot.threads.some(thread => path === `/api/threads/${encodeURIComponent(thread.id)}/tool-programs`);
-    if (!knownThread || url.search) return route.fulfill({ status: 404, json: { error: { code: 'CAPTURE_PROGRAM_NOT_FOUND', message: 'No program view exists for this fixture owner.' } } });
-    if (route.request().method() !== 'GET') return route.fulfill({ status: 405, headers: { allow: 'GET' }, json: { error: { code: 'CAPTURE_METHOD_NOT_ALLOWED', message: 'Program fixture metadata is read only.' } } });
-    return reply({ programs: [], kernels: [], available: { javascript: false, python: false, replay: false }, resetNotice: 'Reset clears variables. It does not undo files or prior remote effects. Previous cells are never replayed.' });
-  }
-  if (path === '/api/bootstrap') return reply({ csrfToken: 'capture-shell' });
-  if (path === '/api/snapshot') return reply(snapshot);
-  if (path === '/api/shell-settings') return reply(snapshot.settings);
-  if (path === '/api/models') return reply({ models: [{ id: 'test/model', provider: 'test', name: 'Audit model' }] });
-  if (path === '/api/workspace') return reply({ projects: [], state: { version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{ id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'all', projectIds: [], viewport: { x: 0, y: 0, zoom: 1 } }], profiles: [], disabledKinds: [], integrations: {} } });
-  if (path.startsWith('/api/shell/navigation/')) return reply(snapshot.threads.find(t => t.id === path.split('/').at(-1)));
-  if (path === '/api/shell/navigation') return reply({ sequence: snapshot.seq, items: snapshot.threads, total: snapshot.threads.length, nextCursor: null, stats: { minOrder: 0, maxOrder: 1 } });
-  if (path === '/api/shell/settings') return reply({ sequence: snapshot.seq, settings: snapshot.settings, accounts: [], skills: [], skillProposals: [], learning: { supported: true, status: 'idle', lastReview: null }, projects: [], resources: [], resourcePage: { total: 0, nextCursor: null }, counts: { threads: snapshot.threads.length, archivedThreads: 0, artifacts: 0, resources: 0, uncertainOperations: 0 } });
-  if (path === '/api/shell/archive' || path === '/api/shell/resources') return reply({ sequence: 1, items: [], total: 0, nextCursor: null });
-  if (path === '/api/plugins') return reply({ plugins: [] });
-  if (path === '/api/skills/available') return reply({ skills: [], nextCursor: null });
-  if (path === '/api/environment') return reply({ revision: 0, entries: [], secretStorageAvailable: false });
-  if (path === '/api/integrations') return reply({ integrations: [] });
-  if (path === '/api/commands') { const command = route.request().postDataJSON(); return reply({ commandId: command.id, eventSeq: ++snapshot.seq, result: {} }); }
-  return reply({ items: [], profiles: [], nextCursor: null });
-}
-export const shellInit = `
-  class CaptureEventSource extends EventTarget {
-    constructor() { super(); queueMicrotask(() => this.onopen?.()); }
-    close() {}
-  }
-  Object.defineProperty(window, 'EventSource', {value: CaptureEventSource});
-`;
 
 async function setup(page:Page,query=''){
  const snapshot=shellSnapshot(),sends:{content:string;id:string}[]=[],terminalCommands:unknown[]=[];let fail=false,rejected=false,release:(()=>void)|undefined;
@@ -60,7 +19,7 @@ test('real xterm selection is copied before focus/scroll, edited and persisted w
  await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await expect(page.getByLabel('Excerpt text')).toContainText('Expected: 3 panels');await page.getByLabel('Excerpt text').fill('Reviewed failure output');await page.getByRole('button',{name:'Save excerpt'}).click();await expect(page.getByRole('dialog')).toBeHidden();await page.reload();await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();await page.getByRole('button',{name:'Send',exact:true}).click();await expect.poll(()=>f.sends.length).toBe(1);expect(f.sends[0].content).toContain('Reviewed failure output');expect(f.sends[0].content).not.toContain('Expected:');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeHidden();
 });
 test('keyboard selection and action are immediate; remove releases geometry immediately',async({page})=>{
- const f=await setup(page);await select(page);await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeFocused();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();expect(f.terminalCommands).toEqual([]);expect(await page.locator('.composer').last().evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);
+ const f=await setup(page),composer=page.locator('.composer').last(),initial=await composer.boundingBox();await select(page);await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Add selection to prompt'})).toBeFocused();await page.keyboard.press('Enter');await page.getByRole('button',{name:'Remove terminal excerpt capture-terminal'}).click();await expect(page.getByRole('group',{name:'Attachments',exact:true})).toBeHidden();expect(f.terminalCommands).toEqual([]);expect((await composer.boundingBox())!.height).toBe(initial!.height);
 });
 test('uncertain retry retains original serialized bytes while later text and excerpt edits survive acknowledgment',async({page})=>{
  const f=await setup(page);await add(page);f.uncertain();await page.getByRole('button',{name:'Send',exact:true}).click();await expect(page.getByRole('button',{name:'Retry send'})).toBeVisible();await page.getByRole('textbox',{name:'Message',exact:true}).fill('New draft');await page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true}).click();await page.getByLabel('Excerpt text').fill('Newer excerpt');await page.getByRole('button',{name:'Save excerpt'}).click();const previous=f.sends.length;f.accept();await page.getByRole('button',{name:'Retry send'}).click();await expect.poll(()=>f.sends.length).toBe(previous+1);await expect(page.getByRole('button',{name:'Retry send'})).toBeHidden();expect(f.sends.at(-1)).toEqual(f.sends[0]);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('New draft');await expect(page.getByRole('button',{name:'Terminal selection · capture-terminal',exact:true})).toBeVisible();

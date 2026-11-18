@@ -1,0 +1,177 @@
+diff --git a/apps/web/src/ImageCompare.tsx b/apps/web/src/ImageCompare.tsx
+index 096f553..7cb3cd3 100644
+--- a/apps/web/src/ImageCompare.tsx
++++ b/apps/web/src/ImageCompare.tsx
+@@ -53,7 +53,7 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
+     if (bounds.width) change({ percent: Math.round(Math.min(1, Math.max(0, (event.clientX - bounds.left) / bounds.width)) * 100) });
+   };
+   const start = (event: PointerEvent<HTMLDivElement>) => {
+-    if (!ready || view.mode !== 'overlay' || !event.isPrimary || event.button !== 0) return;
++    if (!ready || view.mode !== 'overlay' || !event.isPrimary || event.button !== 0 || drag.current !== null) return;
+     drag.current = event.pointerId; event.currentTarget.setPointerCapture(event.pointerId); slider.current?.focus({ preventScroll: true }); position(event);
+   };
+   const end = (event: PointerEvent<HTMLDivElement>) => {
+@@ -67,7 +67,7 @@ function ImagePair({ props, view, change }: { props: ImageCompareProps; view: Vi
+       <button type="button" aria-pressed={view.mode === 'split'} onClick={() => change({ mode: 'split' })}>Side by side</button>
+     </div>
+     <div ref={stage} className="image-compare-stage" data-mode={view.mode} data-ready={ready} aria-busy={!ready && !error} style={{ '--image-compare-position': `${view.percent}%` } as React.CSSProperties}
+-      onPointerDown={start} onPointerMove={event => { if (drag.current === event.pointerId) position(event); }} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={() => { drag.current = null; }}>
++      onPointerDown={start} onPointerMove={event => { if (drag.current === event.pointerId) position(event); }} onPointerUp={end} onPointerCancel={end} onLostPointerCapture={event => { if (drag.current === event.pointerId) drag.current = null; }}>
+       {!error && <div className="image-compare-images" style={{ visibility: ready ? 'visible' : 'hidden' }} key={retry}>
+         <div className="image-compare-after"><img src={resourceContentUrl(props.afterResourceId)} alt={afterLabel} draggable={false} onLoad={event => loaded(1, event.currentTarget)} onError={() => setError(`${afterLabel} image could not be loaded. Check access and retry.`)} /></div>
+         <div className="image-compare-before"><img src={resourceContentUrl(props.beforeResourceId)} alt={beforeLabel} draggable={false} onLoad={event => loaded(0, event.currentTarget)} onError={() => setError(`${beforeLabel} image could not be loaded. Check access and retry.`)} /></div>
+diff --git a/apps/web/src/SignaturePad.tsx b/apps/web/src/SignaturePad.tsx
+index 18abd4f..cedc14a 100644
+--- a/apps/web/src/SignaturePad.tsx
++++ b/apps/web/src/SignaturePad.tsx
+@@ -97,7 +97,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
+   }, [mode, serialized]);
+   const pointAt = (event: PointerEvent<HTMLCanvasElement>) => { const bounds = event.currentTarget.getBoundingClientRect(); return { x: clamp((event.clientX - bounds.left) / Math.max(1, bounds.width)), y: clamp((event.clientY - bounds.top) / Math.max(1, bounds.height)) }; };
+   const start = (event: PointerEvent<HTMLCanvasElement>) => {
+-    if (!event.isPrimary || event.button !== 0) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
++    if (!event.isPrimary || event.button !== 0 || drawing.current?.pointerId != null) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
+     const strokes = markStrokes().map(stroke => [...stroke]); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { setError('The signature reached 2000 points. Undo a stroke or clear it.'); return; }
+     const point = pointAt(event); drawing.current = { pointerId: event.pointerId, strokes: [...strokes, [point, point]] }; saveStrokes();
+   };
+diff --git a/tests/e2e/file-checkpoints.spec.ts b/tests/e2e/file-checkpoints.spec.ts
+index 270f259..6aa8ca7 100644
+--- a/tests/e2e/file-checkpoints.spec.ts
++++ b/tests/e2e/file-checkpoints.spec.ts
+@@ -121,6 +121,7 @@ test('leaving during detail loading cancels the review request',async({page})=>{
+ 
+ for(const width of [1440,1024,768])test(`QA r2: held list does not move the painted caption at ${width}`,async({page})=>{
+  await page.setViewportSize({width,height:1000});await page.goto('/file-checkpoints?state=loading');await expect(page.getByRole('status')).toBeVisible();
++ await page.locator('.file-checkpoints-history').evaluate(element=>Promise.all([...element.getAnimations(),...element.parentElement!.getAnimations()].map(animation=>animation.finished)));
+  const caption=page.locator('.file-checkpoints-caption'),before=(await caption.boundingBox())!;
+  await page.evaluate(()=>{const shifts:number[]=[];Object.defineProperty(window,'checkpointShifts',{value:shifts});new PerformanceObserver(list=>{for(const entry of list.getEntries())if(!(entry as PerformanceEntry&{hadRecentInput:boolean}).hadRecentInput)shifts.push((entry as PerformanceEntry&{value:number}).value);}).observe({type:'layout-shift'});});
+  await flushFrames(page);await page.evaluate(()=>window.dispatchEvent(new Event('checkpoint-release')));
+diff --git a/tests/e2e/image-compare.spec.ts b/tests/e2e/image-compare.spec.ts
+index f5b6f1d..9e73995 100644
+--- a/tests/e2e/image-compare.spec.ts
++++ b/tests/e2e/image-compare.spec.ts
+@@ -23,6 +23,15 @@ async function fixture(page: Page, differentSizes = false) {
+   return { ...host, requests: () => requests, deny() { denied = true; }, allow() { denied = false; }, hold() { delayed = new Promise<void>(resolve => { release = resolve; }); }, release() { release(); } };
+ }
+ const ready = async (page: Page) => { await bootstraps.get(page); await expect(page.locator('html')).toHaveAttribute('data-motion', /^(system|reduced|off)$/); await expect(page.getByRole('slider', { name: 'Comparison position', exact: true })).toBeEnabled(); };
++test('another pointer losing capture cannot end the active comparison drag', async ({ page }) => {
++  await fixture(page); await page.goto('/'); await ready(page);
++  const stage = page.locator('.image-compare-stage'), slider = page.getByRole('slider', { name: 'Comparison position', exact: true }), bounds = (await stage.boundingBox())!;
++  await page.mouse.move(bounds.x + bounds.width * .3, bounds.y + bounds.height * .5); await page.mouse.down();
++  await stage.dispatchEvent('pointerdown', { pointerId: 77, pointerType: 'touch', isPrimary: true, button: 0, bubbles: true });
++  await stage.dispatchEvent('lostpointercapture', { pointerId: 77, pointerType: 'touch', bubbles: true });
++  await page.mouse.move(bounds.x + bounds.width * .72, bounds.y + bounds.height * .5); await page.mouse.up();
++  await expect(slider).toHaveValue('72');
++});
+ test('comparison follows the pointer immediately and keeps keyboard and saved view state through reload', async ({ page }) => {
+   const host = await fixture(page); await page.goto('/'); await ready(page);
+   const slider = page.getByRole('slider', { name: 'Comparison position', exact: true }); await slider.focus(); await slider.press('End'); await expect(slider).toHaveValue('100'); await slider.press('Home'); await expect(slider).toHaveValue('0'); await slider.press('ArrowRight'); await expect(slider).toHaveValue('1');
+diff --git a/tests/e2e/sidebar-shared-menu.spec.ts b/tests/e2e/sidebar-shared-menu.spec.ts
+index e26a67b..69c43e4 100644
+--- a/tests/e2e/sidebar-shared-menu.spec.ts
++++ b/tests/e2e/sidebar-shared-menu.spec.ts
+@@ -27,7 +27,7 @@ test('options open a shared menu without selecting or detaching its thread', asy
+   await options(page).click();
+   await expect(menu(page)).toBeVisible();
+   await expect(options(page)).toHaveAttribute('aria-haspopup', 'menu');
+-  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Move to top', 'Move to bottom', 'Archive thread']);
++  await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Move to top', 'Move to bottom', 'Archive thread']);
+   await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'}).locator('kbd')).toHaveText('Alt Enter');
+   expect(await calls(page)).toEqual([]);
+   await expect(page.locator('.thread-item[aria-current="page"]')).toHaveAttribute('aria-label', 'Selected conversation Ready');
+diff --git a/tests/e2e/signing-fidelity.spec.ts b/tests/e2e/signing-fidelity.spec.ts
+index db2d3c5..cf59123 100644
+--- a/tests/e2e/signing-fidelity.spec.ts
++++ b/tests/e2e/signing-fidelity.spec.ts
+@@ -10,6 +10,28 @@ const signingSpec = (fit?: 'width' | 'page'): TaskSpec => ({ root: 'pair', eleme
+   signature: { type: 'SignaturePad', props: { stateKey: 'signature', nameStateKey: 'name', label: 'Add your signature', initialMode: 'generate' } },
+ } });
+ 
++test('a competing primary pointer cannot replace a signature stroke',async({page})=>{
++ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
++ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
++ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;
++ await page.mouse.move(box.x+box.width*.2,box.y+box.height*.5);await page.mouse.down();
++ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(2);
++ const before=await canvas.evaluate(node=>(node as HTMLCanvasElement).toDataURL());
++ await canvas.evaluate(node=>{const target=node as HTMLCanvasElement,native=target.setPointerCapture.bind(target),rect=target.getBoundingClientRect();target.setPointerCapture=id=>{if(id!==77)native(id);};target.dispatchEvent(new PointerEvent('pointerdown',{pointerId:77,pointerType:'touch',isPrimary:true,button:0,clientX:rect.left+rect.width*.8,clientY:rect.top+rect.height*.5,bubbles:true}));});
++ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
++ expect(await canvas.evaluate((node,old)=>(node as HTMLCanvasElement).toDataURL()===old,before)).toBe(true);
++ await page.mouse.move(box.x+box.width*.4,box.y+box.height*.5);await page.mouse.up();
++ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBeGreaterThan(2);
++});
++test('a pointer can follow a keyboard stroke without losing it',async({page})=>{
++ const host=await signingFixture(page,undefined,{step:'signature',name:''});await page.goto('/');
++ const signature=page.getByRole('region',{name:'Add your signature',exact:true});await signature.getByRole('button',{name:'Draw',exact:true}).click();
++ const canvas=signature.getByRole('application',{name:'Draw visual signature',exact:true});await canvas.focus();await canvas.press('Enter');await canvas.press('ArrowRight');
++ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {points?:unknown[]}|null)?.points?.length).toBe(3);
++ await canvas.scrollIntoViewIfNeeded();const box=(await canvas.boundingBox())!;await page.mouse.move(box.x+box.width*.4,box.y+box.height*.5);await page.mouse.down();await page.mouse.move(box.x+box.width*.6,box.y+box.height*.5);await page.mouse.up();
++ await expect.poll(()=>(host.snapshot.userStates[0].values.signature as {strokes?:unknown[]}|null)?.strokes?.length).toBe(2);
++});
++
+ test('canonical dark signature ink stays readable in the image-backed well in dark theme',async({page})=>{
+  const fixture=await signingFixture(page,undefined,{step:'signature'});fixture.snapshot.settings.theme='dark';await page.goto('/');await expect(page.locator('.signature-image-preview img')).toBeVisible();
+  const contrast=await page.locator('.signature-well[data-mode="generate"]').evaluate(node=>{const color=getComputedStyle(node).backgroundColor.match(/[\d.]+/g)!.slice(0,3).map(Number);const luminance=(rgb:number[])=>rgb.map(value=>{const n=value/255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);const background=luminance(color),ink=luminance([25,27,48]);return(Math.max(background,ink)+.05)/(Math.min(background,ink)+.05);});expect(contrast).toBeGreaterThan(7);
+diff --git a/tests/e2e/tabs-identity.spec.ts b/tests/e2e/tabs-identity.spec.ts
+index cb652bd..07be614 100644
+--- a/tests/e2e/tabs-identity.spec.ts
++++ b/tests/e2e/tabs-identity.spec.ts
+@@ -18,9 +18,9 @@ for (const savedSelection of ['Details', 'Stale selection']) {
+     await expect(page.getByRole('alert')).toHaveCount(1);
+     await expect(page.getByRole('alert')).toHaveText('This saved tab view is invalid because its labels are not unique.');
+     await expect(page.getByRole('alert')).toBeVisible();
+-    await expect(page.getByRole('tablist', { includeHidden: true })).toHaveCount(0);
+-    await expect(page.getByRole('tab', { includeHidden: true })).toHaveCount(0);
+-    await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(0);
++    await expect(page.locator('.artifact-content').getByRole('tablist', { includeHidden: true })).toHaveCount(0);
++    await expect(page.locator('.artifact-content').getByRole('tab', { includeHidden: true })).toHaveCount(0);
++    await expect(page.locator('.artifact-content').getByRole('tabpanel', { includeHidden: true })).toHaveCount(0);
+     await expect(page.locator('.artifact-content input')).toHaveCount(0);
+     // Allow the real state save debounce to elapse before asserting no writes.
+     expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
+@@ -33,22 +33,22 @@ test('unique tabs retain saved selection and mounted drafts', async ({ page }) =
+   const spec = tabsSpec(['Details', 'Preview']); validateSurface(spec);
+   const host = await serveTaskFixture(page, taskFixture(spec, { operation }, { selectedTab: 'Preview' }));
+   await page.goto('/');
+-  const details = page.getByRole('tab', { name: 'Details', exact: true });
+-  const preview = page.getByRole('tab', { name: 'Preview', exact: true });
++  const details = page.locator('.artifact-content').getByRole('tab', { name: 'Details', exact: true });
++  const preview = page.locator('.artifact-content').getByRole('tab', { name: 'Preview', exact: true });
+   const first = page.getByRole('textbox', { name: 'First draft', includeHidden: true });
+   const second = page.getByRole('textbox', { name: 'Second draft', includeHidden: true });
+-  const assertSelected = async (label: string) => {
+-    await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
+-    await expect(page.getByRole('tab', { name: label, exact: true })).toHaveAttribute('aria-selected', 'true');
+-    await expect(page.getByRole('tab', { name: label, exact: true })).toHaveAttribute('tabindex', '0');
+-    await expect(page.locator('[role="tab"][tabindex="0"]')).toHaveCount(1);
+-    await expect(page.getByRole('tabpanel')).toHaveCount(1);
+-    await expect(page.getByRole('tabpanel', { includeHidden: true })).toHaveCount(2);
++  const assertSelected = async (label: string, mountedPanels = 2) => {
++    await expect(page.locator('.artifact-content').getByRole('tab', { selected: true })).toHaveCount(1);
++    await expect(page.locator('.artifact-content').getByRole('tab', { name: label, exact: true })).toHaveAttribute('aria-selected', 'true');
++    await expect(page.locator('.artifact-content').getByRole('tab', { name: label, exact: true })).toHaveAttribute('tabindex', '0');
++    await expect(page.locator('.artifact-content [role="tab"][tabindex="0"]')).toHaveCount(1);
++    await expect(page.locator('.artifact-content').getByRole('tabpanel')).toHaveCount(1);
++    await expect(page.locator('.artifact-content').getByRole('tabpanel', { includeHidden: true })).toHaveCount(mountedPanels);
+   };
+-  await assertSelected('Preview');
++  await assertSelected('Preview', 1);
+   await second.fill('Preview draft retained');
+-  const firstNode = await first.elementHandle(), secondNode = await second.elementHandle();
+   await details.click(); await assertSelected('Details'); await first.fill('Details draft retained');
++  const firstNode = await first.elementHandle(), secondNode = await second.elementHandle();
+   await details.press('ArrowRight'); await assertSelected('Preview'); await expect(preview).toBeFocused();
+   await preview.press('ArrowLeft'); await assertSelected('Details'); await expect(details).toBeFocused();
+   await details.press('End'); await assertSelected('Preview'); await expect(preview).toBeFocused();
+@@ -75,9 +75,9 @@ test('an unknown saved label falls back without rewriting state on render', asyn
+   const spec = tabsSpec(['Details', 'Preview']); validateSurface(spec);
+   const host = await serveTaskFixture(page, taskFixture(spec, { operation }, { selectedTab: 'Unknown label' }));
+   await page.goto('/');
+-  await expect(page.getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
+-  await expect(page.getByRole('tab', { selected: true })).toHaveCount(1);
+-  await expect(page.getByRole('tabpanel')).toHaveCount(1);
++  await expect(page.locator('.artifact-content').getByRole('tab', { name: 'Details', exact: true })).toHaveAttribute('aria-selected', 'true');
++  await expect(page.locator('.artifact-content').getByRole('tab', { selected: true })).toHaveCount(1);
++  await expect(page.locator('.artifact-content').getByRole('tabpanel')).toHaveCount(1);
+   await expect(page.getByRole('textbox', { name: 'First draft' })).toBeVisible();
+   expect(await quiescent(page, 800, () => [host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type)).length, JSON.stringify(host.snapshot.userStates[0].values)])).toHaveLength(1);
+   expect(host.commands.filter(command => ['state.save', 'action.submit'].includes(command.type))).toEqual([]);

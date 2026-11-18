@@ -3,13 +3,16 @@ import {registerEditorHandoff} from './editor-handoff';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {notifyAccountAuthChanged,onAccountCatalogChanged,mergeAccountModels} from './account-api';
 import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
-import { Check, ExternalLink, Search } from 'lucide-react';
+import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, Info, Keyboard, MessageSquare, Palette, Plug, Search, Settings2, type LucideIcon } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
 import { command, getModels } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
 import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
+import { PREFERENCE_BINDINGS, chordFor } from './keyboard-bindings';
+import { matchesShortcut } from './shell-layout';
+import { KeyboardReference } from './KeyboardReference';
 import { DEPENDENCY_NOTICES } from './dependency-notices';
 import { DraftTransfer } from './DraftTransfer';
 import { useDesktop } from './desktop-context';
@@ -32,11 +35,11 @@ export const SETTINGS_SECTIONS = [
   ['notifications', 'Notifications & Usage'], ['browser', 'Browser'],
   ['keybindings', 'Keyboard Shortcuts'], ['maintenance', 'Data & Recovery'], ['about', 'About & Licenses'],
 ] as const;
+const SECTION_ICONS: Record<string, LucideIcon> = {general: Settings2, appearance: Palette, chat: MessageSquare, providers: Plug, projects: Folder, diffs: GitBranch, skills: Boxes, notifications: Bell, browser: Globe, keybindings: Keyboard, maintenance: Database, about: Info};
 const legacySections: Record<string, string> = { threads: 'chat', integrations: 'skills', connections: 'providers', 'source-control': 'diffs', worktrees: 'projects', archived: 'maintenance', diagnostics: 'maintenance', licenses: 'about' };
-const keyboardActions = [['search', 'Search threads'], ['newThread', 'New thread'], ['toggleSidebar', 'Toggle sidebar'], ['toggleRightPanel', 'Toggle workspace panel'], ['openSettings', 'Open settings'], ['stop', 'Stop active run']] as const;
 const preferenceRows: Record<string, { key: keyof UiPreferences; options?: readonly string[]; labels?: readonly string[]; description: string }> = {
   'time-format': { key: 'timeFormat', options: ['system', '12h', '24h'], labels: ['System', '12 hour', '24 hour'], description: 'Clock format for thread and activity timestamps.' },
-  'archive-confirmation': { key: 'archiveConfirmation', description: 'Ask before archiving. Unsaved widget edits always require a decision.' },
+  'archive-confirmation': { key: 'archiveConfirmation', description: 'Ask before archiving.' },
   'unpin-confirmation': { key: 'unpinConfirmation', description: 'Ask before removing a pinned thread.' },
   'composer-context': { key: 'showComposerContext', description: 'Show conversation capacity beside the composer.' },
   'harness-composer-predictions': { key: 'composerPredictions', description: 'Uses the selected model and subscription quota.' },
@@ -67,7 +70,8 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('harness-skills', 'Skills & learning', 'skills', 'library proposals automatic learning review archive restore rollback'), row('harness-integrations', 'Bundled integrations', 'skills', 'humanizer impeccable graphify superpowers ponytail tools hooks mcp'),
   row('thread-notifications', 'Task notifications', 'notifications', 'sound popup'), row('in-app-notifications', 'In-app notifications', 'notifications'), row('live-usage', 'Live usage', 'notifications'), row('harness-notification-controls', 'Notification preferences', 'notifications', 'volume sound preview privacy quiet hours'),
   row('browser-start-page', 'Start page', 'browser', 'manual browser address website'),
-  ...keyboardActions.map(([id, label]) => row(`harness-keybinding-${id}`, label, 'keybindings', `keyboard shortcut ${id}`)),
+  ...PREFERENCE_BINDINGS.map(({ preference, label }) => row(`harness-keybinding-${preference}`, label, 'keybindings', `keyboard shortcut ${preference}`)),
+  row('harness-keyboard-reference', 'Shortcut reference', 'keybindings', 'all shortcuts cheat sheet kbd keys chords bindings list'),
   row('harness-draft-transfer', 'Move browser drafts', 'maintenance', 'import export recovery transfer'), row('archive', 'Archived threads', 'maintenance', 'restore recovery'), row('harness-export-diagnostics', 'Workspace diagnostics', 'maintenance', 'snapshot counts uncertain operations refresh'),
   row('app-version', 'Version & updates', 'about', 'update'), row('harness-licenses', 'T3 Code', 'about', 'copyright MIT license attribution settings account picker'), row('harness-hermes-license', 'Hermes Agent learning', 'about', 'Nous Research MIT license'), row('harness-dependency-notices', 'Dependency notices', 'about', 'licenses'),
   ...DEPENDENCY_NOTICES.map(([name, installed, license]) => row(`license-${name}`, name, 'about', `dependency ${installed} ${license}`)),
@@ -101,7 +105,6 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const [pendingTarget, setPendingTarget] = useState<string | null>(null);
   const [connectionProvider,setConnectionProvider]=useState('openai');
   const [connectionsOpened,setConnectionsOpened]=useState(target==='providers');
-  const [revealedTarget,setRevealedTarget]=useState<HTMLElement|null>(null);
   const [newTaskModels, setNewTaskModels] = useState<ModelInfo[]>([]), [newTaskModelError, setNewTaskModelError] = useState(modelError);
   const catalogRequest = useRef(0), catalogRead = useRef<AbortController|null>(null);
   const selectedAccountsKey = JSON.stringify(Object.entries(data.settings.selectedAccounts ?? {}).sort(([left], [right]) => left.localeCompare(right)));
@@ -120,23 +123,19 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
   useLayoutEffect(() => { navigation.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' }); content.current?.scrollTo(0, 0); }, [section]);
-  // A selected search result reveals its real target: scroll, temporary highlight, predictable focus (T06).
+  // A selected search result scrolls to its real target and focuses its control (T06).
   useLayoutEffect(() => {
     if (!pendingTarget) return;
     const node = content.current?.querySelector<HTMLElement>(`[data-setting-id="${CSS.escape(pendingTarget)}"]`);
     setPendingTarget(null);
     if (!node) { if (content.current) { content.current.tabIndex = -1; content.current.focus(); } return; }
-    node.scrollIntoView({ block: 'center' });
-    setRevealedTarget(node);
+    if (node instanceof HTMLDetailsElement) node.open = true;
+    const viewport=content.current!,target=node.getBoundingClientRect(),bounds=viewport.getBoundingClientRect();
+    const scale=bounds.height/viewport.offsetHeight||1;
+    viewport.scrollTop+=(target.top-bounds.top)/scale-Math.max(0,(viewport.clientHeight-target.height/scale)/2);
     const focusable = [...node.querySelectorAll<HTMLElement>('button:not(:disabled), input:not(:disabled), textarea:not(:disabled), select:not(:disabled), a[href], summary, [tabindex]')].find(element=>!element.matches(':disabled')&&element.tabIndex>=0&&element.getClientRects().length&&!element.closest('[inert], [hidden]')&&getComputedStyle(element).visibility!=='hidden');
-    if (focusable) focusable.focus(); else { node.tabIndex = -1; node.focus(); }
+    if (focusable) focusable.focus({preventScroll:true}); else { node.tabIndex = -1; node.focus({preventScroll:true}); }
   }, [pendingTarget, section]);
-  useLayoutEffect(()=>{
-    if(!revealedTarget)return;
-    revealedTarget.classList.add('settings-row-revealed');
-    const timer=setTimeout(()=>setRevealedTarget(null),1600);
-    return()=>{clearTimeout(timer);revealedTarget.classList.remove('settings-row-revealed');};
-  },[revealedTarget]);
   const persist = async (payload: Record<string, unknown>) => {
     if (busy) return false;
     setBusy(true); setSaved(false); setError('');
@@ -153,8 +152,9 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
   const matches = (id: string) => rows.some(item => item.id === id);
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
+  const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
   const showAppearance = !searching && section === 'appearance';
-  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
+  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
   const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
@@ -163,12 +163,12 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }
     switch (item.id) {
-      case 'harness-local-models': return { description: `${newTaskModels.length} models reported by connected runtimes.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => void refreshModels(true)}>Refresh models</button> };
-      case 'default-model': return { description: 'Used for new work. Existing conversations keep their selected model and account.', control: <Select aria-label="Default model" disabled={busy || newTaskModels.length === 0} value={data.settings.modelId ?? ''} options={[{ value: '', label: 'Select model', disabled: true }, ...newTaskModels.map(model => ({ value: model.id, label: model.name }))]} onValueChange={modelId => void persist({ modelId })}/> };
-      case 'harness-runtime': return { description: desktop ? 'Runs locally in the Windows app.' : 'Uses the local host. Connect a subscription with pnpm agent:login in the project terminal.', control: <span className="settings-value">Local host</span> };
-      case 'project-overview': return { description: 'Access stays scoped to each explicit resource grant. Git and working-copy actions remain in the project workspace.', control: <button type="button" className="secondary" onClick={addResource}>Add resource</button> };
+      case 'harness-local-models': return { description: `${newTaskModels.length} ${newTaskModels.length === 1 ? 'model' : 'models'} reported by connected runtimes.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => void refreshModels(true)}>Refresh models</button> };
+      case 'default-model': return { description: 'New conversations only.', control: <Select aria-label="Default model" disabled={busy || newTaskModels.length === 0} value={data.settings.modelId ?? ''} options={[{ value: '', label: 'Select model', disabled: true }, ...newTaskModels.map(model => ({ value: model.id, label: model.name }))]} onValueChange={modelId => void persist({ modelId })}/> };
+      case 'harness-runtime': return { description: desktop ? 'Runs locally in the Windows app.' : '', control: <span className="settings-value">Local host</span> };
+      case 'project-overview': return { description: 'Files, folders and databases.', control: <button type="button" className="secondary" onClick={addResource}>Add resource</button> };
       case 'archive': return { description: 'Restore reopens a saved conversation without resuming its run.', control: <span className="settings-value">{data.counts.archivedThreads} archived</span> };
-      case 'harness-draft-transfer': return { description: 'Transfer browser-local drafts. Existing or incompatible desktop entries stay available for review.', control: <DraftTransfer references={draftReferences}/> };
+      case 'harness-draft-transfer': return { description: '', control: <DraftTransfer references={draftReferences}/> };
       case 'harness-export-diagnostics': return { description: `Accepted event ${data.sequence} · ${data.counts.threads} threads · ${data.counts.artifacts} artifacts · ${data.counts.resources} grants · ${data.counts.uncertainOperations} uncertain operations. Credentials and file contents are excluded.`, control: <button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void refresh().catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Refresh settings</button> };
       case 'harness-licenses': return { description: 'Settings presentation and account selection adapted from T3 Code, pinned 8760d063. Copyright (c) 2026 T3 Tools Inc. Full MIT notice and selective source ranges/hashes: third-party/t3code.', control: <a href="https://github.com/pingdotgg/t3code/blob/8760d063e903406c8e8f695b0852c0a15fc1e00f/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
       case 'harness-hermes-license': return { description: 'Skill learning adapted from Hermes Agent. Copyright (c) 2025 Nous Research. Complete MIT notice retained in third-party/hermes-agent.', control: <a href="https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
@@ -176,14 +176,19 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       default: return { description: '', control: null };
     }
   };
-  return <div className={matches('harness-skills') ? 'settings-layout settings-skills' : 'settings-layout'} onKeyDown={event => { if (event.key === 'Escape' && searching && !event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation(); setQuery(''); } }}>
+  return <div className={matches('harness-skills') ? 'settings-layout settings-skills' : 'settings-layout'} onKeyDown={event => { if (searching && !event.nativeEvent.isComposing && matchesShortcut(event, chordFor('settings-clear-search'))) { event.preventDefault(); event.stopPropagation(); setQuery(''); } }}>
     <aside className="settings-navigation"><label className="settings-search"><Search size={14}/><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)}/></label>
-      <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing || event.ctrlKey || event.metaKey || event.altKey || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
-        {[...new Set(SETTINGS_SECTIONS.map(([id]) => GROUPS[id] ?? id))].map(group => <div className="settings-nav-group" key={group}><h2>{group}</h2>{SETTINGS_SECTIONS.filter(([id]) => (GROUPS[id] ?? id) === group).map(([id, label]) => <button type="button" key={id} className={!searching && section === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}>{label}</button>)}</div>)}
+      <div className="settings-section-select"><Select aria-label="Settings section" value={section} options={SETTINGS_SECTIONS.map(([value, label]) => ({value, label}))} onValueChange={chooseSection}/></div>
+      <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing) return; const intent = matchesShortcut(event, chordFor('settings-next-section')) ? 'next' : matchesShortcut(event, chordFor('settings-previous-section')) ? 'previous' : matchesShortcut(event, chordFor('settings-first-section')) ? 'first' : matchesShortcut(event, chordFor('settings-last-section')) ? 'last' : null; if (!intent) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[intent === 'first' ? 0 : intent === 'last' ? buttons.length - 1 : (index + (intent === 'next' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
+        {[...new Set(SETTINGS_SECTIONS.map(([id]) => GROUPS[id] ?? id))].map(group => {
+          const sections = SETTINGS_SECTIONS.filter(([id]) => (GROUPS[id] ?? id) === group);
+          return <div className="settings-nav-group" key={group}>{sections.length > 1 && <h2>{group}</h2>}{sections.map(([id, label]) => {const Icon = SECTION_ICONS[id] ?? Settings2;return <button type="button" key={id} className={!searching && section === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}><Icon size={17} aria-hidden="true"/><span>{label}</span></button>;})}</div>;
+        })}
       </nav>
     </aside>
-    <main ref={content} className="settings-content" aria-label="Settings content"><div className="settings-page-heading"><h1>{heading}</h1><span className="settings-save-state" role="status">{busy ? 'Saving…' : saved ? <><Check size={12}/>Saved</> : null}</span></div>
+    <main ref={content} className="settings-content" aria-label="Settings content"><div className="settings-page-heading"><span className="settings-heading-icon"><HeadingIcon size={21} aria-hidden="true"/></span><div><h1>{heading}</h1></div><span className="settings-save-state" data-state={busy ? 'saving' : saved ? 'saved' : 'idle'} role="status">{busy ? 'Saving…' : saved ? <><Check size={12}/>Saved</> : null}</span></div>
       {error && <p role="status" className="notice error-text">{error}</p>}
+      {connectionsOpened && <div data-setting-id="harness-accounts" hidden={searching||section!=='providers'}><Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/></div>}
       {searching ? <>
         <div className="settings-results">
           {rows.map(item => <button type="button" key={item.id} className="settings-result" onClick={() => revealTarget(item)}><strong>{item.title}</strong><span className="settings-result-section">{item.group} · {item.sectionLabel}</span></button>)}
@@ -191,9 +196,10 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
         {rows.length === 0 && <p className="settings-empty">No matching settings.</p>}
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
-      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2><p>{description}</p></div><div className="settings-row-control">{control}</div></section>; })}
+      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}</div><div className="settings-row-control">{control}</div></section>; })}
+      {matches('harness-keyboard-reference') && <div data-setting-id="harness-keyboard-reference"><KeyboardReference keybindings={preferences.keybindings}/></div>}
       {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/></div>}
-      {matches('harness-runtime') && <div data-setting-id="harness-runtime">{environmentSettings}</div>}
+      {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
       {matches('harness-integrations') && <div data-setting-id="harness-integrations"><IntegrationSettings/></div>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
@@ -202,7 +208,6 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {matches('app-version') && <div data-setting-id="app-version"><p className="settings-version">Gen V1 {version} · {desktop ? 'Windows desktop' : 'Browser build'}</p><UpdateControl/></div>}
       {matches('browser-start-page') && <section className="settings-card" data-setting-id="browser-start-page"><h2>Manual browser</h2>{openBrowser ? <form onSubmit={event => { event.preventDefault(); void persist({ preferences: { browserStartUrl: browserUrl } }); }}><label className="field">Start page<input aria-label="Browser start page" type="url" placeholder="Blank page" maxLength={2048} value={browserUrl} disabled={busy} onChange={event => setBrowserUrl(event.target.value)}/></label><div className="settings-inline-controls"><button className="secondary" disabled={busy || browserUrl === preferences.browserStartUrl}>Save start page</button><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void openBrowser(preferences.browserStartUrl).then(close).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Open browser</button></div></form> : <p className="settings-card-intro">Open the manual browser from the Windows desktop workspace. Navigation, reload and stop stay in its toolbar.</p>}</section>}
       </>}
-      {connectionsOpened && <div data-setting-id="harness-accounts" hidden={searching||section!=='providers'}><Connections snapshot={data} refresh={refresh} loadModels={refreshModels} onAuthChanged={notifyAccountAuthChanged} providerId={connectionProvider} onProviderChange={setConnectionProvider}/></div>}
     </main>
   </div>;
 }

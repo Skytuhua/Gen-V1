@@ -14,4 +14,4 @@
 .scoped-conversation .ui-action-trigger {max-width: 100%; white-space: normal; overflow-wrap: anywhere; cursor: pointer;}
 .scoped-conversation .ui-action-trigger:hover:not(:disabled) {background: var(--hover);}
 .scoped-conversation .ui-action-trigger:disabled {opacity: .6; cursor: default;}
-.scoped-conversation :is(button, article, [role="region"]):focus-visible {outline: 2px solid var(--accent); outline-offset: -2px;}
+.scoped-conversation :is(button, article, [role="region"]):focus-visible {outline:2px solid var(--ui-focus-ring,#808080); outline-offset: -2px;}

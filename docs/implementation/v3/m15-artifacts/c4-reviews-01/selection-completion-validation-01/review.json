@@ -1,0 +1,542 @@
+{
+  "kind": "C4_SELECTION_COMPLETION_VALIDATION",
+  "status": "FOCUSED_REGRESSION_REPRODUCED_AND_FIXED_FULL_SUITE_PENDING",
+  "runs": [
+    {
+      "id": "c4-selection-completion-red-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-01.json",
+        "sha256": "33f4004df5fe8ac738b39d2baf20cfac1e489f651444f6fac9e986b9445591b4",
+        "bytes": 821
+      },
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "tests/e2e/workbench.playwright.config.ts",
+          "--grep",
+          "M15 completed selection action",
+          "--reporter=line,json",
+          "--output",
+          "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-01/artifacts"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T05:23:07.897Z",
+        "endedAt": "2026-11-16T05:23:14.298Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-selection-completion-red-01.log",
+        "logDigest": "5df7800386449e5a750494c16ecb1474f42e774e322bcae08efb3881c17264cd"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-01.log",
+        "sha256": "5df7800386449e5a750494c16ecb1474f42e774e322bcae08efb3881c17264cd",
+        "bytes": 3726
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-01/results.json",
+        "sha256": "de9953ba0a0cc4040f5d522159f7a19976bd33560fa27ec8370fcfcb997cddab",
+        "bytes": 5105
+      },
+      "stats": {
+        "startTime": "2026-11-16T05:23:10.286Z",
+        "duration": 3939.3360000000002,
+        "expected": 0,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runnerErrors": [
+        {
+          "message": "Cannot use({ trace }) in a describe group, because it forces a new worker.\nMake it top-level in the test file or put in the configuration file.",
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+            "line": 47,
+            "column": 8
+          },
+          "snippet": "\u001b[90m   at \u001b[39mworkbench.spec.ts:47\n\n  45 | test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});\n  46 |\n> 47 | test('M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom',async({page})=>{\n     |        ^\n  48 |  for(const zoom of [1,2]){\n  49 |   await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});\n  50 |   await page.goto('/fixture?fixture=selection-modal');await page.evaluate(value=>{document.body.style.zoom=String(value);},zoom);"
+        },
+        {
+          "message": "Cannot use({ trace }) in a describe group, because it forces a new worker.\nMake it top-level in the test file or put in the configuration file.",
+          "location": {
+            "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+            "line": 47,
+            "column": 8
+          },
+          "snippet": "\u001b[90m   at \u001b[39mworkbench.spec.ts:47\n\n  45 | test('M15 toolbar stays reachable at both viewports and 200 percent zoom',async({page})=>{for(const viewport of [{width:1280,height:800},{width:1920,height:1080}]){await page.setViewportSize(viewport);await page.goto('/fixture');await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(()=>{document.body.style.zoom='2';});await select(page);const toolbar=page.getByRole('toolbar',{name:'Selected source'});await expect(toolbar).toBeVisible();const rect=await toolbar.boundingBox();expect(rect!.x).toBeGreaterThanOrEqual(0);expect(rect!.x+rect!.width).toBeLessThanOrEqual(viewport.width);expect(rect!.y+rect!.height).toBeLessThanOrEqual(viewport.height);await page.getByRole('button',{name:'Open source',exact:true}).focus();await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText('open:selected text');}});\n  46 |\n> 47 | test('M15 range-anchored toolbar keeps native modal ownership inside a tall canonical source at normal and 200 percent zoom',async({page})=>{\n     |        ^\n  48 |  for(const zoom of [1,2]){\n  49 |   await page.setViewportSize({width:1280,height:800});await page.emulateMedia({reducedMotion:'reduce'});\n  50 |   await page.goto('/fixture?fixture=selection-modal');await page.evaluate(value=>{document.body.style.zoom=String(value);},zoom);"
+        }
+      ],
+      "cases": [],
+      "sourceCut": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-01/source-cut.json",
+        "sha256": "6aba19ffe3d09264b598c82bad4d89628a9ac9a2d0ef1c0bda0ee8ef3738db85",
+        "bytes": 548158
+      },
+      "sourceFiles": {
+        "apps/web/src/SourceSelectionActions.tsx": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+        "tests/e2e/workbench-fixture.tsx": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9",
+        "tests/e2e/workbench.spec.ts": "d9db1c91ba7e39850a2cd77d1937631b9ec87f3e9ab47a3b0c66e551d833f608"
+      }
+    },
+    {
+      "id": "c4-selection-completion-red-02",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-02.json",
+        "sha256": "3de008b59d6035d9828f18e6ca59c4432170f3e227ce2ecd18f2924db5798741",
+        "bytes": 821
+      },
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "tests/e2e/workbench.playwright.config.ts",
+          "--grep",
+          "M15 completed selection action",
+          "--reporter=line,json",
+          "--output",
+          "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/artifacts"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T05:23:44.061Z",
+        "endedAt": "2026-11-16T05:23:59.016Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-selection-completion-red-02.log",
+        "logDigest": "0aacbc1ae8d6f6a15d194abf6f91422d716fbb63b2181252972cbd565a62be0f"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-02.log",
+        "sha256": "0aacbc1ae8d6f6a15d194abf6f91422d716fbb63b2181252972cbd565a62be0f",
+        "bytes": 3132
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/results.json",
+        "sha256": "bc4f151e96cdc354b2d5a8bd3172064d503688dd27aaa72d972bd780df998103",
+        "bytes": 9408
+      },
+      "stats": {
+        "startTime": "2026-11-16T05:23:46.334Z",
+        "duration": 12643.896,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 1,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "expected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "passed",
+              "duration": 1916,
+              "errors": [],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:23:50.885Z",
+              "annotations": [],
+              "attachments": []
+            }
+          ]
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "unexpected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "failed",
+              "duration": 5215,
+              "error": {
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3",
+                "location": {
+                  "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                  "column": 3,
+                  "line": 29
+                },
+                "snippet": "  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 | });"
+              },
+              "errors": [
+                {
+                  "location": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                    "column": 3,
+                    "line": 29
+                  },
+                  "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 | });\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3"
+                }
+              ],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:23:53.540Z",
+              "annotations": [],
+              "attachments": [
+                {
+                  "name": "error-context",
+                  "contentType": "text/markdown",
+                  "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/artifacts/workbench-M15-selection-ac-21afd-erves-a-newer-foreign-range/error-context.md"
+                }
+              ],
+              "errorLocation": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                "column": 3,
+                "line": 29
+              }
+            }
+          ]
+        }
+      ],
+      "sourceCut": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-02/source-cut.json",
+        "sha256": "26c677d8e2b4a8c77a06d09a8b8938fa9c21f685b5ebcdc6485d85620fd1776a",
+        "bytes": 548158
+      },
+      "sourceFiles": {
+        "apps/web/src/SourceSelectionActions.tsx": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+        "tests/e2e/workbench-fixture.tsx": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9",
+        "tests/e2e/workbench.spec.ts": "3bf27c2ccf584ec1f2129cf051447373882cabb02ff7f2a9f2cc3435ba649579"
+      }
+    },
+    {
+      "id": "c4-selection-completion-red-03",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-03.json",
+        "sha256": "662952377329807cf185ba2ab832c6aa57e854f3a1aad85b0bfcafc029cf676a",
+        "bytes": 821
+      },
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "tests/e2e/workbench.playwright.config.ts",
+          "--grep",
+          "M15 completed selection action",
+          "--reporter=line,json",
+          "--output",
+          "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T05:26:34.263Z",
+        "endedAt": "2026-11-16T05:26:55.901Z",
+        "exitCode": 1,
+        "termination": "NONE",
+        "status": "FAIL",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-selection-completion-red-03.log",
+        "logDigest": "52e37438a4dab1a1e8be879165b3d3558c6a6c88c5bf36c711d6cd8c58fcf5fb"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-red-03.log",
+        "sha256": "52e37438a4dab1a1e8be879165b3d3558c6a6c88c5bf36c711d6cd8c58fcf5fb",
+        "bytes": 5805
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/results.json",
+        "sha256": "ccb167f2e15119372b21f331619ea8a80cce5f58ed797e538e26369faca840fe",
+        "bytes": 16853
+      },
+      "stats": {
+        "startTime": "2026-11-16T05:26:36.694Z",
+        "duration": 19117.664999999997,
+        "expected": 1,
+        "skipped": 0,
+        "unexpected": 2,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "expected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "passed",
+              "duration": 1334,
+              "errors": [],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:26:40.556Z",
+              "annotations": [],
+              "attachments": []
+            }
+          ]
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "unexpected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "failed",
+              "duration": 5378,
+              "error": {
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3",
+                "location": {
+                  "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                  "column": 3,
+                  "line": 29
+                },
+                "snippet": "  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 |  test('M15 completed selection action preserves a newer range and toolbar in the same source',async({page})=>{"
+              },
+              "errors": [
+                {
+                  "location": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                    "column": 3,
+                    "line": 29
+                  },
+                  "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 5\u001b[39m\n\u001b[31m+ Received  + 5\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"end\": 25,\u001b[39m\n\u001b[32m-   \"ranges\": 1,\u001b[39m\n\u001b[32m-   \"start\": 2,\u001b[39m\n\u001b[32m-   \"text\": \"newer foreign selection\",\u001b[39m\n\u001b[32m-   \"withinTarget\": true,\u001b[39m\n\u001b[31m+   \"end\": null,\u001b[39m\n\u001b[31m+   \"ranges\": 0,\u001b[39m\n\u001b[31m+   \"start\": null,\u001b[39m\n\u001b[31m+   \"text\": \"\",\u001b[39m\n\u001b[31m+   \"withinTarget\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  27 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  28 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 29 |   await expect.poll(readSelection).toEqual(newerForeignSelection?expected:{text:'',ranges:0,start:null,end:null,withinTarget:false});\n     |   ^\n  30 |   await expect(page.getByRole('toolbar',{name:'Selected source',exact:true})).toHaveCount(0);\n  31 |  });\n  32 |  test('M15 completed selection action preserves a newer range and toolbar in the same source',async({page})=>{\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:29:3"
+                }
+              ],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:26:42.271Z",
+              "annotations": [],
+              "attachments": [
+                {
+                  "name": "error-context",
+                  "contentType": "text/markdown",
+                  "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts/workbench-M15-selection-ac-21afd-erves-a-newer-foreign-range/error-context.md"
+                }
+              ],
+              "errorLocation": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                "column": 3,
+                "line": 29
+              }
+            }
+          ]
+        },
+        {
+          "title": "M15 completed selection action preserves a newer range and toolbar in the same source",
+          "status": "unexpected",
+          "attempts": [
+            {
+              "workerIndex": 1,
+              "parallelIndex": 0,
+              "status": "failed",
+              "duration": 5498,
+              "error": {
+                "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 7\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"attachEnabled\": true,\u001b[39m\n\u001b[31m+   \"attachEnabled\": false,\u001b[39m\n\u001b[2m    \"selection\": Object {\u001b[22m\n\u001b[32m-     \"end\": 7,\u001b[39m\n\u001b[32m-     \"ranges\": 1,\u001b[39m\n\u001b[32m-     \"start\": 0,\u001b[39m\n\u001b[32m-     \"text\": \"Visible\",\u001b[39m\n\u001b[32m-     \"withinTarget\": true,\u001b[39m\n\u001b[31m+     \"end\": null,\u001b[39m\n\u001b[31m+     \"ranges\": 0,\u001b[39m\n\u001b[31m+     \"start\": null,\u001b[39m\n\u001b[31m+     \"text\": \"\",\u001b[39m\n\u001b[31m+     \"withinTarget\": false,\u001b[39m\n\u001b[2m    },\u001b[22m\n\u001b[32m-   \"toolbarVisible\": true,\u001b[39m\n\u001b[31m+   \"toolbarVisible\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate",
+                "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 7\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"attachEnabled\": true,\u001b[39m\n\u001b[31m+   \"attachEnabled\": false,\u001b[39m\n\u001b[2m    \"selection\": Object {\u001b[22m\n\u001b[32m-     \"end\": 7,\u001b[39m\n\u001b[32m-     \"ranges\": 1,\u001b[39m\n\u001b[32m-     \"start\": 0,\u001b[39m\n\u001b[32m-     \"text\": \"Visible\",\u001b[39m\n\u001b[32m-     \"withinTarget\": true,\u001b[39m\n\u001b[31m+     \"end\": null,\u001b[39m\n\u001b[31m+     \"ranges\": 0,\u001b[39m\n\u001b[31m+     \"start\": null,\u001b[39m\n\u001b[31m+     \"text\": \"\",\u001b[39m\n\u001b[31m+     \"withinTarget\": false,\u001b[39m\n\u001b[2m    },\u001b[22m\n\u001b[32m-   \"toolbarVisible\": true,\u001b[39m\n\u001b[31m+   \"toolbarVisible\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:54:3",
+                "location": {
+                  "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                  "column": 3,
+                  "line": 54
+                },
+                "snippet": "  52 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  53 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 54 |   await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:true});\n     |   ^\n  55 |  });\n  56 | });\n  57 | test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id=\"forged\"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});"
+              },
+              "errors": [
+                {
+                  "location": {
+                    "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                    "column": 3,
+                    "line": 54
+                  },
+                  "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  - 7\u001b[39m\n\u001b[31m+ Received  + 7\u001b[39m\n\n\u001b[2m  Object {\u001b[22m\n\u001b[32m-   \"attachEnabled\": true,\u001b[39m\n\u001b[31m+   \"attachEnabled\": false,\u001b[39m\n\u001b[2m    \"selection\": Object {\u001b[22m\n\u001b[32m-     \"end\": 7,\u001b[39m\n\u001b[32m-     \"ranges\": 1,\u001b[39m\n\u001b[32m-     \"start\": 0,\u001b[39m\n\u001b[32m-     \"text\": \"Visible\",\u001b[39m\n\u001b[32m-     \"withinTarget\": true,\u001b[39m\n\u001b[31m+     \"end\": null,\u001b[39m\n\u001b[31m+     \"ranges\": 0,\u001b[39m\n\u001b[31m+     \"start\": null,\u001b[39m\n\u001b[31m+     \"text\": \"\",\u001b[39m\n\u001b[31m+     \"withinTarget\": false,\u001b[39m\n\u001b[2m    },\u001b[22m\n\u001b[32m-   \"toolbarVisible\": true,\u001b[39m\n\u001b[31m+   \"toolbarVisible\": false,\u001b[39m\n\u001b[2m  }\u001b[22m\n\nCall Log:\n- Timeout 5000ms exceeded while waiting on the predicate\n\n  52 |   await expect(page.locator('[data-held-state]')).toHaveText('complete');\n  53 |   await expect(page.locator('[data-held-action]')).toHaveText(captured);\n> 54 |   await expect.poll(readState).toEqual({selection,toolbarVisible:true,attachEnabled:true});\n     |   ^\n  55 |  });\n  56 | });\n  57 | test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id=\"forged\"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});\n    at /workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts:54:3"
+                }
+              ],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:26:49.726Z",
+              "annotations": [],
+              "attachments": [
+                {
+                  "name": "error-context",
+                  "contentType": "text/markdown",
+                  "path": "/workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/artifacts/workbench-M15-selection-ac-c3988--toolbar-in-the-same-source/error-context.md"
+                }
+              ],
+              "errorLocation": {
+                "file": "/workspace/scratch/1b47eb428672/m15-v3/tests/e2e/workbench.spec.ts",
+                "column": 3,
+                "line": 54
+              }
+            }
+          ]
+        }
+      ],
+      "sourceCut": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-red-03/source-cut.json",
+        "sha256": "dea6c23b758c9a04fe822b971fdb9529d29708a90f82c41ed2d1cc95bbb16be9",
+        "bytes": 548158
+      },
+      "sourceFiles": {
+        "apps/web/src/SourceSelectionActions.tsx": "691c685e96dee5ff1d4f76f1a0d4ab498b9ef15c71cd2725685a242e34896f5f",
+        "tests/e2e/workbench-fixture.tsx": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9",
+        "tests/e2e/workbench.spec.ts": "e57edc4b1f2f58132f75aeb391adc0499a4b0fa86dfdefeee898da305997efa2"
+      }
+    },
+    {
+      "id": "c4-selection-completion-green-01",
+      "receipt": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-green-01.json",
+        "sha256": "70d19e80125051a3ce090473218dec39774358fe426403033c8e5a9696132e02",
+        "bytes": 825
+      },
+      "command": {
+        "argv": [
+          "pnpm",
+          "exec",
+          "playwright",
+          "test",
+          "--config",
+          "tests/e2e/workbench.playwright.config.ts",
+          "--grep",
+          "M15 completed selection action",
+          "--reporter=line,json",
+          "--output",
+          "docs/implementation/v3/m15-artifacts/c4-selection-completion-green-01/artifacts"
+        ],
+        "cwdIdentity": "/workspace/scratch/1b47eb428672/m15-v3",
+        "executableIdentity": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/lib/node_modules/corepack/dist/pnpm.js",
+        "startedAt": "2026-11-16T05:27:53.475Z",
+        "endedAt": "2026-11-16T05:28:05.967Z",
+        "exitCode": 0,
+        "termination": "NONE",
+        "status": "PASS",
+        "boundedLogRef": "docs/implementation/v3/m15-logs/c4-selection-completion-green-01.log",
+        "logDigest": "30c34c77ed597f47aee148d6f2b5a49e7b81a38e329606892454df89089e7a1a"
+      },
+      "log": {
+        "path": "docs/implementation/v3/m15-logs/c4-selection-completion-green-01.log",
+        "sha256": "30c34c77ed597f47aee148d6f2b5a49e7b81a38e329606892454df89089e7a1a",
+        "bytes": 1628
+      },
+      "result": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-selection-completion-green-01/results.json",
+        "sha256": "c60e7fef78836343b635d4855f15a995bae64abb59e0a354eff224793ffb74d7",
+        "bytes": 5670
+      },
+      "stats": {
+        "startTime": "2026-11-16T05:27:56.917Z",
+        "duration": 9009.425000000001,
+        "expected": 3,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "runnerErrors": [],
+      "cases": [
+        {
+          "title": "M15 completed selection action clears its unchanged own range",
+          "status": "expected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "passed",
+              "duration": 1098,
+              "errors": [],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:28:01.125Z",
+              "annotations": [],
+              "attachments": []
+            }
+          ]
+        },
+        {
+          "title": "M15 completed selection action preserves a newer foreign range",
+          "status": "expected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "passed",
+              "duration": 1975,
+              "errors": [],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:28:02.479Z",
+              "annotations": [],
+              "attachments": []
+            }
+          ]
+        },
+        {
+          "title": "M15 completed selection action preserves a newer range and toolbar in the same source",
+          "status": "expected",
+          "attempts": [
+            {
+              "workerIndex": 0,
+              "parallelIndex": 0,
+              "status": "passed",
+              "duration": 1283,
+              "errors": [],
+              "stdout": [],
+              "stderr": [],
+              "retry": 0,
+              "startTime": "2026-11-16T05:28:04.477Z",
+              "annotations": [],
+              "attachments": []
+            }
+          ]
+        }
+      ],
+      "sourceCut": {
+        "path": "docs/implementation/v3/m15-artifacts/c4-validation-final-02/source-cut.json",
+        "sha256": "5f0de8a3c62b27685ac6a929f0d4fb0ec7c7d94f88bd9cc1f70ceafe1808e24a",
+        "bytes": 548158
+      },
+      "sourceFiles": {
+        "apps/web/src/SourceSelectionActions.tsx": "25ff6913518ae694ec629802d0ba4ca17cb5a4f56feed13e050d74d6764f02e5",
+        "tests/e2e/workbench-fixture.tsx": "64b33ce48704c5bfb9ad205c58209ea7808fc5d3d2d7a7c01fc5ab43cbc6e7b9",
+        "tests/e2e/workbench.spec.ts": "568eb7e4f773fc40bd18d064a7a77d2fadd955908752b75783cbd29b3c46cb3f"
+      }
+    }
+  ],
+  "productPatch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-fix-proposal-01/source.patch",
+    "sha256": "cfbf672945376079bdd20ceacb84ffa1c9bb226b31837245af230187f0ed8469",
+    "bytes": 1466
+  },
+  "thirdCasePatch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-same-source-01/tests.patch",
+    "sha256": "819b0675aae6daba04f6dadceb80a06ec1b53c04436e055330292faee16ae185",
+    "bytes": 2648
+  },
+  "postFailureFollowThroughPatch": {
+    "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/selection-completion-followthrough-01/tests.patch",
+    "sha256": "0d4c7a051573f88f331f1c8877e29c0e1830e5631fa2e5e418e5ec831dc787c4",
+    "bytes": 1293
+  },
+  "scope": [
+    "Real SourceSelectionActions and shared Popover in the existing React browser fixture. The fixture holds the onAction promise; no host/service/native proof.",
+    "red01 has two collection/worker setup errors and zero executed cases; it is not product evidence.",
+    "red02 and red03 retain original product bytes and actual assertion failures.",
+    "Green adds only downstream B-action assertions after the unchanged failed same-source assertion; full test bytes differ and are separately hashed.",
+    "Existing top-level trace off remains unchanged after removal of the invalid nested override.",
+    "No deadlines, authority revalidation, revision counters or existing tests were changed by the production fix.",
+    "Full App26, desktop31 and workbench21 remain held for final host/typecheck/build release."
+  ]
+}

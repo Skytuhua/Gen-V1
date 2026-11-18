@@ -43,6 +43,16 @@ it('refuses a replacement physical binding during an open review', async () => {
   await expect((await api()).getProjectMemory(owner, undefined, scope)).rejects.toMatchObject({code: 'INVALID_RESPONSE'});
 });
 
+it('allows an explicit refresh to adopt the current run binding within the same durable memory owner', async () => {
+  const next = {...view(), scope: {...scope, bindingDigest: 'd'.repeat(64)}}; responses(next);
+  await expect((await api()).getProjectMemory(owner, undefined, scope, {refreshBinding: true})).resolves.toEqual(next);
+});
+
+it.each(['projectId', 'threadId', 'accountId', 'projectIdentity'] as const)('keeps %s fenced even when the user explicitly refreshes the binding', async field => {
+  responses({...view(), items: [], scope: {...scope, bindingDigest: 'd'.repeat(64), [field]: field === 'projectIdentity' ? 'e'.repeat(64) : 'foreign'}});
+  await expect((await api()).getProjectMemory(owner, undefined, scope, {refreshBinding: true})).rejects.toMatchObject({code: 'INVALID_RESPONSE'});
+});
+
 it('rejects a view that republishes text for an existing deletion tombstone', async () => {
   const value = view(); value.tombstones = [{itemId: item.id, projectIdentity: scope.projectIdentity, deletionRevision: 3, deletedAt: item.observedAt, sourceExclusions: item.sourceRefs, affectedDerivedArtifacts: [], purgeStatus: 'PENDING'}]; responses(value);
   await expect((await api()).getProjectMemory(owner)).rejects.toMatchObject({code: 'INVALID_RESPONSE'});

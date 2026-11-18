@@ -1,0 +1,117 @@
+argv: ["pnpm","exec","vitest","run","tests/source-handoff-v3.test.ts","tests/editor-handoff.test.ts","--maxWorkers=1","--reporter=default","--reporter=json","--outputFile=docs/implementation/v3/m15-artifacts/c4-empty-owner-red-02/results.json"]
+cwd: /workspace/scratch/1b47eb428672/m15-v3
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 /workspace/scratch/1b47eb428672/m15-v3
+
+ ❯ tests/source-handoff-v3.test.ts (28 tests | 4 failed) 627ms
+     ✓ acknowledges only an untouched owner whose source, text and pending recovery all failed 208ms
+     ✓ does not treat an unobserved owner as a failed, untouched recovery 11ms
+     ✓ retains the strict read after an earlier successful empty recovery 12ms
+     ✓ keeps a locally begun source action blocking before its first journal write 18ms
+     ✓ does not reset attempted source work across an A to B to A owner transition 5ms
+     ✓ drains pending source hydration before judging an independently recovered pending send 11ms
+     ✓ waits for a first single CAS before a generation exists 11ms
+     ✓ waits for a first many CAS before a generation exists 34ms
+     ✓ retains a failed first source CAS even when an empty read and false retry succeed 6ms
+     ✓ does not let accepted old-source cleanup retire a failed newer attachment 5ms
+     ✓ retires an earlier failed attachment only after an explicit source edit commits 6ms
+     ✓ does not let an older explicit commit acknowledge a newer failed source operation 3ms
+     ✓ keeps failed source imports blocked until an atomic import retry commits the exact bundle 141ms
+     ✓ waits through import preprocessing before the same registry handoff (commit fails: false) 24ms
+     ✓ waits through import preprocessing before the same registry handoff (commit fails: true) 16ms
+     ✓ retains an ordinary failed draft write until its exact staged generation persists 4ms
+     ✓ does not classify a recovered staging record with failed replay as cold 3ms
+     ✓ retains the obligation of source metadata acquired through broadcast after initial failure 5ms
+     ✓ retains a record observed by entry enumeration even without a cached generation 8ms
+     ✓ rejects a foreign-owner source record instead of granting the cold-owner allowance 11ms
+     ✓ settles both same-owner App and SourceWorkbench guards without changing retained input 13ms
+     ✓ rechecks a new source generation after both same-owner guards wait for recovery 20ms
+     × settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: false) 16ms
+     × settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: true) 7ms
+     × revalidates a same-owner failure that begins after the earlier call has inspected its source 6ms
+     × orders different logical owners on the same thread and preserves the next owner failure 8ms
+     ✓ drains a queued owner first hydration before checking its retained source and pending send 7ms
+     ✓ does not pass an earlier owner rejection to the next independent validation 5ms
+ ✓ tests/editor-handoff.test.ts (3 tests) 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: false)
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > settles both empty-owner guards with asynchronous IDB delivery (initial source read pending: true)
+AssertionError: expected { ok: false, …(1) } to deeply equal { ok: true, value: undefined }
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "value": undefined,
++   "error": Error {
++     "message": "Empty-owner guards did not settle after 64 metadata inspections.",
++   },
++   "ok": false,
+  }
+
+ ❯ tests/source-handoff-v3.test.ts:448:36
+    446|         held.release(); expect(await recovering).toEqual([undefined, u…
+    447|       }
+    448|       expect(await handing.result).toEqual({ok: true, value: undefined…
+       |                                    ^
+    449|       expect(started).toEqual(['App', 'SourceWorkbench']); expect(fini…
+    450|       expect(journal.journalGeneration(sourceKey)).toBeUndefined();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > revalidates a same-owner failure that begins after the earlier call has inspected its source
+AssertionError: expected { ok: false, …(1) } to deeply equal { ok: true, value: undefined }
+
+- Expected
++ Received
+
+  {
+-   "ok": true,
+-   "value": undefined,
++   "error": Error {
++     "message": "A new source operation failed after the earlier validation",
++   },
++   "ok": false,
+  }
+
+ ❯ tests/source-handoff-v3.test.ts:484:34
+    482|       await Promise.race([begun, Promise.all([first.result, second.res…
+    483|       expect(injected).toBe(true);
+    484|       expect(await first.result).toEqual({ok: true, value: undefined});
+       |                                  ^
+    485|       expect(await attempted!.result).toEqual({ok: false, error: failu…
+    486|       expect(await second.result).toEqual({ok: false, error: failure});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/source-handoff-v3.test.ts > M15 source handoff recovery obligations > orders different logical owners on the same thread and preserves the next owner failure
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ tests/source-handoff-v3.test.ts:503:79
+    501|     const second = watch(recovery.prepareSourceOwnerHandoff(nextOwner)…
+    502|     try {
+    503|       await turn(); expect(first.settled).toBe(false); expect(second.s…
+       |                                                                               ^
+    504|       held.release();
+    505|       expect(await first.result).toEqual({ok: true, value: undefined});
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  4 failed | 27 passed (31)
+   Start at  13:57:06
+   Duration  1.23s (transform 322ms, setup 0ms, import 167ms, tests 633ms, environment 0ms)
+
+JSON report written to /workspace/scratch/1b47eb428672/m15-v3/docs/implementation/v3/m15-artifacts/c4-empty-owner-red-02/results.json

@@ -1,0 +1,190 @@
+{
+  "schemaVersion": 1,
+  "kind": "C4_PUBLICATION_AND_CI_COLLECTION_PLAN",
+  "preparedAt": "2026-11-16T05:24:58.010629+00:00",
+  "execution": "NO_TEST_OR_CI_EXECUTION_BY_THIS_PLAN",
+  "repository": "skytuhua-org/Gen-V1",
+  "branch": "agent/m15-v3",
+  "incomingParent": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "incomingTree": "12678a8f6c7db2718b02c99846bcdb02a1dee631",
+  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "acceptedBaseTree": "cdc9e7ad31a45e9c8ec69fbf1592f0605b033c6f",
+  "observedUnacceptedMain": "5fa29135068f98a1a1045ae33fefc8a34f565e43",
+  "observedMainTree": "a25658fe94df242cca90bbcad9d74aec60b3e291",
+  "mainObservationTime": "2026-11-16 05:19:36 UTC",
+  "publishedC4": {
+    "head": null,
+    "tree": null,
+    "runId": null,
+    "attempt": null
+  },
+  "expectedRuntimeJobs": 7,
+  "expectedArchives": 7,
+  "requiredCommandReceipts": 25,
+  "nativeFileDeclarations": 37,
+  "browserCommandDeclarations": 18,
+  "draft": true,
+  "merged": false,
+  "prHead": "eeda4a89879aa1f3baaa04e60dd4a2d9c520761c",
+  "prReportedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+  "prMergeability": {
+    "mergeable": null,
+    "state": "unknown",
+    "limit": "API base metadata and mergeability do not establish current-main runtime compatibility."
+  },
+  "defaultOff": {
+    "ui.sourceWorkbenchV1": false,
+    "reviewerApproval": false
+  },
+  "adoption": {
+    "receiptId": "c4-incoming-ux-adoption-01",
+    "status": "PASS_OBSERVED_ROOT_APPLIED",
+    "logSha256": "874d7bbbb0d11e41d5b7f6f33f8cb04cffb0b2c7d5ea0b5f92e7ba646e04b2bd",
+    "unchangedOtherWorktreePaths": 6484,
+    "unchangedOtherIndexEntries": 6060,
+    "immediateIndependentReadback": "Verified before later test edits; original checkout was clean. No new adoption or source mutation by this plan.",
+    "helper": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/adopt-eeda.py",
+      "bytes": 14044,
+      "sha256": "285699138b87b1fb59c713d4f686f581913c44bba7dfabf84ea9bda960dbd2a3"
+    },
+    "preparedPlan": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/prepared-adoption-01/plan.json",
+      "bytes": 3963,
+      "sha256": "022a10079827bb3381c572a81af7c8d8c429b4ea7eb1d6181af301a53be85d12"
+    },
+    "application": {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/prepared-adoption-01/application.json",
+      "bytes": 3002,
+      "sha256": "b5b0372cecd2714a39320940c7c0248fa8f7773c76d3b1b908e37f374de88b5f"
+    }
+  },
+  "mainReview": {
+    "hostResearch109": "STATIC_NO_REQUIRED_OWNING_DEPENDENCY_FOUND",
+    "hostRecords": [
+      {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/main109-host-audit-01/audit.md",
+        "bytes": 4911,
+        "sha256": "ace8f482fbf9e5f022aba030d8c37bcdbb59e84227135fc6531f49e26cd6e908"
+      },
+      {
+        "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/main109-host-audit-01/audit.json",
+        "bytes": 6282,
+        "sha256": "99ad46ecdcf1ebc707854b0420a28dd995b2ffd09f56915051a1d1c31131c16c"
+      }
+    ],
+    "frontend109": "PENDING_SEPARATE_READ_ONLY_REVIEW",
+    "latest5fa": "THREE_TEST_ROLE_CONTRACT_BOUNDARIES_RECORDED; no main adoption or execution",
+    "baselineDisposition": "Accepted b4aa remains unchanged. No blanket current-main compatibility approval."
+  },
+  "files": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/plan.md",
+      "bytes": 15697,
+      "sha256": "89aca49b6891d14f76a608bbc836ffa50bb976fb71f729a3d9fa367f8ac41598"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/workflow-contract.json",
+      "bytes": 31666,
+      "sha256": "e3eea5e874058326f1eeee983dc2cf3f0835c361b2af2ad567ab6e131fffff29"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/main5fa-boundary.json",
+      "bytes": 3144,
+      "sha256": "59167cfe9d47ecdf353573ce3eb873327803ea6624d518cedb11c3bc102cf3d5"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/main5fa-desktop.patch",
+      "bytes": 10097,
+      "sha256": "4b64cbd56b4386421d38cb33ddecc998db03462b47d0fa231850de24fcfa9723"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/connector-signatures.json",
+      "bytes": 7741,
+      "sha256": "658092708d1e549bacdd95d9af3ebbb4ba17b7cb454042d6ee7b3d93d515af56"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/transfer-signatures.json",
+      "bytes": 8496,
+      "sha256": "aebcbcd9ccdbe4e593c85875a48526db90e93704aeffe62acd3c57c84b0bcc01"
+    }
+  ],
+  "remoteSnapshots": [
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-branch-commit.json",
+      "bytes": 1322,
+      "sha256": "54ca9c60d7eb85d8c0e258f3cb56ede808ea0530123dd6573e6e09a1f6a98588"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-branch.json",
+      "bytes": 363,
+      "sha256": "8d559c846d9390a86eb52f398b4fe0badcf1d34dd77686c77569fd11d060dd1e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-index.json",
+      "bytes": 1527,
+      "sha256": "b0bb9e71ee90249485529cb0e7eaa8dd78ac29cad182d3bc54bb1ea22549bf0b"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-main-commit.json",
+      "bytes": 2258,
+      "sha256": "de0f08a41eeaf7b16d3ebea0f2d75bbbca59733e0e3a03cabeed2132059f7e4e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-main.json",
+      "bytes": 336,
+      "sha256": "8209a2e9576184425810e7ba0d51484375574a512e5bc7c305f6d3a04d6d3acf"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T050416705Z-pr390.json",
+      "bytes": 22764,
+      "sha256": "98bdf7a81eeadf56d169bc49176d9bb5e7ccf1f78dd0d91fa8ec93317ef19236"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-branch.json",
+      "bytes": 363,
+      "sha256": "8d559c846d9390a86eb52f398b4fe0badcf1d34dd77686c77569fd11d060dd1e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-index.json",
+      "bytes": 801,
+      "sha256": "e45de3537cab2657e5c5ed015a2cbfe5a7083a4b03bc27ef85e5d18ac708ad32"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-main-commit.json",
+      "bytes": 2520,
+      "sha256": "9dd24a03057272a629be847f4455ea47d4f4a12af0b9e63440d48607d9b9ec6d"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-main-delta.json",
+      "bytes": 24999,
+      "sha256": "318761f45aa1e8a85e08b2cc95aa34acf618389891c79a361c36e86e18ebecf7"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-main.json",
+      "bytes": 336,
+      "sha256": "47e97a00ce04cd2dd8539cf81ff7fd085eae69d314491d3bdac7108fb3c8df0e"
+    },
+    {
+      "path": "/workspace/scratch/1b47eb428672/m15-publication/c4/final-publication-plan-01/remote/20261116T051936Z-pr390.json",
+      "bytes": 22762,
+      "sha256": "d2d8aa9c5b451efa0bda49e16d81e2064584d3bb9ffbb35061a85309aae5a112"
+    }
+  ],
+  "pending": [
+    "Root-owned final source-bound local gates and reviewed staging",
+    "Final reviewed tree and actual parent lease",
+    "Publication and exact commit/tree readback",
+    "Actual C4 push run and selected attempt",
+    "Seven terminal archives,25 receipts, result review and durable preservation",
+    "Any required future current-main role/ownership reconciliation"
+  ],
+  "limits": [
+    "All test outcomes remain bound to their original source cuts",
+    "BYTES_VERIFIED is custody, not test PASS",
+    "No upload, remote write, workflow dispatch, repository/index/ref mutation, local test or browser run by this plan",
+    "Historical C2/C3/external failed attempts remain unchanged",
+    "Synthetic desktop bridges do not establish installed-desktop behavior",
+    "45-minute browser job can end with incomplete evidence; deadlines unchanged"
+  ]
+}
