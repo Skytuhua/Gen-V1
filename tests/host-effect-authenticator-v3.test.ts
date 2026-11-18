@@ -21,7 +21,8 @@ vi.mock('node:child_process', async importOriginal => {
   return {
     ...actual,
     spawn: ((file: string, args?: readonly string[], options?: SpawnOptions) => {
-      const child = actual.spawn(file, args, options);
+      const realSpawn = actual.spawn as (file: string, args?: readonly string[], options?: SpawnOptions) => ChildProcess;
+      const child = realSpawn(file, args, options);
       if (Array.isArray(args) && args.some(value => String(value).endsWith('windows-path-guard.ps1'))) spawned.guards.push(child);
       return child;
     }) as typeof actual.spawn,
