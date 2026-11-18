@@ -164,15 +164,22 @@ export function createIntegrationHost(options:IntegrationHostOptions){
    secretReferences.assertCurrent(args.reference,args.binding.executable);
   };
   assertCurrent();const launch=await manager.context7Launch(scope);assertCurrent();
-  let responseObserved=false,observedResult:unknown;
+  let responseObserved=false,observedResult:unknown,uncertainOutcome:HarnessError|undefined;
   try{
    return await withContext7Binding(launch,args.binding,context.signal,async(current,signal)=>{
-    assertCurrent();const result=await manager.approvedContext7(scope,args.request,{operationId:operation.id,binding:current,signal,assertCurrent,
-     resolveSecret:()=>secretReferences.resolveApproved(args.reference,current.executable,operation.id)});
-    observedResult=result;responseObserved=true;return result;
+    assertCurrent();
+    try{
+     const result=await manager.approvedContext7(scope,args.request,{operationId:operation.id,binding:current,signal,assertCurrent,
+      resolveSecret:()=>secretReferences.resolveApproved(args.reference,current.executable,operation.id)});
+     observedResult=result;responseObserved=true;return result;
+    }catch(error){
+     if(error instanceof HarnessError&&error.code==='OPERATION_OUTCOME_UNKNOWN')uncertainOutcome=error;
+     throw error;
+    }
    });
   }catch(error){
    if(responseObserved)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action returned a result, but native custody did not confirm completion.',{observedResult});
+   if(uncertainOutcome)throw uncertainOutcome;
    throw error;
   }
  };

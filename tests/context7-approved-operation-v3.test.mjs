@@ -17,11 +17,12 @@ vi.mock('../packages/core/file-access.ts', async original => {
     seam.paths.push(structuredClone(paths)); await seam.before?.();
     if (signal.aborted) throw new HarnessError('CANCELLED', 'Owned lease fixture cancelled');
     if (seam.deny) throw new HarnessError('CAPABILITY_DENIED', 'Owned lease fixture denied');
-    const result = await action([]);
-    // Actual withPathGuard can reject after callback settlement when its
-    // native session exited or releasing a held group cannot be confirmed.
-    if (seam.failAfter) throw new HarnessError('CAPABILITY_DENIED', 'Owned post-result custody failure');
-    return result;
+    try { return await action([]); }
+    finally {
+      // An ambient withPathGuard session releases its group in finally. Its
+      // release rejection can replace either callback success or failure.
+      if (seam.failAfter) throw new HarnessError('CAPABILITY_DENIED', 'Owned post-result custody failure');
+    }
   } };
 });
 afterEach(() => { seam.before = undefined; seam.deny = false; seam.paths.length = 0; seam.loss = undefined; seam.failAfter = false; });
@@ -155,5 +156,19 @@ describe('Context7 SecretRef through the real approved Operation lifecycle', () 
     expect(() => process.kill(pid, 0)).toThrow();
     expect(result).toMatchObject({ status: 'unknown', result: { observedResult: { content: [{ type: 'text', text: 'Owned public documentation result' }], isError: false } } });
     expect(x.store.get('toolEffect', 'operation:' + operation.id + '@1').state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
+  });
+
+  it('retains known uncertainty when native release rejects after interrupted child work', async () => {
+    const x = await fixture({ holdCall: true }), operation = await x.prepare(); seam.failAfter = true;
+    const pending = x.execute(operation);
+    await expect.poll(x.calls, { timeout: 5000 }).toHaveLength(1);
+    const pid = (await x.calls())[0].pid;
+    await x.host.configurePrivate({ context7ApiKey: '' });
+    const result = await pending;
+    expect(await x.starts()).toEqual([{ credential: true, credentialMatched: true }]);
+    expect(() => process.kill(pid, 0)).toThrow();
+    expect(result.status).toBe('unknown');
+    expect(x.store.get('toolEffect', 'operation:' + operation.id + '@1').state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
+    expect(JSON.stringify(x.store.db.prepare('SELECT kind,body FROM entities').all())).not.toContain(key);
   });
 });
