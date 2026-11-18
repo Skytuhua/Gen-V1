@@ -51,15 +51,17 @@
       "run",
       "tests/device-pairing-v3.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T10:26:57Z",
      "endedAt": "2026-11-18T10:29:15Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-device-pairing-v3.log",
-     "logDigest": "f90903132a750bfb35cfd289b16471ce98e29929c2c81688eac2faef0197e40d",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-device-pairing-v3.summary.json",
+     "logDigest": "794dae611137aafd4e6148e7ab1cb894d79759af4ed625f8dd29217627e9bba4",
+     "status": "PASS",
+     "rawArtifactDigest": "f90903132a750bfb35cfd289b16471ce98e29929c2c81688eac2faef0197e40d",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -132,15 +134,17 @@
       "run",
       "tests/read-sync-v3.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:23:18Z",
      "endedAt": "2026-11-18T08:23:31Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.log",
-     "logDigest": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+     "logDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+     "status": "PASS",
+     "rawArtifactDigest": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -192,15 +196,17 @@
       "run",
       "tests/read-sync-decisions-v6.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:23:38Z",
      "endedAt": "2026-11-18T08:23:50Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.log",
-     "logDigest": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+     "logDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+     "status": "PASS",
+     "rawArtifactDigest": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -233,45 +239,51 @@
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:23:59Z",
      "endedAt": "2026-11-18T08:26:45Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck.log",
-     "logDigest": "c126de429093599031aa03b9a4d30d2c32d0be5773a01b63bc9fa17bf7f4b001",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck.summary.json",
+     "logDigest": "56494593d7b33cb6faf4b3a5c7719afe79771cf800955a159c50a48883c10ab2",
+     "status": "PASS",
+     "rawArtifactDigest": "c126de429093599031aa03b9a4d30d2c32d0be5773a01b63bc9fa17bf7f4b001",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:29:19Z",
      "endedAt": "2026-11-18T08:30:27Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint.log",
-     "logDigest": "62a54b935e06826820c45bad5f5462cdf1cca0a3aec45920939fc9110d06ffb6",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint.summary.json",
+     "logDigest": "1c1f30086cb1a0b4af66221083ec0108836e85cfcc020f224a6a0d601c99d0b9",
+     "status": "PASS",
+     "rawArtifactDigest": "62a54b935e06826820c45bad5f5462cdf1cca0a3aec45920939fc9110d06ffb6",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:30:30Z",
      "endedAt": "2026-11-18T08:31:29Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build.log",
-     "logDigest": "42ff2ae88da67cb6e062db5b5c66d8c347c82b26eb9e7cb2266d52991e1c3f96",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build.summary.json",
+     "logDigest": "a8ee1995133a8888cd8c668317361ef32ca76caf57de54e00a89d4f9412a1628",
+     "status": "PASS",
+     "rawArtifactDigest": "42ff2ae88da67cb6e062db5b5c66d8c347c82b26eb9e7cb2266d52991e1c3f96",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -304,15 +316,17 @@
       "run",
       "tests/read-sync-decisions-v6.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:23:38Z",
      "endedAt": "2026-11-18T08:23:50Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.log",
-     "logDigest": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+     "logDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+     "status": "PASS",
+     "rawArtifactDigest": "cf4abc9b9e66c4c0c55d08e60a4311c027a57e27264b369ea58741b8324794ae",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -344,15 +358,17 @@
       "run",
       "tests/read-sync-v3.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:23:18Z",
      "endedAt": "2026-11-18T08:23:31Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.log",
-     "logDigest": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+     "logDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+     "status": "PASS",
+     "rawArtifactDigest": "1dd3e61d406d8964f98bf50b6214e31be6e7cfcc8b6336fbaeb86c6060db5e57",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -383,15 +399,17 @@
       "run",
       "tests/remote-transport-v3.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T18:30:14Z",
      "endedAt": "2026-11-18T18:30:37Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-remote-transport-v3.log",
-     "logDigest": "c585f695827a7230dc4e38f7aae592d3632302f2810a444a4ebc79a1ff898554",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-remote-transport-v3.summary.json",
+     "logDigest": "fc1d49e160cd6895071d5eb09e2becca569aa5be105eb856eff71b51c776965a",
+     "status": "PASS",
+     "rawArtifactDigest": "c585f695827a7230dc4e38f7aae592d3632302f2810a444a4ebc79a1ff898554",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -420,15 +438,17 @@
       "pnpm",
       "test"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T08:22:43Z",
      "endedAt": "2026-11-18T09:25:53Z",
      "exitCode": 1,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test.log",
-     "logDigest": "d52687cd1fb10963da352a478fd63d82807ae127993246cf54568bc82a7fdf81",
-     "status": "FAIL"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test.summary.json",
+     "logDigest": "92e4d78d9a92bb2e31e3abd45c20e902ebc245b97cc7a9326880df1a72bc7077",
+     "status": "FAIL",
+     "rawArtifactDigest": "d52687cd1fb10963da352a478fd63d82807ae127993246cf54568bc82a7fdf81",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
@@ -438,30 +458,34 @@
       "run",
       "tests/public-source.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T09:43:34Z",
      "endedAt": "2026-11-18T09:43:56Z",
      "exitCode": 1,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-public-source-inherited.log",
-     "logDigest": "7037581edfed7d4b307346b8ce3c90929ea692f963bfea43f27f206bb2b1b317",
-     "status": "FAIL"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-public-source-inherited.summary.json",
+     "logDigest": "93f2a156b9fd943882da6508fef9200dd46a044f900053f9e290ffee7d735014",
+     "status": "FAIL",
+     "rawArtifactDigest": "7037581edfed7d4b307346b8ce3c90929ea692f963bfea43f27f206bb2b1b317",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "test:browser"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T10:24:25Z",
      "endedAt": "2026-11-18T17:41:06Z",
      "exitCode": 1,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test-browser.log",
-     "logDigest": "b0d62337a156f899b450cd9297937b5ed116ecfb0f9e59c21084da11ef3641e1",
-     "status": "FAIL"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test-browser.summary.json",
+     "logDigest": "2a918f676425d8d8a18bb0cff86c072df4906fe1b4d0686e3c75315f08cff562",
+     "status": "FAIL",
+     "rawArtifactDigest": "b0d62337a156f899b450cd9297937b5ed116ecfb0f9e59c21084da11ef3641e1",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ],
    "artifactRefs": [
@@ -506,60 +530,68 @@
       "tests/remote-transport-v3.test.ts",
       "tests/public-source.test.ts"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T13:51:53Z",
      "endedAt": "2026-11-18T13:52:54Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.log",
-     "logDigest": "d0ed513c8f6864c03089df9c5b1d077b446521516256535fa207839834817c96",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.summary.json",
+     "logDigest": "2590e23bc205211fe10614195e0bc4fa7eeb47b49ccbc9212098e8115dfbe7dd",
+     "status": "PASS",
+     "rawArtifactDigest": "d0ed513c8f6864c03089df9c5b1d077b446521516256535fa207839834817c96",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "typecheck"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T14:02:00Z",
      "endedAt": "2026-11-18T14:07:09Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.log",
-     "logDigest": "d06fe179002b2f6c3f6cc671e410103ff39869dd1cf70e66e196a3a9f34c076f",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.summary.json",
+     "logDigest": "c47c44c47d7bc40e3b922489fe9a8dce5a65d9af7384fc7371f3235b36779870",
+     "status": "PASS",
+     "rawArtifactDigest": "d06fe179002b2f6c3f6cc671e410103ff39869dd1cf70e66e196a3a9f34c076f",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "lint"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T14:07:09Z",
      "endedAt": "2026-11-18T14:11:16Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.log",
-     "logDigest": "e402c49e49038496682743a122c8e1b945c17df8238c5d9f4029cf9ef41918dc",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.summary.json",
+     "logDigest": "8e67d78d68fa0dec1e5b6a449981cc9afd351c7d6e1f20ff6fabdb6735a8d579",
+     "status": "PASS",
+     "rawArtifactDigest": "e402c49e49038496682743a122c8e1b945c17df8238c5d9f4029cf9ef41918dc",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     },
     {
      "argv": [
       "pnpm",
       "build"
      ],
-     "cwdIdentity": "/home/piadmin/Gen-V1-m17-v6",
-     "executableIdentity": "/home/piadmin/tools/node24/bin/pnpm",
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
      "startedAt": "2026-11-18T14:11:16Z",
      "endedAt": "2026-11-18T14:11:59Z",
      "exitCode": 0,
      "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.log",
-     "logDigest": "5b12169253dc67c9ab5e89de778834db89cb299eca403c020d6dd47a0c8a3697",
-     "status": "PASS"
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.summary.json",
+     "logDigest": "552a6677dc50d2bb1c25cab191e55c7123f56b1a1f9dc04d03a62f21ed89f887",
+     "status": "PASS",
+     "rawArtifactDigest": "5b12169253dc67c9ab5e89de778834db89cb299eca403c020d6dd47a0c8a3697",
+     "rawArtifactRetention": "agent-owned local evidence store; not published"
     }
    ]
   }
@@ -631,5 +663,7 @@
   "pnpm test aggregate recorded exit 1 with 53 failed test files, all environment-bound or pre-existing (server.test.ts, skills-integration, hermes-*, M16-D06 platform expectation PLATFORM_UNSUPPORTED-vs-DRIVER_UNAVAILABLE on Linux, and the device-pairing-v3 flake fixed post-run); M17-scope suites pass independently.",
   "pnpm test:browser recorded exit 1: 69 of 72 e2e suites failed on this headless aarch64 host (app-fixture timeouts and unmet native/electron expectations dominate; the same class of environment-bound failures as the vitest aggregate). M17 ships no e2e specs and no M17-related assertion appears in the failing output; receipt: pnpm-test-browser.log."
  ],
- "reviewerApproval": false
+ "reviewerApproval": false,
+ "pathHandling": "Absolute worktree/tool paths redacted per CONTRIBUTING.md shared-evidence policy; original receipts preserved verbatim in agent-owned local evidence store (not published). Command argv, exit codes, timestamps and digests unmodified.",
+ "rawArtifactPolicy": "Raw tool/test output is not committed to source (CONTRIBUTING.md). Each receipt's boundedLogRef points to a curated summary; logDigest is the summary SHA-256; rawArtifactDigest is the preserved original's SHA-256. Summaries and raw artifacts are hashed separately."
 }
