@@ -128,6 +128,10 @@ describe('recorded command runner', () => {
 });
 
 describe('executable resolution', () => {
+  it('rejects an explicit executable path that is a directory', () => {
+    expect(() => resolveExecutable(dir('directory-executable'))).toThrow(/not a file/i);
+  });
+
   it('refuses .cmd shims and resolves real executables', () => {
     expect(() => resolveExecutable('pnpm.cmd')).toThrow(HarnessError);
     const node = resolveExecutable('node');
