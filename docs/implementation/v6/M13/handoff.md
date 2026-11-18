@@ -286,6 +286,18 @@ Receipts land in `logs/receipts.jsonl` with bounded logs under
 `logs/*-merged.log`. All five integrated-SHA gates observed: public-source
 manifest + three M13 suites + typecheck — PASS on `481fc646`.
 
+### Second drift reconciliation — merge 06c1b490 (2026-11-18)
+
+`origin/main` advanced to `89142de`; GitHub reported the PR dirty with the
+generated manifest as the sole conflict (verified locally — one conflict,
+no other file touched in M13-owned paths). Same authorized procedure:
+main's regenerated manifest (4342/282, baseline `6d32290f`) ∪ the exact
+task-owned entries (now 26 source — implementation, tests, evidence and
+merged-run logs — + 4 runtime) = **4368/286**, sorted, zero removals.
+Validation at `06c1b490`: `vitest-public-source-06c1b490` exit 0 (11/11 —
+sorted-unique, runtime ⊆ source, all referenced files exist). Prior
+receipts stay bound to their own cuts (`d249c566`, `481fc646`).
+
 ## Narrow backend unblocker — manager decision input (2026-11-18)
 
 Question traced: can the existing M03 Linux guard supervise the entire
