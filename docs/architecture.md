@@ -32,7 +32,7 @@ Two boundaries sit beside that flow. An installed plug-in runs in its own opaque
 | [apps/web](../apps/web) | Conversation, task views, settings, draft journals and desktop bridge client |
 | [apps/desktop](../apps/desktop) | Native windows, isolated remote browser, sign-in consoles and owned backend lifecycle |
 | [apps/server](../apps/server) | HTTP/SSE, session/CSRF checks, startup and widget mounts |
-| [packages/contracts](../packages/contracts) | Shared types and zod schemas for threads, tools, operations, planning, preferences and connections; imported by the host, the interface and the tests |
+| [packages/contracts](../packages/contracts) | Shared types, zod schemas and small runtime values such as `HarnessError` for threads, tools, operations, planning, preferences and connections; imported by the host, the interface and the tests |
 | [packages/desktop-contract](../packages/desktop-contract) | Typed desktop surface and layout references exchanged between the host and the Electron shell |
 | [packages/core](../packages/core) | Commands, run ownership, tools, actions, approvals and projections, plus capability flags, context compilation, project memory, background work and verification gates |
 | [packages/capabilities](../packages/capabilities) | Domain tools over admitted resources (repository read/status/diff/log, file replacement, repository tests, SQLite and PDF) with prepared operations and reconciliation |
@@ -54,7 +54,7 @@ Two boundaries sit beside that flow. An installed plug-in runs in its own opaque
 | [packages/widgets](../packages/widgets) | Opaque generated-app workers, DOM validation and watchdog control |
 | [third-party](../third-party) | Pinned original/adapted source, manifests and upstream notices |
 
-`packages/contracts` carries types and schemas only, so it holds no runtime state of its own. Every other package is reached from the host or the interface, directly or through `packages/core`, except `packages/skill-invocation`, whose only consumer today is its own test.
+`packages/contracts` carries shared types, zod schemas and a few pure runtime values such as `HarnessError`; it holds no mutable state and constructs nothing. Every other package is reached from the host or the interface, directly or through `packages/core`, except `packages/skill-invocation`, whose only consumer today is its own test.
 
 ## Ownership and persistence
 
