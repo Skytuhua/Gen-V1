@@ -10,6 +10,7 @@ import { createToolEffectFlags, ToolEffectLedger } from '../packages/core/tool-e
 import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
