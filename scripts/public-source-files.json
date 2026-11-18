@@ -2629,6 +2629,7 @@
     "tests/chat-gesture-audit.test.ts",
     "tests/chat-layout.test.ts",
     "tests/checkpoint-restore-v3.test.ts",
+    "tests/ci-draft-policy.test.ts",
     "tests/compaction-v3.test.ts",
     "tests/composer-evidence.test.ts",
     "tests/composer-prediction-client.test.ts",

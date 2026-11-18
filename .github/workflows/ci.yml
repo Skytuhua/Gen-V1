@@ -4,7 +4,7 @@ on:
   push:
     branches: [main, agent/m05-v3]
   pull_request:
-    types: [opened, synchronize, reopened, ready_for_review]
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
 
 permissions:
@@ -21,8 +21,8 @@ env:
 
 jobs:
   # A draft pull request is not reviewable, so its matrix runs when it becomes
-  # ready for review instead of on every draft push. The matrix is six jobs,
-  # including installer packaging, and draft pushes otherwise starve the
+  # ready for review instead of on every draft push. Six definitions expand
+  # to nine jobs, including installer packaging; draft pushes otherwise starve the
   # shared runner pool that required checks depend on.
   checks:
     name: Windows checks
