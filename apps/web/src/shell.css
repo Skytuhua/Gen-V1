@@ -94,6 +94,7 @@
  .app-shell .sidebar { width:var(--sidebar-width); flex-basis:var(--sidebar-width); transition:width var(--panel-motion,var(--ui-motion-panel-enter)) var(--ui-ease-enter),flex-basis var(--panel-motion,var(--ui-motion-panel-enter)) var(--ui-ease-enter),transform var(--panel-motion,var(--ui-motion-panel-enter)) var(--ui-ease-move),padding var(--panel-motion,var(--ui-motion-panel-enter)) var(--ui-ease-move),visibility 0s linear; }
  .app-shell[data-sidebar-collapsed=true] .sidebar { width:0; flex-basis:0; padding:0; border:0; visibility:hidden; overflow:hidden; transition-delay:0s,0s,0s,0s,var(--panel-motion,var(--ui-motion-panel-enter)); }
 }
+@media(prefers-reduced-motion:reduce) { .app-shell .sidebar { transition:none; } }
 .app-shell .sidebar-close { display:flex; }
 .sidebar-thread-row { position:relative; border:1px solid transparent; border-radius:8px; margin-bottom:3px; }
 .sidebar-thread-row.active { background:var(--selection-bg); border-color:var(--border); }
@@ -196,6 +197,7 @@
 .context-meter { margin:15px 0 4px; }
 .context-segment-bar { height:13px; border-radius:4px; display:flex; background:var(--subtle); position:relative; }
 .context-segment { height:13px; min-width:0; padding:0; border-radius:2px; border-right:2px solid var(--surface); position:relative; display:block; transition:width var(--ui-motion-status) var(--ui-ease-enter); flex:0 0 auto; }
+@media(prefers-reduced-motion:reduce) { .context-segment { transition:none; } }
 .context-categories-note { margin-top:9px; font-size:12px; line-height:1.5; color:var(--muted); }
 .context-meter-unknown { height:13px; border:1px dashed var(--border); border-radius:4px; background:var(--subtle); }
 .mode-picker select { border:0;background:transparent;color:var(--muted);font:inherit;font-size:11px;min-height:28px;max-width:66px;padding:3px; }
@@ -245,6 +247,7 @@
 .operation-outcome-caption {font-size:12px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;}
 .operation-outcome-chevron {margin-left:auto;flex-shrink:0;color:var(--muted);transition:transform var(--ui-motion-status) var(--ui-ease-enter);}
 .operation-receipt[open]>summary .operation-outcome-chevron {transform:rotate(180deg);}
+@media(prefers-reduced-motion:reduce) { .operation-outcome-chevron { transition:none; } }
 .operation-receipt-evidence {padding:0 14px 12px;border-top:1px solid var(--border);}
 .operation-receipt-evidence>p {font-size:12px;}
 

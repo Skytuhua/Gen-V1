@@ -1,0 +1,205 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/source-selection-v3.test.ts","tests/source-workbench-host-v3.test.ts","tests/source-workbench-hermes-v3.test.ts","tests/source-workbench-memory-v3.test.ts","tests/project-memory-service-v3.test.ts","tests/project-memory-request-http-v3.test.ts","tests/memory-host-lifecycle-v3.test.ts","tests/memory-native-file-capture-v3.test.ts","tests/memory-native-checkpoint-v3.test.ts","tests/memory-extraction-native-v3.test.ts","tests/memory-checkpoint-worker-ownership-v3.test.ts","tests/memory-source-reuse-v3.test.ts","tests/request-preparation-service-v3.test.ts","tests/source-selection-dom-v3.test.ts","tests/source-composer-v3.test.ts","tests/source-draft-transfer-v3.test.ts","tests/activity-output-v3.test.ts","tests/workbench-input-recovery-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/source-handoff-v3.test.ts","tests/agents-workspace-composer.test.ts","tests/agents-workspace-dispatch.test.ts","tests/saved-drafts.test.ts","tests/draft-transfer.test.ts","tests/compact-draft-transfer.test.ts","tests/journal.test.ts","tests/editor-handoff.test.ts","tests/public-source.test.ts","tests/accounts.test.ts","tests/hermes-client-startup.test.ts","tests/hermes-client.test.ts","tests/hermes-original-integration.test.ts","tests/hermes-multi-original.test.ts","tests/dev-plugin-runtime.test.ts","tests/skill-catalog.test.ts","tests/desktop-host.test.ts","--maxWorkers=2","--reporter=default","--reporter=json","--outputFile=test-results/m15/native-results.json"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 1
+termination: NONE
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90mD:/a/Gen-V1/Gen-V1[39m
+
+ [32m✓[39m tests/project-memory-service-v3.test.ts [2m([22m[2m30 tests[22m[2m)[22m[33m 16156[2mms[22m[39m
+   [33m[2m✓[22m[39m uses one shared host ProjectMemory authority for routes and Service lifecycle [33m 516[2mms[22m[39m
+   [33m[2m✓[22m[39m carries the same prepared memory request identity through actual Service send and final dispatch [33m 689[2mms[22m[39m
+   [33m[2m✓[22m[39m excludes an exact revision only from the same preparing token and never mutates captured prompt bytes [33m 626[2mms[22m[39m
+   [33m[2m✓[22m[39m includes M04 framing within the real 4 KiB MEMORY segment and eight-item limit [33m 800[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a request exclusion with changed generation and preserves the prepared selection [33m 616[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a request exclusion with changed revision and preserves the prepared selection [33m 486[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a request exclusion with changed account and preserves the prepared selection [33m 366[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a request exclusion with changed project and preserves the prepared selection [33m 584[2mms[22m[39m
+   [33m[2m✓[22m[39m records use only after the actual native input.processing event and ignores replayed or unrelated input IDs [33m 608[2mms[22m[39m
+   [33m[2m✓[22m[39m denies stale final memory bytes when an authenticated edit wins during awaited finalization [33m 694[2mms[22m[39m
+   [33m[2m✓[22m[39m denies stale final memory bytes when an authenticated forget wins during awaited finalization [33m 768[2mms[22m[39m
+   [33m[2m✓[22m[39m automatically recalls into the first send of a new unbound thread without borrowing an older request identity [33m 558[2mms[22m[39m
+   [33m[2m✓[22m[39m extracts only the actual settled run through a fresh pinned tool-free auxiliary factory and publishes proposals [33m 695[2mms[22m[39m
+   [33m[2m✓[22m[39m defers optional extraction while an admitted M09 child is awaiting its runtime factory [33m 702[2mms[22m[39m
+   [33m[2m✓[22m[39m makes pending extraction spend visible synchronously at settled while its factory is unresolved [33m 797[2mms[22m[39m
+   [33m[2m✓[22m[39m counts a scheduled and dispatched extraction as one pending auxiliary owner [33m 741[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers orphaned auxiliary reservations without replaying inference or erasing unknown attempted spend [33m 413[2mms[22m[39m
+   [33m[2m✓[22m[39m refuses host recovery while a current auxiliary owner remains active [33m 682[2mms[22m[39m
+   [33m[2m✓[22m[39m rechecks auxiliary ownership after awaited library initialization during recovery [33m 617[2mms[22m[39m
+   [33m[2m✓[22m[39m cancels and drains auxiliary extraction before admitting new foreground work and refuses late proposals [33m 477[2mms[22m[39m
+   [33m[2m✓[22m[39m drains auxiliary extraction before dispatching an executor-generated outbox input [33m 639[2mms[22m[39m
+   [33m[2m✓[22m[39m drains scheduled source cleanup before cancellation completes even before an extraction runtime exists [33m 505[2mms[22m[39m
+   [33m[2m✓[22m[39m acknowledges a host checkpoint only after durable accepted-revision persistence and registers it for Forget [33m 306[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks native manual compaction on a required host checkpoint failure and retains the original session path [33m 371[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps the required memory checkpoint inside the admitted loss-aware compaction run [33m 606[2mms[22m[39m
+ [32m✓[39m tests/source-handoff-v3.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 377[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-host-v3.test.ts [2m([22m[2m62 tests[22m[2m | [22m[33m1 skipped[39m[2m)[22m[33m 31726[2mms[22m[39m
+   [33m[2m✓[22m[39m admits first-account source custody for a truly empty task (host artifact fixture, M04 false) [33m 411[2mms[22m[39m
+   [33m[2m✓[22m[39m admits first-account source custody for a truly empty task (host artifact fixture, M04 true) [33m 342[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves unsent captured custody when an ordinary first input pins its account [33m 386[2mms[22m[39m
+   [33m[2m✓[22m[39m rolls back initial source-account custody with a failed input commit and retries the same identity [33m 352[2mms[22m[39m
+   [33m[2m✓[22m[39m retries the same explicit M04 preparation after initial source-account persistence rolls back [33m 327[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a selected-account change during first-source admission without creating a custody witness [33m 413[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves initial source custody when the admitted account is the default profile [33m 329[2mms[22m[39m
+   [33m[2m✓[22m[39m requires recapture for legacy sources without proof of initial unbound account custody [33m 305[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps historical bytes immutable and requires explicit retained-version send after source changes [33m 328[2mms[22m[39m
+   [33m[2m✓[22m[39m reauthorizes retained file bytes after grant revocation and never grants source context [Windows required] [33m 8783[2mms[22m[39m
+   [33m[2m✓[22m[39m reads an uploaded attachment through its own conversation grant and never through a profile grant [Windows required] [33m 772[2mms[22m[39m
+   [33m[2m✓[22m[39m admits the first captured file under its selected account [Windows native guard, runtime fixture] [33m 2311[2mms[22m[39m
+   [33m[2m✓[22m[39m reads artifact rows only through a declared same-owner structured binding [33m 330[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves artifact source custody through retained legacy layout apply/select and rejects new retired presets [Service/Store, runtime fixture] [33m 432[2mms[22m[39m
+   [33m[2m✓[22m[39m reads complete authorized activity beyond the mounted window and rejects stale or foreign rows [33m 328[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects missing, duplicate and oversized full activity reads rather than returning partial copy data [33m 357[2mms[22m[39m
+   [33m[2m✓[22m[39m returns the accepted receipt for a concurrent retry that finishes model discovery after dispatch [33m 309[2mms[22m[39m
+   [33m[2m✓[22m[39m drains multiple persisted NOW inputs through ordinary follow-up delivery when M04 is disabled [33m 301[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps the flag off by default and retains saved-source read access after rollback [33m 329[2mms[22m[39m
+   [33m[2m✓[22m[39m uses the existing authenticated host and CSRF boundaries for captures and source reads [33m 1566[2mms[22m[39m
+   [33m[2m✓[22m[39m composes unrelated host routes without exposing workbench APIs when its owning service is absent [33m 318[2mms[22m[39m
+   [33m[2m✓[22m[39m reports definitive revoked source rejection, then admits an ordinary edited send [33m 318[2mms[22m[39m
+   [33m[2m✓[22m[39m coalesces same-command admission so a concurrent retry cannot report rejection while the first can commit [33m 376[2mms[22m[39m
+   [33m[2m✓[22m[39m explicitly retains a blocked accepted input without automatic resume (M04 false) [33m 494[2mms[22m[39m
+   [33m[2m✓[22m[39m explicitly retains a blocked accepted input without automatic resume (M04 true) [33m 486[2mms[22m[39m
+   [33m[2m✓[22m[39m cancels only a proven undispatched accepted input after rollback and preserves its canonical message [33m 450[2mms[22m[39m
+   [33m[2m✓[22m[39m does not dispatch an old input snapshot after concurrent KEEP_CAPTURED recovery [33m 314[2mms[22m[39m
+   [33m[2m✓[22m[39m coalesces recovery retries while retained-source authorization is pending [33m 425[2mms[22m[39m
+   [33m[2m✓[22m[39m grades a requirement only from linked evidence authorized to the current account (null) [33m 408[2mms[22m[39m
+   [33m[2m✓[22m[39m grades a requirement only from linked evidence authorized to the current account (prior-account) [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m does not verify an execution when a bound failure falls outside the displayed observation window [33m 327[2mms[22m[39m
+   [33m[2m✓[22m[39m does not verify a legacy declaration outside the current attested project [33m 348[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks workbench verification from 1 current unresolved effects instead of a saved empty list [33m 432[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks workbench verification from 65 current unresolved effects instead of a saved empty list [33m 1120[2mms[22m[39m
+   [33m[2m✓[22m[39m recovers current verification after the ledger settles without changing the saved blocked assessment [33m 342[2mms[22m[39m
+   [33m[2m✓[22m[39m retains prior delivery uncertainty after resumed finalization fails (false, 'CANCEL') [33m 346[2mms[22m[39m
+   [33m[2m✓[22m[39m retains prior delivery uncertainty after resumed finalization fails (false, 'KEEP_CAPTURED') [33m 313[2mms[22m[39m
+ [32m✓[39m tests/request-preparation-service-v3.test.ts [2m([22m[2m34 tests[22m[2m)[22m[33m 18245[2mms[22m[39m
+   [33m[2m✓[22m[39m retains the same immutable preparation identity through the actual admitted request [33m 345[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects a removed grant and changed task note before accepting a prepared draft [33m 316[2mms[22m[39m
+   [33m[2m✓[22m[39m prevents token reuse while preserving a retry of the accepted command [33m 311[2mms[22m[39m
+   [33m[2m✓[22m[39m retries an explicit preparation after a synchronous projection failure rolls back admission [33m 350[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when stop changes [33m 313[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when note changes [33m 358[2mms[22m[39m
+   [33m[2m✓[22m[39m revalidates after asynchronous finalization when grant changes [33m 341[2mms[22m[39m
+   [33m[2m✓[22m[39m dispatches queued token-bound follow-ups separately without losing later outbox inputs [33m 404[2mms[22m[39m
+   [33m[2m✓[22m[39m allocates default-send identity but leaves the default-off path unchanged [33m 462[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves an accepted queued token across the prior native session lifecycle event [33m 387[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves an accepted queued token across the prior native settled lifecycle event [33m 351[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves separately accepted previews queued before the first epoch is admitted [33m 376[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds abandoned preparations and retains only the newest 128 metadata receipts [33m 7569[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps expired, hung preparation jobs in the admission bound until they actually settle [33m 1892[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-composer.test.ts [2m([22m[2m27 tests[22m[2m)[22m[32m 131[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-memory-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 3068[2mms[22m[39m
+   [33m[2m✓[22m[39m reports effective M04 custody after the same M05 preparation and retained M15 source reach one real host dispatch [33m 582[2mms[22m[39m
+ [32m✓[39m tests/source-workbench-hermes-v3.test.ts [2m([22m[2m2 tests[22m[2m)[22m[33m 24236[2mms[22m[39m
+   [33m[2m✓[22m[39m retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport] [33m 13456[2mms[22m[39m
+   [33m[2m✓[22m[39m delivers prepared M05 memory and retained M15 file evidence through one real Hermes history [Windows, scripted model transport] [33m 10778[2mms[22m[39m
+ [32m✓[39m tests/skill-catalog.test.ts [2m([22m[2m23 tests[22m[2m)[22m[33m 24041[2mms[22m[39m
+   [33m[2m✓[22m[39m enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes [33m 5962[2mms[22m[39m
+   [33m[2m✓[22m[39m pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal [33m 1749[2mms[22m[39m
+   [33m[2m✓[22m[39m binds authenticated cursors to inventory, search, page size and connection context [33m 1113[2mms[22m[39m
+   [33m[2m✓[22m[39m denies file/directory symlinks and hardlinks while retaining other safe packages [33m 445[2mms[22m[39m
+   [33m[2m✓[22m[39m bounds file counts and bytes without truncating a package into an available reference [33m 903[2mms[22m[39m
+   [33m[2m✓[22m[39m marks an exhausted root inventory unavailable instead of silently presenting a partial catalog [33m 426[2mms[22m[39m
+   [33m[2m✓[22m[39m counts bytes consumed by rejected packages against the root budget [33m 412[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects namespace escalation and source substitution without resolving a display name [33m 785[2mms[22m[39m
+   [33m[2m✓[22m[39m accepts bound references for the full declared source-identity length [33m 772[2mms[22m[39m
+   [33m[2m✓[22m[39m includes nested installed skill entries beneath another skill package [33m 410[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps a root skill distinct from a child named after the root directory [33m 402[2mms[22m[39m
+   [33m[2m✓[22m[39m detects replacement during capture and never returns mixed metadata/custody [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m uses canonical connected project/worktree bindings and separates unavailable project authority [33m 492[2mms[22m[39m
+   [33m[2m✓[22m[39m discovers only the selected worktree and invalidates its references after rebinding or revocation [33m 896[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated title updates [33m 1714[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated status updates [33m 1718[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated project metadata updates [33m 1697[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves exact references and pagination after unrelated working-copy branch updates [33m 1682[2mms[22m[39m
+   [33m[2m✓[22m[39m reuses the real bundled integration inventory and covers all declared skills across pages [33m 1512[2mms[22m[39m
+   [33m[2m✓[22m[39m requires composition to supply the installed registry instead of guessing a host plugin directory [33m 569[2mms[22m[39m
+ [32m✓[39m tests/saved-drafts.test.ts [2m([22m[2m41 tests[22m[2m)[22m[32m 170[2mms[22m[39m
+ [32m✓[39m tests/accounts.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 2904[2mms[22m[39m
+ [32m✓[39m tests/project-memory-request-http-v3.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 3715[2mms[22m[39m
+   [33m[2m✓[22m[39m requires the Personal host session and CSRF before preparing or excluding memory [33m 432[2mms[22m[39m
+   [33m[2m✓[22m[39m dispatches the exact excluded token through commands, preserves retry identity and makes captured recall immutable [33m 342[2mms[22m[39m
+   [33m[2m✓[22m[39m returns null while disabled and for an unbound first-send owner, then captures its automatically allocated request [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m blocks native dispatch when HTTP forget revokes a selection during asynchronous finalization [33m 409[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps plaintext matched terms ephemeral before and after forgotten memory reaches purge completion [33m 439[2mms[22m[39m
+ [32m✓[39m tests/memory-native-checkpoint-v3.test.ts [2m([22m[2m28 tests[22m[2m)[22m[33m 389[2mms[22m[39m
+ [32m✓[39m tests/desktop-host.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 17411[2mms[22m[39m
+   [33m[2m✓[22m[39m launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token [33m 7841[2mms[22m[39m
+   [33m[2m✓[22m[39m reports a real startup collision without adopting an unrelated HTTP service [33m 2466[2mms[22m[39m
+   [33m[2m✓[22m[39m does not leave its backend running after the owning IPC channel disconnects [33m 6839[2mms[22m[39m
+ [32m✓[39m tests/source-draft-transfer-v3.test.ts [2m([22m[2m21 tests[22m[2m)[22m[33m 307[2mms[22m[39m
+ [32m✓[39m tests/workbench-recovery-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[32m 293[2mms[22m[39m
+ [32m✓[39m tests/source-composer-v3.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 97[2mms[22m[39m
+ [32m✓[39m tests/dev-plugin-runtime.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 11233[2mms[22m[39m
+   [33m[2m✓[22m[39m returns 503 for fixed runtime routes in a source-only checkout [33m 703[2mms[22m[39m
+   [33m[2m✓[22m[39m prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children [33m 9968[2mms[22m[39m
+   [33m[2m✓[22m[39m does not launch development children when the shared runtime build fails [33m 560[2mms[22m[39m
+ [32m✓[39m tests/memory-host-lifecycle-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[33m 1344[2mms[22m[39m
+ [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 3426[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 681[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 1098[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 362[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 1058[2mms[22m[39m
+ [32m✓[39m tests/memory-source-reuse-v3.test.ts [2m([22m[2m14 tests[22m[2m)[22m[33m 2325[2mms[22m[39m
+ [32m✓[39m tests/source-selection-v3.test.ts [2m([22m[2m8 tests[22m[2m)[22m[32m 148[2mms[22m[39m
+ [32m✓[39m tests/memory-native-file-capture-v3.test.ts [2m([22m[2m3 tests[22m[2m)[22m[33m 2065[2mms[22m[39m
+     [33m[2m✓[22m[39m captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file [33m 948[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects native-captured FILE recall, detail and recapture after grant revocation [33m 568[2mms[22m[39m
+     [33m[2m✓[22m[39m rejects native-captured FILE recall, detail and recapture after physical replacement [33m 547[2mms[22m[39m
+ [32m✓[39m tests/workbench-performance-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 249[2mms[22m[39m
+ [32m✓[39m tests/memory-extraction-native-v3.test.ts [2m([22m[2m8 tests[22m[2m)[22m[33m 1147[2mms[22m[39m
+   [33m[2m✓[22m[39m keeps the actual native extraction transcript in memory with no session artifact [33m 1118[2mms[22m[39m
+ [32m✓[39m tests/journal.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 22[2mms[22m[39m
+ [32m✓[39m tests/hermes-client.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 5439[2mms[22m[39m
+   [33m[2m✓[22m[39m preserves Unicode through chunked replies and resolves concurrent request IDs independently [33m 521[2mms[22m[39m
+   [33m[2m✓[22m[39m uses an isolated home and does not pass provider credentials to Python [33m 502[2mms[22m[39m
+   [33m[2m✓[22m[39m awaits owned host callbacks and returns their results over the private channel [33m 517[2mms[22m[39m
+   [33m[2m✓[22m[39m forwards source events without inventing entry or settlement events [33m 510[2mms[22m[39m
+   [33m[2m✓[22m[39m fails pending requests safely on malformed worker output [33m 569[2mms[22m[39m
+   [33m[2m✓[22m[39m closes its worker and revokes unanswered requests when disposed [33m 381[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: home [33m 374[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: nested [33m 372[2mms[22m[39m
+   [33m[2m✓[22m[39m rejects redirected or multiply linked source storage: hardlink [33m 373[2mms[22m[39m
+   [33m[2m✓[22m[39m drains owned host callbacks even when process cancellation fails [33m 628[2mms[22m[39m
+   [33m[2m✓[22m[39m treats a denied host callback as an ordinary tool result during teardown [33m 565[2mms[22m[39m
+ [32m✓[39m tests/agents-workspace-dispatch.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 372[2mms[22m[39m
+ [32m✓[39m tests/compact-draft-transfer.test.ts [2m([22m[2m6 tests[22m[2m)[22m[32m 15[2mms[22m[39m
+ [32m✓[39m tests/memory-checkpoint-worker-ownership-v3.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 333[2mms[22m[39m
+ [32m✓[39m tests/workbench-input-recovery-v3.test.ts [2m([22m[2m7 tests[22m[2m)[22m[32m 18[2mms[22m[39m
+ [32m✓[39m tests/hermes-client-startup.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 264[2mms[22m[39m
+ [32m✓[39m tests/hermes-multi-original.test.ts [2m([22m[2m1 test[22m[2m)[22m[33m 7855[2mms[22m[39m
+   [33m[2m✓[22m[39m runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls [33m 7854[2mms[22m[39m
+ [32m✓[39m tests/draft-transfer.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 10[2mms[22m[39m
+ [32m✓[39m tests/activity-output-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[33m 372[2mms[22m[39m
+ [32m✓[39m tests/editor-handoff.test.ts [2m([22m[2m3 tests[22m[2m)[22m[32m 7[2mms[22m[39m
+ [32m✓[39m tests/source-selection-dom-v3.test.ts [2m([22m[2m4 tests[22m[2m)[22m[32m 5[2mms[22m[39m
+ [31m❯[39m tests/hermes-original-integration.test.ts [2m([22m[2m4 tests[22m[2m | [22m[31m2 failed[39m[2m)[22m[33m 140207[2mms[22m[39m
+   [33m[2m✓[22m[39m persists actual original-worker source generations through the real broker and Service without copying native content [33m 8462[2mms[22m[39m
+   [33m[2m✓[22m[39m runs original Python and ACP through the native broker, persists a skill and finishes through the real Service [33m 10623[2mms[22m[39m
+[31m   [31m×[31m applies protected original Hermes compaction through authenticated Service HTTP[39m[33m 60734[2mms[22m[39m
+[31m   [31m×[31m rejects original Hermes compaction when a host decision changes during its summary[39m[33m 60386[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 2 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/hermes-original-integration.test.ts[2m > [22mapplies protected original Hermes compaction through authenticated Service HTTP
+[41m[1m FAIL [22m[49m tests/hermes-original-integration.test.ts[2m > [22mrejects original Hermes compaction when a host decision changes during its summary
+[31m[1mAssertionError[22m: expected 'processing' to be 'handled' // Object.is equality[39m
+
+Expected: [32m"handled"[39m
+Received: [31m"processing"[39m
+
+[36m [2m❯[22m vi.waitFor.timeout tests/hermes-original-integration.test.ts:[2m118:81[22m[39m
+    [90m116|[39m    [35mconst[39m id[33m=[39m[32m'protected-source-input-'[39m[33m+[39mindex[33m;[39m
+    [90m117|[39m    await command({id,type:'message.send',threadId:thread.id,payload:{c…
+    [90m118|[39m    await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)…
+    [90m   |[39m                                                                                 [31m^[39m
+    [90m119|[39m    [35mawait[39m runtime[33m.[39m[34mcancelBackground[39m()[33m;[39m
+    [90m120|[39m   }
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m36 passed[39m[22m[90m (37)[39m
+[2m      Tests [22m [1m[31m2 failed[39m[22m[2m | [22m[1m[32m496 passed[39m[22m[2m | [22m[33m1 skipped[39m[90m (499)[39m
+[2m   Start at [22m 13:08:02
+[2m   Duration [22m 183.85s[2m (transform 5.20s, setup 0ms, import 15.86s, tests 320.12s, environment 5ms)[22m
+
+JSON report written to D:/a/Gen-V1/Gen-V1/test-results/m15/native-results.json

@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "playwright.config.ts",
+    "tests/e2e/host-loop.spec.ts",
+    "tests/e2e/shell-micro-motion.spec.ts",
+    "--reporter=list"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6-baseline",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T11:30:46.489Z",
+  "endedAt": "2026-11-18T11:32:40.189Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-root-baseline-r2.log",
+  "logDigest": "5eff2768592376e76da80eddb7f1c2b9288183bbba5acae1e91f24ae943a0f37"
+}

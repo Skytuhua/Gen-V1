@@ -1,0 +1,155 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","desktop-surfaces"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+Browser results: C:\Users\Administrator\repos\Gen-V1-m15-v6\test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a
+
+Browser suite: desktop-surfaces (1 spec files)
+
+Running 37 tests using 1 worker
+
+  ok  1 tests\e2e\desktop-surfaces.spec.ts:117:1 › desktop context and usage minimize in the workspace while thread detachment stays available (4.3s)
+  ok  2 tests\e2e\desktop-surfaces.spec.ts:184:1 › authoritative detached plan ignores URL descriptors and restores its owning thread (1.2s)
+  ok  3 tests\e2e\desktop-surfaces.spec.ts:207:1 › an artifact stays editable in the main window with no new-detachment entry (1.9s)
+  ok  4 tests\e2e\desktop-surfaces.spec.ts:226:1 › browser clients expose no native window controls (280ms)
+  ok  5 tests\e2e\desktop-surfaces.spec.ts:240:1 › native workspace notifications refresh authenticated state without opening renderer event streams (2.5s)
+  ok  6 tests\e2e\desktop-surfaces.spec.ts:310:1 › close acknowledgment freezes editing until native cancellation resumes the same draft (2.1s)
+  ok  7 tests\e2e\desktop-surfaces.spec.ts:339:1 › desktop draft import preserves collisions and blocks stale artifact revisions (2.9s)
+  ok  8 tests\e2e\desktop-surfaces.spec.ts:411:1 › browser draft export is explicit and does not clear the source (2.3s)
+  ok  9 tests\e2e\desktop-surfaces.spec.ts:448:1 › native close saves the latest edit and lease before acknowledgment, retaining source DOM (1.9s)
+  ok 10 tests\e2e\desktop-surfaces.spec.ts:470:1 › native close freezes the same workspace editor alias after acknowledged saving (1.7s)
+  ok 11 tests\e2e\desktop-surfaces.spec.ts:496:1 › sidebar detaches a thread into its own window and the main workspace stays usable (3.2s)
+  x  12 tests\e2e\desktop-surfaces.spec.ts:582:1 › detached workspace selection does not acquire an unacknowledged second artifact editor (6.6s)
+  ok 13 tests\e2e\desktop-surfaces.spec.ts:625:1 › navigation windows never mount hidden editable artifacts or a composer (1.3s)
+  ok 14 tests\e2e\desktop-surfaces.spec.ts:651:1 › native close acknowledges an unrecovered composer workspace without detaching (1.2s)
+  ok 15 tests\e2e\desktop-surfaces.spec.ts:680:1 › upload preprocessing blocks native close before the canonical PNG is journaled (1.9s)
+  ok 16 tests\e2e\desktop-surfaces.spec.ts:722:1 › compatible browser draft import restores the live composer and survives reload (2.9s)
+  ok 17 tests\e2e\desktop-surfaces.spec.ts:774:1 › imported artifact draft updates the already mounted editor before another edit (2.8s)
+  x  18 tests\e2e\desktop-surfaces.spec.ts:826:1 › export refuses pending signature assets instead of silently omitting the mark (7.3s)
+  ok 19 tests\e2e\desktop-surfaces.spec.ts:876:1 › source editor recovers a durable satellite draft when editing ownership returns (2.5s)
+  ok 20 tests\e2e\desktop-surfaces.spec.ts:936:1 › desktop sign-in uses the fixed native launcher without requiring pnpm (1.9s)
+  ok 21 tests\e2e\desktop-surfaces.spec.ts:970:1 › desktop readiness does not wait for slow model discovery (1.2s)
+  ok 22 tests\e2e\desktop-surfaces.spec.ts:1005:1 › review: startup does not expose an ownerless composer before the initial snapshot (1.6s)
+  ok 23 tests\e2e\desktop-surfaces.spec.ts:1049:39 › review: clearing an enum omits the optional response (2.0s)
+  ok 24 tests\e2e\desktop-surfaces.spec.ts:1049:39 › review: clearing an enum retains required validation (2.0s)
+  ok 25 tests\e2e\desktop-surfaces.spec.ts:1108:1 › review: an existing native browser action remains visible and retryable (1.2s)
+  x  26 tests\e2e\desktop-surfaces.spec.ts:1134:1 › review: a failed detached workspace close retains the editable surface (6.3s)
+  ok 27 tests\e2e\desktop-surfaces.spec.ts:1165:1 › review: standalone workspace uses native sizing instead of inactive panel maximize controls (1.2s)
+  ok 28 tests\e2e\desktop-surfaces.spec.ts:1188:1 › review: detached browser follows saved theme and subsequent system changes (1.3s)
+  ok 29 tests\e2e\desktop-surfaces.spec.ts:1249:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control (1.8s)
+  ok 30 tests\e2e\desktop-surfaces.spec.ts:1266:1 › M15 panel opener: a pinned native thread retains its workspace control (1.8s)
+  ok 31 tests\e2e\desktop-surfaces.spec.ts:1281:1 › native close waits for a source backup to finish parsing and retains a failed import until retry (3.2s)
+  ok 32 tests\e2e\desktop-surfaces.spec.ts:1490:1 › retained native thread header cancels a move on blur (1.7s)
+  ok 33 tests\e2e\desktop-surfaces.spec.ts:1535:5 › retained native thread reflows during left resize and persists the result (1.6s)
+  ok 34 tests\e2e\desktop-surfaces.spec.ts:1535:5 › retained native thread reflows during top resize and rolls back the result (1.6s)
+  ok 35 tests\e2e\desktop-surfaces.spec.ts:1624:1 › retained native thread placement animation never scales readable content (1.2s)
+  ok 36 tests\e2e\desktop-surfaces.spec.ts:1676:1 › retained native thread has no retired switch-layout control (2.2s)
+  ok 37 tests\e2e\desktop-surfaces.spec.ts:1694:1 › retained native thread ignores the retired layout-cycle shortcut (1.2s)
+
+
+  1) tests\e2e\desktop-surfaces.spec.ts:582:1 › detached workspace selection does not acquire an unacknowledged second artifact editor 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('status').filter({ hasText: 'Open this artifact from the main workspace. Your current editor is kept open.' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('status').filter({ hasText: 'Open this artifact from the main workspace. Your current editor is kept open.' })[22m
+
+
+      90 |  await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeEnabled();
+      91 | });
+    > 92 | test('detached workspace selection does not acquire an unacknowledged second artifact editor',async({page})=>{await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});const s=fixture();s.artifacts.push({...s.artifacts[0],id:'second-artifact',stateId:'second-state',title:'Second artifact'});s.userStates.push({...s.userStates[0],id:'second-state'});await serveTaskFixture(page,s);await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep the owning editor');await page.getByRole('combobox',{name:'Workspace artifact',exact:true}).click();await page.getByRole('option',{name:'Second artifact',exact:true}).click();await expect(page.getByRole('status').filter({hasText: 'Open this artifact from the main workspace. Your current editor is kept open.'})).toBeVisible();await expect(page.locator('[data-artifact-id="second-artifact"]')).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Keep the owning editor');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+         |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     ^
+      93 | test('navigation windows never mount hidden editable artifacts or a composer',async({page})=>{await bridge(page,{kind:'navigation'});await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('complementary',{name:'Thread navigation',exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveCount(0);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+      94 |
+      95 | test('native close acknowledges an unrecovered composer workspace without detaching',async({page})=>{await bridge(page);await page.addInitScript(()=>{Object.defineProperty(indexedDB,'open',{value:()=>{throw Error('IDB unavailable');}});const original=Storage.prototype.setItem;Storage.prototype.setItem=function(key,value){if(key.startsWith('harness:journal-pending:'))throw Error('Staging unavailable');return original.call(this,key,value);};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Message',exact:true});await expect(input).toBeDisabled();await expect(page.getByRole('alert').filter({hasText:'Draft recovery failed. Reopen this workspace to retry.'})).toBeVisible();expect(await page.evaluate(()=>(window as any).__closeDesktop())).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\desktop-surfaces.spec.ts:92:853
+
+    Error Context: test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-detached--70633-dged-second-artifact-editor\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-detached--70633-dged-second-artifact-editor\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-detached--70633-dged-second-artifact-editor\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests\e2e\desktop-surfaces.spec.ts:826:1 › export refuses pending signature assets instead of silently omitting the mark 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Browser draft transfer' }).getByRole('status')
+    Expected substring: [32m"Save or clear the pending signature mark"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Browser draft transfer' }).getByRole('status')[22m
+
+
+      100 | test('imported artifact draft updates the already mounted editor before another edit',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('');await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const backup={app:'generative-harness-drafts',version:1,entries:[{key:'state:task-state',record:{value:{baseRevision:0,values:{name:'Imported artifact value'}},generation:'browser-state',updatedAt:1}}]};await page.getByLabel('Draft backup file',{exact:true}).setInputFiles({name:'backup.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(backup))});await expect(page.locator('.draft-transfer [role="status"]')).toContainText('1 drafts imported');await page.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toHaveValue('Imported artifact value');});
+      101 |
+    > 102 | test('export refuses pending signature assets instead of silently omitting the mark',async({page})=>{await bridge(page);await page.addInitScript(()=>{File.prototype.arrayBuffer=function(){return new Promise<ArrayBuffer>(()=>{});};});const value=fixture();value.artifacts[0].spec={root:'signature',elements:{signature:{type:'SignaturePad',props:{stateKey:'signature',initialMode:'upload'}}}};await serveTaskFixture(page,value);await page.goto('/');await page.getByLabel('Upload PNG signature',{exact:true}).setInputFiles({name:'mark.png',mimeType:'image/png',buffer:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIHWP4z8DwHwAFgAI/ScLbtAAAAABJRU5ErkJggg==','base64')});await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByRole('button',{name:'Data & Recovery',exact:true}).click();const downloads:string[]=[];page.on('download',download=>downloads.push(download.suggestedFilename()));await page.getByRole('button',{name:'Export local drafts',exact:true}).click();await expect(page.getByRole('region',{name:'Browser draft transfer'}).getByRole('status')).toContainText('Save or clear the pending signature mark');expect(downloads).toEqual([]);});
+          |                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 ^
+      103 |
+      104 | test('source editor recovers a durable satellite draft when editing ownership returns',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await expect(input).toBeEnabled();const node=await input.elementHandle();await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false},{id:'existing-artifact',surface:{kind:'artifact',threadId:'task-thread',artifactId:'task-surface'},ready:true,minimized:false}]}));await expect(page.getByText('Editing in a detached window.',{exact:true})).toBeVisible();await expect.poll(()=>node!.evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);await page.evaluate(async()=>{const path='/src/journal.ts',journal=await import(path);await journal.journalWrite('state:task-state',{baseRevision:0,values:{name:'Recovered after satellite failure'}});(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}]});});await expect(input).toHaveValue('Recovered after satellite failure');await expect(input).toBeEnabled();expect(await node!.evaluate(element=>element.isConnected)).toBe(true);expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
+      105 |
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\desktop-surfaces.spec.ts:102:1105
+
+    Error Context: test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-export-re-7e205--silently-omitting-the-mark\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-export-re-7e205--silently-omitting-the-mark\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-export-re-7e205--silently-omitting-the-mark\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests\e2e\desktop-surfaces.spec.ts:1134:1 › review: a failed detached workspace close retains the editable surface 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: getByRole('status').filter({ hasText: 'Dock destination is unavailable' })
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('status').filter({ hasText: 'Dock destination is unavailable' })[22m
+
+
+      135 | test('review: a failed detached workspace close retains the editable surface',async({page})=>{
+      136 |  await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
+    > 137 |  await expect(page.getByRole('status').filter({hasText: 'Dock destination is unavailable'})).toBeVisible();await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();
+          |                                                                                              ^
+      138 | });
+      139 |
+      140 | test('review: standalone workspace uses native sizing instead of inactive panel maximize controls',async({page})=>{
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6\tests\e2e\desktop-surfaces.spec.ts:137:94
+
+    Error Context: test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-review-a--f34f0-etains-the-editable-surface\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-review-a--f34f0-etains-the-editable-surface\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\browser\run-1794998254426-69a2d8d4-20f9-4a1e-836e-88b703f3bc3a\desktop-surfaces\artifacts\desktop-surfaces-review-a--f34f0-etains-the-editable-surface\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3 failed
+    tests\e2e\desktop-surfaces.spec.ts:582:1 › detached workspace selection does not acquire an unacknowledged second artifact editor 
+    tests\e2e\desktop-surfaces.spec.ts:826:1 › export refuses pending signature assets instead of silently omitting the mark 
+    tests\e2e\desktop-surfaces.spec.ts:1134:1 › review: a failed detached workspace close retains the editable surface 
+  34 passed (1.6m)
+
+Failed browser suites: desktop-surfaces (exit 1)

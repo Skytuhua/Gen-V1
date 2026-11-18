@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "saved-layout-chooser"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T13:23:45.430Z",
+  "endedAt": "2026-11-18T13:24:10.360Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-windows-saved-layout-chooser-44310248562-1.log",
+  "logDigest": "1cbc2ce29deb70cc9c14864247b7e8a6ded5792a5eaf08fce95354815b7657bd"
+}

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "workbench-app"
+  ],
+  "cwdIdentity": "D:\\a\\Gen-V1\\Gen-V1",
+  "executableIdentity": "C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T13:08:20.921Z",
+  "endedAt": "2026-11-18T13:10:17.353Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/c4-windows-workbench-app-44310248562-1.log",
+  "logDigest": "ae1b4fce3b320eace6f0a7951494dfe34af90af4257b71b464ff34a2f6f278ed"
+}

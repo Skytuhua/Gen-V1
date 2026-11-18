@@ -263,30 +263,41 @@ export class ToolEffectLedger {
    * schema/grant/epoch) changes the commitment and denies before dispatch. */
   admitOperationDispatch(operation: Operation, thread: Thread, markRunning: () => void): ToolEffectRecord | null {
     const invocationId = "operation:" + operation.id + "@" + operation.revision;
-    const prior = this.get(invocationId);
-    if (prior && settled(prior.state)) return prior;
-    if (prior) throw new HarnessError("INVOCATION_IN_FLIGHT", "This operation dispatch is already in flight");
-    this.assertAdmissionsEnabled();
+    // Callers cannot replace the host's effect identity through operation payload.
+    if (["commandId", "invocationId", "operationId"].some(key => Object.hasOwn(operation.args, key)))
+      throw new HarnessError("INVOCATION_CONFLICT", "Operation arguments must not override ledger control fields");
+    if (operation.threadId !== thread.id)
+      throw new HarnessError("INVOCATION_CONFLICT", "The operation and current thread do not share an owner");
+    const owner = ownerFor(thread);
     const call: ToolCall = { name: "operation:" + operation.kind, args: { invocationId, operationId: operation.id, ...operation.args } };
+    // Resource grants and preconditions are part of the exact admitted action,
+    // not just the display payload. A changed grant must never inherit a settled result.
+    const binding = { kind: operation.kind, args: operation.args, resourceIds: operation.resourceIds, preconditions: operation.preconditions };
+    const definition: RegistryEntry = {
+      id: "operation:" + operation.kind, version: 1,
+      schemaDigest: this.authenticated() ? this.signer().commit("operation-definition", binding) : digest(binding),
+      risk: "HOST_EXECUTE", replayClass: "NONREPLAYABLE",
+      allowedRoles: ["run", "user"], executorBinding: "domain", approval: "operation",
+    };
+    const targetPreconditions = Object.entries(operation.preconditions).map(([key, value]) => key + "=" + value);
+    const prior = this.get(invocationId);
+    if (prior) {
+      // A completed operation is historical evidence, not permission to return
+      // its outcome under a new owner, action schema, resource grant or target.
+      const sameAction = prior.threadId === operation.threadId
+        && matchesInvocation(prior, owner, definition, this.privateArgumentCommitment(call))
+        && prior.targetPreconditions.length === targetPreconditions.length
+        && prior.targetPreconditions.every((entry, index) => entry === targetPreconditions[index]);
+      if (!sameAction) throw new HarnessError("INVOCATION_CONFLICT", "This operation receipt belongs to another action or owner");
+      if (settled(prior.state)) return prior;
+      throw new HarnessError("INVOCATION_IN_FLIGHT", "This operation dispatch is already in flight");
+    }
+    this.assertAdmissionsEnabled();
     const approvalId = this.flags.enabled("security.authorityV1") ? (this.approvalFor(operation.id)?.approvalId ?? null) : null;
     if (this.flags.enabled("security.authorityV1") && !approvalId) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     return this.admit({
-      call,
-      owner: ownerFor(thread),
-      definition: {
-        id: "operation:" + operation.kind,
-        version: 1,
-        schemaDigest: this.authenticated() ? this.signer().commit("operation-definition", { kind: operation.kind, args: operation.args }) : digest({ kind: operation.kind, args: operation.args }),
-        risk: "HOST_EXECUTE",
-        replayClass: "NONREPLAYABLE",
-        allowedRoles: ["run", "user"],
-        executorBinding: "domain",
-        approval: "operation",
-      },
-      approvalId,
-      approvalContext: { operation, thread },
-      targetPreconditions: Object.entries(operation.preconditions).map(([key, value]) => key + "=" + value),
-      extraPut: markRunning,
+      call, owner, definition, approvalId,
+      approvalContext: { operation, thread }, targetPreconditions, extraPut: markRunning,
     });
   }
 
