@@ -10,6 +10,7 @@ import { gitExecutable, runProcess } from "./process.ts";
 import { readBoundFile, removeOwnedFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
 import { withGitMetadata, type ManagedGitFamily } from "./git-access.ts";
 import { validateCanonicalPng } from './signature-png.ts';
+import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding } from './repository-test-binding.ts';
 export interface DomainContext {
   threadId: string;
   signal: AbortSignal;
@@ -19,6 +20,7 @@ export interface DomainContext {
   publishData(value: unknown, provenance: string): DataRecord;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
+  assertRepositoryTestTrust?(operation: Operation, binding: import('./repository-test-binding.ts').RepositoryTestBinding): void;
   completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
   preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
 }
@@ -118,8 +120,13 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       return ctx.prepareOperation("file.replace", a, [a.resourceId], { sha256: source.sha256 }, `Replace ${a.path ?? a.resourceId} if SHA-256 ${source.sha256} still matches`);
     }
     case "repository_test_prepare": {
-      const a = parse("repository_test_prepare", rawArgs), source = await readResource(ctx, a.resourceId, a.testFile);
-      return ctx.prepareOperation("repository.test", { ...a, recipe: "node-test" }, [a.resourceId], { testSha256: source.sha256 }, `Run exactly node --test -- ${a.testFile}; this executes granted project code with local user privileges`);
+      const a = parse("repository_test_prepare", rawArgs);
+      return access(ctx, a.resourceId, undefined, false, async cwd => {
+        const testPath = await ctx.resolveResource(a.resourceId, a.testFile, false);
+        return withRepositoryTestBinding(cwd, testPath, a.testFile, ctx.signal, async binding =>
+          ctx.prepareOperation("repository.test", { ...a, recipe: "node-test", executionBinding: binding }, [a.resourceId],
+            { testSha256: binding.test.sha256 }, `Run exactly ${binding.executable.path} --test -- ${a.testFile} in ${binding.cwd.path}; this executes granted project code with local user privileges`));
+      });
     }
     case "database_inspect": {
       const a = parse("database_inspect", rawArgs);
@@ -175,12 +182,16 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
       });
     }
     case "repository.test": {
-      const a = parse("repository_test_prepare", operation.args); operationResources(operation, [a.resourceId]);
+      const a = parseRepositoryTestOperation(operation.args); operationResources(operation, [a.resourceId]);
+      if (!a.executionBinding) throw new HarnessError("PRECONDITION_FAILED", "Prepare and approve a new repository test with an exact launch binding");
       return access(ctx, a.resourceId, undefined, true, async cwd => {
-      const test = await readResource(ctx, a.resourceId, a.testFile);
-      if (test.sha256 !== operation.preconditions.testSha256) throw new HarnessError("PRECONDITION_FAILED", "Test file changed since preparation");
-      const result = await runProcess(process.execPath, ["--test", "--", a.testFile], cwd, ctx.signal, m => ctx.progress(m));
-      publish(ctx, result, `operation:${operation.id}; resource:${a.resourceId}; node --test -- ${a.testFile}; test sha256:${test.sha256}`); return result;
+        const testPath = await ctx.resolveResource(a.resourceId, a.testFile, false);
+        return withRepositoryTestBinding(cwd, testPath, a.testFile, ctx.signal, async (binding, signal) => {
+          requireRepositoryTestBinding(a.executionBinding, binding, operation.preconditions.testSha256);
+          ctx.assertRepositoryTestTrust?.(operation, binding);
+          const result = await runProcess(binding.executable.path, binding.argv, binding.cwd.path, signal, m => ctx.progress(m));
+          publish(ctx, result, `operation:${operation.id}; resource:${a.resourceId}; node --test -- ${a.testFile}; test sha256:${binding.test.sha256}`); return result;
+        });
       });
     }
     case "database.transaction":
@@ -239,7 +250,7 @@ export async function reconcileDomainOperation(operation: Operation, ctx: Domain
       return unknown(current.resourceVersion === operation.preconditions.resourceVersion ? "Database still matches its before version; execution history remains unknown." : "Database version changed but no matching committed after version was recorded. Outcome remains unknown; inspect before taking a new action.", { resourceVersion: current.resourceVersion, integrity: current.integrity });
     }
     case "repository.test": {
-      const a = parse("repository_test_prepare", operation.args); operationResources(operation, [a.resourceId]);
+      const a = parseRepositoryTestOperation(operation.args); operationResources(operation, [a.resourceId]);
       await readResource(ctx, a.resourceId, a.testFile);
       const result = operation.result as { exitCode?: unknown; cancelled?: boolean; timedOut?: boolean; signal?: unknown } | undefined;
       if (result && (typeof result.exitCode === "number" || result.cancelled || result.signal)) return { status: result.cancelled ? "cancelled" : result.exitCode === 0 && !result.timedOut ? "succeeded" : "failed", basis: "recorded-result", result, message: "Recovered recorded process termination evidence. The test was not rerun." };

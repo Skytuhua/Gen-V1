@@ -57,6 +57,19 @@ describe('AgentInputV1 admission and delivery lifecycle', () => {
     expect(conflict.delivery).toBe('REJECTED');
     expect(conflict.error).toMatch(/dedupe/i);
   });
+  it('keeps the stored input queued when a retry reuses its inputId with different content', () => {
+    const f = fixture();
+    const admitted = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-1', text: 'first'}), {liveSteer: false});
+    const reused = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-2', text: 'second'}), {liveSteer: false});
+    expect(reused.delivery).toBe('REJECTED');
+    expect(f.inbox.inspect('in-1')).toEqual(admitted);
+    expect(f.inbox.queue('t-child')).toHaveLength(1);
+    expect(f.inbox.text('in-1')).toBe('first');
+    const reusedKey = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-1', text: 'third'}), {liveSteer: false});
+    expect(reusedKey.delivery).toBe('REJECTED');
+    expect(f.inbox.inspect('in-1')).toEqual(admitted);
+    expect(f.inbox.queue('t-child')).toHaveLength(1);
+  });
   it('steering delivers only when the adapter declared live steer; otherwise it queues after current', () => {
     const f = fixture();
     const noSteer = f.inbox.admit(f.input({kind: 'STEER'}), {liveSteer: false});

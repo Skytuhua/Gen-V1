@@ -1,0 +1,102 @@
+name: CI queue guard
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [requested, in_progress]
+  push:
+    branches: [main]
+    paths: [.github/workflows/ci-queue-guard.yml]
+
+permissions:
+  actions: write
+  pull-requests: read
+
+concurrency:
+  group: ci-queue-guard-${{ github.event.workflow_run.id || github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  guard:
+    if: github.event_name == 'push' || github.event.workflow_run.event == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # workflow_run uses this default-branch code, even for stacked old bases.
+      # No PR checkout, artifacts, caches, or event interpolation enter the script.
+      - name: Cancel obsolete PR runs using current GitHub metadata
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8
+        with:
+          script: |
+            const api = {...context.repo, request: {timeout: 10000}};
+            const repositoryId = context.payload.repository?.id;
+            const active = new Set(['queued', 'in_progress', 'requested', 'waiting', 'pending']);
+            const summary = {checked: 0, cancellationRequested: 0, preserved: 0, raced: 0, limited: false};
+            const validId = value => Number.isSafeInteger(value) && value > 0;
+            const validSha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
+            const finish = () => {core.info('CI queue guard: ' + JSON.stringify(summary)); return summary;};
+            if (!validId(repositoryId)) return finish();
+            async function read(method, parameters) {
+              try {return (await method({...api, ...parameters})).data;}
+              catch (error) {if (error.status === 404) return null; throw error;}
+            }
+            function association(run, id) {
+              if (!run || run.id !== id || id === context.runId || run.name !== 'CI' ||
+                  run.path !== '.github/workflows/ci.yml' || run.event !== 'pull_request' ||
+                  run.repository?.id !== repositoryId || !active.has(run.status) ||
+                  !validSha(run.head_sha) || !Array.isArray(run.pull_requests) || run.pull_requests.length !== 1) return null;
+              const pr = run.pull_requests[0];
+              if (!validId(pr.number) || pr.base?.repo?.id !== repositoryId || !validId(run.head_repository?.id) ||
+                  pr.head?.repo?.id !== run.head_repository.id || pr.head?.ref !== run.head_branch) return null;
+              return pr;
+            }
+            function reason(run, associated, pr) {
+              if (!pr || pr.number !== associated.number || pr.base?.repo?.id !== repositoryId ||
+                  pr.head?.repo?.id !== run.head_repository.id || pr.head?.ref !== run.head_branch || !validSha(pr.head?.sha)) return null;
+              if (pr.state === 'closed') return 'closed';
+              if (pr.state !== 'open') return null;
+              if (pr.draft === true) return 'draft';
+              // Only a recorded PR head proves supersession; merge SHAs do not.
+              if (pr.draft === false && associated.head.sha === run.head_sha && pr.head.sha !== run.head_sha) return 'superseded';
+              return null;
+            }
+            let ids = [];
+            if (context.eventName === 'workflow_run' && ['requested', 'in_progress'].includes(context.payload.action)) {
+              const id = context.payload.workflow_run?.id;
+              if (validId(id)) ids = [id];
+            } else if (context.eventName === 'push' && context.ref === 'refs/heads/' + context.payload.repository.default_branch) {
+              // Discover before cancelling so removals cannot shift pagination.
+              // Two pages and 100 candidates bound the one-time merge sweep.
+              for (const status of ['queued', 'in_progress']) {
+                const {data} = await github.rest.actions.listWorkflowRuns({...api, workflow_id: 'ci.yml', event: 'pull_request', status, per_page: 100, page: 1});
+                ids.push(...data.workflow_runs.map(run => run.id));
+                summary.limited ||= data.total_count > data.workflow_runs.length;
+              }
+            } else return finish();
+            ids = [...new Set(ids.filter(validId))];
+            summary.limited ||= ids.length > 100;
+            for (const id of ids.slice(0, 100)) {
+              summary.checked++;
+              const run = await read(github.rest.actions.getWorkflowRun, {run_id: id});
+              const associated = association(run, id);
+              if (!associated) {summary.preserved++; continue;}
+              const pr = await read(github.rest.pulls.get, {pull_number: associated.number});
+              if (!reason(run, associated, pr)) {summary.preserved++; continue;}
+              const currentRun = await read(github.rest.actions.getWorkflowRun, {run_id: id});
+              const currentAssociation = association(currentRun, id);
+              if (!currentAssociation || currentAssociation.number !== associated.number) {summary.raced++; continue;}
+              const currentPr = await read(github.rest.pulls.get, {pull_number: associated.number});
+              const currentReason = reason(currentRun, currentAssociation, currentPr);
+              if (!currentReason) {summary.raced++; continue;}
+              try {
+                await github.rest.actions.cancelWorkflowRun({...api, run_id: id});
+                summary.cancellationRequested++;
+                core.info('Requested cancellation of CI run ' + id + ': ' + currentReason);
+              } catch (error) {
+                if (error.status === 404 || error.status === 409) summary.raced++;
+                else throw error;
+              }
+            }
+            // Old-base ready PRs still need the CI lifecycle policy from main.
+            // This guard never reruns an old draft payload or bypasses checks.
+            return finish();
