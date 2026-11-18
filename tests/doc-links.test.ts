@@ -139,3 +139,22 @@ describe('documentation link check',()=>{
     expect(execFileSync(process.execPath,[script],options)).toContain('broken, 0 warnings');
   });
 });
+
+it('checks anchors from rendered headings, not comments or fenced code',()=>{
+  const bench=fixture({
+    'README.md':'[real](guide.md#run-setup) [fenced](guide.md#run-setup-1) [sample](guide.md#sample) [comment](guide.md#comment) [custom](guide.md#real-anchor)',
+    'guide.md':[
+      '<!--', '## Comment', '-->', '',
+      '  ```markdown','## Run setup','<a id="sample"></a>','  ```','',
+      '## Run `setup`','<a id="real-anchor"></a>',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status).toBe(1);
+    for(const anchor of ['run-setup-1','sample','comment'])expect(result.output).toContain('no heading or anchor "#'+anchor+'"');
+    expect(result.output).not.toContain('no heading or anchor "#run-setup"');
+    expect(result.output).not.toContain('no heading or anchor "#real-anchor"');
+    expect(result.output).toContain('3 broken');
+  }finally{bench.cleanup();}
+});

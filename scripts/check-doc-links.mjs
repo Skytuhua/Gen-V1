@@ -18,12 +18,12 @@ const listMarker = /^ {0,3}(?:[-*+]|\d{1,9}[.)])(?:[ \t]|$)/;
 const external = process.argv.includes('--external'), verbose = process.argv.includes('--verbose');
 
 const blank = text => text.replace(/[^\n]/g, ' ');
-export const readable = source => {
+export const readable = (source, keepInlineCode = false) => {
   let fence = '', indented = false, blankBefore = true, listed = false;
   return source.replace(/\r\n?/g, '\n').replace(/<!--[\s\S]*?-->/g, blank).split('\n').map(line => {
     const quoted = line.replace(/^(?: {0,3}>[ \t]?)+/, ''), opener = /^ {0,3}(`{3,}|~{3,})/.exec(quoted);
     if (fence) {
-      if (opener && !quoted.slice(opener[1].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
+      if (opener && !quoted.slice(opener[0].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
       return '';
     }
     if (opener) { fence = opener[1]; indented = blankBefore = false; return ''; }
@@ -32,13 +32,15 @@ export const readable = source => {
     if (!listed && /^(?: {4}|\t)/.test(line) && (blankBefore || indented)) { indented = true; blankBefore = false; return ''; }
     if (line.trim()) indented = false;
     blankBefore = !line.trim();
-    return line.replace(/(`+)(.+?)\1/g, (span, ticks, body) => ticks + blank(body) + ticks);
+    return keepInlineCode ? line : line.replace(/(`+)(.+?)\1/g, (span, ticks, body) => ticks + blank(body) + ticks);
   }).join('\n');
 };
 // GitHub's heading slugs: lowercase, punctuation dropped, spaces hyphenated, collisions
 // counted up until the candidate is free, so Foo, Foo, Foo-1 becomes foo, foo-1, foo-1-1.
 const slug = heading => heading.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').trim().toLowerCase().replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '').replace(/\s/g, '-');
-export const anchorsOf = text => {
+export const anchorsOf = source => {
+  // Inline code contributes its text to a real heading; block examples do not.
+  const text = readable(source, true);
   const found = new Set(), counters = new Map();
   const headings = [
     ...text.matchAll(/^ {0,3}#{1,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm),
