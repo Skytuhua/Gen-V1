@@ -74,7 +74,10 @@ export class IntegrationManager {
  async context7Launch(scope:IntegrationScope):Promise<Context7LaunchDescriptor>{
   const {item,scoped}=await this.admitted('context7',scope,'mcp');
   if(!item.capabilities.mcp||item.runtime?.kind!=='node'||!item.runtime.package)throw new HarnessError('INTEGRATION_UNAVAILABLE','The installed Context7 destination is unavailable.');
-  return {executable:this.options.nodeExecutable??process.execPath,entry:payloadPath(this.root,item.runtime.entry),manifest:join(this.root,'third-party/integrations/manifest.json'),packageManifest:join(this.root,'node_modules',item.runtime.package,'package.json'),cwd:scoped.projectRoot!,args:[...item.runtime.args]};
+  // The approved launch binds an exact working-directory identity, so a task
+  // without a project root has no destination to bind.
+  if(!scoped.projectRoot)throw new HarnessError('INTEGRATION_UNAVAILABLE','Choose a task project before approving a Context7 action.');
+  return {executable:this.options.nodeExecutable??process.execPath,entry:payloadPath(this.root,item.runtime.entry),manifest:join(this.root,'third-party/integrations/manifest.json'),packageManifest:join(this.root,'node_modules',item.runtime.package,'package.json'),cwd:scoped.projectRoot,args:[...item.runtime.args]};
  }
  private environment(directory:string):Record<string,string>{const env:Record<string,string>={};for(const key of ['SystemRoot','WINDIR','COMSPEC','TEMP','TMP','PATH'])if(process.env[key])env[key]=process.env[key]!;return {...env,HOME:directory,USERPROFILE:directory,APPDATA:join(directory,'roaming'),LOCALAPPDATA:join(directory,'local'),XDG_CONFIG_HOME:join(directory,'config'),PYTHON_MANAGER_AUTOMATIC_INSTALL:'false',PYTHONDONTWRITEBYTECODE:'1',PYTHONIOENCODING:'utf-8',PYTHONHASHSEED:'0',GRAPHIFY_BACKEND:'none',GRAPHIFY_NO_AUTO_REFRESH:'1',PROMPTFOO_DISABLE_TELEMETRY:'1',PROMPTFOO_DISABLE_UPDATE:'1',PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:'true',PROMPTFOO_CONFIG_DIR:directory,IMPECCABLE_BIN:join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe')};}
  private pythonArgs(entry:string,args:string[]){return [...(this.options.pythonExecutable?[]:['-3.14']),'-I','-S','-B',join(this.root,'packages/integrations/python-entry.py'),entry,...args];}
@@ -164,6 +167,12 @@ export class IntegrationManager {
    await this.publishTree(stagedOut,root,'graphify-out',scope,'graphify');return {result};
   }finally{await rm(stage,{recursive:true,force:true});}
  }
+ private redactFailure<T>(session:Session,error:T):T{
+  // A child that fails can echo the values it was given; the model still sees
+  // the message, so it crosses the same boundary as a successful result.
+  const redactor=session.redactor;if(redactor?.tracked&&error instanceof Error)error.message=redactor.redact(error.message).text;
+  return error;
+ }
  private redactOutput<T>(session:Session,value:T):T{
   // Keep the values injected into this exact child until its results settle.
   // Match decoded string values, including ANSI-split or encoded known secrets.
@@ -180,10 +189,10 @@ export class IntegrationManager {
   const current=()=>{input.assertCurrent();if(input.signal.aborted||selected?.released)throw new HarnessError('CANCELLED','The approved Context7 action was cancelled.');};
   try{
    current();const session=await this.session('context7',scope,{...input,assertCurrent:current,selected:value=>{selected=value;if(input.signal.aborted)stop();}});
-   current();const tools=await session.client.listTools(undefined,{signal:input.signal,timeout:60000});current();
+   current();const tools=await session.client.listTools(undefined,{signal:input.signal,timeout:60000}).catch(error=>{throw this.redactFailure(session,error);});current();
    if(request.action==='list_tools')return this.redactOutput(session,{tools:tools.tools});
    if(!tools.tools.some(tool=>tool.name===request.tool))throw new HarnessError('INTEGRATION_TOOL_UNAVAILABLE','The approved Context7 tool is unavailable.');
-   const result=await session.client.callTool({name:request.tool!,arguments:request.args??{}},undefined,{signal:input.signal,timeout:60000});current();
+   const result=await session.client.callTool({name:request.tool!,arguments:request.args??{}},undefined,{signal:input.signal,timeout:60000}).catch(error=>{const redacted=this.redactFailure(session,error);if(redacted instanceof HarnessError)throw redacted;if(selected?.transport.started)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action did not confirm completion.');throw new HarnessError('INTEGRATION_UNAVAILABLE','The approved Context7 action could not start.');});current();
    return this.redactOutput(session,result);
   }catch(error){
    if(selected?.transport.started)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action did not confirm completion.');
@@ -194,7 +203,7 @@ export class IntegrationManager {
    if(selected)try{await this.closeSession(selected);}catch{throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 child did not confirm teardown.');}
   }
  }
- async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools();return this.redactOutput(session,result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true));};return id==='graphify'?this.graphRead(scope,list):list();}
+ async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools().catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true));};return id==='graphify'?this.graphRead(scope,list):list();}
  private async prepareEvaluation(args:Record<string,unknown>,scope:IntegrationScope,session:Session){
   const {scoped}=await this.admitted('promptfoo',scope,'evaluate');const root=scoped.projectRoot!;
   let config:Record<string,unknown>;if(args.config!==undefined)config=object(args.config);else{if(typeof args.configPath!=='string')throw Error('Evaluation requires an explicit configuration');const path=await scopedFile(root,args.configPath);if(!path.endsWith('.json'))throw Error('Native evaluations require a JSON configuration');const data=await withPathGuard([{path,leaf:true,readOnly:true}],new AbortController().signal,()=>readBoundFile(path,1024*1024));config=object(JSON.parse(data.toString()));}
@@ -213,7 +222,7 @@ export class IntegrationManager {
  async callTool(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){
   const input={...object(args)},tools=await this.listTools(id,scope),tool=tools.find(tool=>tool.name===name);if(!tool)throw Error('Integration tool is not admitted');const {scoped}=await this.admitted(id,scope,'tool'),session=await this.session(id,scope);
   let forwarded=input;if(id==='graphify')forwarded={...input,project_path:scoped.projectRoot};if(id==='spec-kit'&&name==='specify_run_command'&&input.command!=='version')throw Error('Spec Kit MCP commands are read-only version queries');if(id==='promptfoo'&&name==='run_evaluation')forwarded=await this.prepareEvaluation(input,scope,session);
-  const invoke=async()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');const result=await session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000});return this.redactOutput(session,result);};return id==='graphify'?this.graphRead(scope,invoke):invoke();
+  const invoke=async()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');const result=await session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000}).catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result);};return id==='graphify'?this.graphRead(scope,invoke):invoke();
  }
  async health(id:IntegrationId,scope:IntegrationScope){const {item,scoped}=await this.admitted(id,scope,'health');if(item.capabilities.mcp)return {tools:(await this.listTools(id,scope)).map(tool=>tool.name)};if(id==='impeccable'||id==='biome'){const executable=id==='impeccable'?join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe'):join(this.root,'node_modules/@biomejs/cli-win32-x64/biome.exe');const result=await this.runNative(id,executable,['--version'],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','diagnostics')),10000,scoped.scope??scope,scoped.projectRoot);return {version:result.stdout.trim()};}return {skills:item.capabilities.skills};}
  async command(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){

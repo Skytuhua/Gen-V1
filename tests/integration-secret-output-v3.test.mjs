@@ -34,7 +34,7 @@ async function fixture(leakDescription = false) {
     "  if (request.method === 'initialize') result = { protocolVersion: request.params.protocolVersion, capabilities: { tools: {} }, serverInfo: { name: 'owned-secret-fixture', version: '1.0.0' } };",
     "  else if (request.method === 'ping') result = {};",
     "  else if (request.method === 'tools/list') result = { tools: [{ name: 'fixture_documentation', description: leakDescription ? 'Documentation ' + token : 'Public documentation tool', inputSchema: { type: 'object', properties: { encoding: { type: 'string' } } } }] };",
-    "  else if (request.method === 'tools/call') { const value = encode(request.params.arguments.encoding); result = { content: [{ type: 'text', text: 'Public prefix\\n' + value + '\\nPublic suffix' }], structuredContent: { nested: [{ value }], public: 'metadata' }, isError: false }; }",
+    "  else if (request.method === 'tools/call') { const encoding = request.params.arguments.encoding; if (encoding === 'failure') { process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, error: { code: -32000, message: 'Owned fixture failed while holding ' + token } }) + '\\n'); return; } const value = encode(encoding); result = { content: [{ type: 'text', text: 'Public prefix\\n' + value + '\\nPublic suffix' }], structuredContent: { nested: [{ value }], public: 'metadata' }, isError: false }; }",
     "  else { process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, error: { code: -32601, message: 'Owned fixture method unavailable' } }) + '\\n'); return; }",
     "  process.stdout.write(JSON.stringify({ jsonrpc: '2.0', id: request.id, result }) + '\\n');",
     "});",
@@ -98,6 +98,17 @@ describe('M03 private integration credentials at the model output boundary', () 
       name: 'fixture_documentation', description: 'Documentation [REDACTED]',
       inputSchema: { type: 'object', properties: { encoding: { type: 'string' } } },
     }]);
+  });
+
+  it('redacts a known key that an MCP failure echoes back to the model', async () => {
+    const owned = await fixture();
+    let failure;
+    try { await owned.call('failure'); } catch (error) { failure = error; }
+    if (!(failure instanceof Error)) throw Error('Expected the owned fixture to fail');
+    expect(failure.message).toContain('[REDACTED]');
+    expect(failure.message).not.toContain(syntheticToken);
+    expect(JSON.stringify(Object.getOwnPropertyNames(failure).map(key => [key, failure[key]])))
+      .not.toContain(syntheticToken);
   });
 
   it('preserves ordinary MCP results and public tool metadata', async () => {

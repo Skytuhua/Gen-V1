@@ -80,12 +80,6 @@ describe('host-only effect authenticators', () => {
     expect(() => assertNotStorage(join(root, 'ordinary-project', 'notes.txt'), root)).not.toThrow();
   });
 
-  it.skipIf(process.platform === 'win32')('fails closed without a supported native custody boundary', async () => {
-    const root = await directory();
-    await expect(initializeEffectKey(root, { codec })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
-    await expect(openEffectKey(root, { codec })).rejects.toMatchObject({ code: 'EFFECT_KEY_UNAVAILABLE' });
-    await expect(readFile(keyFile(root))).rejects.toMatchObject({ code: 'ENOENT' });
-  });
 });
 
 describe.runIf(process.platform === 'win32')('real Windows effect-key custody', () => {

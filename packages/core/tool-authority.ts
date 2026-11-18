@@ -31,6 +31,11 @@ export interface RegistryEntry extends ToolDefinitionV1 {
   approval: "operation" | "explicit" | "none";
 }
 
+const registryEntrySchema = toolDefinitionSchema.extend({
+  executorBinding: z.enum(["read", "store", "presentation", "domain-prepare", "domain", "process", "network"]),
+  approval: z.enum(["operation", "explicit", "none"]),
+});
+
 type Row = [name: string, risk: ToolRisk, replay: ReplayClass, roles: ActorRole[], binding: ExecutorBinding, approval: RegistryEntry["approval"]];
 
 const RUN: ActorRole[] = ["run"];
@@ -128,8 +133,11 @@ export class ToolAuthority {
   private readonly entries = new Map<string, RegistryEntry>();
   constructor(registry: RegistryEntry[]) {
     for (const entry of registry) {
-      if (this.entries.has(entry.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + entry.id);
-      this.entries.set(entry.id, entry);
+      const definition = registryEntrySchema.parse(entry);
+      if (!INTERNAL_BINDINGS.has(definition.executorBinding) && definition.approval === "none" && definition.risk !== "READ")
+        throw new HarnessError("REGISTRY_CONFLICT", "Unclassified external effect requires an approval path: " + definition.id);
+      if (this.entries.has(definition.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + definition.id);
+      this.entries.set(definition.id, definition);
     }
   }
   definition(name: string): RegistryEntry | undefined { return this.entries.get(name); }
