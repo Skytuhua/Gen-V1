@@ -51,6 +51,14 @@ export function hasCurrentPlatformProof(backend: ExecutionBackend): boolean {
     backend.proof.platform === backend.platform;
 }
 
+/** Every host launch boundary — execution, debugger, language server — needs
+ * the same admission: one installed, approved backend proven for this host. */
+export function assertProvenBackend(backends: readonly ExecutionBackend[], approvedBackendId: string | null | undefined): void {
+  const selection = selectBackend(approvedBackendId, backends);
+  if (selection.status !== 'SELECTED' || !selection.backend || !hasCurrentPlatformProof(selection.backend))
+    throw new HarnessError('UNSUPPORTED', 'A host launch requires an installed, approved backend with a PASS platform proof for this host platform.');
+}
+
 export type BackendSelection =
   | { status: 'SELECTED'; backend: ExecutionBackend }
   | { status: 'BLOCKED_BACKEND_SELECTION'; reason: string }

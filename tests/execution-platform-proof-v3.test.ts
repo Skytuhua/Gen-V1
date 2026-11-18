@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { WORKSPACE_EXECUTE_NO_NETWORK, type ExecutionProfileV1 } from '../packages/contracts/execution-profile.ts';
 import { DebugRegistry, type DebugAdapter } from '../packages/core/debug-session.ts';
 import {
-  digestFileSha256, evaluateExecution, type ExecutionBackend,
+  assertProvenBackend, digestFileSha256, evaluateExecution, type ExecutionBackend,
 } from '../packages/core/execution-policy.ts';
 import { createProjectTrust } from '../packages/core/project-trust.ts';
 
@@ -101,5 +101,14 @@ describe('M03 platform proof binding at execution boundaries', () => {
     });
     expect(session.state).toBe('PAUSED');
     expect(session.processIdentity).toBe('fixture-debug-process');
+  });
+});
+
+describe('M03 language-server launch proof binding', () => {
+  it('refuses a real language-server launch under a proof from another platform', () => {
+    expect(() => assertProvenBackend([backend(process.platform, foreignPlatform)], 'fixture-backend'))
+      .toThrowError(expect.objectContaining({ code: 'UNSUPPORTED' }));
+    expect(() => assertProvenBackend([backend(process.platform, process.platform)], 'fixture-backend'))
+      .not.toThrow();
   });
 });
