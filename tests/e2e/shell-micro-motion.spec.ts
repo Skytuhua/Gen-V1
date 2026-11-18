@@ -19,8 +19,12 @@ test('desktop navigation becomes inert immediately on collapse and restores on r
 });
 test('a published plan flags the collapsed overview once without replaying on snapshot or theme updates',async({page})=>{
  const snapshot=fixture(),host=await serveTaskFixture(page,snapshot);await page.goto('/');
+ // The loading shell also renders an overview. Wait for the owning conversation
+ // before attaching an observer to an element that startup will replace.
+ await expect(page.locator('.split-workspace[data-workspace-id="workspace"] [data-split-view="thread:task-thread"]')).toBeVisible();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  const overview=page.getByRole('region',{name:'Project overview window',exact:true});await expect(overview).toHaveAttribute('data-collapsed','true');
- await overview.evaluate(node=>{let changes=0;new MutationObserver(()=>{changes++;}).observe(node,{attributes:true,attributeFilter:['data-collapsed']});Object.assign(window,{overviewCollapses:()=>changes});});
+ await overview.evaluate(node=>{let changes=0;new MutationObserver(records=>{changes+=records.length;}).observe(node,{attributes:true,attributeFilter:['data-collapsed']});Object.assign(window,{overviewCollapses:()=>node.isConnected?changes:-1});});
  snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-01T00:00:00Z',value:{version:1,title:'Repair checkout failures',steps:[{id:'find',title:'Find the failing boundary',status:'working',requirements:[],agentIds:[]}],agents:[]}});await host.publish();
  await expect(overview.getByText('Update available',{exact:true})).toBeVisible();await expect(overview).toHaveAttribute('data-collapsed','true');
  await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');await expect(overview.getByRole('region',{name:'Plan summary',exact:true})).toBeVisible();

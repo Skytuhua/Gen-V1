@@ -20,29 +20,29 @@ The simulated checks and merge do not touch GitHub.
 2. Search the log for `typecheck` and select the failed event.
 3. Expand **Event details** to read the sample compiler error.
 
-## Study plan
+## Migration checklist
 
-[Video](launch-study-plan.mp4) · [GIF](launch-study-plan.gif)
+[Video](launch-migration-checklist.mp4) · [GIF](launch-migration-checklist.gif)
 
-1. Ask for a study checklist that fits 30 minutes a night.
-2. Gen displays a four-day checklist with a time estimate for each session.
-3. Check off the first two sessions in the table itself.
+1. Ask Gen to break down the session-store migration.
+2. The steps land as an interactive checklist in the thread.
+3. Check off completed steps in the table itself.
 
-## Laptop comparison
+## Runtime comparison
 
-[Video](launch-laptop-comparison.mp4) · [GIF](launch-laptop-comparison.gif)
+[Video](launch-runtime-comparison.mp4) · [GIF](launch-runtime-comparison.gif)
 
-1. Ask to compare three sample laptops by price, weight, and battery life.
-2. Sort by price and then by weight; the order changes each time.
-3. Select the lightest option to keep on the shortlist. Names and figures are fictional.
+1. Ask Gen to compare candidate base images side by side.
+2. Sort by image size and then by open CVEs; the order changes each time.
+3. Select the distroless candidate to keep on the shortlist. Names and figures are fictional.
 
-## Weekend itinerary
+## Staged rollout plan
 
-[Video](launch-weekend-trip.mp4) · [GIF](launch-weekend-trip.gif)
+[Video](launch-rollout-plan.mp4) · [GIF](launch-rollout-plan.gif)
 
-1. Ask for a car-free Saturday itinerary with a backup for rain.
-2. Open the rain backup to read the museum suggestion.
-3. Ask to move it to the morning; the next reply proposes a revised order in the same conversation.
+1. Ask for a phased rollout of a cache migration, including the rollback.
+2. Expand the rollback phase to read its checks.
+3. Ask to gate phase 2 on the rollback checks; the next reply proposes the revised gate in the same conversation.
 
 ## Under the hood
 
@@ -70,7 +70,9 @@ This compares documented workflows, not every capability, edition, or integratio
 ## Developer demos
 
 - [Pull request review](launch-pull-request.mp4) · [GIF](launch-pull-request.gif) · [Still](launch-pull-request.webp). Conflict resolution, checks, and the merge outcome are scripted; nothing is sent to GitHub.
-- [Release checklist](launch-interactive-table.mp4) · [GIF](launch-interactive-table.gif) · [Still](launch-interactive-table.webp). Sort and select sample release tasks.
+- [Migration checklist](launch-migration-checklist.mp4) · [GIF](launch-migration-checklist.gif). Check off migration steps in the generated table.
+- [Runtime comparison](launch-runtime-comparison.mp4) · [GIF](launch-runtime-comparison.gif). Sort and select sample base images.
+- [Staged rollout](launch-rollout-plan.mp4) · [GIF](launch-rollout-plan.gif). Expand the rollback phase and refine the plan.
 - [Plan GIF](plan-workflow.gif) · [Document GIF](document-workflow.gif) · [Earlier capture notes](readme-refresh.md).
 
 ## Recording notes
@@ -84,4 +86,4 @@ pnpm exec playwright install chromium
 node --import tsx scripts/record-readme-launch.ts .harness-readme-launch
 ```
 
-Use `GEN_README_FLOWS=everyday` on shells with inline environment assignments to record only the everyday workflows. Set it to `developer` to record only the PR and CI workflows. The script binds a loopback-only fixture host, blocks nonlocal browser requests, and checks the visible end states.
+Use `GEN_README_FLOWS=scenarios` on shells with inline environment assignments to record only the scenario workflows. Set it to `developer` to record only the PR and CI workflows. The script binds a loopback-only fixture host, blocks nonlocal browser requests, and checks the visible end states.

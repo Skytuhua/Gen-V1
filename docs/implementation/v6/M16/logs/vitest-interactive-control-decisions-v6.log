@@ -1,0 +1,14 @@
+argv: ["node","node_modules/vitest/vitest.mjs","run","tests/interactive-control-decisions-v6.test.ts"]
+cwd: C:/Users/Administrator/repos/Gen-V1-m16-v6
+exitCode: 0
+termination: NONE
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m16-v6
+
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  08:59:14
+   Duration  10.49s (transform 9.11s, setup 0ms, import 9.89s, tests 232ms, environment 0ms)
+
