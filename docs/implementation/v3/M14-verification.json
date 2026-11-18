@@ -1,8 +1,8 @@
 {
   "schemaVersion": 3,
   "bundleId": "M14",
-  "baseSha": "689b61f4e461d037fd51d93bd27e36692dde5acf",
-  "sourceLockDigest": "2e3ec1fa38ef0497e2a388fdf1a36d79746814b25a6f5a2b0515300ff885906f",
+  "baseSha": "14c0b70b7e653cd2c8836e07235eeebd73596589",
+  "sourceLockDigest": "d10f9e0b62163801b660dab80e9898307d722106907a1c21ced6e35ef60b16bc",
   "platform": "linux-arm64",
   "nodeVersion": "v24.11.1",
   "packageManagerVersion": "10.30.3",
@@ -1151,13 +1151,14 @@
     "HOLD_NATIVE_FORK: no RuntimeAdapter exposes a tested native fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION stays FORK_UNSUPPORTED until a named adapter API plus platform proof exists.",
     "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON is admitted; ZIP/gzip/binary formats reject as UNSUPPORTED_IMPORT_FORMAT pending a pinned parser/license/dependency manifest.",
     "HOLD_IMMUTABLE_SOURCE: projected UI messages are not a native transcript; Inspect uses a host-copied fixed cut, never receipt IDs as message history.",
-    "Full vitest baseline: 279 failures on the merged tree, all in pre-existing environmental classes (linux-path-guard CAP_SYS_ADMIN, missing node-pty build, port conflicts, contention timeouts); no M14-caused failure after public-source manifest enrollment.",
-    "Browser gate not run on this host: node-pty native module absent, dev-server port conflict, EACCES on foreign /tmp artifacts.",
+    "Full vitest baseline: aarch64 3845 pass / 298 fail / 58 skip (45/382 files, post node-pty+win32-SDK env fixes, cleared 21 files); win-x64 Server 2025 run 4086 pass / 67 fail / 48 skip — win receipts at cut 30b5d649, aarch64 at earlier cut. Failures remain environmental (x86_64 custody broker on Linux, win32 packaged natives, bundled python, guard-acquire latency, integration-mcp gaps); no M14-caused failure.",
+    "Browser gate: aarch64 run executes real specs (28 pass) but Chrome/Edge aarch64 builds absent; win-x64 run 41/76 suites pass, 35 suite failures dominated by shell/files-reading/generated-selects clusters and Unix-only timeout convention — no M14 surface implicated.",
     "PLATFORM: Windows/installed-desktop evidence NOT_RUN on Linux; no platform claim.",
     "UI acceptance is source-bound (typecheck, lint, build, unit dispatch) — no live browser proof of the SessionBranchMenu exists on this host.",
     "Both sessions.branchV1 and sessions.inertImportV1 remain default-off; production flags and reviewerApproval stay false.",
     "No live evaluation ran; no model endpoint, payment, credential or deployment was authorized.",
-    "LOCAL_ONLY: no push or remote merge performed or authorized."
+    "Branch pushed to agent/m14-v3 (PR #343 open draft, linked); no merge performed or authorized — merge decision belongs to the manager.",
+    "UNVERIFIED: PR body claims 63/63 custody-manifest green under the real WSL2 broker — in-tree receipts (cut a99f6d07=30b5d649, pre-broker-extension) show 4/4 probes PASS but 27/42 vitest files; a 63/63 claim needs exact command+SHA+dedicated-broker receipt before it can count as PASS."
   ],
   "reviewerApproval": false
 }

@@ -51,7 +51,7 @@
       "testIds": [
         "tests/session-branch-v3.test.ts"
       ],
-      "reason": "historicalCursorV1Schema + HMAC-signed cursor in SessionBranchReadModels bind owner/cut/schema; M14_ADAPTER_CAPABILITIES reports per-adapter UNPROVEN fork status independent of the timeline."
+      "reason": "historicalCursorV1Schema + HMAC-signed cursor in SessionBranchReadModels bind owner/cut/schema; M14_ADAPTER_CAPABILITIES reports per-adapter UNSUPPORTED fork status independent of the timeline."
     },
     {
       "id": "M14-S01",
@@ -63,7 +63,7 @@
       "testIds": [
         "tests/session-branch-v3.test.ts"
       ],
-      "reason": "M14_ADAPTER_CAPABILITIES enumerates hermes/pi/official-claude/official-gemini/official-cursor: receiptHistory=true (source-inspected RuntimeAdapter.history), fixedCutInspect=UNSUPPORTED, nativeFork=UNPROVEN. No adapter exposes a tested fork API in this tree."
+      "reason": "M14_ADAPTER_CAPABILITIES enumerates hermes/pi/official-claude/official-gemini/official-cursor: receiptHistory=true (source-inspected RuntimeAdapter.history), fixedCutInspect=UNSUPPORTED, nativeFork=UNSUPPORTED — tested absence of a callable fork API in this tree; a fail-closed refusal, independent of whether a real native fork or fixed-cut native history could ever be proven."
     },
     {
       "id": "M14-S02",
@@ -207,7 +207,7 @@
       "testIds": [
         "tests/session-branch-v3.test.ts"
       ],
-      "reason": "SessionBranchMenu renders three distinct actions; fork is hidden/disabled while capability is UNPROVEN with an explicit unsupported note; each action states files are unchanged."
+      "reason": "SessionBranchMenu renders three distinct actions; fork is hidden/disabled while capability is UNSUPPORTED with an explicit unsupported note; each action states files are unchanged."
     },
     {
       "id": "M14-U02",
@@ -418,7 +418,7 @@
         "tests/history-import-decisions-v6.test.ts",
         "tests/session-branch-v3.test.ts"
       ],
-      "reason": "adapterForkCapability() is UNPROVEN with receipt-history-only adapters; FORK_CONVERSATION refuses while START_NEW_WITH_QUOTE creates a distinct labeled thread."
+      "reason": "adapterForkCapability() is UNSUPPORTED with receipt-history-only adapters (tested absence of a callable fork API — fail-closed, not unproven); FORK_CONVERSATION refuses while START_NEW_WITH_QUOTE creates a distinct labeled thread."
     },
     {
       "id": "HOLD_NATIVE_FORK",
@@ -430,7 +430,7 @@
       "testIds": [
         "tests/session-branch-v3.test.ts"
       ],
-      "reason": "HOLD_NATIVE_FORK: source inspection of the five RuntimeAdapter implementations shows no fork/branch/forkSession API; RuntimeAdapter.history returns receipt IDs. Fork stays UNSUPPORTED."
+      "reason": "HOLD_NATIVE_FORK: testing the five RuntimeAdapter implementations found no callable fork API (hermes sessions are owner-bound, pi exposes start/followUp only, official-* are scripted transports); RuntimeAdapter.history returns receipt IDs. Fork stays UNSUPPORTED — a fail-closed refusal, independent of whether a real native fork or fixed-cut native history could ever be proven."
     },
     {
       "id": "HOLD_EXTERNAL_FORMAT",

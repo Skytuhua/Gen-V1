@@ -58,7 +58,8 @@ response, not inside this artifact.
   transaction).
 - `packages/core/session-branches.ts` — adapter capability matrix
   (hermes, pi, official-claude, official-gemini, official-cursor: receipt
-  history yes, fixed-cut inspect `UNSUPPORTED`, native fork `UNPROVEN`),
+  history yes, fixed-cut inspect `UNSUPPORTED`, native fork `UNSUPPORTED`
+  — tested absence of a callable fork API, a fail-closed refusal),
   immutable owner-fenced captures with signed cursors and coverage-gap
   labels, `START_NEW_WITH_QUOTE` fresh-task creation with lineage,
   `FORK_CONVERSATION` refusing `FORK_UNSUPPORTED` with no partial state.
@@ -187,9 +188,11 @@ on `agent/m14-v3` at `30b5d649`.
 
 ## Holds
 
-- `HOLD_NATIVE_FORK` — no `RuntimeAdapter` implementation exposes a
-  tested fork API; `RuntimeAdapter.history` returns receipt IDs only.
-  `FORK_CONVERSATION` stays `FORK_UNSUPPORTED`.
+- `HOLD_NATIVE_FORK` — testing the five `RuntimeAdapter` implementations
+  found no callable fork API (recorded `UNSUPPORTED`, fail-closed —
+  independent of whether a real native fork or fixed-cut native history
+  could ever be proven); `RuntimeAdapter.history` returns receipt IDs
+  only. `FORK_CONVERSATION` stays `FORK_UNSUPPORTED`.
 - `HOLD_EXTERNAL_FORMAT` — only strict ArchiveV1 JSON is admitted;
   ZIP/gzip/binary payloads reject `UNSUPPORTED_IMPORT_FORMAT` pending a
   pinned parser/license/dependency manifest.
@@ -212,5 +215,25 @@ on `agent/m14-v3` at `30b5d649`.
 
 Both flags remain default-off; disabling creation/import preserves
 already-committed captures, lineage and import receipts (read paths stay
-available under owner fencing). LOCAL_ONLY — no push or remote merge was
-performed or authorized.
+available under owner fencing).
+
+## Status corrections (cut `14c0b70b`, 2026-11-18)
+
+- Branch pushed to `agent/m14-v3`; PR #343 open draft. Previous
+  "LOCAL_ONLY" note was pre-push — superseded.
+- Merged `origin/main` `89142de9`; single conflict
+  `scripts/public-source-files.json` resolved as sorted union.
+- `nativeFork` is now `UNSUPPORTED` (tested absence of a callable fork
+  API — fail-closed), not `UNPROVEN`; ledger reasons aligned.
+- PR-body claim "63-file custody manifest 63/63 green under the real
+  WSL2 broker": **UNVERIFIED from this tree.** In-tree receipts
+  (`win-x1-wsl-*.log`, cut `a99f6d07` = `30b5d649`, pre-broker-extension)
+  record 4/4 broker probes PASS but only 27/42 custody-adjacent vitest
+  files green with 16 grant-asymmetry failures. A 63/63 result would
+  need a receipt naming exact command, tested SHA and the dedicated
+  broker environment; none exists in-tree. Recorded as UNVERIFIED, not
+  PASS — earlier receipts remain bound to their own source cut.
+- Declared CI `ci.yml` dispatched on `agent/m14-v3` (run `44409599408`,
+  windows-latest) — running at handoff; PR-triggered run `44412564541`
+  queued on `14c0b70b` (jobs gated non-draft, preserved — do not push
+  over it).

@@ -4,25 +4,24 @@ Audience: the next agent running on a **Windows x64** host. Goal: clear the
 remaining environmental blockers recorded on Linux/aarch64, rerun the gates,
 and update the evidence + PR #343 truthfully.
 
-## Status update (2026-11-18, head `24304a57`)
+## Status update (2026-11-18, head `14c0b70b`)
 
-- Branch was resumed at `3c40a31e` (upstream fixes to shell fixtures +
-  `SessionBranchMenu` + custody broker) and merged with `origin/main`
-  `89142de9`; only `scripts/public-source-files.json` conflicted — resolved
-  as sorted union (4391 entries, all 18 M14 entries kept).
-- Source lock + evidence rebound to merge commit `689b61f4`
-  (`24304a57` head): `verify-evidence.mjs` passes.
-- Local gates on aarch64: typecheck, lint, build, targeted tests 45/45 PASS.
-- Linked Windows box `WIN-M0N0V07LGM1` was tried for W1–W4 acceptance via
-  `delegate_task` — the environment answered HTTP 524 on task spawn twice
-  (link heartbeat reachable, task dispatch timed out). **If you are on that
-  box, the verifier never ran — the gates below are still open.**
-- Fallback used instead: declared CI `.github/workflows/ci.yml` dispatched
-  on `agent/m14-v3` via `workflow_dispatch` — run
-  https://github.com/skytuhua-org/Gen-V1/actions/runs/44409599408
-  (windows-latest jobs: checks, 4-shard `pnpm test`, browser, hermes,
-  desktop). This covers W1–W3 on a real Windows runner; record its results
-  in `M14-verification.json` when it finishes.
+- Branch resumed at `3c40a31e`, merged `origin/main` `89142de9` (one
+  conflict: `scripts/public-source-files.json`, sorted union), then
+  upstream `14c0b70b` recorded `nativeFork: UNSUPPORTED` (tested absence
+  of a callable fork API — fail-closed) across all adapters.
+- Source lock + evidence rebound to `14c0b70b`; `verify-evidence.mjs`
+  passes; focused M14 + evidence-gates + public-source = 51/51 PASS.
+- **Windows W1–W4 was run on a real Windows Server 2025 x64 host** (see
+  `handoff.md` "Windows x64 continuation"): typecheck/lint/build PASS,
+  contract suites 147/147, packaged natives 27/27, full suite 4086/67,
+  browser 41/76 suites, desktop package produced — receipts in
+  `docs/implementation/v3/m14/logs/win-*.log`.
+- PR-body "63/63 custody manifest on WSL2" claim: **UNVERIFIED** —
+  in-tree WSL2 receipts are 27/42 at a pre-broker-extension cut; needs
+  exact command + SHA + dedicated-broker receipt before PASS.
+- PR-triggered CI run `44412564541` queued on `14c0b70b`; dispatched
+  run `44409599408` in progress — do not push a head that cancels them.
 
 ## Pointers
 
