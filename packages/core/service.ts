@@ -13,7 +13,7 @@ import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
-import { Store, digest } from "../storage/store.ts";
+import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
@@ -63,7 +63,7 @@ import { createCompactionCandidateRegistry, applyCompactionCandidate } from './c
 import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
 import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
 import type { NativeCompactionAdmissionV1, NativeCompactionAckV1, NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
-import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1, type CompactionProjectionV1 } from '../contracts/request-context.ts';
+import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
@@ -137,8 +137,6 @@ export class Service {
   private learningSupported:boolean;
   private lastActivity=Date.now();
   private readonly compactionRegistry = createCompactionCandidateRegistry();
-  private readonly compactionCandidateIds = new Map<string, string[]>();
-  private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
   private readonly compactionInflight = new Map<string, Promise<void>>();
   private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
   private curatorTimer:ReturnType<typeof setInterval>;
@@ -547,7 +545,6 @@ export class Service {
     const binding={...this.compactionBindingOf(receipt),generation,sourceCut:digest([receipt.sourceCut.revisionDigest,prepared.sourceSha256,hostCut.revisionDigest])};
     const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:prepared.retainedRefs,toolPairs:prepared.toolPairs,sourceInterval:prepared.sourceInterval});
     if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
-    this.trackCompactionCandidate(thread.id,metadata.candidateId);
     const ctx=Object.freeze({threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch+1,accountId:binding.accountId});
     const envelope=nativeCompactionEnvelope(prepared,metadata.candidateId,{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch,
       workspaceId:binding.workspaceId,modelId:binding.modelId,accountId:binding.accountId,generation,
@@ -556,6 +553,10 @@ export class Service {
       beforeAdmission();assertHostCut();
       this.store.put('runtimeIntent',ctx.runId,thread.id,{kind:'compaction',previousStatus:thread.status});
       this.store.put('thread',thread.id,thread.id,{...thread,runId:ctx.runId,epoch:ctx.epoch,status:'working',error:null,updatedAt:now()});
+      const entry=this.compactionRegistry.get(metadata.candidateId)!;
+      const attempt:CompactionAttemptRecord={id:metadata.candidateId,threadId:thread.id,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),...entry,verdict:null};
+      this.store.put('compactionAttempt',attempt.id,thread.id,attempt);
+      this.writeCompactionProjection(thread.id);
       return ctx;
     });
     const assertCurrent=()=>{
@@ -640,33 +641,22 @@ export class Service {
         return {generation:appliedGeneration,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
       }catch(cause){nativeError=cause;throw cause;}
     }});
-    this.compactionVerdicts.set(metadata.candidateId,verdict.status);
     if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
     else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
     else this.compactionRegistry.markDiscarded(metadata.candidateId);
     if(verdict.status!=='APPLIED')this.runtimeFailure(ctx,nativeError??new Error('Native compaction was not applied.'));
     if(!this.closed)this.store.internal('context.compaction.observed',thread.id,()=>{
+      const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+      if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,candidate:this.compactionRegistry.get(attempt.id)!.candidate,verdict:verdict.status});
       this.writeCompactionProjection(thread.id);
       if(this.store.get<Thread>('thread',thread.id)?.runId===null){const usage=this.store.get<{value:RuntimeUsage}>('usage',thread.id)!;this.store.put('usage',thread.id,thread.id,{...usage,value:{...usage.value,activity:'idle'}});}
     });
     if(verdict.status!=='APPLIED')throw new HarnessError('COMPACTION_FAILED',nativeError instanceof Error?nativeError.message:'The verified native compaction apply failed.');
     return accepted;
   }
-  private trackCompactionCandidate(threadId:string,candidateId:string):void {
-    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==candidateId),candidateId].slice(-8);
-    this.compactionCandidateIds.set(threadId,ids);
-  }
   private writeCompactionProjection(threadId:string):void {
-    const ids=this.compactionCandidateIds.get(threadId)??[];
-    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);if(!entry)return null;
-      const usage=this.store.get<{beforeBytes:number;afterBytes:number|null}>('compactionUsage',id);return {
-      metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
-      retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
-      estimatedByteReduction:null,measuredBeforeBytes:usage?usage.beforeBytes:null,measuredAfterBytes:usage?usage.afterBytes:null,
-    };}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
     const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
-    const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
-    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:this.store.compactionProjection(threadId)}});
   }
   private requestAuthorityBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):Omit<RequestContextBasis,'sourceCutDigest'|'admissionDigest'> {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');

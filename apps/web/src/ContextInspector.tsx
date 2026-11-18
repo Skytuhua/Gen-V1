@@ -232,7 +232,7 @@ function RequestEvidence({ request, sources, compaction }: { request: ContextReq
         </ul>}
         {Boolean(compaction?.candidates.length) && <>
           <p className="context-categories-note">Omitted native categories: unavailable.</p>
-          <p className="context-categories-note">Recent candidate view: {compaction?.accounting.attempts} {compaction?.accounting.attempts === 1 ? 'attempt' : 'attempts'} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed.</p>
+          <p className="context-categories-note">Recorded admitted candidates: {compaction?.accounting.attempts} · {compaction?.accounting.discarded} discarded · {compaction?.accounting.failed} failed. Historical completeness and provider-call counts are unavailable.</p>
           <p className="context-categories-note">Auxiliary byte accounting: {contextTokenCount(compaction?.accounting.costBytes) && compaction.accounting.costBytes > 0 ? contextNumber(compaction.accounting.costBytes) + ' bytes' : 'unavailable'}. Auxiliary model cost: unavailable.</p>
         </>}
       </>}
@@ -246,6 +246,7 @@ function CompactionCandidateDetails({entry}: {entry: CompactionProjectionV1['can
   return <li>
     candidate {entry.metadata.candidateId.slice(0, 8)} · {entry.status.toLowerCase()}{entry.verdict ? ` · ${entry.verdict.toLowerCase().replaceAll('_', ' ')}` : ''}
     {' · '}{entry.retainedConstraints.length} retained constraints · {entry.toolPairs} tool {entry.toolPairs === 1 ? 'pair' : 'pairs'}
+    {entry.verdict === null && (entry.status === 'READY' || entry.status === 'PREPARING') && <p className="context-categories-note">Native outcome unconfirmed. No applied receipt was recorded.</p>}
     <p className="context-categories-note">Estimated reduction: {contextTokenCount(entry.estimatedByteReduction) ? contextNumber(entry.estimatedByteReduction) + ' bytes (estimate)' : 'unavailable'}.</p>
     <p className="context-categories-note">Measured source: {measured(entry.measuredBeforeBytes)}; measured result: {measured(entry.measuredAfterBytes)}.</p>
     {Boolean(entry.retainedConstraints.length) && <details>

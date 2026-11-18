@@ -215,7 +215,8 @@ const commitRequest = (envelope: NativeCompactionEnvelopeV1) => ({version: 1 as 
   planDigest: envelope.planDigest, sourceSha256: envelope.plan.sourceSha256, owner: structuredClone(envelope.plan.owner)});
 
 async function ownedCompactionFixture(requestContextEnabled = false) {
-  const directory = mkdtempSync(join(tmpdir(), 'm04-owned-compaction-')), store = new Store(directory);
+  const directory = mkdtempSync(join(tmpdir(), 'm04-owned-compaction-'));
+  let store = new Store(directory);
   const threadId = 'owned-compaction';
   let callbacks!: RuntimeCallbacks;
   const confirm = (ctx: RunContext, envelope: NativeCompactionEnvelopeV1) => {
@@ -235,7 +236,7 @@ async function ownedCompactionFixture(requestContextEnabled = false) {
     compact: vi.fn(async () => {throw new Error('Loss-aware compaction reached the legacy path.');}),
     compactProtected: vi.fn(protectedCompact), nativeHistoryDigest: vi.fn(async () => nativeSnapshot()),
   };
-  const service = new Service(store, runtime, {requestContextEnabled});
+  let service = new Service(store, runtime, {requestContextEnabled});
   store.internal('fixture', threadId, () => {
     store.put('thread', threadId, threadId, {id: threadId, title: 'Fixture', runId: null, epoch: 4, status: 'ready', modelId: 'test/model', accountId: null,
       sessionPath: '/owned-session', projectName: null, createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z'});
@@ -249,7 +250,8 @@ async function ownedCompactionFixture(requestContextEnabled = false) {
     await service.dispose(); store.close(); rmSync(directory, {recursive: true, force: true, maxRetries: 5});
   });
   const command = {id: 'owned-compact', type: 'run.compact', threadId, payload: {}};
-  return {service, store, runtime, threadId, command, callbacks: () => callbacks, confirm};
+  return {get service(){return service;}, get store(){return store;}, runtime, threadId, command, callbacks: () => callbacks, confirm,
+    async restart(){await service.dispose();store.close();store=new Store(directory);service=new Service(store,runtime,{requestContextEnabled});}};
 }
 type CompactionFixture = Awaited<ReturnType<typeof ownedCompactionFixture>>;
 async function captureMessage(f: CompactionFixture, id: string): Promise<SourceRefV1> {
@@ -267,6 +269,106 @@ function deliveredSource(f: CompactionFixture, id: string, ref: SourceRefV1) {
     return {runId: 'source-' + id, inputIds: [id]};
   });
 }
+
+it('counts every recorded admitted compaction candidate beyond eight and across host restart', async () => {
+  const f = await ownedCompactionFixture();
+  let attempts = 0;
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    if (++attempts <= 4) throw new Error('Native candidate failed before application.');
+    return f.confirm(ctx, envelope);
+  });
+  for (let index = 0; index < 12; index++) {
+    const work = f.service.command({...f.command, id: 'recorded-' + index});
+    if (index < 4) await expect(work).rejects.toMatchObject({code: 'COMPACTION_FAILED'});
+    else await work;
+  }
+  const projection = () => f.store.snapshot().usage[f.threadId].compaction!;
+  expect(projection().accounting).toEqual({attempts: 12, failed: 4, discarded: 0, costBytes: 0});
+  expect(projection().candidates).toHaveLength(8);
+  expect(projection().candidates.every(candidate => candidate.status === 'APPLIED')).toBe(true);
+  const before = projection();
+  await f.restart();
+  expect(projection()).toEqual(before);
+  await f.service.command({...f.command, id: 'recorded-11'});
+  expect(attempts).toBe(12);
+  expect(projection()).toEqual(before);
+  await f.service.command({...f.command, id: 'recorded-after-restart'});
+  expect(projection().accounting).toEqual({attempts: 13, failed: 4, discarded: 0, costBytes: 0});
+});
+
+it.each(['projectId', 'workspaceId', 'modelId', 'accountId', 'sessionPath'] as const)('keeps recorded compaction facts private after a same-thread %s change', async field => {
+  const f = await ownedCompactionFixture();
+  await f.service.command(f.command);
+  const before = f.store.snapshot().usage[f.threadId].compaction;
+  const original = f.store.get<import('../packages/contracts').Thread>('thread', f.threadId)!;
+  f.store.internal('fixture.owner.changed', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, {...original, [field]: 'another-owner'}));
+  expect(f.store.snapshot().usage[f.threadId].compaction).toBeUndefined();
+  expect(f.store.get<{value: import('../packages/contracts').RuntimeUsage}>('usage', f.threadId)?.value.compaction).toBeUndefined();
+  expect(f.store.all('compactionUsage', f.threadId)).toHaveLength(1);
+  f.store.internal('fixture.owner.restored', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, original));
+  expect(f.store.snapshot().usage[f.threadId].compaction).toEqual(before);
+  expect(f.runtime.compactProtected).toHaveBeenCalledOnce();
+});
+
+it('counts recorded candidates for the admitted account separately from the selected default and another saved account', async () => {
+  const f = await ownedCompactionFixture();
+  const create = async (id: string) => (await f.service.command({id, type: 'account.create', payload: {providerId: 'openai', label: id}})).result as {id: string};
+  const first = await create('recorded-first'), second = await create('recorded-second');
+  await f.service.command({id: 'recorded-default', type: 'account.select', payload: {providerId: 'openai', accountId: second.id}});
+  const selectOwner = (accountId: string) => f.store.internal('fixture.recorded-account', f.threadId, () => {
+    f.store.put('thread', f.threadId, f.threadId, {...f.service.thread(f.threadId), modelId: 'openai/model', accountId});
+    f.store.put('requestContextReceipt', 'receipt-' + f.threadId, f.threadId, {receipt: {...compactionReceipt(f.threadId).receipt, modelBinding: {modelId: 'openai/model', accountId}}});
+  });
+  let calls = 0;
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    if (++calls === 2) throw new Error('The second recorded candidate failed.');
+    return f.confirm(ctx, envelope);
+  });
+  selectOwner(first.id);
+  await f.service.command({...f.command, id: 'recorded-first-applied'});
+  await expect(f.service.command({...f.command, id: 'recorded-first-failed'})).rejects.toMatchObject({code: 'COMPACTION_FAILED'});
+  expect(f.store.snapshot().usage[f.threadId].compaction?.accounting).toEqual({attempts: 2, failed: 1, discarded: 0, costBytes: 0});
+  selectOwner(second.id);
+  expect(f.store.snapshot().usage[f.threadId].compaction).toBeUndefined();
+  await f.service.command({...f.command, id: 'recorded-second-applied'});
+  expect(f.store.snapshot().usage[f.threadId].compaction?.accounting).toEqual({attempts: 1, failed: 0, discarded: 0, costBytes: 0});
+  selectOwner(first.id);
+  expect(f.store.snapshot().usage[f.threadId].compaction?.accounting).toEqual({attempts: 2, failed: 1, discarded: 0, costBytes: 0});
+  expect(calls).toBe(3);
+  expect(f.store.snapshot().settings.selectedAccounts?.openai).toBe(second.id);
+});
+
+it.each(['before native receipt', 'after native receipt'] as const)('restores admitted candidate facts %s without replaying native work', async cut => {
+  const f = await ownedCompactionFixture(), directory = mkdtempSync(join(tmpdir(), 'm04-restored-candidate-'));
+  let copied = false;
+  const capture = () => {f.store.db.prepare('VACUUM INTO ?').run(join(directory, 'harness.sqlite'));copied = true;};
+  const unsubscribe = f.store.subscribe(event => {if (cut === 'after native receipt' && event.type === 'context.compaction.applied') capture();});
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    if (cut === 'before native receipt') {capture();throw new Error('The original process did not return a native receipt.');}
+    return f.confirm(ctx, envelope);
+  });
+  try {
+    const work = f.service.command(f.command);
+    if (cut === 'before native receipt') await expect(work).rejects.toMatchObject({code: 'COMPACTION_FAILED'});
+    else await work;
+    expect(copied).toBe(true);
+    const restoredStore = new Store(directory), restoredRuntime: RuntimeAdapter = {...f.runtime,
+      start: vi.fn(async () => {}), compactProtected: vi.fn(async () => {throw new Error('Recovery must not invoke native compaction.');}), configure: () => {}};
+    const restoredService = new Service(restoredStore, restoredRuntime);
+    try {
+      await restoredService.recover();
+      const projection = restoredStore.snapshot().usage[f.threadId].compaction!;
+      expect(projection.accounting).toEqual({attempts: 1, failed: 0, discarded: 0, costBytes: 0});
+      expect(projection.candidates).toEqual([expect.objectContaining(cut === 'after native receipt' ?
+        {status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192} :
+        {status: 'READY', verdict: null, measuredBeforeBytes: null, measuredAfterBytes: null})]);
+      expect(restoredService.thread(f.threadId)).toMatchObject(cut === 'before native receipt' ?
+        {runId: null, epoch: 6, status: 'interrupted'} : {runId: null, epoch: 5, status: 'ready'});
+      expect(restoredRuntime.start).not.toHaveBeenCalled();
+      expect(restoredRuntime.compactProtected).not.toHaveBeenCalled();
+    } finally {await restoredService.dispose();restoredStore.close();}
+  } finally {unsubscribe();rmSync(directory, {recursive: true, force: true, maxRetries: 5});}
+});
 
 it('applies only the protected source-cut CAS and records the exact native receipt', async () => {
   const f = await ownedCompactionFixture();
@@ -377,8 +479,11 @@ it.each(['prepared input', 'stop', 'model'] as const)('retains native applicatio
     else f.store.internal('owner.model-changed', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, {...f.service.thread(f.threadId), modelId: 'test/other'}));
     expect(f.runtime.start).not.toHaveBeenCalled();
     release(); expect(await compacted).toBe('APPLIED');
-    expect(f.store.get<{value: {compaction: {candidates: unknown[]}}}>('usage', f.threadId)?.value.compaction.candidates)
-      .toEqual([expect.objectContaining({status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192})]);
+    expect(f.store.all('compactionUsage', f.threadId)).toEqual([expect.objectContaining({beforeBytes: 20000, afterBytes: 8192,
+      nativeReceipt: expect.objectContaining({status: 'APPLIED'})})]);
+    const projection = f.store.snapshot().usage[f.threadId].compaction;
+    if (change === 'model') expect(projection).toBeUndefined();
+    else expect(projection?.candidates).toEqual([expect.objectContaining({status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192})]);
     if (change === 'prepared input') {
       await vi.waitFor(() => expect(f.runtime.start).toHaveBeenCalledOnce());
       expect(f.store.get('requestContextGeneration', f.threadId)).toEqual({generation: 3});

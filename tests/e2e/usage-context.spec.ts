@@ -249,7 +249,8 @@ test('compaction details expose retained references and separate byte measuremen
   await expect(candidates).toContainText('Measured source: 1.2K bytes; measured result: 600 bytes');
   await expect(context(page)).toContainText('Omitted native categories: unavailable');
   await expect(context(page)).toContainText('Auxiliary model cost: unavailable');
-  await expect(context(page)).toContainText('Recent candidate view: 1 attempt');
+  await expect(context(page)).toContainText('Recorded admitted candidates: 1');
+  await expect(context(page)).toContainText('Historical completeness and provider-call counts are unavailable');
   await expect(context(page)).not.toContainText('cost 0');
 });
 
@@ -261,9 +262,19 @@ test('compaction details keep absent estimates and measurements unavailable', as
   await expect(candidates).toContainText('failed');
   await expect(candidates).toContainText('Estimated reduction: unavailable');
   await expect(candidates).toContainText('Measured source: unavailable; measured result: unavailable');
-  await expect(context(page)).toContainText('Recent candidate view: 1 attempt · 0 discarded · 1 failed');
+  await expect(context(page)).toContainText('Recorded admitted candidates: 1 · 0 discarded · 1 failed');
   await expect(context(page)).toContainText('Auxiliary byte accounting: unavailable');
   await expect(context(page)).not.toContainText('0 bytes (estimate)');
+});
+
+test('compaction details keep a recovered candidate without a receipt unconfirmed', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-unconfirmed');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  await expect(context(page)).toContainText('Native outcome unconfirmed. No applied receipt was recorded.');
+  await expect(context(page)).toContainText('Measured source: unavailable; measured result: unavailable');
+  await expect(context(page)).not.toContainText('Context compacted');
+  await expect(context(page)).not.toContainText('Freed');
 });
 
 test('compaction details page long retained-reference lists without hiding their remaining count', async ({ page }) => {
