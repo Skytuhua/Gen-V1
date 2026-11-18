@@ -210,6 +210,15 @@ void dropBinding(HeldBinding& binding) {
   binding.closed = true;
 }
 
+// Held items are WinRT objects owned by the STA apartment — releasing them
+// during CRT static teardown (after the apartment dies) crashes the host
+// (0xC0000005). The registry is therefore drained on env teardown while the
+// STA thread is still alive, never from a static destructor.
+void dropAllOnSta(void*) {
+  for (auto& entry : bindings()) dropBinding(entry.second);
+  bindings().clear();
+}
+
 // ---- JS marshalling -------------------------------------------------------
 
 std::string utf8(const std::wstring& wide) {
@@ -750,6 +759,9 @@ napi_value init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "windowIdentity", ([&] { napi_value f; napi_create_function(env, "windowIdentity", NAPI_AUTO_LENGTH, windowIdentity, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "captureWindow", ([&] { napi_value f; napi_create_function(env, "captureWindow", NAPI_AUTO_LENGTH, captureWindow, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "dropBinding", ([&] { napi_value f; napi_create_function(env, "dropBinding", NAPI_AUTO_LENGTH, dropBindingOp, nullptr, &f); return f; })());
+  // Drain held bindings on env teardown — before WinRT/CRT teardown — so the
+  // process never releases a GraphicsCaptureItem into a dead apartment.
+  napi_add_env_cleanup_hook(env, [](void*) { try { onSta(dropAllOnSta, nullptr); } catch (...) {} }, nullptr);
   return exports;
 }
 
