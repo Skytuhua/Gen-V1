@@ -227,7 +227,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     if (actual !== contract.version)
       issues.push({ code: 'CONTRACT_VERSION_MISMATCH', message: `Contract ${contract.name} version ${contract.version} does not match ${source} blob ${actual ?? 'missing'} at base.` });
     for (const testId of contract.testIds)
-      if (!existsSync(join(rootDir, testId))) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test is absent: ${testId}` });
+      if (!statSync(join(rootDir, testId), { throwIfNoEntry: false })?.isFile()) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test file is absent: ${testId}` });
   }
   return issues;
 }
