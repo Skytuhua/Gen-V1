@@ -413,4 +413,34 @@ describe('complete requirement evidence',()=>{
   expect(result.label).toBe('VERIFIED');
   expect(result.requirements[0].missing).toEqual([]);
  });
+
+ it.each([
+  ['failed cleanup',{phase:'TEARDOWN' as const,observationKind:'cleanup' as const,outcome:'FAIL' as const,exitCode:null},'FAILED'],
+  ['cancelled execution',{outcome:'CANCELLED' as const,exitCode:null},'FAILED'],
+  ['blocked execution',{outcome:'BLOCKED' as const,exitCode:null},'BLOCKED'],
+  ['unsettled execution',{outcome:'UNKNOWN' as const,exitCode:null},'COMPLETED_UNVERIFIED'],
+ ])('a direct passing check reference cannot hide %s',(_reason,over,label)=>{
+  const result=assess(['build'],[observation('build'),observation('execution-status',over)]);
+  expect(result.label).toBe(label);
+ });
+
+ it('failures from a separate execution remain historical when a fresh check is bound',()=>{
+  const result=assess(['build'],[observation('build'),observation('prior-failure',{executionId:'exec-prior',outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it.each([
+  {threadId:'another-thread'}, {runId:'another-run'}, {epoch:2},
+  {projectId:'another-project'}, {workspaceId:'another-workspace'}, {accountBinding:'another-account'},
+ ])('an execution ID collision cannot import failure from owner %j',changedOwner=>{
+  const result=assess(['build'],[observation('build'),observation('foreign-failure',{owner:{...owner(),...changedOwner},outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it('the largest requirement still reports incomplete execution evidence within the contract bound',()=>{
+  const refs=Array.from({length:64},(_,index)=>`check-${index}`);
+  const result=assess(refs,[observation('check-0',{outcome:'UNKNOWN',exitCode:null})]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing).toHaveLength(64);
+ });
 });

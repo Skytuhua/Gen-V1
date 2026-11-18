@@ -45,6 +45,20 @@ export interface ExecutionBackend {
   launch(request: ApprovedLaunch): Promise<ExecutionHandle>;
 }
 
+/** A proof is valid only for the backend and host platform that it tested. */
+export function hasCurrentPlatformProof(backend: ExecutionBackend): boolean {
+  return backend.platform === process.platform && backend.proof?.status === 'PASS' &&
+    backend.proof.platform === backend.platform;
+}
+
+/** Every host launch boundary — execution, debugger, language server — needs
+ * the same admission: one installed, approved backend proven for this host. */
+export function assertProvenBackend(backends: readonly ExecutionBackend[], approvedBackendId: string | null | undefined): void {
+  const selection = selectBackend(approvedBackendId, backends);
+  if (selection.status !== 'SELECTED' || !selection.backend || !hasCurrentPlatformProof(selection.backend))
+    throw new HarnessError('UNSUPPORTED', 'A host launch requires an installed, approved backend with a PASS platform proof for this host platform.');
+}
+
 export type BackendSelection =
   | { status: 'SELECTED'; backend: ExecutionBackend }
   | { status: 'BLOCKED_BACKEND_SELECTION'; reason: string }
@@ -200,8 +214,8 @@ export async function evaluateExecution(input: EvaluateExecutionInput): Promise<
   if (backend.backendId !== profile.backendId) {
     return deny(['The operator-approved backend does not match the backend declared by the execution profile.']);
   }
-  if (!profile.platformProofRef || backend.proof?.status !== 'PASS' || backend.proof.platformProofRef !== profile.platformProofRef) {
-    return blocked('PLATFORM_PROOF_REQUIRED', ['Launch requires a PASS platform proof matching the profile platformProofRef.']);
+  if (!profile.platformProofRef || !hasCurrentPlatformProof(backend) || backend.proof?.platformProofRef !== profile.platformProofRef) {
+    return blocked('PLATFORM_PROOF_REQUIRED', ['Launch requires a PASS proof for this host and backend platform matching the profile platformProofRef.']);
   }
 
   const launch: ApprovedLaunch = {
