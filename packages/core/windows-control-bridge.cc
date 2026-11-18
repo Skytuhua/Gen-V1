@@ -420,7 +420,8 @@ Work* makeWork(napi_env env, napi_callback_info info, size_t& argc, napi_value* 
             PickResult result{};
             result.owner = work->hwnd;
             onSta(identityOnSta, &result);
-            if (!result.cancelled) { work->hasWindow = true; work->window = result.window; }
+            if (!result.error.empty()) work->error = result.error;
+            else if (!result.cancelled) { work->hasWindow = true; work->window = result.window; }
           } else {
             CaptureResult result{};
             result.hwnd = work->hwnd;
