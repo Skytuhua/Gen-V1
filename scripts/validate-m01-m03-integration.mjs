@@ -128,7 +128,18 @@ try {
 async function validate() {
   const { resolvePackageManager, runRecordedCommand, statusFromObservation, writeCommandEvidence } =
     await import(pathToFileURL(join(root, 'scripts/research-baseline.ts')).href);
-  const pm = resolvePackageManager(root);
+  // pnpm/action-setup installs the exact pinned version before this phase.
+  // Corepack can exist next to Node but cannot download its cache with network
+  // disabled; prefer the installed JavaScript entry rather than a .cmd shim.
+  const pm = process.env.PNPM_HOME ? (() => {
+    requireValue(isAbsolute(process.env.PNPM_HOME), 'PNPM_HOME must be an absolute toolchain path.');
+    const packageRoot = realpathSync(join(process.env.PNPM_HOME, '..'));
+    const entry = realpathSync(join(packageRoot, 'pnpm', 'bin', 'pnpm.cjs'));
+    const within = relative(packageRoot, entry);
+    requireValue(within && !isAbsolute(within) && !within.startsWith('..') && statSync(entry).isFile(),
+      'Installed pnpm entry escapes its toolchain root.');
+    return { file: process.execPath, prefix: [entry] };
+  })() : resolvePackageManager(root);
   const run = async (name, args, timeoutMs = 15 * 60_000) => {
     console.log('M01_M03_COMMAND_START=' + JSON.stringify({ name, argv: [pm.file, ...pm.prefix, ...args] }));
     const observation = await runRecordedCommand(pm.file, [...pm.prefix, ...args],
