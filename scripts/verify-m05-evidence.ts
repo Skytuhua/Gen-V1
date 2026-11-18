@@ -40,8 +40,8 @@ for (const phase of evidence.phases) {
 for (const path of evidence.changedFiles) if (!existsSync(resolve(root, path))) errors.push(`Missing changed file: ${path}`);
 const expected = new Set(evidence.changedFiles);
 const actual = new Set([
-  ...git('diff', '--name-only', lock.executionBaseSha).split('\n'),
-  ...git('ls-files', '--others', '--exclude-standard').split('\n'),
+  ...git('diff', '--name-only', '-z', lock.executionBaseSha, '--').split('\0'),
+  ...git('ls-files', '--others', '--exclude-standard', '-z').split('\0'),
 ].filter(Boolean));
 for (const path of actual) if (!expected.has(path)) errors.push(`Unrecorded change: ${path}`);
 for (const path of expected) if (!actual.has(path)) errors.push(`Receipt lists an unchanged path: ${path}`);
