@@ -77,13 +77,13 @@ it.each(cases)('retains exact effect certainty after hard termination at $phase'
   const root = await mkdtemp(join(tmpdir(), 'effect-hard-crash-'));
   roots.push(root);
   const crash = await runWorker(root, 'crash', expected.phase);
-  expect(await readFile(join(root, 'termination-point.txt'), 'utf8')).toBe(expected.phase + '\n');
   expect(crash, JSON.stringify(crash)).toMatchObject({ code: null, signal: 'SIGKILL', killAccepted: true, pauseMarker: expected.phase + '\n' });
+  expect(await readFile(join(root, 'termination-point.txt'), 'utf8')).toBe(expected.phase + '\n');
   const recovered = await runWorker(root, 'recover');
   expect(recovered, recovered.stderr).toMatchObject({ code: 0, signal: null });
   const first = JSON.parse(recovered.stdout);
   expect(first).toMatchObject({
-    state: expected.state, externalEffects: expected.effects, remainingUses: expected.uses,
+    state: expected.state, externalEffects: expected.effects, remainingUses: expected.uses, approvalAuthenticated: true,
     beforeState: expected.state === null ? null : expected.state === 'SUCCEEDED' ? 'SUCCEEDED' : 'DISPATCHED',
     uncertain: expected.state === 'UNKNOWN_EXTERNAL_OUTCOME' ? ['operation:counted-write@1'] : [],
     readmissionStarted: 0,
@@ -99,6 +99,6 @@ it.each(cases)('retains exact effect certainty after hard termination at $phase'
   const second = JSON.parse(reopened.stdout);
   expect(second).toMatchObject({
     state: first.state, transitions: first.transitions, externalEffects: expected.effects,
-    remainingUses: expected.uses, sequence: first.sequence, readmissionStarted: 0, uncertain: [],
+    remainingUses: expected.uses, approvalAuthenticated: true, sequence: first.sequence, readmissionStarted: 0, uncertain: [],
   });
 });

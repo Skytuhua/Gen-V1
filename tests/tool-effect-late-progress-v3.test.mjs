@@ -5,6 +5,7 @@ const { join } = await import('node:path');
 const { Service } = await import('../packages/core/service.ts');
 const { Store } = await import('../packages/storage/store.ts');
 const domain = await import('../packages/capabilities/index.ts');
+const { testEffectAuthenticator } = await import('./fixtures/effect-authenticator.ts');
 
 const cleanups = [];
 afterEach(async () => {
@@ -31,6 +32,7 @@ async function fixture() {
   };
   const service = new Service(store, runtime, {
     toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectAuthenticator: testEffectAuthenticator(),
   });
   cleanups.push(async () => {
     release.resolve();

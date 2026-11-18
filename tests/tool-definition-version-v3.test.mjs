@@ -7,6 +7,7 @@ const { Store } = await import('../packages/storage/store.ts');
 const { buildToolRegistry, ToolAuthority } = await import('../packages/core/tool-authority.ts');
 const { createToolEffectFlags, ToolEffectLedger } = await import('../packages/core/tool-effects.ts');
 const { toolDefinitionSchema } = await import('../packages/contracts/tool-effects.ts');
+const { testEffectAuthenticator } = await import('./fixtures/effect-authenticator.ts');
 
 const cleanups = [];
 afterEach(async () => {
@@ -53,7 +54,7 @@ async function fixture() {
   const invoke = async version => {
     const authority = new ToolAuthority([{ ...definition(), version }]);
     const ledger = new ToolEffectLedger(store, authority,
-      createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+      createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), testEffectAuthenticator());
     return ledger.invoke({
       call: { name: 'repository_read', args: { invocationId: 'version-check', resourceId: 'fixture' } },
       ctx: { threadId: thread.id, runId: thread.runId, epoch: thread.epoch }, thread, role: 'run',

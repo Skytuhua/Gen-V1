@@ -162,8 +162,9 @@ describe('repository.test binds the host-resolved launch target', () => {
     });
     if (change === 'version') {
       const current = registry.buildToolRegistry();
+      // Deliberately violate the public V1 type to test runtime binding drift.
       vi.spyOn(registry, 'buildToolRegistry').mockReturnValue(current.map(item =>
-        item.id === 'repository_test_prepare' ? { ...item, version: item.version + 1 } : item));
+        item.id === 'repository_test_prepare' ? { ...item, version: item.version + 1 } : item) as unknown as ReturnType<typeof registry.buildToolRegistry>);
     }
     const result = await f.execute(operation).then(() => ({ status: 'executed' }), error => ({ status: 'rejected', code: error.code }));
     if (change === 'executable bytes during guard acquisition') expect(guardMutationObserved).toBe(true);
