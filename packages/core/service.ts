@@ -41,14 +41,17 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
+import { OperationProjectTrustHost } from './operation-project-trust.ts';
+import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
 import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
-import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
+import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
-import { recoverEffects } from "./effect-recovery.ts";
+import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
+import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
+import { recoverEffects, disableEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
@@ -79,11 +82,19 @@ const object = (value: unknown): Record<string, unknown> => {
 };
 const now = () => new Date().toISOString();
 interface SourceIntegration {runtime:Pick<HermesRuntime,'sourceBusy'|'reviewBusy'|'cancelBackground'|'sourceRequest'>;library:Pick<HermesSourceLibrary,'initialize'|'command'|'view'|'proposal'|'refresh'>}
+export interface HostToolContext {
+  readonly authenticatedApprovals:boolean;
+  prepareOperation(kind:string,args:Record<string,unknown>,resourceIds:string[],preconditions:Record<string,string>,description:string):Operation;
+}
+export interface HostOperationContext { readonly signal:AbortSignal; readonly owner:Readonly<ToolOwner>; readonly authenticatedApprovals:boolean }
+export type HostOperationExecutor = (operation:Readonly<Operation>,context:HostOperationContext)=>Promise<unknown>;
 export interface ServiceOptions {
   canonicalPlanJobs?:CanonicalPlanJobProvider;
   approvedWriteHooks?:boolean;
   /** Host constructor only; absent in user preferences. */
   toolEffectFlags?: Partial<Record<ToolEffectFlag, boolean>>;
+  /** Preloaded trusted host custody; never supplied by UI commands or preferences. */
+  toolEffectAuthenticator?: EffectAuthenticator;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
@@ -93,7 +104,9 @@ export interface ServiceOptions {
   requestContextHooks?:RequestContextHooks;
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
-  additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  additionalTool?:(call:ToolCall,ctx:RunContext,host:HostToolContext)=>Promise<unknown>;
+  /** Constructor-owned integration bindings; ordinary capability kinds cannot be replaced. */
+  hostOperationExecutors?:Readonly<Record<string,HostOperationExecutor>>;
   /** Trusted host injection for M10 background work; absent gates stay off. */
   background?:{
     gate?:ModelRequestGate;
@@ -176,7 +189,12 @@ export class Service {
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
+  private readonly hostOperationExecutors:ReadonlyMap<string,HostOperationExecutor>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
+    const hostExecutors=Object.entries(options.hostOperationExecutors??{});
+    if(hostExecutors.length>32||hostExecutors.some(([kind,executor])=>!/^integration\.[a-z][a-z0-9._-]{0,79}$/.test(kind)||typeof executor!=='function'))
+      throw new HarnessError('INVALID_HOST_OPERATION','Host operations require explicit integration executor bindings.');
+    this.hostOperationExecutors=new Map(hostExecutors);
     this.requestCustody=new RequestContextCustody(store,{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
@@ -193,11 +211,11 @@ export class Service {
     });
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
-    this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags,options.toolEffectAuthenticator);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute();}});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
     // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
     // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
@@ -225,6 +243,22 @@ export class Service {
         return {threadId:thread.id};
       }});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
+  }
+  private executionAdviceHostInstance?:OperationExecutionAdviceHost;
+  get executionAdvice(): OperationExecutionAdviceHost {
+    return this.executionAdviceHostInstance ??= new OperationExecutionAdviceHost(this.store, {
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+      sourceCommitment: op => this.effects.privateArgumentCommitment({ name: 'operation.executionAdvice', args: {
+        operation: { id: op.id, threadId: op.threadId, revision: op.revision, kind: op.kind, args: op.args, resourceIds: op.resourceIds, preconditions: op.preconditions },
+      } }),
+    });
+  }
+  private projectTrustHostInstance?:OperationProjectTrustHost;
+  get projectTrust(): OperationProjectTrustHost {
+    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
+      enabled: hostFlagEnabled('security.projectTrustV1'),
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+    });
   }
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
@@ -349,6 +383,7 @@ export class Service {
     return source;
   }
   private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult {
+    this.effects.assertAdmissionsEnabled();
     this.assertLearningSource(job);
     if(!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
     if(call.name==='session_search')return {value:searchSessions(this.store,call.args)};
@@ -580,6 +615,7 @@ export class Service {
     return models;
   }
   private assertMutation(threadId: string): void {
+    this.effects.assertAdmissionsEnabled();
     const thread = this.thread(threadId);
     if(thread.mode==='plan')throw new HarnessError('PLAN_MODE','Plan mode is read-only. Switch to Build before preparing or approving a change.');
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("CANCELLED_RUN", "Resume this thread before starting operations");
@@ -632,6 +668,7 @@ export class Service {
   /** M09 read-role domain context: resources resolve read-only, operation
    * preparation is denied before effects, evidence publishing stays open. */
   private agentReadDomain(threadId: string) {
+    this.effects.assertAdmissionsEnabled();
     const signal = new AbortController().signal, domain = this.context(threadId, signal);
     return {
       threadId, signal,
@@ -686,6 +723,7 @@ export class Service {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
       threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -713,10 +751,10 @@ export class Service {
         for (const id of resourceIds) { const grant = this.store.get<ResourceGrant>("resource", id); if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Operation resource is not granted"); }
         const op: Operation = { id: randomUUID(), threadId, revision: 1, kind, args, resourceIds, preconditions, description, status: "prepared", approved: false, createdAt: now() };
         const thread=this.thread(threadId),capture=this.options.approvedWriteHooks&&kind==='file.replace'?{revision:op.revision,origin:this.writeOrigin(thread,authority),unavailable:thread.projectId&&thread.workspaceId?'scope_unavailable' as const:'no_project' as const}:undefined;
-        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
+        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.projectTrust.markPrepared(op); this.executionAdvice.recordPrepared(op,thread); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
-        if (this.closed) return;
+        if (this.closed || signal?.aborted || this.store.get("archivedThread", threadId)) return;
         // Process/abort event callbacks can arrive after revocation. Drop stale
         // presentation progress instead of throwing out of an event listener.
         if (authority) {
@@ -861,7 +899,10 @@ export class Service {
       const domain = await import("../capabilities/index.ts");
       const observed = await domain.reconcileDomainOperation(operation, this.context(thread.id));
       return this.store.command(command, () => {
-        const current = this.store.get<Operation>("operation", operation.id)!;
+        const current = this.store.get<Operation>("operation", operation.id), currentThread = this.store.get<Thread>("thread", thread.id);
+        if (this.closed || !currentThread || this.store.get("archivedThread", thread.id)
+          || digest(ownerFor(currentThread)) !== digest(ownerFor(thread)) || !current || digest(current) !== digest(operation))
+          throw new HarnessError("STALE_OPERATION", "The action or its owner changed while inspecting its outcome. Reload the action before inspecting again.");
         const next = { ...current, status: observed.status, ...(observed.result !== undefined ? { result: observed.result } : {}), error: observed.status === "unknown" ? observed.message : undefined };
         this.store.put("operation", operation.id, thread.id, next); this.operationData(next); return observed;
       });
@@ -1069,6 +1110,7 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        this.projectTrust.assertApproval(op, thread);
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
         if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
@@ -1564,6 +1606,7 @@ export class Service {
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
+    this.effects.assertAdmissionsEnabled();
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
@@ -1587,10 +1630,15 @@ export class Service {
       return args.commandId === undefined ? this.store.internal('memory.updated', ctx.threadId, apply) : this.store.command({ id: text(args, 'commandId', 200), type: 'task_memory', threadId: ctx.threadId, payload: args }, apply).result;
     }
     if(call.name==='plan_update')return this.planning.updatePlan({...ctx},args);
-    if(call.name==='integration_list'||call.name==='integration_call'){
+    if(call.name==='integration_list'||call.name==='integration_call'||call.name==='integration_prepare'){
       if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
       const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
-      const result=await this.options.additionalTool(call,{...ctx}),current=this.assertRun(ctx);
+      const context=this.context(ctx.threadId,controller?.signal,undefined,{...ctx});
+      const host=Object.freeze<HostToolContext>({authenticatedApprovals:this.effectFlags.enabled('security.authorityV1'),prepareOperation:(kind,args,resourceIds,preconditions,description)=>{
+        if(!this.hostOperationExecutors.has(kind))throw new HarnessError('HOST_OPERATION_UNAVAILABLE','This host operation is unavailable.');
+        return context.prepareOperation(kind,args,resourceIds,preconditions,description);
+      }});
+      const result=await this.options.additionalTool(call,{...ctx},host),current=this.assertRun(ctx);
       if(current.modelId!==selected.modelId||(current.accountId??null)!==selected.accountId||current.projectId!==selected.projectId)throw new HarnessError('CANCELLED_RUN','The integration scope changed during execution.');return result;
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
@@ -1730,7 +1778,7 @@ export class Service {
     // as DISPATCHED and settles it only after the body returns. That record is
     // the invocation itself, not an outstanding external effect — exclude it by
     // its argument commitment so audited completion does not block on itself.
-    const selfCommitment = privateArgumentCommitment(call);
+    const selfCommitment = this.effects.privateArgumentCommitment(call);
     const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
       .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
@@ -1780,13 +1828,39 @@ export class Service {
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-      this.effects.verifyOperationApproval(op, this.thread(op.threadId));
-      this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      try {
+        this.effects.verifyOperationApproval(op, this.thread(op.threadId));
+        this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      } catch (error) {
+        if (error instanceof HarnessError && error.code === "APPROVAL_REQUIRED") {
+          const current = this.store.get<Operation>("operation", id);
+          if (current?.status === "prepared" && current.approved && current.revision === op.revision)
+            this.store.internal("operation.approval_required", op.threadId, () => {
+              const review = { ...current, approved: false };
+              this.store.put("operation", id, op.threadId, review); this.operationData(review);
+              return { operationId: id };
+            });
+        }
+        throw error;
+      }
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");
+      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
+        // Module loading yields after admission. Revalidate the durable owner
+        // before the executor can submit an effect; the approval stays spent.
+        const admitted = this.effects.get("operation:" + id + "@" + op.revision), current = this.thread(op.threadId);
+        const owner = admitted?.owner;
+        if (!owner || admitted.state !== "DISPATCHED" || owner.threadId !== current.id || owner.runId !== (current.runId ?? null)
+          || owner.epoch !== current.epoch || owner.accountBinding !== (current.accountId ?? null)
+          || owner.projectId !== (current.projectId ?? null) || owner.workspaceId !== (current.workspaceId ?? null))
+          throw new HarnessError("AUTHORITY_DENIED", "The admitted owner changed before dispatch");
+      }
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
+      const hostExecutor=this.hostOperationExecutors.get(op.kind),running={...op,status:'running' as const};
+      const result = hostExecutor
+        ? await hostExecutor(running,Object.freeze({signal:control.signal,owner:Object.freeze(ownerFor(this.thread(op.threadId))),authenticatedApprovals:this.effectFlags.enabled('security.authorityV1')}))
+        : await domain.executeDomainOperation(running, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
@@ -1895,7 +1969,8 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, input.threadId, { ...input, requestContextId:undefined, status: "persisted" });}
       return { inferenceCalls: 0 };
     });
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    if (this.effects.admissionsDisabled()) disableEffects(this.store);
+    else if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
     this.backgroundWork.recover();
     this.backgroundWork.start();
     this.intake.start();
@@ -1905,7 +1980,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);

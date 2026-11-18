@@ -209,7 +209,10 @@ export class BrowserConsentHost {
     const state = grantState(live, this.now());
     if (state !== 'ACTIVE') return state;
     if (!sameTargetIdentity(live.target, observed)) return 'NEEDS_NEW_PERMISSION';
-    if (live.target.kind === 'BROWSER_TAB' && origin !== null && !live.allowedOrigins.some(allowed => allowed === origin)) return 'NEEDS_NEW_PERMISSION';
+    // A declared origin list authorizes only a proven member: an unreported
+    // origin is outside it, never silently inside. A grant that declares no
+    // origins keeps origin out of its policy.
+    if (live.target.kind === 'BROWSER_TAB' && live.allowedOrigins.length > 0 && (origin === null || !live.allowedOrigins.includes(origin))) return 'NEEDS_NEW_PERMISSION';
     return 'ACTIVE';
   }
 

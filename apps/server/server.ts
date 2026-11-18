@@ -33,6 +33,8 @@ import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
+import {registerOperationProjectTrustRoutes} from './operation-project-trust-routes.ts';
+import {registerOperationExecutionReviewRoutes} from './operation-execution-review-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -175,7 +177,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
     if (!query) return { threadIds: [] };
     const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
-    const threadIds = ids.filter(id => service.store.get('thread', id)
+    const threadIds = ids.filter(id => service.store.get('thread', id) && !service.store.get('archivedThread', id)
       && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
     return { threadIds };
   });
@@ -205,6 +207,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerSourceWorkbenchRoutes(app,service);
   registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
+  registerOperationProjectTrustRoutes(app,service);
+  registerOperationExecutionReviewRoutes(app,service);
   registerAttentionRoutes(app,service);
   registerBackgroundRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
