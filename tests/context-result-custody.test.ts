@@ -1,11 +1,20 @@
 import { expect, it } from 'vitest';
-import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, realpath, rm, stat, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createContextResults } from '../packages/core/context-results';
 import { openContextResultCustody } from '../packages/core/context-result-custody';
 import { resolveGrant } from '../packages/core/security';
-import type { ResourceGrant } from '../packages/contracts';
+import type { ResourceGrant, RuntimeAdapter } from '../packages/contracts';
+import { Service } from '../packages/core/service';
+import { Store } from '../packages/storage/store';
+import { __setCapabilityFlagForTests } from '../packages/core/capability-flags';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
+
+function configureHostCapabilityFlags(overrides: Readonly<Partial<Record<'context.compilerV1' | 'tools.deferredV1', boolean>>>) {
+  for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, overrides[key]);
+  return () => { for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, undefined); };
+}
 
 it('retains an authorized exact range across reopen and reaps expired artifacts', async () => {
   const load = import.meta.glob('../packages/core/context-result-custody.ts')['../packages/core/context-result-custody.ts'];
@@ -56,4 +65,26 @@ it('keeps verification artifact custody protected through the same broader proje
   const grant: ResourceGrant = { id: 'project', threadId: 'thread', kind: 'project', path: root, label: 'Project', writable: false, createdAt: '2026-11-17T00:00:00Z' };
   try { await expect(resolveGrant(grant, 'profile/artifacts/verification-v1/receipt.log', false, profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' }); }
   finally { await rm(root, { recursive: true, force: true, maxRetries: 5 }); }
+});
+
+it.skipIf(process.platform !== 'win32')('uses the native Windows grant guard for retained domain output and revocation', async () => {
+  const root = await realpath(await mkdtemp(join(tmpdir(), 'm04-native-result-'))), project = join(root, 'project');
+  await mkdir(project); await writeFile(join(project, 'source.txt'), 'BEGIN\n' + 'native retained source\n'.repeat(2000) + 'END');
+  const release = configureHostCapabilityFlags({ 'context.compilerV1': true, 'tools.deferredV1': true }), store = new Store(join(root, 'profile'));
+  const runtime: RuntimeAdapter = { configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
+  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
+  const ctx = { threadId: 'thread', runId: 'run', epoch: 1 }, info = await stat(project, { bigint: true });
+  const grant: ResourceGrant = { id: 'source', threadId: ctx.threadId, kind: 'project', path: project, label: 'Native source', writable: false, createdAt: '', identity: { dev: String(info.dev), ino: String(info.ino) } };
+  try {
+    store.internal('fixture', ctx.threadId, () => {
+      store.put('thread', ctx.threadId, ctx.threadId, { id: ctx.threadId, title: 'Native fixture', status: 'working', modelId: 'test/model', accountId: null, ...ctx });
+      store.put('resource', grant.id, ctx.threadId, grant);
+    });
+    const result = await service.tool({ name: 'repository_read', args: { resourceId: grant.id, path: 'source.txt' } }, ctx) as { status: string; handle: string; totalBytes: number };
+    expect(result.status).toBe('AVAILABLE'); expect(result.totalBytes).toBeGreaterThan(16384);
+    const range = { name: 'context_result_read', args: { handle: result.handle, offset: 0, length: result.totalBytes } };
+    expect(await service.tool(range, ctx)).toMatchObject({ status: 'OK', text: expect.stringContaining('native retained source') });
+    store.internal('fixture.revoke', ctx.threadId, () => store.remove('resource', grant.id));
+    expect(await service.tool(range, ctx)).toEqual({ status: 'UNAVAILABLE' });
+  } finally { try { await service.dispose(); store.close(); await rm(root, { recursive: true, force: true, maxRetries: 5 }); } finally { release(); } }
 });

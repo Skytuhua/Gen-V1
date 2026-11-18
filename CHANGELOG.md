@@ -36,7 +36,7 @@ This source preview is not a published stable download. See the [current preview
 - Add application screenshots using curated sample data, contributor guidance and issue templates.
 - Preserve existing profile/storage identifiers for compatibility.
 
-See [the prerelease notes](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) for the publication build's assets and verification results.
+See [the prerelease notes](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1) for the publication build's assets and verification results.
 
 ## 0.6.0 — 2026-11-01
 

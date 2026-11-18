@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+    "test:browser",
+    "--",
+    "--suite",
+    "workspace-host"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T11:10:07.597Z",
+  "endedAt": "2026-11-18T11:12:29.781Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-browser-workspace-host-r2.log",
+  "logDigest": "6ba6c1fd567abb427b6aadfc4beee0e37a84af270a5026902207a1fa2ee51c8f"
+}

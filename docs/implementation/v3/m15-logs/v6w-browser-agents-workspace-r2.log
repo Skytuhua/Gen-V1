@@ -1,0 +1,41 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","test:browser","--","--suite","agents-workspace"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 test:browser C:\Users\Administrator\repos\Gen-V1-m15-v6
+> node --import tsx scripts/test-browser.ts "--" "--suite" "agents-workspace"
+
+Browser results: C:\Users\Administrator\repos\Gen-V1-m15-v6\test-results\browser\run-1795000350462-9f651555-e4f7-41fb-8be7-424685158e81
+
+Browser suite: agents-workspace (2 spec files)
+
+Running 25 tests using 1 worker
+
+  ok  1 tests\e2e\agents-workspace-evidence.spec.ts:200:34 › populated grid evidence at 1440 (after) (6.2s)
+  ok  2 tests\e2e\agents-workspace-evidence.spec.ts:200:34 › populated grid evidence at 768 (after) (3.0s)
+  ok  3 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 1440 (2.8s)
+  ok  4 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 1024 (2.6s)
+  ok  5 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 768 (2.6s)
+  ok  6 tests\e2e\agents-workspace.spec.ts:371:1 › missing history remains reachable after offscreen bursts without moving the message being read (3.1s)
+  ok  7 tests\e2e\agents-workspace.spec.ts:421:1 › a slower evidence request cannot replace the latest selected child (1.8s)
+  ok  8 tests\e2e\agents-workspace.spec.ts:499:1 › project rows expose working parent and nested child transcripts before any details click (1.4s)
+  ok  9 tests\e2e\agents-workspace.spec.ts:530:1 › all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization (1.8s)
+  ok 10 tests\e2e\agents-workspace.spec.ts:564:1 › the actual App retains offscreen drafts, keyboard targets and the 24-history bound (6.2s)
+  ok 11 tests\e2e\agents-workspace.spec.ts:605:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts (2.5s)
+  ok 12 tests\e2e\agents-workspace.spec.ts:649:1 › filtered children retain their completed owning parent and local reading state (2.0s)
+  ok 13 tests\e2e\agents-workspace.spec.ts:685:1 › the actual App opens and restores compact routing without mounting snapshot bootstrap (3.9s)
+  ok 14 tests\e2e\agents-workspace.spec.ts:703:1 › child follow-up uses the published parent/run target and current ticket through handled (4.2s)
+  ok 15 tests\e2e\agents-workspace.spec.ts:746:1 › agent task progress exposes its name and unknown share to assistive technology (1.5s)
+  ok 16 tests\e2e\agents-workspace.spec.ts:814:1 › output while reading earlier retains position and exposes an explicit new-output action (4.1s)
+  ok 17 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1920x1080 at 1 (2.2s)
+  ok 18 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1440x900 at 1 (1.8s)
+  ok 19 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry light 1024x768 at 1.25 (1.8s)
+  ok 20 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1280x600 at 1 (1.7s)
+  ok 21 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 640x520 at 1.5 (1.7s)
+  ok 22 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry light 390x844 at 1 (1.8s)
+  ok 23 tests\e2e\agents-workspace.spec.ts:890:1 › a child input acknowledgement preserves a newer draft (1.8s)
+  ok 24 tests\e2e\agents-workspace.spec.ts:982:1 › a message board post acknowledgement preserves edits for the next post (2.3s)
+  ok 25 tests\e2e\agents-workspace.spec.ts:1088:1 › keyboard entry into a virtual agent keeps focus on that card (2.0s)
+
+  25 passed (1.2m)
