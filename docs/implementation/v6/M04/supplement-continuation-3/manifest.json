@@ -145,6 +145,16 @@
       "exitCode": 0,
       "result": "job success at head_sha 7ac80d87 (check_run 135026554125, run 44367920580); CPython 3.14.10 on windows-2025-vs2026; worker suite 45 tests in 200.9s OK, including test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (stale-digest refusal + matching-digest apply), test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive, test_original_summary_compaction_executes_with_the_retained_dependency_subset; contract 5 + atomic 4 + memory checkpoint steps OK",
       "bounding": "bounded excerpt of the Actions job log: runner/image/toolchain lines, step headers, named-case lines, suite totals, final OK"
+    },
+    {
+      "path": "logs/ci-hermes-cas-89142de9.log",
+      "sha256": "d0cd7b7ce70b0c63077a1803297b58b65c40d862489a02209bae7d9a8e5dadf5",
+      "bytes": 2165,
+      "testedCut": "89142de980df86c4236dc49c28f280d78fe79e0d",
+      "command": "GitHub Actions ci.yml job 'Hermes contracts' (windows-latest): python -I -S -B tests/hermes_source_worker.py -v",
+      "exitCode": 0,
+      "result": "job success at head_sha 89142de9 (job 135124204117, run 44393035599), 2026-11-18 20:56-21:01 UTC; CPython 3.14.10 on windows-2025-vs2026; worker suite 45 tests in 188.7s OK, including the same three CAS/protection cases — CAS behavior survives the newer main state",
+      "bounding": "bounded excerpt of the Actions job log: runner/toolchain lines, step header, named-case lines, suite total, final OK"
     }
   ]
 }

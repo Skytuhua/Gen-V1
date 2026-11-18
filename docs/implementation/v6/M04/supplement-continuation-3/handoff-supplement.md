@@ -49,9 +49,9 @@ not overlap the evidence-correction surface owned by PR #772.
   | tests/context-request-observation.test.ts | d1a2aea4 | 780d4d9e | aa9b20a3 |
   | tests/hermes_source_worker.py | d23e80c7 | cd2318cf | e84213fc |
 
-- **HOLD_SOURCE_DRIFT remains in force for joins reconciling the task cut with main on those six
-  paths.** Nothing in this supplement resolves or weakens that hold. Note the merge target has
-  since advanced to ff38c62c; a future join must recapture and re-attempt.
+- The merge target has since advanced (`ff38c62c` → `7ac80d87` → `89142de9`). Re-inspection at
+  `89142de9` shows all six joins absorbed or superseded — see "Source-drift join status"; no
+  actionable join remains.
 
 ## Receipts at the tested cut (all in `logs/`; digests in `manifest.json`)
 
@@ -72,19 +72,22 @@ not overlap the evidence-correction surface owned by PR #772.
   fixture-mount timeouts under host load — not channel unavailability, not inspector assertion
   failures. U01 tab-navigation and honest unknown/empty/failure rows pass at this cut.
 
-## Holds carried forward (unchanged by this supplement)
+## Holds status (re-evaluated at main `89142de9`)
 
-1. **HOLD_SOURCE_DRIFT** — the six conflict paths above.
+1. **HOLD_SOURCE_DRIFT** — **discharged by inspection**: all six joins absorbed/superseded on
+   current main; nothing actionable remains (see "Source-drift join status" below).
 2. ~~Native worker CAS test provisioned for Windows CI~~ — **satisfied**: the real worker
-   fixture passed on Windows CI at `7ac80d87` (see section above). The distinct remaining
-   leg is installed-desktop compaction acceptance, still a separate gate.
+   fixture passed on Windows CI at `7ac80d87` **and** `89142de9` (receipts above). The
+   distinct remaining leg is installed-desktop compaction acceptance, still a separate gate.
 3. U04 measured cache attribution — M11-dependent, NOT_RUN.
-4. Full `pnpm test` gate — FAIL on this host (environment-bound; needs the reviewed CI matrix).
-5. Full `pnpm test:browser` gate — FAIL on this host; Edge/Chrome channel suites remain
-   platform-blocked on linux-arm64.
-6. **HOLD_AUXILIARY_MODEL** — per #772's corrected record, no source-bound live-model
-   authorization/receipts establish the auxiliary study; this supplement asserts nothing
-   contrary. The continuation-3 session's aux-related evidence strings are not republished.
+4. Full `pnpm test` gate — FAIL on this linux-arm64 host; **CI context**: all four `Tests`
+   shards succeeded at `89142de9` (and `7ac80d87`). Local-host failures remain
+   environment-bound; the merged cut is green on the real matrix.
+5. Full `pnpm test:browser` gate — FAIL on this host (channels absent); **CI context**:
+   `Browser tests` succeeded at `89142de9`.
+6. **HOLD_AUXILIARY_MODEL** — unchanged: per #772's corrected record, no source-bound
+   live-model authorization/receipts establish the auxiliary study; no approved inputs exist.
+   The continuation-3 session's aux-related evidence strings are not republished.
 
 ## Windows native compaction CAS — source-bound receipt (CI at 7ac80d87)
 
@@ -127,10 +130,38 @@ Dispatch attempt on 2026-11-18 to the linked verifier `WIN-M0N0V07LGM1`
 - Sibling steps in the same job: `hermes_source_contract.py` 5 tests OK,
   `hermes_atomic_controls.py` 4 tests OK, memory-checkpoint steps OK.
 
+**Re-confirmed at newer main:** `logs/ci-hermes-cas-89142de9.log` — the same job at
+`89142de980df86c4236dc49c28f280d78fe79e0d` (run `44393035599`, CPython 3.14.10,
+windows-2025-vs2026): 45 tests OK including the same three cases. CAS behavior survives the
+latest main state.
+
 This is the real supported path — a spawned `worker.py` subprocess over JSON-RPC — executed on
 the repo's own Windows CI at the merged main cut. It establishes **code-level** native CAS
 behavior (matched apply + stale refusal) on Windows. It is not a claim of installed-desktop
 acceptance, reviewer approval, or flag enablement.
+
+### Acceptance-case coverage of the Windows receipt
+
+| required case | covered | where |
+|---|---|---|
+| exact source-cut CAS precondition | yes (Windows CI) | `test_source_cut_cas_...` matched-apply leg |
+| refusal after the source cut changes / no mutation on stale digest | yes (Windows CI) | same test, stale leg: `compacted:false` + `mismatch`, history and session file unchanged |
+| rollback witness / protected original archive | yes (Windows CI) | `test_m04_protected_compaction_..._a_separate_original_archive` |
+| ownership/binding verification | yes | worker ctx-bound params + service host checks; adapter case `rejects compaction of a different retained task, account or model` in `tests/hermes-runtime.test.ts` (CI test shards, green at both cuts) |
+| measured before/after evidence | yes | worker-level shortened persisted messages + service-level measured-bytes cases (`compaction-v3`, `context-request-observation`; CI shards + linux receipts here) |
+| adapters without native digest support → unsupported, never emulated | yes | `does not implement loss-aware compaction by calling legacy native compaction` (`context-request-observation` on main; CI shards) |
+
+### Source-drift join status (re-inspected at main `89142de9`)
+
+Each of the six R03 conflict paths was re-checked line-by-line: every unique task-cut delta is
+present on current main — absorbed verbatim (`contracts/index.ts`, `task-pool.ts`,
+`hermes_source_worker.py` CAS test) or superseded by newer main work (`service.ts`
+`compactProtected` + envelope/owner contracts + host commit-gate;
+`context-request-observation.test.ts` equivalent-or-newer compaction cases;
+`runtime-hermes/index.ts` protected-compact signature). **No actionable join remains**: nothing
+unique is left to reconcile, and a merge would re-land already-squashed work only.
+HOLD_SOURCE_DRIFT is discharged by inspection — not by merge — for these six paths. The branch's
+sole unique artifact is the local evidence commit already extracted into this supplement.
 
 ## Non-claims
 

@@ -1,0 +1,27 @@
+[bounded excerpt — GitHub Actions job log, 'Hermes contracts' (windows-latest)]
+[workflow run: https://github.com/skytuhua-org/Gen-V1/actions/runs/44393035599 job 135124204117]
+[head_sha 89142de980df86c4236dc49c28f280d78fe79e0d | conclusion success | 2026-11-18T20:56-21:01Z]
+[retained verbatim: runner/toolchain identity, step header, named CAS/protection case lines, suite total, final OK]
+
+2026-11-18T20:56:22.6409851Z ##[group]Operating System
+2026-11-18T20:56:22.6411289Z Microsoft Windows Server 2025
+2026-11-18T20:56:22.6412344Z 10.0.26100
+2026-11-18T20:56:22.6413170Z Datacenter
+2026-11-18T20:56:22.6414829Z ##[group]Runner Image
+2026-11-18T20:56:22.6415754Z Image: windows-2025-vs2026
+2026-11-18T20:56:22.6416820Z Version: 20261103.298.1
+[...]
+2026-11-18T20:57:31.3654657Z   python-version: 3.14
+2026-11-18T20:57:31.5471477Z Successfully set up CPython (3.14.10)
+[...]
+2026-11-18T20:57:48.5963705Z ##[group]Run python -I -S -B tests/hermes_source_worker.py -v
+[...] (45 worker-suite tests ran; the three CAS/protection-relevant lines:)
+2026-11-18T20:58:56.2874773Z test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive (__main__.WorkerFixture.test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive) ... ok
+2026-11-18T21:00:27.1672684Z test_original_summary_compaction_executes_with_the_retained_dependency_subset (__main__.WorkerFixture.test_original_summary_compaction_executes_with_the_retained_dependency_subset) ... ok
+2026-11-18T21:00:49.6633903Z test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (__main__.WorkerFixture.test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest) ... ok
+2026-11-18T21:00:57.7609122Z 
+2026-11-18T21:00:57.7609512Z ----------------------------------------------------------------------
+2026-11-18T21:00:57.7610112Z Ran 45 tests in 188.748s
+2026-11-18T21:00:57.7610353Z 
+2026-11-18T21:00:57.7610538Z OK
+[...] (same-run sibling check context: all 9 non-guard jobs on this commit succeeded — Tests shards 1-4, Windows checks, Hermes contracts, Installed desktop memory retention, Desktop build, Browser tests)
