@@ -235,6 +235,7 @@ export class Service {
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
     return this.memoryHostInstance??=new ProjectMemoryHost(this.store,{extractionFactory:this.options.memoryExtractionRuntimeFactory,extractionAdmission:this.options.memoryExtractionAdmission,
+      readFileSource:(owner,ref)=>this.sourceWorkbench.retainedFile({logicalOwner:owner,ref}),
       canExtract:()=>!this.closed&&!this.updateClosing&&!this.predictionMutations&&!this.store.all<Thread>('thread').some(thread=>!!thread.runId||thread.status==='working'||thread.status==='awaiting_input'),
       beforeExtract:async()=>{if(this.reviewing)await this.cancelReview();},
     });
