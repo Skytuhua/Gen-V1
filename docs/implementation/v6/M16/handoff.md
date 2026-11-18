@@ -160,7 +160,12 @@ production flag change.
   `backend-deadline` + port-9222 collision) and one clean-box re-run of the
   owned fixture for teardown-exit confirmation (all assertions passed; the
   fixture process hung at exit on the degraded box — environmental anomaly,
-  since `pnpm build` hung identically without loading the addon).
+  since `pnpm build` hung identically without loading the addon). Note: the
+  9222 collision was in the *verifier's own launch script*, not checked-in
+  config — `verificationPorts()`/`installedVerificationEnvironment()`
+  allocate fresh ephemeral ports + owned data dir per run. Isolation re-run
+  of installed-browser consent/capture/Stop on fresh owned ports is in
+  flight; if backend-deadline persists there it becomes the classification.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
