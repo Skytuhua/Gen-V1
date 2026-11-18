@@ -122,7 +122,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
 }
 
 export function changedSources(root: string, baseRef: string): SourceChange[] {
-  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-z', '-M', `${baseRef}...HEAD`], { encoding: 'utf8', windowsHide: true });
+  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-z', '-M', `${baseRef}...HEAD`, '--'], { encoding: 'utf8', windowsHide: true });
   const changes: SourceChange[] = [];
   // NUL framing preserves the original filenames instead of Git's quoted display form.
   const fields = out.split('\0');
