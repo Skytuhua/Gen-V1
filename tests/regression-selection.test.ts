@@ -62,6 +62,24 @@ describe('regression test selection', () => {
     }
   });
 
+  it('compares revisions even when a tracked filename matches the revision range', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-selection-'));
+    const git = (...args: string[]) => execFileSync('git', ['-C', root, '-c', 'core.hooksPath=', '-c', 'commit.gpgsign=false', ...args], { stdio: 'pipe' });
+    const commit = (message: string) => git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', message);
+    try {
+      git('init', '-q');
+      writeFileSync(join(root, 'README.md'), 'Initial.');
+      git('add', 'README.md'); commit('Before');
+      git('branch', 'fixture-base');
+      const name = 'fixture-base...HEAD';
+      writeFileSync(join(root, name), 'Tracked file with the same spelling as the comparison range.');
+      git('add', '--', name); commit('After');
+      expect(changedSources(root, 'fixture-base')).toEqual([{ status: 'A', path: name }]);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('keeps the old path coverage when a source is renamed into docs or a test path', () => {
     const toDocs = select([{ path: 'docs/old-module.md', previousPath: 'packages/core/old-module.ts', status: 'R' }]);
     expect(toDocs.tests).toEqual(['tests/store.test.ts']);
