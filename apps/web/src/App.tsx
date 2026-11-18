@@ -97,6 +97,8 @@ import {WorkspaceSurfaceBody, type ReviewRequest} from './WorkspaceSurfaceBody';
 import {ProjectContextSurface} from './ProjectContextSurface';
 import {DesktopBrowserSlot,DesktopBrowserToolbar} from './DesktopBrowser';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {OperationProjectTrust, OperationProjectTrustStatus, type ProjectTrustReadiness} from './OperationProjectTrust';
+import { OperationExecutionReviewPanel } from './OperationExecutionReview';
 
 type SettingsComponent = typeof import('./Settings').Settings;
 let loadedSettings: SettingsComponent | undefined;
@@ -179,40 +181,61 @@ function InputDecision({ request, refresh, snapshot }: { request: InputRequest; 
 /** M02 action details drawer: ledger view of one invocation. Uncertain states
  * surface as Inspect outcome / View evidence — never a generic Retry — and the
  * coverage note stays visible while native calls are not host-observed. */
-function ActionDetails({ threadId, invocationId }: { threadId: string; invocationId: string }) {
-  const [data, setData] = useState<{ effect?: ToolEffectObservation['effect']; approval?: ToolEffectObservation['approval']; freshness?: string; coverage?: string[] } | null>(null);
+function ActionDetails({ threadId, invocationId, observationKey }: { threadId: string; invocationId: string; observationKey: string }) {
+  const [open, setOpen] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [result, setResult] = useState<{ key: string; data?: ToolEffectObservation; error?: true } | null>(null);
+  const requestKey = JSON.stringify([threadId, invocationId, observationKey, attempt]);
   useEffect(() => {
+    if (!open) return;
     let live = true;
     getToolEffectObservation(threadId, invocationId)
-      .then(value => { if (live) setData({ effect: value.effect, approval: value.approval, freshness: value.freshness, coverage: value.coverage }); })
-      .catch(() => { if (live) setData({}); });
+      .then(data => { if (live) setResult({ key: requestKey, data }); })
+      .catch(() => { if (live) setResult({ key: requestKey, error: true }); });
     return () => { live = false; };
-  }, [threadId, invocationId]);
-  if (!data) return null;
-  const effect = data.effect;
-  return <details className="action-details"><summary>Action details</summary>
-    {effect
-      ? <pre>{JSON.stringify({ action: effect.publicRedactedSummary, tool: effect.toolId, owner: effect.owner, approval: data.approval ? { id: data.approval.approvalId, issuer: data.approval.issuer, expiresAt: data.approval.expiresAt, remainingUses: data.approval.remainingUses } : effect.approvalId, state: effect.state, receipt: effect.providerReceiptRef, freshness: data.freshness, transitions: effect.transitions, outcome: effect.outcome }, null, 2)}</pre>
-      : <p className="muted">No execution-ledger record for this action yet.</p>}
+  }, [threadId, invocationId, requestKey, open]);
+  // A previous owner's result must disappear in the same render as its key
+  // changes, before the old request's effect cleanup or the new read completes.
+  const current = result?.key === requestKey ? result : null;
+  const data = current?.data, effect = data?.effect;
+  return <details className="action-details" onToggle={event => {
+    const next = event.currentTarget.open;
+    setOpen(next);
+    if (next) setAttempt(value => value + 1);
+  }}><summary>Action details</summary>
+    {!current && <p role="status" className="muted">Loading execution evidence…</p>}
+    {current?.error && <p role="status" className="error-text">Execution evidence could not be loaded.</p>}
+    {data && (effect
+      ? <pre>{JSON.stringify({ action: effect.publicRedactedSummary, tool: effect.toolId, targets: effect.targetPreconditions, owner: effect.owner, approval: data.approval ? { id: data.approval.approvalId, issuer: data.approval.issuer, expiresAt: data.approval.expiresAt, remainingUses: data.approval.remainingUses } : effect.approvalId, state: effect.state, receipt: effect.providerReceiptRef, freshness: data.freshness, transitions: effect.transitions, outcome: effect.outcome }, null, 2)}</pre>
+      : <p className="muted">No execution-ledger record for this action yet.</p>)}
     {effect?.state === 'UNKNOWN_EXTERNAL_OUTCOME' && <p className="muted">Inspect outcome: view evidence before deciding; this effect has no generic retry.</p>}
-    {(data.coverage ?? []).map(note => <p key={note} className="muted coverage-note">{note}</p>)}
+    {(data?.coverage ?? []).map(note => <p key={note} className="muted coverage-note">{note}</p>)}
+    <button type="button" className="quiet" disabled={!current} onClick={() => setAttempt(value => value + 1)}>Reload evidence</button>
   </details>;
 }
-export function OperationDecision({ operation, refresh }: { operation: Operation; refresh: () => Promise<void> }) {
+function OperationExecutionPolicy({ kind }: { kind: string }) {
+  if (kind !== 'repository.test' && kind !== 'integration.context7') return null;
+  return <p className="muted" role="note" aria-label="Execution policy"><strong>Unrestricted host</strong>. Uses your local user privileges, including your account's file and network access. This operation has no isolated execution backend.</p>;
+}
+export function OperationDecision({ operation, refresh, owner }: { operation: Operation; refresh: () => Promise<void>; owner?: Thread }) {
+  const observationKey = JSON.stringify([operation.status, operation.approved, owner?.id, owner?.runId ?? null, owner?.epoch, owner?.status, owner?.accountId ?? null, owner?.modelId ?? null, owner?.projectId ?? null, owner?.workspaceId ?? null]);
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
+  const [projectTrust, setProjectTrust] = useState<ProjectTrustReadiness>();
+  const trustKey = JSON.stringify([operation.threadId, operation.id, operation.revision, observationKey, owner?.mode, owner?.kind, owner?.sideParentId ?? null]);
+  const trustReady = operation.kind !== 'repository.test' || projectTrust?.key === trustKey && projectTrust.allowed;
   const caption = operation.description.replace(/\s+(?:and\s+)?(?:resource\s+)?version\s+[a-f0-9]{64}\b/gi, '').replace(/\bSHA-256\s+[a-f0-9]{64}\b/gi, 'its recorded SHA-256').replace(/\b[a-f0-9]{64}\b/gi, 'its recorded hash').replace(/\b[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}\b/gi, 'the recorded operation');
   const approve = operation.status === 'prepared' && !operation.approved;
   const reconcile = operation.status === 'unknown';
-  const execute = async (type: string) => { setBusy(true); setError(''); try { await command(type, { operationId: operation.id, revision: operation.revision }, operation.threadId); await refresh(); } catch (error) { setError(messageOf(error)); } finally { setBusy(false); } };
+  const execute = async (type: string) => { if (type === 'operation.approve' && !trustReady) return; setBusy(true); setError(''); try { await command(type, { operationId: operation.id, revision: operation.revision }, operation.threadId); await refresh(); } catch (error) { setError(messageOf(error)); } finally { setBusy(false); } };
   if (operation.status === 'succeeded' || operation.status === 'failed' || operation.status === 'cancelled') {
     const status = operation.status === 'succeeded' ? 'Succeeded' : operation.status === 'failed' ? 'Failed' : 'Cancelled';
     return <section className="decision operation-outcome" data-operation-id={operation.id} data-operation-status={operation.status} aria-label="Operation outcome"><details className="operation-receipt"><summary>
       {operation.status === 'succeeded' ? <Check size={15} aria-hidden="true" /> : operation.status === 'failed' ? <X size={15} aria-hidden="true" /> : <CircleStop size={15} aria-hidden="true" />}
       <span className="operation-outcome-status">{status}</span><span className="operation-outcome-caption">{caption}</span><ChevronDown size={14} className="operation-outcome-chevron" aria-hidden="true" />
-    </summary><div className="operation-receipt-evidence"><p>{caption}</p><details><summary>Changes and preconditions</summary><pre>{JSON.stringify({ description: operation.description, kind: operation.kind, args: operation.args, resources: operation.resourceIds, preconditions: operation.preconditions }, null, 2)}</pre></details>{operation.result !== undefined && <details><summary>Executor result</summary><pre>{display(operation.result)}</pre></details>}{operation.error && <p className="error-text">{operation.error}</p>}<ActionDetails threadId={operation.threadId} invocationId={`operation:${operation.id}@${operation.revision}`} /></div></details></section>;
+    </summary><div className="operation-receipt-evidence"><p>{caption}</p><OperationExecutionPolicy kind={operation.kind}/><details><summary>Changes and preconditions</summary><pre>{JSON.stringify({ description: operation.description, kind: operation.kind, args: operation.args, resources: operation.resourceIds, preconditions: operation.preconditions }, null, 2)}</pre></details>{operation.result !== undefined && <details><summary>Executor result</summary><pre>{display(operation.result)}</pre></details>}{operation.error && <p className="error-text">{operation.error}</p>}<ActionDetails threadId={operation.threadId} invocationId={`operation:${operation.id}@${operation.revision}`} observationKey={observationKey} /><OperationExecutionReviewPanel operation={operation} owner={owner} lazy /></div></details></section>;
   }
-  return <section className="decision" data-operation-id={operation.id} aria-label={approve ? 'Operation approval' : 'Operation outcome'}><header><span className="pending-dot" />{reconcile ? 'Inspect uncertain outcome' : approve ? 'Review operation' : 'Operation receipt'}<span className="badge">{approve ? 'Approval needed' : operation.status}</span></header><p>{caption}</p><details><summary>Changes and preconditions</summary><pre>{JSON.stringify({ description: operation.description, kind: operation.kind, args: operation.args, resources: operation.resourceIds, preconditions: operation.preconditions }, null, 2)}</pre></details>{operation.result !== undefined && <details><summary>Executor result</summary><pre>{display(operation.result)}</pre></details>}{operation.error && <p className="error-text">{operation.error}</p>}<ActionDetails threadId={operation.threadId} invocationId={`operation:${operation.id}@${operation.revision}`} />{reconcile && <p className="muted">Inspect the actual outcome before resuming. Reconciliation reads evidence without repeating this operation.</p>}{error && <p role="status" className="error-text">{error}</p>}{(approve || reconcile) && <div className="decision-actions">{approve && <button className="quiet" disabled={busy} onClick={() => void execute('operation.reject')}>Decline operation</button>}<button className={approve ? 'primary' : 'secondary'} disabled={busy} onClick={() => void execute(reconcile ? 'operation.reconcile' : 'operation.approve')}>{busy ? 'Checking…' : reconcile ? 'Inspect outcome' : 'Approve operation'}{approve && <Check size={14} />}</button></div>}</section>;
+  return <section className="decision" data-operation-id={operation.id} aria-label={approve ? 'Operation approval' : 'Operation outcome'}><header><span className="pending-dot" />{reconcile ? 'Inspect uncertain outcome' : approve ? 'Review operation' : 'Operation receipt'}<span className="badge">{approve ? 'Approval needed' : operation.status}</span></header><p>{caption}</p><OperationExecutionPolicy kind={operation.kind}/><details><summary>Changes and preconditions</summary><pre>{JSON.stringify({ description: operation.description, kind: operation.kind, args: operation.args, resources: operation.resourceIds, preconditions: operation.preconditions }, null, 2)}</pre></details>{operation.result !== undefined && <details><summary>Executor result</summary><pre>{display(operation.result)}</pre></details>}{operation.error && <p className="error-text">{operation.error}</p>}<ActionDetails threadId={operation.threadId} invocationId={`operation:${operation.id}@${operation.revision}`} observationKey={observationKey} />{approve && operation.kind === 'repository.test' && <OperationProjectTrust key={trustKey} operation={operation} owner={owner} ownerKey={trustKey} onReady={setProjectTrust}/>}{operation.kind === 'repository.test' && (operation.status === 'running' || operation.status === 'prepared' && operation.approved) && <OperationProjectTrustStatus key={trustKey} operation={operation} owner={owner} ownerKey={trustKey}/>}<OperationExecutionReviewPanel operation={operation} owner={owner} refreshToken={projectTrust}/>{reconcile && <p className="muted">Inspect the actual outcome before resuming. Reconciliation reads evidence without repeating this operation.</p>}{error && <p role="status" className="error-text">{error}</p>}{(approve || reconcile) && <div className="decision-actions">{approve && <button className="quiet" disabled={busy} onClick={() => void execute('operation.reject')}>Decline operation</button>}<button className={approve ? 'primary' : 'secondary'} disabled={busy || approve && !trustReady} onClick={() => void execute(reconcile ? 'operation.reconcile' : 'operation.approve')}>{busy ? 'Checking…' : reconcile ? 'Inspect outcome' : 'Approve operation'}{approve && <Check size={14} />}</button></div>}</section>;
 }
 
 function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string; close: () => void; refresh: () => Promise<void>; opener: HTMLElement | null }) {
@@ -1152,7 +1175,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (historyStart > 0) { captureHistoryAnchor(historyId); historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); captureHistoryAnchor(historyId); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
         {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} /></SourceMessage>:<Markdown text={message.content} />}{!updates&&<CopyButton text={message.content} label="Copy message"/>}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}
-        {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} />)}
+        {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} owner={thread} />)}
         {thread?.error && <p className="notice" role="status">{thread.error}</p>}
         {thread && (thread.runId || thread.status === 'working') && <div className="working-status" role="status"><LoaderCircle size={13} className="spinning" /><span>{({queued:'Queued for account…',starting:'Starting runtime…',generating:'Generating…',tool:'Running tool…',cleanup:'Cleaning up…',compacting:'Compacting context…'} as Record<string,string>)[snapshot.usage[thread.id]?.activity ?? ''] ?? 'Working…'}</span><button className="quiet" onClick={() => void stopConversation(thread, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error)))}>Stop</button></div>}
       </div></div>; })}</div></div>
