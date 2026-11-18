@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import {describe,it,expect,afterEach} from 'vitest';
 import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -268,7 +269,7 @@ it('an audited task_finish does not block its own completion assessment',async()
  const {Service}=await import('../packages/core/service');
  const root=workspace();const store=stateStore();
  const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
- const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
+ const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true},toolEffectAuthenticator:testEffectAuthenticator()});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
@@ -411,5 +412,35 @@ describe('complete requirement evidence',()=>{
   const result=assess(['build','test'],[observation('build'),observation('test')]);
   expect(result.label).toBe('VERIFIED');
   expect(result.requirements[0].missing).toEqual([]);
+ });
+
+ it.each([
+  ['failed cleanup',{phase:'TEARDOWN' as const,observationKind:'cleanup' as const,outcome:'FAIL' as const,exitCode:null},'FAILED'],
+  ['cancelled execution',{outcome:'CANCELLED' as const,exitCode:null},'FAILED'],
+  ['blocked execution',{outcome:'BLOCKED' as const,exitCode:null},'BLOCKED'],
+  ['unsettled execution',{outcome:'UNKNOWN' as const,exitCode:null},'COMPLETED_UNVERIFIED'],
+ ])('a direct passing check reference cannot hide %s',(_reason,over,label)=>{
+  const result=assess(['build'],[observation('build'),observation('execution-status',over)]);
+  expect(result.label).toBe(label);
+ });
+
+ it('failures from a separate execution remain historical when a fresh check is bound',()=>{
+  const result=assess(['build'],[observation('build'),observation('prior-failure',{executionId:'exec-prior',outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it.each([
+  {threadId:'another-thread'}, {runId:'another-run'}, {epoch:2},
+  {projectId:'another-project'}, {workspaceId:'another-workspace'}, {accountBinding:'another-account'},
+ ])('an execution ID collision cannot import failure from owner %j',changedOwner=>{
+  const result=assess(['build'],[observation('build'),observation('foreign-failure',{owner:{...owner(),...changedOwner},outcome:'FAIL',exitCode:1})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
+ it('the largest requirement still reports incomplete execution evidence within the contract bound',()=>{
+  const refs=Array.from({length:64},(_,index)=>`check-${index}`);
+  const result=assess(refs,[observation('check-0',{outcome:'UNKNOWN',exitCode:null})]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing).toHaveLength(64);
  });
 });
