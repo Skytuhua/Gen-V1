@@ -55,7 +55,7 @@ if(process.argv.includes('--assemble')){
  write(prefix+'source-lock.json',expectedLock);
  const changedFiles=paths(plan.executionBaseSha);
  write(prefix+'command-index.json',expectedCommandIndex);
- write(prefix+'source-cut.json',{executionBaseSha:plan.executionBaseSha,files:changedFiles.filter(path=>!path.startsWith('docs/')).map(path=>({path,bytes:statSync(path).size,sha256:hash(path),gitBlob:git('hash-object',path)}))});
+ write(prefix+'source-cut.json',{executionBaseSha:plan.executionBaseSha,files:changedFiles.filter(path=>!path.startsWith('docs/')).map(path=>({path,bytes:statSync(path).size,sha256:hash(path),gitBlob:git('hash-object','--',path)}))});
  const artifactFiles=[...walk(`${root}/m15-logs`),...walk(`${root}/m15-artifacts`),...changedFiles.filter(path=>path.startsWith(prefix)&&path.endsWith('.md')),prefix+'evidence-plan.json'].sort();
  write(prefix+'artifacts.json',{files:artifactFiles.map(path=>({path,bytes:statSync(path).size,sha256:hash(path)}))});
  write(prefix+'verification.json',implementationEvidenceV3Schema.parse({schemaVersion:3,bundleId:'M15-source-aware-workbench',baseSha:plan.executionBaseSha,sourceLockDigest:hash(prefix+'source-lock.json'),platform:`${process.platform}-${process.arch}`,nodeVersion:process.version,packageManagerVersion:'10.30.3',phases:expectedPhases,changedFiles,dependencyContracts:expectedLock.publicContracts,flags:[{key:'ui.sourceWorkbenchV1',enabled:false}],remainingGates:plan.remainingGates,reviewerApproval:false}));
@@ -93,7 +93,7 @@ check(JSON.stringify(artifacts.map(artifact=>artifact.path))===JSON.stringify(ex
 for(const artifact of artifacts)check(existsSync(artifact.path)&&statSync(artifact.path).size===artifact.bytes&&hash(artifact.path)===artifact.sha256,`Artifact mismatch: ${artifact.path}`);
 const sourceCut=json(prefix+'source-cut.json') as {executionBaseSha:string;files:{path:string;bytes:number;sha256:string;gitBlob:string}[]};
 check(sourceCut.executionBaseSha===plan.executionBaseSha,'Implementation source cut has a different base.');
-for(const file of sourceCut.files)check(existsSync(file.path)&&statSync(file.path).size===file.bytes&&hash(file.path)===file.sha256&&git('hash-object',file.path)===file.gitBlob,`Implementation source changed: ${file.path}`);
+for(const file of sourceCut.files)check(existsSync(file.path)&&statSync(file.path).size===file.bytes&&hash(file.path)===file.sha256&&git('hash-object','--',file.path)===file.gitBlob,`Implementation source changed: ${file.path}`);
 check(JSON.stringify(paths(evidence.baseSha))===JSON.stringify(evidence.changedFiles),'Complete changed-file list differs.');
 check(JSON.stringify(evidence.changedFiles.filter(path=>!path.startsWith('docs/')))===JSON.stringify(sourceCut.files.map(file=>file.path)),'Implementation source-cut list differs.');
 for(const phase of evidence.phases)for(const ref of phase.artifactRefs)check(existsSync(ref),`Missing phase artifact: ${ref}`);
