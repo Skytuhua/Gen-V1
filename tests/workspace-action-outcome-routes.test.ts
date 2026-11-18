@@ -5,6 +5,7 @@ import {mkdir,mkdtemp,readFile,rm,writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store.ts';
+import {HarnessError} from '../packages/contracts/index.ts';
 import {ProjectTools} from '../packages/workspace/tools.ts';
 import {GitHubTools} from '../packages/workspace/github.ts';
 import type {TerminalHost} from '../packages/workspace/terminal.ts';
@@ -107,4 +108,36 @@ it('returns an unsuccessful response for an unconfirmed action so existing contr
  registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
  const mutation=vi.spyOn(f.projects,'gitAction'),response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});
  expect(response.statusCode).toBe(409);expect(response.json()).toMatchObject({state:'not-applied',error:{code:'REVISION_CHANGED'}});expect(mutation).not.toHaveBeenCalled();
+},60000);
+
+
+it.each(['before write','after write'] as const)('keeps credential-bearing %s failures outside HTTP results and durable events',async(phase)=>{
+ const f=await fixture(),status=await f.projects.gitStatus(f.projectId,f.thread.id),app=Fastify(),service={store:f.store} as Service;
+ registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});
+ registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
+ const token=await f.github.auth.token(),encoded=Buffer.from(token).toString('base64');
+ // Only the failed external write edge is injected. The real action owner,
+ // credential fence, HTTP route and durable intent/event handling remain active.
+ const create=vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{
+  if(phase==='after write')beforeWrite?.();
+  throw new HarnessError('GIT_ERROR','Private child diagnostic: '+token,{stdout:token,stderr:encoded,exitCode:17});
+ });
+ const input={id:randomUUID(),type:'create-pr',threadId:f.thread.id,payload:{
+  title:'Owned privacy fixture',body:'Public test body',base:'main',push:true,head:status.head,revision:status.revision,
+ }};
+ const sequence=f.store.sequence;
+ const response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});
+ expect(create).toHaveBeenCalledTimes(1);
+ expect(response.statusCode).toBe(409);
+ expect(response.headers['cache-control']).toBe('no-store');
+ expect(response.json()).toMatchObject({
+  state:phase==='after write'?'uncertain':'not-applied',
+  error:{
+   code:phase==='after write'?'ACTION_UNCERTAIN':'REVISION_CHANGED',
+   details:{state:phase==='after write'?'uncertain':'not-applied',operationId:input.id},
+  },
+ });
+ const publicAndDurable=JSON.stringify([response.json(),f.store.eventsAfter(sequence),f.store.all('workspaceActionOutcome')]);
+ expect(publicAndDurable).not.toContain(token);
+ expect(publicAndDurable).not.toContain(encoded);
 },60000);
