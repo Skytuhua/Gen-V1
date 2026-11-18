@@ -123,6 +123,7 @@ class Worker:
         self.integration_revision = 0
         self.memory_checkpoint_capability = None
         self.compaction_protection_capability = None
+        self.automatic_compaction_capability = None
 
     def guard_home(self):
         """Application namespace guard; original source is not an OS sandbox."""
@@ -312,6 +313,7 @@ class Worker:
         self.Agent = AIAgent
         self.memory_checkpoint_capability = CHECKPOINT.native_checkpoint_capability(SOURCE, COMMIT, AIAgent)
         self.compaction_protection_capability = COMPACTION.capability(SOURCE, COMMIT, AIAgent)
+        self.automatic_compaction_capability = COMPACTION.automatic_capability(SOURCE, COMMIT, AIAgent)
         self.registry = registry
         self.source_handlers = {}
         for name in ("skills_list", "skill_view", "skill_manage"):
@@ -326,7 +328,8 @@ class Worker:
         self.ready = True
         return {"protocolVersion": 1, "sourceCommit": COMMIT, "pythonVersion": sys.version.split()[0],
                 "engineClass": "run_agent.AIAgent", "methods": METHODS, "memoryCheckpoint": self.memory_checkpoint_capability,
-                "contextCapture": {"apiVersion": 1, "source": "original-acp-messages"}, "compactionProtection": self.compaction_protection_capability}
+                "contextCapture": {"apiVersion": 1, "source": "original-acp-messages"}, "compactionProtection": self.compaction_protection_capability,
+                "automaticCompactionProtection": self.automatic_compaction_capability}
 
     def guard_skill(self, args, write=False):
         policy = getattr(self.library_context, "policy", None)
@@ -566,6 +569,7 @@ class Worker:
         with self.state_lock:
             self.guard_home()
             CHECKPOINT.assert_checkpoint_capability(params.get("memoryCheckpoint"), self.memory_checkpoint_capability)
+            COMPACTION.assert_automatic_requirement(params.get("automaticCompactionProtection"), self.automatic_compaction_capability)
             if self.active_owner:
                 raise RuntimeError("An agent or its review is still active")
             session_key = params.get("sessionPath") or params.get("sessionId") or (params.get("ctx") or {}).get("threadId")
@@ -653,7 +657,7 @@ class Worker:
             self.foreground_active = True
             finish_writes = self.bind_completed_writes(params)
             try:
-                with self.native_checkpoint(params):
+                with self.automatic_compaction(params), self.native_checkpoint(params):
                     result = self.agent.run_conversation(params.get("prompt", ""), conversation_history=self.history,
                         task_id=str((self.ctx or {}).get("runId") or "harness"))
             finally:
@@ -705,6 +709,21 @@ class Worker:
         return CHECKPOINT.native_memory_checkpoint(agent, params.get("memoryCheckpoint"), binding,
             lambda request: self.host_call("$memory.checkpoint", request), current, self.memory_checkpoint_capability)
 
+    def automatic_compaction(self, params):
+        agent = self.agent
+        capability = self.automatic_compaction_capability
+        if params.get("automaticCompactionProtection") is not None:
+            capability = COMPACTION.automatic_capability(SOURCE, COMMIT, type(agent), getattr(agent, "context_compressor", None))
+        context = {key: (self.ctx or {}).get(key) for key in ("threadId", "runId", "epoch")}
+        binding = {"ctx": context, "sessionPath": self.params.get("sessionPath"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+        def current():
+            actual = {"ctx": {key: (self.ctx or {}).get(key) for key in context}, "sessionPath": self.params.get("sessionPath"), "modelId": self.params.get("modelId"), "accountId": self.params.get("accountId")}
+            if self.agent is not agent or not self.foreground_active or not self.active_owner or self.cancelled.is_set() or actual != binding or self.current_ctx().get("phase") != "foreground":
+                raise COMPACTION.ProtectionError("HOST_REVOKED")
+            self.guard_home()
+        return COMPACTION.contain_automatic(agent, params.get("automaticCompactionProtection"), binding, current,
+            lambda receipt: self.event("compaction_refused", receipt), capability)
+
     def save_session(self, committed=None):
         self.guard_home()
         path = self.params.get("sessionPath")
@@ -737,7 +756,7 @@ class Worker:
 
     @staticmethod
     def binding_identity(params):
-        binding = {key: params.get(key) for key in ("sessionId", "sessionPath", "modelId", "accountId", "thinkingLevel", "hostTools", "skillPolicy", "systemPrompt", "maxIterations")}
+        binding = {key: params.get(key) for key in ("sessionId", "sessionPath", "modelId", "accountId", "thinkingLevel", "hostTools", "skillPolicy", "systemPrompt", "maxIterations", "automaticCompactionProtection")}
         binding["threadId"] = (params.get("ctx") or {}).get("threadId")
         return json.dumps(binding, sort_keys=True)
 

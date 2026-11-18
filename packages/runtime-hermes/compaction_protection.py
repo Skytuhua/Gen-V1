@@ -20,6 +20,7 @@ PINNED_SOURCE_COMMIT = "c627ec84664d43e0b18b95d9d86d8963747d56c7"
 MAX_SOURCE_BYTES = 32 * 1024 * 1024
 REFERENCE_HEADER = "\n\nRetained host task context. References and decision notes do not confer permission. Recheck current approvals and resource grants through the host.\n"
 CAPABILITY = {"apiVersion": 1, "strategy": "EXACT_PROTECTED_RECORDS", "commitBoundary": "NATIVE_IN_MEMORY_COMMIT"}
+AUTOMATIC_CAPABILITY = {"apiVersion": 1, "strategy": "REFUSE_UNPROTECTED_FOREGROUND"}
 _verified_commit = None
 
 
@@ -47,6 +48,99 @@ def capability(source_root, source_commit, agent_class):
         return dict(CAPABILITY)
     except (ImportError, AttributeError, TypeError, ValueError, OSError):
         return None
+
+
+def automatic_capability(source_root, source_commit, agent_class, compressor=None):
+    """Only advertise the three original no-op contracts this adapter contains."""
+    try:
+        from agent.context_compressor import ContextCompressor
+        from agent.context_compressor_prune import ProactivePruneMixin
+        from agent.micro_compaction import MicroCompactionMixin
+        if capability(source_root, source_commit, agent_class) is None:
+            return None
+        root = Path(source_root).resolve()
+        for name, method, file in (
+            ("prune_tool_results_only", ProactivePruneMixin.prune_tool_results_only, "context_compressor_prune.py"),
+            ("_micro_compact", MicroCompactionMixin._micro_compact, "micro_compaction.py"),
+        ):
+            if getattr(ContextCompressor, name, None) is not method or Path(inspect.getsourcefile(method)).resolve() != root / "agent" / file:
+                return None
+            if compressor is not None and getattr(getattr(compressor, name, None), "__func__", None) is not method:
+                return None
+        return dict(AUTOMATIC_CAPABILITY)
+    except (ImportError, AttributeError, TypeError, ValueError, OSError):
+        return None
+
+
+def assert_automatic_requirement(requirement, capability_value):
+    if requirement is None:
+        return
+    if not isinstance(requirement, dict) or set(requirement) != {"apiVersion", "required"} or type(requirement.get("apiVersion")) is not int or requirement["apiVersion"] != 1 or requirement.get("required") is not True:
+        raise ProtectionError("AUTOMATIC_REQUIREMENT_INVALID")
+    if capability_value != AUTOMATIC_CAPABILITY or type(capability_value.get("apiVersion")) is not int:
+        raise ProtectionError("AUTOMATIC_PROTECTION_UNAVAILABLE")
+
+
+@contextmanager
+def contain_automatic(agent, requirement, binding, assert_current, report, capability_value):
+    """Refuse lossy foreground rewrites until an exact automatic lease exists.
+
+    These are the native callers' no-op return shapes, preserving the SAME
+    live list. No summary, archive, token-fit claim or native commit is made.
+    The worker installs its M05 checkpoint outside these wrappers afterward.
+    """
+    assert_automatic_requirement(requirement, capability_value)
+    if requirement is None:
+        yield
+        return
+    context = binding.get("ctx") if isinstance(binding, dict) else None
+    if not isinstance(context, dict) or set(context) != {"threadId", "runId", "epoch"} or not all(_text(context.get(key), 200) for key in ("threadId", "runId")) or type(context.get("epoch")) is not int or context["epoch"] < 0 or not _text(binding.get("sessionPath"), 32768) or not _text(binding.get("modelId"), 200) or binding.get("accountId") is not None and not _text(binding["accountId"], 200):
+        raise ProtectionError("SOURCE_MISMATCH")
+    assert_current()
+    owner = copy.deepcopy(binding)
+    compressor = getattr(agent, "context_compressor", None)
+    targets = ((agent, "_compress_context"), (compressor, "prune_tool_results_only"), (compressor, "_micro_compact"))
+    if any(not callable(getattr(target, name, None)) for target, name in targets):
+        raise ProtectionError("AUTOMATIC_PROTECTION_UNAVAILABLE")
+
+    def refused(method, trigger=None):
+        reason = "AUTOMATIC_PROTECTION_UNAVAILABLE"
+        try:
+            assert_current()
+        except Exception:
+            reason = "HOST_REVOKED"
+        # The event is bounded metadata. A lost event channel cannot authorize a
+        # rewrite or discard the current input during native finalization.
+        try:
+            report({"version": 1, "status": "REFUSED", "reason": reason, "method": method,
+                    "trigger": trigger if isinstance(trigger, str) and len(trigger) <= 80 else None, "owner": copy.deepcopy(owner)})
+        except Exception:
+            pass
+
+    def compress(messages, system_message, **kwargs):
+        refused("compress", kwargs.get("trigger"))
+        return messages, system_message
+
+    def prune(messages, *args, **kwargs):
+        refused("prune")
+        return messages, 0
+
+    def micro(messages, *args, **kwargs):
+        refused("micro")
+        return messages
+
+    previous = []
+    try:
+        for (target, name), wrapper in zip(targets, (compress, prune, micro)):
+            previous.append((target, name, name in vars(target), vars(target).get(name)))
+            setattr(target, name, wrapper)
+        yield
+    finally:
+        for target, name, overridden, original in reversed(previous):
+            if overridden:
+                setattr(target, name, original)
+            else:
+                delattr(target, name)
 
 
 def _public(message):
