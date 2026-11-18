@@ -8,7 +8,7 @@ import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'nod
 import { fileURLToPath } from 'node:url';
 import type { CommandEvidence, EvidenceIssue, SourceLockV3 } from '../packages/contracts/implementation-evidence.ts';
 import { sourceLockV3Schema } from '../packages/contracts/implementation-evidence.ts';
-import { CONTRACT_SOURCES, resolvePackageManager, runRecordedCommand, statusFromObservation, writeCommandEvidence } from './research-baseline.ts';
+import { CONTRACT_SOURCES, resolvePackageManagerCandidates, resolvePinnedPackageManager, runRecordedCommand, statusFromObservation, writeCommandEvidence } from './research-baseline.ts';
 
 type Status = 'PASS' | 'FAIL' | 'BLOCKED';
 interface SourceReceipt {
@@ -146,13 +146,20 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
     requireValue(typeof installed.version === 'string' && installed.version === (pkg.devDependencies?.vitest ?? pkg.dependencies?.vitest),
       'Installed Vitest must match the exact declared version.');
     receipt.vitestVersion = installed.version;
-    const pm = resolvePackageManager(root);
     const environment = { COREPACK_ENABLE_NETWORK: '0', CI: 'true' };
-    const version = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: root, timeoutMs: 30_000, environment });
-    receipt.commands.push(await writeCommandEvidence(version, out, '00-package-manager', statusFromObservation(version)));
-    receipt.packageManagerVersion = version.stdout.trim();
-    requireValue(statusFromObservation(version) === 'PASS' && receipt.packageManagerVersion === pkg.packageManager.slice(5),
-      'Pinned pnpm is unavailable offline or its version does not match.');
+    const declaredVersion = pkg.packageManager.slice(5);
+    // A launcher that exists can still fail offline, so the installed pnpm must
+    // not be vetoed by a Corepack dispatcher that cannot answer. Only the
+    // launcher that answers for the pin enters the receipt, so a fallback never
+    // shifts the recorded command order; a run where none answers keeps the last
+    // attempt as the blocked evidence.
+    const { packageManager: pm, observation: answer } = await resolvePinnedPackageManager(
+      resolvePackageManagerCandidates(root), declaredVersion,
+      candidate => runRecordedCommand(candidate.file, [...candidate.prefix, '--version'], { cwd: root, timeoutMs: 30_000, environment }));
+    requireValue(answer !== undefined, 'Pinned pnpm is unavailable offline or its version does not match.');
+    receipt.commands.push(await writeCommandEvidence(answer, out, '00-package-manager', statusFromObservation(answer)));
+    requireValue(pm !== undefined, 'Pinned pnpm is unavailable offline or its version does not match.');
+    receipt.packageManagerVersion = answer.stdout.trim();
     const reportPath = join(out, 'vitest.json');
     const configPath = join(out, 'vitest.config.mjs');
     // Positional Vitest filters match substrings. A fresh exact include list

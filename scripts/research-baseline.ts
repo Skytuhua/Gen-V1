@@ -41,16 +41,25 @@ export function resolveExecutable(name: string): ResolvedExecutable {
 }
 
 export interface PackageManagerResolution { file: string; prefix: string[]; declaredVersion: string | null }
-export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
+export function resolvePackageManagerCandidates(repoRoot: string): PackageManagerResolution[] {
   const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
   const declared = typeof pkg.packageManager === 'string' ? pkg.packageManager.split('@').at(-1)! : null;
+  // A launcher can exist and still fail: a Corepack dispatcher whose cache lacks
+  // the pinned version cannot download with networking off. Every installed
+  // launcher is therefore a candidate, in preference order, for the caller to
+  // try until one reports the declared version.
+  const candidates: PackageManagerResolution[] = [];
+  const add = (candidate: PackageManagerResolution) => {
+    if (!candidates.some(existing => existing.file === candidate.file && existing.prefix.join('\0') === candidate.prefix.join('\0')))
+      candidates.push(candidate);
+  };
   // `corepack enable` lays down POSIX/.cmd shims, not a PE image, so the real
   // entry on Windows is node.exe plus corepack's per-manager dispatcher.
   const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
-  if (existsSync(dispatcher)) return { file: process.execPath, prefix: [dispatcher], declaredVersion: declared };
+  if (existsSync(dispatcher)) add({ file: process.execPath, prefix: [dispatcher], declaredVersion: declared });
   try {
     const corepack = resolveExecutable('corepack');
-    return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+    add({ file: corepack.file, prefix: ['pnpm'], declaredVersion: declared });
   } catch (error) {
     if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
   }
@@ -62,14 +71,36 @@ export function resolvePackageManager(repoRoot: string): PackageManagerResolutio
       const target = join(directory, name);
       if (!existsSync(target) || !statSync(target).isFile()) continue;
       const actual = realpathSync(target);
-      if (/\.exe$/i.test(actual)) return { file: actual, prefix: [], declaredVersion: declared };
+      if (/\.exe$/i.test(actual)) add({ file: actual, prefix: [], declaredVersion: declared });
       for (const entry of [actual, join(dirname(actual), 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'), join(dirname(actual), '..', 'pnpm', 'bin', 'pnpm.cjs')]) {
         if (/\.[cm]?js$/i.test(entry) && existsSync(entry) && statSync(entry).isFile())
-          return { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
+          add({ file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared });
       }
     }
   }
-  throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
+  return candidates;
+}
+
+export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
+  const [first] = resolvePackageManagerCandidates(repoRoot);
+  if (!first) throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
+  return first;
+}
+
+// Only the launcher that answers with the declared version may proceed, and a
+// launcher that cannot answer offline must not veto one that can.
+export async function resolvePinnedPackageManager(
+  candidates: PackageManagerResolution[], declaredVersion: string,
+  run: (candidate: PackageManagerResolution) => Promise<RecordedObservation>,
+): Promise<{ packageManager?: PackageManagerResolution; observation?: RecordedObservation }> {
+  let observation: RecordedObservation | undefined;
+  for (const candidate of candidates) {
+    const attempt = await run(candidate);
+    observation = attempt;
+    if (statusFromObservation(attempt) === 'PASS' && attempt.stdout.trim() === declaredVersion)
+      return { packageManager: candidate, observation: attempt };
+  }
+  return { observation };
 }
 
 export interface RecordedObservation {

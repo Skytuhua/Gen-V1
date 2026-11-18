@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { constants, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
@@ -12,8 +12,9 @@ import {
   type BenchmarkRecord, type CommandEvidence, type ImplementationEvidenceV3, type PhaseEvidence,
 } from '../packages/contracts/implementation-evidence.ts';
 import {
-  CONTRACT_SOURCES, benchmarkReportHtml, resolveExecutable, resolvePackageManager, runRecordedCommand,
+  CONTRACT_SOURCES, benchmarkReportHtml, resolveExecutable, resolvePackageManager, resolvePackageManagerCandidates, resolvePinnedPackageManager, runRecordedCommand,
   statusFromObservation, verifySourceLock, writeCommandEvidence,
+  type PackageManagerResolution, type RecordedObservation,
 } from '../scripts/research-baseline.ts';
 
 const dirs: string[] = [];
@@ -147,6 +148,48 @@ describe('executable resolution', () => {
       expect(pm.prefix.length).toBeGreaterThan(0);
       expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
     } finally { vi.unstubAllEnvs(); }
+  });
+
+  // A Corepack dispatcher whose cache lacks the pinned version cannot answer
+  // offline; the installed pnpm beside it must remain a candidate.
+  it('keeps an installed pnpm as a fallback launcher beyond corepack', () => {
+    const base = dir('fallback');
+    const bin = join(base, 'bin');
+    mkdirSync(bin);
+    writeFileSync(join(bin, 'pnpm'), '');
+    mkdirSync(join(base, 'pnpm', 'bin'), { recursive: true });
+    writeFileSync(join(base, 'pnpm', 'bin', 'pnpm.cjs'), '');
+    const entry = realpathSync(join(base, 'pnpm', 'bin', 'pnpm.cjs'));
+    vi.stubEnv('PATH', bin);
+    try {
+      const candidates = resolvePackageManagerCandidates(process.cwd());
+      expect(candidates.length).toBeGreaterThan(0);
+      expect(candidates.map(candidate => candidate.prefix.at(-1))).toContain(entry);
+      expect(candidates.every(candidate => !/\.(cmd|bat|ps1)$/i.test(candidate.file))).toBe(true);
+      expect(candidates[0]).toEqual(resolvePackageManager(process.cwd()));
+      expect(candidates[0].declaredVersion).toBe('10.30.3');
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it('skips a launcher that cannot answer offline and keeps the one that answers', async () => {
+    const launcher = (file: string): PackageManagerResolution => ({ file, prefix: [], declaredVersion: '10.30.3' });
+    const answered = (file: string, stdout: string, exitCode: number): RecordedObservation => ({
+      argv: [file, '--version'], cwdIdentity: 'C:/repo', executableIdentity: file,
+      startedAt: '2026-11-18T00:00:00Z', endedAt: '2026-11-18T00:00:01Z',
+      exitCode, termination: 'NONE', stdout, stderr: '', truncated: false,
+    });
+    const offline = launcher('C:/node/node.exe'), installed = launcher('C:/pnpm/pnpm.exe');
+    const attempted: string[] = [];
+    const pinned = await resolvePinnedPackageManager([offline, installed], '10.30.3', async candidate => {
+      attempted.push(candidate.file);
+      return candidate === offline ? answered(offline.file, '', 1) : answered(installed.file, '10.30.3\n', 0);
+    });
+    expect(attempted).toEqual([offline.file, installed.file]);
+    expect(pinned.packageManager).toBe(installed);
+    expect(pinned.observation?.stdout.trim()).toBe('10.30.3');
+    const mismatched = await resolvePinnedPackageManager([installed], '10.30.3', async () => answered(installed.file, '12.11.2\n', 0));
+    expect(mismatched.packageManager).toBeUndefined();
+    expect(mismatched.observation?.stdout.trim()).toBe('12.11.2');
   });
 });
 
