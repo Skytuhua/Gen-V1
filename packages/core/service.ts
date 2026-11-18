@@ -49,7 +49,7 @@ import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, type ToolEffectFlag } from "./tool-effects.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
-import { recoverEffects } from "./effect-recovery.ts";
+import { recoverEffects, disableEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
@@ -186,7 +186,7 @@ export class Service {
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute();}});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
     // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
     // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
@@ -324,6 +324,7 @@ export class Service {
     return source;
   }
   private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult {
+    this.effects.assertAdmissionsEnabled();
     this.assertLearningSource(job);
     if(!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
     if(call.name==='session_search')return {value:searchSessions(this.store,call.args)};
@@ -555,6 +556,7 @@ export class Service {
     return models;
   }
   private assertMutation(threadId: string): void {
+    this.effects.assertAdmissionsEnabled();
     const thread = this.thread(threadId);
     if(thread.mode==='plan')throw new HarnessError('PLAN_MODE','Plan mode is read-only. Switch to Build before preparing or approving a change.');
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("CANCELLED_RUN", "Resume this thread before starting operations");
@@ -607,6 +609,7 @@ export class Service {
   /** M09 read-role domain context: resources resolve read-only, operation
    * preparation is denied before effects, evidence publishing stays open. */
   private agentReadDomain(threadId: string) {
+    this.effects.assertAdmissionsEnabled();
     const signal = new AbortController().signal, domain = this.context(threadId, signal);
     return {
       threadId, signal,
@@ -1459,6 +1462,7 @@ export class Service {
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
+    this.effects.assertAdmissionsEnabled();
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
@@ -1790,7 +1794,8 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, input.threadId, { ...input, requestContextId:undefined, status: "persisted" });}
       return { inferenceCalls: 0 };
     });
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    if (this.effects.admissionsDisabled()) disableEffects(this.store);
+    else if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();

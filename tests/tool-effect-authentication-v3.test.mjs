@@ -12,11 +12,11 @@ afterEach(async () => { for (const close of cleanups.splice(0).reverse()) await 
 const keyId = '00000000-0000-4000-8000-000000000003';
 const signer = (byte = 3) => createEffectAuthenticator(Buffer.alloc(32, byte), keyId);
 const flags = () => createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true });
-async function fixture() {
+async function fixture(policyFlags = flags()) {
   const root = await mkdtemp(join(tmpdir(), 'effect-authentication-'));
   let store = new Store(join(root, 'state'));
   const auth = signer(), authority = new ToolAuthority(buildToolRegistry());
-  let ledger = new ToolEffectLedger(store, authority, flags(), auth);
+  let ledger = new ToolEffectLedger(store, authority, policyFlags, auth);
   const thread = { id: 'owner', title: 'Owner', projectName: null, createdAt: '', updatedAt: '', status: 'working',
     epoch: 1, runId: 'run-1', modelId: 'test/model', sessionPath: null, accountId: null, projectId: null, workspaceId: null };
   const operation = { id: 'owned-action', threadId: thread.id, revision: 1, kind: 'fixture.write',
@@ -31,8 +31,8 @@ async function fixture() {
   };
   cleanups.push(async () => { auth.revoke(); store.close(); await rm(root, { recursive: true, force: true }); });
   return { thread, ctx: { threadId: thread.id, runId: thread.runId, epoch: thread.epoch }, operation, auth, save, approve, dispatch, get store() { return store; }, get ledger() { return ledger; },
-    withoutSigner: () => new ToolEffectLedger(store, authority, flags()),
-    reopen: next => { store.close(); store = new Store(join(root, 'state')); ledger = new ToolEffectLedger(store, authority, flags(), next); },
+    withoutSigner: () => new ToolEffectLedger(store, authority, policyFlags),
+    reopen: next => { store.close(); store = new Store(join(root, 'state')); ledger = new ToolEffectLedger(store, authority, policyFlags, next); },
   };
 }
 
@@ -151,8 +151,14 @@ it('uses keyed invocation commitments consistently across admission and dedupe',
 });
 
 it('retains the existing default-off ledger behavior for legacy callers', async () => {
-  const x = await fixture(), disabled = new ToolEffectLedger(x.store, new ToolAuthority(buildToolRegistry()));
+  const x = await fixture(createToolEffectFlags()), disabled = new ToolEffectLedger(x.store, new ToolAuthority(buildToolRegistry()));
   const approval = disabled.issueApproval(x.operation, x.thread);
   expect(approval.hostAuthenticator).toBeUndefined();
   expect(approval.remainingUses).toBe(1);
+});
+
+it('does not turn off authenticated admission by constructing a legacy ledger over the same protected profile', async () => {
+  const x = await fixture(), disabled = new ToolEffectLedger(x.store, new ToolAuthority(buildToolRegistry()));
+  expect(() => disabled.issueApproval(x.operation, x.thread)).toThrowError(/admissions.*disabled/i);
+  expect(x.store.all('approval')).toEqual([]);
 });
