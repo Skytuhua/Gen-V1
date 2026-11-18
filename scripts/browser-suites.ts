@@ -91,6 +91,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('task-interface'),
   suite('ui-shell-controls'),
   suite('usage-context'),
+  suite('verification-host'),
   suite('wo8'),
 ];
 
