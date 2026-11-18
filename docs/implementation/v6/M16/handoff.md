@@ -154,12 +154,13 @@ production flag change.
   authoritative HWND binding — `pickTarget` stays refused. The approved
   alternative is the app-owned chooser with held-item binding
   (`listWindows`/`candidates` → `windowIdentity`/`captureWindow` by
-  bindingId). Fixture qualification pending Windows receipts.
-- HOLD_PLATFORM_PROOF stays until the Windows box receipts land for both
-  slices: rebuilt `windows-control-bridge.node` SHA-256, chooser enumeration
-  with held bindings, `captureWindow(bindingId)` PNG on an owned fixture
-  window, owned same-process replacement/refusal fixture, plus installed app
-  browser-tab consent/capture/Stop fixtures where the environment allows.
+  bindingId). Fixture qualification receipts landed @ `e4531ae2`.
+- HOLD_PLATFORM_PROOF stays until remaining Windows box receipts land:
+  installed-app browser-tab consent/capture/Stop (env-blocked:
+  `backend-deadline` + port-9222 collision) and one clean-box re-run of the
+  owned fixture for teardown-exit confirmation (all assertions passed; the
+  fixture process hung at exit on the degraded box — environmental anomaly,
+  since `pnpm build` hung identically without loading the addon).
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
