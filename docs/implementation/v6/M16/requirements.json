@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); fixture receipts pending and the system picker stays held (HOLD_PICKER_BINDING). NOT_RUN until receipts land."
+      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); chooser fixture receipts landed @ e4531ae2 (owned capture PNG + HWND-recycling refusal) but browser-tab qualification remains env-blocked (backend-deadline / port-9222) and the system picker stays held (HOLD_PICKER_BINDING)."
     },
     {
       "id": "M16-S09",
@@ -110,7 +110,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "STOP closeout against a live driver still untestable until the built artifact is qualified on Windows (HOLD_PLATFORM_PROOF). Dispatcher-level Stop semantics are unit-tested; live closeout NOT_RUN."
+      "reason": "STOP closeout against a live driver still untestable until the built artifact is qualified on Windows (HOLD_PLATFORM_PROOF). Dispatcher-level Stop semantics are unit-tested and fixture-level dropBinding release verified @ e4531ae2; live-driver closeout NOT_RUN."
     },
     {
       "id": "M16-T01",
@@ -145,7 +145,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows binds a GraphicsCaptureItem per row inside enumeration — identity is the held item, prop-token same-object proof, Closed-event invalidation; HWND recycling cannot redirect capture). System-picker pickTarget stays held (HOLD_PICKER_BINDING). NOT_RUN pending Windows fixture run."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows binds a GraphicsCaptureItem per row inside enumeration — identity is the held item, prop-token same-object proof, Closed-event invalidation; HWND recycling cannot redirect capture). Owned-fixture receipts landed @ e4531ae2 (bound-item capture + destroy + same-process recycled-HWND refusal), but multi-monitor/focus/minimized/permission-loss acceptance has NOT_RUN and fixture exit-hang confirmation awaits a clean box. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
     },
     {
       "id": "M16-G01",
@@ -208,7 +208,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
       "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
-      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed chooser-path artifact before any live approval; the system-picker path stays held (HOLD_PICKER_BINDING) and chooser fixture receipts are pending — BLOCKED/NOT_RUN."
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed chooser-path artifact before any live approval; the system-picker path stays held (HOLD_PICKER_BINDING); chooser fixture receipts landed @ e4531ae2 but real-platform acceptance (installed artifact, focus/minimize/permission-loss matrix) remains NOT_RUN and a clean-box exit re-run is pending — BLOCKED."
     }
   ]
 }
