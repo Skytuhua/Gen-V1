@@ -2,13 +2,13 @@
 import { spawn } from 'node:child_process';
 
 const steps = [
-  ['node', ['scripts/build-widgets.mjs']],
-  ['node', ['scripts/build-plugin-runtime.mjs']],
+  [process.execPath, ['scripts/build-widgets.mjs']],
+  [process.execPath, ['scripts/build-plugin-runtime.mjs']],
   ['pnpm', ['exec', 'vite', 'build']],
 ];
 const results = await Promise.all(steps.map(([file, args]) => new Promise(resolve => {
   const name = [file, ...args].join(' ');
-  const child = spawn(file, args, { stdio: 'inherit', shell: process.platform === 'win32' });
+  const child = spawn(file, args, { stdio: 'inherit', shell: file === 'pnpm' && process.platform === 'win32' });
   let launchError;
   child.once('error', error => { launchError = error; });
   child.once('close', (status, signal) => resolve({ name, status, signal, launchError }));
