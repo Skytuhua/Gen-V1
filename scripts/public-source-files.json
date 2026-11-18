@@ -3094,6 +3094,7 @@
     "tests/hermes_shared_library.py",
     "tests/hermes_source_contract.py",
     "tests/hermes_source_worker.py",
+    "tests/host-capability-flags.test.ts",
     "tests/host-fixture-cleanup.test.ts",
     "tests/host-fixture.ts",
     "tests/inbox-presentation.test.ts",
