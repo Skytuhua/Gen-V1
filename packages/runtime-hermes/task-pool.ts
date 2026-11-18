@@ -1,6 +1,6 @@
 import {HarnessError,type RuntimeAdapter,type RuntimeCallbacks} from '../contracts/index.ts';
 import {createRuntime} from '../runtime/index.ts';
-import type {HermesEngine,HermesEngineOptions,HermesRuntime,HermesRuntimeDependencies,HermesRuntimeOptions} from './index.ts';
+import type {HermesEngine,HermesEngineOptions,HermesRestrictedTaskPolicy,HermesRuntime,HermesRuntimeDependencies,HermesRuntimeOptions} from './index.ts';
 
 /** The canonical worker keeps legacy source sessions and one serialized original skill library. */
 export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:HermesRuntimeDependencies,createEngine:(options:HermesEngineOptions,dependencies:HermesRuntimeDependencies)=>HermesEngine):HermesRuntime{
@@ -10,7 +10,12 @@ export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:H
  const canonical=createEngine({...options,nativeCatalog:borrowed},dependencies),engines=new Set<HermesEngine>([canonical]),main=new Map<string,HermesEngine>();
  let callbacks:RuntimeCallbacks|undefined,primaryThread:string|undefined,disposed=false,disposing:Promise<void>|undefined;
  const check=()=>{if(disposed)throw new HarnessError('HERMES_DISPOSED','The Hermes runtime has closed.');};
- const secondary=(readOnly=false)=>{const engine=createEngine({...options,nativeCatalog:borrowed,readOnly,sharedLibrary:(params,authority)=>canonical.sourceTool(params,authority),onSourceEvent:event=>{if(event.event==='settled'&&event.ctx)void canonical.sourceTool({releaseOwner:true,ctx:event.ctx}).catch(()=>{});options.onSourceEvent?.(event);}},dependencies);engines.add(engine);return engine;};
+ const secondary=(readOnly=false,policy?:HermesRestrictedTaskPolicy)=>{
+  const captured=policy?structuredClone(policy):undefined;
+  const restriction:Partial<HermesEngineOptions>=captured?{hostTools:captured.hostTools,systemPrompt:captured.systemPrompt,projectRoot:undefined,initialHistory:undefined,approvedWriteHooks:false,
+   settings:async input=>({config:(await options.settings?.(input))?.config??options.config,hostTools:captured.hostTools,systemPrompt:captured.systemPrompt,skillPolicy:{enabled:false,allowWrites:false,backgroundReview:false},integrations:{enabled:[],ponytailMode:'off'}})}:{};
+  const engine=createEngine({...options,...restriction,nativeCatalog:borrowed,readOnly,sharedLibrary:captured?undefined:(params,authority)=>canonical.sourceTool(params,authority),onSourceEvent:event=>{if(!captured&&event.event==='settled'&&event.ctx)void canonical.sourceTool({releaseOwner:true,ctx:event.ctx}).catch(()=>{});options.onSourceEvent?.(event);}},dependencies);engines.add(engine);return engine;
+ };
  const task=(threadId:string)=>{check();let engine=main.get(threadId);if(engine)return engine;if([...main.values()].filter(value=>value.sourceBusy).length>=3)throw new HarnessError('HERMES_SOURCE_BUSY','Three personal main agents already own source workers.');if(primaryThread===undefined){primaryThread=threadId;engine=canonical;}else{
    const idle=main.size>=3?[...main].find(([,value])=>!value.sourceBusy&&!value.reviewBusy):undefined;
    if(idle){main.delete(idle[0]);engine=idle[1];}else engine=secondary();
@@ -28,7 +33,7 @@ export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:H
   sourceRequest(method,params){check();return canonical.sourceRequest(method,params);},sourceTool(params,authority){check();return canonical.sourceTool(params,authority);},
   async cancelBackground(){await Promise.all([...engines].map(engine=>engine.cancelBackground()));},
   async refreshIntegrations(disabledIds){check();await Promise.all([...engines].map(engine=>engine.refreshIntegrations(disabledIds)));},
-  createTaskRuntime(){check();const engine=secondary(true),dispose=engine.dispose.bind(engine);engine.dispose=async()=>{await dispose();engines.delete(engine);};return engine;},
+  createTaskRuntime(policy){check();const engine=secondary(true,policy),dispose=engine.dispose.bind(engine);engine.dispose=async()=>{await dispose();engines.delete(engine);};return engine;},
   dispose(){return disposing??=(async()=>{disposed=true;const outcomes=await Promise.allSettled([...engines].map(engine=>engine.dispose()).concat([catalog.dispose()]));const failures=outcomes.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Hermes task pool cleanup could not be confirmed.');})();},
  };
 }
