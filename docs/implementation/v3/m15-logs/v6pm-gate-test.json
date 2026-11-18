@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/piadmin/tools/pnpm",
+    "test"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6",
+  "executableIdentity": "/home/piadmin/tools/pnpm",
+  "startedAt": "2026-11-17T07:26:04.911Z",
+  "endedAt": "2026-11-17T07:34:28.942Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/postmerge-gate-test.log",
+  "logDigest": "812c8e5911eeb6b25ea1f1dc90f5dbec59e5f52e1d17e69ea225ee9aace03dce"
+}

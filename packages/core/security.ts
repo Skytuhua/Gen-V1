@@ -3,7 +3,7 @@ import { lstatSync, realpathSync, statSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { isAbsolute, relative, resolve, dirname, basename, sep } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations', 'context-results', 'environment', 'checkpoint-store', 'effect-authority'] as const;
+export const PROTECTED_STORAGE_DIRECTORIES = ['pi', 'artifacts', 'official', 'accounts', 'hermes', 'github', 'git', 'integrations', 'context-results', 'environment', 'checkpoint-store', 'effect-authority', 'attachments'] as const;
 const MEMORY_DELETION_LEDGER_NAME = /^\.gen-memory-deletions-[a-f0-9]{64}\.jsonl$/i;
 
 /** Outside a profile-only restore set. This is an application storage boundary,
@@ -48,10 +48,10 @@ export async function resolveGrant(grant: ResourceGrant, relativePath: string | 
   if (relativePath && (!info.isDirectory() || isAbsolute(relativePath))) throw new HarnessError("CAPABILITY_DENIED", "A relative path requires a directory grant");
   const candidate = await canonical(relativePath ? resolve(base, relativePath) : base, write);
   if (!inside(base, candidate)) throw new HarnessError("CAPABILITY_DENIED", "The resolved path leaves its resource grant");
-  assertNotStorage(candidate, dataDir);
+  assertNotStorage(candidate, dataDir, base);
   return candidate;
 }
-export function assertNotStorage(path: string, dataDir: string): void {
+export function assertNotStorage(path: string, dataDir: string, grantRoot?: string): void {
   let root: string;
   try { root = realpathSync(dataDir); } catch { throw new HarnessError("CAPABILITY_DENIED", "Harness storage is unavailable"); }
   for (const child of PROTECTED_STORAGE_DIRECTORIES) {
@@ -64,7 +64,16 @@ export function assertNotStorage(path: string, dataDir: string): void {
   protectedPaths.push(legacyLedger, deletionLedger);
   // Reserve peer-profile ledgers too. Canonicalization resolves symlink aliases;
   // the single-link check below rejects ordinary-name hardlink aliases.
-  if (protectedPaths.some(p => inside(p, path)) || resolve(path).split(/[\\/]+/).some(part => MEMORY_DELETION_LEDGER_NAME.test(part))) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
+  const reserved = protectedPaths.some(p => inside(p, path)) || resolve(path).split(/[\\/]+/).some(part => MEMORY_DELETION_LEDGER_NAME.test(part));
+  if (reserved) {
+    // Stored attachments belong to the conversation that uploaded them: only a
+    // grant rooted inside that conversation's attachment folder may read them
+    // back, so a grant rooted at the profile (or an ancestor) cannot reach
+    // another conversation's uploads.
+    const attachments = resolve(root, "attachments"), folder = inside(attachments, path) ? relative(attachments, path).split(sep)[0] ?? "" : "";
+    const owner = folder && folder !== ".." ? resolve(attachments, folder) : null;
+    if (!owner || !grantRoot || !inside(owner, grantRoot) || !inside(owner, path)) throw new HarnessError("CAPABILITY_DENIED", "Task tools cannot access harness storage or credentials");
+  }
   try { if (statSync(path).isFile() && statSync(path).nlink !== 1) throw new HarnessError("CAPABILITY_DENIED", "Files with multiple hardlinks cannot be granted"); }
   catch (error) { if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error; }
 }

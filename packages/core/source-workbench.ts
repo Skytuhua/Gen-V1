@@ -29,6 +29,7 @@ interface RequestContextRecord {status: 'HOST_PREPARED'; inputId: string; runId:
 /** Projection of the existing Service outbox, never a second input transport. */
 export interface WorkbenchQueuedInput {id: string; threadId: string; content: string; status: 'persisted' | 'processing' | 'handled'; runId: string | null; enteredRuntime?: boolean; requestContextId?: string; sourceRefs?: SourceRefV1[]; sourceFailure?: {code: string; reason: string}; sourceRecovery?: {action: 'KEEP_CAPTURED' | 'CANCEL'; commandId: string; at: string; resumeRequired: boolean}}
 export interface PreparedSourceContext {refs: SourceRefV1[]; text: string; assertCurrent: () => void}
+export interface RetainedFileSource {captureId: string; source: Extract<SelectedSourceV1, {kind: 'FILE_RANGE'}>; label: string; text: string; assertCurrent: () => void}
 /** Host-owned module reads expose metadata only and retain the owning read fence. */
 export interface WorkbenchModuleRead {
   readonly state: Exclude<WorkbenchModuleV1['state'], 'UNSUPPORTED'>;
@@ -199,7 +200,9 @@ export class SourceWorkbench {
   private currentFile(path: string, grant: ResourceGrant): string {
     this.physical(grant.path, grant.identity);
     if (!inside(resolve(grant.path), resolve(path)) || resolve(realpathSync(path)) !== resolve(path)) denied();
-    assertNotStorage(path, this.store.dataDir);
+    // The owning grant is what admits this file: a stored attachment stays
+    // readable through the conversation's own grant, never through a broader one.
+    assertNotStorage(path, this.store.dataDir, realpathSync(grant.path));
     const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
     try {
       const before = fstatSync(fd, {bigint: true});
@@ -265,6 +268,15 @@ export class SourceWorkbench {
       : ownerStamp === record.ownerStamp && (!record.accountUnbound || this.accountUnbound(thread));
     if (!ownsCapture || this.scope(owner, locatorOf(record.source)) !== record.scopeDigest) denied('The captured source has lost its owner or access grant.');
     return record;
+  }
+  /** Host-only evidence read for an already handled selection. Reuse the exact
+   * captured range and its owner/grant fence; never refresh or read new bytes. */
+  retainedFile(raw: unknown): RetainedFileSource {
+    const input = sourceOpenRequestV1Schema.parse(raw), record = this.record(input.logicalOwner, input.ref);
+    if (record.source.kind !== 'FILE_RANGE') denied('Select an already captured file range.');
+    const commitment = digest(record);
+    const assertCurrent = () => {if (digest(this.record(input.logicalOwner, input.ref)) !== commitment) denied('The retained file selection changed.');};
+    return {captureId: record.id, source: structuredClone(record.source), label: record.label, text: record.text, assertCurrent};
   }
   private retain(command: HostCommand, source: SelectedSourceV1, resolved: ResolvedSource): CapturedSourceV1 {
     const text = validateSourceSelection(source, resolved.descriptor);
