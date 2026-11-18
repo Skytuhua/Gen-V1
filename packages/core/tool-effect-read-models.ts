@@ -20,6 +20,38 @@ export const invocationPageSchema = scope.extend({
 });
 export const observationQuerySchema = scope.extend({ invocationId: z.string().min(1).max(400) });
 
+/** Public ledger metadata is an explicit allowlist. Private commitments and
+ * future host authentication fields stay outside every captured read DTO. */
+type PublicOwner = Pick<ToolEffectRecord["owner"], "threadId" | "runId" | "epoch" | "projectId" | "workspaceId" | "accountBinding">;
+type PublicTransition = Pick<ToolEffectRecord["transitions"][number], "from" | "to" | "at" | "note">;
+export type PublicToolEffect = Pick<ToolEffectRecord, "effectId" | "invocationId" | "attemptId" | "parentInvocationId" | "threadId"
+  | "toolId" | "publicRedactedSummary" | "targetPreconditions" | "approvalId" | "state" | "providerReceiptRef"
+  | "createdAt" | "updatedAt" | "outcome"> & { owner: PublicOwner; transitions: PublicTransition[] };
+export type PublicApproval = Pick<ApprovalV1, "approvalId" | "operationId" | "targetPreconditions"
+  | "issuedAt" | "expiresAt" | "remainingUses" | "issuer"> & { owner: PublicOwner };
+
+function publicOwner(owner: ToolEffectRecord["owner"]): PublicOwner {
+  return { threadId: owner.threadId, runId: owner.runId, epoch: owner.epoch,
+    projectId: owner.projectId, workspaceId: owner.workspaceId, accountBinding: owner.accountBinding };
+}
+function publicEffect(effect: ToolEffectRecord): PublicToolEffect {
+  return {
+    effectId: effect.effectId, invocationId: effect.invocationId, attemptId: effect.attemptId,
+    parentInvocationId: effect.parentInvocationId, threadId: effect.threadId, toolId: effect.toolId,
+    owner: publicOwner(effect.owner), publicRedactedSummary: effect.publicRedactedSummary,
+    targetPreconditions: effect.targetPreconditions, approvalId: effect.approvalId, state: effect.state,
+    providerReceiptRef: effect.providerReceiptRef, createdAt: effect.createdAt, updatedAt: effect.updatedAt,
+    transitions: effect.transitions.map(item => ({ from: item.from, to: item.to, at: item.at,
+      ...(item.note === undefined ? {} : { note: item.note }) })),
+    ...(effect.outcome === undefined ? {} : { outcome: effect.outcome }),
+  };
+}
+function publicApproval(approval: ApprovalV1): PublicApproval {
+  return { approvalId: approval.approvalId, operationId: approval.operationId, owner: publicOwner(approval.owner),
+    targetPreconditions: approval.targetPreconditions, issuedAt: approval.issuedAt, expiresAt: approval.expiresAt,
+    remainingUses: approval.remainingUses, issuer: approval.issuer };
+}
+
 interface ThreadBinding { id: string; accountId?: string | null; projectId?: string | null; workspaceId?: string | null }
 interface SnapshotRow { invocationId: string; lastSeq: number; body: string; approval: string | null }
 interface Scope { threadId: string; accountId: string | null; projectId: string | null; workspaceId: string | null; revoked: boolean;
@@ -94,7 +126,9 @@ export class ToolEffectReadModels {
       const row = value as { id: string; first_seq: number; bytes: number; body: string | null; approval: string | null };
       if (found.rows.length >= MAX_SNAPSHOT_ROWS || row.body === null || found.bytes + row.bytes > MAX_SCOPE_BYTES)
         throw new HarnessError("LEDGER_SNAPSHOT_LIMIT", "This ledger view exceeds the bounded snapshot limit; no partial view was opened");
-      const entry = { invocationId: row.id, lastSeq: row.first_seq, body: row.body, approval: row.approval };
+      const body = JSON.stringify(publicEffect(JSON.parse(row.body) as ToolEffectRecord));
+      const approval = row.approval ? JSON.stringify(publicApproval(JSON.parse(row.approval) as ApprovalV1)) : null;
+      const entry = { invocationId: row.id, lastSeq: row.first_seq, body, approval };
       found.rows.push(entry); found.byId.set(row.id, entry); found.bytes += row.bytes;
     }
   }
@@ -136,18 +170,18 @@ export class ToolEffectReadModels {
 
   /** Pages one captured view. Refresh requires a new context; later settlement
    * is historical data for a newer view, never a mutation of this cursor cut. */
-  invocations(input: unknown): { effects: (ToolEffectRecord & { lastSeq: number })[]; nextCursor: string | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE"; sequence: number } {
+  invocations(input: unknown): { effects: (PublicToolEffect & { lastSeq: number })[]; nextCursor: string | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE"; sequence: number } {
     const parsed = invocationPageSchema.parse(input);
     const found = this.scoped(parsed.scopeKey, parsed.threadId);
     const filter = parsed.invocationId ?? "";
     let position = parsed.cursor ? this.decode(parsed.cursor, parsed.scopeKey, filter, parsed.limit, found.rows.length) : 0;
-    const effects: (ToolEffectRecord & { lastSeq: number })[] = [];
+    const effects: (PublicToolEffect & { lastSeq: number })[] = [];
     while (position < found.rows.length && effects.length < parsed.limit) {
       const row = found.rows[position++]!;
       if (filter && row.invocationId !== filter) continue;
       const current = this.store.get<ToolEffectRecord>("toolEffect", row.invocationId);
       if (!current || !this.owns(current, found)) continue;
-      const effect = JSON.parse(row.body) as ToolEffectRecord;
+      const effect = JSON.parse(row.body) as PublicToolEffect;
       effects.push({ ...effect, lastSeq: row.lastSeq });
     }
     const nextCursor = position < found.rows.length ? this.encode({ scope: parsed.scopeKey, position, filter, limit: parsed.limit }) : null;
@@ -156,16 +190,16 @@ export class ToolEffectReadModels {
 
   /** Returns one effect with its retained transitions and the approval that
    * consumed it — no cross-owner reads. */
-  observations(input: unknown): { effect: ToolEffectRecord; approval: ApprovalV1 | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE" } {
+  observations(input: unknown): { effect: PublicToolEffect; approval: PublicApproval | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE" } {
     const parsed = observationQuerySchema.parse(input);
     const found = this.scoped(parsed.scopeKey, parsed.threadId);
     const row = found.byId.get(parsed.invocationId);
     const current = this.store.get<ToolEffectRecord>("toolEffect", parsed.invocationId);
     if (!row || !current || !this.owns(current, found)) throw new HarnessError("NOT_FOUND", "Tool effect unavailable");
-    const effect = JSON.parse(row.body) as ToolEffectRecord;
-    const capturedApproval = row.approval ? JSON.parse(row.approval) as ApprovalV1 : null;
+    const effect = JSON.parse(row.body) as PublicToolEffect;
+    const capturedApproval = row.approval ? JSON.parse(row.approval) as PublicApproval : null;
     const currentApproval = capturedApproval ? this.store.get<ApprovalV1>("approval", capturedApproval.approvalId) : null;
-    const ownsApproval = (approval: ApprovalV1 | null): boolean => Boolean(approval
+    const ownsApproval = (approval: { owner: PublicOwner } | null): boolean => Boolean(approval
       && approval.owner.threadId === effect.owner.threadId && approval.owner.runId === effect.owner.runId
       && approval.owner.epoch === effect.owner.epoch && approval.owner.accountBinding === effect.owner.accountBinding
       && approval.owner.projectId === effect.owner.projectId && approval.owner.workspaceId === effect.owner.workspaceId);

@@ -5,15 +5,26 @@ const { buildToolRegistry, ToolAuthority } = await import('../../packages/core/t
 const { __setEffectFaultHookForTests, createToolEffectFlags, ToolEffectLedger } = await import('../../packages/core/tool-effects.ts');
 const { recoverEffects } = await import('../../packages/core/effect-recovery.ts');
 const { createEffectAuthenticator } = await import('../../packages/core/host-effect-authenticator.ts');
+const { randomBytes, randomUUID } = await import('node:crypto');
 
 const [mode, root, phase] = process.argv.slice(2);
 if (!root || !['crash', 'recover'].includes(mode)) throw new Error('Expected mode and owned fixture root');
 const store = new Store(join(root, 'state'));
-// Explicit synthetic signer stays identical across these owned subprocesses.
-// This exercises authenticated durability, not native key custody.
-const authenticator = createEffectAuthenticator(Buffer.alloc(32, 32), '00000000-0000-4000-8000-000000000032');
-const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()),
-  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), authenticator);
+// Authenticated mode signs issued approvals, so this worker owns a signer exactly
+// as the product host does when key custody is enabled. The crash and recovery
+// runs are separate processes, so the fixture keeps one key in its own root:
+// otherwise recovery refuses for a key mismatch instead of the durable state
+// under test.
+function effectSigner() {
+  const path = join(root, 'effect-signer.json');
+  if (existsSync(path)) {
+    const { keyId, key } = JSON.parse(readFileSync(path, 'utf8'));
+    return createEffectAuthenticator(Buffer.from(key, 'hex'), keyId);
+  }
+  const keyId = randomUUID(), key = randomBytes(32);
+  durableWrite(path, JSON.stringify({ keyId, key: key.toString('hex') }));
+  return createEffectAuthenticator(key, keyId);
+}
 const thread = {
   id: 'crash-thread', title: 'Crash fixture', projectName: null, createdAt: '', updatedAt: '',
   status: 'working', epoch: 1, runId: 'crash-run', modelId: null, sessionPath: null,
@@ -43,6 +54,9 @@ function pauseAt(at) {
 function effectCount() {
   return existsSync(counter) ? readFileSync(counter, 'utf8').trim().split('\n').filter(Boolean).length : 0;
 }
+
+const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()),
+  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), effectSigner());
 
 if (mode === 'crash') {
   const approval = ledger.issueApproval(operation, thread);
@@ -91,16 +105,12 @@ if (after) {
     readmissionError = error.code ?? String(error);
   }
 }
-const approval = ledger.approvalFor(operation.id);
-const { hostAuthenticator, ...grantFields } = approval ?? {};
 const result = {
   beforeState: before?.state ?? null, state: after?.state ?? null,
   transitions: after?.transitions.map(item => item.to) ?? null,
-  remainingUses: approval?.remainingUses,
-  approvalAuthenticated: Boolean(hostAuthenticator && authenticator.verify('grant', grantFields, hostAuthenticator.tag)),
+  remainingUses: ledger.approvalFor(operation.id)?.remainingUses,
   externalEffects: effectCount(), readmissionStarted, readmissionState, readmissionError,
   uncertain: recovery.uncertain, sequence: store.sequence,
 };
 store.close();
-authenticator.revoke();
 process.stdout.write(JSON.stringify(result) + '\n');

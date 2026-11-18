@@ -20,6 +20,7 @@ export interface DomainContext {
   publishData(value: unknown, provenance: string): DataRecord;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
+  assertRepositoryTestTrust?(operation: Operation, binding: import('./repository-test-binding.ts').RepositoryTestBinding): void;
   completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
   preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
 }
@@ -187,6 +188,7 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
         const testPath = await ctx.resolveResource(a.resourceId, a.testFile, false);
         return withRepositoryTestBinding(cwd, testPath, a.testFile, ctx.signal, async (binding, signal) => {
           requireRepositoryTestBinding(a.executionBinding, binding, operation.preconditions.testSha256);
+          ctx.assertRepositoryTestTrust?.(operation, binding);
           const result = await runProcess(binding.executable.path, binding.argv, binding.cwd.path, signal, m => ctx.progress(m));
           publish(ctx, result, `operation:${operation.id}; resource:${a.resourceId}; node --test -- ${a.testFile}; test sha256:${binding.test.sha256}`); return result;
         });

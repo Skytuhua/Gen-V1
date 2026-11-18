@@ -30,6 +30,12 @@ Pass a host-only preloaded signer through ServiceOptions to the ledger. Missing 
 
 The composing host owns the async custody handle: load before opted-in Service construction; drain/dispose the Service before closing custody in finally; close custody after startup failure too. Existing production composition remains default off. Every opted-in test host supplies an explicit test signer; there is no environment-based or implicit test fallback.
 
+The product host acquires its existing profile lease before awaiting protected Service construction. Before first key creation it commits a private, strict provisioning marker with version, reserved key ID and `initializing` state. Exclusive initialization uses that exact identity. Later starts only reopen the recorded identity, including when a crash left the marker pending. A pending marker without a key, a completed marker whose key is lost, or corrupt metadata never authorizes regeneration. A matching key can complete a pending marker. Invalid or unavailable custody leaves the enabled Service readable with no signer, so admission fails closed. The marker is rechecked after acquisition before publishing the signer.
+
+Default-off startup performs no key acquisition or provisioning. There is no new environment switch or UI activation control. The rollback gate distinguishes a never-enabled profile from a previously protected profile. It persists the strongest selected admission mode, `AUDIT` or `AUTHENTICATED`, and also recognizes retained pre-policy approvals, effects and profile markers. Disabling both flags, or disabling required authenticated authority while leaving audit on, denies new tool, preparation, approval and dispatch admissions. Malformed retained policy also fails closed without preventing history reads. The gate never enables a flag or weakens retained policy.
+
+Flags-off recovery uses the existing rollback classifier to mark outstanding effects uncertain and retains consumed approvals and completed receipts. It never invokes an executor. Re-enabling the required path still requires a fresh valid owner-bound review for old pending operations. Genuine never-enabled legacy profiles retain their existing behavior. Historical settlement remains available independently of new-admission policy.
+
 ## Verification sequence
 
 1. Preserve new acceptance tests before implementation. Existing unsigned grant behavior supplies a real baseline for the missing enforcement boundary.
