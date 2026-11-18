@@ -1,0 +1,15 @@
+argv: ["/home/piadmin/tools/pnpm","exec","vitest","run","tests/workbench-recovery-v3.test.ts"]
+cwd: /home/piadmin/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m15-v6[39m
+
+ [32m✓[39m tests/workbench-recovery-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 775[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 23:17:18
+[2m   Duration [22m 1.28s[2m (transform 240ms, setup 0ms, import 156ms, tests 775ms, environment 0ms)[22m
+

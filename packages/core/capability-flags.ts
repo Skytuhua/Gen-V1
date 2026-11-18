@@ -105,7 +105,7 @@ export type M16FlagKey = (typeof M16_FLAG_KEYS)[number];
 
 export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey | M10FlagKey | M16FlagKey;
 
-const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
+const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
   { key: "control.consentedBrowserV1", owner: "m16", description: "Consented control of an explicitly selected browser tab; requires an approved driver and explicit per-session consent." },
   { key: "control.selectedDesktopV1", owner: "m16", description: "Consented control of an explicitly selected desktop application; requires an approved driver and explicit per-session consent." },
@@ -130,7 +130,48 @@ const hostFlags = createCapabilityFlags<CapabilityFlagKey>([
   { key: "jobs.serviceLifetimeV1", owner: "m10", description: "APPROVED_SERVICE lifetime; off until an installed supervisor has target-platform PASS evidence." },
   { key: "jobs.idleReviewV1", owner: "m10", description: "Opt-in idle verification/review work; off until the pinned fork API and auxiliary budget are proven." },
   { key: "integrations.intakeV1", owner: "m10", description: "Authenticated read-only GitHub polling intake; proposals only until explicit user approval." },
-]);
+];
+let hostFlags = createCapabilityFlags<CapabilityFlagKey>(hostDefinitions);
+let hostOwners = 0;
+let priorHostFlags: CapabilityFlags<CapabilityFlagKey> | undefined;
+
+/** Same finite environment channel as HostFlags. The caller supplies the
+ * environment explicitly; importing this shared module never reads process.env. */
+export function capabilityFlagEnvName(key: CapabilityFlagKey): string {
+  // Validate even callers whose JavaScript input bypasses the TypeScript union.
+  hostFlags.enabled(key);
+  return 'HARNESS_FLAG_' + key.replace(/([a-z0-9])([A-Z])/g, '$1_$2').replace(/[^a-zA-Z0-9]+/g, '_').toUpperCase();
+}
+export function readCapabilityFlagOverrides(env: Readonly<Record<string, string | undefined>>): Readonly<Partial<Record<CapabilityFlagKey, boolean>>> {
+  const overrides: Partial<Record<CapabilityFlagKey, boolean>> = {};
+  for (const key of hostFlags.keys()) {
+    const value = env[capabilityFlagEnvName(key)];
+    if (value !== undefined) overrides[key] = value === '1' || value === 'true';
+  }
+  return Object.freeze(overrides);
+}
+
+/** Trusted host composition only, before constructing runtimes or Service.
+ * There is no Store, renderer, tool or plugin command for this operation.
+ * Validate a complete default-off snapshot before publishing it. Concurrent
+ * embedders may share an identical configuration, but cannot alter a live host.
+ * Release only after all host resources have closed successfully. */
+export function configureHostCapabilityFlags(overrides: Readonly<Partial<Record<CapabilityFlagKey, boolean>>> = {}): () => void {
+  const configured = createCapabilityFlags<CapabilityFlagKey>(hostDefinitions, overrides);
+  for (const key of Object.keys(overrides) as CapabilityFlagKey[]) {
+    if (typeof overrides[key] !== 'boolean') throw new HarnessError('INVALID_CAPABILITY_FLAG', `Capability flag must be boolean: ${key}`);
+  }
+  if (hostOwners > 0 && configured.keys().some(key => configured.enabled(key) !== hostFlags.enabled(key)))
+    throw new HarnessError('CAPABILITY_FLAGS_IN_USE', 'Another host owns a different capability configuration in this process.');
+  if (hostOwners === 0) { priorHostFlags = hostFlags; hostFlags = configured; }
+  hostOwners++;
+  let released = false;
+  return () => {
+    if (released) return;
+    released = true;
+    if (--hostOwners === 0) { hostFlags = priorHostFlags!; priorHostFlags = undefined; }
+  };
+}
 
 export function capabilityEnabled(key: CapabilityFlagKey): boolean {
   return hostFlags.enabled(key);

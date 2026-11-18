@@ -13,8 +13,14 @@ import { projectMemoryDeletionLedgerPath } from './security.ts';
 import { memoryContainsSecret } from './memory-publication.ts';
 import { memoryUsageReportSchema, type MemoryUsageReport } from '../contracts/project-memory.ts';
 import { validateMemoryExtraction, type MemoryCheckpointV1, type MemoryConsolidationSnapshot, type MemoryExtractionCut, type MemoryExtractionResult } from './memory-consolidation.ts';
+import { sourceRefsV1Schema, type LogicalOwnerV1, type SourceRefV1 } from '../contracts/source-selection.ts';
+import type { RetainedFileSource } from './source-workbench.ts';
 export { memoryContainsSecret } from './memory-publication.ts';
 
+export interface ProjectMemoryOptions {
+  enabled?: () => boolean;
+  readFileSource?: (owner: LogicalOwnerV1, ref: SourceRefV1) => RetainedFileSource;
+}
 interface Config { id: string; revision: number; enabled: boolean; sourceThreadIds: string[]; watermark: number }
 interface Deletion { profileId: string; projectId: string; accountId: string | null; tombstone: MemoryTombstoneV1 }
 interface PhysicalRoot { path: string; identity: { dev: string; ino: string } }
@@ -41,7 +47,7 @@ export class ProjectMemory {
   private readonly fencePath: string;
   private fenceIdentity: LedgerIdentity | null;
   private readonly enabled: () => boolean;
-  constructor(readonly store: Store, options: { enabled?: () => boolean } = {}) {
+  constructor(readonly store: Store, private readonly options: ProjectMemoryOptions = {}) {
     // Updates can free old item/source cells before a later Forget. Erase those
     // cells from the first memory write, not only while deleting current rows.
     store.db.exec('PRAGMA secure_delete=ON');
@@ -335,7 +341,7 @@ export class ProjectMemory {
   extractionCut(access: MemoryAccess, source: RunContext): MemoryExtractionCut {
     this.requireEnabled(access); const thread = this.settled(access, access.threadId);
     if (source.threadId !== access.threadId || source.epoch !== thread.epoch || !source.runId) fail('The settled source owner changed.', 'MEMORY_SOURCE_BUSY');
-    const inputs = this.store.all<{status: string; runId: string | null; messageId?: string}>('outbox', access.threadId);
+    const inputs = this.store.all<{status: string; runId: string | null; messageId?: string; enteredRuntime?: boolean; sourceRefs?: SourceRefV1[]}>('outbox', access.threadId);
     if (inputs.some(input => input.status !== 'handled')) fail('A new input is waiting for this source task.', 'MEMORY_SOURCE_BUSY');
     const inputIds = new Set(inputs.filter(input => input.runId === source.runId).map(input => input.messageId).filter(Boolean));
     const messages = this.store.all<Message>('message', access.threadId).filter(message => message.role !== 'activity' && (message.runId === source.runId || inputIds.has(message.id))).slice(-LIMITS.sources);
@@ -349,6 +355,36 @@ export class ProjectMemory {
       // Private source/grant metadata is never sent to a provider or public cut.
       cut.sources.push({ref: retained.ref, projectIdentity: retained.projectIdentity, accountId: retained.accountId, content: retained.content, label: retained.label});
       cut.watermark = this.store.sequence;
+    }
+    // Only a canonical handled input can supply selected file evidence. An
+    // existing grant or unsent capture alone is not consent to extract a file.
+    const seen = new Set<string>(), owner = {threadId: access.threadId, projectId: access.projectId, workspaceId: thread.workspaceId ?? null};
+    let inspected = 0;
+    if (this.options.readFileSource) for (const input of inputs) {
+      if (input.runId !== source.runId || input.enteredRuntime !== true) continue;
+      const refs = sourceRefsV1Schema.safeParse(input.sourceRefs ?? []); if (!refs.success) continue;
+      for (const selected of refs.data) {
+        if (selected.source.kind !== 'FILE_RANGE' || seen.has(selected.captureId)) continue;
+        if (inspected >= LIMITS.sources || cut.sources.length >= LIMITS.sources) break;
+        inspected++; seen.add(selected.captureId);
+        let captured: RetainedFileSource;
+        try {captured = this.options.readFileSource(owner, selected);}
+        catch (error) {if (error instanceof HarnessError && ['CAPABILITY_DENIED', 'SOURCE_UNAVAILABLE', 'STALE_SOURCE'].includes(error.code)) continue; throw error;}
+        const resource = this.store.get<ResourceGrant>('resource', captured.source.sourceId);
+        if (!resource || resource.threadId !== access.threadId || !['project', 'file'].includes(resource.kind) || !resource.identity || !physicalMatches({path: resource.path, identity: resource.identity}, resource.kind === 'file' ? 'file' : 'directory')) continue;
+        const content = captured.text;
+        if (!content.trim() || memoryContainsSecret(content) || Buffer.byteLength(content) > LIMITS.sourceBytes) continue;
+        const ref = memorySourceRefV1Schema.parse({ownerThreadId: access.threadId, sourceKind: 'FILE', sourceId: 'source-capture:' + captured.captureId,
+          sourceRevision: captured.source.sourceRevision, capturedSeq: this.store.sequence, digest: sha256(content), observedStatus: 'OBSERVED'});
+        if (this.sourceExcluded(access, ref)) continue;
+        const snapshot = {ref, projectIdentity: access.projectIdentity, accountId: access.accountId, content,
+          label: `${captured.label} (lines ${captured.source.range.startLine}-${captured.source.range.endLine})`};
+        if (Buffer.byteLength(JSON.stringify({...cut, sources: [...cut.sources, {...snapshot, ref: {...ref, capturedSeq: Number.MAX_SAFE_INTEGER}}]})) > LIMITS.sourceBytes) continue;
+        captured.assertCurrent();
+        const retained = this.saveSource(access, {...snapshot, fileGrant: {resourceId: resource.id, grantDigest: digest(resource)}});
+        cut.sources.push({...snapshot, ref: retained}); cut.watermark = this.store.sequence;
+      }
+      if (inspected >= LIMITS.sources || cut.sources.length >= LIMITS.sources) break;
     }
     if (!cut.sources.length || Buffer.byteLength(JSON.stringify(cut)) > LIMITS.sourceBytes) fail('No bounded authorized source cut is available.', 'MEMORY_SOURCE_UNAVAILABLE');
     return structuredClone(cut);

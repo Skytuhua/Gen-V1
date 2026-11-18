@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/piadmin/tools/pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/workbench-continuation-v6.test.ts"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6",
+  "executableIdentity": "/home/piadmin/tools/pnpm",
+  "startedAt": "2026-11-17T07:17:20.351Z",
+  "endedAt": "2026-11-17T07:17:27.716Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/postmerge-vitest-workbench-continuation-v6.log",
+  "logDigest": "cba2de85ecdc9fa5d7a875504a698ec1fe5f1f00d1ecb511dfda21b4f94da575"
+}
