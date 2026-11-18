@@ -85,6 +85,30 @@ not overlap the evidence-correction surface owned by PR #772.
    authorization/receipts establish the auxiliary study; this supplement asserts nothing
    contrary. The continuation-3 session's aux-related evidence strings are not republished.
 
+## Pending: Windows native compaction CAS acceptance (NOT_RUN)
+
+The native-worker CAS acceptance leg requires a Windows host (CI runs `hermes` on
+`windows-latest` via `.github/workflows/ci.yml`). The exact supported path — verified against
+main `7ac80d870ff7ff7dc021b0632ef07d631d489afc` (the current cut carrying the merged CAS) — is:
+
+- toolchain: Python 3.14.x (repo pin), `.harness-hermes-python-deps` installed per
+  `.github/actions/setup` (`pip install --target .harness-hermes-python-deps
+  -r third-party/hermes-agent/runtime-requirements.txt`);
+- `python -I -S -B tests/hermes_source_worker.py WorkerFixture.test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest -v`
+  — the core case: stale `expectedHistorySha256` must return `compacted:false`/`mismatch`
+  with history and the on-disk session file unchanged; the matching digest must apply
+  (`compacted:true`, shortened persisted messages);
+- `python -I -S -B tests/hermes_source_worker.py WorkerFixture.test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive -v`
+  — protected compaction through the CAS digest + `compactionProtection` envelope;
+- `python -I -S -B tests/hermes_source_worker.py WorkerFixture.test_original_summary_compaction_executes_with_the_retained_dependency_subset -v`
+  — compaction sanity case; full-file run is the CI invocation.
+
+Dispatch attempt on 2026-11-18 to the linked verifier `WIN-M0N0V07LGM1`
+(environment `17662262-856e-45f7-98fb-56c92cacfa8f`) failed at transport: the link reports
+`reachable` but the remote agent answered HTTP 524 on three attempts. **No Windows receipts
+exist yet; this leg remains NOT_RUN / environment-bound.** Any future receipts must be captured
+at the exact tested SHA with toolchain versions and added here as new bounded files only.
+
 ## Non-claims
 
 - No claim of core acceptance, platform acceptance, release readiness, or completeness.
