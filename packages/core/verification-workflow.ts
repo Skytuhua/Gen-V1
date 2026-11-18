@@ -1,4 +1,6 @@
 import {randomUUID} from 'node:crypto';
+import {z} from 'zod';
+import {QaResultV1Schema} from '../contracts/agent-work.ts';
 import {HarnessError, type Operation, type Thread} from '../contracts/index.ts';
 import type {ApprovalV1, ToolEffectRecord, ToolOwner} from '../contracts/tool-effects.ts';
 import type {CheckObservationV1, VerificationDeclarationV1, VerificationRecipeV1, VisualObservationV1} from '../contracts/verification.ts';
@@ -66,7 +68,8 @@ export class VerificationWorkflow {
   async prepare(owner: ToolOwner, raw: unknown, signal: AbortSignal, assertCurrent: () => void): Promise<{intent: VerificationIntent}> {
     const encoded = JSON.stringify(raw);
     if (encoded === undefined || Buffer.byteLength(encoded) > 128 * 1024) throw new HarnessError('RESOURCE_LIMIT', 'Verification proposal exceeds the review bound.');
-    const input = verificationPrepareSchema.parse(raw), factory = this.enabled(), root = this.root(owner);
+    const input = verificationPrepareSchema.parse(raw), factory = this.enabled(), root = this.root(owner), thread = this.current(owner);
+    if (input.qa && (!owner.runId || !thread.modelId)) throw new HarnessError('QA_UNAVAILABLE', 'QA requires an active parent run and its selected model.');
     const fence = () => {if (signal.aborted) throw new HarnessError('CANCELLED_RUN', 'Verification preparation was cancelled'); this.current(owner); assertVerificationSourceRoot(this.store, owner.threadId, root); assertCurrent();};
     fence();
     const recipeId = input.recipeId ?? `recipe-${randomUUID()}`, prior = this.prior(owner, recipeId);
@@ -85,7 +88,10 @@ export class VerificationWorkflow {
     if (prior && recipeDigest(prior) === candidate.approvedDigest && digest(prior.workspaceIdentity) === digest(candidate.workspaceIdentity)) candidate.revision = prior.revision;
     const intent = verificationIntentSchema.parse({version: 1, owner, executionId: `execution-${randomUUID()}`, baseRecipeRevision: prior?.revision ?? 0,
       priorDeclarationDigest: digest(this.store.get('verificationDeclaration', owner.threadId)), recipe: candidate, binding, sourceFiles: input.sourceFiles, dependencyFiles: input.dependencyFiles, sourceCut,
-      readiness: input.readiness ?? null, checklist: input.checklist ?? null, requirements: input.requirements});
+      readiness: input.readiness ?? null, checklist: input.checklist ?? null, requirements: input.requirements,
+      ...(input.qa ? {qa: {admission: {commandId: `qa-admit-${randomUUID()}`, workId: `qa-${randomUUID()}`, role: 'QA', childThreadId: `qa-child-${randomUUID()}`,
+        prompt: input.qa.prompt, expectedOutputSchema: z.toJSONSchema(QaResultV1Schema, {target: 'draft-7'}), grantSubset: [], budget: input.qa.budget},
+        model: {modelId: thread.modelId, accountId: owner.accountBinding, thinkingLevel: thread.thinkingLevel ?? null}}} : {})});
     if (Buffer.byteLength(JSON.stringify(intent)) > 256 * 1024) throw new HarnessError('RESOURCE_LIMIT', 'Verification intent exceeds the review bound.');
     return {intent};
   }
@@ -93,7 +99,8 @@ export class VerificationWorkflow {
   assertApproval(operation: Operation): VerificationIntent {
     this.enabled();
     const {intent} = verificationOperationArgumentsSchema.parse(operation.args);
-    this.current(intent.owner);
+    const thread = this.current(intent.owner);
+    if (intent.qa && digest(intent.qa.model) !== digest({modelId: thread.modelId, accountId: thread.accountId ?? null, thinkingLevel: thread.thinkingLevel ?? null})) throw new HarnessError('APPROVAL_REQUIRED', 'The QA model selection changed after preparation.');
     if (operation.threadId !== intent.owner.threadId || !isVerificationOperation(operation) || intent.recipe.approvedDigest !== recipeDigest(intent.recipe)) throw new HarnessError('APPROVAL_REQUIRED', 'The prepared verification intent changed.');
     return intent;
   }

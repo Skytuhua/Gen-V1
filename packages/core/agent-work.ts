@@ -49,6 +49,9 @@ export interface AgentWorkHooks {
   resourceResolver?: (grant: ResourceGrant, write: boolean, call: ToolCall) => Promise<unknown> | unknown;
   /** Global reservation limits; failed and cancelled work still counts. */
   globalBudget?: {tokens: number | null; ms: number | null};
+  /** Trusted runtime measurements, never model result fields. Reservation
+   * charging stays conservative and must include measured overruns. */
+  observedUsage?: (work: AgentWorkV1) => {tokens: number | null; ms: number | null} | null;
   runtimeFactory?: (work: AgentWorkV1, spec: {prompt: string; grants: ResourceGrant[]; allowSpawn: false}) => Promise<AgentWorkChild> | AgentWorkChild;
 }
 
@@ -119,6 +122,11 @@ export class AgentWorkCoordinator {
   }
 
   private ledger(): BudgetLedger { return this.hooks.store.get<BudgetLedger>(BUDGET_KIND, BUDGET_ID) ?? {...EMPTY_LEDGER}; }
+  private charge(work: AgentWorkV1): {tokens: number; ms: number} {
+    const measured = this.hooks.observedUsage?.(work);
+    const amount = (reserved: number | null, value: number | null | undefined) => Math.max(reserved ?? 0, typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 ? value : 0);
+    return {tokens: amount(work.budget.tokens, measured?.tokens), ms: amount(work.budget.ms, measured?.ms)};
+  }
 
   private worksLive(threadId: string): AgentWorkV1[] {
     return this.hooks.store.all<AgentWorkV1>(WORK_KIND).filter(work => work.parentOwner.threadId === threadId && !AGENT_WORK_TERMINAL_STATES.has(work.state));
@@ -254,7 +262,7 @@ export class AgentWorkCoordinator {
       this.hooks.store.put(WORK_KIND, workId, work.parentOwner.threadId, next);
       const ledger = this.ledger();
       ledger.reservedTokens -= work.budget.tokens ?? 0; ledger.reservedMs -= work.budget.ms ?? 0;
-      ledger.spentTokens += work.budget.tokens ?? 0; ledger.spentMs += work.budget.ms ?? 0;
+      const charged = this.charge(work); ledger.spentTokens += charged.tokens; ledger.spentMs += charged.ms;
       if (state === 'FAILED') ledger.failed += 1; else if (state === 'CANCELLED') ledger.cancelled += 1; else ledger.interrupted += 1;
       this.hooks.store.put(BUDGET_KIND, BUDGET_ID, null, ledger);
       const thread = this.hooks.store.get<Thread>('thread', work.childOwner.threadId);
@@ -319,7 +327,7 @@ export class AgentWorkCoordinator {
       this.hooks.store.put(WORK_KIND, workId, work.parentOwner.threadId, next);
       const ledger = this.ledger();
       ledger.reservedTokens -= work.budget.tokens ?? 0; ledger.reservedMs -= work.budget.ms ?? 0;
-      ledger.spentTokens += work.budget.tokens ?? 0; ledger.spentMs += work.budget.ms ?? 0; ledger.completed += 1;
+      const charged = this.charge(work); ledger.spentTokens += charged.tokens; ledger.spentMs += charged.ms; ledger.completed += 1;
       this.hooks.store.put(BUDGET_KIND, BUDGET_ID, null, ledger);
       const thread = this.hooks.store.get<Thread>('thread', work.childOwner.threadId);
       if (thread) this.hooks.store.put('thread', thread.id, thread.id, {...thread, status: 'completed'});

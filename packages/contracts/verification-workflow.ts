@@ -2,6 +2,7 @@ import {z} from 'zod';
 import {executionProfileV1Schema, rootRelativePathSchema, sha256HexSchema} from './execution-profile.ts';
 import {toolOwnerSchema} from './tool-effects.ts';
 import {browserChecklistSchema, verificationRecipeV1Schema, workspaceIdentityV1Schema} from './verification.ts';
+import {AgentWorkAdmissionV1Schema} from './agent-work.ts';
 
 const id = z.string().min(1).max(160);
 export const verificationCheckSelectorSchema = z.union([
@@ -11,11 +12,19 @@ export const verificationCheckSelectorSchema = z.union([
 export const verificationRequirementPlanSchema = z.strictObject({id, checks: z.array(verificationCheckSelectorSchema).min(1).max(32)});
 const readinessSchema = z.strictObject({host: z.enum(['127.0.0.1', 'localhost']), port: z.number().int().min(1).max(65535), path: z.string().min(1).max(2048).refine(path => path.startsWith('/') && !path.startsWith('//') && !/[\r\n\\]/.test(path), 'Readiness requires a relative HTTP path')});
 const uniquePaths = (max: number) => z.array(rootRelativePathSchema).max(max).refine(paths => new Set(paths).size === paths.length, 'Digest input paths must be unique');
+export const verificationQaRequestSchema = z.strictObject({
+  prompt: z.string().trim().min(1).max(4096).refine(value => new TextEncoder().encode(value).byteLength <= 4096, 'QA instructions must fit within 4096 bytes'),
+  budget: z.strictObject({tokens: z.number().int().min(1).max(100_000), ms: z.number().int().min(1000).max(600_000)}),
+});
+export const verificationQaIntentSchema = z.strictObject({
+  admission: AgentWorkAdmissionV1Schema.refine(value => value.role === 'QA' && value.grantSubset.length === 0 && value.budget.tokens !== null && value.budget.tokens <= 100_000 && value.budget.ms !== null && value.budget.ms <= 600_000, 'QA requires bounded read-only work'),
+  model: z.strictObject({modelId: id, accountId: id.nullable(), thinkingLevel: z.string().max(100).nullable()}),
+});
 export const verificationPrepareSchema = z.strictObject({
   recipeId: z.string().min(1).max(100).optional(), baseRevision: z.number().int().min(0).optional(), profileId: id,
   phases: verificationRecipeV1Schema.shape.phases,
   sourceFiles: uniquePaths(512).refine(paths => paths.length > 0, 'Verification requires declared source inputs'), dependencyFiles: uniquePaths(64),
-  readiness: readinessSchema.optional(), checklist: browserChecklistSchema.optional(),
+  readiness: readinessSchema.optional(), checklist: browserChecklistSchema.optional(), qa: verificationQaRequestSchema.optional(),
   requirements: z.array(verificationRequirementPlanSchema).min(1).max(128).refine(values => new Set(values.map(value => value.id)).size === values.length, 'Requirement IDs must be unique'),
 }).superRefine((value, ctx) => {
   const fail = (message: string) => ctx.addIssue({code: 'custom', message});
@@ -48,7 +57,7 @@ export const verificationIntentSchema = z.strictObject({
   version: z.literal(1), owner: toolOwnerSchema, executionId: id, baseRecipeRevision: z.number().int().min(0), priorDeclarationDigest: sha256HexSchema,
   recipe: verificationRecipeV1Schema, binding: verificationBindingMetadataSchema,
   sourceFiles: uniquePaths(512), dependencyFiles: uniquePaths(64), sourceCut: z.strictObject({codeDigest: sha256HexSchema, dependencyDigest: sha256HexSchema}),
-  readiness: readinessSchema.nullable(), checklist: browserChecklistSchema.nullable(), requirements: z.array(verificationRequirementPlanSchema).min(1).max(128),
+  readiness: readinessSchema.nullable(), checklist: browserChecklistSchema.nullable(), requirements: z.array(verificationRequirementPlanSchema).min(1).max(128), qa: verificationQaIntentSchema.optional(),
 });
 export type VerificationIntent = z.infer<typeof verificationIntentSchema>;
 export const verificationOperationArgumentsSchema = z.strictObject({intent: verificationIntentSchema});

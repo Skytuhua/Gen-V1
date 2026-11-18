@@ -44,6 +44,7 @@ import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type H
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
 import {VerificationWorkflow, isVerificationOperation, assertVerificationReadBasis, type VerificationReadBasis} from "./verification-workflow.ts";
+import {VerificationQa, type VerificationQaRuntimeFactory} from "./verification-qa.ts";
 import {verificationPanelModel, type VerificationPanelModel} from './verification-read-models.ts';
 import type {VerificationExecutorFactory} from "./verification-executor.ts";
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
@@ -95,6 +96,7 @@ export interface ServiceOptions {
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
   /** Trusted host composition only. Never accepted from model or UI input. */
   verificationExecutor?:VerificationExecutorFactory;
+  verificationQaRuntimeFactory?:VerificationQaRuntimeFactory;
 }
 export class Service {
   readonly sourceWorkbench: SourceWorkbench;
@@ -138,6 +140,7 @@ export class Service {
   private readonly effects:ToolEffectLedger;
   private readonly verificationEffects:ToolEffectLedger;
   private readonly verification:VerificationWorkflow;
+  private readonly verificationQa:VerificationQa;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
@@ -188,18 +191,19 @@ export class Service {
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
     this.verificationEffects=new ToolEffectLedger(store,this.authority,createToolEffectFlags({"audit.effectsV1":true,"security.authorityV1":true}));
     this.verification=new VerificationWorkflow(store,options.verificationExecutor);
+    this.verificationQa=new VerificationQa({store,work:()=>this.agentWork,runtimeFactory:options.verificationQaRuntimeFactory});
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
     this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute()});
-    // M09: typed multi-agent work. No registered M08 managed-worktree profile
-    // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
-    // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
-    // read-only through the restricted resolver below.
+    // The verification role receives an exact live M02 proof and a separate
+    // restricted runtime. Other roles retain their existing activation gates.
     this.planExtensions=new PlanExtensionStore({store});
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
+      qaEnabled:()=>this.verificationQa.available(),roleProofs:{qa:(ctx,admission)=>this.verificationQa.proof(ctx,admission)},roleHandlers:{qa:(call,work)=>this.verificationQa.handle(call,work)},
+      observedUsage:work=>this.verificationQa.observedUsage(work),
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
-      runtimeFactory:options.agentWorkRuntimeFactory});
+      runtimeFactory:(work,spec)=>work.role==='QA'?this.verificationQa.child(work,spec):options.agentWorkRuntimeFactory?.(work,spec)??{supportsLiveSteer:false,send:async()=>{},cancel:async()=>{},dispose:async()=>{}}});
     runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
@@ -1682,7 +1686,8 @@ export class Service {
     const assertCurrent=()=>{if(this.closed||this.updateClosing||control.signal.aborted||digest(ownerFor(this.thread(threadId)))!==digest(owner))throw new HarnessError('CANCELLED_RUN','Verification preparation lost its current owner.');};
     try {
       const args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
-      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.`;
+      if(args.intent.qa)this.verificationQa.assertAvailable();
+      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.${intent.qa?' The QA token budget stops further actions after measured usage reaches its threshold; an in-flight model response may exceed the remaining amount. Its wall-time deadline and 32-tool-call bound are enforced by the host.':''}`;
       return this.context(threadId,control.signal,undefined,ctx).prepareOperation('verification.run',args,[],{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description);
     } finally {this.releaseController(threadId,control);}
   }
@@ -1692,6 +1697,7 @@ export class Service {
     const assertHost=()=>{if(this.closed||this.updateClosing||control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Verification execution was stopped.');};
     try {
       const prepared=await this.verification.preflight(op,control.signal,assertHost);assertHost();
+      if(prepared.intent.qa)this.verificationQa.assertAvailable();
       const thread=this.thread(op.threadId),approval=this.verificationEffects.approvalFor(op.id);
       if(!approval||digest(approval.owner)!==digest(prepared.intent.owner))throw new HarnessError('APPROVAL_REQUIRED','The exact verification approval belongs to another owner.');
       this.verificationEffects.verifyOperationApproval(op,thread);
@@ -1704,7 +1710,7 @@ export class Service {
         assertHost();const operation=this.store.get<Operation>('operation',op.id),effect=this.verificationEffects.get(invocationId),grant=this.store.get<import('../contracts/tool-effects.ts').ApprovalV1>('approval',approval.approvalId);
         if(!operation||operation.status!=='running'||operation.revision!==op.revision||!operation.approved||digest(operation.args)!==digest(op.args)||effect?.state!=='DISPATCHED'||!grant||grant.remainingUses!==0||digest(grant.owner)!==digest(prepared.intent.owner)||grant.actionCommitment!==actionCommitment(op,this.thread(op.threadId)))throw new HarnessError('APPROVAL_REQUIRED','Verification operation authority changed after dispatch.');
       };
-      const result=await this.verification.run(prepared,control.signal,current);
+      const result=prepared.intent.qa?await this.verificationQa.run(op.id,prepared.intent,control.signal,current,(signal,fence)=>this.verification.run(prepared,signal,fence)):await this.verification.run(prepared,control.signal,current);
       const status:Operation['status']=result.cleanupFailures.length?'unknown':result.outcome==='PASS'?'succeeded':result.outcome==='CANCELLED'?'cancelled':'failed';
       const state=status==='unknown'?'UNKNOWN_EXTERNAL_OUTCOME':status==='succeeded'?'SUCCEEDED':status==='cancelled'?'CANCELLED':'FAILED';
       this.verificationEffects.settle(invocationId,{value:result},state);
@@ -1870,7 +1876,7 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.verificationQa.dispose(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }

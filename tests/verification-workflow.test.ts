@@ -5,7 +5,7 @@ import {join} from 'node:path';
 import {randomUUID} from 'node:crypto';
 import {Store} from '../packages/storage/store.ts';
 import {VerificationWorkflow} from '../packages/core/verification-workflow.ts';
-import {Service} from '../packages/core/service.ts';
+import {Service, type ServiceOptions} from '../packages/core/service.ts';
 import {__setEffectFaultHookForTests} from '../packages/core/tool-effects.ts';
 import type {VerificationPrepareInput} from '../packages/contracts/verification-workflow.ts';
 import {verificationPanelModel} from '../packages/core/verification-read-models.ts';
@@ -20,7 +20,7 @@ import type {ApprovalV1, ToolEffectRecord} from '../packages/contracts/tool-effe
 
 const cleanups: (() => Promise<void> | void)[] = [];
 afterEach(async () => {__setEffectFaultHookForTests(null); vi.useRealTimers(); for (const cleanup of cleanups.splice(0).reverse()) await cleanup(); vi.unstubAllEnvs();});
-async function fixture(options: {browser?: boolean; serverLifetime?: number; browserDelay?: number; changeSourceDuringOpen?: boolean} = {}) {
+async function fixture(options: {browser?: boolean; serverLifetime?: number; browserDelay?: number; changeSourceDuringOpen?: boolean; qaRuntimeFactory?: ServiceOptions['verificationQaRuntimeFactory']} = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'verification-workflow-')), root = join(directory, 'project'); mkdirSync(root);
   const executable = join(root, 'test-tool'); writeFileSync(executable, 'fixture-only executable identity');
   writeFileSync(join(root, 'app.ts'), 'export const ready = true;\n'); writeFileSync(join(root, 'lock.yaml'), 'version: 1\n');
@@ -61,7 +61,7 @@ async function fixture(options: {browser?: boolean; serverLifetime?: number; bro
   const config: VerificationExecutorHostConfig = {approvedBackendId: backend.backendId, backends: [backend], profiles: [{profile: {profileId: 'fixture-profile', version: 1, backendId: backend.backendId, capabilities: ['process.execute', 'fs.read'], readRoots: [root], writeRoots: [], networkPolicy: options.browser ? {mode: 'allowlist', origins: [origin]} : {mode: 'none'}, secretRefs: [], executableAllowlist: [{executableSha256: sha256, argv: ['check']}, {executableSha256: sha256, argv: ['serve']}], platformProofRef: 'fixture-proof'}, trustId: 'fixture-trust', projectId: 'project', workspaceId: null, accountBinding: null}], executables: [{id: 'fixture-tool', path: executable}], trust, secrets: new SecretReferenceLedger(), environment: {LANG: 'C'}, flags};
   let callbacks!: RuntimeCallbacks;
   const factory = createVerificationExecutorFactory(config), runtime: RuntimeAdapter = {configure: value => {callbacks = value;}, models: async () => [], start: async () => {}, followUp: async input => {callbacks.onEvent({...input, type: 'input.processing'});}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {}};
-  const service = new Service(store, runtime, {verificationExecutor: factory});
+  const service = new Service(store, runtime, {verificationExecutor: factory, verificationQaRuntimeFactory: options.qaRuntimeFactory});
   cleanups.push(async () => {await service.dispose(); store.close(); rmSync(directory, {recursive: true, force: true});});
   const input: VerificationPrepareInput = {profileId: 'fixture-profile', sourceFiles: ['app.ts'], dependencyFiles: ['lock.yaml'], phases: [{name: 'TEST', executableId: 'fixture-tool', argv: ['check'], relativeCwd: '.', environmentRefs: [], timeoutMs: 10_000}], requirements: [{id: 'tests-pass', checks: [{phase: 'TEST'}]}]};
   if (options.browser) {
@@ -80,6 +80,159 @@ async function fixture(options: {browser?: boolean; serverLifetime?: number; bro
   const finish = async () => {await service.deliverOutbox(thread.id); await service.tool({name: 'task_finish', args: {outcome: 'done'}}, ctx); return store.all<DeliverableAssessmentV1>('assessment', thread.id).at(-1)!;};
   return {root, executable, config, events, serverStarted, browserEntered, store, service, thread, ctx, input, backend, factory, trust, launched, terminated, prepare, approve, execute, finish};
 }
+
+function qaRuntime(script: (callbacks: RuntimeCallbacks, input: import('../packages/contracts/index.ts').StartRun) => Promise<void>, options: {usage?: {inputTokens: number; outputTokens: number}; cleanupFailure?: boolean} = {}) {
+  const created: {policy: unknown; callbacks: RuntimeCallbacks; input?: import('../packages/contracts/index.ts').StartRun; cancelled: number; disposed: number}[] = [];
+  const factory = vi.fn((policy: unknown): RuntimeAdapter => {
+    const owned = {policy, callbacks: undefined as unknown as RuntimeCallbacks, input: undefined as import('../packages/contracts/index.ts').StartRun | undefined, cancelled: 0, disposed: 0}; created.push(owned);
+    return {configure: value => {owned.callbacks = value;}, models: async () => [], start: async input => {
+      owned.input = input;
+      queueMicrotask(() => {owned.callbacks.onEvent({...input, type: 'usage', usage: options.usage ?? {inputTokens: 5, outputTokens: 5}}); void script(owned.callbacks, input).catch(error => {owned.callbacks.onEvent({...input, type: 'error', error: String(error)}); owned.callbacks.onEvent({...input, type: 'settled', error: true});});});
+    }, followUp: async () => {throw Error('Fixture QA has no steering or output retry');}, cancel: async () => {owned.cancelled++;}, compact: async () => {}, history: async () => [], dispose: async () => {owned.disposed++; if (options.cleanupFailure) throw Error('fixture QA cleanup failure');}};
+  });
+  return {factory, created};
+}
+const qaRequest = {prompt: 'Run the approved checks and give an advisory review.', budget: {tokens: 1000, ms: 10_000}};
+const qaOutput = {outcome: 'COMPLETED', summary: 'Advisory review only', evidenceRefs: [], requirementIds: ['tests-pass'], observations: []};
+
+it('runs a restricted QA child through the exact approved M02 execution and retains its output as advisory', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    const invoke = (name: string, args: Record<string, unknown> = {}) => callbacks.onTool({name, args}, ctx);
+    expect(await invoke('qa_context')).toMatchObject({requirements: [{id: 'tests-pass'}]});
+    expect(await invoke('qa_run')).toMatchObject({outcome: 'PASS'}); expect(await invoke('qa_run')).toMatchObject({outcome: 'PASS'});
+    expect(await invoke('qa_observe')).toMatchObject({evidenceQuality: 'EXECUTED'});
+    await invoke('qa_result', {output: qaOutput});
+  });
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  expect(runtime.factory).not.toHaveBeenCalled(); expect(f.store.all('agentWork')).toEqual([]);
+  await f.approve(operation); await f.service.dispatchOperation(operation.id).catch(error => {throw Error(f.store.get<Operation>('operation', operation.id)?.error ?? String(error));});
+  expect(f.launched).toHaveLength(1); expect(runtime.factory).toHaveBeenCalledTimes(1); expect(runtime.created[0].disposed).toBe(1);
+  expect(runtime.created[0].input?.resources).toEqual([]); expect(runtime.created[0].input?.sessionPath).toBeNull();
+  expect(runtime.created[0].policy).toMatchObject({hostTools: [{name: 'qa_run'}, {name: 'qa_observe'}, {name: 'qa_context'}, {name: 'qa_result'}]});
+  expect(f.store.all('verificationQaReview')).toEqual([expect.objectContaining({evidenceQuality: 'ADVISORY', output: qaOutput})]);
+  expect(f.store.all('agentWork')).toEqual([expect.objectContaining({role: 'QA', state: 'COMPLETED_REPORTED', grantSubset: [], budget: qaRequest.budget})]);
+  expect((await f.finish()).label).toBe('VERIFIED'); expect((await f.service.verificationPanel(f.thread.id)).label).toBe('VERIFIED');
+});
+
+it('denies missing QA runtime and missing approval before a worker can be created', async () => {
+  const missing = await fixture(); await expect(missing.prepare({...missing.input, qa: qaRequest})).rejects.toMatchObject({code: 'QA_UNAVAILABLE'});
+  const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  expect(runtime.factory).not.toHaveBeenCalled(); expect(f.store.all('agentWork')).toEqual([]);
+});
+
+it('does not turn a QA model completion into executed evidence or allow tools outside its captured catalog', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {
+    for (const name of ['verification_prepare', 'operation_execute', 'shell_exec', 'browser_launch', 'file_write', 'task_delegate', 'agent_result', 'verification.run'])
+      await expect(callbacks.onTool({name, args: {}}, ctx)).rejects.toMatchObject({code: 'AGENT_TOOL_DENIED'});
+    await callbacks.onTool({name: 'qa_result', args: {output: {...qaOutput, observations: [{checkId: 'invented-pass', outcome: 'PASS', evidenceRef: null}]}}}, ctx);
+  });
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown', error: 'The advisory QA result contains no observed execution.'});
+  expect(f.launched).toEqual([]); expect(f.store.all('checkObservation')).toEqual([]); expect((await f.service.verificationPanel(f.thread.id)).label).not.toBe('VERIFIED');
+  expect(f.store.all('verificationQaReview')).toEqual([expect.objectContaining({evidenceQuality: 'ADVISORY'})]);
+});
+
+it('holds the QA budget and model selection inside the exact approval commitment', async () => {
+  const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  f.store.internal('fixture.model-selection-change', f.thread.id, () => f.store.put('thread', f.thread.id, f.thread.id, {...f.thread, modelId: 'fixture/other'}));
+  await expect(f.approve(operation)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'}); expect(runtime.factory).not.toHaveBeenCalled();
+});
+
+it('stops an over-budget QA child before it can launch the approved recipe', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx);}, {usage: {inputTokens: 1000, outputTokens: 1}});
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown', error: 'The approved QA token budget is exhausted.'});
+  expect(f.launched).toEqual([]); expect(runtime.created[0].disposed).toBe(1);
+  expect(f.service.agentWork.budgetLedger().spentTokens).toBe(1001);
+});
+
+it('denies a forged or previously consumed QA work intent without creating another worker', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);});
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  const intent = operation.args.intent as import('../packages/contracts/verification-workflow.ts').VerificationIntent;
+  await expect(f.service.agentWork.admit(f.ctx, intent.qa!.admission, new AbortController().signal)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  expect(runtime.factory).not.toHaveBeenCalled();
+  await f.approve(operation); await f.service.dispatchOperation(operation.id);
+  await expect(f.service.agentWork.admit(f.ctx, intent.qa!.admission, new AbortController().signal)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  await expect(f.service.agentWork.resume(f.ctx, intent.qa!.admission.workId)).rejects.toThrow();
+  expect(runtime.factory).toHaveBeenCalledTimes(1); expect(f.launched).toHaveLength(1);
+});
+
+it('revokes QA tools and cleans the owned worker when the parent stops', async () => {
+  const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  await f.approve(operation); await vi.waitFor(() => expect(runtime.created[0]?.input).toBeDefined());
+  await f.service.command({id: randomUUID(), type: 'run.stop', threadId: f.thread.id, payload: {}});
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'CANCELLED_RUN'});
+  const child = runtime.created[0]; expect(child.cancelled).toBe(1); expect(child.disposed).toBe(1); expect(f.launched).toEqual([]);
+  await expect(child.callbacks.onTool({name: 'qa_run', args: {}}, child.input!)).rejects.toThrow();
+  expect(f.store.all('agentWork')).toEqual([expect.objectContaining({state: 'CANCELLED'})]);
+  expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({state: 'FAILED', cleanupConfirmed: true})]);
+});
+
+it('owns a QA runtime created after cancellation and never starts that late worker', async () => {
+  const runtime = qaRuntime(async () => {}); let entered = false, release!: () => void; const delay = new Promise<void>(resolve => {release = resolve;});
+  const f = await fixture({qaRuntimeFactory: async policy => {entered = true; await delay; return runtime.factory(policy);}}), operation = await f.prepare({...f.input, qa: qaRequest});
+  await f.approve(operation); await vi.waitFor(() => expect(entered).toBe(true));
+  await f.service.command({id: randomUUID(), type: 'run.stop', threadId: f.thread.id, payload: {}}); release();
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'CANCELLED_RUN'});
+  expect(runtime.created).toHaveLength(1); expect(runtime.created[0].input).toBeUndefined(); expect(runtime.created[0].disposed).toBe(1); expect(f.launched).toEqual([]);
+});
+
+it('keeps executed PASS historical but blocks clean completion when the QA runtime cannot close', async () => {
+  const runtime = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);}, {cleanupFailure: true});
+  const f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown', error: 'Owned QA runtime cleanup could not be confirmed.'});
+  expect(f.store.all<CheckObservationV1>('checkObservation').some(value => value.phase === 'TEST' && value.outcome === 'PASS')).toBe(true);
+  expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({state: 'FAILED', cleanupConfirmed: false})]);
+  await expect(f.finish()).rejects.toMatchObject({code: 'REQUEST_GATED'});
+  expect((await f.service.verificationPanel(f.thread.id)).summary.blocked).toBe(1);
+});
+
+it.each([false, true])('cleans the owned QA runtime after durable work-stop bookkeeping fails (cleanup failure: %s)', async cleanupFailure => {
+  const runtime = qaRuntime(async () => {}, {cleanupFailure});
+  const f = await fixture({qaRuntimeFactory: policy => ({...runtime.factory(policy), start: async () => {throw Error('fixture native startup failure');}})});
+  const internal = f.store.internal.bind(f.store);
+  vi.spyOn(f.store, 'internal').mockImplementation((type, threadId, apply) => {
+    if (type === 'agentWork.failed' || type === 'agentWork.cancelled') throw Error('fixture durable work-stop failure');
+    return internal(type, threadId, apply);
+  });
+  const operation = await f.prepare({...f.input, qa: qaRequest}); await f.approve(operation);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(runtime.created).toHaveLength(1); expect(runtime.created[0].cancelled).toBe(1); expect(runtime.created[0].disposed).toBe(1);
+  expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown'});
+  expect(f.store.all('verificationQaLifecycle')).toEqual([expect.objectContaining({state: 'FAILED', cleanupConfirmed: !cleanupFailure, stopReason: 'RECONCILIATION_REQUIRED'})]);
+  expect(f.store.get<ToolEffectRecord>('toolEffect', 'operation:' + operation.id + '@1')?.state).toBe('UNKNOWN_EXTERNAL_OUTCOME');
+  expect(f.launched).toEqual([]);
+});
+
+it('ends an idle QA worker at its approved deadline without launching or restarting work', async () => {
+  const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: {...qaRequest, budget: {tokens: 1000, ms: 1000}}});
+  vi.useFakeTimers({toFake: ['Date', 'setTimeout', 'clearTimeout']});
+  await f.approve(operation); await vi.waitFor(() => expect(runtime.created[0]?.input).toBeDefined());
+  await vi.advanceTimersByTimeAsync(1001);
+  await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  expect(f.store.get<Operation>('operation', operation.id)).toMatchObject({status: 'unknown', error: 'The approved QA deadline expired.'});
+  expect(runtime.created[0].disposed).toBe(1); expect(f.launched).toEqual([]);
+});
+
+it('does not resume a QA child or its consumed execution after host recovery', async () => {
+  const runtime = qaRuntime(async () => {}), f = await fixture({qaRuntimeFactory: runtime.factory}), operation = await f.prepare({...f.input, qa: qaRequest});
+  await f.approve(operation); await vi.waitFor(() => expect(runtime.created[0]?.input).toBeDefined());
+  const parentRuntime: RuntimeAdapter = {configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {}};
+  const restarted = new Service(f.store, parentRuntime, {verificationExecutor: f.factory, verificationQaRuntimeFactory: runtime.factory}); cleanups.push(() => restarted.dispose());
+  await restarted.recover(); expect(f.store.all('agentWork')).toEqual([expect.objectContaining({state: 'INTERRUPTED'})]);
+  await expect(restarted.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+  const current = f.store.get<Thread>('thread', f.thread.id)!, ctx = {threadId: current.id, runId: 'new-parent-owner', epoch: current.epoch + 1};
+  f.store.internal('fixture.new-parent-run', current.id, () => f.store.put('thread', current.id, current.id, {...current, runId: ctx.runId, epoch: ctx.epoch, status: 'working'}));
+  const intent = operation.args.intent as import('../packages/contracts/verification-workflow.ts').VerificationIntent;
+  await expect(restarted.agentWork.resume(ctx, intent.qa!.admission.workId)).rejects.toMatchObject({code: 'APPROVAL_REQUIRED'});
+  await expect(runtime.created[0].callbacks.onTool({name: 'qa_run', args: {}}, runtime.created[0].input!)).rejects.toThrow();
+  expect(runtime.factory).toHaveBeenCalledTimes(1); expect(f.launched).toEqual([]);
+});
 
 it('prepares a reviewable manifest and reaches the observed executor only through ordinary approval and durable M02 dispatch', async () => {
   const f = await fixture(), operation = await f.prepare();
