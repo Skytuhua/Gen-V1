@@ -96,6 +96,11 @@ test('evidence preserves reported and observed grades, freshness and unsupported
  await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await dialog.getByRole('button',{name:'Evidence',exact:true}).click();await expect(dialog).toContainText('REPORTED');await expect(dialog).toContainText('OBSERVED');await expect(dialog).toContainText('STALE');await expect(dialog).toContainText('retained-check.log');await expect(dialog).toContainText('UNSUPPORTED');await expect(dialog).not.toContainText('VERIFIED');await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
  await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();await page.getByRole('dialog',{name:'Sources and evidence'}).getByRole('button',{name:'Evidence',exact:true}).click();await page.screenshot({path:info.outputPath('evidence-drawer.png'),fullPage:true});
 });
+test('source candidates are a named group of source buttons',async({page})=>{
+ await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Sources and evidence'}),group=dialog.getByRole('group',{name:'Available sources'});
+ await expect(group).toBeVisible();await expect(group.getByRole('button',{name:'MESSAGE: Assistant message',exact:true})).toBeVisible();
+});
 test('rollback leaves retained source inspection and removal reachable',async({page})=>{
  const h=await fixture(page);await attach(page);h.state.enabled=false;h.snapshot.threads[0].epoch++;await h.publish();await expect(page.getByText('New source actions are disabled.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toBeVisible();await page.keyboard.press('Escape');await page.getByRole('button',{name:'Remove source',exact:true}).click();await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toHaveCount(0);
 });
@@ -109,7 +114,7 @@ test('real activity integration bounds mounted rows and searches the authorized 
  h.snapshot.threads.push({...h.snapshot.threads[0],id:'other',title:'Other task'});await h.publish();await page.getByRole('button',{name:'Other task',exact:false}).first().click();
  await expect(page.getByRole('tab',{name:'Other task',exact:true})).toHaveAttribute('aria-selected','true');
  const [returned]=await Promise.all([
-  page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.kind==='thread'&&command.payload.view.binding?.threadId==='task-thread';},{timeout:5000}),
+  page.waitForResponse(response=>{const request=response.request();if(request.method()!=='POST'||new URL(response.url()).pathname!=='/api/split-workspace/commands')return false;const command=request.postDataJSON();return command.type==='split-workspace.view.open'&&command.payload.view?.id==='thread:task-thread';},{timeout:5000}),
   page.getByRole('button',{name:'Source-bound task fixture',exact:false}).first().click(),
  ]);
  expect(returned.status()).toBe(200);const receipt=await returned.json();expect(receipt.result.panes[receipt.result.focusedPaneId].activeViewId).toBe('thread:task-thread');

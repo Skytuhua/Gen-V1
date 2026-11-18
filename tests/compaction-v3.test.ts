@@ -149,6 +149,8 @@ it('discards precompute candidates on rewind, instruction change, cancellation a
   expect(experiment.prepare({ binding: base, prefixDigest: 'prefix-2' }).status).toBe('STARTED');
   experiment.cancel();
   expect(experiment.use({ current: base, prefixDigest: 'prefix-2', retainedTailBytes: 0 }).status).toBe('NOT_READY');
+  expect(experiment.prepare({ binding: base, prefixDigest: 'prefix-3' }).status).toBe('ALREADY_RUNNING');
+  await vi.waitFor(() => expect(experiment.accounting().costBytes).toBe(5 * 11));
   failNext = true;
   expect(experiment.prepare({ binding: base, prefixDigest: 'prefix-3' }).status).toBe('STARTED');
   await vi.waitFor(() => expect(experiment.accounting().failed).toBe(1));
@@ -160,6 +162,58 @@ it('discards precompute candidates on rewind, instruction change, cancellation a
   expect(accounting.failed).toBe(1);
   expect(accounting.discarded).toBeGreaterThanOrEqual(5);
   expect(accounting.costBytes).toBe(5 * 11 + 7);
+});
+
+it.each(['completed', 'failed'] as const)('retains a cancelled precompute slot until its %s background call actually settles', async outcome => {
+  const { createPrecomputeExperiment } = await import('../packages/core/context-compaction.ts');
+  type Summary = { summaryRef: string; costBytes: number };
+  const completions: Array<{ resolve(value: Summary): void; reject(error: Error): void }> = [];
+  const experiment = createPrecomputeExperiment({
+    enabled: () => true, maxRetainedTailBytes: 1024,
+    summarize: () => new Promise<Summary>((resolve, reject) => completions.push({ resolve, reject })),
+  });
+  const request = { binding: base, prefixDigest: 'prefix-first' };
+  expect(experiment.prepare(request).status).toBe('STARTED');
+  experiment.cancel();
+  experiment.cancel();
+  expect(experiment.prepare({ ...request, prefixDigest: 'prefix-next' }).status).toBe('ALREADY_RUNNING');
+  expect(completions).toHaveLength(1);
+  expect(experiment.accounting()).toEqual({ attempts: 1, failed: 0, discarded: 1, costBytes: 0 });
+  if (outcome === 'completed') completions[0]!.resolve({ summaryRef: 'obsolete-summary', costBytes: 11 });
+  else completions[0]!.reject(Object.assign(new Error('Cancelled work failed after spending its budget'), { costBytes: 11 }));
+  await vi.waitFor(() => expect(experiment.accounting().costBytes).toBe(11));
+  expect(experiment.use({ current: base, prefixDigest: request.prefixDigest, retainedTailBytes: 0 }).status).toBe('NOT_READY');
+  expect(experiment.prepare({ ...request, prefixDigest: 'prefix-next' }).status).toBe('STARTED');
+  completions[1]!.resolve({ summaryRef: 'current-summary', costBytes: 13 });
+  await vi.waitFor(() => expect(experiment.use({ current: base, prefixDigest: 'prefix-next', retainedTailBytes: 0 })).toEqual({ status: 'READY', summaryRef: 'current-summary' }));
+  expect(experiment.accounting()).toEqual({ attempts: 2, failed: outcome === 'failed' ? 1 : 0, discarded: 1, costBytes: 24 });
+});
+
+it('discards a ready precompute candidate when its host experiment is disabled', async () => {
+  const { createPrecomputeExperiment } = await import('../packages/core/context-compaction.ts');
+  let enabled = true;
+  const experiment = createPrecomputeExperiment({ enabled: () => enabled, maxRetainedTailBytes: 1024,
+    summarize: async () => ({ summaryRef: 'disabled-summary', costBytes: 11 }) });
+  experiment.prepare({ binding: base, prefixDigest: 'prefix' });
+  const current = { current: base, prefixDigest: 'prefix', retainedTailBytes: 0 };
+  await vi.waitFor(() => expect(experiment.use(current).status).toBe('READY'));
+  enabled = false;
+  expect(experiment.use(current).status).toBe('DISCARDED');
+  enabled = true;
+  expect(experiment.use(current).status).toBe('NOT_READY');
+  expect(experiment.accounting()).toEqual({ attempts: 1, failed: 0, discarded: 1, costBytes: 11 });
+});
+
+it('accounts for synchronous precompute failures and releases their occupied slot', async () => {
+  const { createPrecomputeExperiment } = await import('../packages/core/context-compaction.ts');
+  let calls = 0;
+  const experiment = createPrecomputeExperiment({ enabled: () => true, maxRetainedTailBytes: 1024,
+    summarize: () => { if (++calls === 1) throw Object.assign(new Error('Synchronous summarizer failure'), { costBytes: 7 }); return Promise.resolve({ summaryRef: 'retry-summary', costBytes: 11 }); } });
+  const request = { binding: base, prefixDigest: 'prefix' };
+  expect(experiment.prepare(request).status).toBe('STARTED');
+  expect(experiment.accounting()).toEqual({ attempts: 1, failed: 1, discarded: 0, costBytes: 7 });
+  expect(experiment.prepare(request).status).toBe('STARTED');
+  await vi.waitFor(() => expect(experiment.use({ current: base, prefixDigest: 'prefix', retainedTailBytes: 0 })).toEqual({ status: 'READY', summaryRef: 'retry-summary' }));
 });
 
 it('gates the shadow relevance phase on an approved auxiliary budget and a fixed six-second timeout', async () => {
@@ -222,6 +276,47 @@ it('gates the shadow relevance phase on an approved auxiliary budget and a fixed
   expect(calls).toBe(before + 2);
 });
 
+it.each([
+  ['an explicit default account', {accountId: null}, true],
+  ['a named account', {accountId: 'aux-account'}, true],
+  ['a missing account', {}, false],
+  ['an undefined account', {accountId: undefined}, false],
+  ['an empty account', {accountId: ''}, false],
+  ['a non-string account', {accountId: 1}, false],
+] as const)('requires an explicit approved shadow route for %s', async (_label, account, available) => {
+  const {createShadowRelevancePhase} = await import('../packages/core/context-relevance.ts');
+  const observe = vi.fn(async () => ({candidateIds: ['old'], estimatedSavingsBytes: 100}));
+  // Malformed runtime objects deliberately exercise the admission boundary.
+  const approval = {modelId: 'aux-model', budgetCalls: 1, ...account} as Parameters<typeof createShadowRelevancePhase>[0]['approval'];
+  const phase = createShadowRelevancePhase({approval, observe});
+  const cut = Object.freeze({cutId: 'account-cut', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: Object.freeze([
+    Object.freeze({id: 'old', inputSequence: 1, bytes: 100, kind: 'tool-result', completed: true, protected: false}),
+  ])});
+  const before = JSON.stringify(cut);
+  expect(await phase.run(cut)).toEqual(available
+    ? {status: 'COMPLETED', observation: {candidateIds: ['old'], estimatedSavingsBytes: 100}}
+    : {status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).toHaveBeenCalledTimes(available ? 1 : 0);
+  expect(await phase.run({...cut, cutId: 'next-account-cut'})).toEqual({status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).toHaveBeenCalledTimes(available ? 1 : 0);
+  expect(JSON.stringify(cut)).toBe(before);
+});
+
+it.each([
+  ['a missing model', {}],
+  ['an undefined model', {modelId: undefined}],
+  ['an empty model', {modelId: ''}],
+  ['a non-string model', {modelId: 1}],
+] as const)('starts no shadow call for %s', async (_label, model) => {
+  const {createShadowRelevancePhase} = await import('../packages/core/context-relevance.ts');
+  const observe = vi.fn(async () => ({candidateIds: [], estimatedSavingsBytes: 0}));
+  const approval = {accountId: null, budgetCalls: 1, ...model} as Parameters<typeof createShadowRelevancePhase>[0]['approval'];
+  const phase = createShadowRelevancePhase({approval, observe});
+  expect(await phase.run({cutId: 'invalid-model-cut', retainedTailStart: 1, inspectionBudgetBytes: 0, segments: []}))
+    .toEqual({status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).not.toHaveBeenCalled();
+});
+
 it('reports only eligible old tool-result savings once, without modifying the projected request', async () => {
   const load = import.meta.glob('../packages/core/context-relevance.ts')['../packages/core/context-relevance.ts'];
   if (!load) throw new Error('M04 report-only relevance observer is not implemented');
@@ -244,4 +339,49 @@ it('reports only eligible old tool-result savings once, without modifying the pr
   expect(observer.observe(input)).toBeNull();
   expect(JSON.stringify(segments)).toBe(serialized);
   expect(observer.observe({ ...input, cutId: 'cut-2', inspectionBudgetBytes: 10 })).toEqual({ candidateIds: [], estimatedSavingsBytes: 0 });
+});
+
+it.each(['completed', 'failed'] as const)('ignores a %s shadow result from an expired cut while a newer cut is pending', async outcome => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  type Observation = { candidateIds: readonly string[]; estimatedSavingsBytes: number };
+  const timers: Array<() => void> = [];
+  const completions: Array<{ resolve(value: Observation): void; reject(error: Error): void }> = [];
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 2 },
+    observe: () => new Promise<Observation>((resolve, reject) => completions.push({ resolve, reject })),
+    schedule: callback => { timers.push(callback); return timers.length; }, unschedule: () => {},
+  });
+  const cut = { cutId: 'expired', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [] };
+  const expired = phase.run(cut);
+  timers[0]!();
+  expect(await expired).toEqual({ status: 'TIMED_OUT', observation: null });
+  const current = phase.run({ ...cut, cutId: 'current' });
+  let settled = false;
+  void current.then(() => { settled = true; });
+  if (outcome === 'completed') completions[0]!.resolve({ candidateIds: ['expired-only'], estimatedSavingsBytes: 900 });
+  else completions[0]!.reject(new Error('Expired observer failed'));
+  await Promise.resolve();
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  completions[1]!.resolve({ candidateIds: ['current-only'], estimatedSavingsBytes: 40 });
+  expect(await current).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['current-only'], estimatedSavingsBytes: 40 } });
+});
+
+it('ignores an old timeout callback after the next shadow cut starts', async () => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  const timers: Array<() => void> = [];
+  const completions: Array<(value: { candidateIds: readonly string[]; estimatedSavingsBytes: number }) => void> = [];
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 2 },
+    observe: () => new Promise(resolve => completions.push(resolve)),
+    schedule: callback => { timers.push(callback); return timers.length; }, unschedule: () => {},
+  });
+  const cut = { cutId: 'first', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [] };
+  const first = phase.run(cut);
+  completions[0]!({ candidateIds: ['first-only'], estimatedSavingsBytes: 20 });
+  expect((await first).status).toBe('COMPLETED');
+  const current = phase.run({ ...cut, cutId: 'current' });
+  timers[0]!();
+  completions[1]!({ candidateIds: ['current-only'], estimatedSavingsBytes: 40 });
+  expect(await current).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['current-only'], estimatedSavingsBytes: 40 } });
 });

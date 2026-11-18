@@ -1,0 +1,32 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","node_modules/@playwright/test/cli.js","test","--config","tests/e2e/agents-workspace.playwright.config.ts","tests/e2e/agents-workspace.spec.ts","--output","test-results/m15/agents-actual-app/artifacts","--reporter=list,json"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+
+Running 23 tests using 1 worker
+
+  ok  1 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 1440 (4.0s)
+  ok  2 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 1024 (2.2s)
+  ok  3 tests\e2e\agents-workspace.spec.ts:323:40 › first agent reads reserve project rows and parent conversations at 768 (2.2s)
+  ok  4 tests\e2e\agents-workspace.spec.ts:371:1 › missing history remains reachable after offscreen bursts without moving the message being read (2.4s)
+  ok  5 tests\e2e\agents-workspace.spec.ts:421:1 › a slower evidence request cannot replace the latest selected child (1.3s)
+  ok  6 tests\e2e\agents-workspace.spec.ts:499:1 › project rows expose working parent and nested child transcripts before any details click (1.2s)
+  ok  7 tests\e2e\agents-workspace.spec.ts:530:1 › all grid parents are reachable, subscriptions follow visibility, and drafts survive virtualization (1.7s)
+  ok  8 tests\e2e\agents-workspace.spec.ts:564:1 › the actual App retains offscreen drafts, keyboard targets and the 24-history bound (6.6s)
+  ok  9 tests\e2e\agents-workspace.spec.ts:605:1 › IME does not send, working parents send, uncertain retries keep identity and later drafts (2.1s)
+  ok 10 tests\e2e\agents-workspace.spec.ts:649:1 › filtered children retain their completed owning parent and local reading state (1.7s)
+  ok 11 tests\e2e\agents-workspace.spec.ts:685:1 › the actual App opens and restores compact routing without mounting snapshot bootstrap (3.9s)
+  ok 12 tests\e2e\agents-workspace.spec.ts:703:1 › child follow-up uses the published parent/run target and current ticket through handled (4.0s)
+  ok 13 tests\e2e\agents-workspace.spec.ts:746:1 › agent task progress exposes its name and unknown share to assistive technology (1.4s)
+  ok 14 tests\e2e\agents-workspace.spec.ts:814:1 › output while reading earlier retains position and exposes an explicit new-output action (4.1s)
+  ok 15 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1920x1080 at 1 (2.0s)
+  ok 16 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1440x900 at 1 (2.0s)
+  ok 17 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry light 1024x768 at 1.25 (1.8s)
+  ok 18 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 1280x600 at 1 (1.7s)
+  ok 19 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry dark 640x520 at 1.5 (1.6s)
+  ok 20 tests\e2e\agents-workspace.spec.ts:853:3 › readable geometry light 390x844 at 1 (1.7s)
+  ok 21 tests\e2e\agents-workspace.spec.ts:890:1 › a child input acknowledgement preserves a newer draft (1.4s)
+  ok 22 tests\e2e\agents-workspace.spec.ts:982:1 › a message board post acknowledgement preserves edits for the next post (1.7s)
+  ok 23 tests\e2e\agents-workspace.spec.ts:1088:1 › keyboard entry into a virtual agent keeps focus on that card (2.0s)
+
+  23 passed (57.4s)

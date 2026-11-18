@@ -1,0 +1,718 @@
+
+> gen-v1@0.6.5 test /home/piadmin/Gen-V1-m10-v6
+> pnpm build:credential-lease && pnpm build:widgets && vitest run
+
+
+> gen-v1@0.6.5 build:credential-lease /home/piadmin/Gen-V1-m10-v6
+> tsx scripts/build-windows-credential-lease.ts
+
+
+> gen-v1@0.6.5 build:widgets /home/piadmin/Gen-V1-m10-v6
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m10-v6
+
+(node:782541) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:782983) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/runtime-pi.test.ts (32 tests | 1 failed) 55369ms
+     × returns useful subscription auth errors with the original run context, never API-key fallback 30258ms
+(node:783811) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+(node:783985) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/skill-invocation.test.ts (36 tests | 36 failed) 1036ms
+   × materializes exact entry bytes and captured support without changing prompt or resources 99ms
+   × denies stale support, forged identity, cross-source and private-provider references 57ms
+   × rejects every changed authority dimension before admission 30ms
+   × fences authority changes during catalog awaits and again before commit/runtime/support reads 37ms
+   × honors pre-abort and an abort that wins a catalog await without producing an admission 9ms
+   × denies support-bytes between fresh catalog custody and materialization 7ms
+   × denies entry-bytes between fresh catalog custody and materialization 8ms
+   × denies file-swap between fresh catalog custody and materialization 13ms
+   × denies directory-swap between fresh catalog custody and materialization 20ms
+   × denies hardlink between fresh catalog custody and materialization 42ms
+   × denies junction between fresh catalog custody and materialization 78ms
+   × denies extra-file between fresh catalog custody and materialization 12ms
+   × revalidates the canonical source after capture rather than accepting its earlier index 62ms
+   × restores authenticated exact bytes across host restart without rediscovering changed skills 41ms
+   × rejects command-ID reuse with changed content, model, thinking, reference or authority 84ms
+   × denies replay tampering and key loss instead of falling back to rediscovery 25ms
+   × denies forged admissions, mismatched runtime owners and arbitrary support paths 16ms
+   × reads the exact Harness version/document with no latest-name or ambient projection fallback 13ms
+   × denies a package exceeding files instead of silently truncating it 13ms
+   × denies a package exceeding fileBytes instead of silently truncating it 7ms
+   × denies a package exceeding packageBytes instead of silently truncating it 19ms
+   × rejects malformed payloads rather than accepting browser supplied text, paths or authority grants 11ms
+   × selection preserves every reference field without a body read or admission capability, and bundles for browsers 8ms
+   × denies a changed runtime thinking level even when the model is unchanged 8ms
+   × preserves UTF-8 BOM and original line endings in admitted guidance 6ms
+   × admits all selected references in order, never silently dropping a stale second selection 9ms
+   × bounds Harness entry bytes before materializing an oversized saved document 7ms
+   × captures only a verified installed App package, without activating its host, and rechecks registry revocation 7ms
+   × uses the bundled manifest pin and denies an index replacement between custody and capture 14ms
+   × resolves only the connected canonical project/worktree and denies its root identity changing 39ms
+   × aborts after capture while the final source recheck is in flight 56ms
+   × returns cancellation while an obsolete catalog read is still pending 30ms
+   × replays the same command after an actual Store reopen without another message or current-source read 65ms
+   × precommit authority revalidation leaves message/outbox/capture storage empty on a race 30ms
+   × sanitizes authority-provider failures at precommit without leaking host paths 33ms
+   × accepts the parent raw skills array while taking expected authority only from host options 12ms
+(node:784122) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:784494) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:784592) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:784656) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:784740) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:784986) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:785042) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:785181) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/capabilities.test.ts (24 tests | 13 failed) 9240ms
+     × publishes resource sourced text with an exact content hash 96ms
+     × prepares without writing and rejects absent approval and changed source bytes 18ms
+     × executes approved replacement, publishes actual results and re-resolves write permissions 16ms
+     × rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch 12ms
+     × reconciles before/after replacement hashes read-only and leaves changed bytes unknown 3ms
+     × runs the exact node-test recipe and reports actual success and failure exits 5ms
+     × cancels the actual process tree and records cancellation instead of success 7ms
+     × inspects real rows and applies exact prepared counts with integrity/version checks 53ms
+     × bounds inspect rows by serialized bytes and reports truncation 613ms
+     × rolls back wrong counts, denies attachment and rejects stale database versions 69ms
+     × reports actual migration DML counts independently from schema statements 116ms
+     × inspects fields, fills supported types and places typed/drawn marks in a new local export 189ms
+     × creates fixtures only at an exclusive new destination including real git conflict 998ms
+ ❯ tests/path-access.test.ts (32 tests | 12 failed) 22712ms
+   × denies alternate streams and device namespace spellings at grant admission 895ms
+   × serves approved ordinary bytes and holds every directory ancestor through final access 771ms
+   × allows ordinary child replacement while its parent directory is guarded 364ms
+   × rejects a substituted replacement source and preserves a nonowned cleanup inode 280ms
+   × denies an approved replacement after the resolved parent is swapped to protected storage 438ms
+   × keeps the original database parent and journal inode pinned through actual COMMIT 561ms
+   × performs approved ordinary replacement and PDF export under native guards 715ms
+   × retains a user save made after the final capability read but before replacement 442ms
+   × does not consume a protected temporary ignore file configured by a selected repository 588ms
+   × diffs the acquired deletion when a protected junction is inserted immediately before real Git launch 627ms
+   × ignores metadata paths inserted after acquisition immediately before real Git status 767ms
+   × does not let repository config redirect snapshot Git to a post-acquisition metadata file 1025ms
+(node:785416) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 19 failed) 8091ms
+   × commits intent before local write and private result before event, then replays after Store restart 631ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 680ms
+   × serializes same-ID attempts across separate Store connections without a double write 221ms
+   × denies reuse of an ID with a changed payload 458ms
+   × denies reuse of an ID with a changed type 248ms
+   × denies reuse of an ID with a changed threadId 409ms
+   × denies reuse of an ID with a changed projectId 377ms
+   × inspects original payload/revision without current diff, review reads, or any write 359ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 459ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 340ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 601ms
+   × records not-applied only after host rejection before starting and never restarts that ID 349ms
+   × keeps failures after started uncertain even when there is no receipt 267ms
+   × keeps completed external write uncertain if durable result commit fails 280ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 493ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 671ms
+   × pins profile access while GitHubTools is awaiting remote validation 396ms
+   × rejects a profile replaced between inspection identity capture and credential read 302ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 528ms
+ ❯ tests/project-search-host.test.ts (51 tests | 2 failed) 83365ms
+   × bounds the issue list and reports truncation 2562ms
+   × stops at 10,000 ordinary files, without visiting the next file 61549ms
+(node:785941) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+Gen V1 retained a private GitHub request input because cleanup could not be confirmed.
+(node:786652) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:786969) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+(node:787086) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/runtime-router.test.ts (21 tests | 3 failed) 383ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 81ms
+   × scopes named-account model discovery to its provider and blocks a profile being signed in 6ms
+   × rejects a resolver that changes the provider of an already acquired account profile 12ms
+stderr | tests/github-workspace.test.ts > fences cancel during private credential writing before rename and preserves the prior token
+Promise returned by `expect(actual).rejects.toMatchObject(expected)` was not awaited. Vitest currently auto-awaits hanging assertions at the end of the test, but this will cause the test to fail in the next Vitest major. Please remember to await the assertion.
+    at /home/piadmin/Gen-V1-m10-v6/tests/github-workspace.test.ts:159:52
+
+(node:787235) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:787293) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+hint: Using 'master' as the name for the initial branch. This default branch name
+hint: is subject to change. To configure the initial branch name to use in all
+hint: of your new repositories, which will suppress this warning, call:
+hint: 
+hint: 	git config --global init.defaultBranch <name>
+hint: 
+hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+hint: 'development'. The just-created branch can be renamed via this command:
+hint: 
+hint: 	git branch -m <name>
+ ❯ tests/code-review-comparisons.test.ts (12 tests | 12 failed) 7405ms
+   × reads index and worktree overlap separately and binds selected patches to the complete revision 428ms
+   × reports clean, untracked text, binary and bounded large patches honestly 433ms
+   × pins remote PR patches to exact three-dot identity without substituting local unstaged changes 489ms
+   × returns explicit transport errors and never calls a local diff as fallback 703ms
+   × reads staged deletions and renames by exact selected paths 418ms
+   × keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD 402ms
+   × denies delegates, Company, cross-project and replaced-directory reads before remote transport 302ms
+   × keeps snapshots isolated from returned mutable data and never accepts another owner 1308ms
+   × distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs 590ms
+   × never reads a hardlinked changed file into a patch 1027ms
+   × reads an already-attested remote origin without a source Git checkout or source file projection 880ms
+   × rejects mismatched remote identities and reports empty and capped file inventories honestly 421ms
+(node:787496) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:787503) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/skill-catalog.test.ts (23 tests | 19 failed) 1868ms
+   × enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes 349ms
+   × pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal 17ms
+   × binds authenticated cursors to inventory, search, page size and connection context 20ms
+   × denies file/directory symlinks and hardlinks while retaining other safe packages 12ms
+   × bounds file counts and bytes without truncating a package into an available reference 7ms
+   × marks an exhausted root inventory unavailable instead of silently presenting a partial catalog 12ms
+   × counts bytes consumed by rejected packages against the root budget 19ms
+   × rejects namespace escalation and source substitution without resolving a display name 6ms
+   × accepts bound references for the full declared source-identity length 11ms
+   × includes nested installed skill entries beneath another skill package 11ms
+   × keeps a root skill distinct from a child named after the root directory 29ms
+   × detects replacement during capture and never returns mixed metadata/custody 15ms
+   × uses canonical connected project/worktree bindings and separates unavailable project authority 158ms
+   × discovers only the selected worktree and invalidates its references after rebinding or revocation 138ms
+   × preserves exact references and pagination after unrelated title updates 146ms
+   × preserves exact references and pagination after unrelated status updates 151ms
+   × preserves exact references and pagination after unrelated project metadata updates 398ms
+   × preserves exact references and pagination after unrelated working-copy branch updates 158ms
+   × reuses the real bundled integration inventory and covers all declared skills across pages 15ms
+(node:787692) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:787729) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:787870) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:787858) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ❯ tests/service.test.ts (19 tests | 2 failed) 8420ms
+     × records a completed effect arriving after Stop without reviving its run 482ms
+     × a generated operation button leads to native approval and cannot approve by its label 605ms
+stderr | tests/github-workspace.test.ts > fences replace during private credential writing before rename and preserves the prior token
+Promise returned by `expect(actual).rejects.toMatchObject(expected)` was not awaited. Vitest currently auto-awaits hanging assertions at the end of the test, but this will cause the test to fail in the next Vitest major. Please remember to await the assertion.
+    at /home/piadmin/Gen-V1-m10-v6/tests/github-workspace.test.ts:159:52
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+stderr | tests/github-workspace.test.ts > fences expire during private credential writing before rename and preserves the prior token
+Promise returned by `expect(actual).rejects.toMatchObject(expected)` was not awaited. Vitest currently auto-awaits hanging assertions at the end of the test, but this will cause the test to fail in the next Vitest major. Please remember to await the assertion.
+    at /home/piadmin/Gen-V1-m10-v6/tests/github-workspace.test.ts:159:52
+
+ ❯ tests/github-workspace.test.ts (37 tests | 23 failed) 182504ms
+   × keeps device authorization tokens private and requires a Gen V1 credential before CLI use 378ms
+   × refuses to create a PR when the GitHub branch differs from the reviewed local commit 18ms
+   × returns a created PR only after its actual head matches the reviewed commit 36ms
+   × retains the created PR URL when its actual head differs from the reviewed commit 16ms
+   × retains the already-created PR URL after failed read without creating it again 9ms
+   × retains the already-created PR URL after malformed JSON without creating it again 17ms
+   × retains the already-created PR URL after missing head without creating it again 21ms
+   × rechecks writable authority after remote validation before draft creation 96ms
+   × submits a writable exact-head review against its reviewed commit 57ms
+   × writes long Unicode PR text exactly to a private file before push and removes it after success 72ms
+   × uses file-backed review JSON without changing newlines, Unicode or literal backslashes 211ms
+   × rejects changed capability while preparing a private review input 217ms
+   × rejects changed head while preparing a private review input 34ms
+   × rejects changed revision while preparing a private review input 37ms
+   × cleans private create input while preserving a remote failure 268ms
+   × cleans private review input while preserving a remote failure 63ms
+   × retains publication state after success even when exact directory cleanup is refused 86ms
+   × retains publication state after verification failure even when exact directory cleanup is refused 125ms
+   × fences cancel during private credential writing before rename and preserves the prior token 60055ms
+   × fences replace during private credential writing before rename and preserves the prior token 60032ms
+   × fences expire during private credential writing before rename and preserves the prior token 60035ms
+   × serializes polling per flow and treats cancellation of an older flow as harmless 27ms
+   × reports a completed sign-in when credential commit wins the cancellation race 15ms
+(node:789226) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789249) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/integration-packaging-canonical-negative.test.ts (28 tests | 28 failed) 590ms
+     × derives deterministic per-distribution RECORDs while preserving every original non-RECORD byte 30ms
+     × rejects an archive whose complete bytes do not match its pinned wheel hash 13ms
+     × rejects unsafe authenticated ZIP member ../escape.py 8ms
+     × rejects unsafe authenticated ZIP member /absolute.py 12ms
+     × rejects unsafe authenticated ZIP member C:/drive.py 24ms
+     × rejects unsafe authenticated ZIP member ..\escape.py 18ms
+     × rejects duplicate ZIP names even when their bytes match 14ms
+     × rejects a wheel that claims another distribution metadata directory 47ms
+     × rejects foreign distribution metadata ownership after wheel data spreading 17ms
+     × rejects an own RECORD alias after wheel data spreading instead of generating duplicate self rows 17ms
+     × rejects two authenticated wheels claiming the same runtime file 29ms
+     × requires authenticated wheel membership for every locked runtime file 12ms
+     × rejects a wheel member whose bytes conflict with the original runtime lock 14ms
+     × rejects changed locked non-RECORD file shared/alpha.py 26ms
+     × rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/METADATA 29ms
+     × rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/INSTALLER 29ms
+     × rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/entry_points.txt 33ms
+     × rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/licenses/LICENSE 9ms
+     × rejects changed locked non-RECORD file fixture_alpha-1.0.0.dist-info/REQUESTED 18ms
+     × rejects a missing locked runtime file 23ms
+     × rejects undeclared cache runtime file rogue.py 6ms
+     × rejects undeclared cache runtime file fixture_alpha-1.0.0.dist-info/rogue.py 14ms
+     × rejects undeclared cache runtime file unknown-1.0.0.dist-info/direct_url.json 28ms
+     × rejects undeclared final staged file rogue.py after a valid canonical stage 23ms
+     × rejects undeclared final staged file fixture_alpha-1.0.0.dist-info/direct_url.json after a valid canonical stage 14ms
+     × rejects undeclared final staged file Scripts/rogue.exe after a valid canonical stage 23ms
+     × rejects undeclared final staged file shared/__pycache__/alpha.cpython-314.pyc after a valid canonical stage 15ms
+     × rechecks an original locked source file immediately before staging 37ms
+ ❯ tests/rename-recovery-v3.test.ts (12 tests | 6 failed) 311ms
+   × guarded apply writes a durable journal and backups before the first change 55ms
+   × post-crash reconcile restores only paths still matching the written postimage 30ms
+   × an external edit of a renamed file stops recovery with PARTIAL_RECOVERY_REQUIRED 51ms
+   × recovery refuses a journal that targets paths outside the granted roots 31ms
+   × a resolved journal with conflicts reports PARTIAL_RECOVERY_REQUIRED 28ms
+   × a crash between postimage journal and apply completion still recovers the write 48ms
+(node:789425) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/checkpoint-restore-v3.test.ts (14 tests | 13 failed) 3379ms
+   × captures approved files and keeps excluded files visible as outside coverage 174ms
+   × reviews a checkpoint with bounded side-by-side diffs 348ms
+   × restores selected paths exactly with a recorded pre-restore checkpoint 372ms
+   × rolls written files back on a conflict and reports CONFLICT 335ms
+   × recreates a file the working copy deleted 208ms
+   × conflicts rather than overwrite content the recovery checkpoint cannot hold 411ms
+   × requires the exact approval for a restore plan 160ms
+   × refuses restore of a checkpoint whose blobs expired and reports MISSING blobs 200ms
+   × collects unreferenced blobs only 156ms
+   × provisions only manifest-pinned non-secret files 152ms
+   × stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED 171ms
+   × preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback 228ms
+   × refuses to re-apply a plan left APPLYING by a killed process 264ms
+(node:789432) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789603) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789642) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789641) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/task-memory-recovery.test.ts (3 tests | 1 failed) 7776ms
+   × keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery 650ms
+ ❯ tests/selective-commit-v3.test.ts (13 tests | 13 failed) 3796ms
+   × commits only the selected hunks and leaves the rest uncommitted 272ms
+   × commits one hunk of a file and leaves the sibling hunk behind 187ms
+   × refuses a stale expected head and records nothing 148ms
+   × commits a brand-new untracked file as a single proven hunk 178ms
+   × labels hunk attribution from the provenance journal and requires explicit selection for unproven edits 257ms
+   × keeps a path unattributed when its live bytes no longer match the proven receipt 225ms
+   × never offers an untracked non-UTF-8 file as a commit candidate 252ms
+   × commits an untracked UTF-8 file without dropping its BOM 373ms
+   × rejects a hunk whose digest no longer matches the live postimage 424ms
+   × never uses blanket staging: an unselected file is absent from the commit 435ms
+   × requires a managed working copy 355ms
+   × records the commit and observed head when the branch update is uncertain 391ms
+   × retains a dirty managed worktree when its operation is cancelled 293ms
+(node:789836) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789861) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789895) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789906) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789913) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/hermes-service.test.ts (15 tests | 10 failed) 7209ms
+   × carries an actual approved replacement privately to the next idle source turn, never prepare or steering 624ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 530ms
+   × does not reauthorize an approved write hook after stop 412ms
+   × does not reauthorize an approved write hook after rebind 428ms
+   × does not reauthorize an approved write hook after revision 898ms
+   × does not reauthorize an approved write hook after recovery 607ms
+   × never supplies completed-write custody for unapproved or failed effects 626ms
+   × retains an unknown callback claim across stop/resume without replaying its write 343ms
+   × does not infer missing legacy write authority from current selection 377ms
+   × does not infer missing no_project write authority from current selection 496ms
+(node:789963) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:789969) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790001) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790012) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790129) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790138) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790156) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790237) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/private-git-family.test.ts (19 tests | 12 failed) 11412ms
+   × imports once into protected private bare storage and creates three independent native worktrees 596ms
+   × does not consume original metadata after private import and ignores dependency bulk for managed status 473ms
+   × keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations 686ms
+   × refuses stored identity substitution before managed Git starts 849ms
+   × refuses stored gitDirectoryIdentity substitution before managed Git starts 480ms
+   × refuses stored commonDirectoryIdentity substitution before managed Git starts 544ms
+   × streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer 386ms
+   × imports safe author and GitHub origin scalars and drops arbitrary source configuration 503ms
+   × refuses a legacy scratch view inside a broad source grant 1482ms
+   × keeps incremental legacy objects out of the authoritative managed family 841ms
+   × reports each admitted managed copy rather than the original repository root in hover context 218ms
+   × rejects a context read when the admitted model changes during its Git read 362ms
+(node:790390) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:790711) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 11957ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 531ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 350ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 364ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 237ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 262ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 283ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 517ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 1213ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 493ms
+(node:791126) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:791399) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/plugin-tools-dock.test.ts (12 tests | 2 failed) 64171ms
+   × keeps tools, diagram controls and readable inspector separate at 1024px, including recovered free placement 3365ms
+   × keeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement 3692ms
+(node:791698) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:791825) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/desktop-host.test.ts (13 tests | 2 failed) 42439ms
+   × launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token 20068ms
+   × does not leave its backend running after the owning IPC channel disconnects 13889ms
+(node:792094) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:792117) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:792150) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:792286) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 6497ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 1078ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 278ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 303ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 630ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 414ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 229ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 1059ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 653ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 687ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 639ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 509ms
+(node:792615) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/integration-mcp.test.ts (12 tests | 5 failed) 49299ms
+   × builds a real Graphify code graph, queries its stdio server and exports GraphML without a model 135ms
+   × initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host 104ms
+   × executes the pinned native Biome and Impeccable engines 1053ms
+   × refuses linked Graphify graph input and linked export directories inside the owned fixture 254ms
+   × routes Biome proposals through the registered granted-file approval flow 892ms
+(node:792658) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:792854) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:792994) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:793005) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/packaged-providers.test.ts (9 tests | 1 failed) 726ms
+     × imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper 33ms
+(node:793170) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:793152) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/server.test.ts (12 tests | 1 failed) 9803ms
+   × serves a selected file under a directory grant and denies paths outside it 602ms
+ ❯ tests/workspace-action-outcome-routes.test.ts (5 tests | 5 failed) 2284ms
+   × routes supported writes through durable identity and keeps inspection read-only 447ms
+   × an exact local stale-head preflight is not-applied before entering a mutation 412ms
+   × an exact local stale-worktree preflight is not-applied before entering a mutation 540ms
+   × valid Unicode review text fits submission and exact read-only inspection 419ms
+   × returns an unsuccessful response for an unconfirmed action so existing controls retain their draft 460ms
+ ❯ tests/expanded-review-fixtures.test.ts (11 tests | 1 failed) 23574ms
+     × runs the named local test only after exact native approval and derives failure from exit status 2476ms
+(node:793792) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:793893) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:793907) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/project-trust-v3.test.ts (9 tests | 1 failed) 707ms
+   × reading an ordinary granted text file still works while execution approval stays distinct 68ms
+(node:794096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/review-host.test.ts (8 tests | 2 failed) 26129ms
+     × prepares and exports a real local PDF only after exact native operation approval 1032ms
+     × shows actual before/after SQLite rows and valid row-change annotations 293ms
+(node:794749) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:794817) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:794952) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/dev-plugin-runtime.test.ts (3 tests | 1 failed) 66471ms
+   × prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children 61306ms
+(node:795139) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795154) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/managed-git-family.test.ts (15 tests | 3 failed) 4831ms
+   × requires host attestation for linked worktrees and retains ordinary repositories 366ms
+   × snapshots the attested worktree HEAD, index and source, without other worktrees or hooks 1640ms
+   × passes only the host-resolved family for the granted domain repository root 388ms
+(node:795384) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795391) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795469) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795521) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795611) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795630) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:795643) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/account-profile.test.ts (10 tests | 5 failed) 279ms
+   × rejects an accounts junction and holds the acquired namespace against replacement 201ms
+   × rejects native descendant directory redirects and hardlinked credential files before entry 5ms
+   × pins native directories while allowing legitimate atomic credential replacement 8ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 5ms
+   × keeps official home namespaces pinned while native credential files remain atomically replaceable 3ms
+ ❯ tests/integration-host.test.ts (8 tests | 1 failed) 21400ms
+   × keeps Biome write proposals and Spec Kit initialization unavailable in plan mode 1195ms
+ ❯ tests/cursor-sdk-mcp-metadata.test.ts (4 tests | 2 failed) 825ms
+   × self-tests child transport denial and parent broker rejection without importing the SDK 259ms
+   × observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport 186ms
+(node:795984) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796084) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796092) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/hermes-client.test.ts (13 tests | 8 failed) 10474ms
+   × preserves Unicode through chunked replies and resolves concurrent request IDs independently 44ms
+   × uses an isolated home and does not pass provider credentials to Python 4ms
+   × awaits owned host callbacks and returns their results over the private channel 13ms
+   × forwards source events without inventing entry or settlement events 6ms
+   × fails pending requests safely on malformed worker output 64ms
+   × closes its worker and revokes unanswered requests when disposed 60ms
+   × drains owned host callbacks even when process cancellation fails 5021ms
+   × treats a denied host callback as an ordinary tool result during teardown 5015ms
+(node:796151) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796382) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796557) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796652) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/hermes-original-integration.test.ts (1 test | 1 failed) 734ms
+   × runs original Python and ACP through the native broker, persists a skill and finishes through the real Service 719ms
+(node:796760) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:796988) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797096) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/hermes-acp-server.test.ts (6 tests | 1 failed) 2912ms
+   × rejects a broker response whose ACP wrapper would exceed the wire bound without truncating content 1507ms
+(node:797150) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797217) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797267) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/account-login.test.ts (6 tests | 3 failed) 62255ms
+   × does not admit a successor sign-in when an expired lease still has a live owner 60097ms
+   × reserves the exact named profile for sign-in and releases it after a failed native login 195ms
+   × retains a durable account hold when native login shutdown is unconfirmed 248ms
+(node:797319) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797401) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797470) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797763) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:797912) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:798065) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:798276) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/hermes-host.test.ts (1 test | 1 failed) 2595ms
+   × serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host 2590ms
+ ELIFECYCLE  Test failed. See above for more details.
+
+# INTERMEDIATE RUN CANCELLED: cut changed before completion (production host wiring added afterwards). Not a gate receipt; partial failure inventory only.

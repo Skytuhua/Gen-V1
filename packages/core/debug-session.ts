@@ -7,7 +7,7 @@ import {
   debugSessionV1Schema,
   type DebugSessionV1,
 } from "../contracts/code-intelligence.ts";
-import { selectBackend, type ExecutionBackend } from "./execution-policy.ts";
+import { hasCurrentPlatformProof, selectBackend, type ExecutionBackend } from "./execution-policy.ts";
 
 /**
  * Restricted debugger workflow. A debug session starts only from an approved
@@ -90,8 +90,8 @@ export class DebugRegistry {
     const selection = selectBackend(this.approvedBackendId, this.backends);
     if (selection.status !== "SELECTED" || !selection.backend)
       throw new HarnessError("CAPABILITY_DENIED", `The debugger cannot launch: ${selection.status}.`);
-    if (!selection.backend.proof || selection.backend.proof.status !== "PASS")
-      throw new HarnessError("CAPABILITY_DENIED", "The debugger requires a proven execution backend.");
+    if (!hasCurrentPlatformProof(selection.backend))
+      throw new HarnessError("CAPABILITY_DENIED", "The debugger requires a proven execution backend for this host platform.");
     const adapter = this.adapterFor(selection.backend, input.recipe);
     const session: LiveSession = {
       sessionId: randomUUID(), owner: input.owner, adapter,
@@ -103,6 +103,12 @@ export class DebugRegistry {
       session.state = adapter.state();
     } catch (error) {
       session.state = "STOPPED";
+      // A failed launch can still own a partially started adapter, and an
+      // unreachable session id leaves nobody able to terminate it. Release it
+      // here; an unconfirmed cleanup keeps the session listed so revoke/dispose
+      // can retry instead of pretending it is gone.
+      const released = await adapter.terminate(new AbortController().signal).then(() => true, () => false);
+      if (released) this.sessions.delete(session.sessionId);
       throw error;
     }
     return this.view(session);

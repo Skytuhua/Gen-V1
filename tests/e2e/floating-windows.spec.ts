@@ -25,7 +25,7 @@ test('the protected context only minimizes and preserves its draft on reload',as
 });
 
 test('minimizing and Escape retain the same task content without a delete control',async({page})=>{
- await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture());await page.goto('/');const panel=await openPlan(page),body=page.getByRole('region',{name:'Plan summary',exact:true});const original=await body.elementHandle();await expect(body.getByText('Find the failing boundary',{exact:true})).toBeVisible();
+ await page.setViewportSize({width:1440,height:1000});await serveTaskFixture(page,fixture());await page.goto('/');const panel=await openPlan(page),body=page.getByRole('region',{name:'Plan summary',exact:true});const original=await body.elementHandle();await expect(body.getByText('Repair checkout failures',{exact:true})).toBeVisible();await expect(page.getByRole('region',{name:'Task plan: Repair checkout failures',exact:true}).getByText('Find the failing boundary',{exact:true})).toBeVisible();
  await expect(panel.getByRole('separator')).toHaveCount(0);
  await panel.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(body).toBeHidden();await expect(panel.locator('.docked-summary-content')).toHaveAttribute('inert','');
  await panel.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(body).toBeVisible();expect(await body.evaluate((node,old)=>node===old,original)).toBe(true);

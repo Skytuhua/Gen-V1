@@ -154,6 +154,10 @@
   transform: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .sidebar .thread-group-settled h2 > button > svg.settled-chevron { transition: none; }
+}
+
 .sidebar .thread-group-settled h2 > button > svg.settled-chevron.is-folded {
   transform: rotate(-90deg);
 }
@@ -314,7 +318,7 @@
 }
 
 .sidebar .thread-item-meta[data-thread-state='working'] .thread-item-status {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .sidebar .thread-item-meta[data-thread-state='awaiting_input'] .thread-item-status {
@@ -420,14 +424,14 @@
 }
 
 .sidebar .sidebar-thread-menu-button {
-  top: 7px;
+  position: static;
 }
 
 .sidebar .sidebar-thread-menu-button:has([aria-expanded='true']) {
   opacity: 1;
 }
 
-.sidebar .sidebar-thread-menu-button > .ui-action-trigger {
+.sidebar .sidebar-thread-row .sidebar-thread-menu-button > .ui-action-trigger {
   justify-content: center;
   width: 23px;
   height: 23px;
@@ -438,12 +442,12 @@
   color: var(--muted);
 }
 
-.sidebar .sidebar-thread-menu-button > .ui-action-trigger:hover {
+.sidebar .sidebar-thread-row .sidebar-thread-menu-button > .ui-action-trigger:hover {
   background: var(--hover);
   color: var(--text);
 }
 
-.sidebar .sidebar-thread-menu-button > .ui-action-trigger:focus-visible {
+.sidebar .sidebar-thread-row .sidebar-thread-menu-button > .ui-action-trigger:focus-visible {
   outline:2px solid var(--ui-focus-ring,#808080);
   outline-offset: -2px;
 }
@@ -506,6 +510,127 @@
 
 .sidebar .sidebar-footer > button:disabled {
   opacity: 0.45;
+  cursor: default;
+}
+
+/* --- Row actions: quiet at rest, revealed on hover/focus/touch, aligned to the metadata line --- */
+
+.sidebar .thread-list {
+  position: relative;
+}
+
+.sidebar .sidebar-thread-actions {
+  position: absolute;
+  top: 3.5px;
+  right: 4px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 90ms linear;
+}
+
+.sidebar .sidebar-settled-row .sidebar-thread-actions {
+  top: 4px;
+}
+
+.sidebar .sidebar-thread-row:hover .sidebar-thread-actions,
+.sidebar .sidebar-thread-row:focus-within .sidebar-thread-actions,
+.sidebar .sidebar-thread-actions:has([aria-expanded='true']) {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .sidebar .sidebar-thread-actions {
+    opacity: 1;
+  }
+}
+
+.sidebar .sidebar-row-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 23px;
+  height: 23px;
+  min-height: 23px;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.sidebar .sidebar-row-action:hover {
+  background: var(--hover);
+  color: var(--text);
+}
+
+.sidebar .sidebar-row-action:focus-visible {
+  outline: 2px solid var(--ui-focus-ring, #808080);
+  outline-offset: -2px;
+}
+
+.sidebar .sidebar-row-action:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.app-shell .sidebar .sidebar-thread-row .thread-item,
+.sidebar .sidebar-thread-row .thread-item {
+  padding-right: 52px;
+}
+
+.app-shell .sidebar .sidebar-settled-row .thread-item,
+.sidebar .sidebar-settled-row .thread-item {
+  padding-right: 52px;
+}
+
+/* --- Drag to pin / reorder --- */
+
+.sidebar .sidebar-pinned-empty {
+  margin: 0 0 3px;
+  padding: 8px 9px;
+  border: 1px dashed color-mix(in srgb, var(--border) 85%, transparent);
+  border-radius: 9px;
+  font-size: 11.5px;
+  line-height: 15px;
+  color: var(--muted);
+}
+
+.sidebar[data-dragging='true'] .sidebar-pinned-empty {
+  border-color: color-mix(in srgb, var(--accent) 55%, var(--border));
+  color: var(--text);
+}
+
+.sidebar .sidebar-drop-indicator {
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  height: 2px;
+  margin-top: -2px;
+  border-radius: 2px;
+  background: var(--accent);
+  pointer-events: none;
+}
+
+.sidebar .sidebar-thread-row.sidebar-drag-source {
+  opacity: 0.45;
+}
+
+.sidebar[data-dragging='true'] .sidebar-thread-row {
+  cursor: grabbing;
+}
+
+.sidebar .sidebar-thread-row.sidebar-touch-drag {
+  position: relative;
+  z-index: 4;
+  opacity: 0.9;
+  box-shadow: var(--elevation);
+  background: var(--surface);
+}
+
+.sidebar .thread-item[draggable='false'] {
   cursor: default;
 }
 

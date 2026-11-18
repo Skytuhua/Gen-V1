@@ -5,6 +5,7 @@ import {isAbsolute, join, resolve} from 'node:path';
 import {Store} from '../packages/storage/store.ts';
 import {ProjectMemory} from '../packages/core/project-memory.ts';
 import {registeredCapabilityFlags} from '../packages/core/capability-flags.ts';
+import type {MemoryAuxiliaryRecord} from '../packages/core/memory-consolidation.ts';
 import {memoryExportSchema, projectMemoryViewSchema, type MemoryAction, type MemorySourceRefV1} from '../packages/contracts/project-memory.ts';
 import type {Message, Thread} from '../packages/contracts/index.ts';
 import {prepareInstalledNativeSave, readInstalledNativeSave, saveInstalledMemoryThroughNativeDialog, type InstalledNativeOwner, type InstalledNativeSaveObservation} from './installed-native-save.ts';
@@ -28,6 +29,7 @@ export interface InstalledMemorySeed {
   items: Record<'edit' | 'accept' | 'reject' | 'forget', SeedItem>;
 }
 export type InstalledMemoryObservation = Record<string, unknown>;
+export type InstalledMemoryMode = 'default-off' | 'enabled';
 
 async function directoryIdentity(path: string): Promise<DirectoryIdentity> {
   if (!isAbsolute(path) || resolve(path) !== path) throw Error('The memory fixture needs an absolute canonical evidence directory.');
@@ -44,7 +46,7 @@ function defaultFlags() {
   if (flags['memory.projectV1'] || flags['memory.externalRecallExperimentV1']) throw Error('Installed retention verification requires production default-off memory flags.');
 }
 
-/** Only a new disposable profile is seeded. The installed executable receives no activation or replacement host. */
+/** Only a new disposable profile is seeded. Host activation is a separate installed-launch option. */
 export async function seedInstalledMemoryProfile(directory: string): Promise<InstalledMemorySeed> {
   defaultFlags();
   const evidenceRoot = await directoryIdentity(directory), profilePath = join(directory, 'host'), projectPath = join(directory, 'memory-project');
@@ -95,7 +97,7 @@ export async function assertInstalledMemoryProfile(seed: InstalledMemorySeed) {
     if (actual.dev !== expected.dev || actual.ino !== expected.ino) throw Error('The installed memory profile or project identity changed.');
   }
 }
-async function readView(page: Page, seed: InstalledMemorySeed) {
+async function readView(page: Page, seed: InstalledMemorySeed, expected = {available: false, enabled: false}) {
   const result = await page.evaluate(async ({projectId, threadId}) => {
     const response = await fetch('/api/projects/' + encodeURIComponent(projectId) + '/memory?' + new URLSearchParams({threadId}), {credentials: 'same-origin', cache: 'no-store', redirect: 'error'});
     if (!response.ok || response.headers.get('cache-control') !== 'no-store') throw Error('Installed memory read failed or was cacheable.');
@@ -103,7 +105,7 @@ async function readView(page: Page, seed: InstalledMemorySeed) {
   }, {projectId: seed.projectId, threadId: seed.threadId});
   const view = projectMemoryViewSchema.parse(result);
   expect(view.scope).toMatchObject({projectId: seed.projectId, projectIdentity: seed.projectIdentity, threadId: seed.threadId, accountId: null});
-  expect(view).toMatchObject({available: false, enabled: false, sourceThreadIds: [seed.threadId]});
+  expect(view).toMatchObject({...expected, sourceThreadIds: [seed.threadId]});
   return view;
 }
 async function screenshot(page: Page, directory: string, name: string) {
@@ -113,7 +115,7 @@ async function screenshot(page: Page, directory: string, name: string) {
 }
 
 /** Runs only after the caller verifies the installed executable, unique nonce and owned CDP session. */
-export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemorySeed, iteration: number, observations: InstalledMemoryObservation[], nativeOwner: InstalledNativeOwner) {
+export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemorySeed, iteration: number, observations: InstalledMemoryObservation[], nativeOwner: InstalledNativeOwner, mode: InstalledMemoryMode = 'default-off') {
   await assertInstalledMemoryProfile(seed);
   const directory = seed.evidenceRoot.path, fixture = INSTALLED_MEMORY_CASE;
   const commandTypes: string[] = [];
@@ -135,10 +137,29 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
     await expect(memoryButton).toBeEnabled({timeout: 30000});
     await memoryButton.click({timeout: 30000});
     const panel = page.getByRole('dialog', {name: 'Project memory', exact: true});
-    await expect(panel.getByRole('button', {name: 'Enable for this project', exact: true})).toBeDisabled();
-    await expect(panel).toContainText('Project memory is disabled by this host. Existing records remain reviewable.');
-    const before = await readView(page, seed);
-    observations.push({iteration, step: 'installed-default-off-read', available: before.available, enabled: before.enabled, accountId: before.scope.accountId, itemCount: before.items.length, tombstoneCount: before.tombstones.length});
+    const enabledHost = mode === 'enabled', expected = {available: enabledHost, enabled: enabledHost};
+    const before = await readView(page, seed, {available: enabledHost, enabled: enabledHost && iteration > 1});
+    observations.push({iteration, step: enabledHost ? 'installed-enabled-read' : 'installed-default-off-read', available: before.available, enabled: before.enabled, accountId: before.scope.accountId, itemCount: before.items.length, tombstoneCount: before.tombstones.length});
+    if (enabledHost) {
+      await expect(panel).not.toContainText('Project memory is disabled by this host.');
+      if (iteration === 1) {
+        // Host activation does not grant source consent. Exercise both the
+        // empty-selection guard and the explicit per-project opt-in action.
+        const selected = panel.getByRole('checkbox', {name: fixture.threadTitle, exact: true});
+        await selected.uncheck();
+        await expect(panel.getByRole('button', {name: 'Enable for this project', exact: true})).toBeDisabled();
+        await selected.check();
+        await panel.getByRole('button', {name: 'Enable for this project', exact: true}).click();
+        await expect(panel).toContainText('Enabled for this project');
+        const optedIn = await readView(page, seed, expected);
+        expect(optedIn.configRevision).toBe(before.configRevision + 1);
+        observations.push({iteration, step: 'explicit-source-opt-in', configRevision: optedIn.configRevision, sourceThreadIds: optedIn.sourceThreadIds});
+      }
+      await expect(panel.getByRole('button', {name: 'Disable for this project', exact: true})).toBeEnabled();
+    } else {
+      await expect(panel.getByRole('button', {name: 'Enable for this project', exact: true})).toBeDisabled();
+      await expect(panel).toContainText('Project memory is disabled by this host. Existing records remain reviewable.');
+    }
     const row = (id: string) => panel.getByRole('article', {name: 'Memory ' + id, exact: true});
     if (iteration === 1) {
       await expect(row(seed.items.edit.id)).toContainText(fixture.initialText);
@@ -193,7 +214,7 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
       const exportBytes = saved.value.bytes, exportDigest = saved.value.digest;
       if (exportBytes.length > 1024 * 1024) throw Error('The installed memory export exceeded its fixture bound.');
       const output = memoryExportSchema.parse(JSON.parse(exportBytes.toString('utf8')));
-      expect(output.scope).toEqual((await readView(page, seed)).scope);
+      expect(output.scope).toEqual((await readView(page, seed, expected)).scope);
       expect(output.items.find(item => item.id === seed.items.forget.id)?.text).toBe('[redacted]');
       expect(exportBytes.toString('utf8')).not.toContain(fixture.sensitiveText);
       expect(exportBytes.toString('utf8')).not.toContain(fixture.sourceText);
@@ -221,7 +242,7 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
     await expect(panel.getByRole('tabpanel')).toContainText('Deletion revision 3');
     await expect(panel.getByRole('tabpanel')).toContainText('Physical purge pending');
     await expect(panel).not.toContainText(fixture.sensitiveText);
-    const after = await readView(page, seed);
+    const after = await readView(page, seed, expected);
     expect(after.items.some(value => value.item.id === seed.items.forget.id)).toBe(false);
     expect(after.tombstones).toHaveLength(1);
     expect(after.tombstones[0]).toMatchObject({itemId: seed.items.forget.id, deletionRevision: 3, purgeStatus: 'PENDING'});
@@ -238,20 +259,29 @@ export async function verifyInstalledMemoryUI(page: Page, seed: InstalledMemoryS
 }
 
 /** Call only after the owned native process exits cleanly and its backend health endpoint stops. */
-export async function observeInstalledMemoryStorage(seed: InstalledMemorySeed, iteration: number) {
+export async function observeInstalledMemoryStorage(seed: InstalledMemorySeed, iteration: number, mode: InstalledMemoryMode = 'default-off') {
   await assertInstalledMemoryProfile(seed); defaultFlags();
   const store = new Store(seed.profile.path);
   try {
     const memory = new ProjectMemory(store), access = await memory.access(seed.projectId, seed.threadId), view = memory.read(access), snapshot = store.snapshot();
     expect(access.profileId).toBe(seed.profileId); expect(access.projectIdentity).toBe(seed.projectIdentity);
-    expect(view).toMatchObject({available: false, enabled: false});
+    // This verifier process remains default-off. The persisted project consent
+    // is inspected separately from the installed process's HTTP availability.
+    expect(view).toMatchObject({available: false, enabled: mode === 'enabled', sourceThreadIds: [seed.threadId]});
     expect(view.items.find(row => row.item.id === seed.items.edit.id)?.item).toMatchObject({text: INSTALLED_MEMORY_CASE.editedText, revision: 3, state: 'ACCEPTED'});
     expect(view.items.find(row => row.item.id === seed.items.reject.id)?.item.reviewDecision?.action).toBe('REJECT');
     expect(view.tombstones).toHaveLength(1); expect(view.tombstones[0]).toMatchObject({itemId: seed.items.forget.id, deletionRevision: 3});
     expect(snapshot.accounts).toEqual([]); expect(snapshot.usage).toEqual({}); expect(snapshot.modelRequests).toEqual({});
     expect(snapshot.threads).toHaveLength(1); expect(snapshot.threads[0]).toMatchObject({id: seed.threadId, runId: null, modelId: null, accountId: null});
     const recordCounts = Object.fromEntries(['outbox', 'modelRequest', 'projectMemoryAuxiliaryUsage', 'projectMemoryRequestUsage', 'projectMemoryExtraction'].map(kind => [kind, store.all(kind).length]));
-    for (const count of Object.values(recordCounts)) expect(count).toBe(0);
-    return {iteration, step: 'post-exit-storage', samePhysicalProfile: true, available: view.available, enabled: view.enabled, accountCount: snapshot.accounts!.length, activeRunCount: snapshot.threads.filter(thread => thread.runId).length, usageOwners: Object.keys(snapshot.usage).length, recordCounts, providerNetworkCalls: null};
+    for (const [kind, count] of Object.entries(recordCounts)) if (kind !== 'projectMemoryAuxiliaryUsage' || mode === 'default-off') expect(count).toBe(0);
+    const auxiliaryUsage = memory.usage(access);
+    expect(auxiliaryUsage.extraction).toMatchObject({modelCalls: 0, cost: 0, pending: 0});
+    expect(auxiliaryUsage.consolidation).toMatchObject({modelCalls: 0, cost: 0, pending: 0});
+    if (mode === 'enabled') {
+      expect(recordCounts.projectMemoryAuxiliaryUsage).toBeGreaterThan(0);
+      for (const row of store.all<MemoryAuxiliaryRecord>('projectMemoryAuxiliaryUsage')) expect(row).toMatchObject({phase: 'CONSOLIDATION', profileId: seed.profileId, projectIdentity: seed.projectIdentity, projectId: seed.projectId, accountId: null, providerId: null, settled: true, usage: {modelCalls: 0}});
+    }
+    return {iteration, step: 'post-exit-storage', installedHostMode: mode, samePhysicalProfile: true, available: view.available, enabled: view.enabled, accountCount: snapshot.accounts!.length, activeRunCount: snapshot.threads.filter(thread => thread.runId).length, usageOwners: Object.keys(snapshot.usage).length, recordCounts, auxiliaryUsage, providerNetworkCalls: null};
   } finally {store.close();}
 }

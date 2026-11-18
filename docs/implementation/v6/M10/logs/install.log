@@ -1,0 +1,74 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +999
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 999, reused 258, downloaded 0, added 0
+Progress: resolved 999, reused 736, downloaded 0, added 0
+Progress: resolved 999, reused 996, downloaded 0, added 172
+Progress: resolved 999, reused 996, downloaded 0, added 234
+Progress: resolved 999, reused 996, downloaded 0, added 312
+Progress: resolved 999, reused 996, downloaded 0, added 346
+Progress: resolved 999, reused 996, downloaded 0, added 485
+Progress: resolved 999, reused 996, downloaded 0, added 538
+Progress: resolved 999, reused 996, downloaded 0, added 601
+Progress: resolved 999, reused 996, downloaded 0, added 637
+Progress: resolved 999, reused 996, downloaded 0, added 709
+Progress: resolved 999, reused 996, downloaded 0, added 954
+Progress: resolved 999, reused 996, downloaded 0, added 999, done
+
+dependencies:
++ @anthropic-ai/claude-agent-sdk 0.3.316
++ @biomejs/biome 2.6.4
++ @biomejs/cli-win32-x64 2.6.4
++ @cursor/sdk 1.0.38
++ @earendil-works/pi-coding-agent 1.4.0
++ @fontsource-variable/inter 5.3.0
++ @fontsource/caveat 5.3.0
++ @fontsource/dancing-script 5.3.0
++ @google/gemini-cli 0.66.0
++ @json-render/core 0.21.3
++ @json-render/react 0.21.3
++ @modelcontextprotocol/sdk 1.32.2
++ @remote-dom/polyfill 1.6.0
++ @sinclair/typebox 0.34.41
++ @upstash/context7-mcp 4.4.4
++ @xterm/addon-fit 0.11.0
++ @xterm/xterm 6.0.0
++ ajv 8.18.0
++ ajv-formats 3.0.1
++ electron-updater 6.8.11
++ fastify 5.12.7
++ lucide-react 0.468.0
++ node-pty 1.1.0
++ pdf-lib 1.17.1
++ pdfjs-dist 6.4.299
++ promptfoo 0.125.1
++ react 19.2.3
++ react-dom 19.2.3
++ semver 7.8.5
++ tsx 4.20.6
++ zod 4.6.6
+
+devDependencies:
++ @playwright/test 1.56.1
++ @types/node 24.10.0
++ @types/react 19.2.2
++ @types/react-dom 19.2.2
++ @vitejs/plugin-react 5.1.1
++ electron 45.2.0
++ electron-builder 26.18.0
++ esbuild 0.25.12
++ typescript 5.9.3
++ vite 7.3.7
++ vitest 4.1.12
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @github/keytar@7.10.6, @google/genai@2.21.0,        │
+│   electron-winstaller@5.4.0, node-pty@1.0.0, node-pty@1.1.0,                 │
+│   protobufjs@7.6.6.                                                          │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 18.1s using pnpm v10.30.3

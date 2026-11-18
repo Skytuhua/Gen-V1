@@ -3,27 +3,72 @@ import { createRoot } from 'react-dom/client';
 import { ContextInspector, type ContextCompactionReport } from '../../apps/web/src/ContextInspector';
 import { UsageDialog } from '../../apps/web/src/UsageDialog';
 import { UsageFooter } from '../../apps/web/src/UsageFooter';
+import { VerificationPanel } from '../../apps/web/src/VerificationPanel';
 import type { UsageProviderReport } from '../../apps/web/src/usage-presentation';
 import type { ModelRequestObservationV1 } from '../../packages/contracts/model-request';
 import { EMPTY_USAGE, type Thread } from '../../packages/contracts';
 import type { ContextUsage } from '../../apps/web/src/ContextMeter';
 import '../../apps/web/src/styles.css';
+import '../../apps/web/src/shell.css';
+import '../../apps/web/src/workspace-canvas.css';
 
 function Fixture() {
   const [open, setOpen] = useState(false), anchor = useRef<HTMLButtonElement>(null);
   const [usageOpen, setUsageOpen] = useState(false), [mode, setMode] = useState('reported');
   const [session, setSession] = useState('one'), [threadId, setThreadId] = useState('thread-one'), [epoch, setEpoch] = useState(1);
+  const [owner, setOwner] = useState<{projectId?: string; workspaceId?: string; modelId?: string; accountId?: string | null}>({});
   const [usage, setUsage] = useState<ContextUsage>({ ...EMPTY_USAGE, contextTokens: 8000, contextWindow: 10000 });
   const [compaction, setCompaction] = useState<ContextCompactionReport>();
   const query = new URLSearchParams(location.search);
-  const thread = { id: threadId, epoch, status: 'ready', modelId: query.has('unsupported') ? 'gemini-cli/model' : 'openai/model', runId: null, sessionPath: `/fixture/pi/tasks/${threadId}/sessions/${session}.jsonl` } as Thread;
+  const thread = { id: threadId, epoch, status: 'ready', ...owner, modelId: query.has('unsupported') ? 'gemini-cli/model' : owner.modelId ?? 'openai/model', runId: null, sessionPath: `/fixture/pi/tasks/${threadId}/sessions/${session}.jsonl` } as Thread;
   useEffect(() => {
     const update = (event: Event) => {
       const action = (event as CustomEvent<string>).detail;
+      if (['budget-known', 'budget-unavailable', 'budget-blocked'].includes(action)) setUsage(value => ({ ...value, inferenceBudget: {
+        threadId, runId: 'fixture-run', epoch, budget: { version: 1, sequence: 2, promptBytes: action === 'budget-blocked' ? 16 * 1024 * 1024 + 1 : 220, maxPromptBytes: 16 * 1024 * 1024,
+          measurement: 'BYTE_ONLY', byteAdmission: action === 'budget-blocked' ? 'BLOCKED' : 'WITHIN_LIMIT', tokenAdmission: 'UNAVAILABLE',
+          sourceContinuity: action === 'budget-known' ? 'VERIFIED' : 'UNAVAILABLE', newSourceBytes: action === 'budget-known' ? 100 : null,
+          newToolResultBytes: action === 'budget-known' ? 80 : null, newToolResults: action === 'budget-known' ? 1 : null,
+          previousRequest: action === 'budget-known' ? { requestId: 'previous-request', sequence: 1, inputTokens: 12, outputTokens: 9, cacheReadTokens: 80, cacheWriteTokens: null,
+            reportedContextTokens: 5000, contextWindowTokens: 10000, usageConvention: 'provider-reported', contextMeasurement: 'UNSPECIFIED' } : null,
+          normalizedInputTokens: null, newUnreportedToolTokens: null, reservedOutputTokens: null, requiredTokens: null, shouldConsiderCompaction: null,
+          unknown: action === 'budget-known' ? ['NORMALIZED_INPUT', 'TOKENIZER', 'OUTPUT_RESERVE'] : ['NORMALIZED_INPUT', 'TOKENIZER', 'OUTPUT_RESERVE', 'CONTEXT_WINDOW', 'SOURCE_CONTINUITY'],
+        },
+      } }));
       if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13,inclusionReason:'selected by host',tokens:null,measurement:'BYTE_ONLY',exclusionReason:null}], omittedSources:0 } }));
+      if (action === 'request-compaction-project') setOwner({projectId: 'project-one', workspaceId: 'workspace-one'});
+      if (['request-compaction', 'request-compaction-no-observation', 'request-compaction-project', 'request-compaction-unavailable', 'request-compaction-unconfirmed', 'request-compaction-many'].includes(action)) setUsage(value => ({ ...value,
+        lastRequest: action === 'request-compaction-no-observation' ? undefined : { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' },
+        compaction: { version: 1, candidates: [{
+          metadata: { version: 1, candidateId: 'candidate-visible', binding: { generation: 1, modelId: 'openai/model', accountId: null, workspaceId: action === 'request-compaction-project' ? 'workspace-one' : 'thread:' + threadId, instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64), sourceCut: 'c'.repeat(64) }, summaryRef: null, sourceInterval: null, usageObservationRef: null },
+          status: action === 'request-compaction-unconfirmed' ? 'READY' : action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED', verdict: action === 'request-compaction-unconfirmed' ? null : action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED',
+          retainedConstraints: action === 'request-compaction-many' ? Array.from({length: 34}, (_, index) => 'native-record:' + 'd'.repeat(64) + ':' + index) : ['DECISION:taskMemory:keep-tests', 'PENDING_APPROVAL:request:review-change'],
+          toolPairs: 1, estimatedByteReduction: ['request-compaction-unavailable', 'request-compaction-unconfirmed'].includes(action) ? null : 0,
+          measuredBeforeBytes: ['request-compaction-unavailable', 'request-compaction-unconfirmed'].includes(action) ? null : 1200, measuredAfterBytes: ['request-compaction-unavailable', 'request-compaction-unconfirmed'].includes(action) ? null : 600,
+        }], accounting: { attempts: 1, failed: action === 'request-compaction-unavailable' ? 1 : 0, discarded: 0, costBytes: 0 } },
+      }));
+      if (action === 'request-relevance') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 4, promptBytes: 1300, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', relevance: {
+        cutId: 'b'.repeat(64), observedAtSequence: 4, candidateIds: ['host-result:1'], estimatedSavingsBytes: 1200, inspectionBudgetBytes: 65536, inspectedResults: 1, protectedResults: 0, omittedResults: 2, source: 'HOST_READ_RESULTS', measurement: 'BYTE_ONLY',
+      } } }));
+      if (action === 'request-native-sources') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 2, promptBytes: 120, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', nativeSources: {
+        source: 'ORIGINAL_ACP_MESSAGES', measurement: 'BYTE_ONLY', generation: 1, revisionDigest: 'e'.repeat(64), change: 'APPEND', sourceCount: 3, sourceBytes: 90,
+        reusedSources: 2, compiledSources: 1, inspectedSources: 3, newToolResults: 1, newToolResultBytes: 40,
+        sources: [{ category: 'SYSTEM', sourceId: 'native:1:0', sourceRevision: 1, utf8Bytes: 20, sha256: 'a'.repeat(64) }, { category: 'USER', sourceId: 'native:1:1', sourceRevision: 1, utf8Bytes: 30, sha256: 'b'.repeat(64) }, { category: 'TOOL', sourceId: 'native:1:2', sourceRevision: 1, utf8Bytes: 40, sha256: 'c'.repeat(64) }], omittedSources: 0,
+      } } }));
+      if (action === 'request-native-unavailable') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 2, promptBytes: 120, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', nativeSourcesUnavailable: 'SOURCE_LIMIT' } }));
+      if (action === 'request-instructions') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 500, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' }, hostProjection: {
+        threadId, runId: 'fixture-run', epoch, sourceCutDigest: 'fixture', measurement: 'BYTE_ONLY', sources: [], omittedSources: 0,
+        projectInstructions: { entries: [{ filename: 'AGENTS.md', resourceId: 'project', scope: 'approved-root', precedence: 0, digest: 'c'.repeat(64), utf8Bytes: 120 }], duplicates: [], overlaps: [{ scope: 'approved-root', filenames: ['AGENTS.md', 'CLAUDE.md'] }], exclusions: [{ filename: 'GEMINI.md', resourceId: 'project', reason: 'UNSUPPORTED_DIRECTIVE' }], omittedRoots: 0, precedence: 'Within each explicit scope: AGENTS.md, CLAUDE.md, GEMINI.md; later files take precedence. Host authorization always takes precedence.' },
+      } }));
       if (action === 'decrease') setUsage(value => ({ ...value, contextTokens: 4000 }));
       if (action === 'unknown') setUsage({ ...EMPTY_USAGE });
       if (action === 'session') setSession('two');
+      if (action === 'compaction-owner-project') setOwner(value => ({...value, projectId: 'project-two'}));
+      if (action === 'compaction-owner-workspace') setOwner(value => ({...value, workspaceId: 'workspace-two'}));
+      if (action === 'compaction-owner-model') setOwner(value => ({...value, modelId: 'openai/other'}));
+      if (action === 'compaction-owner-account') setOwner(value => ({...value, accountId: 'other-account'}));
+      if (action === 'clone-compaction') setUsage(value => ({...value, compaction: value.compaction && structuredClone(value.compaction)}));
+      if (action === 'foreign-request-witness') setUsage(value => ({...value, lastRequest: value.lastRequest && {...value.lastRequest, threadId: 'foreign-thread'}}));
       if (action === 'thread') setThreadId('thread-two');
       if (action === 'restart') { setEpoch(value => value + 1); setUsage(value => ({ ...value, activity: 'idle' })); }
       if (action === 'pending') setCompaction({ threadId, sessionPath: thread.sessionPath!, epoch, runId: 'compact-run', status: 'pending' });
@@ -68,11 +113,25 @@ function Fixture() {
     <button onClick={() => setUsageOpen(true)}>Open Usage</button>
     <span className="context-anchor" style={{ position: 'fixed', top: 74, right: 12 }}>
       <button ref={anchor} aria-label="Inspect context" onClick={() => setOpen(value => !value)}>Context</button>
-      {open && <ContextInspector anchor={anchor} usage={usage} thread={thread} compaction={compaction} close={() => setOpen(false)} refresh={async () => {}} />}
+      <ContextInspector open={open} anchor={anchor} usage={usage} usageThreadId={query.has('no-usage-owner') ? undefined : query.has('foreign-usage-owner') ? 'foreign-thread' : threadId} thread={thread} compaction={compaction} close={() => setOpen(false)} refresh={async () => {}} />
     </span>
     <UsageFooter usage={usage} visible onOpenUsage={() => setUsageOpen(true)} />
     <UsageDialog open={usageOpen} onClose={() => setUsageOpen(false)} reports={reports} requests={requests} loading={mode === 'loading'} error={mode === 'error' ? 'Synthetic provider failure. Refresh to retry.' : undefined}
       onRefresh={async () => { if (mode === 'refresh-error') throw Error('Synthetic refresh failure'); }} />
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<Fixture />);
+function VerificationFixture() {
+  const [threadId, setThreadId] = useState('thread-one');
+  const canvas = new URLSearchParams(location.search).has('canvas');
+  const panel = <VerificationPanel threadId={threadId} />;
+  return <main style={{padding: 12, ...(canvas ? {height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden'} as const : {})}}>
+    <nav><button onClick={() => setThreadId('thread-one')}>First conversation</button>
+      <button onClick={() => setThreadId('thread-two')}>Second conversation</button></nav>
+    {canvas ? <div className="canvas-thread" style={{flex: 1}}>
+      <div className="canvas-thread-transcript" role="log">Synthetic conversation transcript</div>
+      {panel}
+      <div className="composer-dock"><textarea aria-label="Reply" rows={2} /></div>
+    </div> : panel}
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('verification') ? <VerificationFixture /> : <Fixture />);

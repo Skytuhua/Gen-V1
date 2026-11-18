@@ -21,7 +21,7 @@ The packaged desktop build includes Node, Python and native runtime assets. Sour
 From PowerShell:
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -65,7 +65,7 @@ Open `http://127.0.0.1:4317`. The host binds to loopback; remote/multi-user host
 
 ## Connect a provider
 
-1. Open **Settings → Providers**.
+1. Open **Settings → Models & Accounts**.
 2. Add a local account label, then choose **Connect** for that account.
 3. Complete the provider's native browser or console flow.
 4. Check connection readiness, refresh models and choose an available model.
@@ -112,6 +112,21 @@ pnpm desktop:dev
 The directory contains credentials, conversations, attachments, skill files, state and receipts. Keep it out of Git and take backups with the application fully closed. Do not delete profile guards or copy credentials between account folders to clear a blocked connection.
 
 Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's development proxy uses the same `HARNESS_PORT` as the backend. Set it before starting `pnpm dev`.
+
+### Host capability activation
+
+The finite capability registry defaults to false. A trusted operator can enable a selected capability before starting the host through `HARNESS_FLAG_<KEY>`, replacing punctuation and camel-case boundaries with underscores and using uppercase. Only the exact values `1` and `true` enable a flag. The host captures this configuration before constructing its runtime and Service; changes require a host restart. UI preferences, agent tools and plugins cannot set these flags.
+
+For an enabled project-memory review build:
+
+```powershell
+$env:HARNESS_FLAG_MEMORY_PROJECT_V1 = '1'
+$env:HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1 = '1'
+$env:HARNESS_FLAG_CONTEXT_COMPILER_V1 = '1'
+pnpm desktop:dev
+```
+
+Project memory still requires explicit project opt-in and selected source conversations. The source-workbench flag allows explicit captured FILE sources; it does not scan the project. External recall, precompute, deferred tools and loss-aware compaction each retain their separate flags and proof requirements. Embedders can supply a finite `capabilityFlags` map to `launchHost`; unknown keys reject, and concurrent hosts in one process must use the same configuration.
 
 ## Build a Windows installer
 
@@ -190,7 +205,7 @@ These are build instructions. They do not establish a successful Windows package
 installation or retained-memory verification; those results require their own
 executed receipts.
 
-Check [the Gen V1 beta release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
+Check [the Gen V1 beta release](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
 
 ## Run the checks
 

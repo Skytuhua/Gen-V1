@@ -168,3 +168,20 @@ it('keeps an in-flight idle check busy when shutdown begins before the host answ
   control.gate.resolve();expect(await closing.result).toBeUndefined();expect(await registry.isBusy()).toBe(false);
  }finally{control?.busy.resolve();control?.gate.resolve();await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
 });
+it('reports an active dispatch admitted while a host idle check was pending',async()=>{
+ const f=await fixture({host:shutdownHost()});let registry:PluginRegistry|undefined,control:ShutdownControl|undefined;
+ const requestSignal=new AbortController();let request:Promise<unknown>|undefined;
+ try{
+  control=await installShutdownHost(f);registry=await loadInstalledPlugins(f.root,'0.6.3');control.holdBusy=true;
+  const busy=registry.isBusy();await control.checking.promise;
+  request=registry.dispatch(manifest.id,'wait',null,requestSignal.signal).catch(()=>{});
+  await control.request.promise;control.busy.resolve();
+  expect(await busy).toBe(true);
+  requestSignal.abort();await request;expect(await registry.isBusy()).toBe(false);
+ }finally{requestSignal.abort();control?.busy.resolve();control?.gate.resolve();await request;await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
+});
+it('treats a host that does not report busy as idle instead of permanently busy',async()=>{
+ const f=await fixture({host:`export default {async activate(){return {operations:{echo:async()=>null},close:async()=>{}}}};`});
+ await installPluginPackage(f.source,f.root,f.digest,'0.6.3');const registry=await loadInstalledPlugins(f.root,'0.6.3');
+ expect(await registry.isBusy()).toBe(false);await registry.close();
+});
