@@ -109,7 +109,13 @@ export type M16FlagKey = (typeof M16_FLAG_KEYS)[number];
 export const M13_FLAG_KEYS = ["plugins.isolatedV1"] as const;
 export type M13FlagKey = (typeof M13_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey;
+// M17 flag set: paired-client remote access. Read synchronization and remote
+// input submission are separate release gates; each keeps its own key and
+// proof — one passing core test never unlocks the other.
+export const M17_FLAG_KEYS = ["remote.readSyncV1", "remote.submitInputV1"] as const;
+export type M17FlagKey = (typeof M17_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey;
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
@@ -137,6 +143,8 @@ const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "jobs.idleReviewV1", owner: "m10", description: "Opt-in idle verification/review work; off until the pinned fork API and auxiliary budget are proven." },
   { key: "integrations.intakeV1", owner: "m10", description: "Authenticated read-only GitHub polling intake; proposals only until explicit user approval." },
   { key: "plugins.isolatedV1", owner: "m13", description: "Isolated extension worker lane: leased registrations and lifecycle over private authenticated pipes; activation requires a proven M03 backend." },
+  { key: "remote.readSyncV1", owner: "m17", description: "Paired-device read-only synchronization of public task/evidence projections over a configured authenticated TLS transport." },
+  { key: "remote.submitInputV1", owner: "m17", description: "Paired-device input submission; reserved and denied until the M09 durable-input and M02 authority bindings are proven." },
 ];
 let hostFlags = createCapabilityFlags<CapabilityFlagKey>(hostDefinitions);
 let hostOwners = 0;

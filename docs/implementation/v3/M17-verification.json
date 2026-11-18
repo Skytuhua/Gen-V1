@@ -1,0 +1,656 @@
+{
+ "schemaVersion": 3,
+ "bundleId": "M17-paired-clients-bounded-read-sync",
+ "baseSha": "c77d4716d94f72008be04562cbb596f1bb445512",
+ "sourceLockDigest": "7f34bfb60d5279f184ab80768862d86bfc37ef3d241e644184a95b95adc8c6e5",
+ "platform": "linux-aarch64",
+ "nodeVersion": "v24.11.1",
+ "packageManagerVersion": "10.30.3",
+ "phases": [
+  {
+   "id": "C1_PAIRING_CONTRACTS_AND_LIFECYCLE",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-C01",
+     "status": "PASS",
+     "evidence": "DeviceGrantV1 carries deviceId, display identity metadata/fingerprint (display-only, never attestation), authenticated user/session binding, approved scopes[] and projects[], issuedAt/expiresAt (180d), revokedAt, grantGeneration. SUBMIT_INPUT stays reserved and denied; VIEW_EVIDENCE requires separate explicit consent."
+    },
+    {
+     "id": "M17-C03",
+     "status": "PASS",
+     "evidence": "Pairing issues a one-time 32-byte challenge (10 min TTL); only its digest is persisted. Claim/confirm are single-use: expired, reused, denied or scope-changed challenges create no grant."
+    },
+    {
+     "id": "M17-S02",
+     "status": "PASS",
+     "evidence": "Pending pairings capped at 100; failed-claim attempts rate-limited to 5 per 60s window; failure responses do not disclose pending-record details."
+    },
+    {
+     "id": "M17-S03",
+     "status": "PASS",
+     "evidence": "Raw challenge bytes, device tokens and session values never appear in event payloads, receipts or snapshots; storage keeps digests only."
+    },
+    {
+     "id": "M17-S09",
+     "status": "PASS",
+     "evidence": "Restart test: pairing records and grant credentials persist across Store re-open."
+    },
+    {
+     "id": "M17-S10",
+     "status": "PASS",
+     "evidence": "rollbackPairing revokes every active grant and bumps grantGeneration while canonical local state is preserved."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/device-pairing-v3.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T10:26:57Z",
+     "endedAt": "2026-11-18T10:29:15Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-device-pairing-v3.summary.json",
+     "logDigest": "794dae611137aafd4e6148e7ab1cb894d79759af4ed625f8dd29217627e9bba4",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "apps/server/device-pairing.ts",
+    "packages/contracts/paired-device.ts",
+    "tests/device-pairing-v3.test.ts"
+   ]
+  },
+  {
+   "id": "C2_BOUNDED_READ_SYNC",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-C02",
+     "status": "PASS",
+     "evidence": "CursorV1 binds owner, deviceGrantGeneration, filterDigest, schemaVersion(1), fixed upperSeq and afterSeq; HMAC-signed by a host-custodied key persisted as a hostSecret excluded from snapshots/events."
+    },
+    {
+     "id": "M17-S04",
+     "status": "PASS",
+     "evidence": "Cursor rejects on tampering, wrong owner, wrong grant, wrong generation, wrong filter digest, bad schema version and invalid bounds."
+    },
+    {
+     "id": "M17-S05",
+     "status": "PASS",
+     "evidence": "Unavailable cursor-key custody blocks synchronization with CURSOR_KEY_UNAVAILABLE."
+    },
+    {
+     "id": "M17-S06",
+     "status": "PASS",
+     "evidence": "Revocation during paging or before emission stops old-generation delivery."
+    },
+    {
+     "id": "M17-S07",
+     "status": "PASS",
+     "evidence": "Pages emit only public task/evidence projection deltas: no transcripts, credentials, native sessions, raw private logs or artifact bytes."
+    },
+    {
+     "id": "M17-T01",
+     "status": "PASS",
+     "evidence": "Fixed snapshot upper bounds; page limits bounded to 1000 events and 1 MiB; an individually oversized delta advances safely without a cursor loop."
+    },
+    {
+     "id": "M17-T02",
+     "status": "PASS",
+     "evidence": "Filtered foreign-owner/foreign-project sequences are skipped as excluded records, not treated as missing history."
+    },
+    {
+     "id": "M17-T03",
+     "status": "PASS",
+     "evidence": "Deleted retained history or verified gaps return RESYNC_REQUIRED."
+    },
+    {
+     "id": "M17-T04",
+     "status": "PASS",
+     "evidence": "Duplicate pages are idempotent; stale/out-of-order responses do not overwrite newer client state; advance is explicit."
+    },
+    {
+     "id": "M17-T05",
+     "status": "PASS",
+     "evidence": "Fresh snapshot during resync resets sync mechanics while retaining the displayed cache; per-device project isolation holds."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/read-sync-v3.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:23:18Z",
+     "endedAt": "2026-11-18T08:23:31Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+     "logDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "packages/core/read-sync.ts",
+    "tests/read-sync-v3.test.ts"
+   ]
+  },
+  {
+   "id": "V6_DECISION_CASES",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-D01",
+     "status": "PASS",
+     "evidence": "D01: challenge claim fails closed for unknown/expired/reused codes with no private pending-record disclosure."
+    },
+    {
+     "id": "M17-D02",
+     "status": "PASS",
+     "evidence": "D02: cursor validation order rejects tampered/stale/mismatched cursors before any emission."
+    },
+    {
+     "id": "M17-D03",
+     "status": "PASS",
+     "evidence": "D03: resync-required states surface RESYNCING and never present a falsely current dashboard."
+    },
+    {
+     "id": "M17-D04",
+     "status": "PASS",
+     "evidence": "D04: remote input attempts reject before durable input admission; reconnecting never executes saved drafts."
+    },
+    {
+     "id": "M17-D05",
+     "status": "PASS",
+     "evidence": "D05: SUBMIT_INPUT scope is listed for honest contract representation but stays reserved and denied at approve and at every input route."
+    },
+    {
+     "id": "M17-D06",
+     "status": "PASS",
+     "evidence": "D06: transport without exact configured TLS identity + clientAuth resolves REMOTE_TRANSPORT_DISABLED; no HTTP fallback."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/read-sync-decisions-v6.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:23:38Z",
+     "endedAt": "2026-11-18T08:23:50Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+     "logDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "tests/read-sync-decisions-v6.test.ts"
+   ]
+  },
+  {
+   "id": "C4_REMOTE_VIEW_AND_SETTINGS_UI",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-U01",
+     "status": "PASS",
+     "evidence": "Settings gains a paired-devices panel: pending identity/fingerprint, requested projects/scopes, explicit evidence consent, one-time code issuance, approve/deny, active+revoked state, last-seen, revoke action; wording states read-only and that downloaded device data cannot be remotely undisclosed."
+    },
+    {
+     "id": "M17-U02",
+     "status": "PASS",
+     "evidence": "View status reports OFFLINE/RESYNCING/SYNCED/STALE; mutation controls are never enabled for remote surfaces."
+    },
+    {
+     "id": "M17-U03",
+     "status": "PASS",
+     "evidence": "Offline drafts stay editable, local and unsent; clearCache clears host-derived task/evidence/cursor state while retaining unsent drafts."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:23:59Z",
+     "endedAt": "2026-11-18T08:26:45Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck.summary.json",
+     "logDigest": "56494593d7b33cb6faf4b3a5c7719afe79771cf800955a159c50a48883c10ab2",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:29:19Z",
+     "endedAt": "2026-11-18T08:30:27Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint.summary.json",
+     "logDigest": "1c1f30086cb1a0b4af66221083ec0108836e85cfcc020f224a6a0d601c99d0b9",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "build"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:30:30Z",
+     "endedAt": "2026-11-18T08:31:29Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build.summary.json",
+     "logDigest": "a8ee1995133a8888cd8c668317361ef32ca76caf57de54e00a89d4f9412a1628",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "apps/web/src/PairedDevicesPanel.tsx",
+    "apps/web/src/Settings.tsx",
+    "apps/server/server.ts"
+   ]
+  },
+  {
+   "id": "C5_INPUT_SUBMISSION_GATE",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-S08",
+     "status": "PASS",
+     "evidence": "submitDraft and every remote input/operation-approval route reject with REMOTE_INPUT_DISABLED before durable admission; the local API is never bound as a remote surface."
+    },
+    {
+     "id": "M17-G01",
+     "status": "PASS",
+     "evidence": "Read synchronization and remote input are independent capability gates; enabling readSync grants no input authority."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/read-sync-decisions-v6.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:23:38Z",
+     "endedAt": "2026-11-18T08:23:50Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-decisions-v6.summary.json",
+     "logDigest": "8930f916f1f83ca5a9397134f7b38875a59a62bbc55a6c1164111dd22b10a026",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "apps/server/device-pairing.ts",
+    "packages/core/read-sync.ts"
+   ]
+  },
+  {
+   "id": "G02_CAPABILITY_FLAGS",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-G02",
+     "status": "PASS",
+     "evidence": "remote.readSyncV1 and remote.submitInputV1 registered with owner m17, both default false, outside strict UI preferences; read-sync-disabled behavior independently tested."
+    },
+    {
+     "id": "M17-G03",
+     "status": "PASS",
+     "evidence": "Flags are not user preferences; test-only injection used to exercise enabled paths."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/read-sync-v3.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:23:18Z",
+     "endedAt": "2026-11-18T08:23:31Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-read-sync-v3.summary.json",
+     "logDigest": "4d721e631bab9c40563a1e791828379119d675e44689f86d515fb993ece20dad",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "packages/core/capability-flags.ts"
+   ]
+  },
+  {
+   "id": "C3_REMOTE_TRANSPORT_DEPLOYMENT",
+   "status": "BLOCKED",
+   "requiredCases": [
+    {
+     "id": "M17-S01-owned-test-transport",
+     "status": "PASS",
+     "evidence": "Owned disposable loopback proof on this cut: ephemeral test CA + server certificate, buildRemoteReadSyncServer bound to 127.0.0.1 only. Exercised over real TLS: wrong-CA client never completes the handshake; plain HTTP bytes get no HTTP reply; missing/malformed/unknown bearer \u2192 401; the only unauthenticated route is /remote/pair/claim (claim \u2192 host confirm \u2192 grant + device token); authenticated snapshot returns a schema-valid bounded page containing only approved-project public task projections with socket.authorized=true; resnapshot + completed-cursor replay + advance succeed; /remote/input/submit and /remote/operations/approve deny with REMOTE_INPUT_DISABLED; revocation denies with DEVICE_GRANT_REVOKED; teardown refuses further connections. Private keys exist only in the test tmpdir \u2014 none committed. This proves owned-test transport only; no production listener, endpoint setting or flag was enabled."
+    },
+    {
+     "id": "M17-S01",
+     "status": "NOT_RUN",
+     "evidence": "Usable-transport proof requires an exact configured authenticated endpoint with TLS identity and clientAuth:true plus a separate deployment gate. No deployment configuration was supplied on this source cut; buildRemoteReadSyncServer stays a no-listen builder that fail-closes to REMOTE_TRANSPORT_DISABLED on missing/malformed config (gate behavior is tested; a live authenticated endpoint is not proven)."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/remote-transport-v3.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T18:30:14Z",
+     "endedAt": "2026-11-18T18:30:37Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-remote-transport-v3.summary.json",
+     "logDigest": "fc1d49e160cd6895071d5eb09e2becca569aa5be105eb856eff71b51c776965a",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "apps/server/device-pairing.ts",
+    "tests/remote-transport-v3.test.ts"
+   ]
+  },
+  {
+   "id": "FULL_SUITE_GATES",
+   "status": "FAIL",
+   "requiredCases": [
+    {
+     "id": "M17-repository-test-suite",
+     "status": "FAIL",
+     "evidence": "The historical repository suite exited 1 with 53 failing files. The scoped M17 rerun is recorded separately under INTEGRATED_CUT_REVALIDATION."
+    },
+    {
+     "id": "M17-public-source-manifest",
+     "status": "FAIL",
+     "evidence": "The historical manifest test exited 1 because the staged runtime lacked the inherited verification-artifacts.ts entries. The integrated-cut manifest pass is recorded separately."
+    },
+    {
+     "id": "M17-browser-suite",
+     "status": "FAIL",
+     "evidence": "The historical browser suite exited 1 with 69 of 72 suites failing on the Linux aarch64 host. No successful aggregate browser run is recorded."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "test"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T08:22:43Z",
+     "endedAt": "2026-11-18T09:25:53Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test.summary.json",
+     "logDigest": "92e4d78d9a92bb2e31e3abd45c20e902ebc245b97cc7a9326880df1a72bc7077",
+     "status": "FAIL"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/public-source.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T09:43:34Z",
+     "endedAt": "2026-11-18T09:43:56Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-public-source-inherited.summary.json",
+     "logDigest": "93f2a156b9fd943882da6508fef9200dd46a044f900053f9e290ffee7d735014",
+     "status": "FAIL"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "test:browser"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T10:24:25Z",
+     "endedAt": "2026-11-18T17:41:06Z",
+     "exitCode": 1,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-test-browser.summary.json",
+     "logDigest": "2a918f676425d8d8a18bb0cff86c072df4906fe1b4d0686e3c75315f08cff562",
+     "status": "FAIL"
+    }
+   ],
+   "artifactRefs": [
+    "scripts/public-source-files.json"
+   ]
+  },
+  {
+   "id": "INTEGRATED_CUT_REVALIDATION",
+   "status": "PASS",
+   "requiredCases": [
+    {
+     "id": "M17-integrated-cut-a71dd850",
+     "status": "PASS",
+     "evidence": "origin/main advanced to 89142de980df86c4236dc49c28f280d78fe79e0d; merged into agent/m17-v6 as a71dd850d10afb2a7163ddd3c401d92f4f0d0e0e resolving the sole conflict (scripts/public-source-files.json, union of upstream manifest + 22 task-owned source/3 runtime entries). Upstream delta touched only M03/desktop-packaging files; zero overlap with M17 sources. All receipts below bind to integrated cut a71dd850; prior receipts remain bound to their original cuts."
+    },
+    {
+     "id": "M17-integrated-m17-suite",
+     "status": "PASS",
+     "evidence": "Full M17 suite at a71dd850: device-pairing-v3 12/12, read-sync-v3 16/16, read-sync-decisions-v6 6/6, remote-transport-v3 1/1 (owned-test TLS lifecycle), public-source 11/11 \u2014 46/46 PASS in 61.37s."
+    },
+    {
+     "id": "M17-integrated-typecheck-note",
+     "status": "PASS",
+     "evidence": "tsc --noEmit exit 0 at a71dd850. Environment note: the first run under default 2GB V8 heap OOM-aborted (exit 134, mark-compact at heap limit after ~270s under shared-box contention); re-run with NODE_OPTIONS=--max-old-space-size=6144 passed cleanly. Not a code defect \u2014 same binary/flags pass."
+    },
+    {
+     "id": "M17-integrated-lint-build",
+     "status": "PASS",
+     "evidence": "pnpm lint exit 0 (UI guard: 619 sources, 0 violations); pnpm build exit 0 (built in ~35s) at a71dd850, both with the 6GB heap allowance."
+    }
+   ],
+   "commands": [
+    {
+     "argv": [
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tests/device-pairing-v3.test.ts",
+      "tests/read-sync-v3.test.ts",
+      "tests/read-sync-decisions-v6.test.ts",
+      "tests/remote-transport-v3.test.ts",
+      "tests/public-source.test.ts"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T13:51:53Z",
+     "endedAt": "2026-11-18T13:52:54Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.summary.json",
+     "logDigest": "2590e23bc205211fe10614195e0bc4fa7eeb47b49ccbc9212098e8115dfbe7dd",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "typecheck"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T14:02:00Z",
+     "endedAt": "2026-11-18T14:07:09Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.summary.json",
+     "logDigest": "c47c44c47d7bc40e3b922489fe9a8dce5a65d9af7384fc7371f3235b36779870",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "lint"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T14:07:09Z",
+     "endedAt": "2026-11-18T14:11:16Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.summary.json",
+     "logDigest": "8e67d78d68fa0dec1e5b6a449981cc9afd351c7d6e1f20ff6fabdb6735a8d579",
+     "status": "PASS"
+    },
+    {
+     "argv": [
+      "pnpm",
+      "build"
+     ],
+     "cwdIdentity": "<milestone-worktree>",
+     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
+     "startedAt": "2026-11-18T14:11:16Z",
+     "endedAt": "2026-11-18T14:11:59Z",
+     "exitCode": 0,
+     "termination": "NONE",
+     "boundedLogRef": "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.summary.json",
+     "logDigest": "552a6677dc50d2bb1c25cab191e55c7123f56b1a1f9dc04d03a62f21ed89f887",
+     "status": "PASS"
+    }
+   ],
+   "artifactRefs": [
+    "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.summary.json",
+    "docs/implementation/v6/M17/logs/pnpm-typecheck-a71dd850.summary.json",
+    "docs/implementation/v6/M17/logs/pnpm-lint-a71dd850.summary.json",
+    "docs/implementation/v6/M17/logs/pnpm-build-a71dd850.summary.json",
+    "docs/implementation/v6/M17/raw-artifact-index.json"
+   ]
+  }
+ ],
+ "changedFiles": [
+  "apps/server/device-pairing.ts",
+  "apps/server/server.ts",
+  "apps/web/src/PairedDevicesPanel.tsx",
+  "apps/web/src/Settings.tsx",
+  "docs/implementation/v3/M17-source-lock.json",
+  "docs/implementation/v3/M17-verification.json",
+  "docs/implementation/v6/M17/handoff.md",
+  "docs/implementation/v6/M17/requirements.json",
+  "packages/contracts/paired-device.ts",
+  "packages/core/capability-flags.ts",
+  "packages/core/read-sync.ts",
+  "scripts/public-source-files.json",
+  "tests/device-pairing-v3.test.ts",
+  "tests/read-sync-decisions-v6.test.ts",
+  "tests/read-sync-v3.test.ts",
+  "tests/remote-transport-v3.test.ts"
+ ],
+ "dependencyContracts": [
+  {
+   "name": "packages/contracts/paired-device.ts",
+   "version": "eceb85da0706ae5c1573de5898f65bc6354e256b",
+   "testIds": [
+    "tests/device-pairing-v3.test.ts",
+    "tests/read-sync-v3.test.ts",
+    "tests/read-sync-decisions-v6.test.ts"
+   ]
+  },
+  {
+   "name": "packages/contracts/implementation-evidence.ts",
+   "version": "6851e571feeaf0fdade155011a4604f499383564",
+   "testIds": [
+    "tests/read-sync-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/storage/store.ts",
+   "version": "c8f4be74c3ff304332123a484cdf5279d7fff6e8",
+   "testIds": [
+    "tests/device-pairing-v3.test.ts",
+    "tests/read-sync-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/core/capability-flags.ts",
+   "version": "2819153441fa5077d6f7af7b75ea8d9d078df16f",
+   "testIds": [
+    "tests/device-pairing-v3.test.ts",
+    "tests/read-sync-v3.test.ts"
+   ]
+  },
+  {
+   "name": "packages/contracts/request-context.ts",
+   "version": "90485ab315299e97f96b7b2dc370f0851f7f620f",
+   "testIds": [
+    "tests/device-pairing-v3.test.ts"
+   ]
+  }
+ ],
+ "flags": [
+  {
+   "key": "remote.readSyncV1",
+   "enabled": false
+  },
+  {
+   "key": "remote.submitInputV1",
+   "enabled": false
+  }
+ ],
+ "remainingGates": [
+  "HOLD_REMOTE_TRANSPORT: a usable production remote surface still requires an exact configured authenticated endpoint (TLS cert/key + clientAuth) that passes the separate deployment gate; none was supplied. Owned-test transport was proven on this cut (tests/remote-transport-v3.test.ts + vitest-remote-transport-v3.summary.json): real loopback TLS through buildRemoteReadSyncServer with ephemeral test certificates \u2014 but that is test-owned proof only, not deployment authorization. The localhost application API is unchanged and unexposed.",
+  "HOLD_REMOTE_INPUT: submitInputV1 remains default-off; remote input and operation approval reject REMOTE_INPUT_DISABLED before durable admission until independent durable-input (M09) and authority (M02) contracts are proven.",
+  "INHERITED: public-source.test.ts staged host/worker runtime build fails on this base because packages/{contracts,core}/verification-artifacts.ts are absent from scripts/public-source-files.json `runtime` at c77d4716; fixed upstream by PR #765 (8442085c) which was deliberately not integrated into this cut. Evidence: vitest-public-source-inherited.summary.json.",
+  "pnpm test aggregate recorded exit 1 with 53 failed test files, all environment-bound or pre-existing (server.test.ts, skills-integration, hermes-*, M16-D06 platform expectation PLATFORM_UNSUPPORTED-vs-DRIVER_UNAVAILABLE on Linux, and the device-pairing-v3 flake fixed post-run); M17-scope suites pass independently.",
+  "pnpm test:browser recorded exit 1: 69 of 72 e2e suites failed on this headless aarch64 host (app-fixture timeouts and unmet native/electron expectations dominate; the same class of environment-bound failures as the vitest aggregate). M17 ships no e2e specs and no M17-related assertion appears in the failing output; receipt: pnpm-test-browser.summary.json."
+ ],
+ "reviewerApproval": false
+}
