@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync, renameSync, mkdirSync } from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, renameSync, mkdirSync, lstatSync, utimesSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { ProjectTrustLedger } from '../packages/core/project-trust.ts';
@@ -78,6 +78,19 @@ it('checks approved configuration file witnesses as well as executable witnesses
   await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
   const binding = await f.authority.describe(f.input); writeFileSync(path, 'modified config');
   expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+});
+
+it('detects a same-length approved rewrite that restores the recorded timestamps', async () => {
+  const f = await fixture(), path = join(f.root, 'build-config'); writeFileSync(path, 'approved config');
+  await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  const before = lstatSync(path, { bigint: true });
+  const binding = await f.authority.describe(f.input);
+  writeFileSync(path, 'modified config');
+  utimesSync(path, Number(before.atimeMs) / 1000, Number(before.mtimeMs) / 1000);
+  const after = lstatSync(path, { bigint: true });
+  expect(after.size).toBe(before.size); expect(Number(after.mtimeNs - before.mtimeNs)).toBeLessThan(1_000_000);
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+  await expect(f.authority.take(binding, f.input)).rejects.toThrow();
 });
 
 it('rejects backend implementation replacement during asynchronous preparation', async () => {
