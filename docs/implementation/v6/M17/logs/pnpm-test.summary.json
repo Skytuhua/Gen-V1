@@ -1,0 +1,35 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store \u2014 not published/uploaded.",
+ "command": [
+  "pnpm",
+  "test"
+ ],
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T08:22:43Z",
+ "endedAt": "2026-11-18T09:25:53Z",
+ "exitCode": 1,
+ "termination": "NONE",
+ "resultLines": [
+  "\u276f tests/server.test.ts (13 tests | 1 failed) 13853ms",
+  "\u276f tests/skills-integration.test.ts (11 tests | 9 failed) 12348ms",
+  "\u276f tests/integration-mcp.test.ts (12 tests | 5 failed) 25851ms",
+  "\u276f tests/account-parity.test.ts (11 tests | 11 failed) 10764ms",
+  "\u276f tests/expanded-review-fixtures.test.ts (11 tests | 1 failed) 12497ms",
+  "\u276f tests/review-host.test.ts (9 tests | 2 failed) 29602ms",
+  "\u276f tests/github-workspace.test.ts (37 tests | 23 failed) 181092ms",
+  "\u00d7 retains the already-created PR URL after failed read without creating it again 53ms",
+  "\u276f tests/account-login.test.ts (6 tests | 3 failed) 63319ms",
+  "\u00d7 reserves the exact named profile for sign-in and releases it after a failed native login 270ms",
+  "\u276f tests/verification-v3.test.ts (59 tests | 1 failed) 40679ms",
+  "\u2713 a direct passing check reference cannot hide failed cleanup 1ms"
+ ],
+ "rawArtifact": {
+  "file": "pnpm-test.log",
+  "sha256": "d52687cd1fb10963da352a478fd63d82807ae127993246cf54568bc82a7fdf81",
+  "bytes": 656478,
+  "retention": "agent-owned local evidence store",
+  "published": false
+ }
+}
