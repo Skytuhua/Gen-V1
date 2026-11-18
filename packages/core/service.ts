@@ -559,14 +559,17 @@ export class Service {
   }
 
   /** One consent-admitted input action through the serialized dispatcher;
-   * the durable 'controlAction' record lands after settle (D05/M02). */
-  async controlAction(threadId: string, input: { action?: unknown; parameters?: unknown; observation?: unknown }) {
+   * the durable 'controlAction' record lands after settle (D05/M02). The
+   * observation is re-taken from the driver here — client-supplied
+   * observations are never dispatch authority (S06). */
+  async controlAction(threadId: string, input: { action?: unknown; parameters?: unknown }) {
     const thread = this.thread(threadId);
     const owner = { threadId: thread.id, runId: null, epoch: thread.epoch, projectId: thread.projectId ?? null, workspaceId: thread.workspaceId ?? null, accountBinding: thread.accountId ?? null };
+    const observation = await this.controlRuntime.observe(threadId);
     return this.controlRuntime.action(threadId, owner, {
       action: String(input.action ?? ''),
       parameters: input.parameters && typeof input.parameters === 'object' && !Array.isArray(input.parameters) ? input.parameters as Record<string, unknown> : {},
-      observation: input.observation,
+      observation,
     });
   }
   hasGate(threadId: string): boolean { return this.store.all<InputRequest>("request", threadId).some(r => r.status === "pending"); }
