@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { HarnessError } from "../contracts/index.ts";
 import type { ApprovalV1, ToolEffectRecord } from "../contracts/tool-effects.ts";
@@ -7,8 +7,8 @@ import { TOOL_COVERAGE_NOTES } from "./tool-authority.ts";
 import type { Store } from "../storage/store.ts";
 
 /** Bounded read-only invocation/observation pages through the existing
- * read-model boundary: owner-scoped scopeKeys, opaque cursors carrying the
- * sequence fence, no cross-owner probing. */
+ * read-model boundary. A scope retains a bounded, immutable observation cut;
+ * current owner checks still apply before any captured data is released. */
 
 const target = z.strictObject({ threadId: z.string().min(1).max(200) });
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
@@ -21,24 +21,81 @@ export const invocationPageSchema = scope.extend({
 export const observationQuerySchema = scope.extend({ invocationId: z.string().min(1).max(400) });
 
 interface ThreadBinding { id: string; accountId?: string | null; projectId?: string | null; workspaceId?: string | null }
-interface Scope { threadId: string; accountId: string | null; projectId: string | null; workspaceId: string | null; revoked: boolean }
+interface SnapshotRow { invocationId: string; lastSeq: number; body: string; approval: string | null }
+interface Scope { threadId: string; accountId: string | null; projectId: string | null; workspaceId: string | null; revoked: boolean;
+  sequence: number; rows: SnapshotRow[]; byId: Map<string, SnapshotRow>; bytes: number }
+interface Cursor { scope: string; position: number; filter: string; limit: number }
+const MAX_SNAPSHOT_ROWS = 10_000;
+const MAX_SCOPE_BYTES = 16 * 1024 * 1024;
+const MAX_TOTAL_BYTES = 64 * 1024 * 1024;
 
 export class ToolEffectReadModels {
   readonly authority = "personal" as const;
   private readonly scopes = new Map<string, Scope>();
+  private readonly cursorKey = randomBytes(32);
+  private snapshotBytes = 0;
   constructor(private readonly store: Store) {}
 
-  private encode(value: { scope: string; position: number }): string {
-    return Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+  private encode(value: Cursor): string {
+    const body = Buffer.from(JSON.stringify(value), "utf8").toString("base64url");
+    return body + "." + createHmac("sha256", this.cursorKey).update(body).digest("hex");
   }
-  private decode(cursor: string, scopeKey: string): { position: number } {
+  private decode(cursor: string, scopeKey: string, filter: string, limit: number, size: number): number {
     try {
-      const value = JSON.parse(Buffer.from(cursor, "base64url").toString("utf8")) as { scope?: string; position?: number };
-      if (value.scope !== scopeKey || typeof value.position !== "number" || value.position < 0) throw new Error("cursor_mismatch");
-      return { position: value.position };
-    } catch (error) {
-      if (error instanceof HarnessError) throw error;
+      const [body, signature, extra] = cursor.split(".");
+      if (!body || !signature || extra !== undefined || !/^[a-f0-9]{64}$/.test(signature)) throw new Error("cursor_signature");
+      const expected = createHmac("sha256", this.cursorKey).update(body).digest();
+      if (!timingSafeEqual(expected, Buffer.from(signature, "hex"))) throw new Error("cursor_signature");
+      const value = JSON.parse(Buffer.from(body, "base64url").toString("utf8")) as Cursor;
+      if (!value || Object.keys(value).length !== 4 || value.scope !== scopeKey || value.filter !== filter || value.limit !== limit
+        || !Number.isSafeInteger(value.position) || value.position < 0 || value.position > size) throw new Error("cursor_mismatch");
+      return value.position;
+    } catch {
       throw new HarnessError("RESYNC_REQUIRED", "This ledger cursor no longer matches; reopen the page");
+    }
+  }
+
+  private dropScope(key: string): void {
+    const found = this.scopes.get(key);
+    if (found) this.snapshotBytes -= found.bytes;
+    this.scopes.delete(key);
+  }
+
+  /** Events contain transition metadata, not historical entity bodies. Capture
+   * current authorized bodies once, synchronously under the sole host writer.
+   * SQL bounds each materialized row before it enters JavaScript memory. */
+  private capture(found: Scope): void {
+    const rows = this.store.db.prepare(`
+      WITH origins AS (
+        SELECT json_extract(payload,'$.result.invocationId') AS id, MIN(seq) AS first_seq
+        FROM events WHERE seq <= ? AND thread_id = ? AND type LIKE 'toolEffect.%'
+          AND json_type(payload,'$.result.invocationId') = 'text'
+          AND COALESCE(json_extract(payload,'$.result.reused'),0) = 0
+          AND json_extract(payload,'$.result.state') IN ('DISPATCHED','PREPARED','DENIED')
+        GROUP BY json_extract(payload,'$.result.invocationId')
+      ), captured AS (
+        SELECT e.id, origins.first_seq, e.body, a.body AS approval,
+          length(CAST(e.body AS BLOB)) + COALESCE(length(CAST(a.body AS BLOB)),0) AS bytes
+        FROM origins JOIN entities e ON e.kind='toolEffect' AND e.id=origins.id
+        LEFT JOIN entities a ON a.kind='approval' AND a.id=json_extract(e.body,'$.approvalId')
+        WHERE e.thread_id = ? AND json_extract(e.body,'$.threadId') = ?
+          AND json_extract(e.body,'$.owner.threadId') = ?
+          AND json_extract(e.body,'$.owner.accountBinding') IS ?
+          AND json_extract(e.body,'$.owner.projectId') IS ?
+          AND json_extract(e.body,'$.owner.workspaceId') IS ?
+      )
+      SELECT id, first_seq, bytes,
+        CASE WHEN bytes <= ? THEN body END AS body,
+        CASE WHEN bytes <= ? THEN approval END AS approval
+      FROM captured ORDER BY first_seq,id LIMIT ?
+    `).iterate(found.sequence, found.threadId, found.threadId, found.threadId, found.threadId,
+      found.accountId, found.projectId, found.workspaceId, MAX_SCOPE_BYTES, MAX_SCOPE_BYTES, MAX_SNAPSHOT_ROWS + 1);
+    for (const value of rows) {
+      const row = value as { id: string; first_seq: number; bytes: number; body: string | null; approval: string | null };
+      if (found.rows.length >= MAX_SNAPSHOT_ROWS || row.body === null || found.bytes + row.bytes > MAX_SCOPE_BYTES)
+        throw new HarnessError("LEDGER_SNAPSHOT_LIMIT", "This ledger view exceeds the bounded snapshot limit; no partial view was opened");
+      const entry = { invocationId: row.id, lastSeq: row.first_seq, body: row.body, approval: row.approval };
+      found.rows.push(entry); found.byId.set(row.id, entry); found.bytes += row.bytes;
     }
   }
 
@@ -50,6 +107,7 @@ export class ToolEffectReadModels {
     if (!current || current.id !== found.threadId || (current.accountId ?? null) !== found.accountId
       || (current.projectId ?? null) !== found.projectId || (current.workspaceId ?? null) !== found.workspaceId) {
       found.revoked = true;
+      this.dropScope(scopeKey);
       throw new HarnessError("RESYNC_REQUIRED", "This ledger owner changed; reopen the view");
     }
     return found;
@@ -67,42 +125,33 @@ export class ToolEffectReadModels {
     const thread = this.store.get<ThreadBinding>("thread", parsed.threadId);
     if (!thread || thread.id !== parsed.threadId) throw new HarnessError("NOT_FOUND", "Thread unavailable");
     const scopeKey = randomBytes(32).toString("hex");
-    this.scopes.set(scopeKey, { threadId: thread.id, accountId: thread.accountId ?? null, projectId: thread.projectId ?? null, workspaceId: thread.workspaceId ?? null, revoked: false });
-    if (this.scopes.size > 512) this.scopes.delete(this.scopes.keys().next().value!);
-    return { authority: this.authority, threadId: thread.id, scopeKey, sequence: this.store.sequence, coverage: TOOL_COVERAGE_NOTES, freshness: "CURRENT" };
+    const found: Scope = { threadId: thread.id, accountId: thread.accountId ?? null, projectId: thread.projectId ?? null,
+      workspaceId: thread.workspaceId ?? null, revoked: false, sequence: this.store.sequence, rows: [], byId: new Map(), bytes: 0 };
+    this.capture(found);
+    while (this.scopes.size && (this.scopes.size >= 512 || this.snapshotBytes + found.bytes > MAX_TOTAL_BYTES))
+      this.dropScope(this.scopes.keys().next().value!);
+    this.scopes.set(scopeKey, found); this.snapshotBytes += found.bytes;
+    return { authority: this.authority, threadId: thread.id, scopeKey, sequence: found.sequence, coverage: TOOL_COVERAGE_NOTES, freshness: "CURRENT" };
   }
 
-  /** Pages tool-effect transition events in sequence order. */
+  /** Pages one captured view. Refresh requires a new context; later settlement
+   * is historical data for a newer view, never a mutation of this cursor cut. */
   invocations(input: unknown): { effects: (ToolEffectRecord & { lastSeq: number })[]; nextCursor: string | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE"; sequence: number } {
     const parsed = invocationPageSchema.parse(input);
     const found = this.scoped(parsed.scopeKey, parsed.threadId);
-    let position = parsed.cursor ? this.decode(parsed.cursor, parsed.scopeKey).position : -1;
-    const fence = this.store.sequence;
-    const byInvocation = new Map<string, ToolEffectRecord & { lastSeq: number }>();
-    while (position < fence && byInvocation.size < parsed.limit) {
-      const events = this.store.eventsAfter(position, 200);
-      if (!events.length) break;
-      for (const event of events) {
-        if (event.seq > fence) { position = fence; break; }
-        if (byInvocation.size >= parsed.limit) break;
-        position = event.seq;
-        if (!event.type.startsWith("toolEffect.")) continue;
-        const raw = typeof event.payload === "string" ? JSON.parse(event.payload) : event.payload;
-        const result = (raw as { result?: { invocationId?: string; state?: string; reused?: boolean } } | null)?.result;
-        const id = result?.invocationId;
-        // Emit each effect exactly once, at its creation event — later
-        // transitions (settle/deny/recover) and re-admission receipts would
-        // repeat the record across a page boundary.
-        if (!id || result?.reused || (result?.state !== "DISPATCHED" && result?.state !== "PREPARED" && result?.state !== "DENIED")) continue;
-        const effect = this.store.get<ToolEffectRecord>("toolEffect", id);
-        if (!effect || !this.owns(effect, found)) continue;
-        if (parsed.invocationId && id !== parsed.invocationId) continue;
-        byInvocation.set(id, { ...effect, lastSeq: event.seq });
-      }
+    const filter = parsed.invocationId ?? "";
+    let position = parsed.cursor ? this.decode(parsed.cursor, parsed.scopeKey, filter, parsed.limit, found.rows.length) : 0;
+    const effects: (ToolEffectRecord & { lastSeq: number })[] = [];
+    while (position < found.rows.length && effects.length < parsed.limit) {
+      const row = found.rows[position++]!;
+      if (filter && row.invocationId !== filter) continue;
+      const current = this.store.get<ToolEffectRecord>("toolEffect", row.invocationId);
+      if (!current || !this.owns(current, found)) continue;
+      const effect = JSON.parse(row.body) as ToolEffectRecord;
+      effects.push({ ...effect, lastSeq: row.lastSeq });
     }
-    const effects = [...byInvocation.values()];
-    const nextCursor = position < fence ? this.encode({ scope: parsed.scopeKey, position }) : null;
-    return { effects, nextCursor, freshness: observationFreshness(this.store, fence), sequence: fence };
+    const nextCursor = position < found.rows.length ? this.encode({ scope: parsed.scopeKey, position, filter, limit: parsed.limit }) : null;
+    return { effects, nextCursor, freshness: observationFreshness(this.store, found.sequence), sequence: found.sequence };
   }
 
   /** Returns one effect with its retained transitions and the approval that
@@ -110,11 +159,19 @@ export class ToolEffectReadModels {
   observations(input: unknown): { effect: ToolEffectRecord; approval: ApprovalV1 | null; freshness: "CURRENT" | "STALE" | "INDETERMINATE" } {
     const parsed = observationQuerySchema.parse(input);
     const found = this.scoped(parsed.scopeKey, parsed.threadId);
-    const effect = this.store.get<ToolEffectRecord>("toolEffect", parsed.invocationId);
-    if (!effect || !this.owns(effect, found)) throw new HarnessError("NOT_FOUND", "Tool effect unavailable");
-    const approval = effect.approvalId ? this.store.get<ApprovalV1>("approval", effect.approvalId) : null;
-    return { effect, approval, freshness: observationFreshness(this.store, this.store.sequence) };
+    const row = found.byId.get(parsed.invocationId);
+    const current = this.store.get<ToolEffectRecord>("toolEffect", parsed.invocationId);
+    if (!row || !current || !this.owns(current, found)) throw new HarnessError("NOT_FOUND", "Tool effect unavailable");
+    const effect = JSON.parse(row.body) as ToolEffectRecord;
+    const capturedApproval = row.approval ? JSON.parse(row.approval) as ApprovalV1 : null;
+    const currentApproval = capturedApproval ? this.store.get<ApprovalV1>("approval", capturedApproval.approvalId) : null;
+    const ownsApproval = (approval: ApprovalV1 | null): boolean => Boolean(approval
+      && approval.owner.threadId === effect.owner.threadId && approval.owner.runId === effect.owner.runId
+      && approval.owner.epoch === effect.owner.epoch && approval.owner.accountBinding === effect.owner.accountBinding
+      && approval.owner.projectId === effect.owner.projectId && approval.owner.workspaceId === effect.owner.workspaceId);
+    const approval = ownsApproval(capturedApproval) && ownsApproval(currentApproval) ? capturedApproval : null;
+    return { effect, approval, freshness: observationFreshness(this.store, found.sequence) };
   }
 
-  dispose(): void { this.scopes.clear(); }
+  dispose(): void { this.scopes.clear(); this.snapshotBytes = 0; }
 }
