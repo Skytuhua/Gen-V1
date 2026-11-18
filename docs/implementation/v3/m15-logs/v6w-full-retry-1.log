@@ -1,0 +1,236 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/account-profile.test.ts","tests/runtime-router.test.ts","tests/workspace-action-outcomes.test.ts","tests/workspace-action-outcome-routes.test.ts","tests/hermes-service.test.ts","tests/account-parity.test.ts","tests/skills-integration.test.ts","--maxWorkers=1","--reporter=default"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ❯ tests/workspace-action-outcomes.test.ts (27 tests | 1 failed) 814669ms
+   ✓ accepts canonical Unicode review text without normalizing a leading BOM or whitespace 4ms
+   ✓ bounds created receipt URLs to their repository while preserving canonical case differences 2ms
+   ✓ a create preflight refusal is not-applied and permits a fresh reviewed intent  45042ms
+   ✓ retains an uncertain create command across restart without repeating its effect  34397ms
+   ✓ keeps a post-push create failure uncertain without pushing the original intent again  34630ms
+   ✓ recovers an admitted legacy create receipt without a new effect or extra result fields  24446ms
+   ✓ refuses a recovered PR request whose pinned repository changed  15269ms
+   ✓ never publishes a created result for a different repository or reviewed revision  20254ms
+   ✓ commits intent before local write and private result before event, then replays after Store restart  30534ms
+   ✓ retains interrupted remote write as uncertain across restart without submitting it again  43060ms
+   ✓ serializes same-ID attempts across separate Store connections without a double write  57222ms
+   ✓ denies reuse of an ID with a changed payload  21756ms
+   ✓ denies reuse of an ID with a changed type  23334ms
+   ✓ denies reuse of an ID with a changed threadId  21921ms
+   ✓ denies reuse of an ID with a changed projectId  21488ms
+   ✓ inspects original payload/revision without current diff, review reads, or any write  27746ms
+   ✓ returns revoked after working copy or account access changes, including confirmed receipts  54064ms
+   ✓ keeps private intent, result, credentials and errors out of events, receipts and snapshots  20862ms
+   ✓ keeps missing and legacy records uncertain without adopting unbound receipts  26909ms
+   ✓ records not-applied only after host rejection before starting and never restarts that ID  42123ms
+   ✓ keeps failures after started uncertain even when there is no receipt  19995ms
+   ✓ keeps completed external write uncertain if durable result commit fails  42339ms
+   ✓ recovers a confirmed review when the remote branch name differs from the managed local branch  28036ms
+   ✓ keeps an active prepared reservation uncertain until its owner durably proves no execution began  48099ms
+   ✓ pins profile access while GitHubTools is awaiting remote validation  20808ms
+   ✓ rejects a profile replaced between inspection identity capture and credential read  28778ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 61547ms
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 105349ms
+   ✓ initializes the canonical source library and routes explicit UI writes to it 82ms
+   ✓ carries an actual approved replacement privately to the next idle source turn, never prepare or steering  5376ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 60612ms
+   ✓ does not reauthorize an approved write hook after stop  4758ms
+   ✓ does not reauthorize an approved write hook after rebind  4930ms
+   ✓ does not reauthorize an approved write hook after revision  5086ms
+   ✓ does not reauthorize an approved write hook after recovery  4875ms
+   × never supplies completed-write custody for unapproved or failed effects 4914ms
+   ✓ retains an unknown callback claim across stop/resume without replaying its write  4956ms
+   ✓ does not infer missing legacy write authority from current selection  4857ms
+   ✓ does not infer missing no_project write authority from current selection  4667ms
+   ✓ uses the original learn prompt without injecting a second custom skill catalog 66ms
+   ✓ projects source review events after foreground UI settlement and cancels source reviews explicitly 64ms
+   ✓ requires source foreground settlement before acknowledging a new learning policy 41ms
+   ✓ expands a learn follow-up and delivers it without interrupting the active run 62ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 95473ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 7480ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 7412ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 7413ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 7466ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 8410ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 8521ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 11106ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 10619ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 9138ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 8862ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 9040ms
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 83030ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 10682ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 8928ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 8694ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 7600ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 8067ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 9576ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 9071ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 10087ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 9130ms
+   ✓ registers and executes the shared learning tools in the installed Pi SDK without model calls or ambient skills  1020ms
+   ✓ round trips the same skill schemas and real Service writes through the authenticated official MCP bridge 173ms
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 32404ms
+   ✓ preserves T3 credential-binding hashing and unambiguous tuple boundaries 2ms
+   ✓ isolates account and provider roots without using the account label 1ms
+   ✓ rejects unsaved IDs and unavailable providers before constructing a profile path 1ms
+   ✓ rejects an accounts junction and holds the acquired namespace against replacement  7406ms
+   ✓ rejects native descendant directory redirects and hardlinked credential files before entry  8049ms
+   ✓ pins native directories while allowing legitimate atomic credential replacement  3463ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 2740ms
+   ✓ rejects a missing writable account directory before entering native work  2498ms
+   ✓ rejects missing and file-valued writable directories without an explicit ancestor scope  5496ms
+   ✓ keeps official home namespaces pinned while native credential files remain atomically replaceable  2747ms
+ ❯ tests/runtime-router.test.ts (21 tests | 1 failed) 15343ms
+   ✓ merges available runtime models without hiding a signed-in provider behind another auth failure 5ms
+   ✓ routes a targeted legacy catalog to only its provider and claims no unrelated account use 2ms
+   ✓ invalidates only the affected provider adapter without discarding another native catalog 1ms
+   ✓ keeps an unrelated active legacy run when a targeted signed-out provider has no catalog 1ms
+   ✓ routes the requested model and rejects a session belonging to a different runtime before startup 1ms
+   ✓ revokes callbacks before cancelling an in-flight startup and rejects late tool calls 1ms
+   ✓ retains cancellation ownership after an error and revokes a settled run before follow-up 1ms
+   ✓ cancels the original adapter if startup rejects after acquiring a worker 1ms
+   ✓ cannot redirect an active follow-up to another provider and keeps single-run ownership 1ms
+   ✓ routes compaction and history without passing official manifests to Pi or allowing outside sessions 2ms
+   ✓ disposes both adapters and rejects new work after disposal 1ms
+   ✓ keeps concurrent disposal pending and account ownership held until adapter cleanup completes 58ms
+   ✓ retains failed disposal and its account ownership for every later caller 1ms
+   ✓ keeps pending Cursor models out of public discovery and rejects task admission before adapter startup 1ms
+   ✓ routes admitted Cursor discovery and work to its official adapter without a Pi fallback 1ms
+   ✓ routes private Cursor history to the official adapter and rejects cross-provider resume 1ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 2552ms
+   ✓ scopes named-account model discovery to its provider and blocks a profile being signed in  2515ms
+   ✓ rejects redirected named-account directories before any auth or session adapter call  5106ms
+   ✓ rejects a resolver that changes the provider of an already acquired account profile  2515ms
+   ✓ denies a descendant Pi junction before actual session validation can resolve another account history  2578ms
+ ✓ tests/workspace-action-outcome-routes.test.ts (8 tests) 242891ms
+   ✓ admits one create-PR effect when the original command is repeated before acknowledgment  51477ms
+   ✓ routes supported writes through durable identity and keeps inspection read-only  46536ms
+   ✓ an exact local stale-head preflight is not-applied before entering a mutation  33305ms
+   ✓ an exact local stale-worktree preflight is not-applied before entering a mutation  21295ms
+   ✓ valid Unicode review text fits submission and exact read-only inspection  29673ms
+   ✓ returns an unsuccessful response for an unconfirmed action so existing controls retain their draft  18542ms
+   ✓ keeps credential-bearing before write failures outside HTTP results and durable events  20860ms
+   ✓ keeps credential-bearing after write failures outside HTTP results and durable events  21201ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 25 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/25]⎯
+
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+    102|  await x.select('openai',a.id);await x.send('message.send',{content:'I…
+    103|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    104|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    105|  await x.select('openai',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/25]⎯
+
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+    124|  await x.select('gemini-cli',a.id);await x.send('message.send',{conten…
+    125|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    126|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    127|  await x.select('gemini-cli',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/25]⎯
+
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:64:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/25]⎯
+
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/hermes-service.test.ts:55:1
+     53|  expect(x.store.get('data',op.id)).toMatchObject({value:{postEditHook:…
+     54| });
+     55| it('bounds hook admission while preserving every successful write and …
+       | ^
+     56|  const x=await preparedWrite(),operations=[x.op],resourceId=x.store.ge…
+     57|  for(let index=0;index<33;index++){
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/25]⎯
+
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+AssertionError: expected { …(11) } to match object { status: 'failed' }
+(14 matching properties omitted from actual)
+
+- Expected
++ Received
+
+  {
+-   "status": "failed",
++   "status": "running",
+  }
+
+ ❯ tests/hermes-service.test.ts:85:197
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/25]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/skills-integration.test.ts:53:70
+     51|  const x=await fixture(),a=await x.account(providerId,'Current task'),…
+     52|  await x.send('account.select',{providerId,accountId:a.id});await x.se…
+     53|  await waitFor(()=>expect(x.started('primary',a,providerId)?.starts).t…
+       |                                                                      ^
+     54|  expect(input).toMatchObject({threadId:thread.id,modelId,accountId:a.i…
+     55|  expect(await primary.tool(input,'skill_manage',{operations:[createOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/25]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:518:1
+    516| }, 60000);
+    517|
+    518| it('supports local unstage and commit through the original revision an…
+       | ^
+    519|   const f = await fixture();
+    520|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/25]⎯
+
+
+ Test Files  6 failed | 1 passed (7)
+      Tests  25 failed | 78 passed (103)
+   Start at  12:34:19
+   Duration  1394.96s (transform 2.05s, setup 0ms, import 4.56s, tests 1389.16s, environment 2ms)
+
