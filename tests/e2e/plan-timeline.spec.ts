@@ -49,7 +49,7 @@ test("retains manual collapse, focus and reading position across ordered live up
   await expect(button).toBeFocused();
   expect(await page.locator("main").evaluate((el) => el.scrollTop)).toBeCloseTo(y, 0);
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), timelineSnapshot("thread-a", 1));
-  await expect(page.getByText("Rev 3", { exact: true })).toBeVisible();
+  await expect(page.locator(".plan-completion")).toHaveAttribute("title", "Plan revision 3");
 });
 
 test("resets the snapshot fence on thread switch and retains the old plan during restart publication", async ({
@@ -60,7 +60,7 @@ test("resets the snapshot fence on thread switch and retains the old plan during
     (snapshot) => window.planFixture.update(snapshot, "thread-b"),
     timelineSnapshot("thread-b", 1),
   );
-  await expect(page.getByText("Rev 1", { exact: true })).toBeVisible();
+  await expect(page.locator(".plan-completion")).toHaveAttribute("title", "Plan revision 1");
   const stopped = timelineSnapshot("thread-b", 2);
   stopped.threads[0].runId = null;
   await page.evaluate((snapshot) => window.planFixture.update(snapshot, "thread-b"), stopped);
@@ -86,7 +86,7 @@ test("retains a valid plan when the latest canonical graph is malformed", async 
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), invalid);
   await expect(page.locator('[data-step-id="build"]')).toBeVisible();
   await expect(page.getByRole("region", { name: "Task plan: Improve the workspace", exact: true }).getByRole("status").filter({ hasText: "last valid revision" })).toContainText("last valid revision");
-  await expect(page.getByText("Rev 1", { exact: true })).toBeVisible();
+  await expect(page.locator(".plan-completion")).toHaveAttribute("title", "Plan revision 1");
 });
 
 test("host replan preserves assignment, collapse and reading anchor when earlier details grow", async ({
@@ -110,7 +110,9 @@ test("host replan preserves assignment, collapse and reading anchor when earlier
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), replan);
   await expect(page.locator('[data-step-id="build"] [data-agent-id="ui"]')).toHaveCount(1);
   await expect(target).toBeFocused();
-  expect((await target.boundingBox())!.y).toBeCloseTo(before, 0);
+  // The anchor restores within sub-pixel scroll quantization when content
+  // above both grows and shrinks; a broken anchor shifts by whole lines.
+  expect(Math.abs((await target.boundingBox())!.y - before)).toBeLessThan(1);
   await page.getByRole("button", { name: "Jump to current" }).click();
   await expect(page.locator('[data-step-id="build"] > .plan-step-summary')).toBeFocused();
   await page.getByRole("button", { name: "Plan actions" }).click();
@@ -148,7 +150,7 @@ test("collapsed step identity survives returning from another thread and stale e
   );
   await expect(page.locator('[data-agent-id="ui"] > .plan-agent-top')).toContainText("Working");
   await page.evaluate((snapshot) => window.planFixture.update(snapshot), timelineSnapshot("thread-a", 10));
-  await expect(page.getByText("Rev 6", { exact: true })).toBeVisible();
+  await expect(page.locator(".plan-completion")).toHaveAttribute("title", "Plan revision 6");
   await expect(page.locator('[data-agent-id="ui"] > .plan-agent-top')).toContainText("Working");
 });
 

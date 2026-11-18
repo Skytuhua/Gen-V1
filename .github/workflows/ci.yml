@@ -4,6 +4,7 @@ on:
   push:
     branches: [main, agent/m05-v3]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
 
 permissions:
@@ -19,9 +20,14 @@ env:
   GIT_CONFIG_VALUE_0: true
 
 jobs:
+  # A draft pull request is not reviewable, so its matrix runs when it becomes
+  # ready for review instead of on every draft push. Six definitions expand
+  # to nine jobs, including installer packaging; draft pushes otherwise starve the
+  # shared runner pool that required checks depend on.
   checks:
     name: Windows checks
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -50,6 +56,9 @@ jobs:
       - name: Check TypeScript and enforce UI architecture policy
         run: pnpm lint
 
+      - name: Check the repository type program
+        run: pnpm typecheck
+
       - name: Check and build the optional visuals plug-in
         run: |
           pnpm --dir plugins/personal-visuals typecheck
@@ -61,6 +70,7 @@ jobs:
   test:
     name: Tests (shard ${{ matrix.shard }}/4)
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -90,6 +100,7 @@ jobs:
   browser:
     name: Browser tests
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -143,6 +154,7 @@ jobs:
   hermes:
     name: Hermes contracts
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -176,6 +188,7 @@ jobs:
   desktop:
     name: Desktop build
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -198,6 +211,7 @@ jobs:
   installed-memory:
     name: Installed desktop memory retention and opt-in
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 60
     defaults:
       run:
