@@ -23,11 +23,17 @@ const get = (owner: MemoryOwner, suffix: string, query: Record<string, string>, 
   return fetch(base(owner.projectId) + suffix + '?' + new URLSearchParams({threadId: owner.threadId, ...query}), {credentials: 'same-origin', cache: 'no-store', redirect: 'error', signal});
 }).then(read<unknown>);
 
-export async function getProjectMemory(input: MemoryOwner, signal?: AbortSignal, expectedScope?: MemoryScope) {
+export async function getProjectMemory(input: MemoryOwner, signal?: AbortSignal, expectedScope?: MemoryScope, options: {refreshBinding?: boolean} = {}) {
   const owner = ownerSchema.parse(input), view = parse(projectMemoryViewSchema, await get(owner, '', {}, signal));
   signal?.throwIfAborted();
   if (memoryOwnerKey(owner) !== memoryOwnerKey(view.scope)) throw invalid();
-  if (expectedScope) checkScope(expectedScope, view.scope);
+  if (expectedScope) {
+    // Explicit user refresh may observe a later run of the same durable owner.
+    // It cannot carry a correction across an account or physical project change.
+    if (options.refreshBinding) {
+      if (memoryOwnerKey(expectedScope) !== memoryOwnerKey(view.scope) || expectedScope.projectIdentity !== view.scope.projectIdentity) throw invalid();
+    } else checkScope(expectedScope, view.scope);
+  }
   const ids = new Set<string>();
   for (const row of view.items) {
     if (ids.has(row.item.id) || row.item.projectIdentity !== view.scope.projectIdentity || row.conflictRevisions.some(value => value.id !== row.item.id || value.projectIdentity !== view.scope.projectIdentity)) throw invalid();
