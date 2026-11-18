@@ -75,8 +75,9 @@ not overlap the evidence-correction surface owned by PR #772.
 ## Holds carried forward (unchanged by this supplement)
 
 1. **HOLD_SOURCE_DRIFT** — the six conflict paths above.
-2. Native worker CAS test provisioned for Windows CI — no local Python 3.14 worker; the CAS
-   *implementation* exists at the cut but installed/Windows acceptance is a separate gate.
+2. ~~Native worker CAS test provisioned for Windows CI~~ — **satisfied**: the real worker
+   fixture passed on Windows CI at `7ac80d87` (see section above). The distinct remaining
+   leg is installed-desktop compaction acceptance, still a separate gate.
 3. U04 measured cache attribution — M11-dependent, NOT_RUN.
 4. Full `pnpm test` gate — FAIL on this host (environment-bound; needs the reviewed CI matrix).
 5. Full `pnpm test:browser` gate — FAIL on this host; Edge/Chrome channel suites remain
@@ -85,7 +86,7 @@ not overlap the evidence-correction surface owned by PR #772.
    authorization/receipts establish the auxiliary study; this supplement asserts nothing
    contrary. The continuation-3 session's aux-related evidence strings are not republished.
 
-## Pending: Windows native compaction CAS acceptance (NOT_RUN)
+## Windows native compaction CAS — source-bound receipt (CI at 7ac80d87)
 
 The native-worker CAS acceptance leg requires a Windows host (CI runs `hermes` on
 `windows-latest` via `.github/workflows/ci.yml`). The exact supported path — verified against
@@ -105,9 +106,31 @@ main `7ac80d870ff7ff7dc021b0632ef07d631d489afc` (the current cut carrying the me
 
 Dispatch attempt on 2026-11-18 to the linked verifier `WIN-M0N0V07LGM1`
 (environment `17662262-856e-45f7-98fb-56c92cacfa8f`) failed at transport: the link reports
-`reachable` but the remote agent answered HTTP 524 on three attempts. **No Windows receipts
-exist yet; this leg remains NOT_RUN / environment-bound.** Any future receipts must be captured
-at the exact tested SHA with toolchain versions and added here as new bounded files only.
+`reachable` but the remote agent answered HTTP 524 on three attempts.
+
+**Resolved via authenticated GitHub CI instead** — `logs/ci-hermes-cas-7ac80d87.log`
+(bounded excerpt of the job log; digests in `manifest.json`):
+
+- Workflow `ci.yml`, job **Hermes contracts** on `windows-latest`, check_run `135026554125`,
+  run `44367920580`, **head_sha `7ac80d870ff7ff7dc021b0632ef07d631d489afc`** — the exact
+  recorded cut — conclusion `success`, 2026-11-18 18:26–18:31 UTC.
+- Toolchain from the job log: runner image `windows-2025-vs2026` (Windows Server 2025),
+  **CPython 3.14.10** (the repo-pinned 3.14 line), pwsh.
+- `python -I -S -B tests/hermes_source_worker.py -v` — the exact CI invocation — ran
+  **45 tests in 200.9 s, OK**, including:
+  - `test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest … ok`
+    (stale `expectedHistorySha256` refused — `compacted:false`/`mismatch`, history and
+    session file unchanged — then matching digest applied — `compacted:true`,
+    shortened persisted messages);
+  - `test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive … ok`;
+  - `test_original_summary_compaction_executes_with_the_retained_dependency_subset … ok`.
+- Sibling steps in the same job: `hermes_source_contract.py` 5 tests OK,
+  `hermes_atomic_controls.py` 4 tests OK, memory-checkpoint steps OK.
+
+This is the real supported path — a spawned `worker.py` subprocess over JSON-RPC — executed on
+the repo's own Windows CI at the merged main cut. It establishes **code-level** native CAS
+behavior (matched apply + stale refusal) on Windows. It is not a claim of installed-desktop
+acceptance, reviewer approval, or flag enablement.
 
 ## Non-claims
 

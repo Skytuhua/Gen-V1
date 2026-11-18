@@ -135,6 +135,16 @@
       "exitCode": 1,
       "result": "21 passed / 4 failed; the 4 residuals are the same fixture-mount timeout class; every spec test passed in at least one run; U01 inspector tab-navigation and honest unknown/empty/failure rows pass at this cut",
       "bounding": "complete output"
+    },
+    {
+      "path": "logs/ci-hermes-cas-7ac80d87.log",
+      "sha256": "9122e47552e7a215785cfa72ad329a8e88801547a2fe98e1439eae1ed26d4a9e",
+      "bytes": 5946,
+      "testedCut": "7ac80d870ff7ff7dc021b0632ef07d631d489afc",
+      "command": "GitHub Actions ci.yml job 'Hermes contracts' (windows-latest): python -I -S -B tests/hermes_source_worker.py -v, plus sibling contract/atomic/memory steps",
+      "exitCode": 0,
+      "result": "job success at head_sha 7ac80d87 (check_run 135026554125, run 44367920580); CPython 3.14.10 on windows-2025-vs2026; worker suite 45 tests in 200.9s OK, including test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (stale-digest refusal + matching-digest apply), test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive, test_original_summary_compaction_executes_with_the_retained_dependency_subset; contract 5 + atomic 4 + memory checkpoint steps OK",
+      "bounding": "bounded excerpt of the Actions job log: runner/image/toolchain lines, step headers, named-case lines, suite totals, final OK"
     }
   ]
 }
