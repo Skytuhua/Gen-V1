@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/gesture-cleanup.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T10:28:51.696Z",
+  "endedAt": "2026-11-18T10:29:17.693Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-gesture-1.log",
+  "logDigest": "0b875f18cdf94cbb532f03fe1c0a776f1f61ea9da277c83a9c2356065ec4ebef"
+}
