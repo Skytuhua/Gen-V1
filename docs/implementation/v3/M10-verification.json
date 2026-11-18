@@ -1784,6 +1784,310 @@
         "docs/implementation/v6/M10/handoff-postmerge.md",
         "docs/implementation/v6/M10/logs-pm/"
       ]
+    },
+    {
+      "id": "m10.postmerge-v6-windows",
+      "status": "FAIL",
+      "platform": "win32-x64 (Windows 11 25H2 10.0.26200.9974; WIN-M0N0V07LGM1)",
+      "sourceSha": "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199",
+      "reportedBy": "t3-thread mcp:launch:26d517050bbdc5deb6d809892770f014e64161daca9195c3328ee6ae092b7a20",
+      "requiredCases": [
+        {
+          "id": "M10-C01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-C02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-C03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-C04",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S04",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S05",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S06",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S07",
+          "status": "BLOCKED",
+          "evidence": "HOLD_FORK_API unchanged; UNSUPPORTED_FORK verified"
+        },
+        {
+          "id": "M10-S08",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S09",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S10",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S11",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-S12",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-U01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-U02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-U03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-U04",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T04",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T05",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-T06",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-G01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-G02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-G03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-D01",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-D02",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-D03",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-D04",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        },
+        {
+          "id": "M10-D05",
+          "status": "PASS",
+          "evidence": "logs-pm/win-verifier-report.md"
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "install"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "wallClockSec": 244.18,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:widgets"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "wallClockSec": 0.51,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-work-v3.test.ts"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "passed": 43,
+          "failed": 0,
+          "wallClockSec": 28.28,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/human-handoff-v3.test.ts"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "passed": 11,
+          "failed": 0,
+          "wallClockSec": 80.85,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/external-intake-v3.test.ts"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "passed": 24,
+          "failed": 0,
+          "wallClockSec": 26.44,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/background-contract-decisions-v6.test.ts"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "passed": 5,
+          "failed": 0,
+          "wallClockSec": 6.41,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "background-work"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "passed": 12,
+          "failed": 0,
+          "wallClockSec": 45.61,
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "desktop:package"
+          ],
+          "exitCode": 1,
+          "status": "FAIL",
+          "classification": "ENV_MISSING",
+          "firstFailure": ".harness-hermes-python-deps ENOENT; no Setup.exe/win-unpacked produced",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "tsx",
+            "scripts/verify-installed-desktop.ts",
+            "<Setup.exe>",
+            "<win-unpacked>"
+          ],
+          "status": "NOT_RUN",
+          "classification": "UNSUPPORTED_ENV_MISSING",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M10/receipts-windows.jsonl",
+        "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+      ],
+      "notes": "Installed/native lane: vitest+browser PASS on win32 x64; installed-desktop packaging UNSUPPORTED (ENV_MISSING .harness-hermes-python-deps); supervisor/fork HELD; no flags set; remote verifier reported, owner recorded."
     }
   ],
   "changedFiles": [
@@ -2037,14 +2341,14 @@
     "HOLD_FORK_API: pinned Hermes wrapper exposes no callable fork API; review forks and idle model review remain UNSUPPORTED_FORK.",
     "HOLD_EXECUTION_PROFILE: production command launch requires an operator-approved M03 profile, trust and installed backend; none is configured on this host.",
     "Foreground-timeout Continue-in-background offer is not wired to the operation timeout surface; the permitted-profile command path itself is implemented and gated.",
-    "Windows/installed-desktop platform evidence absent; Linux aarch64 only.",
     "Live GitHub polling evidence absent; intake tested with injected authenticated fetch fixtures.",
     "Full pnpm test on the merged cut: 304 failed / 4115 passed / 62 skipped (4481) vs same-base baseline at 56749856: 306 failed / 4053 passed / 62 skipped (4421). All 304 candidate failure identities are shared with the baseline run \u2014 zero candidate-only failures; the 60-test delta is the new M10 suites, all passing. The 2 baseline-only identities (desktop-host startup collision, dev-plugin-runtime) are the same environmental/flaky class as the prior cut. Dominant causes unchanged: python3.14 absent (Hermes source worker), linux-path-guard denials, native/platform-specific suites.",
     "Full pnpm test:browser on the merged cut: TIMEOUT at the 60-minute receipt-runner bound (exit recorded, termination=TIMEOUT) after 35 suite groups under concurrent-agent machine load; 24 of the 35 failed \u2014 23 of 24 suite identities appear in the prior baseline's failed-suite list and the one new identity (m08-restore, a 20s load timeout) passes 7/7 in an isolated candidate rerun. The focused receipt pnpm test:browser --suite background-work exits 0 (11/11) on the merged cut. Missing Chrome/Edge channels (/opt/microsoft/msedge absent), fixed-port collisions with concurrent m04/m12/m14/m15 agent fixture servers and shared-machine load are not waived; a completed full-suite run remains an unmet gate.",
     "HOLD_SOURCE_DRIFT resolved in session 4: the conflicted join with origin/main (then 33639138, re-captured as 567498568611bc33379b31a0630dfaf3691b339f after further main drift) was resolved under explicit user authorization. Resolution kept both integrations \u2014 M15/M04 flag keys beside the four M10 keys, main's customDock/onActiveViewsChange split-root plus background-work wiring, main's CRLF server.ts plus both route registrations \u2014 no blanket ours/theirs. The earlier abort-and-hold record stays in the v6 handoff.",
     "Session-3 re-verification on the pre-merge cut (merge abort had restored a byte-identical tree): pnpm build:widgets, the four targeted suites (60/60 tests), pnpm typecheck, pnpm lint and pnpm build all exit 0; separate ledger receipts-r3.jsonl. Session-4 re-ran the full gate sequence on the merged cut with -final receipts; the pre-merge -final rows are preserved in receipts-final-archived.jsonl and git history.",
     "bundleStatus computes FAIL because the required full-repository gates fail on this environment; the deterministic M10 phases pass and the milestone outcome is PARTIAL with the named holds.",
-    "Post-merge session-5 verification on captured origin/main 4aef753e (cut includes squash 016738f7 + follow-up 1d65ae1e #786): four targeted suites PASS (43+11+24+5=83), lint PASS, build PASS, scoped browser suite PASS 11/11, typecheck PASS on run-4 with NODE_OPTIONS=--max-old-space-size=3584 after three default-heap exit134 OOMs under load-avg~20; full pnpm test FAIL exit1 (330 env-bound failures across 59 non-M10 files: python3.14 absent, platform drivers, pty; no M10-scoped file failed); HOLD_SOURCE_DRIFT recorded for the stale pre-squash branch join (moot: all content on main)."
+    "Post-merge session-5 verification on captured origin/main 4aef753e (cut includes squash 016738f7 + follow-up 1d65ae1e #786): four targeted suites PASS (43+11+24+5=83), lint PASS, build PASS, scoped browser suite PASS 11/11, typecheck PASS on run-4 with NODE_OPTIONS=--max-old-space-size=3584 after three default-heap exit134 OOMs under load-avg~20; full pnpm test FAIL exit1 (330 env-bound failures across 59 non-M10 files: python3.14 absent, platform drivers, pty; no M10-scoped file failed); HOLD_SOURCE_DRIFT recorded for the stale pre-squash branch join (moot: all content on main).",
+    "Windows x64 native vitest (83/83) and background-work browser (12/12) PASS on ff38c62c; installed-desktop lane UNSUPPORTED on WIN-M0N0V07LGM1 \u2014 packaging prerequisite .harness-hermes-python-deps absent; verify-installed-desktop NOT RUN."
   ],
   "reviewerApproval": false
 }

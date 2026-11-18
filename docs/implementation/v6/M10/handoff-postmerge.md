@@ -98,6 +98,38 @@ and the drift record stands for the branch line itself.
   `python3 docs/implementation/v6/M10/build-postmerge-receipts.py` then
   `python3 docs/implementation/v6/M10/update-postmerge-verification.py`.
 
+## Windows lane — session 6 (WIN-M0N0V07LGM1)
+
+Distinct installed/native lane run on the linked Windows box by one isolated
+verifier thread (worktree `t3-bda7e1cb`, model gpt-6.1-sol, verification-only —
+no commits/pushes/docs edits; final `git status` clean). Source pinned to
+current accepted main `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199`; `merge-base
+--is-ancestor` confirmed both `016738f7` (#501) and `1d65ae1e` (#786).
+Environment: Windows 11 Home/Core 25H2 build 10.0.26200.9974 x64, Node
+v24.14.0, pnpm 10.30.3, Playwright 1.56.1 bundled Chromium 141.0.7390.37.
+Verbatim report + per-command receipts: `logs-pm/win-verifier-report.md`,
+`receipts-windows.jsonl`.
+
+- `pnpm install` PASS, `pnpm build:widgets` PASS.
+- M10 vitest suites on win32: **83/83 PASS** (background-work 43,
+  human-handoff 11, external-intake 24, decisions 5) — real Windows-native
+  corroboration of the same suite set, matching the #501 windows-latest CI
+  lane (the suites' platform-honest verdicts encode the win32 expectations).
+- `pnpm test:browser --suite background-work`: **12/12 PASS** in bundled
+  Chromium — drawer lifecycle + Respond/Decline on Windows (win32 suite
+  carries 12 specs vs 11 on linux-aarch64).
+- `pnpm desktop:package`: exit 1, classified **ENV_MISSING** — packaging's
+  `collectHermesPayload` step requires `.harness-hermes-python-deps`, absent
+  from a fresh checkout; no artifacts JSON, Setup.exe or `win-unpacked`
+  produced. Per the no-fallback rule no substitute was installed, so the
+  declared installed lane `verify-installed-desktop.ts` was **NOT RUN** —
+  install / owned launch / CDP identity revalidation / UI acceptance /
+  uninstall all unexercised. Installed-desktop proof stays absent on this
+  box; see remaining gates.
+- Unsupported vs defect distinction: zero REAL_DEFECT failures; the only
+  non-pass is the packaging prerequisite (environment), recorded rather than
+  worked around.
+
 ## Holds carried forward (unchanged)
 
 - HOLD_SUPERVISOR (C4): no installed approved supervisor with target-platform
@@ -109,12 +141,18 @@ and the drift record stands for the branch line itself.
 - HOLD_SOURCE_DRIFT (this continuation): the stale pre-squash task line
   cannot be merged with current main without a prohibited blanket
   resolution; moot because the task content is already on main.
-- No Windows/installed-desktop evidence; no live GitHub polling or live
-  model execution (fixture-injected auth/fetch only).
+- Windows: native vitest + scoped-browser evidence now exists (session 6,
+  above). Installed-desktop proof still absent — the declared lane's
+  packaging prerequisite (`.harness-hermes-python-deps`) is missing on the
+  box; NOT RUN, not worked around. No live GitHub polling or live model
+  execution (fixture-injected auth/fetch only).
 
 ## Publication
 
-LOCAL_ONLY. No push, no remote merge, no force update. Production flags
+Evidence-only draft published per manager instruction as PR
+https://github.com/skytuhua-org/Gen-V1/pull/837 (branch
+`handoff/m10-postmerge-evidence`). No merge, no force update. Production
+flags
 `jobs.backgroundV1`, `jobs.serviceLifetimeV1`, `jobs.idleReviewV1`,
 `integrations.intakeV1` remain default-off; `reviewerApproval` remains
 false.

@@ -468,6 +468,33 @@
     },
     "verificationWorktree": "/home/piadmin/gv1-m10-v6-pmcheck (detached at 4aef753e; /tmp scratch worktree destroyed by /tmp wipe mid-session, first-pass results re-verified here)",
     "receipts": "docs/implementation/v6/M10/receipts-postmerge.jsonl",
-    "handoff": "docs/implementation/v6/M10/handoff-postmerge.md"
+    "handoff": "docs/implementation/v6/M10/handoff-postmerge.md",
+    "session6WindowsLane": {
+      "session": 6,
+      "instruction": "manager: run distinct M10 installed/native proof on linked Windows WIN-M0N0V07LGM1; no fallback, no flag activation; update draft #837 only; no merge",
+      "verifier": "isolated T3 thread mcp:launch:26d517050bbdc5deb6d809892770f014e64161daca9195c3328ee6ae092b7a20 (model gpt-6.1-sol) in worktree C:\\Users\\user\\.t3\\worktrees\\Generative Harness\\t3-bda7e1cb-57082b926f0db7f0; verification-only, no commits/pushes; final status clean",
+      "sourceSha": "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199",
+      "containsPrs": {
+        "501": "016738f7b57117ffe9dbbd756cb3cd173c01e202",
+        "786": "1d65ae1e",
+        "mergeBaseAncestry": "both exit 0"
+      },
+      "environment": "Windows 11 Home/Core 25H2 build 10.0.26200.9974 x64; Node v24.14.0; pnpm 10.30.3; Playwright 1.56.1 bundled Chromium 141.0.7390.37",
+      "results": {
+        "pnpm install": "PASS exit0",
+        "pnpm build:widgets": "PASS exit0",
+        "vitest": "PASS 83/83 (background-work 43, human-handoff 11, external-intake 24, decisions 5)",
+        "browser --suite background-work": "PASS 12/12 bundled Chromium",
+        "desktop:package": "FAIL exit1 ENV_MISSING .harness-hermes-python-deps; no Setup.exe/win-unpacked",
+        "verify-installed-desktop": "NOT_RUN UNSUPPORTED_ENV_MISSING (install/launch/CDP-identity/UI-acceptance/uninstall all unexercised; no workaround per no-fallback)",
+        "installedSupervisor": "HELD",
+        "forkApis": "HELD",
+        "flags": "unchanged default-off; reviewerApproval false",
+        "defects": "zero REAL_DEFECT failures observed"
+      },
+      "receipts": "docs/implementation/v6/M10/receipts-windows.jsonl",
+      "report": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md",
+      "verificationPhase": "m10.postmerge-v6-windows in docs/implementation/v3/M10-verification.json"
+    }
   }
 }
