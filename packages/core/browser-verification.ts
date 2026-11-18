@@ -118,12 +118,12 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
     return digest;
   };
 
-  const record = (itemId: string, assertion: string, observed: string, outcomeValue: VisualObservationV1['outcome'], screenshotDigest: string | null, artifactRefs: string[] = []) => {
+  const record = (itemId: string, assertion: string, observed: string, outcomeValue: VisualObservationV1['outcome'], screenshotDigest: string | null, artifactRefs: string[] = [], observationKind: 'browser' | 'visual' = 'browser') => {
     const observation: VisualObservationV1 = {
       version: 1, checkId: `vobs-${randomUUID()}`, executionId, owner: input.owner,
       ...input.digests, argv: ['browser-checklist', checklist.checklistId], cwdIdentity: 'browser-profile',
       phase: 'BROWSER', startedAt: now(), endedAt: now(), exitCode: outcomeValue === 'PASS' ? 0 : null,
-      outcome: outcomeValue, artifactRefs, observationKind: 'visual',
+      outcome: outcomeValue, artifactRefs, observationKind,
       checklistItemId: itemId, actionTraceId, origin: session.page.url(), viewport: checklist.viewport,
       assertion, observed, screenshotDigest,
     };
@@ -175,7 +175,9 @@ export async function runBrowserChecklist(store: Store, input: BrowserRunInput, 
       case 'SCREENSHOT': {
         const data = await Promise.race([session.page.screenshot(), deadline(BROWSER_STEP_TIMEOUT_MS)]);
         const digest = await writeShot(step.checklistItemId, data);
-        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [join(input.artifactDir, screenshots.get(step.checklistItemId)!)]);
+        // Capture is supporting evidence, distinct from an executed behavior
+        // assertion. Binding this record alone must never verify a requirement.
+        record(step.checklistItemId, 'Screenshot captured at tested viewport', `sha256:${digest}`, 'PASS', digest, [join(input.artifactDir, screenshots.get(step.checklistItemId)!)], 'visual');
         return 'ok';
       }
       case 'COLLECT_ERRORS': {

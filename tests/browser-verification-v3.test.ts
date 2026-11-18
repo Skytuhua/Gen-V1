@@ -123,6 +123,15 @@ it('a schema-valid record or image alone never produces PASS',async()=>{
  // a capture alone is not a verification.
  expect(result.observations.find(obs=>obs.checklistItemId==='item-1'&&obs.assertion.includes('executed assertion'))?.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='item-2')?.outcome).toBe('BLOCKED');
+ // A caller cannot turn the capture into success by binding its check ID
+ // while omitting the runner's blocked behavioral evidence.
+ const captured=result.observations.find(obs=>obs.screenshotDigest)!;
+ const assessment=computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[captured.checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ expect(assessment.label).toBe('BLOCKED');
 });
 
 it('an asserted item still needs its required screenshot',async()=>{
@@ -138,6 +147,25 @@ it('an asserted item still needs its required screenshot',async()=>{
  ],driver);
  expect(result.outcome).toBe('BLOCKED');
  expect(result.observations.find(obs=>obs.checklistItemId==='item-2'&&obs.assertion.includes('needs a screenshot'))?.outcome).toBe('BLOCKED');
+});
+
+it('a captured image cannot replace the explicit behavioral check binding',async()=>{
+ const store=stateStore();
+ const result=await run(store,[
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-1'},
+  {kind:'ASSERT_TEXT',selector:'h1',text:'Welcome home',checklistItemId:'item-2'},
+  {kind:'SCREENSHOT',checklistItemId:'item-2',required:true},
+ ],fakeDriver({texts:{h1:'Welcome home'}}));
+ expect(result.outcome).toBe('PASS');
+ const assess=(checkId:string)=>computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:digests.codeDigest,dependencyDigest:digests.dependencyDigest,environmentId:digests.environmentId},
+  requirements:[{id:'page-works',checkRefs:[checkId]}],observations:result.observations,
+  unresolvedEffects:[],verifierIdentity:'test',provenance:'test',
+ });
+ const capture=result.observations.find(obs=>obs.screenshotDigest)!;
+ const behavior=result.observations.find(obs=>obs.checklistItemId==='item-2'&&!obs.screenshotDigest)!;
+ expect(assess(capture.checkId).label).toBe('COMPLETED_UNVERIFIED');
+ expect(assess(behavior.checkId).label).toBe('VERIFIED');
 });
 
 it('the origin policy blocks unapproved traffic at request time',async()=>{
