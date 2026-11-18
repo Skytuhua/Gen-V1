@@ -105,7 +105,16 @@ if (after) {
     readmissionError = error.code ?? String(error);
   }
 }
+// Reported so the durability assertions can also prove the recovered grant is
+// still the one the killed process signed, not an unsigned substitute.
+const recoveredApproval = ledger.approvalFor(operation.id);
+let approvalAuthenticated = false;
+if (recoveredApproval?.hostAuthenticator) {
+  const signer = effectSigner(), { hostAuthenticator, ...fields } = recoveredApproval;
+  approvalAuthenticated = hostAuthenticator.keyId === signer.keyId && signer.verify('grant', fields, hostAuthenticator.tag);
+}
 const result = {
+  approvalAuthenticated,
   beforeState: before?.state ?? null, state: after?.state ?? null,
   transitions: after?.transitions.map(item => item.to) ?? null,
   remainingUses: ledger.approvalFor(operation.id)?.remainingUses,
