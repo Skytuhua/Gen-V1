@@ -87,6 +87,9 @@ export function sourceDigestSync(root: string, files: readonly string[]): string
     if (!inside(base, candidate)) throw new HarnessError('CAPABILITY_DENIED', 'A digest input leaves the workspace root');
     const info = statSync(candidate, { bigint: true });
     if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Digest inputs must be regular files');
+    // Refuse the declared size before reading: this variant runs inside Store
+    // callbacks, so an oversized input must not be materialized to discover it.
+    if (info.size > BigInt(MAX_DIGEST_FILE_BYTES)) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the size limit');
     const data = readFileSync(candidate);
     if (data.length > MAX_DIGEST_FILE_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Digest input exceeds the size limit');
     items.push({ path: relative, sha256: createHash('sha256').update(data).digest('hex') });

@@ -3227,6 +3227,7 @@
     "tests/skills.test.ts",
     "tests/software-development.test.ts",
     "tests/source-composer-v3.test.ts",
+    "tests/source-digest-bound-v3.test.ts",
     "tests/source-draft-transfer-v3.test.ts",
     "tests/source-handoff-v3.test.ts",
     "tests/source-lock-ancestry-v3.test.ts",
