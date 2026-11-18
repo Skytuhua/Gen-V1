@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { HarnessError, type Operation, type Thread, type ToolCall } from "../contracts/index.ts";
 import {
   toolEffectSchema,
+  authenticatedApprovalSchema,
   type ActorRole,
   type ApprovalV1,
   type EffectState,
@@ -12,11 +13,13 @@ import {
 import { authorize, type RegistryEntry, type ToolAuthority } from "./tool-authority.ts";
 import { createCapabilityFlags, type CapabilityFlags } from "./capability-flags.ts";
 import { digest, type Store } from "../storage/store.ts";
+import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
+import { EffectAdmissionPolicy } from "./effect-admission-policy.ts";
 
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
 const CONTROL_KEYS = new Set(["commandId", "invocationId"]);
-const SECRET_KEY = /secret|token|password|credential|api[_-]?key/i;
+const SECRET_KEY = /secret|token|password|credential|api[_-]?key|authorization|cookie/i;
 const TRANSITION_CAP = 200;
 
 /** Test-only seam: throws injected faults at durability boundaries
@@ -34,6 +37,13 @@ export function ownerFor(thread: Thread, ctx?: { threadId: string; runId?: strin
     workspaceId: thread.workspaceId ?? null,
     accountBinding: thread.accountId ?? null,
   };
+}
+
+/** A cached outcome is private to the complete original owner and schema. */
+function matchesInvocation(prior: ToolEffectRecord, owner: ToolOwner, definition: RegistryEntry, commitment: string): boolean {
+  return prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch
+    && prior.owner.accountBinding === owner.accountBinding && prior.owner.projectId === owner.projectId && prior.owner.workspaceId === owner.workspaceId
+    && prior.toolId === definition.id && prior.definitionDigest === definition.schemaDigest && prior.privateArgumentCommitment === commitment;
 }
 
 const stripControl = (args: Record<string, unknown>): Record<string, unknown> =>
@@ -61,8 +71,8 @@ export function publicRedactedSummary(call: ToolCall): string {
 
 /** Binds args, executable identity (kind+digest), target revision and the
  * thread's account/project/workspace/epoch into one approval commitment. */
-export function actionCommitment(operation: Operation, thread: Thread): string {
-  return digest({
+function actionPayload(operation: Operation, thread: Thread) {
+  return {
     operationId: operation.id,
     revision: operation.revision,
     kind: operation.kind,
@@ -74,8 +84,9 @@ export function actionCommitment(operation: Operation, thread: Thread): string {
     projectId: thread.projectId ?? null,
     workspaceId: thread.workspaceId ?? null,
     epoch: thread.epoch,
-  });
+  };
 }
+export function actionCommitment(operation: Operation, thread: Thread): string { return digest(actionPayload(operation, thread)); }
 
 const settled = (state: EffectState): boolean => ["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(state);
 
@@ -89,7 +100,43 @@ export function createToolEffectFlags(overrides?: Partial<Record<ToolEffectFlag,
 }
 
 export class ToolEffectLedger {
-  constructor(private readonly store: Store, private readonly authority: ToolAuthority, private readonly flags = createToolEffectFlags()) {}
+  private readonly admissionPolicy: EffectAdmissionPolicy;
+  constructor(private readonly store: Store, private readonly authority: ToolAuthority, private readonly flags = createToolEffectFlags(), private readonly authenticator?: EffectAuthenticator) {
+    this.admissionPolicy = new EffectAdmissionPolicy(store, flags);
+  }
+  admissionsDisabled(): boolean { return this.admissionPolicy.disabled; }
+  assertAdmissionsEnabled(): void { this.admissionPolicy.assertEnabled(); }
+
+  private authenticated(): boolean { return this.flags.enabled("audit.effectsV1") || this.flags.enabled("security.authorityV1"); }
+  private signer(): EffectAuthenticator {
+    if (!this.authenticator) throw new HarnessError("EFFECT_KEY_UNAVAILABLE", "Protected effect authority is unavailable.");
+    return this.authenticator;
+  }
+  privateArgumentCommitment(call: ToolCall): string {
+    return this.authenticated() ? this.signer().commit("arguments", { name: call.name, args: stripControl(call.args) }) : privateArgumentCommitment(call);
+  }
+  private actionCommitment(operation: Operation, thread: Thread): string {
+    return this.authenticated() ? this.signer().commit("action", actionPayload(operation, thread)) : actionCommitment(operation, thread);
+  }
+  private stampApproval(approval: ApprovalV1): ApprovalV1 {
+    const signer = this.signer(), { hostAuthenticator: _previous, ...fields } = approval;
+    return { ...fields, hostAuthenticator: { version: 1, keyId: signer.keyId, tag: signer.commit("grant", fields) } };
+  }
+  private verifyAuthenticatedApproval(approval: ApprovalV1, owner: ToolOwner, operation: Operation, thread: Thread): void {
+    const signer = this.signer(), parsed = authenticatedApprovalSchema.safeParse(approval);
+    if (!parsed.success) throw new HarnessError("APPROVAL_REQUIRED", "The approval is not authenticated; approve the current intent again");
+    const { hostAuthenticator, ...fields } = parsed.data;
+    const issued = Date.parse(fields.issuedAt), expires = Date.parse(fields.expiresAt), time = Date.now();
+    if (!Number.isFinite(issued) || !Number.isFinite(expires) || issued > time || expires <= issued || expires - issued > APPROVAL_TTL_MS)
+      throw new HarnessError("APPROVAL_REQUIRED", "The approval has invalid authenticated timing");
+    if (fields.remainingUses !== 1 || expires <= time) throw new HarnessError("APPROVAL_REQUIRED", "Approval has expired or is already consumed");
+    if (hostAuthenticator.keyId !== signer.keyId || !signer.verify("grant", fields, hostAuthenticator.tag))
+      throw new HarnessError("APPROVAL_REQUIRED", "The approval authenticator is invalid; approve the current intent again");
+    if (digest(fields.owner) !== digest(owner)) throw new HarnessError("APPROVAL_REQUIRED", "The approved owner changed; approve the current intent again");
+    if (fields.operationId !== operation.id || fields.actionCommitment !== this.actionCommitment(operation, thread)
+      || digest(fields.targetPreconditions) !== digest(Object.entries(operation.preconditions).map(([key, value]) => key + "=" + value)))
+      throw new HarnessError("APPROVAL_REQUIRED", "The approved action changed; approve the current intent again");
+  }
 
   get(invocationId: string): ToolEffectRecord | null {
     return this.store.get<ToolEffectRecord>("toolEffect", invocationId);
@@ -121,25 +168,27 @@ export class ToolEffectLedger {
     owner: ToolOwner;
     definition: RegistryEntry;
     approvalId?: string | null;
+    approvalContext?: { operation: Operation; thread: Thread };
     parentInvocationId?: string | null;
     targetPreconditions?: string[];
     extraPut?: () => void;
   }): ToolEffectRecord {
+    this.assertAdmissionsEnabled();
     const { call, owner, definition } = input;
     const invocationId = String(call.args.commandId ?? call.args.invocationId ?? randomUUID());
-    const commitment = privateArgumentCommitment(call);
+    const commitment = this.privateArgumentCommitment(call);
     let effect!: ToolEffectRecord;
     this.store.internal("toolEffect.admitted", owner.threadId, () => {
       fault("admission");
       const prior = this.get(invocationId);
       if (prior) {
-        if (prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch && prior.privateArgumentCommitment === commitment) {
+        if (matchesInvocation(prior, owner, definition, commitment)) {
           effect = prior;
           return { effectId: prior.effectId, invocationId, state: prior.state, reused: true };
         }
         throw new HarnessError("INVOCATION_CONFLICT", "This invocation ID was already used with different arguments or owner");
       }
-      if (input.approvalId) this.consumeApproval(input.approvalId, owner);
+      if (input.approvalId) this.consumeApproval(input.approvalId, owner, input.approvalContext);
       const created = toolEffectSchema.parse({
         effectId: "eff_" + invocationId.slice(0, 48),
         invocationId,
@@ -167,11 +216,16 @@ export class ToolEffectLedger {
     return effect;
   }
 
-  private consumeApproval(approvalId: string, owner: ToolOwner): void {
+  private consumeApproval(approvalId: string, owner: ToolOwner, context?: { operation: Operation; thread: Thread }): void {
     const approval = this.store.get<ApprovalV1>("approval", approvalId);
-    if (!approval || approval.owner.threadId !== owner.threadId) throw new HarnessError("APPROVAL_REQUIRED", "Approval is unavailable for this owner");
+    if (!approval || approval.approvalId !== approvalId || approval.owner?.threadId !== owner.threadId) throw new HarnessError("APPROVAL_REQUIRED", "Approval is unavailable for this owner");
+    if (this.authenticated()) {
+      if (!context) throw new HarnessError("APPROVAL_REQUIRED", "Approval requires its exact operation context");
+      this.verifyAuthenticatedApproval(approval, owner, context.operation, context.thread);
+    }
     if (approval.remainingUses < 1 || approval.expiresAt <= now()) throw new HarnessError("APPROVAL_REQUIRED", "Approval has expired or is already consumed");
-    this.store.put("approval", approvalId, approval.owner.threadId, { ...approval, remainingUses: 0 });
+    const spent = { ...approval, remainingUses: 0 };
+    this.store.put("approval", approvalId, approval.owner.threadId, this.authenticated() ? this.stampApproval(spent) : spent);
   }
 
   settle(invocationId: string, outcome: { value?: unknown; error?: string }, state: "SUCCEEDED" | "FAILED" | "CANCELLED" | "UNKNOWN_EXTERNAL_OUTCOME", providerReceiptRef?: string | null): ToolEffectRecord {
@@ -187,18 +241,20 @@ export class ToolEffectLedger {
   }
 
   issueApproval(operation: Operation, thread: Thread): ApprovalV1 {
-    const issuedAt = now();
-    return {
+    this.assertAdmissionsEnabled();
+    const time = Date.now(), issuedAt = new Date(time).toISOString();
+    const approval: ApprovalV1 = {
       approvalId: randomUUID(),
       operationId: operation.id,
-      actionCommitment: actionCommitment(operation, thread),
+      actionCommitment: this.actionCommitment(operation, thread),
       owner: ownerFor(thread),
       targetPreconditions: Object.entries(operation.preconditions).map(([key, value]) => key + "=" + value),
       issuedAt,
-      expiresAt: new Date(Date.now() + APPROVAL_TTL_MS).toISOString(),
+      expiresAt: new Date(time + APPROVAL_TTL_MS).toISOString(),
       remainingUses: 1,
       issuer: "authenticated_user",
     };
+    return this.authenticated() ? this.stampApproval(approval) : approval;
   }
 
   /** Admission for a prepared Operation: consume its single-use approval and
@@ -210,15 +266,17 @@ export class ToolEffectLedger {
     const prior = this.get(invocationId);
     if (prior && settled(prior.state)) return prior;
     if (prior) throw new HarnessError("INVOCATION_IN_FLIGHT", "This operation dispatch is already in flight");
+    this.assertAdmissionsEnabled();
     const call: ToolCall = { name: "operation:" + operation.kind, args: { invocationId, operationId: operation.id, ...operation.args } };
     const approvalId = this.flags.enabled("security.authorityV1") ? (this.approvalFor(operation.id)?.approvalId ?? null) : null;
+    if (this.flags.enabled("security.authorityV1") && !approvalId) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     return this.admit({
       call,
       owner: ownerFor(thread),
       definition: {
         id: "operation:" + operation.kind,
         version: 1,
-        schemaDigest: digest({ kind: operation.kind, args: operation.args }),
+        schemaDigest: this.authenticated() ? this.signer().commit("operation-definition", { kind: operation.kind, args: operation.args }) : digest({ kind: operation.kind, args: operation.args }),
         risk: "HOST_EXECUTE",
         replayClass: "NONREPLAYABLE",
         allowedRoles: ["run", "user"],
@@ -226,6 +284,7 @@ export class ToolEffectLedger {
         approval: "operation",
       },
       approvalId,
+      approvalContext: { operation, thread },
       targetPreconditions: Object.entries(operation.preconditions).map(([key, value]) => key + "=" + value),
       extraPut: markRunning,
     });
@@ -242,18 +301,18 @@ export class ToolEffectLedger {
   /** Consume a recorded approval for dispatch; verifies the commitment still
    * matches the current operation and thread before the single use is spent. */
   verifyOperationApproval(operation: Operation, thread: Thread): void {
+    this.assertAdmissionsEnabled();
     if (!this.flags.enabled("security.authorityV1")) return;
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
-    if (approval.actionCommitment !== actionCommitment(operation, thread)) throw new HarnessError("APPROVAL_REQUIRED", "The approved action changed; approve the current intent again");
-    if (approval.owner.accountBinding !== (thread.accountId ?? null) || approval.owner.projectId !== (thread.projectId ?? null) || approval.owner.workspaceId !== (thread.workspaceId ?? null) || approval.owner.epoch !== thread.epoch)
-      throw new HarnessError("APPROVAL_REQUIRED", "The approved owner changed; approve the current intent again");
+    this.verifyAuthenticatedApproval(approval, ownerFor(thread), operation, thread);
   }
 
   /** Gate + admit + dispatch + settle one host tool call. ctx may omit runId/
    * epoch to bind the invocation to the thread's current owner (e.g. learning
    * jobs that outlive the run they review). */
   async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
+    this.assertAdmissionsEnabled();
     const { call, ctx, thread, role } = input;
     const definition = this.authority.require(call.name);
     const owner = ownerFor(thread, ctx);
@@ -266,8 +325,19 @@ export class ToolEffectLedger {
     });
     const invocationId = String(call.args.commandId ?? call.args.invocationId ?? "");
     const prior = invocationId ? this.get(invocationId) : undefined;
+    // Dedupe does not grant access to cached output after current authority is
+    // revoked. Preserve the original receipt rather than overwriting its history
+    // with a new denial under the same invocation ID.
+    if (prior && decision.kind === "DENY")
+      throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason);
     if (prior) {
-      if (prior.owner.threadId === owner.threadId && prior.owner.runId === owner.runId && prior.owner.epoch === owner.epoch && prior.privateArgumentCommitment === privateArgumentCommitment(call)) {
+      if (matchesInvocation(prior, owner, definition, this.privateArgumentCommitment(call))) {
+        // Reusing a receipt is still a read under today's authority. Refusal
+        // must not overwrite the original effect or its historical outcome.
+        if (decision.kind === "DENY")
+          throw new HarnessError("AUTHORITY_DENIED", "Tool call denied by authority: " + decision.reason, { effectId: prior.effectId });
+        if (decision.kind === "REQUIRE_APPROVAL")
+          throw new HarnessError("APPROVAL_REQUIRED", "This effect requires explicit user approval before dispatch", { effectId: prior.effectId });
         if (prior.state === "SUCCEEDED") return prior.outcome?.value;
         if (prior.state === "FAILED" || prior.state === "DENIED" || prior.state === "CANCELLED")
           throw new HarnessError("EFFECT_" + prior.state, prior.outcome?.error ?? "This invocation already settled: " + prior.state);
@@ -321,7 +391,7 @@ export class ToolEffectLedger {
         owner,
         toolId: definition.id,
         definitionDigest: definition.schemaDigest,
-        privateArgumentCommitment: privateArgumentCommitment(call),
+        privateArgumentCommitment: this.privateArgumentCommitment(call),
         publicRedactedSummary: publicRedactedSummary(call),
         targetPreconditions: [],
         approvalId: null,

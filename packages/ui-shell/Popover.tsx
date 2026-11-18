@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState, type HTMLAttributes, type ReactNode, type RefObject } from 'react';
 import { createPortal } from 'react-dom';
-import { placePopover, type OverlayAnchor, type PopoverPlacement } from './overlay-position';
+import { placePopover, type OverlayAnchor, type OverlaySide, type PopoverPlacement } from './overlay-position';
 import { retainFocus } from './focus-retention';
 import './tokens.css';
 
@@ -14,7 +14,7 @@ export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'chil
   present?: boolean;
   width: number;
   height: number;
-  preferredSide?: 'above' | 'below';
+  preferredSide?: OverlaySide;
   align?: 'start' | 'end';
   layoutRevision?: number;
   onDismiss: () => void;

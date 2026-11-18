@@ -206,29 +206,43 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // at checklist admission (browserChecklistSchema).
   const isAuditMarker = (obs: CheckObservationV1) =>
     'checklistItemId' in obs && typeof obs.checklistItemId === 'string' && obs.checklistItemId.startsWith('__');
+  const executionKey = (obs: CheckObservationV1) => JSON.stringify([
+    obs.executionId, obs.owner.threadId, obs.owner.runId, obs.owner.epoch,
+    obs.owner.projectId, obs.owner.workspaceId, obs.owner.accountBinding,
+  ]);
+  const canVerify = (obs: CheckObservationV1) => !isAuditMarker(obs) &&
+    obs.observationKind !== 'review-advisory' && obs.observationKind !== 'visual';
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
+    // Direct check bindings still inherit the terminal state of the execution
+    // that produced them. A caller cannot omit cleanup, cancellation or failed
+    // assertions by choosing only a passing check. Include the complete owner
+    // identity so an execution ID collision cannot import another run's state.
+    const executions = new Set(bound.map(executionKey));
+    const executionChecks = input.observations.filter(obs => executions.has(executionKey(obs)));
     const missing: string[] = [];
-    if (!bound.length) missing.push(`no observation bound to ${req.id}`);
+    if (!req.checkRefs.length) missing.push(`no observation bound to ${req.id}`);
+    // Every declared reference is required. An execution reference includes
+    // all checks it produced, so one fresh PASS cannot hide a missing, stale
+    // or unsettled sibling check. Advisory and audit-only evidence cannot
+    // satisfy a reference even when its recorded outcome is PASS.
+    for (const ref of new Set(req.checkRefs)) {
+      const checks = bound.filter(obs => match(obs, ref));
+      const refExecutions = new Set(checks.map(executionKey));
+      const related = executionChecks.filter(obs => refExecutions.has(executionKey(obs)));
+      if (!checks.length) missing.push(`no observation bound to ${ref} for ${req.id}`);
+      else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
+        missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
+      else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
+        !checks.some(obs => obs.outcome === 'PASS' && canVerify(obs)))
+        missing.push(`evidence for ${req.id} (${ref}) is indeterminate or missing`);
+    }
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
-    if (bound.length) {
-      const fresh = bound.filter(obs => observationFreshness(obs, current) === 'CURRENT');
-      const stale = bound.filter(obs => observationFreshness(obs, current) === 'STALE');
-      if (bound.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
-        assessment = bound.some(obs => obs.outcome === 'BLOCKED') && !bound.some(obs => obs.outcome === 'FAIL') ? 'BLOCKED' : 'FAILED';
-      } else if (stale.length === bound.length) {
-        assessment = 'UNVERIFIED';
-        missing.push(`evidence for ${req.id} is stale against the current source`);
-      // M07 review-advisory observations (language diagnostics, debug state)
-      // inform review but are not executed checks: like audit markers their
-      // PASS cannot verify, while their FAIL/BLOCKED/CANCELLED stay effective.
-      } else if (fresh.some(obs => obs.outcome === 'PASS' && !isAuditMarker(obs) && obs.observationKind !== 'review-advisory')) {
-        assessment = 'VERIFIED';
-      } else {
-        assessment = 'UNVERIFIED';
-        missing.push(`evidence for ${req.id} is indeterminate or missing`);
-      }
+    if (executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
+      assessment = executionChecks.some(obs => obs.outcome === 'BLOCKED') && !executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'CANCELLED') ? 'BLOCKED' : 'FAILED';
+    } else if (req.checkRefs.length && !missing.length) {
+      assessment = 'VERIFIED';
     }
     return { id: req.id, checkRefs: req.checkRefs, assessment, missing };
   });
