@@ -1,0 +1,16 @@
+== bounded redacted evidence summary ==
+originalSha256: da8b9f35e10a8b7330d700bfd2a01da91c6025fe8fe1afcf72f004c803f9e3d1
+originalBytes: 1364
+flags: machinePath=False ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:411:1
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:477:1
+ Test Files  6 failed | 4 passed (10)
+      Tests  29 failed | 127 passed (156)
+   Duration  1568.49s (transform 1.81s, setup 0ms, import 4.48s, tests 1562.13s, environment 1ms)

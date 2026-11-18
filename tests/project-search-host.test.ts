@@ -328,7 +328,7 @@ it('uses an acquired real Windows guard for ordinary reads; unsupported platform
   const f = await fixture(); await f.write('a.txt', 'needle');
   const actual = await vi.importActual<typeof import('../packages/core/file-access.ts')>('../packages/core/file-access.ts');
   vi.mocked(withPathGuard).mockImplementation(actual.withPathGuard);
-  if (process.platform === 'win32') {
+  if (process.platform === 'win32' || process.platform === 'linux') {
     // Keep cold PowerShell startup outside the scan budget; nested acquisitions still use the real guard.
     await actual.withPathGuard([{ path: await fs.realpath(f.path), leaf: false }], new AbortController().signal, async () => {
       const result = await f.search.search(f.projectId, { q: 'needle' });

@@ -1,6 +1,6 @@
 import { afterEach,expect, it } from 'vitest';
 import { join } from 'node:path';
-import {mkdtempSync,mkdirSync,renameSync,rmSync,symlinkSync,linkSync,writeFileSync,readFileSync,readdirSync,existsSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,renameSync,rmSync,symlinkSync,linkSync,unlinkSync,writeFileSync,readFileSync,readdirSync,existsSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import { accountProfileRoot, providerAccountKey,withAccountProfile } from '../packages/runtime/account-profile.ts';
 import type { ConnectionAccount } from '../packages/contracts/accounts.ts';
@@ -28,7 +28,7 @@ it('rejects unsaved IDs and unavailable providers before constructing a profile 
 it('rejects an accounts junction and holds the acquired namespace against replacement',async()=>{
  const root=directory(),outside=directory();symlinkSync(outside,join(root,'accounts'),'junction');let entered=false;
  await expect(withAccountProfile(root,account,async()=>{entered=true;})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(entered).toBe(false);
- rmSync(join(root,'accounts'));mkdirSync(join(root,'accounts'));
+ unlinkSync(join(root,'accounts'));mkdirSync(join(root,'accounts'));
  await withAccountProfile(root,account,async profile=>{expect(profile).toBe(accountProfileRoot(root,account));expect(()=>renameSync(profile,profile+'-moved')).toThrow();expect(()=>renameSync(join(root,'accounts'),join(root,'accounts-moved'))).toThrow();});
  renameSync(accountProfileRoot(root,account),accountProfileRoot(root,account)+'-moved');
 });
@@ -36,7 +36,7 @@ it('rejects an accounts junction and holds the acquired namespace against replac
 it('rejects native descendant directory redirects and hardlinked credential files before entry',async()=>{
  const root=directory(),outside=directory(),profile=accountProfileRoot(root,account);mkdirSync(profile,{recursive:true});symlinkSync(outside,join(profile,'pi'),'junction');let entered=false;
  await expect(withAccountProfile(root,account,async()=>{entered=true;})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(entered).toBe(false);
- rmSync(join(profile,'pi'));mkdirSync(join(profile,'pi'));writeFileSync(join(outside,'synthetic.json'),'synthetic');linkSync(join(outside,'synthetic.json'),join(profile,'pi','auth.json'));
+ unlinkSync(join(profile,'pi'));mkdirSync(join(profile,'pi'));writeFileSync(join(outside,'synthetic.json'),'synthetic');linkSync(join(outside,'synthetic.json'),join(profile,'pi','auth.json'));
  await expect(withAccountProfile(root,account,async()=>{entered=true;})).rejects.toMatchObject({code:'CAPABILITY_DENIED'});expect(entered).toBe(false);
 });
 

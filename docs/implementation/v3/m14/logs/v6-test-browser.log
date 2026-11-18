@@ -1,0 +1,120 @@
+        pnpm exec playwright show-trace test-results/browser/run-1794881449230-b415a687-1a31-4fce-bc8d-ff1644c074b6/ui-shell-overlays/artifacts/ui-shell-overlays-short-da-edc50-low-native-caption-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/ui-shell-overlays.spec.ts:139:1 › overlay focus recovery skips controls hidden by CSS visibility 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at <msedge-dir>/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794881449230-b415a687-1a31-4fce-bc8d-ff1644c074b6/ui-shell-overlays/artifacts/ui-shell-overlays-overlay--ecf52-ls-hidden-by-CSS-visibility/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794881449230-b415a687-1a31-4fce-bc8d-ff1644c074b6/ui-shell-overlays/artifacts/ui-shell-overlays-overlay--ecf52-ls-hidden-by-CSS-visibility/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/ui-shell-overlays.spec.ts:156:1 › a tall tooltip stays visible in a short viewport when neither side fits 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at <msedge-dir>/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794881449230-b415a687-1a31-4fce-bc8d-ff1644c074b6/ui-shell-overlays/artifacts/ui-shell-overlays-a-tall-t-baa60-port-when-neither-side-fits/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794881449230-b415a687-1a31-4fce-bc8d-ff1644c074b6/ui-shell-overlays/artifacts/ui-shell-overlays-a-tall-t-baa60-port-when-neither-side-fits/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15 failed
+    tests/e2e/ui-shell-overlays.spec.ts:12:1 › a model popup belongs to its native modal and keeps selection, draft and Escape usable 
+    tests/e2e/ui-shell-overlays.spec.ts:26:30 › modal-owned model popup remains inside viewport at CSS zoom 1.25 
+    tests/e2e/ui-shell-overlays.spec.ts:26:30 › modal-owned model popup remains inside viewport at CSS zoom 1.5 
+    tests/e2e/ui-shell-overlays.spec.ts:35:1 › blocking dialog backdrops blur the background without blurring their content 
+    tests/e2e/ui-shell-overlays.spec.ts:44:1 › composition Escape and Enter neither close the popup nor select a model 
+    tests/e2e/ui-shell-overlays.spec.ts:56:1 › legacy composition Escape keeps the model popup and owning dialog open 
+    tests/e2e/ui-shell-overlays.spec.ts:64:1 › first opening a long catalog reveals the committed selected model 
+    tests/e2e/ui-shell-overlays.spec.ts:76:1 › Escape closes a popup before its surrounding ARIA modal region 
+    tests/e2e/ui-shell-overlays.spec.ts:86:1 › a disabled control drops focus to body but the modal pulls it back inside 
+    tests/e2e/ui-shell-overlays.spec.ts:97:1 › a popover keeps focus inside when its focused action disables 
+    tests/e2e/ui-shell-overlays.spec.ts:110:1 › a popover still dismisses when focus moves to a control outside it 
+    tests/e2e/ui-shell-overlays.spec.ts:123:5 › narrow light › popup fits its first visible frame below native caption controls 
+    tests/e2e/ui-shell-overlays.spec.ts:123:5 › short dark › popup fits its first visible frame below native caption controls 
+    tests/e2e/ui-shell-overlays.spec.ts:139:1 › overlay focus recovery skips controls hidden by CSS visibility 
+    tests/e2e/ui-shell-overlays.spec.ts:156:1 › a tall tooltip stays visible in a short viewport when neither side fits 
+
+Browser suite: file-checkpoints (1 spec files)
+
+Running 21 tests using 1 worker
+
+  ✓   1 tests/e2e/file-checkpoints.spec.ts:6:36 › History and existing diff review fit 1440 (11.0s)
+  ✓   2 tests/e2e/file-checkpoints.spec.ts:6:36 › History and existing diff review fit 1024 (6.0s)
+  ✓   3 tests/e2e/file-checkpoints.spec.ts:6:36 › History and existing diff review fit 768 (4.0s)
+  ✓   4 tests/e2e/file-checkpoints.spec.ts:22:1 › Current and Recorded remain separate, keyboard reachable sources (3.1s)
+  ✓   5 tests/e2e/file-checkpoints.spec.ts:32:1 › empty, failed/retry, denied and unavailable are honest read states (7.8s)
+  ✓   6 tests/e2e/file-checkpoints.spec.ts:40:1 › held responses are cancelled on owner changes and cannot paint stale history (2.5s)
+  ✓   7 tests/e2e/file-checkpoints.spec.ts:46:1 › review holds, rejects foreign/expired revisions, and never invokes writes (8.3s)
+  ✓   8 tests/e2e/file-checkpoints.spec.ts:57:1 › binary, missing and renamed files retain provenance (5.5s)
+  ✓   9 tests/e2e/file-checkpoints.spec.ts:66:1 › stress names, light theme and 150% zoom preserve actions and immediate motion (3.5s)
+  ✓  10 tests/e2e/file-checkpoints.spec.ts:83:1 › frozen detail supplies all 100 paths before review, without summary paths (2.4s)
+  ✓  11 tests/e2e/file-checkpoints.spec.ts:92:1 › leading-space paths reach the review adapter unchanged (2.4s)
+  ✓  12 tests/e2e/file-checkpoints.spec.ts:100:1 › incomplete detail or review is explicit and cannot masquerade as a full comparison (5.4s)
+  ✓  13 tests/e2e/file-checkpoints.spec.ts:107:1 › root binding and unified diff truncation stay visible without inventing a file pair (4.2s)
+  ✓  14 tests/e2e/file-checkpoints.spec.ts:116:1 › leaving during detail loading cancels the review request (2.4s)
+  ✓  15 tests/e2e/file-checkpoints.spec.ts:123:36 › QA r2: held list does not move the painted caption at 1440 (2.2s)
+  ✓  16 tests/e2e/file-checkpoints.spec.ts:123:36 › QA r2: held list does not move the painted caption at 1024 (2.4s)
+  ✓  17 tests/e2e/file-checkpoints.spec.ts:123:36 › QA r2: held list does not move the painted caption at 768 (2.3s)
+  ✓  18 tests/e2e/file-checkpoints.spec.ts:134:1 › QA r2: long checkpoint requests remain bounded and every part keeps its identity (3.1s)
+  ✓  19 tests/e2e/file-checkpoints.spec.ts:146:1 › later review failures or duplicate identities never present a complete checkpoint (6.5s)
+  ✓  20 tests/e2e/file-checkpoints.spec.ts:154:1 › QA #130 displays escaped control paths and reviews their exact original bytes (2.6s)
+  ✓  21 tests/e2e/file-checkpoints.spec.ts:162:1 › recorded comparison preferences have real renderer effects with explicit scope (T07) (8.1s)
+
+  21 passed (1.8m)
+
+Browser suite: m08-restore (2 spec files)
+
+Running 7 tests using 1 worker
+
+  ✓  1 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (populated rollup) (11.2s)
+  ✓  2 tests/e2e/m08-pr-checks.spec.ts:20:53 › pull-request panel renders .pr-checks (empty rollup) (2.9s)
+  ✓  3 tests/e2e/m08-restore-ui.spec.ts:15:1 › plan shows confirmation with planned paths; cancel resets; confirm applies (3.7s)
+  ✓  4 tests/e2e/m08-restore-ui.spec.ts:49:1 › conflict apply result names the skipped files (3.2s)
+  ✓  5 tests/e2e/m08-restore-ui.spec.ts:65:1 › disabled restore adapter shows its reason and no file checkboxes (1.8s)
+  ✓  6 tests/e2e/m08-restore-ui.spec.ts:72:1 › uncertain partial recovery never claims files were restored (2.1s)
+  ✓  7 tests/e2e/m08-restore-ui.spec.ts:85:1 › actual App reports an uncertain restore without claiming success (10.9s)
+
+  7 passed (44.6s)
+
+Browser suite: files-reading (1 spec files)
+
+Running 46 tests using 1 worker
+
+  ✘   1 [files-reading] › tests/e2e/files-reading.spec.ts:71:1 › RED source: denied A then successful B clears the project preview error (40ms)
+
+Browser suite: generated-selects (3 spec files)
+ ELIFECYCLE  Command failed.
+
+Running 42 tests using 1 worker
+
+  ✘   1 [generated-controls] › tests/e2e/generated-selects.spec.ts:14:1 › review: unmatched catalog displays its placeholder without changing saved state (9ms)
+  ✘   2 [generated-controls] › tests/e2e/generated-selects.spec.ts:18:1 › review: explicitly clearing unmatched catalog commits the empty selection (12ms)
+  ✘   3 [generated-controls] › tests/e2e/generated-selects.spec.ts:22:1 › review: explicitly omitting an unmatched optional false value removes its property (20ms)
+  ✘   4 [generated-controls] › tests/e2e/generated-selects.spec.ts:26:66 › review: actual empty enum startup retains placeholder and required feedback (9ms)
+  ✘   5 [generated-controls] › tests/e2e/generated-selects.spec.ts:26:66 › review: actual false enum startup retains placeholder and required feedback (8ms)
+  ✘   6 [generated-controls] › tests/e2e/generated-selects.spec.ts:32:76 › review: reordered JSON keys match the object-default enum without rewriting values (6ms)
+  ✘   7 [generated-controls] › tests/e2e/generated-selects.spec.ts:32:76 › review: reordered JSON keys match the object-restored enum without rewriting values (6ms)
+  ✘   8 [generated-controls] › tests/e2e/generated-selects.spec.ts:32:76 › review: reordered JSON keys match the array-restored enum without rewriting values (7ms)
+  ✘   9 [generated-controls] › tests/e2e/generated-selects.spec.ts:37:1 › review: JSON array order remains significant and an unmatched value stays stored (9ms)
+  ✘  10 [generated-controls] › tests/e2e/generated-selects.spec.ts:41:1 › catalog keyboard selection commits strings, Escape cancels and neighboring editors retain identity (18ms)
+  ✘  11 [generated-controls] › tests/e2e/generated-selects.spec.ts:58:1 › schema enum indices retain false, null, numbers, strings, objects and arrays and optional omission (6ms)
+  ✘  12 [generated-controls] › tests/e2e/generated-selects.spec.ts:76:1 › required enum blocks form submission, selecting false is valid and clearing restores validation (10ms)
+  ✘  13 [generated-controls] › tests/e2e/generated-selects.spec.ts:94:1 › disabled owners close an open enum without committing and optional containers retain their draft (6ms)
+  ✘  14 [generated-controls] › tests/e2e/generated-selects.spec.ts:112:1 › long catalog options remain reachable within a narrow short viewport in both themes (10ms)
+  ✘  15 [generated-controls] › tests/e2e/inline-diagrams.spec.ts:17:1 › inline horizontal history wraps complete readable nodes and preserves selection through resize (7ms)
+  ✘  16 [generated-controls] › tests/e2e/inline-diagrams.spec.ts:25:1 › inline architecture reflows its complete layers without clipping or shrinking readable nodes (8ms)
+  ✘  17 [generated-controls] › tests/e2e/inline-diagrams.spec.ts:32:1 › inline workflow lanes wrap without an inner scroll area (14ms)
+  ✘  18 [generated-controls] › tests/e2e/inline-diagrams.spec.ts:39:1 › inline trace fits labels and all tracks instead of trapping scroll or exposing overflow zoom (6ms)
+  ✘  19 [generated-controls] › tests/e2e/work-objects.spec.ts:16:1 › shared board move keyboard commits the exact proposal and a source change disables an open choice (17ms)
+  ✘  20 [generated-controls] › tests/e2e/work-objects.spec.ts:31:1 › shared trace choices retain numeric zoom and stale selection authority (19ms)
