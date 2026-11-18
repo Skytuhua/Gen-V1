@@ -1,8 +1,9 @@
 import type { Page } from '@playwright/test';
 import { join } from 'node:path';
 import { memoryPreparedRequestSchema, type MemoryPreparedRequest, type MemoryTombstoneV1 } from '../../packages/contracts/project-memory.ts';
+import { modelRequestObservationV1Schema, type ModelRequestObservationV1 } from '../../packages/contracts/model-request.ts';
 import { MEMORY_STUDY_POLICY, runMemoryStudy } from '../../evals/project-memory-study.ts';
-import { COMPACTION_HISTORY_PROMPT, COMPACTION_TAIL_PROMPT, MEMORY_CLAIM, MEMORY_FIXTURE_LABEL, MEMORY_HOST_URL, MEMORY_SOURCE, MEMORY_SOURCE_PROMPT, type MemoryHostFixture, test, expect } from '../project-memory-host-fixture.ts';
+import { COMPACTION_COST_FAILURE, COMPACTION_HISTORY_PROMPT, COMPACTION_TAIL_PROMPT, MEMORY_CLAIM, MEMORY_FIXTURE_LABEL, MEMORY_HOST_URL, MEMORY_SOURCE, MEMORY_SOURCE_PROMPT, type MemoryHostFixture, test, expect } from '../project-memory-host-fixture.ts';
 
 const review = (page: Page) => page.getByRole('dialog', { name: 'Project memory', exact: true });
 const inspector = (page: Page) => page.getByRole('dialog', { name: 'Context inspector', exact: true });
@@ -136,6 +137,103 @@ for (const compilerObservation of [true, false]) test.describe(`manual compactio
     expect(memoryHost.requests.filter(value => value.method === 'POST' && value.url === '/api/commands' &&
       (value.body as {type?: string} | null)?.type === 'run.compact')).toEqual([expect.objectContaining({status: 200, csrf: true})]);
     await page.screenshot({path: info.outputPath('manual-compaction-retained-panel.png'), fullPage: true});
+  });
+});
+
+test.describe('compaction request costs through the real App and host', () => {
+  test.use({memoryCompaction: true, memoryCompilerObservation: true, memoryCompactionModelCosts: true});
+  test('retains failed, zero and unavailable costs by candidate after retry and SQLite restart', async ({page, memoryHost}, info) => {
+    const {thread} = await createMemoryProject(page, memoryHost);
+    for (const prompt of [COMPACTION_HISTORY_PROMPT, COMPACTION_TAIL_PROMPT]) {
+      const deliveries = memoryHost.runtime.deliveries.length;
+      await writeDraft(page, prompt); await page.getByRole('button', {name: 'Send message', exact: true}).click();
+      await expect.poll(() => memoryHost.runtime.deliveries.length).toBe(deliveries + 1);
+      await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+      await expect(composer(page)).toHaveValue('');
+    }
+    const before = memoryHost.service.thread(thread.id), sourceOwner = memoryHost.runtime.deliveries.at(-1)!;
+    const sourceBefore = await memoryHost.runtime.nativeHistoryDigest(sourceOwner, before.sessionPath!);
+    const generationBefore = memoryHost.store.get('requestContextGeneration', thread.id);
+    await page.getByRole('button', {name: 'Inspect context usage', exact: true}).click();
+    await inspector(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+    const compactionResponse = () => page.waitForResponse(value => value.url().endsWith('/api/commands') &&
+      value.request().method() === 'POST' && value.request().postDataJSON()?.type === 'run.compact');
+    const failureResponse = compactionResponse();
+    await inspector(page).getByRole('button', {name: 'Compact now', exact: true}).click();
+    const failed = await failureResponse;
+    expect(failed.status()).toBe(400);
+    expect(await failed.json()).toEqual({error: {code: 'COMPACTION_FAILED', message: COMPACTION_COST_FAILURE}});
+    expect(memoryHost.runtime.compactions).toEqual([]);
+    expect(await memoryHost.runtime.nativeHistoryDigest(sourceOwner, before.sessionPath!)).toEqual(sourceBefore);
+    expect(memoryHost.store.get('requestContextGeneration', thread.id)).toEqual(generationBefore);
+    expect(memoryHost.runtime.compactionModelRequests).toHaveLength(1);
+    const failedCandidateId = memoryHost.runtime.compactionModelRequests[0]!.candidateId;
+    expect(memoryHost.store.get('compactionAttempt', failedCandidateId)).toMatchObject({
+      candidate: {status: 'FAILED'}, metadata: {usageObservationRef: null}, verdict: 'FAILED'});
+    await expect.poll(() => memoryHost.service.thread(thread.id).runId).toBeNull();
+    await page.keyboard.press('Escape'); await expect(inspector(page)).toHaveCount(0);
+    await page.getByRole('button', {name: 'Inspect context usage', exact: true}).click();
+    await inspector(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+    await expect(inspector(page).getByRole('list', {name: 'Compaction candidates', exact: true})).toContainText(`candidate ${failedCandidateId.slice(0, 8)} · failed`);
+    const retryResponse = compactionResponse();
+    await inspector(page).getByRole('button', {name: 'Compact now', exact: true}).click();
+    expect((await retryResponse).status()).toBe(200);
+    expect(memoryHost.runtime.compactions).toHaveLength(1);
+    const applied = memoryHost.runtime.compactions[0]!, appliedCandidateId = applied.receipt.candidateId;
+    expect(appliedCandidateId).not.toBe(failedCandidateId);
+    expect(applied.checkpoint.persisted).toBe(true); expect(applied.admission.accepted).toBe(true);
+    expect(memoryHost.store.get('compactionAttempt', appliedCandidateId)).toMatchObject({
+      candidate: {status: 'APPLIED'}, metadata: {usageObservationRef: `compactionUsage:${appliedCandidateId}`}, verdict: 'APPLIED'});
+    expect(memoryHost.service.thread(thread.id)).toMatchObject({epoch: before.epoch + 2, runId: null, status: 'ready'});
+    const recorded = memoryHost.store.all<{candidateId: string; value: ModelRequestObservationV1}>('compactionModelRequest', thread.id);
+    expect(recorded.map(row => ({candidateId: row.candidateId, observation: row.value}))).toEqual(memoryHost.runtime.compactionModelRequests);
+    expect(recorded.map(row => row.value.usage.cost)).toEqual([0.125, 0, null]);
+    expect(recorded.map(row => row.value.outcome)).toEqual(['failed', 'completed', 'failed']);
+    for (const row of recorded) expect(row.value.owner).toMatchObject({threadId: thread.id, runId: `compaction:${row.candidateId}`});
+    const httpReceipts: {candidateId: string; observations: ModelRequestObservationV1[]}[] = [];
+    const showCosts = async (candidateId: string, capturePrefix?: string) => {
+      await inspector(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+      const candidate = inspector(page).locator(`[data-compaction-candidate="${candidateId}"]`);
+      const path = `/api/threads/${encodeURIComponent(thread.id)}/compaction/${encodeURIComponent(candidateId)}/model-requests`;
+      const response = page.waitForResponse(value => new URL(value.url()).pathname === path && value.request().method() === 'GET');
+      await candidate.getByRole('button', {name: 'Load model request costs', exact: true}).click();
+      const received = await response; expect(received.status()).toBe(200);
+      const observations = modelRequestObservationV1Schema.array().parse(await received.json());
+      expect(observations).toEqual(recorded.filter(row => row.candidateId === candidateId).map(row => row.value).reverse());
+      httpReceipts.push({candidateId, observations});
+      await expect(candidate).toContainText('Retained request observations may omit unreported or interrupted requests. Complete spend is unavailable.');
+      for (const observation of observations) {
+        const card = candidate.getByRole('region', {name: `Model request ${observation.owner.sequence}`, exact: true});
+        await expect(card).toContainText(observation.outcome);
+        const cost = card.locator('.usage-request-metrics > li').filter({has: page.locator('.usage-request-chip-label', {hasText: /^Cost$/})}).locator('.usage-request-chip-value');
+        const amount = observation.usage.cost === null ? null : await page.evaluate(value =>
+          new Intl.NumberFormat(undefined, {maximumSignificantDigits: 12}).format(value), observation.usage.cost);
+        await expect(cost).toHaveText(amount === null ? '\u2014' : `${amount} (currency not reported)`);
+        if (capturePrefix) {
+          await cost.scrollIntoViewIfNeeded();
+          await expect(cost).toBeVisible();
+          await expect(cost).toBeInViewport();
+          await page.screenshot({path: info.outputPath(`${capturePrefix}-${observation.owner.sequence}.png`), fullPage: true});
+        }
+      }
+      return candidate;
+    };
+    await showCosts(failedCandidateId, 'compaction-failed-request-cost');
+    await showCosts(appliedCandidateId);
+    const endpoint = `/api/threads/${encodeURIComponent(thread.id)}/compaction/${encodeURIComponent(appliedCandidateId)}/model-requests`;
+    expect(await page.evaluate(async path => (await fetch(path, {credentials: 'omit'})).status, endpoint)).toBe(401);
+    await page.keyboard.press('Escape'); await expect(inspector(page)).toHaveCount(0);
+    await memoryHost.restart(); await page.reload(); await expect(composer(page)).toBeVisible();
+    expect(memoryHost.store.all('compactionModelRequest', thread.id)).toEqual(recorded);
+    expect(memoryHost.runtime.deliveries).toEqual([]); expect(memoryHost.runtime.compactions).toEqual([]);
+    await page.getByRole('button', {name: 'Inspect context usage', exact: true}).click();
+    await showCosts(failedCandidateId);
+    await showCosts(appliedCandidateId, 'compaction-retained-request-costs-restart');
+    expect(memoryHost.requests.filter(value => value.method === 'POST' && value.url === '/api/commands' &&
+      (value.body as {type?: string} | null)?.type === 'run.compact').map(value => ({status: value.status, csrf: value.csrf}))).toEqual([
+      {status: 400, csrf: true}, {status: 200, csrf: true}]);
+    await info.attach('compaction-model-cost-http-receipts', {body: Buffer.from(JSON.stringify({httpReceipts,
+      scope: 'Actual App, authenticated HTTP, Service, SQLite and restart with injected M11 observations. No provider, native compressor, installed build, measured spend total or observation completeness proof.'}, null, 2)), contentType: 'application/json'});
   });
 });
 

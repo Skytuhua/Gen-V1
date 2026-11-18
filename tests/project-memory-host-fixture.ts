@@ -8,6 +8,7 @@ import { buildServer } from '../apps/server/server.ts';
 import { launchHost, type RunningHost } from '../apps/server/host.ts';
 import type { RunContext, RuntimeAdapter, RuntimeCallbacks, StartRun } from '../packages/contracts/index.ts';
 import type { MemoryCheckpointAckV1, MemoryCheckpointRequirementV1 } from '../packages/contracts/memory-checkpoint.ts';
+import type { ModelRequestObservationV1 } from '../packages/contracts/model-request.ts';
 import type { NativeCompactionAckV1, NativeCompactionEnvelopeV1, NativeCompactionReceiptV1 } from '../packages/contracts/native-compaction.ts';
 import type { MemorySourceRefV1 } from '../packages/contracts/project-memory.ts';
 import { Service } from '../packages/core/service.ts';
@@ -20,6 +21,7 @@ export const MEMORY_SOURCE = `Scripted source observation. ${MEMORY_CLAIM}`;
 export const MEMORY_SOURCE_PROMPT = '[memory-source] Record the SQLite project persistence decision.';
 export const COMPACTION_HISTORY_PROMPT = '[compaction-history] Complete the scripted investigation.';
 export const COMPACTION_TAIL_PROMPT = '[compaction-tail] Keep the project persistence decision available.';
+export const COMPACTION_COST_FAILURE = 'Scripted compaction request failed before native apply; no provider was contacted.';
 const COMPACTION_HISTORY = 'Completed scripted investigation with no provider inference. '.repeat(240);
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 
@@ -30,7 +32,8 @@ class MemoryRuntime implements RuntimeAdapter {
   readonly deliveries: StartRun[] = [];
   readonly compactions: {ctx: RunContext; envelope: NativeCompactionEnvelopeV1; checkpoint: MemoryCheckpointAckV1;
     admission: NativeCompactionAckV1; receipt: NativeCompactionReceiptV1; archivePath: string}[] = [];
-  constructor(private readonly folder: string, private readonly protectedCompaction: boolean) {}
+  readonly compactionModelRequests: {candidateId: string; observation: ModelRequestObservationV1}[] = [];
+  constructor(private readonly folder: string, private readonly protectedCompaction: boolean, private readonly modelRequestCosts: boolean) {}
   configure(callbacks: RuntimeCallbacks) { this.callbacks = callbacks; }
   async models() { return [{ id: 'fixture/project-memory', provider: 'fixture', name: MEMORY_FIXTURE_LABEL }]; }
   async history(sessionPath: string): Promise<string[]> {
@@ -56,6 +59,28 @@ class MemoryRuntime implements RuntimeAdapter {
     const checkpoint = await this.callbacks.onMemoryCheckpoint!({apiVersion: 2, requestId: 'fixture-checkpoint-' + randomUUID(),
       adapterId: 'hermes', ctx, sessionPath, modelId, accountId, reason: 'manual'});
     if (!checkpoint.persisted) throw new Error('The real host did not persist its memory checkpoint.');
+    if (this.modelRequestCosts) {
+      const failApply = this.compactionModelRequests.length === 0;
+      // These injected M11 values exercise owned retention and presentation.
+      // They are not measurements from a provider or the native compressor.
+      for (const cost of failApply ? [0.125] : [0, null]) {
+        const sequence = this.compactionModelRequests.length + 1, unreported = cost === null;
+        const observation: ModelRequestObservationV1 = {version: 1,
+          requestId: `fixture-compaction-${envelope.plan.candidateId}-${sequence}`,
+          owner: {threadId: ctx.threadId, runId: ctx.runId, epoch: ctx.epoch, sequence, inputIds: [], phase: 'foreground'},
+          binding: {providerId: modelId.split('/')[0], modelId, accountId},
+          timings: {queued: Date.now(), acquired: unreported ? null : 1, runtimeReady: unreported ? null : 2,
+            requestSent: unreported ? null : 3, firstProviderDelta: null, firstPublicDelta: null, settled: 4, teardownConfirmed: 5},
+          usage: {inputTokens: unreported ? null : 10, outputTokens: unreported ? null : 2,
+            cacheReadTokens: null, cacheWriteTokens: null, cost},
+          usageConvention: unreported ? 'unreported' : 'provider-reported', measurementSource: 'scripted-compaction-fixture',
+          outcome: failApply || unreported ? 'failed' : 'completed',
+          ...(failApply || unreported ? {error: COMPACTION_COST_FAILURE} : {})};
+        this.compactionModelRequests.push({candidateId: envelope.plan.candidateId, observation});
+        this.callbacks.onEvent({...ctx, type: 'model.observation', observation});
+      }
+      if (failApply) throw new Error(COMPACTION_COST_FAILURE);
+    }
     const retained = envelope.plan.retainedIndices.map(index => source.messages[index]);
     const summary = {role: 'assistant', content: 'Scripted compaction result. No native compressor or model was invoked. ' + JSON.stringify(envelope.plan.references)};
     const before = JSON.stringify(source.messages), after = JSON.stringify([summary, ...retained]);
@@ -135,13 +160,15 @@ export class MemoryHostFixture {
   readonly preparedResponses: { httpRequestId: string; url: string; threadId: string | null; prompt: string | null; status: number; response: unknown; captureError: string | null }[] = [];
   preparedResponseCaptureError: string | null = null;
   readonly projectPath: string;
-  constructor(readonly folder: string, readonly protectedCompaction = false, readonly compilerObservation = false) { this.projectPath = join(folder, 'project'); }
+  constructor(readonly folder: string, readonly protectedCompaction = false, readonly compilerObservation = false,
+    readonly compactionModelCosts = false) { this.projectPath = join(folder, 'project'); }
   async start() {
     this.closing = undefined;
     this.host = await launchHost({ dataDir: join(this.folder, 'profile'), port: 5549, widgetPort: 5550, dev: false,
       pluginDir: join(this.folder, 'plugins'), capabilityFlags: { 'memory.projectV1': true,
-        ...(this.protectedCompaction ? {'context.compilerV1': this.compilerObservation, 'context.lossAwareCompactionV1': true} : {}) } }, {
-      createRuntime: () => { this.runtime = new MemoryRuntime(this.folder, this.protectedCompaction); this.generations.push(this.runtime); return this.runtime; },
+        ...(this.protectedCompaction ? {'context.compilerV1': this.compilerObservation, 'context.lossAwareCompactionV1': true} : {}),
+        ...(this.compactionModelCosts ? {'models.requestMetricsV1': true} : {}) } }, {
+      createRuntime: () => { this.runtime = new MemoryRuntime(this.folder, this.protectedCompaction, this.compactionModelCosts); this.generations.push(this.runtime); return this.runtime; },
       createService: (store, runtime) => {
         this.store = store;
         return this.service = new Service(store, runtime, { memoryExtractionRuntimeFactory: () => {
@@ -188,11 +215,12 @@ export class MemoryHostFixture {
   }
 }
 
-export const test = base.extend<{ memoryHost: MemoryHostFixture; memoryCompaction: boolean; memoryCompilerObservation: boolean }>({
+export const test = base.extend<{ memoryHost: MemoryHostFixture; memoryCompaction: boolean; memoryCompilerObservation: boolean; memoryCompactionModelCosts: boolean }>({
   memoryCompaction: [false, {option: true}],
   memoryCompilerObservation: [false, {option: true}],
-  memoryHost: async ({memoryCompaction, memoryCompilerObservation}, use, info) => {
-    const folder = await mkdtemp(join(tmpdir(), 'gen-memory-host-')), host = new MemoryHostFixture(folder, memoryCompaction, memoryCompilerObservation);
+  memoryCompactionModelCosts: [false, {option: true}],
+  memoryHost: async ({memoryCompaction, memoryCompilerObservation, memoryCompactionModelCosts}, use, info) => {
+    const folder = await mkdtemp(join(tmpdir(), 'gen-memory-host-')), host = new MemoryHostFixture(folder, memoryCompaction, memoryCompilerObservation, memoryCompactionModelCosts);
     await mkdir(host.projectPath); await mkdir(info.outputDir, { recursive: true });
     try {
       await host.start(); await use(host);
@@ -200,11 +228,12 @@ export const test = base.extend<{ memoryHost: MemoryHostFixture; memoryCompactio
       try {
         await writeFile(info.outputPath('memory-host-observations.json'), JSON.stringify({ fixture: MEMORY_FIXTURE_LABEL,
           scope: 'Production host composition, profile lease, HostOptions capability activation, App, HTTP/CSRF, Service and Store with scripted foreground/extraction runtimes; no native provider, installed desktop or model inference proof.',
-          protectedCompaction: host.protectedCompaction, compilerObservation: host.compilerObservation,
+          protectedCompaction: host.protectedCompaction, compilerObservation: host.compilerObservation, compactionModelCosts: host.compactionModelCosts,
           compactionScope: 'When explicitly enabled, the scripted adapter invokes the real memory checkpoint and native commit callbacks, then returns injected native-contract receipts. No original native compressor or Windows apply proof.',
           ports: [5549, 5550], requests: host.requests, preparedResponses: host.preparedResponses,
           preparedResponseCaptureError: host.preparedResponseCaptureError, deliveries: host.generations.map(runtime => runtime.deliveries),
           compactions: host.generations.flatMap(runtime => runtime.compactions),
+          compactionModelRequests: host.generations.flatMap(runtime => runtime.compactionModelRequests),
           extractionDeliveries: host.extractions.map(runtime => ({ deliveries: runtime.deliveries, disposed: runtime.disposed })),
           snapshot: host.store?.db.isOpen ? host.store.snapshot() : null }, null, 2));
       } finally {
