@@ -17,10 +17,11 @@ import type {ObservedVerificationBackend, VerificationExecutorHostConfig} from '
 import type {HostCommand, Operation, RuntimeAdapter, RuntimeCallbacks, Thread} from '../packages/contracts/index.ts';
 import type {CheckObservationV1, DeliverableAssessmentV1} from '../packages/contracts/verification.ts';
 import type {ApprovalV1, ToolEffectRecord} from '../packages/contracts/tool-effects.ts';
+import type {VerificationRepairPlan} from '../packages/contracts/verification-repair.ts';
 
 const cleanups: (() => Promise<void> | void)[] = [];
 afterEach(async () => {__setEffectFaultHookForTests(null); vi.useRealTimers(); for (const cleanup of cleanups.splice(0).reverse()) await cleanup(); vi.unstubAllEnvs();});
-async function fixture(options: {browser?: boolean; serverLifetime?: number; browserDelay?: number; changeSourceDuringOpen?: boolean; qaRuntimeFactory?: ServiceOptions['verificationQaRuntimeFactory']} = {}) {
+async function fixture(options: {browser?: boolean; serverLifetime?: number; browserDelay?: number; changeSourceDuringOpen?: boolean; exitCodes?: number[]; qaRuntimeFactory?: ServiceOptions['verificationQaRuntimeFactory']} = {}) {
   const directory = mkdtempSync(join(tmpdir(), 'verification-workflow-')), root = join(directory, 'project'); mkdirSync(root);
   const executable = join(root, 'test-tool'); writeFileSync(executable, 'fixture-only executable identity');
   writeFileSync(join(root, 'app.ts'), 'export const ready = true;\n'); writeFileSync(join(root, 'lock.yaml'), 'version: 1\n');
@@ -45,7 +46,7 @@ async function fixture(options: {browser?: boolean; serverLifetime?: number; bro
       launched.push(request.executable); const pid = 100 + launched.length; events.push('process:' + request.argv[0]);
       const server = request.argv[0] === 'serve'; let closed = false, resolveExit!: (value: {exitCode: number | null; termination: 'NONE' | 'CANCELLED'}) => void;
       const exit = new Promise<{exitCode: number | null; termination: 'NONE' | 'CANCELLED'}>(resolve => {resolveExit = resolve;});
-      if (server) {serverPid = pid; started();} else resolveExit({exitCode: 0, termination: 'NONE'});
+      if (server) {serverPid = pid; started();} else resolveExit({exitCode: options.exitCodes?.[launched.length - 1] ?? 0, termination: 'NONE'});
       return {pid, tree: async () => [pid], wait: () => exit, log: async () => ({text: 'Actual fixture-adapter observation', truncated: false}), terminate: async () => {if (!closed) {closed = true; terminated.push(pid); events.push('terminate:' + request.argv[0]); resolveExit({exitCode: null, termination: 'CANCELLED'});}}};
     },
     ...(options.browser ? {probeListener: async () => {events.push('probe'); return {reachable: true, ownerPid: serverPid};}, openBrowserDriver: async () => {
@@ -94,6 +95,152 @@ function qaRuntime(script: (callbacks: RuntimeCallbacks, input: import('../packa
 }
 const qaRequest = {prompt: 'Run the approved checks and give an advisory review.', budget: {tokens: 1000, ms: 10_000}};
 const qaOutput = {outcome: 'COMPLETED', summary: 'Advisory review only', evidenceRefs: [], requirementIds: ['tests-pass'], observations: []};
+
+it('managed repair recovery accounts for a stopped repair whose dispatched cleanup was interrupted', async () => {
+  const qa = qaRuntime(async (callbacks, ctx) => {
+    await callbacks.onTool({name: 'qa_run', args: {}}, ctx);
+    await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);
+  });
+  const f = await fixture({exitCodes: [1], qaRuntimeFactory: qa.factory}); f.input.qa = qaRequest;
+  const baseline = await f.execute();
+  let entered!: () => void, terminating!: () => void, releaseWait!: () => void, releaseCleanup!: () => void;
+  const reached = new Promise<void>(resolve => {entered = resolve;}), closing = new Promise<void>(resolve => {terminating = resolve;});
+  const wait = new Promise<void>(resolve => {releaseWait = resolve;}), cleanup = new Promise<void>(resolve => {releaseCleanup = resolve;});
+  const launch = f.backend.launchObserved.bind(f.backend);
+  f.backend.launchObserved = async request => {
+    const handle = await launch(request);
+    return {...handle, wait: async () => {entered(); await wait; return {exitCode: 2, termination: 'NONE' as const};},
+      terminate: async () => {terminating(); await cleanup; await handle.terminate();}};
+  };
+  const operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 2000, ms: 60_000}}})).result as Operation;
+  const planId = (operation.args.intent as VerificationIntent).repair!.planId;
+  let recovered: Store | undefined, service: Service | undefined;
+  const directory = mkdtempSync(join(tmpdir(), 'verification-repair-recovered-'));
+  try {
+    await f.approve(operation); await reached;
+    const running = f.store.get<VerificationRepairPlan>('verificationRepair', planId)!;
+    await f.service.command({id: randomUUID(), type: 'verification.repair.stop', threadId: f.thread.id, payload: {planId, revision: running.revision}});
+    await closing;
+    expect(f.store.get('verificationRepair', planId)).toMatchObject({stopped: 'CANCELLED', chargedTokens: 0, attempts: [{outcome: 'RUNNING', reservedTokens: 1000}]});
+    // Capture only real durable state produced by approval, dispatch and Stop,
+    // before the old native cleanup can finish. No approval/evidence is seeded.
+    f.store.db.prepare('VACUUM INTO ?').run(join(directory, 'harness.sqlite'));
+    recovered = new Store(directory);
+    const runtime: RuntimeAdapter = {configure() {}, models: async () => [], history: async () => [], start: async () => {},
+      followUp: async () => {}, cancel: async () => {}, compact: async () => {}, dispose: async () => {}};
+    service = new Service(recovered, runtime, {verificationExecutor: f.factory});
+    await service.recover();
+    expect(recovered.get('verificationRepair', planId)).toMatchObject({stopped: 'BLOCKED', pendingOperationId: null, chargedTokens: 1000,
+      attempts: [{outcome: 'UNKNOWN', reservedTokens: 1000}]});
+    const once = recovered.get('verificationRepair', planId); await service.recover(); expect(recovered.get('verificationRepair', planId)).toEqual(once);
+  } finally {
+    await service?.dispose(); recovered?.close(); rmSync(directory, {recursive: true, force: true});
+    releaseWait(); releaseCleanup(); await f.service.dispatchOperation(operation.id).catch(() => {});
+  }
+});
+
+it('managed repair recovery retains measured QA overrun captured before repair settlement', async () => {
+  const qa = qaRuntime(async (callbacks, ctx) => {await callbacks.onTool({name: 'qa_run', args: {}}, ctx); await callbacks.onTool({name: 'qa_result', args: {output: qaOutput}}, ctx);});
+  let workers = 0;
+  const f = await fixture({exitCodes: [1], qaRuntimeFactory: policy => {
+    const native = qa.factory(policy), ordinal = ++workers; let callbacks!: RuntimeCallbacks;
+    return {...native, configure: value => {callbacks = value; native.configure(value);}, start: async input => {
+      if (ordinal === 2) {callbacks.onEvent({...input, type: 'usage', usage: {inputTokens: 1000, outputTokens: 1}}); return;}
+      await native.start(input);
+    }};
+  }}); f.input.qa = qaRequest;
+  const baseline = await f.execute(), operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 1000, ms: 60_000}}})).result as Operation;
+  const intent = operation.args.intent as VerificationIntent, directory = mkdtempSync(join(tmpdir(), 'verification-repair-usage-recovered-'));
+  const internal = f.store.internal.bind(f.store); let captured = false, recovered: Store | undefined, service: Service | undefined;
+  const spy = vi.spyOn(f.store, 'internal').mockImplementation((...args) => {
+    const value = internal(...args);
+    if (!captured && args[0] === 'verification.qa.lifecycle' && f.store.get<{observedTokens: number; cleanupConfirmed: boolean}>('verificationQaLifecycle', intent.qa!.admission.workId)?.observedTokens === 1001) {
+      f.store.db.prepare('VACUUM INTO ?').run(join(directory, 'harness.sqlite')); captured = true;
+    }
+    return value;
+  });
+  try {
+    await f.approve(operation); await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'RECONCILIATION_REQUIRED'});
+    expect(captured).toBe(true); spy.mockRestore();
+    recovered = new Store(directory);
+    expect(recovered.get('verificationRepair', intent.repair!.planId)).toMatchObject({attempts: [{outcome: 'RUNNING', reservedTokens: 1000}], chargedTokens: 0});
+    expect(recovered.get('verificationQaLifecycle', intent.qa!.admission.workId)).toMatchObject({observedTokens: 1001});
+    const runtime: RuntimeAdapter = {configure() {}, models: async () => [], history: async () => [], start: async () => {},
+      followUp: async () => {}, cancel: async () => {}, compact: async () => {}, dispose: async () => {}};
+    service = new Service(recovered, runtime, {verificationExecutor: f.factory}); await service.recover();
+    expect(recovered.get('verificationRepair', intent.repair!.planId)).toMatchObject({stopped: 'BLOCKED', chargedTokens: 1001,
+      attempts: [{outcome: 'UNKNOWN', reservedTokens: 1000, observedTokens: 1001}]});
+    const once = recovered.get('verificationRepair', intent.repair!.planId); await service.recover(); expect(recovered.get('verificationRepair', intent.repair!.planId)).toEqual(once);
+  } finally {spy.mockRestore(); await service?.dispose(); recovered?.close(); rmSync(directory, {recursive: true, force: true});}
+});
+
+it.each([
+  {exitCodes: [1, 2, 3, 4], stop: 'BUDGET', outcomes: ['FAIL', 'FAIL', 'FAIL', 'FAIL']},
+  {exitCodes: [1, 2, 3, 0], stop: 'PASSED', outcomes: ['FAIL', 'FAIL', 'FAIL', 'PASS']},
+  {exitCodes: [1, 1], stop: 'UNCHANGED_FAILURE', outcomes: ['FAIL', 'FAIL']},
+])('managed repair requires fresh approval and retains history when stopping for $stop', async ({exitCodes, stop, outcomes}) => {
+  const f = await fixture({exitCodes}), baseline = await f.execute(), baselineIntent = baseline.args.intent as VerificationIntent;
+  let operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: baselineIntent.executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
+  const planId = (operation.args.intent as VerificationIntent).repair!.planId;
+  for (let index = 0; index < exitCodes.length - 1; index++) {
+    if (index > 0) {
+      const plan = f.store.get<VerificationRepairPlan>('verificationRepair', planId)!;
+      operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.next', threadId: f.thread.id,
+        payload: {planId, revision: plan.revision}})).result as Operation;
+    }
+    const intent = operation.args.intent as VerificationIntent;
+    expect(operation).toMatchObject({status: 'prepared', approved: false});
+    expect(intent.recipe).toEqual(baselineIntent.recipe); expect(intent.requirements).toEqual(baselineIntent.requirements);
+    expect(intent.repair).toMatchObject({planId, attempt: index + 1});
+    expect(f.launched).toHaveLength(index + 1);
+    await f.approve(operation); await f.service.dispatchOperation(operation.id);
+  }
+  const plan = f.store.get<VerificationRepairPlan>('verificationRepair', planId)!;
+  expect(plan).toMatchObject({stopped: stop, pendingOperationId: null, chargedTokens: 0});
+  expect(plan.attempts).toHaveLength(exitCodes.length - 1);
+  expect(f.store.all<CheckObservationV1>('checkObservation', f.thread.id).filter(value => value.phase === 'TEST').map(value => value.outcome)).toEqual(outcomes);
+  expect(f.launched).toHaveLength(exitCodes.length);
+  await expect(f.service.command({id: randomUUID(), type: 'verification.repair.next', threadId: f.thread.id,
+    payload: {planId, revision: plan.revision}})).rejects.toMatchObject({code: 'REPAIR_STOPPED'});
+  expect(f.launched).toHaveLength(exitCodes.length);
+});
+
+it('managed repair rejection cancels its pending review without consuming another approval or attempt', async () => {
+  const f = await fixture({exitCodes: [1]}), baseline = await f.execute();
+  const operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
+  await f.service.command({id: randomUUID(), type: 'operation.reject', threadId: f.thread.id, payload: {operationId: operation.id, revision: operation.revision}});
+  expect(f.store.get('verificationRepair', (operation.args.intent as VerificationIntent).repair!.planId)).toMatchObject({stopped: 'CANCELLED', pendingOperationId: null, chargedTokens: 0, attempts: []});
+  expect(f.store.get('operation', operation.id)).toMatchObject({status: 'cancelled', approved: false});
+  expect(f.store.all('approval', f.thread.id)).toHaveLength(1); expect(f.launched).toHaveLength(1);
+});
+
+it('managed repair source conflict blocks dispatch before it consumes the retest approval', async () => {
+  const f = await fixture({exitCodes: [1]}), baseline = await f.execute();
+  const operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
+  writeFileSync(join(f.root, 'app.ts'), 'export const changedAfterReview = true;\n');
+  await f.approve(operation); await expect(f.service.dispatchOperation(operation.id)).rejects.toMatchObject({code: 'BLOCKED_SOURCE_DRIFT'});
+  expect(f.store.get('verificationRepair', (operation.args.intent as VerificationIntent).repair!.planId)).toMatchObject({stopped: 'CONFLICT', pendingOperationId: null, attempts: []});
+  expect(f.store.all<ApprovalV1>('approval', f.thread.id).some(value => value.remainingUses === 1)).toBe(true);
+  expect(f.launched).toHaveLength(1);
+});
+
+it('managed repair refuses an expired approval and model-supplied repair authority', async () => {
+  const f = await fixture({exitCodes: [1]}), baseline = await f.execute();
+  await expect(f.prepare({...f.input, repair: {planId: 'model-supplied'}})).rejects.toThrow();
+  const operation = (await f.service.command({id: randomUUID(), type: 'verification.repair.start', threadId: f.thread.id,
+    payload: {executionId: (baseline.args.intent as VerificationIntent).executionId, budget: {tokens: 0, ms: 60_000}}})).result as Operation;
+  const intent = operation.args.intent as VerificationIntent, clock = vi.spyOn(Date, 'now').mockReturnValue(Date.parse(intent.repair!.deadline) + 1);
+  try {
+    await expect(f.approve(operation)).rejects.toMatchObject({code: 'REPAIR_BUDGET'});
+    expect(f.store.get('operation', operation.id)).toMatchObject({status: 'prepared', approved: false});
+    expect(f.store.all('approval', f.thread.id)).toHaveLength(1); expect(f.launched).toHaveLength(1);
+  } finally {clock.mockRestore();}
+});
 
 it('runs a restricted QA child through the exact approved M02 execution and retains its output as advisory', async () => {
   const runtime = qaRuntime(async (callbacks, ctx) => {
