@@ -52,7 +52,7 @@ try {
   requireValue(manifest.schemaVersion === 1 && manifest.repository === process.env.GITHUB_REPOSITORY
     && manifest.releaseApproved === false && manifest.browserSuite === 'root', 'Unsupported validation manifest.');
   requireValue([manifest.baseSha, manifest.auditAncestorSha, manifest.expectedTreeSha].every(isSha), 'Invalid immutable source pins.');
-  requireValue(Array.isArray(manifest.heads) && manifest.heads.length > 0 && manifest.heads.length <= 40, 'Invalid repair head count.');
+  requireValue(Array.isArray(manifest.heads) && manifest.heads.length > 0 && manifest.heads.length <= 80, 'Invalid repair head count.');
   const prs = new Set(), shas = new Set();
   for (const head of manifest.heads) {
     requireValue(Number.isSafeInteger(head.pr) && head.pr > 0 && !prs.has(head.pr)

@@ -2,9 +2,50 @@
   "schemaVersion": 1,
   "repository": "skytuhua-org/Gen-V1",
   "auditAncestorSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7",
-  "baseSha": "8e7093ae48efa7c613861b907d2af6a791cc1f89",
-  "expectedTreeSha": "fb7cffcce41b636485c61e63b96160f83491deb1",
+  "baseSha": "3858daec3f981137b9aaabc9b7c1ea38caa24f3c",
   "heads": [
+    {
+      "pr": 748,
+      "sha": "554cbe6466531a2b77260249f6256b4f668bc165",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 747,
+      "sha": "a8f500d666e2af5b82dcc20b825c7e3e5e7d59c9",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 722,
+      "sha": "cf322031e74140352a5cff49eae06ff1b088c69c",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 729,
+      "sha": "365c83653e4a5d132371686cbb90585f0d45964a",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 728,
+      "sha": "86811387f4553901c92695cbef811cb15ce27047",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 727,
+      "sha": "ca35e8f0ae99a113f28b6eb369bf0a04e0132aa4",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 723,
+      "sha": "cc38abddefafb56ea5311ee6504eb111796d37da",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
     {
       "pr": 591,
       "sha": "9eb6fc80b83641cf3a70b66d9f7fb18e5b24f6e5",
@@ -13,164 +54,363 @@
     },
     {
       "pr": 598,
-      "sha": "fdf68a2bb376e825c9e29f9eb6950634274433ed",
+      "sha": "9401f87a646a33d6afa3f5ff44190e681548bc84",
       "stage": "candidate",
-      "branchBaseSha": "fe4973141013d839c26c3e4769670b49d39de07a"
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 625,
-      "sha": "0e2183c5dda4397926dada773f3525dbbe451901",
-      "stage": "candidate"
+      "sha": "bd6785e6a0b5002c60ec1f74b6d3669164026065",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 626,
       "sha": "8e737a9e66f4d5c334b507b4490525586601fbe3",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 627,
       "sha": "062571871b73a71b9ebeaa1a86f6da11f88d8444",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 628,
       "sha": "01e42be5f163f9e97c175e21d39cfde26c6cad96",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 629,
       "sha": "a8bfe6e306f32f1f4f185a18392c20f9357dfd33",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 630,
       "sha": "75c7fe4da3a9b39bb173e7dc1c12e9601335977a",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 632,
       "sha": "3a7919a75e581f9d0a2392c989d019270dad6e1b",
-      "stage": "test"
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 633,
       "sha": "9539cac99090bd3067a97d821bc85a3373d49cec",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 634,
-      "sha": "054f0dfdb9a5d24eed5a5a8ed899bd98d018f617",
-      "stage": "candidate"
+      "sha": "1a30ab57242571082c0c1755baf2887c4ea628de",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 636,
-      "sha": "f09a7f0e0a29e7884dd543d29060634deb097ac0",
-      "stage": "candidate"
+      "sha": "5aa551f795145027ec851c84206f39eeb28f89cd",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 637,
       "sha": "49564db26bce473a7bc45d6ba36da807724d6b6d",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 639,
       "sha": "029aa68aad2c9f3539aa90c238ae78703fa144fb",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 640,
       "sha": "66639662463e237fc61f171bd2d95eb2c8ed106d",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 642,
       "sha": "6264adc1be1cd57bb39ecc9f95151099c8d501e8",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 643,
-      "sha": "b7e54a48f43848c97db1be2e4dd1c28e41db17b3",
-      "stage": "candidate"
+      "sha": "7402eebdad0337a3f5b8ef084f0e51bb1a99f5ab",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 645,
       "sha": "6a65b478d2f9cc1ed84e7e338b13bc57b427c702",
-      "stage": "diagnostic"
+      "stage": "diagnostic",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 646,
       "sha": "7bb89e88cea4ba036633beef3f4ba0625da3d4b2",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 648,
       "sha": "a6af770cb81afe1ce6a3b3107aaede4c1081d1f4",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 649,
       "sha": "a1a3136d2b980cb69a6f80138b4d964fc852cee7",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 654,
       "sha": "ad15b4d0b95347d99280d36fb35c6731420b6749",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 655,
       "sha": "eaa2ee65ff99eb8ac208a2b1fd2c4b45113c867b",
-      "stage": "test"
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 656,
-      "sha": "87dc751c0d4967297cf2e6b94e99f43eb27bfb13",
-      "stage": "test"
+      "sha": "9c431bd7465439882597bcc84000120a31d00684",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 658,
-      "sha": "7c3982cf727c4130d4d8f6add6b858baa5148ee3",
-      "stage": "candidate"
+      "sha": "2b5125b3de07fbb2a2e4d96e8e6fc9270aa4f9c8",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 660,
       "sha": "79a42cf0ce72243450a153fbad564432b56998ca",
-      "stage": "diagnostic"
+      "stage": "diagnostic",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 662,
-      "sha": "d86b19db57ab055461b74e9988169e66f841f89b",
-      "stage": "test"
+      "sha": "c96995b8812767eaab49b1e8e1b53f395acf0d95",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 663,
-      "sha": "f794286a19ca5a76db62fa5899d9149dbc30a806",
-      "stage": "test"
+      "sha": "8cbc991440a401154f38ccae91c1c0b595c21d84",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 664,
       "sha": "377eb28647b9fb6264b1a2ec2575c5f13b0f803c",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 665,
       "sha": "92cc4e4662c7953044294a126ddce6483538f01f",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 666,
-      "sha": "d0f6571e5c619594cab3565fa1a9194f73bc27ce",
-      "stage": "test"
+      "sha": "72c1f8d72a1aea31ac02777b3522839279d31735",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 668,
-      "sha": "38885d00b017935e7dce8bcbdd4f962288c695a4",
-      "stage": "test"
+      "sha": "72909340401f2619053bafb9b20a1f9f91ec2f80",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     },
     {
       "pr": 686,
       "sha": "59f212c4903a23b5f5c0b00181c378024efd3d0e",
-      "stage": "candidate"
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 692,
+      "sha": "0bfb03aa04d21417694b4d12e6d8e55575e672e1",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 695,
+      "sha": "0e2d3318add08b426a3ab6904fa585ad4096283e",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 697,
+      "sha": "86008b64ca5bce7ea704dc6a15eca7b2d1db3f0c",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 698,
+      "sha": "e8f443ff8f7604fca95ccb0422968a2f1131bfd2",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 700,
+      "sha": "688ba8d4dc666263d73e21cfe60cfc846544065e",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 705,
+      "sha": "cb6f9b0516674aa03a3bcd4cee041307023d05f9",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 706,
+      "sha": "d21946723e0a3d9d1c90170c75bd6128a06e8c2b",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 707,
+      "sha": "20724b9492dce465c16aa173e1afaa140d862e0a",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 708,
+      "sha": "60f11e444be2ade6ba3fa024935478e07bd5fb12",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 712,
+      "sha": "650357a951cdb8ce6d6bd1e2c4d3ef0b0cba7911",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 714,
+      "sha": "93fa0067239841b3b4217af62354f7b7cdc6d4ab",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 715,
+      "sha": "2d29c522c2c252564748c051f6a804594321b5f7",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 717,
+      "sha": "4b99c99991c2618ccc840446e83b24f9a2cd08f0",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 718,
+      "sha": "1b058c853a1956690b1c031362ee6a9cf7a0a3ec",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 719,
+      "sha": "e6f3525e0c2e797d0d702b32baacd96d90fdd898",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 721,
+      "sha": "4c0f740999f5ea77be42138fad5e3260a88b28f1",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 724,
+      "sha": "cf69b94dda5ad2d89f6f0f694e00f3877e197cdd",
+      "stage": "test",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 731,
+      "sha": "c1a7a1015263a8f3db64abcf0782c0af47b4933c",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 734,
+      "sha": "f679f424e1f48cc45d7a5dbf38a005f17faa8a3f",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 735,
+      "sha": "08876797027adb206393243ab8e6289b50254403",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 738,
+      "sha": "1a8ab10579445c3608b8cd2d105405634d7ada14",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 739,
+      "sha": "9921d6908a91912433af10c656158c59b47b94df",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 740,
+      "sha": "77105089901efd39eaa9ec9b9540d4abf507b0bb",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 741,
+      "sha": "0eebe478f89399712684df5b6e86a9962815bb89",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 742,
+      "sha": "11c3d7e21c84099f1160117ea7c2e32adb8eafcd",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 743,
+      "sha": "65c98ded666637c55033a74aafce902e98ac34a0",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 744,
+      "sha": "7880711e97f05f349d66067b0c6619aca21d4887",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
+    },
+    {
+      "pr": 745,
+      "sha": "1aca8362f3d62bd4a66e613f1c80ce14ac42fdaf",
+      "stage": "candidate",
+      "branchBaseSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7"
     }
   ],
   "tests": [
@@ -213,9 +453,29 @@
     "tests/integration-secret-output-v3.test.mjs",
     "tests/tool-effect-public-projection-v3.test.mjs",
     "tests/baseline-concurrent-edits-v3.test.ts",
-    "tests/baseline-cancellation-v3.test.ts"
+    "tests/baseline-cancellation-v3.test.ts",
+    "tests/tool-effect-authentication-v3.test.mjs",
+    "tests/tool-effect-rollback-v3.test.mjs",
+    "tests/protected-effect-host-v3.test.mjs",
+    "tests/host-effect-authenticator-v3.test.ts",
+    "tests/repository-test-binding-v3.test.ts",
+    "tests/baseline-command-timeout-v3.test.ts",
+    "tests/context7-approved-operation-v3.test.mjs",
+    "tests/context7-native-admission-v3.test.mjs",
+    "tests/integration-secret-reference-http-v3.test.ts",
+    "tests/host-operation-hooks-v3.test.mjs",
+    "tests/operation-project-trust-v3.test.ts",
+    "tests/operation-project-trust-http-v3.test.ts",
+    "tests/integration-secret-reference-contract-v3.test.ts",
+    "tests/integration-secret-reference-status-v3.test.mjs",
+    "tests/operation-execution-advice-v3.test.mjs",
+    "tests/tool-registry-validation-v3.test.ts",
+    "tests/operation-reconciliation-race-v3.test.mjs",
+    "tests/dependency-output-parent-race-v3.test.mjs",
+    "tests/public-source.test.ts"
   ],
   "browserSuite": "root",
   "releaseApproved": false,
-  "scope": "Deterministic Windows core and browser integration. Native confinement, live-provider behavior, and complete milestone acceptance remain separate gates."
+  "scope": "Frozen reviewed M01/M02/M03 source composition. Required Windows selection is59 exact files; Linux unsupported-native cases remain in full canonical unit tests. Native/installed acceptance and release approval remain separate.",
+  "expectedTreeSha": "6e0bd1a02159bad840dc02cf4515ba8bd136cf99"
 }
