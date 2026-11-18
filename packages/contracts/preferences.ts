@@ -2,6 +2,8 @@ import { z } from 'zod';
 
 const font = z.enum(['system', 'Inter', 'Arial', 'Georgia']);
 export const PROJECT_PALETTE = { blue: '#4F6EFF', violet: '#9855F7', cyan: '#00A6BD', orange: '#F07524', rose: '#E84876', green: '#16A36D' } as const;
+/** The same accents in their solid-fill ink, which carries white text on buttons. */
+export const PROJECT_ACCENT_INK = { blue: '#3151D6', violet: '#7530CE', cyan: '#007888', orange: '#A34708', rose: '#BC2850', green: '#087748' } as const;
 export type ProjectAccent = keyof typeof PROJECT_PALETTE;
 export const projectColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Choose a six-digit hex color, such as #4F6EFF.');
 const projectColorKey = z.string().max(1000).refine(value => {

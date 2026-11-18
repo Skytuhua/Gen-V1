@@ -314,7 +314,7 @@
 }
 
 .sidebar .thread-item-meta[data-thread-state='working'] .thread-item-status {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .sidebar .thread-item-meta[data-thread-state='awaiting_input'] .thread-item-status {
