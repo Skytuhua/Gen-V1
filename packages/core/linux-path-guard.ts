@@ -14,7 +14,8 @@ export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root:string){
  if(!paths.length||paths.length>256)throw denied();
  for(const path of paths){
   if(typeof path.path!=='string'||path.path.length>4096||path.path.includes('\0')||!posix.isAbsolute(path.path)||posix.normalize(path.path)!==path.path||!within(root,path.path)
-   ||typeof path.leaf!=='boolean'||path.leaf&&path.tree||path.gitMetadataImport&&(!path.tree||path.leaf||!path.readOnly))throw denied();
+   ||typeof path.leaf!=='boolean'||path.leaf&&path.tree||path.gitMetadataImport&&(!path.tree||path.leaf||!path.readOnly)
+   ||path.readOnly&&!path.leaf&&!path.tree)throw denied();
   if((path.dev===undefined)!==(path.ino===undefined)||path.dev!==undefined&&(!/^\d+$/.test(path.dev)||!/^\d+$/.test(path.ino!)))throw denied();
   if(path.childWriteRoot!==undefined&&(!within(root,path.childWriteRoot)||posix.normalize(path.childWriteRoot)!==path.childWriteRoot||!within(path.childWriteRoot,path.path)))throw denied();
  }
@@ -116,7 +117,7 @@ function connect(){return broker??=(async()=>{
 
 const uncertain=()=>new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN','Credential mount ownership did not settle. Retain caller custody.');
 export function validateLinuxCredentialPath(authPath:string,root:string):string{
- if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:[^\/]+\/)*accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
+ if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:accounts|manager-runtime\/accounts)\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
  return posix.dirname(authPath);
 }
 
