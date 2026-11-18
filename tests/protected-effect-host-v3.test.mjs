@@ -84,12 +84,21 @@ it('preserves the default-off production composition', async () => {
   expect(x.marker()).toBeNull();
 });
 
-it('does no key access or provisioning when both host flags are off', async () => {
-  const x = await state(), f = custodyFixture(x); x.saveMarker({ unsupported: 'retained metadata' });
+it('does no key access or provisioning in a never-enabled profile with both flags off', async () => {
+  const x = await state(), f = custodyFixture(x);
   const service = await compose(x, {}, f.factories);
   expect(f.factories.initializeKey).not.toHaveBeenCalled(); expect(f.factories.openKey).not.toHaveBeenCalled();
-  expect(x.marker()).toEqual({ unsupported: 'retained metadata' });
+  expect(x.marker()).toBeNull();
   expect(service.effects.issueApproval(x.operation, x.thread).hostAuthenticator).toBeUndefined();
+});
+
+it('retains a protected profile marker with flags off without opening keys or allowing legacy approval', async () => {
+  const x = await state(), f = custodyFixture(x), marker = { unsupported: 'retained metadata' }; x.saveMarker(marker);
+  const service = await compose(x, {}, f.factories);
+  expect(f.factories.initializeKey).not.toHaveBeenCalled(); expect(f.factories.openKey).not.toHaveBeenCalled(); expect(x.marker()).toEqual(marker);
+  expect(x.store.snapshot().operations).toContainEqual(x.operation);
+  await expect(service.command({ id: crypto.randomUUID(), type: 'operation.approve', threadId: x.thread.id,
+    payload: { operationId: x.operation.id, revision: 1 } })).rejects.toMatchObject({ code: 'EFFECT_ADMISSIONS_DISABLED' });
 });
 
 it('durably reserves the exact key identity before exclusive first initialization', async () => {

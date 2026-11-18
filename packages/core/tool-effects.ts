@@ -14,6 +14,7 @@ import { authorize, type RegistryEntry, type ToolAuthority } from "./tool-author
 import { createCapabilityFlags, type CapabilityFlags } from "./capability-flags.ts";
 import { digest, type Store } from "../storage/store.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
+import { EffectAdmissionPolicy } from "./effect-admission-policy.ts";
 
 const now = () => new Date().toISOString();
 export const APPROVAL_TTL_MS = 15 * 60_000;
@@ -99,7 +100,12 @@ export function createToolEffectFlags(overrides?: Partial<Record<ToolEffectFlag,
 }
 
 export class ToolEffectLedger {
-  constructor(private readonly store: Store, private readonly authority: ToolAuthority, private readonly flags = createToolEffectFlags(), private readonly authenticator?: EffectAuthenticator) {}
+  private readonly admissionPolicy: EffectAdmissionPolicy;
+  constructor(private readonly store: Store, private readonly authority: ToolAuthority, private readonly flags = createToolEffectFlags(), private readonly authenticator?: EffectAuthenticator) {
+    this.admissionPolicy = new EffectAdmissionPolicy(store, flags);
+  }
+  admissionsDisabled(): boolean { return this.admissionPolicy.disabled; }
+  assertAdmissionsEnabled(): void { this.admissionPolicy.assertEnabled(); }
 
   private authenticated(): boolean { return this.flags.enabled("audit.effectsV1") || this.flags.enabled("security.authorityV1"); }
   private signer(): EffectAuthenticator {
@@ -167,6 +173,7 @@ export class ToolEffectLedger {
     targetPreconditions?: string[];
     extraPut?: () => void;
   }): ToolEffectRecord {
+    this.assertAdmissionsEnabled();
     const { call, owner, definition } = input;
     const invocationId = String(call.args.commandId ?? call.args.invocationId ?? randomUUID());
     const commitment = this.privateArgumentCommitment(call);
@@ -234,6 +241,7 @@ export class ToolEffectLedger {
   }
 
   issueApproval(operation: Operation, thread: Thread): ApprovalV1 {
+    this.assertAdmissionsEnabled();
     const time = Date.now(), issuedAt = new Date(time).toISOString();
     const approval: ApprovalV1 = {
       approvalId: randomUUID(),
@@ -258,6 +266,7 @@ export class ToolEffectLedger {
     const prior = this.get(invocationId);
     if (prior && settled(prior.state)) return prior;
     if (prior) throw new HarnessError("INVOCATION_IN_FLIGHT", "This operation dispatch is already in flight");
+    this.assertAdmissionsEnabled();
     const call: ToolCall = { name: "operation:" + operation.kind, args: { invocationId, operationId: operation.id, ...operation.args } };
     const approvalId = this.flags.enabled("security.authorityV1") ? (this.approvalFor(operation.id)?.approvalId ?? null) : null;
     if (this.flags.enabled("security.authorityV1") && !approvalId) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
@@ -292,6 +301,7 @@ export class ToolEffectLedger {
   /** Consume a recorded approval for dispatch; verifies the commitment still
    * matches the current operation and thread before the single use is spent. */
   verifyOperationApproval(operation: Operation, thread: Thread): void {
+    this.assertAdmissionsEnabled();
     if (!this.flags.enabled("security.authorityV1")) return;
     const approval = this.approvalFor(operation.id);
     if (!approval) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
@@ -302,6 +312,7 @@ export class ToolEffectLedger {
    * epoch to bind the invocation to the thread's current owner (e.g. learning
    * jobs that outlive the run they review). */
   async invoke(input: { call: ToolCall; ctx: { threadId: string; runId?: string | null; epoch?: number | null }; thread: Thread; role: ActorRole }, executor: () => Promise<unknown>): Promise<unknown> {
+    this.assertAdmissionsEnabled();
     const { call, ctx, thread, role } = input;
     const definition = this.authority.require(call.name);
     const owner = ownerFor(thread, ctx);
