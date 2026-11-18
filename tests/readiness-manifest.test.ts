@@ -96,6 +96,20 @@ describe('runCheck child-process contract',()=>{
     await expect(runCheck(specFor(directory,{logPath:directory,args:['-e','setTimeout(()=>{},15_000)']}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
   });
 
+  it.skipIf(process.platform!=='linux'||!existsSync('/dev/full'))('kills a running child when a log write fails after opening',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      logPath:'/dev/full',
+      args:['-e','require("node:fs").writeFileSync("child.pid",String(process.pid));console.log("post-open write");setTimeout(()=>{},10_000);'],
+      timeoutMs:10_000,
+    }));
+    // The child writes the marker only after startup, which follows successful log opening.
+    expect(result).toMatchObject({status:'FAIL',errorKind:'log-error'});
+    const pid=Number(readFileSync(join(directory,'child.pid'),'utf8'));
+    expect(Number.isSafeInteger(pid)).toBe(true);
+    await expect.poll(()=>existsSync('/proc/'+pid),{timeout:3000}).toBe(false);
+  });
+
   it('child output is captured to the log artifact',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{args:['-e','console.log("f01-log-marker")']}));
