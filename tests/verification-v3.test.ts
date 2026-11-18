@@ -1,6 +1,5 @@
-import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import {describe,it,expect,afterEach} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync} from 'node:fs';
+import {mkdtempSync,mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
@@ -8,17 +7,18 @@ import {
  ProjectVerificationService,recipeDigest,recipeApprovalCommitment,sourceDigest,environmentId,
  type VerificationLauncher,type LaunchedProcess,type ListenerProbe,
 } from '../packages/core/project-verification';
-import {computeAssessment,observationFreshness} from '../packages/core/verification-gate';
+import {BoundedRepairLoop,computeAssessment,observationFreshness} from '../packages/core/verification-gate';
 import {verificationRecipeV1Schema,type CheckObservationV1,type VerificationRecipeV1} from '../packages/contracts/verification';
-import type {ApprovalV1,ToolOwner} from '../packages/contracts/tool-effects';
+import type {ApprovalV1,ToolEffectRecord,ToolOwner} from '../packages/contracts/tool-effects';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
+import {VerificationArtifactStore} from '../packages/core/verification-artifacts';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
 
 const stores:Store[]=[];
-function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
+function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
 const dirs:string[]=[];
 function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
 afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
@@ -32,6 +32,15 @@ function workspace(){
  writeFileSync(join(root,'app.ts'),'export const v=1;\n');
  writeFileSync(join(root,'pnpm-lock.yaml'),'lockfileVersion: 1\n');
  return root;
+}
+function attestProject(store:Store,root:string){
+ const stamp=new Date().toISOString(),info=lstatSync(root,{bigint:true});
+ const prior=store.get<import('../packages/contracts').Thread>('thread','t1');
+ store.internal('test.project','t1',()=>{
+  store.put('workspaceProject','project-1',null,{id:'project-1',name:'Project',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','project-1',null,{path:root,identity:{dev:String(info.dev),ino:String(info.ino)}});
+  store.put('thread','t1','t1',{id:'t1',title:'T',projectName:'Project',createdAt:stamp,updatedAt:stamp,status:'working',modelId:'test/model',sessionPath:null,runId:'r1',epoch:1,...prior,kind:'main',projectId:'project-1'});
+ });
 }
 async function statIdentity(root:string){
  const info=await import('node:fs/promises').then(fs=>fs.stat(root,{bigint:true}));
@@ -101,6 +110,53 @@ it('recipe registration requires an exact M02 approval for this recipe and owner
  expect(code(()=>service.registerRecipe(r,ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
 });
 
+it.each([{runId:'r2'},{epoch:2},{projectId:'project-other'},{workspaceId:'workspace-other'},{accountBinding:'account-other'}])('recipe approval cannot cross the owner binding %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe(r,ap.approvalId,{...o,...changed}))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ expect(service.recipe(r.recipeId)).toBeNull();
+});
+
+it.each([{recipeId:'recipe-other'},{revision:2}])('recipe approval binds the exact recipe identity %j',async changed=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),ap=approval(store,r,o);
+ expect(code(()=>service.registerRecipe({...r,...changed},ap.approvalId,o))).toBe('APPROVAL_REQUIRED');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('recipe registration preserves the exact approved next revision',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const o=owner(),r=await recipe(root),first=approval(store,r,o);
+ service.registerRecipe(r,first.approvalId,o);
+ const skipped={...r,revision:7},ap=approval(store,skipped,o);
+ expect(code(()=>service.registerRecipe(skipped,ap.approvalId,o))).toBe('RECIPE_REVISION');
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+ const next={...r,revision:2},nextApproval=approval(store,next,o);
+ expect(service.registerRecipe(next,nextApproval.approvalId,o).revision).toBe(2);
+});
+
+it('one thread cannot replace another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const originalOwner=owner(),r=await recipe(root);
+ service.registerRecipe(r,approval(store,r,originalOwner).approvalId,originalOwner);
+ const foreign=owner('t2'),replacement={...r,revision:2},ap=approval(store,replacement,foreign);
+ expect(code(()=>service.registerRecipe(replacement,ap.approvalId,foreign))).toBe('CAPABILITY_DENIED');
+ expect(service.recipe(r.recipeId)?.revision).toBe(1);
+ expect(store.all<VerificationRecipeV1>('verificationRecipe','t1')).toHaveLength(1);
+ expect(store.get<ApprovalV1>('approval',ap.approvalId)?.remainingUses).toBe(1);
+});
+
+it('one thread cannot execute another thread\'s registered recipe',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const launched=launcher([{exitCode:0}]);
+ expect(await codeAsync(service.runRecipe(owner('t2'),request(r.recipeId),launched.fn))).toBe('NOT_FOUND');
+ expect(launched.launched).toHaveLength(0);
+ expect(service.observations('t2')).toEqual([]);
+});
+
 it('an approved recipe runs the fixed phase order and records bound observations',async()=>{
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
@@ -134,6 +190,29 @@ it('a failing phase prevents the start, readiness and browser phases',async()=>{
  const phases=result.observations.map(obs=>obs.phase);
  expect(phases).toEqual(['BUILD','TEST','TEARDOWN']);
  expect(l.launched).toHaveLength(2); // no start process was ever created
+});
+
+it('retains bounded UTF-8 process logs through the host artifact store',async()=>{
+ const root=workspace(),store=stateStore(),service=new ProjectVerificationService(store,FLAGS_ON),o=owner();
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const l=launcher([{exitCode:0}]),launch=l.fn.launch;
+ l.fn.launch=async request=>{const process=await launch(request);process.log=async()=>({text:'😀'.repeat(20_000)+'tail',truncated:false});return process;};
+ const result=await service.runRecipe(o,request(r.recipeId),l.fn),test=result.observations.find(observation=>observation.phase==='TEST')!;
+ expect(result.outcome).toBe('PASS');expect(test.artifactRefs).toHaveLength(1);
+ const retained=new VerificationArtifactStore(store).read(test.artifactRefs[0],o,test.executionId);
+ expect(retained.bytes.length).toBe(64*1024);expect(retained.bytes.toString('utf8')).not.toContain('�');expect(retained.metadata.truncated).toBe(true);
+});
+
+it('does not fabricate an empty successful log when the observed log read fails',async()=>{
+ const root=workspace(),store=stateStore(),service=new ProjectVerificationService(store,FLAGS_ON),o=owner();
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const l=launcher([{exitCode:0}]),launch=l.fn.launch;
+ l.fn.launch=async request=>{const process=await launch(request);process.log=async()=>{throw Error('observed log unavailable');};return process;};
+ const result=await service.runRecipe(o,request(r.recipeId),l.fn);
+ expect(result.outcome).toBe('BLOCKED');expect(result.observations.find(observation=>observation.phase==='TEST')?.detail).toContain('observed log unavailable');
+ expect(l.launched.every(process=>process.terminated)).toBe(true);
 });
 
 it('readiness requires the launched process tree to own the approved endpoint',async()=>{
@@ -193,6 +272,34 @@ it('cleanup failures are recorded as their own observation',async()=>{
  expect(teardown.outcome).toBe('FAIL');
 });
 
+it('a passing recipe cannot report success when its owned process cleanup fails',async()=>{
+ const root=workspace();const store=stateStore();
+ const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root);
+ const r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')});
+ const o=owner();service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const failing:VerificationLauncher={launch:async()=>({pid:1,tree:async()=>[1],wait:async()=>({exitCode:0,termination:'NONE'}),terminate:async()=>{throw new Error('owned process still running');},log:async()=>({text:'',truncated:false})})};
+ const result=await service.runRecipe(o,request('recipe-1'),failing);
+ expect(result.observations.find(obs=>obs.phase==='TEST')?.outcome).toBe('PASS');
+ expect(result.outcome).toBe('FAIL');
+ expect(result.cleanupFailures).toEqual(['owned process still running']);
+ expect(result.observations.find(obs=>obs.phase==='TEARDOWN')?.outcome).toBe('FAIL');
+});
+
+it('identical runner failures stop repair despite fresh observation IDs on every execution',async()=>{
+ const root=workspace();const store=stateStore();const service=new ProjectVerificationService(store,FLAGS_ON);
+ const base=await recipe(root),r=await recipe(root,{phases:base.phases.filter(phase=>phase.name==='TEST')}),o=owner();
+ service.registerRecipe(r,approval(store,r,o).approvalId,o);
+ const loop=new BoundedRepairLoop(store,o,r.recipeId,['tests-pass']),checkIds:string[]=[];
+ for(let attempt=0;attempt<2;attempt++){
+  const result=await service.runRecipe(o,request(r.recipeId),launcher([{exitCode:1}]).fn);
+  const failures=result.observations.filter(obs=>obs.outcome==='FAIL');checkIds.push(failures[0].checkId);
+  loop.recordAttempt({requirementIds:['tests-pass'],failures,outcome:result.outcome});
+ }
+ expect(new Set(checkIds).size).toBe(2);
+ expect(loop.nextDecision()).toEqual({allowed:false,reason:'UNCHANGED_FAILURE'});
+});
+
 it('the completion projection marks fresh trusted evidence verified and names missing checks',async()=>{
  const root=workspace();
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
@@ -241,15 +348,18 @@ it('a START server stays owned and alive; early exit fails the phase',async()=>{
  expect(dead.observations.some(obs=>obs.phase==='READINESS')).toBe(false);
 });
 
-it('owned processes are terminated even when a phase throws outside its error handling',async()=>{
+it('lost source inputs leave blocked evidence and owned processes are still terminated',async()=>{
  const root=workspace();const store=stateStore();
  const service=new ProjectVerificationService(store,FLAGS_ON);
  const o=owner();const r=await recipe(root);service.registerRecipe(r,approval(store,r,o).approvalId,o);
- // Delete a declared input mid-run so the next phase's digest recomputation throws.
+ // Delete a declared input mid-run so the post-check source cut is unavailable.
  let built=false;
  const l=launcher([{exitCode:0},{exitCode:0}]);
  const destructive:VerificationLauncher={launch:async req=>{const proc=await l.fn.launch(req);if(!built){built=true;rmSync(join(root,'app.ts'),{force:true});}return proc;}};
- expect(await codeAsync(service.runRecipe(o,request('recipe-1'),destructive,{probe:async()=>({reachable:true,ownerPid:1})}))).toBe('INVALID_RESOURCE');
+ const result=await service.runRecipe(o,request('recipe-1'),destructive,{probe:async()=>({reachable:true,ownerPid:1})});
+ expect(result.outcome).toBe('BLOCKED');
+ expect(result.observations.some(observation=>observation.outcome==='BLOCKED'&&observation.detail?.includes('BLOCKED_SOURCE_DRIFT'))).toBe(true);
+ expect(result.observations.some(observation=>observation.phase==='TEST')).toBe(false);
  expect(l.launched.length).toBeGreaterThan(0);
  expect(l.launched.every(proc=>proc.terminated)).toBe(true);
 });
@@ -269,13 +379,14 @@ it('an audited task_finish does not block its own completion assessment',async()
  const {Service}=await import('../packages/core/service');
  const root=workspace();const store=stateStore();
  const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
- const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true},toolEffectAuthenticator:testEffectAuthenticator()});
+ const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  // Audited path admits this very task_finish as DISPATCHED before the body
  // runs; the assessment must exclude it by argument commitment.
@@ -295,6 +406,7 @@ it('verification_declare accepts commandId for receipts without polluting the de
  const service=new Service(store,runtime as never,{});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
+ attestProject(store,root);
  const args={commandId:'decl-1',rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'win32/24.10.0/pnpm@10.30.3',requirements:[{id:'tests-pass',checkRefs:['exec-1']}]};
  const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
  process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
@@ -312,10 +424,11 @@ it('verification_declare accepts commandId for receipts without polluting the de
 it('the panel shows no completion label until task_finish saved an assessment',async()=>{
  const {verificationPanelModel}=await import('../packages/core/verification-read-models');
  const root=workspace();const store=stateStore();
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);});
  const model=verificationPanelModel(store,'t1');
  // Rows and freshness still compute against the live cut; the label stays
@@ -327,10 +440,11 @@ it('the panel shows no completion label until task_finish saved an assessment',a
 it('the panel read model re-digests declared inputs so edits never keep a green Verified',async()=>{
  const {verificationPanelModel}=await import('../packages/core/verification-read-models');
  const root=workspace();const store=stateStore();
+ attestProject(store,root);
  const code=await sourceDigest(root,['app.ts']);const dep=await sourceDigest(root,['pnpm-lock.yaml']);
  const envId='win32/24.10.0/pnpm@10.30.3';const stamp=new Date().toISOString();
  const declaration={version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:envId,requirements:[{id:'tests-pass',checkRefs:['exec-1']}],declaredAt:stamp};
- const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:owner(),codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
+ const obs:CheckObservationV1={version:1,checkId:'c1',executionId:'exec-1',owner:{...owner(),projectId:'project-1'},codeDigest:code,dependencyDigest:dep,recipeDigest:'a'.repeat(64),environmentId:envId,argv:['pnpm','test'],cwdIdentity:root,phase:'TEST',startedAt:stamp,endedAt:stamp,exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process'};
  const assessment=computeAssessment({threadId:'t1',sourceCut:{headSha:null,codeDigest:code,dependencyDigest:dep,environmentId:envId},requirements:declaration.requirements,observations:[obs],unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test'});
  store.internal('test.fixture','t1',()=>{store.put('verificationDeclaration','t1','t1',declaration);store.put('checkObservation','c1','t1',obs);store.put('assessment',assessment.assessmentId,'t1',assessment);});
  const before=verificationPanelModel(store,'t1');
@@ -414,6 +528,22 @@ describe('complete requirement evidence',()=>{
   expect(result.requirements[0].missing).toEqual([]);
  });
 
+ it('a browser artifact reference cannot attest its own screenshot custody',()=>{
+  const result=assess(['browser'],[observation('browser',{phase:'BROWSER',observationKind:'browser',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.requirements[0].missing).toEqual(['artifact custody is unavailable for build-and-test (browser)']);
+ });
+
+ it('missing artifact metadata cannot make a visual dependency trusted',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{observationKind:'visual',artifactRefs:[]})]);
+  expect(result.label).toBe('BLOCKED');
+ });
+
+ it('a screenshot from a different complete owner cannot block the selected execution',()=>{
+  const result=assess(['build'],[observation('build'),observation('image',{owner:{...owner(),accountBinding:'other-account'},observationKind:'visual',artifactRefs:['untrusted://capture.png']})]);
+  expect(result.label).toBe('VERIFIED');
+ });
+
  it.each([
   ['failed cleanup',{phase:'TEARDOWN' as const,observationKind:'cleanup' as const,outcome:'FAIL' as const,exitCode:null},'FAILED'],
   ['cancelled execution',{outcome:'CANCELLED' as const,exitCode:null},'FAILED'],
@@ -443,4 +573,52 @@ describe('complete requirement evidence',()=>{
   expect(result.label).toBe('COMPLETED_UNVERIFIED');
   expect(result.requirements[0].missing).toHaveLength(64);
  });
+});
+
+describe('bounded unresolved effect projection',()=>{
+ const assess=(count:number,provenance='test')=>computeAssessment({
+  threadId:'t1',sourceCut:{headSha:null,codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),environmentId:'test'},
+  requirements:[],observations:[],unresolvedEffects:Array.from({length:count},(_,index)=>`effect-${index}`),
+  verifierIdentity:'test',provenance,
+ });
+ it.each([65,128,1024])('keeps %i unresolved effects blocked with bounded references and the full count',count=>{
+  const result=assess(count);
+  expect(result.label).toBe('BLOCKED');
+  expect(result.unresolvedEffects).toEqual(Array.from({length:64},(_,index)=>`effect-${index}`));
+  expect(result.provenance).toContain(`Unresolved effects: ${count}`);
+  expect(result.provenance).toContain('references shown: 64');
+ });
+ it('keeps the effect count visible when existing provenance fills its bound',()=>{
+  const result=assess(65,'p'.repeat(500));
+  expect(result.label).toBe('BLOCKED');
+  expect(result.provenance.length).toBeLessThanOrEqual(500);
+  expect(result.provenance).toContain('Unresolved effects: 65');
+  expect(result.provenance).toContain('provenance shortened');
+ });
+});
+
+it('task_finish and the live panel keep 65 unresolved ledger effects blocked without dropping records',async()=>{
+ const {Service}=await import('../packages/core/service');
+ const {verificationPanelModel}=await import('../packages/core/verification-read-models');
+ const root=workspace(),identity=await statIdentity(root),store=stateStore(),stamp=new Date().toISOString();
+ const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
+ const service=new Service(store,runtime as never,{});
+ store.internal('test.fixture','t1',()=>{
+  store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectId:'p1',workspaceId:null,accountId:null,projectName:'P',status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1});
+  store.put('workspaceProject','p1',null,{id:'p1',name:'P',rootPath:root,authority:{kind:'local'},createdAt:stamp});
+  store.put('workspaceProjectRoot','p1',null,{path:root,identity:{dev:identity.dev,ino:identity.ino}});
+  store.put('verificationDeclaration','t1','t1',{version:1,rootPath:root,sourceFiles:['app.ts'],dependencyFiles:['pnpm-lock.yaml'],environmentId:'test',requirements:[]});
+  for(let index=0;index<65;index++){
+   const id=`effect-${index}`;
+   const effect:ToolEffectRecord={effectId:id,invocationId:id,attemptId:1,parentInvocationId:null,owner:{...owner(),projectId:'p1'},toolId:'repository_read',definitionDigest:'c'.repeat(64),privateArgumentCommitment:'d'.repeat(64),publicRedactedSummary:'pending read',targetPreconditions:[],approvalId:null,state:'DISPATCHED',providerReceiptRef:null,createdAt:stamp,updatedAt:stamp,threadId:'t1',transitions:[{from:null,to:'PREPARED',at:stamp},{from:'PREPARED',to:'DISPATCHED',at:stamp}]};
+   store.put('toolEffect',id,'t1',effect);
+  }
+ });
+ const saved=process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1='1';
+ try{await service.tool({name:'task_finish',args:{commandId:'finish-overflow',outcome:'done'}},{threadId:'t1',runId:'r1',epoch:1});}
+ finally{if(saved===undefined)delete process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;else process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1=saved;}
+ const assessment=store.all<{label:string;unresolvedEffects:string[];provenance:string}>('assessment','t1').at(-1)!;
+ expect(assessment.label).toBe('BLOCKED');expect(assessment.unresolvedEffects).toHaveLength(64);expect(assessment.provenance).toContain('Unresolved effects: 65');
+ expect(verificationPanelModel(store,'t1').label).toBe('BLOCKED');
+ expect(store.all<ToolEffectRecord>('toolEffect','t1')).toHaveLength(65);
 });

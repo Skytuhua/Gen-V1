@@ -85,6 +85,33 @@ it('a repair attempt must keep the same requirement IDs — scope drift is rejec
  expect(loop.stopped).toBeNull();
 });
 
+it('requirement IDs containing commas cannot collide with a different repair scope',()=>{
+ const store=stateStore(),loop=new BoundedRepairLoop(store,owner,'recipe-1',['req,a','b']);
+ expect(code(()=>loop.recordAttempt({requirementIds:['req','a,b'],failures:[],outcome:'PASS'}))).toBe('REPAIR_SCOPE');
+ expect(loop.attempts).toEqual([]);
+});
+
+it('reopening a repair rejects a different requirement scope',()=>{
+ const store=stateStore();new BoundedRepairLoop(store,owner,'recipe-1',['req-a']);
+ expect(code(()=>new BoundedRepairLoop(store,owner,'recipe-1',['req-b']))).toBe('REPAIR_SCOPE');
+});
+
+it('a cancelled attempt stops repair before another attempt can run',()=>{
+ const loop=new BoundedRepairLoop(stateStore(),owner,'recipe-1',['req-a']);
+ loop.recordAttempt({requirementIds:['req-a'],failures:[],outcome:'CANCELLED'});
+ expect(loop.nextDecision()).toEqual({allowed:false,reason:'CANCELLED'});
+ expect(code(()=>loop.recordAttempt({requirementIds:['req-a'],failures:[],outcome:'PASS'}))).toBe('REPAIR_BUDGET');
+});
+
+it('overlapping repair controllers retain every attempt and share the three-attempt budget',()=>{
+ const store=stateStore(),first=new BoundedRepairLoop(store,owner,'recipe-1',['req-a']),second=new BoundedRepairLoop(store,owner,'recipe-1',['req-a']);
+ first.recordAttempt({requirementIds:['req-a'],failures:[{checkId:'c1',outcome:'FAIL',detail:'first'}],outcome:'FAIL'});
+ second.recordAttempt({requirementIds:['req-a'],failures:[{checkId:'c1',outcome:'FAIL',detail:'second'}],outcome:'FAIL'});
+ first.recordAttempt({requirementIds:['req-a'],failures:[{checkId:'c1',outcome:'FAIL',detail:'third'}],outcome:'FAIL'});
+ expect(second.nextDecision()).toEqual({allowed:false,reason:'BUDGET'});
+ expect(second.attempts.map(attempt=>attempt.attempt)).toEqual([1,2,3]);
+});
+
 it('security findings dedupe by source plus identity and keep evidence fields',()=>{
  const store=stateStore();
  const ledger=new SecurityFindingLedger(store);

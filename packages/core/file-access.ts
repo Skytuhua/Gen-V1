@@ -5,7 +5,7 @@ import { fileURLToPath } from "node:url";
 import { open, lstat } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { HarnessError, type ResourceGrant } from "../contracts/index.ts";
-import { assertNotStorage, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
+import { assertNotStorage, canonical, resolveGrant, PROTECTED_STORAGE_DIRECTORIES, projectMemoryDeletionLedgerPath } from "./security.ts";
 
 type GuardPath = { path: string; leaf: boolean; dev?: string; ino?: string; empty?: boolean; tree?: boolean; readOnly?: boolean; allowChildWrites?:boolean; childWriteRoot?:string; gitMetadataImport?:boolean };
 export interface GuardEntry { readonly path: string; readonly directory: boolean; readonly dev: string; readonly ino: string; readonly size: number }
@@ -134,7 +134,9 @@ export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string
     active(signal);
     const stable = await resolveGrant(grant, relativePath, write, dataDir);
     if (stable !== path) throw denied();
-    assertNotStorage(stable, dataDir);
+    // Re-check containment against the same grant root the first resolution used,
+    // so a stored attachment stays readable only through its own conversation.
+    assertNotStorage(stable, dataDir, await canonical(grant.path));
     return action(stable);
   });
 }

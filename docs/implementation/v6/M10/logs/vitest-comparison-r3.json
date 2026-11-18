@@ -1,0 +1,32 @@
+{
+  "candidateSummary": {
+    "files": "44 failed | 334 passed | 4 skipped (382)",
+    "tests": "298 failed | 3865 passed | 58 skipped (4221)"
+  },
+  "baselineSummary": {
+    "files": "44 failed | 330 passed | 4 skipped (378)",
+    "tests": "298 failed | 3805 passed | 58 skipped (4161)"
+  },
+  "candidateFailedIdentities": 298,
+  "baselineFailedIdentities": 298,
+  "shared": 297,
+  "candidateOnly": [
+    "tests/personal-visuals-ui.test.ts > keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame"
+  ],
+  "baselineOnly": [
+    "tests/dev-plugin-runtime.test.ts > prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children"
+  ],
+  "candidateOnlyInvestigation": [
+    {
+      "id": "tests/personal-visuals-ui.test.ts > keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame",
+      "isolatedCandidateRerun": "PASS 7/7",
+      "conclusion": "load-induced flake; passes in isolation on the candidate cut"
+    }
+  ],
+  "baselineOnlyNote": "tests/dev-plugin-runtime.test.ts case failed only on the baseline full run and passes on the candidate full run; symmetric load noise.",
+  "newM10Tests": {
+    "files": 4,
+    "tests": 60,
+    "failed": 0
+  }
+}

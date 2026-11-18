@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "/home/piadmin/tools/pnpm",
+    "test:browser"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6-baseline",
+  "executableIdentity": "/home/piadmin/tools/pnpm",
+  "startedAt": "2026-11-17T21:31:06.421Z",
+  "endedAt": "2026-11-17T23:51:57.320Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/baseline-gate-test-browser.log",
+  "logDigest": "36fd52b2fe718ec9a0442d565730efdd7ab86f9d0860ff8fd500de4e596ee41d"
+}

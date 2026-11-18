@@ -3,11 +3,14 @@ import { createRoot } from 'react-dom/client';
 import { ContextInspector, type ContextCompactionReport } from '../../apps/web/src/ContextInspector';
 import { UsageDialog } from '../../apps/web/src/UsageDialog';
 import { UsageFooter } from '../../apps/web/src/UsageFooter';
+import { VerificationPanel } from '../../apps/web/src/VerificationPanel';
 import type { UsageProviderReport } from '../../apps/web/src/usage-presentation';
 import type { ModelRequestObservationV1 } from '../../packages/contracts/model-request';
 import { EMPTY_USAGE, type Thread } from '../../packages/contracts';
 import type { ContextUsage } from '../../apps/web/src/ContextMeter';
 import '../../apps/web/src/styles.css';
+import '../../apps/web/src/shell.css';
+import '../../apps/web/src/workspace-canvas.css';
 
 function Fixture() {
   const [open, setOpen] = useState(false), anchor = useRef<HTMLButtonElement>(null);
@@ -117,4 +120,18 @@ function Fixture() {
       onRefresh={async () => { if (mode === 'refresh-error') throw Error('Synthetic refresh failure'); }} />
   </main>;
 }
-createRoot(document.getElementById('root')!).render(<Fixture />);
+function VerificationFixture() {
+  const [threadId, setThreadId] = useState('thread-one');
+  const canvas = new URLSearchParams(location.search).has('canvas');
+  const panel = <VerificationPanel threadId={threadId} />;
+  return <main style={{padding: 12, ...(canvas ? {height: '100dvh', display: 'flex', flexDirection: 'column', overflow: 'hidden'} as const : {})}}>
+    <nav><button onClick={() => setThreadId('thread-one')}>First conversation</button>
+      <button onClick={() => setThreadId('thread-two')}>Second conversation</button></nav>
+    {canvas ? <div className="canvas-thread" style={{flex: 1}}>
+      <div className="canvas-thread-transcript" role="log">Synthetic conversation transcript</div>
+      {panel}
+      <div className="composer-dock"><textarea aria-label="Reply" rows={2} /></div>
+    </div> : panel}
+  </main>;
+}
+createRoot(document.getElementById('root')!).render(new URLSearchParams(location.search).has('verification') ? <VerificationFixture /> : <Fixture />);

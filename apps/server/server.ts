@@ -20,6 +20,7 @@ import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
+import {registerBackgroundRoutes} from './background-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
@@ -38,6 +39,7 @@ import {ConversationReadModels} from '../../packages/core/conversation-read-mode
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
+import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
@@ -166,6 +168,23 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
     return { seq: service.store.sequence, verification: verificationPanelModel(service.store, id) };
   });
+  app.get<{ Params: { id: string; artifactId: string } }>('/api/threads/:id/verification/artifacts/:artifactId', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    try {
+      const {id, artifactId} = request.params;
+      // The reader validates an opaque reference and current durable owner.
+      // Neither the URL nor metadata can become a filesystem path.
+      const {metadata, bytes} = new VerificationArtifactStore(service.store).readForThread(id, `verification-artifact:${artifactId}`);
+      reply.header('Content-Security-Policy', "sandbox; default-src 'none'")
+        .header('X-Content-Type-Options', 'nosniff').header('Content-Length', String(bytes.length))
+        .header('X-Verification-Artifact-Sha256', metadata.sha256)
+        .header('X-Verification-Artifact-Truncated', String(metadata.truncated));
+      if (metadata.viewport) reply.header('X-Verification-Viewport-Width', String(metadata.viewport.width)).header('X-Verification-Viewport-Height', String(metadata.viewport.height));
+      return reply.type(metadata.mediaType).send(bytes);
+    } catch {
+      throw new HarnessError('NOT_FOUND', 'Verification artifact is unavailable.');
+    }
+  });
   // Deep message search for threads whose history the snapshot windowed: the
   // client passes the truncated thread ids it knows about.
   // M16 additive read model: mode | target | observe/interact | expiry |
@@ -214,6 +233,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerOperationProjectTrustRoutes(app,service);
   registerOperationExecutionReviewRoutes(app,service);
   registerAttentionRoutes(app,service);
+  registerBackgroundRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);

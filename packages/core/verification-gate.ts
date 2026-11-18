@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, type Thread } from '../contracts/index.ts';
 import type { ToolOwner } from '../contracts/tool-effects.ts';
+import { verificationArtifactAttestationSchema, type VerificationArtifactAttestation } from '../contracts/verification-artifacts.ts';
 import {
   type AssessedRequirement, type CheckObservationV1, type CompletionLabel,
   type DeliverableAssessmentV1, type ObservationFreshness, type SecurityFindingV1,
@@ -27,6 +28,15 @@ export function observationFreshness(observation: Pick<CheckObservationV1, 'code
   if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId) return 'CURRENT';
   if (!observation.codeDigest || !observation.dependencyDigest) return 'INDETERMINATE';
   return 'STALE';
+}
+
+/** Historical runs can prove unchanged code, but their evidence never moves
+ * to another project, working copy or account when a thread changes owner. */
+export function observationMatchesThreadOwner(observation: Pick<CheckObservationV1, 'owner'>, thread: Pick<Thread, 'id' | 'projectId' | 'workspaceId' | 'accountId'> | null): boolean {
+  return !!thread && observation.owner.threadId === thread.id &&
+    observation.owner.projectId === (thread.projectId ?? null) &&
+    observation.owner.workspaceId === (thread.workspaceId ?? null) &&
+    observation.owner.accountBinding === (thread.accountId ?? null);
 }
 
 /* ------------------------------------------------------------------ */
@@ -86,7 +96,7 @@ export function admitQaSpawn(request: QaSpawnRequest, approval: { actionCommitme
 /* commits.                                                             */
 /* ------------------------------------------------------------------ */
 
-export type RepairStopReason = 'VERIFIED' | 'UNCHANGED_FAILURE' | 'BUDGET' | 'REVOKED' | 'CONFLICT' | 'BLOCKED';
+export type RepairStopReason = 'VERIFIED' | 'UNCHANGED_FAILURE' | 'BUDGET' | 'REVOKED' | 'CONFLICT' | 'BLOCKED' | 'CANCELLED';
 
 export interface RepairAttempt {
   attempt: number;
@@ -109,6 +119,8 @@ export class BoundedRepairLoop {
     const key = `repair-${owner.threadId}-${recipeId}`;
     this.state = store.get<RepairState>('repair', key) ?? { recipeId, requirementIds: [...requirementIds], attempts: [], stopped: null };
     this.key = key;
+    if (digest([...requirementIds].sort()) !== digest([...this.state.requirementIds].sort()))
+      throw new HarnessError('REPAIR_SCOPE', 'A repair must keep the same requirement IDs');
     if (!this.state.attempts.length) this.persist();
   }
   private readonly key: string;
@@ -124,6 +136,9 @@ export class BoundedRepairLoop {
 
   /** Returns whether another attempt may start, and why not. */
   nextDecision(): { allowed: boolean; reason: RepairStopReason | null } {
+    // Controllers may overlap or be reconstructed. Read the latest durable
+    // attempt history before enforcing a budget or appending another attempt.
+    this.state = this.store.get<RepairState>('repair', this.key) ?? this.state;
     if (this.state.stopped) return { allowed: false, reason: this.state.stopped };
     if (this.state.attempts.length >= MAX_REPAIR_ATTEMPTS) { this.state.stopped = 'BUDGET'; this.persist(); return { allowed: false, reason: 'BUDGET' }; }
     const failures = this.state.attempts.filter(a => a.outcome === 'FAIL').map(a => a.failureDigest);
@@ -134,18 +149,35 @@ export class BoundedRepairLoop {
   recordAttempt(input: { requirementIds: string[]; failures: { checkId: string; outcome: string; detail?: string }[]; outcome: RepairAttempt['outcome']; revoked?: boolean; conflict?: boolean }): RepairAttempt {
     const decision = this.nextDecision();
     if (!decision.allowed) throw new HarnessError('REPAIR_BUDGET', `Repair stopped: ${decision.reason}`);
-    if (input.requirementIds.join(',') !== this.state.requirementIds.join(','))
+    if (digest([...input.requirementIds].sort()) !== digest([...this.state.requirementIds].sort()))
       throw new HarnessError('REPAIR_SCOPE', 'A repair attempt must keep the same requirement IDs');
     const attempt: RepairAttempt = {
       attempt: this.state.attempts.length + 1,
       requirementIds: [...input.requirementIds],
-      failureDigest: digest(input.failures.map(f => ({ checkId: f.checkId, outcome: f.outcome, detail: f.detail ?? '' }))),
+      failureDigest: digest(input.failures.map(failure => {
+        const observed = this.store.get<CheckObservationV1>('checkObservation', failure.checkId) ??
+          this.store.get<VisualObservationV1>('visualObservation', failure.checkId);
+        if (!observed) return digest({ checkId: failure.checkId, outcome: failure.outcome, detail: failure.detail ?? '' });
+        if (digest(observed.owner) !== digest(this.owner))
+          throw new HarnessError('REPAIR_SCOPE', 'Repair evidence belongs to another owner binding');
+        // Execution and observation IDs are new for every retest. Compare the
+        // stable check identity and actual failure instead of those run IDs.
+        return digest({
+          phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
+          cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
+          outcome: observed.outcome, exitCode: observed.exitCode,
+          item: 'checklistItemId' in observed ? observed.checklistItemId : null,
+          assertion: 'assertion' in observed ? observed.assertion : null,
+          detail: failure.detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
+        });
+      }).sort()),
       outcome: input.outcome,
       recordedAt: now(),
     };
     this.state.attempts.push(attempt);
     if (input.revoked) this.state.stopped = 'REVOKED';
     else if (input.conflict) this.state.stopped = 'CONFLICT';
+    else if (input.outcome === 'CANCELLED') this.state.stopped = 'CANCELLED';
     else if (input.outcome === 'BLOCKED') this.state.stopped = 'BLOCKED';
     else if (input.outcome === 'PASS') this.state.stopped = 'VERIFIED';
     this.persist();
@@ -190,6 +222,8 @@ export interface AssessmentInput {
   sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
   requirements: RequirementSpec[];
   observations: (CheckObservationV1 | VisualObservationV1)[];
+  /** Host-only current byte attestations. Never a model or browser argument. */
+  artifactAttestations?: readonly VerificationArtifactAttestation[];
   unresolvedEffects: string[];
   verifierIdentity: string;
   provenance: string;
@@ -206,12 +240,32 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // at checklist admission (browserChecklistSchema).
   const isAuditMarker = (obs: CheckObservationV1) =>
     'checklistItemId' in obs && typeof obs.checklistItemId === 'string' && obs.checklistItemId.startsWith('__');
-  const executionKey = (obs: CheckObservationV1) => JSON.stringify([
+  const executionKey = (obs: Pick<CheckObservationV1, 'executionId' | 'owner'>) => JSON.stringify([
     obs.executionId, obs.owner.threadId, obs.owner.runId, obs.owner.epoch,
     obs.owner.projectId, obs.owner.workspaceId, obs.owner.accountBinding,
   ]);
   const canVerify = (obs: CheckObservationV1) => !isAuditMarker(obs) &&
     obs.observationKind !== 'review-advisory' && obs.observationKind !== 'visual';
+  // The gate stays pure. Only explicit host inputs from a current bounded read
+  // can attest bytes; metadata in an observation never supplies custody.
+  const attestations = new Map<string, VerificationArtifactAttestation | null>();
+  for (const raw of (input.artifactAttestations ?? []).slice(0, 256)) {
+    const parsed = verificationArtifactAttestationSchema.safeParse(raw);
+    if (!parsed.success) continue;
+    const value = parsed.data, key = executionKey(value) + ':' + value.ref;
+    const existing = attestations.get(key);
+    attestations.set(key, existing !== undefined && digest(existing) !== digest(value) ? null : value);
+  }
+  const missingArtifactCustody = (obs: CheckObservationV1): 'screenshot' | 'artifact' | null => {
+    if (obs.observationKind === 'review-advisory') return null;
+    const proofs = obs.artifactRefs.map(ref => attestations.get(executionKey(obs) + ':' + ref));
+    const screenshotRequired = obs.observationKind === 'visual' ||
+      'screenshotDigest' in obs && obs.screenshotDigest !== null ||
+      proofs.some(proof => proof?.kind === 'SCREENSHOT');
+    if (screenshotRequired && (!('screenshotDigest' in obs) || typeof obs.screenshotDigest !== 'string' || !('viewport' in obs) ||
+        !proofs.some(proof => proof?.kind === 'SCREENSHOT' && proof.sha256 === obs.screenshotDigest && digest(proof.viewport) === digest(obs.viewport)))) return 'screenshot';
+    return proofs.some(proof => !proof) ? 'artifact' : null;
+  };
   const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
@@ -232,6 +286,8 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       const refExecutions = new Set(checks.map(executionKey));
       const related = executionChecks.filter(obs => refExecutions.has(executionKey(obs)));
       if (!checks.length) missing.push(`no observation bound to ${ref} for ${req.id}`);
+      else if (related.some(obs => missingArtifactCustody(obs)))
+        missing.push(`${related.some(obs => missingArtifactCustody(obs) === 'screenshot') ? 'screenshot' : 'artifact'} custody is unavailable for ${req.id} (${ref})`);
       else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
         missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
       else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
@@ -241,6 +297,8 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';
     if (executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'BLOCKED' || obs.outcome === 'CANCELLED')) {
       assessment = executionChecks.some(obs => obs.outcome === 'BLOCKED') && !executionChecks.some(obs => obs.outcome === 'FAIL' || obs.outcome === 'CANCELLED') ? 'BLOCKED' : 'FAILED';
+    } else if (executionChecks.some(obs => missingArtifactCustody(obs))) {
+      assessment = 'BLOCKED';
     } else if (req.checkRefs.length && !missing.length) {
       assessment = 'VERIFIED';
     }
@@ -257,6 +315,19 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
   // purely conversational tasks still finish, with the label saying so.
   if (!requirements.length) label = input.unresolvedEffects.length ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
 
+  // Keep the wire projection bounded without dropping durable ledger records
+  // or turning a large unresolved set into a schema error. The label above is
+  // derived from the full set; provenance makes the displayed subset explicit.
+  const unresolvedEffects = input.unresolvedEffects.slice(0, 64);
+  let provenance = input.provenance;
+  if (input.unresolvedEffects.length > unresolvedEffects.length) {
+    deliverableAssessmentV1Schema.shape.provenance.parse(provenance);
+    const summary = `Unresolved effects: ${input.unresolvedEffects.length}; references shown: ${unresolvedEffects.length}. `;
+    const available = 500 - summary.length;
+    const shortened = ' [provenance shortened]';
+    if (provenance.length > available) provenance = provenance.slice(0, available - shortened.length) + shortened;
+    provenance = summary + provenance;
+  }
   return deliverableAssessmentV1Schema.parse({
     version: 1,
     assessmentId: `assess-${randomUUID()}`,
@@ -264,9 +335,9 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     sourceCut: { ...input.sourceCut, recordedAt: now() },
     label,
     requirements,
-    unresolvedEffects: input.unresolvedEffects,
+    unresolvedEffects,
     verifierIdentity: input.verifierIdentity,
-    provenance: input.provenance,
+    provenance,
     createdAt: now(),
   });
 }
