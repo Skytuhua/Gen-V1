@@ -10,6 +10,7 @@ import type { RequestContextV1, RuntimeAdapter, RuntimeCallbacks, RunContext } f
 import { createInferenceBudgetLedger } from '../packages/runtime-hermes/context-budget';
 import type { NativeCompactionEnvelopeV1, NativeCompactionReceiptV1, NativeCompactionOwnerV1 } from '../packages/contracts/native-compaction.ts';
 import type { SourceRefV1 } from '../packages/contracts/source-selection.ts';
+import type { ModelRequestObservationV1 } from '../packages/contracts/model-request.ts';
 
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => { for (const close of cleanup.splice(0)) await close(); });
@@ -246,6 +247,7 @@ async function ownedCompactionFixture(requestContextEnabled = false) {
   cleanup.push(async () => {
     __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
     __setCapabilityFlagForTests('ui.sourceWorkbenchV1', undefined);
+    __setCapabilityFlagForTests('models.requestMetricsV1', undefined);
     await service.dispose(); store.close(); rmSync(directory, {recursive: true, force: true, maxRetries: 5});
   });
   const command = {id: 'owned-compact', type: 'run.compact', threadId, payload: {}};
@@ -253,6 +255,150 @@ async function ownedCompactionFixture(requestContextEnabled = false) {
     async restart(){await service.dispose();store.close();store=new Store(directory);service=new Service(store,runtime,{requestContextEnabled});}};
 }
 type CompactionFixture = Awaited<ReturnType<typeof ownedCompactionFixture>>;
+const compactionModelObservation = (ctx: RunContext, sequence: number, cost: number | null = 0.02): ModelRequestObservationV1 => ({
+  version: 1, requestId: `model-${sequence}-${ctx.runId}`,
+  owner: {threadId: ctx.threadId, runId: ctx.runId, epoch: ctx.epoch, sequence, inputIds: [], phase: 'foreground'},
+  binding: {providerId: 'test', modelId: 'test/model', accountId: null},
+  timings: {queued: 1000, acquired: 1, runtimeReady: 2, requestSent: 3, firstProviderDelta: 4, firstPublicDelta: null, settled: 5, teardownConfirmed: 6},
+  usage: {inputTokens: 10, outputTokens: 2, cacheReadTokens: null, cacheWriteTokens: null, cost},
+  usageConvention: 'provider-reported', measurementSource: 'hermes-broker', outcome: 'completed',
+});
+
+it.each(['applied', 'refused'] as const)('retains owned compaction model observations after an %s result and bounded M11 eviction', async outcome => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('models.requestMetricsV1', true);
+  let owner!: RunContext, candidateId!: string;
+  const observations: ModelRequestObservationV1[] = [];
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    owner = ctx; candidateId = envelope.plan.candidateId;
+    for (let index = 0; index < 65; index++) {
+      const observation = compactionModelObservation(ctx, index + 1, index === 0 ? 0 : index === 1 ? null : 0.02);
+      if (index === 2) observation.outcome = 'failed';
+      if (index === 3) {
+        observation.outcome = 'failed'; observation.usageConvention = 'unreported';
+        observation.usage = {inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null};
+        observation.timings = {queued: 1000, acquired: null, runtimeReady: null, requestSent: null, firstProviderDelta: null, firstPublicDelta: null, settled: null, teardownConfirmed: null};
+      }
+      observations.push(observation);
+      f.callbacks().onEvent({...ctx, type: 'model.observation', observation});
+    }
+    const published = {...observations[64], timings: {...observations[64].timings, firstPublicDelta: 7}};
+    observations[64] = published;
+    f.callbacks().onEvent({...ctx, type: 'model.observation', observation: published});
+    if (outcome === 'refused') throw new Error('Native source refused the produced summary.');
+    return f.confirm(ctx, envelope);
+  });
+  const work = f.service.command(f.command);
+  if (outcome === 'refused') await expect(work).rejects.toMatchObject({code: 'COMPACTION_FAILED'}); else await work;
+  expect(f.store.all('modelRequest', f.threadId)).toHaveLength(64);
+  const recorded = f.store.all<{candidateId: string; value: ModelRequestObservationV1}>('compactionModelRequest', f.threadId);
+  expect(recorded).toHaveLength(65);
+  expect(recorded.map(row => row.candidateId)).toEqual(observations.map(() => candidateId));
+  expect(recorded.map(row => row.value)).toEqual(observations);
+  await f.restart(); await f.service.recover();
+  expect(f.store.all('compactionModelRequest', f.threadId)).toEqual(recorded);
+  f.callbacks().onEvent({...owner, type: 'model.observation', observation: compactionModelObservation(owner, 66)});
+  expect(f.store.all('compactionModelRequest', f.threadId)).toEqual(recorded);
+  expect(f.runtime.compactProtected).toHaveBeenCalledOnce();
+  expect(f.runtime.start).not.toHaveBeenCalled();
+});
+
+it.each(['stop', 'dispose', 'model change'] as const)('retains exact owned terminal compaction measurements during %s drainage only', async change => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('models.requestMetricsV1', true);
+  let owner!: RunContext, candidateId!: string, release!: () => void;
+  const drained = new Promise<void>(resolve => {release = resolve;});
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    owner = ctx; candidateId = envelope.plan.candidateId; await drained;
+    const observation = {...compactionModelObservation(ctx, 1, null), outcome: 'cancelled' as const};
+    f.callbacks().onEvent({...ctx, type: 'model.observation', observation});
+    throw new Error('The admitted compaction call was cancelled.');
+  });
+  const work = f.service.command(f.command).catch(error => error);
+  let disposal: Promise<void> | undefined;
+  try {
+    await vi.waitFor(() => expect(f.runtime.compactProtected).toHaveBeenCalledOnce());
+    if (change === 'stop') await f.service.command({id: 'stop-measured-compaction', type: 'run.stop', threadId: f.threadId, payload: {}});
+    else if (change === 'dispose') disposal = f.service.dispose();
+    else f.store.internal('fixture.model-changed', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, {...f.service.thread(f.threadId), modelId: 'test/other'}));
+    release(); expect(await work).toMatchObject({code: 'COMPACTION_FAILED'}); await disposal;
+    const recorded = f.store.all<{candidateId: string; value: ModelRequestObservationV1}>('compactionModelRequest', f.threadId);
+    expect(recorded).toEqual([expect.objectContaining({candidateId, value: {...compactionModelObservation(owner, 1, null), outcome: 'cancelled'}})]);
+    expect(f.store.all('compactionUsage', f.threadId)).toEqual([]);
+    if (change !== 'model change') expect(f.store.all('modelRequest', f.threadId)).toEqual([]);
+    else expect(f.store.snapshot().usage[f.threadId].compaction).toBeUndefined();
+    f.callbacks().onEvent({...owner, type: 'model.observation', observation: compactionModelObservation(owner, 2)});
+    expect(f.store.all('compactionModelRequest', f.threadId)).toEqual(recorded);
+  } finally {release(); await work; await disposal;}
+});
+
+it('rejects foreign or changed compaction observation identity while preserving a repeated public-delta update', async () => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('models.requestMetricsV1', true);
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    const observation = compactionModelObservation(ctx, 1), emit = (value: ModelRequestObservationV1, owner = ctx) => f.callbacks().onEvent({...owner, type: 'model.observation', observation: value});
+    for (const patch of [{threadId: 'foreign'}, {runId: 'compaction:foreign'}, {epoch: ctx.epoch + 1}]) {
+      emit(observation, {...ctx, ...patch}); emit({...observation, owner: {...observation.owner, ...patch}});
+    }
+    for (const patch of [{providerId: 'foreign'}, {modelId: 'test/foreign'}, {accountId: 'foreign'}]) emit({...observation, binding: {...observation.binding, ...patch}});
+    expect(f.store.all('compactionModelRequest', f.threadId)).toEqual([]);
+    emit(observation); emit(observation);
+    emit({...observation, owner: {...observation.owner, sequence: 2}});
+    emit({...observation, usage: {...observation.usage, cost: 9}});
+    const published = {...observation, timings: {...observation.timings, firstPublicDelta: 7}};
+    emit(published); emit(observation);
+    expect(f.store.all('compactionModelRequest', f.threadId)).toEqual([expect.objectContaining({candidateId: envelope.plan.candidateId, value: published})]);
+    return f.confirm(ctx, envelope);
+  });
+  await f.service.command(f.command);
+});
+
+it('does not move a recorded model request ID to another admitted compaction attempt', async () => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('models.requestMetricsV1', true);
+  const observations: ModelRequestObservationV1[] = [];
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    const observation = compactionModelObservation(ctx, 1);
+    if (observations.length) f.callbacks().onEvent({...ctx, type: 'model.observation', observation: {...observation, requestId: observations[0].requestId}});
+    observations.push(observation); f.callbacks().onEvent({...ctx, type: 'model.observation', observation});
+    return f.confirm(ctx, envelope);
+  });
+  await f.service.command(f.command);
+  await f.service.command({...f.command, id: 'second-measured-compaction'});
+  const rows = f.store.all<{candidateId: string; value: ModelRequestObservationV1}>('compactionModelRequest', f.threadId);
+  expect(rows.map(row => row.value)).toEqual(observations);
+  expect(new Set(rows.map(row => row.candidateId)).size).toBe(2);
+});
+
+it('retains earlier measurements but stops recording when request metrics are disabled during compaction', async () => {
+  const f = await ownedCompactionFixture();
+  __setCapabilityFlagForTests('models.requestMetricsV1', true);
+  let observation!: ModelRequestObservationV1;
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    observation = compactionModelObservation(ctx, 1, 0);
+    f.callbacks().onEvent({...ctx, type: 'model.observation', observation});
+    __setCapabilityFlagForTests('models.requestMetricsV1', false);
+    f.callbacks().onEvent({...ctx, type: 'model.observation', observation: compactionModelObservation(ctx, 2, 9)});
+    return f.confirm(ctx, envelope);
+  });
+  await f.service.command(f.command);
+  expect(f.store.all('compactionModelRequest', f.threadId)).toEqual([expect.objectContaining({value: observation})]);
+  expect(capabilityEnabled('models.requestMetricsV1')).toBe(false);
+});
+
+it('keeps disabled compaction request metrics unavailable without changing the host flag', async () => {
+  const f = await ownedCompactionFixture();
+  expect(capabilityEnabled('models.requestMetricsV1')).toBe(false);
+  vi.mocked(f.runtime.compactProtected!).mockImplementation(async (ctx, _path, _model, _account, envelope) => {
+    f.callbacks().onEvent({...ctx, type: 'model.observation', observation: compactionModelObservation(ctx, 1, 0)});
+    return f.confirm(ctx, envelope);
+  });
+  await f.service.command(f.command);
+  expect(f.store.all('compactionModelRequest', f.threadId)).toEqual([]);
+  expect(f.store.all('modelRequest', f.threadId)).toEqual([]);
+  expect(capabilityEnabled('models.requestMetricsV1')).toBe(false);
+});
+
 async function captureMessage(f: CompactionFixture, id: string): Promise<SourceRefV1> {
   __setCapabilityFlagForTests('ui.sourceWorkbenchV1', true);
   const content = 'Captured assistant evidence ' + id, logicalOwner = f.service.sourceWorkbench.owner(f.threadId);
@@ -361,6 +507,11 @@ it.each(['before native receipt', 'after native receipt'] as const)('restores ad
       expect(projection.candidates).toEqual([expect.objectContaining(cut === 'after native receipt' ?
         {status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192} :
         {status: 'READY', verdict: null, measuredBeforeBytes: null, measuredAfterBytes: null})]);
+      const candidate = projection.candidates[0];
+      expect(candidate.metadata.usageObservationRef).toBe(cut === 'after native receipt' ? `compactionUsage:${candidate.metadata.candidateId}` : null);
+      expect(restoredStore.get('compactionAttempt', candidate.metadata.candidateId)).toMatchObject({metadata: candidate.metadata});
+      if (cut === 'after native receipt') expect(restoredStore.get('compactionUsage', candidate.metadata.candidateId)).toMatchObject({
+        id: candidate.metadata.candidateId, threadId: f.threadId, nativeReceipt: {candidateId: candidate.metadata.candidateId, status: 'APPLIED'}});
       expect(restoredService.thread(f.threadId)).toMatchObject(cut === 'before native receipt' ?
         {runId: null, epoch: 6, status: 'interrupted'} : {runId: null, epoch: 5, status: 'ready'});
       expect(restoredRuntime.start).not.toHaveBeenCalled();
@@ -381,7 +532,8 @@ it('applies only the protected source-cut CAS and records the exact native recei
     workspaceId: 'thread:' + f.threadId, modelId: 'test/model', accountId: null, generation: 1});
   const usage = f.store.get<{value: {compaction: {candidates: unknown[]}}}>('usage', f.threadId);
   expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'APPLIED', verdict: 'APPLIED', measuredBeforeBytes: 20000, measuredAfterBytes: 8192,
-    metadata: expect.objectContaining({sourceInterval: null}), retainedConstraints: expect.arrayContaining(['native-record:' + 'd'.repeat(64) + ':0'])})]);
+    metadata: expect.objectContaining({sourceInterval: null, usageObservationRef: `compactionUsage:${envelope.plan.candidateId}`}), retainedConstraints: expect.arrayContaining(['native-record:' + 'd'.repeat(64) + ':0'])})]);
+  expect(f.store.get('compactionAttempt', envelope.plan.candidateId)).toMatchObject({metadata: {usageObservationRef: `compactionUsage:${envelope.plan.candidateId}`}});
   expect(f.store.all('compactionUsage', f.threadId)).toEqual([expect.objectContaining({nativeReceipt: nativeProof(envelope), settled: true})]);
 });
 
@@ -399,7 +551,8 @@ it('records a failed verdict when the native source-cut CAS refuses', async () =
   vi.mocked(f.runtime.compactProtected!).mockRejectedValue(Object.assign(new Error('Native history changed.'), {code: 'HERMES_COMPACTION_MISMATCH'}));
   await expect(f.service.command(f.command)).rejects.toMatchObject({code: 'COMPACTION_FAILED'});
   const usage = f.store.get<{value: {compaction: {candidates: unknown[]}}}>('usage', f.threadId);
-  expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'FAILED', verdict: 'FAILED', measuredBeforeBytes: null})]);
+  expect(usage?.value.compaction.candidates).toEqual([expect.objectContaining({status: 'FAILED', verdict: 'FAILED', measuredBeforeBytes: null,
+    metadata: expect.objectContaining({usageObservationRef: null})})]);
   expect(f.service.thread(f.threadId)).toMatchObject({status: 'ready', runId: null});
 });
 

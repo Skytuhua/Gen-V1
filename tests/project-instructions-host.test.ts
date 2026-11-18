@@ -8,7 +8,7 @@ import { __setCapabilityFlagForTests } from '../packages/core/capability-flags';
 import type { ResourceGrant, RuntimeAdapter, RuntimeCallbacks, StartRun } from '../packages/contracts';
 import type { NativeCompactionEnvelopeV1, NativeCompactionReceiptV1 } from '../packages/contracts/native-compaction.ts';
 import type { SourceRefV1 } from '../packages/contracts/source-selection.ts';
-const custody = vi.hoisted(() => ({ active: 0, readOnly: 0 }));
+const custody = vi.hoisted(() => ({ active: 0, readOnly: 0, paths: [] as string[] }));
 
 // Portable composition regression. Real native custody has its own Windows
 // cases; this replacement supplies no extra paths and retains resolveGrant.
@@ -18,6 +18,7 @@ vi.mock('../packages/core/file-access.ts', async original => {
     if (signal.aborted) throw new Error('Cancelled');
     const { resolveGrant } = await import('../packages/core/security.ts');
     const path = await resolveGrant(grant, relative, write, dataDir);
+    custody.paths.push(path);
     custody.active++; if (options?.readOnly) custody.readOnly++;
     try { return await action(path); } finally { custody.active--; if (options?.readOnly) custody.readOnly--; }
   } };
@@ -28,6 +29,7 @@ afterEach(async () => {
   __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
   __setCapabilityFlagForTests('ui.sourceWorkbenchV1', undefined);
   for (const close of cleanup.splice(0)) await close();
+  custody.paths.length = 0;
 });
 const protectionReceipt = (envelope: NativeCompactionEnvelopeV1): NativeCompactionReceiptV1 => ({version: 1,
   candidateId: envelope.plan.candidateId, planDigest: envelope.planDigest, sourceSha256: envelope.plan.sourceSha256, status: 'APPLIED',
@@ -139,23 +141,32 @@ it('orders explicitly granted nested project scopes from physical root to leaf b
   expect(context!.instructionText).toContain('Host policy takes precedence over user task instructions, which take precedence over these project instructions');
 });
 
-it.each(['AGENTS.md', 'agents.md'])('preserves canonical recognized-name precedence for exact %s and CLAUDE.md grants', async agentsFilename => {
-  const f = fixture({[agentsFilename]: 'FIRST_FILENAME', 'CLAUDE.md': 'SECOND_FILENAME'});
+it.each([
+  {names: ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md'], expected: ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md']},
+  {names: ['agents.md', 'CLAUDE.md', 'GEMINI.md'], expected: ['CLAUDE.md', 'GEMINI.md', 'agents.md']},
+  {names: ['AGENTS.md', 'claude.md', 'GEMINI.md'], expected: ['AGENTS.md', 'GEMINI.md', 'claude.md']},
+])('loads exact recognized filenames in literal order: $names', async ({names, expected}) => {
+  const f = fixture(Object.fromEntries(names.map(filename => [filename, 'Source ' + filename])));
   f.store.internal('fixture', 'thread', () => {
     f.store.remove('resource', f.grant.id);
-    for (const [id, filename] of [['z-agents', agentsFilename], ['a-claude', 'CLAUDE.md']] as const) {
+    for (const [index, filename] of names.entries()) {
+      const id = 'grant-' + (names.length - index);
       const path = join(f.root, filename), info = statSync(path, {bigint: true});
       f.store.put('resource', id, 'thread', {...f.grant, id, kind: 'file', path, identity: {dev: String(info.dev), ino: String(info.ino)}});
     }
   });
   __setCapabilityFlagForTests('context.compilerV1', true);
   await f.deliver();
-  const context = f.starts[0]?.approvedProjectContext;
-  expect(context?.instructions.entries.map(entry => entry.filename)).toEqual([agentsFilename, 'CLAUDE.md']);
-  expect(context?.instructions.entries.map(entry => entry.precedence)).toEqual([0, 1]);
-  expect(context?.instructions.precedence).toContain('case-insensitive canonical precedence');
-  expect(context!.instructionText.indexOf('FIRST_FILENAME')).toBeLessThan(context!.instructionText.indexOf('SECOND_FILENAME'));
-  expect(context?.instructions.overlaps).toEqual([{scope: expect.stringMatching(/^directory-[a-f0-9]{16}$/), filenames: [agentsFilename, 'CLAUDE.md']}]);
+  const context = f.starts[0]!.approvedProjectContext!;
+  expect(custody.paths).toEqual(expected.map(filename => join(f.root, filename)));
+  expect(context.instructions.entries.map(entry => entry.filename)).toEqual(expected);
+  const frames = context.instructionText.split('\n').filter(line => line.startsWith('{')).map(line => JSON.parse(line) as {filename: string; precedence: number});
+  expect(frames.map(frame => frame.filename)).toEqual(expected);
+  expect(context.instructions.entries.map(entry => entry.precedence)).toEqual([0, 0, 0]);
+  expect(frames.map(frame => frame.precedence)).toEqual([0, 0, 0]);
+  expect(context.instructions.precedence).toContain('Physical directories define precedence');
+  expect(context.instructions.precedence).toContain('Equal-precedence conflict:');
+  expect(context.instructions.overlaps).toEqual([{scope: expect.stringMatching(/^directory-[a-f0-9]{16}$/), filenames: expected}]);
 });
 
 it('reports distinct equal-precedence instruction sources without conflating physical aliases', async () => {

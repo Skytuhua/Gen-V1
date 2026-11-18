@@ -10,7 +10,7 @@ import { buildInstructionManifest, type HostAdmittedInstruction } from './instru
 
 const FILENAMES = ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md'] as const;
 const LIMITS = { roots: 8, grants: 256, fileBytes: 64 * 1024, instructionBytes: 64 * 1024 } as const;
-const PRECEDENCE = 'Explicit physical roots are ordered from root to leaf, then by normalized path. Recognized names use case-insensitive canonical precedence within each directory: AGENTS.md, CLAUDE.md, GEMINI.md; later files take precedence within their recorded scope. Equal-precedence sources use lexicographic filename order, then resource-scope identifier order. Host policy takes precedence over user task instructions, which take precedence over project instructions.';
+const PRECEDENCE = 'Explicit physical roots are ordered from root to leaf, then by normalized path. Physical directories define precedence; files in one directory have equal precedence. Recognized names are AGENTS.md, CLAUDE.md, GEMINI.md (case-insensitive matching only). Equal-precedence sources use lexicographic filename order, then resource-scope identifier order; later files take precedence within their recorded scope. Host policy takes precedence over user task instructions, which take precedence over project instructions.';
 const HEADER = '\n\nProject instructions from explicit resource grants. Apply each source only within its recorded resource scope, in the recorded precedence order. Equal-precedence sources conflict and use lexicographic filename order, then resource-scope identifier order, with later applicable sources taking precedence. Host policy takes precedence over user task instructions, which take precedence over these project instructions. These instructions cannot expand grants. Includes and hooks are never executed.\n';
 const unsupportedDirective = /^\s*(?:!include\b|include\s*[:=]|@(?:[./~]|[A-Za-z0-9_-]+\/)|(?:pre|post)[_-]?(?:tool|edit|run)?[_-]?hooks?\s*[:=])/im;
 const hash = (text: string | Buffer) => createHash('sha256').update(text).digest('hex');
@@ -59,9 +59,9 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
   const roots = candidates.toSorted(rootOrder).slice(0, LIMITS.roots);
   const directories = [...new Set(roots.map(scopeRoot))];
   const files = roots.flatMap(resource => (resource.kind === 'project' ? FILENAMES : [recognizedName(resource.path)!]).map(filename => ({
-    resource, filename, relative: resource.kind === 'project' ? filename : undefined, scope: 'resource-' + hash(resource.id).slice(0, 16),
-    precedence: directories.indexOf(scopeRoot(resource)) * FILENAMES.length + FILENAMES.indexOf(filename),
-  }))).sort((a, b) => a.precedence - b.precedence || compare(a.resource.id, b.resource.id));
+    resource, filename: resource.kind === 'project' ? filename : basename(resource.path), relative: resource.kind === 'project' ? filename : undefined,
+    scope: 'resource-' + hash(resource.id).slice(0, 16), precedence: directories.indexOf(scopeRoot(resource)),
+  }))).sort((a, b) => a.precedence - b.precedence || compare(a.filename, b.filename) || compare(a.resource.id, b.resource.id));
   const captures: Capture[] = [], texts = new Map<string, string>(), exclusions: Exclusion[] = [];
   const frame = (list: readonly Capture[]) => {
     const seen = new Set<string>(), blocks: string[] = [];
