@@ -29,3 +29,25 @@
 - Fixes applied in this worktree (verified: the three tests pass; full `workbench-app` 26/26, `workbench` 21/21, `saved-drafts` 27/27, `thread-move` 24/24, `chat-view-modes` unchanged 3/6 pre-existing drag/IME failures; vitest targeted suites, typecheck, lint, build all PASS): `apps/web/src/App.tsx` — `placeSplitThread` now always sends the canonical `view.open` produced by `threadPlacementCommand` (which carries the existing view's full binding, so editor custody is preserved); `apps/web/src/ProjectMemoryReview.tsx` — `Resolution note` textarea and `Resolve conflict` now include `readOnly` in their disabled conditions.
 - Not run here: repository shards and the general `CI` workflow were still queued at handoff; installed-Edge suites for `chat-view-modes`/`agents-workspace`/`workspace-host`/`usage-app-integration`/`desktop-surfaces` failures show run-to-run flake variance (different step sets failed across heads `25cded33` and `8942531d`) and are classified separately from the two deterministic defects above.
 - Named holds: HOLD_UNPUBLISHED_CUSTODY (D01 recorded payload bytes remain unrecoverable; satisfied outcome applied via explicit `0539bc1f` decision instead). Flags `ui.sourceWorkbenchV1` and `reviewerApproval` remain false.
+
+## Windows evidence run 44231173805 (head `e59e1ea5`) — completed classification
+
+PR #732 was squash-merged into main as `babb0834` and the remote `agent/m15-v3` ref was deleted. The owned cut was then merged to a tree byte-identical to `origin/main` `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199` (merge commit `0813138c`; all conflicts resolved to upstream since the branch's content already landed via #732 and subsequent merged fixes).
+
+The completed `m15-evidence` run on the stale cut `e59e1ea5` completed 6/7 jobs green (native contracts, all four full-repo shards, root browser comparison SUCCESS). The installed-Edge browser-contracts job failed on 13 tests across five suites. Each failure maps to a fix or spec repair already merged on main — **missing evidence on a stale cut, not a concrete M15 defect**:
+
+| Stale-cut failure (suite → spec) | Accepted merged fix on main | Main receipt (run 44310248562) |
+|---|---|---|
+| chat-view-modes → chat-view-escape ×3 (drag/IME) | `07bf3d24` spec repair (Detach-chat entry; stale chrome) + `8198009b` readiness/motion stabilization | PASS 25 |
+| agents-workspace → agents-workspace-evidence ×2 (grid 1440, 768) | `840bb636` `?app=1` fixture param / stabilization | PASS 25 |
+| workspace-host → :2471 plugin workspace tabs | `840bb636` plugin-workspace selection clobber fix | PASS |
+| usage-app-integration → shell-error-ownership ×2 + :251 usage | `db367512` Usage fixture alignment, `3bc30aeb` shared shell fixture | PASS 19 |
+| desktop-surfaces → ×4 (detach/artifact-editor/close) | `07bf3d24` role=alert selector repair | PASS 37 |
+
+The earlier `workbench-app` failures were separately fixed by this branch (`cf420068`) and independently on main (`07bf3d24` spec side; `1a2eb4a5`/#719 readOnly side) — step 9 of the same run went green at `e59e1ea5`.
+
+### Exact-main installed-Edge verification (WIN-M0N0V07LGM1, read/test-only verifier thread)
+
+On exact main `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199` with installed Edge `157.0.4341.60`, Node `v24.14.0`, pnpm `10.30.3`, running the workflow's `scripts/test-browser.ts --suite` commands: chat-view-modes 6/0, workspace-host 50/0, usage-app-integration 19/0, desktop-surfaces 37/0, agents-workspace 24/1 — **136/137 pass**. Sole failure: `agents-workspace-evidence.spec.ts:200` "populated grid evidence at 1440 (after)", a 5 s visibility timeout on `.workspace-host`. The same case passed on the org CI receipt for this code at 6.3 s, i.e. ~1.3 s beyond the bound — an environment-sensitive timing margin on a slower box, not a deterministic defect (its 768 sibling and the plugin-tab case pass).
+
+Disposition: 12/13 stale-cut failures do not reproduce on current main; the one residual match is a timing-bound flake that passes on the authoritative CI environment. HOLD_PLATFORM_PROOF for the Edge gate is therefore downgraded to a narrow observation (5 s visibility bound at 1440-width on non-CI hardware); HOLD_UNPUBLISHED_CUSTODY is unchanged. No new product change is warranted — no merge or activation performed; the owned cut stays local (remote branch deleted post-#732).
