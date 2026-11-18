@@ -165,6 +165,8 @@ it('rejects late sixteen-second replies on each fresh ordinary guard', async () 
 
 it('settles a denied startup acquisition inside the bounded close when the child never exits', async () => {
   const g = guard({ closeOnEnd: false, closeOnKill: false }), action = vi.fn(async () => 'guarded');
+  const stdoutClosed = vi.fn();
+  g.child.stdout.once('close', stdoutClosed);
   const observed = observe(startupGuard([path], signal(), action));
   await vi.advanceTimersByTimeAsync(45_000);
   expect(observed.settled()).toBe(false);
@@ -182,6 +184,10 @@ it('settles a denied startup acquisition inside the bounded close when the child
   expect(g.child.unref).toHaveBeenCalledTimes(1);
   expect(g.child.stdin.destroyed).toBe(true);
   expect(g.child.listenerCount('close')).toBe(0);
+  g.child.stdout.emit('close');
+  expect(stdoutClosed).toHaveBeenCalledOnce();
+  expect(() => g.child.emit('error', new Error('late child shutdown error'))).not.toThrow();
+  expect(() => g.child.stdin.emit('error', new Error('late pipe shutdown error'))).not.toThrow();
   g.child.stdout.write('late-reply\n');
   expect((await observed.result).error).toMatchObject({ code: 'CAPABILITY_DENIED' });
 });

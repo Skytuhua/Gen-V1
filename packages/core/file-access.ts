@@ -52,8 +52,13 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
   child.once("exit", lost);
   child.once("error", lost);
   let diagnostics = "";
-  child.stderr.on("data", bytes => { if (diagnostics.length < 1024) diagnostics += String(bytes); });
-  const closed = new Promise<void>(finish => child.once("close", () => { current.exited = true; finish(); }));
+  const collectDiagnostics = (bytes: Buffer) => { if (diagnostics.length < 1024) diagnostics += String(bytes); };
+  child.stderr.on("data", collectDiagnostics);
+  let confirmClose!: () => void;
+  const closed = new Promise<void>(finish => { confirmClose = finish; });
+  const onClose = () => { current.exited = true; confirmClose(); };
+  child.once("close", onClose);
+  let cancelPendingRpc: (() => void) | undefined;
   let queue = Promise.resolve();
   current.rpc = (request,startupAcquisition=false) => {
     const pending = queue.then(() => new Promise<readonly GuardEntry[]>((accept, reject) => {
@@ -77,7 +82,15 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
           finish(undefined, Object.freeze(response.entries));
         } catch { finish(denied()); }
       };
-      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => { clearTimeout(timer); child.stdout.removeListener("data", data); child.removeListener("error", failed); child.removeListener("exit", failed); error ? reject(error) : accept(manifest); };
+      const finish = (error?: Error, manifest: readonly GuardEntry[] = []) => {
+        clearTimeout(timer);
+        cancelPendingRpc = undefined;
+        child.stdout.removeListener("data", data);
+        child.removeListener("error", failed);
+        child.removeListener("exit", failed);
+        error ? reject(error) : accept(manifest);
+      };
+      cancelPendingRpc = () => finish(denied());
       child.once("error", failed); child.once("exit", failed); child.stdout.on("data", data);
       child.stdin.write(JSON.stringify(request) + "\n");
     }));
@@ -95,6 +108,8 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
     return value;
   } finally {
     releasing=true;current.loss.clear();
+    // Shutdown can still deliver pipe or process errors after a timeout.
+    child.on("error", onError);
     child.stdin.end();
     // Bounded teardown: the 2s graceful exit, then exactly one kill attempt
     // and at most 2s more to confirm the close. A close we cannot confirm
@@ -105,16 +120,21 @@ export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, 
       closed.then(() => { clearTimeout(kill); clearTimeout(bound); finish(true); });
     });
     if (!confirmed) {
-      // Invalidate the session so pending or late RPC work cannot revive it,
-      // and release every reference this guard holds to the child.
+      // Invalidate the session and remove only our listeners. Node's stream
+      // close handlers still account for the child process's stdio teardown.
       current.exited = true;
       current.rpc = () => Promise.reject(denied());
+      cancelPendingRpc?.();
+      child.removeListener("exit", lost);
+      child.removeListener("error", lost);
+      child.removeListener("close", onClose);
+      child.stderr.removeListener("data", collectDiagnostics);
+      child.stdout.on("error", onError);
+      child.stderr.on("error", onError);
       for (const stream of [child.stdin, child.stdout, child.stderr]) {
-        stream.removeAllListeners();
         stream.destroy();
         (stream as { unref?: () => void }).unref?.();
       }
-      child.removeAllListeners();
       child.unref?.();
       if (fulfilled) throw denied();
     }

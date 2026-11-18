@@ -191,8 +191,11 @@ production flag change.
   `withPathGuard` teardown is now bounded — the existing 2 s graceful
   exit, exactly one kill attempt, then at most 2 s more to confirm the
   close; an unconfirmed close invalidates the session (`exited`, rpc
-  permanently denied, listeners/streams/process references released and
-  unref'd) and a fulfilled action fails closed with `CAPABILITY_DENIED`
+  permanently denied and pending RPC cancelled). The timeout cleanup
+  removes the guard's listeners, retains Node's stdio close handlers, and
+  handles late process or pipe errors during shutdown. It destroys and
+  unreferences the parent handles. A fulfilled action fails closed with
+  `CAPABILITY_DENIED`
   rather than claiming the child was reaped; an earlier
   `CAPABILITY_DENIED`/`CANCELLED` (including native details) still wins.
   With a wedged powershell the guard now rejects at ≈49 s (45 s acquire
@@ -206,6 +209,8 @@ production flag change.
   original denial untouched (incl. `nativeCode`), fulfilled action +
   unconfirmed close fails closed, close-after-kill still returns the
   value, one-kill-attempt counts asserted; normal close unchanged.
+  The shutdown regression also checks that the stdio close observer
+  remains registered and late errors are handled after unconfirmed close.
   Verified locally on this cut: file-access-startup 14/14, control-bridge
   59/59 suites green, typecheck 0, lint 618/0, evidence checker 0 issues;
   `desktop-host-ipc` error-channel suite passes unchanged. The latent
