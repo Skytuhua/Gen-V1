@@ -10,6 +10,7 @@ import {SUBSCRIPTION_CONNECTIONS} from '../packages/contracts/connections.ts';
 import {verificationPorts,assertWrapperArguments} from './portable-verification.ts';
 import {verifyPackagedProviders} from './verify-packaged-providers.ts';
 import type {InstalledMemorySeed,InstalledMemoryObservation,InstalledMemoryMode} from './installed-memory-retention.ts';
+import type {InstalledWorkbenchSeed,InstalledWorkbenchObservation} from './installed-workbench-custody.ts';
 import {createStartupOutputCapture,startupErrorDiagnostic} from '../apps/desktop/backend-policy.ts';
 
 const APP_ID='local.generativeharness.desktop';
@@ -20,6 +21,7 @@ type ContentManifest={files:{path:string;bytes:number;sha256:string}[];bytes:num
 type FileIdentity={dev:string;ino:string;sha256:string};
 type OwnedCache={path:string;dev:string;ino:string;file:FileIdentity}|null;
 type MemoryRetention={seed:InstalledMemorySeed;observations:InstalledMemoryObservation[];mode:InstalledMemoryMode};
+type WorkbenchCustody={seed:InstalledWorkbenchSeed;observations:InstalledWorkbenchObservation[]};
 type InstalledVerificationOwner={setup:string;setupSha256:string;installDirectory:string;guid:string};
 
 /** Each separately launched memory phase owns a new evidence directory. */
@@ -118,9 +120,9 @@ export function parseInstallPreflightProgress(stderr:string):PreflightProgress[]
 }
 
 export function readInstalledVerificationArguments(args:string[]){
- const [setup,unpacked,...options]=args,memoryRetention=options.includes('--project-memory-retention'),memoryEnabled=options.includes('--project-memory-enabled');
- if(!setup||!unpacked||new Set(options).size!==options.length||options.some(option=>!['--project-memory-retention','--project-memory-enabled'].includes(option))||memoryEnabled&&!memoryRetention)throw Error('Usage: verify-installed-desktop <absolute Setup.exe> <absolute win-unpacked> [--project-memory-retention [--project-memory-enabled]]');
- return {setup,unpacked,memoryRetention,memoryEnabled};
+ const [setup,unpacked,...options]=args,memoryRetention=options.includes('--project-memory-retention'),memoryEnabled=options.includes('--project-memory-enabled'),workbenchCustody=options.includes('--workbench-custody');
+ if(!setup||!unpacked||new Set(options).size!==options.length||options.some(option=>!['--project-memory-retention','--project-memory-enabled','--workbench-custody'].includes(option))||memoryEnabled&&!memoryRetention||workbenchCustody&&(memoryRetention||memoryEnabled))throw Error('Usage: verify-installed-desktop <absolute Setup.exe> <absolute win-unpacked> [--project-memory-retention [--project-memory-enabled] | --workbench-custody]');
+ return {setup,unpacked,memoryRetention,memoryEnabled,workbenchCustody};
 }
 
 export function nsisApplicationGuid(appId:string){
@@ -200,8 +202,8 @@ function baseEnvironment():NodeJS.ProcessEnv{
  return env;
 }
 /** Explicit installed phases cannot inherit ambient harness feature activation. */
-export function installedVerificationEnvironment(directory:string,ports:readonly[number,number,number],memoryMode?:InstalledMemoryMode):NodeJS.ProcessEnv{
- return {...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(ports[0]),HARNESS_DESKTOP_WIDGET_PORT:String(ports[1]),...(memoryMode==='enabled'?{HARNESS_FLAG_MEMORY_PROJECT_V1:'true'}:{})};
+export function installedVerificationEnvironment(directory:string,ports:readonly[number,number,number],memoryMode?:InstalledMemoryMode,workbenchCustody?:boolean):NodeJS.ProcessEnv{
+ return {...baseEnvironment(),HARNESS_DESKTOP_TEST_DATA_DIR:directory,HARNESS_DESKTOP_PORT:String(ports[0]),HARNESS_DESKTOP_WIDGET_PORT:String(ports[1]),...(memoryMode==='enabled'?{HARNESS_FLAG_MEMORY_PROJECT_V1:'true'}:{}),...(workbenchCustody===true?{HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1:'true'}:{})};
 }
 async function runOwned(file:string,args:string[],options:{cwd:string;env:NodeJS.ProcessEnv;timeoutMs:number;rawTail?:boolean;phase?:OwnedPhase;onStderr?:(stderr:string)=>void;onObservation?:(value:OwnedProcessObservation)=>void;sampleProgress?:(elapsedMs:number,active:()=>boolean)=>Promise<InstalledPathProgress>}){
  const started=Date.now(),phase=options.phase??'verification',observation=newOwnedProcessObservation(phase,options.timeoutMs,started);options.onObservation?.(observation);
@@ -387,10 +389,11 @@ export async function assertInstalledConnectionReady(providerId:string,read:()=>
  catch(cause){const detail=cause instanceof Error?cause.message:'Readiness check failed.';throw Error(`Installed subscription ${providerId}: ${detail}`,{cause});}
 }
 
-async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
+async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention,workbench?:WorkbenchCustody){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
+ if(workbench)await (await import('./installed-workbench-custody.ts')).assertInstalledWorkbenchProfile(workbench.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
- const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:installedVerificationEnvironment(directory,ports,memory?.mode),windowsHide:false,stdio:['ignore','pipe','pipe']});
+ const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:installedVerificationEnvironment(directory,ports,memory?.mode,workbench?true:undefined),windowsHide:false,stdio:['ignore','pipe','pipe']});
  let startupCapture:ReturnType<typeof observeInstalledStartup>|undefined;const startupDiagnostic:Record<string,unknown>={};
  const refreshStartup=()=>{try{if(startupCapture)Object.assign(startupDiagnostic,startupCapture.read());}catch{}};
  let browser:Browser|undefined,verifiedOwner=false,launchError:Error|undefined;const started=Date.now();child.once('error',error=>{launchError=error;});
@@ -401,13 +404,13 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
   browser=await chromium.connectOverCDP(debugOrigin);
   const verifyBrowserOwner=async()=>{verifiedOwner=false;const session=await browser!.newBrowserCDPSession();try{const {arguments:args}=await session.send('Browser.getBrowserCommandLine');assertWrapperArguments(args,nonce);if(!sameWindowsPath(args[0]??'',executable))throw Error('Debug browser is not the exact installed executable.');verifiedOwner=true;}finally{await session.detach();}};
   await verifyBrowserOwner();
-  const readiness:{iteration:number;memoryMode:InstalledMemoryMode|null;pid:number|null;timeoutMs:number;status:'waiting'|'ready'|'failed';observations:InstalledPageReadinessObservation[]}={iteration,memoryMode:memory?.mode??null,pid:child.pid??null,timeoutMs:INSTALLED_MAIN_PAGE_TIMEOUT_MS,status:'waiting',observations:[]};
+  const readiness:{iteration:number;memoryMode:InstalledMemoryMode|null;workbenchCustody:boolean;pid:number|null;timeoutMs:number;status:'waiting'|'ready'|'failed';observations:InstalledPageReadinessObservation[]}={iteration,memoryMode:memory?.mode??null,workbenchCustody:Boolean(workbench),pid:child.pid??null,timeoutMs:INSTALLED_MAIN_PAGE_TIMEOUT_MS,status:'waiting',observations:[]};
   ((receipt.launchReadiness??=[]) as unknown[]).push(readiness);
   const page=await waitForInstalledMainPage({child,origin,pages:()=>browser!.contexts().flatMap(context=>context.pages()),verifyOwner:verifyBrowserOwner,launchError:()=>launchError,observe:value=>{readiness.observations.push(value);if(value.phase==='ready'||value.phase==='failed')readiness.status=value.phase;}});
   const message=page.getByRole('textbox',{name:'Message',exact:true});await expect(message).toBeEnabled({timeout:30000});const readyMs=Date.now()-started;
   expect(await page.evaluate(async()=>({surface:(await window.harnessDesktop!.getContext()).surface.kind,node:typeof (window as unknown as {process?:unknown}).process}))).toEqual({surface:'main',node:'undefined'});
   if(iteration===1){
-   if(!memory){
+   if(!memory&&!workbench){
    await message.fill('Keep this installed-app draft.');
    await expect.poll(()=>page.evaluate(()=>new Promise<unknown>((accept,reject)=>{const opened=indexedDB.open('generative-harness-journal',1);opened.onerror=()=>reject(opened.error);opened.onsuccess=()=>{const db=opened.result,read=db.transaction('entries').objectStore('entries').get('draft:new');read.onsuccess=()=>{accept(read.result?.value);db.close();};read.onerror=()=>{reject(read.error);db.close();};};}))).toBe('Keep this installed-app draft.');
    }
@@ -416,13 +419,15 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
    for(const connection of SUBSCRIPTION_CONNECTIONS.filter(item=>item.status==='available')){await providers.getByRole('button',{name:connection.label,exact:true}).click();const row=page.locator(`.connection-row[data-provider="${connection.id}"]`),button=row.getByRole('button',{name:`Connect ${connection.label}`,exact:true});await assertInstalledConnectionReady(connection.id,async()=>(await button.isEnabled())?'enabled':`disabled:${await row.locator('.connection-account-auth').getAttribute('data-state')??'missing'}`);}
    await page.screenshot({path:join(directory,'installed-settings.png')});await providers.getByRole('button',{name:'Gemini',exact:true}).click();await page.locator('.connection-row[data-provider="gemini-cli"]').scrollIntoViewIfNeeded();await page.screenshot({path:join(directory,'installed-official-connections.png')});
    await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Close dialog',exact:true}).click();await page.screenshot({path:join(directory,'installed-main.png')});
-  }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');
+  }else if(!memory&&!workbench)await expect(message).toHaveValue('Keep this installed-app draft.');
   if(memory){if(!child.pid)throw Error('The owned installed process has no PID.');await (await import('./installed-memory-retention.ts')).verifyInstalledMemoryUI(page,memory.seed,iteration,memory.observations,{pid:child.pid,executable,isAlive:()=>child.exitCode===null&&child.signalCode===null},memory.mode);}
+  if(workbench){if(!child.pid)throw Error('The owned installed process has no PID.');await (await import('./installed-workbench-custody.ts')).verifyInstalledWorkbenchUI(page,workbench.seed,iteration,workbench.observations,{pid:child.pid,executable,isAlive:()=>child.exitCode===null&&child.signalCode===null});}
   expect((await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
   await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
   if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration,memory.mode));
-  const result={iteration,mode:'personal',memoryMode:memory?.mode??null,pid:child.pid,readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
+  if(workbench)workbench.observations.push(await (await import('./installed-workbench-custody.ts')).observeInstalledWorkbenchStorage(workbench.seed,iteration));
+  const result={iteration,mode:'personal',memoryMode:memory?.mode??null,workbenchCustody:workbench?true:null,pid:child.pid,readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
   (receipt.launches as unknown[]).push(result);return result;
  }finally{
   if(verifiedOwner)await browser?.close().catch(()=>{});
@@ -431,8 +436,9 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  }
 }
 
-export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean;memoryEnabled?:boolean}={}){
+export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean;memoryEnabled?:boolean;workbenchCustody?:boolean}={}){
  if(options.memoryEnabled&&!options.memoryRetention)throw Error('Enabled memory verification requires the separate default-off retention phase.');
+ if(options.workbenchCustody&&(options.memoryRetention||options.memoryEnabled))throw Error('The workbench custody phase owns the installed profile exclusively.');
  if(process.platform!=='win32'||process.arch!=='x64')throw Error('This verification requires Windows x64.');
  if(!isAbsolute(setupPath)||!isAbsolute(expectedUnpackedPath))throw Error('Pass absolute installer and expected unpacked-directory paths.');
  const setup=await realpath(setupPath),expectedUnpacked=await realpath(expectedUnpackedPath),setupIdentity=await identity(setup);
@@ -442,7 +448,7 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  // A nested evidence UUID path exceeds the conservative Windows path budget for Gemini assets.
  // Keep the exclusive application sibling short; evidence remains in its own directory.
  const installDirectory=join(workspace,'.harness-app-'+randomUUID().replaceAll('-','').slice(0,12)),version=(JSON.parse(await readFile(join(expectedUnpacked,'resources/host/package.json'),'utf8')) as {version:string}).version;
- const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches per requested phase with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,memoryEnabledRequested:options.memoryEnabled===true,launches:[],passed:false};
+ const receipt:Record<string,unknown>={createdAt:new Date().toISOString(),setup,setupSha256:setupIdentity.sha256,expectedUnpacked,installDirectory,nsisGuid:nsisApplicationGuid(APP_ID),version,scope:'Owned temporary per-user installation, exact payload/provider custody, two personal installed executable launches per requested phase with local recovery, and identity-bound uninstall. No sign-in, credentials, inference or user-profile adoption.',inference:false,auth:false,memoryRetentionRequested:options.memoryRetention===true,memoryEnabledRequested:options.memoryEnabled===true,workbenchCustodyRequested:options.workbenchCustody===true,launches:[],passed:false};
  const preflightObservations:PreflightObservation[]=[];receipt.preflightObservations=preflightObservations;
  const preflight=(stage:PreflightStage)=>installPreflight(ownedDirectory,stage,preflightObservations);
  let installedUninstaller:{path:string;identity:FileIdentity}|undefined,ownedCache:OwnedCache|undefined,installationInvoked=false,mainError:unknown;
@@ -472,7 +478,13 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
    memory={seed,observations:[],mode:'default-off'};
    receipt.memoryRetention={version:1,scope:'Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.',seed,hostDefaultOff:true,seedEnablement:'Constructor-local fixture creation only; project disabled before installed launch.',providerNetworkCalls:null,observations:memory.observations};
   }
-  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory);
+  let workbench:WorkbenchCustody|undefined;
+  if(options.workbenchCustody){
+   const seed=await (await import('./installed-workbench-custody.ts')).seedInstalledWorkbenchProfile(ownedDirectory);
+   workbench={seed,observations:[]};
+   receipt.workbenchCustody={version:1,scope:'Two owned logical tasks in one disposable profile. The real packaged renderer captures two authorized MESSAGE sources under the owning task, retains its draft while the unrelated task is opened, moves through the product native window detach/reattach on the real bridge, and survives an exact installed process restart on the same ports. Ask never submits; queued owner-bound delivery mode persists without a model. No sign-in, account, provider or model endpoint.',seed,activation:{HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1:'true'},providerNetworkCalls:null,observations:workbench.observations};
+  }
+  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory,workbench);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory,workbench);
   if(options.memoryEnabled){
    // Keep the default-off receipt and profile intact. The enabled phase owns
    // a separate, new profile and uses the production host environment path.
@@ -501,6 +513,6 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
  if(mainError)throw mainError;return {directory:ownedDirectory,receipt};
 }
 if(process.argv[1]&&pathToFileURL(resolve(process.argv[1])).href===import.meta.url){
- const {setup,unpacked,memoryRetention,memoryEnabled}=readInstalledVerificationArguments(process.argv.slice(2));
- await verifyInstalledDesktop(setup,unpacked,{memoryRetention,memoryEnabled});
+ const {setup,unpacked,memoryRetention,memoryEnabled,workbenchCustody}=readInstalledVerificationArguments(process.argv.slice(2));
+ await verifyInstalledDesktop(setup,unpacked,{memoryRetention,memoryEnabled,workbenchCustody});
 }

@@ -193,9 +193,9 @@ describe('installed desktop verification custody',()=>{
 
 describe('installed project memory retention fixture',()=>{
  it('requires an explicit retention option and rejects unknown or duplicated options',()=>{
-  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false,memoryEnabled:false});
-  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:false});
-  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention','--project-memory-enabled'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:true});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false,memoryEnabled:false,workbenchCustody:false});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:false,workbenchCustody:false});
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--project-memory-retention','--project-memory-enabled'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:true,memoryEnabled:true,workbenchCustody:false});
   for(const args of [[],['setup'],['setup','unpacked','--enable-memory'],['setup','unpacked','--project-memory-enabled'],['setup','unpacked','--project-memory-retention','--project-memory-retention'],['setup','unpacked','--project-memory-retention','--project-memory-enabled','--project-memory-enabled']])expect(()=>installedVerification.readInstalledVerificationArguments(args)).toThrow(/usage|pass|option/i);
  });
  it('activates only project memory for explicit enabled launches and never inherits ambient feature flags',()=>{
@@ -292,6 +292,75 @@ describe('installed project memory retention fixture',()=>{
    await assertInstalledMemoryProfile(seed);
    await rename(seed.profile.path,join(root,'original-host'));await mkdir(seed.profile.path);
    await expect(assertInstalledMemoryProfile(seed)).rejects.toThrow(/identity changed/i);
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+});
+
+describe('installed workbench custody fixture',()=>{
+ it('parses the exclusive custody option and rejects mixed or duplicated phases',()=>{
+  expect(installedVerification.readInstalledVerificationArguments(['setup','unpacked','--workbench-custody'])).toEqual({setup:'setup',unpacked:'unpacked',memoryRetention:false,memoryEnabled:false,workbenchCustody:true});
+  for(const args of [
+   ['setup','unpacked','--workbench-custody','--project-memory-retention'],
+   ['setup','unpacked','--workbench-custody','--project-memory-retention','--project-memory-enabled'],
+   ['setup','unpacked','--workbench-custody','--workbench-custody'],
+   ['setup','unpacked','--workbench-custody','--enable-workbench'],
+  ])expect(()=>installedVerification.readInstalledVerificationArguments(args)).toThrow(/usage|pass|option/i);
+ });
+ it('activates the source workbench only for explicit custody launches and never inherits ambient feature flags',()=>{
+  vi.stubEnv('HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1','true');vi.stubEnv('HARNESS_FLAG_MEMORY_PROJECT_V1','true');vi.stubEnv('HARNESS_FLAG_CONTEXT_COMPILER_V1','true');
+  try{
+   const custody=installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],undefined,true);
+   expect(custody.HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1).toBe('true');
+   expect(custody.HARNESS_FLAG_MEMORY_PROJECT_V1).toBeUndefined();expect(custody.HARNESS_FLAG_CONTEXT_COMPILER_V1).toBeUndefined();
+   for(const env of [installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319]),installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],'default-off'),custody]){
+    expect(env.HARNESS_DESKTOP_TEST_DATA_DIR).toBe('disposable');expect(env.HARNESS_DESKTOP_PORT).toBe('4317');expect(env.HARNESS_DESKTOP_WIDGET_PORT).toBe('4318');
+   }
+   expect(installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319]).HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1).toBeUndefined();
+   expect(installedVerification.installedVerificationEnvironment('disposable',[4317,4318,4319],'default-off').HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1).toBeUndefined();
+  }finally{vi.unstubAllEnvs();}
+ });
+ it('seeds two ready owner tasks with assistant source messages and no pending or sent records',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-workbench-seed-'))),flags=registeredCapabilityFlags();
+  try{
+   const {seedInstalledWorkbenchProfile,assertInstalledWorkbenchProfile,INSTALLED_WORKBENCH_CASE}=await import('../scripts/installed-workbench-custody.ts');
+   const seed=await seedInstalledWorkbenchProfile(root);
+   expect(seed.profile.path).toBe(await realpath(join(root,'host')));
+   const store=new Store(seed.profile.path);
+   try{
+    expect(store.snapshot().threads).toEqual(expect.arrayContaining([
+     expect.objectContaining({id:INSTALLED_WORKBENCH_CASE.owner.threadId,status:'ready',runId:null,modelId:null,accountId:null,epoch:1}),
+     expect.objectContaining({id:INSTALLED_WORKBENCH_CASE.unrelated.threadId,status:'ready',runId:null,modelId:null,accountId:null,epoch:1}),
+    ]));
+    expect(store.all('message',INSTALLED_WORKBENCH_CASE.owner.threadId)).toEqual([expect.objectContaining({id:INSTALLED_WORKBENCH_CASE.owner.messageId,role:'assistant',runId:null})]);
+    expect(store.all('message',INSTALLED_WORKBENCH_CASE.unrelated.threadId)).toEqual([expect.objectContaining({id:INSTALLED_WORKBENCH_CASE.unrelated.messageId,role:'assistant',runId:null})]);
+    for(const kind of ['sourceCapture','outbox','sourceAccountAdmission','modelRequest'])expect(store.all(kind)).toEqual([]);
+   }finally{store.close();}
+   await assertInstalledWorkbenchProfile(seed);
+   expect(registeredCapabilityFlags()).toEqual(flags);
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+ it('refuses an existing host profile, a redirected root, and a replaced backend directory',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-workbench-refuse-')));
+  try{
+   const {seedInstalledWorkbenchProfile,assertInstalledWorkbenchProfile}=await import('../scripts/installed-workbench-custody.ts');
+   await expect(seedInstalledWorkbenchProfile('relative-workbench')).rejects.toThrow(/absolute|canonical/i);
+   await mkdir(join(root,'host'));await writeFile(join(root,'host','existing.txt'),'Keep this profile');
+   await expect(seedInstalledWorkbenchProfile(root)).rejects.toThrow(/exist|exclusive|profile|directory/i);
+   expect(await readFile(join(root,'host','existing.txt'),'utf8')).toBe('Keep this profile');
+   await mkdir(join(root,'target'));await symlink(join(root,'target'),join(root,'alias'),'junction');
+   await expect(seedInstalledWorkbenchProfile(join(root,'alias'))).rejects.toThrow(/redirect|canonical|ordinary/i);
+   const seed=await seedInstalledWorkbenchProfile(join(root,'target'));
+   await assertInstalledWorkbenchProfile(seed);
+   await rename(seed.profile.path,join(root,'original-host'));await mkdir(seed.profile.path);
+   await expect(assertInstalledWorkbenchProfile(seed)).rejects.toThrow(/identity changed/i);
+  }finally{await rm(root,{recursive:true,force:true});}
+ });
+ it('post-exit audit refuses a profile with no authorized source capture under the owner',async()=>{
+  const root=await realpath(await mkdtemp(join(tmpdir(),'installed-workbench-audit-')));
+  try{
+   const {seedInstalledWorkbenchProfile,observeInstalledWorkbenchStorage}=await import('../scripts/installed-workbench-custody.ts');
+   const seed=await seedInstalledWorkbenchProfile(root);
+   await expect(observeInstalledWorkbenchStorage(seed,1)).rejects.toThrow();
   }finally{await rm(root,{recursive:true,force:true});}
  });
 });
