@@ -1,0 +1,63 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","workspace-host"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795008100671-06ebda7c-95e8-4514-b876-992dca2e99f6
+
+Browser suite: workspace-host (1 spec files)
+
+Running 50 tests using 1 worker
+
+  ok  1 tests\e2e\workspace-host.spec.ts:486:1 › cold restored monitor resolves its owner before any global conversation read (4.9s)
+  ok  2 tests\e2e\workspace-host.spec.ts:516:1 › native progress never installs the legacy snapshot refresh subscription in the monitor (1.7s)
+  ok  3 tests\e2e\workspace-host.spec.ts:531:1 › explicit conversation navigation preserves its draft and returns to the project-row monitor (2.5s)
+  ok  4 tests\e2e\workspace-host.spec.ts:563:1 › a monitor model intent is scoped to its conversation and consumed once before another Composer mounts (3.0s)
+  ok  5 tests\e2e\workspace-host.spec.ts:606:1 › workspace resolution failure stays retryable without falling back to a global snapshot (1.8s)
+  ok  6 tests\e2e\workspace-host.spec.ts:625:1 › compact Settings reserves sections while metadata loads and retains its search on refresh (2.9s)
+  ok  7 tests\e2e\workspace-host.spec.ts:687:1 › Settings opens over the monitor with compact metadata and preserves the owner (2.4s)
+  ok  8 tests\e2e\workspace-host.spec.ts:723:1 › invalid restored owner reports recovery instead of an endless opening state (1.7s)
+  ok  9 tests\e2e\workspace-host.spec.ts:741:1 › one pending send owner survives opening the ordinary conversation and retains later text (2.7s)
+  ok 10 tests\e2e\workspace-host.spec.ts:808:1 › a native attention destination opens its exact conversation from the monitor (2.1s)
+  ok 11 tests\e2e\workspace-host.spec.ts:826:1 › compact Settings Add resource opens the existing resource grant flow (2.5s)
+  ok 12 tests\e2e\workspace-host.spec.ts:851:111 › resource kind file uses the modal-owned shared selector and preserves exact grant (3.3s)
+  ok 13 tests\e2e\workspace-host.spec.ts:851:111 › resource kind database uses the modal-owned shared selector and preserves exact grant (3.4s)
+  ok 14 tests\e2e\workspace-host.spec.ts:851:111 › resource kind export uses the modal-owned shared selector and preserves exact grant (3.5s)
+  ok 15 tests\e2e\workspace-host.spec.ts:924:1 › a finished resource grant does not close a reopened picker (4.0s)
+  ok 16 tests\e2e\workspace-host.spec.ts:1024:1 › monitor preserves unpin confirmation with a shared dialog and cancellation (2.6s)
+  ok 17 tests\e2e\workspace-host.spec.ts:1051:1 › monitor honors disabled archive confirmation without creating an extra dialog (2.0s)
+  ok 18 tests\e2e\workspace-host.spec.ts:1072:1 › a consumed New thread intent is not replayed after returning through the monitor (2.9s)
+  ok 19 tests\e2e\workspace-host.spec.ts:1105:1 › the Settings keyboard shortcut opens compact Settings in the monitor (1.5s)
+  ok 20 tests\e2e\workspace-host.spec.ts:1120:1 › a rejected overlapping handoff preserves the accepted New thread intent (2.2s)
+  ok 21 tests\e2e\workspace-host.spec.ts:1152:1 › Settings close waits for an accepted preference save before applying monitor confirmation (2.7s)
+  ok 22 tests\e2e\workspace-host.spec.ts:1209:1 › keyboard and status Stop share the ordinary composer pending owner (2.3s)
+  ok 23 tests\e2e\workspace-host.spec.ts:1243:1 › monitor Stop shortcut stops the focused working agent exactly once (AUD-06) (1.6s)
+  ok 24 tests\e2e\workspace-host.spec.ts:1260:1 › review: returning through All Agents retains the latest conversation selection (3.0s)
+  ok 25 tests\e2e\workspace-host.spec.ts:1306:1 › the workspace switcher offers only supported presets (T05/R12) (1.6s)
+  ok 26 tests\e2e\workspace-host.spec.ts:1325:49 › a saved code-review canvas resolves to Workspace without rewriting the retired record (T05/R12) (2.2s)
+  ok 27 tests\e2e\workspace-host.spec.ts:1325:49 › a saved custom canvas resolves to Workspace without rewriting the retired record (T05/R12) (1.8s)
+  ok 28 tests\e2e\workspace-host.spec.ts:1345:1 › Retry workspace reattempts a failed retired canvas transition at the same revision (2.0s)
+  ok 29 tests\e2e\workspace-host.spec.ts:1368:1 › explicit retained-canvas restoration still renders a saved retired canvas record (T05/R12) (1.4s)
+  ok 30 tests\e2e\workspace-host.spec.ts:1383:1 › PR hover opens the shared linked-pull-requests surface in Workspace, not a retired review canvas (T05/R12) (3.6s)
+  ok 31 tests\e2e\workspace-host.spec.ts:1521:1 › review: restored archived conversation becomes available in monitor navigation (3.2s)
+  ok 32 tests\e2e\workspace-host.spec.ts:1657:1 › review: restored native thread owner keeps the monitor composer inert (1.7s)
+  ok 33 tests\e2e\workspace-host.spec.ts:1705:1 › desktop ownership updates hold monitor send and Stop then preserve the draft on return (1.9s)
+  ok 34 tests\e2e\workspace-host.spec.ts:1778:1 › desktop ownership change prevents a slash mode retry after authentication renewal (1.7s)
+  ok 35 tests\e2e\workspace-host.spec.ts:1866:1 › a native owner roundtrip before auth retry still rejects the stale mode (1.8s)
+{"scenario":"unmount-then-native-takeover","attempts":1,"sent":[{"id":"b659c3e1-14df-49e6-b499-80c0dddf9d8b","type":"thread.mode","payload":{"mode":"plan"},"threadId":"parent-a"}]}
+  ok 36 tests\e2e\workspace-host.spec.ts:1925:1 › unmounting the monitor before native takeover rejects a stale mode retry (2.0s)
+  ok 37 tests\e2e\workspace-host.spec.ts:1994:1 › synchronous native owner roundtrip fences the pending mode retry and permits a later explicit attempt (1.8s)
+  ok 38 tests\e2e\workspace-host.spec.ts:2074:1 › native takeover immediately before the mode callback prevents its initial dispatch (1.7s)
+  ok 39 tests\e2e\workspace-host.spec.ts:2109:1 › unrelated native owner roundtrip preserves a pending mode retry and its command identity (1.8s)
+  ok 40 tests\e2e\workspace-host.spec.ts:2165:50 › synchronous native owner roundtrip fences the pending message.send auth retry (2.3s)
+  ok 41 tests\e2e\workspace-host.spec.ts:2165:50 › synchronous native owner roundtrip fences the pending run.stop auth retry (1.9s)
+  ok 42 tests\e2e\workspace-host.spec.ts:2261:1 › Workspace artifact uses the shared chooser and retains the anchored chat draft (3.0s)
+  ok 43 tests\e2e\workspace-host.spec.ts:2309:1 › monitor Settings code loads only on open and remains reusable after closing during loading (3.4s)
+  ok 44 tests\e2e\workspace-host.spec.ts:2380:57 › monitor Settings chunk recovery retains assets before reloading (2.5s)
+  ok 45 tests\e2e\workspace-host.spec.ts:2380:57 › monitor Settings chunk recovery retains journal before reloading (2.3s)
+  ok 46 tests\e2e\workspace-host.spec.ts:2380:57 › monitor Settings chunk recovery retains handoff before reloading (2.4s)
+  ok 47 tests\e2e\workspace-host.spec.ts:2471:1 › plugin workspace tabs stay reachable from All Agents and open through the conversation owner (2.0s)
+  ok 48 tests\e2e\workspace-host.spec.ts:2495:1 › a failed plug-in catalog keeps a dismissible toast and a persistent inline retry in All Agents (2.1s)
+  ok 49 tests\e2e\workspace-host.spec.ts:2528:1 › All Agents empty copy reconciles with existing conversations and shows a live status dot (1.5s)
+  ok 50 tests\e2e\workspace-host.spec.ts:2544:1 › an unavailable main layout gives the user a retry without reloading the page (2.1s)
+
+  50 passed (2.1m)

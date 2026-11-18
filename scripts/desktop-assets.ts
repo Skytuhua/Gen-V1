@@ -17,6 +17,11 @@ export async function reserveDesktopRelease(outputRoot:string,version:string):Pr
  return release;
 }
 
+export const NODE_ARCHIVE_EXTRACT_COMMAND=[
+ "$ErrorActionPreference = 'Stop'",
+ 'Add-Type -AssemblyName System.IO.Compression.FileSystem',
+ '[System.IO.Compression.ZipFile]::ExtractToDirectory($env:HARNESS_NODE_ZIP, $env:HARNESS_NODE_EXTRACT)'
+].join('; ');
 export const NODE_VERSION='24.22.2';
 export const NODE_ARCHIVE_SHA256='ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2';
 export const REQUIRED_RUNTIME_FILES=[

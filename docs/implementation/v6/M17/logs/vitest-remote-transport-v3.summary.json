@@ -1,0 +1,28 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store \u2014 not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/remote-transport-v3.test.ts"
+ ],
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T18:30:14Z",
+ "endedAt": "2026-11-18T18:30:37Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "resultLines": [
+  "Test Files  1 passed (1)",
+  "Tests  1 passed (1)"
+ ],
+ "rawArtifact": {
+  "file": "vitest-remote-transport-v3.log",
+  "sha256": "c585f695827a7230dc4e38f7aae592d3632302f2810a444a4ebc79a1ff898554",
+  "bytes": 871,
+  "retention": "agent-owned local evidence store",
+  "published": false
+ }
+}
