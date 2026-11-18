@@ -162,6 +162,8 @@ it('redacts injected secrets from browser observations and rejects non-origin ev
   const browser = await f.session.browser!.launch({ profileDir: f.session.browserProfileDir!, viewport: { width: 800, height: 600 }, approvedOrigins: [f.origin], allowOrigin: () => true });
   expect(browser.page.url()).toBe(`${f.origin}/?token=[REDACTED]`);
   expect(await browser.page.text('body')).toBe('DOM token=[REDACTED] [REDACTED]');
+  f.browserSession.page.text = vi.fn(async () => null);
+  expect(await browser.page.text('missing')).toBeNull();
   expect(browser.collectedFailures()).toEqual({ console: ['value=[REDACTED]'], network: ['[REDACTED]'] });
   f.browserSession.observedOrigins = () => [`${f.origin}/?token=${secret}`];
   expect(() => browser.observedOrigins()).toThrow('invalid observation evidence');
