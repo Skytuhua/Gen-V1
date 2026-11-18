@@ -1,58 +1,538 @@
 {
-  "schemaVersion": 1,
-  "task": "M15 responsive source-aware operator workbench — V6 continuation",
-  "branch": "agent/m15-v3",
-  "publishedHead": "c993cb5fdf46894c2e89fff5a9c663bfcce36691",
-  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
-  "observedMain": "33639138f1cca3a596cab6315b1518a799fea6a5",
-  "recoveredRemoteHead": "25cded33455741974b86c4c71fe96b424bfaf0d2",
-  "mergedIntoMain": "2eec90614cd1d9022dc7b4b17c3bd3a421344470",
-  "postMergeNote": "PR #390 was merged into main at 2eec9061 before this continuation; remote branch agent/m15-v3 no longer exists. This matrix was re-audited on the merged tree (agent/m15-v3 + merge of main 33639138).",
-  "dispositions": ["PRESERVE_EXISTING", "IMPLEMENT", "TEST_ONLY", "BLOCKED"],
-  "requirements": [
-    {"id": "M15-C01", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/contracts/source-selection.ts"], "testIds": ["source-selection-v3"], "reason": "Strict SelectedSourceV1 union MESSAGE|FILE_RANGE|DIFF_HUNK|ARTIFACT_REGION with common fields, 1-based file lines and UTF-16 message ranges plus selectedTextDigest already present on the branch."},
-    {"id": "M15-C02", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/contracts/source-selection.ts", "apps/web/src/workbench-recovery.ts"], "testIds": ["workbench-recovery-v3", "M15-D02"], "reason": "DraftContextV1 draftId/owner/revision/text/sourceRefs[0..8]/sendMode/conflictState exists; source context grants no tool access; chip removal edits only the unsent draft."},
-    {"id": "M15-C03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/contracts/source-selection.ts", "apps/web/src/workbench-recovery.ts"], "testIds": ["workbench-recovery-v3"], "reason": "WorkbenchViewV1 stores presentation only, capped at maxViewEntries, keyed by logical owner plus deviceId."},
-    {"id": "M15-S01", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/WorkspaceSurfaceBody.tsx", "apps/web/src/SourceWorkbench.tsx"], "testIds": ["M15-D01", "redundant-ui"], "reason": "Shared Changes/PR surfaces remain in WorkspaceSurfaceBody; retired CodeReviewHost/ResearchHost/Custom paths are not recreated; M05 wiring preserved."},
-    {"id": "M15-S02", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceSelectionActions.tsx", "apps/web/src/SourceWorkbench.tsx"], "testIds": ["source-selection-dom-v3", "M15-D02"], "reason": "Ask about this / Attach to prompt / Open source exist on valid visible selections; Escape and keyboard access preserved."},
-    {"id": "M15-S03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/SourceSelectionActions.tsx"], "testIds": ["source-workbench-host-v3", "M15-D04"], "reason": "Host resolves owner/revision/digest before chip creation; hidden/clipped/forged selections refused; no cross-origin frame reads."},
-    {"id": "M15-S04", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/SourceWorkbench.tsx"], "testIds": ["source-workbench-host-v3"], "reason": "Refresh source and Keep captured version exist; STALE/UNAVAILABLE states prevent misleading citations; M04 byte budget enforced via RESOURCE_LIMIT."},
-    {"id": "M15-S05", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceWorkbench.tsx", "packages/core/service.ts"], "testIds": ["M15-D02", "M15-D05"], "reason": "Composer carries an explicit Destination label; send goes through the durable service.command message.send path preserving idempotency and ref identity."},
-    {"id": "M15-S06", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts"], "testIds": ["source-workbench-host-v3"], "reason": "Module states M04-M14 reported through workbench evidence; M10/M14 remain UNSUPPORTED with a reason rather than fake controls."},
-    {"id": "M15-S07", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts"], "testIds": ["source-workbench-host-v3"], "reason": "evidence() separates REPORTED/OBSERVED/VERIFIED items with freshness; stale items open their historical source."},
-    {"id": "M15-S08", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-window.ts"], "testIds": ["workbench-performance-v3"], "reason": "Bounded log rows and stable logical item IDs preserved; no layout mechanism replaced."},
-    {"id": "M15-S09", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-window.ts"], "testIds": ["workbench-performance-v3", "M15-D06"], "reason": "Windowing with captureOutputAnchor/restoreOutputAnchor; search/copy use the authorized full read model; no canonical messages dropped."},
-    {"id": "M15-S10", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-recovery.ts", "apps/web/src/journal.ts"], "testIds": ["workbench-recovery-v3", "workbench-input-recovery-v3", "M15-D03"], "reason": "Draft and view state persist under logical owner plus revision; prepareSourceOwnerHandoff flushes and keeps conflict copies; late old-owner writes fenced."},
-    {"id": "M15-S11", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/SourceWorkbench.tsx"], "testIds": ["source-workbench-host-v3"], "reason": "Loading/empty/denied/offline/stale/partial/unsupported states exist; read-only state exposes no enabled mutation controls."},
-    {"id": "M15-S12", "disposition": "TEST_ONLY", "sourcePaths": ["apps/web/src/workbench-window.ts", "tests/workbench-performance-v3.test.ts", "tests/e2e/workbench.spec.ts"], "testIds": ["workbench-performance-v3", "M15-D06"], "reason": "10,000/500/100,000 fixtures and <=300 mounted rows are asserted locally; the named p95 interaction measurement runs in the recorded browser/CI suites and is not claimed here."},
-    {"id": "M15-S13", "disposition": "TEST_ONLY", "sourcePaths": ["tests/e2e/desktop-surfaces.spec.ts", "tests/e2e/saved-drafts.playwright.config.ts"], "testIds": ["test:browser"], "reason": "Viewport/zoom/keyboard/reduced-motion checks run in the recorded browser and CI suites."},
-    {"id": "M15-S14", "disposition": "IMPLEMENT", "sourcePaths": ["docs/implementation/v6/M15/feature-comparison.md"], "testIds": [], "reason": "Feature comparison record authored under the v6 evidence path in this continuation."},
-    {"id": "M15-U01", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceSelectionActions.tsx", "apps/web/src/SourceWorkbench.tsx"], "testIds": ["source-selection-dom-v3", "M15-D02"], "reason": "Toolbar actions, selected-source chips with remove, and the always-visible destination exist."},
-    {"id": "M15-U02", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceWorkbench.tsx", "packages/core/source-workbench.ts"], "testIds": ["source-workbench-host-v3"], "reason": "Context inspector, memory review and evidence sections link to owning services."},
-    {"id": "M15-U03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts"], "testIds": ["source-workbench-host-v3"], "reason": "Run drawer reports owner, queue, blockers and unknown outcomes; inspect controls are distinct from approved actions."},
-    {"id": "M15-U04", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/WorkspaceSurfaceBody.tsx"], "testIds": ["redundant-ui"], "reason": "Checkpoint and branch controls remain separate; view changes preserve drafts and focused controls."},
-    {"id": "M15-T01", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/SourceSelectionActions.tsx"], "testIds": ["source-selection-v3", "source-workbench-host-v3", "M15-D01", "M15-D04"], "reason": "Forged/stale IDs, hidden selections and cross-owner targets cannot produce valid chips."},
-    {"id": "M15-T02", "disposition": "TEST_ONLY", "sourcePaths": ["apps/web/src/SourceSelectionActions.tsx"], "testIds": ["source-selection-dom-v3", "test:browser"], "reason": "Keyboard/Escape/IME/focus cases are covered by DOM tests and the recorded browser suites."},
-    {"id": "M15-T03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-recovery.ts"], "testIds": ["workbench-recovery-v3", "M15-D03"], "reason": "Owner switch fences late writes and preserves the correct draft."},
-    {"id": "M15-T04", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-window.ts"], "testIds": ["workbench-performance-v3", "M15-D06"], "reason": "Bounded fixtures; full-result copy/search return complete authorized data despite windowing."},
-    {"id": "M15-T05", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-recovery.ts", "apps/web/src/journal.ts"], "testIds": ["workbench-recovery-v3", "M15-D05"], "reason": "Reload, failed flush and handoff retain drafts or explicit conflict copies; capture custody survives restart."},
-    {"id": "M15-T06", "disposition": "TEST_ONLY", "sourcePaths": ["tests/e2e/desktop-surfaces.spec.ts"], "testIds": ["test:browser"], "reason": "Viewport/zoom/reduced-motion reachability runs in the recorded browser suites."},
-    {"id": "M15-G01", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/capability-flags.ts", "packages/core/source-workbench.ts"], "testIds": ["source-workbench-host-v3"], "reason": "Workbench is flag-gated; mutation controls stay disabled until the owning bundle advertises a tested contract."},
-    {"id": "M15-G02", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/capability-flags.ts"], "testIds": ["source-workbench-host-v3"], "reason": "ui.sourceWorkbenchV1 stays registered and default false; no strict-preference or agent enablement added."},
-    {"id": "M15-G03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/workbench-recovery.ts"], "testIds": ["source-workbench-host-v3"], "reason": "Disabling contribution points preserves dialogs, drafts and readable saved source references; canonical state is never deleted."},
-    {"id": "D01", "disposition": "PRESERVE_EXISTING", "sourcePaths": [".github/workflows/m15-evidence.yml", ".github/workflows/ci.yml"], "testIds": [], "reason": "The recorded before/after SHA-256s for the lost unpublished repair remain unreproducible; HOLD_UNPUBLISHED_CUSTODY stands for the payload itself and it was not silently substituted by this continuation. The equivalent workflow-level env block (GIT_CONFIG_COUNT/KEY_0/VALUE_0 = core.longpaths) was applied by explicit owning decision in 0539bc1f and is verified present in the merged tree (ci.yml env block, m15-evidence.yml env block). Windows checkout success under that repair is CI-side and not independently re-verified here."},
-    {"id": "D02", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceWorkbench.tsx", "packages/core/source-workbench.ts"], "testIds": [], "reason": "Current workbench and M05 wiring kept; no T3 selection components imported."},
-    {"id": "D03", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["packages/core/source-workbench.ts", "apps/web/src/SourceSelectionActions.tsx"], "testIds": ["M15-D04"], "reason": "Canonical UTF-16 selector, authorized file cut, atomic diff requirement and artifact contract retained; unsupported kinds stay disabled with reasons."},
-    {"id": "D04", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceWorkbench.tsx", "apps/web/src/workbench-recovery.ts"], "testIds": ["M15-D02"], "reason": "Ask populates the draft without sending; chips preserve draft text; queued sends keep the immutable capture and input ID."},
-    {"id": "D05", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/SourceSelectionActions.tsx", "apps/web/src/workbench-recovery.ts"], "testIds": ["M15-D03"], "reason": "Hidden/clipped/cross-owner selections rejected; delayed completions clear only the exact original identity; destination owner is never inferred from focus."},
-    {"id": "D06", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/WorkspaceSurfaceBody.tsx"], "testIds": ["M15-D01"], "reason": "Optional panels resolve through their existing owner with an Unavailable state; no retired workspace resurrected."},
-    {"id": "D07", "disposition": "PRESERVE_EXISTING", "sourcePaths": ["apps/web/src/workbench-recovery.ts", "apps/web/src/workbench-window.ts"], "testIds": ["M15-D03", "M15-D06"], "reason": "Persistence flows through existing journal operations; full-result reads use the authorized read model."},
-    {"id": "D08", "disposition": "IMPLEMENT", "sourcePaths": ["docs/implementation/v6/M15/"], "testIds": [], "reason": "V6 evidence artifacts live under docs/implementation/v6/M15/ with bounded digests; previously tracked evidence unchanged."},
-    {"id": "M15-D01", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D01"], "reason": "Retired preset creation rejects PRESET_RETIRED through the real WorkspaceRepository; no retired host identifiers in shared surfaces."},
-    {"id": "M15-D02", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D02"], "reason": "Capture/attach changes draft state with zero submits until explicit send through the real Service."},
-    {"id": "M15-D03", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D03"], "reason": "Delayed old-owner completion is fenced; foreign draft stays intact; stale-generation clears mutate nothing."},
-    {"id": "M15-D04", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D04"], "reason": "DIFF_HUNK stays UNSUPPORTED with reason; capture refuses before a chip exists; unmapped selections return no reference."},
-    {"id": "M15-D05", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D05"], "reason": "Cross-owner send denied; AFTER_CURRENT queues then dispatches after settle; retained capture survives a real Store/Service restart; handoff resolves."},
-    {"id": "M15-D06", "disposition": "TEST_ONLY", "sourcePaths": ["tests/workbench-continuation-v6.test.ts"], "testIds": ["M15-D06"], "reason": "Mounted rows stay <=300 on the 100,000-row fixture; authorized full read, copy and search stay complete; drafts survive reload."}
-  ]
+ "schemaVersion": 1,
+ "task": "M15 responsive source-aware operator workbench — V6 continuation",
+ "branch": "agent/m15-v3",
+ "publishedHead": "840bb636fb072be137f99e854597b5259e120f7f",
+ "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
+ "observedMain": "c8fc789ae7f48db91a8abb471be9df49317e0039",
+ "recoveredRemoteHead": "25cded33455741974b86c4c71fe96b424bfaf0d2",
+ "mergedIntoMain": "2eec90614cd1d9022dc7b4b17c3bd3a421344470",
+ "postMergeNote": "PR #390 was merged into main at 2eec9061 before this continuation; remote branch agent/m15-v3 no longer exists. This matrix was re-audited on the merged tree (agent/m15-v3 + merge of main 33639138).",
+ "dispositions": [
+  "PRESERVE_EXISTING",
+  "IMPLEMENT",
+  "TEST_ONLY",
+  "BLOCKED"
+ ],
+ "requirements": [
+  {
+   "id": "M15-C01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/source-selection.ts"
+   ],
+   "testIds": [
+    "source-selection-v3"
+   ],
+   "reason": "Strict SelectedSourceV1 union MESSAGE|FILE_RANGE|DIFF_HUNK|ARTIFACT_REGION with common fields, 1-based file lines and UTF-16 message ranges plus selectedTextDigest already present on the branch."
+  },
+  {
+   "id": "M15-C02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/source-selection.ts",
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "workbench-recovery-v3",
+    "M15-D02"
+   ],
+   "reason": "DraftContextV1 draftId/owner/revision/text/sourceRefs[0..8]/sendMode/conflictState exists; source context grants no tool access; chip removal edits only the unsent draft."
+  },
+  {
+   "id": "M15-C03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/source-selection.ts",
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "workbench-recovery-v3"
+   ],
+   "reason": "WorkbenchViewV1 stores presentation only, capped at maxViewEntries, keyed by logical owner plus deviceId."
+  },
+  {
+   "id": "M15-S01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/WorkspaceSurfaceBody.tsx",
+    "apps/web/src/SourceWorkbench.tsx"
+   ],
+   "testIds": [
+    "M15-D01",
+    "redundant-ui"
+   ],
+   "reason": "Shared Changes/PR surfaces remain in WorkspaceSurfaceBody; retired CodeReviewHost/ResearchHost/Custom paths are not recreated; M05 wiring preserved."
+  },
+  {
+   "id": "M15-S02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceSelectionActions.tsx",
+    "apps/web/src/SourceWorkbench.tsx"
+   ],
+   "testIds": [
+    "source-selection-dom-v3",
+    "M15-D02"
+   ],
+   "reason": "Ask about this / Attach to prompt / Open source exist on valid visible selections; Escape and keyboard access preserved."
+  },
+  {
+   "id": "M15-S03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/SourceSelectionActions.tsx"
+   ],
+   "testIds": [
+    "source-workbench-host-v3",
+    "M15-D04"
+   ],
+   "reason": "Host resolves owner/revision/digest before chip creation; hidden/clipped/forged selections refused; no cross-origin frame reads."
+  },
+  {
+   "id": "M15-S04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/SourceWorkbench.tsx"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Refresh source and Keep captured version exist; STALE/UNAVAILABLE states prevent misleading citations; M04 byte budget enforced via RESOURCE_LIMIT."
+  },
+  {
+   "id": "M15-S05",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceWorkbench.tsx",
+    "packages/core/service.ts"
+   ],
+   "testIds": [
+    "M15-D02",
+    "M15-D05"
+   ],
+   "reason": "Composer carries an explicit Destination label; send goes through the durable service.command message.send path preserving idempotency and ref identity."
+  },
+  {
+   "id": "M15-S06",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Module states M04-M14 reported through workbench evidence; M10/M14 remain UNSUPPORTED with a reason rather than fake controls."
+  },
+  {
+   "id": "M15-S07",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "evidence() separates REPORTED/OBSERVED/VERIFIED items with freshness; stale items open their historical source."
+  },
+  {
+   "id": "M15-S08",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-window.ts"
+   ],
+   "testIds": [
+    "workbench-performance-v3"
+   ],
+   "reason": "Bounded log rows and stable logical item IDs preserved; no layout mechanism replaced."
+  },
+  {
+   "id": "M15-S09",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-window.ts"
+   ],
+   "testIds": [
+    "workbench-performance-v3",
+    "M15-D06"
+   ],
+   "reason": "Windowing with captureOutputAnchor/restoreOutputAnchor; search/copy use the authorized full read model; no canonical messages dropped."
+  },
+  {
+   "id": "M15-S10",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-recovery.ts",
+    "apps/web/src/journal.ts"
+   ],
+   "testIds": [
+    "workbench-recovery-v3",
+    "workbench-input-recovery-v3",
+    "M15-D03"
+   ],
+   "reason": "Draft and view state persist under logical owner plus revision; prepareSourceOwnerHandoff flushes and keeps conflict copies; late old-owner writes fenced."
+  },
+  {
+   "id": "M15-S11",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/SourceWorkbench.tsx"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Loading/empty/denied/offline/stale/partial/unsupported states exist; read-only state exposes no enabled mutation controls."
+  },
+  {
+   "id": "M15-S12",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "apps/web/src/workbench-window.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/e2e/workbench.spec.ts"
+   ],
+   "testIds": [
+    "workbench-performance-v3",
+    "M15-D06"
+   ],
+   "reason": "10,000/500/100,000 fixtures and <=300 mounted rows are asserted locally; the named p95 interaction measurement runs in the recorded browser/CI suites and is not claimed here."
+  },
+  {
+   "id": "M15-S13",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/e2e/desktop-surfaces.spec.ts",
+    "tests/e2e/saved-drafts.playwright.config.ts"
+   ],
+   "testIds": [
+    "test:browser"
+   ],
+   "reason": "Viewport/zoom/keyboard/reduced-motion checks run in the recorded browser and CI suites."
+  },
+  {
+   "id": "M15-S14",
+   "disposition": "IMPLEMENT",
+   "sourcePaths": [
+    "docs/implementation/v6/M15/feature-comparison.md"
+   ],
+   "testIds": [],
+   "reason": "Feature comparison record authored under the v6 evidence path in this continuation."
+  },
+  {
+   "id": "M15-U01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceSelectionActions.tsx",
+    "apps/web/src/SourceWorkbench.tsx"
+   ],
+   "testIds": [
+    "source-selection-dom-v3",
+    "M15-D02"
+   ],
+   "reason": "Toolbar actions, selected-source chips with remove, and the always-visible destination exist."
+  },
+  {
+   "id": "M15-U02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceWorkbench.tsx",
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Context inspector, memory review and evidence sections link to owning services."
+  },
+  {
+   "id": "M15-U03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Run drawer reports owner, queue, blockers and unknown outcomes; inspect controls are distinct from approved actions."
+  },
+  {
+   "id": "M15-U04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/WorkspaceSurfaceBody.tsx"
+   ],
+   "testIds": [
+    "redundant-ui"
+   ],
+   "reason": "Checkpoint and branch controls remain separate; view changes preserve drafts and focused controls."
+  },
+  {
+   "id": "M15-T01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/SourceSelectionActions.tsx"
+   ],
+   "testIds": [
+    "source-selection-v3",
+    "source-workbench-host-v3",
+    "M15-D01",
+    "M15-D04"
+   ],
+   "reason": "Forged/stale IDs, hidden selections and cross-owner targets cannot produce valid chips."
+  },
+  {
+   "id": "M15-T02",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "apps/web/src/SourceSelectionActions.tsx"
+   ],
+   "testIds": [
+    "source-selection-dom-v3",
+    "test:browser"
+   ],
+   "reason": "Keyboard/Escape/IME/focus cases are covered by DOM tests and the recorded browser suites."
+  },
+  {
+   "id": "M15-T03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "workbench-recovery-v3",
+    "M15-D03"
+   ],
+   "reason": "Owner switch fences late writes and preserves the correct draft."
+  },
+  {
+   "id": "M15-T04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-window.ts"
+   ],
+   "testIds": [
+    "workbench-performance-v3",
+    "M15-D06"
+   ],
+   "reason": "Bounded fixtures; full-result copy/search return complete authorized data despite windowing."
+  },
+  {
+   "id": "M15-T05",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-recovery.ts",
+    "apps/web/src/journal.ts"
+   ],
+   "testIds": [
+    "workbench-recovery-v3",
+    "M15-D05"
+   ],
+   "reason": "Reload, failed flush and handoff retain drafts or explicit conflict copies; capture custody survives restart."
+  },
+  {
+   "id": "M15-T06",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/e2e/desktop-surfaces.spec.ts"
+   ],
+   "testIds": [
+    "test:browser"
+   ],
+   "reason": "Viewport/zoom/reduced-motion reachability runs in the recorded browser suites."
+  },
+  {
+   "id": "M15-G01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/capability-flags.ts",
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Workbench is flag-gated; mutation controls stay disabled until the owning bundle advertises a tested contract."
+  },
+  {
+   "id": "M15-G02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/capability-flags.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "ui.sourceWorkbenchV1 stays registered and default false; no strict-preference or agent enablement added."
+  },
+  {
+   "id": "M15-G03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "source-workbench-host-v3"
+   ],
+   "reason": "Disabling contribution points preserves dialogs, drafts and readable saved source references; canonical state is never deleted."
+  },
+  {
+   "id": "D01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    ".github/workflows/m15-evidence.yml",
+    ".github/workflows/ci.yml"
+   ],
+   "testIds": [],
+   "reason": "The recorded before/after SHA-256s for the lost unpublished repair remain unreproducible; HOLD_UNPUBLISHED_CUSTODY stands for the payload itself and it was not silently substituted by this continuation. The equivalent workflow-level env block (GIT_CONFIG_COUNT/KEY_0/VALUE_0 = core.longpaths) was applied by explicit owning decision in 0539bc1f and is verified present in the merged tree (ci.yml env block, m15-evidence.yml env block). Windows checkout success under that repair is CI-side and not independently re-verified here."
+  },
+  {
+   "id": "D02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceWorkbench.tsx",
+    "packages/core/source-workbench.ts"
+   ],
+   "testIds": [],
+   "reason": "Current workbench and M05 wiring kept; no T3 selection components imported."
+  },
+  {
+   "id": "D03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/source-workbench.ts",
+    "apps/web/src/SourceSelectionActions.tsx"
+   ],
+   "testIds": [
+    "M15-D04"
+   ],
+   "reason": "Canonical UTF-16 selector, authorized file cut, atomic diff requirement and artifact contract retained; unsupported kinds stay disabled with reasons."
+  },
+  {
+   "id": "D04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceWorkbench.tsx",
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "M15-D02"
+   ],
+   "reason": "Ask populates the draft without sending; chips preserve draft text; queued sends keep the immutable capture and input ID."
+  },
+  {
+   "id": "D05",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/SourceSelectionActions.tsx",
+    "apps/web/src/workbench-recovery.ts"
+   ],
+   "testIds": [
+    "M15-D03"
+   ],
+   "reason": "Hidden/clipped/cross-owner selections rejected; delayed completions clear only the exact original identity; destination owner is never inferred from focus."
+  },
+  {
+   "id": "D06",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/WorkspaceSurfaceBody.tsx"
+   ],
+   "testIds": [
+    "M15-D01"
+   ],
+   "reason": "Optional panels resolve through their existing owner with an Unavailable state; no retired workspace resurrected."
+  },
+  {
+   "id": "D07",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/workbench-recovery.ts",
+    "apps/web/src/workbench-window.ts"
+   ],
+   "testIds": [
+    "M15-D03",
+    "M15-D06"
+   ],
+   "reason": "Persistence flows through existing journal operations; full-result reads use the authorized read model."
+  },
+  {
+   "id": "D08",
+   "disposition": "IMPLEMENT",
+   "sourcePaths": [
+    "docs/implementation/v6/M15/"
+   ],
+   "testIds": [],
+   "reason": "V6 evidence artifacts live under docs/implementation/v6/M15/ with bounded digests; previously tracked evidence unchanged."
+  },
+  {
+   "id": "M15-D01",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D01"
+   ],
+   "reason": "Retired preset creation rejects PRESET_RETIRED through the real WorkspaceRepository; no retired host identifiers in shared surfaces."
+  },
+  {
+   "id": "M15-D02",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D02"
+   ],
+   "reason": "Capture/attach changes draft state with zero submits until explicit send through the real Service."
+  },
+  {
+   "id": "M15-D03",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D03"
+   ],
+   "reason": "Delayed old-owner completion is fenced; foreign draft stays intact; stale-generation clears mutate nothing."
+  },
+  {
+   "id": "M15-D04",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D04"
+   ],
+   "reason": "DIFF_HUNK stays UNSUPPORTED with reason; capture refuses before a chip exists; unmapped selections return no reference."
+  },
+  {
+   "id": "M15-D05",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D05"
+   ],
+   "reason": "Cross-owner send denied; AFTER_CURRENT queues then dispatches after settle; retained capture survives a real Store/Service restart; handoff resolves."
+  },
+  {
+   "id": "M15-D06",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/workbench-continuation-v6.test.ts"
+   ],
+   "testIds": [
+    "M15-D06"
+   ],
+   "reason": "Mounted rows stay <=300 on the 100,000-row fixture; authorized full read, copy and search stay complete; drafts survive reload."
+  }
+ ],
+ "windowsC4Note": "C4 Windows gates executed on CI run 44310248562 at 840bb636 plus local Windows Server 2022 replays (v6w-* receipts): installed-Edge browser matrix 18/18 PASS, root baseline+candidate PASS at parity, native 37-file and 4 shards complete with the only residual failure being tests/hermes-original-integration x2 — proven inherited from main (identical on PR #675 CI), not M15-scope. Renderer benchmark: windowed p95 4.9ms (<100ms), 34/300 mounted rows, Edge 141. One real upstream regression found and fixed: placeSplitThread cleared selectedPluginWorkspace on the auto-placement path (PR #754 regression); clears moved to user-initiated callers only. bundleStatus FAIL is honest for the inherited pair."
 }

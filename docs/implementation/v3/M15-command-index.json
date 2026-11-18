@@ -1917,6 +1917,231 @@
     "endedAt": "2026-11-16T04:44:35.572Z"
   },
   {
+    "id": "c4-windows-agents-actual-app-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-agents-actual-app-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:20:41.763Z",
+    "endedAt": "2026-11-18T13:21:40.106Z"
+  },
+  {
+    "id": "c4-windows-agents-workspace-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-agents-workspace-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:19:35.738Z",
+    "endedAt": "2026-11-18T13:20:41.356Z"
+  },
+  {
+    "id": "c4-windows-artifact-acknowledgment-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-artifact-acknowledgment-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:16:54.424Z",
+    "endedAt": "2026-11-18T13:17:05.545Z"
+  },
+  {
+    "id": "c4-windows-chat-view-modes-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-chat-view-modes-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:16:36.890Z",
+    "endedAt": "2026-11-18T13:16:54.027Z"
+  },
+  {
+    "id": "c4-windows-desktop-surfaces-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-desktop-surfaces-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:25:27.086Z",
+    "endedAt": "2026-11-18T13:26:56.231Z"
+  },
+  {
+    "id": "c4-windows-frontend-refinement-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-frontend-refinement-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:10:44.387Z",
+    "endedAt": "2026-11-18T13:14:55.874Z"
+  },
+  {
+    "id": "c4-windows-full-shard-1-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-full-shard-1-44310248562-1.json",
+    "phase": "FULL_REPOSITORY_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:07:51.976Z",
+    "endedAt": "2026-11-18T13:14:38.540Z"
+  },
+  {
+    "id": "c4-windows-full-shard-2-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-full-shard-2-44310248562-1.json",
+    "phase": "FULL_REPOSITORY_ACTUAL",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T13:07:27.499Z",
+    "endedAt": "2026-11-18T13:14:01.504Z"
+  },
+  {
+    "id": "c4-windows-full-shard-3-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-full-shard-3-44310248562-1.json",
+    "phase": "FULL_REPOSITORY_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:07:24.018Z",
+    "endedAt": "2026-11-18T13:12:08.698Z"
+  },
+  {
+    "id": "c4-windows-full-shard-4-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-full-shard-4-44310248562-1.json",
+    "phase": "FULL_REPOSITORY_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:07:31.410Z",
+    "endedAt": "2026-11-18T13:12:36.683Z"
+  },
+  {
+    "id": "c4-windows-native-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-native-44310248562-1.json",
+    "phase": "WINDOWS_NATIVE_ACTUAL",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T13:08:02.220Z",
+    "endedAt": "2026-11-18T13:11:06.797Z"
+  },
+  {
+    "id": "c4-windows-project-memory-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-project-memory-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:10:17.743Z",
+    "endedAt": "2026-11-18T13:10:44.015Z"
+  },
+  {
+    "id": "c4-windows-root-baseline-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-root-baseline-44310248562-1.json",
+    "phase": "ROOT_BROWSER_COMPARISON_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:08:03.867Z",
+    "endedAt": "2026-11-18T13:14:05.182Z"
+  },
+  {
+    "id": "c4-windows-root-candidate-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-root-candidate-44310248562-1.json",
+    "phase": "ROOT_BROWSER_COMPARISON_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:14:05.588Z",
+    "endedAt": "2026-11-18T13:22:21.158Z"
+  },
+  {
+    "id": "c4-windows-saved-drafts-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-saved-drafts-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:14:56.281Z",
+    "endedAt": "2026-11-18T13:16:36.499Z"
+  },
+  {
+    "id": "c4-windows-saved-layout-chooser-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-saved-layout-chooser-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:23:45.430Z",
+    "endedAt": "2026-11-18T13:24:10.360Z"
+  },
+  {
+    "id": "c4-windows-scoped-conversation-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-scoped-conversation-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:17:05.934Z",
+    "endedAt": "2026-11-18T13:17:25.024Z"
+  },
+  {
+    "id": "c4-windows-split-browser-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-split-browser-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:26:56.638Z",
+    "endedAt": "2026-11-18T13:29:48.809Z"
+  },
+  {
+    "id": "c4-windows-ui-shell-controls-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-ui-shell-controls-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:17:42.561Z",
+    "endedAt": "2026-11-18T13:18:07.362Z"
+  },
+  {
+    "id": "c4-windows-ui-shell-overlays-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-ui-shell-overlays-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:17:25.416Z",
+    "endedAt": "2026-11-18T13:17:42.174Z"
+  },
+  {
+    "id": "c4-windows-usage-app-integration-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-usage-app-integration-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:24:10.763Z",
+    "endedAt": "2026-11-18T13:25:26.680Z"
+  },
+  {
+    "id": "c4-windows-usage-context-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-usage-context-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:18:07.731Z",
+    "endedAt": "2026-11-18T13:19:35.331Z"
+  },
+  {
+    "id": "c4-windows-workbench-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-workbench-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:07:16.000Z",
+    "endedAt": "2026-11-18T13:08:20.484Z"
+  },
+  {
+    "id": "c4-windows-workbench-app-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-workbench-app-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:08:20.921Z",
+    "endedAt": "2026-11-18T13:10:17.353Z"
+  },
+  {
+    "id": "c4-windows-workspace-host-44310248562-1",
+    "receipt": "docs/implementation/v3/m15-logs/c4-windows-workspace-host-44310248562-1.json",
+    "phase": "WINDOWS_BROWSER_ACTUAL",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:21:40.478Z",
+    "endedAt": "2026-11-18T13:23:45.023Z"
+  },
+  {
     "id": "c4-workbench-app-final-01",
     "receipt": "docs/implementation/v3/m15-logs/c4-workbench-app-final-01.json",
     "phase": "ATTEMPT_HISTORY",
@@ -3265,5 +3490,428 @@
     "exitCode": 1,
     "startedAt": "2026-11-17T10:18:18.972Z",
     "endedAt": "2026-11-17T10:27:32.179Z"
+  },
+  {
+    "id": "v6w-browser-agents-actual-app",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-agents-actual-app.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:14:21.594Z",
+    "endedAt": "2026-11-18T11:15:32.264Z"
+  },
+  {
+    "id": "v6w-browser-agents-workspace-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-agents-workspace-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:12:29.896Z",
+    "endedAt": "2026-11-18T11:13:42.399Z"
+  },
+  {
+    "id": "v6w-browser-agents-workspace",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-agents-workspace.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:58:52.388Z",
+    "endedAt": "2026-11-18T10:59:59.473Z"
+  },
+  {
+    "id": "v6w-browser-artifact-acknowledgment",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-artifact-acknowledgment.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:14:04.903Z",
+    "endedAt": "2026-11-18T11:14:16.087Z"
+  },
+  {
+    "id": "v6w-browser-chat-view-modes-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-chat-view-modes-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:45:06.740Z",
+    "endedAt": "2026-11-18T10:45:20.414Z"
+  },
+  {
+    "id": "v6w-browser-chat-view-modes",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-chat-view-modes.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:35:48.765Z",
+    "endedAt": "2026-11-18T10:37:34.119Z"
+  },
+  {
+    "id": "v6w-browser-desktop-surfaces-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-desktop-surfaces-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:45:20.471Z",
+    "endedAt": "2026-11-18T10:46:35.319Z"
+  },
+  {
+    "id": "v6w-browser-desktop-surfaces",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-desktop-surfaces.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:37:34.224Z",
+    "endedAt": "2026-11-18T10:39:08.496Z"
+  },
+  {
+    "id": "v6w-browser-frontend-refinement",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-frontend-refinement.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:52:22.282Z",
+    "endedAt": "2026-11-18T10:56:25.290Z"
+  },
+  {
+    "id": "v6w-browser-project-memory",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-project-memory.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:41:26.114Z",
+    "endedAt": "2026-11-18T10:41:52.186Z"
+  },
+  {
+    "id": "v6w-browser-root",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-root.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:04:05.808Z",
+    "endedAt": "2026-11-18T11:13:20.869Z"
+  },
+  {
+    "id": "v6w-browser-saved-drafts",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-saved-drafts.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:39:59.407Z",
+    "endedAt": "2026-11-18T10:41:26.044Z"
+  },
+  {
+    "id": "v6w-browser-saved-layout-chooser",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-saved-layout-chooser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:02:13.188Z",
+    "endedAt": "2026-11-18T11:02:47.097Z"
+  },
+  {
+    "id": "v6w-browser-scoped-conversation",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-scoped-conversation.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:56:25.367Z",
+    "endedAt": "2026-11-18T10:56:48.100Z"
+  },
+  {
+    "id": "v6w-browser-ui-shell-controls",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-ui-shell-controls.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:57:04.548Z",
+    "endedAt": "2026-11-18T10:57:29.017Z"
+  },
+  {
+    "id": "v6w-browser-ui-shell-overlays",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-ui-shell-overlays.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:56:48.184Z",
+    "endedAt": "2026-11-18T10:57:04.433Z"
+  },
+  {
+    "id": "v6w-browser-usage-app-integration",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-usage-app-integration.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:02:47.193Z",
+    "endedAt": "2026-11-18T11:04:05.721Z"
+  },
+  {
+    "id": "v6w-browser-usage-context",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-usage-context.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:57:29.089Z",
+    "endedAt": "2026-11-18T10:58:52.315Z"
+  },
+  {
+    "id": "v6w-browser-workbench-app-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workbench-app-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:46:44.626Z",
+    "endedAt": "2026-11-18T10:48:16.816Z"
+  },
+  {
+    "id": "v6w-browser-workbench-app-r3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workbench-app-r3.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:49:33.564Z",
+    "endedAt": "2026-11-18T10:51:08.552Z"
+  },
+  {
+    "id": "v6w-browser-workbench-app",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workbench-app.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:34:21.894Z",
+    "endedAt": "2026-11-18T10:35:48.677Z"
+  },
+  {
+    "id": "v6w-browser-workbench",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workbench.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:39:08.588Z",
+    "endedAt": "2026-11-18T10:39:59.346Z"
+  },
+  {
+    "id": "v6w-browser-workspace-host-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workspace-host-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:10:07.597Z",
+    "endedAt": "2026-11-18T11:12:29.781Z"
+  },
+  {
+    "id": "v6w-browser-workspace-host",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-browser-workspace-host.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:59:59.555Z",
+    "endedAt": "2026-11-18T11:02:13.059Z"
+  },
+  {
+    "id": "v6w-full-retry-1",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-retry-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T12:34:19.297Z",
+    "endedAt": "2026-11-18T12:57:34.830Z"
+  },
+  {
+    "id": "v6w-full-shard-1",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-shard-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:55:00.632Z",
+    "endedAt": "2026-11-18T12:03:31.597Z"
+  },
+  {
+    "id": "v6w-full-shard-2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-shard-2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T12:03:31.676Z",
+    "endedAt": "2026-11-18T12:19:25.497Z"
+  },
+  {
+    "id": "v6w-full-shard-3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-shard-3.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T12:19:25.628Z",
+    "endedAt": "2026-11-18T12:28:17.744Z"
+  },
+  {
+    "id": "v6w-full-shard-4",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-shard-4.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T12:28:17.819Z",
+    "endedAt": "2026-11-18T12:33:59.885Z"
+  },
+  {
+    "id": "v6w-full-test",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-full-test.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:35:20.978Z",
+    "endedAt": "2026-11-18T11:54:42.182Z"
+  },
+  {
+    "id": "v6w-gate-build-r3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-build-r3.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:52:07.961Z",
+    "endedAt": "2026-11-18T10:52:17.382Z"
+  },
+  {
+    "id": "v6w-gate-build-r4",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-build-r4.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:05:50.314Z",
+    "endedAt": "2026-11-18T13:05:58.685Z"
+  },
+  {
+    "id": "v6w-gate-build",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-build.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:51:39.121Z",
+    "endedAt": "2026-11-18T10:51:39.176Z"
+  },
+  {
+    "id": "v6w-gate-lint-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-lint-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T11:16:52.928Z",
+    "endedAt": "2026-11-18T11:17:25.674Z"
+  },
+  {
+    "id": "v6w-gate-lint-r3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-lint-r3.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:18:11.286Z",
+    "endedAt": "2026-11-18T11:18:34.225Z"
+  },
+  {
+    "id": "v6w-gate-lint",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-lint.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:33:48.710Z",
+    "endedAt": "2026-11-18T10:34:15.982Z"
+  },
+  {
+    "id": "v6w-gate-typecheck-r2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-typecheck-r2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 2,
+    "startedAt": "2026-11-18T11:16:10.359Z",
+    "endedAt": "2026-11-18T11:16:52.812Z"
+  },
+  {
+    "id": "v6w-gate-typecheck-r3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-typecheck-r3.json",
+    "phase": "BUILD_TYPECHECK_AND_UI_POLICY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:17:30.779Z",
+    "endedAt": "2026-11-18T11:18:06.703Z"
+  },
+  {
+    "id": "v6w-gate-typecheck",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gate-typecheck.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:33:07.764Z",
+    "endedAt": "2026-11-18T10:33:41.666Z"
+  },
+  {
+    "id": "v6w-gesture-1",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-gesture-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:28:51.696Z",
+    "endedAt": "2026-11-18T10:29:17.693Z"
+  },
+  {
+    "id": "v6w-native-1",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-native-1.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:23:29.642Z",
+    "endedAt": "2026-11-18T10:28:10.236Z"
+  },
+  {
+    "id": "v6w-native-2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-native-2.json",
+    "phase": "WINDOWS_NATIVE_ACTUAL",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T13:06:25.243Z",
+    "endedAt": "2026-11-18T13:10:18.082Z"
+  },
+  {
+    "id": "v6w-native-hermes-retry",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-native-hermes-retry.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "FAIL",
+    "exitCode": 1,
+    "startedAt": "2026-11-18T10:28:25.380Z",
+    "endedAt": "2026-11-18T10:30:52.942Z"
+  },
+  {
+    "id": "v6w-root-candidate",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-root-candidate.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:18:38.102Z",
+    "endedAt": "2026-11-18T11:24:28.577Z"
+  },
+  {
+    "id": "v6w-split-browser",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-split-browser.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T11:32:51.625Z",
+    "endedAt": "2026-11-18T11:35:11.850Z"
+  },
+  {
+    "id": "v6w-targeted-2",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-targeted-2.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T10:23:15.590Z",
+    "endedAt": "2026-11-18T10:23:18.738Z"
+  },
+  {
+    "id": "v6w-targeted-3",
+    "receipt": "docs/implementation/v3/m15-logs/v6w-targeted-3.json",
+    "phase": "ATTEMPT_HISTORY",
+    "status": "PASS",
+    "exitCode": 0,
+    "startedAt": "2026-11-18T13:06:16.776Z",
+    "endedAt": "2026-11-18T13:06:19.997Z"
   }
 ]

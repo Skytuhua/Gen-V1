@@ -1,0 +1,27 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","saved-layout-chooser"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795008225626-04cb2928-f2c0-408f-9928-a1f19c93c8c7
+
+Browser suite: saved-layout-chooser (1 spec files)
+
+Running 15 tests using 1 worker
+
+  ok  1 tests\e2e\saved-layout-chooser.spec.ts:13:1 › saved rows replace the name/action bank and apply only on explicit activation (1.5s)
+  ok  2 tests\e2e\saved-layout-chooser.spec.ts:41:1 › save asks for a name on demand, selects its exact ID, and reports current then modified (2.1s)
+  ok  3 tests\e2e\saved-layout-chooser.spec.ts:86:1 › same-task repeated activation is locked, and an already current row does not apply twice (2.0s)
+  ok  4 tests\e2e\saved-layout-chooser.spec.ts:109:1 › failed apply keeps the chooser, arrangement, current identity and conversation draft (953ms)
+  ok  5 tests\e2e\saved-layout-chooser.spec.ts:129:1 › row overflow updates, renames and confirms deletion without applying on focus (3.0s)
+  ok  6 tests\e2e\saved-layout-chooser.spec.ts:214:1 › cancel and IME keys preserve the name draft and unwind one overlay at a time (1.5s)
+  ok  7 tests\e2e\saved-layout-chooser.spec.ts:254:1 › empty, loading and failed lists stay distinct and offer retry (1.7s)
+  ok  8 tests\e2e\saved-layout-chooser.spec.ts:293:1 › historical records are explicit recovery rows and never inferred as the current split (993ms)
+  ok  9 tests\e2e\saved-layout-chooser.spec.ts:316:1 › a stale metadata failure from the old workspace cannot replace the new workspace state (774ms)
+  ok 10 tests\e2e\saved-layout-chooser.spec.ts:362:1 › keyboard users can reach row overflow with Tab and Escape returns through both layers (718ms)
+  ok 11 tests\e2e\saved-layout-chooser.spec.ts:386:1 › externally changed saved metadata invalidates an observed current badge (952ms)
+  ok 12 tests\e2e\saved-layout-chooser.spec.ts:408:1 › reopening reveals and focuses the observed selected row (898ms)
+  ok 13 tests\e2e\saved-layout-chooser.spec.ts:426:1 › pending layout application cannot race a workspace preset change (1.6s)
+  ok 14 tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states (1.0s)
+  ok 15 tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states (1.1s)
+
+  15 passed (23.7s)
