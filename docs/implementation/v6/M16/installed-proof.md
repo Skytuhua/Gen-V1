@@ -20,10 +20,10 @@ The owned installed launch is fully checked in:
 - **Ports**: `verificationPorts()` — three ephemeral `listen(0)` loopback ports; `P0` host, `P1` widget, `P2` CDP debug.
 - **Nonce**: `randomUUID()`; proven by `Browser.getBrowserCommandLine` → `assertWrapperArguments` (nonce must appear in argv) plus `sameWindowsPath(args[0], exe)` — the debug browser must be the exact installed executable.
 - **Owned env**: `installedVerificationEnvironment(dir, ports)` — scrubbed `baseEnvironment()` + `HARNESS_DESKTOP_TEST_DATA_DIR=<owned dir>` + `HARNESS_DESKTOP_PORT=P0` + `HARNESS_DESKTOP_WIDGET_PORT=P1`. Ambient feature activation cannot inherit.
-- **Disposable profile**: the evidence/data directory must be **newly created** by the run (`mkdir` exclusive — a preexisting path fails), with a canonical non-symlink parent. The receipt `verification.json` is written with `flag:'wx'` — it never overwrites.
-- **Provenance binding**: a bare exe path is insufficient. The verifier requires the release `build-manifest.json`, parses the package version from the real `Gen-V1-Setup-<version>-win-x64.exe` filename, hashes the installer and cross-checks it against the manifest declaration, hashes the executable, computes the whole-payload `packageContentManifest` digest, and records the source SHA (`GITHUB_SHA`/`HARNESS_SOURCE_SHA` dispatch env, else the invocation worktree `git rev-parse HEAD`, refusing disagreement).
-- **Owner-guarded actions**: every renderer call and the final `window.close()` run only while `verifiedOwner === true`, the owned child is live, and the page origin is still the owned origin.
-- **Bounded cleanup**: the spawned child is released first in `finally` via `terminateProcessTree` bounded at 15s — receipt writing can never strand the process.
+- **Disposable profile**: the evidence/data directory is newly created per run by the installed lifecycle, with a canonical non-symlink parent; its `verification.json` is the exclusive run receipt.
+- **Provenance binding**: the trusted lifecycle binds the checkout/CI build identity, package version, invoked-installer digest, launched-executable digest and verified matching-content payload digest. The M16 scenario consumes these verbatim (`assertInstalledControlProvenance` refuses absent/malformed values) — it never accepts a filename or invocation cwd as proof.
+- **Owner-guarded actions**: launchInstalled's `verifyBrowserOwner` (nonce + exact exe path) is the ownership gate; the scenario additionally refuses to act on a page whose origin is no longer the owned origin.
+- **Bounded cleanup**: owned-process termination, uninstall and evidence writes stay with the established harness; the scenario launches and closes nothing.
 - **Readiness**: `waitForInstalledMainPage` — 80s envelope (production 60s backend + 20s surface budget), owned-origin page classification, owner revalidated at candidate observation, failure kinds `deadline|launch-error|process-exit|owner-rejected|page-query`. Startup output via `observeInstalledStartup` (byte counts + spawn/exit/close only — child text stays out of evidence).
 - **Owned clean exit**: `page.evaluate(() => window.close())` → `waitForOwnedExit` ≤15s → `assertInstalledCleanExit` (`exitCode===0 && signalCode===null`) → `/health` must go dark ≤15s.
 
@@ -115,6 +115,31 @@ drives windows/screenshots). Windows Graphics Capture for
 the hosted runner's interactive session provides; the browser-tab slice needs
 no native artifact at all (`browser-tab` registers without
 `windows-control-bridge.node`).
+
+## 3a. Native bridge packaging gate — /std:c++20 (pending clean-box proof)
+
+Run `44417512648` job `135201569165` (windows-latest, MSVC 14.51.36231) failed
+in `build-windows-control-bridge.ts` with `C2338 STL1011` from
+`<experimental/coroutine>` — the modern MSVC STL removed the experimental
+coroutine header that C++/WinRT pulls in under `/std:c++17`. Our own
+`windows-control-bridge.cc` contains no coroutine keywords and no
+`std::experimental::` names; all its constructs are C++20-valid (checked:
+no `u8` literals, no `register`, no volatile-dependent code).
+
+Fix applied (one flag, `scripts/build-windows-control-bridge.ts` only):
+`/std:c++17` → `/std:c++20`, which takes the standard `<coroutine>` route per
+Microsoft's documented coroutine support (no `/await`, no warning
+suppression, no other switch). `build-windows-credential-lease.ts` keeps
+`/std:c++17` — it builds no C++/WinRT code and passed in the same job.
+
+**Cannot be proven on Linux**: acceptance = `cl.exe` success in the
+`installed-memory`/`desktop-package` Windows job on the exact cut, followed by
+the packaged `windows-control-bridge.node` passing the script's own
+`require(...).pickWindow` load check, `pnpm desktop:package` completing, and
+`verify-installed-desktop.ts` reaching `harness.ready`. Until a Windows run
+shows `Gen-V1-Setup-*-win-x64.exe` + `win-unpacked` produced, packaging stays
+blocked upstream of every M16 installed gate. Publication/dispatch of this
+cut is the manager's call as a separate explicit source cut.
 
 ## 4. Missing host prerequisites for live proof
 

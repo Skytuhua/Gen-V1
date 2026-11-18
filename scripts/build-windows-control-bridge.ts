@@ -31,7 +31,7 @@ export async function buildWindowsControlBridge(outputDirectory = join(root, 'pa
   await mkdir(dirname(output), { recursive: true });
   if ([setup, response, source, output, include, library, cache].some(path => /[\r\n"%&|<>^]/.test(path))) throw Error('Unsupported native build path.');
   await writeFile(response, [
-    '/nologo', '/LD', '/EHsc', '/std:c++17', '/O2', '/MT', '/DNAPI_VERSION=8', '/DNODE_GYP_MODULE_NAME=windows_control_bridge',
+    '/nologo', '/LD', '/EHsc', '/std:c++20', '/O2', '/MT', '/DNAPI_VERSION=8', '/DNODE_GYP_MODULE_NAME=windows_control_bridge',
     `/I"${include}"`, `"${source}"`, `"${library}"`,
     'windowsapp.lib', 'd3d11.lib', 'dxgi.lib', 'ole32.lib', 'dwmapi.lib', 'user32.lib',
     '/link', `/OUT:"${output}"`,
