@@ -3031,6 +3031,7 @@
     "tests/exploration-catalog.test.ts",
     "tests/file-access-startup.test.ts",
     "tests/file-checkpoints.test.ts",
+    "tests/fixtures/effect-authenticator.ts",
     "tests/fixtures/hermes-protocol-worker.mjs",
     "tests/fixtures/linux-path-guard/native.mjs",
     "tests/fixtures/m04-context-v3.json",

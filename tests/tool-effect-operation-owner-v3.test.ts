@@ -7,9 +7,9 @@ import type { ApprovalV1, ToolEffectRecord } from '../packages/contracts/tool-ef
 import { Service } from '../packages/core/service.ts';
 import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authority.ts';
 import { createToolEffectFlags, ToolEffectLedger } from '../packages/core/tool-effects.ts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
-import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -51,7 +51,7 @@ async function fixture() {
     return value;
   };
   cleanups.push(async () => { await service.dispose(); store.close(); await rm(root, { recursive: true, force: true }); });
-  return { store, ledger, service, command, first, second, operation, starts, get callbacks() { return callbacks; } };
+  return { store, ledger, service, command, first, second, operation, starts, authenticator, get callbacks() { return callbacks; } };
 }
 
 it.each(['different-run', null])('rejects approval from a different run owner (%s) with the same epoch', async runId => {
@@ -87,6 +87,27 @@ it.each(['current-run', null])('accepts an unchanged approval owner (%s)', async
 
   expect(() => x.ledger.verifyOperationApproval(op, owner)).not.toThrow();
   expect(x.store.get<ApprovalV1>('approval', approval.approvalId)?.remainingUses).toBe(1);
+});
+
+const ownerDrifts: [string, (thread: Thread) => Thread][] = [
+  ['threadId', thread => ({ ...thread, id: thread.id + '-other' })],
+  ['runId', thread => ({ ...thread, runId: 'other-run' })],
+  ['epoch', thread => ({ ...thread, epoch: thread.epoch + 1 })],
+  ['accountBinding', thread => ({ ...thread, accountId: 'other-account' })],
+  ['projectId', thread => ({ ...thread, projectId: 'other-project' })],
+  ['workspaceId', thread => ({ ...thread, workspaceId: 'other-workspace' })],
+];
+
+it.each(ownerDrifts)('rejects a genuine authenticated approval when only its %s drifts', async (_field, drift) => {
+  const x = await fixture();
+  const op = x.operation('owner-dimension');
+  const approval = x.ledger.issueApproval(op, x.first);
+  x.store.internal('fixture.approval', x.first.id, () => x.store.put('approval', approval.approvalId, x.first.id, approval));
+
+  expect(() => x.ledger.verifyOperationApproval(op, x.first)).not.toThrow();
+  expect(() => x.ledger.verifyOperationApproval(op, drift(x.first))).toThrowError(/owner changed/);
+  expect(x.store.get<ApprovalV1>('approval', approval.approvalId)?.remainingUses).toBe(1);
+  expect(x.ledger.get('operation:owner-dimension@1')).toBeNull();
 });
 
 it('does not dispatch a queued approved operation after its foreground run settles', async () => {
