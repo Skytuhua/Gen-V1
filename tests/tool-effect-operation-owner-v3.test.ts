@@ -7,7 +7,6 @@ import type { ApprovalV1, ToolEffectRecord } from '../packages/contracts/tool-ef
 import { Service } from '../packages/core/service.ts';
 import { buildToolRegistry, ToolAuthority } from '../packages/core/tool-authority.ts';
 import { createToolEffectFlags, ToolEffectLedger } from '../packages/core/tool-effects.ts';
-import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
 import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
