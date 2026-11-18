@@ -2081,13 +2081,106 @@
           "status": "NOT_RUN",
           "classification": "UNSUPPORTED_ENV_MISSING",
           "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        },
+        {
+          "argv": [
+            "py",
+            "-3.14",
+            "<identity probe>"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "result": "CPython 3.14.3 x64 (HARNESS_HERMES_PYTHON)",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "pip",
+            "install",
+            "--target",
+            ".harness-hermes-python-deps",
+            "-r",
+            "third-party/hermes-agent/runtime-requirements.txt"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "result": "33/33 pinned distributions staged",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "pwsh",
+            "-NoProfile",
+            "<integration wheel staging>"
+          ],
+          "status": "KILLED",
+          "classification": "ENV_STALL",
+          "result": "PowerShell 7 startup stalled pre-entry (135.15s)",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "<cmd/python wheel staging equivalent \u2014 same URLs+sha256 checks>"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "result": "91/91 archive hash checks",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "pip",
+            "install",
+            "--require-hashes",
+            "--target",
+            ".harness-integrations-python-deps"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "result": "91 distributions",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "<git/gh tool-bundle staging per third-party/git-tools/manifest.json>"
+          ],
+          "exitCode": 0,
+          "status": "PASS",
+          "result": "both archive hashes + 386 file checks; collectGitTools 386 files/147,868,460 bytes",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "desktop:package",
+            "--output-root",
+            ".harness-installed-package"
+          ],
+          "status": "KILLED",
+          "classification": "UNSUPPORTED_ENV_STALL",
+          "result": "internal powershell.exe Expand-Archive child stalled 161.45s (empty extraction); wrapper forced exit 1 at 530.81s; release dir empty \u2014 no Setup.exe/win-unpacked/artifact SHA",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "tsx",
+            "scripts/verify-installed-desktop.ts",
+            "<Setup.exe>",
+            "<win-unpacked>"
+          ],
+          "status": "NOT_RUN",
+          "classification": "UNSUPPORTED_ENV_STALL",
+          "boundedLogRef": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
         }
       ],
       "artifactRefs": [
         "docs/implementation/v6/M10/receipts-windows.jsonl",
-        "docs/implementation/v6/M10/logs-pm/win-verifier-report.md"
+        "docs/implementation/v6/M10/logs-pm/win-verifier-report.md",
+        "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md"
       ],
-      "notes": "Installed/native lane: vitest+browser PASS on win32 x64; installed-desktop packaging UNSUPPORTED (ENV_MISSING .harness-hermes-python-deps); supervisor/fork HELD; no flags set; remote verifier reported, owner recorded."
+      "notes": "win32 vitest 83/83 + browser 12/12 PASS. Declared packaging prerequisites all recovered via pinned hash-verified inputs (Hermes 33/33, wheels 91/91 sha256, integrations 91 dists, git/gh 386 files). Installed lane now blocked at packaging internal powershell.exe spawn stall (UNSUPPORTED_ENV_STALL, box defect); verify-installed-desktop NOT RUN; no artifact SHA exists to record. Supervisor/fork HELD."
     }
   ],
   "changedFiles": [
@@ -2348,7 +2441,7 @@
     "Session-3 re-verification on the pre-merge cut (merge abort had restored a byte-identical tree): pnpm build:widgets, the four targeted suites (60/60 tests), pnpm typecheck, pnpm lint and pnpm build all exit 0; separate ledger receipts-r3.jsonl. Session-4 re-ran the full gate sequence on the merged cut with -final receipts; the pre-merge -final rows are preserved in receipts-final-archived.jsonl and git history.",
     "bundleStatus computes FAIL because the required full-repository gates fail on this environment; the deterministic M10 phases pass and the milestone outcome is PARTIAL with the named holds.",
     "Post-merge session-5 verification on captured origin/main 4aef753e (cut includes squash 016738f7 + follow-up 1d65ae1e #786): four targeted suites PASS (43+11+24+5=83), lint PASS, build PASS, scoped browser suite PASS 11/11, typecheck PASS on run-4 with NODE_OPTIONS=--max-old-space-size=3584 after three default-heap exit134 OOMs under load-avg~20; full pnpm test FAIL exit1 (330 env-bound failures across 59 non-M10 files: python3.14 absent, platform drivers, pty; no M10-scoped file failed); HOLD_SOURCE_DRIFT recorded for the stale pre-squash branch join (moot: all content on main).",
-    "Windows x64 native vitest (83/83) and background-work browser (12/12) PASS on ff38c62c; installed-desktop lane UNSUPPORTED on WIN-M0N0V07LGM1 \u2014 packaging prerequisite .harness-hermes-python-deps absent; verify-installed-desktop NOT RUN."
+    "Windows x64 native vitest (83/83) and background-work browser (12/12) PASS on ff38c62c; installed-desktop lane UNSUPPORTED on WIN-M0N0V07LGM1 \u2014 declared prerequisites recovered via pinned hash-verified inputs (Hermes 33/33, wheels 91/91, git/gh 386 files), but packaging stalls inside its own powershell.exe Expand-Archive spawn (box defect, UNSUPPORTED_ENV_STALL); no Setup.exe/win-unpacked produced; verify-installed-desktop NOT RUN."
   ],
   "reviewerApproval": false
 }

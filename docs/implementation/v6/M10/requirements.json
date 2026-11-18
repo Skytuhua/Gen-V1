@@ -494,7 +494,21 @@
       },
       "receipts": "docs/implementation/v6/M10/receipts-windows.jsonl",
       "report": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md",
-      "verificationPhase": "m10.postmerge-v6-windows in docs/implementation/v3/M10-verification.json"
+      "verificationPhase": "m10.postmerge-v6-windows in docs/implementation/v3/M10-verification.json",
+      "followup": {
+        "instruction": "manager: recover .harness-hermes-python-deps via pinned repo inputs (setup action python:true + installed-memory job staging at ff38c62c); rerun desktop:package + installed verifier; report exact failing step if a declared prerequisite is unavailable",
+        "prerequisiteRecovery": {
+          "python": "CPython 3.14.3 x64 present (HARNESS_HERMES_PYTHON=C:\\Users\\user\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe)",
+          "hermesDeps": "PASS \u2014 pip --target .harness-hermes-python-deps 33/33 dists (5,342 files)",
+          "integrationWheels": "PASS \u2014 91/91 archive sha256 + --require-hashes 91 dists (7,619 files); pwsh step stalled pre-entry, cmd+python equivalent with identical checks recorded as shell substitution",
+          "gitGhBundles": "PASS \u2014 archive sha256 + 386 per-file checks; collectGitTools 386 files/147,868,460 bytes"
+        },
+        "desktopPackage": "KILLED at 530.81s \u2014 UNSUPPORTED_ENV_STALL: internal powershell.exe Expand-Archive (Node zip) child stalled 161.45s; forced exit 1; release dir empty, no Setup.exe/win-unpacked, no artifact SHA",
+        "verifyInstalledDesktop": "NOT_RUN \u2014 all phases unexercised; no workaround",
+        "run2Note": "run 2 interrupted at ~95min silent hang (the stalled packaging child); run 3 reported observed state without retry",
+        "report": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md",
+        "flags": "unchanged; no commits/pushes; worktree clean"
+      }
     }
   }
 }

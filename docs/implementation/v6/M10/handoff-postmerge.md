@@ -118,17 +118,31 @@ Verbatim report + per-command receipts: `logs-pm/win-verifier-report.md`,
 - `pnpm test:browser --suite background-work`: **12/12 PASS** in bundled
   Chromium — drawer lifecycle + Respond/Decline on Windows (win32 suite
   carries 12 specs vs 11 on linux-aarch64).
-- `pnpm desktop:package`: exit 1, classified **ENV_MISSING** — packaging's
-  `collectHermesPayload` step requires `.harness-hermes-python-deps`, absent
-  from a fresh checkout; no artifacts JSON, Setup.exe or `win-unpacked`
-  produced. Per the no-fallback rule no substitute was installed, so the
-  declared installed lane `verify-installed-desktop.ts` was **NOT RUN** —
-  install / owned launch / CDP identity revalidation / UI acceptance /
-  uninstall all unexercised. Installed-desktop proof stays absent on this
-  box; see remaining gates.
-- Unsupported vs defect distinction: zero REAL_DEFECT failures; the only
-  non-pass is the packaging prerequisite (environment), recorded rather than
-  worked around.
+- `pnpm desktop:package` (run 1): exit 1, **ENV_MISSING** — `.harness-hermes-python-deps`
+  absent from a fresh checkout; no artifacts.
+- Follow-up (runs 2–3, manager-directed prerequisite recovery using only the
+  repo's pinned, hash-verified inputs — `setup/action.yml` python:true plus
+  the installed-memory job's staging steps at this cut): CPython 3.14.3 x64
+  found; Hermes staging **PASS 33/33 dists** (5,342 files); integration
+  wheels **PASS 91/91 sha256 checks** + `--require-hashes` install 91 dists
+  (7,619 files); git/gh tool bundles **PASS** both archive hashes + 386
+  per-file checks (147.9MB). Wheel staging via `pwsh` stalled pre-entry and
+  was redone with identical checks via cmd+Python (shell substitution
+  recorded; box's powershell startup stalls).
+- `pnpm desktop:package --output-root .harness-installed-package` (rerun):
+  **KILLED at 530.81s — UNSUPPORTED_ENV_STALL** — the exact failing declared
+  step is packaging's internal `powershell.exe` `Expand-Archive` spawn for
+  the Node zip: child stalled 161.45s with empty extraction dir, wrapper
+  forced exit 1, powershell process termination-pending (same box-wide
+  powershell-startup defect). 92,871 partial staging files; release dir
+  empty — **no Setup.exe, no win-unpacked, no artifact SHA to record**.
+- `verify-installed-desktop.ts`: **NOT RUN** — all phases (install / owned
+  launch / CDP identity revalidation / UI acceptance / uninstall)
+  unexercised. No workaround attempted.
+- Unsupported vs defect distinction: zero REAL_DEFECT failures; both
+  installed-lane blockers are environmental (missing prerequisite →
+  box-broken powershell.exe startup), recorded rather than worked around.
+- Run-2/3 verbatim report: `logs-pm/win-verifier-report-r2r3.md`.
 
 ## Holds carried forward (unchanged)
 
@@ -142,10 +156,12 @@ Verbatim report + per-command receipts: `logs-pm/win-verifier-report.md`,
   cannot be merged with current main without a prohibited blanket
   resolution; moot because the task content is already on main.
 - Windows: native vitest + scoped-browser evidence now exists (session 6,
-  above). Installed-desktop proof still absent — the declared lane's
-  packaging prerequisite (`.harness-hermes-python-deps`) is missing on the
-  box; NOT RUN, not worked around. No live GitHub polling or live model
-  execution (fixture-injected auth/fetch only).
+  above). Installed-desktop proof still absent — all declared packaging
+  prerequisites were recovered via pinned, hash-verified inputs, but
+  packaging itself stalls inside its own `powershell.exe` spawn (box defect,
+  UNSUPPORTED_ENV_STALL); verify lane NOT RUN, no artifact SHA produced.
+  No live GitHub polling or live model execution (fixture-injected
+  auth/fetch only).
 
 ## Publication
 
