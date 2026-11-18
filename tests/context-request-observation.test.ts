@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { afterEach, expect, it } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -45,7 +46,7 @@ it('spills only large catalog results and retrieves the exact range under the sa
   const path = mkdtempSync(join(tmpdir(), 'm04-catalog-')), store = new Store(path);
   const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {},
     followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true } });
+  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
   cleanup.push(async () => {
     __setCapabilityFlagForTests('context.compilerV1', undefined);
     __setCapabilityFlagForTests('tools.deferredV1', undefined);

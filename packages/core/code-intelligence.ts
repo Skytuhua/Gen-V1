@@ -197,6 +197,9 @@ export class StdioLspAdapter implements LanguageServerAdapter {
     this.child = spawn(descriptor.executable, descriptor.argv, { cwd: root, stdio: ["pipe", "pipe", "pipe"], windowsHide: true });
     this.serverIdentity = sha([descriptor.executable, ...descriptor.argv].join("\0")).slice(0, 16);
     this.child.stdout!.on("data", (chunk: Buffer) => this.onData(chunk));
+    // Servers commonly log to stderr; an unread pipe fills and blocks the server
+    // before it can answer the next request.
+    this.child.stderr!.on("data", () => {});
     this.child.once("error", () => this.failAll(new HarnessError("UNAVAILABLE", "The language server could not start.")));
     this.child.once("exit", () => { this.exited = true; this.failAll(new HarnessError("UNAVAILABLE", "The language server exited.")); });
     this.ready = this.initialize();

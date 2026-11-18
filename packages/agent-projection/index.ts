@@ -205,7 +205,14 @@ export class AgentProjection implements PersonalAgentInventory {
   private historyScope(item: AgentSummary, includeArchived: boolean) { return digest({ agentId: item.agentId, threadId: item.threadId, includeArchived }); }
   private contentVersion(row: MessageRow) { return `${this.generation}:${row.contentIdentity ?? ''}`; }
   private messageSlice(row: MessageRow, scope: string, offset = 0): MessageSlice {
-    const next = offset + [...row.content].length, version = this.contentVersion(row);
+    // SQLite counts an unpaired escaped surrogate once, while its UTF-8 slice
+    // can return several replacement characters for the same characters. Never
+    // publish content whose length contradicts the declared message length or
+    // the cursor arithmetic that resumes from it.
+    const length = [...row.content].length;
+    if (!Number.isSafeInteger(row.contentLength) || row.contentLength < offset || length !== Math.min(4096, row.contentLength - offset))
+      throw new HarnessError('CAPABILITY_DENIED', 'The agent transcript text is unavailable in this read model.');
+    const next = offset + length, version = this.contentVersion(row);
     return { id: row.id, threadId: row.threadId, role: row.role, createdAt: row.createdAt, runId: row.runId, content: row.content,
       contentOffset: offset, contentLength: row.contentLength,
       nextContentCursor: next < row.contentLength ? this.encode({ kind: 'content', scope, messageId: row.id, position: next, version }) : null };

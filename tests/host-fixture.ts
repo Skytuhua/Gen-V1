@@ -193,7 +193,10 @@ export class HostFixture {
       store?.close();
     })();
   }
-  async restart() { await this.close(); await this.start(); }
+  async restart(observe?: (phase: 'closing' | 'starting' | 'ready') => void) {
+    observe?.('closing'); await this.close();
+    observe?.('starting'); await this.start(); observe?.('ready');
+  }
   snapshot(): Snapshot { return this.store.snapshot(); }
   artifact(kind: 'structured' | 'widget'): ArtifactRecord { const item = this.snapshot().artifacts.find(value => value.kind === kind); if (!item) throw new Error(`Missing ${kind} artifact`); return item; }
 }

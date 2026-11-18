@@ -7,7 +7,7 @@ import {
   debugSessionV1Schema,
   type DebugSessionV1,
 } from "../contracts/code-intelligence.ts";
-import { selectBackend, type ExecutionBackend } from "./execution-policy.ts";
+import { hasCurrentPlatformProof, selectBackend, type ExecutionBackend } from "./execution-policy.ts";
 
 /**
  * Restricted debugger workflow. A debug session starts only from an approved
@@ -90,8 +90,8 @@ export class DebugRegistry {
     const selection = selectBackend(this.approvedBackendId, this.backends);
     if (selection.status !== "SELECTED" || !selection.backend)
       throw new HarnessError("CAPABILITY_DENIED", `The debugger cannot launch: ${selection.status}.`);
-    if (!selection.backend.proof || selection.backend.proof.status !== "PASS")
-      throw new HarnessError("CAPABILITY_DENIED", "The debugger requires a proven execution backend.");
+    if (!hasCurrentPlatformProof(selection.backend))
+      throw new HarnessError("CAPABILITY_DENIED", "The debugger requires a proven execution backend for this host platform.");
     const adapter = this.adapterFor(selection.backend, input.recipe);
     const session: LiveSession = {
       sessionId: randomUUID(), owner: input.owner, adapter,
