@@ -372,3 +372,27 @@ flags
 `jobs.backgroundV1`, `jobs.serviceLifetimeV1`, `jobs.idleReviewV1`,
 `integrations.intakeV1` remain default-off; `reviewerApproval` remains
 false.
+
+## Session 12 — R03 forward integration of captured main 4bcdc82a
+
+Manager instruction: run 44414623739 (bound to `f8a4ac69`) reported shard-2
+job `135191550687` failing exactly two `tests/hermes-original-integration.test.ts`
+protected compaction/decision-change tests (124 files passed); existing main fix
+`60c7aa94` (#828) at captured main `4bcdc82a` was absent from `f8a4ac69`.
+
+- Custody/heads verified: evidence HEAD `16c0cfb6` atop merge-base `4aef753e`;
+  `60c7aa94` ancestor of `4bcdc82a`, absent from HEAD.
+- `git merge-tree HEAD 4bcdc82a` → conflict-free tree `be1097aa` → clean merge
+  `--no-ff` committed as `f4e71b56`. Fix consumed **unchanged** —
+  `git diff 4bcdc82a HEAD` on fix-touched paths is empty.
+- Revalidation on the combined cut: all four focused M10 suites PASS
+  (43+11+24+5 = 83/83, observed this session); strict evidence
+  `implementationEvidenceV3Schema` PARSE OK, `validateImplementationEvidence`
+  0 issues, `bundleStatus` FAIL preserved; all artifactRefs resolve; all
+  provenance summary digests verified.
+- Bound cuts preserved: `4aef753e`/`ff38c62c` receipts and digests unchanged;
+  run `44414623739` and the pending flag-less installed receipt at `f8a4ac69`
+  stay valid — the shard-2 failure is now explained by a consumed upstream fix,
+  not waived.
+- LOCAL commit only — publication held so the active proof's head binding
+  is not disturbed; push decision rests with the manager.

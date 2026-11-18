@@ -531,6 +531,15 @@
    "prepared": "ci.yml installed-memory job: additive step 'Verify installed default-off acceptance' runs flag-less verify-installed-desktop.ts against the job's own packaged Setup.exe/win-unpacked \u2014 valid declared usage, ambient flag activation suppressed (script lines 121-122,202-204); same artifacts, no script/job/packaging changes; receipts covered by existing upload globs; ~12-15min added vs 29min observed, under 60min timeout; block byte-identical 4aef753e..ff38c62c",
    "notDone": "no dispatch, no new job, no powershell retry, no script edits",
    "contributingPass": "raw artifact zip removed from commit (sha256 e61b7477\u2026 + artifact id 14455070587 + local copy retained); curated receipts + digests kept; credential scan clean"
+  },
+  "session12R03ForwardIntegration": {
+   "session": 12,
+   "instruction": "consume existing main fix 60c7aa94 (#828) via clean R03 forward integration of captured main 4bcdc82a if custody/heads match and merge-tree conflict-free; revalidate focused M10 + strict evidence on combined cut; local commit only",
+   "custodyCheck": "HEAD 16c0cfb6 atop merge-base 4aef753e; 60c7aa94 ancestor of 4bcdc82a, absent from HEAD; merge-tree conflict-free (be1097aa)",
+   "merge": "f4e71b56 --no-ff merge of 4bcdc82a; fix consumed unchanged (diff on fix-touched paths empty)",
+   "revalidation": "focused M10 suites 83/83 PASS on combined cut; implementationEvidenceV3Schema PARSE OK + 0 issues; bundleStatus FAIL preserved; refs+digests verified",
+   "shard2Context": "run 44414623739 job 135191550687 failed exactly the 2 hermes-original-integration tests fixed by 60c7aa94 \u2014 explained by consumed fix, not waived; f8a4ac69 run + pending flag-less receipt preserved",
+   "published": "local only; push deferred to manager"
   }
  }
 }
