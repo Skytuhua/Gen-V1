@@ -44,6 +44,9 @@ test('settings opens with bounded motion and reduced motion removes travel',asyn
  expect(entrance.properties).toEqual(expect.arrayContaining(['opacity','transform']));expect(entrance.duration).toBeGreaterThan(0);expect(entrance.duration).toBeLessThan(.4);
  await page.getByRole('button',{name:'Close dialog',exact:true}).click();await page.emulateMedia({reducedMotion:'reduce'});
  await page.getByRole('button',{name:'Settings',exact:true}).click();await expect(dialog).toBeVisible();
+ // Known limit: the app-wide `:root[data-motion]` clamp also yields `transform: none`
+ // here, so this half passes even with the dialog's own reduce block removed. It
+ // still pins the user-visible outcome; it does not isolate which rule provides it.
  expect(await dialog.evaluate(node=>getComputedStyle(node).transform)).toBe('none');expect(await dialog.evaluate(node=>node.getAnimations().length)).toBe(0);
 });
 test('navigation shows actual recency without repeating idle status but retains accessible task state',async({page})=>{
