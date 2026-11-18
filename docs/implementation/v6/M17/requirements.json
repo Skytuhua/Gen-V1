@@ -1,0 +1,362 @@
+{
+  "requirements": [
+    {
+      "id": "M17-C01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/contracts/paired-device.ts",
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-C01 DeviceGrantV1 contract: device identity, session binding, scopes, projects, generation, no attestation"
+      ],
+      "reason": "DeviceGrantV1: deviceId, identity display metadata/fingerprint, authenticated user/session binding, scopes[], approvedProjects[], issuedAt, expiresAt, revokedAt, grantGeneration. Scope names limited to VIEW_TASKS|VIEW_EVIDENCE|SUBMIT_INPUT; VIEW_EVIDENCE needs separate consent; SUBMIT_INPUT stays reserved/denied. Device metadata is display-only, never attestation."
+    },
+    {
+      "id": "M17-C02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/contracts/paired-device.ts",
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-C02/S04 snapshot emits an ordered public task projection over the authorized scope only"
+      ],
+      "reason": "SyncCursorV1: owner, deviceGrantGeneration, filterDigest, schemaVersion, snapshotUpperSeq, afterSeq. Pages carry ordered public projection deltas, never raw database rows."
+    },
+    {
+      "id": "M17-C03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/contracts/paired-device.ts",
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-C03 PairingRequestV1 contract: one-time challenge, verifier only, claimed identity, timestamps"
+      ],
+      "reason": "PairingRequestV1: one-time 32-byte random challenge, claimed device identity, createdAt, expiresAt (10-minute TTL), consumedAt. A code alone creates no grant without authenticated host approval."
+    },
+    {
+      "id": "M17-S01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S01/T05 remote transport is disabled without configured TLS+auth; there is no HTTP fallback",
+        "tests/read-sync-decisions-v6.test.ts::M17-D06 offline replay: saved unsent text never executes; TLS failure has no plain-HTTP fallback"
+      ],
+      "reason": "Remote transport requires an explicit configured TLS identity plus client authentication before any listener exists; absent configuration the remote server builder refuses with REMOTE_TRANSPORT_DISABLED and no plain-HTTP fallback exists. Live non-loopback deployment stays disabled: HOLD_REMOTE_TRANSPORT until a real cert/auth deployment config is supplied through the separate gate."
+    },
+    {
+      "id": "M17-S02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-S02 challenge lifecycle: consume once, rate-limit failed attempts, cap pending challenges"
+      ],
+      "reason": "Single-use 32-byte challenges with 10-minute expiry; only a SHA-256 verifier is persisted; consumption is transactional with approval; 5 failed attempts/min per authenticated binding and a host-wide cap of 100 pending challenges return typed denials."
+    },
+    {
+      "id": "M17-S03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts",
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-S03 grant binding: authenticate, revoke kills the credential and bumps the generation",
+        "tests/read-sync-v3.test.ts::M17-S05/D02 cursor replay returns the same slice; tampering, another grant and bad bounds reject"
+      ],
+      "reason": "Every remote read binds to the device grant generation, owner and project scope. Revocation bumps grantGeneration and sets revokedAt, invalidating sessions/cursors. Claimed fingerprints and old URLs are display metadata, never authorization. Approval rides the existing harness_session cookie + x-harness-csrf mechanism."
+    },
+    {
+      "id": "M17-S04",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-C02/S04 snapshot emits an ordered public task projection over the authorized scope only",
+        "tests/read-sync-v3.test.ts::M17-D03/S04 VIEW_EVIDENCE emits evidence deltas only for evidence-class events under explicit scope"
+      ],
+      "reason": "Read-only synchronization of the existing public task/evidence projections; the host stays sole writer. No native Hermes/Pi session files, credential stores or raw private logs are projected."
+    },
+    {
+      "id": "M17-S05",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S05 page bounds: 1,000 authorized deltas per page over a fixed cut; paging resumes exactly at the cut",
+        "tests/read-sync-v3.test.ts::M17-S05/D02 cursor replay returns the same slice; tampering, another grant and bad bounds reject",
+        "tests/read-sync-v3.test.ts::M17-S05/D05 advance is explicit: incomplete cursors reject, completed cuts move to new history"
+      ],
+      "reason": "Pages are bounded at 1 MiB and 1,000 authorized events against one fixed upper source sequence. HMAC-SHA-256 signed cursors (owner, grant generation, filter digest, schema version, snapshotUpperSeq, last scanned seq) reject bad signatures, binding mismatches and afterSeq > snapshotUpperSeq. Filtered gaps are normal; foreign records never fill a numeric gap. Cursor replay returns the same in-snapshot slice and authorizes no extra scopes; the client, not the server, drops stale page responses."
+    },
+    {
+      "id": "M17-S06",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S06/D03 a stale schema resyncs; a verified retention gap returns RESYNC_REQUIRED, never a silent skip",
+        "tests/read-sync-v3.test.ts::M17-S06/U03 a verified gap on refresh marks RESYNCING then repairs from a fresh snapshot"
+      ],
+      "reason": "Retention floor or schema-version invalidation returns RESYNC_REQUIRED and the client fetches a new authorized snapshot; gaps are never silently skipped and client copies never overwrite canonical state."
+    },
+    {
+      "id": "M17-S07",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-T03/T04 duplicate and out-of-order pages stay consistent; drafts never execute offline",
+        "tests/read-sync-decisions-v6.test.ts::M17-D06 offline replay: saved unsent text never executes; TLS failure has no plain-HTTP fallback"
+      ],
+      "reason": "ReadSyncClient keeps drafts separate from canonical task facts; offline devices may save unsent drafts but cannot confirm a task action offline; reconnection surfaces conflicts explicitly."
+    },
+    {
+      "id": "M17-S08",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts",
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-S08/D05 SUBMIT_INPUT can never be approved, even when the device requests it",
+        "tests/read-sync-v3.test.ts::M17-S08/D05 submit-input and operation-approve reject before durable input admission",
+        "tests/read-sync-decisions-v6.test.ts::M17-D05 read-only scope: a VIEW_TASKS device calling submit-input or operation-approve rejects before durable input admission"
+      ],
+      "reason": "SUBMIT_INPUT rejects with REMOTE_INPUT_DISABLED before any durable-input admission; the remote UI control stays hidden/disabled with that reason. Actual submission stays BLOCKED: HOLD_REMOTE_INPUT until the exact M09 durable-input and M02 authority contracts are bound and tested."
+    },
+    {
+      "id": "M17-S09",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts",
+        "apps/web/src/PairedDevicesPanel.tsx"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-T01 expired/reused challenges, unapproved devices and brute-force denial expose no private data",
+        "tests/read-sync-v3.test.ts::M17-T03/T04 duplicate and out-of-order pages stay consistent; drafts never execute offline"
+      ],
+      "reason": "Deltas are minimized projections (task/evidence summaries, no message bodies, credential stores or native files). Device cache is device-scoped with explicit revoke/clear; docs and UI state that already downloaded data cannot be remotely undisclosed with certainty."
+    },
+    {
+      "id": "M17-S10",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-S10 pairing records and credentials survive a host restart",
+        "tests/read-sync-v3.test.ts::M17-S10 multiple devices scope independently; revocation of one leaves the other",
+        "tests/read-sync-v3.test.ts::M17-S10 cursor key persists across host restart; unknown or malformed custody blocks"
+      ],
+      "reason": "Interrupted page delivery, repeated cursor, out-of-order responses, filtered and actual retention gaps, mid-page revocation, stale schema, challenge expiry, multiple devices and host restart are exercised in the v3 suites; pages apply only after whole-page validation against the current request/owner generation."
+    },
+    {
+      "id": "M17-U01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "apps/web/src/PairedDevicesPanel.tsx",
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-U01 host surface lists devices with fingerprint, scopes and last-seen; approvals name the read/control split"
+      ],
+      "reason": "Paired devices panel names device fingerprint, project scopes and read-only permission; revoke is local with a visible last-seen time."
+    },
+    {
+      "id": "M17-U02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts",
+        "apps/web/src/PairedDevicesPanel.tsx"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-C4 client: snapshot paging, Offline/Stale display, resync and explicit refresh"
+      ],
+      "reason": "The remote view model carries sourceTimestamp and SYNCED/STALE/OFFLINE states; mutation controls are disabled unless explicitly granted and online — SUBMIT_INPUT keeps them off entirely."
+    },
+    {
+      "id": "M17-U03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S06/U03 a verified gap on refresh marks RESYNCING then repairs from a fresh snapshot"
+      ],
+      "reason": "A verified sequence gap presents RESYNCING; unsynced drafts stay editable and are never presented as delivered instructions."
+    },
+    {
+      "id": "M17-T01",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-T01 expired/reused challenges, unapproved devices and brute-force denial expose no private data"
+      ],
+      "reason": "Expired/reused pairing challenge, unapproved device and brute-force attempts fail; no private account/session files appear in responses."
+    },
+    {
+      "id": "M17-T02",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-T02/D04 revocation between pages or before emission stops authorized delivery",
+        "tests/read-sync-decisions-v6.test.ts::M17-D04 revocation: revoking while building a page emits no authorized payload under the old generation"
+      ],
+      "reason": "Grant revocation during a page or artifact fetch stops subsequent access and invalidates old cursors."
+    },
+    {
+      "id": "M17-T03",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-T03/T04 duplicate and out-of-order pages stay consistent; drafts never execute offline",
+        "tests/read-sync-decisions-v6.test.ts::M17-D03 filtered versus missing: skipped foreign-owner sequences still page; deleted retained history requires resync"
+      ],
+      "reason": "Duplicate/reordered/missing deltas preserve a consistent snapshot or require resync, never silent corruption."
+    },
+    {
+      "id": "M17-T04",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-T03/T04 duplicate and out-of-order pages stay consistent; drafts never execute offline",
+        "tests/read-sync-decisions-v6.test.ts::M17-D06 offline replay: saved unsent text never executes; TLS failure has no plain-HTTP fallback"
+      ],
+      "reason": "Offline drafts do not execute; reconnection requires valid current owner/grant and exact idempotent input ID — which stays disabled this phase."
+    },
+    {
+      "id": "M17-T05",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S01/T05 remote transport is disabled without configured TLS+auth; there is no HTTP fallback"
+      ],
+      "reason": "TLS/authentication failure has no insecure fallback; the remote view honestly reports unavailable host."
+    },
+    {
+      "id": "M17-G01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/contracts/paired-device.ts",
+        "apps/server/device-pairing.ts",
+        "docs/implementation/v3/M17-verification.json"
+      ],
+      "testIds": [
+        "tests/read-sync-v3.test.ts::M17-S08/D05 submit-input and operation-approve reject before durable input admission",
+        "tests/read-sync-v3.test.ts::M17-G02 the read-sync gate stays off without the host flag"
+      ],
+      "reason": "Read synchronization and remote control keep separate release gates; an available local app proves nothing about secure remote deployment. Credentials, external hosting and provider permissions are not assumed."
+    },
+    {
+      "id": "M17-G02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/core/capability-flags.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-G02 remote flags are registered default-off and stay out of UI preferences",
+        "tests/read-sync-v3.test.ts::M17-G02 the read-sync gate stays off without the host flag"
+      ],
+      "reason": "remote.readSyncV1 and remote.submitInputV1 added to the existing host owner registry, owner m17, default false; never in strict UI preferences and never agent/plugin enabled. Each risky sub-capability keeps its own proof."
+    },
+    {
+      "id": "M17-G03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/device-pairing-v3.test.ts::M17-G03 rollback revokes every active grant while retaining canonical state"
+      ],
+      "reason": "rollbackRemoteAccess disables listeners and revokes all device grants while retaining local canonical state and unsent local drafts; only explicitly owned remote caches are cleared, with no claimed guaranteed deletion from an offline device."
+    },
+    {
+      "id": "M17-D01",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D01 pair consumption: approving one challenge twice creates one grant; expired or changed-scope confirmation creates none"
+      ],
+      "reason": "Approve one challenge twice: exactly one grant is created. Expired or changed-scope confirmation creates none."
+    },
+    {
+      "id": "M17-D02",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D02 cursor binding: changing owner, filters, generation or signature rejects without leaking another project's rows"
+      ],
+      "reason": "Changing owner, filters, generation or signature rejects without leaking another project's rows."
+    },
+    {
+      "id": "M17-D03",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D03 filtered versus missing: skipped foreign-owner sequences still page; deleted retained history requires resync"
+      ],
+      "reason": "Foreign-owner sequences skipped produces a valid page; deleted required retained source history returns RESYNC_REQUIRED."
+    },
+    {
+      "id": "M17-D04",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D04 revocation: revoking while building a page emits no authorized payload under the old generation"
+      ],
+      "reason": "Revoking while building a page or fetching evidence emits no subsequent authorized payload under the old generation."
+    },
+    {
+      "id": "M17-D05",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D05 read-only scope: a VIEW_TASKS device calling submit-input or operation-approve rejects before durable input admission"
+      ],
+      "reason": "A VIEW_TASKS device calling submit-input or operation-approve is rejected before durable input admission."
+    },
+    {
+      "id": "M17-D06",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": [
+        "packages/core/read-sync.ts",
+        "apps/server/device-pairing.ts"
+      ],
+      "testIds": [
+        "tests/read-sync-decisions-v6.test.ts::M17-D06 offline replay: saved unsent text never executes; TLS failure has no plain-HTTP fallback"
+      ],
+      "reason": "Reconnecting with saved unsent text executes nothing until a later separately authorized online send; a TLS failure never falls back to plain HTTP."
+    }
+  ]
+}
