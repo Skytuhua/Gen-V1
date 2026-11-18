@@ -168,8 +168,8 @@ export function SessionBranchMenu({ thread, messages, onOpenThread, onChanged, o
   const [captureId, setCaptureId] = useState<string | null>(null), [importId, setImportId] = useState<string | null>(null);
   const [quoteOpen, setQuoteOpen] = useState(false), [staged, setStaged] = useState<StageOutcome | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  const branchEnabled = overview?.enabled.branch === true, importEnabled = overview?.enabled.import === true;
-  const forkSupported = overview?.capabilities.nativeFork === 'SUPPORTED';
+  const branchEnabled = overview?.enabled?.branch === true, importEnabled = overview?.enabled?.import === true;
+  const forkSupported = overview?.capabilities?.nativeFork === 'SUPPORTED';
   const run = (work: Promise<BranchCommandResult>) => {
     setError(null);
     void work.then(result => {
@@ -195,7 +195,7 @@ export function SessionBranchMenu({ thread, messages, onOpenThread, onChanged, o
       onSelect: () => setQuoteOpen(true),
     },
     {
-      id: 'fork', label: forkSupported ? 'Fork conversation' : `Fork conversation — unavailable (${(overview?.capabilities.nativeFork ?? 'UNPROVEN').toLowerCase()})`,
+      id: 'fork', label: forkSupported ? 'Fork conversation' : `Fork conversation — unavailable (${(overview?.capabilities?.nativeFork ?? 'UNPROVEN').toLowerCase()})`,
       title: forkSupported ? 'Create a native continuation at this point. Files don\'t change.' : 'No tested native fork API exists for this engine. Quote or inspect instead.',
       icon: <GitBranch size={14} />, disabled: !branchEnabled || !forkSupported,
       onSelect: () => run(forkConversation(thread.id)),
@@ -205,12 +205,12 @@ export function SessionBranchMenu({ thread, messages, onOpenThread, onChanged, o
       icon: <Import size={14} />, disabled: !importEnabled,
       onSelect: () => fileInput.current?.click(),
     },
-    ...(overview?.captures.length ? [{
+    ...(overview?.captures?.length ? [{
       id: 'capture', label: `Open latest inspect point (${overview.captures.length})`, title: 'Read the most recent fixed history cut.',
       icon: <History size={14} />,
       onSelect: () => setCaptureId(overview.captures[overview.captures.length - 1]!.captureId),
     }] : []),
-    ...(overview?.imports.length ? [{
+    ...(overview?.imports?.length ? [{
       id: 'archive', label: `Open imported archive (${overview.imports.length})`, title: 'Read imported history — inert and read-only.',
       icon: <Import size={14} />,
       onSelect: () => setImportId(overview.imports[overview.imports.length - 1]!.conversationId),

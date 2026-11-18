@@ -8,7 +8,8 @@ test.beforeEach(async ({ page }) => {
   const unexpected: string[] = [];
   audits.set(page, unexpected);
   const allowed = new Set(['/api/bootstrap', '/api/models', '/api/snapshot', '/api/shell-settings', '/api/workspace', '/api/commands', '/api/plugins', '/api/split-workspace', '/api/split-workspace/profiles', '/api/split-workspace/commands']);
-  page.on('request', request => { const url = new URL(request.url()); if (url.pathname.startsWith('/api/') && !allowed.has(url.pathname)) unexpected.push(url.href); });
+  const allowedPrefixes = ['/api/session-branches/', '/api/workbench/'];
+  page.on('request', request => { const url = new URL(request.url()); if (url.pathname.startsWith('/api/') && !allowed.has(url.pathname) && !allowedPrefixes.some(prefix => url.pathname.startsWith(prefix))) unexpected.push(url.href); });
   await page.route('**/*', async route => {
     const url = new URL(route.request().url());
     if (url.origin !== 'http://127.0.0.1:5816' || url.pathname.startsWith('/api/')) { unexpected.push(url.href); await route.abort(); }

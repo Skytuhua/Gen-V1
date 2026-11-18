@@ -27,6 +27,17 @@ export async function shellRoute(route: Route, snapshot: Snapshot, error: boolea
   if (path === '/api/environment') return reply({ revision: 0, entries: [], secretStorageAvailable: false });
   if (path === '/api/integrations') return reply({ integrations: [] });
   if (path === '/api/commands') { const command = route.request().postDataJSON(); return reply({ commandId: command.id, eventSeq: ++snapshot.seq, result: {} }); }
+  // M14 surface: the App asks for the per-thread branch overview and workbench
+  // catalogue on every conversation. Serve the real contract shapes with the
+  // capability-gated features off — a malformed body crashes SessionBranchMenu.
+  if (path.startsWith('/api/session-branches/')) return reply({ enabled: { branch: false, import: false }, capabilities: { inspect: 'SUPPORTED', quote: 'SUPPORTED', nativeFork: 'UNPROVEN', adapters: [] }, captures: [], branch: null, children: [], imports: [] });
+  if (path.startsWith('/api/workbench/threads/')) {
+    const logicalOwner = { threadId: decodeURIComponent(path.split('/')[4] ?? ''), projectId: null, workspaceId: null };
+    if (path.endsWith('/inputs')) return reply({ logicalOwner, inputs: [] });
+    if (path.endsWith('/evidence')) return reply({ logicalOwner, items: [], modules: [] });
+    if (path.endsWith('/context')) return reply({ logicalOwner, state: 'EMPTY', requestContext: null });
+    return reply({ logicalOwner, enabled: false, sources: [], sourceCapabilities: [] });
+  }
   return reply({ items: [], profiles: [], nextCursor: null });
 }
 export const shellInit = `
