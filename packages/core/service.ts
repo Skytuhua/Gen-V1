@@ -1596,13 +1596,15 @@ export class Service {
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
-    const bound = this.contextResultsEnabled() && call.name !== 'context_result_read', basis = bound ? this.contextResultInvocation(owningThread) : undefined;
+    const rangeRead = call.name === 'context_result_read';
+    const bound = this.contextResultsEnabled() && !rangeRead, basis = bound ? this.contextResultInvocation(owningThread) : undefined;
     const publicCatalog = call.name === 'ui_discover';
     const assertResultCurrent = () => {
       if (!this.contextResultsEnabled() || this.contextResultInvocation(this.assertRun(ctx)) !== basis) throw new HarnessError('STALE_REQUEST_CONTEXT', 'Tool result owner changed.');
     };
     const definition = this.authority.definition(call.name);
-    const lineage = bound && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE'
+    const readRetryable = definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE';
+    const lineage = bound && readRetryable
       ? createContextResultLineage({ store: this.store, threadId: ctx.threadId, signal: this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, assertCurrent: assertResultCurrent }) : undefined;
     let ticket: ReturnType<typeof this.relevanceObserver.begin>;
     try {
@@ -1615,9 +1617,10 @@ export class Service {
       ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
     // A cached effect skips the domain guard. Its previous bytes cannot mint
     // fresh resource authority, including when the old result was small.
-    if (bound) result = lineage && !entered && !publicCatalog
-      ? { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null }
-      : await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
+    if (readRetryable && !entered && !publicCatalog) result = rangeRead
+      ? { status: 'UNAVAILABLE' }
+      : { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null };
+    else if (bound) result = await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
     try {
       const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
       if (owner) this.relevanceObserver.complete(ticket, owner, result);
