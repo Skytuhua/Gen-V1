@@ -41,6 +41,7 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
+import { OperationProjectTrustHost } from './operation-project-trust.ts';
 import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
@@ -162,6 +163,13 @@ export class Service {
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
+  private projectTrustHostInstance?:OperationProjectTrustHost;
+  get projectTrust(): OperationProjectTrustHost {
+    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
+      enabled: hostFlagEnabled('security.projectTrustV1'),
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+    });
+  }
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
     this.requestCustody=new RequestContextCustody(store,{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
@@ -658,6 +666,7 @@ export class Service {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
       threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -685,7 +694,7 @@ export class Service {
         for (const id of resourceIds) { const grant = this.store.get<ResourceGrant>("resource", id); if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Operation resource is not granted"); }
         const op: Operation = { id: randomUUID(), threadId, revision: 1, kind, args, resourceIds, preconditions, description, status: "prepared", approved: false, createdAt: now() };
         const thread=this.thread(threadId),capture=this.options.approvedWriteHooks&&kind==='file.replace'?{revision:op.revision,origin:this.writeOrigin(thread,authority),unavailable:thread.projectId&&thread.workspaceId?'scope_unavailable' as const:'no_project' as const}:undefined;
-        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
+        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.projectTrust.markPrepared(op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
         if (this.closed) return;
@@ -970,6 +979,7 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        this.projectTrust.assertApproval(op, thread);
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
         if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
@@ -1794,7 +1804,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
