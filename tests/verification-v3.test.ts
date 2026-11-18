@@ -371,3 +371,45 @@ describe('M07 advisory evidence feed',()=>{
   expect(code(()=>service.recordAdvisory(owner(),{version:1,executionId:'x',codeDigest:'a'.repeat(64),dependencyDigest:'a'.repeat(64),recipeDigest:'a'.repeat(64),environmentId:'e',argv:['x'],cwdIdentity:root,phase:'BUILD',startedAt:new Date().toISOString(),endedAt:new Date().toISOString(),exitCode:null,outcome:'PASS',artifactRefs:[]}))).toBe('CAPABILITY_DENIED');
  });
 });
+
+describe('complete requirement evidence',()=>{
+ const sourceCut={headSha:null,codeDigest:'a'.repeat(64),dependencyDigest:'b'.repeat(64),environmentId:'linux/test'};
+ const observation=(checkId:string,over:Partial<CheckObservationV1>={}):CheckObservationV1=>({
+  version:1,checkId,executionId:'exec-complete',owner:owner(),codeDigest:sourceCut.codeDigest,dependencyDigest:sourceCut.dependencyDigest,environmentId:sourceCut.environmentId,recipeDigest:'c'.repeat(64),
+  argv:['node','test.mjs'],cwdIdentity:'/trusted/project',phase:'TEST',startedAt:'2026-11-17T00:00:00Z',endedAt:'2026-11-17T00:00:01Z',
+  exitCode:0,outcome:'PASS',artifactRefs:[],observationKind:'process',...over,
+ });
+ const assess=(checkRefs:string[],observations:CheckObservationV1[])=>computeAssessment({
+  threadId:'t1',sourceCut,requirements:[{id:'build-and-test',checkRefs}],observations,
+  unresolvedEffects:[],verifierIdentity:'service/r1',provenance:'test',
+ });
+
+ it('one passing check cannot hide a missing required reference',()=>{
+  const result=assess(['build','test'],[observation('build')]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('test'))).toBe(true);
+ });
+
+ it.each([
+  ['unknown',{outcome:'UNKNOWN' as const,exitCode:null}],
+  ['stale',{codeDigest:'d'.repeat(64)}],
+  ['advisory',{observationKind:'review-advisory' as const}],
+ ])('one passing check cannot hide a required %s check',(_reason,over)=>{
+  const result=assess(['build','test'],[observation('build'),observation('test',over)]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].assessment).toBe('UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('test'))).toBe(true);
+ });
+
+ it('an execution reference requires all of its observed checks to be current and settled',()=>{
+  const result=assess(['exec-complete'],[observation('build'),observation('test',{outcome:'UNKNOWN',exitCode:null})]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing.some(value=>value.includes('exec-complete'))).toBe(true);
+ });
+
+ it('every required check with fresh executed PASS evidence verifies',()=>{
+  const result=assess(['build','test'],[observation('build'),observation('test')]);
+  expect(result.label).toBe('VERIFIED');
+  expect(result.requirements[0].missing).toEqual([]);
+ });
+});
