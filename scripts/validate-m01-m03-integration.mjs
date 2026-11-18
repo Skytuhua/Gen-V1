@@ -2,45 +2,56 @@
 // No remote ref is written. Failures remain failures, including expected regressions.
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, readFileSync, realpathSync, statSync, writeFileSync } from 'node:fs';
+import { appendFileSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, statSync, writeFileSync } from 'node:fs';
 import { isAbsolute, join, relative } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 const root = realpathSync(process.cwd());
-const manifestPath = join(root, 'docs/implementation/v3/audits/2026-11-17/heads.json');
+const manifestPath = 'docs/implementation/v3/audits/2026-11-17/heads.json';
+const runnerPath = 'scripts/validate-m01-m03-integration.mjs';
+const isSha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
 const sha256 = value => createHash('sha256').update(value).digest('hex');
 function requireValue(condition, message) { if (!condition) throw new Error(message); }
-function git(...args) {
+function gitBytes(...args) {
   return execFileSync('git', ['-C', root, ...args], {
-    encoding: 'utf8', windowsHide: true, timeout: 120_000, maxBuffer: 16 * 1024 * 1024,
+    windowsHide: true, timeout: 120_000, maxBuffer: 16 * 1024 * 1024,
     stdio: ['ignore', 'pipe', 'pipe'],
-  }).trim();
+  });
 }
+const git = (...args) => gitBytes(...args).toString('utf8').trim();
+const mode = process.argv[2], validationSha = process.env.VALIDATION_SHA;
 requireValue(process.env.GITHUB_ACTIONS === 'true' && process.env.RUNNER_OS === 'Windows',
   'Run only in an ephemeral Windows GitHub Actions checkout.');
 requireValue(process.env.GITHUB_REPOSITORY === 'skytuhua-org/Gen-V1', 'Unexpected repository.');
-requireValue(git('status', '--porcelain', '--untracked-files=no') === '', 'Tracked checkout must start clean.');
+requireValue(isSha(validationSha) && ['assemble', 'validate'].includes(mode), 'Missing validation revision or phase.');
 const evidence = join(realpathSync(process.env.RUNNER_TEMP), 'm01-m03-' + process.env.GITHUB_RUN_ID + '-' + process.env.GITHUB_RUN_ATTEMPT);
-mkdirSync(evidence);
+if (mode === 'assemble') mkdirSync(evidence);
 const originalRunner = readFileSync(process.argv[1]);
-copyFileSync(process.argv[1], join(evidence, 'validate-m01-m03-integration.mjs'));
 const receipt = {
   format: 'M01M03.IntegrationValidation.v1', releaseApproved: false, status: 'BLOCKED',
   startedAt: new Date().toISOString(), endedAt: null,
-  workflowSha: process.env.GITHUB_SHA, workflowRunId: process.env.GITHUB_RUN_ID,
+  workflowSha: process.env.GITHUB_WORKFLOW_SHA, eventSha: process.env.GITHUB_SHA, validationSha,
+  workflowRunId: process.env.GITHUB_RUN_ID, workflowRunAttempt: process.env.GITHUB_RUN_ATTEMPT,
   runnerDigest: sha256(originalRunner), manifestDigest: null, source: null,
   commands: [], tests: [], issues: [],
 };
 let manifest, integratedHead, generatedConfig, generatedConfigBytes;
 try {
-  const manifestBytes = readFileSync(manifestPath);
-  copyFileSync(manifestPath, join(evidence, 'heads.json'));
+  requireValue(originalRunner.equals(gitBytes('show', validationSha + ':' + runnerPath)), 'Validation runner changed.');
+  requireValue(git('status', '--porcelain', '--untracked-files=no') === '', 'Tracked checkout must start clean.');
+  const manifestBytes = gitBytes('show', validationSha + ':' + manifestPath);
+  if (mode === 'assemble') {
+    requireValue(git('rev-parse', 'HEAD') === validationSha, 'Unexpected validation checkout.');
+    writeFileSync(join(evidence, 'heads.json'), manifestBytes, { flag: 'wx' });
+    writeFileSync(join(evidence, 'validate-m01-m03-integration.mjs'), originalRunner, { flag: 'wx' });
+    writeFileSync(join(evidence, 'validate-m01-m03-integration.test.mjs'),
+      gitBytes('show', validationSha + ':scripts/validate-m01-m03-integration.test.mjs'), { flag: 'wx' });
+  }
   receipt.manifestDigest = sha256(manifestBytes);
   manifest = JSON.parse(manifestBytes);
   requireValue(manifest.schemaVersion === 1 && manifest.repository === process.env.GITHUB_REPOSITORY
     && manifest.releaseApproved === false && manifest.browserSuite === 'root', 'Unsupported validation manifest.');
-  const isSha = value => typeof value === 'string' && /^[a-f0-9]{40}$/.test(value);
-  requireValue(isSha(manifest.baseSha) && isSha(manifest.auditAncestorSha), 'Invalid immutable base.');
+  requireValue([manifest.baseSha, manifest.auditAncestorSha, manifest.expectedTreeSha].every(isSha), 'Invalid immutable source pins.');
   requireValue(Array.isArray(manifest.heads) && manifest.heads.length > 0 && manifest.heads.length <= 40, 'Invalid repair head count.');
   const prs = new Set(), shas = new Set();
   for (const head of manifest.heads) {
@@ -52,44 +63,79 @@ try {
     && new Set(manifest.tests).size === manifest.tests.length
     && manifest.tests.every(path => /^tests\/[A-Za-z0-9_-][A-Za-z0-9_.-]*\.test\.(?:ts|tsx|mjs|js|cts|mts)$/.test(path)),
   'Declare unique exact top-level Vitest test files.');
-  const custodyPaths = ['package.json', 'pnpm-lock.yaml', '.github/actions/setup/action.yml'];
-  const installedFrom = Object.fromEntries(custodyPaths.map(path => [path, git('rev-parse', 'HEAD:' + path)]));
-  for (const sha of new Set([manifest.auditAncestorSha, manifest.baseSha, ...manifest.heads.map(head => head.sha)]))
-    git('fetch', '--no-tags', 'origin', sha);
-  git('merge-base', '--is-ancestor', manifest.auditAncestorSha, manifest.baseSha);
-  for (const head of manifest.heads) {
-    // Earlier reviewed PRs can branch before this audit cut. Their declared base
-    // must be the actual common ancestor and already belong to the pinned base.
-    const branchBase = head.branchBaseSha ?? manifest.auditAncestorSha;
-    git('merge-base', '--is-ancestor', branchBase, manifest.baseSha);
-    requireValue(git('merge-base', manifest.auditAncestorSha, head.sha) === branchBase,
-      'Repair head does not descend from its declared reviewed base: #' + head.pr);
-  }
-  git('checkout', '--detach', manifest.baseSha);
-  for (const head of manifest.heads) {
-    console.log('M01_M03_MERGE=' + JSON.stringify(head));
-    git('-c', 'user.name=Gen V1 integration validation', '-c', 'user.email=validation@example.invalid',
-      'merge', '--no-ff', '--no-edit', '--no-gpg-sign', head.sha);
+  if (mode === 'assemble') {
+    for (const sha of new Set([manifest.auditAncestorSha, manifest.baseSha, ...manifest.heads.map(head => head.sha)])) {
+      try { git('cat-file', '-e', sha + '^{commit}'); }
+      catch { git('fetch', '--no-tags', 'origin', sha); }
+    }
+    git('merge-base', '--is-ancestor', manifest.auditAncestorSha, manifest.baseSha);
+    for (const head of manifest.heads) {
+      const branchBase = head.branchBaseSha ?? manifest.auditAncestorSha;
+      git('merge-base', '--is-ancestor', branchBase, manifest.baseSha);
+      requireValue(git('merge-base', manifest.auditAncestorSha, head.sha) === branchBase,
+        'Repair head does not descend from its declared reviewed base: #' + head.pr);
+    }
+    git('checkout', '--detach', manifest.baseSha);
+    for (const head of manifest.heads) {
+      console.log('M01_M03_MERGE=' + JSON.stringify(head));
+      git('-c', 'user.name=Gen V1 integration validation', '-c', 'user.email=validation@example.invalid',
+        'merge', '--no-ff', '--no-edit', '--no-gpg-sign', head.sha);
+    }
   }
   integratedHead = git('rev-parse', 'HEAD');
-  requireValue(git('status', '--porcelain', '--untracked-files=no') === '', 'Assembly changed tracked working files.');
-  for (const path of custodyPaths)
-    requireValue(git('rev-parse', 'HEAD:' + path) === installedFrom[path], 'Installed toolchain inputs changed: ' + path);
+  requireValue(mode === 'assemble' || integratedHead === process.env.INTEGRATED_HEAD, 'Integrated HEAD changed after assembly.');
+  const treeSha = git('rev-parse', 'HEAD^{tree}');
+  requireValue(treeSha === manifest.expectedTreeSha, 'Expected tree ' + manifest.expectedTreeSha + ', assembled ' + treeSha);
+  requireValue(git('status', '--porcelain', '--untracked-files=no') === '', 'Integrated checkout is dirty.');
+  git('ls-files', '--error-unmatch', '--', ...manifest.tests);
   for (const path of manifest.tests) {
     const absolute = realpathSync(join(root, path)), inside = relative(root, absolute);
     requireValue(statSync(absolute).isFile() && !isAbsolute(inside) && !inside.startsWith('..'), 'Test escapes checkout: ' + path);
   }
   receipt.source = { baseSha: manifest.baseSha, auditAncestorSha: manifest.auditAncestorSha,
-    heads: manifest.heads, integratedHead, treeSha: git('rev-parse', 'HEAD^{tree}'), installedFrom };
-  writeFileSync(join(evidence, 'integrated.diff'), git('diff', '--binary', manifest.baseSha, 'HEAD') + '\n', { flag: 'wx' });
+    heads: manifest.heads, integratedHead, treeSha };
   console.log('M01_M03_SOURCE=' + JSON.stringify(receipt.source));
+  if (mode === 'assemble') {
+    writeFileSync(join(evidence, 'integrated.diff'), gitBytes('diff', '--binary', '--full-index', manifest.baseSha, 'HEAD'), { flag: 'wx' });
+    appendFileSync(process.env.GITHUB_OUTPUT, 'integrated_head=' + integratedHead + '\n');
+  } else await validate();
+} catch (error) {
+  receipt.issues.push({ phase: mode, message: String(error), stderr: String(error?.stderr ?? '').slice(0, 8000) });
+} finally {
+  if (integratedHead) {
+    try {
+      requireValue(git('rev-parse', 'HEAD') === integratedHead
+        && git('status', '--porcelain', '--untracked-files=no') === '', 'Integrated source changed during validation.');
+      if (generatedConfig) requireValue(readFileSync(generatedConfig, 'utf8') === generatedConfigBytes, 'Test selection changed.');
+    } catch (error) { receipt.issues.push({ phase: 'source-custody', message: String(error) }); }
+  }
+  receipt.endedAt = new Date().toISOString();
+  if (mode === 'assemble') {
+    if (receipt.source && !receipt.issues.length) receipt.status = 'ASSEMBLED';
+  } else if (receipt.commands.some(command => command.status === 'FAIL') || receipt.testReport?.success === false
+    || receipt.tests.some(test => test.status === 'failed' || test.failed > 0)
+    || receipt.browserReport?.stats?.unexpected > 0 || receipt.browserReport?.stats?.flaky > 0 || receipt.browserReport?.errors > 0) {
+    receipt.status = 'FAIL';
+  } else if (receipt.issues.length === 0 && receipt.commands.length === 7
+    && receipt.commands.every(command => command.status === 'PASS' && command.exitCode === 0 && command.termination === 'NONE')) {
+    receipt.status = 'PASS';
+  }
+  writeFileSync(join(evidence, mode === 'assemble' ? 'assembly.json' : 'validation.json'), JSON.stringify(receipt, null, 2) + '\n', { flag: 'wx' });
+  console.log('M01_M03_VALIDATION=' + JSON.stringify(receipt));
+  process.exitCode = receipt.status === (mode === 'assemble' ? 'ASSEMBLED' : 'PASS') ? 0 : 1;
+}
+
+async function validate() {
   const { resolvePackageManager, runRecordedCommand, statusFromObservation, writeCommandEvidence } =
     await import(pathToFileURL(join(root, 'scripts/research-baseline.ts')).href);
   const pm = resolvePackageManager(root);
   const run = async (name, args, timeoutMs = 15 * 60_000) => {
     console.log('M01_M03_COMMAND_START=' + JSON.stringify({ name, argv: [pm.file, ...pm.prefix, ...args] }));
     const observation = await runRecordedCommand(pm.file, [...pm.prefix, ...args],
-      { cwd: root, timeoutMs, outputLimit: 4 * 1024 * 1024, environment: { COREPACK_ENABLE_NETWORK: '0', CI: 'true' } });
+      { cwd: root, timeoutMs, outputLimit: 4 * 1024 * 1024, environment: {
+        COREPACK_ENABLE_NETWORK: '0', CI: 'true', HARNESS_HERMES_PYTHON: process.env.HARNESS_HERMES_PYTHON,
+        GIT_CONFIG_COUNT: '1', GIT_CONFIG_KEY_0: 'core.longpaths', GIT_CONFIG_VALUE_0: 'true',
+      } });
     const command = await writeCommandEvidence(observation, evidence, name, statusFromObservation(observation));
     receipt.commands.push(command);
     console.log(observation.stdout);
@@ -118,7 +164,7 @@ try {
   try {
     requireValue(statSync(reportPath).size <= 32 * 1024 * 1024, 'Test report exceeded its bound.');
     const reportBytes = readFileSync(reportPath), report = JSON.parse(reportBytes);
-    receipt.testReport = { path: reportPath, digest: sha256(reportBytes) };
+    receipt.testReport = { path: reportPath, digest: sha256(reportBytes), success: report.success };
     const expected = new Map(manifest.tests.map(path => [realpathSync(join(root, path)), path])), found = new Set();
     requireValue(Array.isArray(report.testResults), 'Missing per-file test results.');
     for (const file of report.testResults) {
@@ -140,21 +186,18 @@ try {
       && test.failed === 0 && test.unexecuted === 0), 'Required assertions failed or remain unexecuted.');
   } catch (error) { receipt.issues.push({ phase: 'unit-results', message: String(error) }); }
   // A unit failure does not suppress the independent browser observations.
+  const browserDir = join(root, 'test-results/browser');
+  const before = new Set(existsSync(browserDir) ? readdirSync(browserDir) : []);
   await run('40-root-browser', ['test:browser', '--suite', manifest.browserSuite]);
-} catch (error) {
-  receipt.issues.push({ phase: 'setup-or-execution', message: String(error), stderr: String(error?.stderr ?? '').slice(0, 8000) });
-} finally {
-  if (integratedHead) {
-    try {
-      requireValue(git('rev-parse', 'HEAD') === integratedHead
-        && git('status', '--porcelain', '--untracked-files=no') === '', 'Integrated source changed during validation.');
-      if (generatedConfig) requireValue(readFileSync(generatedConfig, 'utf8') === generatedConfigBytes, 'Test selection changed.');
-    } catch (error) { receipt.issues.push({ phase: 'source-custody', message: String(error) }); }
-  }
-  receipt.endedAt = new Date().toISOString();
-  receipt.status = receipt.commands.some(command => command.status === 'FAIL') || receipt.tests.some(test => test.failed > 0) ? 'FAIL'
-    : receipt.issues.length === 0 && receipt.commands.length === 7 && receipt.commands.every(command => command.status === 'PASS') ? 'PASS' : 'BLOCKED';
-  writeFileSync(join(evidence, 'validation.json'), JSON.stringify(receipt, null, 2) + '\n', { flag: 'wx' });
-  console.log('M01_M03_VALIDATION=' + JSON.stringify(receipt));
-  process.exitCode = receipt.status === 'PASS' ? 0 : 1;
+  const runs = readdirSync(browserDir).filter(name => !before.has(name));
+  requireValue(runs.length === 1, 'Expected a fresh root browser report.');
+  const browserPath = join(browserDir, runs[0], 'root/results.json');
+  requireValue(statSync(browserPath).size <= 32 * 1024 * 1024, 'Browser report exceeded its bound.');
+  const bytes = readFileSync(browserPath), { errors, stats, suites } = JSON.parse(bytes);
+  receipt.browserReport = { path: relative(root, browserPath), digest: sha256(bytes), stats, errors: errors?.length };
+  const { rootBrowserSpecs } = await import(pathToFileURL(join(root, 'scripts/browser-suites.ts')).href);
+  requireValue(Array.isArray(suites) && suites.length === rootBrowserSpecs.length
+    && rootBrowserSpecs.every(file => suites.some(suite => suite.file === file)), 'Incomplete root browser suite.');
+  requireValue(Array.isArray(errors) && errors.length === 0 && stats.unexpected === 0 && stats.flaky === 0
+    && Number.isSafeInteger(stats.expected) && stats.expected > 0, 'Root browser report has failed, flaky, or missing results.');
 }

@@ -3,6 +3,7 @@
   "repository": "skytuhua-org/Gen-V1",
   "auditAncestorSha": "8fafe11ca61d6f3c2f29dc2efa088150c81b53d7",
   "baseSha": "8e7093ae48efa7c613861b907d2af6a791cc1f89",
+  "expectedTreeSha": "fb7cffcce41b636485c61e63b96160f83491deb1",
   "heads": [
     {
       "pr": 591,
