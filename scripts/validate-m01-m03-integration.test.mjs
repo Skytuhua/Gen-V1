@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync, spawnSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { test } from 'node:test';
@@ -68,8 +68,8 @@ function fixture(t, wrongTree = false) {
     return result;
   };
   const assemble = () => invoke([runner, 'assemble']);
-  const validate = fault => invoke([join(evidence, 'validate-m01-m03-integration.mjs'), 'validate'],
-    { INTEGRATED_HEAD: readFileSync(output, 'utf8').trim().split('=')[1], FIXTURE_FAULT: fault });
+  const validate = (fault, extra = {}) => invoke([join(evidence, 'validate-m01-m03-integration.mjs'), 'validate'],
+    { INTEGRATED_HEAD: readFileSync(output, 'utf8').trim().split('=')[1], FIXTURE_FAULT: fault, ...extra });
   const receipt = name => JSON.parse(readFileSync(join(evidence, name + '.json')));
   return { assemble, validate, git, receipt, tree, validationSha, root };
 }
@@ -114,4 +114,33 @@ test('a zero browser exit cannot override a failed Playwright report', t => {
   assert.equal(f.validate('browser-report').status, 1);
   assert.equal(f.receipt('validation').browserReport.stats.unexpected, 1);
   assert.equal(f.receipt('validation').status, 'FAIL');
+});
+
+
+test('offline Windows validation uses the installed pinned pnpm instead of Corepack', t => {
+  const f = fixture(t);
+  const pnpmHome = join(dirname(f.root), 'setup-pnpm', 'node_modules', '.bin');
+  const entry = join(dirname(pnpmHome), 'pnpm', 'bin', 'pnpm.cjs');
+  mkdirSync(pnpmHome, { recursive: true });
+  mkdirSync(dirname(entry), { recursive: true });
+  writeFileSync(entry, '// installed package manager entry used by the fixture');
+  const assembly = f.assemble();
+  assert.equal(assembly.status, 0, assembly.stdout + assembly.stderr);
+  const validation = f.validate('', { PNPM_HOME: pnpmHome, COREPACK_ENABLE_NETWORK: '0' });
+  assert.equal(validation.status, 0, validation.stdout + validation.stderr);
+  const receipt = f.receipt('validation');
+  assert.equal(receipt.status, 'PASS');
+  assert.deepEqual(receipt.commands[0].argv.slice(0, 2), [process.execPath, realpathSync(entry)]);
+  assert.equal(receipt.commands.length, 7);
+});
+
+test('a missing pinned installation refuses validation before any command', t => {
+  const f = fixture(t);
+  assert.equal(f.assemble().status, 0);
+  const validation = f.validate('', { PNPM_HOME: join(dirname(f.root), 'missing-pnpm', '.bin') });
+  assert.equal(validation.status, 1, validation.stdout + validation.stderr);
+  const receipt = f.receipt('validation');
+  assert.deepEqual(receipt.commands, []);
+  assert.equal(receipt.status, 'BLOCKED');
+  assert.match(receipt.issues[0].message, /ENOENT|no such file/i);
 });
