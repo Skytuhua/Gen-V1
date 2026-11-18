@@ -70,6 +70,12 @@ async function host(page: Page, initial = snapshot(), hasModels = true) {
       return route.fulfill({ json: { url: `http://localhost:4318/widget/${artifact.id}/${artifact.revision}?ticket=test-${state.mounts}#token=token-${state.mounts}&mountId=mount-${state.mounts}`, token: `token-${state.mounts}`, mountId: `mount-${state.mounts}`, revision: artifact.revision } });
     }
     if (url.pathname.endsWith('/source')) return route.fulfill({ body: JSON.stringify(state.snapshot.artifacts[0]?.spec ?? {}) });
+    const workbench = url.pathname.match(/^\/api\/workbench\/threads\/([^/]+)(\/inputs)?$/);
+    if (workbench) {
+      const thread = state.snapshot.threads.find(item => item.id === workbench[1]);
+      const logicalOwner = { threadId: workbench[1], projectId: thread?.projectId ?? null, workspaceId: thread?.workspaceId ?? null };
+      return route.fulfill({ json: workbench[2] ? { logicalOwner, inputs: [] } : { logicalOwner, enabled: false, sources: [], sourceCapabilities: [] } });
+    }
     if (url.pathname !== '/api/commands') return route.fulfill({ status: 404, json: { error: { code: 'NOT_FOUND', message: 'Unknown test API route.' } } });
     const cmd = route.request().postDataJSON() as HostCommand;
     state.commands.push(cmd); state.csrf.push(route.request().headers()['x-harness-csrf'] ?? '');
@@ -1130,10 +1136,13 @@ test('drafts, row selection, disclosure and the same mounted expanded artifact s
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread one draft');
   await expect(name).toHaveValue('Unsaved review name');
   await page.getByRole('button', { name: 'Second task Ready' }).click();
-  await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Thread two draft');
+  // Inactive split views keep their composer mounted but inert; wait for the target view's composer.
+  await expect(page.locator('[data-split-view="thread:two"] [aria-label="Message"]')).toBeVisible();
+  await page.locator('[data-split-view="thread:two"] [aria-label="Message"]').fill('Thread two draft');
   await page.reload();
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread two draft');
   await page.getByRole('button', { name: 'First task Ready' }).click();
+  await expect(page.locator('[data-split-view="thread:one"] [aria-label="Message"]')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread one draft');
   await expect(name).toHaveValue('Unsaved review name');
   await expect(page.getByRole('tab', { name: 'Source', exact: true })).toHaveAttribute('aria-selected', 'true');
