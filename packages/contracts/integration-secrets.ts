@@ -31,3 +31,15 @@ export const integrationSecretReferenceStatusSchema = z.strictObject({
   }
 });
 export type IntegrationSecretReferenceStatus = z.infer<typeof integrationSecretReferenceStatusSchema>;
+
+/** Model input names the one action, never its credential or launch binding. */
+export const integrationPrepareArgsSchema = z.strictObject({
+  id: z.literal('context7'), action: z.enum(['list_tools', 'call_tool']),
+  tool: z.string().min(1).max(200).optional(), args: z.record(z.string(), z.json()).optional(),
+}).superRefine((value, ctx) => {
+  if (value.action === 'call_tool' ? !value.tool : value.tool !== undefined || value.args !== undefined) {
+    ctx.addIssue({ code: 'custom', message: 'Choose tool discovery or one named Context7 tool call.' });
+  }
+  if (JSON.stringify(value).length > 128 * 1024) ctx.addIssue({ code: 'custom', message: 'Context7 arguments exceed their bound.' });
+});
+export type IntegrationPrepareArgs = z.infer<typeof integrationPrepareArgsSchema>;

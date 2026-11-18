@@ -92,8 +92,14 @@ export class EditPreviewRegistry {
 
   private aggregate(owner: string): number {
     let total = 0;
-    for (const preview of this.previews.values()) if (preview.owner === owner) total += preview.bufferedBytes;
+    for (const preview of this.previews.values()) if (preview.owner === owner && (preview.state === "STREAMING_UNAPPLIED" || preview.state === "READY_UNAPPLIED")) total += preview.bufferedBytes;
     return total;
+  }
+
+  /** Inert argument bytes exist only while a preview can still be sealed. */
+  private release(preview: Preview): void {
+    preview.buffered = [];
+    preview.bufferedBytes = 0;
   }
 
   /** Append an incremental argument frame. Frames are inert text; a partial
@@ -106,6 +112,7 @@ export class EditPreviewRegistry {
     if (preview.bufferedBytes + bytes.length > this.limits.previewBufferBytes
       || this.aggregate(owner) + bytes.length > this.limits.previewAggregateBytes) {
       preview.state = "INVALID";
+      this.release(preview);
       throw new HarnessError("RESOURCE_LIMIT", "The streamed edit preview exceeds its byte bound.");
     }
     preview.buffered.push(Buffer.from(bytes));
@@ -141,6 +148,7 @@ export class EditPreviewRegistry {
       throw new HarnessError("INVALID_INPUT", "The edit preview is not awaiting validation.");
     if (preview.finalArgumentsDigest !== finalArgumentsDigest) {
       preview.state = "INVALID";
+      this.release(preview);
       throw new HarnessError("PRECONDITION_FAILED", "The final tool arguments changed; rebuild the edit preview.");
     }
     preview.validated = true;
@@ -158,6 +166,7 @@ export class EditPreviewRegistry {
     if (outcome === "APPLIED" && !preview.validated)
       throw new HarnessError("PRECONDITION_FAILED", "An edit preview cannot be applied before its final arguments are validated.");
     preview.state = outcome;
+    this.release(preview);
     return this.view(preview);
   }
 

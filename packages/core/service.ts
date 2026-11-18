@@ -41,6 +41,8 @@ import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
+import { OperationProjectTrustHost } from './operation-project-trust.ts';
+import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
 import { computeAssessment } from "./verification-gate.ts";
 import { sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
@@ -213,6 +215,22 @@ export class Service {
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
+  }
+  private executionAdviceHostInstance?:OperationExecutionAdviceHost;
+  get executionAdvice(): OperationExecutionAdviceHost {
+    return this.executionAdviceHostInstance ??= new OperationExecutionAdviceHost(this.store, {
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+      sourceCommitment: op => this.effects.privateArgumentCommitment({ name: 'operation.executionAdvice', args: {
+        operation: { id: op.id, threadId: op.threadId, revision: op.revision, kind: op.kind, args: op.args, resourceIds: op.resourceIds, preconditions: op.preconditions },
+      } }),
+    });
+  }
+  private projectTrustHostInstance?:OperationProjectTrustHost;
+  get projectTrust(): OperationProjectTrustHost {
+    return this.projectTrustHostInstance ??= new OperationProjectTrustHost(this.store, {
+      enabled: hostFlagEnabled('security.projectTrustV1'),
+      assertHostActive: () => { if (this.closed || this.updateClosing) throw new HarnessError('HOST_CLOSING', 'Gen is closing'); },
+    });
   }
   private memoryHost():ProjectMemoryHost {
     if(this.closed)throw new HarnessError('CANCELLED_RUN','The memory host has closed.');
@@ -674,6 +692,7 @@ export class Service {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
       threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.
@@ -701,7 +720,7 @@ export class Service {
         for (const id of resourceIds) { const grant = this.store.get<ResourceGrant>("resource", id); if (!grant || grant.threadId !== threadId) throw new HarnessError("CAPABILITY_DENIED", "Operation resource is not granted"); }
         const op: Operation = { id: randomUUID(), threadId, revision: 1, kind, args, resourceIds, preconditions, description, status: "prepared", approved: false, createdAt: now() };
         const thread=this.thread(threadId),capture=this.options.approvedWriteHooks&&kind==='file.replace'?{revision:op.revision,origin:this.writeOrigin(thread,authority),unavailable:thread.projectId&&thread.workspaceId?'scope_unavailable' as const:'no_project' as const}:undefined;
-        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
+        this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.projectTrust.markPrepared(op); this.executionAdvice.recordPrepared(op,thread); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
         if (this.closed) return;
@@ -986,6 +1005,7 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        this.projectTrust.assertApproval(op, thread);
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
         if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
@@ -1495,7 +1515,7 @@ export class Service {
       return args.commandId === undefined ? this.store.internal('memory.updated', ctx.threadId, apply) : this.store.command({ id: text(args, 'commandId', 200), type: 'task_memory', threadId: ctx.threadId, payload: args }, apply).result;
     }
     if(call.name==='plan_update')return this.planning.updatePlan({...ctx},args);
-    if(call.name==='integration_list'||call.name==='integration_call'){
+    if(call.name==='integration_list'||call.name==='integration_call'||call.name==='integration_prepare'){
       if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
       const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
       const context=this.context(ctx.threadId,controller?.signal,undefined,{...ctx});
@@ -1693,8 +1713,21 @@ export class Service {
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-      this.effects.verifyOperationApproval(op, this.thread(op.threadId));
-      this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      try {
+        this.effects.verifyOperationApproval(op, this.thread(op.threadId));
+        this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      } catch (error) {
+        if (error instanceof HarnessError && error.code === "APPROVAL_REQUIRED") {
+          const current = this.store.get<Operation>("operation", id);
+          if (current?.status === "prepared" && current.approved && current.revision === op.revision)
+            this.store.internal("operation.approval_required", op.threadId, () => {
+              const review = { ...current, approved: false };
+              this.store.put("operation", id, op.threadId, review); this.operationData(review);
+              return { operationId: id };
+            });
+        }
+        throw error;
+      }
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");
@@ -1828,7 +1861,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
