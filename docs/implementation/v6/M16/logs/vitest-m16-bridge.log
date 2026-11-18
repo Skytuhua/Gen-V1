@@ -1,25 +1,7 @@
 argv: ["node","node_modules/vitest/vitest.mjs","run","tests/browser-consent-v3.test.ts","tests/desktop-control-v3.test.ts","tests/interactive-control-decisions-v6.test.ts","tests/control-bridge-v6.test.ts","tests/control-runtime-v6.test.ts"]
-cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
 exitCode: 0
 termination: NONE
 
-
- RUN  v4.1.12 C:/Users/user/repos/Gen-V1-m16-bridge
-
-(node:2600) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
-(node:36436) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
-(node:43476) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
- ✓ tests/control-bridge-v6.test.ts (20 tests) 19ms
- ✓ tests/desktop-control-v3.test.ts (11 tests) 9ms
- ✓ tests/control-runtime-v6.test.ts (6 tests) 192ms
- ✓ tests/browser-consent-v3.test.ts (14 tests) 330ms
- ✓ tests/interactive-control-decisions-v6.test.ts (8 tests) 110ms
-
- Test Files  5 passed (5)
-      Tests  59 passed (59)
-   Start at  11:45:40
-   Duration  1.82s (transform 1.52s, setup 0ms, import 2.59s, tests 661ms, environment 0ms)
-
+summary (WIN-M0N0V07LGM1, bridge cut e4531ae2): vitest v4.1.12 — 5 files passed: control-bridge-v6 (20) 19ms, desktop-control-v3 (11) 9ms, control-runtime-v6 (6) 192ms, browser-consent-v3 (14) 330ms, interactive-control-decisions-v6 (8) 110ms; 59/59 tests passed, duration 1.82s; stderr carried only benign node:sqlite experimental warnings.
+original: sha256 85e01f27c4d7e034adc19eaa3a9d3907175cdeb6e0f44e4113e198c8c527bda9, 1329 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary.

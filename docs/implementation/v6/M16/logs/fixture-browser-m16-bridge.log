@@ -1,23 +1,7 @@
-argv: ["node","C:/Users/user/AppData/Local/Temp/m16-desktop-launch-v2.cjs"]
-cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+argv: ["node","%TEMP%/m16-desktop-launch-v2.cjs"]
+cwd: %USERPROFILE%/repos/Gen-V1-m16-bridge
 exitCode: 3
 termination: NONE
 
-20:29:52.883 CONFIG {"commit":"39d1d6da (bridge e4531ae2)","executable":"C:\\Users\\user\\repos\\Gen-V1-m16-bridge\\node_modules\\.pnpm\\electron@45.2.0\\node_modules\\electron\\dist\\electron.exe","hostPort":54968,"widgetPort":54969,"debugPort":54970,"nonce":"d0b4117c-7bd2-4e81-aaff-57e830c861a6","dataDir":"C:\\Users\\user\\AppData\\Local\\Temp\\m16-owned-data-1795033792883","argv":["--remote-debugging-port=54970","--remote-debugging-address=127.0.0.1","--enable-automation","--harness-verification=d0b4117c-7bd2-4e81-aaff-57e830c861a6"]}
-20:29:52.892 ELECTRON_SPAWNED pid=53700
-[out] 
-[err] 
-DevTools listening on ws://127.0.0.1:54970/devtools/browser/84bf4bf9-66e9-4508-973a-e4688a51b0ab
-[err] HARNESS_STARTUP_V1 {"stage":"app-ready","elapsedMs":29,"error":null}
-[err] HARNESS_STARTUP_V1 {"stage":"layout-ready","elapsedMs":33,"error":null}
-[err] HARNESS_STARTUP_V1 {"stage":"shell-ready","elapsedMs":52,"error":null}
-[err] HARNESS_STARTUP_V1 {"stage":"backend-starting","elapsedMs":53,"error":null}
-20:29:53.429 CDP_READY true
-20:29:54.986 NONCE_OK true | argv0: C:\Users\user\repos\Gen-V1-m16-bridge\node_modules\.pnpm\electron@45.2.0\node_modules\electron\dist\electron.exe
-20:30:35.958 MAIN_PAGE still absent at 40s
-[err] HARNESS_STARTUP_V1 {"stage":"backend-deadline","elapsedMs":60062,"error":null}
-[err] HARNESS_STARTUP_V1 {"stage":"backend-output","elapsedMs":60072,"error":null,"output":{"stdout":{"bytes":0,"hashedBytes":0,"sha256":"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855","truncated":false},"stderr":{"bytes":169,"hashedBytes":169,"sha256":"e1f16b1d2396c5a6a82b79f54980f6105776a6b07f603503610ff343c04e33b3","truncated":false}}}
-[err] HARNESS_STARTUP_V1 {"stage":"startup-failed","elapsedMs":60073,"error":{"category":"error","code":null}}
-[err] Gen V1 startup failed: The local backend did not become ready
-20:31:03.638 ELECTRON_EXIT 0
-20:31:03.801 RESULT: main-page-deadline — backend never published electronAlive= false
+summary (WIN-M0N0V07LGM1, checkout 39d1d6da / bridge cut e4531ae2): isolated installed-app launch on fresh ephemeral ports — hostPort=54968 widgetPort=54969 debugPort=54970 (listen(0), no 9222/4317/4318), owned dataDir under %TEMP%, nonce verified NONCE_OK. Electron spawned pid=53700; CDP_READY true in ~0.5s; HARNESS_STARTUP_V1 stages: app-ready@29ms, layout-ready@33ms, shell-ready@52ms, backend-starting@53ms; MAIN_PAGE still absent at 40s; backend-deadline@60,062ms; backend-output: stdout 0 bytes (sha256 e3b0c442), stderr 169 bytes (sha256 e1f16b1d — benign node:sqlite warning); startup-failed@60,073ms — "Gen V1 startup failed: The local backend did not become ready"; ELECTRON_EXIT 0; RESULT: main-page-deadline — backend never published (driver exit 3).
+original: sha256 1c7c210bdbaff6daadb95f2d1a80d5d1f9c6133144ddd8c8a993ca869c2c658b, 2122 bytes — raw verifier log retained out-of-source (logs/provenance.json); private absolute paths/usernames redacted in this bounded summary (electron executable path, owned data dir, driver script).

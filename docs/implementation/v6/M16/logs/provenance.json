@@ -1,0 +1,62 @@
+{
+  "note": "Curated evidence index. The eight raw verifier logs were replaced in-place by bounded redacted summaries on 3c8404f2's curated cut. Original bytes (containing private absolute paths/usernames/window titles) are retained out-of-source on the authoring workstation and are not committed; the SHA-256 digests below bind each summary to its raw original. command[] logDigest fields in docs/implementation/v3/M16-verification.json point at the curated summaries.",
+  "environment": "WIN-M0N0V07LGM1",
+  "files": [
+    {
+      "ref": "docs/implementation/v6/M16/logs/vitest-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "85e01f27c4d7e034adc19eaa3a9d3907175cdeb6e0f44e4113e198c8c527bda9",
+      "originalBytes": 1329,
+      "summarySha256": "60b0186197ec5d6c022dd3ed7e418ed3763f4f84c6164ac0ae3dc3ffc25ea73e"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/typecheck-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "0f21ef30218aacfd877d9b2dd042651aa8d7982bdc8336e55eb6aef6a497e37b",
+      "originalBytes": 181,
+      "summarySha256": "e27b775302496c5e987420768e3bad14892798c8844187d80fdaba7e9f8fdc06"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/lint-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "d0dc991c4e1bdd7dadbec470837297e8565cb476bc63ed0eacd437da95369ad8",
+      "originalBytes": 315,
+      "summarySha256": "b8abc2504df96ade0e86d8ede32af0bb8d1094a3c2a17c943d5b54fc5330f5bd"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/filehash-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "435d651186bb6826001ecda3bf6952326330b0ec21c214d52e01f39d691ac4e0",
+      "originalBytes": 336,
+      "summarySha256": "c7059300957227207cc1210c9ced2ab2813463bbd1d653c333d57d0778b7dcd5"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/smoke-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "315cfe651d1f947ee57e690dcf9fcb2190f7a985a844a4349fe148fd246eb8a2",
+      "originalBytes": 1810,
+      "summarySha256": "e621147c2e1c4e2fcfa3e3c0ec53837ccdfda7542f8fdc7aaabdaa224b719d62"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/build-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "94a31a5394fc38ca9b11c8f103204b32302bad665a5a1bc13110016c45d3044b",
+      "originalBytes": 926,
+      "summarySha256": "dca43a68ed3be9979c8a6700d364ecea7c75fa34f856a7dd6059491871878a29"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/fixture-window-m16-bridge.log",
+      "boundTo": "e4531ae2",
+      "originalSha256": "bc68ae31ecebfbb26431e7b188206b2aae69c8adb8783e0cc8151b07d8130838",
+      "originalBytes": 1853,
+      "summarySha256": "6d008809e00efd1b7038ae7f7b393c1013fa4d7e0c083f30c44e4cbedcbf9f0e"
+    },
+    {
+      "ref": "docs/implementation/v6/M16/logs/fixture-browser-m16-bridge.log",
+      "boundTo": "39d1d6da (bridge e4531ae2)",
+      "originalSha256": "1c7c210bdbaff6daadb95f2d1a80d5d1f9c6133144ddd8c8a993ca869c2c658b",
+      "originalBytes": 2122,
+      "summarySha256": "ae220c8c46aa344c9fedabfdb2bd875c05f1128c2f336d1d429471b33363f9c4"
+    }
+  ]
+}

@@ -2,7 +2,7 @@
 
 ## Custody
 
-- Worktree: `C:/Users/Administrator/repos/Gen-V1-m16-v6` (independent clone, not a worktree of the fork checkout).
+- Worktree: `%USERPROFILE%/repos/Gen-V1-m16-v6` (independent clone, not a worktree of the fork checkout).
 - Remote: `https://git-manager.devin.ai/proxy/github.com/skytuhua-org/Gen-V1` (resolves to skytuhua-org/Gen-V1).
 - Branch: `agent/m16-v6`, cut at `origin/main` `f20b92c636f9ba749a2a2ac027a9e1f053574198`.
 - Audit anchor: `4805af4680094d2af48ecf666688e750797e9dda` (source-inspection anchor only; not a claim of test success).
@@ -12,14 +12,14 @@
 
 ```text
 $ git rev-parse --show-toplevel
-C:/Users/Administrator/repos/Gen-V1-m16-v6
+%USERPROFILE%/repos/Gen-V1-m16-v6
 $ git remote -v
 origin	https://git-manager.devin.ai/proxy/github.com/skytuhua-org/Gen-V1 (fetch)
 origin	https://git-manager.devin.ai/proxy/github.com/skytuhua-org/Gen-V1 (push)
 $ git branch --show-current
 agent/m16-v6
 $ git worktree list --porcelain
-worktree C:/Users/Administrator/repos/Gen-V1-m16-v6
+worktree %USERPROFILE%/repos/Gen-V1-m16-v6
 HEAD 4fc0196e4a0087c7a50467c2c9ef3068547be9f4
 branch refs/heads/agent/m16-v6
 $ git status --porcelain
@@ -68,7 +68,7 @@ Preflight, before the first landing, HEAD was `f20b92c636f9ba749a2a2ac027a9e1f05
 # Follow-up: first-party Windows control bridge (`followup/m16-windows-control-bridge`)
 
 Manager-approved continuation of M16, cut at `origin/main` `b826684a` in worktree
-`/home/piadmin/Gen-V1-m16-v6`. One scoped draft PR is authorized; no merge, no
+`$HOME/Gen-V1-m16-v6`. One scoped draft PR is authorized; no merge, no
 production flag change.
 
 ## Custody
@@ -227,6 +227,14 @@ production flag change.
 
 ## Verification status
 
+- Evidence curation on this cut: the eight `logs/*-m16-bridge.log` raw
+  verifier logs are now bounded redacted summaries (private absolute
+  paths, usernames and third-party window titles removed; timings,
+  statuses, digests and native observations verbatim). Original bytes are
+  retained out-of-source; `logs/provenance.json` binds each summary to
+  its raw SHA-256 and cut. Command `logDigest` fields re-point at the
+  summaries; `check_m16_evidence.mts` compares log headers modulo the
+  same profile-path normalization and still validates: 0 issues.
 - `WIN-M0N0V07LGM1` receipts @ `636d9095` (bound-item chooser cut): vitest 5
   files **59/59 PASS** (control-bridge-v6 now 20); `tsc --noEmit` 0; lint
   618/0; `pnpm build:control-bridge` 0 — `windows-control-bridge.node`
