@@ -248,7 +248,7 @@ export function ShellSidebar({
             reorder.begin(item);
           }}
           onDragEnd={reorder.end}
-          aria-keyshortcuts={ariaKeyShortcuts(onPlaceThread ? ['thread-place', 'thread-reorder'] : ['thread-reorder'])}
+          aria-keyshortcuts={ariaKeyShortcuts(onPlaceThread ? ['thread-place', 'thread-reorder-up', 'thread-reorder-down'] : ['thread-reorder-up', 'thread-reorder-down'])}
           onKeyDown={event => {
             if (onPlaceThread && event.altKey && event.key === 'Enter') {
               event.preventDefault();

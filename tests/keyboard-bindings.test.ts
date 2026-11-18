@@ -11,15 +11,39 @@ import {matchesShortcut} from '../apps/web/src/shell-layout';
 
 const source = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 const chords = (binding: KeyboardBinding) => bindingChords(binding, DEFAULT_PREFERENCES.keybindings);
+const MODIFIERS = [['ctrlKey', 'ctrl'], ['metaKey', 'meta'], ['altKey', 'alt'], ['shiftKey', 'shift']] as const;
+/** A comparison and the modifiers guarding it share one statement in these handlers, so `;` bounds the evidence. */
+const statements = (text: string) => text.split(';');
+const KEY_COMPARISON = /\.key(?:\.toLowerCase\(\))?\s*[!=]==?\s*'([^']*)'/g, KEY_LIST = /\[([^\]]*)\]\.includes\(\s*event\.key\s*\)/g, PREFERENCE_READ = /keybindings\.([A-Za-z]+)/g;
 
-/** Key-event flags a chord must be compared against, plus the literal its handler compares the key name to. */
-function evidence(chord: string): string[] {
-  const {modifiers, key} = readChord(chord), flags = modifiers.filter(modifier => ['ctrl', 'meta', 'alt', 'shift'].includes(modifier)).map(modifier => `${modifier}Key`);
-  return [...flags, `'${key}'`];
+/** The modifiers a statement requires and negates around a key comparison. */
+function guards(segment: string) {
+  const positive = new Set<string>(), negated = new Set<string>();
+  for (const [flag, modifier] of MODIFIERS) for (const match of segment.matchAll(new RegExp(`(!?)\\s*(?:[A-Za-z_$][\\w$]*\\.)?${flag}\\b`, 'g'))) (match[1] === '!' ? negated : positive).add(modifier);
+  return {positive, negated};
 }
 
-const MATCHER_ARGUMENT = /matchesShortcut\(\s*[A-Za-z_$][\w$]*\s*,\s*([^)]+)\)/g;
-const KEY_COMPARISON = /\.key(?:\.toLowerCase\(\))?\s*[!=]==?\s*'([^']*)'/g, KEY_LIST = /\[([^\]]*)\]\.includes\(\s*event\.key\s*\)/g, PREFERENCE_READ = /keybindings\.([A-Za-z]+)/g;
+/** True when a key comparison for the chord's key is guarded by exactly that chord's modifiers, not merely present in the file. */
+function predicate(text: string, chord: string): boolean {
+  const {modifiers, key} = readChord(chord), required = new Set(modifiers), escaped = key.replaceAll(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const comparison = new RegExp(`\\.key(?:\\.toLowerCase\\(\\))?\\s*[!=]==?\\s*'${escaped}'|\\[[^\\]]*'${escaped}'[^\\]]*\\]\\.includes\\(\\s*event\\.key\\s*\\)`, 'i');
+  return statements(text).some(segment => {
+    if (!comparison.test(segment)) return false;
+    const {positive, negated} = guards(segment);
+    return [...required].every(modifier => positive.has(modifier) || (modifier === 'ctrl' && positive.has('meta')))
+      && [...positive].every(modifier => required.has(modifier) || (modifier === 'meta' && required.has('ctrl')))
+      && ![...negated].some(modifier => required.has(modifier));
+  });
+}
+
+/** Why a handler does not register this binding, or null when it does: it reads the registry chord, or its own predicate matches the chord's modifiers. */
+function unregistered(binding: KeyboardBinding, text: string): string | null {
+  if (binding.preference) return text.includes(`keybindings.${binding.preference}`) ? null : `keybindings.${binding.preference}`;
+  if (text.includes(`chordFor('${binding.id}')`)) return null;
+  const missing = chords(binding).filter(chord => !predicate(text, chord));
+  return missing.length ? `a predicate for ${missing.join(', ')}` : null;
+}
+
 /** Native control behavior rather than an app chord: these keys move focus or are recorded, never dispatched as a shortcut. */
 const NATIVE_KEYS: Record<string, readonly string[]> = {
   'apps/web/src/App.tsx': ['enter', 'tab'],
@@ -28,7 +52,7 @@ const NATIVE_KEYS: Record<string, readonly string[]> = {
 };
 
 /** Every key literal and preference id the scanned modules register, so a chord no binding declares is reported. */
-function unregistered(files: Record<string, string>, bindings: readonly KeyboardBinding[] = KEYBOARD_BINDINGS): string[] {
+function undeclared(files: Record<string, string>, bindings: readonly KeyboardBinding[] = KEYBOARD_BINDINGS): string[] {
   const preferences = new Set<string>(PREFERENCE_BINDINGS.map(binding => binding.preference)), found: string[] = [];
   for (const [file, text] of Object.entries(files)) {
     const known = new Set(bindings.filter(binding => binding.handlers.includes(file)).flatMap(binding => chords(binding).map(chord => readChord(chord).key.toLowerCase()))), native = NATIVE_KEYS[file] ?? [];
@@ -40,12 +64,14 @@ function unregistered(files: Record<string, string>, bindings: readonly Keyboard
   return found;
 }
 
-/** Matcher call sites must name a registered preference or a chord the registry declares. */
+const MATCHER_ARGUMENT = /matchesShortcut\(\s*[A-Za-z_$][\w$]*\s*,\s*((?:[^()]|\([^()]*\))+)\)/g;
+
+/** Matcher call sites must name a registered preference, a registry chord, or a chord the handler reads from the registry. */
 function unregisteredMatchers(files: Record<string, string>): string[] {
   const preferences = new Set<string>(PREFERENCE_BINDINGS.map(binding => binding.preference)), literals = new Set(KEYBOARD_BINDINGS.flatMap(chords)), found: string[] = [];
   for (const [file, text] of Object.entries(files)) for (const match of text.matchAll(MATCHER_ARGUMENT)) {
-    const argument = match[1]!.trim(), preference = /^preferences\.keybindings\.([A-Za-z]+)$/.exec(argument), literal = /^'([^']+)'$/.exec(argument);
-    if (preference ? !preferences.has(preference[1]!) : literal ? !literals.has(literal[1]!) : true) found.push(`${file}: matchesShortcut(…, ${argument})`);
+    const argument = match[1]!.trim(), preference = /^preferences\.keybindings\.([A-Za-z]+)$/.exec(argument), literal = /^'([^']+)'$/.exec(argument), registered = /^chordFor\('([^']+)'\)$/.exec(argument);
+    if (registered ? !KEYBOARD_BINDINGS.some(binding => binding.id === registered[1]) : preference ? !preferences.has(preference[1]!) : literal ? !literals.has(literal[1]!) : true) found.push(`${file}: matchesShortcut(…, ${argument})`);
   }
   return found;
 }
@@ -74,22 +100,32 @@ describe('keyboard binding registry', () => {
       expect(matchesShortcut({...press, metaKey: true, ctrlKey: false}, chord), `${binding.id} ${chord} as Cmd`).toBe(modifiers.includes('ctrl'));
     }
   });
-  it('names the chords its declared handlers compare against', () => {
-    for (const binding of KEYBOARD_BINDINGS) for (const handler of binding.handlers) {
-      const text = source(handler);
-      for (const chord of chords(binding)) for (const token of binding.preference ? [`keybindings.${binding.preference}`] : evidence(chord)) expect(text.toLowerCase(), `${binding.id} ${chord} in ${handler}`).toContain(token.toLowerCase());
-    }
+  it('matches each chord against a handler predicate with the same modifiers, not a same-key coincidence', () => {
+    for (const binding of KEYBOARD_BINDINGS) for (const handler of binding.handlers) expect(unregistered(binding, source(handler)), `${binding.id} in ${handler}`).toBeNull();
+    const text = "if(event.shiftKey&&event.key==='ArrowUp')resize();if(event.ctrlKey&&event.key.toLowerCase()==='f')open();";
+    expect(predicate(text, 'Ctrl+F')).toBe(true);
+    expect(predicate(text, 'Ctrl+Shift+F')).toBe(false);
+    expect(predicate(text, 'Ctrl+ArrowUp')).toBe(false);
+    expect(predicate(text, 'Shift+ArrowUp')).toBe(true);
+    expect(predicate("if(event.ctrlKey&&event.shiftKey&&event.key==='F'){}", 'Ctrl+Shift+F')).toBe(true);
+    expect(predicate("if(event.ctrlKey&&event.shiftKey&&event.key==='F'){}", 'Ctrl+F')).toBe(false);
+    expect(predicate("if(event.altKey&&!event.shiftKey&&event.key==='Enter'){}", 'Alt+Enter')).toBe(true);
+    expect(predicate("if(event.altKey&&!event.shiftKey&&event.key==='Enter'){}", 'Alt+Shift+Enter')).toBe(false);
+    const find = KEYBOARD_BINDINGS.find(binding => binding.id === 'find-in-conversation')!, selectAll = KEYBOARD_BINDINGS.find(binding => binding.id === 'terminal-select-all')!;
+    expect(unregistered(find, "if(event.ctrlKey&&event.key==='f'){}")).toBeNull();
+    expect(unregistered(selectAll, "if(event.ctrlKey&&event.key==='a'){}")).toContain('a predicate for Ctrl+Shift+A');
+    expect(unregistered(find, "if(matchesShortcut(event,chordFor('find-in-conversation'))){}")).toBeNull();
   });
   it('reports a handler key the registry does not declare', () => {
     const scanned = new Set(KEYBOARD_BINDINGS.flatMap(binding => binding.handlers)), files = Object.fromEntries([...scanned].map(file => [file, source(file)]));
-    expect(unregistered(files)).toEqual([]);
-    expect(unregistered({'apps/web/src/TerminalBody.tsx': "if(event.ctrlKey&&event.key==='q'){}", 'apps/web/src/WorkspaceHost.tsx': 'matchesShortcut(event, preferences.keybindings.executeShell)'})).toEqual(['apps/web/src/TerminalBody.tsx: q', 'apps/web/src/WorkspaceHost.tsx: keybindings.executeShell']);
+    expect(undeclared(files)).toEqual([]);
+    expect(undeclared({'apps/web/src/TerminalBody.tsx': "if(event.ctrlKey&&event.key==='q'){}", 'apps/web/src/WorkspaceHost.tsx': 'matchesShortcut(event, preferences.keybindings.executeShell)'})).toEqual(['apps/web/src/TerminalBody.tsx: q', 'apps/web/src/WorkspaceHost.tsx: keybindings.executeShell']);
   });
   it('rejects a matcher call site the registry does not know, anywhere in the web app', () => {
     const files = Object.fromEntries((readdirSync(new URL('../apps/web/src', import.meta.url), {recursive: true}) as string[]).filter(file => /\.tsx?$/.test(file)).map(file => {const path = `apps/web/src/${file.replaceAll('\\', '/')}`; return [path, source(path)] as const;}));
     expect(Object.keys(files).length).toBeGreaterThan(50);
     expect(unregisteredMatchers(files)).toEqual([]);
-    expect(unregisteredMatchers({'apps/web/src/Terminal.tsx': "matchesShortcut(event, 'Ctrl+Q'); matchesShortcut(event, preferences.keybindings.executeShell); matchesShortcut(event, shortcut);"})).toEqual(['apps/web/src/Terminal.tsx: matchesShortcut(…, \'Ctrl+Q\')', 'apps/web/src/Terminal.tsx: matchesShortcut(…, preferences.keybindings.executeShell)', 'apps/web/src/Terminal.tsx: matchesShortcut(…, shortcut)']);
+    expect(unregisteredMatchers({'apps/web/src/Terminal.tsx': "matchesShortcut(event, 'Ctrl+Q'); matchesShortcut(event, preferences.keybindings.executeShell); matchesShortcut(event, shortcut); matchesShortcut(event, chordFor('no-such-binding'));"})).toEqual(['apps/web/src/Terminal.tsx: matchesShortcut(…, \'Ctrl+Q\')', 'apps/web/src/Terminal.tsx: matchesShortcut(…, preferences.keybindings.executeShell)', 'apps/web/src/Terminal.tsx: matchesShortcut(…, shortcut)', 'apps/web/src/Terminal.tsx: matchesShortcut(…, chordFor(\'no-such-binding\'))']);
   });
   it('spells keys for the platform and for assistive technology', () => {
     expect(shortcutKeys('Ctrl+K', 'other')).toBe('Ctrl+K');
@@ -107,8 +143,8 @@ describe('keyboard binding registry', () => {
     expect(shortcutPlatform({userAgent: 'Mozilla/5.0 (iPhone)'})).toBe('mac');
   });
   it('keeps the sidebar announcement derived from the registry', () => {
-    expect(ariaKeyShortcuts(['thread-place', 'thread-reorder'])).toBe('Alt+Enter Alt+ArrowUp Alt+ArrowDown');
-    expect(ariaKeyShortcuts(['thread-reorder'])).toBe('Alt+ArrowUp Alt+ArrowDown');
+    expect(ariaKeyShortcuts(['thread-place', 'thread-reorder-up', 'thread-reorder-down'])).toBe('Alt+Enter Alt+ArrowUp Alt+ArrowDown');
+    expect(ariaKeyShortcuts(['thread-reorder-up', 'thread-reorder-down'])).toBe('Alt+ArrowUp Alt+ArrowDown');
   });
   it('renders every registered binding from the registry and follows a rebound chord', () => {
     const html = renderToStaticMarkup(createElement(KeyboardReference, {keybindings: {...DEFAULT_PREFERENCES.keybindings, search: 'Alt+K'}}));
@@ -120,6 +156,7 @@ describe('keyboard binding registry', () => {
     }
     const search = html.slice(html.indexOf('data-binding-id="search"')).split('</div>')[0]!;
     expect(search).toContain(shortcutKeys('Alt+K', shortcutPlatform()));
+    expect(html).toContain(KEYBOARD_BINDINGS.find(binding => binding.id === 'window-move')!.hint!);
   });
   it('is reachable from the Settings shortcut section', () => {
     const data: SettingsData = {

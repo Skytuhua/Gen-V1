@@ -10,7 +10,8 @@ import { Select } from '../../../packages/ui-shell/Select';
 import { command, getModels } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
 import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
-import { PREFERENCE_BINDINGS } from './keyboard-bindings';
+import { PREFERENCE_BINDINGS, chordFor } from './keyboard-bindings';
+import { matchesShortcut } from './shell-layout';
 import { KeyboardReference } from './KeyboardReference';
 import { DEPENDENCY_NOTICES } from './dependency-notices';
 import { DraftTransfer } from './DraftTransfer';
@@ -175,10 +176,10 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       default: return { description: '', control: null };
     }
   };
-  return <div className={matches('harness-skills') ? 'settings-layout settings-skills' : 'settings-layout'} onKeyDown={event => { if (event.key === 'Escape' && searching && !event.nativeEvent.isComposing) { event.preventDefault(); event.stopPropagation(); setQuery(''); } }}>
+  return <div className={matches('harness-skills') ? 'settings-layout settings-skills' : 'settings-layout'} onKeyDown={event => { if (searching && !event.nativeEvent.isComposing && matchesShortcut(event, chordFor('settings-clear-search'))) { event.preventDefault(); event.stopPropagation(); setQuery(''); } }}>
     <aside className="settings-navigation"><label className="settings-search"><Search size={14}/><input type="search" aria-label="Search all settings" placeholder="Search settings" value={query} onChange={event => setQuery(event.target.value)}/></label>
       <div className="settings-section-select"><Select aria-label="Settings section" value={section} options={SETTINGS_SECTIONS.map(([value, label]) => ({value, label}))} onValueChange={chooseSection}/></div>
-      <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing || event.ctrlKey || event.metaKey || event.altKey || !['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[event.key === 'Home' ? 0 : event.key === 'End' ? buttons.length - 1 : (index + (event.key === 'ArrowDown' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
+      <nav ref={navigation} aria-label="Settings sections" onKeyDown={event => { if (event.nativeEvent.isComposing) return; const intent = matchesShortcut(event, chordFor('settings-next-section')) ? 'next' : matchesShortcut(event, chordFor('settings-previous-section')) ? 'previous' : matchesShortcut(event, chordFor('settings-first-section')) ? 'first' : matchesShortcut(event, chordFor('settings-last-section')) ? 'last' : null; if (!intent) return; const buttons = [...event.currentTarget.querySelectorAll('button')], index = buttons.indexOf(document.activeElement as HTMLButtonElement); event.preventDefault(); buttons[intent === 'first' ? 0 : intent === 'last' ? buttons.length - 1 : (index + (intent === 'next' ? 1 : -1) + buttons.length) % buttons.length]?.focus(); }}>
         {[...new Set(SETTINGS_SECTIONS.map(([id]) => GROUPS[id] ?? id))].map(group => {
           const sections = SETTINGS_SECTIONS.filter(([id]) => (GROUPS[id] ?? id) === group);
           return <div className="settings-nav-group" key={group}>{sections.length > 1 && <h2>{group}</h2>}{sections.map(([id, label]) => {const Icon = SECTION_ICONS[id] ?? Settings2;return <button type="button" key={id} className={!searching && section === id ? 'selected' : ''} onClick={() => chooseSection(id)} aria-current={!searching && section === id ? 'page' : undefined}><Icon size={17} aria-hidden="true"/><span>{label}</span></button>;})}</div>;
