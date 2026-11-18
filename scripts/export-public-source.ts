@@ -1,10 +1,21 @@
-import {copyFile,lstat,mkdir,readFile,readdir,writeFile} from 'node:fs/promises';
-import {dirname,resolve,join} from 'node:path';
+import {copyFile,lstat,mkdir,readFile,readdir,realpath,writeFile} from 'node:fs/promises';
+import {basename,dirname,isAbsolute,relative,resolve,join,sep} from 'node:path';
 import {createHash} from 'node:crypto';
 import {assertPublicPackageFiles,publicSourceFiles} from './public-source.ts';
 const [targetArg,receiptArg]=process.argv.slice(2);if(!targetArg||!receiptArg)throw Error('Usage: export-public-source <new-checkout-directory> <private-receipt-path>');
 const source=resolve('.'),target=resolve(targetArg),receipt=resolve(receiptArg);
 if(source===target||target.startsWith(source+'/')||target.startsWith(source+'\\'))throw Error('Choose a separate empty source destination.');
+// Compare locations even when the last directory components do not yet exist.
+async function intendedPath(path:string):Promise<string>{
+  try{return await realpath(path);}
+  catch(error){
+    const parent=dirname(path);
+    if((error as NodeJS.ErrnoException).code!=='ENOENT'||parent===path)throw error;
+    return join(await intendedPath(parent),basename(path));
+  }
+}
+const receiptInExport=relative(await intendedPath(target),join(await intendedPath(dirname(receipt)),basename(receipt)));
+if(!isAbsolute(receiptInExport)&&receiptInExport!=='..'&&!receiptInExport.startsWith('..'+sep))throw Error('Private export receipt must be outside the public destination.');
 await mkdir(target,{recursive:true});const existing=await readdir(target);if(existing.some(name=>name!=='.git'))throw Error('The source destination is not empty. Existing checkouts are retained.');
 assertPublicPackageFiles(publicSourceFiles,'source');
 const files:{path:string;bytes:number;sha256:string}[]=[];
