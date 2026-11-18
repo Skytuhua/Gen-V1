@@ -127,7 +127,7 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
    {children}
    {floating&&CHAT_EDGES.map(edge=><button key={edge} type="button" className={`chat-resize-handle chat-resize-${edge}`} aria-label={`Resize chat ${edgeNames[edge]}`} title={`Resize ${edgeNames[edge]} (arrow keys; Shift for larger steps)`} onPointerDown={event=>begin(event,edge)} onKeyDown={event=>adjust(event,edge)}/>)}
   </main>
-  <div ref={snap} className="chat-dock-target" aria-hidden="true" data-visible={dockTarget} style={{top:bounds.top,right:20,height:bounds.bottom-bounds.top}}><PanelRight size={20}/><span>Dock chat</span></div>
+  <div ref={snap} className="chat-dock-target" aria-hidden="true" data-visible={dockTarget} style={{top:bounds.top,right:20,height:bounds.bottom-bounds.top}}><PanelRight size={20}/></div>
   <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
  </div>;
 }

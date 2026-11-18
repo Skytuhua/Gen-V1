@@ -809,4 +809,158 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
+ for(const [edge,point] of [
+  ['left',(r:{x:number;y:number;width:number;height:number})=>[r.x+8,r.y+r.height/2] as const],
+  ['right',(r:{x:number;y:number;width:number;height:number})=>[r.x+r.width-8,r.y+r.height/2] as const],
+  ['top',(r:{x:number;y:number;width:number;height:number})=>[r.x+r.width/2,r.y+8] as const],
+  ['bottom',(r:{x:number;y:number;width:number;height:number})=>[r.x+r.width/2,r.y+r.height-8] as const],
+ ] as const)
+ it('a float grip docks at the '+edge+' main edge with a restrained preview and one placement command (T03/R03/R09)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Move chat',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Float',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const slot=(await page.locator('[data-split-pane="pane-main"] .split-pane-slot').boundingBox())!;
+   const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   // Hovering the center shows no dock overlay; the preview exists only on an eligible edge.
+   await page.mouse.move(slot.x+slot.width/2,slot.y+slot.height/2,{steps:6});
+   expect(await page.locator('.split-drop-preview').count()).toBe(0);
+   const [tx,ty]=point(slot);await page.mouse.move(tx,ty,{steps:6});
+   const preview=page.locator('.split-drop-preview');await preview.waitFor({state:'visible'});
+   const style=await preview.evaluate(el=>{const s=getComputedStyle(el);return{borderWidth:s.borderWidth,borderStyle:s.borderStyle,fill:s.backgroundColor};});
+   expect(style.borderStyle).not.toContain('dashed');
+   expect(parseFloat(style.borderWidth)).toBeLessThanOrEqual(1.5);
+   // The fill stays a subtle neutral veil, not a solid color band.
+   const alphaMatch=style.fill.match(/\/\s*([\d.]+)|,\s*([\d.]+)\s*\)/);
+   expect(alphaMatch?parseFloat(alphaMatch[1]??alphaMatch[2]!):1).toBeLessThanOrEqual(0.2);
+   await page.mouse.up();
+   const t0=await page.evaluate(()=>performance.now());
+   await page.waitForFunction(()=>!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const t1=await page.evaluate(()=>performance.now());
+   await pw.poll(()=>host.splitCommands.filter(command=>command.type==='split-workspace.pane.split').length).toBe(1);
+   const t2=await page.evaluate(()=>performance.now());
+   console.log('T03 dock-'+edge+' timings: release->first-feedback '+Math.round(t1-t0)+'ms, release->ack '+Math.round(t2-t0)+'ms');
+   expect(t1-t0).toBeLessThan(2000);
+   await pw(page.locator('[data-split-view="thread:thread-a"]')).toBeVisible();
+   expect(await page.locator('.split-drop-preview').count()).toBe(0);
+   expect(await page.locator('.chat-dock-target[data-visible="true"]').count()).toBe(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('keeps a delayed dock acknowledgement pending and rejects a duplicate placement command (T03/R03)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Move chat',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Float',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   await page.route('**/api/split-workspace/commands',async route=>{await new Promise(resolve=>setTimeout(resolve,400));await route.fallback();});
+   const slot=(await page.locator('[data-split-pane="pane-main"] .split-pane-slot').boundingBox())!;
+   const gripBox=(await page.locator('[data-split-view="thread:thread-a"] .split-float-grip').boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   await page.mouse.move(slot.x+slot.width-8,slot.y+slot.height/2,{steps:6});await page.mouse.up();
+   // Pending state is visible while the acknowledgement is in flight and both chats stay mounted.
+   await pw(page.locator('.split-workspace')).toHaveAttribute('aria-busy','true');
+   await pw(page.locator('[data-split-view="thread:thread-b"]')).toBeVisible();
+   await page.mouse.move(slot.x+slot.width/2,slot.y+slot.height/2);await page.mouse.down();
+   await page.mouse.move(slot.x+8,slot.y+slot.height/2,{steps:4});await page.mouse.up();
+   await pw.poll(()=>host.splitCommands.filter(command=>command.type==='split-workspace.pane.split').length).toBe(1);
+   await pw(page.locator('.split-workspace')).toHaveAttribute('aria-busy','false');
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('a float resize reflows content at real bounds and keyboard resize stays independent of the grip (T03/R04)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   const surface=page.locator('[data-split-view="thread:thread-a"]');
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   const before=(await surface.boundingBox())!;
+   const transcript=surface.locator('.conversation-scroll');
+   const measure=()=>transcript.evaluate(el=>{const s=getComputedStyle(el);return{font:s.fontSize,line:s.lineHeight,width:el.clientWidth,scrollX:el.scrollWidth>el.clientWidth+1};});
+   const style0=await measure();
+   const resize=surface.locator('.split-float-resize'),box=(await resize.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(box.x+box.width/2+330,box.y+box.height/2-320,{steps:8});await page.mouse.up();
+   const after=(await surface.boundingBox())!;
+   expect(Math.abs(after.width-before.width)).toBeGreaterThan(200);expect(Math.abs(after.height-before.height)).toBeGreaterThan(200);
+   const style1=await measure();
+   expect(style1.font).toBe(style0.font);expect(style1.line).toBe(style0.line);
+   expect(style1.width).toBeGreaterThan(style0.width);
+   expect(style1.scrollX).toBe(false);
+   await resize.focus();
+   const kb0=(await surface.boundingBox())!;
+   await page.keyboard.press('ArrowRight');await page.keyboard.press('Shift+ArrowDown');
+   const kb1=(await surface.boundingBox())!;
+   expect(kb1.width-kb0.width).toBeGreaterThanOrEqual(7);
+   expect(kb1.height-kb0.height).toBeGreaterThanOrEqual(23);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('keeps a readable transcript and reachable entry in a 158 px secondary pane (T03/R04)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.setViewportSize({width:1440,height:900});
+   await host.issue('pane.split',{paneId:'right',newPaneId:'right-b',splitId:'split-right-v',axis:'vertical',before:true});
+   const column=async()=>{const top=(await page.locator('[data-split-pane="right-b"]').boundingBox())!,bottom=(await page.locator('[data-split-pane="right"]').boundingBox())!;return{top,bottom,total:top.height+bottom.height+6};};
+   const {total}=await column();
+   // Calibrate the divider thickness from one resize, then land on 158 px.
+   await host.issue('pane.resize',{splitId:'split-right-v',ratio:(total-158-6)/total});
+   const measured=(await column()).bottom.height;
+   const divider=164-measured;
+   await host.issue('pane.resize',{splitId:'split-right-v',ratio:(total-158-divider)/total});
+   const {bottom}=await column();
+   expect(Math.abs(bottom.height-158)).toBeLessThanOrEqual(4);
+   const secondary=page.locator('[data-split-view="thread:thread-b"]');
+   await pw(secondary.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+   await pw(secondary.getByRole('button',{name:'Send message',exact:true})).toBeVisible();
+   await pw(page.locator('[data-split-pane="right"]').getByRole('button',{name:'Move chat',exact:true})).toBeVisible();
+   const transcriptHeight=await secondary.locator('.conversation-scroll').evaluate(el=>el.clientHeight);
+   expect(transcriptHeight).toBeGreaterThanOrEqual(80);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('cancelling a float drag sends no placement and the next drag succeeds (T03/R09)',async()=>{
+  const host=await fixture({mode:'split'}),{page}=host;try{
+   await page.locator('[data-split-pane="right"]').getByRole('button',{name:'Move chat',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Float',exact:true}).click();
+   const surface=page.locator('[data-split-view="thread:thread-b"]');
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-b"][data-floating="true"]'));
+   const placements=()=>host.splitCommands.filter(command=>command.type==='split-workspace.pane.split'||command.type==='split-workspace.view.park');
+   const baseCommands=placements().length;
+   const slot=(await page.locator('[data-split-pane="pane-main"] .split-pane-slot').boundingBox())!;
+   const grip=surface.locator('.split-float-grip');
+   // Non-primary button cannot begin a drag.
+   let box=(await grip.boundingBox())!;
+   const origin=(await surface.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down({button:'right'});
+   await page.mouse.move(box.x+140,box.y+80,{steps:4});await page.mouse.up({button:'right'});
+   const still=(await surface.boundingBox())!;
+   expect(Math.abs(still.x-origin.x)).toBeLessThan(20);expect(Math.abs(still.y-origin.y)).toBeLessThan(20);
+   // Escape mid-drag removes the preview and commits nothing.
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(slot.x+8,slot.y+slot.height/2,{steps:5});
+   await page.locator('.split-drop-preview').waitFor({state:'visible'});
+   await page.keyboard.press('Escape');await page.mouse.up();
+   expect(await page.locator('.split-drop-preview').count()).toBe(0);
+   expect(placements().length-baseCommands).toBe(0);
+   await pw(surface).toHaveAttribute('data-floating','true');
+   // pointercancel also cancels; the next drag still works.
+   box=(await grip.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(box.x+120,box.y+70,{steps:4});
+   await grip.evaluate(el=>el.dispatchEvent(new PointerEvent('pointercancel',{pointerId:1,bubbles:true})));
+   await page.mouse.up();
+   expect(placements().length-baseCommands).toBe(0);
+   box=(await grip.boundingBox())!;
+   const beforeDrag=(await surface.boundingBox())!;
+   await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();
+   await page.mouse.move(box.x+box.width/2+90,box.y+box.height/2+40,{steps:5});await page.mouse.up();
+   const moved=(await surface.boundingBox())!;
+   expect(moved.x-beforeDrag.x).toBeGreaterThan(50);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
 });
