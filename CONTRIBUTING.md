@@ -59,7 +59,7 @@ pnpm build
 pnpm test --maxWorkers=1
 ```
 
-Markdown links and heading anchors are checked on every pull request that changes a `.md` file. Run the same check after moving, renaming or re-anchoring a target, and add `--external` to request the remote URLs that scheduled runs probe. The provenance trees `docs/implementation` and `docs/review-evidence` stay unchecked:
+Every tracked Markdown file is link-checked except the provenance trees `docs/implementation` and `docs/review-evidence` and the retained upstream bytes under `third-party`. The check runs on every pull request that changes a `.md` file, so run it after moving, renaming or re-anchoring a target; add `--external` to request the remote URLs that scheduled runs probe:
 
 ```powershell
 pnpm check:docs-links

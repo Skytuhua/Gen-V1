@@ -38,7 +38,7 @@ describe('documentation link check',()=>{
         '',
         'Moved [release](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1) and [clone](https://github.com/skytuhua-org/Gen-V1.git).',
         '',
-        'Local [evidence](docs/evidence/report.md) and [preview](https://preview.example/thing) and [host](http://127.0.0.1:5173).',
+        'Local [evidence](docs/evidence/report.md), [preview](https://preview.example/thing), [host](http://127.0.0.1:5173) and [metadata](http://169.254.169.254/latest/meta-data).',
         '',
         'Inline `[code](nowhere.md)`, a commented `<!-- [hidden](nowhere.md) -->` and a fenced block:',
         '',
@@ -56,7 +56,7 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('stale repository URL');
       expect(result.output).not.toContain('nowhere.md');
       expect(result.output).not.toContain('error README.md:9');
-      expect(result.output).toContain('2 Markdown files, 10 links (external URLs skipped; pass --external): 3 broken, 0 warnings, 1 skipped as uncommitted');
+      expect(result.output).toContain('2 Markdown files, 11 links (external URLs skipped; pass --external): 3 broken, 0 warnings, 1 skipped as uncommitted');
     }finally{bench.cleanup();}
   });
   it('accepts links across files, parent directories and duplicate headings',()=>{
@@ -70,11 +70,23 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('2 Markdown files, 3 links (external URLs skipped; pass --external): 0 broken, 0 warnings');
     }finally{bench.cleanup();}
   });
-  it('leaves the provenance trees docs/implementation and docs/review-evidence unchecked',()=>{
+  it('checks Markdown outside the root and docs, such as package readmes',()=>{
+    const bench=fixture({
+      'packages/widgets/README.md':'# Widgets\n\nSee [the missing policy](../standards/policy.md).\n',
+      'packages/policy.md':'# Policy\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('error packages/widgets/README.md:3 ../standards/policy.md\n    no tracked file or directory at packages/standards/policy.md');
+    }finally{bench.cleanup();}
+  });
+  it('leaves the provenance trees and the retained upstream bytes unchecked',()=>{
     const bench=fixture({
       'README.md':'# Title\n\nSee [the plan](docs/implementation/v1/plan.md).\n',
       'docs/implementation/v1/plan.md':'See [the missing proof](gone.md) and [the missing report](../../report.md).\n',
       'docs/review-evidence/wo-1/README.md':'See [the missing capture](capture.png).\n',
+      'third-party/vendor/README.md':'See [the upstream link](gone.md).\n',
     });
     try{
       const result=bench.run();

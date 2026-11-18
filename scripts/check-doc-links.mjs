@@ -1,17 +1,19 @@
-// Checks links in git-tracked Markdown: root *.md plus docs/**, minus the provenance
-// trees docs/implementation/** and docs/review-evidence/**. Relative paths and heading
-// anchors are verified offline from the index; --external also requests http(s) targets.
-// A link into a gitignored path points at local harness evidence no checkout contains,
-// so it is counted as skipped rather than failed (--verbose lists it). Comment blocks,
-// code fences and inline code are examples, not links, and stay unchecked.
+// Checks links in every git-tracked *.md in the repository, minus the provenance trees
+// docs/implementation/** and docs/review-evidence/ and the retained upstream bytes under
+// third-party/**. Relative paths and heading anchors are verified offline from the index;
+// --external also requests http(s) targets. A link into a gitignored path points at local
+// harness evidence no checkout contains, so it is counted as skipped rather than failed
+// (--verbose lists it). Comment blocks, code fences and inline code are examples, not
+// links, and stay unchecked.
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { posix } from 'node:path';
 
-const included = /^(?:[^/]+|docs\/.+)\.md$/i;
-const excluded = ['docs/implementation/', 'docs/review-evidence/'];
+const included = /\.md$/i;
+const excluded = ['docs/implementation/', 'docs/review-evidence/', 'third-party/'];
 const movedRepository = /^https?:\/\/(?:www\.)?github\.com\/Skytuhua\/Gen-V1(?:[/?#]|$)/i;
-const unroutableHost = /^(?:localhost|127\.\d+\.\d+\.\d+|\[::1\]|(?:[\w-]+\.)*(?:example|invalid|test|localhost)|example\.(?:com|org|net))$/i;
+// Loopback, private, link-local and reserved documentation addresses never get requested.
+const unroutableHost = /^(?:localhost|0\.0\.0\.0|127\.\d+\.\d+\.\d+|10\.\d+\.\d+\.\d+|192\.168\.\d+\.\d+|172\.(?:1[6-9]|2\d|3[01])\.\d+\.\d+|169\.254\.\d+\.\d+|\[(?:::1|::ffff:|fc|fd|fe80)[^\]]*\]|(?:[\w-]+\.)*(?:example|invalid|test|localhost)|example\.(?:com|org|net))$/i;
 const committedLineRange = /^L\d+(?:C\d+)?(?:-L\d+(?:C\d+)?)?$/;
 const external = process.argv.includes('--external'), verbose = process.argv.includes('--verbose');
 
@@ -99,19 +101,30 @@ if (uncommitted.length) {
 
 if (external) {
   const request = (url, method) => fetch(url, {
-    method, redirect: 'follow', signal: AbortSignal.timeout(20_000),
+    method, redirect: 'manual', signal: AbortSignal.timeout(20_000),
     headers: { 'user-agent': 'gen-v1-doc-link-check', accept: '*/*' },
   });
+  // Redirects are followed by hand so a public link cannot steer the runner at a private address.
+  const statusOf = async (url, method) => {
+    for (let hop = 0; hop < 5; hop++) {
+      const response = await request(url, method), location = response.headers.get('location');
+      if (response.status < 300 || response.status >= 400 || !location) return { status: response.status };
+      url = new URL(location, url).href;
+      if (unroutableHost.test(new URL(url).hostname)) return { reason: 'redirects to a non-public address' };
+    }
+    return { reason: 'redirect loop' };
+  };
   const probe = async url => {
     let outcome;
     for (let attempt = 0; attempt < 3; attempt++) {
       if (attempt) await new Promise(resolve => setTimeout(resolve, 1_000 * attempt));
       try {
-        let response = await request(url, 'HEAD');
-        if (response.status >= 400) response = await request(url, 'GET');
-        if (response.status < 400) return null;
-        const transient = response.status >= 500 || response.status === 429;
-        outcome = { reason: 'HTTP ' + response.status, dead: response.status === 404 || response.status === 410 };
+        let { status, reason } = await statusOf(url, 'HEAD');
+        if (!reason && status >= 400) ({ status, reason } = await statusOf(url, 'GET'));
+        if (reason) return { reason };
+        if (status < 400) return null;
+        const transient = status >= 500 || status === 429;
+        outcome = { reason: 'HTTP ' + status, dead: status === 404 || status === 410 };
         if (!transient) return outcome;
       } catch (error) {
         const code = error.cause?.code ?? error.name;
