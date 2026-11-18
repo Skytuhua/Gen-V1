@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/source-selection-v3.test.ts",
+    "tests/workbench-performance-v3.test.ts",
+    "tests/workbench-recovery-v3.test.ts",
+    "tests/workbench-continuation-v6.test.ts",
+    "--maxWorkers=2",
+    "--reporter=default"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T10:23:15.590Z",
+  "endedAt": "2026-11-18T10:23:18.738Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-targeted-2.log",
+  "logDigest": "72559d3d19a1707e85483fb3b273b69caf5bbfc8dc7b06855c3777b5c90e10be"
+}

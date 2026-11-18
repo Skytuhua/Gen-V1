@@ -1,0 +1,39 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","workbench-app"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+Browser results: C:\Users\Administrator\repos\Gen-V1-m15-v6\test-results\browser\run-1794998973766-4c6ce86f-5b3f-48f0-b1c4-b5f8889af484
+
+Browser suite: workbench-app (1 spec files)
+
+Running 27 tests using 1 worker
+
+  ok  1 tests\e2e\workbench-app.spec.ts:335:1 › default-off App retains its ordinary composer and hides source actions (4.5s)
+  ok  2 tests\e2e\workbench-app.spec.ts:357:1 › selection attaches bounded immutable context, survives reload and uses the existing durable send (4.2s)
+  ok  3 tests\e2e\workbench-app.spec.ts:383:1 › ask supplies a question only for an empty draft and never dispatches (2.9s)
+  ok  4 tests\e2e\workbench-app.spec.ts:395:1 › stale capture remains exact until explicit keep or refresh and opens retained output (5.5s)
+  ok  5 tests\e2e\workbench-app.spec.ts:429:1 › late source descriptions cannot attach to a replacement workspace (1.7s)
+  ok  6 tests\e2e\workbench-app.spec.ts:454:1 › after-current mode is explicit and queues through message.send while the task is working (2.4s)
+  ok  7 tests\e2e\workbench-app.spec.ts:492:1 › evidence preserves reported and observed grades, freshness and unsupported module state (2.2s)
+  ok  8 tests\e2e\workbench-app.spec.ts:533:1 › source candidates are a named group of source buttons (1.5s)
+  ok  9 tests\e2e\workbench-app.spec.ts:553:1 › rollback leaves retained source inspection and removal reachable (2.9s)
+  ok 10 tests\e2e\workbench-app.spec.ts:584:1 › context and run views use recorded or explicit unavailable states without invented metrics (1.9s)
+  ok 11 tests\e2e\workbench-app.spec.ts:612:1 › real activity integration bounds mounted rows and searches the authorized full read (4.1s)
+  ok 12 tests\e2e\workbench-app.spec.ts:695:1 › source-aware navigation waits for journal handoff and preserves text on reload (3.6s)
+  ok 13 tests\e2e\workbench-app.spec.ts:726:1 › pointing mode does not consume another pane focus or Escape (2.4s)
+  ok 14 tests\e2e\workbench-app.spec.ts:740:1 › selection inside the source dialog stays keyboard reachable and Escape dismisses only the toolbar (2.7s)
+  ok 15 tests\e2e\workbench-app.spec.ts:779:1 › rollback retains a mode-only draft and permits returning to ordinary delivery (2.2s)
+  ok 16 tests\e2e\workbench-app.spec.ts:815:1 › accepted stale input exposes explicit keep and retains its recovery command across an uncertain acknowledgment (4.4s)
+  ok 17 tests\e2e\workbench-app.spec.ts:870:1 › rollback permits cancellation of an undispatched accepted input without exposing revoked sources (2.8s)
+  ok 18 tests\e2e\workbench-app.spec.ts:909:1 › definitive precommit source rejection unlocks removal and ordinary resubmission (2.2s)
+  ok 19 tests\e2e\workbench-app.spec.ts:956:1 › lost cancellation receipt stays retryable after its input disappears and the App reloads (4.7s)
+  ok 20 tests\e2e\workbench-app.spec.ts:1002:1 › formatted assistant text opens its exact canonical source even outside the bounded catalogue (3.0s)
+  ok 21 tests\e2e\workbench-app.spec.ts:1049:1 › deferred source view failure retains the mounted composer and restores focus (3.6s)
+  ok 22 tests\e2e\workbench-app.spec.ts:1081:1 › actual source modal and shared controls remain within the viewport at 200 percent zoom (4.4s)
+  ok 23 tests\e2e\workbench-app.spec.ts:1201:1 › native return waits for canonical placement and keeps delayed source work isolated between owners (5.2s)
+  ok 24 tests\e2e\workbench-app.spec.ts:1762:1 › prepared memory and selected sources queue together while working and clear only after acknowledgment (2.8s)
+  ok 25 tests\e2e\workbench-app.spec.ts:1869:1 › M15 memory review keeps pinned source reads available and all mutations disabled without changing the draft (5.4s)
+  ok 26 tests\e2e\workbench-app.spec.ts:1994:1 › M15 memory review opens retained disabled records and an empty current-owner module (3.7s)
+  ok 27 tests\e2e\workbench-app.spec.ts:2031:1 › M15 memory review cancels old-account source reads and refuses an old-account envelope in the new owner (3.6s)
+
+  27 passed (1.6m)
