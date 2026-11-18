@@ -96,3 +96,16 @@ it.skipIf(process.platform !== 'linux')('requests the canonical ledger-parent na
   });
   expect(invoked).toBe(true);
 });
+
+it('denies stored environment values and checkpoint blobs through direct and ancestor grants', async () => {
+  const f = await fixture(), values = join(f.profile, 'environment', 'values.json'), blob = join(f.profile, 'checkpoint-store', 'blobs', 'a'.repeat(64));
+  await mkdir(join(f.profile, 'environment'), { recursive: true }); await writeFile(values, '{"version":1,"revision":0,"entries":[]}');
+  await mkdir(join(f.profile, 'checkpoint-store', 'blobs'), { recursive: true }); await writeFile(blob, 'retained checkpoint bytes');
+  for (const write of [false, true]) {
+    await expect(security.resolveGrant(f.grant(values), undefined, write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(security.resolveGrant(f.grant(f.root), 'profile/environment/values.json', write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(security.resolveGrant(f.grant(blob), undefined, write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(security.resolveGrant(f.grant(f.root), 'profile/checkpoint-store/blobs/' + 'a'.repeat(64), write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+  }
+  await expect(security.resolveGrant(f.grant(f.ordinary), undefined, false, f.profile)).resolves.toBe(f.ordinary);
+});
