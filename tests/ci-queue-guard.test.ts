@@ -5,12 +5,19 @@ import {runInNewContext} from 'node:vm';
 const path=new URL('../.github/workflows/ci-queue-guard.yml',import.meta.url);
 const workflow=existsSync(path)?readFileSync(path,'utf8').replaceAll('\r\n','\n'):'';
 const script=(workflow.split('          script: |\n')[1]??'').split('\n').map(line=>line.replace(/^ {12}/,'')).join('\n');
+const admission=/^    if: >-\n((?: {6}.+\n)+)/m.exec(workflow)?.[1]??'false';
 const oldSha='a'.repeat(40),newSha='b'.repeat(40);
 const makeRun=()=>({id:501,name:'CI',path:'.github/workflows/ci.yml',event:'pull_request',status:'queued',head_sha:oldSha,head_branch:'stack/feature',repository:{id:71},head_repository:{id:72},pull_requests:[{number:42,base:{repo:{id:71}},head:{repo:{id:72},ref:'stack/feature',sha:oldSha}}]});
 const makePull=()=>({number:42,state:'open',draft:true as boolean|undefined,base:{ref:'stack/base',repo:{id:71}},head:{repo:{id:72},ref:'stack/feature',sha:oldSha}});
 type Run=ReturnType<typeof makeRun>;
 type Pull=ReturnType<typeof makePull>;
-type Options={run?:Run;pull?:Pull;readRun?:(index:number,run:Run)=>Run;readPull?:(index:number,pull:Pull)=>Pull;cancelStatus?:number;eventName?:string;action?:string;ref?:string;queued?:Run[];running?:Run[]};
+type Options={run?:Run;pull?:Pull;pulls?:Pull[];source?:Partial<Run>|null;readRun?:(index:number,run:Run)=>Run;readPull?:(index:number,pull:Pull)=>Pull;cancelStatus?:number;eventName?:string;action?:string;ref?:string;queued?:Run[];running?:Run[]};
+function makeContext(options:Options={}){return {repo:{owner:'owner',repo:'repo'},runId:900,eventName:options.eventName??'workflow_run',ref:options.ref??'refs/heads/main',payload:{action:options.action??'requested',repository:{id:71,default_branch:'main'},workflow_run:options.source===null?undefined:{...makeRun(),...options.source}}};}
+function admitted(options:Options={}){
+  const context=makeContext(options),github={event_name:context.eventName,run_id:String(context.runId),ref:context.ref,event:{...context.payload,workflow_run:context.payload.workflow_run??{}}};
+  // Boolean/string/numeric comparisons agree with Actions for these fixtures.
+  return runInNewContext('('+admission+')',{github,format:(template:string,value:string)=>template.replace('{0}',value)},{timeout:100});
+}
 async function execute(options:Options={}){
   const requests:{method:string;id?:number;status?:string;page?:number;per_page?:number}[]=[],cancelled:number[]=[],logs:string[]=[];
   let runReads=0,pullReads=0;
@@ -19,12 +26,13 @@ async function execute(options:Options={}){
     listWorkflowRuns:async(args:{owner:string;repo:string;workflow_id:string;event:string;status:string;page:number;per_page:number})=>{
       check(args);expect(args.workflow_id).toBe('ci.yml');expect(args.event).toBe('pull_request');
       requests.push({method:'list',status:args.status,page:args.page,per_page:args.per_page});
-      const runs=args.status==='queued'?(options.queued??[]):(options.running??[]);
+      const runs=args.status==='queued'?(options.queued??[options.run??makeRun()]):(options.running??[]);
       return {data:{total_count:runs.length,workflow_runs:runs.slice(0,args.per_page)}};
     },
     getWorkflowRun:async(args:{owner:string;repo:string;run_id:number})=>{
       check(args);requests.push({method:'run',id:args.run_id});
-      const run=structuredClone({...makeRun(),...options.run,id:args.run_id});
+      const source=options.source?.id===args.run_id?options.source:undefined;
+      const run=structuredClone([...(options.queued??[]),...(options.running??[])].find(run=>run.id===args.run_id)??{...makeRun(),...options.run,...source,id:args.run_id});
       return {data:options.readRun?.(++runReads,run)??run};
     },
     cancelWorkflowRun:async(args:{owner:string;repo:string;run_id:number})=>{
@@ -34,10 +42,10 @@ async function execute(options:Options={}){
     }
   },pulls:{get:async(args:{owner:string;repo:string;pull_number:number})=>{
     check(args);requests.push({method:'pull',id:args.pull_number});
-    const pull=structuredClone(options.pull??makePull());
+    const pull=structuredClone(options.pulls?.find(pull=>pull.number===args.pull_number)??options.pull??makePull());
     return {data:options.readPull?.(++pullReads,pull)??pull};
   }}}};
-  const context={repo:{owner:'owner',repo:'repo'},runId:900,eventName:options.eventName??'workflow_run',ref:options.ref??'refs/heads/main',payload:{action:options.action??'requested',repository:{id:71,default_branch:'main'},workflow_run:{id:options.run?.id??501,name:'untrusted payload data'}}};
+  const context=makeContext(options);
   const result=await runInNewContext('(async()=>{'+script+'\n})()',{github,context,core:{info:(value:string)=>logs.push(value)}},{timeout:1000});
   return {result,requests,cancelled,logs};
 }
@@ -45,10 +53,32 @@ async function execute(options:Options={}){
 it.each(['draft','closed','superseded'])('cancels a proven %s PR run from a stacked base',async reason=>{
   const pull=makePull();if(reason==='closed'){pull.state='closed';pull.draft=false;}if(reason==='superseded'){pull.draft=false;pull.head.sha=newSha;}
   const result=await execute({pull});expect(result.cancelled).toEqual([501]);expect(result.result.cancellationRequested).toBe(1);
-  expect(result.requests.map(request=>request.method)).toEqual(['run','pull','run','pull','cancel']);
+  expect(result.requests.map(request=>request.method)).toEqual(['list','list','run','pull','run','pull','cancel']);
+});
+it('coalesces all guard events into one constant group without interrupting the active sweep',()=>{
+  expect(workflow).not.toMatch(/^concurrency:/m);
+  expect(workflow.split('\n    concurrency:\n')[1]?.split('\n    runs-on:')[0].trim()).toBe('group: ci-queue-guard\n      cancel-in-progress: false');
+});
+it('rejects non-PR and wrong-path notifications before shared job group admission',()=>{
+  for(const source of [{event:'push'},{event:'workflow_dispatch'},{path:'.github/workflows/other.yml'},{name:'CI queue guard'},{repository:{id:99}},{id:0},{id:900},null])expect(admitted({source})).toBe(false);
+  for(const options of [{action:'completed'},{eventName:'workflow_dispatch'},{eventName:'push',ref:'refs/heads/feature'}])expect(admitted(options)).toBe(false);
+});
+it('admits requested, in-progress, completed-source notifications and the main bootstrap',()=>{
+  for(const options of [{},{action:'in_progress'},{source:{status:'completed'}},{eventName:'push'}])expect(admitted(options)).toBe(true);
 });
 it('handles in-progress reruns without trusting the event run metadata',async()=>{
-  const run=makeRun();run.status='in_progress';expect((await execute({run,action:'in_progress'})).cancelled).toEqual([501]);
+  const run=makeRun();run.status='in_progress';expect((await execute({run,action:'in_progress',source:{head_sha:newSha,pull_requests:[]}})).cancelled).toEqual([501]);
+});
+it.each(['requested','in_progress'])('uses a ready source %s event to clean another queued draft while preserving ready work',async action=>{
+  const draft=makeRun(),ready=makeRun();ready.id=502;ready.pull_requests[0].number=43;
+  const readyPull=makePull();readyPull.number=43;readyPull.draft=false;
+  const result=await execute({action,source:ready,queued:[ready,draft],pulls:[readyPull,makePull()]});
+  expect(result.cancelled).toEqual([501]);expect(result.result.checked).toBe(2);expect(result.result.preserved).toBe(1);
+});
+it('sweeps queued work even when the valid source event has already completed',async()=>{
+  const source=makeRun();source.id=502;source.status='completed';source.pull_requests=[];
+  const result=await execute({source,queued:[makeRun()]});expect(result.cancelled).toEqual([501]);
+  expect(result.requests.filter(request=>request.method==='run').map(request=>request.id)).toEqual([501,501]);
 });
 it('preserves a current ready PR and its complete check matrix',async()=>{
   const pull=makePull();pull.draft=false;const result=await execute({pull});expect(result.cancelled).toEqual([]);expect(result.result.preserved).toBe(1);
@@ -95,14 +125,17 @@ it('preserves a run whose association disappears or changes during the fresh che
 it('exposes a permission failure instead of claiming the queue was cleared',async()=>{
   await expect(execute({cancelStatus:403})).rejects.toMatchObject({status:403});
 });
-it('discovers both bounded pages before cancelling and deduplicates at most 100 run IDs',async()=>{
-  const queued=Array.from({length:100},(_,index)=>({...makeRun(),id:501+index}));
+it.each(['push','requested','in_progress'])('bounds the %s sweep to two discovery pages and 100 distinct candidates',async event=>{
+  const queued=Array.from({length:101},(_,index)=>({...makeRun(),id:501+index}));
   const running=[queued[0],{...makeRun(),id:1000}];
-  const result=await execute({eventName:'push',queued,running});
+  const result=await execute({...(event==='push'?{eventName:event}:{action:event}),queued,running});
   expect(result.requests.slice(0,2)).toEqual([{method:'list',status:'queued',page:1,per_page:100},{method:'list',status:'in_progress',page:1,per_page:100}]);
   expect(result.requests.filter(request=>request.method==='list')).toHaveLength(2);
-  expect(result.cancelled).toHaveLength(100);expect(new Set(result.cancelled).size).toBe(100);expect(result.result.limited).toBe(true);
+  expect(result.cancelled).toHaveLength(100);expect(new Set(result.cancelled).size).toBe(100);expect(result.result.checked).toBe(100);expect(result.result.limited).toBe(true);
 });
 it('does not sweep on pushes outside the default branch or unsupported events',async()=>{
   for(const options of [{eventName:'push',ref:'refs/heads/feature'},{eventName:'workflow_dispatch'},{action:'completed'}])expect((await execute(options)).requests).toEqual([]);
+});
+it.each([null,{id:0},{id:1.5},{id:900},{event:'push'},{event:'workflow_dispatch'},{name:'CI queue guard'},{path:'.github/workflows/other.yml'},{repository:{id:99}}])('rejects an invalid source event before scanning: %j',async source=>{
+  expect((await execute({source})).requests).toEqual([]);
 });
