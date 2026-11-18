@@ -2,9 +2,8 @@
 
 ## Status
 
-**NOT_RUN — awaiting a clean Windows execution path.** This addendum records a
-verification-only patch that adds the installed-app custody phase the milestone
-requires, plus the exact command contract. No Windows gate was executed, so no
+**NOT_RUN — clean Windows execution pending.** This addendum records the
+installed-app custody verifier and its exact command contract. No Windows gate was executed, so no
 acceptance case below is proved. The prior attempt to launch the T3 Windows
 environment returned HTTP 524 and the linked WIN-M0N0V07LGM1 box has evidenced
 hangs plus an unreaped process; no native launch was retried.
@@ -16,8 +15,9 @@ hangs plus an unreaped process; no native launch was retried.
 - Exact cut under test: `db3c0cf6ca675e70f396ff0011abe88be216fc0c` (HEAD, clean
   before this patch).
 - Authoring host: Linux aarch64, Node v24.11.1, pnpm workspace install.
-- The patch is verification-only. No product default, capability flag, CI
-  workflow, or shared worktree was changed. `ui.sourceWorkbenchV1` and
+- The patch is verification-only. Product flags stay default-off. The manual
+  run on the dedicated verification ref adds the workbench case after the
+  existing Windows installer job's steps. `ui.sourceWorkbenchV1` and
   `reviewerApproval` remain false in product configuration; activation exists
   only inside the disposable installed profile for the duration of the owned
   launch (`HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1=true` on the spawned process
@@ -80,7 +80,7 @@ Requirements on the clean Windows x64 box, from repo root at the exact cut:
 cmd.exe /c node_modules\.bin\tsx scripts\verify-installed-desktop.ts "C:\ABSOLUTE\PATH\Gen V1 Setup.exe" "C:\ABSOLUTE\PATH\win-unpacked" --workbench-custody
 ```
 
-Success exits 0 and writes `.harness-desktop-installed/run-*/receipt.json`
+Success exits 0 and writes `.harness-desktop-installed/run-*/verification.json`
 with `workbenchCustody.observations`, `launchReadiness` entries carrying
 `workbenchCustody: true`, screenshot digests (detached + reattached +
 restart), the bounded `/api` request log (captures present, zero
@@ -89,12 +89,11 @@ with the stage and leaves the failure observation in the receipt.
 
 ## Blocker
 
-No approved clean Windows execution path exists right now: the T3 Windows
-launch attempt returned HTTP 524 (no thread created) and the linked
-WIN-M0N0V07LGM1 machine has evidenced hangs and an unreaped process — no
-native launch was performed there while degraded. The manager owns providing
-the environment (or a CI-hosted equivalent with the packaged installer and
-unpacked tree from the exact cut).
+The linked Windows verifier remains unavailable following a T3 HTTP 524
+and observed native-process hangs. The dedicated manual CI run uses the
+existing Windows packaging job on a verification ref and records the
+actual checked-out SHA and the source cut. The run uploads a redacted
+summary and only digest-verified screenshots from the synthetic profile.
 
 ## Local (Linux) validation of the patch itself
 

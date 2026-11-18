@@ -132,12 +132,14 @@ async function journalCustody(page: Page, expectedDraft: string, expectedRefs: n
   const metadata = source?.value as SourceDraftView | undefined;
   expect(metadata).toMatchObject({logicalOwner: {threadId: fixture.owner.threadId, projectId: null, workspaceId: null}, sendMode: 'AFTER_CURRENT', conflictState: 'NONE'});
   expect(metadata?.sourceRefs).toHaveLength(expectedRefs);
-  expect(metadata?.sourceRefs?.every(ref => typeof ref.captureId === 'string' && ref.captureId.length > 0)).toBe(true);
+  const captureIds = (metadata?.sourceRefs ?? []).map(ref => ref.captureId ?? '');
+  expect(captureIds.every(id => id.length > 0)).toBe(true);
+  expect(new Set(captureIds).size).toBe(expectedRefs);
   expect(pending).toBeUndefined(); expect(unrelatedDraft).toBeUndefined(); expect(unrelatedPending).toBeUndefined();
   const owned = keys.filter(key => key.startsWith('source-context:') || key.startsWith('draft:') || key.startsWith('agents-pending:') || key.startsWith('workbench-conflict:'));
   expect(owned.sort()).toEqual(['draft:' + fixture.owner.threadId, sourceContextKey(fixture.owner.threadId)].sort());
   return {
-    draftSha256: sha256(String(draft?.value)), refs: expectedRefs, sendMode: metadata?.sendMode, conflictState: metadata?.conflictState,
+    draftSha256: sha256(String(draft?.value)), refs: expectedRefs, captureIds, sendMode: metadata?.sendMode, conflictState: metadata?.conflictState,
     ownerJournalKeys: owned.sort(), pendingSend: false, conflictCopies: keys.filter(key => key.startsWith('workbench-conflict:')).length,
   };
 }
@@ -174,20 +176,23 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
   const directory = seed.evidenceRoot.path, fixture = INSTALLED_WORKBENCH_CASE;
   const expectedDraft = fixture.draftText + ' ' + fixture.detachedAppend;
   const requests: string[] = [];
+  const origin = new URL(page.url()).origin, browserContext = page.context();
+  let captures = 0, sends = 0;
   const observeRequest = (request: Request) => {
     try {
       const url = new URL(request.url());
-      if (!url.pathname.startsWith('/api/')) return;
+      if (url.origin !== origin || !url.pathname.startsWith('/api/')) return;
       let entry = request.method() + ' ' + url.pathname;
       if (url.pathname === '/api/commands' && request.method() === 'POST') {
         const type = (request.postDataJSON() as {type?: unknown} | null)?.type;
         if (typeof type === 'string') entry += ' ' + type.slice(0, 80);
       }
+      if (entry === 'POST /api/workbench/sources/capture') captures++;
+      if (entry === 'POST /api/commands message.send') sends++;
       if (requests.length < 200) requests.push(entry);
     } catch { /* Evidence capture is best-effort; assertions use durable records. */ }
   };
-  page.on('request', observeRequest);
-  const origin = new URL(page.url()).origin;
+  browserContext.on('request', observeRequest);
   const message = page.getByRole('textbox', {name: 'Message', exact: true});
   const workbench = page.getByRole('region', {name: 'Prompt source context', exact: true});
   const ownerRow = page.getByRole('button', {name: fixture.owner.title + ' Ready', exact: true});
@@ -196,13 +201,11 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
   const ownedPages = () => {
     const browser = page.context().browser(); if (!browser) throw Error('The owned installed browser is unavailable.');
     return browser.contexts().flatMap(context => context.pages()).filter(candidate => {
-      if (candidate.isClosed()) return false;
+      if (candidate === page || candidate.isClosed()) return false;
       try {const url = new URL(candidate.url()); return url.origin === origin && url.searchParams.has('desktopWindow');}
       catch {return false;}
     });
   };
-  const captureRequests = () => requests.filter(entry => entry === 'POST /api/workbench/sources/capture').length;
-  const sendRequests = () => requests.filter(entry => entry === 'POST /api/commands message.send').length;
   try {
     if (iteration === 1) {
       await ownerRow.click({timeout: 30000});
@@ -215,20 +218,21 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
       await expect(message).toHaveValue(fixture.askText);
       await expect.poll(async () => (await journalRecord(page, 'draft:' + fixture.owner.threadId))?.value).toBe(fixture.askText);
       expect(await journalRecord(page, 'agents-pending:' + fixture.owner.threadId)).toBeUndefined();
-      expect(sendRequests()).toBe(0);
-      observations.push({iteration, step: 'ask-captured-no-submit', captures: captureRequests(), sends: sendRequests(), pendingSend: false, askDraft: true});
+      expect(sends).toBe(0);
+      observations.push({iteration, step: 'ask-captured-no-submit', captures, sends, pendingSend: false, askDraft: true});
       await message.fill(fixture.draftText);
       await expect.poll(async () => (await journalRecord(page, 'draft:' + fixture.owner.threadId))?.value).toBe(fixture.draftText);
       await (await selectMessageFragment(page, fixture.owner.messageId, fixture.owner.attachFragment)).getByRole('button', {name: 'Attach to prompt', exact: true}).click();
       await expect(chips(page)).toHaveCount(2, {timeout: 30000});
       await expect(message).toHaveValue(fixture.draftText);
-      observations.push({iteration, step: 'second-source-attached', captures: captureRequests(), sends: sendRequests(), draftUnchanged: true});
+      observations.push({iteration, step: 'second-source-attached', captures, sends, draftUnchanged: true});
       await page.getByRole('combobox', {name: 'Source delivery mode', exact: true}).click();
       await page.getByRole('option', {name: 'After current run', exact: true}).click();
       await expect.poll(async () => ((await journalRecord(page, sourceContextKey(fixture.owner.threadId)))?.value as SourceDraftView | undefined)?.sendMode).toBe('AFTER_CURRENT');
-      await expect(page.getByRole('button', {name: 'Send to ' + fixture.owner.title, exact: true})).toBeDisabled();
-      observations.push({iteration, step: 'queued-delivery-durable', sendMode: 'AFTER_CURRENT', sends: sendRequests(), sendDisabledWithoutModel: true,
+      await expect(page.getByRole('button', {name: 'Send message', exact: true})).toBeDisabled();
+      observations.push({iteration, step: 'queued-delivery-durable', sendMode: 'AFTER_CURRENT', sends, sendDisabledWithoutModel: true,
         queuedDispatch: 'bounded-fixture-only: exact-once owner-bound dispatch after settle stays covered by the deterministic offline fixture; no model endpoint exists in this installed run.'});
+      const beforeHandoff = await journalCustody(page, fixture.draftText, 2);
       // Case 2: switch to the unrelated task; the owner keeps draft and sources.
       await unrelatedRow.click();
       await expect(message).toHaveValue('');
@@ -264,7 +268,8 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
       await expect(message).toHaveValue(expectedDraft);
       await expect(chips(page)).toHaveCount(2);
       const custody = await journalCustody(page, expectedDraft, 2);
-      observations.push({iteration, step: 'native-reattach-custody', ...custody, sends: sendRequests(), screenshot: await screenshot(page, directory, 'installed-workbench-reattached.png')});
+      expect(custody.captureIds).toEqual(beforeHandoff.captureIds);
+      observations.push({iteration, step: 'native-reattach-custody', ...custody, sends, screenshot: await screenshot(page, directory, 'installed-workbench-reattached.png')});
     } else {
       // Case 4: same disposable profile, new installed process — the owner keeps
       // draft and source identity; the unrelated task stays untouched.
@@ -274,6 +279,8 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
       const select = page.getByRole('combobox', {name: 'Source delivery mode', exact: true});
       await expect(select).toContainText('After current run');
       const custody = await journalCustody(page, expectedDraft, 2);
+      const beforeRestart = observations.find(entry => entry.step === 'native-reattach-custody');
+      expect(custody.captureIds).toEqual(beforeRestart?.captureIds);
       observations.push({iteration, step: 'restart-owner-retained', ...custody});
       await unrelatedRow.click();
       await expect(message).toHaveValue('');
@@ -282,22 +289,27 @@ export async function verifyInstalledWorkbenchUI(page: Page, seed: InstalledWork
       expect(await journalRecord(page, sourceContextKey(fixture.unrelated.threadId))).toBeUndefined();
       observations.push({iteration, step: 'restart-unrelated-untouched', screenshot: await screenshot(page, directory, 'installed-workbench-restart.png')});
     }
+    expect(sends).toBe(0);
   } catch (error) {
     observations.push({iteration, step: 'failed', error: error instanceof Error ? error.message.slice(0, 2000) : 'Installed workbench verification failed.', screenshot: await screenshot(page, directory, 'installed-workbench-launch-' + iteration + '-failure.png').catch(() => null)});
     throw error;
   } finally {
-    page.off('request', observeRequest);
-    observations.push({iteration, step: 'request-observation', requests, captures: captureRequests(), sends: sendRequests(), providerNetworkCalls: null, providerNetworkMeasurement: 'Not measured. This proof performs no model-generation or sign-in actions.'});
+    browserContext.off('request', observeRequest);
+    observations.push({iteration, step: 'request-observation', requests, captures, sends, providerNetworkCalls: null, providerNetworkMeasurement: 'Not measured. This proof performs no model-generation or sign-in actions.'});
   }
 }
 
 /** Call only after the owned native process exits cleanly and its backend health endpoint stops. */
-export async function observeInstalledWorkbenchStorage(seed: InstalledWorkbenchSeed, iteration: number) {
+export async function observeInstalledWorkbenchStorage(seed: InstalledWorkbenchSeed, iteration: number, observations?: readonly InstalledWorkbenchObservation[]) {
   await assertInstalledWorkbenchProfile(seed); defaultFlags();
   const fixture = INSTALLED_WORKBENCH_CASE, store = new Store(seed.profile.path);
   try {
     const captures = store.all<SourceCaptureView>('sourceCapture', fixture.owner.threadId);
     expect(captures).toHaveLength(2);
+    const ownerReceipt = observations?.find(entry => entry.step === (iteration === 1 ? 'native-reattach-custody' : 'restart-owner-retained'));
+    if (observations) {
+      expect(ownerReceipt?.captureIds).toEqual(expect.arrayContaining(captures.map(capture => capture.id)));
+    }
     for (const capture of captures) {
       expect(capture.threadId).toBe(fixture.owner.threadId);
       expect(capture.source.kind).toBe('MESSAGE');

@@ -224,6 +224,7 @@ jobs:
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
           persist-credentials: false
+          fetch-depth: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/verify/m15-installed-workbench-db3c0cf6' && 3 || 1 }}
 
       - name: Install toolchain
         uses: ./.github/actions/setup
@@ -288,6 +289,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package the production Windows installer
+        id: installed-package
         run: pnpm desktop:package --output-root .harness-installed-package
 
       - name: Verify installed default-off retention and separate enabled opt-in
@@ -320,3 +322,73 @@ jobs:
             .harness-desktop-installed/run-*/enabled-memory/*.png
             .harness-desktop-installed/run-*/enabled-memory/installed-memory-redacted-export.json
             .harness-packaged-providers/run-*/verification.json
+
+      # This proof only runs on the dedicated manual verification ref.
+      - name: Verify M15 installed workbench custody
+        if: ${{ !cancelled() && steps.installed-package.outcome == 'success' && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/verify/m15-installed-workbench-db3c0cf6' }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $testedSha = (git rev-parse HEAD).Trim()
+          if ($LASTEXITCODE -ne 0 -or $testedSha -ne $env:GITHUB_SHA) { throw 'The checked-out SHA differs from the dispatched SHA.' }
+          $productCut = 'db3c0cf6ca675e70f396ff0011abe88be216fc0c'
+          git diff --quiet $productCut HEAD -- apps packages
+          if ($LASTEXITCODE -ne 0) { throw 'The tested product source differs from the selected cut.' }
+          $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+          $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+          $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+          $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+          $root = Join-Path $PWD '.harness-desktop-installed'
+          $before = @(Get-ChildItem -LiteralPath $root -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | ForEach-Object FullName)
+          $PSNativeCommandUseErrorActionPreference = $false
+          pnpm exec tsx scripts/verify-installed-desktop.ts $setup $unpacked --workbench-custody
+          $verifyExit = $LASTEXITCODE
+          $runs = @(Get-ChildItem -LiteralPath $root -Directory -Filter 'run-*' -ErrorAction SilentlyContinue | Where-Object { $_.FullName -notin $before })
+          if ($runs.Count -ne 1) { throw 'Expected exactly one new installed workbench receipt directory.' }
+          $receipt = Get-Content -LiteralPath (Join-Path $runs[0].FullName 'verification.json') -Raw | ConvertFrom-Json
+          if (-not $receipt.workbenchCustodyRequested) { throw 'Receipt does not identify the requested workbench phase.' }
+          $destination = Join-Path $PWD '.harness-m15-custody-summary'
+          New-Item -ItemType Directory -Path $destination | Out-Null
+          $observerSteps = @(
+            foreach ($entry in $receipt.workbenchCustody.observations) {
+              [ordered]@{
+                iteration = $entry.iteration; step = $entry.step; captures = $entry.captures
+                sends = $entry.sends; ownerJournalKeys = $entry.ownerJournalKeys
+                draftSha256 = $entry.draftSha256; refs = $entry.refs; captureIds = $entry.captureIds; sendMode = $entry.sendMode
+                unrelatedDraft = $entry.unrelatedDraft; unrelatedSourceContext = $entry.unrelatedSourceContext
+                detachedSurface = $entry.detachedSurface; outbox = $entry.outbox
+                userMessages = $entry.userMessages; admissions = $entry.admissions
+                screenshotSha256 = $entry.screenshot.sha256
+              }
+            }
+          )
+          $summary = [ordered]@{
+            testedSha = $testedSha; productCut = $productCut; version = $receipt.version
+            windowsVersion = [Environment]::OSVersion.Version.ToString(); node = (node --version)
+            setupSha256 = $receipt.setupSha256; executableSha256 = $receipt.workbenchExecutableSha256
+            payloadSha256 = $receipt.payloadCustody.sha256; exitCode = $verifyExit
+            passed = $receipt.passed; cleanup = $receipt.cleanup.status
+            launches = @($receipt.launches | Select-Object iteration, verifiedOwner, workbenchCustody, exitCode)
+            observations = $observerSteps
+            queuedDispatch = 'NOT_RUN: installed run has no provider or model binding'
+          }
+          $summary | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath (Join-Path $destination 'verification-summary.json') -Encoding utf8
+          foreach ($name in @('installed-workbench-detached.png', 'installed-workbench-reattached.png', 'installed-workbench-restart.png')) {
+            $source = Join-Path $runs[0].FullName $name
+            if (Test-Path -LiteralPath $source -PathType Leaf) {
+              $digest = (Get-FileHash -LiteralPath $source -Algorithm SHA256).Hash.ToLowerInvariant()
+              if ($digest -notin $observerSteps.screenshotSha256) { throw 'Screenshot digest is absent from the workbench receipt.' }
+              Copy-Item -LiteralPath $source -Destination $destination
+            }
+          }
+          if ($verifyExit -ne 0) { exit $verifyExit }
+          if (-not $receipt.passed) { throw 'The workbench verifier returned no passing receipt.' }
+
+      - name: Retain M15 installed workbench evidence
+        if: ${{ always() && github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/verify/m15-installed-workbench-db3c0cf6' }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: installed-m15-workbench-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          include-hidden-files: true
+          path: .harness-m15-custody-summary/

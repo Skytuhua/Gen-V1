@@ -426,7 +426,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
   await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
   if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration,memory.mode));
-  if(workbench)workbench.observations.push(await (await import('./installed-workbench-custody.ts')).observeInstalledWorkbenchStorage(workbench.seed,iteration));
+  if(workbench)workbench.observations.push(await (await import('./installed-workbench-custody.ts')).observeInstalledWorkbenchStorage(workbench.seed,iteration,workbench.observations));
   const result={iteration,mode:'personal',memoryMode:memory?.mode??null,workbenchCustody:workbench?true:null,pid:child.pid,readyMs,verifiedOwner,ports:{hostPort,widgetPort,debugPort},exitCode:child.exitCode,executable,passed:true};
   (receipt.launches as unknown[]).push(result);return result;
  }finally{
@@ -478,13 +478,17 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
    memory={seed,observations:[],mode:'default-off'};
    receipt.memoryRetention={version:1,scope:'Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.',seed,hostDefaultOff:true,seedEnablement:'Constructor-local fixture creation only; project disabled before installed launch.',providerNetworkCalls:null,observations:memory.observations};
   }
+  const executable=join(installDirectory,APP_FILE);
   let workbench:WorkbenchCustody|undefined;
   if(options.workbenchCustody){
+   const installedExecutable=await identity(executable);
+   if(installedExecutable.sha256!==actual.files.find(file=>file.path===APP_FILE)?.sha256)throw Error('Installed executable differs from the verified payload.');
+   receipt.workbenchExecutableSha256=installedExecutable.sha256;
    const seed=await (await import('./installed-workbench-custody.ts')).seedInstalledWorkbenchProfile(ownedDirectory);
    workbench={seed,observations:[]};
    receipt.workbenchCustody={version:1,scope:'Two owned logical tasks in one disposable profile. The real packaged renderer captures two authorized MESSAGE sources under the owning task, retains its draft while the unrelated task is opened, moves through the product native window detach/reattach on the real bridge, and survives an exact installed process restart on the same ports. Ask never submits; queued owner-bound delivery mode persists without a model. No sign-in, account, provider or model endpoint.',seed,activation:{HARNESS_FLAG_UI_SOURCE_WORKBENCH_V1:'true'},providerNetworkCalls:null,observations:workbench.observations};
   }
-  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory,workbench);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory,workbench);
+  const ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory,workbench);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory,workbench);
   if(options.memoryEnabled){
    // Keep the default-off receipt and profile intact. The enabled phase owns
    // a separate, new profile and uses the production host environment path.
