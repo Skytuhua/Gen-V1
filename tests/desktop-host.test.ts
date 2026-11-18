@@ -23,6 +23,14 @@ function mocks(){
  return {profile,store,runtime,service,app,widgets,factories};
 }
 
+it('forwards an opaque host-owned verification executor without deriving one from environment settings',async()=>{
+ const m=mocks(),executor={describe:vi.fn(),assertCurrent:vi.fn(),open:vi.fn()};
+ const host=await launchHost({...options,verificationExecutor:executor},m.factories);cleanup.push(()=>host.close());
+ expect(m.factories.createService).toHaveBeenCalledWith(m.store,m.runtime,{verificationExecutor:executor});
+ expect(readHostOptions({HARNESS_VERIFICATION_EXECUTOR:'caller-authority'})).not.toHaveProperty('verificationExecutor');
+ expect(executor.describe).not.toHaveBeenCalled();expect(executor.open).not.toHaveBeenCalled();
+});
+
 it('rejects a second host using the same canonical profile and different ports before Store or recovery',async()=>{
  const directory=await mkdtemp(join(tmpdir(),'harness-profile-owner-')),first=mocks(),second=mocks();
  delete (first.factories as Partial<HostFactories>).acquireProfile;delete (second.factories as Partial<HostFactories>).acquireProfile;
