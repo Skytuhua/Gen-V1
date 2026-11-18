@@ -143,3 +143,12 @@ it('updates only the owning thread legacy finding without duplicating it or chan
  expect(updated.createdAt).toBe(finding.createdAt);expect(ledger.all('first')).toHaveLength(1);
  expect(ledger.all('first')[0]!.observation).toBe('updated original');expect(ledger.all('second')[0]!.observation).toBe('other thread');
 });
+
+it('does not combine host-stamped findings from different logical owners of the same thread',()=>{
+ const ledger=new SecurityFindingLedger(stateStore()),stamp='2026-01-01T00:00:00.000Z';
+ const finding={version:1 as const,findingId:'same-source',source:{path:'src/app.ts',blobSha:'d'.repeat(40),line:1},authorizedScope:'Read-only approved source',observation:'First account advisory',impact:'Reported concern',status:'OPEN' as const,reproduction:null,createdAt:stamp,evidenceQuality:'ADVISORY' as const,provenance:{owner,executionId:'execution-1',codeDigest:'e'.repeat(64),dependencyDigest:'f'.repeat(64)}};
+ ledger.record(finding,owner.threadId);
+ ledger.record({...finding,observation:'Other account advisory',provenance:{...finding.provenance,owner:{...owner,accountBinding:'other-account'}}},owner.threadId);
+ expect(ledger.all(owner.threadId)).toHaveLength(2);
+ expect(()=>ledger.record({...finding,provenance:{...finding.provenance,owner:{...owner,threadId:'foreign-thread'}}},owner.threadId)).toThrow(/owner|thread/i);
+});
