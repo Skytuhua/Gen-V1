@@ -1,11 +1,11 @@
 
 [1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m13-v6[39m
 
- [32m✓[39m tests/plugin-worker-v3.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 7818[2mms[22m[39m
-     [33m[2m✓[22m[39m launches the real worker entry, handshakes and serves a bounded request [33m 7335[2mms[22m[39m
+ [32m✓[39m tests/plugin-worker-v3.test.ts [2m([22m[2m18 tests[22m[2m)[22m[33m 4505[2mms[22m[39m
+     [33m[2m✓[22m[39m launches the real worker entry, handshakes and serves a bounded request [33m 3961[2mms[22m[39m
 
 [2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
 [2m      Tests [22m [1m[32m18 passed[39m[22m[90m (18)[39m
-[2m   Start at [22m 00:46:18
-[2m   Duration [22m 15.30s[2m (transform 5.73s, setup 0ms, import 6.00s, tests 7.82s, environment 0ms)[22m
+[2m   Start at [22m 02:15:04
+[2m   Duration [22m 13.36s[2m (transform 4.01s, setup 0ms, import 5.69s, tests 4.51s, environment 0ms)[22m
 

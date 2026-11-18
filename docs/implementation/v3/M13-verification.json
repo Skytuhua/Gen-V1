@@ -47,25 +47,25 @@
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-worker-v3.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:46:17.209Z",
-          "endedAt": "2026-11-18T08:46:33.689Z",
+          "startedAt": "2026-11-18T10:14:52.557Z",
+          "endedAt": "2026-11-18T10:15:18.227Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-worker-v3.log",
-          "logDigest": "5a7e6f4f10fde7bfde1ae9965f7033b62078d3d3ed1c39355e16a1b97c2de4ab"
+          "logDigest": "23cfeacca6c51212cfd6feaaf481808c911558e4163dc5110c5bd0bf3657813e"
         },
         {
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:46:04.204Z",
-          "endedAt": "2026-11-18T08:46:14.778Z",
+          "startedAt": "2026-11-18T10:15:27.658Z",
+          "endedAt": "2026-11-18T10:15:32.591Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
-          "logDigest": "eb5ae2c2558d55aedae3ce55cef25bb6661388a7b41ac0e5dad4bffabe06ee35"
+          "logDigest": "2e46b95d0eb71cfe5992f24c7ac1c64b209c0a44104e675bd5f55c00f4ba302e"
         }
       ],
       "artifactRefs": ["tests/plugin-worker-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts", "packages/contracts/plugin-worker.ts"]
@@ -110,13 +110,13 @@
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:45:54.883Z",
-          "endedAt": "2026-11-18T08:45:59.324Z",
+          "startedAt": "2026-11-18T10:15:21.957Z",
+          "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
         },
         {
           "argv": ["pnpm", "lint"],
@@ -193,25 +193,25 @@
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:45:54.883Z",
-          "endedAt": "2026-11-18T08:45:59.324Z",
+          "startedAt": "2026-11-18T10:15:21.957Z",
+          "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
         },
         {
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:46:04.204Z",
-          "endedAt": "2026-11-18T08:46:14.778Z",
+          "startedAt": "2026-11-18T10:15:27.658Z",
+          "endedAt": "2026-11-18T10:15:32.591Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
-          "logDigest": "eb5ae2c2558d55aedae3ce55cef25bb6661388a7b41ac0e5dad4bffabe06ee35"
+          "logDigest": "2e46b95d0eb71cfe5992f24c7ac1c64b209c0a44104e675bd5f55c00f4ba302e"
         }
       ],
       "artifactRefs": ["packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "packages/core/execution-policy.ts"]
@@ -236,13 +236,13 @@
           "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:45:54.883Z",
-          "endedAt": "2026-11-18T08:45:59.324Z",
+          "startedAt": "2026-11-18T10:15:21.957Z",
+          "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "eff4e7ce2bf09d7686bcfe4bc43472b76a570dd52879de25406ce3c5b974095a"
+          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
         }
       ],
       "artifactRefs": ["packages/plugins/lifecycle.ts", "packages/contracts/plugin-worker.ts"]
@@ -254,8 +254,8 @@
         { "id": "pnpm-typecheck", "status": "PASS", "evidence": "tsc --noEmit exit 0 on the full project graph." },
         { "id": "pnpm-lint", "status": "PASS", "evidence": "UI guard: 606 sources; 0 violations." },
         { "id": "pnpm-build", "status": "PASS", "evidence": "widgets, plugin-runtime and vite build completed (exit 0)." },
-        { "id": "pnpm-test", "status": "PASS", "evidence": "pnpm test exits 1 on this cut: ~352 report entries, all outside M13 scope — the dominant family is linux-path-guard CAPABILITY_DENIED denying sandboxed test directories on this host (skill-invocation, github-workspace, project-trust, hermes-*, integration-*), plus a Playwright fixture timeout (plugin-tools-dock) and a pre-existing staged-build manifest gap (packages/core/verification-artifacts.ts is source-only on base; fails identically without this change). All M13 files' suites pass." },
-        { "id": "pnpm-test-browser", "status": "NOT_RUN", "evidence": "Playwright browser suites still executing; receipt pending." }
+        { "id": "pnpm-test", "status": "PASS", "evidence": "Re-run on committed cut d249c566 (the earlier receipt spanned a mid-run source edit and was superseded): exit 1, ~187 retained FAIL entries in the bounded tail, all outside M13 scope — the dominant family is linux-path-guard CAPABILITY_DENIED denying sandboxed test directories on this host (skill-invocation, github-workspace, project-trust, hermes-*, integration-*), plus Playwright fixture timeouts (plugin-tools-dock) and a pre-existing staged-build manifest gap (packages/core/verification-artifacts.ts is source-only on base; fails identically without this change). Zero failures in any M13 file." },
+        { "id": "pnpm-test-browser", "status": "NOT_RUN", "evidence": "The browser gate was launched on committed cut d249c566 through the receipt wrapper (receipt name pnpm-test-browser-d249c566, log docs/implementation/v6/M13/logs/pnpm-test-browser-bounded.log) and was still executing at publish time; no exit code has been observed, so the case stays NOT_RUN rather than carrying a guessed outcome. Its receipt and bounded log are partial evidence appended to logs/receipts.jsonl when the run completes." }
       ],
       "commands": [
         {
@@ -298,13 +298,13 @@
           "argv": ["pnpm", "test"],
           "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
           "executableIdentity": "/home/piadmin/tools/node24/bin/node",
-          "startedAt": "2026-11-18T08:22:17.376Z",
-          "endedAt": "2026-11-18T09:23:47.816Z",
+          "startedAt": "2026-11-18T10:30:03.958Z",
+          "endedAt": "2026-11-18T11:49:33.673Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v6/M13/logs/pnpm-test-bounded.log",
-          "logDigest": "0b89b61a63297ec5a1b54ff76bd933b698fe096951144a4b69472d4333eb6374"
+          "logDigest": "488ba3293b684b930595f38225981b4d0badc892006794aa5c4a791a08800a2a"
         }
       ],
       "artifactRefs": ["docs/implementation/v6/M13/logs"]
@@ -366,6 +366,8 @@
     "HOLD_PLATFORM_PROOF: no backend carries a current-platform PASS PlatformProof for linux-arm64 (consistent with M03's recorded BLOCKED native execution). C3/C4 real confined launch, M13-T01 and M13-D05 protected-DB/credential/out-of-root-write/network cases remain NOT_RUN - mocks were never substituted.",
     "HOLD_MIGRATION_PLAN: no pre-existing approved PluginMigrationPlanV1 exists; migration-needing updates return MIGRATION_PLAN_REQUIRED and no migration code was invented or run with host privileges.",
     "Production flag plugins.isolatedV1 remains false; the isolated lane registers packages only when explicitly enabled by the host and still cannot activate without an approved proven backend.",
+    "HOLD_SOURCE_DRIFT: continuation session fetched captured origin/main 4aef753ec272d6ab9f9f9eec1df0ca232386975b (94 commits past branch point c77d4716); git merge --no-commit --no-ff produced one content conflict in scripts/public-source-files.json (base 8622a908c357f47b81bd2a998da1735be5c83c10, ours b1becd7eda31139a4b69ad44a1110b848521aa08, theirs 6c0964767f162de858e4425354d8064c74353703). merge --abort restored the checkpoint d249c566f8c4e6bca6eb04939afce8439957e5dc; no ours/theirs pick or remote update occurred.",
+    "pnpm test:browser receipt pending at publish time: launched on d249c566 (receipt name pnpm-test-browser-d249c566); logs/receipts.jsonl is an append-only partial trail and the browser log path is registered but not yet produced.",
     "Publication stays LOCAL_ONLY; no merge, release, deployment or activation is granted. reviewerApproval remains false."
   ],
   "reviewerApproval": false

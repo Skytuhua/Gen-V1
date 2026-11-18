@@ -47,3 +47,115 @@
 ## Outcome
 
 PARTIAL: protocol, lease/lifecycle, admission, migration gate, flag and catalog/UI lanes are implemented with passing source-bound tests on this cut. Real confined execution under an approved M03 backend is BLOCKED (HOLD_BACKEND_SELECTION + HOLD_PLATFORM_PROOF); the trusted V1 lane is untouched and operational; `plugins.isolatedV1` remains false; publication stays LOCAL_ONLY; reviewerApproval remains false.
+
+## Continuation — second session (2026-11-18, continuation owner)
+
+The assigned agent for the continuation reviewed the state above, preserved the
+task-owned edits verbatim and ran R01/R02/R03 against the current cut.
+
+- Duplicate-work check: this worktree/branch was already the exact assigned
+  `agent/m13-v6` at `/home/piadmin/Gen-V1-m13-v6`; the prior session's task work
+  was uncommitted. No alternate branch/worktree was created. The original
+  checkout `/home/piadmin/Gen-V1` (`fix/t10-agents-grid-v3`, its modified
+  `App.tsx`/`model-picker.spec.ts` and untracked `qwencloud-api-key.txt`) and
+  every other worktree were preserved untouched; a concurrent live session in
+  `Gen-V1-m17-v6` was observed and not modified. No reset, clean, stash or ref
+  update occurred.
+- Checkpoint (R03 preservation): the complete task-owned diff was committed as
+  `d249c566f8c4e6bca6eb04939afce8439957e5dc` on `agent/m13-v6`; `git status
+  --porcelain` was empty before integration. Preserved starting HEAD for R03 =
+  `d249c566`.
+- R02/R03 base integration: `git fetch origin main` resolved captured main to
+  `4aef753ec272d6ab9f9f9eec1df0ca232386975b` (94 commits ahead of branch point
+  `c77d4716`). `git merge --no-commit --no-ff 4aef753e` auto-merged
+  `apps/server/server.ts` and `apps/web/src/App.tsx` and produced one content
+  conflict:
+  - path: `scripts/public-source-files.json`
+  - base blob (stage 1): `8622a908c357f47b81bd2a998da1735be5c83c10`
+  - ours blob  (stage 2): `b1becd7eda31139a4b69ad44a1110b848521aa08`
+  - theirs blob (stage 3): `6c0964767f162de858e4425354d8064c74353703`
+  - character: M13 appends its evidence/source entries to the manifest; main
+    regenerated ~9,200 manifest lines on this cut. One conflict hunk.
+  Per R03, `git merge --abort` restored the initially clean task worktree
+  (verified: `git status --porcelain` empty, HEAD `d249c566`). The affected
+  join is marked **HOLD_SOURCE_DRIFT**: no blanket ours/theirs or guessed
+  replacement was applied and no remote update occurred. A later authorized
+  resolution can compose both sides: the file is a generated manifest whose
+  correct result is the main-side regeneration plus the M13 entry list.
+- Re-verification on the checkpoint cut: `pnpm exec vitest run
+  tests/plugin-worker-v3.test.ts` 18/18 PASS, `tests/plugin-lifecycle-v3.test.ts`
+  15/15 PASS, `tests/plugin-protocol-decisions-v6.test.ts` 5/5 PASS (direct
+  runs). Two receipted re-runs of the worker suite then failed the spawned
+  worker's 15 s handshake deadline (HANDSHAKE_FAILED at ~22 s) under load
+  average ~17 while this worktree's `pnpm test:browser` and the m17-v6
+  session's browser run were executing concurrently; the earlier recorded
+  receipts show the identical cold-transform failure signature followed by a
+  pass. The deadline constants were not changed; the failures are recorded as
+  contention, not a protocol regression.
+- `pnpm test:browser`: the prior session's receipted run (wrapper
+  `/tmp/m13-receipt.mjs` → `logs/pnpm-test-browser-bounded.log`) was still
+  executing when this session began and was allowed to complete rather than
+  duplicating the gate; its receipt lands in `logs/receipts.jsonl`. During the
+  ~40 s merge-attempt window above, staged main-side content for
+  `server.ts`/`App.tsx` was present in the worktree before `--abort` restored
+  the checkpoint; no M13 surface is exercised by the browser suites, but the
+  overlap is recorded for custody completeness.
+- Remaining named holds unchanged: HOLD_BACKEND_SELECTION,
+  HOLD_PLATFORM_PROOF, HOLD_MIGRATION_PLAN, plus the new HOLD_SOURCE_DRIFT on
+  the origin/main join. Outcome stays PARTIAL/BLOCKED, LOCAL_ONLY,
+  reviewerApproval false.
+
+## Consolidation — sole owner (2026-11-18)
+
+The user consolidated M13 into the original session; the continuation session
+stopped and `d249c566` is preserved as the checkpoint HEAD. Verified
+independently: HEAD `d249c566`, index empty, no MERGE_HEAD/rebase/cherry-pick
+state (the recorded merge abort was clean). The earlier `pnpm test:browser`
+receipted run was terminated before completion — its result would have been
+stale (started pre-checkpoint) and concurrent with the merge attempt window,
+so it cannot satisfy acceptance; the gate was re-run on `d249c566` instead.
+
+Receipt → source-cut verdicts after consolidation:
+
+- STALE: 08:04–08:15 receipts (targeted suites, lint, typecheck) ran against
+  the uncommitted pre-race-fix tree; superseded.
+- VALID for `d249c566`: 10:14–10:15 receipts re-ran all three targeted suites
+  on the committed cut (worker 18/18, lifecycle 15/15, decisions 5/5 — the
+  `*-d249c566` receipt names bind the cut); 08:5x lint/typecheck/build receipts
+  ran against working sources byte-identical to the committed blobs.
+- CONCURRENT (cannot satisfy acceptance): the 08:22→09:23 `pnpm test` spanned
+  the 08:4x race-fix edit; retained as executed-gate evidence only — its
+  ~352 report entries were all environment-bound and outside M13. A fresh
+  run on `d249c566` supersedes it.
+- Executed-on-HEAD FAIL (contention, not regression): the continuation
+  session's two `post-checkpoint` worker receipts failed the fixed 10 s
+  handshake deadline while three heavy suites saturated the box; the same
+  suite passes on a quiet cut.
+- Host reboot at ~10:2x interrupted the in-flight receipted `pnpm test`; the
+  wrapper writes receipts atomically at completion, so nothing partial was
+  recorded; the run was relaunched on the same cut.
+
+## Publish — draft PR under explicit holds (2026-11-18)
+
+Manager decision: publish a single scoped M13 draft from the owned
+implementation and verifiable evidence without waiting for the browser gate.
+What was verified on the exact published cut (`d249c566`, plus the doc-only
+custody commit on top):
+
+- `pnpm exec vitest run tests/plugin-worker-v3.test.ts` — 18/18 PASS (10:14).
+- `pnpm exec vitest run tests/plugin-lifecycle-v3.test.ts` — 15/15 PASS (10:15).
+- `pnpm exec vitest run tests/plugin-protocol-decisions-v6.test.ts` — 5/5 PASS (10:15).
+- `pnpm typecheck`/`lint`/`build` — PASS receipts on byte-identical sources.
+- `pnpm test` — executed on `d249c566`, exit 1; every retained failure is
+  environment-bound (linux-path-guard CAPABILITY_DENIED family, Playwright
+  fixture timeouts, pre-existing staged-build manifest gap) — zero failures
+  in any M13 file.
+- `pnpm test:browser` — launched on `d249c566` (receipt name
+  `pnpm-test-browser-d249c566`); still executing at publish time — cited as
+  partial evidence, never marked run or passed.
+
+Holds at publish: HOLD_BACKEND_SELECTION, HOLD_PLATFORM_PROOF,
+HOLD_MIGRATION_PLAN, HOLD_SOURCE_DRIFT (origin/main join, manifest conflict —
+authorized resolution = main-side manifest regeneration plus the M13 entry
+list). `plugins.isolatedV1` remains default-off; no merge and no activation
+are granted by this publication.

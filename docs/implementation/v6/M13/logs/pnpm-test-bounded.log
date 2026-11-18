@@ -1,11 +1,12 @@
 [bounded: head truncated]
+39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
     [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
 [90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
 [90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
 [90m [2m❯[22m GitHubAuth.poll packages/workspace/github-auth.ts:[2m51:4[22m[39m
 [90m [2m❯[22m tests/github-workspace.test.ts:[2m16:25[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[28/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mrefuses to create a PR when the GitHub branch differs from the reviewed local commit
 [31m[1mAssertionError[22m: expected [Function] to throw error matching /GitHub branch/ but got 'File access check failed — the folder…'[39m
@@ -19,7 +20,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m20:119[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[29/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mreturns a created PR only after its actual head matches the reviewed commit
 [31m[1mAssertionError[22m: promise rejected "HarnessError: File access check failed — … { …(2) }" instead of resolving[39m
@@ -40,7 +41,7 @@
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
 [31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[30/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mretains the created PR URL when its actual head differs from the reviewed commit
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'REVISION_CHANGED', …(2) }
@@ -66,7 +67,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m46:54[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[31/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mretains the already-created PR URL after failed read without creating it again
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mretains the already-created PR URL after malformed JSON without creating it again
@@ -94,7 +95,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m55:54[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[32/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mrechecks writable authority after remote validation before draft creation
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'PROJECT_READ_ONLY' }
@@ -117,7 +118,7 @@
     [90m 82|[39m  expect(run.mock.calls.some(([,args])=>args[0]==='pr'&&args[1]==='crea…
     [90m 83|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[33/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mwrites long Unicode PR text exactly to a private file before push and removes it after success
 [31m[1mAssertionError[22m: promise rejected "HarnessError: File access check failed — … { …(2) }" instead of resolving[39m
@@ -133,7 +134,7 @@
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
 [31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[34/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mrejects changed capability while preparing a private review input
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'PROJECT_READ_ONLY' }
@@ -151,7 +152,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m120:146[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[35/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mrejects changed head while preparing a private review input
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mrejects changed revision while preparing a private review input
@@ -170,7 +171,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m120:146[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[36/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mcleans private create input while preserving a remote failure
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mcleans private review input while preserving a remote failure
@@ -191,7 +192,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m126:207[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[37/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mretains publication state after success even when exact directory cleanup is refused
 [31m[1mAssertionError[22m: promise rejected "HarnessError: File access check failed — … { …(2) }" instead of resolving[39m
@@ -207,7 +208,7 @@
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
 [31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[38/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mretains publication state after verification failure even when exact directory cleanup is refused
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'REVISION_CHANGED', …(2) }
@@ -230,7 +231,7 @@
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m136:261[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mfences cancel during private credential writing before rename and preserves the prior token
 [41m[1m FAIL [22m[49m tests/github-workspace.test.ts[2m > [22mfences replace during private credential writing before rename and preserves the prior token
@@ -240,7 +241,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [36m [2m❯[22m tests/github-workspace.test.ts:[2m155:47[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[40/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22mpreserves Unicode through chunked replies and resolves concurrent request IDs independently
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22muses an isolated home and does not pass provider credentials to Python
@@ -258,7 +259,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
 [90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[41/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22mfails pending requests safely on malformed worker output
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'HERMES_PROTOCOL' }
@@ -276,7 +277,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [36m [2m❯[22m tests/hermes-client.test.ts:[2m29:74[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[42/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22mcloses its worker and revokes unanswered requests when disposed
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'HERMES_CLOSED' }
@@ -294,14 +295,14 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [36m [2m❯[22m tests/hermes-client.test.ts:[2m32:178[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[43/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22mdrains owned host callbacks even when process cancellation fails
 [31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 0 times[39m
 [36m [2m❯[22m vi.waitFor.timeout tests/hermes-client.test.ts:[2m53:43[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[44/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-client.test.ts[2m > [22mtreats a denied host callback as an ordinary tool result during teardown
 [31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 0 times[39m
@@ -313,7 +314,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 64|[39m  [35mfinally[39m{[34mrelease[39m()[33m;[39m[35mawait[39m client[33m.[39m[34mdispose[39m()[33m;[39m[35mawait[39m pending[33m;[39m}
     [90m 65|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[45/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-multi-original.test.ts[2m > [22mruns two real original engines against one canonical library with isolated sessions and bounded scripted native calls
 [31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
@@ -326,7 +327,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
 [90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[46/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/hermes-service.test.ts[2m > [22mcarries an actual approved replacement privately to the next idle source turn, never prepare or steering
 [41m[1m FAIL [22m[49m tests/hermes-service.test.ts[2m > [22mbounds hook admission while preserving every successful write and ordinary receipt
@@ -352,7 +353,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m preparedWrite tests/hermes-service.test.ts:[2m36:11[22m[39m
 [90m [2m❯[22m tests/hermes-service.test.ts:[2m40:10[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[47/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-host.test.ts[2m > [22mkeeps Biome write proposals and Spec Kit initialization unavailable in plan mode
 [31m[1mAssertionError[22m: expected [Function] to throw error matching /plan mode/i but got 'Bundled integration is unavailable: E…'[39m
@@ -371,14 +372,15 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 68|[39m })[33m;[39m
     [90m 69|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[48/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mruns the genuine Promptfoo CLI MCP evaluation through only the scoped host callback
+[41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mkeeps Promptfoo away from project default configuration discovery
 [31m[1mMcpError[22m: MCP error -32001: Request timed out[39m
 [90m [2m❯[22m McpError.fromError node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_zod@4.6.6/node_modules/@modelcontextprotocol/sdk/src/types.ts:[2m2330:15[22m[39m
 [90m [2m❯[22m Timeout.timeoutHandler node_modules/.pnpm/@modelcontextprotocol+sdk@1.32.2_zod@4.6.6/node_modules/@modelcontextprotocol/sdk/src/shared/protocol.ts:[2m1249:57[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[49/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mbuilds a real Graphify code graph, queries its stdio server and exports GraphML without a model
 [31m[1mError[22m: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/home/piadmin/Gen-V1-m13-v6/.harness-integrations-python-deps/graphify'[39m
@@ -387,7 +389,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m IntegrationManager.command packages/integrations/index.ts:[2m229:23[22m[39m
 [90m [2m❯[22m tests/integration-mcp.test.ts:[2m39:2[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[50/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22minitializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
 [31m[1mError[22m: Bundled integration is unavailable: ENOENT: no such file or directory, lstat '/home/piadmin/Gen-V1-m13-v6/.harness-integrations-python-deps/specify_cli'[39m
@@ -396,14 +398,14 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m IntegrationManager.command packages/integrations/index.ts:[2m229:23[22m[39m
 [90m [2m❯[22m tests/integration-mcp.test.ts:[2m55:53[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[51/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mexecutes the pinned native Biome and Impeccable engines
 [31m[1mError[22m: Command failed: /home/piadmin/Gen-V1-m13-v6/node_modules/@biomejs/cli-win32-x64/biome.exe --version
 /home/piadmin/Gen-V1-m13-v6/node_modules/@biomejs/cli-win32-x64/biome.exe: 1: MZ����@���: not found
 /home/piadmin/Gen-V1-m13-v6/node_modules/@biomejs/cli-win32-x64/biome.exe: 1: Syntax error: Unterminated quoted string
 [39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[52/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mrefuses linked Graphify graph input and linked export directories inside the owned fixture
 [31m[1mAssertionError[22m: expected [Function] to throw error matching /link|guard|resource|access/i but got 'Bundled integration is unavailable: E…'[39m
@@ -422,7 +424,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 93|[39m  await rm(join(dataRoot,'graphify-out'));await mkdir(join(dataRoot,'gr…
     [90m 94|[39m  [35mawait[39m [34mwriteFile[39m([34mjoin[39m(dataRoot[33m,[39m[32m'graphify-out/graph.json'[39m)[33m,[39m[32m'{}'[39m)[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[53/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-mcp.test.ts[2m > [22mroutes Biome proposals through the registered granted-file approval flow
 [31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
@@ -438,7 +440,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m IntegrationManager.command packages/integrations/index.ts:[2m239:34[22m[39m
 [90m [2m❯[22m tests/integration-mcp.test.ts:[2m121:15[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[54/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integration-packaging-canonical-negative.test.ts[2m > [22mwheel-authenticated canonical Python packaging[2m > [22mderives deterministic per-distribution RECORDs while preserving every original non-RECORD byte
 [41m[1m FAIL [22m[49m tests/integration-packaging-canonical-negative.test.ts[2m > [22mwheel-authenticated canonical Python packaging[2m > [22mrejects an archive whose complete bytes do not match its pinned wheel hash
@@ -469,7 +471,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [41m[1m FAIL [22m[49m tests/integration-packaging-canonical-negative.test.ts[2m > [22mwheel-authenticated canonical Python packaging[2m > [22mrejects undeclared final staged file shared/__pycache__/alpha.cpython-314.pyc after a valid canonical stage
 [41m[1m FAIL [22m[49m tests/integration-packaging-canonical-negative.test.ts[2m > [22mwheel-authenticated canonical Python packaging[2m > [22mrechecks an original locked source file immediately before staging
 [31m[1mError[22m: spawn python ENOENT[39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[55/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/integrations.test.ts[2m > [22madmits exactly the ten bundled integrations without starting their MCP services
 [31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
@@ -488,7 +490,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 24|[39m   expect(statuses.find(item=>item.id==='humanizer')?.capabilities.mcp)…
     [90m 25|[39m   expect(statuses.find(item=>item.id==='context7')?.capabilities.mcp).…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[56/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/interactive-control-decisions-v6.test.ts[2m > [22mM16-D06 real-platform acceptance stays BLOCKED without an approved installed driver
 [31m[1mAssertionError[22m: expected { state: 'BLOCKED', …(1) } to deeply equal { state: 'BLOCKED', …(1) }[39m
@@ -510,7 +512,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m174|[39m   expect(controlCapability({ flagEnabled: false, registration: registr…
     [90m175|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[57/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/managed-git-family.test.ts[2m > [22mrequires host attestation for linked worktrees and retains ordinary repositories
 [31m[1mAssertionError[22m: promise rejected "HarnessError: File access check failed — … { …(2) }" instead of resolving[39m
@@ -530,7 +532,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
 [31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[58/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/managed-git-family.test.ts[2m > [22msnapshots the attested worktree HEAD, index and source, without other worktrees or hooks
 [41m[1m FAIL [22m[49m tests/managed-git-family.test.ts[2m > [22mpasses only the host-resolved family for the granted domain repository root
@@ -546,74 +548,33 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
 [90m [2m❯[22m tests/managed-git-family.test.ts:[2m50:2[22m[39m
 
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[59/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/official-history-ownership.test.ts[2m > [22mroutes the real Claude history helper through the owned spawn and waits for its completion
+[31m[1mAssertionError[22m: expected "vi.fn()" to be called once, but got 0 times[39m
+[36m [2m❯[22m tests/official-history-ownership.test.ts:[2m63:47[22m[39m
+    [90m 61|[39m   const history = runtime.history(f.manifest.path).catch(error => erro…
+    [90m 62|[39m   [35mtry[39m {
+    [90m 63|[39m     [35mawait[39m vi[33m.[39m[34mwaitFor[39m(() [33m=>[39m [34mexpect[39m(spawnOwned)[33m.[39m[34mtoHaveBeenCalledOnce[39m())[33m;[39m
+    [90m   |[39m                                               [31m^[39m
+    [90m 64|[39m     [34mexpect[39m(spawn)[33m.[39mnot[33m.[39m[34mtoHaveBeenCalled[39m()[33m;[39m
+    [90m 65|[39m     [35mlet[39m disposed [33m=[39m [35mfalse[39m[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[60/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22menforces explicit project trust at the real approval boundary (enabled=true)
+[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22menforces explicit project trust at the real approval boundary (enabled=false)
+[31m[1mError[22m: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m83:22[22m[39m
+    [90m 81|[39m }
+    [90m 82|[39m
+    [90m 83|[39m it.each([true, false])('enforces explicit project trust at the real ap…
+    [90m   |[39m                      [31m^[39m
+    [90m 84|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m(enabled)[33m;[39m
+    [90m 85|[39m   const outcome = await f.approve().then(() => ({ status: 'approved' }…
+
 [31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[61/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mrechecks accountId after asynchronous native acquisition
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mrechecks workspaceId after asynchronous native acquisition
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mrechecks status after asynchronous native acquisition
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m166:87[22m[39m
-    [90m164|[39m })[33m;[39m
-    [90m165|[39m
-    [90m166|[39m it.each(['epoch', 'runId', 'accountId', 'projectId', 'workspaceId', 's…
-    [90m   |[39m                                                                                       [31m^[39m
-    [90m167|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m { decision } [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
-    [90m168|[39m   seam[33m.[39mbeforeGuard [33m=[39m [35masync[39m () [33m=>[39m {
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mdoes not turn a persisted decision into admission after its awaited owner changes
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m178:1[22m[39m
-    [90m176|[39m })[33m;[39m
-    [90m177|[39m
-    [90m178|[39m it('does not turn a persisted decision into admission after its awaite…
-    [90m   |[39m [31m^[39m
-    [90m179|[39m   const f = await fixture(), { decision } = await reviewed(f), decide …
-    [90m180|[39m   vi.spyOn(ProjectTrustLedger.prototype, 'decide').mockImplementation(…
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mdrops pending reviews across actual Store close/reopen and keeps durable decisions as history
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m210:1[22m[39m
-    [90m208|[39m })[33m;[39m
-    [90m209|[39m
-    [90m210|[39m it('drops pending reviews across actual Store close/reopen and keeps d…
-    [90m   |[39m [31m^[39m
-    [90m211|[39m   const f = await fixture(), first = await reviewed(f), priorHost = f.…
-    [90m212|[39m   await f.service.projectTrust.decide({ ...first.decision, decision: '…
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mreturns a valid disabled response and denies all trust mutations while default-off
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m222:1[22m[39m
-    [90m220|[39m })[33m;[39m
-    [90m221|[39m
-    [90m222|[39m it('returns a valid disabled response and denies all trust mutations w…
-    [90m   |[39m [31m^[39m
-    [90m223|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m([35mfalse[39m)[33m;[39m
-    [90m224|[39m   expect(operationProjectTrustReviewSchema.parse(await f.service.proje…
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mdoes not reuse older trust while an explicit decline is awaiting custody
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m234:1[22m[39m
-    [90m232|[39m })[33m;[39m
-    [90m233|[39m
-    [90m234|[39m it('does not reuse older trust while an explicit decline is awaiting c…
-    [90m   |[39m [31m^[39m
-    [90m235|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m first [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
-    [90m236|[39m   [35mawait[39m f[33m.[39mservice[33m.[39mprojectTrust[33m.[39m[34mdecide[39m(first[33m.[39mdecision)[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22minvalidates a review when the prepared operation revision changes
 [31m[1mError[22m: Test timed out in 60000ms.
@@ -626,7 +587,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m252|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m { decision } [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
     [90m253|[39m   f.store.internal('fixture.operation.changed', f.thread.id, () => f.s…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[62/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mdoes not turn a previously reviewed operation into legacy authority when trust is disabled on restart
 [31m[1mError[22m: Test timed out in 60000ms.
@@ -639,73 +600,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m260|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m { decision } [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
     [90m261|[39m   [35mawait[39m f[33m.[39mservice[33m.[39mprojectTrust[33m.[39m[34mdecide[39m(decision)[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mrevokes an approved operation while the real Service queue still holds it
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m270:1[22m[39m
-    [90m268|[39m })[33m;[39m
-    [90m269|[39m
-    [90m270|[39m it('revokes an approved operation while the real Service queue still h…
-    [90m   |[39m [31m^[39m
-    [90m271|[39m   const f = await fixture(), { decision } = await reviewed(f), receipt…
-    [90m272|[39m   [35mlet[39m entered[33m![39m[33m:[39m () [33m=>[39m [35mvoid[39m[33m,[39m release[33m![39m[33m:[39m () [33m=>[39m [35mvoid[39m[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mreads recorded trust repeatedly without writing state or issuing or consuming a decision token
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m297:1[22m[39m
-    [90m295|[39m })[33m;[39m
-    [90m296|[39m
-    [90m297|[39m it('reads recorded trust repeatedly without writing state or issuing o…
-    [90m   |[39m [31m^[39m
-    [90m298|[39m   const f = await fixture(), { decision } = await reviewed(f), sequenc…
-    [90m299|[39m   [35mfor[39m ([35mlet[39m index [33m=[39m [34m0[39m[33m;[39m index [33m<[39m [34m140[39m[33m;[39m index[33m++[39m) {
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mreports recorded trust without claiming that current file bytes were reverified
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m325:1[22m[39m
-    [90m323|[39m })[33m;[39m
-    [90m324|[39m
-    [90m325|[39m it('reports recorded trust without claiming that current file bytes we…
-    [90m   |[39m [31m^[39m
-    [90m326|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m { decision } [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
-    [90m327|[39m   [35mawait[39m f[33m.[39mservice[33m.[39mprojectTrust[33m.[39m[34mdecide[39m(decision)[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22minvalidates recorded status for changed owners and denies foreign, stale and stopped reads
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m337:1[22m[39m
-    [90m335|[39m })[33m;[39m
-    [90m336|[39m
-    [90m337|[39m it('invalidates recorded status for changed owners and denies foreign,…
-    [90m   |[39m [31m^[39m
-    [90m338|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m,[39m { decision } [33m=[39m [35mawait[39m [34mreviewed[39m(f)[33m;[39m
-    [90m339|[39m   [35mawait[39m f[33m.[39mservice[33m.[39mprojectTrust[33m.[39m[34mdecide[39m(decision)[33m;[39m
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/352]⎯[22m[39m
-
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mretains the preparation trust requirement across disabled restart (no decision)
-[41m[1m FAIL [22m[49m tests/operation-project-trust-v3.test.ts[2m > [22mretains the preparation trust requirement across disabled restart (failed publication)
-[31m[1mError[22m: Test timed out in 60000ms.
-If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
-[36m [2m❯[22m tests/operation-project-trust-v3.test.ts:[2m367:55[22m[39m
-    [90m365|[39m })[33m;[39m
-    [90m366|[39m
-    [90m367|[39m it.each(['no decision', 'failed publication'] as const)('retains the p…
-    [90m   |[39m                                                       [31m^[39m
-    [90m368|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m;[39m
-    [90m369|[39m   expect(f.store.get('operationProjectTrustRequirement', f.operation.i…
-
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[63/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/packaged-providers.test.ts[2m > [22mpackaged provider custody[2m > [22mimports the actual installed SDK with an explicit empty store and runs only the stock rg version helper
 [31m[1mError[22m: Cannot find module '@cursor/sdk-win32-x64/package.json'
@@ -721,27 +616,104 @@ Require stack:
 [90m [2m❯[22m probeCursorBootstrap scripts/verify-packaged-providers.ts:[2m184:2[22m[39m
 [90m [2m❯[22m tests/packaged-providers.test.ts:[2m73:17[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[64/352]⎯[22m[39m
 
-[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22mretains recovery and journal retry barriers for the dock
-[31m[1mError[22m: Plug-in fixture failed before Edit became visible. Browser errors: none[39m
-[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m64:9[22m[39m
-    [90m 62|[39m  }[35mcatch[39m(cause){
-    [90m 63|[39m   [35mawait[39m page[33m.[39m[34mclose[39m()[33m;[39m
-    [90m 64|[39m   throw new Error(`Plug-in fixture failed before Edit became visible. …
-    [90m   |[39m         [31m^[39m
-    [90m 65|[39m  }
-    [90m 66|[39m  [35mreturn[39m {page[33m,[39mframe[33m,[39merrors}[33m;[39m
-[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m169:21[22m[39m
+[41m[1m FAIL [22m[49m tests/personal-visuals-ui.test.ts[2m > [22mkeeps JSON typing focused through autosave and renders source labels as text inside an opaque frame
+[31m[1mError[22m: Test timed out in 15000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m tests/personal-visuals-ui.test.ts:[2m122:1[22m[39m
+    [90m120|[39m }
+    [90m121|[39m
+    [90m122|[39m it("keeps JSON typing focused through autosave and renders source labe…
+    [90m   |[39m [31m^[39m
+    [90m123|[39m  [35mconst[39m { frame[33m,[39m errors[33m,[39m unexpected[33m,[39m close } [33m=[39m [35mawait[39m [34mvisualFixture[39m()[33m;[39m
+    [90m124|[39m  [35mtry[39m {
 
-[31m[1mCaused by: TimeoutError[22m: locator.waitFor: Timeout 3000ms exceeded.
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[65/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22mkeeps tools, diagram controls and readable inspector separate at 1440px, including recovered free placement
+[31m[1mTimeoutError[22m: page.goto: Timeout 3000ms exceeded.
 Call log:
-  - waiting for getByRole('button', { name: 'Edit', exact: true }) to be visible
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
 [39m
-[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m61:60[22m[39m
-[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m169:21[22m[39m
+[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m56:13[22m[39m
+    [90m 54|[39m   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+    [90m 55|[39m  })[33m;[39m
+    [90m 56|[39m  [35mawait[39m page[33m.[39m[34mgoto[39m([32m'http://127.0.0.1/plugin-dock-test'[39m)[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 57|[39m  [35mconst[39m frame[33m=[39mpage[33m.[39m[34mframes[39m()[33m.[39m[34mfind[39m(value[33m=>[39mvalue[33m.[39m[34mparentFrame[39m())[33m![39m[33m;[39m
+    [90m 58|[39m  [35mtry[39m{
+[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m84:28[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[66/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22muses the settled split on its first visible frame after a delayed read at 1024 px (preferred 720)
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22muses the settled split on its first visible frame after a delayed read at 1440 px (preferred 720)
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22muses the settled split on its first visible frame after a delayed read at 1024 px (preferred 400)
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22muses the settled split on its first visible frame after a delayed read at 1440 px (preferred 400)
+[31m[1mTimeoutError[22m: page.goto: Timeout 3000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
+[39m
+[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m56:13[22m[39m
+    [90m 54|[39m   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+    [90m 55|[39m  })[33m;[39m
+    [90m 56|[39m  [35mawait[39m page[33m.[39m[34mgoto[39m([32m'http://127.0.0.1/plugin-dock-test'[39m)[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 57|[39m  [35mconst[39m frame[33m=[39mpage[33m.[39m[34mframes[39m()[33m.[39m[34mfind[39m(value[33m=>[39mvalue[33m.[39m[34mparentFrame[39m())[33m![39m[33m;[39m
+    [90m 58|[39m  [35mtry[39m{
+[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m103:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[67/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22mexpands on reopening when an expansion request arrived while collapsed and closed
+[31m[1mTimeoutError[22m: page.goto: Timeout 3000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
+[39m
+[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m56:13[22m[39m
+    [90m 54|[39m   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+    [90m 55|[39m  })[33m;[39m
+    [90m 56|[39m  [35mawait[39m page[33m.[39m[34mgoto[39m([32m'http://127.0.0.1/plugin-dock-test'[39m)[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 57|[39m  [35mconst[39m frame[33m=[39mpage[33m.[39m[34mframes[39m()[33m.[39m[34mfind[39m(value[33m=>[39mvalue[33m.[39m[34mparentFrame[39m())[33m![39m[33m;[39m
+    [90m 58|[39m  [35mtry[39m{
+[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m124:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[68/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/plugin-tools-dock.test.ts[2m > [22msuppresses Close for minimize-only windows and keeps Escape minimizing
+[31m[1mTimeoutError[22m: page.goto: Timeout 3000ms exceeded.
+Call log:
+  - navigating to "http://127.0.0.1/plugin-dock-test", waiting until "load"
+[39m
+[36m [2m❯[22m fixture tests/plugin-tools-dock.test.ts:[2m56:13[22m[39m
+    [90m 54|[39m   return route.fulfill({contentType:path.endsWith('.js')?'text/javascr…
+    [90m 55|[39m  })[33m;[39m
+    [90m 56|[39m  [35mawait[39m page[33m.[39m[34mgoto[39m([32m'http://127.0.0.1/plugin-dock-test'[39m)[33m;[39m
+    [90m   |[39m             [31m^[39m
+    [90m 57|[39m  [35mconst[39m frame[33m=[39mpage[33m.[39m[34mframes[39m()[33m.[39m[34mfind[39m(value[33m=>[39mvalue[33m.[39m[34mparentFrame[39m())[33m![39m[33m;[39m
+    [90m 58|[39m  [35mtry[39m{
+[90m [2m❯[22m tests/plugin-tools-dock.test.ts:[2m138:28[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[69/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/plugin-validation-policy.test.ts[2m > [22mboots the actual presentation bundle in an opaque browser frame without Node globals or dynamic code
+[31m[1mError[22m: Command failed: /home/piadmin/tools/node24/bin/node scripts/build-plugin-runtime.mjs
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js (400:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js (74:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "node_modules/.pnpm/zod@4.6.6/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[70/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/private-git-family.test.ts[2m > [22mstreams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer
 [31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'RESOURCE_LIMIT' }
@@ -759,7 +731,14 @@ Call log:
 [36m [2m❯[22m tests/private-git-family.test.ts:[2m75:103[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[71/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/profile-lease.test.ts[2m > [22mlets a successor acquire the profile after the real owner process exits
+[31m[1mError[22m: Profile owner did not become ready[39m
+[36m [2m❯[22m Timeout._onTimeout tests/profile-lease.test.ts:[2m31:76[22m[39m
+
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[72/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/project-trust-v3.test.ts[2m > [22mreading an ordinary granted text file still works while execution approval stays distinct
 [31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
@@ -774,7 +753,7 @@ Call log:
 [90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
 [90m [2m❯[22m tests/project-trust-v3.test.ts:[2m121:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[73/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/public-source.test.ts[2m > [22mreviewed public source allowlist[2m > [22mresolves the staged host and worker entries using only admitted runtime sources
 [31m[1mError[22m: Build failed with 7 errors:
@@ -793,7 +772,7 @@ packages/core/source-workbench.ts:1:69: ERROR: Could not resolve "./verification
 [90m [2m❯[22m handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m658:12[22m[39m
 [90m [2m❯[22m Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m581:7[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[74/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22mguarded apply writes a durable journal and backups before the first change
 [31m[1mAssertionError[22m: expected 'PARTIAL_RECOVERY_REQUIRED' to be 'APPLIED' // Object.is equality[39m
@@ -809,7 +788,7 @@ Received: [31m"[7mPARTIAL_RECOVERY_REQUIR[27mED"[39m
     [90m104|[39m  expect(result.entries.map(e=>e.disposition)).toEqual(['Applied','Appl…
     [90m105|[39m  [34mexpect[39m([34mreadFileSync[39m(a[33m,[39m[32m'utf8'[39m))[33m.[39m[34mtoBe[39m([32m'const beta2 = 1;\n'[39m)[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[79/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[75/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22mpost-crash reconcile restores only paths still matching the written postimage
 [31m[1mAssertionError[22m: expected 'APPLIED' to be 'RECOVERED' // Object.is equality[39m
@@ -825,7 +804,7 @@ Received: [31m"[7mAPPLI[27mED"[39m
     [90m155|[39m  expect(recovered.entries.map(e=>e.disposition)).toEqual(['Restored','…
     [90m156|[39m  [34mexpect[39m([34mreadFileSync[39m(a[33m,[39m[32m'utf8'[39m))[33m.[39m[34mtoBe[39m(aText)[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[80/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[76/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22man external edit of a renamed file stops recovery with PARTIAL_RECOVERY_REQUIRED
 [31m[1mAssertionError[22m: expected 'Unchanged' to be 'Restored' // Object.is equality[39m
@@ -841,7 +820,7 @@ Received: [31m"[7mUnchang[27med"[39m
     [90m186|[39m  [90m// The external edit is never overwritten.[39m
     [90m187|[39m  expect(readFileSync(a,'utf8')).toBe('const beta2 = 1;\n// external ed…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[81/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[77/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22mrecovery refuses a journal that targets paths outside the granted roots
 [31m[1mAssertionError[22m: expected 'const alpha = 1;\n' to be 'const beta2 = 1;\n' // Object.is equality[39m
@@ -861,7 +840,7 @@ Received: [31m"[7mUnchang[27med"[39m
     [90m233|[39m })[33m;[39m
     [90m234|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[82/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[78/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22ma resolved journal with conflicts reports PARTIAL_RECOVERY_REQUIRED
 [31m[1mAssertionError[22m: expected 'APPLIED' to be 'PARTIAL_RECOVERY_REQUIRED' // Object.is equality[39m
@@ -877,7 +856,7 @@ Received: [31m"[7mAPPLI[27mED"[39m
     [90m253|[39m })[33m;[39m
     [90m254|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[83/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[79/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/rename-recovery-v3.test.ts[2m > [22ma crash between postimage journal and apply completion still recovers the write
 [31m[1mAssertionError[22m: expected [ { …(2) } ] to deeply equal [ { …(2) } ][39m
@@ -889,7 +868,7 @@ Received: [31m"[7mAPPLI[27mED"[39m
 [2m    {[22m
 [32m-     "disposition": "Restored",[39m
 [31m+     "disposition": "Unchanged",[39m
-[2m      "path": "/tmp/rename-root-EK1z0t/a.ts",[22m
+[2m      "path": "/tmp/rename-root-cowI21/a.ts",[22m
 [2m    },[22m
 [2m  ][22m
 
@@ -901,7 +880,7 @@ Received: [31m"[7mAPPLI[27mED"[39m
     [90m275|[39m  [34mexpect[39m([34mreadFileSync[39m(a[33m,[39m[32m'utf8'[39m))[33m.[39m[34mtoBe[39m(aText)[33m;[39m
     [90m276|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[84/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[80/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/request-preparation-service-v3.test.ts[2m > [22mbounds abandoned preparations and retains only the newest 128 metadata receipts
 [31m[1mError[22m: Test timed out in 60000ms.
@@ -914,7 +893,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m369|[39m   [35mconst[39m f [33m=[39m [35mawait[39m [34mfixture[39m()[33m;[39m
     [90m370|[39m   [35mconst[39m previews[33m:[39m [33mAwaited[39m[33m<[39m[33mReturnType[39m[33m<[39m[35mtypeof[39m f[33m.[39mprepare[33m>>[39m[] [33m=[39m [][33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[85/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[81/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/runtime-router.test.ts[2m > [22mlazily isolates account adapters, pins routing and denies cross-account sessions
 [41m[1m FAIL [22m[49m tests/runtime-router.test.ts[2m > [22mscopes named-account model discovery to its provider and blocks a profile being signed in
@@ -932,7 +911,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m Object.start packages/runtime/index.ts:[2m129:291[22m[39m
 [90m [2m❯[22m tests/runtime-router.test.ts:[2m153:2[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[82/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/service.test.ts[2m > [22mthread and UI integrity[2m > [22mrecords a completed effect arriving after Stop without reviving its run
 [41m[1m FAIL [22m[49m tests/service.test.ts[2m > [22mthread and UI integrity[2m > [22ma generated operation button leads to native approval and cannot approve by its label
@@ -949,7 +928,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m Module.handleDomainTool packages/capabilities/index.ts:[2m117:66[22m[39m
 [90m [2m❯[22m tests/service.test.ts:[2m136:12[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[83/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog-apps.test.ts[2m > [22mdiscovers only declared installed metadata with verified package custody and never activates the host
 [31m[1mAssertionError[22m: expected [] to have a length of 1 but got +0[39m
@@ -963,7 +942,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [36m [2m❯[22m tests/skill-catalog-apps.test.ts:[2m22:71[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[84/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog-apps.test.ts[2m > [22minvalidates installed references after content tampering, registry revocation, or untracked additions
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -975,7 +954,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 28|[39m  await writeFile(join(f.registry,'active.json'),JSON.stringify({versio…
     [90m 29|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[85/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22menumerates every page, keeps colliding names distinct, and exposes metadata without source bytes
 [31m[1mAssertionError[22m: expected [ { …(7) } ] to have a length of 26 but got 1[39m
@@ -994,14 +973,14 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m 32|[39m  expect(new Set(entries.map(e=>e.sourceId))).toEqual(new Set(['persona…
     [90m 33|[39m  expect(JSON.stringify(entries)).not.toMatch(/UNTRUSTED|HARNESS-BODY|s…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[90/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[86/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mpins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'files')[39m
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m39:59[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[87/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mbinds authenticated cursors to inventory, search, page size and connection context
 [31m[1mAssertionError[22m: expected null to be truthy[39m
@@ -1015,7 +994,7 @@ null
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m48:79[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[88/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mdenies file/directory symlinks and hardlinks while retaining other safe packages
 [31m[1mAssertionError[22m: expected undefined to match object { status: 'unavailable', …(1) }[39m
@@ -1037,7 +1016,7 @@ undefined
     [90m 60|[39m  expect(entries.find(e=>e.name==='redirected')?.ref).toBeNull();expect…
     [90m 61|[39m })[33m;[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[89/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mbounds file counts and bytes without truncating a package into an available reference
 [31m[1mAssertionError[22m: expected undefined to match object { ref: null, availability: { …(2) } }[39m
@@ -1062,7 +1041,7 @@ undefined
     [90m 67|[39m  const count=directoryCatalog({id:'bounded',kind:'personal',label:'Per…
     [90m 68|[39m  expect((await new SkillCatalogRepository([count]).list()).skills[0].a…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[90/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mmarks an exhausted root inventory unavailable instead of silently presenting a partial catalog
 [31m[1mAssertionError[22m: expected { status: 'unavailable', …(1) } to deeply equal { status: 'unavailable', …(1) }[39m
@@ -1084,7 +1063,7 @@ undefined
     [90m 75|[39m })[33m;[39m
     [90m 76|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[91/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mcounts bytes consumed by rejected packages against the root budget
 [31m[1mAssertionError[22m: expected { status: 'unavailable', …(1) } to deeply equal { status: 'unavailable', …(1) }[39m
@@ -1106,7 +1085,7 @@ undefined
     [90m 81|[39m })[33m;[39m
     [90m 82|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[92/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mrejects namespace escalation and source substitution without resolving a display name
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1118,7 +1097,7 @@ undefined
     [90m 85|[39m  await expect(f.repo.checkReference({...ref,scope:{kind:'provider',pro…
     [90m 86|[39m  await expect(f.repo.checkReference({...ref,sourceId:'other'})).reject…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[93/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22maccepts bound references for the full declared source-identity length
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1130,7 +1109,7 @@ undefined
     [90m 92|[39m })[33m;[39m
     [90m 93|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[94/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mincludes nested installed skill entries beneath another skill package
 [31m[1mAssertionError[22m: expected [] to deeply equal [ 'outer', 'outer/nested' ][39m
@@ -1152,7 +1131,7 @@ undefined
     [90m103|[39m })[33m;[39m
     [90m104|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[95/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mkeeps a root skill distinct from a child named after the root directory
 [31m[1mAssertionError[22m: expected [] to have a length of 2 but got +0[39m
@@ -1171,7 +1150,7 @@ undefined
     [90m108|[39m })[33m;[39m
     [90m109|[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[96/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mdetects replacement during capture and never returns mixed metadata/custody
 [31m[1mAssertionError[22m: expected undefined to be null[39m
@@ -1185,7 +1164,7 @@ undefined
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m117:103[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[101/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[97/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22muses canonical connected project/worktree bindings and separates unavailable project authority
 [31m[1mAssertionError[22m: expected false to be true // Object.is equality[39m
@@ -1199,7 +1178,7 @@ undefined
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m125:92[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[102/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[98/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mdiscovers only the selected worktree and invalidates its references after rebinding or revocation
 [31m[1mAssertionError[22m: expected [] to deeply equal [ 'Worktree only' ][39m
@@ -1215,7 +1194,7 @@ undefined
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m141:37[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[103/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[99/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mpreserves exact references and pagination after unrelated title updates
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mpreserves exact references and pagination after unrelated status updates
@@ -1225,7 +1204,7 @@ undefined
 [36m [2m❯[22m tests/skill-catalog.test.ts:[2m156:134[22m[39m
 
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[104/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[100/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-catalog.test.ts[2m > [22mreuses the real bundled integration inventory and covers all declared skills across pages
 [31m[1mAssertionError[22m: expected [] to have a length of 40 but got +0[39m
@@ -1244,7 +1223,7 @@ undefined
     [90m172|[39m  expect(entries.every(e=>e.availability.status==='available')).toBe(tr…
     [90m173|[39m  expect(entries.some(e=>e.name==='test-driven-development')).toBe(true…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[105/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[101/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mmaterializes exact entry bytes and captured support without changing prompt or resources
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1257,7 +1236,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m41:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[106/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[102/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies stale support, forged identity, cross-source and private-provider references
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1270,7 +1249,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m52:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[107/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[103/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrejects every changed authority dimension before admission
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1283,7 +1262,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m62:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[108/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[104/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mfences authority changes during catalog awaits and again before commit/runtime/support reads
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1296,7 +1275,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m70:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[109/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[105/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mhonors pre-abort and an abort that wins a catalog await without producing an admission
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1309,7 +1288,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m81:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[110/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[106/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies support-bytes between fresh catalog custody and materialization
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies entry-bytes between fresh catalog custody and materialization
@@ -1328,7 +1307,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m89:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[111/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[107/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrevalidates the canonical source after capture rather than accepting its earlier index
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1341,7 +1320,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m111:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[112/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[108/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrestores authenticated exact bytes across host restart without rediscovering changed skills
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1354,7 +1333,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m117:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[113/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[109/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrejects command-ID reuse with changed content, model, thinking, reference or authority
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1367,7 +1346,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m128:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[114/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[110/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies replay tampering and key loss instead of falling back to rediscovery
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1380,7 +1359,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m137:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[115/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[111/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies forged admissions, mismatched runtime owners and arbitrary support paths
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1393,7 +1372,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m147:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[116/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[112/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreads the exact Harness version/document with no latest-name or ambient projection fallback
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1406,7 +1385,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m156:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[117/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[113/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a package exceeding files instead of silently truncating it
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a package exceeding fileBytes instead of silently truncating it
@@ -1421,7 +1400,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m171:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[118/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[114/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mrejects malformed payloads rather than accepting browser supplied text, paths or authority grants
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1434,7 +1413,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m182:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[119/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[115/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mselection preserves every reference field without a body read or admission capability, and bundles for browsers
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1447,7 +1426,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m187:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[120/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[116/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mdenies a changed runtime thinking level even when the model is unchanged
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1460,7 +1439,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m197:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[121/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[117/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mpreserves UTF-8 BOM and original line endings in admitted guidance
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1473,7 +1452,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m203:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[122/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[118/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22madmits all selected references in order, never silently dropping a stale second selection
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1486,7 +1465,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m211:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[123/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[119/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mbounds Harness entry bytes before materializing an oversized saved document
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1499,7 +1478,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m224:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[124/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[120/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mcaptures only a verified installed App package, without activating its host, and rechecks registry revocation
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1512,7 +1491,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m236:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[125/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[121/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22muses the bundled manifest pin and denies an index replacement between custody and capture
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1525,7 +1504,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m258:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[126/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[122/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mresolves only the connected canonical project/worktree and denies its root identity changing
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1538,7 +1517,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m274:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[127/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[123/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22maborts after capture while the final source recheck is in flight
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1551,7 +1530,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m293:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[128/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[124/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreturns cancellation while an obsolete catalog read is still pending
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1564,7 +1543,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m299:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[129/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[125/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mreplays the same command after an actual Store reopen without another message or current-source read
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1577,7 +1556,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m310:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[130/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[126/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22mprecommit authority revalidation leaves message/outbox/capture storage empty on a race
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1590,7 +1569,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m333:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[131/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[127/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22msanitizes authority-provider failures at precommit without leaking host paths
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1603,7 +1582,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m344:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[132/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[128/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skill-invocation.test.ts[2m > [22maccepts the parent raw skills array while taking expected authority only from host options
 [31m[1mTypeError[22m: Cannot read properties of undefined (reading 'ref')[39m
@@ -1616,7 +1595,7 @@ undefined
     [90m 31|[39m   const records = new Map<string, unknown>(), key = randomBytes(32), s…
 [90m [2m❯[22m tests/skill-invocation.test.ts:[2m352:13[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[133/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[129/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps openai automatic skill review account-pinned through changed defaults, settlement and restart
 [41m[1m FAIL [22m[49m tests/skills-integration.test.ts[2m > [22mkeeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
@@ -1633,7 +1612,7 @@ undefined
 [90m [2m❯[22m Service.command packages/core/service.ts:[2m793:17[22m[39m
 [90m [2m❯[22m tests/skills-integration.test.ts:[2m52:61[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[134/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[130/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/source-workbench-host-v3.test.ts[2m > [22muses the existing authenticated host and CSRF boundaries for captures and source reads
 [41m[1m FAIL [22m[49m tests/source-workbench-host-v3.test.ts[2m > [22mcomposes unrelated host routes without exposing workbench APIs when its owning service is absent
@@ -1644,7 +1623,7 @@ Require stack:
 [90m [2m❯[22m Object.loadNativeModule node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/utils.ts:[2m28:8[22m[39m
 [90m [2m❯[22m Object.<anonymous> node_modules/.pnpm/node-pty@1.1.0_patch_hash=cfe6b823ce4327648fe7be1b838baa6644a8538e16745c1f0c7f6a7ba6469013/node_modules/node-pty/src/unixTerminal.ts:[2m15:15[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[135/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[131/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/task-memory-recovery.test.ts[2m > [22mkeeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
 [31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
@@ -1660,9 +1639,24 @@ Require stack:
 [90m [2m❯[22m Module.handleDomainTool packages/capabilities/index.ts:[2m117:66[22m[39m
 [90m [2m❯[22m tests/task-memory-recovery.test.ts:[2m120:14[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[136/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[132/352]⎯[22m[39m
 
-[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'admission'
+[41m[1m FAIL [22m[49m tests/task-memory-recovery.test.ts[2m > [22minjects restored notes once into an installed Pi SDK session and refreshes them after disk restoration and reload
+[31m[1mError[22m: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".[39m
+[36m [2m❯[22m tests/task-memory-recovery.test.ts:[2m170:1[22m[39m
+    [90m168|[39m })[33m;[39m
+    [90m169|[39m
+    [90m170|[39m it('injects restored notes once into an installed Pi SDK session and r…
+    [90m   |[39m [31m^[39m
+    [90m171|[39m   [35mconst[39m x [33m=[39m [35mawait[39m [34mfixture[39m()[33m;[39m
+    [90m172|[39m   [35mconst[39m sdk [33m=[39m [35mawait[39m [35mimport[39m([32m'@earendil-works/pi-coding-agent'[39m)[33m;[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[133/352]⎯[22m[39m
+
+[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'approval-written'
+[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'external-committed'
+[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'settlement-record'
 [31m[1mError[22m: Owned crash worker exceeded its time/output bound: [39m
 [36m [2m❯[22m ChildProcess.<anonymous> tests/tool-effect-hard-crash-v3.test.mjs:[2m54:40[22m[39m
     [90m 52|[39m     child[33m.[39m[34monce[39m([32m'close'[39m[33m,[39m (code[33m,[39m signal) [33m=>[39m {
@@ -1672,9 +1666,9 @@ Require stack:
     [90m 55|[39m       [35melse[39m [35mif[39m (pauseError) [34mreject[39m(pauseError)[33m;[39m
     [90m 56|[39m       else resolve({ code, signal, stdout, stderr, killAccepted, pause…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[137/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[134/352]⎯[22m[39m
 
-[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'prepared-record'
+[41m[1m FAIL [22m[49m tests/tool-effect-hard-crash-v3.test.mjs[2m > [22mretains exact effect certainty after hard termination at 'before-external'
 [31m[1mError[22m: Owned crash worker exceeded its time/output bound: [39m
 [36m [2m❯[22m ChildProcess.<anonymous> tests/tool-effect-hard-crash-v3.test.mjs:[2m54:40[22m[39m
     [90m 52|[39m     child[33m.[39m[34monce[39m([32m'close'[39m[33m,[39m (code[33m,[39m signal) [33m=>[39m {
@@ -1684,7 +1678,7 @@ Require stack:
     [90m 55|[39m       [35melse[39m [35mif[39m (pauseError) [34mreject[39m(pauseError)[33m;[39m
     [90m 56|[39m       else resolve({ code, signal, stdout, stderr, killAccepted, pause…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[138/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[135/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/verification-artifact-gate-v3.test.ts[2m > [22mcurrent artifact custody in the verification gate[2m > [22mbounds the full current artifact read cut and leaves omitted required artifacts blocked
 [31m[1mError[22m: Test timed out in 60000ms.
@@ -1697,7 +1691,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m114|[39m     [35mconst[39m f [33m=[39m [34mfixture[39m()[33m,[39m observations [33m=[39m [][33m;[39m
     [90m115|[39m     for (let index = 0; index <= VERIFICATION_ARTIFACT_LIMITS.assessme…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[139/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[136/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/verification-artifacts-v3.test.ts[2m > [22mhost verification artifact custody[2m > [22mkeeps artifact references bounded for each complete producing execution
 [31m[1mError[22m: Test timed out in 60000ms.
@@ -1710,7 +1704,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
     [90m132|[39m     [35mconst[39m f [33m=[39m [34mfixture[39m()[33m;[39m
     [90m133|[39m     for (let index = 0; index < VERIFICATION_ARTIFACT_LIMITS.execution…
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[140/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[137/352]⎯[22m[39m
 
 [41m[1m FAIL [22m[49m tests/verification-v3.test.ts[2m > [22man audited task_finish does not block its own completion assessment
 [31m[1mHarnessError[22m: Protected effect authority is unavailable.[39m
@@ -1727,7 +1721,7 @@ If this is a long-running test, pass a timeout value as the last argument or con
 [90m [2m❯[22m Service.tool packages/core/service.ts:[2m1615:122[22m[39m
 [90m [2m❯[22m tests/verification-v3.test.ts:[2m395:20[22m[39m
 
-[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[141/352]⎯[22m[39m
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[138/352]⎯[22m[39m
 
 [31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
 [31m[1m
@@ -1765,6 +1759,21 @@ This might cause false positive tests. Resolve unhandled errors to make sure you
 - If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
 
 [31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences expire during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
 [31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
 [36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
     [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
@@ -1781,21 +1790,6 @@ This might cause false positive tests. Resolve unhandled errors to make sure you
 [31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
 [31mThis error originated in "[1mtests/account-login.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
 [31mThe latest test that might've caused the error is "[1mdoes not admit a successor sign-in when an expired lease still has a live owner[22m". It might mean one of the following:
-- The error was thrown, while Vitest was running this test.
-- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
-
-[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
-[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
-(2 matching properties omitted from actual)[39m
-[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
-[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
-[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
-[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
-
-[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
-
-[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
-[31mThe latest test that might've caused the error is "[1mfences expire during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
 - The error was thrown, while Vitest was running this test.
 - If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
 [31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
