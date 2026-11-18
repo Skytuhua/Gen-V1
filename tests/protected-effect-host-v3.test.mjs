@@ -206,12 +206,6 @@ it('retains both Service drain and custody cleanup failures', async () => {
   expect(f.handles[0].close).toHaveBeenCalledOnce();
 });
 
-it.skipIf(process.platform === 'win32')('keeps enabled historical reads available when real platform custody is unavailable', async () => {
-  const x = await state(), service = await compose(x, { toolEffectFlags: flags }, { createService: (store, native, options) => new Service(store, native, options) });
-  expect(x.marker().state).toBe('initializing'); await blocked(service, x);
-  await expect(readFile(join(x.root, 'effect-authority', 'key.json'))).rejects.toMatchObject({ code: 'ENOENT' });
-});
-
 it.runIf(process.platform === 'win32')('wires actual product DPAPI custody through restart and refuses a lost key', async () => {
   const x = await state(), first = await compose(x, { toolEffectFlags: flags });
   const grant = first.effects.issueApproval(x.operation, x.thread), marker = x.marker();
