@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { changedSources, discoverTestFiles, selectRegressionTests, type SourceChange } from '../scripts/select-regression-tests.ts';
 import { dirname, join } from 'node:path';
-import { mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -167,4 +167,17 @@ describe('regression test selection', () => {
     expect(found).toContain('regression-selection.test.ts');
     expect(found.every(name => /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/.test(name))).toBe(true);
   });
+});
+
+it('indexes actual nested tests without treating a fixture directory as a test', () => {
+  const folder = mkdtempSync(join(tmpdir(), 'regression-test-index-'));
+  try {
+    const nested = join(folder, 'fixture.test.ts');
+    mkdirSync(nested);
+    writeFileSync(join(nested, 'nested.test.ts'), '');
+    writeFileSync(join(folder, 'root.test.ts'), '');
+    expect(discoverTestFiles(folder).sort()).toEqual(['fixture.test.ts/nested.test.ts', 'root.test.ts']);
+  } finally {
+    rmSync(folder, { recursive: true, force: true });
+  }
 });
