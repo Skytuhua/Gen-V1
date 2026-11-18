@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { lstatSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
-import { isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { CommandEvidence, EvidenceIssue, SourceLockV3 } from '../packages/contracts/implementation-evidence.ts';
 import { sourceLockV3Schema } from '../packages/contracts/implementation-evidence.ts';
@@ -113,21 +113,25 @@ function inspectTestReport(raw: unknown, root: string, testIds: string[]): TestR
 
 export async function runDependencyContracts(sourceLockPath: string, outputDirectory: string,
   repoRoot = fileURLToPath(new URL('../', import.meta.url))): Promise<DependencyExecutionReceipt> {
-  const outputPath = resolve(outputDirectory);
-  // Exclusive ownership prevents adoption or replacement of old command receipts.
-  await mkdir(outputPath);
-  const out = realpathSync(outputPath);
   const receipt: DependencyExecutionReceipt = {
     format: 'M01.DependencyExecutionReceipt.v1', status: 'BLOCKED', releaseApproved: false,
     startedAt: new Date().toISOString(), endedAt: '', platform: process.platform + '-' + process.arch,
     nodeVersion: process.version, packageManagerVersion: null, vitestVersion: null,
     source: null, commands: [], tests: [], contracts: [], report: null, issues: [],
   };
+  const root = realpathSync(repoRoot);
+  const outputPath = resolve(outputDirectory);
+  const out = join(realpathSync(dirname(outputPath)), basename(outputPath));
+  const outputRelative = relative(root, out);
+  if (outputRelative !== '..' && !outputRelative.startsWith('..' + sep) && !isAbsolute(outputRelative)) {
+    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: 'Evidence output must be outside the source checkout.' });
+    receipt.endedAt = new Date().toISOString();
+    return receipt;
+  }
+  // Exclusive ownership prevents adoption or replacement of old command receipts.
+  await mkdir(out);
   let lock: SourceLockV3 | undefined;
   try {
-    const root = realpathSync(repoRoot);
-    const outputRelative = relative(root, out);
-    requireValue(outputRelative === '..' || outputRelative.startsWith('..' + sep) || isAbsolute(outputRelative), 'Evidence output must be outside the source checkout.');
     const lockBytes = readFileSync(sourceLockPath, 'utf8');
     lock = sourceLockV3Schema.parse(JSON.parse(lockBytes));
     requireValue(lock.publicContracts.length > 0, 'No dependency contracts were declared.');

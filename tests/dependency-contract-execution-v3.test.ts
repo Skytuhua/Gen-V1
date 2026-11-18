@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { copyFileSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -164,6 +164,7 @@ describe('M01 current dependency compatibility execution', () => {
     ['a missing audit ancestor', (value: ReturnType<typeof fixture>) => { value.lock.auditAncestorSha = '0'.repeat(40); }],
     ['an unaccepted dependency commit', (value: ReturnType<typeof fixture>) => { value.lock.acceptedDependencyCommits = ['0'.repeat(40)]; }],
     ['a stale contract version', (value: ReturnType<typeof fixture>) => { value.lock.publicContracts[0]!.version = '0'.repeat(40); }],
+    ['a contract with no test IDs beside a tested contract', value => { value.lock.publicContracts[0]!.testIds = []; }],
     ['a glob test ID', (value: ReturnType<typeof fixture>) => { value.lock.publicContracts[0]!.testIds = ['tests/*.test.ts']; }],
     ['a browser test ID', (value: ReturnType<typeof fixture>) => { value.lock.publicContracts[0]!.testIds = ['tests/e2e/latency.spec.ts']; }],
     ['an untracked source file', (value: ReturnType<typeof fixture>) => { value.put('packages/contracts/untracked.ts', 'export const undeclared = true;\n'); }],
@@ -177,6 +178,7 @@ describe('M01 current dependency compatibility execution', () => {
     expect(receipt.status).toBe('BLOCKED');
     expect(receipt.commands).toEqual([]);
     expect(receipt.issues.map(issue => issue.code)).toContain('COMPATIBILITY_SETUP_BLOCKED');
+    expect(receipt.contracts.some(contract => contract.status === 'PASS')).toBe(false);
   });
 
   it('requires exact working bytes even when local Git attributes normalize them to the locked blob', async () => {
@@ -206,7 +208,17 @@ describe('M01 current dependency compatibility execution', () => {
       expect(receipt.status).toBe('BLOCKED');
       expect(receipt.commands).toEqual([]);
       expect(receipt.issues.some(issue => issue.message.includes('outside the source checkout'))).toBe(true);
+      expect(existsSync(join(value.root, 'ignored-output'))).toBe(false);
     } finally { unlinkSync(alias); }
+  });
+
+  it('leaves no directory or receipt when output is inside the checkout', async () => {
+    const value = fixture();
+    const out = join(value.root, 'new-output');
+    const receipt = await runDependencyContracts(value.lockPath, out, value.root);
+    expect(receipt.status).toBe('BLOCKED');
+    expect(receipt.commands).toEqual([]);
+    expect(existsSync(out)).toBe(false);
   });
 
   it('refuses an existing evidence directory and preserves its old receipts', async () => {
