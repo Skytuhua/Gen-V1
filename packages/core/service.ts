@@ -137,6 +137,7 @@ export class Service {
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
+  private activeContextReads = 0;
   private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
   private readonly relevanceObserver = createHostRelevanceObserver();
   private readonly repositoryMaps = createRepositoryMapReader();
@@ -1595,6 +1596,15 @@ export class Service {
     const owningThread=this.assertRun(ctx);
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
+    const limited = capabilityEnabled('context.compilerV1') && this.authority.definition(call.name)?.risk === 'READ';
+    if (limited && this.activeContextReads >= 4) throw new HarnessError('CONTEXT_READ_LIMIT', 'Wait for an admitted context read to finish before requesting another.');
+    if (limited) this.activeContextReads++;
+    // A revoked call retains its slot until actual read/retention work settles.
+    // Releasing on cancellation alone would allow abandoned reads to accumulate.
+    try { return await this.admittedTool(call, ctx, owningThread); }
+    finally { if (limited) this.activeContextReads--; }
+  }
+  private async admittedTool(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
     const role:ActorRole=owningThread.sideParentId?'side':'run';
     const rangeRead = call.name === 'context_result_read';
     const bound = this.contextResultsEnabled() && !rangeRead, basis = bound ? this.contextResultInvocation(owningThread) : undefined;
