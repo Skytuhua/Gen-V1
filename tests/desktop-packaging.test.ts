@@ -1,5 +1,6 @@
 import {describe,it,expect} from 'vitest';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
+import {NODE_ARCHIVE_EXTRACT_COMMAND,runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
+import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {execFileSync} from 'node:child_process';
 import {chmodSync,copyFileSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
@@ -67,6 +68,29 @@ describe('desktop distribution custody',()=>{
   expect(()=>validateNodeArchive(bytes,hash)).not.toThrow();
   expect(()=>validateNodeArchive(bytes,'0'.repeat(64))).toThrow(/checksum/i);
  });
+ it('uses fail-fast framework ZIP extraction without resolving the ambient Archive module',()=>{
+  expect(NODE_ARCHIVE_EXTRACT_COMMAND).toContain("$ErrorActionPreference = 'Stop'");
+  expect(NODE_ARCHIVE_EXTRACT_COMMAND).not.toContain('Expand-Archive');
+ });
+ it.skipIf(process.platform!=='win32')('extracts a ZIP with literal paths and fails nonzero for an invalid archive',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'gen zip [literal]-'));
+  try{
+   const zip=join(root,'archive [test].zip'),out=join(root,'out [test]');
+   const extract=()=>spawnSync('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',
+    ['-NoLogo','-NoProfile','-NonInteractive','-Command',NODE_ARCHIVE_EXTRACT_COMMAND],
+    {encoding:'utf8',windowsHide:true,timeout:15000,env:{...process.env,HARNESS_NODE_ZIP:zip,HARNESS_NODE_EXTRACT:out}});
+   await writeFile(zip,Buffer.from('UEsDBBQAAAAAAIxCcl2sLGB1CAAAAAgAAAAZAAAAbm9kZS10ZXN0LXdpbi14NjQvTElDRU5TRWZpeHR1cmUKUEsBAhQDFAAAAAAAjEJyXawsYHUIAAAACAAAABkAAAAAAAAAAAAAAIABAAAAAG5vZGUtdGVzdC13aW4teDY0L0xJQ0VOU0VQSwUGAAAAAAEAAQBHAAAAPwAAAAAA','base64'));
+   const success=extract();
+   expect(success.error).toBeUndefined();
+   expect(success.status,success.stderr).toBe(0);
+   expect(await readFile(join(out,'node-test-win-x64','LICENSE'),'utf8')).toBe('fixture\n');
+   await writeFile(zip,'not a zip');
+   const failure=extract();
+   expect(failure.error).toBeUndefined();
+   expect(failure.status).toBe(1);
+   expect(failure.stderr).not.toBe('');
+  }finally{await rm(root,{recursive:true,force:true,maxRetries:5});}
+ },35000);
  it('packages runtime resources outside ASAR and does not include workspace or credentials',()=>{
   const config=desktopBuilderConfig('C:/build');
   expect(config.appId).toBe('local.generativeharness.desktop');expect(config.productName).toBe('Gen V1');expect(config.nsis.artifactName).toBe('Gen-V1-Setup-${version}-win-x64.exe');

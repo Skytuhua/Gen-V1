@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
+  "executionBaseSha": "c77d4716d94f72008be04562cbb596f1bb445512",
+  "inspectedPaths": [
+    {
+      "path": "package.json",
+      "blobSha": "f781878a516cde818abe86e263bfc7df9fa51873"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "6851e571feeaf0fdade155011a4604f499383564"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0"
+    },
+    {
+      "path": "packages/contracts/request-context.ts",
+      "blobSha": "90485ab315299e97f96b7b2dc370f0851f7f620f"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "c167e5bfd1828650c5ec1854de479e0addab9f08"
+    },
+    {
+      "path": "apps/server/server.ts",
+      "blobSha": "4ce7ecda98cedcf8ad100a4de9455615c40a842c"
+    },
+    {
+      "path": "apps/server/event-stream.ts",
+      "blobSha": "b3819ab34cccc4df3d32bd36eb170e13fa3d7f9e"
+    },
+    {
+      "path": "apps/server/account-auth.ts",
+      "blobSha": "6da36dc3ffbeaf201e7a3bd319f55ced01409add"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "c8f4be74c3ff304332123a484cdf5279d7fff6e8"
+    },
+    {
+      "path": "packages/core/conversation-read-models.ts",
+      "blobSha": "93d6f9a26685c936444e272fc6dd26f25211ea75"
+    },
+    {
+      "path": "packages/agent-projection/index.ts",
+      "blobSha": "c853ed842cab504419af983bfa4ab3f0c88fc4cb"
+    },
+    {
+      "path": "vitest.config.ts",
+      "blobSha": "90b2be612db1daf6813887f18bd9da6a8181c323"
+    },
+    {
+      "path": "packages/core/credential-slots.ts",
+      "blobSha": "b74841d3ea0022a109098d150edca23ca9ec5382"
+    },
+    {
+      "path": "packages/core/secret-references.ts",
+      "blobSha": "11758fa9b6b9cf8fbf623da61c7ce65d9b2337fb"
+    },
+    {
+      "path": "apps/server/conversation-read-routes.ts",
+      "blobSha": "8f06d04d88dce06e6dc4573f5fec7fac1916e360"
+    },
+    {
+      "path": "apps/web/src/api.ts",
+      "blobSha": "60f317d2182df57c2d906ed461621efaf46063fa"
+    },
+    {
+      "path": "apps/web/src/Settings.tsx",
+      "blobSha": "845219234df68c27806f85bd9f01bd5aceb727c6"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "packages/contracts/paired-device.ts",
+      "version": "eceb85da0706ae5c1573de5898f65bc6354e256b",
+      "testIds": [
+        "tests/device-pairing-v3.test.ts",
+        "tests/read-sync-v3.test.ts",
+        "tests/read-sync-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
+      "testIds": [
+        "tests/read-sync-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/storage/store.ts",
+      "version": "c8f4be74c3ff304332123a484cdf5279d7fff6e8",
+      "testIds": [
+        "tests/device-pairing-v3.test.ts",
+        "tests/read-sync-v3.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "2819153441fa5077d6f7af7b75ea8d9d078df16f",
+      "testIds": [
+        "tests/device-pairing-v3.test.ts",
+        "tests/read-sync-v3.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "c77d4716d94f72008be04562cbb596f1bb445512"
+  ],
+  "approvedDrift": []
+}

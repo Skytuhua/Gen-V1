@@ -1,0 +1,35 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store \u2014 not published/uploaded.",
+ "command": [
+  "pnpm",
+  "test:browser"
+ ],
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T10:24:25Z",
+ "endedAt": "2026-11-18T17:41:06Z",
+ "exitCode": 1,
+ "termination": "NONE",
+ "resultLines": [
+  "\u2718   65 tests/e2e/operation-execution-advice.spec.ts:106:1 \u203a failed metadata reads use a generic error and preserve the separate trust gate (7.2s)",
+  "\u2718  131 tests/e2e/shell-micro-motion.spec.ts:52:1 \u203a failed and cancelled receipts do not claim success and prepared approval retains exact authority (6.4s)",
+  "\u2718  139 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed denied handoff clears retained source pixels (17.5s)",
+  "\u2713  140 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed hash handoff clears retained source pixels (16.4s)",
+  "\u2713  141 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed cross-thread handoff clears retained source pixels (15.4s)",
+  "\u2713  142 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed original-hash handoff clears retained source pixels (12.5s)",
+  "\u2713  143 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed original-grant handoff clears retained source pixels (12.0s)",
+  "\u2713  144 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed unapproved handoff clears retained source pixels (12.8s)",
+  "\u2718  145 tests/e2e/signing-motion.spec.ts:111:128 \u203a failed unknown handoff clears retained source pixels (16.9s)",
+  "\u2718  164 tests/e2e/tool-effect-details.spec.ts:50:1 \u203a failed evidence reads stay visibly unavailable and a reload performs no action (6.5s)",
+  "Error: expect(locator).toBeVisible() failed",
+  "Error: expect(locator).toHaveText(expected) failed"
+ ],
+ "rawArtifact": {
+  "file": "pnpm-test-browser.log",
+  "sha256": "b0d62337a156f899b450cd9297937b5ed116ecfb0f9e59c21084da11ef3641e1",
+  "bytes": 2912997,
+  "retention": "agent-owned local evidence store",
+  "published": false
+ }
+}
