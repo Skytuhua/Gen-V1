@@ -98,35 +98,49 @@ function exactOrigin(value: string): string {
     throw executorDenied('INVALID_INPUT', 'Verification requires exact HTTP origins without credentials or paths.');
   return value;
 }
-interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string; sha256?: string }
+interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string; sha256?: string; maxBytes?: number }
 const changedBasis = () => executorDenied('EXECUTION_BINDING_CHANGED', 'Verification execution basis changed.');
 const WITNESS_CHUNK_BYTES = 1024 * 1024;
+// Match ProjectTrust's approved-file and execution-policy's executable bounds.
+const MAX_APPROVED_FILE_BYTES = 64 * 1024 * 1024, MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
 /** Timestamp granularity is a coarse clock tick on Linux and two seconds on
  * FAT-family and some network filesystems, so a same-length in-place rewrite
  * can leave every stat field untouched. The witness therefore pins the bytes
  * of the inode it measured, read through a no-follow descriptor whose identity
  * is rechecked against that measurement. */
-function witnessBytesDigest(path: string, identity: { dev: string; ino: string; size: string }): string {
+function witnessBytesDigest(path: string, identity: BasisWitness): string {
   const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
   try {
     const value = fstatSync(fd, { bigint: true });
-    if (!value.isFile() || String(value.dev) !== identity.dev || String(value.ino) !== identity.ino) throw changedBasis();
-    const hash = createHash('sha256'), buffer = Buffer.allocUnsafe(Math.min(WITNESS_CHUNK_BYTES, Math.max(1, Number(identity.size))));
-    for (let read = readSync(fd, buffer, 0, buffer.length, null); read > 0; read = readSync(fd, buffer, 0, buffer.length, null)) hash.update(buffer.subarray(0, read));
+    const unchanged = (current: typeof value) => current.isFile() && (['dev', 'ino', 'size', 'mtimeNs', 'ctimeNs', 'nlink'] as const).every(key => String(current[key]) === identity[key]);
+    if (!unchanged(value)) throw changedBasis();
+    let remaining = Number(value.size);
+    const hash = createHash('sha256'), buffer = Buffer.allocUnsafe(Math.min(WITNESS_CHUNK_BYTES, Math.max(1, remaining)));
+    while (remaining > 0) {
+      const read = readSync(fd, buffer, 0, Math.min(buffer.length, remaining), null);
+      if (read === 0) throw changedBasis();
+      hash.update(buffer.subarray(0, read)); remaining -= read;
+    }
+    // Read at most the measured length plus one byte. A concurrent append must
+    // not turn this synchronous admission fence into an unbounded read.
+    if (readSync(fd, buffer, 0, 1, null) !== 0 || !unchanged(fstatSync(fd, { bigint: true }))) throw changedBasis();
     return hash.digest('hex');
   } finally { closeSync(fd); }
 }
-function basisWitness(path: string, kind: BasisWitness['kind']): BasisWitness {
+function basisWitness(path: string, kind: BasisWitness['kind'], maxBytes = MAX_APPROVED_FILE_BYTES): BasisWitness {
   try {
     const value = lstatSync(path, { bigint: true });
     if ((kind === 'file' ? !value.isFile() : !value.isDirectory()) || realpathSync(path) !== path) throw changedBasis();
     const witness: BasisWitness = { canonicalPath: path, kind, dev: String(value.dev), ino: String(value.ino), size: String(value.size), mtimeNs: String(value.mtimeNs), ctimeNs: String(value.ctimeNs), nlink: String(value.nlink) };
-    if (kind === 'file') witness.sha256 = witnessBytesDigest(path, { dev: witness.dev, ino: witness.ino, size: witness.size });
+    if (kind === 'file') {
+      if (value.size > BigInt(maxBytes)) throw changedBasis();
+      witness.maxBytes = maxBytes; witness.sha256 = witnessBytesDigest(path, witness);
+    }
     return witness;
   } catch { throw changedBasis(); }
 }
 function assertWitnesses(witnesses: readonly BasisWitness[]): void {
-  for (const witness of witnesses) if (digest(basisWitness(witness.canonicalPath, witness.kind)) !== digest(witness)) throw changedBasis();
+  for (const witness of witnesses) if (digest(basisWitness(witness.canonicalPath, witness.kind, witness.maxBytes)) !== digest(witness)) throw changedBasis();
 }
 
 /** The public descriptor is approval metadata, never launch authority. A
@@ -171,8 +185,8 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
     if (browserRequired && (!origins.length || !backend.openBrowserDriver)) throw executorDenied('UNSUPPORTED_BACKEND', 'The approved backend has no admitted managed browser scope.');
     const root = await checkedExecution(input, () => canonicalRootIdentity(input.rootPath));
     const witnesses: BasisWitness[] = [];
-    const capture = (path: string, kind: BasisWitness['kind'], expected?: { dev: string; ino: string }) => {
-      const witness = basisWitness(path, kind);
+    const capture = (path: string, kind: BasisWitness['kind'], expected?: { dev: string; ino: string }, maxBytes?: number) => {
+      const witness = basisWitness(path, kind, maxBytes);
       if (expected && (witness.dev !== expected.dev || witness.ino !== expected.ino)) throw changedBasis();
       witnesses.push(witness);
     };
@@ -202,7 +216,7 @@ export function createVerificationBindingAuthority(config: VerificationExecutorH
       const canonicalPath = await checkedExecution(input, () => canonical(registrations[0]!.path));
       const identity = await checkedExecution(input, () => stat(canonicalPath, { bigint: true }));
       if (!identity.isFile()) throw executorDenied('EXECUTABLE_UNAVAILABLE', 'Verification requires a regular executable file.');
-      capture(canonicalPath, 'file', { dev: String(identity.dev), ino: String(identity.ino) });
+      capture(canonicalPath, 'file', { dev: String(identity.dev), ino: String(identity.ino) }, MAX_EXECUTABLE_BYTES);
       const sha256 = await checkedExecution(input, () => digestFileSha256(canonicalPath));
       if (!profile.executableAllowlist.some(entry => entry.executableSha256 === sha256))
         throw executorDenied('EXECUTABLE_UNAVAILABLE', 'Executable bytes are not approved by this profile.');
