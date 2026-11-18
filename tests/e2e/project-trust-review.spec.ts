@@ -148,6 +148,71 @@ test('changing to plan mode discards previously usable project trust', async ({ 
   expect(value.decisions).toEqual([]);
 });
 
+test('changing the model clears trust readiness before the new review returns', async ({ page }) => {
+  const value = await fixture(page);
+  value.review.current = { trustId: 'trust-current', revision: 1, decision: 'trusted' };
+  const approval = await value.open(), approve = approval.getByRole('button', { name: 'Approve operation', exact: true });
+  await expect(approve).toBeEnabled();
+  const release = value.holdNext();
+  try {
+    value.snapshot.threads[0].modelId = 'test/model-new'; value.fail(true);
+    await value.host.publish();
+    await expect(approve).toBeDisabled();
+    await expect.poll(value.reads).toBe(2);
+    await expect(approval).not.toContainText('Trusted reviewed bytes');
+    release();
+    await expect(approval).toContainText('Project trust could not be reviewed');
+    await expect(approve).toBeDisabled();
+    expect(value.decisions).toEqual([]);
+    expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+  } finally { release(); }
+});
+
+test('a late trust preview cannot replace the review after a model change', async ({ page }) => {
+  const value = await fixture(page), release = value.holdNext();
+  try {
+    const approval = await value.open();
+    await expect.poll(value.reads).toBe(1);
+    value.snapshot.threads[0].modelId = 'test/model-new';
+    value.review.reviewId = 'review-new-model'; value.review.approvedDigests[0].sha256 = 'c'.repeat(64);
+    await value.host.publish();
+    await expect.poll(value.reads).toBe(2);
+    await approval.getByRole('button', { name: 'Review project trust', exact: true }).click();
+    const dialog = page.getByRole('dialog', { name: 'Trust project bytes', exact: true });
+    await expect(dialog).toContainText('c'.repeat(64));
+    const old = page.waitForResponse(async response => response.url().includes('/api/operation-project-trust?') && (await response.json()).reviewId === 'review-current');
+    release(); await old;
+    await expect(dialog).toContainText('c'.repeat(64));
+    await expect(dialog).not.toContainText('a'.repeat(64));
+    await dialog.getByRole('checkbox', { name: 'Choose Unrestricted host for this operation', exact: true }).check();
+    await dialog.getByRole('button', { name: 'Trust these bytes', exact: true }).click();
+    await expect.poll(() => (value.decisions[0] as { reviewId?: string } | undefined)?.reviewId).toBe('review-new-model');
+    expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+  } finally { release(); }
+});
+
+test('a model change reloads recorded trust without retaining the old revoke control', async ({ page }) => {
+  const value = await fixture(page);
+  value.snapshot.operations[0].approved = true;
+  value.review.current = { trustId: 'trust-current', revision: 1, decision: 'trusted' };
+  await value.open();
+  const status = page.getByRole('region', { name: 'Recorded project trust', exact: true });
+  await expect(status).toContainText('Project trust recorded');
+  await expect(status.getByRole('button', { name: 'Revoke project trust', exact: true })).toBeEnabled();
+  const release = value.holdNext();
+  try {
+    value.snapshot.threads[0].modelId = 'test/model-new'; value.fail(true);
+    await value.host.publish();
+    await expect(status).not.toContainText('Project trust recorded');
+    await expect(status.getByRole('button', { name: 'Revoke project trust', exact: true })).toHaveCount(0);
+    await expect.poll(value.reads).toBe(2);
+    release();
+    await expect(status).toContainText('Recorded project trust is unavailable');
+    expect(value.decisions).toEqual([]);
+    expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+  } finally { release(); }
+});
+
 test('revoking reviewed trust disables the separate operation approval', async ({ page }) => {
   const value = await fixture(page);
   value.review.current = { trustId: 'trust-current', revision: 1, decision: 'trusted' };
