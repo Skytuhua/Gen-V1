@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """Append the session-5 post-merge phase + remainingGates entry to
 docs/implementation/v3/M10-verification.json. Historical phases untouched."""
-import json, os, sys
+import json, os
+from pathlib import Path
 
-ROOT = "<worktree>"
+ROOT = Path(__file__).resolve().parents[4]
 VP = os.path.join(ROOT, "docs/implementation/v3/M10-verification.json")
 RP = os.path.join(ROOT, "docs/implementation/v6/M10/receipts-postmerge.jsonl")
 
@@ -48,7 +49,11 @@ for cid, k in CASES.items():
 # that the strict schema rejects; they stay in receipts-postmerge.jsonl.
 COMMAND_KEYS = ("argv", "cwdIdentity", "executableIdentity", "startedAt", "endedAt",
                 "exitCode", "termination", "status", "boundedLogRef", "logDigest")
-canonical_commands = [{k: r[k] for k in COMMAND_KEYS} for r in receipts]
+prior_phase = next((p for p in d["phases"] if p["id"] == "m10.postmerge-v6-s5"), None)
+phase_receipts = receipts if prior_phase is None else [
+    by_key_log[os.path.basename(command["boundedLogRef"])] for command in prior_phase["commands"]
+]
+canonical_commands = [{k: r[k] for k in COMMAND_KEYS} for r in phase_receipts]
 
 phase_status = "PASS" if all(c["status"] == "PASS" for c in cases) and \
     rc("vitest-background-work-r3.summary.md") == "PASS" and rc("vitest-human-handoff.summary.md") == "PASS" and \
@@ -67,7 +72,10 @@ phase = {
 }
 
 # replace if a previous run of this script already appended
-d["phases"] = [p for p in d["phases"] if p["id"] != phase["id"]] + [phase]
+if prior_phase is None:
+    d["phases"].append(phase)
+else:
+    d["phases"][d["phases"].index(prior_phase)] = phase
 
 note = ("Post-merge session-5 verification on captured origin/main 4aef753e (cut includes squash 016738f7 + "
         "follow-up 1d65ae1e #786): four targeted suites PASS (43+11+24+5=83), lint PASS, build PASS, "

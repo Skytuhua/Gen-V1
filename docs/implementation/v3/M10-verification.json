@@ -1553,7 +1553,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build-widgets.summary.md",
-     "logDigest": "8598f9e20c77d748788f3214e6da8d0740890a4ea0ba2c1ad85f02ac4847d80f"
+     "logDigest": "47441b7fb9ad30b4bf01601eed01fc39ade513b4f3157feba90900b68b3dd3e9"
     },
     {
      "argv": [
@@ -1572,7 +1572,7 @@
      "termination": "NONE",
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work.summary.md",
-     "logDigest": "576b38322900b1ac203ffa510e779f5dd689f3f78f9010bf1e776df5c17d262e"
+     "logDigest": "a207a65da54f64f243f49735cf75c158e8d51e034b580de328cb679095533bbd"
     },
     {
      "argv": [
@@ -1591,7 +1591,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r3.summary.md",
-     "logDigest": "21b02569985b53306f01b58080cb0e78235506e1dc8ba046bf264a88a22de214"
+     "logDigest": "fe4a3cb2ea118ba06bc79fab14aea85e17cf7f7bc7a9b1e04e2f3640a3d0b72d"
     },
     {
      "argv": [
@@ -1610,7 +1610,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-human-handoff.summary.md",
-     "logDigest": "ed1e2b00a30d3c1a791b3562c07ea1614542792b85be0364e00839e35cbf2208"
+     "logDigest": "2dc53b8dbe0bb12a831badaa0cc692e970badbe4ddd4dec3bf2127359af1623d"
     },
     {
      "argv": [
@@ -1629,7 +1629,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-external-intake.summary.md",
-     "logDigest": "c6eaa32f107d921b6102d9ea86d45f76e65cb641059793f0710c67ee20d61f41"
+     "logDigest": "f7c40b692cb7ea75d0059d130e9699cd683bd60ced28b1cd2281fd0de1928f11"
     },
     {
      "argv": [
@@ -1648,7 +1648,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/vitest-decisions.summary.md",
-     "logDigest": "8caed8a34350467ee1321b236a719610303b1de62139f891fd387a4426869e46"
+     "logDigest": "b3b2100f889aa468c0e068c6b24a3fdd47d5c4ea1574e21a0794f55e1f1ffdf1"
     },
     {
      "argv": [
@@ -1663,7 +1663,7 @@
      "termination": "NONE",
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck.summary.md",
-     "logDigest": "134765f9d96be3493af36df134815cb762fe061c407d0b2861287cf4c4526c6b"
+     "logDigest": "4741a10903db21e548c842bb1ab8a94bf5e09ba415f016f963c91d59814bea5f"
     },
     {
      "argv": [
@@ -1678,7 +1678,7 @@
      "termination": "NONE",
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r2.summary.md",
-     "logDigest": "42313d1f5bd6f2fe67184ff66946cd2e381595fe808c32623345e3c57a00c522"
+     "logDigest": "90e8f35774643eb518077db7476e83cd45183da455961fea4c4569fd9c853849"
     },
     {
      "argv": [
@@ -1693,7 +1693,7 @@
      "termination": "NONE",
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r3.summary.md",
-     "logDigest": "c97d58fa2e71a4a1ddd4932e153bd273c197425ac5e80cdbed8fc0da0b49caf1"
+     "logDigest": "91b88539c89f68cb109afa6ac28bb75944ddeeee13e1241f494d9010e5ad8dd7"
     },
     {
      "argv": [
@@ -1708,7 +1708,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/typecheck-r4.summary.md",
-     "logDigest": "f27513dc97180506c628931e7fbc3c7da7d7647ca5821aa2fcae850787270c2f"
+     "logDigest": "4f3c3d6cdbfc0174b18a5145bfe53009392e0d8e137ec82c6818f7811563d352"
     },
     {
      "argv": [
@@ -1723,7 +1723,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/lint.summary.md",
-     "logDigest": "c035c4112e75813d5c06b9ed92244cbbeb487ab0761a876ba8ae9f4a370167bd"
+     "logDigest": "6e999044289cc18a342ef8045bb612b607dbd1c685046b22358cfd7792c2078b"
     },
     {
      "argv": [
@@ -1738,7 +1738,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/build.summary.md",
-     "logDigest": "ce6d75a31a10e4947edf0b4df869308e91fab004d745e7a01b7780b83525199a"
+     "logDigest": "0b362ed061f23165ed6de64a45c2dccb92e2b3776921715602fc4b0e75e6c956"
     },
     {
      "argv": [
@@ -1754,7 +1754,7 @@
      "termination": "NONE",
      "status": "FAIL",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/test-full.summary.md",
-     "logDigest": "b9c69a13f62770dca40c66e8f2f3bc19d957babd7e4ad40ec966842f7ea85795"
+     "logDigest": "b43e60992a497f128825725c8918ff8220483bb8f479ebcec5fec0b09b384f65"
     },
     {
      "argv": [
@@ -1771,7 +1771,7 @@
      "termination": "NONE",
      "status": "PASS",
      "boundedLogRef": "docs/implementation/v6/M10/logs-pm/browser-background-work.summary.md",
-     "logDigest": "b9ab1ce610049a64d83001aef59053747467b34c515674cee5f65e1f48016de6"
+     "logDigest": "da7944ffaf83be62bbbefff7673f5df4b5412266887496082f84ccba01dfd99f"
     }
    ],
    "artifactRefs": [
