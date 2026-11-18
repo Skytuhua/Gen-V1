@@ -1,0 +1,71 @@
+== bounded redacted evidence summary ==
+originalSha256: f98c74707f17d9a1ce08ee8a8ac5780e5d7a4b6b88953ef67eceadcca3f2181b
+originalBytes: 9948
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ❯ tests/capabilities.test.ts (24 tests | 13 failed) 1754ms
+     ✓ publishes strict schemas and valid examples for every requested component 20ms
+     ✓ admits local disclosure state and table selection state without expressions 0ms
+     ✓ accepts opaque resource UUIDs starting with digits independently of state aliases 0ms
+     ✓ rejects unknown props, types, references, cycles and executable styling 4ms
+     ✓ enforces node, byte and deepest graph path limits including shared children 3ms
+     ✓ accepts exact graph bounds and rejects UTF-8 byte overflow across valid props 4ms
+     ✓ advertises strict metadata and rejects unknown tool/argument/command admission 6ms
+     × publishes resource sourced text with an exact content hash 37ms
+     × prepares without writing and rejects absent approval and changed source bytes 4ms
+     × executes approved replacement, publishes actual results and re-resolves write permissions 2ms
+     × rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch 4ms
+     × reconciles before/after replacement hashes read-only and leaves changed bytes unknown 2ms
+     × runs the exact node-test recipe and reports actual success and failure exits 2ms
+     × cancels the actual process tree and records cancellation instead of success 2ms
+     × inspects real rows and applies exact prepared counts with integrity/version checks 35ms
+     × bounds inspect rows by serialized bytes and reports truncation 448ms
+     × rolls back wrong counts, denies attachment and rejects stale database versions 29ms
+     × reports actual migration DML counts independently from schema statements 18ms
+     × inspects fields, fills supported types and places typed/drawn marks in a new local export 28ms
+     × creates fixtures only at an exclusive new destination including real git conflict 230ms
+     ✓ freezes 12 cases and keeps category and novel gates pending without real model results 2ms
+     ✓ writes a pending unexecuted eval report and never promotes fabricated results through reviews 7ms
+     ✓ runs the installed CLI entry points in disposable destinations with honest pending exit  865ms
+     ✓ enforces independent category and mandatory novel gates over real-run evidence 2ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > publishes resource sourced text with an exact content hash
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ validateLinuxDirectoryPaths packages/core/linux-path-guard.ts:17:84
+ ❯ Object.rpc packages/core/linux-path-guard.ts:81:32
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:153:16
+ ❯ handleDomainTool packages/capabilities/index.ts:102:22
+ ❯ tests/capabilities.test.ts:106:20
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > prepares without writing and rejects absent approval and changed source bytes
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > executes approved replacement, publishes actual results and re-resolves write permissions
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > reconciles before/after replacement hashes read-only and leaves changed bytes unknown
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > runs the exact node-test recipe and reports actual success and failure exits
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > cancels the actual process tree and records cancellation instead of success
+ FAIL  tests/capabilities.test.ts > real selected SQLite > inspects real rows and applies exact prepared counts with integrity/version checks
+ FAIL  tests/capabilities.test.ts > real selected SQLite > bounds inspect rows by serialized bytes and reports truncation
+ FAIL  tests/capabilities.test.ts > real selected SQLite > rolls back wrong counts, denies attachment and rejects stale database versions
+ FAIL  tests/capabilities.test.ts > real selected SQLite > reports actual migration DML counts independently from schema statements
+ FAIL  tests/capabilities.test.ts > PDF local export > inspects fields, fills supported types and places typed/drawn marks in a new local export
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ validateLinuxDirectoryPaths packages/core/linux-path-guard.ts:17:84
+ ❯ Object.rpc packages/core/linux-path-guard.ts:81:32
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:153:16
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch
+AssertionError: expected [Function] to throw error matching /read only/i but got 'File access check failed — the folder…'
+- Expected:
+"File access check failed — the folder could not be opened safely for this action"
+ ❯ tests/capabilities.test.ts:134:161
+ Test Files  1 failed (1)
+      Tests  13 failed | 11 passed (24)
+   Duration  2.53s (transform 379ms, setup 0ms, import 652ms, tests 1.75s, environment 0ms)
+ ✓ tests/linux-path-guard.test.ts (23 tests) 30ms
+ ✓ tests/memory-storage-boundary-v3.test.ts (9 tests) 59ms

@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js",
+    "test",
+    "--maxWorkers=2",
+    "--shard=4/4",
+    "--reporter=default",
+    "--reporter=json",
+    "--outputFile=test-results/m15/full-results-shard-4.json"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T12:28:17.819Z",
+  "endedAt": "2026-11-18T12:33:59.885Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-full-shard-4.log",
+  "logDigest": "d012a97a3195c6f9b170bfad56f221c8d404865fb6c233ecbb918dbc88f807d4"
+}

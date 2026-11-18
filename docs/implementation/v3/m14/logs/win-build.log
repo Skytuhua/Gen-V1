@@ -1,0 +1,12 @@
+== bounded redacted evidence summary ==
+originalSha256: 60fd432686947b5b83de970b530180abffc4a909714d2819ee79a2ddabf30799
+originalBytes: 11255
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(node:4172) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+✓ 1792 modules transformed.
+✓ built in 6.60s
+✓ 2129 modules transformed.
+✓ built in 7.54s

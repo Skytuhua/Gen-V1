@@ -1,0 +1,94 @@
+== bounded redacted evidence summary ==
+originalSha256: ec2421b75bf96bfd8b2b045f0582a6238c2e6d057a2fc105bc7b30b5e0856c2f
+originalBytes: 13365
+flags: machinePath=False ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+     ✓ enforces independent category and mandatory novel gates over real-run evidence 16ms
+ ✓ tests/tool-effects-v3.test.ts (13 tests) 5436ms
+   ✓ admits then persists DISPATCHED before invoking the executor, then settles  428ms
+   ✓ coalesces duplicate invocation IDs and conflicts on changed arguments  558ms
+   ✓ lets two callers sharing one approval dispatch only once  446ms
+   ✓ refuses an expired approval before any dispatch is persisted  474ms
+   ✓ issues an approval on operation.approve and consumes it at the single dispatch  804ms
+   ✓ denies dispatch when the approved owner drifts (epoch bump)  559ms
+   ✓ retains a historical result when the owner is archived mid-dispatch but publishes nothing current  399ms
+   ✓ honors the latest approval when an operation is approved again  447ms
+   ✓ still requires the bound approval under authorityV1 when effectsV1 is off  487ms
+ ✓ tests/conversation-read-models.test.ts (29 tests) 17896ms
+   ✓ projects an actual empty Personal owner without requiring Agent inventory or exposing private fields  478ms
+   ✓ keeps side transcripts text-only and ineligible for Research with exact Personal parent linkage  361ms
+   ✓ pages stable message identities chronologically despite concurrent append and streaming of another message  306ms
+   ✓ bounds Unicode content in SQL, continues exactly and rejects same-length replacement  1453ms
+   ✓ requires resync after an unobserved external commit or an expired update checkpoint  9077ms
+   ✓ withholds a captured page if another canonical writer changes authority during its read  535ms
+   ✓ reads no Snapshot, broad entities or event payloads even for multi-megabyte messages and progress  797ms
+   ✓ fails closed after disposal or synchronous host revocation  427ms
+ ✓ tests/m14-evidence-gates.test.ts (6 tests) 65ms
+ ✓ tests/research-baseline.test.ts (26 tests) 4045ms
+     ✓ times out a hung child and kills its process tree  1556ms
+     ✓ reproduce identical control actions and effect counts per fixed seed  1152ms
+ ✓ tests/m01-m02-compatibility.test.ts (2 tests) 50ms
+ ✓ tests/project-memory-v3.test.ts (10 tests) 7535ms
+   ✓ keeps proposals out of accepted memory and records exact user acceptance without source truth inflation  1112ms
+   ✓ binds identity to physical enrollment and survives only a display rename  1028ms
+   ✓ rejects another account, unapproved source thread, fabricated source and oversized or secret payloads  1010ms
+   ✓ captures exact settled source revisions and refuses an actively changing task  754ms
+   ✓ supersedes a correction and retains both concurrent edits as an explicit conflict  862ms
+   ✓ keeps memory text out of mutation receipts and permits retained record review after disabling injection  504ms
+   ✓ connects host revisions to local recall and a reference index without reviving corrected or forgotten text  839ms
+   ✓ opens the exact reference when identical source bytes came from distinct messages  408ms
+   ✓ allows disabling project memory after a selected source conversation becomes ineligible  1005ms
+ ✓ tests/request-preparation-service-v3.test.ts (25 tests) 27881ms
+   ✓ retains the same immutable preparation identity through the actual admitted request  593ms
+   ✓ rejects a preview token used with a changed prompt before accepting the draft  455ms
+   ✓ rejects a preview token used with a changed model before accepting the draft  403ms
+   ✓ rejects a preview token used with a changed owner before accepting the draft  455ms
+   ✓ rejects a removed grant and changed task note before accepting a prepared draft  653ms
+   ✓ checks physical project identity again after preview  718ms
+   ✓ checks current account selection and model binding again after preview  545ms
+   ✓ prevents token reuse while preserving a retry of the accepted command  568ms
+   ✓ fails preparation before message admission when the trusted preparation hook fails  344ms
+   ✓ fails dispatch when the trusted finalization hook fails and retains the accepted input  443ms
+   ✓ revalidates after asynchronous finalization when stop changes  626ms
+   ✓ revalidates after asynchronous finalization when note changes  717ms
+   ✓ revalidates after asynchronous finalization when grant changes  637ms
+   ✓ revalidates after asynchronous finalization when hook assertion changes  554ms
+   ✓ dispatches queued token-bound follow-ups separately without losing later outbox inputs  1093ms
+   ✓ allocates default-send identity but leaves the default-off path unchanged  903ms
+   ✓ expires abandoned previews, calls cleanup, and never resurrects the same identity  481ms
+   ✓ preserves an accepted queued token across the prior native session lifecycle event  455ms
+   ✓ preserves an accepted queued token across the prior native settled lifecycle event  380ms
+   ✓ preserves separately accepted previews queued before the first epoch is admitted  489ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  12870ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle  2795ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > publishes resource sourced text with an exact content hash
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > prepares without writing and rejects absent approval and changed source bytes
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > executes approved replacement, publishes actual results and re-resolves write permissions
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > reconciles before/after replacement hashes read-only and leaves changed bytes unknown
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > runs the exact node-test recipe and reports actual success and failure exits
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > cancels the actual process tree and records cancellation instead of success
+ FAIL  tests/capabilities.test.ts > real selected SQLite > inspects real rows and applies exact prepared counts with integrity/version checks
+ FAIL  tests/capabilities.test.ts > real selected SQLite > bounds inspect rows by serialized bytes and reports truncation
+ FAIL  tests/capabilities.test.ts > real selected SQLite > rolls back wrong counts, denies attachment and rejects stale database versions
+ FAIL  tests/capabilities.test.ts > real selected SQLite > reports actual migration DML counts independently from schema statements
+ FAIL  tests/capabilities.test.ts > PDF local export > inspects fields, fills supported types and places typed/drawn marks in a new local export
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ handleDomainTool packages/capabilities/index.ts:102:22
+ ❯ tests/capabilities.test.ts:106:20
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch
+AssertionError: expected [Function] to throw error matching /read only/i but got 'File access check failed — the folder…'
+- Expected:
+"File access check failed — the folder could not be opened safely for this action"
+ ❯ tests/capabilities.test.ts:134:161
+ Test Files  1 failed | 8 passed (9)
+      Tests  13 failed | 134 passed (147)
+   Duration  41.32s (transform 13.75s, setup 0ms, import 29.79s, tests 77.04s, environment 3ms)

@@ -1,0 +1,18 @@
+== bounded redacted evidence summary ==
+originalSha256: 75d4c24ea2e37fb51142d81de9410ac5e23428243ed34ad73dbfd61295b5c6c9
+originalBytes: 2208
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+{"directory":"<harness-runs>\\run-1794893851387-650c4a23-5dee-44a1-90e9-97abb3b02941","passed":true}
+{"directory":"<harness-runs>\\run-1794893186217-d29ccee8-e5f6-45c0-9a73-649b7a21541c","passed":false}
+Je [Error]: expect(locator).toHaveText(expected) failed
+Expected: "Redacted export downloaded."
+Error: element(s) not found
+  matcherResult: {
+    expected: 'Redacted export downloaded.',
+    message: 'expect(locator).toHaveText(expected) failed\n' +
+      'Expected: "Redacted export downloaded."\n' +
+      'Error: element(s) not found\n' +
+    pass: false,

@@ -1,0 +1,148 @@
+== bounded redacted evidence summary ==
+originalSha256: a9757fbe90da7824624fb15fa3b4c26400210854e049427e21f84b7d640ea782
+originalBytes: 50908
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ❯ tests/project-search-host.test.ts (51 tests | 1 failed | 1 skipped) 80832ms
+   × stops at 10,000 ordinary files, without visiting the next file 61761ms
+ ❯ tests/runtime-router.test.ts (21 tests | 1 failed) 32784ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 4469ms
+ ❯ tests/capabilities.test.ts (24 tests | 1 failed) 295919ms
+     × creates fixtures only at an exclusive new destination including real git conflict 30453ms
+ ❯ tests/task-memory-recovery.test.ts (3 tests | 1 failed) 16725ms
+   × keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery 14212ms
+ ❯ tests/skill-catalog.test.ts (23 tests | 1 failed) 317733ms
+   × enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes 60145ms
+ ❯ tests/code-review-comparisons.test.ts (12 tests | 3 failed) 491056ms
+   × reads index and worktree overlap separately and binds selected patches to the complete revision 66310ms
+   × reports clean, untracked text, binary and bounded large patches honestly 63987ms
+   × reads staged deletions and renames by exact selected paths 61452ms
+ ❯ tests/hermes-service.test.ts (15 tests | 2 failed) 192456ms
+   × bounds hook admission while preserving every successful write and ordinary receipt 60620ms
+   × never supplies completed-write custody for unapproved or failed effects 14346ms
+ ❯ tests/desktop-host.test.ts (13 tests | 2 failed) 48856ms
+   × launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token 19571ms
+   × does not leave its backend running after the owning IPC channel disconnects 20605ms
+ ❯ tests/integration-mcp.test.ts (12 tests | 3 failed) 53334ms
+   × builds a real Graphify code graph, queries its stdio server and exports GraphML without a model 69ms
+   × initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host 10ms
+   × refuses linked Graphify graph input and linked export directories inside the owned fixture 45ms
+ ❯ tests/checkpoint-restore-v3.test.ts (14 tests | 3 failed) 389903ms
+   × rolls written files back on a conflict and reports CONFLICT 60032ms
+   × conflicts rather than overwrite content the recovery checkpoint cannot hold 60251ms
+   × preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback 60121ms
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 111001ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 12318ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 10751ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 11411ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 11251ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 16027ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 14021ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 10525ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 11603ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 11120ms
+ ❯ tests/review-host.test.ts (8 tests | 1 failed) 47728ms
+     × shows actual before/after SQLite rows and valid row-change annotations 12073ms
+ ❯ tests/integration-host.test.ts (8 tests | 1 failed) 7789ms
+   × keeps Biome write proposals and Spec Kit initialization unavailable in plan mode 250ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 127078ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 11173ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 10821ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 10329ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 11896ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 14508ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 13213ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 11788ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 10026ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 10659ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 10704ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 11959ms
+ ❯ tests/private-git-family.test.ts (19 tests | 1 failed) 430649ms
+   × imports once into protected private bare storage and creates three independent native worktrees 73885ms
+ ❯ tests/hermes-original-integration.test.ts (1 test | 1 failed) 5601ms
+   × runs original Python and ACP through the native broker, persists a skill and finishes through the real Service 5600ms
+Error: AttachConsole failed
+Error: AttachConsole failed
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 56628ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 5218ms
+ ❯ tests/hermes-host.test.ts (1 test | 1 failed) 7378ms
+   × serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host 7376ms
+ ❯ tests/hermes-client.test.ts (13 tests | 2 failed) 64674ms
+   × drains owned host callbacks even when process cancellation fails 5662ms
+   × treats a denied host callback as an ordinary tool result during teardown 6332ms
+{"evidence":"SYNTHETIC_ONLY","summaryCount":10000,"projects":20,"pageSize":37,"pageBytes":20391,"bootstrapMs":402.3675999999998,"firstPageMs":24.52929999999992,"scopedProgressEvents":100,"scopedProgressMs":612.8292999999999}
+ ❯ tests/integrations.test.ts (4 tests | 1 failed) 4418ms
+   × admits exactly the ten bundled integrations without starting their MCP services 177ms
+ ❯ tests/hermes-multi-original.test.ts (1 test | 1 failed) 5912ms
+   × runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls 5911ms
+ ❯ tests/workspace-action-outcome-routes.test.ts (5 tests | 3 failed) 269917ms
+   × routes supported writes through durable identity and keeps inspection read-only 60043ms
+   × an exact local stale-head preflight is not-applied before entering a mutation 60064ms
+   × valid Unicode review text fits submission and exact read-only inspection 60201ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 16 failed) 1121860ms
+   × commits intent before local write and private result before event, then replays after Store restart 60049ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 60400ms
+   × serializes same-ID attempts across separate Store connections without a double write 60204ms
+   × denies reuse of an ID with a changed payload 60027ms
+   × denies reuse of an ID with a changed type 60071ms
+   × denies reuse of an ID with a changed projectId 60385ms
+   × inspects original payload/revision without current diff, review reads, or any write 60081ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 60183ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 60043ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 60049ms
+   × records not-applied only after host rejection before starting and never restarts that ID 60152ms
+   × keeps completed external write uncertain if durable result commit fails 60053ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 60074ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 61802ms
+   × rejects a profile replaced between inspection identity capture and credential read 60053ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 60031ms
+⎯⎯⎯⎯⎯⎯ Failed Tests 67 ⎯⎯⎯⎯⎯⎯⎯
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:58:35
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+Error: Test timed out in 30000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/capabilities.test.ts:241:3
+ FAIL  tests/checkpoint-restore-v3.test.ts > rolls written files back on a conflict and reports CONFLICT
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:100:1
+ FAIL  tests/checkpoint-restore-v3.test.ts > conflicts rather than overwrite content the recovery checkpoint cannot hold
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:130:1
+ FAIL  tests/checkpoint-restore-v3.test.ts > preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/checkpoint-restore-v3.test.ts:235:1
+ FAIL  tests/code-review-comparisons.test.ts > reads index and worktree overlap separately and binds selected patches to the complete revision
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/code-review-comparisons.test.ts:63:1
+ FAIL  tests/code-review-comparisons.test.ts > reports clean, untracked text, binary and bounded large patches honestly
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+... [bounded: 187 further result lines preserved in out-of-source custody original]

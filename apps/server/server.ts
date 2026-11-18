@@ -32,10 +32,14 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
+import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {registerOperationProjectTrustRoutes} from './operation-project-trust-routes.ts';
 import {registerOperationExecutionReviewRoutes} from './operation-execution-review-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
+import {SessionBranchReadModels} from '../../packages/core/session-branches.ts';
+import {registerSessionBranchReadRoutes} from './session-branch-routes.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
@@ -271,8 +275,14 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);
+  const sessionBranchReads=new SessionBranchReadModels(service.store);
+  registerSessionBranchReadRoutes(app,sessionBranchReads);
   const toolEffectReads=new ToolEffectReadModels(service.store);
   registerToolEffectReadRoutes(app,toolEffectReads);
+  // M17: host-side pairing management on the session/CSRF API. The
+  // device-facing remote surface is never mounted here — it exists only under
+  // an explicit configured authenticated TLS transport (S01/D07).
+  registerDevicePairingRoutes(app,new DevicePairingHost(service.store),new ReadSyncHost(service.store));
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));

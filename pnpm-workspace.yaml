@@ -2,5 +2,9 @@ packages: []
 onlyBuiltDependencies:
   - electron
   - esbuild
+  - node-pty
 patchedDependencies:
   node-pty@1.1.0: patches/node-pty-1.1.0.patch
+supportedArchitectures:
+  os: [current, win32]
+  cpu: [current, x64]
