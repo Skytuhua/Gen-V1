@@ -496,4 +496,22 @@ Post-curation current-head validation (on `d50983ed`, receipts
 paths exist), `plugin-worker-v3` 18/18, `plugin-lifecycle-v3` 15/15,
 `plugin-protocol-decisions-v6` 5/5 — all exit 0. Evidence integrity
 re-check: PASS (schema clean, every `boundedLogRef` digest matches its
-committed file, `reviewerApproval` false, `bundleStatus` PARTIAL).
+committed file, `reviewerApproval` false, `bundleStatus` FAIL —
+corrected 2026-11-19: the observed `pnpm test`/`pnpm test:browser` required
+cases are classified FAIL, never relabeled as successful executions).
+
+## Evidence classification correction (2026-11-19)
+
+`M13-verification.json` `FULL_SUITE_GATES` mislabeled required cases
+`pnpm-test` and `pnpm-test-browser` as `status: PASS` even though their
+command records honestly show exit 1 / FAIL on `d249c566`, and the phase
+said `BLOCKED`. Corrected to `FAIL` for both cases and the phase — a
+required aggregate failure is never relabeled as a successful execution.
+The `d249c566` receipts are retained exactly; focused-case PASSes and
+merged-cut scoped passes keep their own SHAs. `remainingGates` now records
+that the full suites have not been re-run on merged heads and why the
+observed aggregate failures are outside M13 where demonstrated
+(environment custody, fixture timeouts, pre-existing staged-build gap,
+sibling `wo8.spec.ts` — zero M13 files). Computed `bundleStatus` is now
+FAIL (observed required-case failure); evidence integrity still validates
+(schema clean, digests match committed files).
