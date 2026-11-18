@@ -1,0 +1,11 @@
+== bounded redacted evidence summary ==
+originalSha256: 0b44054f0ca69c144945b86695b9bdd7f3bbe7b6730b2a8d602e8b93fa675228
+originalBytes: 3012
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+Browser results: <scratch-worktree>/test-results/browser/run-1794736715666-5a711c0d-1d36-4354-a2af-590c09e39c7b
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Error: Failed to load native module: pty.node, checked: build/Release, build/Debug, prebuilds/linux-x64: Error: Cannot find module './prebuilds/linux-x64//pty.node'
+Failed browser suites: root (exit 1)

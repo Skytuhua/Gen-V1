@@ -1,0 +1,148 @@
+== bounded redacted evidence summary ==
+originalSha256: 6a50dc4bfe850e712770787050e677fdadb4d9fa0fa7ebf9f1911283d643d54a
+originalBytes: 145130
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ❯ tests/skill-invocation.test.ts (36 tests | 36 failed) 82ms
+   × materializes exact entry bytes and captured support without changing prompt or resources 13ms
+   × denies stale support, forged identity, cross-source and private-provider references 2ms
+   × rejects every changed authority dimension before admission 2ms
+   × fences authority changes during catalog awaits and again before commit/runtime/support reads 2ms
+   × honors pre-abort and an abort that wins a catalog await without producing an admission 2ms
+   × denies support-bytes between fresh catalog custody and materialization 2ms
+   × denies entry-bytes between fresh catalog custody and materialization 2ms
+   × denies file-swap between fresh catalog custody and materialization 2ms
+   × denies directory-swap between fresh catalog custody and materialization 2ms
+   × denies hardlink between fresh catalog custody and materialization 2ms
+   × denies junction between fresh catalog custody and materialization 1ms
+   × denies extra-file between fresh catalog custody and materialization 2ms
+   × revalidates the canonical source after capture rather than accepting its earlier index 3ms
+   × restores authenticated exact bytes across host restart without rediscovering changed skills 2ms
+   × rejects command-ID reuse with changed content, model, thinking, reference or authority 2ms
+   × denies replay tampering and key loss instead of falling back to rediscovery 2ms
+   × denies forged admissions, mismatched runtime owners and arbitrary support paths 2ms
+   × reads the exact Harness version/document with no latest-name or ambient projection fallback 2ms
+   × denies a package exceeding files instead of silently truncating it 6ms
+   × denies a package exceeding fileBytes instead of silently truncating it 2ms
+   × denies a package exceeding packageBytes instead of silently truncating it 2ms
+   × rejects malformed payloads rather than accepting browser supplied text, paths or authority grants 2ms
+   × selection preserves every reference field without a body read or admission capability, and bundles for browsers 2ms
+   × denies a changed runtime thinking level even when the model is unchanged 2ms
+   × preserves UTF-8 BOM and original line endings in admitted guidance 2ms
+   × admits all selected references in order, never silently dropping a stale second selection 2ms
+   × bounds Harness entry bytes before materializing an oversized saved document 1ms
+   × captures only a verified installed App package, without activating its host, and rechecks registry revocation 1ms
+   × uses the bundled manifest pin and denies an index replacement between custody and capture 2ms
+   × resolves only the connected canonical project/worktree and denies its root identity changing 2ms
+   × aborts after capture while the final source recheck is in flight 2ms
+   × returns cancellation while an obsolete catalog read is still pending 2ms
+   × replays the same command after an actual Store reopen without another message or current-source read 1ms
+   × precommit authority revalidation leaves message/outbox/capture storage empty on a race 2ms
+   × sanitizes authority-provider failures at precommit without leaking host paths 2ms
+   × accepts the parent raw skills array while taking expected authority only from host options 2ms
+ ❯ tests/path-access.test.ts (0 test)
+ ❯ tests/capabilities.test.ts (24 tests | 13 failed) 779ms
+     × publishes resource sourced text with an exact content hash 11ms
+     × prepares without writing and rejects absent approval and changed source bytes 2ms
+     × executes approved replacement, publishes actual results and re-resolves write permissions 1ms
+     × rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch 7ms
+     × reconciles before/after replacement hashes read-only and leaves changed bytes unknown 2ms
+     × runs the exact node-test recipe and reports actual success and failure exits 1ms
+     × cancels the actual process tree and records cancellation instead of success 1ms
+     × inspects real rows and applies exact prepared counts with integrity/version checks 3ms
+     × bounds inspect rows by serialized bytes and reports truncation 16ms
+     × rolls back wrong counts, denies attachment and rejects stale database versions 5ms
+     × reports actual migration DML counts independently from schema statements 1ms
+     × inspects fields, fills supported types and places typed/drawn marks in a new local export 32ms
+     × creates fixtures only at an exclusive new destination including real git conflict 74ms
+ ❯ tests/workspace-action-outcomes.test.ts (20 tests | 19 failed) 376ms
+   × commits intent before local write and private result before event, then replays after Store restart 37ms
+   × retains interrupted remote write as uncertain across restart without submitting it again 24ms
+   × serializes same-ID attempts across separate Store connections without a double write 19ms
+   × denies reuse of an ID with a changed payload 20ms
+   × denies reuse of an ID with a changed type 16ms
+   × denies reuse of an ID with a changed threadId 17ms
+   × denies reuse of an ID with a changed projectId 20ms
+   × inspects original payload/revision without current diff, review reads, or any write 19ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 22ms
+   × keeps private intent, result, credentials and errors out of events, receipts and snapshots 18ms
+   × keeps missing and legacy records uncertain without adopting unbound receipts 15ms
+   × records not-applied only after host rejection before starting and never restarts that ID 15ms
+   × keeps failures after started uncertain even when there is no receipt 35ms
+   × keeps completed external write uncertain if durable result commit fails 16ms
+   × recovers a confirmed review when the remote branch name differs from the managed local branch 15ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 15ms
+   × pins profile access while GitHubTools is awaiting remote validation 15ms
+   × rejects a profile replaced between inspection identity capture and credential read 17ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 15ms
+ ❯ tests/agent-follow-up.test.ts (0 test)
+ ❯ tests/code-review-comparisons.test.ts (12 tests | 12 failed) 287ms
+   × reads index and worktree overlap separately and binds selected patches to the complete revision 40ms
+   × reports clean, untracked text, binary and bounded large patches honestly 26ms
+   × pins remote PR patches to exact three-dot identity without substituting local unstaged changes 22ms
+   × returns explicit transport errors and never calls a local diff as fallback 20ms
+   × reads staged deletions and renames by exact selected paths 20ms
+   × keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD 21ms
+   × denies delegates, Company, cross-project and replaced-directory reads before remote transport 21ms
+   × keeps snapshots isolated from returned mutable data and never accepts another owner 22ms
+   × distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs 21ms
+   × never reads a hardlinked changed file into a patch 24ms
+   × reads an already-attested remote origin without a source Git checkout or source file projection 25ms
+   × rejects mismatched remote identities and reports empty and capped file inventories honestly 23ms
+ ❯ tests/skill-catalog.test.ts (23 tests | 19 failed) 78ms
+   × enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes 27ms
+   × pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal 2ms
+   × binds authenticated cursors to inventory, search, page size and connection context 2ms
+   × denies file/directory symlinks and hardlinks while retaining other safe packages 3ms
+   × bounds file counts and bytes without truncating a package into an available reference 2ms
+   × marks an exhausted root inventory unavailable instead of silently presenting a partial catalog 2ms
+   × counts bytes consumed by rejected packages against the root budget 2ms
+   × rejects namespace escalation and source substitution without resolving a display name 1ms
+   × accepts bound references for the full declared source-identity length 1ms
+   × includes nested installed skill entries beneath another skill package 2ms
+   × keeps a root skill distinct from a child named after the root directory 2ms
+   × detects replacement during capture and never returns mixed metadata/custody 1ms
+   × uses canonical connected project/worktree bindings and separates unavailable project authority 4ms
+   × discovers only the selected worktree and invalidates its references after rebinding or revocation 4ms
+   × preserves exact references and pagination after unrelated title updates 3ms
+   × preserves exact references and pagination after unrelated status updates 3ms
+   × preserves exact references and pagination after unrelated project metadata updates 3ms
+   × preserves exact references and pagination after unrelated working-copy branch updates 3ms
+   × reuses the real bundled integration inventory and covers all declared skills across pages 2ms
+ ❯ tests/service.test.ts (19 tests | 2 failed) 136ms
+     × records a completed effect arriving after Stop without reviving its run 10ms
+     × a generated operation button leads to native approval and cannot approve by its label 5ms
+ ❯ tests/checkpoint-restore-v3.test.ts (14 tests | 13 failed) 40ms
+   × captures approved files and keeps excluded files visible as outside coverage 12ms
+   × reviews a checkpoint with bounded side-by-side diffs 2ms
+   × restores selected paths exactly with a recorded pre-restore checkpoint 2ms
+   × rolls written files back on a conflict and reports CONFLICT 2ms
+   × recreates a file the working copy deleted 2ms
+   × conflicts rather than overwrite content the recovery checkpoint cannot hold 2ms
+   × requires the exact approval for a restore plan 1ms
+   × refuses restore of a checkpoint whose blobs expired and reports MISSING blobs 2ms
+   × collects unreferenced blobs only 2ms
+   × provisions only manifest-pinned non-secret files 4ms
+   × stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED 2ms
+   × preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback 2ms
+   × refuses to re-apply a plan left APPLYING by a killed process 1ms
+ ❯ tests/shell-read-models.test.ts (0 test)
+ ❯ tests/runtime-router.test.ts (18 tests | 3 failed) 80ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 8ms
+   × scopes named-account model discovery to its provider and blocks a profile being signed in 1ms
+   × rejects a resolver that changes the provider of an already acquired account profile 1ms
+ ❯ tests/task-memory-recovery.test.ts (3 tests | 1 failed) 626ms
+   × keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery 13ms
+ ❯ tests/selective-commit-v3.test.ts (13 tests | 13 failed) 183ms
+   × commits only the selected hunks and leaves the rest uncommitted 24ms
+   × commits one hunk of a file and leaves the sibling hunk behind 12ms
+   × refuses a stale expected head and records nothing 14ms
+   × commits a brand-new untracked file as a single proven hunk 13ms
+   × labels hunk attribution from the provenance journal and requires explicit selection for unproven edits 13ms
+   × keeps a path unattributed when its live bytes no longer match the proven receipt 12ms
+   × never offers an untracked non-UTF-8 file as a commit candidate 15ms
+   × commits an untracked UTF-8 file without dropping its BOM 14ms
+   × rejects a hunk whose digest no longer matches the live postimage 14ms
+... [bounded: 975 further result lines preserved in out-of-source custody original]
