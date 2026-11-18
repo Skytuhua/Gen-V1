@@ -242,3 +242,138 @@ log digest `2baaaeb43c0f03b3156c94ab1e79a9839a929fdd08eed793784eb06cb661fd0a`):
 `tests/e2e/wo8.spec.ts` (`.surface-metric` rendering), zero M13 files.
 Recorded as a FAIL command with the gate executed; previously cited as
 in-flight partial evidence.
+
+## HOLD_SOURCE_DRIFT resolved — merge 481fc646 (2026-11-18)
+
+Manager-authorized reconciliation of the sole remaining actionable gate.
+Fetched fresh `origin/main` = `7ac80d87` (119 commits past branch point
+`c77d4716`; the earlier attempt had merged `4aef753e`, now superseded).
+
+- `git merge --no-ff --no-commit origin/main` produced **exactly one
+  conflict**: `scripts/public-source-files.json` — the reviewed
+  public-source allowlist both sides extended. No other file conflicted;
+  `apps/server/server.ts` and `apps/web/src/App.tsx` auto-merged cleanly
+  (verified: M13 plugin wiring `extensions={pluginCatalog.extensions}` and
+  plugin-selection setters intact; main-side compaction route and
+  ContextInspector refactor preserved).
+- Resolution per authorization: **main's regenerated manifest + exact
+  M13-owned admissions**. Stage review — base `c77d4716`
+  (4303 source / 264 runtime), ours `0745cc36` (4323/268 = base + 20 source
+  + 4 runtime M13 entries), theirs `7ac80d87` (4341/282, baseline
+  `6d32290f`). Resolved = theirs ∪ the 24 M13 entries = **4361 source /
+  286 runtime**, sorted (required by `tests/public-source.test.ts`), zero
+  removals, every main-side entry preserved, main's `baseline` retained.
+- M13 entries admitted: 4 package sources (`contracts/plugin-worker.ts`,
+  `plugins/isolated-host.ts`, `plugins/lifecycle.ts`,
+  `plugins/worker-entry.ts`, in both source and runtime), 3 test files,
+  13 evidence artifacts (`docs/implementation/v3/M13-*`,
+  `docs/implementation/v6/M13/**`).
+- Merge committed `481fc646`. `d249c566` receipts remain the historical
+  record for that cut; the validation below re-binds the focused gates to
+  the integrated SHA.
+
+### Integrated-SHA validation (on 481fc646)
+
+| Gate | Receipt | Result |
+|---|---|---|
+| `vitest tests/public-source.test.ts` | `vitest-public-source-481fc646` | **PASS (exit 0)** — resolved manifest validates: sorted-unique, runtime ⊆ source, all referenced files exist |
+| `vitest tests/plugin-worker-v3.test.ts` | `vitest-plugin-worker-481fc646` | **PASS (exit 0, 18/18)** — incl. real spawned-worker handshake on merged sources |
+| `vitest tests/plugin-lifecycle-v3.test.ts` | `vitest-plugin-lifecycle-481fc646` | **PASS (exit 0, 15/15)** — update/migration/rollback on merged sources |
+| `vitest tests/plugin-protocol-decisions-v6.test.ts` | `vitest-plugin-decisions-481fc646` | **PASS (exit 0, 5/5)** — M13-D01..D05 on merged sources |
+| `pnpm typecheck` | `pnpm-typecheck-481fc646` → `pnpm-typecheck-481fc646-8g` | **PASS (exit 0)** on the 8 GB-heap rerun; the first attempt recorded exit 134 — V8 heap OOM at the default ~2 GB limit (resource-bound on this host, not a type error), retained as an honest receipt |
+
+Receipts land in `logs/receipts.jsonl` with bounded logs under
+`logs/*-merged.log`. All five integrated-SHA gates observed: public-source
+manifest + three M13 suites + typecheck — PASS on `481fc646`.
+
+## Narrow backend unblocker — manager decision input (2026-11-18)
+
+Question traced: can the existing M03 Linux guard supervise the entire
+extension worker process for file/process/network policy through
+`ExecutionBackend.launch`? **No — it is a directory-custody broker, not a
+process supervisor.** Exact findings and what is missing:
+
+### What exists today (cited APIs)
+
+- `packages/core/linux-path-guard.ts` + `linux-path-guard.py` — trusted OS
+  setup (root/CAP_SYS_ADMIN at install) that runs **Gen itself** in a
+  private mount namespace: `NoNewPrivs:1`, `CapEff/Prm/Bnd/Amb` all zero,
+  full-range `uid_map`, ext4 root, then serves an `acquire`/`release`
+  protocol over inherited fd 3 that pins directories with **kernel bind
+  mounts** (`withLinuxDirectoryGuard`), plus `credential-*` read-only
+  bind-mount barriers (`acquireLinuxCredentialReadBarrier`). Its custody
+  object is **paths**: it runs the *host's own* callback while mounts are
+  held. It never spawns, confines, or watches a child process — no
+  process-tree ownership, no seccomp/cgroup on a worker, **no network
+  verbs at all**. Coverage vs the worker requirement: file roots —
+  partially (mount pinning machinery is real and reusable); process — none;
+  network — none.
+- `packages/core/execution-policy.ts` — the `ExecutionBackend` contract the
+  isolated lane selects: `backendId/platform/installed/approved/proof +
+  launch(ApprovedLaunch) → ExecutionHandle{id, terminate()}`. Admission =
+  `selectBackend` (exactly one installed+approved match) +
+  `hasCurrentPlatformProof` (`platform===process.platform`,
+  `proof.platform===backend.platform`, `status==='PASS'`).
+  **Note the handle carries no stdio** — a WorkerFrameV1 channel cannot be
+  built from `ExecutionHandle` alone.
+- `packages/core/verification-executor-binding.ts` —
+  `ObservedVerificationBackend extends ExecutionBackend` with
+  `launchObserved(...) → LaunchedProcess{pid, tree(), wait(), terminate(),
+  log()}`: "the approved backend owns atomic confinement, the observed
+  handle and tree cleanup," re-checking `assertCurrent` immediately before
+  native spawn. Its admission additionally demands `proof.evidenceRef` and
+  `proof.platformProofRef === profile.platformProofRef`. This is the exact
+  existing API shape a production worker backend must grow toward — but
+  `LaunchedProcess.log()` is captured output, not an interactive frame
+  channel either.
+- `packages/plugins/isolated-host.ts` — the launch seam is
+  `WorkerLauncher.launch(spec) → WorkerTransport`;
+  `createSpawnWorkerLauncher` is explicitly dev/test (plain `spawn`, no
+  confinement) and the code comment states: *"Production confined launch
+  binds the M03 backend's launch to the same WorkerTransport shape."*
+- Host registration exists as options only: `HostOptions.isolationBackends`
+  (default `[]`) + `approvedBackendId` (unset); `hermes-service.ts` passes
+  `backends: []`. Nothing constructs a production backend.
+- **Overlapping M03 PRs**: open #832 (browser DOM observation redaction)
+  and #817 (unauthenticated advisory exception fail-closed); the closed
+  repair family (#802/#781/#773/#770/#762/#759/#749/#747/#744/#742) covers
+  exports/manifests/guards. **No PR registers or installs a backend.**
+
+### Exact missing production pieces (smallest unblocker set)
+
+1. **A `launch` supervisor.** A real `ExecutionBackend` implementation that
+   spawns the worker child with: mount namespace + bind-mounted
+   readRoots/writeRoots (guard machinery directly reusable for this leg),
+   process-tree ownership + bounded confirmed terminate (the
+   `LaunchedProcess{pid,tree(),wait(),terminate()}` shape), and network
+   enforcement for `networkPolicy` (`none`/`allowlist`) — **nothing in the
+   repo enforces network policy today**. The guard alone cannot be it.
+2. **A frame channel into the confined child.** `ExecutionHandle`/
+   `LaunchedProcess` carry no stdio; `WorkerTransport` needs bidirectional
+   frames over host-created private pipes. Options: fd-passing through the
+   launch (broker precedent — fd 3 socket + fd 4 root dir) or a declared
+   unix-socket rendezvous. Either needs a contract extension beyond the
+   current `ApprovedLaunch`/`ExecutionHandle` shapes.
+3. **A production `WorkerLauncher`** binding the backend's launch to
+   `WorkerTransport` (the documented seam), replacing the dev/test spawner
+   only under proven admission.
+4. **Registration wiring**: production construction of the backend plus
+   `isolationBackends` + `approvedBackendId` populated in host config —
+   the options exist; nothing sets them.
+5. **Operator approval + source-lock entry**: `installed:true`,
+   `approved:true`, `approvedBackendId` must come from the operator/source
+   lock — the contract forbids code-side self-approval.
+6. **An `ExecutionProfileV1` for the worker launch**: `backendId`,
+   `platformProofRef`, `executableSha256` (exact worker loader bytes),
+   readRoots/writeRoots = package+data dirs, `networkPolicy`.
+7. **A Linux-arm64 `PlatformProof`**: `{platformProofRef, platform:'linux',
+   status:'PASS', recordedAt, evidenceRef}` produced by running the M03
+   native negative matrix (protected DB, credential access,
+   out-of-root write, network, child escape, kill cleanup) on this
+   platform. M03's own verification records the Windows matrix BLOCKED and
+   "No non-Windows proof was attempted" — **no Linux proof exists
+   anywhere**, and no guard-only or synthetic run qualifies.
+
+Status unchanged: `plugins.isolatedV1` off, HOLD_BACKEND_SELECTION +
+HOLD_PLATFORM_PROOF + HOLD_MIGRATION_PLAN stand. This is a decision input,
+not an implementation — no backend was built, selected, or substituted.

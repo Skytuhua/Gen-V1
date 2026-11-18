@@ -1,0 +1,15 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m13-v6[39m
+
+ [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 15131[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves pinned integration bytes when Windows enables automatic CRLF checkout [33m 626[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 3329[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 4004[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 4826[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 2177[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 10:30:55
+[2m   Duration [22m 17.88s[2m (transform 668ms, setup 0ms, import 2.19s, tests 15.13s, environment 0ms)[22m
+
