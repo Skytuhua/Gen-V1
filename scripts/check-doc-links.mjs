@@ -18,7 +18,7 @@ const listMarker = /^ {0,3}(?:[-*+]|\d{1,9}[.)])(?:[ \t]|$)/;
 const external = process.argv.includes('--external'), verbose = process.argv.includes('--verbose');
 
 const blank = text => text.replace(/[^\n]/g, ' ');
-export const readable = (source, keepInlineCode = false) => {
+export const readable = (source, keepInlineCode = false, onRawHtml = () => {}) => {
   let fence = '', fenceDepth = 0, comment = false, commentBlock = false, indented = false, blankBefore = true, listed = false;
   const removeComments = line => {
     let cursor = 0, cleaned = '';
@@ -53,12 +53,14 @@ export const readable = (source, keepInlineCode = false) => {
       if (depth === fenceDepth && opener && !quoted.slice(opener[0].length).trim() && opener[1][0] === fence[0] && opener[1].length >= fence.length) fence = '';
       return '';
     }
-    // HTML comment blocks consume the entire closing line. Removing only the
-    // delimiters can turn trailing source into a heading that never rendered.
+    // Markdown stops parsing this HTML block at the end of the closing line.
+    // Raw tags after the terminator still render, but Markdown headings do not.
     if (keepInlineCode && (commentBlock || (!comment && /^ {0,3}<!--/.test(quoted)))) {
-      commentBlock = !quoted.includes('-->');
+      const end = quoted.indexOf('-->');
+      commentBlock = end < 0;
+      if (!commentBlock) onRawHtml(removeComments(quoted.slice(end + 3)));
       indented = false;
-      blankBefore = false;
+      blankBefore = !commentBlock;
       return '';
     }
     if (!comment && opener) { fence = opener[1]; fenceDepth = depth; indented = blankBefore = false; return ''; }
@@ -76,8 +78,8 @@ export const readable = (source, keepInlineCode = false) => {
 const slug = heading => heading.replace(/!?\[([^\]]*)\]\([^)]*\)/g, '$1').replace(/<[^>]*>/g, '').trim().toLowerCase().replace(/[^\p{L}\p{N}\p{M}\s_-]/gu, '').replace(/\s/g, '-');
 export const anchorsOf = source => {
   // Inline code contributes its text to a real heading; block examples do not.
-  const text = readable(source, true);
-  const found = new Set(), counters = new Map();
+  const found = new Set(), counters = new Map(), rawHtml = [];
+  const text = readable(source, true, suffix => rawHtml.push(suffix));
   const headings = [
     ...text.matchAll(/^ {0,3}#{1,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm),
     ...text.matchAll(/^ {0,3}(\S.*)\n {0,3}(?:=+|-+)[ \t]*$/gm),
@@ -89,7 +91,7 @@ export const anchorsOf = source => {
     counters.set(base, count);
     found.add(candidate);
   }
-  for (const [, anchor] of text.matchAll(/<a\s[^>]*?\b(?:name|id)=["']([^"']+)["']/gi)) found.add(anchor.toLowerCase());
+  for (const [, anchor] of [text, ...rawHtml].join('\n').matchAll(/<a\s[^>]*?\b(?:name|id)=["']([^"']+)["']/gi)) found.add(anchor.toLowerCase());
   return found;
 };
 // Every ](target) is read, so a linked image `[![alt](image)](page)` yields both targets.

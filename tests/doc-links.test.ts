@@ -190,3 +190,24 @@ it('does not turn trailing text in HTML comment blocks into anchors',()=>{
     expect(result.output).not.toContain('no heading or anchor "#example"');
   } finally { bench.cleanup(); }
 });
+
+it('keeps rendered anchors after a comment terminator without indexing indented examples',()=>{
+  const bench=fixture({
+    'README.md':'[single](guide.md#single) [multiple](guide.md#multiple) [example one](guide.md#example-one) [example two](guide.md#example-two)',
+    'guide.md':[
+      '<!-- single --> <a id="single"></a>',
+      '    <a id="example-one"></a>',
+      '',
+      '<!-- multi',
+      '--> <a name="multiple"></a>',
+      '    <a id="example-two"></a>',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status).toBe(1);
+    for(const anchor of ['example-one','example-two'])expect(result.output).toContain('no heading or anchor "#'+anchor+'"');
+    for(const anchor of ['single','multiple'])expect(result.output).not.toContain('no heading or anchor "#'+anchor+'"');
+    expect(result.output).toContain('2 broken');
+  }finally{bench.cleanup();}
+});
