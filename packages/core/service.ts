@@ -723,7 +723,7 @@ export class Service {
         this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); this.projectTrust.markPrepared(op); this.executionAdvice.recordPrepared(op,thread); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
-        if (this.closed) return;
+        if (this.closed || signal?.aborted || this.store.get("archivedThread", threadId)) return;
         // Process/abort event callbacks can arrive after revocation. Drop stale
         // presentation progress instead of throwing out of an event listener.
         if (authority) {
