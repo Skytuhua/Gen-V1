@@ -68,6 +68,34 @@ function CheckDetails({row, id, threadId, close}: {row: Row; id: string; threadI
   </section>;
 }
 
+function SecurityFindings({findings}: {findings: NonNullable<Model['securityFindings']>}) {
+  return <section className="verification-security-findings" aria-label="Security findings">
+    <h3>Security findings</h3>
+    <p>Review evidence does not verify task requirements. Source freshness is shown separately from the recorded status.</p>
+    {findings.truncated && <p role="status">Showing the 50 most recent stored records.</p>}
+    {findings.invalid > 0 && <p role="status">{findings.invalid} stored {findings.invalid === 1 ? 'record could' : 'records could'} not be read.</p>}
+    {findings.items.map(finding => <details key={JSON.stringify([finding.findingId, finding.source, finding.executionId])}>
+      <summary>{finding.findingId} · {finding.status} · {finding.evidenceQuality}</summary>
+      <div className="verification-check-details"><dl>
+        <DetailField label="Source path" wide><code>{finding.source.path}</code></DetailField>
+        <DetailField label="Source blob"><code>{finding.source.blobSha}</code></DetailField>
+        <DetailField label="Source line">{finding.source.line ?? 'Not reported'}</DetailField>
+        <DetailField label="Recorded status">{finding.status}</DetailField>
+        <DetailField label="Evidence quality">{finding.evidenceQuality}</DetailField>
+        <DetailField label="Current source freshness">{finding.freshness}</DetailField>
+        <DetailField label="Scope authority">{finding.scopeAuthority === 'HOST_RECORDED' ? 'Recorded by host' : 'Unverified legacy or prior-owner scope'}</DetailField>
+        <DetailField label="Authorized scope" wide>{finding.authorizedScope}</DetailField>
+        <DetailField label="Recorded observation" wide><pre tabIndex={0}>{finding.observation}</pre></DetailField>
+        <DetailField label="Reported impact" wide><pre tabIndex={0}>{finding.impact}</pre></DetailField>
+        <DetailField label="Reproduction" wide><pre tabIndex={0}>{finding.reproduction ?? 'Not recorded'}</pre></DetailField>
+        <DetailField label="Finding execution"><code>{finding.executionId ?? 'Not recorded'}</code></DetailField>
+        <DetailField label="First recorded"><time dateTime={finding.createdAt}>{finding.createdAt}</time></DetailField>
+        <DetailField label="Last recorded"><time dateTime={finding.updatedAt}>{finding.updatedAt}</time></DetailField>
+      </dl></div>
+    </details>)}
+  </section>;
+}
+
 export function VerificationPanel({ threadId }: { threadId: string }) {
   return <VerificationReadPanel key={threadId} threadId={threadId} />;
 }
@@ -104,7 +132,8 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
   if (current?.unavailable) return <section className="verification-panel" aria-label="Verification">
     <p role="status">Verification unavailable. The current evidence could not be refreshed.</p>
   </section>;
-  if (!model || (!model.label && !model.rows.length)) return null;
+  const hasFindings = Boolean(model?.securityFindings && (model.securityFindings.items.length || model.securityFindings.invalid || model.securityFindings.truncated));
+  if (!model || (!model.label && !model.rows.length && !hasFindings)) return null;
   return (
     <section className="verification-panel" aria-label="Verification" tabIndex={0}>
       <header>
@@ -115,7 +144,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
       {model.summary.missing.length > 0 && (
         <p className="verification-missing">Missing checks: {model.summary.missing.join('; ')}</p>
       )}
-      <p id={`${id}-scroll-help`} className="sr-only">Use the left and right arrow keys to scroll through all check columns.</p>
+      {model.rows.length > 0 && <><p id={`${id}-scroll-help`} className="sr-only">Use the left and right arrow keys to scroll through all check columns.</p>
       <div className="verification-table-scroll" role="region" aria-label="Verification checks" aria-describedby={`${id}-scroll-help`} tabIndex={0}><table className="verification-table">
         <thead>
           <tr><th>Requirement</th><th>Observed check</th><th>Source revision</th><th>Outcome</th><th>Freshness</th><th>Verifier</th><th>Evidence</th></tr>
@@ -133,7 +162,8 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
             </tr>
           ))}
         </tbody>
-      </table></div>
+      </table></div></>}
+      {hasFindings && model.securityFindings && <SecurityFindings findings={model.securityFindings} />}
       {expandedRow && <CheckDetails key={expanded} id={`${id}-details`} row={expandedRow} threadId={threadId} close={() => {setExpanded(null); opener.current?.focus();}} />}
     </section>
   );
