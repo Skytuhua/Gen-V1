@@ -1,9 +1,10 @@
-
- RUN  v4.1.12 C:/Users/Administrator/repos/gen-v1-m14
-
-
+== bounded redacted evidence summary ==
+originalSha256: 057bfce89a6dec7e22165ebed4c2c86d90e2fd2e970750ed49722c30154c4e1e
+originalBytes: 228
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
  Test Files  3 passed (3)
       Tests  24 passed (24)
-   Start at  04:58:51
    Duration  77.09s (transform 724ms, setup 0ms, import 1.48s, tests 79.96s, environment 0ms)
-

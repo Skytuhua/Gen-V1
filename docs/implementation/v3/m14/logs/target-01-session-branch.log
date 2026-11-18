@@ -1,8 +1,8 @@
-
- RUN  v4.1.12 /workspace/scratch/c4abb425a583/m14-v3
-
+== bounded redacted evidence summary ==
+originalSha256: 30bfafc53f5d93efd41aca9cb48125383e2b05b5c851d2ff63eddede63d0d026
+originalBytes: 238
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
 No test files found, exiting with code 1
-
-filter: tests/session-branch-v3.test.ts
-include: tests/**/*.test.{ts,tsx,js,jsx,mjs,cjs,mts,cts}
-exclude:  tests/plugin-api-package.test.mjs

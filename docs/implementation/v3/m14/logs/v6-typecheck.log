@@ -1,4 +1,8 @@
-
-> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m14-v6
-> tsc --noEmit
-
+== bounded redacted evidence summary ==
+originalSha256: 4ff23153f74671a969498cc2b42c4cc0bafdca962ea1673b1b6b564f8e69b6cb
+originalBytes: 70
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(no result lines; see custody original)

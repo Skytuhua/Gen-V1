@@ -1,8 +1,8 @@
-
- RUN  v4.1.12 /workspace/scratch/c4abb425a583/m14-v3
-
+== bounded redacted evidence summary ==
+originalSha256: 07ddf3e685cdc9dca48e0473414b656cc026c276d8bb68b3f710346376e84e31
+originalBytes: 238
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
 No test files found, exiting with code 1
-
-filter: tests/history-import-v3.test.ts
-include: tests/**/*.test.{ts,tsx,js,jsx,mjs,cjs,mts,cts}
-exclude:  tests/plugin-api-package.test.mjs

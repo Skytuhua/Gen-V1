@@ -35,7 +35,7 @@ response, not inside this artifact.
 - Repository: `skytuhua-org/Gen-V1` (ID 1442565952), remote
   `https://github.com/skytuhua-org/Gen-V1.git`.
 - Branch: `agent/m14-v3` (PR #343). Worktree:
-  `/home/piadmin/Gen-V1-m14-v6` (clean).
+  `<home>/Gen-V1-m14-v6` (clean).
 - Recorded published head recovered at start:
   `b27c8360e1b0236a1df131cbc7893e9c492573df` (docs-only audit handoff —
   no product code existed).
@@ -43,7 +43,7 @@ response, not inside this artifact.
   as `ea48854b` (clean, no conflicts). That merge brings M04 request
   custody and M05 project memory onto the branch — the prior
   prerequisite gate is resolved.
-- Original checkout `/home/piadmin/Gen-V1` left untouched, including its
+- Original checkout `<home>/Gen-V1` left untouched, including its
   user edits and `qwencloud-api-key.txt`.
 
 ## Implementation (commit `5de9d4a6`)
@@ -103,8 +103,8 @@ response, not inside this artifact.
 
 - `pnpm test:browser`: now executes real specs (28 passed across
   projects) after the pty fix. Remaining failures are environmental:
-  `browser-action`/`ui-shell-overlays` need `/opt/google/chrome` and
-  `/opt/microsoft/msedge` — neither exists for aarch64 Linux — plus
+  `browser-action`/`ui-shell-overlays` need `<chrome-dir>` and
+  `<msedge-dir>` — neither exists for aarch64 Linux — plus
   foreign `/tmp` EACCES artifacts. Orphaned dev servers that caused the
   earlier port conflicts were cleaned up.
 - Windows/installed desktop matrix: NOT_RUN — no Windows host exists
@@ -120,7 +120,7 @@ response, not inside this artifact.
 
 Executed on Windows Server 2025 x64 (node v24.22.2, pnpm 10.30.3,
 CPython 3.14.9 at `C:\Python314`, Edge 157, WSL2 Ubuntu x86_64 for the
-custody class) from worktree `C:\Users\Administrator\repos\gen-v1-m14`
+custody class) from worktree `C:\Users\<user>\repos\gen-v1-m14`
 on `agent/m14-v3` at `30b5d649`.
 
 - Gates: `pnpm typecheck` / `lint` / `build` PASS; consumed contract
@@ -132,7 +132,7 @@ on `agent/m14-v3` at `30b5d649`.
   nested account profile. The aarch64 arch pin does not apply.
 - X1 custody, vitest level: broker-wrapped vitest — each test process
   is itself spawned as a broker child (fd3 socket + fd4 root dir)
-  inside `/custody2`, a repo copy owned by a third uid. **27 of 42
+  inside `<custody-root>`, a repo copy owned by a third uid. **27 of 42
   custody-adjacent files fully pass** under live custody, including
   `linux-path-guard` 23/23, `memory-storage-boundary-v3` 9/9,
   `session-branch-v3` 11/11, `history-import-v3` 12/12,
@@ -234,6 +234,36 @@ available under owner fencing).
   broker environment; none exists in-tree. Recorded as UNVERIFIED, not
   PASS — earlier receipts remain bound to their own source cut.
 - Declared CI `ci.yml` dispatched on `agent/m14-v3` (run `44409599408`,
-  windows-latest) — running at handoff; PR-triggered run `44412564541`
-  queued on `14c0b70b` (jobs gated non-draft, preserved — do not push
-  over it).
+  windows-latest) — completed 9/9 SUCCESS; PR-triggered run
+  `44412564541` on `14c0b70b` completed 9/9 SUCCESS (PR marked
+  non-draft by manager, so jobs ran).
+- Merged main cut `16fa007e` (M17) locally: conflicts in
+  `packages/core/capability-flags.ts` (kept both M14+M17 key unions,
+  all defaults false) and `scripts/public-source-files.json` (sorted
+  union of both `source` and `runtime` arrays). `apps/server/server.ts`
+  auto-merge verified: M14 `registerSessionBranchReadRoutes` and M17
+  `registerDevicePairingRoutes` + `ReadSyncHost` coexist.
+
+## Source-policy curation (cut pending push)
+
+- PR delta added 61 `.log` files; 45 matched machine-path or
+  raw-output indicators (manager scan counted 29 with stricter
+  criteria — curated the full matched set).
+- Original bytes preserved out-of-source with SHA-256 in
+  `m14-evidence-custody/` (operator home, outside source tree);
+  `custody-manifest.json` maps each path to its original + redacted
+  digests.
+- In-source copies replaced with bounded redacted summaries: ANSI
+  stripped, machine paths tokenized (`<win-repo>`, `<wsl-repo>`,
+  `<custody-root>`, `<home>`, `<scratch-worktree>`, `<chrome-dir>`,
+  `<msedge-dir>`, etc.), output bounded to result-bearing lines.
+- `logDigest` values in `M14-verification.json` rebound to the
+  redacted files; machine paths in evidence command fields
+  (`cwdIdentity`/`executableIdentity`/`argv`/`evidence`),
+  `browser-root-results.json`, requirements and handoffs tokenized.
+- Old Windows receipts and the UNVERIFIED WSL2 63/63 claim stay bound
+  to their actual cuts — redaction preserved result data, custody
+  retains originals; no cut relabeled.
+- Delta rescan: only false positives remain (relative `root/` in
+  manifest-listed paths, `C:\temp\file` synthetic fixture in
+  `tests/history-import-v3.test.ts`).

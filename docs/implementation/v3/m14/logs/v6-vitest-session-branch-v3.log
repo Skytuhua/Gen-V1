@@ -1,17 +1,15 @@
-$ pnpm exec vitest run tests/session-branch-v3.test.ts
-
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m14-v6[39m
-
-(node:1046164) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/session-branch-v3.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 9091[2mms[22m[39m
-     [33m[2m✓[22m[39m records explicit incomplete coverage for a truncated capture [33m 6921[2mms[22m[39m
-     [33m[2m✓[22m[39m fences capture reads to the recorded owner — revocation and removal stay unavailable [33m 337[2mms[22m[39m
-     [33m[2m✓[22m[39m rejects quotes that are not part of the source thread [33m 406[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
-[2m   Start at [22m 11:08:25
-[2m   Duration [22m 15.14s[2m (transform 3.83s, setup 0ms, import 5.59s, tests 9.09s, environment 0ms)[22m
-
+== bounded redacted evidence summary ==
+originalSha256: d67e3d3dcb297ac0d9b18efe830d1ce4c428c96bb416943c7b50e2822b5f1958
+originalBytes: 1076
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ✓ tests/session-branch-v3.test.ts (11 tests) 9091ms
+     ✓ records explicit incomplete coverage for a truncated capture  6921ms
+     ✓ fences capture reads to the recorded owner — revocation and removal stay unavailable  337ms
+     ✓ rejects quotes that are not part of the source thread  406ms
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  15.14s (transform 3.83s, setup 0ms, import 5.59s, tests 9.09s, environment 0ms)
 EXIT:0

@@ -1,3 +1,8 @@
-
-> gen-v1@0.6.5 build:widgets /workspace/scratch/c4abb425a583/m14-v3
-> node scripts/build-widgets.mjs
+== bounded redacted evidence summary ==
+originalSha256: 64d42849b41e802b6f8e35825a541e8274782f85e68f104519143a94e646d2d4
+originalBytes: 102
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(no result lines; see custody original)

@@ -1,11 +1,10 @@
-
- RUN  v4.1.12 /workspace/scratch/c4abb425a583/m14-v3
-
-fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
-
+== bounded redacted evidence summary ==
+originalSha256: 1d94b569805618cad93fd2b86b6137f16d181e1d672e6a3133928a198f035d05
+originalBytes: 530
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
  Test Files  3 passed (3)
       Tests  34 passed (34)
-   Start at  17:56:43
    Duration  2.67s (transform 198ms, setup 0ms, import 473ms, tests 2.39s, environment 0ms)

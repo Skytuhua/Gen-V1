@@ -1,30 +1,11 @@
-
-> gen-v1@0.6.5 test /workspace/scratch/c4abb425a583/m14-v3
-> pnpm build:credential-lease && pnpm build:widgets && vitest run --maxWorkers=2
-
-
-> gen-v1@0.6.5 build:credential-lease /workspace/scratch/c4abb425a583/m14-v3
-> tsx scripts/build-windows-credential-lease.ts
-
-node:net:2368
+== bounded redacted evidence summary ==
+originalSha256: ebf036c35d626e320f0e20245988ea68921989252592d7604dee0fcb99379dd3
+originalBytes: 1248
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
       const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
-                    ^
-
-Error: listen EPERM: operation not permitted /tmp/tsx-1000/31.pipe
-    at Server.setupListenHandle [as _listen2] (node:net:2368:21)
-    at listenInCluster (node:net:2499:12)
-    at Server.listen (node:net:2641:5)
-    at file:///workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:53:31537
-    at new Promise (<anonymous>)
-    at createIpcServer (file:///workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:53:31515)
-    at async file:///workspace/scratch/c4abb425a583/m14-v3/node_modules/.pnpm/tsx@4.20.6/node_modules/tsx/dist/cli.mjs:55:459 {
-  code: 'EPERM',
-  errno: -1,
-  syscall: 'listen',
-  address: '/tmp/tsx-1000/31.pipe',
-  port: -1
-}
-
-Node.js v24.22.1
+Error: listen EPERM: operation not permitted <tmp>/<entry>
  ELIFECYCLE  Command failed with exit code 1.
  ELIFECYCLE  Test failed. See above for more details.

@@ -4,7 +4,7 @@
 
   14) tests/e2e/ui-shell-overlays.spec.ts:139:1 › overlay focus recovery skips controls hidden by CSS visibility 
 
-    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at <msedge-dir>/msedge/msedge
     Run "pnpm exec playwright install msedge"
 
     attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
@@ -17,7 +17,7 @@
 
   15) tests/e2e/ui-shell-overlays.spec.ts:156:1 › a tall tooltip stays visible in a short viewport when neither side fits 
 
-    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at <msedge-dir>/msedge/msedge
     Run "pnpm exec playwright install msedge"
 
     attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────

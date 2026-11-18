@@ -1,14 +1,13 @@
-
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m14-v6[39m
-
-(node:768313) ExperimentalWarning: SQLite is an experimental feature and might change at any time
-(Use `node --trace-warnings ...` to show where the warning was created)
- [32m✓[39m tests/history-import-v3.test.ts [2m([22m[2m12 tests[22m[2m)[22m[33m 2549[2mms[22m[39m
-     [33m[2m✓[22m[39m keeps cancellation deterministic before and after commit [33m 407[2mms[22m[39m
-     [33m[2m✓[22m[39m blocks publication of fields classified secret and reports access-bearing links without dereferencing them [33m 425[2mms[22m[39m
-
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m12 passed[39m[22m[90m (12)[39m
-[2m   Start at [22m 05:29:40
-[2m   Duration [22m 9.33s[2m (transform 4.02s, setup 0ms, import 5.91s, tests 2.55s, environment 0ms)[22m
-
+== bounded redacted evidence summary ==
+originalSha256: 7ee15cfe1b211eb6be40933b583a83b92f8320c3b2710d5c60f3d64319952e6b
+originalBytes: 919
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ✓ tests/history-import-v3.test.ts (12 tests) 2549ms
+     ✓ keeps cancellation deterministic before and after commit  407ms
+     ✓ blocks publication of fields classified secret and reports access-bearing links without dereferencing them  425ms
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Duration  9.33s (transform 4.02s, setup 0ms, import 5.91s, tests 2.55s, environment 0ms)

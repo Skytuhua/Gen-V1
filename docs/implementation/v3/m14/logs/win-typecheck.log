@@ -1,4 +1,8 @@
-
-> gen-v1@0.6.5 typecheck C:\Users\Administrator\repos\gen-v1-m14
-> tsc --noEmit
-
+== bounded redacted evidence summary ==
+originalSha256: 94600ffa1dafce319e07ada78bc964881577719ec8b6d00678772eabccfe43ef
+originalBytes: 82
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(no result lines; see custody original)

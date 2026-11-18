@@ -1,5 +1,8 @@
-
-> gen-v1@0.6.5 desktop:build C:\Users\Administrator\repos\gen-v1-m14
-> tsx scripts/build-desktop.ts
-
-Desktop shell built: C:\Users\Administrator\repos\gen-v1-m14\dist\desktop-app
+== bounded redacted evidence summary ==
+originalSha256: 70d1dd1eebb4ccb91ab10cd7287bd08818bd70e86465d3016ba56454825403e4
+originalBytes: 180
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(no result lines; see custody original)

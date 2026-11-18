@@ -1,245 +1,148 @@
+== bounded redacted evidence summary ==
+originalSha256: 837b1000d20ece9850908c021638b818d4a230814bcb2a4ffbb37035d49bc54a
+originalBytes: 14341
+flags: machinePath=False ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
 ===SUITE root===
-    tests\e2e\shell-micro-motion.spec.ts:67:1 › a published plan flags the collapsed overview once without replaying on snapshot or theme updates 
   1 skipped
   113 passed (4.6m)
-
 Failed browser suites: root (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE browser-action===
-    tests\e2e\browser-action.spec.ts:184:7 › detached › successful stop clears the local error using current native control state 
-    tests\e2e\browser-action.spec.ts:218:1 › narrow toolbar recovers with keyboard Retry and Go without moving focus 
-    tests\e2e\browser-action.spec.ts:254:1 › without a native host the toolbar does not invent browser calls or content 
-
+    tests\e2e\browser-action.spec.ts:184:7 › detached › successful stop clears the local error using current native control state
 Failed browser suites: browser-action (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE file-checkpoints===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: file-checkpoints (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE files-reading===
-    [files-reading] › tests\e2e\files-reading.spec.ts:997:1 › project inactive state aborts its read and resumes without stale content 
-    [files-reading] › tests\e2e\files-reading.spec.ts:1033:46 › returned folder limits stay explicit without a recursive-search claim: project 
-    [files-reading] › tests\e2e\files-reading.spec.ts:1033:46 › returned folder limits stay explicit without a recursive-search claim: granted 
-
 Failed browser suites: files-reading (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE generated-selects===
-    [generated-controls] › tests\e2e\work-objects.spec.ts:1139:3 › app reduced settles active board motion and preserves keyboard focus 
-    [generated-controls] › tests\e2e\work-objects.spec.ts:1168:3 › app reduced settles selection halo without replay 
-    [generated-controls] › tests\e2e\work-objects.spec.ts:1197:1 › halo replacement and unmount cancel previously owned animation work 
-
 Failed browser suites: generated-selects (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE graph-popovers===
-    tests\e2e\graph-popovers.spec.ts:358:1 › a hidden owner cancels a pending graph hover before its dwell can expose details 
-    tests\e2e\graph-popovers.spec.ts:383:42 › graph hover respects the application's off motion preference 
-    tests\e2e\graph-popovers.spec.ts:383:42 › graph hover respects the application's reduced motion preference 
-
 Failed browser suites: graph-popovers (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE inbox-controls===
-    tests\e2e\inbox-controls.spec.ts:219:1 › reading and failed canonical navigation never approve or falsely mark an unread item read 
-    tests\e2e\inbox-controls.spec.ts:267:1 › read-state rejection remains visible without changing read state or invoking navigation 
-    tests\e2e\inbox-controls.spec.ts:290:1 › narrow themed controls and popup fit without overflow and retain list/reader Escape ownership 
-
+    tests\e2e\inbox-controls.spec.ts:219:1 › reading and failed canonical navigation never approve or falsely mark an unread item read
 Failed browser suites: inbox-controls (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE memory-recovery===
-    tests\e2e\memory-recovery.spec.ts:832:5 › synthetic visual: narrow ─────────────────────────────
     tests\e2e\memory-recovery.spec.ts:832:5 › synthetic visual: short-error ────────────────────────
-    tests\e2e\memory-recovery.spec.ts:832:5 › synthetic visual: reduced-motion ─────────────────────
-
 Failed browser suites: memory-recovery (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE redundant-ui===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: redundant-ui (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE saved-layout-chooser===
-    tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow dark chooser scrolls with row gaps, keyboard access and distinct states 
-    tests\e2e\saved-layout-chooser.spec.ts:447:40 › short narrow light chooser scrolls with row gaps, keyboard access and distinct states 
   13 passed (24.3s)
-
 Failed browser suites: saved-layout-chooser (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE settings-leaf-selects===
-    tests\e2e\settings-loading.spec.ts:112:1 › a failed Settings chunk preserves the conversation and can be safely reloaded 
-    tests\e2e\settings-loading.spec.ts:179:1 › failed draft persistence blocks Settings recovery reload and retains the memory draft 
-    tests\e2e\settings-loading.spec.ts:249:1 › PNG preprocessing blocks Settings recovery reload before the mark reaches its journal 
-
+    tests\e2e\settings-loading.spec.ts:112:1 › a failed Settings chunk preserves the conversation and can be safely reloaded
+    tests\e2e\settings-loading.spec.ts:179:1 › failed draft persistence blocks Settings recovery reload and retains the memory draft
 Failed browser suites: settings-leaf-selects (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE sidebar-shared-menu===
-    [sidebar-menu] › tests\e2e\sidebar-shared-menu.spec.ts:344:1 › short viewport keeps the portalled menu bounded and its last enabled item reachable 
-    [sidebar-menu] › tests\e2e\sidebar-shared-menu.spec.ts:371:40 › dark menu retains shared surface colors and the compact trigger 
-    [sidebar-menu] › tests\e2e\sidebar-shared-menu.spec.ts:371:40 › light menu retains shared surface colors and the compact trigger 
-
 Failed browser suites: sidebar-shared-menu (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE terminal-excerpts===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: terminal-excerpts (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE terminal-read===
-    tests\e2e\terminal-read.spec.ts:727:1 › ownership revocation during authentication renewal cannot resend a creation POST 
-    tests\e2e\terminal-read.spec.ts:755:1 › an old creation cannot borrow a replacement guard during an uncommitted owner handoff 
-    tests\e2e\terminal-read.spec.ts:784:1 › an unbound start fails closed when its pending caller ID cannot be retained 
-
+    tests\e2e\terminal-read.spec.ts:784:1 › an unbound start fails closed when its pending caller ID cannot be retained
 Failed browser suites: terminal-read (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE usage-app-integration===
-    tests\e2e\usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
-    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
+    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope
   10 passed (1.2m)
-
 Failed browser suites: usage-app-integration (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE memory-recovery-app===
-    tests\e2e\usage-app-integration.spec.ts:421:1 › actual App restores the old single Usage route to modal and leaves saved Thread memory reachable 
-    tests\e2e\usage-app-integration.spec.ts:447:1 › review: a closed remembered Usage tab must not open a blocking dialog on launch 
-    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope 
-
+    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope
 Failed browser suites: memory-recovery-app (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE memory-recovery-journal===
-    tests\e2e\journal-reload.spec.ts:44:1 › successful CAS clear stays newer across clock rollback ─
-    tests\e2e\journal-reload.spec.ts:122:1 › repeated CAS replacements advance when the wall clock stays fixed 
-    tests\e2e\journal-reload.spec.ts:147:1 › a later peer edit survives an acknowledgment of the captured generation 
-
 Failed browser suites: memory-recovery-journal (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE conversation-find===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: conversation-find (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE micro-motion===
-    tests\e2e\micro-motion.spec.ts:411:1 › interaction and reduced motion immediately settle arriving prose 
-    tests\e2e\proactive-copy.spec.ts:107:1 › only a newly published live artifact enters; restored history and unchanged snapshots stay steady 
   76 passed (3.2m)
-
 Failed browser suites: micro-motion (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE workspace===
   1 failed
-    tests\e2e\workspace-ui.spec.ts:1203:1 › closing Settings cancels its pending catalog read and leaves the current workspace read alive 
   32 passed (52.0s)
-
 Failed browser suites: workspace (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE compact-settings===
-    tests\e2e\compact-settings.spec.ts:472:1 › actual compact draft export preserves the signature guard and sends only exact journal keys 
-    tests\e2e\compact-settings.spec.ts:523:1 › the injected browser callback receives the accepted start page and closes Settings 
-    tests\e2e\compact-settings.spec.ts:546:1 › accepted appearance applies immediately in the standalone compact consumer 
-
 Failed browser suites: compact-settings (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE compact-tools-cleanup===
-    tests\e2e\compact-tools-cleanup.spec.ts:274:1 › a ready long plan expands the compact context without taking draft focus 
-    tests\e2e\compact-tools-cleanup.spec.ts:338:1 › minimized tools leave the first message and composer clear without reserving a chat column 
   1 passed (1.6m)
-
 Failed browser suites: compact-tools-cleanup (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE composer-prediction===
-    tests\e2e\composer-prediction.spec.ts:418:1 › desktop/narrow light/dark and reduced motion retain ghost metrics and accept in place 
-    tests\e2e\composer-prediction.spec.ts:478:3 › touch composer › offers a real Use suggestion button and accepts without sending 
   7 passed (1.7m)
-
 Failed browser suites: composer-prediction (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE floating===
-    tests\e2e\planning-ui.spec.ts:636:1 › live usage yields to the workspace panel and returns visible and clickable 
-    tests\e2e\planning-ui.spec.ts:671:1 › a settled unanswered planning detail becomes retryable without clearing the decision draft 
   5 passed (3.7m)
-
 Failed browser suites: floating (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE inline-surfaces===
   1 failed
-    tests\e2e\inline-surfaces.spec.ts:147:1 › canvas task interfaces have a visible normal-flow container aligned with the composer 
   9 passed (46.2s)
-
 Failed browser suites: inline-surfaces (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE pdf===
-    tests\e2e\document-preview.spec.ts:1379:1 › changing source identity clears the old pixels and highlight while retry revalidates the source 
-    tests\e2e\document-preview.spec.ts:1431:1 › a pending page change retains committed pixels, highlight and status until the candidate swap 
   1 passed (2.7m)
-
 Failed browser suites: pdf (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE project-search===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: project-search (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE wo5-app-integration===
-[2m[WebServer] [22moperable program or batch file.
 Error: Process from config.webServer was not able to start. Exit code: 1
-
-
 Failed browser suites: wo5-app-integration (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE runtime-presentation===
-    tests\e2e\runtime-presentation.spec.ts:227:1 › mobile settings remain interactive above the navigation focus region 
-    tests\e2e\runtime-presentation.spec.ts:270:1 › native settings own Escape without collapsing an expanded artifact or losing edits 
   6 passed (1.4m)
-
 Failed browser suites: runtime-presentation (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE shared-panels===
-    tests\e2e\shared-panels.spec.ts:1138:1 › a disconnected project can still sign in through the profile route 
-    tests\e2e\shared-panels.spec.ts:1164:1 › invalid profile sign-in responses show one actionable error and never expose an arbitrary opener 
+    tests\e2e\shared-panels.spec.ts:1164:1 › invalid profile sign-in responses show one actionable error and never expose an arbitrary opener
   24 passed (1.3m)
-
 Failed browser suites: shared-panels (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE shell===
-    tests\e2e\frontend.spec.ts:3763:1 › keyboard, narrow layout and reduced motion remain usable ───
   2 skipped
   4 passed (21.7m)
-
 Failed browser suites: shell (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE short-tool-overflow===
-    tests\e2e\short-tool-overflow.spec.ts:255:1 › removing Browser before the panel releases its normal-flow space without replacing chat 
-    tests\e2e\short-tool-overflow.spec.ts:281:1 › keeps the selected artifact in its scrolled owner without remounting or painting outside the tool area 
   10 passed (41.4s)
-
 Failed browser suites: short-tool-overflow (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE smooth-pdf===
-    tests\e2e\image-compare.spec.ts:94:1 › another pointer losing capture cannot end the active comparison drag 
-    tests\e2e\image-compare.spec.ts:124:1 › comparison follows the pointer immediately and keeps keyboard and saved view state through reload 
   9 passed (42.3s)
-
 Failed browser suites: smooth-pdf (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE t3-centered===
-    tests\e2e\t3-centered.spec.ts:244:1 › explicit workspace panels claim only their own width and closing restores the full centered surface 
-    tests\e2e\t3-centered.spec.ts:293:1 › narrow default layout has no empty tool strip and sidebar collapse centers the available workspace 
   3 passed (27.1s)
-
 Failed browser suites: t3-centered (exit 1)
  ELIFECYCLE  Command failed with exit code 1.
 ===SUITE task-interface===
-    tests\e2e\task-interface.spec.ts:178:1 › a pending question cannot duplicate or erase a newer draft and source errors can retry 
+    tests\e2e\task-interface.spec.ts:178:1 › a pending question cannot duplicate or erase a newer draft and source errors can retry
   1 skipped
-  5 passed (29.8s)
-
-Failed browser suites: task-interface (exit 1)
- ELIFECYCLE  Command failed with exit code 1.
+... [bounded: 3 further result lines preserved in out-of-source custody original]

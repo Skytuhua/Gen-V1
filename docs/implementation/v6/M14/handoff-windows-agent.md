@@ -66,7 +66,7 @@ and update the evidence + PR #343 truthfully.
 - Full `pnpm test`: 3845 pass / 298 fail / 58 skip — every failure classified
   environmental, zero M14-caused.
 - `pnpm test:browser`: executes real specs (28 pass); failures need
-  `/opt/google/chrome` and `/opt/microsoft/msedge` — neither ships aarch64.
+  `<chrome-dir>` and `<msedge-dir>` — neither ships aarch64.
 
 ## Your blockers — what Windows CAN fix
 

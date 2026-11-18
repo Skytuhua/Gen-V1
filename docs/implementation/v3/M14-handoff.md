@@ -27,8 +27,8 @@ The M14 execution contract requires M01, M02, M04 and M05 on the accepted base, 
 | --- | --- |
 | Repository | `Skytuhua/Gen-V1`, origin `https://github.com/Skytuhua/Gen-V1.git` |
 | Canonical remote identity | `skytuhua-org/Gen-V1`, repository ID `1442565952`, verified through the existing GitHub connection |
-| Original checkout | `/workspace/scratch/dbebe44a9817/Gen-V1` |
-| Isolated worktree | `/workspace/scratch/c4abb425a583/m14-v3` |
+| Original checkout | `<scratch-worktree>` |
+| Isolated worktree | `<scratch-worktree>` |
 | Branch | `agent/m14-v3` |
 | Accepted base | `fcaa52f7fcdc9f39420118a79f9a8250ba83c563` |
 | Audit ancestor | `a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54` |

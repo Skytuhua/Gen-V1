@@ -1,44 +1,18 @@
-{"directory":"C:\\v\\.harness-packaged-providers\\run-1794893851387-650c4a23-5dee-44a1-90e9-97abb3b02941","passed":true}
-{"directory":"C:\\v\\.harness-desktop-installed\\run-1794893186217-d29ccee8-e5f6-45c0-9a73-649b7a21541c","passed":false}
-C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\matchers\expect.js:221
-        return matcher.call(target, ...args);
-                       ^
-
+== bounded redacted evidence summary ==
+originalSha256: 75d4c24ea2e37fb51142d81de9410ac5e23428243ed34ad73dbfd61295b5c6c9
+originalBytes: 2208
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+{"directory":"<harness-runs>\\run-1794893851387-650c4a23-5dee-44a1-90e9-97abb3b02941","passed":true}
+{"directory":"<harness-runs>\\run-1794893186217-d29ccee8-e5f6-45c0-9a73-649b7a21541c","passed":false}
 Je [Error]: expect(locator).toHaveText(expected) failed
-
-Locator: getByRole('dialog', { name: 'Project memory', exact: true }).locator('[data-memory-export-status="saved"]')
 Expected: "Redacted export downloaded."
-Timeout: 30000ms
 Error: element(s) not found
-
-Call log:
-  - Expect "to.have.text" with timeout 30000ms
-  - waiting for getByRole('dialog', { name: 'Project memory', exact: true }).locator('[data-memory-export-status="saved"]')
-
-    at Proxy.<anonymous> (C:\Users\Administrator\repos\gen-v1-m14\node_modules\.pnpm\playwright@1.56.1\node_modules\playwright\lib\matchers\expect.js:221:24)
-    at nativeDialog (C:\Users\Administrator\repos\gen-v1-m14\scripts\installed-memory-retention.ts:183:36)
-    at process.processTicksAndRejections (node:internal/process/task_queues:104:5) {
   matcherResult: {
-    name: 'toHaveText',
     expected: 'Redacted export downloaded.',
     message: 'expect(locator).toHaveText(expected) failed\n' +
-      '\n' +
-      `Locator: getByRole('dialog', { name: 'Project memory', exact: true }).locator('[data-memory-export-status="saved"]')\n` +
       'Expected: "Redacted export downloaded."\n' +
-      'Timeout: 30000ms\n' +
       'Error: element(s) not found\n' +
-      '\n' +
-      'Call log:\n' +
-      '  - Expect "to.have.text" with timeout 30000ms\n' +
-      `  - waiting for getByRole('dialog', { name: 'Project memory', exact: true }).locator('[data-memory-export-status="saved"]')\n`,
     pass: false,
-    actual: undefined,
-    log: [
-      '  - Expect "to.have.text" with timeout 30000ms',
-      `  - waiting for getByRole('dialog', { name: 'Project memory', exact: true }).locator('[data-memory-export-status="saved"]')`
-    ],
-    timeout: 30000
-  }
-}
-
-Node.js v24.22.2

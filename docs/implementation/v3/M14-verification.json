@@ -14,7 +14,7 @@
         {
           "id": "worktree-isolation",
           "status": "PASS",
-          "evidence": "Recovered remote head b27c8360 into /home/piadmin/Gen-V1-m14-v6 on agent/m14-v3; original checkout on fix/t10-agents-grid-v3 with user edits and qwencloud-api-key.txt preserved untouched."
+          "evidence": "Recovered remote head b27c8360 into <home>/Gen-V1-m14-v6 on agent/m14-v3; original checkout on fix/t10-agents-grid-v3 with user edits and qwencloud-api-key.txt preserved untouched."
         },
         {
           "id": "canonical-remote",
@@ -35,7 +35,7 @@
             "--porcelain=v1",
             "--untracked-files=all"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
           "executableIdentity": "git",
           "startedAt": "2026-11-16T05:37:00Z",
           "endedAt": "2026-11-16T05:37:02Z",
@@ -43,7 +43,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
-          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
         }
       ],
       "artifactRefs": [
@@ -66,7 +66,7 @@
             "node",
             "--version"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
           "executableIdentity": "node",
           "startedAt": "2026-11-16T05:37:03Z",
           "endedAt": "2026-11-16T05:37:04Z",
@@ -106,12 +106,12 @@
         {
           "id": "windows-integrations-python314",
           "status": "PASS",
-          "evidence": "py -3.14 resolves to C:\\Python314\\python.exe (3.14.9) after provisioning the nuget CPython 3.14 win32-x64 package and adding the legacy-launcher ExecutablePath registry value; integrations suite rerun 24/24 PASS."
+          "evidence": "py -3.14 resolves to <python314>\\python.exe (3.14.9) after provisioning the nuget CPython 3.14 win32-x64 package and adding the legacy-launcher ExecutablePath registry value; integrations suite rerun 24/24 PASS."
         },
         {
           "id": "win-x1-wsl2-custody-vitest",
           "status": "FAIL",
-          "evidence": "Broker-wrapped vitest on WSL2 x86_64 (each test process itself spawned as a broker child inside /custody2): 27 of 42 custody-adjacent files fully pass under live custody — including linux-path-guard 23/23, memory-storage-boundary-v3 9/9, session-branch-v3 11/11, history-import-v3 12/12, hermes-client 13/13, service-workspace-admission 14/14. 16 files retain failures: all trace to the same class — grant types the Linux contract denies (readOnly/tree/leaf/empty/gitMetadataImport) which the Windows path guard admits — surfacing as CAPABILITY_DENIED or as empty-fixture downstream failures (skill-catalog 19/23, skill-invocation 36/36 list() returns no skills under custody). Largest residual files: selective-commit-v3 13/13, code-review-comparisons 12/12, path-access 12/32, private-git-family 12/19, checkpoint-restore-v3 11/14, capabilities 13/24, account-profile 4/10. Contract asymmetry surfaced for the orchestrator — not relaxed to pass. No failure implicates M14 code."
+          "evidence": "Broker-wrapped vitest on WSL2 x86_64 (each test process itself spawned as a broker child inside <custody-root>): 27 of 42 custody-adjacent files fully pass under live custody — including linux-path-guard 23/23, memory-storage-boundary-v3 9/9, session-branch-v3 11/11, history-import-v3 12/12, hermes-client 13/13, service-workspace-admission 14/14. 16 files retain failures: all trace to the same class — grant types the Linux contract denies (readOnly/tree/leaf/empty/gitMetadataImport) which the Windows path guard admits — surfacing as CAPABILITY_DENIED or as empty-fixture downstream failures (skill-catalog 19/23, skill-invocation 36/36 list() returns no skills under custody). Largest residual files: selective-commit-v3 13/13, code-review-comparisons 12/12, path-access 12/32, private-git-family 12/19, checkpoint-restore-v3 11/14, capabilities 13/24, account-profile 4/10. Contract asymmetry surfaced for the orchestrator — not relaxed to pass. No failure implicates M14 code."
         }
       ],
       "commands": [
@@ -132,15 +132,15 @@
             "tests/m14-evidence-gates.test.ts",
             "--maxWorkers=4"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:43:22Z",
           "endedAt": "2026-11-16T05:44:44Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
-          "logDigest": "ec2421b75bf96bfd8b2b045f0582a6238c2e6d057a2fc105bc7b30b5e0856c2f"
+          "logDigest": "809c48a9d2490ea095eed95b984864d8e7734587b0c309447d27a1c7482351f9"
         },
         {
           "argv": [
@@ -159,117 +159,117 @@
             "tests/m14-evidence-gates.test.ts",
             "--maxWorkers=1"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T03:59:21Z",
           "endedAt": "2026-11-17T04:01:49Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-consumed-contract-tests.log",
-          "logDigest": "89c03fb7714d2f037a32fcc12872582fa1605d451fb13e34fc771b1ece5b600a"
+          "logDigest": "fa5b3d8209bcec6d540a7f7294e87747685da2ab8f1cc2e3cc3367ab6d34bfe5"
         },
         {
           "argv": [
-            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
-            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
             "--uid",
             "62153",
             "--gid",
             "62153",
             "--state-root",
-            "/root/m14-custody-root",
+            "<custody-root>",
             "--",
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
-            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
-            "/root/genv1-m14"
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>"
           ],
-          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
-          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
           "startedAt": "2026-11-17T05:30:00Z",
           "endedAt": "2026-11-17T05:40:00Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
-          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
         },
         {
           "argv": [
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
-            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
-            "/root/genv1-m14",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
             "credential-mounts"
           ],
-          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
-          "executableIdentity": "/opt/node24/bin/node (v24.22.2, WSL2 Ubuntu)",
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<node24>/bin/node (v24.22.2, WSL2 Ubuntu)",
           "startedAt": "2026-11-17T05:40:00Z",
           "endedAt": "2026-11-17T05:44:00Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
-          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
         },
         {
           "argv": [
-            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
-            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
             "--uid",
             "62153",
             "--gid",
             "62153",
             "--state-root",
-            "/root/m14-custody-root",
+            "<custody-root>",
             "--",
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
-            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
-            "/root/genv1-m14",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
             "unprotected"
           ],
-          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
-          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
           "startedAt": "2026-11-17T05:44:00Z",
           "endedAt": "2026-11-17T05:45:00Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
-          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
         },
         {
           "argv": [
-            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
-            "/root/genv1-m14/packages/core/linux-path-guard.py",
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
             "--uid",
             "62153",
             "--gid",
             "62153",
             "--state-root",
-            "/root/m14-custody-root",
+            "<custody-root>",
             "--",
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///root/genv1-m14/node_modules/tsx/dist/esm/index.mjs",
-            "/root/genv1-m14/tests/fixtures/linux-path-guard/native.mjs",
-            "/root/genv1-m14",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
             "account-profile-child"
           ],
-          "cwdIdentity": "/root/genv1-m14 (WSL2 Ubuntu x86_64, ext4)",
-          "executableIdentity": "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
           "startedAt": "2026-11-17T05:45:00Z",
           "endedAt": "2026-11-17T05:46:00Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
-          "logDigest": "1c8ab28bebd72febf874a074ea4d9abe76cb33fa6a62142d2963f02097c67f49"
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
         },
         {
           "argv": [
@@ -282,40 +282,40 @@
             "tests/integration-mcp.test.ts",
             "--maxWorkers=1"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T04:58:51Z",
           "endedAt": "2026-11-17T05:00:08Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-integrations-rerun.log",
-          "logDigest": "057bfce89a6dec7e22165ebed4c2c86d90e2fd2e970750ed49722c30154c4e1e"
+          "logDigest": "371d6ad4d29d4f3b515672f3b338b544054cc1eaa3303613e96fa0ebbd6f478f"
         },
         {
           "argv": [
-            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
-            "/custody2/packages/core/linux-path-guard.py",
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<custody-root>/packages/core/linux-path-guard.py",
             "--uid",
             "62153",
             "--gid",
             "62153",
             "--state-root",
-            "/custody2",
+            "<custody-root>",
             "--",
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///custody2/node_modules/tsx/dist/esm/index.mjs",
-            "/custody2/node_modules/vitest/vitest.mjs",
+            "file://<custody-root>/node_modules/tsx/dist/esm/index.mjs",
+            "<custody-root>/node_modules/vitest/vitest.mjs",
             "run",
             "tests/capabilities.test.ts",
             "tests/linux-path-guard.test.ts",
             "tests/memory-storage-boundary-v3.test.ts",
             "--root",
-            "/custody2",
+            "<custody-root>",
             "--pool=threads"
           ],
-          "cwdIdentity": "/custody2 (WSL2 Ubuntu x86_64, ext4, TMPDIR=/custody2, repo copy owned uid 2000 mode 0700)",
+          "cwdIdentity": "<custody-root> (WSL2 Ubuntu x86_64, ext4, TMPDIR=<custody-root>, repo copy owned uid 2000 mode 0700)",
           "executableIdentity": "python3.14 (broker) -> node v24.22.2",
           "startedAt": "2026-11-17T08:54:00Z",
           "endedAt": "2026-11-17T08:56:00Z",
@@ -323,30 +323,30 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-vitest-broker.log",
-          "logDigest": "f98c74707f17d9a1ce08ee8a8ac5780e5d7a4b6b88953ef67eceadcca3f2181b"
+          "logDigest": "f57d56ed47f68bd3e464161e1130212593bd3162a0b8372dfb89c97aa23b7b27"
         },
         {
           "argv": [
-            "/root/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
-            "/custody2/packages/core/linux-path-guard.py",
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<custody-root>/packages/core/linux-path-guard.py",
             "--uid",
             "62153",
             "--gid",
             "62153",
             "--state-root",
-            "/custody2",
+            "<custody-root>",
             "--",
-            "/opt/node24/bin/node",
+            "<node24>/bin/node",
             "--import",
-            "file:///custody2/node_modules/tsx/dist/esm/index.mjs",
-            "/custody2/node_modules/vitest/vitest.mjs",
+            "file://<custody-root>/node_modules/tsx/dist/esm/index.mjs",
+            "<custody-root>/node_modules/vitest/vitest.mjs",
             "run",
             "<one test file at a time>",
             "--root",
-            "/custody2",
+            "<custody-root>",
             "--pool=threads"
           ],
-          "cwdIdentity": "/custody2 (WSL2 Ubuntu x86_64, ext4, TMPDIR=/custody2, repo copy owned uid 2000 mode 0700)",
+          "cwdIdentity": "<custody-root> (WSL2 Ubuntu x86_64, ext4, TMPDIR=<custody-root>, repo copy owned uid 2000 mode 0700)",
           "executableIdentity": "python3.14 (broker) -> node v24.22.2; 40 custody-adjacent test files each run as a broker child",
           "startedAt": "2026-11-17T09:55:00Z",
           "endedAt": "2026-11-17T10:45:00Z",
@@ -354,7 +354,7 @@
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody-vitest-all.log",
-          "logDigest": "33cf4a223e47fe6f268674a21cc5fdf5f62608e2cb35c5bdcf984cc647576367"
+          "logDigest": "4e8ec8870e0a7807c2db5d9b39946613342823fac68b49c833e0236885a8ff64"
         }
       ],
       "artifactRefs": []
@@ -382,7 +382,7 @@
             "--oneline",
             "-4"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
           "executableIdentity": "git",
           "startedAt": "2026-11-16T05:37:00Z",
           "endedAt": "2026-11-16T05:37:01Z",
@@ -390,7 +390,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
-          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
         }
       ],
       "artifactRefs": []
@@ -426,90 +426,90 @@
             "pnpm",
             "typecheck"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:29:40Z",
           "endedAt": "2026-11-16T05:30:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-typecheck.log",
-          "logDigest": "4ff23153f74671a969498cc2b42c4cc0bafdca962ea1673b1b6b564f8e69b6cb"
+          "logDigest": "6adadaba762c303ca5d714989ae92627bd2894a63f5147ee11ccd484aed98a8d"
         },
         {
           "argv": [
             "pnpm",
             "lint"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:37:30Z",
           "endedAt": "2026-11-16T05:38:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-lint.log",
-          "logDigest": "22fff8f82ea4b7937beca7f929f98a43c331cf138873b78306cfa5774f0577a1"
+          "logDigest": "c98b191f3419039d036d30422728e08e006a49d3f44914cb5458fc426d6f1528"
         },
         {
           "argv": [
             "pnpm",
             "build"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:38:40Z",
           "endedAt": "2026-11-16T05:39:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-build.log",
-          "logDigest": "e69756543a85d4251e965e1949b50691030271d0ede6478eee949a4d38122d53"
+          "logDigest": "e93202a2f2dbdb5ea2b6a7e9d186705ba379061b2b4514373aea48a811568abe"
         },
         {
           "argv": [
             "pnpm",
             "typecheck"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T03:55:30Z",
           "endedAt": "2026-11-17T03:58:03Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-typecheck.log",
-          "logDigest": "94600ffa1dafce319e07ada78bc964881577719ec8b6d00678772eabccfe43ef"
+          "logDigest": "e98502f3972f5d590cc97e7c13d9da34e99effc428a5b8c7651edd12c4a8caa5"
         },
         {
           "argv": [
             "pnpm",
             "lint"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T03:58:10Z",
           "endedAt": "2026-11-17T03:59:06Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-lint.log",
-          "logDigest": "0b2038f364fd5284f83fb2398fde57c30b31e0e4db91190a863202d4da761521"
+          "logDigest": "ada73fc3b6d9fbeb46284b3adf5347e312ee9e1e9bb8d41ce1306847a72c1da7"
         },
         {
           "argv": [
             "pnpm",
             "build"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T03:58:30Z",
           "endedAt": "2026-11-17T03:59:15Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-build.log",
-          "logDigest": "60fd432686947b5b83de970b530180abffc4a909714d2819ee79a2ddabf30799"
+          "logDigest": "5bef41df812c606b200e08853cfee7a29e4a54dd32a3bcb37f55b6454d6f0ecb"
         }
       ],
       "artifactRefs": []
@@ -526,7 +526,7 @@
         {
           "id": "windows-hermes-bundle",
           "status": "PASS",
-          "evidence": "CPython 3.14.9 win32-x64 provisioned at C:\\Python314 (nuget package, no UAC); the staged hermes host bundle materialized inside desktop:package with HARNESS_HERMES_PYTHON (pnpm install of staged host + projection succeeded)."
+          "evidence": "CPython 3.14.9 win32-x64 provisioned at <python314> (nuget package, no UAC); the staged hermes host bundle materialized inside desktop:package with HARNESS_HERMES_PYTHON (pnpm install of staged host + projection succeeded)."
         }
       ],
       "commands": [
@@ -535,30 +535,30 @@
             "pnpm",
             "build:credential-lease"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:40:00Z",
           "endedAt": "2026-11-16T05:40:15Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
-          "logDigest": "7ca769acab58d4413dc4f9e1b1ff7b826048aec59776bc22b213a962c9a2e4ec"
+          "logDigest": "3f23321ebb98a5a0bf22ab2488df9a2312947b8cf7e7a5e9f26aabac09143088"
         },
         {
           "argv": [
             "pnpm",
             "build:widgets"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:40:15Z",
           "endedAt": "2026-11-16T05:41:00Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
-          "logDigest": "7ca769acab58d4413dc4f9e1b1ff7b826048aec59776bc22b213a962c9a2e4ec"
+          "logDigest": "3f23321ebb98a5a0bf22ab2488df9a2312947b8cf7e7a5e9f26aabac09143088"
         }
       ],
       "artifactRefs": []
@@ -597,15 +597,15 @@
             "run",
             "tests/session-branch-v3.test.ts"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:29:00Z",
           "endedAt": "2026-11-16T05:29:18Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
-          "logDigest": "d67e3d3dcb297ac0d9b18efe830d1ce4c428c96bb416943c7b50e2822b5f1958"
+          "logDigest": "09e0665acecea9bba1bc32551f596536e64ac01fabfcee2ed587e49d595313db"
         },
         {
           "argv": [
@@ -615,15 +615,15 @@
             "run",
             "tests/history-import-v3.test.ts"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:29:20Z",
           "endedAt": "2026-11-16T05:29:38Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
-          "logDigest": "7ee15cfe1b211eb6be40933b583a83b92f8320c3b2710d5c60f3d64319952e6b"
+          "logDigest": "12f548899c5f54ff70e461a6591d9b2dfee6206a8257aee4865be891338fc385"
         },
         {
           "argv": [
@@ -633,15 +633,15 @@
             "run",
             "tests/history-import-decisions-v6.test.ts"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:29:40Z",
           "endedAt": "2026-11-16T05:29:58Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
-          "logDigest": "1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141"
+          "logDigest": "f2be42767aac89e0c6176aaffe1537b95f5eba5f0952e14290c04d17d649dfcf"
         },
         {
           "argv": [
@@ -655,15 +655,15 @@
             "tests/cursor-sdk-mcp-metadata.test.ts",
             "--maxWorkers=1"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T06:53:21Z",
           "endedAt": "2026-11-17T06:53:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-w1-packaged-tests.log",
-          "logDigest": "c1656d68c4363996af1b0bab0366328d9258728debccb58bc39d83fa0e0cbffd"
+          "logDigest": "d55c4f99432620a63b03c8757af58cc545d93f2c76daf95d4e013e121a0237fe"
         }
       ],
       "artifactRefs": [
@@ -731,15 +731,15 @@
             "run",
             "tests/history-import-decisions-v6.test.ts"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:29:40Z",
           "endedAt": "2026-11-16T05:29:58Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
-          "logDigest": "1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141"
+          "logDigest": "f2be42767aac89e0c6176aaffe1537b95f5eba5f0952e14290c04d17d649dfcf"
         }
       ],
       "artifactRefs": [
@@ -802,30 +802,30 @@
             "run",
             "--maxWorkers=4"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:13:16Z",
           "endedAt": "2026-11-16T05:26:03Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
-          "logDigest": "158955462a159313cb6713b4f803e5cb9e8dab3ea835df3f9c3e68be4ebd97ad"
+          "logDigest": "6239c405d7f183115ff80881019b5d1296a3012a402d4a952de90935c4854cfc"
         },
         {
           "argv": [
             "pnpm",
             "test"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T04:01:59Z",
           "endedAt": "2026-11-17T04:21:31Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-pnpm-test.log",
-          "logDigest": "a9757fbe90da7824624fb15fa3b4c26400210854e049427e21f84b7d640ea782"
+          "logDigest": "ef1f53b9a7c47b419a6356a6bc1f9368da4e7a90e29d1bc061983d6bfb6a4825"
         },
         {
           "argv": [
@@ -845,15 +845,15 @@
             "tests/workspace-action-outcomes.test.ts",
             "--maxWorkers=1"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T06:53:44Z",
           "endedAt": "2026-11-17T07:19:52Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-failures-rerun2.log",
-          "logDigest": "da8b9f35e10a8b7330d700bfd2a01da91c6025fe8fe1afcf72f004c803f9e3d1"
+          "logDigest": "07a5a5480f7b08917913d5494200b363212ad98af30d40c34b5e1b6243002785"
         }
       ],
       "artifactRefs": []
@@ -865,7 +865,7 @@
         {
           "id": "playwright-gate",
           "status": "FAIL",
-          "evidence": "pnpm test:browser now executes real specs after the node-pty build fix (28 passed across projects). Remaining failures are platform/environmental: browser-action.spec.ts needs /opt/google/chrome and ui-shell-overlays.spec.ts needs /opt/microsoft/msedge — neither Chrome nor Edge exists for aarch64 Linux; plus sibling-worktree dev-server port conflicts (5397/5499/5636) and EACCES on foreign /tmp artifacts. No M14 browser surface is implicated."
+          "evidence": "pnpm test:browser now executes real specs after the node-pty build fix (28 passed across projects). Remaining failures are platform/environmental: browser-action.spec.ts needs <chrome-dir>/chrome and ui-shell-overlays.spec.ts needs <msedge-dir>/msedge — neither Chrome nor Edge exists for aarch64 Linux; plus sibling-worktree dev-server port conflicts (5397/5499/5636) and EACCES on foreign /tmp artifacts. No M14 browser surface is implicated."
         },
         {
           "id": "windows-browser-baseline",
@@ -879,30 +879,30 @@
             "pnpm",
             "test:browser"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
-          "executableIdentity": "/home/piadmin/tools/pnpm",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
           "startedAt": "2026-11-16T05:24:00Z",
           "endedAt": "2026-11-16T05:25:40Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-test-browser.log",
-          "logDigest": "2873d3d6a37d876d098a100f4936ed2ca56945ee32bc08ecc5bd1b1498c1c9c9"
+          "logDigest": "08d3d2d640df4d23a4a371e76c1c75976bf44f78d86451e283091adaffeeba9d"
         },
         {
           "argv": [
             "pnpm",
             "test:browser"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T05:00:30Z",
           "endedAt": "2026-11-17T06:45:00Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser.log",
-          "logDigest": "8e7605411db96eaa3159cd9555d5791ed666c391c211d888757a4de102a56665"
+          "logDigest": "3c0259ea220884c5ebeb2180a00e5cd9b13f6b8529e5d495c50ef3c432c309a4"
         },
         {
           "argv": [
@@ -911,15 +911,15 @@
             "--suite",
             "<35 previously-failed suites, serial>"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T07:20:00Z",
           "endedAt": "2026-11-17T08:13:00Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser-rerun.log",
-          "logDigest": "837b1000d20ece9850908c021638b818d4a230814bcb2a4ffbb37035d49bc54a"
+          "logDigest": "9a5c6df14c6a015c83493cd1a22c396a63c01753e97932006185e365330122b8"
         },
         {
           "argv": [
@@ -929,8 +929,8 @@
             "--suite",
             "<file-checkpoints|terminal-excerpts|conversation-find|project-search|redundant-ui|wo5-app-integration>"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2), external vite per suite on pinned ports 5521-5527, Edge v157",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2), external vite per suite on pinned ports 5521-5527, Edge v157",
           "startedAt": "2026-11-17T09:00:00Z",
           "endedAt": "2026-11-17T09:45:00Z",
           "exitCode": 1,
@@ -958,50 +958,50 @@
             "pnpm",
             "desktop:build"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T04:40:00Z",
           "endedAt": "2026-11-17T04:44:30Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-build.log",
-          "logDigest": "70d1dd1eebb4ccb91ab10cd7287bd08818bd70e86465d3016ba56454825403e4"
+          "logDigest": "085cd3382284187819f3b14afbbec2c5871f823984ce4de0a7ee41406d7c9697"
         },
         {
           "argv": [
             "pnpm",
             "desktop:package"
           ],
-          "cwdIdentity": "C:\\Users\\Administrator\\repos\\gen-v1-m14",
-          "executableIdentity": "C:\\Users\\Administrator\\AppData\\Roaming\\npm\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
           "startedAt": "2026-11-17T05:10:00Z",
           "endedAt": "2026-11-17T05:24:26Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-package.log",
-          "logDigest": "9d422fc6e7aae95654ed96f8f1b940562667eac14c99500e51ed729469d9a645"
+          "logDigest": "da8108b303b818a1cbc154f48a9c03034bb3087573d60075c3b1aa3e5dc2fc0f"
         },
         {
           "argv": [
             "node",
             "--import",
-            "file:///C:/Users/Administrator/repos/gen-v1-m14/node_modules/tsx/dist/esm/index.mjs",
-            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\scripts\\verify-installed-desktop.ts",
-            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
-            "C:\\Users\\Administrator\\repos\\gen-v1-m14\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+            "file:///<win-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<win-repo>\\scripts\\verify-installed-desktop.ts",
+            "<win-repo>\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+            "<win-repo>\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
             "--project-memory-retention"
           ],
-          "cwdIdentity": "C:\\v",
-          "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+          "cwdIdentity": "<v-drive>",
+          "executableIdentity": "<toolcache>\\node\\24.22.2\\x64\\node.exe",
           "startedAt": "2026-11-17T06:37:09Z",
           "endedAt": "2026-11-17T06:52:39Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v3/m14/logs/win-verify-installed2.log",
-          "logDigest": "0a330f4feadebd87a3715e119cb127107241fba14030ae7ac7f7469dca40d54a"
+          "logDigest": "c22dfedde705924fa96c8186942f1ad305ca04e5ea7decc7514c744ecd70cee6"
         }
       ],
       "artifactRefs": []
@@ -1028,7 +1028,7 @@
             "rev-parse",
             "HEAD"
           ],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m14-v6",
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
           "executableIdentity": "git",
           "startedAt": "2026-11-16T05:37:00Z",
           "endedAt": "2026-11-16T05:37:01Z",
@@ -1036,7 +1036,7 @@
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
-          "logDigest": "e095c6bffe47f9f3ccc89123c454e66d465155d0c869bcf923e5fb6b5a74e591"
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
         }
       ],
       "artifactRefs": [
