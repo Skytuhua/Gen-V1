@@ -15,6 +15,15 @@ export interface RequestContextSegmentV1 {
 }
 export interface RequestContextOwnerV1 { readonly threadId: string; readonly workspaceId: string }
 export interface RequestContextModelV1 { readonly modelId: string; readonly accountId: string | null }
+/** Host-only request admission. No source text, grant or renderer input is accepted here. */
+export interface InferenceAdmissionV1 {
+  readonly ctx: { readonly threadId: string; readonly runId: string; readonly epoch: number };
+  readonly modelId: string;
+  readonly accountId: string | null;
+  readonly thinkingLevel: string | null;
+  readonly sequence: number;
+  readonly inputIds: readonly string[];
+}
 export interface RequestContextV1 {
   readonly requestId: string;
   readonly owner: RequestContextOwnerV1;

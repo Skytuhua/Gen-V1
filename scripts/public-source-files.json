@@ -3114,6 +3114,7 @@
     "tests/host-fixture-cleanup.test.ts",
     "tests/host-fixture.ts",
     "tests/inbox-presentation.test.ts",
+    "tests/inference-admission.test.ts",
     "tests/installed-desktop-verification.test.ts",
     "tests/installed-native-save.test.ts",
     "tests/integration-host.test.ts",
