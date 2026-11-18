@@ -5,7 +5,7 @@ import type { ToolOwner } from '../contracts/tool-effects.ts';
 import {
   operationProjectTrustTargetSchema, operationProjectTrustDecisionSchema, operationProjectTrustRevokeSchema,
   type OperationProjectTrustTarget, type OperationProjectTrustDecision, type OperationProjectTrustRevoke,
-  type OperationProjectTrustReview, type OperationProjectTrustReceipt, type OperationProjectTrustState,
+  type OperationProjectTrustReview, type OperationProjectTrustReceipt, type OperationProjectTrustState, type OperationProjectTrustStatus,
 } from '../contracts/operation-project-trust.ts';
 import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding, type RepositoryTestBinding } from '../capabilities/repository-test-binding.ts';
 import { Store, digest } from '../storage/store.ts';
@@ -100,6 +100,20 @@ export class OperationProjectTrustHost {
       && digest(record.approvedDigests) === digest([approvedFile(basis.binding)]) && digest(record.scope) === digest(SCOPE)
       && (record.decision !== 'trusted' || publication.executionMode === 'TRUSTED_HOST');
     return { trustId, revision: record.revision, decision: matches ? record.decision : 'invalidated' };
+  }
+  /** Read recorded state for revocation without acquiring native custody,
+   * issuing a review token or mutating trust. Launch still verifies bytes. */
+  status(input: OperationProjectTrustTarget): OperationProjectTrustStatus {
+    this.active();
+    const target = operationProjectTrustTargetSchema.parse(input);
+    const running = this.store.get<Operation>('operation', target.operationId)?.status === 'running';
+    const { operation } = this.operation(target, running, true);
+    if (!this.options.enabled) {
+      if (this.required(operation)) throw new HarnessError('PROJECT_TRUST_DISABLED', 'This operation requires project trust; disabling it cannot authorize legacy execution');
+      return { ...target, version: 1, enabled: false, reason: 'PROJECT_TRUST_DISABLED' };
+    }
+    const basis = this.basis(target, running, true);
+    return structuredClone({ ...target, version: 1, enabled: true, owner: basis.owner, current: this.state(basis) });
   }
   async preview(input: OperationProjectTrustTarget): Promise<OperationProjectTrustReview> {
     const target = operationProjectTrustTargetSchema.parse(input);
