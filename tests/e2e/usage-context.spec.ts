@@ -293,6 +293,68 @@ test('compaction details page long retained-reference lists without hiding their
   expect(await references.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
 });
 
+test('compaction history stays visible after maintenance advances the epoch without reviving old request bytes', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true});
+  await opener.click(); await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await update(page, 'restart');
+  const history = context(page).getByRole('region', {name: 'Compaction history', exact: true});
+  await expect(history).toBeVisible();
+  await expect(history.getByRole('tab', {name: 'Compaction', exact: true})).toHaveAttribute('aria-selected', 'true');
+  await expect(history.getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await expect(context(page).getByRole('region', {name: 'Last request', exact: true})).toHaveCount(0);
+  await history.getByRole('tab', {name: 'Last request', exact: true}).click();
+  await expect(history.getByRole('tabpanel')).toContainText('Current request observation unavailable');
+  await expect(context(page)).not.toContainText('13 observed prompt bytes');
+  await page.keyboard.press('Escape'); await opener.click();
+  await expect(history.getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+});
+
+for (const field of ['project', 'workspace', 'model', 'account', 'session']) test(`compaction history rejects cached ${field} ownership across close and reopen`, async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-project');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true});
+  await opener.click(); await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await update(page, field === 'session' ? 'session' : 'compaction-owner-' + field);
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+  await page.keyboard.press('Escape'); await update(page, 'clone-compaction'); await opener.click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+  await expect(context(page)).not.toContainText('DECISION:taskMemory:keep-tests');
+});
+
+test('compaction history rejects an owner change while the inspector has never been opened', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-project');
+  await update(page, 'compaction-owner-project'); await update(page, 'clone-compaction');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
+test('compaction history uses the selected host usage row when request observation is disabled', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-no-observation');
+  await update(page, 'restart');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true}); await opener.click();
+  await expect(context(page).getByRole('region', {name: 'Compaction history', exact: true})).toBeVisible();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await expect(context(page).getByRole('region', {name: 'Last request', exact: true})).toHaveCount(0);
+  await page.keyboard.press('Escape'); await opener.click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+});
+
+for (const owner of ['no-usage-owner', 'foreign-usage-owner']) test(`compaction history without observations rejects ${owner}`, async ({ page }) => {
+  await page.goto('/usage-context?' + owner); await update(page, 'request-compaction-no-observation');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
+test('a selected host usage row never overrides a conflicting request witness', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction'); await update(page, 'foreign-request-witness');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
 test('shows admitted instruction revisions, overlap precedence and refused directives in the existing Sources tab', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'request-instructions');
   await page.getByRole('button', { name: 'Inspect context', exact: true }).click();

@@ -13,10 +13,11 @@ function Fixture() {
   const [open, setOpen] = useState(false), anchor = useRef<HTMLButtonElement>(null);
   const [usageOpen, setUsageOpen] = useState(false), [mode, setMode] = useState('reported');
   const [session, setSession] = useState('one'), [threadId, setThreadId] = useState('thread-one'), [epoch, setEpoch] = useState(1);
+  const [owner, setOwner] = useState<{projectId?: string; workspaceId?: string; modelId?: string; accountId?: string | null}>({});
   const [usage, setUsage] = useState<ContextUsage>({ ...EMPTY_USAGE, contextTokens: 8000, contextWindow: 10000 });
   const [compaction, setCompaction] = useState<ContextCompactionReport>();
   const query = new URLSearchParams(location.search);
-  const thread = { id: threadId, epoch, status: 'ready', modelId: query.has('unsupported') ? 'gemini-cli/model' : 'openai/model', runId: null, sessionPath: `/fixture/pi/tasks/${threadId}/sessions/${session}.jsonl` } as Thread;
+  const thread = { id: threadId, epoch, status: 'ready', ...owner, modelId: query.has('unsupported') ? 'gemini-cli/model' : owner.modelId ?? 'openai/model', runId: null, sessionPath: `/fixture/pi/tasks/${threadId}/sessions/${session}.jsonl` } as Thread;
   useEffect(() => {
     const update = (event: Event) => {
       const action = (event as CustomEvent<string>).detail;
@@ -32,10 +33,11 @@ function Fixture() {
         },
       } }));
       if (action === 'request-proof' || action === 'request-schemas') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(action === 'request-schemas' ? {toolSnapshot:{count:7,schemaBytes:428,digest:'a'.repeat(64)}} : {}) }, hostProjection: { threadId, runId:'fixture-run', epoch, sourceCutDigest: 'fixture', measurement:'BYTE_ONLY', sources: [{category:'USER',revision:1,utf8Bytes:13,inclusionReason:'selected by host',tokens:null,measurement:'BYTE_ONLY',exclusionReason:null}], omittedSources:0 } }));
-      if (['request-compaction', 'request-compaction-unavailable', 'request-compaction-unconfirmed', 'request-compaction-many'].includes(action)) setUsage(value => ({ ...value,
-        lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' },
+      if (action === 'request-compaction-project') setOwner({projectId: 'project-one', workspaceId: 'workspace-one'});
+      if (['request-compaction', 'request-compaction-no-observation', 'request-compaction-project', 'request-compaction-unavailable', 'request-compaction-unconfirmed', 'request-compaction-many'].includes(action)) setUsage(value => ({ ...value,
+        lastRequest: action === 'request-compaction-no-observation' ? undefined : { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 13, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' },
         compaction: { version: 1, candidates: [{
-          metadata: { version: 1, candidateId: 'candidate-visible', binding: { generation: 1, modelId: 'openai/model', accountId: null, workspaceId: 'thread:' + threadId, instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64), sourceCut: 'c'.repeat(64) }, summaryRef: null, sourceInterval: null, usageObservationRef: null },
+          metadata: { version: 1, candidateId: 'candidate-visible', binding: { generation: 1, modelId: 'openai/model', accountId: null, workspaceId: action === 'request-compaction-project' ? 'workspace-one' : 'thread:' + threadId, instructionDigest: 'a'.repeat(64), toolRegistryDigest: 'b'.repeat(64), sourceCut: 'c'.repeat(64) }, summaryRef: null, sourceInterval: null, usageObservationRef: null },
           status: action === 'request-compaction-unconfirmed' ? 'READY' : action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED', verdict: action === 'request-compaction-unconfirmed' ? null : action === 'request-compaction-unavailable' ? 'FAILED' : 'APPLIED',
           retainedConstraints: action === 'request-compaction-many' ? Array.from({length: 34}, (_, index) => 'native-record:' + 'd'.repeat(64) + ':' + index) : ['DECISION:taskMemory:keep-tests', 'PENDING_APPROVAL:request:review-change'],
           toolPairs: 1, estimatedByteReduction: ['request-compaction-unavailable', 'request-compaction-unconfirmed'].includes(action) ? null : 0,
@@ -58,6 +60,12 @@ function Fixture() {
       if (action === 'decrease') setUsage(value => ({ ...value, contextTokens: 4000 }));
       if (action === 'unknown') setUsage({ ...EMPTY_USAGE });
       if (action === 'session') setSession('two');
+      if (action === 'compaction-owner-project') setOwner(value => ({...value, projectId: 'project-two'}));
+      if (action === 'compaction-owner-workspace') setOwner(value => ({...value, workspaceId: 'workspace-two'}));
+      if (action === 'compaction-owner-model') setOwner(value => ({...value, modelId: 'openai/other'}));
+      if (action === 'compaction-owner-account') setOwner(value => ({...value, accountId: 'other-account'}));
+      if (action === 'clone-compaction') setUsage(value => ({...value, compaction: value.compaction && structuredClone(value.compaction)}));
+      if (action === 'foreign-request-witness') setUsage(value => ({...value, lastRequest: value.lastRequest && {...value.lastRequest, threadId: 'foreign-thread'}}));
       if (action === 'thread') setThreadId('thread-two');
       if (action === 'restart') { setEpoch(value => value + 1); setUsage(value => ({ ...value, activity: 'idle' })); }
       if (action === 'pending') setCompaction({ threadId, sessionPath: thread.sessionPath!, epoch, runId: 'compact-run', status: 'pending' });
@@ -102,7 +110,7 @@ function Fixture() {
     <button onClick={() => setUsageOpen(true)}>Open Usage</button>
     <span className="context-anchor" style={{ position: 'fixed', top: 74, right: 12 }}>
       <button ref={anchor} aria-label="Inspect context" onClick={() => setOpen(value => !value)}>Context</button>
-      {open && <ContextInspector anchor={anchor} usage={usage} thread={thread} compaction={compaction} close={() => setOpen(false)} refresh={async () => {}} />}
+      <ContextInspector open={open} anchor={anchor} usage={usage} usageThreadId={query.has('no-usage-owner') ? undefined : query.has('foreign-usage-owner') ? 'foreign-thread' : threadId} thread={thread} compaction={compaction} close={() => setOpen(false)} refresh={async () => {}} />
     </span>
     <UsageFooter usage={usage} visible onOpenUsage={() => setUsageOpen(true)} />
     <UsageDialog open={usageOpen} onClose={() => setUsageOpen(false)} reports={reports} requests={requests} loading={mode === 'loading'} error={mode === 'error' ? 'Synthetic provider failure. Refresh to retry.' : undefined}
