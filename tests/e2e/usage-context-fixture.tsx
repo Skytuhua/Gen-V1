@@ -24,6 +24,10 @@ function Fixture() {
       if (action === 'request-relevance') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 4, promptBytes: 1300, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', relevance: {
         cutId: 'b'.repeat(64), observedAtSequence: 4, candidateIds: ['host-result:1'], estimatedSavingsBytes: 1200, inspectionBudgetBytes: 65536, inspectedResults: 1, protectedResults: 0, omittedResults: 2, source: 'HOST_READ_RESULTS', measurement: 'BYTE_ONLY',
       } } }));
+      if (action === 'request-instructions') setUsage(value => ({ ...value, lastRequest: { threadId, runId: 'fixture-run', epoch, sequence: 1, promptBytes: 500, knownInputs: 1, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes' }, hostProjection: {
+        threadId, runId: 'fixture-run', epoch, sourceCutDigest: 'fixture', measurement: 'BYTE_ONLY', sources: [], omittedSources: 0,
+        projectInstructions: { entries: [{ filename: 'AGENTS.md', resourceId: 'project', scope: 'approved-root', precedence: 0, digest: 'c'.repeat(64), utf8Bytes: 120 }], duplicates: [], overlaps: [{ scope: 'approved-root', filenames: ['AGENTS.md', 'CLAUDE.md'] }], exclusions: [{ filename: 'GEMINI.md', resourceId: 'project', reason: 'UNSUPPORTED_DIRECTIVE' }], omittedRoots: 0, precedence: 'Within each explicit scope: AGENTS.md, CLAUDE.md, GEMINI.md; later files take precedence. Host authorization always takes precedence.' },
+      } }));
       if (action === 'decrease') setUsage(value => ({ ...value, contextTokens: 4000 }));
       if (action === 'unknown') setUsage({ ...EMPTY_USAGE });
       if (action === 'session') setSession('two');

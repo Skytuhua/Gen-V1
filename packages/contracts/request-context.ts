@@ -80,6 +80,26 @@ export interface ContextRelevanceObservationV1 {
   readonly measurement: 'BYTE_ONLY';
 }
 
+/** Public instruction provenance; contents remain in the admitted native input. */
+export interface ProjectInstructionsManifestV1 {
+  readonly entries: readonly { readonly filename: string; readonly resourceId: string; readonly scope: string; readonly precedence: number; readonly digest: string; readonly utf8Bytes: number }[];
+  readonly duplicates: readonly { readonly path: string; readonly retainedPath: string }[];
+  readonly overlaps: readonly { readonly scope: string; readonly filenames: readonly string[] }[];
+  readonly exclusions: readonly { readonly filename: string; readonly resourceId: string; readonly reason: 'UNAVAILABLE_SOURCE' | 'UNAVAILABLE_CUSTODY' | 'DENIED_SOURCE' | 'UNSUPPORTED_DIRECTIVE' | 'SOURCE_TOO_LARGE' | 'SOURCE_NOT_TEXT' | 'BYTE_BUDGET' }[];
+  readonly omittedRoots: number;
+  readonly precedence: string;
+}
+
+/** Host-only input prepared under current resource custody. It conveys no grant. */
+export interface ApprovedProjectContextV1 {
+  readonly version: 1;
+  readonly owner: { readonly threadId: string; readonly runId: string; readonly epoch: number; readonly modelId: string; readonly accountId: string | null };
+  readonly grantDigest: string;
+  readonly instructionText: string;
+  readonly instructionDigest: string;
+  readonly instructions: ProjectInstructionsManifestV1;
+}
+
 export interface ContextRequestObservationV1 {
   readonly threadId: string;
   readonly runId: string;
@@ -106,6 +126,7 @@ export interface HostRequestProjectionV1 {
     readonly measurement: ContextMeasurement; readonly exclusionReason: string | null;
   }[];
   readonly omittedSources: number;
+  readonly projectInstructions?: ProjectInstructionsManifestV1;
 }
 
 /** Host projection of the compaction candidate registry into usage; metadata only, never a grant or history change. */
