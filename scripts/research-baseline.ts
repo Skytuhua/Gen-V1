@@ -41,22 +41,11 @@ export function resolveExecutable(name: string): ResolvedExecutable {
 }
 
 export interface PackageManagerResolution { file: string; prefix: string[]; declaredVersion: string | null }
-export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
-  const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
-  const declared = typeof pkg.packageManager === 'string' ? pkg.packageManager.split('@').at(-1)! : null;
-  // `corepack enable` lays down POSIX/.cmd shims, not a PE image, so the real
-  // entry on Windows is node.exe plus corepack's per-manager dispatcher.
-  const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
-  if (existsSync(dispatcher)) return { file: process.execPath, prefix: [dispatcher], declaredVersion: declared };
-  try {
-    const corepack = resolveExecutable('corepack');
-    return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
-  } catch (error) {
-    if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
-  }
-  // Corepack is optional when the declared pnpm is already installed. Resolve
-  // npm's symlink or the JavaScript entry beside its Windows shim; never run
-  // a .cmd file through shell:false or download a replacement toolchain.
+/** An installed pnpm on PATH, resolved to something `shell:false` can run:
+ * an executable image, npm's symlink, or the JavaScript entry beside its
+ * Windows shim. A `.cmd` file is never executed directly and no replacement
+ * toolchain is downloaded. */
+function installedPackageManager(declared: string | null): PackageManagerResolution | null {
   for (const directory of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
     for (const name of ['pnpm', 'pnpm.exe', 'pnpm.cmd', 'pnpm.CMD']) {
       const target = join(directory, name);
@@ -68,6 +57,28 @@ export function resolvePackageManager(repoRoot: string): PackageManagerResolutio
           return { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
       }
     }
+  }
+  return null;
+}
+export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
+  const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
+  const declared = typeof pkg.packageManager === 'string' ? pkg.packageManager.split('@').at(-1)! : null;
+  // An installed pnpm wins. A host that pins pnpm through its setup already
+  // provides the declared version, while Corepack resolves the declared
+  // version only from its own cache and this resolver is used with downloads
+  // disabled — so choosing Corepack first fails on a fresh image even though
+  // the pinned pnpm is installed there.
+  const installed = installedPackageManager(declared);
+  if (installed) return installed;
+  // `corepack enable` lays down POSIX/.cmd shims, not a PE image, so the real
+  // entry on Windows is node.exe plus corepack's per-manager dispatcher.
+  const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
+  if (existsSync(dispatcher)) return { file: process.execPath, prefix: [dispatcher], declaredVersion: declared };
+  try {
+    const corepack = resolveExecutable('corepack');
+    return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+  } catch (error) {
+    if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
   }
   throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
 }

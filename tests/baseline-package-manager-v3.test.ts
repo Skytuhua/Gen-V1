@@ -114,4 +114,21 @@ describe('M01 installed package manager admission', () => {
     expect(result.status, result.stderr).toBe(0);
     expect(value.observed().map(call => call.network)).toEqual(['0', '0', '0', '0', '0']);
   });
+
+  it('prefers the installed pinned pnpm when an uncached Corepack dispatcher exists', () => {
+    const value = fixture();
+    const dispatcher = join(value.runtime, 'node_modules', 'corepack', 'dist', 'pnpm.js');
+    mkdirSync(join(value.runtime, 'node_modules', 'corepack', 'dist'), { recursive: true });
+    // A fresh Windows image ships Corepack beside node with an empty cache, so
+    // it cannot resolve the declared version with downloads disabled.
+    writeFileSync(dispatcher, 'process.stderr.write("Corepack cannot resolve the declared version offline\\n");process.exit(97);\n');
+    const result = value.execute();
+    expect(result.error).toBeUndefined();
+    expect(result.status, result.stderr).toBe(0);
+    expect(JSON.parse(result.stdout.trim()).packageManagerVersion).toBe('10.30.3');
+    expect(result.stderr).not.toContain('Corepack cannot resolve');
+    expect(value.observed().map(call => call.args)).toEqual([
+      ['--version'], ['typecheck'], ['test'], ['build'], ['test:browser'],
+    ]);
+  });
 });
