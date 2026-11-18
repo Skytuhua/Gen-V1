@@ -1,0 +1,73 @@
+name: M01 M02 M03 integration audit
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m01-m03-audit.yml'
+      - 'scripts/validate-m01-m03-integration.mjs'
+      - 'scripts/validate-m01-m03-integration.test.mjs'
+      - 'docs/implementation/v3/audits/2026-11-17/heads.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m01-m03-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
+  GIT_TERMINAL_PROMPT: '0'
+  COREPACK_ENABLE_NETWORK: '0'
+  VALIDATION_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+jobs:
+  integration:
+    name: Pinned M01 M02 M03 Windows integration
+    runs-on: windows-latest
+    timeout-minutes: 120
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out validation source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ env.VALIDATION_SHA }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Assemble and verify the pinned tree
+        id: source
+        run: node scripts/validate-m01-m03-integration.mjs assemble
+
+      - name: Install toolchain from the verified tree
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+          playwright: 'true'
+
+      - name: Check the validation runner with the pinned Node
+        run: node --test "$env:RUNNER_TEMP/m01-m03-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT/validate-m01-m03-integration.test.mjs"
+
+      - name: Run core and browser validation on that same tree
+        env:
+          INTEGRATED_HEAD: ${{ steps.source.outputs.integrated_head }}
+        run: node --import tsx "$env:RUNNER_TEMP/m01-m03-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT/validate-m01-m03-integration.mjs" validate
+
+      - name: Preserve source receipts, results, and browser traces
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: m01-m03-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/m01-m03-${{ github.run_id }}-${{ github.run_attempt }}/**
+            test-results/browser/**/results.json
+            test-results/browser/**/artifacts/**/*.png
+            test-results/browser/**/artifacts/**/trace.zip
+            test-results/browser/**/artifacts/**/host-observations.json

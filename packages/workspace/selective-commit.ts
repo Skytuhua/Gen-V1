@@ -80,10 +80,11 @@ const splitFileDiff = (patch: string, path: string): FileSection => {
 
 const newFilePatch = (path: string, text: string): FileSection => {
   const lines = text.split("\n");
-  const count = text.endsWith("\n") ? lines.length - 1 : lines.length;
+  const count = text === "" ? 0 : text.endsWith("\n") ? lines.length - 1 : lines.length;
   const body = lines.slice(0, count).map((line) => "+" + line);
-  if (!text.endsWith("\n")) body.push("\\ No newline at end of file");
-  const hunks = `@@ -0,0 +1,${count} @@\n${body.join("\n")}\n`;
+  if (text && !text.endsWith("\n")) body.push("\\ No newline at end of file");
+  // An empty file has no hunk; the patch is its header only.
+  const hunks = count === 0 ? "" : `@@ -0,0 +1,${count} @@\n${body.join("\n")}\n`;
   return {
     path,
     header: `diff --git a/${path} b/${path}\nnew file mode 100644\nindex 0000000..0000000\n--- /dev/null\n+++ b/${path}\n`,
@@ -102,19 +103,20 @@ export class SelectiveCommitService {
     worktree: string,
     scope: CheckpointScope | undefined,
   ): Promise<FileSection[]> {
-    const names = (await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"]))
-      .split("\0")
-      .filter(Boolean)
-      .map((entry) => {
-        const name = entry.slice(3);
-        // Porcelain renames list "old -> new" as one operand; commit the new path.
-        return name.includes(" -> ") ? name.slice(name.indexOf(" -> ") + 4) : name;
-      })
-      .filter((name) => name.split("/").at(-1) !== ".harness-directory-guard")
-      .slice(0, 200);
+    const entries = (await git(["status", "--porcelain=v1", "-z", "--untracked-files=all"])).split("\0");
+    const names: string[] = [];
+    for (let i = 0; i < entries.length; i++) {
+      const entry = entries[i];
+      if (!entry) continue;
+      // In -z mode a rename/copy emits the new path then the old path as a
+      // separate operand; consume it. Paths are never quoted or " -> "-joined.
+      const name = entry.slice(3);
+      if (/[RC]/.test(entry.slice(0, 2))) i++;
+      if (name.split("/").at(-1) !== ".harness-directory-guard") names.push(name);
+      if (names.length >= 200) break;
+    }
     const sections: FileSection[] = [];
-    for (const raw of names) {
-      const path = raw.replace(/^"(.*)"$/, "$1");
+    for (const path of names) {
       const status = (await git(["status", "--porcelain=v1", "--", path])).slice(0, 2);
       if (status === "??") {
         const bytes = await readBoundFile(join(worktree, path), 8 * 1024 * 1024 + 1).catch(() => null);
@@ -181,7 +183,7 @@ export class SelectiveCommitService {
       const patchParts: string[] = [];
       for (const hunk of [...selected].sort((a, b) => (a.path === b.path ? a.index - b.index : a.path.localeCompare(b.path)))) {
         const section = sectionsByPath.get(hunk.path);
-        if (!section || !section.hunks[hunk.index]) throw new HarnessError("REVISION_CHANGED", `The change at ${hunk.path} is no longer available. Refresh before committing.`);
+        if (!section || section.hunks[hunk.index] === undefined) throw new HarnessError("REVISION_CHANGED", `The change at ${hunk.path} is no longer available. Refresh before committing.`);
         const patch = section.header + section.hunks[hunk.index];
         if (sha256hex(patch) !== hunk.digest) throw new HarnessError("REVISION_CHANGED", `The hunk at ${hunk.path} changed. Refresh before committing.`);
         patchParts.push(patch);
@@ -189,17 +191,17 @@ export class SelectiveCommitService {
 
       const privateIndex = join(binding.gitDirectory, `gen-selective-${randomUUID()}.index`);
       const patchFile = join(binding.gitDirectory, `gen-selective-${randomUUID()}.patch`);
-      const file = await open(patchFile, "wx", 0o600);
-      try {
-        await file.writeFile(patchParts.join(""));
-      } finally {
-        await file.close();
-      }
       const environment = { GIT_INDEX_FILE: privateIndex };
       let commitOid: string | undefined;
       let applied = false;
       let record: SelectiveCommitV1;
       try {
+        const file = await open(patchFile, "wx", 0o600);
+        try {
+          await file.writeFile(patchParts.join(""));
+        } finally {
+          await file.close();
+        }
         await git(["read-tree", input.expectedHead], environment);
         // Recheck selected preimage blobs: the private index must contain the
         // exact expectedHead blob for every selected path.
