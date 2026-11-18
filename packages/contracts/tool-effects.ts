@@ -54,6 +54,12 @@ export const toolEffectSchema = z.strictObject({
 });
 export type ToolEffectV1 = z.infer<typeof toolEffectSchema>;
 
+export const hostApprovalAuthenticatorSchema = z.strictObject({
+  version: z.literal(1),
+  keyId: z.string().uuid(),
+  tag: z.string().regex(/^v1:[a-f0-9-]{36}:[a-f0-9]{64}$/),
+});
+
 export const approvalSchema = z.strictObject({
   approvalId: z.string(),
   operationId: z.string(),
@@ -64,8 +70,18 @@ export const approvalSchema = z.strictObject({
   expiresAt: z.string(),
   remainingUses: z.number().int().min(0),
   issuer: z.string(),
+  hostAuthenticator: hostApprovalAuthenticatorSchema.optional(),
 });
 export type ApprovalV1 = z.infer<typeof approvalSchema>;
+
+/** Legacy rows remain readable; enabled-mode dispatch requires this strict form. */
+export const authenticatedApprovalSchema = approvalSchema.extend({
+  issuer: z.literal("authenticated_user"),
+  remainingUses: z.union([z.literal(0), z.literal(1)]),
+  issuedAt: z.string().datetime(),
+  expiresAt: z.string().datetime(),
+  hostAuthenticator: hostApprovalAuthenticatorSchema,
+});
 
 export interface EffectTransition { from: EffectState | null; to: EffectState; at: string; note?: string }
 

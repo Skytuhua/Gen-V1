@@ -19,6 +19,12 @@ export function pathGuardRpcDeadline(command: unknown, metadataImport: boolean, 
 }
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError("CANCELLED", "Filesystem operation cancelled"); }
 
+/** A returned custody handle can outlive its caller's guard callback. Give it
+ * its own native session so a parent's normal teardown cannot release its pins. */
+export function withOwnedPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>, onLoss?: () => void, options?: { startupAcquisition?: boolean }): Promise<T> {
+  return sessions.exit(() => withPathGuard(paths, signal, action, onLoss, options));
+}
+
 /** Application-scoped namespace guard; never an OS sandbox for project code. */
 export async function withPathGuard<T>(paths: GuardPath[], signal: AbortSignal, action: (manifest: readonly GuardEntry[]) => Promise<T>,onLoss?:()=>void,options?:{startupAcquisition?:boolean}): Promise<T> {
   if(paths.some(path=>path.allowChildWrites&&path.leaf&&!path.childWriteRoot))throw new HarnessError('CAPABILITY_DENIED','A pinned file requires an explicit ancestor write scope.');

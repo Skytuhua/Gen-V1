@@ -10,6 +10,7 @@ import type {Tool} from '@modelcontextprotocol/sdk/types.js';
 import {integrationPreferenceSchema,type HostComplete,type IntegrationId,type IntegrationPreference,type IntegrationPreferences,type IntegrationScope,type IntegrationStatus} from '../contracts/integrations.ts';
 import {dependencyFile,integrationIds,ordinaryFile,payloadPath,readManifest,verifyDefinition,type IntegrationDefinition,type IntegrationManifest} from './manifest.ts';
 import {readBoundFile,replaceOwnedFile,withPathGuard} from '../core/file-access.ts';
+import {createSecretRedactor,type SecretRedactor} from '../core/secret-references.ts';
 import {inlineJson} from './inline-json.ts';
 
 export interface ResolvedIntegrationScope {profileId:string;projectRoot?:string;scope?:IntegrationScope;runId?:string|null;epoch?:number}
@@ -21,7 +22,7 @@ export interface IntegrationManagerOptions {
  hostComplete:HostComplete;onDisable:(id:IntegrationId)=>Promise<void>;
  context7Key?:()=>Promise<string|undefined>;
 }
-interface Session {id:IntegrationId;key:string;scope:IntegrationScope;generation:number;client:Client;transport:StdioClientTransport;starting:Promise<void>;ready:boolean;released?:boolean;bridge?:Server;controllers:Set<AbortController>;closing?:Promise<void>}
+interface Session {id:IntegrationId;key:string;scope:IntegrationScope;generation:number;client:Client;transport:StdioClientTransport;starting:Promise<void>;ready:boolean;released?:boolean;bridge?:Server;controllers:Set<AbortController>;closing?:Promise<void>;redactor?:SecretRedactor}
 interface OwnedCommand {id:IntegrationId;scope?:IntegrationScope;child:ChildProcess;settled:Promise<unknown>}
 const hash=(value:string)=>createHash('sha256').update(value).digest('hex').slice(0,24);
 const promptfooTools=new Set(['run_evaluation','list_evaluations','get_evaluation_details']);
@@ -100,6 +101,7 @@ export class IntegrationManager {
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
    if(id==='promptfoo'){const token=randomBytes(32).toString('hex');env.HARNESS_PROMPTFOO_BRIDGE_URL=await this.completionBridge(selected,token);env.HARNESS_PROMPTFOO_BRIDGE_TOKEN=token;}
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
+   selected.redactor=createSecretRedactor([env.CONTEXT7_API_KEY,env.HARNESS_PROMPTFOO_BRIDGE_TOKEN].filter((value):value is string=>typeof value==='string'));
    await client.connect(transport,{timeout:30000});if(this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0)){await this.closeSession(selected);throw Error('Integration was disabled during startup');}selected.ready=true;this.failures.delete(id);
   }catch(error){this.failures.set(id,'Bundled MCP did not initialize');await this.closeSession(selected);throw error;}})();await session.starting;return session;
  }
@@ -145,7 +147,20 @@ export class IntegrationManager {
    await this.publishTree(stagedOut,root,'graphify-out',scope,'graphify');return {result};
   }finally{await rm(stage,{recursive:true,force:true});}
  }
- async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools();return result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true);};return id==='graphify'?this.graphRead(scope,list):list();}
+ private redactFailure<T>(session:Session,error:T):T{
+  // A child that fails can echo the values it was given; the model still sees
+  // the message, so it crosses the same boundary as a successful result.
+  const redactor=session.redactor;if(redactor?.tracked&&error instanceof Error)error.message=redactor.redact(error.message).text;
+  return error;
+ }
+ private redactOutput<T>(session:Session,value:T):T{
+  // Keep the values injected into this exact child until its results settle.
+  // Match decoded string values, including ANSI-split or encoded known secrets.
+  const redactor=session.redactor;if(!redactor?.tracked)return value;
+  const json=JSON.stringify(value,(_key,item)=>typeof item==='string'?redactor.redact(item).text:item);
+  return JSON.parse(redactor.redact(json).text) as T;
+ }
+ async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools().catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true));};return id==='graphify'?this.graphRead(scope,list):list();}
  private async prepareEvaluation(args:Record<string,unknown>,scope:IntegrationScope,session:Session){
   const {scoped}=await this.admitted('promptfoo',scope,'evaluate');const root=scoped.projectRoot!;
   let config:Record<string,unknown>;if(args.config!==undefined)config=object(args.config);else{if(typeof args.configPath!=='string')throw Error('Evaluation requires an explicit configuration');const path=await scopedFile(root,args.configPath);if(!path.endsWith('.json'))throw Error('Native evaluations require a JSON configuration');const data=await withPathGuard([{path,leaf:true,readOnly:true}],new AbortController().signal,()=>readBoundFile(path,1024*1024));config=object(JSON.parse(data.toString()));}
@@ -164,7 +179,7 @@ export class IntegrationManager {
  async callTool(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){
   const input={...object(args)},tools=await this.listTools(id,scope),tool=tools.find(tool=>tool.name===name);if(!tool)throw Error('Integration tool is not admitted');const {scoped}=await this.admitted(id,scope,'tool'),session=await this.session(id,scope);
   let forwarded=input;if(id==='graphify')forwarded={...input,project_path:scoped.projectRoot};if(id==='spec-kit'&&name==='specify_run_command'&&input.command!=='version')throw Error('Spec Kit MCP commands are read-only version queries');if(id==='promptfoo'&&name==='run_evaluation')forwarded=await this.prepareEvaluation(input,scope,session);
-  const invoke=()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');return session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000});};return id==='graphify'?this.graphRead(scope,invoke):invoke();
+  const invoke=async()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');const result=await session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000}).catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result);};return id==='graphify'?this.graphRead(scope,invoke):invoke();
  }
  async health(id:IntegrationId,scope:IntegrationScope){const {item,scoped}=await this.admitted(id,scope,'health');if(item.capabilities.mcp)return {tools:(await this.listTools(id,scope)).map(tool=>tool.name)};if(id==='impeccable'||id==='biome'){const executable=id==='impeccable'?join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe'):join(this.root,'node_modules/@biomejs/cli-win32-x64/biome.exe');const result=await this.runNative(id,executable,['--version'],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','diagnostics')),10000,scoped.scope??scope,scoped.projectRoot);return {version:result.stdout.trim()};}return {skills:item.capabilities.skills};}
  async command(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){
