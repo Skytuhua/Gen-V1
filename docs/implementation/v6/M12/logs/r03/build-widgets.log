@@ -1,0 +1,5 @@
+
+> gen-v1@0.6.5 build:widgets /home/piadmin/Gen-V1-m12-r03
+> node scripts/build-widgets.mjs
+
+WIDGETS_EXIT=0

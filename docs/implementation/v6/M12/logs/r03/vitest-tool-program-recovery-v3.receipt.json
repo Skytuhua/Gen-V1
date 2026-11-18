@@ -1,0 +1,10 @@
+{
+  "case": "vitest-tool-program-recovery-v3",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/tool-program-recovery-v3.test.ts",
+  "exitCode": 1,
+  "startedAt": "2026-11-18T18:23:25+00:00",
+  "durationSec": 105,
+  "logDigest": "sha256:ca790a87b3f13e49e5c64fc59ce022b73689876a4ff0fcf0f6c91a136f19843b",
+  "status": "FAIL"
+}

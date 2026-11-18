@@ -1,0 +1,10 @@
+{
+  "case": "vitest-python-kernel-v3",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/python-kernel-v3.test.ts",
+  "exitCode": 0,
+  "startedAt": "2026-11-18T18:29:25+00:00",
+  "durationSec": 48,
+  "logDigest": "sha256:b0678894f78fe34c8eb69371dc1f5fbb77d12697aa920c7fd42eed49eef019da",
+  "status": "PASS"
+}

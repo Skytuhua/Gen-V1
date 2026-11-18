@@ -1,0 +1,10 @@
+{
+  "case": "vitest-tool-program-v3",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/tool-program-v3.test.ts",
+  "exitCode": 0,
+  "startedAt": "2026-11-18T18:21:14+00:00",
+  "durationSec": 105,
+  "logDigest": "sha256:786a53e39bf877baee13a3f1bfeaa9a6f932acce76f0800bf59e540446dc05e3",
+  "status": "PASS"
+}

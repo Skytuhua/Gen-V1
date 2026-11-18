@@ -1,0 +1,10 @@
+{
+  "case": "typecheck",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm typecheck",
+  "exitCode": 134,
+  "startedAt": "2026-11-18T18:15:58+00:00",
+  "durationSec": 316,
+  "logDigest": "sha256:18a77f6d3e7fc8e1fc8f783786f2ef01fc75dcb9e96edb92c2428df9d0b6ee8d",
+  "status": "FAIL"
+}

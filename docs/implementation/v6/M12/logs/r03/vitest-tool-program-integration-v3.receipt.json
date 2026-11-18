@@ -1,0 +1,10 @@
+{
+  "case": "vitest-tool-program-integration-v3",
+  "cut": "2e949a66937b5bf422def9fba75249df0d44d609",
+  "command": "pnpm exec vitest run tests/tool-program-integration-v3.test.ts",
+  "exitCode": 1,
+  "startedAt": "2026-11-18T18:23:10+00:00",
+  "durationSec": 15,
+  "logDigest": "sha256:86ea0287f04be84944f7e682b5406bcd804e4875a5b522c3732995f04ceffb33",
+  "status": "FAIL"
+}
