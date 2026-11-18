@@ -109,3 +109,15 @@ it('rejects repeated message-paging and search query parameters instead of faili
  for(const url of ['/api/threads/any/messages?beforeId=a&beforeId=b','/api/threads/any/messages?limit=5&limit=6','/api/threads/search?q=x&q=y','/api/threads/search?threads=a&threads=b'])expect((await app.inject({url,headers})).statusCode).toBe(400);
  expect((await app.inject({url:'/api/threads/search?q=needle',headers})).statusCode).toBe(200);
 });
+it('keeps archived threads out of deep message search like every other thread read',async()=>{
+ const {app,store}=await setup(),boot=await app.inject({url:'/api/bootstrap',headers:{host:'127.0.0.1:4317'}}),headers={host:'127.0.0.1:4317',cookie:String(boot.headers['set-cookie']).split(';')[0]};
+ store.internal('fixture.change',null,()=>{
+  for(const id of ['live','archived']){
+   store.put('thread',id,id,{id,title:id,status:'completed',kind:'chat',createdAt:'',updatedAt:''});
+   store.put('message',`${id}-message`,id,{id:`${id}-message`,threadId:id,role:'user',content:'the needle is here',createdAt:'',runId:null});
+  }
+  store.put('archivedThread','archived','archived',true);
+ });
+ const found=await app.inject({url:'/api/threads/search?q=needle&threads=live,archived',headers});
+ expect(found.statusCode).toBe(200);expect(found.json().threadIds).toEqual(['live']);
+});

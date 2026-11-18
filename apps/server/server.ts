@@ -174,7 +174,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
     if (!query) return { threadIds: [] };
     const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
-    const threadIds = ids.filter(id => service.store.get('thread', id)
+    const threadIds = ids.filter(id => service.store.get('thread', id) && !service.store.get('archivedThread', id)
       && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
     return { threadIds };
   });
