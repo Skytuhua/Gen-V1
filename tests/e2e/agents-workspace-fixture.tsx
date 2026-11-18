@@ -15,7 +15,7 @@ const root = createRoot(document.getElementById('root')!);
 const props: AgentsWorkspaceProps = {controller, composers, onOpenConversation: id => {document.documentElement.dataset.openedThread = id;}};
 async function mount() {
  let content;
- if (new URLSearchParams(location.search).has('candidate')) {
+ if (new URLSearchParams(location.search).has('candidate') || new URLSearchParams(location.search).has('app')) {
   const {App} = await import('../../apps/web/src/App');
   const [workspace, settings] = await Promise.all([getWorkspace(), getShellSettings()]);
   document.documentElement.dataset.theme = settings.theme === 'light' ? 'light' : 'dark';

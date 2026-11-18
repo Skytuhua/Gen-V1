@@ -108,3 +108,11 @@
 :root[data-density="touch"] .settings-runtime-details>summary { min-height:44px;padding-block:10px; }
 
 @media(pointer:coarse) { :root .settings-layout .settings-navigation nav button,:root .settings-layout .settings-search,:root .settings-layout .settings-content :is(button,.ui-select-trigger,input:not([type="range"])),:root .settings-layout .settings-section-select .ui-select-trigger,:root .ui-modal.settings-dialog .ui-control-popup .ui-control-option { min-height:44px; } :root .settings-runtime-details>summary { min-height:44px;padding-block:10px; } }
+
+.settings-shortcuts-group { padding:2px 0 10px; }
+.settings-shortcuts-group>h3 { padding:10px 0 4px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted); }
+.settings-shortcuts-row { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:7px 0;border-bottom:1px solid var(--border); }
+.settings-shortcuts-label { min-width:0;font-size:13px;color:var(--text);overflow-wrap:anywhere; }
+.settings-shortcuts-keys { display:flex;flex:0 0 auto;gap:4px; }
+.settings-shortcuts-keys kbd { padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);white-space:nowrap; }
+.settings-shortcuts-label small { display:block;margin-top:1px;font-size:12px;line-height:1.4;color:var(--muted); }

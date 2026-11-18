@@ -154,6 +154,10 @@
   transform: none;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .sidebar .thread-group-settled h2 > button > svg.settled-chevron { transition: none; }
+}
+
 .sidebar .thread-group-settled h2 > button > svg.settled-chevron.is-folded {
   transform: rotate(-90deg);
 }
@@ -314,7 +318,7 @@
 }
 
 .sidebar .thread-item-meta[data-thread-state='working'] .thread-item-status {
-  color: var(--accent);
+  color: var(--accent-text);
 }
 
 .sidebar .thread-item-meta[data-thread-state='awaiting_input'] .thread-item-status {

@@ -19,6 +19,8 @@ async function fixture(){
  await file(third+'/UPSTREAM_MANIFEST.json',JSON.stringify({commit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',files:[{path:'run_agent.py',bytes:Buffer.byteLength(source),sha256:sha(source),gitBlob:createHash('sha1').update('blob '+Buffer.byteLength(source)+'\0').update(source).digest('hex')}]}));
  await file(third+'/upstream/run_agent.py',source);await file('packages/runtime-hermes/worker.py','print("worker")\n');
  await file('packages/runtime-hermes/memory_checkpoint.py','# bounded native checkpoint bridge\n');
+ await file('packages/runtime-hermes/context_capture.py','# bounded native source observation\n');
+ await file('packages/runtime-hermes/compaction_protection.py','# bounded native compaction protection\n');
  for(const path of ['python.exe','python3.dll','python314.dll','vcruntime140.dll','LICENSE.txt','Lib/os.py','Lib/encodings/__init__.py','DLLs/_ssl.pyd'])await file('python/'+path);
  for(const path of ['Lib/test/test_ssl.py','Lib/unittest/test/test_case.py','Lib/site-packages/private.py','Lib/ensurepip/__init__.py','Lib/__pycache__/os.pyc','DLLs/_testcapi.pyd','Scripts/pip.exe','Doc/manual.html'])await file('python/'+path,'omit');
  await file('.harness-hermes-python-deps/fixture_dep/__init__.py');await file('.harness-hermes-python-deps/fixture_dep-1.0.dist-info/METADATA',metadata);await file('.harness-hermes-python-deps/fixture_dep-1.0.dist-info/licenses/LICENSE','dependency notice');await file('.harness-hermes-python-deps/fixture_dep/__pycache__/cached.pyc','omit');
@@ -30,11 +32,13 @@ it('admits only the exact Hermes Python worker and checkpoint bridge and require
  expect(runtimeSourceAllowed('packages/runtime-hermes/worker.py')).toBe(true);expect(runtimeSourceAllowed('packages/runtime-hermes/private.py')).toBe(false);
  for(const path of ['host/packages/runtime-hermes/worker.py','host/hermes-python/python.exe','host/hermes-python/python314._pth','host/.harness-hermes-python-deps/openai/__init__.py','host/third-party/hermes-agent/upstream/run_agent.py'])expect(REQUIRED_RUNTIME_FILES).toContain(path);
  expect(runtimeSourceAllowed('packages/runtime-hermes/memory_checkpoint.py')).toBe(true);expect(REQUIRED_RUNTIME_FILES).toContain('host/packages/runtime-hermes/memory_checkpoint.py');
+ expect(runtimeSourceAllowed('packages/runtime-hermes/compaction_protection.py')).toBe(true);expect(REQUIRED_RUNTIME_FILES).toContain('host/packages/runtime-hermes/compaction_protection.py');
 });
 it('selects a bounded relocatable runtime without caches, development installs or unrelated Python data',async()=>{
  const x=await fixture(),payload=await collectHermesPayload(x.root,x.python),targets=payload.files.map(file=>file.path);
  expect(targets).toContain('hermes-python/DLLs/_ssl.pyd');expect(targets).toContain('.harness-hermes-python-deps/fixture_dep-1.0.dist-info/licenses/LICENSE');expect(targets).toContain('third-party/hermes-agent/upstream/run_agent.py');
  expect(targets).toContain('packages/runtime-hermes/memory_checkpoint.py');
+ expect(targets).toContain('packages/runtime-hermes/context_capture.py');expect(targets).toContain('packages/runtime-hermes/compaction_protection.py');
  expect(targets.some(path=>/pycache|site-packages|\/test\/|_testcapi|ensurepip|Scripts|\/Doc\//.test(path))).toBe(false);
  expect(payload.files.find(file=>file.path==='hermes-python/python314._pth')?.content).toBe('.\nLib\nDLLs\n');
  const host=join(x.root,'host');await stageHermesPayload(host,payload);await verifyHermesPayload(host,payload);expect(await readFile(join(host,'hermes-python/python314._pth'),'utf8')).toBe('.\nLib\nDLLs\n');

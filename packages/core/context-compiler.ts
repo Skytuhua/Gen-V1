@@ -32,11 +32,23 @@ export function calculateNextContextBudget(input: {
   observedInputTokens: number; cacheReadSubsetTokens: number;
   newUnreportedToolTokens: number; reservedOutputTokens: number;
   turnNeedsAnotherRequest: boolean; contextWindowTokens?: number;
-}): { requiredTokens: number; shouldConsiderCompaction: boolean } {
-  const observed = measuredCount(input.observedInputTokens), cached = measuredCount(input.cacheReadSubsetTokens);
-  if (cached > observed) throw new RangeError('Cached input must be a subset of measured input');
-  const requiredTokens = measuredCount(observed + measuredCount(input.newUnreportedToolTokens) + measuredCount(input.reservedOutputTokens));
-  const overBudget = input.contextWindowTokens !== undefined && requiredTokens > measuredCount(input.contextWindowTokens);
+}): { requiredTokens: number; shouldConsiderCompaction: boolean };
+export function calculateNextContextBudget(input: {
+  observedInputTokens: number | null; cacheReadSubsetTokens: number | null;
+  newUnreportedToolTokens: number | null; reservedOutputTokens: number | null;
+  turnNeedsAnotherRequest: boolean; contextWindowTokens?: number | null;
+}): { requiredTokens: number | null; shouldConsiderCompaction: boolean | null };
+export function calculateNextContextBudget(input: {
+  observedInputTokens: number | null; cacheReadSubsetTokens: number | null;
+  newUnreportedToolTokens: number | null; reservedOutputTokens: number | null;
+  turnNeedsAnotherRequest: boolean; contextWindowTokens?: number | null;
+}): { requiredTokens: number | null; shouldConsiderCompaction: boolean | null } {
+  const count = (value: number | null) => value === null ? null : measuredCount(value);
+  const observed = count(input.observedInputTokens), cached = count(input.cacheReadSubsetTokens), tools = count(input.newUnreportedToolTokens), reserve = count(input.reservedOutputTokens);
+  if (observed !== null && cached !== null && cached > observed) throw new RangeError('Cached input must be a subset of measured input');
+  const requiredTokens = observed === null || tools === null || reserve === null ? null : measuredCount(observed + tools + reserve);
+  const window = input.contextWindowTokens === undefined ? undefined : count(input.contextWindowTokens);
+  const overBudget = window === undefined ? false : requiredTokens === null || window === null ? null : requiredTokens > window;
   return { requiredTokens, shouldConsiderCompaction: input.turnNeedsAnotherRequest && overBudget };
 }
 
@@ -44,6 +56,12 @@ export function calculateNextContextBudget(input: {
 export function createContextCompiler(options: {
   readSource: (source: ContextSource) => string;
   tokenize?: (text: string) => number;
+  readSourceBytes?: never;
+} | {
+  /** Exact bytes measured by an owned source boundary; never fabricated text. */
+  readSourceBytes: (source: ContextSource) => number;
+  readSource?: never;
+  tokenize?: never;
 }) {
   type Entry = { sourceKeys: readonly string[]; segments: readonly RequestContextSegmentV1[] };
   const cache = new Map<string, Entry>();
@@ -70,10 +88,11 @@ export function createContextCompiler(options: {
         previous.sourceKeys.every((key, index) => key === sourceKeys[index]);
       const segments: RequestContextSegmentV1[] = append ? [...previous.segments] : [];
       for (const source of sources.slice(segments.length)) {
-        const text = options.readSource(source);
-        const tokens = options.tokenize ? measuredCount(options.tokenize(text)) : null;
+        const text = options.readSource?.(source);
+        const utf8Bytes = options.readSourceBytes ? measuredCount(options.readSourceBytes(source)) : Buffer.byteLength(text!);
+        const tokens = options.tokenize ? measuredCount(options.tokenize(text!)) : null;
         segments.push(Object.freeze({
-          category: source.category, sourceId: source.id, sourceRevision: source.revision, utf8Bytes: Buffer.byteLength(text),
+          category: source.category, sourceId: source.id, sourceRevision: source.revision, utf8Bytes,
           tokens, measurement: tokens === null ? 'BYTE_ONLY' : 'TOKENIZER', inclusionReason: source.inclusionReason ?? 'selected by host',
           contentRef: source.contentRef ?? null,
         }));

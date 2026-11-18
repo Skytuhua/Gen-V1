@@ -1,0 +1,9 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","lint"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+> gen-v1@0.6.5 lint C:\Users\Administrator\repos\Gen-V1-m15-v6
+> tsx scripts/lint-ui.ts --check
+
+UI guard: 615 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.

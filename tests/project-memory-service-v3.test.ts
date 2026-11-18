@@ -18,6 +18,7 @@ afterEach(async () => {
   for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
   __setCapabilityFlagForTests('memory.projectV1', undefined);
   __setCapabilityFlagForTests('agents.workV1', undefined);
+  __setCapabilityFlagForTests('context.lossAwareCompactionV1', undefined);
 });
 async function fixture(options: ServiceOptions = {}) {
   __setCapabilityFlagForTests('memory.projectV1', true);
@@ -416,4 +417,36 @@ it('blocks native manual compaction on a required host checkpoint failure and re
   await vi.waitFor(() => expect(f.service.thread('thread').error).toMatch(/checkpoint/i));
   expect(f.runtime.compact).toHaveBeenCalledOnce(); expect(compacted).toBe(false);
   expect(f.service.thread('thread').sessionPath).toBe(path); expect(f.store.all('projectMemoryDerived')).toEqual([]);
+});
+
+it('keeps the required memory checkpoint inside the admitted loss-aware compaction run', async () => {
+  const f = await fixture(); f.accept(); await f.send(); await f.service.deliverOutbox('thread');
+  const foreground = f.starts[0], path = join(f.store.dataDir, 'owned-session.json');
+  f.callbacks().onEvent({ ...foreground, type: 'session', sessionPath: path }); f.settle(foreground);
+  await vi.waitFor(() => expect(f.service.thread('thread').runId).toBeNull());
+  __setCapabilityFlagForTests('context.lossAwareCompactionV1', true);
+  f.runtime.nativeHistoryDigest = async () => ({ sha256: 'a'.repeat(64), messages: [
+    { role: 'user', content: 'Original native instruction' },
+    { role: 'assistant', content: 'Earlier settled response eligible for summarization' },
+    { role: 'user', content: 'Current native instruction' },
+  ] });
+  let compacted = false;
+  const persist = vi.spyOn(f.service.projectMemory, 'persistCheckpoint').mockImplementation(() => { throw Error('Durable checkpoint persistence refused'); });
+  f.runtime.compactProtected = vi.fn(async (ctx, sessionPath, modelId, accountId, protection, requirement) => {
+    expect(requirement).toEqual({ apiVersion: 2, required: true });
+    expect(f.service.thread('thread')).toMatchObject({ runId: ctx.runId, epoch: ctx.epoch, status: 'working' });
+    expect(ctx.runId).not.toBe(foreground.runId);
+    expect(protection.plan.owner).toMatchObject({ threadId: ctx.threadId, runId: ctx.runId, epoch: ctx.epoch });
+    await f.callbacks().onMemoryCheckpoint!({ apiVersion: 2, requestId: 'loss-aware-checkpoint', adapterId: 'hermes', ctx,
+      sessionPath, modelId, accountId, reason: 'manual' });
+    compacted = true;
+    throw Error('Protected compaction must not apply after a refused checkpoint');
+  });
+  await expect(f.command('run.compact')).rejects.toMatchObject({ code: 'COMPACTION_FAILED' });
+  expect(f.runtime.compactProtected).toHaveBeenCalledOnce();
+  expect(f.runtime.compact).not.toHaveBeenCalled();
+  expect(persist).toHaveBeenCalledOnce();
+  expect(compacted).toBe(false);
+  expect(f.store.all('compactionUsage')).toEqual([]);
+  expect(f.service.thread('thread').sessionPath).toBe(path);
 });

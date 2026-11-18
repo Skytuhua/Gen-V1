@@ -2,16 +2,20 @@ import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
-import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
+import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
+import { createContextResultLineage } from './context-result-lineage.ts';
 import { openContextResultCustody } from './context-result-custody.ts';
 import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
+import { createHostRelevanceObserver } from './context-relevance-host.ts';
+import { withApprovedProjectContext } from './approved-project-context.ts';
+import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
-import { Store, digest } from "../storage/store.ts";
+import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
@@ -48,7 +52,7 @@ import { computeAssessment, observationMatchesThreadOwner } from "./verification
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
-import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1 } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
@@ -58,10 +62,13 @@ import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
-import type { RequestPreparationV1, RequestContextV1, CompactionProjectionV1 } from '../contracts/request-context.ts';
+import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
+import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
+import type { NativeCompactionAdmissionV1, NativeCompactionAckV1, NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
+import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
-import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
+import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
@@ -146,9 +153,9 @@ export class Service {
   private learningSupported:boolean;
   private lastActivity=Date.now();
   private readonly compactionRegistry = createCompactionCandidateRegistry();
-  private readonly compactionCandidateIds = new Map<string, string[]>();
-  private readonly compactionVerdicts = new Map<string, CompactionProjectionV1['candidates'][number]['verdict']>();
   private readonly compactionInflight = new Map<string, Promise<void>>();
+  private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
+  private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
   private curatorTimer:ReturnType<typeof setInterval>;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
@@ -163,20 +170,55 @@ export class Service {
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
+  private activeContextReads = 0;
+  private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
+  private readonly relevanceObserver = createHostRelevanceObserver();
+  private readonly repositoryMaps = createRepositoryMapReader();
+  private relevanceOwner(thread: Thread) {
+    if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
+    const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
+    if (resources.length > 256) return null;
+    return { threadId: thread.id, binding: digest([thread.runId, thread.epoch, thread.modelId, thread.thinkingLevel ?? null,
+      this.binding(thread, modelProvider(thread.modelId)).accountId, thread.projectId ?? null, thread.workspaceId ?? null,
+      thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+      thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null, resources]) };
+  }
+  private observeReadRelevance(thread: Thread, sequence: number) {
+    try {
+      const owner = this.relevanceOwner(thread);
+      if (!owner) return undefined;
+      // Limit both the query and its projection. If history overflows this
+      // window, unknown older work is protected rather than scanned or assumed settled.
+      const unresolved = (kind: string, pending: readonly string[]) => {
+        const rows = this.store.db.prepare("SELECT json_extract(body,'$.status') AS status FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid DESC LIMIT 129").all(kind, thread.id) as { status: unknown }[];
+        return rows.length > 128 || rows.some(row => typeof row.status !== 'string' || pending.includes(row.status));
+      };
+      const protect = unresolved('request', ['pending']) || unresolved('operation', ['prepared', 'running', 'unknown']);
+      return this.relevanceObserver.observe(owner, sequence, protect);
+    } catch { return undefined; } // Read-only diagnostics cannot block a foreground request.
+  }
   private contextResultsEnabled() { return capabilityEnabled('context.compilerV1') && capabilityEnabled('tools.deferredV1'); }
   private contextResultOwner(thread: Thread) {
     return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
   }
-  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null]); }
+  private contextResultInvocation(thread: Thread) { return digest([thread.id, thread.epoch, thread.runId, thread.modelId ?? null,
+    thread.accountId ?? null, thread.projectId ?? null, thread.workspaceId ?? null, thread.thinkingLevel ?? null, thread.mode ?? null,
+    this.hostToolRegistryDigest, thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+    thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null]); }
   private contextResultVault() {
     const open = () => this.contextStorage ??= openContextResultCustody(this.store.dataDir).catch(cause => { this.contextStorage = undefined; throw cause; });
     return this.contextResults ??= createContextResults({
       now: Date.now,
-      isAuthorized: (owner, invocation) => {
-        const thread = this.store.get<Thread>('thread', owner.threadId);
-        if (this.closed || !this.contextResultsEnabled() || !thread?.runId || thread.kind === 'delegate' || thread.sideParentId) return false;
-        const current = this.contextResultOwner(thread);
-        return invocation.startsWith(this.contextResultInvocation(thread) + ':') && current.workspaceId === owner.workspaceId && current.accountId === owner.accountId;
+      isAuthorized: async (owner, invocation) => {
+        const proof = this.contextResultAuthorities.get(invocation);
+        if (!proof || proof.expiresAtMs <= Date.now()) { this.contextResultAuthorities.delete(invocation); return false; }
+        const current = () => {
+          const thread = this.store.get<Thread>('thread', owner.threadId);
+          if (this.closed || !this.contextResultsEnabled() || !thread?.runId || !['working', 'awaiting_input'].includes(thread.status) || thread.kind === 'delegate' || thread.sideParentId || this.store.get('archivedThread', thread.id)) return false;
+          const binding = this.contextResultOwner(thread);
+          return invocation.startsWith(this.contextResultInvocation(thread) + ':') && binding.workspaceId === owner.workspaceId && binding.accountId === owner.accountId;
+        };
+        return current() && await proof.authorized() && current();
       },
       storage: {
         put: async (key, bytes, record) => (await open()).put(key, bytes, record),
@@ -186,7 +228,29 @@ export class Service {
       },
     });
   }
+  private async deliverContextResult(value: unknown, publicCatalog: boolean, thread: Thread, assertCurrent: () => void, lineage?: ReturnType<typeof createContextResultLineage>) {
+    const encoded = encodeContextResult(value);
+    const absent = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: '', omittedBytes: encoded.totalBytes, totalBytes: encoded.totalBytes };
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { return absent; }
+    if (encoded.bytes && encoded.totalBytes! <= CONTEXT_PREVIEW_CAP_BYTES) return value;
+    if (lineage?.observed && !await lineage.authorized()) return absent;
+    try { assertCurrent(); } catch { return absent; }
+    const fallback = { status: 'FULL_RESULT_UNAVAILABLE' as const, handle: null, preview: encoded.preview, omittedBytes: encoded.omittedBytes, totalBytes: encoded.totalBytes };
+    if (!encoded.bytes || !publicCatalog && !lineage?.observed) return fallback;
+    const now = Date.now();
+    for (const [id, proof] of this.contextResultAuthorities) if (proof.expiresAtMs <= now) this.contextResultAuthorities.delete(id);
+    if (this.contextResultAuthorities.size >= MAX_TRACKED_RESULTS) return fallback;
+    const invocationId = this.contextResultInvocation(thread) + ':' + randomUUID(), expiresAtMs = now + 60 * 60_000;
+    this.contextResultAuthorities.set(invocationId, { expiresAtMs, authorized: async () => {
+      try { assertCurrent(); return publicCatalog || Boolean(lineage && await lineage.authorized()); } catch { return false; }
+    } });
+    const result = await this.contextResultVault().spill({ owner: this.contextResultOwner(thread), invocationId, bytes: encoded.bytes, mediaType: encoded.mediaType, expiresAtMs });
+    if (!result.handle) this.contextResultAuthorities.delete(invocationId);
+    try { assertCurrent(); lineage?.assertCurrent(); } catch { this.contextResultAuthorities.delete(invocationId); return absent; }
+    return { ...result, totalBytes: encoded.totalBytes };
+  }
   private readonly requestCustody:RequestContextCustody;
+  private readonly inferenceOwners = new Map<string, { ctx: RunContext; basis: string; sequence: number }>();
   private readonly requestRegistryDigest=digest(buildToolRegistry());
   private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
@@ -225,7 +289,7 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
-    runtime.configure({ onEvent: event => this.onRuntimeEvent(event), onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}) });
+    runtime.configure({ onEvent: event => {this.recordCompactionModelObservation(event);this.onRuntimeEvent(event);}, onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}), onBeforeInference: request => this.beforeInference(request), onCompactionCommit: request => this.commitNativeCompaction(request) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
@@ -300,6 +364,8 @@ export class Service {
   }
   private cancelRun(input:RunContext,side:boolean):Promise<void>{
     const ctx:RunContext={threadId:input.threadId,runId:input.runId,epoch:input.epoch};
+    const inference=this.inferenceOwners.get(ctx.threadId);
+    if(inference?.ctx.runId===ctx.runId&&inference.ctx.epoch===ctx.epoch)this.inferenceOwners.delete(ctx.threadId);
     const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
     const control=this.aborts.get(ctx.threadId);
     const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
@@ -477,58 +543,215 @@ export class Service {
   private compactionBindingOf(receipt:RequestContextV1){
     return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
   }
-  private async applyLossAwareCompaction(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+  private async applyLossAwareCompaction(command:HostCommand,thread:Thread) {
     const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
-    const run=prev.then(()=>this.applyLossAwareCompactionInner(thread));
+    const run=prev.then(()=>this.applyLossAwareCompactionInner(command,thread));
     const tail=run.then(()=>undefined,()=>undefined);
     this.compactionInflight.set(thread.id,tail);
-    tail.finally(()=>{if(this.compactionInflight.get(thread.id)===tail)this.compactionInflight.delete(thread.id);});
+    this.background(tail);
+    tail.finally(()=>{
+      if(this.compactionInflight.get(thread.id)!==tail)return;
+      this.compactionInflight.delete(thread.id);
+      if(!this.closed)this.background(this.deliverOutbox(thread.id));
+    });
     return run;
   }
-  private async applyLossAwareCompactionInner(thread:Thread):Promise<{status:'APPLIED'|'FAILED'|'DISCARDED'|'UNSUPPORTED_COMPACTION';candidateId:string;usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}> {
+  private commitNativeCompaction(request: NativeCompactionAdmissionV1): NativeCompactionAckV1 {
+    const gate = this.nativeCompactionAdmissions.get(request.candidateId);
+    if (!gate || gate.attempted) throw new HarnessError('HERMES_COMPACTION_OWNER', 'No unused host admission owns this native commit.');
+    gate.attempted = true;
+    if (digest(request) !== digest(gate.request)) throw new HarnessError('HERMES_COMPACTION_OWNER', 'The native commit differs from its captured host owner.');
+    gate.assertCurrent();
+    gate.accepted = true;
+    return {version: 1, accepted: true, planDigest: gate.request.planDigest};
+  }
+  private recordCompactionModelObservation(event: RuntimeEvent): void {
+    if(event.type!=='model.observation'||!capabilityEnabled('models.requestMetricsV1'))return;
+    const admitted=this.compactionModelOwners.get(event.runId);
+    if(!admitted||event.threadId!==admitted.ctx.threadId||event.epoch!==admitted.ctx.epoch)return;
+    const parsed=modelRequestObservationV1Schema.safeParse(event.observation);
+    if(!parsed.success)return;
+    const value=parsed.data,owner=value.owner,binding=admitted.binding;
+    if(owner.threadId!==admitted.ctx.threadId||owner.runId!==admitted.ctx.runId||owner.epoch!==admitted.ctx.epoch||
+      value.binding.modelId!==binding.modelId||value.binding.accountId!==binding.accountId||value.binding.providerId!==binding.modelId.split('/')[0])return;
+    const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',admitted.candidateId);
+    if(!attempt||attempt.id!==admitted.candidateId||attempt.threadId!==admitted.ctx.threadId||attempt.ownerKey!==admitted.ownerKey||
+      attempt.metadata.candidateId!==admitted.candidateId||digest(attempt.metadata.binding)!==digest(binding))return;
+    const id=`compactionModelRequest:${value.requestId}`;
+    const old=this.store.get<{candidateId:string;ownerKey:string;ctx:RunContext;value:ModelRequestObservationV1}>('compactionModelRequest',id);
+    // The broker may publish firstPublicDelta after its final observation. No
+    // repeated request may change identity, usage or outcome, or charge twice.
+    const immutable=(observation:ModelRequestObservationV1)=>digest({...observation,timings:{...observation.timings,firstPublicDelta:null}});
+    if(old&&(old.candidateId!==admitted.candidateId||old.ownerKey!==admitted.ownerKey||digest(old.ctx)!==digest(admitted.ctx)||immutable(old.value)!==immutable(value)||
+      old.value.timings.firstPublicDelta!==null&&old.value.timings.firstPublicDelta!==value.timings.firstPublicDelta))return;
+    if(old&&digest(old.value)===digest(value))return;
+    // This is a historical observation under the still-owned native call,
+    // not permission to update a stopped/new owner or a complete spend total.
+    this.store.internal('context.compaction.model_observed',admitted.ctx.threadId,()=>this.store.put('compactionModelRequest',id,admitted.ctx.threadId,
+      {id,candidateId:admitted.candidateId,ownerKey:admitted.ownerKey,ctx:admitted.ctx,value}));
+  }
+  private async applyLossAwareCompactionInner(command:HostCommand,thread:Thread) {
+    const duplicate=this.store.receipt(command);if(duplicate)return duplicate;
     const receipt=this.latestRequestReceipt(thread.id);
-    if(!receipt)return {status:'UNSUPPORTED_COMPACTION',candidateId:'',usageEntity:null};
-    const binding=this.compactionBindingOf(receipt);
-    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:[],toolPairs:[],sourceInterval:null});
+    if(!receipt||typeof this.runtime.nativeHistoryDigest!=='function'||typeof this.runtime.compactProtected!=='function')
+      throw new HarnessError('UNSUPPORTED_COMPACTION','This adapter has no verified protected native compare-and-swap for loss-aware compaction');
+    const currentGeneration=()=>this.store.get<{generation:number}>('requestContextGeneration',thread.id)?.generation??receipt.contextGeneration;
+    const generation=currentGeneration();
+    if(!Number.isSafeInteger(generation)||generation<receipt.contextGeneration||generation>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+    const captured=this.requestBasis(thread,thread.modelId!,thread.thinkingLevel),receiptDigest=digest(receipt);
+    if(receipt.owner.threadId!==thread.id||receipt.owner.workspaceId!==captured.workspaceId||receipt.modelBinding.modelId!==captured.modelId||receipt.modelBinding.accountId!==captured.accountId)
+      throw new HarnessError('STALE_REQUEST_CONTEXT','The last request belongs to a different compaction owner.');
+    const stable=(basis:RequestContextBasis)=>{const {admissionDigest:_admission,...rest}=basis;return digest(rest);};
+    const stableDigest=stable(captured);
+    const beforeAdmission=()=>{
+      const current=this.thread(thread.id);
+      if(!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==thread.epoch||current.runId!==thread.runId||current.status!==thread.status||
+        digest(this.requestBasis(current,thread.modelId!,thread.thinkingLevel))!==digest(captured)||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during admission.');
+      this.assertNoOtherRun(thread.id);
+    };
+    const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
+    beforeAdmission();
+    // This reads the retained source without replacing its conversation owner.
+    const inspection={threadId:thread.id,runId:'compaction-inspect:'+randomUUID(),epoch:thread.epoch};
+    const snapshot=await this.runtime.nativeHistoryDigest(inspection,thread.sessionPath!,captured.accountId);
+    beforeAdmission();
+    if(!snapshot)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The retained native history is unavailable.');
+    const hostCut=readCompactionHostCut(this.store,thread.id,receipt);
+    const prepared=prepareNativeCompaction(snapshot,hostCut.references);
+    const sourceContexts:PreparedSourceContext[]=[];
+    const assertHostCut=()=>{
+      if(readCompactionHostCut(this.store,thread.id,receipt).revisionDigest!==hostCut.revisionDigest)
+        throw new HarnessError('STALE_REQUEST_CONTEXT','A protected decision, approval, work item or source choice changed.');
+      for(const source of sourceContexts)source.assertCurrent();
+    };
+    const sourceOwner=this.sourceWorkbench.owner(thread.id);
+    for(let offset=0;offset<hostCut.sourceRefs.length;offset+=WORKBENCH_LIMITS.maxSourceRefs){
+      sourceContexts.push(await this.sourceWorkbench.prepareSend(sourceOwner,hostCut.sourceRefs.slice(offset,offset+WORKBENCH_LIMITS.maxSourceRefs),{accepted:true}));
+      beforeAdmission();assertHostCut();
+    }
+    const binding={...this.compactionBindingOf(receipt),generation,sourceCut:digest([receipt.sourceCut.revisionDigest,prepared.sourceSha256,hostCut.revisionDigest])};
+    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:prepared.retainedRefs,toolPairs:prepared.toolPairs,sourceInterval:prepared.sourceInterval});
     if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
-    this.trackCompactionCandidate(thread.id,metadata.candidateId);
-    const ctx={threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch,accountId:binding.accountId??null};
-    const bytes=(list:unknown[])=>list.reduce((n:number,m)=>n+Buffer.byteLength(JSON.stringify(m),'utf8'),0);
-    const outcome:{usageEntity:{id:string;threadId:string;beforeBytes:number;afterBytes:number|null}|null}={usageEntity:null};
-    const freshReceipt=this.latestRequestReceipt(thread.id);
-    const current=freshReceipt?this.compactionBindingOf(freshReceipt):binding;
-    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current,cancelled:false,retainedTailBytes:0,maxRetainedTailBytes:64*1024,nativeApply:typeof this.runtime.nativeHistoryDigest==='function'?async()=>{
-      const snap=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null);
-      if(!snap)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The native history digest channel is unavailable.');
-      const beforeBytes=bytes(snap.messages);
-      await this.runtime.compact(ctx,thread.sessionPath!,thread.modelId!,binding.accountId??null,undefined,snap.sha256);
-      const after=await this.runtime.nativeHistoryDigest!(ctx,thread.sessionPath!,binding.accountId??null).catch(()=>null);
-      outcome.usageEntity={id:metadata.candidateId,threadId:thread.id,beforeBytes,afterBytes:after?bytes(after.messages):null};
-      return {generation:binding.generation+1,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
-    }:undefined});
-    this.compactionVerdicts.set(metadata.candidateId,verdict.status);
+    const ctx=Object.freeze({threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch+1,accountId:binding.accountId});
+    const envelope=nativeCompactionEnvelope(prepared,metadata.candidateId,{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch,
+      workspaceId:binding.workspaceId,modelId:binding.modelId,accountId:binding.accountId,generation,
+      instructionDigest:binding.instructionDigest,toolRegistryDigest:binding.toolRegistryDigest});
+    const accepted=this.store.command(command,()=>{
+      beforeAdmission();assertHostCut();
+      this.store.put('runtimeIntent',ctx.runId,thread.id,{kind:'compaction',previousStatus:thread.status});
+      this.store.put('thread',thread.id,thread.id,{...thread,runId:ctx.runId,epoch:ctx.epoch,status:'working',error:null,updatedAt:now()});
+      const entry=this.compactionRegistry.get(metadata.candidateId)!;
+      const attempt:CompactionAttemptRecord={id:metadata.candidateId,threadId:thread.id,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),...entry,verdict:null};
+      this.store.put('compactionAttempt',attempt.id,thread.id,attempt);
+      this.writeCompactionProjection(thread.id);
+      return ctx;
+    });
+    const assertCurrent=()=>{
+      const current=this.thread(thread.id);
+      if(this.closed||!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==ctx.epoch||current.runId!==ctx.runId||
+        !['working','awaiting_input'].includes(current.status)||current.sessionPath!==thread.sessionPath||current.modelId!==thread.modelId||
+        this.binding(current,modelProvider(thread.modelId!)).accountId!==binding.accountId||
+        stable(this.requestBasis(current,thread.modelId!,current.thinkingLevel))!==stableDigest||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
+        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during native work.');
+      assertHostCut();
+    };
+    let nativeError:unknown;
+    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,
+      retainedTailBytes:prepared.retainedBytes,maxRetainedTailBytes:64*1024,nativeApply:async()=>{
+      try{
+        assertCurrent();
+        let ended=false,settled=false,completionError:unknown;
+        const completed:{receipt?:NativeCompactionReceiptV1}={};
+        const unsubscribe=this.store.subscribe(event=>{
+          const payload=(event.payload as {result?:{runId?:string}}|null)?.result;
+          if(event.threadId!==thread.id||payload?.runId!==ctx.runId)return;
+          if(event.type==='runtime.compaction.end')ended=true;
+          if(event.type==='runtime.settled'&&ended)settled=true;
+        });
+        const control=this.aborts.get(thread.id)??new AbortController();this.aborts.set(thread.id,control);this.retainController(control);
+        try{
+          const expected=receipt.segments.find(segment=>segment.sourceId==='approved-project-instructions');
+          const compact=async(projectContext:StartRun['approvedProjectContext'],assertProjectCurrent:()=>void)=>{
+            const current=projectContext?.instructionText?'sha256:'+projectContext.instructionDigest:null;
+            if((expected?.contentRef??null)!==current||expected&&current===null)throw new HarnessError('STALE_REQUEST_CONTEXT','Project instruction sources changed or are unavailable. Start a new turn before compacting.');
+            const gate={request:{version:1 as const,candidateId:metadata.candidateId,planDigest:envelope.planDigest,sourceSha256:prepared.sourceSha256,owner:structuredClone(envelope.plan.owner)},
+              attempted:false,accepted:false,assertCurrent:()=>{
+                if(control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Native compaction was cancelled.');
+                assertCurrent();assertProjectCurrent();
+              }};
+            const retainSourceFiles=async(index:number):Promise<void>=>{
+              const ref=hostCut.sourceRefs[index];
+              if(!ref){
+                gate.assertCurrent();
+                this.nativeCompactionAdmissions.set(metadata.candidateId,gate);
+                if(capabilityEnabled('models.requestMetricsV1'))this.compactionModelOwners.set(ctx.runId,{ctx:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch},
+                  candidateId:metadata.candidateId,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),binding:structuredClone(binding)});
+                try{
+                  const result=await this.runtime.compactProtected!(ctx,thread.sessionPath!,thread.modelId!,binding.accountId,structuredClone(envelope),memoryCheckpoint);
+                  if(!gate.accepted)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The native source bypassed the host commit gate.');
+                  completed.receipt=requireNativeCompactionReceipt(result,envelope,prepared.toolPairs.length);
+                }finally{this.compactionModelOwners.delete(ctx.runId);this.nativeCompactionAdmissions.delete(metadata.candidateId);}
+                return;
+              }
+              if(ref.keepCaptured||ref.source.kind!=='FILE_RANGE')return retainSourceFiles(index+1);
+              const grant=this.store.get<ResourceGrant>('resource',ref.source.sourceId);
+              if(!grant||grant.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A retained file source lost its original grant.');
+              await withResourceGrant(grant,this.store.dataDir,ref.source.path,false,control.signal,async()=>{
+                gate.assertCurrent();
+                await retainSourceFiles(index+1);
+              },{readOnly:true});
+            };
+            gate.assertCurrent();
+            await retainSourceFiles(0);
+          };
+          if(expected||capabilityEnabled('context.compilerV1')){
+            const nativeInput:StartRun={...ctx,modelId:thread.modelId!,thinkingLevel:thread.thinkingLevel,sessionPath:thread.sessionPath!,inputId:ctx.runId,prompt:'',resources:this.store.all<ResourceGrant>('resource',thread.id)};
+            await withApprovedProjectContext(this.store,nativeInput,control.signal,compact);
+          }else await compact(undefined,()=>{});
+        }catch(cause){
+          // A checked native receipt records an applied historical fact. A later
+          // guard cleanup failure cannot undo it or authorize another commit.
+          if(!completed.receipt)throw cause;
+          completionError=cause;
+        }finally{unsubscribe();this.releaseController(thread.id,control);}
+        if(!completed.receipt)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The protected native source did not confirm application.');
+        const proof=completed.receipt,usageObservationRef=`compactionUsage:${metadata.candidateId}`;
+        const appliedGeneration=this.store.internal('context.compaction.applied',thread.id,()=>{
+          const previous=currentGeneration();
+          if(!Number.isSafeInteger(previous)||previous<binding.generation||previous>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
+          this.store.put('requestContextGeneration',thread.id,thread.id,{generation:previous+1});
+          this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,
+            beforeBytes:proof.beforeBytes,afterBytes:proof.afterBytes,nativeReceipt:proof,settled,
+            completionError:completionError instanceof Error?completionError.message:completionError?String(completionError):null});
+          // Keep the reference with its checked receipt even if terminal bookkeeping is interrupted.
+          const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+          if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,metadata:{...attempt.metadata,usageObservationRef}});
+          return previous+1;
+        }) as number;
+        // Only clean up this still-owned maintenance run; a newer owner is untouched.
+        if(!settled)this.runtimeFailure(ctx,new HarnessError('HERMES_COMPACTION_UNCONFIRMED','Native compaction applied, but maintenance settlement was not confirmed.'));
+        return {generation:appliedGeneration,usageObservationRef};
+      }catch(cause){nativeError=cause;throw cause;}
+    }});
     if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
     else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
     else this.compactionRegistry.markDiscarded(metadata.candidateId);
-    return {status:verdict.status,candidateId:metadata.candidateId,usageEntity:outcome.usageEntity};
-  }
-  private trackCompactionCandidate(threadId:string,candidateId:string):void {
-    const ids=[...(this.compactionCandidateIds.get(threadId)??[]).filter(id=>id!==candidateId),candidateId].slice(-8);
-    this.compactionCandidateIds.set(threadId,ids);
+    if(verdict.status!=='APPLIED')this.runtimeFailure(ctx,nativeError??new Error('Native compaction was not applied.'));
+    if(!this.closed)this.store.internal('context.compaction.observed',thread.id,()=>{
+      const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+      if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,candidate:this.compactionRegistry.get(attempt.id)!.candidate,verdict:verdict.status});
+      this.writeCompactionProjection(thread.id);
+      if(this.store.get<Thread>('thread',thread.id)?.runId===null){const usage=this.store.get<{value:RuntimeUsage}>('usage',thread.id)!;this.store.put('usage',thread.id,thread.id,{...usage,value:{...usage.value,activity:'idle'}});}
+    });
+    if(verdict.status!=='APPLIED')throw new HarnessError('COMPACTION_FAILED',nativeError instanceof Error?nativeError.message:'The verified native compaction apply failed.');
+    return accepted;
   }
   private writeCompactionProjection(threadId:string):void {
-    const ids=this.compactionCandidateIds.get(threadId)??[];
-    const candidates=ids.map(id=>{const entry=this.compactionRegistry.get(id);if(!entry)return null;
-      const usage=this.store.get<{beforeBytes:number;afterBytes:number|null}>('compactionUsage',id);return {
-      metadata:entry.metadata,status:entry.candidate.status,verdict:this.compactionVerdicts.get(id)??null,
-      retainedConstraints:[...entry.candidate.retained],toolPairs:entry.candidate.toolPairs.length,
-      estimatedByteReduction:null,measuredBeforeBytes:usage?usage.beforeBytes:null,measuredAfterBytes:usage?usage.afterBytes:null,
-    };}).filter((entry):entry is NonNullable<typeof entry>=>entry!==null);
     const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
-    const projection:CompactionProjectionV1={version:1,candidates,accounting:{attempts:candidates.length,failed:candidates.filter(entry=>entry.verdict==='FAILED'||entry.status==='FAILED').length,discarded:candidates.filter(entry=>entry.status==='DISCARDED').length,costBytes:0}};
-    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:projection}});
+    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:this.store.compactionProjection(threadId)}});
   }
-  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
+  private requestAuthorityBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):Omit<RequestContextBasis,'sourceCutDigest'|'admissionDigest'> {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
     const physical=(path:string,expected?:{dev:string;ino:string})=>{
@@ -543,17 +766,43 @@ export class Service {
     if(thread.projectId&&(!project||project.authority.kind!=='local'||!root)||thread.workspaceId&&(!workspace||workspace.id!==thread.workspaceId||workspace.threadId!==thread.id||workspace.projectId!==thread.projectId))throw new HarnessError('STALE_REQUEST_CONTEXT','The project or workspace binding is unavailable.');
     const rootIdentity=root?physical(root.path,root.identity):null,workspaceIdentity=workspace?physical(workspace.path,workspace.identity):null;
     const resources=(this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body) as ResourceGrant);
-    const notes=(this.store.db.prepare("SELECT body FROM entities WHERE kind='taskMemory' AND thread_id=? ORDER BY id LIMIT 13").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body));
-    if(resources.length>256||notes.length>12)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
+    if(resources.length>256)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
     const grantDigest=digest(resources.map(resource=>{if(resource.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A resource grant changed owner.');return{resource,physical:physical(resource.path,resource.identity)};}));
-    const catalog=this.source?null:skillIndex(this.store),plan=this.planning.inspect(thread.id),side=thread.sideParentId?this.store.get('sideContext',thread.id):null;
-    const sourceCut={notes,catalog,plan,side};if(Buffer.byteLength(JSON.stringify(sourceCut))>512*1024)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its byte limit.');
     const workspaceId=thread.workspaceId??(thread.projectId?'project:'+thread.projectId:'thread:'+thread.id);
     const instructionDigest=digest([PLAN_RUNTIME_GUIDANCE,LEARN_REQUEST,thread.mode??'build',Boolean(this.source),Boolean(thread.sideParentId)]);
     return{profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,modelId,accountId,thinkingLevel:thinkingLevel??null,
       bindingDigest:digest({profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,project,root,workspace,rootIdentity,workspaceIdentity,sideParentId:thread.sideParentId??null,kind:thread.kind??'main',mode:thread.mode??'build',modelId,accountId,thinkingLevel:thinkingLevel??null}),
-      grantDigest,sourceCutDigest:digest(sourceCut),instructionDigest,toolRegistryDigest:this.requestRegistryDigest,
+      grantDigest,instructionDigest,toolRegistryDigest:this.requestRegistryDigest};
+  }
+  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
+    const authority=this.requestAuthorityBasis(thread,modelId,thinkingLevel);
+    const notes=(this.store.db.prepare("SELECT body FROM entities WHERE kind='taskMemory' AND thread_id=? ORDER BY id LIMIT 13").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body));
+    if(notes.length>12)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
+    const catalog=this.source?null:skillIndex(this.store),plan=this.planning.inspect(thread.id),side=thread.sideParentId?this.store.get('sideContext',thread.id):null;
+    const sourceCut={notes,catalog,plan,side};if(Buffer.byteLength(JSON.stringify(sourceCut))>512*1024)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its byte limit.');
+    return{...authority,sourceCutDigest:digest(sourceCut),
       admissionDigest:digest({epoch:thread.epoch,runId:thread.runId,sessionPath:thread.sessionPath,modelId:thread.modelId,thinkingLevel:thread.thinkingLevel??null,accountId:thread.accountId??null})};
+  }
+  private captureInferenceOwner(input:StartRun,continuing:boolean):void {
+    const thread=this.assertRun(input),basis=digest(this.requestAuthorityBasis(thread,input.modelId,input.thinkingLevel)),previous=this.inferenceOwners.get(thread.id);
+    if(previous&&previous.ctx.runId===input.runId&&previous.ctx.epoch===input.epoch){
+      if(previous.basis!==basis)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference authority changed.');
+      return;
+    }
+    if(continuing||this.inferenceOwners.size>=128)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference owner is unavailable.');
+    this.inferenceOwners.set(thread.id,{ctx:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},basis,sequence:0});
+  }
+  private beforeInference(request:InferenceAdmissionV1):void {
+    const thread=this.assertRun(request.ctx),owner=this.inferenceOwners.get(thread.id);
+    const stale=()=>new HarnessError('STALE_REQUEST_CONTEXT','The next inference no longer matches its admitted owner.');
+    if(!capabilityEnabled('context.compilerV1')||!owner||owner.ctx.runId!==request.ctx.runId||owner.ctx.epoch!==request.ctx.epoch||
+      !Number.isSafeInteger(request.sequence)||request.sequence<=owner.sequence||!Array.isArray(request.inputIds)||request.inputIds.length>4096||new Set(request.inputIds).size!==request.inputIds.length||
+      thread.modelId!==request.modelId||(thread.thinkingLevel??null)!==request.thinkingLevel)throw stale();
+    const basis=this.requestAuthorityBasis(thread,request.modelId,request.thinkingLevel);
+    if(basis.accountId!==request.accountId||digest(basis)!==owner.basis)throw stale();
+    for(const id of request.inputIds){const input=typeof id==='string'&&id.length<=256?this.store.get<Outbox>('outbox',id):null;
+      if(!input||input.threadId!==thread.id||input.runId!==request.ctx.runId||!['processing','handled'].includes(input.status))throw stale();}
+    owner.sequence=request.sequence;
   }
   /** A preview does not increment run epochs, start a runtime, or edit native history. */
   async prepareRequestContext(threadId:string,prompt:string,options:RequestPreparationOptions={}):Promise<RequestPreparationV1> {
@@ -914,16 +1163,7 @@ export class Service {
         if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
         if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
         this.assertNoOtherRun(thread.id);
-        const compactionOutcome = await this.applyLossAwareCompaction(thread);
-        if (compactionOutcome.status === 'UNSUPPORTED_COMPACTION')
-          throw new HarnessError('UNSUPPORTED_COMPACTION', 'This adapter has no verified native compare-and-swap for loss-aware compaction');
-        const receipt = this.store.command(command, () => {
-          if (compactionOutcome.usageEntity) this.store.put('compactionUsage', compactionOutcome.candidateId, thread.id, compactionOutcome.usageEntity);
-          this.writeCompactionProjection(thread.id);
-          return { verdict: compactionOutcome.status };
-        });
-        if (compactionOutcome.status === 'APPLIED') return receipt;
-        throw new HarnessError('COMPACTION_FAILED', 'The verified native compaction apply failed.');
+        return this.applyLossAwareCompaction(command,thread);
       }
       if (!thread.sessionPath || !thread.modelId) throw new HarnessError("RUNTIME_UNAVAILABLE", "This thread does not have a Pi session yet");
       if (thread.runId) throw new HarnessError("RUN_BUSY", "Wait for the current run before compacting");
@@ -1321,6 +1561,9 @@ export class Service {
     });
   }
   private async deliverInputs(threadId:string):Promise<void>{
+    // Native settlement clears runId before loss-aware compaction records its
+    // final digest and generation. Keep the next input behind that entire fence.
+    if(this.compactionInflight.has(threadId))return;
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
@@ -1391,34 +1634,43 @@ export class Service {
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
     let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
-    if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
-      try {
-        const current = this.assertRun(ctx);
-        const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
-          guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
-        this.store.internal('runtime.context.host', threadId, () => {
-          const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
-          const usage = { ...old, hostProjection };
-          this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
-          return { runId: ctx.runId, usage };
-        });
-      } catch { /* Shadow observation cannot alter or prevent the submitted request. */ }
-    }
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
     try {
+      const admit = async (approvedProjectContext: StartRun['approvedProjectContext'], assertProjectCurrent: () => void) => {
+      if (approvedProjectContext) input = { ...input, approvedProjectContext };
+      if (!thread.sideParentId && capabilityEnabled('context.compilerV1')) {
+        try {
+          const current = this.assertRun(ctx);
+          const hostProjection = projectHostRequest(input, this.contextResultOwner(current).workspaceId, this.hostToolRegistryDigest,
+            guidance, inputs.map((item, index) => ({ id: item.id, content: contents[index]!, isToolResult: item.completedWrite !== undefined })));
+          this.store.internal('runtime.context.host', threadId, () => {
+            const old = this.store.get<{ value: RuntimeUsage }>('usage', threadId)?.value ?? EMPTY_USAGE;
+            const usage = { ...old, hostProjection };
+            this.store.put('usage', threadId, threadId, { id: threadId, value: usage });
+            return { runId: ctx.runId, usage };
+          });
+        } catch { /* A metadata projection cannot prevent the admitted request. */ }
+      }
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
+      if(!thread.sideParentId&&capabilityEnabled('context.lossAwareCompactionV1'))input={...input,automaticCompactionProtection:{apiVersion:1,required:true}};
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(approvedProjectContext?.instructionText)sources.splice(1,0,{id:'approved-project-instructions',revision:1,category:'INSTRUCTION',text:approvedProjectContext.instructionText,contentRef:'sha256:'+approvedProjectContext.instructionDigest,inclusionReason:'Recognized project instructions under current explicit resource grants; host authorization takes precedence'});
         if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});
         input=await this.requestCustody.finalize(requestContextId,input,sources,()=>this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
         this.requestCustody.assertFinalized(requestContextId,input,this.requestBasis(this.assertRun(ctx),modelId,thread.thinkingLevel));
       }
-      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();dispatched=true;
+      this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);for(const context of sourceContexts)context.assertCurrent();assertProjectCurrent();
+      if(!thread.sideParentId&&capabilityEnabled('context.compilerV1'))this.captureInferenceOwner(input,Boolean(thread.runId));
+      dispatched=true;
       if(thread.sideParentId)await this.sideRuntime.start(input);else if (thread.runId) await this.runtime.followUp(input); else await this.runtime.start(input);
+      };
+      if(!thread.sideParentId&&capabilityEnabled('context.compilerV1'))await withApprovedProjectContext(this.store,input,control.signal,admit);
+      else await admit(undefined,()=>{});
     }
     catch (error) { if (!dispatched) this.blockSourceInputs(sourceInputs, error, ctx.runId); this.runtimeFailure(ctx, error); }
     finally { if(requestContextId)this.requestCustody.release(requestContextId,dispatched?'dispatched':'failed');this.releaseController(threadId,control); }
@@ -1438,6 +1690,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", ctx.threadId);
     if (!thread || thread.epoch !== ctx.epoch || thread.runId !== ctx.runId) return;
+    this.inferenceOwners.delete(thread.id);
     this.flushDeltas(thread.id);
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
@@ -1487,7 +1740,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", event.threadId);
     if (!thread || event.epoch !== thread.epoch || event.runId !== thread.runId) return;
-    if (event.type === 'context.request' && !capabilityEnabled('context.compilerV1')) return;
+    if (['context.request','context.budget'].includes(event.type) && !capabilityEnabled('context.compilerV1')) return;
     if (event.type === "error") { this.flushDeltas(thread.id); this.runtimeFailure(event, new Error(String(event.message))); return; }
     if (event.type === "assistant.delta") { this.bufferDelta(event, thread); return; }
     // Preserve event order: buffered deltas precede every other commit here.
@@ -1549,6 +1802,19 @@ export class Service {
         // snapshot instead of re-fetching it for every streamed chunk.
         return { runId: event.runId, message };
       }
+      if (event.type === 'context.budget') {
+        const parsed=inferenceBudgetSchema.safeParse(event.budget),old=this.store.get<{value:RuntimeUsage}>('usage',thread.id)?.value??EMPTY_USAGE;
+        if(!parsed.success||event.provider!=='hermes'||old.inferenceBudget?.runId===event.runId&&old.inferenceBudget.epoch===event.epoch&&old.inferenceBudget.budget.sequence>=parsed.data.sequence)return{runId:event.runId};
+        const inferenceBudget={threadId:thread.id,runId:event.runId,epoch:event.epoch,budget:parsed.data},usage={...old,inferenceBudget};
+        this.store.put('usage',thread.id,thread.id,{id:thread.id,value:usage});return{runId:event.runId,usage};
+      }
+      if(event.type==='context.compaction.refused'){
+        const parsed=automaticCompactionRefusalSchema.safeParse(event.refusal);
+        if(!capabilityEnabled('context.lossAwareCompactionV1')||!parsed.success||!thread.modelId)return{runId:event.runId};
+        const owner=parsed.data.owner;
+        if(owner.ctx.threadId!==thread.id||owner.ctx.runId!==event.runId||owner.ctx.epoch!==event.epoch||owner.modelId!==thread.modelId||thread.sessionPath!==null&&owner.sessionPath!==thread.sessionPath||owner.accountId!==this.binding(thread,modelProvider(thread.modelId)).accountId)return{runId:event.runId};
+        return{runId:event.runId,refusal:parsed.data};
+      }
       if (event.type === 'context.request') {
         const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
         const { sequence, promptBytes, knownInputs } = event;
@@ -1561,15 +1827,23 @@ export class Service {
         const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
           typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
           ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
+        const relevance = this.observeReadRelevance(thread, sequence), native = nativeContextProjectionSchema.safeParse(event.nativeSources);
+        const nativeSourcesUnavailable = ['SOURCE_LIMIT', 'UNSUPPORTED_SOURCE', 'UNSUPPORTED_ADAPTER'].includes(String(event.nativeSourcesUnavailable)) ? event.nativeSourcesUnavailable as 'SOURCE_LIMIT' | 'UNSUPPORTED_SOURCE' | 'UNSUPPORTED_ADAPTER' : event.nativeSources !== undefined && !native.success ? 'UNSUPPORTED_SOURCE' as const : undefined;
         const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
-          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}) };
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}), ...(relevance ? { relevance } : {}),
+          ...(native.success ? { nativeSources: native.data } : nativeSourcesUnavailable ? { nativeSourcesUnavailable } : {}) };
         const usage = { ...old, lastRequest: observation };
         this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
         return { runId: event.runId, usage };
       }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        let lastRequest = old.lastRequest;
+        if (event.type === 'compaction.end' && event.aborted === false) {
+          this.relevanceObserver.forget(thread.id);
+          if (lastRequest) { const { relevance: _retired, ...retained } = lastRequest; lastRequest = retained; }
+        }
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest, inferenceBudget: old.inferenceBudget, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }
@@ -1590,6 +1864,8 @@ export class Service {
         }
       }
       if (event.type === "settled") {
+        this.inferenceOwners.delete(thread.id);
+        this.relevanceObserver.forget(thread.id);
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
         const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", event.runId);
         const finished = this.store.get<FinishRecord>("finish", event.runId), finalized = this.store.get<{inputIds: string[]}>("responseCheckpoint", event.runId);
@@ -1611,11 +1887,48 @@ export class Service {
     this.effects.assertAdmissionsEnabled();
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
-    const role:ActorRole=owningThread.sideParentId?'side':'run';
-    if(this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1"))return this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
-    return this.toolBody(call,ctx,owningThread);
+    const limited = capabilityEnabled('context.compilerV1') && this.authority.definition(call.name)?.risk === 'READ';
+    if (limited && this.activeContextReads >= 4) throw new HarnessError('CONTEXT_READ_LIMIT', 'Wait for an admitted context read to finish before requesting another.');
+    if (limited) this.activeContextReads++;
+    // A revoked call retains its slot until actual read/retention work settles.
+    // Releasing on cancellation alone would allow abandoned reads to accumulate.
+    try { return await this.admittedTool(call, ctx, owningThread); }
+    finally { if (limited) this.activeContextReads--; }
   }
-  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
+  private async admittedTool(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
+    const role:ActorRole=owningThread.sideParentId?'side':'run';
+    const rangeRead = call.name === 'context_result_read';
+    const bound = this.contextResultsEnabled() && !rangeRead, basis = bound ? this.contextResultInvocation(owningThread) : undefined;
+    const publicCatalog = call.name === 'ui_discover';
+    const assertResultCurrent = () => {
+      if (!this.contextResultsEnabled() || this.contextResultInvocation(this.assertRun(ctx)) !== basis) throw new HarnessError('STALE_REQUEST_CONTEXT', 'Tool result owner changed.');
+    };
+    const definition = this.authority.definition(call.name);
+    const readRetryable = definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE';
+    const lineage = bound && readRetryable
+      ? createContextResultLineage({ store: this.store, threadId: ctx.threadId, signal: this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, assertCurrent: assertResultCurrent }) : undefined;
+    let ticket: ReturnType<typeof this.relevanceObserver.begin>;
+    try {
+      const definition = this.authority.definition(call.name), owner = this.relevanceOwner(owningThread);
+      if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
+    } catch { /* Observation is optional for an otherwise authorized tool result. */ }
+    let entered = false;
+    const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
+    let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
+      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
+    // A cached effect skips the domain guard. Its previous bytes cannot mint
+    // fresh resource authority, including when the old result was small.
+    if (readRetryable && !entered && !publicCatalog) result = rangeRead
+      ? { status: 'UNAVAILABLE' }
+      : { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null };
+    else if (bound) result = await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
+    try {
+      const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
+      if (owner) this.relevanceObserver.complete(ticket, owner, result);
+    } catch { /* Never change the delivered result because diagnostics failed. */ }
+    return result;
+  }
+  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread, lineage?: ReturnType<typeof createContextResultLineage>): Promise<unknown> {
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
     const controller = this.aborts.get(ctx.threadId);
     const args = call.args;
@@ -1645,6 +1958,7 @@ export class Service {
     }
     if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
     if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
+    if(call.name==='repository_map')return this.repositoryMaps.read({store:this.store,ctx,signal:controller?.signal??new AbortController().signal,owner:()=>this.assertRun(ctx)},args,(value,provenance)=>this.publishData(ctx.threadId,value,provenance));
     if (call.name === 'context_result_read') {
       if (!this.contextResultsEnabled()) throw new HarnessError('CAPABILITY_UNAVAILABLE', 'Context result retrieval is disabled');
       const parsed = contextResultReadArgs.safeParse(args);
@@ -1656,19 +1970,7 @@ export class Service {
       try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
       catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
     }
-    if (call.name === "ui_discover") {
-      const value = await discoverCapabilities(args);
-      if (!this.contextResultsEnabled()) return value;
-      const bytes = Buffer.from(JSON.stringify(value));
-      if (bytes.length <= CONTEXT_PREVIEW_CAP_BYTES) return value;
-      const current = this.assertRun(ctx);
-      const result = await this.contextResultVault().spill({
-        owner: this.contextResultOwner(current), invocationId: this.contextResultInvocation(current) + ':' + randomUUID(),
-        bytes, mediaType: 'application/json', expiresAtMs: Date.now() + 60 * 60_000,
-      });
-      this.assertRun(ctx);
-      return { ...result, totalBytes: bytes.length };
-    }
+    if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
@@ -1678,7 +1980,8 @@ export class Service {
     }
     const domain = await import("../capabilities/index.ts");
     this.assertRun(ctx);
-    return domain.handleDomainTool(call.name, args, this.context(ctx.threadId, controller?.signal, undefined, { ...ctx }));
+    const context = this.context(ctx.threadId, controller?.signal, undefined, { ...ctx });
+    return domain.handleDomainTool(call.name, args, lineage ? lineage.wrap(context) : context);
   }
   private async uiTool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     if (call.name === "ui_create_widget" && !GENERATED_APPS_ENABLED) throw new HarnessError("CAPABILITY_UNAVAILABLE", "Generated apps are disabled until execution isolation passes its integrity gates");
@@ -1998,10 +2301,11 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
+    this.compactionModelOwners.clear();
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
 }

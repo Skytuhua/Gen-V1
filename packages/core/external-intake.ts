@@ -122,13 +122,16 @@ export class ExternalIntakeCoordinator {
       if (current && current.sourceInstallation !== installation) this.store.put("intakeConfig", "global", null, { ...current, sourceInstallation: installation, updatedAt: iso(this.now()) });
     });
     // Pull requests and issues share the issues endpoint sorted by updated
-    // time; on an active repository any single page can be mostly PRs and
-    // real issues are never inspected. Keep paging while pages are full —
+    // time; on an active repository any single page can be entirely PRs and
+    // real issues are never inspected. Keep paging while pages stay full —
     // one issue on a page does not prove the next page holds none — bounded
-    // by intakePollPages and ending on a short page.
+    // by intakePollPages. A short page ends the walk only once a real issue
+    // has been inspected: the open set shifts between requests, so a middle
+    // page can come back short, and a short PR-only page would otherwise
+    // repeat the starvation this walk exists to fix.
     const perPage = BACKGROUND_SCHEDULER_LIMITS.intakePageSize;
     const records: unknown[] = [];
-    let lastFailure: unknown = null, attempts = 0;
+    let lastFailure: unknown = null, attempts = 0, sawIssue = false;
     for (let page = 1; page <= BACKGROUND_SCHEDULER_LIMITS.intakePollPages; page++) {
       const url = `https://api.github.com/repositories/${config.repositoryId}/issues?state=open&sort=updated&direction=desc&per_page=${perPage}&page=${page}`;
       let response: Response | null = null;
@@ -174,7 +177,9 @@ export class ExternalIntakeCoordinator {
         return { status: "FAILED", ...empty, attempts, error: this.lastError };
       }
       records.push(...pageRecords);
-      if (pageRecords.length < perPage) break;
+      if (pageRecords.length === 0) break;
+      sawIssue ||= pageRecords.some(entry => typeof entry === "object" && entry !== null && !(entry as { pull_request?: unknown }).pull_request);
+      if (pageRecords.length < perPage && sawIssue) break;
     }
     // GitHub returns repository_url in /repos/{owner}/{name} form while the
     // configured identity is numeric. Resolve each distinct foreign-form URL

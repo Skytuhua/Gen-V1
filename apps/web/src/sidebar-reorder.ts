@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState, type RefObject, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import type { ThreadNavigationRow as Thread } from '../../../packages/contracts/shell-read-models';
+import {chordFor} from './keyboard-bindings';
+import {matchesShortcut} from './shell-layout';
 
 export type SidebarSection = 'pinned' | 'working' | 'flat' | 'settled';
 type Patch = NonNullable<Thread['presentation']>;
@@ -280,7 +282,7 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
   /* Escape cancels an in-flight touch drag (HTML5 dragend covers the pointer path). */
   useEffect(() => {
     if (!dragging) return;
-    const key = (event: KeyboardEvent) => { if (event.key === 'Escape') clear(); };
+    const key = (event: KeyboardEvent) => { if (matchesShortcut(event, chordFor('thread-drag-cancel'))) clear(); };
     document.addEventListener('keydown', key);
     return () => document.removeEventListener('keydown', key);
   }, [dragging]);
@@ -293,9 +295,8 @@ export function useThreadReorder(nav: RefObject<HTMLElement | null>, options: {
     end: clear,
     /** Alt+ArrowUp/Down reorder inside the row's own section. Returns true when handled. */
     key(item: Thread, event: ReactKeyboardEvent<HTMLButtonElement>) {
-      if (!event.altKey) return false;
-      if (event.key === 'ArrowUp') { event.preventDefault(); return move(item, -1); }
-      if (event.key === 'ArrowDown') { event.preventDefault(); return move(item, 1); }
+      if (matchesShortcut(event, chordFor('thread-reorder-up'))) { event.preventDefault(); return move(item, -1); }
+      if (matchesShortcut(event, chordFor('thread-reorder-down'))) { event.preventDefault(); return move(item, 1); }
       return false;
     },
   };
