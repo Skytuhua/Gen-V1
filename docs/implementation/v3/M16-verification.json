@@ -375,12 +375,12 @@
         {
           "id": "bridge-hold-refuse",
           "status": "PASS",
-          "evidence": "Module loads; pickWindow/windowIdentity/captureWindow all reject CONTROL_PICKER_BINDING_UNSUPPORTED at runtime (verified verbatim on the box)."
+          "evidence": "Module loads; the system-picker pickWindow op rejects CONTROL_PICKER_BINDING_UNSUPPORTED while the approved chooser ops (listWindows/windowIdentity/captureWindow) execute — windowIdentity(0) fails closed. Verified verbatim on the box @ bdf5e27c for the hold cut; chooser-path runtime receipts pending @ 0febe547."
         },
         {
           "id": "bridge-window-slice",
           "status": "NOT_RUN",
-          "evidence": "HOLD_PICKER_BINDING: GraphicsCapturePicker returns no authoritative HWND mapping; the EnumWindows name/size heuristic was removed rather than trusted. Window path fails closed until an approved same-object binding exists. GraphicsCapturePicker drive and WGC capture acceptance NOT_RUN."
+          "evidence": "App-owned consent chooser (manager-approved alternative): listWindows rows carry their own HWND — same-object identity, no matching. System-picker pickTarget stays held (HOLD_PICKER_BINDING). Owned-fixture chooser enumeration + revalidated captureWindow acceptance pending Windows receipts @ 0febe547."
         },
         {
           "id": "bridge-browser-live",
