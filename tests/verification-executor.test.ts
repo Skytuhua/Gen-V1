@@ -157,12 +157,26 @@ it('redacts injected secrets from browser observations and rejects non-origin ev
   const secret = 'browser-secret-token', f = await fixture({ browser: true, secret });
   await f.session.launcher.launch(f.request);
   f.browserSession.page.url = () => `${f.origin}/?token=${secret}`;
+  f.browserSession.page.text = vi.fn(async () => `DOM token=${secret} ${Buffer.from(secret).toString('base64')}`);
   f.browserSession.collectedFailures = () => ({ console: [`value=${secret}`], network: [Buffer.from(secret).toString('base64')] });
   const browser = await f.session.browser!.launch({ profileDir: f.session.browserProfileDir!, viewport: { width: 800, height: 600 }, approvedOrigins: [f.origin], allowOrigin: () => true });
   expect(browser.page.url()).toBe(`${f.origin}/?token=[REDACTED]`);
+  expect(await browser.page.text('body')).toBe('DOM token=[REDACTED] [REDACTED]');
+  f.browserSession.page.text = vi.fn(async () => null);
+  expect(await browser.page.text('missing')).toBeNull();
   expect(browser.collectedFailures()).toEqual({ console: ['value=[REDACTED]'], network: ['[REDACTED]'] });
   f.browserSession.observedOrigins = () => [`${f.origin}/?token=${secret}`];
   expect(() => browser.observedOrigins()).toThrow('invalid observation evidence');
   f.browserSession.page.url = () => { throw Error(secret); };
   expect(() => browser.page.url()).toThrow('invalid observation evidence');
+});
+
+it('withholds browser DOM text when an injected secret cannot be tracked', async () => {
+  const f = await fixture({ browser: true, secret: '1234' });
+  await f.session.launcher.launch(f.request);
+  f.browserSession.page.text = vi.fn(async () => 'DOM contains 1234');
+  const browser = await f.session.browser!.launch({ profileDir: f.session.browserProfileDir!, viewport: { width: 800, height: 600 }, approvedOrigins: [f.origin], allowOrigin: () => true });
+  const result = await browser.page.text('body');
+  expect(result).toMatch(/withheld/i);
+  expect(result).not.toContain('1234');
 });
