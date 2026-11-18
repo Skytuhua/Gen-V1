@@ -1,17 +1,26 @@
 // M16 C4 — Windows selected-window observation bridge.
 //
-// Approved platform path only: the system GraphicsCapturePicker supplies the
-// user consent surface; the picked item is bound to one unique live top-level
-// application HWND before any capture proceeds (fail closed on displays, zero
-// or ambiguous identity matches). Capture goes through
-// Windows.Graphics.Capture frame pools bound to that exact HWND — never
-// BitBlt/PrintWindow fallbacks, never broad screen capture.
+// App-owned consent chooser only: listWindows() enumerates live top-level
+// application windows and, inside the same enumeration pass, binds a
+// GraphicsCaptureItem for each row (CreateForWindow) that is HELD for the
+// selection lifetime. The row's creation-bound identity is the bound item
+// itself — an HWND value plus process id cannot prove window creation
+// identity because HWNDs recycle within a process, so no hwnd/pid token is
+// ever re-derivation used post-binding. Same-object proof between
+// enumeration and binding comes from a window PROP token (window properties
+// are destroyed with the window object, so GetProp==token after
+// CreateForWindow proves the bound object is still the enumerated one; the
+// prop is kept for the binding lifetime as the revalidation marker).
+// Invalidation is reliable: the item's Closed event fires when the bound
+// window is destroyed, frame production starves, and the prop vanishes — any
+// of those closes the binding and every later op fails closed.
 //
 // Node-API surface (called only from apps/desktop/control-bridge.ts):
 //   pickWindow(ownerHwndBuffer|null) -> HELD: system picker cannot bind an HWND (CONTROL_PICKER_BINDING_UNSUPPORTED)
-//   listWindows()                    -> Promise<windowObject[]> — app-owned chooser feed; each row carries its own HWND
-//   windowIdentity(handle:number)    -> Promise<same|null> — live HWND+PID+bounds+DPI re-proof
-//   captureWindow(handle:number)     -> Promise<{data:Buffer,width,height}> — CreateForWindow after revalidation
+//   listWindows()                    -> Promise<windowObject[]> — app-owned chooser feed; each row carries a bindingId
+//   windowIdentity(bindingId:string) -> Promise<same|null> — live re-proof of the held binding
+//   captureWindow(bindingId:string)  -> Promise<{data:Buffer,width,height}> — capture via the already-bound item
+//   dropBinding(bindingId:string)    -> Promise<null> — release a held binding (Stop/cancel)
 
 #define WIN32_LEAN_AND_MEAN
 #define NOMINMAX
@@ -37,6 +46,9 @@
 #include <vector>
 #include <memory>
 #include <optional>
+#include <unordered_map>
+#include <cstdint>
+#include <cstdio>
 #include <stdexcept>
 #include <atomic>
 #include <mutex>
@@ -56,9 +68,12 @@ void hr(HRESULT result, const char* stage) { require(SUCCEEDED(result), stage); 
 struct WindowDesc {
   HWND hwnd = nullptr;
   DWORD pid = 0;
+  DWORD threadId = 0;
   std::wstring title;
   RECT rect{};
   UINT dpi = 96;
+  uintptr_t token = 0;
+  std::string bindingId;
 };
 
 std::wstring windowText(HWND hwnd) {
@@ -95,16 +110,64 @@ bool enumerableAppWindow(HWND hwnd) {
   return (rect.right - rect.left) > 0 && (rect.bottom - rect.top) > 0;
 }
 
-// Enumeration feeds the app-owned consent chooser: every row carries its own
-// HWND directly, so the user's selection is a same-object binding — no
-// DisplayName/dimension matching is ever used to derive identity.
-struct EnumContext { std::vector<WindowDesc> windows; };
+// ---- Bound-window registry -------------------------------------------------
+//
+// Identity model (D02/D04): an HWND value is a table index, not a creation
+// identity — Windows recycles handles, including within one process. The only
+// object that can prove "the window the user selected is the window being
+// captured" is a capture item that was bound while the selection was minted
+// and is held for the whole selection lifetime. listWindows therefore does
+// binding at enumeration time and hands out opaque bindingIds; no later op
+// ever derives an object from an HWND.
+//
+// Same-object atomicity across the bind uses a window PROP: properties are
+// destroyed with the window object, so GetProp==token proves the object that
+// was marked is the object that got bound (and remains so at revalidation).
+// SetProp on a window the OS won't let us mark (e.g. elevated targets) makes
+// the row unbindable — it is excluded rather than bound unproven.
+
+const wchar_t* kBindProp = L"GenV1M16Bind";
+
+struct HeldBinding {
+  HWND hwnd = nullptr;
+  DWORD pid = 0;
+  DWORD threadId = 0;
+  uintptr_t token = 0;
+  std::wstring title;
+  RECT rect{};
+  UINT dpi = 96;
+  wgc::GraphicsCaptureItem item{nullptr};
+  wgc::IGraphicsCaptureItem::Closed_revoker closedRevoker;
+  bool closed = false;
+};
+
+// Every binding op runs on the single STA thread, so the map needs no lock;
+// the Closed event also marshals onto that apartment.
+std::unordered_map<std::string, HeldBinding>& bindings() {
+  static std::unordered_map<std::string, HeldBinding> map;
+  return map;
+}
+
+std::atomic<uint64_t>& bindingSerial() {
+  static std::atomic<uint64_t> serial{0};
+  return serial;
+}
+
+// Enumerate eligible windows, marking each with a per-enumeration prop token.
+// If a window object is destroyed and recreated mid-enumeration, the prop
+// dies with the old object and the recycled handle will fail the post-bind
+// GetProp check — the binding either refers to one consistent window object
+// or does not exist at all.
+struct EnumContext { std::vector<WindowDesc> windows; uint64_t epoch; };
 BOOL CALLBACK enumWindow(HWND hwnd, LPARAM param) {
   auto* context = reinterpret_cast<EnumContext*>(param);
   if (!enumerableAppWindow(hwnd)) return TRUE;
+  uintptr_t token = ((context->epoch & 0xffffffffull) << 32) | (uint32_t)context->windows.size();
+  if (!SetPropW(hwnd, kBindProp, reinterpret_cast<HANDLE>(token))) return TRUE;
   WindowDesc desc{};
   desc.hwnd = hwnd;
-  GetWindowThreadProcessId(hwnd, &desc.pid);
+  desc.token = token;
+  desc.threadId = GetWindowThreadProcessId(hwnd, &desc.pid);
   desc.title = windowText(hwnd);
   GetWindowRect(hwnd, &desc.rect);
   desc.dpi = GetDpiForWindow(hwnd);
@@ -112,8 +175,9 @@ BOOL CALLBACK enumWindow(HWND hwnd, LPARAM param) {
   return TRUE;
 }
 
-std::vector<WindowDesc> appWindows() {
+std::vector<WindowDesc> appWindows(uint64_t epoch) {
   EnumContext context{};
+  context.epoch = epoch;
   EnumWindows(enumWindow, reinterpret_cast<LPARAM>(&context));
   return std::move(context.windows);
 }
@@ -122,11 +186,28 @@ std::optional<WindowDesc> describe(HWND hwnd) {
   if (!IsWindow(hwnd) || !enumerableAppWindow(hwnd)) return std::nullopt;
   WindowDesc desc{};
   desc.hwnd = hwnd;
-  GetWindowThreadProcessId(hwnd, &desc.pid);
+  desc.threadId = GetWindowThreadProcessId(hwnd, &desc.pid);
   desc.title = windowText(hwnd);
   if (!GetWindowRect(hwnd, &desc.rect)) return std::nullopt;
   desc.dpi = GetDpiForWindow(hwnd);
   return desc;
+}
+
+// Live proof that the bound window object still exists: the item has not
+// reported Closed, our creation marker is still on the window, and it is
+// still a capturable application window.
+bool bindingAlive(const HeldBinding& binding) {
+  if (binding.closed) return false;
+  HANDLE prop = GetPropW(binding.hwnd, kBindProp);
+  if (prop != reinterpret_cast<HANDLE>(binding.token)) return false;
+  return describe(binding.hwnd).has_value();
+}
+
+void dropBinding(HeldBinding& binding) {
+  if (IsWindow(binding.hwnd)) RemovePropW(binding.hwnd, kBindProp);
+  try { binding.closedRevoker.revoke(); } catch (...) {}
+  binding.item = nullptr;
+  binding.closed = true;
 }
 
 // ---- JS marshalling -------------------------------------------------------
@@ -157,6 +238,7 @@ napi_value windowObject(napi_env env, const WindowDesc& desc) {
   napi_set_named_property(env, bounds, "height", h);
   napi_set_named_property(env, object, "bounds", bounds);
   napi_set_named_property(env, object, "dpiScale", ([&] { napi_value v; napi_create_double(env, desc.dpi / 96.0, &v); return v; })());
+  napi_set_named_property(env, object, "bindingId", ([&] { napi_value v; napi_create_string_utf8(env, desc.bindingId.c_str(), NAPI_AUTO_LENGTH, &v); return v; })());
   return object;
 }
 
@@ -166,7 +248,8 @@ struct Work {
   napi_async_work work = nullptr;
   napi_deferred deferred = nullptr;
   HWND hwnd = nullptr;
-  enum class Kind { Pick, Identity, Capture, List } kind = Kind::Pick;
+  std::string bindingId;
+  enum class Kind { Pick, Identity, Capture, List, Drop } kind = Kind::Pick;
   // Results
   bool hasWindow = false;
   WindowDesc window{};
@@ -206,7 +289,7 @@ void complete(napi_env env, Work* work, bool isNull) {
 void finish(napi_env env, napi_status, void* data) {
   std::unique_ptr<Work> work(static_cast<Work*>(data));
   if (work->error.empty()) {
-    complete(env, work.get(), work->kind != Work::Kind::List && work->kind != Work::Kind::Capture && !work->hasWindow);
+    complete(env, work.get(), (work->kind == Work::Kind::Pick || work->kind == Work::Kind::Identity || work->kind == Work::Kind::Drop) && !work->hasWindow);
   } else {
     napi_value error;
     napi_create_error(env, nullptr, ([&] { napi_value v; napi_create_string_utf8(env, work->error.c_str(), NAPI_AUTO_LENGTH, &v); return v; })(), &error);
@@ -275,7 +358,7 @@ void onSta(void (*run)(void*), void* data) {
 
 // ---- Picker ---------------------------------------------------------------
 
-struct PickResult { bool cancelled = false; WindowDesc window{}; std::string error; HWND owner = nullptr; };
+struct PickResult { bool cancelled = false; WindowDesc window{}; std::string error; HWND owner = nullptr; std::string bindingId; };
 
 // HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker returns a
 // GraphicsCaptureItem whose DisplayName/Size are not an authoritative window
@@ -291,15 +374,22 @@ void pickOnSta(void* raw) {
 
 // ---- WGC capture ----------------------------------------------------------
 
-struct CaptureResult { std::vector<BYTE> png; uint32_t width = 0, height = 0; std::string error; HWND hwnd = nullptr; WindowDesc window{}; };
+// Create a GraphicsCaptureItem for an HWND. Called exactly once per chooser
+// row, inside listWindows' enumeration — the returned item is then held in
+// the binding registry and is the only object capture sessions may use.
+wgc::GraphicsCaptureItem createItemForWindow(HWND hwnd) {
+  auto interop = winrt::get_activation_factory<wgc::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
+  wgc::GraphicsCaptureItem item{nullptr};
+  hr(interop->CreateForWindow(hwnd, winrt::guid_of<wgc::GraphicsCaptureItem>(), winrt::put_abi(item)), "The selected window cannot be captured.");
+  require(bool(item), "The selected window cannot be captured.");
+  return item;
+}
 
 class WgcSession {
  public:
-  explicit WgcSession(HWND hwnd) {
-    auto interop = winrt::get_activation_factory<wgc::GraphicsCaptureItem, IGraphicsCaptureItemInterop>();
-    hr(interop->CreateForWindow(hwnd, winrt::guid_of<wgc::GraphicsCaptureItem>(), winrt::put_abi(item_)), "The selected window cannot be captured.");
-    require(bool(item_), "The selected window cannot be captured.");
-
+  // The item arrives already bound (from the held registry entry) — this
+  // class never derives a capture object from an HWND.
+  explicit WgcSession(const wgc::GraphicsCaptureItem& item) : item_(item) {
     D3D_FEATURE_LEVEL levels[] = {D3D_FEATURE_LEVEL_11_1, D3D_FEATURE_LEVEL_11_0};
     hr(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_BGRA_SUPPORT, levels, 2, D3D11_SDK_VERSION, &device_, nullptr, &context_), "Direct3D is unavailable for capture.");
 
@@ -407,17 +497,31 @@ class WgcSession {
   wgc::GraphicsCaptureSession session_{nullptr};
 };
 
-// The HWND arrives already proven by the app-owned chooser (the row carried
-// the handle itself). CreateForWindow is still only invoked after the window
-// is revalidated as a live enumerable application window — recycling, loss or
-// ambiguity fails closed before any capture object exists.
+// Capture uses the held binding's already-created item — the HWND is only
+// consulted for liveness revalidation, never to construct a capture object,
+// so HWND recycling cannot redirect capture to a different window.
+struct CaptureResult { std::vector<BYTE> png; uint32_t width = 0, height = 0; std::string error; std::string bindingId; WindowDesc window{}; };
+
 void captureOnSta(void* raw) {
   auto* result = static_cast<CaptureResult*>(raw);
   try {
-    auto desc = describe(result->hwnd);
-    if (!desc) { result->error = "The selected window no longer exists or is not a capturable application window."; return; }
-    WgcSession session(result->hwnd);
-    if (!session.grab(result->png, result->width, result->height)) result->error = "The selected window produced no capturable frame.";
+    auto found = bindings().find(result->bindingId);
+    if (found == bindings().end() || !bindingAlive(found->second)) {
+      if (found != bindings().end()) dropBinding(found->second);
+      result->error = "The selected window binding is closed; the target no longer exists or cannot be re-proven.";
+      return;
+    }
+    auto& binding = found->second;
+    auto desc = describe(binding.hwnd);
+    if (!desc) { binding.closed = true; result->error = "The selected window no longer exists or is not a capturable application window."; return; }
+    WgcSession session(binding.item);
+    if (!session.grab(result->png, result->width, result->height)) {
+      // A closed/minimized bound window starves the frame pool — treat it as
+      // binding loss rather than a retryable capture failure.
+      if (binding.closed) result->error = "The selected window binding closed during capture.";
+      else result->error = "The selected window produced no capturable frame.";
+      return;
+    }
     result->window = *desc;
   } catch (const winrt::hresult_error& error) {
     result->error = "Window capture failed: " + utf8(std::wstring(error.message().c_str(), error.message().size()));
@@ -428,26 +532,94 @@ void captureOnSta(void* raw) {
   }
 }
 
+// Live re-proof of a held binding: binding registered, not Closed, the prop
+// token still on the same window object, still a capturable app window.
 void identityOnSta(void* raw) {
   auto* result = static_cast<PickResult*>(raw);
-  auto desc = describe(result->owner); // owner field reused to carry the HWND
-  if (desc) { result->window = *desc; result->cancelled = false; }
-  else result->cancelled = true;
+  auto found = bindings().find(result->bindingId);
+  if (found == bindings().end() || !bindingAlive(found->second)) { result->cancelled = true; return; }
+  auto& binding = found->second;
+  auto desc = describe(binding.hwnd);
+  if (!desc) { binding.closed = true; result->cancelled = true; return; }
+  result->window = *desc;
+  result->window.bindingId = result->bindingId;
+  result->cancelled = false;
 }
 
 struct ListResult { std::vector<WindowDesc> windows; std::string error; };
 
+// The chooser feed: enumerate eligible windows and bind a capture item for
+// each inside the same pass. Prop tokens prove the bound object is the
+// enumerated object; any row that cannot be proven is dropped, never listed.
 void listOnSta(void* raw) {
   auto* result = static_cast<ListResult*>(raw);
   try {
-    result->windows = appWindows();
-    // Displays are excluded by construction: enumerableAppWindow requires a
-    // live top-level application window owned by another real process.
+    // A fresh enumeration epoch makes stale props on recycled/foreign windows
+    // unforgeable for this pass; old bindings stay valid until they close.
+    uint64_t epoch = ++bindingSerial();
+    auto windows = appWindows(epoch);
+    for (auto& desc : windows) {
+      const uintptr_t token = desc.token;
+      try {
+        // Re-proof the exact object before binding: still enumerable, same
+        // thread, then bind and confirm the marker survived CreateForWindow.
+        auto live = describe(desc.hwnd);
+        if (!live || live->threadId != desc.threadId || live->pid != desc.pid) {
+          if (IsWindow(desc.hwnd)) RemovePropW(desc.hwnd, kBindProp);
+          continue;
+        }
+        HeldBinding binding{};
+        binding.hwnd = desc.hwnd;
+        binding.pid = desc.pid;
+        binding.threadId = desc.threadId;
+        binding.token = token;
+        binding.title = desc.title;
+        binding.rect = desc.rect;
+        binding.dpi = desc.dpi;
+        binding.item = createItemForWindow(desc.hwnd);
+        if (GetPropW(desc.hwnd, kBindProp) != reinterpret_cast<HANDLE>(token)) {
+          // The window object changed while the item was being created — the
+          // old object died (taking the prop); the handle now names another
+          // window. Refuse rather than bind an unproven object.
+          binding.item = nullptr;
+          if (IsWindow(desc.hwnd)) RemovePropW(desc.hwnd, kBindProp);
+          continue;
+        }
+        std::string bindingId;
+        {
+          char id[32];
+          snprintf(id, sizeof(id), "wgc-%llx", (unsigned long long)token);
+          bindingId = id;
+          bindings().emplace(bindingId, std::move(binding));
+          auto& placed = bindings().at(bindingId);
+          // The handler marks via map lookup — never a raw node pointer, so a
+          // queued Closed event after erase cannot write freed memory.
+          placed.closedRevoker = placed.item.Closed(winrt::auto_revoke, [id = bindingId](auto&&, auto&&) {
+            auto it = bindings().find(id);
+            if (it != bindings().end()) it->second.closed = true;
+          });
+        }
+        desc.bindingId = bindingId;
+        result->windows.push_back(std::move(desc));
+      } catch (...) {
+        // Unbindable rows are excluded — the chooser only ever offers proven
+        // bindings (fail closed at listing time, not at capture time).
+        if (IsWindow(desc.hwnd)) RemovePropW(desc.hwnd, kBindProp);
+        continue;
+      }
+    }
   } catch (const std::exception& error) {
     result->error = error.what();
   } catch (...) {
     result->error = "Window enumeration failed.";
   }
+}
+
+void dropOnSta(void* raw) {
+  auto* result = static_cast<PickResult*>(raw);
+  auto found = bindings().find(result->bindingId);
+  if (found != bindings().end()) { dropBinding(found->second); bindings().erase(found); }
+  result->cancelled = false; // always resolves — cancel must not fail
 }
 
 // ---- napi entry points ----------------------------------------------------
@@ -472,7 +644,7 @@ Work* makeWork(napi_env env, napi_callback_info info, size_t& argc, napi_value* 
             else if (!result.cancelled) { work->hasWindow = true; work->window = result.window; }
           } else if (work->kind == Work::Kind::Identity) {
             PickResult result{};
-            result.owner = work->hwnd;
+            result.bindingId = work->bindingId;
             onSta(identityOnSta, &result);
             if (!result.error.empty()) work->error = result.error;
             else if (!result.cancelled) { work->hasWindow = true; work->window = result.window; }
@@ -481,9 +653,13 @@ Work* makeWork(napi_env env, napi_callback_info info, size_t& argc, napi_value* 
             onSta(listOnSta, &result);
             if (!result.error.empty()) work->error = result.error;
             else work->windows = std::move(result.windows);
+          } else if (work->kind == Work::Kind::Drop) {
+            PickResult result{};
+            result.bindingId = work->bindingId;
+            onSta(dropOnSta, &result);
           } else {
             CaptureResult result{};
-            result.hwnd = work->hwnd;
+            result.bindingId = work->bindingId;
             onSta(captureOnSta, &result);
             if (!result.error.empty()) work->error = result.error;
             else { work->hasWindow = true; work->window = result.window; work->png = std::move(result.png); work->width = result.width; work->height = result.height; }
@@ -516,14 +692,22 @@ napi_value pickWindow(napi_env env, napi_callback_info info) {
   return promise;
 }
 
+std::string bindingArg(napi_env env, napi_callback_info info) {
+  napi_value argv[1] = {nullptr};
+  size_t argc = 1;
+  napi_get_cb_info(env, info, &argc, argv, nullptr, nullptr);
+  char buffer[64]{};
+  size_t length = 0;
+  if (argc > 0) napi_get_value_string_utf8(env, argv[0], buffer, sizeof(buffer) - 1, &length);
+  return std::string(buffer, length);
+}
+
 napi_value windowIdentity(napi_env env, napi_callback_info info) {
   napi_value argv[1] = {nullptr};
   size_t argc = 1;
   napi_value promise;
   Work* work = makeWork<PickResult>(env, info, argc, argv, Work::Kind::Identity, &promise);
-  double handle = 0;
-  if (argc > 0) napi_get_value_double(env, argv[0], &handle);
-  work->hwnd = (HWND)(intptr_t)(int64_t)handle;
+  work->bindingId = bindingArg(env, info);
   napi_queue_async_work(env, work->work);
   return promise;
 }
@@ -533,16 +717,25 @@ napi_value captureWindow(napi_env env, napi_callback_info info) {
   size_t argc = 1;
   napi_value promise;
   Work* work = makeWork<CaptureResult>(env, info, argc, argv, Work::Kind::Capture, &promise);
-  double handle = 0;
-  if (argc > 0) napi_get_value_double(env, argv[0], &handle);
-  work->hwnd = (HWND)(intptr_t)(int64_t)handle;
+  work->bindingId = bindingArg(env, info);
+  napi_queue_async_work(env, work->work);
+  return promise;
+}
+
+napi_value dropBindingOp(napi_env env, napi_callback_info info) {
+  napi_value argv[1] = {nullptr};
+  size_t argc = 1;
+  napi_value promise;
+  Work* work = makeWork<PickResult>(env, info, argc, argv, Work::Kind::Drop, &promise);
+  work->bindingId = bindingArg(env, info);
   napi_queue_async_work(env, work->work);
   return promise;
 }
 
 // App-owned consent chooser feed: rows of live enumerable application windows
-// carrying their own HWND/PID/title/geometry/DPI — identity is the handle
-// itself, never a derived match.
+// — each carrying an opaque bindingId naming the capture item bound for that
+// exact window object inside this call (identity is the held item, never a
+// derived hwnd/pid match).
 napi_value listWindows(napi_env env, napi_callback_info info) {
   size_t argc = 0;
   napi_value promise;
@@ -556,6 +749,7 @@ napi_value init(napi_env env, napi_value exports) {
   napi_set_named_property(env, exports, "listWindows", ([&] { napi_value f; napi_create_function(env, "listWindows", NAPI_AUTO_LENGTH, listWindows, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "windowIdentity", ([&] { napi_value f; napi_create_function(env, "windowIdentity", NAPI_AUTO_LENGTH, windowIdentity, nullptr, &f); return f; })());
   napi_set_named_property(env, exports, "captureWindow", ([&] { napi_value f; napi_create_function(env, "captureWindow", NAPI_AUTO_LENGTH, captureWindow, nullptr, &f); return f; })());
+  napi_set_named_property(env, exports, "dropBinding", ([&] { napi_value f; napi_create_function(env, "dropBinding", NAPI_AUTO_LENGTH, dropBindingOp, nullptr, &f); return f; })());
   return exports;
 }
 

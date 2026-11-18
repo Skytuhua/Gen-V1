@@ -375,12 +375,12 @@
         {
           "id": "bridge-hold-refuse",
           "status": "PASS",
-          "evidence": "Module loads; the system-picker pickWindow op rejects CONTROL_PICKER_BINDING_UNSUPPORTED while the approved chooser ops (listWindows/windowIdentity/captureWindow) execute — windowIdentity(0) fails closed. Verified verbatim on the box @ bdf5e27c for the hold cut; chooser-path runtime receipts pending @ 0febe547."
+          "evidence": "Module loads; the system-picker pickWindow op rejects CONTROL_PICKER_BINDING_UNSUPPORTED while the approved chooser ops (listWindows/windowIdentity/captureWindow/dropBinding) execute — dead/unknown bindingIds fail closed. Verified verbatim on the box @ bdf5e27c for the hold cut; bound-item chooser receipts pending on the new head."
         },
         {
           "id": "bridge-window-slice",
           "status": "NOT_RUN",
-          "evidence": "App-owned consent chooser (manager-approved alternative): listWindows rows carry their own HWND — same-object identity, no matching. System-picker pickTarget stays held (HOLD_PICKER_BINDING). Owned-fixture chooser enumeration + revalidated captureWindow acceptance pending Windows receipts @ 0febe547."
+          "evidence": "App-owned consent chooser, bound-item identity (D02/D04-corrected): listWindows binds a GraphicsCaptureItem per row inside enumeration — prop token proves same-object binding, Closed event + prop + liveness give invalidation; HWND/pid are metadata only and never re-derive identity. System-picker pickTarget stays held (HOLD_PICKER_BINDING). Owned-fixture enumeration + bound-item capture + same-process replacement/refusal receipts pending on the new head."
         },
         {
           "id": "bridge-browser-live",

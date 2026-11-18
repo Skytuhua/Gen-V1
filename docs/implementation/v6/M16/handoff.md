@@ -103,19 +103,31 @@ production flag change.
   UPLOAD/DOWNLOAD refuse (session already denies them). No external profiles,
   no remote debugging, no page scripting, no global injection.
 - **Window slice** (`packages/core/windows-control-bridge.cc`): app-owned
-  consent chooser (manager-approved alternative). `listWindows` enumerates
-  live top-level application windows — each row carries its own HWND+PID, so
-  the user's selected row IS a same-object creation identity
-  (`win:<hwnd>:<pid>`); no title/size matching derives identity anywhere.
-  The chooser session binds geometry+DPI at selection; `windowIdentity`
-  re-proves HWND/process and `captureWindow` calls
-  `IGraphicsCaptureItemInterop::CreateForWindow` only after live
-  revalidation of the exact HWND — recycling/loss/ambiguity fail closed.
-  The system `GraphicsCapturePicker` op stays refused
+  consent chooser with **bound-item identity** (manager correction: an
+  `HWND`+PID token cannot prove creation identity — HWNDs recycle within a
+  process). `listWindows` enumerates live top-level application windows and,
+  inside the same enumeration pass, marks each row with a window PROP token
+  and calls `IGraphicsCaptureItemInterop::CreateForWindow` for it. The
+  resulting `GraphicsCaptureItem` is HELD in a binding registry for the
+  selection lifetime; the row's `bindingId` (`wgc:<token>`) is the
+  creation-bound identity (`wgc:<bindingId>` in the target). Window props die
+  with the window object, so `GetProp==token` after binding proves the bound
+  object is the enumerated one — the selection-to-binding race is closed
+  (any swap either lacks the prop or fails the pre-bind re-describe).
+  Invalidation is three-way reliable: the item's `Closed` event, the window
+  prop vanishing, and liveness `describe()` revalidation — a destroyed or
+  same-process-replaced window (even same geometry, even recycled HWND)
+  fails closed, and capture can never re-derive an object from an HWND.
+  `captureWindow(bindingId)` runs WGC frame-pool capture on the ALREADY-bound
+  item; `dropBinding` releases it on Stop/cancel; the chooser session still
+  binds geometry+DPI so move/resize/DPI drift is `TARGET_MISMATCH`. The
+  system `GraphicsCapturePicker` op stays refused
   (`CONTROL_PICKER_BINDING_UNSUPPORTED`): it cannot return an authoritative
   HWND, so `pickTarget` remains held while `candidates` is the approved
   chooser path. Native input dispatch is still **unsupported**
-  (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery.
+  (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery. Windows
+  where `SetProp` is denied (e.g. elevated targets) are excluded from the
+  chooser rather than offered unbound.
 - **Registration** (`apps/server/host.ts` + `desktop-controls.ts`): the desktop
   pushes `harness.control.register` + manifest; the host recomputes SHA-256 of
   `artifact` (and `adapterModule` when present) before registering — an edited
@@ -140,12 +152,14 @@ production flag change.
   default-off; `reviewerApproval` remains false; no deployment enablement.
 - HOLD_PICKER_BINDING (D02/D04, narrowed): the *system* picker still yields no
   authoritative HWND binding — `pickTarget` stays refused. The approved
-  alternative is the app-owned chooser (`listWindows`/`candidates`): each row
-  carries its own HWND. Fixture qualification pending Windows receipts.
+  alternative is the app-owned chooser with held-item binding
+  (`listWindows`/`candidates` → `windowIdentity`/`captureWindow` by
+  bindingId). Fixture qualification pending Windows receipts.
 - HOLD_PLATFORM_PROOF stays until the Windows box receipts land for both
-  slices: rebuilt `windows-control-bridge.node` SHA-256, chooser enumeration,
-  revalidated `captureWindow` PNG on an owned fixture window, plus installed
-  app browser-tab consent/capture/Stop fixtures where the environment allows.
+  slices: rebuilt `windows-control-bridge.node` SHA-256, chooser enumeration
+  with held bindings, `captureWindow(bindingId)` PNG on an owned fixture
+  window, owned same-process replacement/refusal fixture, plus installed app
+  browser-tab consent/capture/Stop fixtures where the environment allows.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not

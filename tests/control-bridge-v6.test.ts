@@ -175,42 +175,71 @@ describe('M16 C3 browser adapter via sidecar driver', () => {
   });
 });
 
-describe('M16 C4 window adapter via sidecar driver (app-owned chooser)', () => {
-  const windowId = { handle: 0x1f00, processId: 4321, title: 'Notepad', bounds: { x: 5, y: 6, width: 640, height: 480 }, dpiScale: 1 };
+describe('M16 C4 window adapter via sidecar driver (app-owned chooser, bound-item identity)', () => {
+  const windowId = { bindingId: 'wgc-0000000100000001', handle: 0x1f00, processId: 4321, title: 'Notepad', bounds: { x: 5, y: 6, width: 640, height: 480 }, dpiScale: 1 };
   const native = (over: Partial<WindowsWindowBridge> = {}): WindowsWindowBridge => ({
     pickWindow: async () => { throw Object.assign(new Error('CONTROL_PICKER_BINDING_UNSUPPORTED'), { code: 'DRIVER_UNAVAILABLE' }); },
     listWindows: async () => [windowId],
-    windowIdentity: async handle => (handle === windowId.handle ? windowId : null),
-    captureWindow: async () => ({ data: Buffer.from([1, 2, 3]), width: 640, height: 480 }),
+    windowIdentity: async bindingId => (bindingId === windowId.bindingId ? windowId : null),
+    captureWindow: async bindingId => {
+      if (bindingId !== windowId.bindingId) throw Object.assign(new Error('unknown binding'), { code: 'TARGET_MISMATCH' });
+      return { data: Buffer.from([1, 2, 3]), width: 640, height: 480 };
+    },
+    dropBinding: async () => null,
     ...over,
   });
   const pick = async (call: ReturnType<typeof harness>['call'], driver: ReturnType<typeof harness>['driver']) =>
     targetOf((await call(driver.candidates('SELECTED_DESKTOP_APPLICATION')))[0]!);
 
-  it('chooser rows carry their own HWND — same-object binding, no matching', async () => {
+  it('chooser rows carry the bound-item identity — never an HWND-derived token', async () => {
     const { driver, call } = harness({ native: native() });
     const candidates = await call(driver.candidates('SELECTED_DESKTOP_APPLICATION'));
     expect(candidates).toHaveLength(1);
     expect(candidates[0]!.target.kind).toBe('APPLICATION');
-    expect(candidates[0]!.target.creationIdentity).toBe(`win:${windowId.handle}:${windowId.processId}`);
+    expect(candidates[0]!.target.creationIdentity).toBe(`wgc:${windowId.bindingId}`);
     expect(candidates[0]!.target.sessionIdentity).toMatch(/^wgc\|wgc-/);
     expect(candidates[0]!.title).toBe('Notepad');
   });
 
-  it('captures the exact selected window', async () => {
-    const { driver, call } = harness({ native: native() });
+  it('captures through the held binding, addressed by bindingId', async () => {
+    const captured: string[] = [];
+    const bridge = native({
+      captureWindow: async bindingId => { captured.push(bindingId); return { data: Buffer.from([1, 2, 3]), width: 640, height: 480 }; },
+    });
+    const { driver, call } = harness({ native: bridge });
     const target = await pick(call, driver);
     const frame = await call(driver.capture(target));
     expect(frame.width).toBe(640);
     expect(frame.data).toEqual(Buffer.from([1, 2, 3]));
+    expect(captured).toEqual([windowId.bindingId]);
   });
 
-  it('refuses when the window vanished', async () => {
+  it('refuses when the binding is dead (window destroyed/Closed)', async () => {
     const nativeBridge = native();
     const { driver, call } = harness({ native: nativeBridge });
     const target = await pick(call, driver);
     nativeBridge.windowIdentity = async () => null;
     await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+    await expect(call(driver.observe(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+  });
+
+  it('refuses an owned same-process replacement with identical geometry', async () => {
+    // Owned-fixture scenario: the consented window is destroyed and the app
+    // recreates it at the same position/size/title — possibly even recycling
+    // the HWND value. The dead binding still refuses because identity is the
+    // held item, not any window attribute.
+    const replacement = { ...windowId, bindingId: 'wgc-0000000100000002' };
+    const nativeBridge = native({
+      windowIdentity: async bindingId => (bindingId === replacement.bindingId ? replacement : null),
+      captureWindow: async () => { throw Object.assign(new Error('binding closed'), { code: 'TARGET_MISMATCH' }); },
+    });
+    const { driver, call } = harness({ native: nativeBridge });
+    const target = await pick(call, driver);
+    // The old bindingId resolves to nothing — the live replacement has a
+    // different binding, and the adapter never asks for it by window shape.
+    await expect(call(driver.observe(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+    await expect(call(driver.cancelInput(target))).resolves.toBeUndefined();
   });
 
   it('refuses when the window moved or changed DPI', async () => {
@@ -235,12 +264,16 @@ describe('M16 C4 window adapter via sidecar driver (app-owned chooser)', () => {
     await expect(call(driver.dispatch(action))).rejects.toMatchObject({ code: 'CONTROL_OP_UNSUPPORTED' });
   });
 
-  it('cancel on a window target stays a safe no-op (gone target tolerated)', async () => {
-    const nativeBridge = native();
+  it('cancel releases the held binding and tolerates a gone target', async () => {
+    const dropped: string[] = [];
+    const nativeBridge = native({ dropBinding: async bindingId => { dropped.push(bindingId); return null; } });
     const { driver, call } = harness({ native: nativeBridge });
     const target = await pick(call, driver);
+    await call(driver.cancelInput(target));
+    expect(dropped).toEqual([windowId.bindingId]);
     nativeBridge.windowIdentity = async () => null;
     await expect(call(driver.cancelInput(target))).resolves.toBeUndefined();
+    expect(dropped).toEqual([windowId.bindingId, windowId.bindingId]);
   });
 
   it('no native bridge => DRIVER_UNAVAILABLE, never a fallback', async () => {

@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice is additionally held by HOLD_PICKER_BINDING. NOT_RUN until receipts land."
+      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice now uses the bound-item chooser (listWindows binds a GraphicsCaptureItem per row; identity is the held item + prop token, not win:hwnd:pid); fixture receipts pending and the system picker stays held (HOLD_PICKER_BINDING). NOT_RUN until receipts land."
     },
     {
       "id": "M16-S09",
@@ -145,7 +145,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows rows carry their own HWND; CreateForWindow after revalidation). System-picker pickTarget stays held (HOLD_PICKER_BINDING). NOT_RUN pending Windows fixture run."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance needs fixture receipts for the approved chooser path (listWindows binds a GraphicsCaptureItem per row inside enumeration — identity is the held item, prop-token same-object proof, Closed-event invalidation; HWND recycling cannot redirect capture). System-picker pickTarget stays held (HOLD_PICKER_BINDING). NOT_RUN pending Windows fixture run."
     },
     {
       "id": "M16-G01",
