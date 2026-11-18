@@ -69,7 +69,7 @@ function run(executable: string, args: string[], stdin?: string) {
   return new Promise<string>((resolve, reject) => {
     const child = spawn(executable, args, { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] }); let stdout = '', stderr = '';
     child.stdout.on('data', bytes => { stdout += bytes; }); child.stderr.on('data', bytes => { stderr += bytes; });
-    child.on('error', reject); child.on('exit', code => code === 0 ? resolve(stdout) : reject(new Error(stderr || `${executable} failed (${code})`)));
+    child.on('error', reject); child.on('close', code => code === 0 ? resolve(stdout) : reject(new Error(stderr || `${executable} failed (${code})`)));
     child.stdin.end(stdin);
   });
 }

@@ -183,7 +183,7 @@ export class IntegrationManager {
      changes.push({path:relative(scoped.projectRoot!,path),sha256:createHash('sha256').update(data).digest('hex'),text:(await ordinaryFile(copy,1024*1024)).toString()});
     }return {changes,next:'Prepare each change with file_replace_prepare using a writable grant for that file, content=text and expectedSha256=sha256 (and a grant-relative path if needed); request approval before execution.'};}finally{await rm(stage,{recursive:true,force:true});}
    }
-   return withPathGuard(targets.map(path=>({path,leaf:true,tree:false})),new AbortController().signal,async()=>({result:await this.runNative(id,executable,[name,...paths as string[]],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','biome')),60000,scope,scoped.projectRoot)}));
+   return withPathGuard(targets.map(path=>({path,leaf:true,readOnly:true})),new AbortController().signal,async()=>({result:await this.runNative(id,executable,[name,...paths as string[]],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','biome')),60000,scope,scoped.projectRoot)}));
   }
   if(id==='spec-kit'){
    const root=scoped.projectRoot!;if(name==='init'){

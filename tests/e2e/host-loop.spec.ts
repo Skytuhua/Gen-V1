@@ -113,10 +113,20 @@ test('durable decision validation and acceptance continue the same owning runtim
 
 test('generated operation button requires native approval; restart restores without repeating effects', async ({ page, host }, info) => {
   test.setTimeout(60_000);
+  const caseStarted = performance.now();
+  const stage = (phase: string) => console.info('M01_RESTART_STAGE ' + JSON.stringify({
+    phase, elapsedMs: performance.now() - caseStarted, commands: host.commands.length,
+  }));
+  page.on('request', request => { if (request.isNavigationRequest()) stage('navigation-request:' + new URL(request.url()).pathname); });
+  page.on('response', response => { if (response.request().isNavigationRequest()) stage('navigation-response:' + response.status()); });
+  page.on('domcontentloaded', () => stage('domcontentloaded'));
+  page.on('load', () => stage('load'));
+  stage('case-start');
   await openHost(page);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Projects & Working Copies', exact: true }).click();
-  await grantFixtureFile(page, host); await sendFixture(page, 'operation', host);
+  await grantFixtureFile(page, host); stage('grant-ready');
+  await sendFixture(page, 'operation', host); stage('operation-prepared');
   const artifact = region(page, 'Evidence document');
   await expect(artifact.getByRole('button', { name: 'Apply document replacement' })).toBeVisible();
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();
@@ -132,27 +142,29 @@ test('generated operation button requires native approval; restart restores with
   await expect(approval).toBeVisible(); expect(await readFile(host.sourceFile, 'utf8')).toBe(BEFORE);
   await evidence(page, info, 'native-operation-approval');
   const started = performance.now();
+  stage('approval-start');
   await approval.getByRole('button', { name: 'Approve operation', exact: true }).click();
   await expect.poll(() => host.snapshot().operations[0]?.status).toBe('succeeded');
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
   await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
-  const effectMs = performance.now() - started;
+  const effectMs = performance.now() - started; stage('effect-recorded');
   const modified = (await stat(host.sourceFile)).mtimeMs;
   const beforeRestart = host.snapshot();
-  await page.goto('about:blank'); await host.restart();
+  stage('detach-page-start'); await page.goto('about:blank'); stage('detach-page-complete');
+  await host.restart(phase => stage('host-' + phase));
   expect(host.runtime.deliveries).toHaveLength(0);
   expect(host.snapshot().operations).toEqual(beforeRestart.operations);
   expect(host.snapshot().artifacts).toEqual(beforeRestart.artifacts);
   expect(host.snapshot().userStates).toEqual(beforeRestart.userStates);
   expect(host.snapshot().threads[0]?.status).toBe('interrupted');
-  await openHost(page);
+  stage('restored-navigation-start'); await openHost(page); stage('restored-navigation-complete');
   await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
   await expect(region(page, 'Evidence document')).toBeVisible();
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
   expect((await stat(host.sourceFile)).mtimeMs).toBe(modified);
   expect(host.runtime.deliveries).toHaveLength(0);
   expect(host.store.eventsAfter(0).filter(value => value.type === 'operation.started')).toHaveLength(1);
-  await evidence(page, info, 'restart-restored-receipt');
+  await evidence(page, info, 'restart-restored-receipt'); stage('recovery-evidence-complete');
   await performanceEvidence(info, { approveToRecordedEffectMs: effectMs, recoveryRuntimeCalls: host.runtime.deliveries.length });
 });
 
