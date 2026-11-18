@@ -23,6 +23,7 @@ import {
 import {threadNavigationRevision,type ThreadNavigationRow as Thread} from '../../../packages/contracts/shell-read-models';
 import type { UiPreferences } from '../../../packages/contracts/preferences';
 import type { ShellLayout } from './shell-layout';
+import { ariaKeyShortcuts } from './keyboard-bindings';
 import { MotionRegion } from './task-motion';
 import { UpdateControl } from './UpdateControl';
 import { useWorkspace } from './workspace-context';
@@ -247,7 +248,7 @@ export function ShellSidebar({
             reorder.begin(item);
           }}
           onDragEnd={reorder.end}
-          aria-keyshortcuts={onPlaceThread ? 'Alt+Enter Alt+ArrowUp Alt+ArrowDown' : 'Alt+ArrowUp Alt+ArrowDown'}
+          aria-keyshortcuts={ariaKeyShortcuts(onPlaceThread ? ['thread-place', 'thread-reorder'] : ['thread-reorder'])}
           onKeyDown={event => {
             if (onPlaceThread && event.altKey && event.key === 'Enter') {
               event.preventDefault();
