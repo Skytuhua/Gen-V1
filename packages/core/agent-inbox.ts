@@ -107,7 +107,10 @@ export class AgentInbox {
       updatedAt: now,
       error: error.slice(0, 1024),
     });
-    this.hooks.store.internal('agentInput.reject', spec.taskId, () => this.hooks.store.put(INPUT_KIND, record.inputId, spec.taskId, record));
+    // A rejection describes this resubmission only. It must never replace an
+    // input identity that already holds a queued or delivered record, or the
+    // rejected retry would silently delete the caller's pending input.
+    if (!this.hooks.store.get(INPUT_KIND, record.inputId)) this.hooks.store.internal('agentInput.reject', spec.taskId, () => this.hooks.store.put(INPUT_KIND, record.inputId, spec.taskId, record));
     return record;
   }
 

@@ -127,8 +127,9 @@ export class ControlDispatcher {
     const observed = await driver.observe(item.grant.target);
     if (!sameTargetIdentity(observed.target, item.grant.target)) throw new HarnessError('TARGET_MISMATCH', 'The controlled target changed identity; renew consent.');
     // A tab that navigated to an origin outside the consent loses input
-    // authority even when identity and geometry are unchanged (S03).
-    if (item.grant.target.kind === 'BROWSER_TAB' && observed.target.origin !== null && !item.grant.allowedOrigins.includes(observed.target.origin)) throw new HarnessError('NEEDS_NEW_PERMISSION', 'The controlled tab navigated to an unconsented origin; renew consent.');
+    // authority even when identity and geometry are unchanged (S03). An
+    // unreported origin is never a member of a declared list.
+    if (item.grant.target.kind === 'BROWSER_TAB' && item.grant.allowedOrigins.length > 0 && (observed.target.origin === null || !item.grant.allowedOrigins.includes(observed.target.origin))) throw new HarnessError('NEEDS_NEW_PERMISSION', 'The controlled tab navigated to an unconsented origin; renew consent.');
     if (JSON.stringify(observed.geometry) !== JSON.stringify(item.observation.geometry)) throw new HarnessError('TARGET_MOVED', 'The controlled target moved or changed DPI; observe again.');
     if (this.now() - observed.observedAtMs > CONTROL_MAX_OBSERVATION_AGE_MS) throw new HarnessError('OBSERVATION_STALE', 'The fresh observation arrived stale.');
     return observed;
