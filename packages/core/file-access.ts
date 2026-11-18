@@ -121,7 +121,7 @@ export async function replaceOwnedFile(source: string, destination: string, iden
 
 export async function withResourceGrant<T>(grant: ResourceGrant, dataDir: string, relativePath: string | undefined, write: boolean, signal: AbortSignal, action: (path: string) => Promise<T>): Promise<T> {
   const path = await resolveGrant(grant, relativePath, write, dataDir);
-  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path: dirname(projectMemoryDeletionLedgerPath(dataDir)), leaf: false }, { path, leaf: !write }];
+  const paths: GuardPath[] = [{ path: resolve(dataDir), leaf: false }, { path: dirname(projectMemoryDeletionLedgerPath(dataDir)), leaf: false }, { path, leaf: !write, readOnly: !write }];
   for (const child of PROTECTED_STORAGE_DIRECTORIES) {
     const protectedPath = join(dataDir, child);
     try { await lstat(protectedPath); paths.push({ path: protectedPath, leaf: false }); }
