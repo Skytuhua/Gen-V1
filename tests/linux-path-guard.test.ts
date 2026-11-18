@@ -7,11 +7,21 @@ describe('Linux private directory guards',()=>{
   expect(validateLinuxDirectoryPaths(paths,'/private/state')).toEqual(paths);
  });
  it.each([
+  {path:'/private/state/file',leaf:true},
+  {path:'/private/state/file',leaf:true,readOnly:true},
+  {path:'/private/state/file',leaf:true,empty:true},
+  {path:'/private/state/home',leaf:false,tree:true},
+  {path:'/private/state/home/.git',leaf:false,tree:true,readOnly:true,gitMetadataImport:true},
+ ])('admits the extended custody grant matrix: %j',path=>{
+  expect(validateLinuxDirectoryPaths([path],'/private/state')).toEqual([path]);
+ });
+ it.each([
   {path:'/outside',leaf:false},
   {path:'/private/state/../outside',leaf:false},
-  {path:'/private/state/file',leaf:true},
-  {path:'/private/state/home',leaf:false,tree:true},
   {path:'/private/state/home',leaf:false,readOnly:true},
+  {path:'/private/state/file',leaf:true,tree:true},
+  {path:'/private/state/home',leaf:false,gitMetadataImport:true},
+  {path:'/private/state/file',leaf:true,gitMetadataImport:true,tree:true,readOnly:true},
   {path:'/private/state/home',leaf:false,allowChildWrites:true,childWriteRoot:'/outside'},
   {path:'/private/state/home',leaf:false,dev:'not-an-identity'},
  ])('denies unsupported or out-of-custody requests before touching the broker: %j',path=>{

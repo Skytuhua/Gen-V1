@@ -169,7 +169,7 @@ describe('M15-D04 unsupported exact capture', () => {
     const artifact = capabilities.find(item => item.kind === 'ARTIFACT_REGION');
     expect(artifact?.state).toBe('AVAILABLE');
     const fileRange = capabilities.find(item => item.kind === 'FILE_RANGE');
-    expect(fileRange?.state).toBe(process.platform === 'win32' ? 'AVAILABLE' : 'UNSUPPORTED');
+    expect(fileRange?.state).toBe(process.platform === 'win32' || process.platform === 'linux' ? 'AVAILABLE' : 'UNSUPPORTED');
     await expect(workbench.capture({commandId: 'diff-capture', source: diffHunk(f.owner)})).rejects.toMatchObject({code: 'SOURCE_UNSUPPORTED'});
     // No capture was retained; nothing valid-looking can be quoted or sent.
     expect(f.store.all('sourceCapture', f.thread.id)).toEqual([]);

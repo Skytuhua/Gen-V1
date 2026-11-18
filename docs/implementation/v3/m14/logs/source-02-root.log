@@ -1,0 +1,8 @@
+== bounded redacted evidence summary ==
+originalSha256: 1f157ec45eac08ef56b273bd56bea98e8a6a96e29552688acae40208e1651bd0
+originalBytes: 39
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+(no result lines; see custody original)

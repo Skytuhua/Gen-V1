@@ -70,6 +70,8 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
+import {applySessionBranch} from './session-branches.ts';
+import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
 import {BackgroundWorkCoordinator,type BackgroundWorkOptions} from './background-work.ts';
@@ -1125,6 +1127,28 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type === 'session.branch') {
+      if (!capabilityEnabled('sessions.branchV1')) throw new HarnessError('CAPABILITY_DENIED', 'Session branching is disabled on this host.');
+      return this.store.command(command, () => applySessionBranch(this.store, this.thread(thread.id), p, { accountExists: id => this.store.get('account', id) !== null }));
+    }
+    if (command.type.startsWith('historyImport.')) {
+      if (!capabilityEnabled('sessions.inertImportV1')) throw new HarnessError('CAPABILITY_DENIED', 'History import is disabled on this host.');
+      const owner = { threadId: thread.id, projectId: thread.projectId ?? null };
+      if (command.type === 'historyImport.stage') {
+        // Format admission is pure CPU work — it completes before the staging
+        // transaction so a 20 MiB document never holds the write lock.
+        const bytes = typeof p.archive === 'string' ? Buffer.from(text(p, 'archive', 22 * 1024 * 1024), 'utf8')
+          : typeof p.archiveBase64 === 'string' ? Buffer.from(text(p, 'archiveBase64', 30 * 1024 * 1024), 'base64')
+          : (() => { throw new HarnessError('INVALID_INPUT', 'An ArchiveV1 JSON archive is required'); })();
+        const prepared = prepareImport(bytes);
+        return this.store.command(command, () => stageImport(this.store, owner, prepared));
+      }
+      if (command.type === 'historyImport.commit')
+        return this.store.command(command, () => commitImport(this.store, owner, text(p, 'importId', 200)));
+      if (command.type === 'historyImport.cancel')
+        return this.store.command(command, () => cancelImport(this.store, owner, text(p, 'importId', 200)));
+      throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+    }
     if (command.type.startsWith('agentWork.')) {
       const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
       return this.agentWorkCommand(ctx, command);

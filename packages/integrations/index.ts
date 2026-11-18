@@ -177,11 +177,23 @@ export class IntegrationManager {
   // the message, so it crosses the same boundary as a successful result.
   const redactor=session.redactor;
   if(redactor?.tracked&&error instanceof Error){
-   // Error.stack can already contain the original child message even after
-   // error.message changes. Both fields cross the same logging boundary.
-   const stack=error.stack;
-   error.message=redactor.redact(error.message).text;
-   if(typeof stack==='string')error.stack=redactor.redact(stack).text;
+   // Node's Error cause is logged by util.inspect independently of message
+   // and stack. Walk only native Error causes, without invoking arbitrary
+   // object getters, and preserve the original error and cause identities.
+   const pending:Error[]=[error], seen=new Set<Error>();
+   while(pending.length){
+    const failure=pending.pop()!;
+    if(seen.has(failure))continue;
+    seen.add(failure);
+    const stack=failure.stack;
+    failure.message=redactor.redact(failure.message).text;
+    if(typeof stack==='string')failure.stack=redactor.redact(stack).text;
+    const cause=Object.getOwnPropertyDescriptor(failure,'cause');
+    if(cause&&'value' in cause){
+     if(typeof cause.value==='string'&&cause.writable)failure.cause=redactor.redact(cause.value).text;
+     else if(cause.value instanceof Error)pending.push(cause.value);
+    }
+   }
   }
   return error;
  }

@@ -32,6 +32,7 @@ interface RequestContextRecord {status: 'HOST_PREPARED'; inputId: string; runId:
 export interface WorkbenchQueuedInput {id: string; threadId: string; content: string; status: 'persisted' | 'processing' | 'handled'; runId: string | null; enteredRuntime?: boolean; requestContextId?: string; sourceRefs?: SourceRefV1[]; sourceFailure?: {code: string; reason: string}; sourceRecovery?: {action: 'KEEP_CAPTURED' | 'CANCEL'; commandId: string; at: string; resumeRequired: boolean}}
 export interface PreparedSourceContext {refs: SourceRefV1[]; text: string; assertCurrent: () => void}
 export interface RetainedFileSource {captureId: string; source: Extract<SelectedSourceV1, {kind: 'FILE_RANGE'}>; label: string; text: string; assertCurrent: () => void}
+const FILE_LEAF_GUARD = process.platform === 'win32' || process.platform === 'linux';
 /** Host-owned module reads expose metadata only and retain the owning read fence. */
 export interface WorkbenchModuleRead {
   readonly state: Exclude<WorkbenchModuleV1['state'], 'UNSUPPORTED'>;
@@ -165,12 +166,12 @@ export class SourceWorkbench {
     // read guard before our commit. A selected-file stat is not a complete Git
     // revision witness. Do not enable capture until the owner supplies one.
     if (kind === 'DIFF_HUNK') throw new HarnessError('SOURCE_UNSUPPORTED', 'Diff capture requires an atomic complete-revision witness from the owning comparison service.');
-    if (kind === 'FILE_RANGE' && process.platform !== 'win32') throw new HarnessError('SOURCE_UNSUPPORTED', 'This platform has no admitted file-read leaf guard for source capture.');
+    if (kind === 'FILE_RANGE' && !FILE_LEAF_GUARD) throw new HarnessError('SOURCE_UNSUPPORTED', 'This platform has no admitted file-read leaf guard for source capture.');
   }
   private sourceCapabilities(): SourceCapabilityV1[] {
     return [
       {kind: 'MESSAGE', state: 'AVAILABLE', reason: null},
-      {kind: 'FILE_RANGE', state: process.platform === 'win32' ? 'AVAILABLE' : 'UNSUPPORTED', reason: process.platform === 'win32' ? null : 'The existing native guard does not admit file leaf reads on this platform.'},
+      {kind: 'FILE_RANGE', state: FILE_LEAF_GUARD ? 'AVAILABLE' : 'UNSUPPORTED', reason: FILE_LEAF_GUARD ? null : 'The existing native guard does not admit file leaf reads on this platform.'},
       {kind: 'DIFF_HUNK', state: 'UNSUPPORTED', reason: 'Diff capture requires an atomic complete-revision witness from the owning comparison service.'},
       {kind: 'ARTIFACT_REGION', state: 'AVAILABLE', reason: null},
     ];
@@ -409,7 +410,7 @@ export class SourceWorkbench {
     const sourceCapabilities = this.sourceCapabilities();
     if (!enabled) return {logicalOwner, enabled, sources: [], sourceCapabilities};
     const sources: SourceCandidateV1[] = this.store.messagesFor(threadId, undefined, 20).messages.filter(message => message.role === 'assistant').map(message => ({locator: {kind: 'MESSAGE', sourceId: message.id}, label: 'Assistant: ' + message.content.slice(0, 70)}));
-    for (const grant of process.platform === 'win32' ? this.store.all<ResourceGrant>('resource', threadId).slice(0, 40) : []) {
+    for (const grant of FILE_LEAF_GUARD ? this.store.all<ResourceGrant>('resource', threadId).slice(0, 40) : []) {
       try {await withResourceGrant(grant, this.store.dataDir, undefined, false, new AbortController().signal, async path => {
         if ((await stat(path)).isFile()) sources.push({locator: {kind: 'FILE_RANGE', sourceId: grant.id}, label: grant.label.slice(0, 300)});
         else for (const entry of (await readdir(path, {withFileTypes: true})).slice(0, 30)) if (entry.isFile() && !entry.name.startsWith('.') && !entry.isSymbolicLink()) sources.push({locator: {kind: 'FILE_RANGE', sourceId: grant.id, path: entry.name}, label: entry.name});
