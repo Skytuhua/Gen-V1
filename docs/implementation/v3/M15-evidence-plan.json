@@ -582,7 +582,7 @@
         {
           "id": "accepted-b4aa-root-suite",
           "status": "PASS",
-          "evidence": "CI root-browser job ran the accepted b4aa baseline root suite on windows-2022 run 44310248562: PASS. Local baseline replay: 110 pass + 2 flaky (host-loop, shell-micro-motion), each green on its own retry (v6w-root-baseline, v6w-root-baseline-r2)."
+          "evidence": "CI root-browser job ran the accepted b4aa baseline root suite on windows-2022 run 44310248562: PASS (authoritative separate-source-cut evidence). Local baseline replay v6w-root-baseline: 110 pass + 2 flaky (host-loop, shell-micro-motion); shell-micro-motion green on retry, host-loop still fails locally on this box even on retry (v6w-root-baseline-r2, box-bound flake) — CI baseline PASS stands."
         },
         {
           "id": "candidate-c4-root-suite",

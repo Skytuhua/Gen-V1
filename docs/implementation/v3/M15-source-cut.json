@@ -188,6 +188,18 @@
       "gitBlob": "eeaea11b24f61a5aef2b97ef796e899ab72b89bc"
     },
     {
+      "path": "apps/web/plugins/sample-plugin/frame.html",
+      "bytes": 1448,
+      "sha256": "818c647a0b782c715d61f5e2afeb866f55d9da5d6be1c8d3c9bebc50f39c99a1",
+      "gitBlob": "e0b91da0e1c80ff88ab738664a7586072305067b"
+    },
+    {
+      "path": "apps/web/qa-m15.html",
+      "bytes": 300,
+      "sha256": "80946f0d1ecae907bb0c2f188e0d1905f145ad85bb21c85006c0f4d30fd6b1e2",
+      "gitBlob": "45e7c2de1a1305dfa587a6e365ea87f3129297e6"
+    },
+    {
       "path": "apps/web/src/AgentInbox.tsx",
       "bytes": 507,
       "sha256": "7a2e970f348ad448fdd494fc48df61a6f884084ebb747ea15d83798207ccc36c",
