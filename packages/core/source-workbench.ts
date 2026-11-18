@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts, VerificationArtifactStore} from './verification-artifacts.ts';
 import {createHash, randomUUID} from 'node:crypto';
 import {closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync} from 'node:fs';
 import {readdir, stat} from 'node:fs/promises';
@@ -13,8 +14,9 @@ import {capabilityEnabled} from './capability-flags.ts';
 import {hostFlagEnabled} from './host-flags.ts';
 import {readBoundFile, withResourceGrant} from './file-access.ts';
 import {assertNotStorage, inside} from './security.ts';
-import {computeAssessment} from './verification-gate.ts';
-import {sourceDigestSync} from './project-verification.ts';
+import {computeAssessment, observationMatchesThreadOwner} from './verification-gate.ts';
+import {assertVerificationSourceRoot, sourceDigestSync} from './project-verification.ts';
+import type {ToolEffectRecord} from '../contracts/tool-effects.ts';
 
 const hash = (value: string | Buffer) => createHash('sha256').update(value).digest('hex');
 function denied(message = 'The selected source is not available to this task.'): never {throw new HarnessError('CAPABILITY_DENIED', message);}
@@ -458,39 +460,9 @@ export class SourceWorkbench {
     return {logicalOwner: input.logicalOwner, sourceId: messages[0].id, sourceRevision, rows, complete: true, trailingNewline};
   }
   async evidence(threadId: string): Promise<{logicalOwner: LogicalOwnerV1; items: WorkbenchEvidenceItemV1[]; modules: WorkbenchModuleV1[]}> {
-    const logicalOwner = this.owner(threadId), ownerStamp = this.assertOwner(logicalOwner), accountId = this.store.get<Thread>('thread', threadId)!.accountId ?? null;
-    const items: WorkbenchEvidenceItemV1[] = [], declaration = this.store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
+    const logicalOwner = this.owner(threadId), ownerStamp = this.assertOwner(logicalOwner);
+    const items: WorkbenchEvidenceItemV1[] = [];
     const latest = <T>(kind: string, limit: number): T[] => (this.store.db.prepare('SELECT body FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid DESC LIMIT ?').all(kind, threadId, limit) as {body: string}[]).reverse().map(row => JSON.parse(row.body) as T);
-    let current: {codeDigest: string; dependencyDigest: string; environmentId: string} | null = null;
-    if (declaration) try {current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId};} catch {/* Unknown freshness remains unknown. */}
-    const observations: CheckObservationV1[] = [], checkRows=latest('checkObservation',101), visualRows=latest('visualObservation',101);
-    // One extra row proves whether the displayed cut is complete. A bound
-    // failure outside that cut must never disappear into a Verified summary.
-    const observationsComplete=checkRows.length<=100&&visualRows.length<=100;
-    for (const raw of [...checkRows.slice(-100), ...visualRows.slice(-100)]) {
-      const parsed = visualObservationV1Schema.safeParse(raw), fallback = parsed.success ? parsed : checkObservationV1Schema.safeParse(raw); if (!fallback.success) continue;
-      const check = fallback.data; if (!sameLogicalOwner(logicalOwner, check.owner) || check.owner.accountBinding !== accountId) continue;
-      observations.push(check);
-    }
-    // Reuse M06's assessment algorithm only for a complete authorized read cut.
-    // An old-account observation cannot supply a hidden Verified requirement.
-    const recorded = latest<DeliverableAssessmentV1>('assessment', 1)[0];
-    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), unresolvedEffects: recorded.unresolvedEffects, verifierIdentity: recorded.verifierIdentity, provenance: 'workbench read recomputed from complete current authorized observations'}) : null;
-    const assessed = new Map(assessment?.requirements.map(requirement => [requirement.id, requirement]));
-    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? check.codeDigest === current.codeDigest && check.dependencyDigest === current.dependencyDigest && check.environmentId === current.environmentId ? 'CURRENT' : 'STALE' : 'UNKNOWN';
-    for (const check of observations) {
-      const freshness = freshnessOf(check);
-      const screenshotRefs = check.artifactRefs.filter(ref => /\.(png|jpe?g|webp)(?:$|[?#])/i.test(ref));
-      const requirement = declaration?.requirements.find(requirement => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
-      items.push({id: check.checkId, kind: 'CHECK', label: (check.detail ?? (check.argv.join(' ') || check.phase)).slice(0, 2000), grade: check.observationKind === 'review-advisory' ? 'REPORTED' : requirement && assessed.get(requirement.id)?.assessment === 'VERIFIED' && freshness === 'CURRENT' && check.outcome === 'PASS' ? 'VERIFIED' : 'OBSERVED', freshness, outcome: check.outcome, sourceRevision: check.codeDigest, command: check.argv, logRefs: check.artifactRefs.filter(ref => !screenshotRefs.includes(ref)), screenshotRefs, ...(requirement ? {parentId: 'requirement:' + requirement.id} : {})});
-    }
-    for (const requirement of declaration?.requirements ?? []) {
-      const bound = observations.filter(check => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
-      const freshness = !observationsComplete || !bound.length || !current ? 'UNKNOWN' : bound.some(check => freshnessOf(check) === 'STALE') ? 'STALE' : 'CURRENT';
-      const outcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? 'UNVERIFIED' : 'UNVERIFIED_PARTIAL';
-      items.push({id: 'requirement:' + requirement.id, kind: 'REQUIREMENT', label: requirement.id, grade: outcome === 'VERIFIED' && freshness === 'CURRENT' ? 'VERIFIED' : 'REPORTED', freshness, outcome, sourceRevision: current?.codeDigest ?? null, command: null, logRefs: [], screenshotRefs: []});
-    }
-    if(!observationsComplete)items.push({id:'verification-partial',kind:'CLAIM',label:'Verification history exceeds this panel\'s read limit. Displayed checks are partial; requirements are not verified from this cut.',grade:'REPORTED',freshness:'UNKNOWN',outcome:'PARTIAL',sourceRevision:null,command:null,logRefs:[],screenshotRefs:[]});
     for (const artifact of latest<ArtifactRecord>('artifact', 100)) if (artifact.kind === 'structured' && artifact.lifecycle === 'active' && artifact.threadId === threadId) items.push({id: 'artifact:' + artifact.id, kind: 'ARTIFACT', label: artifact.title.slice(0, 2000) || 'Structured artifact', grade: 'REPORTED', freshness: 'CURRENT', outcome: 'ACTIVE', sourceRevision: String(artifact.revision), command: null, logRefs: [], screenshotRefs: []});
     for (const record of latest<SourceCapture>('sourceCapture', 50)) {
       const ref: SourceRefV1 = {captureId: record.id, source: record.source, keepCaptured: true};
@@ -515,6 +487,48 @@ export class SourceWorkbench {
     ];
     memoryRead?.assertCurrent();
     if (this.assertOwner(logicalOwner) !== ownerStamp) denied('The evidence owner changed during this read.');
+    // Finish verification after every metadata await so source, declaration and
+    // effect changes cannot leave an earlier green cut in the returned model.
+    const currentThread = this.store.get<Thread>('thread', threadId), declaration = this.store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
+    const verificationItems: WorkbenchEvidenceItemV1[] = [];
+    let current: {codeDigest: string; dependencyDigest: string; environmentId: string} | null = null;
+    if (declaration) try {assertVerificationSourceRoot(this.store, threadId, declaration.rootPath); current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId};} catch {/* Unknown freshness remains unknown. */}
+    const observations: CheckObservationV1[] = [], checkRows=latest('checkObservation',101), visualRows=latest('visualObservation',101);
+    // One extra row proves whether the displayed cut is complete. A bound
+    // failure outside that cut must never disappear into a Verified summary.
+    const observationsComplete=checkRows.length<=100&&visualRows.length<=100;
+    for (const raw of [...checkRows.slice(-100), ...visualRows.slice(-100)]) {
+      const parsed = visualObservationV1Schema.safeParse(raw), fallback = parsed.success ? parsed : checkObservationV1Schema.safeParse(raw); if (!fallback.success) continue;
+      const check = fallback.data; if (!observationMatchesThreadOwner(check, currentThread)) continue;
+      observations.push(check);
+    }
+    // Reuse M06's assessment algorithm only for a complete authorized read cut.
+    // An old-account observation cannot supply a hidden Verified requirement.
+    const recorded = latest<DeliverableAssessmentV1>('assessment', 1)[0];
+    const unresolvedEffects = this.store.all<ToolEffectRecord>('toolEffect', threadId).filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state)).map(effect => effect.invocationId);
+    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
+    const assessed = new Map(assessment?.requirements.map(requirement => [requirement.id, requirement]));
+    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? check.codeDigest === current.codeDigest && check.dependencyDigest === current.dependencyDigest && check.environmentId === current.environmentId ? 'CURRENT' : 'STALE' : 'UNKNOWN';
+    const artifactMetadata = new VerificationArtifactStore(this.store);
+    for (const check of observations) {
+      const freshness = freshnessOf(check);
+      const screenshotRefs = check.artifactRefs.filter(ref => {
+        if (!ref.startsWith('verification-artifact:')) return /\.(png|jpe?g|webp)(?:$|[?#])/i.test(ref);
+        try {return artifactMetadata.describe(ref, check.owner, check.executionId).kind === 'SCREENSHOT';} catch {return false;}
+      });
+      const requirement = declaration?.requirements.find(requirement => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
+      verificationItems.push({id: check.checkId, kind: 'CHECK', label: (check.detail ?? (check.argv.join(' ') || check.phase)).slice(0, 2000), grade: check.observationKind === 'review-advisory' ? 'REPORTED' : !unresolvedEffects.length && requirement && assessed.get(requirement.id)?.assessment === 'VERIFIED' && freshness === 'CURRENT' && check.outcome === 'PASS' ? 'VERIFIED' : 'OBSERVED', freshness, outcome: check.outcome, sourceRevision: check.codeDigest, command: check.argv, logRefs: check.artifactRefs.filter(ref => !screenshotRefs.includes(ref)), screenshotRefs, ...(requirement ? {parentId: 'requirement:' + requirement.id} : {})});
+    }
+    for (const requirement of declaration?.requirements ?? []) {
+      const bound = observations.filter(check => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
+      const freshness = !observationsComplete || !bound.length || !current ? 'UNKNOWN' : bound.some(check => freshnessOf(check) === 'STALE') ? 'STALE' : 'CURRENT';
+      const assessedOutcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? 'UNVERIFIED' : 'UNVERIFIED_PARTIAL';
+      const outcome = assessedOutcome === 'VERIFIED' && unresolvedEffects.length ? 'BLOCKED' : assessedOutcome;
+      verificationItems.push({id: 'requirement:' + requirement.id, kind: 'REQUIREMENT', label: requirement.id, grade: outcome === 'VERIFIED' && freshness === 'CURRENT' ? 'VERIFIED' : 'REPORTED', freshness, outcome, sourceRevision: current?.codeDigest ?? null, command: null, logRefs: [], screenshotRefs: []});
+    }
+    if(!observationsComplete)verificationItems.push({id:'verification-partial',kind:'CLAIM',label:'Verification history exceeds this panel\'s read limit. Displayed checks are partial; requirements are not verified from this cut.',grade:'REPORTED',freshness:'UNKNOWN',outcome:'PARTIAL',sourceRevision:null,command:null,logRefs:[],screenshotRefs:[]});
+    if (declaration && unresolvedEffects.length) verificationItems.push({id: 'verification-effects', kind: 'CLAIM', label: `${unresolvedEffects.length} unresolved external effects block current verification.`, grade: 'REPORTED', freshness: 'CURRENT', outcome: 'BLOCKED', sourceRevision: null, command: null, logRefs: [], screenshotRefs: []});
+    items.unshift(...verificationItems);
     return {logicalOwner, items, modules};
   }
 }

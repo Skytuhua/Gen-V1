@@ -1,3 +1,4 @@
+import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
@@ -43,8 +44,8 @@ import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type H
 import { hostFlagEnabled } from "./host-flags.ts";
 import { OperationProjectTrustHost } from './operation-project-trust.ts';
 import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
-import { computeAssessment } from "./verification-gate.ts";
-import { sourceDigestSync } from "./project-verification.ts";
+import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
+import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
@@ -1745,6 +1746,7 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
       }
@@ -1769,11 +1771,12 @@ export class Service {
    * declared requirement carries a fresh PASS observation against the current
    * source/environment digests and no external effect is unresolved. */
   private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
+    const thread = this.assertRun(ctx);
     const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
     const observations: (CheckObservationV1 | VisualObservationV1)[] = [
       ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
       ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
-    ];
+    ].filter(observation => observationMatchesThreadOwner(observation, thread));
     if (!declaration && !observations.length) return null;
     // When effect auditing wraps task_finish, the ledger admits this very call
     // as DISPATCHED and settles it only after the body returns. That record is
@@ -1785,23 +1788,37 @@ export class Service {
       .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
       .map(effect => effect.invocationId);
     const empty = "0".repeat(64);
+    let sourceAvailable = false;
     let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
     if (declaration) {
-      const digestOf = (files: string[]) => { try { return sourceDigestSync(declaration.rootPath, files); } catch { return empty; } };
-      sourceCut = { headSha: null, codeDigest: digestOf(declaration.sourceFiles), dependencyDigest: digestOf(declaration.dependencyFiles), environmentId: declaration.environmentId };
+      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
+      try {
+        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
+        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
+        sourceAvailable = true;
+      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
     } else {
       const last = observations.at(-1)!;
       sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
     }
-    return computeAssessment({
+    const assessment = computeAssessment({
       threadId: ctx.threadId,
       sourceCut,
       requirements: declaration?.requirements ?? [],
       observations,
+      artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration?.requirements ?? []),
       unresolvedEffects,
       verifierIdentity: "service/" + ctx.runId,
       provenance: "task_finish completion projection",
     });
+    if (!sourceAvailable) {
+      for (const requirement of assessment.requirements) {
+        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
+        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
+      }
+      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
+    }
+    return assessment;
   }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
