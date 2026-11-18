@@ -16,7 +16,7 @@ const cleanup:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanup.splice(0).reverse())await close();});
 async function fixture(){
  const root=await mkdtemp(join(tmpdir(),'gen-private-family-')),path=join(root,'source');await mkdir(path);
- const store=new Store(join(root,'data')),tools=new ProjectTools(store,{git:'C:/Program Files/Git/cmd/git.exe'});
+ const store=new Store(join(root,'data')),tools=new ProjectTools(store,{git:process.platform==='win32'?'C:/Program Files/Git/cmd/git.exe':'git'});
  cleanup.push(async()=>{await tools.dispose();store.close();await rm(root,{recursive:true,force:true,maxRetries:5});});
  const git=(...args:string[])=>execFileSync('git',['-C',path,...args],{windowsHide:true,encoding:'utf8'}).trim();
  git('init','-q');git('config','user.name','Fixture');git('config','user.email','fixture@example.invalid');

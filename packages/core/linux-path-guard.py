@@ -8,6 +8,7 @@ import argparse
 import ctypes
 import errno
 import fcntl
+import hashlib
 import json
 import os
 import re
@@ -38,6 +39,10 @@ class MountAttr(ctypes.Structure):
 
 
 class CustodyUncertain(PermissionError):
+    pass
+
+
+class ResourceLimit(PermissionError):
     pass
 
 
@@ -162,10 +167,11 @@ def private_profile(root, uid, gid):
 class DirectoryGuard:
     def __init__(self, root, uid):
         self.root, self.uid, self.groups, self.pins = root, uid, {}, {}
+        self.readonly_pins: set = set()
         self.credentials, self.barriers = {}, {}
 
     def credential_parent(self, auth):
-        if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:manager-runtime/)?accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
+        if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:[^/]+/)*accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
             raise PermissionError('A named account credential path is required')
         return os.path.dirname(auth)
 
@@ -370,12 +376,163 @@ class DirectoryGuard:
 
     def release_paths(self, paths):
         for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
+            if path not in self.pins:
+                continue  # Consumed by an owned remove/replace.
             if self.pins[path] == 1:
                 if path != self.root:
-                    checked(LIBC.umount2(os.fsencode(path), 0))
+                    # MNT_DETACH: release ends the lease like a handle close even
+                    # while a child still maps or roots inside the mount.
+                    checked(LIBC.umount2(os.fsencode(path), 2))
                 del self.pins[path]
+                self.readonly_pins.discard(path)
             else:
                 self.pins[path] -= 1
+
+    def drop_pin(self, path, writable_only=False):
+        if path not in self.pins:
+            return
+        if self.pins[path] != 1:
+            raise PermissionError("Path is pinned by another guard lease")
+        if writable_only and path in self.readonly_pins:
+            raise PermissionError("Destination retains a read-only lease")
+        checked(LIBC.umount2(os.fsencode(path), 2))
+        del self.pins[path]
+        self.readonly_pins.discard(path)
+
+    def pin_leaf(self, path, read_only, expected=None, empty=False):
+        if path in self.pins:
+            self.pins[path] += 1
+            return
+        if any(value['fenced'] and within(value['parent'], path) for value in self.barriers.values()):
+            raise PermissionError('Credential mount set is fenced')
+        fd = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or info.st_uid != self.uid:
+                raise PermissionError("Private ordinary file required")
+            if empty and info.st_size:
+                raise PermissionError("Guarded file is not empty")
+            if expected is not None and expected != (str(info.st_dev), str(info.st_ino)):
+                raise PermissionError("Directory identity mismatch")
+            name = os.fsencode(f"/proc/self/fd/{fd}")
+            checked(LIBC.mount(name, name, None, 4096, None))  # Rename/unlink protection, like directory pins.
+            if read_only:
+                bound = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                try:
+                    attributes = MountAttr(1, 0, 0, 0)  # MOUNT_ATTR_RDONLY on the bind mount itself
+                    syscall(442, ctypes.c_int(bound), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
+                finally:
+                    os.close(bound)
+            after = os.stat(path, follow_symlinks=False)
+            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise PermissionError("File identity changed")
+            self.pins[path] = 1
+            if read_only:
+                self.readonly_pins.add(path)
+        finally:
+            os.close(fd)
+
+    def tree(self, path, metadata_import, manifest, held):
+        entries_limit = 100000 if metadata_import else 10000
+        bytes_limit = 8 * 1024 * 1024 * 1024 if metadata_import else 64 * 1024 * 1024
+        visited = 0
+        total = 0
+        stack = [(path, 0)]
+        while stack:
+            directory, depth = stack.pop()
+            if depth > 64:
+                raise ResourceLimit("Metadata depth limit exceeded")
+            with os.scandir(directory) as listing:
+                children = list(listing)
+            for child in children:
+                visited += 1
+                if visited > entries_limit:
+                    raise ResourceLimit("Metadata entry limit exceeded")
+                is_link = child.is_symlink()
+                is_dir = child.is_dir(follow_symlinks=False)
+                is_file = child.is_file(follow_symlinks=False)
+                info = child.stat(follow_symlinks=False)
+                if is_link or not (is_dir or is_file):
+                    raise PermissionError("Redirected metadata is unsupported")
+                if is_dir:
+                    self.pin(child.path)
+                    size = 0
+                    stack.append((child.path, depth + 1))
+                else:
+                    self.pin_leaf(child.path, True)
+                    size = info.st_size
+                held.append(child.path)
+                if size > bytes_limit - total:
+                    raise ResourceLimit("Snapshot byte limit exceeded")
+                total += size
+                manifest.append({"path": child.path, "directory": is_dir, "dev": str(info.st_dev), "ino": str(info.st_ino), "size": size})
+
+    def remove_owned(self, path, dev, ino, empty, directory):
+        self.components(path)
+        if not isinstance(dev, str) or not isinstance(ino, str) or not re.fullmatch(r"\d+", dev) or not re.fullmatch(r"\d+", ino):
+            raise PermissionError("Invalid ownership identity")
+        try:
+            info = os.lstat(path)
+        except FileNotFoundError:
+            return  # Missing, replaced or busy: preserve it.
+        is_dir = stat.S_ISDIR(info.st_mode)
+        if stat.S_ISLNK(info.st_mode) or is_dir != directory or (not is_dir and (not stat.S_ISREG(info.st_mode) or info.st_nlink != 1)) or (dev, ino) != (str(info.st_dev), str(info.st_ino)):
+            return
+        if not is_dir and empty and info.st_size:
+            return  # Keep a hot rollback journal as recovery evidence.
+        self.drop_pin(path, writable_only=True)
+        if is_dir:
+            os.rmdir(path)
+        else:
+            os.unlink(path)
+
+    def replace_owned(self, source, destination, dev, ino, expected_hash, target_dev, target_ino, target_hash):
+        self.components(source)
+        self.components(destination)
+        if os.path.dirname(source) != os.path.dirname(destination):
+            raise PermissionError("Replacement must remain in its guarded directory")
+        for value in (dev, ino):
+            if not isinstance(value, str) or not re.fullmatch(r"\d+", value):
+                raise PermissionError("Invalid ownership identity")
+        if not isinstance(expected_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", expected_hash):
+            raise PermissionError("Invalid source digest")
+
+        def digest(fd):
+            result = hashlib.sha256()
+            while True:
+                chunk = os.read(fd, 1024 * 1024)
+                if not chunk:
+                    break
+                result.update(chunk)
+            return result.hexdigest()
+
+        fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+        try:
+            info = os.fstat(fd)
+            if not stat.S_ISREG(info.st_mode) or info.st_nlink != 1 or (dev, ino) != (str(info.st_dev), str(info.st_ino)):
+                raise PermissionError("Replacement source identity changed")
+            if digest(fd) != expected_hash:
+                raise PermissionError("Replacement source bytes changed")
+            if target_hash is not None:
+                if not isinstance(target_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", target_hash) or not isinstance(target_dev, str) or not isinstance(target_ino, str):
+                    raise PermissionError("Invalid destination identity")
+                target = os.open(destination, os.O_RDONLY | os.O_NOFOLLOW | os.O_CLOEXEC)
+                try:
+                    target_info = os.fstat(target)
+                    if not stat.S_ISREG(target_info.st_mode) or target_info.st_nlink != 1 or (target_dev, target_ino) != (str(target_info.st_dev), str(target_info.st_ino)) or target_info.st_size > 8 * 1024 * 1024:
+                        raise PermissionError("Replacement destination identity changed")
+                    if digest(target) != target_hash:
+                        raise PermissionError("Replacement destination bytes changed")
+                finally:
+                    os.close(target)
+            after = os.stat(source, follow_symlinks=False)
+            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                raise PermissionError("Replacement source identity changed")
+            self.drop_pin(source)
+            self.drop_pin(destination, writable_only=True)
+            os.replace(source, destination)
+        finally:
+            os.close(fd)
 
     def request(self, request):
         if not isinstance(request, dict) or not isinstance(request.get("id"), str) or len(request["id"]) > 128:
@@ -394,33 +551,83 @@ class DirectoryGuard:
             return {'id': request['id']}
         if command == "release" and set(request) == {"command", "id"}:
             self.release_paths(self.groups.pop(request["id"]))
+            if not self.groups and not self.barriers:
+                # Credential ancestry pins are scope-scoped: drop them once no
+                # guarded scope remains so fixture trees stay replaceable.
+                for prepared in self.credentials.values():
+                    os.close(prepared["fd"])
+                    self.release_paths(prepared["held"])
+                self.credentials.clear()
+            return {"id": request["id"], "entries": []}
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
             entries = request["paths"]
             if not isinstance(entries, list) or not 0 < len(entries) <= 256 or request["id"] in self.groups:
                 raise PermissionError("Invalid directory group")
             held = []
+            manifest = []
             try:
                 for entry in entries:
-                    if not isinstance(entry, dict) or set(entry) - {"path", "leaf", "dev", "ino", "empty", "tree", "readOnly", "allowChildWrites", "childWriteRoot", "gitMetadataImport"} or entry.get("leaf") is not False or any(entry.get(key) for key in ("tree", "readOnly", "empty", "gitMetadataImport")):
+                    if (not isinstance(entry, dict)
+                            or set(entry) - {"path", "leaf", "dev", "ino", "empty", "tree", "readOnly", "allowChildWrites", "childWriteRoot", "gitMetadataImport"}
+                            or not isinstance(entry.get("leaf"), bool)
+                            or entry.get("leaf") and entry.get("tree")
+                            or entry.get("gitMetadataImport") and (not entry.get("tree") or entry.get("leaf") or not entry.get("readOnly"))):
                         raise PermissionError("Unsupported Linux guard policy")
                     path = entry["path"]
+                    components = self.components(path)
                     if "childWriteRoot" in entry:
                         self.components(entry["childWriteRoot"])
                         if path != entry["childWriteRoot"] and not path.startswith(entry["childWriteRoot"] + "/"):
                             raise PermissionError("Invalid child write scope")
-                    for part in self.components(path):
-                        self.pin(part)
-                        held.append(part)
-                    info = os.stat(path, follow_symlinks=False)
-                    if ("dev" in entry or "ino" in entry) and (entry.get("dev"), entry.get("ino")) != (str(info.st_dev), str(info.st_ino)):
-                        raise PermissionError("Directory identity mismatch")
+                    expected = None
+                    if "dev" in entry or "ino" in entry:
+                        if "dev" not in entry or "ino" not in entry:
+                            raise PermissionError("Directory identity mismatch")
+                        expected = (str(entry["dev"]), str(entry["ino"]))
+                    if entry.get("leaf") and not os.path.isdir(path):
+                        for part in components[:-1]:
+                            self.pin(part)
+                            held.append(part)
+                        self.pin_leaf(path, bool(entry.get("readOnly")), expected, bool(entry.get("empty")))
+                        held.append(path)
+                    else:
+                        # A non-leaf entry pins ancestors (and the path when it is a
+                        # directory); the file itself is never pinned — matching the
+                        # Windows guard, which leaves write targets unfenced.
+                        allow_child = bool(entry.get("allowChildWrites"))
+                        for index, part in enumerate(components):
+                            last = index == len(components) - 1
+                            if not last or allow_child or os.path.isdir(part):
+                                self.pin(part)
+                                held.append(part)
+                        info = os.stat(path, follow_symlinks=False) if os.path.isdir(path) else None
+                        if expected is not None and info is not None and expected != (str(info.st_dev), str(info.st_ino)):
+                            raise PermissionError("Directory identity mismatch")
+                        if entry.get("allowChildWrites") and info is not None:
+                            marker = path + "/.harness-directory-guard"
+                            try:
+                                marker_fd = os.open(marker, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW | os.O_CLOEXEC, 0o600)
+                                os.close(marker_fd)
+                                os.chown(marker, info.st_uid, info.st_gid)
+                            except FileExistsError:
+                                pass
+                            self.pin_leaf(marker, True)
+                            held.append(marker)
+                        if entry.get("tree") and info is not None:
+                            self.tree(path, bool(entry.get("gitMetadataImport")), manifest, held)
                 self.groups[request["id"]] = held
             except BaseException:
                 self.release_paths(held)
                 raise
+            return {"id": request["id"], "entries": manifest}
+        elif command == "removeOwned" and set(request) == {"command", "id", "path", "dev", "ino", "empty", "directory"}:
+            self.remove_owned(request["path"], request["dev"], request["ino"], bool(request["empty"]), bool(request["directory"]))
+            return {"id": request["id"], "entries": []}
+        elif command == "replaceOwned" and (set(request) == {"command", "id", "source", "destination", "dev", "ino", "sha256"} or set(request) == {"command", "id", "source", "destination", "dev", "ino", "sha256", "targetDev", "targetIno", "targetSha256"}):
+            self.replace_owned(request["source"], request["destination"], request["dev"], request["ino"], request["sha256"], request.get("targetDev"), request.get("targetIno"), request.get("targetSha256"))
+            return {"id": request["id"], "entries": []}
         else:
             raise PermissionError("Unsupported guard operation")
-        return {"id": request["id"], "entries": []}
 
 
 def launch(options):
@@ -516,6 +723,10 @@ def launch(options):
                     reply = guard.request(request)
                 except CustodyUncertain:
                     reply = {"id": request.get("id"), "error": "CREDENTIAL_BARRIER_UNCERTAIN"}
+                except ResourceLimit as error:
+                    reply = {"id": request.get("id"), "error": "RESOURCE_LIMIT", "message": str(error)}
+                except PermissionError as error:
+                    reply = {"id": request.get("id"), "error": "CAPABILITY_DENIED", "message": str(error)}
                 except (OSError, ValueError, KeyError, TypeError, StopIteration):
                     reply = {"id": request.get("id"), "error": "CAPABILITY_DENIED"}
                 if connected:

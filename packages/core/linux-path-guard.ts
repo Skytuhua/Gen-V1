@@ -7,14 +7,14 @@ import {HarnessError} from '../contracts/index.ts';
 import type {GuardEntry} from './file-access.ts';
 
 type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;empty?:boolean;tree?:boolean;readOnly?:boolean;allowChildWrites?:boolean;childWriteRoot?:string;gitMetadataImport?:boolean};
-interface Session {rpc(request:Record<string,unknown>):Promise<readonly GuardEntry[]>;readonly exited:boolean;loss:Set<()=>void>}
+interface Session {rpc(request:Record<string,unknown>):Promise<readonly GuardEntry[]>;readonly exited:boolean;faulted:boolean;loss:Set<()=>void>}
 const denied=()=>new HarnessError('CAPABILITY_DENIED','File access check failed — the folder could not be opened safely for this action');
 const within=(root:string,path:string)=>path===root||path.startsWith(root+'/');
 export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root:string){
  if(!paths.length||paths.length>256)throw denied();
  for(const path of paths){
   if(typeof path.path!=='string'||path.path.length>4096||path.path.includes('\0')||!posix.isAbsolute(path.path)||posix.normalize(path.path)!==path.path||!within(root,path.path)
-   ||path.leaf||path.tree||path.readOnly||path.empty||path.gitMetadataImport)throw denied();
+   ||typeof path.leaf!=='boolean'||path.leaf&&path.tree||path.gitMetadataImport&&(!path.tree||path.leaf||!path.readOnly))throw denied();
   if((path.dev===undefined)!==(path.ino===undefined)||path.dev!==undefined&&(!/^\d+$/.test(path.dev)||!/^\d+$/.test(path.ino!)))throw denied();
   if(path.childWriteRoot!==undefined&&(!within(root,path.childWriteRoot)||posix.normalize(path.childWriteRoot)!==path.childWriteRoot||!within(path.childWriteRoot,path.path)))throw denied();
  }
@@ -28,32 +28,47 @@ async function kernelBoundary(root:string,paths:DirectoryPath[]){
  if(!/^0\s+0\s+4294967295$/.test(mapping.trim())||!/^NoNewPrivs:\s+1$/m.test(status)||['CapEff','CapPrm','CapBnd','CapAmb'].some(name=>!new RegExp('^'+name+':\\s+0+$','m').test(status)))throw denied();
  const backing=fstatSync(4,{bigint:true});
  if(actual!==root||!backing.isDirectory()||!info.isDirectory()||info.isSymbolicLink()||info.dev!==backing.dev||info.ino!==backing.ino||info.uid!==BigInt(uid)||backing.uid===info.uid||backing.uid===0n||info.mode&0o077n)throw denied();
- const records=mounts.trim().split('\n').map(line=>{const [mount,filesystem]=line.split(' - ');return {path:mount.split(' ')[4]?.replace(/\\(040|011|012|134)/g,(_,code:string)=>String.fromCharCode(parseInt(code,8))),type:filesystem?.split(' ')[0]};});
+ const records=mounts.trim().split('\n').map(line=>{const [mount,filesystem]=line.split(' - ');const parts=mount.split(' ');return {path:parts[4]?.replace(/\\(040|011|012|134)/g,(_,code:string)=>String.fromCharCode(parseInt(code,8))),flags:(parts[5]??'').split(','),type:filesystem?.split(' ')[0]};});
  const targets=new Set(records.map(record=>record.path));
  if(!records.some(record=>record.path===root&&record.type==='ext4'))throw denied();
  for(const path of paths){
+  const target=await lstat(path.path,{bigint:true}).catch((error:unknown)=>{if(error&&(error as NodeJS.ErrnoException).code==='ENOENT'&&!path.leaf)return null;throw denied();});
+  if(!target&&(path.dev!==undefined||path.tree))throw denied();
+  // The last component is mounted when it is a directory or a leaf-pinned file;
+  // a non-leaf file keeps only its ancestor pins.
+  const lastMounted=target?(target.isDirectory()||path.leaf):false;
   let current=root;
-  for(const name of path.path.slice(root.length).split('/').filter(Boolean)){
+  const names=path.path.slice(root.length).split('/').filter(Boolean);
+  for(const name of names.slice(0,lastMounted?names.length:names.length-1)){
    current+='/'+name;if(!targets.has(current))throw denied();
   }
-  const directory=await lstat(path.path,{bigint:true});
-  if(!directory.isDirectory()||directory.isSymbolicLink()||directory.uid!==BigInt(uid)||directory.mode&0o022n||path.dev!==undefined&&(String(directory.dev)!==path.dev||String(directory.ino)!==path.ino))throw denied();
+  if(!target)continue;  // Unborn write target: its pinned parents fence creation.
+  if(target.isDirectory()){
+   if(target.isSymbolicLink()||target.uid!==BigInt(uid)||target.mode&0o022n)throw denied();
+  }else if(path.leaf){
+   if(!target.isFile()||target.isSymbolicLink()||target.uid!==BigInt(uid)||target.nlink!==1n)throw denied();
+   if(path.readOnly&&!records.some(record=>record.path===path.path&&record.flags.includes('ro')))throw denied();
+  }
+  if(path.dev!==undefined&&(target.isDirectory()||path.leaf)&&(String(target.dev)!==path.dev||String(target.ino)!==path.ino))throw denied();
  }
 }
 
 let broker:Promise<{root:string;session:Session;request:(value:Record<string,unknown>)=>Promise<Record<string,unknown>>}>|undefined;
+function ownedPath(path:unknown,root:string):asserts path is string{
+ if(typeof path!=='string'||!path.length||path.length>4096||path.includes('\0')||!posix.isAbsolute(path)||posix.normalize(path)!==path||!within(root,path))throw denied();
+}
 function connect(){return broker??=(async()=>{
  if(process.platform!=='linux'||!fstatSync(3).isSocket())throw denied();
  const root=await realpath('/proc/self/fd/4');
  // Do not send our protocol to an unrelated inherited Node IPC descriptor.
  await kernelBoundary(root,[]);
  const socket=new Socket({fd:3,readable:true,writable:true});socket.unref();
- let buffer='',ended=false,queue=Promise.resolve();
+ let buffer='',ended=false,faulted=false,queue=Promise.resolve(),pendingLimit=65536;
  const loss=new Set<()=>void>();let pending:((error?:Error,value?:Record<string,unknown>)=>void)|undefined;
  const close=()=>{if(ended)return;ended=true;pending?.(denied());for(const notify of loss)try{notify();}catch{/* Preserve native teardown. */}};
  socket.on('error',close);socket.on('close',close);socket.on('end',close);
  socket.on('data',(chunk:Buffer)=>{
-  buffer+=chunk.toString('utf8');if(Buffer.byteLength(buffer)>65536){socket.destroy();return;}
+  buffer+=chunk.toString('utf8');if(Buffer.byteLength(buffer)>pendingLimit){socket.destroy();return;}
   const newline=buffer.indexOf('\n');if(newline<0)return;
   const line=buffer.slice(0,newline);buffer=buffer.slice(newline+1);
   try{const value=JSON.parse(line);if(!pending||buffer||!value||typeof value!=='object'||Array.isArray(value))throw denied();pending(undefined,value);}
@@ -62,26 +77,38 @@ function connect(){return broker??=(async()=>{
  async function request(value:Record<string,unknown>):Promise<Record<string,unknown>>{
   let reply!:Record<string,unknown>;
   const work=queue.then(()=>new Promise<void>((accept,reject)=>{
-   if(ended)return reject(denied());
-   const timer=setTimeout(()=>{socket.destroy();finish(denied());},15000);
+   if(ended||(faulted&&value.command!=='release'))return reject(denied());
+   const metadataImport=value.command==='acquire'&&Array.isArray(value.paths)&&(value.paths as DirectoryPath[]).some(path=>path.gitMetadataImport);
+  const timer=setTimeout(()=>{socket.destroy();finish(denied());},metadataImport?120000:15000);
    function finish(error?:Error,result?:Record<string,unknown>){
     clearTimeout(timer);pending=undefined;const mutation=value.command==='credential-acquire'||value.command==='credential-release';
     if(error)reject(mutation?uncertain():error);
     else if(!result||result.id!==value.id)reject(mutation?uncertain():denied());
-    else if(result.error==='CREDENTIAL_BARRIER_UNCERTAIN')reject(uncertain());
-    else if(result.error)reject(result.error==='CAPABILITY_DENIED'?denied():mutation?uncertain():denied());
+    else if(result.error==='CREDENTIAL_BARRIER_UNCERTAIN'){faulted=true;reject(uncertain());}
+    else if(result.error){faulted=true;const message=typeof result.message==='string'&&result.message.length&&result.message.length<512&&!result.message.includes('/')&&!result.message.includes('\0')?result.message:undefined;reject(new HarnessError(result.error==='RESOURCE_LIMIT'?'RESOURCE_LIMIT':'CAPABILITY_DENIED',message??'File access check failed — the folder could not be opened safely for this action'));}
     else{reply=result;accept();}
    }
-   pending=finish;socket.write(JSON.stringify(value)+'\n',error=>{if(error)finish(denied());});
+   pending=finish;pendingLimit=metadataImport?64*1024*1024:value.command==='acquire'&&Array.isArray(value.paths)&&(value.paths as DirectoryPath[]).some(path=>path.tree)?16*1024*1024:65536;
+   socket.write(JSON.stringify(value)+'\n',error=>{if(error)finish(denied());});
   }));queue=work.catch(()=>{});await work;return reply;
  }
  const hello=await request({command:'hello',id:randomUUID()});
  if(hello.protocol!=='gen-linux-directory-guard.v1'||hello.root!==root)throw denied();
- const session:Session={get exited(){return ended;},loss,async rpc(value){
+ const session:Session={get exited(){return ended;},get faulted(){return faulted;},set faulted(value:boolean){faulted=value;},loss,async rpc(value){
   if(value.command==='acquire')validateLinuxDirectoryPaths(value.paths as DirectoryPath[],root);
+  else if(value.command==='removeOwned')ownedPath(value.path as string,root);
+  else if(value.command==='replaceOwned'){ownedPath(value.source as string,root);ownedPath(value.destination as string,root);if(posix.dirname(value.source as string)!==posix.dirname(value.destination as string))throw denied();}
   else if(value.command!=='release')throw denied();
   const reply=await request(value);
-  if(value.command==='acquire')await kernelBoundary(root,value.paths as DirectoryPath[]);
+  if(value.command==='acquire'){
+   await kernelBoundary(root,value.paths as DirectoryPath[]);
+   if(!Array.isArray(reply.entries)||reply.entries.length>100000||(!(value.paths as DirectoryPath[]).some(path=>path.tree)&&reply.entries.length))throw denied();
+   for(const entry of reply.entries){
+    if(typeof entry!=='object'||entry===null||typeof entry.path!=='string'||typeof entry.directory!=='boolean'||typeof entry.dev!=='string'||!/^\d+$/.test(entry.dev)||typeof entry.ino!=='string'||!/^\d+$/.test(entry.ino)||typeof entry.size!=='number'||!Number.isSafeInteger(entry.size)||entry.size<0)throw denied();
+    Object.freeze(entry);
+   }
+   return Object.freeze(reply.entries) as readonly GuardEntry[];
+  }
   if(!Array.isArray(reply.entries)||reply.entries.length)throw denied();return [];
  }};
  return {root,session,request};
@@ -89,7 +116,7 @@ function connect(){return broker??=(async()=>{
 
 const uncertain=()=>new HarnessError('PI_CREDENTIAL_LEASE_RELEASE_UNCERTAIN','Credential mount ownership did not settle. Retain caller custody.');
 export function validateLinuxCredentialPath(authPath:string,root:string):string{
- if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:manager-runtime\/)?accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
+ if(typeof authPath!=='string'||!authPath.startsWith(root+'/')||!/^(?:[^\/]+\/)*accounts\/provider-auth-[a-f0-9]{64}\/pi\/auth\.json$/.test(authPath.slice(root.length+1)))throw denied();
  return posix.dirname(authPath);
 }
 
@@ -150,7 +177,10 @@ export async function acquireLinuxCredentialReadBarrier(authPath:string,options:
 
 export async function withLinuxDirectoryGuard<T>(paths:DirectoryPath[],signal:AbortSignal,action:(session:Session,manifest:readonly GuardEntry[])=>Promise<T>,onLoss?:()=>void):Promise<T>{
  signal.throwIfAborted();const {session}=await connect();const id=randomUUID();
- await session.rpc({command:'acquire',id,paths});if(onLoss)session.loss.add(onLoss);
- try{signal.throwIfAborted();const result=await action(session,[]);if(session.exited)throw denied();return result;}
+ // A broker error ends this guard call's authority like the Windows guard's
+ // process exit; the next outer acquisition starts a clean one.
+ session.faulted=false;
+ const manifest=await session.rpc({command:'acquire',id,paths});if(onLoss)session.loss.add(onLoss);
+ try{signal.throwIfAborted();const result=await action(session,manifest);if(session.exited||session.faulted)throw denied();return result;}
  finally{if(onLoss)session.loss.delete(onLoss);if(!session.exited)await session.rpc({command:'release',id});}
 }
