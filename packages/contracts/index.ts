@@ -30,7 +30,7 @@ export interface HostCommand { id: string; type: string; threadId?: string; payl
 export interface CommandReceipt { commandId: string; eventSeq: number; result: unknown }
 export interface ToolCall { name: string; args: Record<string, unknown> }
 export interface RuntimeEvent { type: string; threadId: string; runId: string; epoch: number; [key: string]: unknown }
-export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown>; onMemoryCheckpoint?: (request: import('./memory-checkpoint.ts').MemoryCheckpointRequestV1) => Promise<import('./memory-checkpoint.ts').MemoryCheckpointAckV1>; onBeforeInference?: (request: import('./request-context.ts').InferenceAdmissionV1) => void | Promise<void> }
+export interface RuntimeCallbacks { onEvent: (event: RuntimeEvent) => void; onTool: (call: ToolCall, ctx: RunContext) => Promise<unknown>; onMemoryCheckpoint?: (request: import('./memory-checkpoint.ts').MemoryCheckpointRequestV1) => Promise<import('./memory-checkpoint.ts').MemoryCheckpointAckV1>; onBeforeInference?: (request: import('./request-context.ts').InferenceAdmissionV1) => void | Promise<void>; onCompactionCommit?: (request: import('./native-compaction.ts').NativeCompactionAdmissionV1) => import('./native-compaction.ts').NativeCompactionAckV1 }
 export interface StartRun extends RunContext { prompt: string; modelId: string; thinkingLevel?:string|null; sessionPath: string | null; accountId?: string | null; inputId: string; inputIds?: string[]; resources: ResourceGrant[]; memory?: string; completedWrites?:CompletedWriteReceipt[]; requestContext?:import('./request-context.ts').RequestContextV1; memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1; sourceRefs?:import('./source-selection.ts').SourceRefV1[]; approvedProjectContext?:import('./request-context.ts').ApprovedProjectContextV1 }
 export interface RuntimeAdapter {
   configure(callbacks: RuntimeCallbacks): void;
@@ -41,6 +41,8 @@ export interface RuntimeAdapter {
   followUp(input: StartRun): Promise<void>;
   cancel(ctx: RunContext): Promise<void>;
   compact(ctx: RunContext, sessionPath: string, modelId: string, accountId?: string | null, memoryCheckpoint?:import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1, expectedHistorySha256?: string): Promise<void>;
+  /** Optional protected native operation; unavailable adapters must never emulate it. */
+  compactProtected?(ctx: RunContext, sessionPath: string, modelId: string, accountId: string | null, protection: import('./native-compaction.ts').NativeCompactionEnvelopeV1, memoryCheckpoint?: import('./memory-checkpoint.ts').MemoryCheckpointRequirementV1): Promise<import('./native-compaction.ts').NativeCompactionReceiptV1>;
   history(sessionPath: string, accountId?: string | null): Promise<string[]>;
   /** Live native history digest for exact-source-cut compare-and-swap compaction; absent when the adapter has no CAS channel. */
   nativeHistoryDigest?(ctx: RunContext, sessionPath: string, accountId?: string | null): Promise<{ sha256: string; messages: unknown[] } | null>;

@@ -1,5 +1,6 @@
 import {requiresMemoryCheckpoint,routeMemoryCheckpoint,sameMemoryCheckpointRequirement,validateMemoryCheckpointRequest} from '../runtime/memory-checkpoint.ts';
 import {createHash,randomUUID} from 'node:crypto';
+import {NATIVE_COMPACTION_CAPABILITY,nativeCompactionEnvelopeSchema,nativeCompactionCommitSchema,nativeCompactionAckSchema,nativeCompactionReceiptSchema,type NativeCompactionEnvelopeV1,type NativeCompactionReceiptV1} from '../contracts/native-compaction.ts';
 import {capabilityEnabled} from '../core/capability-flags.ts';
 import {CONTEXT_RESULT_READ} from '../core/context-result-tool.ts';
 import {createProgressiveToolSession} from '../core/context-tool-discovery.ts';
@@ -47,12 +48,24 @@ export interface HermesEngine extends RuntimeAdapter {
 }
 export interface HermesRuntime extends HermesEngine {createTaskRuntime():RuntimeAdapter}
 export interface HermesEngineOptions extends HermesRuntimeOptions {readOnly?:boolean;sharedLibrary?:(params:Record<string,unknown>,authority:HermesLibraryAuthority)=>Promise<unknown>}
-type Owner={contextBinding?:NativeContextBinding;contextRequested?:boolean;contextReads?:number;toolSnapshot?:{sequence:number;count:number;schemaBytes:number;digest:string};progressiveTools?:ReturnType<typeof createProgressiveToolSession>;input:StartRun;source:HermesSourceClient;settings:HermesSettings;tools:Set<string>;path:string;broker:HermesBroker;known:Set<string>;tickets:Map<string,string[]>;entered:Set<string>;lease?:AccountUseLease;done:Promise<void>;finish:()=>void;foreground:boolean;review:boolean;uiSettled:boolean;closing?:Promise<void>;writes:Promise<void>;failure?:unknown;usage:RuntimeUsage[];maintenance?:RunContext;lastMessage?:string;reviewAbort?:AbortController;reviewRelease?:()=>void;libraryRevoked?:boolean;libraryCalls:Set<Promise<unknown>>;memoryCheckpoint?:StartRun['memoryCheckpoint'];checkpointWork?:Promise<unknown>};
+type Owner={contextBinding?:NativeContextBinding;contextRequested?:boolean;contextReads?:number;toolSnapshot?:{sequence:number;count:number;schemaBytes:number;digest:string};progressiveTools?:ReturnType<typeof createProgressiveToolSession>;input:StartRun;source:HermesSourceClient;settings:HermesSettings;tools:Set<string>;path:string;broker:HermesBroker;known:Set<string>;tickets:Map<string,string[]>;entered:Set<string>;lease?:AccountUseLease;done:Promise<void>;finish:()=>void;foreground:boolean;review:boolean;uiSettled:boolean;closing?:Promise<void>;writes:Promise<void>;failure?:unknown;usage:RuntimeUsage[];maintenance?:RunContext;lastMessage?:string;reviewAbort?:AbortController;reviewRelease?:()=>void;libraryRevoked?:boolean;libraryCalls:Set<Promise<unknown>>;memoryCheckpoint?:StartRun['memoryCheckpoint'];checkpointWork?:Promise<unknown>;compactionProtection?:NativeCompactionEnvelopeV1;compactionCommitAttempted?:boolean;compactionCommitAccepted?:boolean};
 type Admission={input:StartRun;maintenance:boolean;revoked:boolean;controller:AbortController;done:Promise<void>;finish():void};
 const same=(ctx:Record<string,unknown>|RunContext|undefined,input:StartRun)=>!!ctx&&ctx.threadId===input.threadId&&ctx.runId===input.runId&&ctx.epoch===input.epoch&&(!Object.hasOwn(ctx,'accountId')||('accountId' in ctx?ctx.accountId:null)===(input.accountId??null));
 const error=(code:string,message:string)=>new HarnessError(code,message);
 const stageActivity:Record<string,RuntimeUsage['activity']>={queued:'queued',acquired:'starting',runtimeReady:'starting',requestSent:'generating',settled:'cleanup'};
 const sourceNames=new Set(['skills_list','skill_view','skill_manage']);
+
+function captureCompactionProtection(value:NativeCompactionEnvelopeV1,ctx:RunContext,modelId:string,accountId:string|null):NativeCompactionEnvelopeV1 {
+ let captured:NativeCompactionEnvelopeV1;
+ try{captured=structuredClone(value);nativeCompactionEnvelopeSchema.parse(captured);}catch{throw error('HERMES_COMPACTION_INVALID','The protected compaction envelope is invalid.');}
+ const owner=captured.plan.owner;
+ if(owner.threadId!==ctx.threadId||owner.runId!==ctx.runId||owner.epoch!==ctx.epoch||owner.modelId!==modelId||owner.accountId!==accountId)
+  throw error('HERMES_COMPACTION_OWNER','The protection plan belongs to another maintenance owner.');
+ if(createHash('sha256').update(JSON.stringify(captured.plan)).digest('hex')!==captured.planDigest)
+  throw error('HERMES_COMPACTION_INVALID','The protection plan digest differs.');
+ const freeze=(item:unknown)=>{if(item&&typeof item==='object'){for(const child of Object.values(item))freeze(child);Object.freeze(item);}};
+ freeze(captured);return captured;
+}
 
 /** Original Hermes owns conversations and skills; native adapters supply model text only. */
 export function createHermesEngine(options:HermesEngineOptions,dependencies:HermesRuntimeDependencies={}):HermesEngine {
@@ -61,6 +74,7 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
  const nativeFactory=dependencies.createNativeRuntime??createRuntime,nativeOptions={dataDir:root,accounts:options.accounts,modelOnly:true};
  const catalog=options.nativeCatalog??nativeFactory(nativeOptions),makeClient=dependencies.createClient??(value=>new HermesClient(value));
  const checkpointCapabilities=new WeakMap<HermesSourceClient,boolean>();
+ const compactionCapabilities=new WeakMap<HermesSourceClient,boolean>();
  const contextCapabilities=new WeakMap<HermesSourceClient,boolean>(),nativeCompiler=createNativeContextCompiler();
  let lastBudgetAnchor:InferenceBudgetAnchor|undefined;
  const sourceClosings=new WeakMap<HermesSourceClient,Promise<void>>();
@@ -118,6 +132,30 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
  }
  async function hostCall(call:HermesHostCall):Promise<unknown>{
   const owner=active;if(!owner||!same(call.ctx,owner.input))throw error('HERMES_STALE_TOOL','This source call has no active owner.');
+  if(call.name==='$context.compaction.commit'){
+   const envelope=owner.compactionProtection,callback=callbacks?.onCompactionCommit;
+   if(!envelope)throw error('HERMES_COMPACTION_OWNER','No protected maintenance owns this source call.');
+   const check=()=>{const ctx=owner.maintenance,expected=envelope.plan.owner;if(disposed||active!==owner||owner.libraryRevoked||owner.failure||!ctx||call.ctx?.phase==='background_review'||compactionCapabilities.get(owner.source)!==true||!callback||callbacks?.onCompactionCommit!==callback||ctx.threadId!==expected.threadId||ctx.runId!==expected.runId||ctx.epoch!==expected.epoch||owner.input.modelId!==expected.modelId||(owner.input.accountId??null)!==expected.accountId)throw error('HERMES_COMPACTION_OWNER','The protected maintenance owner is no longer current.');};
+   check();
+   const parsed=nativeCompactionCommitSchema.safeParse(call.args);
+   if(!parsed.success||parsed.data.candidateId!==envelope.plan.candidateId||parsed.data.planDigest!==envelope.planDigest||parsed.data.sourceSha256!==envelope.plan.sourceSha256||owner.compactionCommitAttempted)
+    throw error('HERMES_COMPACTION_OWNER','The native commit request differs or has already been consumed.');
+   owner.compactionCommitAttempted=true;
+   const work=(async()=>{
+    const snapshot=await owner.source.request<{historySha256?:unknown;messages?:unknown}>('agent.history',{});
+    check();
+    if(snapshot?.historySha256!==envelope.plan.sourceSha256||!Array.isArray(snapshot.messages))
+     throw error('HERMES_COMPACTION_MISMATCH','The original native history changed before the commit.');
+    // No await follows this private host check: it fences the current host cut
+    // after the asynchronous native source read.
+    const ack=nativeCompactionAckSchema.safeParse(callback!({...parsed.data,owner:envelope.plan.owner}));
+    check();
+    if(!ack.success||ack.data.planDigest!==envelope.planDigest)throw error('HERMES_COMPACTION_OWNER','The host did not admit this exact protected commit.');
+    owner.compactionCommitAccepted=true;return ack.data;
+   })();
+   owner.libraryCalls.add(work);
+   try{return await work;}finally{owner.libraryCalls.delete(work);}
+  }
   if(call.name==='$memory.checkpoint'){
    const check=()=>{if(disposed||active!==owner||owner.libraryRevoked||owner.failure||(!owner.foreground&&!owner.maintenance)||call.ctx?.phase==='background_review'||!requiresMemoryCheckpoint(owner.memoryCheckpoint)||checkpointCapabilities.get(owner.source)!==true)throw error('MEMORY_CHECKPOINT_OWNER','The checkpoint has no current native source owner.');};
    check();if(owner.checkpointWork)throw error('MEMORY_CHECKPOINT_OWNER','A native checkpoint is already pending.');
@@ -162,11 +200,12 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
   activeSource();revokeCaptured(captured);const config=JSON.stringify(captured.config??{});
   if(ready&&frozen!==config){if(active)throw error('HERMES_CONFIG_BUSY','Frozen source settings can change after the current review has settled.');const previous=await ready,selection=retained;await closeSource(previous);retained=selection;activeSource();try{options.onSourceEvent?.({event:'configuration_restarted',data:{reason:'frozen_config_changed'}});}catch{}}
   if(!ready){frozen=config;integrationConfig=structuredClone(captured.integrations??{enabled:[],ponytailMode:'off'});integrationProject=captured.projectRoot;client=makeClient({home,timeoutMs:240_000,onEvent:sourceEvent,onHostCall:hostCall,onFailure:failure=>{const owner=active,failed=client;if(owner){owner.failure=failure;owner.reviewAbort?.abort();void(async()=>{const outcomes=await Promise.allSettled([owner.broker.close(),failed?closeSource(failed):Promise.resolve()]);if(outcomes.some(result=>result.status==='rejected'))return;await finish(owner,{error:true});})().catch(()=>{});}}});const source=client;
-   ready=(async()=>{await secureDirectory(root,home);const reply=await source.request<Record<string,unknown>>('hello',{home,sharedLibrary:!!options.sharedLibrary,managedReview:true,integrations:integrationConfig,projectRoot:integrationProject,acpCommand:process.execPath,acpArgs:['--import',pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href,fileURLToPath(new URL('./acp-server.ts',import.meta.url))],dependencyRoot:options.dependencyRoot,config:captured.config??{}});if(reply.protocolVersion!==1||reply.engineClass!=='run_agent.AIAgent'||reply.sourceCommit!=='c627ec84664d43e0b18b95d9d86d8963747d56c7')throw error('HERMES_SOURCE_MISMATCH','The original pinned Hermes engine did not initialize.');const capability=reply.memoryCheckpoint as {apiVersion?:unknown;hostOwned?:unknown}|undefined;checkpointCapabilities.set(source,capability?.apiVersion===2&&capability?.hostOwned===true);const context=reply.contextCapture as {apiVersion?:unknown;source?:unknown}|undefined;contextCapabilities.set(source,context?.apiVersion===1&&context?.source==='original-acp-messages');return source;})().catch(async failure=>{await closeSource(source);throw failure;});
+   ready=(async()=>{await secureDirectory(root,home);const reply=await source.request<Record<string,unknown>>('hello',{home,sharedLibrary:!!options.sharedLibrary,managedReview:true,integrations:integrationConfig,projectRoot:integrationProject,acpCommand:process.execPath,acpArgs:['--import',pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href,fileURLToPath(new URL('./acp-server.ts',import.meta.url))],dependencyRoot:options.dependencyRoot,config:captured.config??{}});if(reply.protocolVersion!==1||reply.engineClass!=='run_agent.AIAgent'||reply.sourceCommit!=='c627ec84664d43e0b18b95d9d86d8963747d56c7')throw error('HERMES_SOURCE_MISMATCH','The original pinned Hermes engine did not initialize.');const capability=reply.memoryCheckpoint as {apiVersion?:unknown;hostOwned?:unknown}|undefined;checkpointCapabilities.set(source,capability?.apiVersion===2&&capability?.hostOwned===true);const context=reply.contextCapture as {apiVersion?:unknown;source?:unknown}|undefined;contextCapabilities.set(source,context?.apiVersion===1&&context?.source==='original-acp-messages');const protection=reply.compactionProtection as Partial<typeof NATIVE_COMPACTION_CAPABILITY>|undefined;compactionCapabilities.set(source,protection?.apiVersion===NATIVE_COMPACTION_CAPABILITY.apiVersion&&protection?.strategy===NATIVE_COMPACTION_CAPABILITY.strategy&&protection?.commitBoundary===NATIVE_COMPACTION_CAPABILITY.commitBoundary);return source;})().catch(async failure=>{await closeSource(source);throw failure;});
   }return ready;
  }
  const ensure=(captured:HermesSettings)=>exclusive(()=>ensureSource(captured));
  function assertCheckpoint(source:HermesSourceClient,requirement:unknown){if(requiresMemoryCheckpoint(requirement)&&(options.readOnly||checkpointCapabilities.get(source)!==true||!callbacks?.onMemoryCheckpoint))throw error('MEMORY_CHECKPOINT_UNSUPPORTED','Required native source checkpoint capability is unavailable.');}
+ function assertCompaction(source:HermesSourceClient){if(options.readOnly||compactionCapabilities.get(source)!==true||!callbacks?.onCompactionCommit)throw error('HERMES_COMPACTION_UNSUPPORTED','Protected compaction requires the pinned native capability and private host admission.');}
  const progressiveEnabled=()=>!options.readOnly&&capabilityEnabled('context.compilerV1')&&capabilityEnabled('tools.deferredV1');
  const progressiveMetadata=[CONTEXT_RESULT_READ,CONTEXT_DISCOVER_TOOLS,CONTEXT_DESCRIBE_TOOL];
  const progressiveNames=new Set(progressiveMetadata.map(tool=>tool.name));
@@ -186,9 +225,9 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
  async function maintenance<T>(previous:Owner,ctx:RunContext,method:string,params:Record<string,unknown>,currentPolicy=false):Promise<T>{
   if(admission||active)throw error('HERMES_SOURCE_BUSY','Wait for the original source and review before maintenance.');const ticket=reserve({...previous.input,...ctx},true);let lease:AccountUseLease|undefined,owner:Owner|undefined;
   let reviewRelease:(()=>void)|undefined;
-  try{const captured=currentPolicy?await settings(previous.input):previous.settings;admitted(ticket);if(method==='skills.curate')reviewRelease=await hermesReviewCapacity.acquire('review',null,ticket.controller.signal);admitted(ticket);const source=await ensure(captured);admitted(ticket);assertCheckpoint(source,params.memoryCheckpoint);lease=options.accounts?.claimUse?.(previous.input.modelId.split('/')[0] as Parameters<NonNullable<RuntimeAccountResolver['claimUse']>>[0],previous.input.accountId??null);let release!:()=>void;const done=new Promise<void>(resolve=>{release=resolve;}),broker=await createHermesBroker({input:{...previous.input,...ctx},createRuntime:()=>nativeFactory(nativeOptions),onUsage:value=>{if(owner)usage(owner,value);},onObservation:value=>{if(owner)emit(owner,'model.observation',{observation:value});}});try{admitted(ticket);}catch(failure){await broker.close();throw failure;}
-   owner=active={...previous,source,settings:captured,broker,known:new Set(previous.known),tickets:new Map(previous.tickets),entered:new Set(),tools:new Set(),lease,done,finish:release,foreground:false,review:true,uiSettled:true,closing:undefined,writes:Promise.resolve(),usage:[],maintenance:ctx,lastMessage:undefined,reviewAbort:undefined,reviewRelease,libraryRevoked:false,libraryCalls:new Set(),memoryCheckpoint:params.memoryCheckpoint as StartRun['memoryCheckpoint'],checkpointWork:undefined};
-   try{admitted(ticket);const result=await source.request<T>(method,{...params,brokerURL:broker.url,jobKey:broker.key,modelId:previous.input.modelId,accountId:previous.input.accountId??null,sessionPath:previous.path,skillPolicy:captured.skillPolicy??{enabled:true,allowWrites:false},ctx:{threadId:previous.input.threadId,runId:previous.input.runId,epoch:previous.input.epoch,accountId:previous.input.accountId??null}});admitted(ticket);await finish(owner,{});return result;}catch(failure){if(owner.failure||ticket.revoked||disposed)await forceOwner(owner,source);else await finish(owner,{error:true});throw failure;}
+  try{const captured=currentPolicy?await settings(previous.input):previous.settings;admitted(ticket);if(method==='skills.curate')reviewRelease=await hermesReviewCapacity.acquire('review',null,ticket.controller.signal);admitted(ticket);const source=await ensure(captured);admitted(ticket);assertCheckpoint(source,params.memoryCheckpoint);if(params.compactionProtection!==undefined)assertCompaction(source);lease=options.accounts?.claimUse?.(previous.input.modelId.split('/')[0] as Parameters<NonNullable<RuntimeAccountResolver['claimUse']>>[0],previous.input.accountId??null);let release!:()=>void;const done=new Promise<void>(resolve=>{release=resolve;}),broker=await createHermesBroker({input:{...previous.input,...ctx},createRuntime:()=>nativeFactory(nativeOptions),onUsage:value=>{if(owner)usage(owner,value);},onObservation:value=>{if(owner)emit(owner,'model.observation',{observation:value});}});try{admitted(ticket);}catch(failure){await broker.close();throw failure;}
+   owner=active={...previous,source,settings:captured,broker,known:new Set(previous.known),tickets:new Map(previous.tickets),entered:new Set(),tools:new Set(),lease,done,finish:release,foreground:false,review:true,uiSettled:true,closing:undefined,writes:Promise.resolve(),usage:[],maintenance:ctx,lastMessage:undefined,reviewAbort:undefined,reviewRelease,libraryRevoked:false,libraryCalls:new Set(),memoryCheckpoint:params.memoryCheckpoint as StartRun['memoryCheckpoint'],checkpointWork:undefined,compactionProtection:method==='agent.compact'?params.compactionProtection as NativeCompactionEnvelopeV1|undefined:undefined,compactionCommitAttempted:false,compactionCommitAccepted:false};
+   try{admitted(ticket);const result=await source.request<T>(method,{...params,...(owner.compactionProtection?{compactionContext:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch}}:{}),brokerURL:broker.url,jobKey:broker.key,modelId:previous.input.modelId,accountId:previous.input.accountId??null,sessionPath:previous.path,skillPolicy:captured.skillPolicy??{enabled:true,allowWrites:false},ctx:{threadId:previous.input.threadId,runId:previous.input.runId,epoch:previous.input.epoch,accountId:previous.input.accountId??null}});admitted(ticket);if(owner.compactionProtection&&(result as {compacted?:boolean}|null)?.compacted===true&&owner.compactionCommitAccepted!==true)throw error('HERMES_COMPACTION_UNCONFIRMED','The native source did not obtain protected host admission.');await finish(owner,{});return result;}catch(failure){if(owner.failure||ticket.revoked||disposed)await forceOwner(owner,source);else await finish(owner,{error:true});throw failure;}
   }catch(failure){if(!owner){reviewRelease?.();if(lease)options.accounts?.releaseUse?.(lease);}throw failure;}finally{ticket.finish();}
  }
  async function history(path:string,accountId?:string|null):Promise<string[]>{
@@ -196,6 +235,28 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
   await safeFile(file);const text=await readFile(file,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES)throw error('HERMES_SESSION_LIMIT','The source session exceeds its bounded reader limit.');const saved=JSON.parse(text);sessionOwner(saved,file,accountId??null);
   const receiptPath=file+'.inputs.jsonl';await safeFile(receiptPath);let lines:string;try{lines=await readFile(receiptPath,'utf8');}catch(failure){if((failure as NodeJS.ErrnoException).code==='ENOENT')return[];throw failure;}if(Buffer.byteLength(lines)>MODEL_ONLY_MAX_WIRE_BYTES)throw error('HERMES_SESSION_LIMIT','The source receipts exceed their bounded reader limit.');
   const ids=new Set<string>();for(const line of lines.split('\n')){if(!line.trim())continue;const value=JSON.parse(line);if((value.accountId??null)!==(accountId??null)||pathFor(value)!==file||!Array.isArray(value.inputIds)||value.inputIds.some((id:unknown)=>typeof id!=='string'||!id))throw error('HERMES_SESSION_INVALID','The source input receipt is invalid.');for(const id of value.inputIds)ids.add(id);}return[...ids];
+ }
+ async function compactNative(ctx:RunContext,path:string,modelId:string,accountId:string|null,memoryCheckpoint?:StartRun['memoryCheckpoint'],expectedHistorySha256?:string,protection?:NativeCompactionEnvelopeV1):Promise<NativeCompactionReceiptV1|undefined>{
+  activeSource();if(admission||active?.foreground)throw error('HERMES_SOURCE_BUSY','Wait for the foreground conversation before compacting.');if(active)await active.done;
+  const previous=retained;
+  if(!previous||previous.source!==client||resolve(path)!==previous.path||ctx.threadId!==previous.input.threadId||modelId!==previous.input.modelId||accountId!==(previous.input.accountId??null))
+   throw error('HERMES_SESSION_INVALID','Compaction requires the exact retained live thread, model, account and source session.');
+  const display={...previous,maintenance:ctx};emit(display,'compaction.start',{reason:'manual'});
+  const result=await maintenance<{compacted?:boolean;mismatch?:boolean;protection?:unknown}>(previous,ctx,'agent.compact',{...(memoryCheckpoint?{memoryCheckpoint}:{}),...(expectedHistorySha256?{expectedHistorySha256}:{}),...(protection?{compactionProtection:protection}:{})});
+  if(result.mismatch===true)throw error('HERMES_COMPACTION_MISMATCH','The native source history changed after admission; the compaction was not applied.');
+  let receipt:NativeCompactionReceiptV1|undefined;
+  if(protection){
+   const parsed=nativeCompactionReceiptSchema.safeParse(result.protection);
+   if(!parsed.success||parsed.data.candidateId!==protection.plan.candidateId||parsed.data.planDigest!==protection.planDigest||parsed.data.sourceSha256!==protection.plan.sourceSha256)
+    throw error('HERMES_COMPACTION_UNCONFIRMED','The native protection receipt does not match the admitted plan.');
+   receipt=parsed.data;
+   if(receipt.status==='REFUSED')throw error('HERMES_COMPACTION_REFUSED','Native protected compaction refused: '+(receipt.reason??'NATIVE_REFUSED'));
+   if(receipt.archiveRef!=='native-archive:'+protection.plan.sourceSha256||receipt.archiveSha256!==protection.plan.sourceSha256||receipt.summarySha256===null||receipt.reason!==null||receipt.afterBytes===null||receipt.afterBytes>=receipt.beforeBytes||receipt.retainedBytes<=0||receipt.protectedRecords!==protection.plan.retainedIndices.length||receipt.referenceCount!==protection.plan.references.length)
+    throw error('HERMES_COMPACTION_UNCONFIRMED','The native receipt does not prove retention, an original archive, and reduction.');
+   receipt=Object.freeze(receipt);
+  }
+  if(result.compacted!==true)throw error('HERMES_COMPACTION_UNCONFIRMED','The original source did not compact its conversation.');
+  lastBudgetAnchor=undefined;emit(display,'compaction.end',{reason:'manual',aborted:false});emit(display,'settled',{aborted:false});return receipt;
  }
  const runtime:HermesEngine={
   configure(value){callbacks=value;},models(value){activeSource();return catalog.models(value);},async invalidateModels(value){activeSource();await catalog.invalidateModels?.(value);},
@@ -229,7 +290,14 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
   async followUp(value){activeSource();if(value.completedWrites?.length)throw error('HERMES_INPUT_INVALID','Completed writes require an idle source turn.');const owner=active;if(!owner||!owner.foreground||!same(value,owner.input)||value.modelId!==owner.input.modelId||(value.accountId??null)!==(owner.input.accountId??null))throw error('HERMES_STALE_RUN','This follow-up does not belong to the active Hermes run.');projectContextSystemPrompt(value,'');if((value.approvedProjectContext?.instructionDigest??null)!==(owner.input.approvedProjectContext?.instructionDigest??null)||(value.approvedProjectContext?.grantDigest??null)!==(owner.input.approvedProjectContext?.grantDigest??null))throw error('STALE_REQUEST_CONTEXT','Project instructions changed during the active native turn; resume in a new turn.');if(!sameMemoryCheckpointRequirement(value.memoryCheckpoint,owner.memoryCheckpoint))throw error('MEMORY_CHECKPOINT_OWNER','Follow-up changed the captured checkpoint requirement.');assertModelOnlyInput(value);const ids=value.inputIds??[value.inputId];if(!ids.length||ids[0]!==value.inputId||new Set(ids).size!==ids.length||ids.some(id=>typeof id!=='string'||!id||owner.known.has(id)))throw error('HERMES_INPUT_INVALID','A source steering ticket must identify new inputs.');for(const id of ids)owner.known.add(id);owner.tickets.set(value.inputId,[...ids]);try{const result=await(await ensure(owner.settings)).request<{accepted?:boolean}>('agent.followUp',{prompt:encodeInput(value),inputId:value.inputId});if(result.accepted!==true)throw error('HERMES_STEER_REJECTED','The original source did not accept this follow-up.');}catch(failure){for(const id of ids)owner.known.delete(id);owner.tickets.delete(value.inputId);throw failure;}},
   async cancel(ctx){const ticket=admission&&same(ctx,admission.input)?admission:undefined;if(ticket){ticket.revoked=true;ticket.controller.abort();}const owner=active;if(owner&&same(ctx,{...owner.input,...owner.maintenance}))await cancelOwner(owner);if(ticket)await ticket.done;},
   async cancelBackground(){if(admission?.maintenance){await runtime.cancel(admission.input);return;}if(!active)return;active.reviewAbort?.abort();await client?.request('agent.cancelBackground');if(active&&!active.foreground)await active.done;},
-  async compact(ctx,path,modelId,accountId,memoryCheckpoint,expectedHistorySha256){activeSource();if(admission||active?.foreground)throw error('HERMES_SOURCE_BUSY','Wait for the foreground conversation before compacting.');if(active)await active.done;const previous=retained;if(!previous||previous.source!==client||resolve(path)!==previous.path||ctx.threadId!==previous.input.threadId||modelId!==previous.input.modelId||(accountId??null)!==(previous.input.accountId??null))throw error('HERMES_SESSION_INVALID','Compaction requires the exact retained live thread, model, account and source session.');const display={...previous,maintenance:ctx};emit(display,'compaction.start',{reason:'manual'});const result=await maintenance<{compacted?:boolean;mismatch?:boolean}>(previous,ctx,'agent.compact',{...(memoryCheckpoint?{memoryCheckpoint}:{ }),...(expectedHistorySha256?{expectedHistorySha256}:{})});if(result.mismatch===true)throw error('HERMES_COMPACTION_MISMATCH','The native source history changed after admission; the compaction was not applied.');if(result.compacted!==true)throw error('HERMES_COMPACTION_UNCONFIRMED','The original source did not compact its conversation.');lastBudgetAnchor=undefined;emit(display,'compaction.end',{reason:'manual',aborted:false});emit(display,'settled',{aborted:false});},
+  async compact(ctx,path,modelId,accountId,memoryCheckpoint,expectedHistorySha256){await compactNative(ctx,path,modelId,accountId??null,memoryCheckpoint,expectedHistorySha256);},
+  async compactProtected(ctx,path,modelId,accountId,protection,memoryCheckpoint){
+   const maintenanceContext=Object.freeze({threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch});
+   const captured=captureCompactionProtection(protection,maintenanceContext,modelId,accountId);
+   const receipt=await compactNative(maintenanceContext,path,modelId,accountId,memoryCheckpoint,captured.plan.sourceSha256,captured);
+   if(!receipt)throw error('HERMES_COMPACTION_UNCONFIRMED','The native protection receipt is unavailable.');
+   return receipt;
+  },
   async nativeHistoryDigest(ctx,path,accountId){activeSource();const previous=retained;if(!previous||previous.source!==client||resolve(path)!==previous.path||ctx.threadId!==previous.input.threadId||(accountId??null)!==(previous.input.accountId??null))return null;const result=await maintenance<{messages?:unknown[];historySha256?:string}>(previous,ctx,'agent.history',{});return typeof result.historySha256==='string'&&Array.isArray(result.messages)?{sha256:result.historySha256,messages:result.messages}:null;},
   history,
   dispose(){return disposing??=(async()=>{disposed=true;const ticket=admission;if(ticket){ticket.revoked=true;ticket.controller.abort();}const owner=active,source=client;owner?.reviewAbort?.abort();const outcomes=await Promise.allSettled([owner?forceOwner(owner,source):source?closeSource(source):Promise.resolve(),catalog.dispose()]);if(ticket)await ticket.done;await transitions;const late=client&&client!==source?await Promise.allSettled([closeSource(client)]):[];const failures=[...outcomes,...late].flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Hermes cleanup could not be confirmed.');})();},
