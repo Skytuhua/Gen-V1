@@ -517,6 +517,13 @@
    "receiptsDir": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/",
    "setupSha256": "afa42167eac4af0dad6651043237da3cc2b6b68bc29c0d810056f9da35d87753",
    "payloadManifestSha256": "a8ff5f5f0ef9c8116ff2d551bece0b2671c2920678bc17f6c5bf8fc24ddbcea5"
+  },
+  "session8TerminalAndM10Installed": {
+   "session": 8,
+   "instruction": "manager: capture detached browser receipt if terminal; resume installed M10 gap via supported Windows runner or declared CI lane on exact cut; inspect whether existing checks can run M10-specific installed acceptance; no blind packaging rerun",
+   "tbfTerminal": "tbf.exit EXIT=1 at 19:41Z (terminal, not fabricated); 68/78 suites failed \u2014 545x msedge channel absent, 24x fixture ERR_CONNECTION_REFUSED; background-work 2/9 in-run fixture-port-5821 goto timeouts vs focused 11/11 PASS",
+   "m10InstalledInspection": "no existing check runs no-flag verify-installed-desktop.ts \u2014 ci.yml's only installed job (installed-memory) always passes --project-memory-retention --project-memory-enabled; workflow_dispatch re-runs same flags; no other linked Windows runner (WIN-M0N0V07LGM1 powershell box-broken); no downloadable binary pair in CI artifacts",
+   "m10InstalledGap": "strictly no-flag M10 installed acceptance requires a new CI job (workflow change, own review) or healthy Windows runner (none linked) \u2014 manager decision"
   }
  }
 }

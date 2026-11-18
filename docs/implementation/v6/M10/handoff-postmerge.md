@@ -216,6 +216,48 @@ default-off launch pair covers the M10 lane's lifecycle phases, but this
 is not a no-flag M10 invocation on the target box, and it does not remove
 the WIN-M0N0V07LGM1 stall record.
 
+## Session 8 — terminal browser receipt + M10-specific installed inspection
+
+**Full `pnpm test:browser` terminal receipt captured** (`tbf.exit`,
+EXIT=1, ended 19:41Z, ~1.9h wall): the detached runner completed on its
+own — no fabricated exit. 68/78 suite groups failed; the dominant class is
+environmental — 545x `browserType.launch` for the absent `msedge` channel
+(`/opt/microsoft/msedge/msedge` does not exist on this host), 24x
+`ERR_CONNECTION_REFUSED` fixture servers, 4x `page.goto` fixture timeouts.
+The `background-work` suite failed 2/9 in the full run — both 30s
+`page.goto` timeouts against the fixed-port `127.0.0.1:5821` fixture
+(fixture-server collision under the whole-repo suite); the focused
+`--suite background-work` receipt stays green (11/11 Linux cut `4aef753e`,
+12/12 Windows cut `ff38c62c`). Receipt row appended by the committed
+builder; the now-terminal log is committed so the receipt resolves.
+
+**M10-specific installed acceptance — inspection result.** Manager asked
+whether existing checks can run M10-specific (no-flag) installed
+acceptance rather than the generic memory lane:
+
+- `ci.yml` is the only workflow referencing `desktop:package` /
+  `verify-installed-desktop.ts`; its single installed job is
+  `installed-memory`, which always passes
+  `--project-memory-retention --project-memory-enabled`. **No existing
+  check runs the no-flag installed lane.**
+- `ci.yml` does declare `workflow_dispatch`, but a dispatch re-runs the
+  same memory-flag job — it cannot produce an M10-specific invocation
+  without a workflow change.
+- Linked environments: only `WIN-M0N0V07LGM1` exists; its
+  `powershell.exe`/`pwsh` startup is box-broken (session-6 record), so no
+  reachable runner can package. CI artifacts carry receipts only — no
+  downloadable binary pair (session-7 record).
+- What exists and counts: the installed-memory lane's **default-off
+  launch pair** (iterations 1–2, `memoryMode: "default-off"`,
+  `verifiedOwner`, exit 0) plus install/custody/uninstall — the same
+  lifecycle phases the M10 lane exercises — passed at the exact cut on a
+  healthy runner.
+- **Remaining gap (named):** a strictly no-flag M10 installed-acceptance
+  run has no existing check. Creating one requires either a new CI job
+  (a `.github/workflows/ci.yml` change needing its own review) or a
+  Windows runner with working packaging tooling (none linked). That is a
+  manager decision, not an evidence task this session can close.
+
 ## Publication
 
 Evidence-only draft published per manager instruction as PR
