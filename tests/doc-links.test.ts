@@ -106,6 +106,17 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('1 broken');
     }finally{bench.cleanup();}
   });
+  it('assigns colliding anchors in document order across heading styles',()=>{
+    const bench=fixture({
+      'guide.md':'Foo\n===\n\nFoo\n===\n\n## Foo-1\n',
+      'README.md':'[actual anchor](guide.md#foo-1-1)\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(0);
+      expect(result.output).toContain('0 broken');
+    }finally{bench.cleanup();}
+  });
   it('reads both destinations of a linked image',()=>{
     const bench=fixture({'README.md':'# Readme\n\n[![diagram](missing-image.png)](missing-page.md)\n'});
     try{
