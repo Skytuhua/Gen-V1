@@ -22,6 +22,7 @@ import { SkillLibrary } from './SkillLibrary';
 import { IntegrationSettings } from './IntegrationSettings';
 import { UpdateControl } from './UpdateControl';
 import { AppearanceSettings, NotificationSettings, APPEARANCE_FIELDS } from './AppearanceSettings';
+import { PairedDevicesPanel } from './PairedDevicesPanel';
 import { version } from '../../../package.json';
 import {settingsDataFromSnapshot, type SettingsData} from './settings-data';
 import {snapshotDraftReferences, type DraftReferenceSource} from './draft-transfer';
@@ -72,7 +73,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('browser-start-page', 'Start page', 'browser', 'manual browser address website'),
   ...PREFERENCE_BINDINGS.map(({ preference, label }) => row(`harness-keybinding-${preference}`, label, 'keybindings', `keyboard shortcut ${preference}`)),
   row('harness-keyboard-reference', 'Shortcut reference', 'keybindings', 'all shortcuts cheat sheet kbd keys chords bindings list'),
-  row('harness-draft-transfer', 'Move browser drafts', 'maintenance', 'import export recovery transfer'), row('archive', 'Archived threads', 'maintenance', 'restore recovery'), row('harness-export-diagnostics', 'Workspace diagnostics', 'maintenance', 'snapshot counts uncertain operations refresh'),
+  row('harness-draft-transfer', 'Move browser drafts', 'maintenance', 'import export recovery transfer'), row('archive', 'Archived threads', 'maintenance', 'restore recovery'), row('harness-export-diagnostics', 'Workspace diagnostics', 'maintenance', 'snapshot counts uncertain operations refresh'), row('harness-paired-devices', 'Paired devices', 'maintenance', 'remote sync phone tablet pairing revoke read only'),
   row('app-version', 'Version & updates', 'about', 'update'), row('harness-licenses', 'T3 Code', 'about', 'copyright MIT license attribution settings account picker'), row('harness-hermes-license', 'Hermes Agent learning', 'about', 'Nous Research MIT license'), row('harness-dependency-notices', 'Dependency notices', 'about', 'licenses'),
   ...DEPENDENCY_NOTICES.map(([name, installed, license]) => row(`license-${name}`, name, 'about', `dependency ${installed} ${license}`)),
 ];
@@ -154,7 +155,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
   const showAppearance = !searching && section === 'appearance';
-  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
+  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
   const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
@@ -202,6 +203,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
       {matches('harness-integrations') && <div data-setting-id="harness-integrations"><IntegrationSettings/></div>}
+      {matches('harness-paired-devices') && <div data-setting-id="harness-paired-devices"><PairedDevicesPanel/></div>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}
       {matches('archive') && <div className="settings-records">{data.counts.archivedThreads !== data.archivedThreads.length && <p className="settings-empty">Showing {data.archivedThreads.length} archived conversations available in navigation. The total also includes conversations outside this list.</p>}{data.archivedThreads?.length ? data.archivedThreads.map(thread => <section className="settings-row" key={thread.id}><div className="settings-row-copy"><h2>{thread.title}</h2><p>{thread.projectName ?? 'Conversation'} · {thread.status}</p></div><button type="button" className="secondary" disabled={busy} onClick={() => { setBusy(true); void settingsOperation(() => command('thread.restore', {}, thread.id).then(refresh)).catch(cause => setError(String(cause))).finally(() => setBusy(false)); }}>Restore thread</button></section>) : <p className="settings-empty">{data.counts.archivedThreads ? 'No archived conversations are available in navigation.' : 'No archived threads.'}</p>}</div>}
