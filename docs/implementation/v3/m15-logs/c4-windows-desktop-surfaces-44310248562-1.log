@@ -1,0 +1,49 @@
+argv: ["C:\\hostedtoolcache\\windows\\node\\24.22.2\\x64\\node.exe","--import","tsx","scripts/test-browser.ts","--suite","desktop-surfaces"]
+cwd: D:\a\Gen-V1\Gen-V1
+exitCode: 0
+termination: NONE
+Browser results: D:\a\Gen-V1\Gen-V1\test-results\browser\run-1795008327302-af47be3e-dd03-4da9-aef3-0fddd8a6158f
+
+Browser suite: desktop-surfaces (1 spec files)
+
+Running 37 tests using 1 worker
+
+  ok  1 tests\e2e\desktop-surfaces.spec.ts:117:1 › desktop context and usage minimize in the workspace while thread detachment stays available (5.7s)
+  ok  2 tests\e2e\desktop-surfaces.spec.ts:184:1 › authoritative detached plan ignores URL descriptors and restores its owning thread (1.2s)
+  ok  3 tests\e2e\desktop-surfaces.spec.ts:207:1 › an artifact stays editable in the main window with no new-detachment entry (2.2s)
+  ok  4 tests\e2e\desktop-surfaces.spec.ts:226:1 › browser clients expose no native window controls (261ms)
+  ok  5 tests\e2e\desktop-surfaces.spec.ts:240:1 › native workspace notifications refresh authenticated state without opening renderer event streams (2.4s)
+  ok  6 tests\e2e\desktop-surfaces.spec.ts:310:1 › close acknowledgment freezes editing until native cancellation resumes the same draft (2.3s)
+  ok  7 tests\e2e\desktop-surfaces.spec.ts:339:1 › desktop draft import preserves collisions and blocks stale artifact revisions (3.7s)
+  ok  8 tests\e2e\desktop-surfaces.spec.ts:411:1 › browser draft export is explicit and does not clear the source (2.6s)
+  ok  9 tests\e2e\desktop-surfaces.spec.ts:448:1 › native close saves the latest edit and lease before acknowledgment, retaining source DOM (2.2s)
+  ok 10 tests\e2e\desktop-surfaces.spec.ts:470:1 › native close freezes the same workspace editor alias after acknowledged saving (2.4s)
+  ok 11 tests\e2e\desktop-surfaces.spec.ts:496:1 › sidebar detaches a thread into its own window and the main workspace stays usable (3.7s)
+  ok 12 tests\e2e\desktop-surfaces.spec.ts:582:1 › detached workspace selection does not acquire an unacknowledged second artifact editor (1.6s)
+  ok 13 tests\e2e\desktop-surfaces.spec.ts:625:1 › navigation windows never mount hidden editable artifacts or a composer (1.2s)
+  ok 14 tests\e2e\desktop-surfaces.spec.ts:651:1 › native close acknowledges an unrecovered composer workspace without detaching (2.4s)
+  ok 15 tests\e2e\desktop-surfaces.spec.ts:680:1 › upload preprocessing blocks native close before the canonical PNG is journaled (2.6s)
+  ok 16 tests\e2e\desktop-surfaces.spec.ts:722:1 › compatible browser draft import restores the live composer and survives reload (4.6s)
+  ok 17 tests\e2e\desktop-surfaces.spec.ts:774:1 › imported artifact draft updates the already mounted editor before another edit (2.9s)
+  ok 18 tests\e2e\desktop-surfaces.spec.ts:826:1 › export refuses pending signature assets instead of silently omitting the mark (2.5s)
+  ok 19 tests\e2e\desktop-surfaces.spec.ts:876:1 › source editor recovers a durable satellite draft when editing ownership returns (2.6s)
+  ok 20 tests\e2e\desktop-surfaces.spec.ts:936:1 › desktop sign-in uses the fixed native launcher without requiring pnpm (2.5s)
+  ok 21 tests\e2e\desktop-surfaces.spec.ts:970:1 › desktop readiness does not wait for slow model discovery (1.7s)
+  ok 22 tests\e2e\desktop-surfaces.spec.ts:1005:1 › review: startup does not expose an ownerless composer before the initial snapshot (1.8s)
+  ok 23 tests\e2e\desktop-surfaces.spec.ts:1049:39 › review: clearing an enum omits the optional response (2.6s)
+  ok 24 tests\e2e\desktop-surfaces.spec.ts:1049:39 › review: clearing an enum retains required validation (2.6s)
+  ok 25 tests\e2e\desktop-surfaces.spec.ts:1108:1 › review: an existing native browser action remains visible and retryable (1.3s)
+  ok 26 tests\e2e\desktop-surfaces.spec.ts:1134:1 › review: a failed detached workspace close retains the editable surface (1.3s)
+  ok 27 tests\e2e\desktop-surfaces.spec.ts:1165:1 › review: standalone workspace uses native sizing instead of inactive panel maximize controls (1.2s)
+  ok 28 tests\e2e\desktop-surfaces.spec.ts:1188:1 › review: detached browser follows saved theme and subsequent system changes (1.2s)
+  ok 29 tests\e2e\desktop-surfaces.spec.ts:1249:1 › M15 panel opener: an ordinary new conversation has one reachable workspace control (2.0s)
+  ok 30 tests\e2e\desktop-surfaces.spec.ts:1266:1 › M15 panel opener: a pinned native thread retains its workspace control (2.0s)
+  ok 31 tests\e2e\desktop-surfaces.spec.ts:1281:1 › native close waits for a source backup to finish parsing and retains a failed import until retry (3.2s)
+  ok 32 tests\e2e\desktop-surfaces.spec.ts:1490:1 › retained native thread header cancels a move on blur (1.8s)
+  ok 33 tests\e2e\desktop-surfaces.spec.ts:1535:5 › retained native thread reflows during left resize and persists the result (2.7s)
+  ok 34 tests\e2e\desktop-surfaces.spec.ts:1535:5 › retained native thread reflows during top resize and rolls back the result (2.8s)
+  ok 35 tests\e2e\desktop-surfaces.spec.ts:1624:1 › retained native thread placement animation never scales readable content (1.4s)
+  ok 36 tests\e2e\desktop-surfaces.spec.ts:1676:1 › retained native thread has no retired switch-layout control (1.2s)
+  ok 37 tests\e2e\desktop-surfaces.spec.ts:1694:1 › retained native thread ignores the retired layout-cycle shortcut (2.2s)
+
+  37 passed (1.5m)
