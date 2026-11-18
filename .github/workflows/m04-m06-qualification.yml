@@ -3,8 +3,6 @@ name: M04 M05 M06 qualification
 on:
   push:
     branches: ['qualification/m04-m06-*']
-  pull_request:
-    paths: ['.github/workflows/m04-m06-qualification.yml']
   workflow_dispatch:
 
 permissions:
@@ -12,7 +10,7 @@ permissions:
 
 concurrency:
   group: m04-m06-qualification-${{ github.event.pull_request.head.sha || github.sha }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 env:
   GIT_CONFIG_COUNT: 1
