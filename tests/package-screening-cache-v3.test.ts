@@ -144,6 +144,12 @@ describe('M03 cached package screening authority', () => {
       await expect(installPluginPackage(source, destination, pkg.digest, '0.6.3', {
         screening: { advisory: unavailable, cache: stored },
       })).rejects.toThrow(/screening denied activation/i);
+      // The caller can supply a plausible actor/reason without an authenticated
+      // operator decision or a durable separate audit record. It must not bypass
+      // the real installer even though the pure screening computation records it.
+      await expect(installPluginPackage(source, destination, pkg.digest, '0.6.3', {
+        screening: { advisory: unavailable, cache: stored, exception },
+      })).rejects.toThrow(/authenticated approval and durable audit evidence/i);
       expect(await readPluginIndex(destination)).toEqual([]);
     } finally {
       await rm(directory, { recursive: true, force: true });
