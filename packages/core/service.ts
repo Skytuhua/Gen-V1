@@ -43,12 +43,14 @@ import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from
 import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
+import {VerificationWorkflow, isVerificationOperation} from "./verification-workflow.ts";
+import type {VerificationExecutorFactory} from "./verification-executor.ts";
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
-import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, type ToolEffectFlag } from "./tool-effects.ts";
+import { ToolEffectLedger, createToolEffectFlags, privateArgumentCommitment, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
 import { recoverEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
@@ -90,6 +92,8 @@ export interface ServiceOptions {
   memoryExtractionRuntimeFactory?:(job:Readonly<MemoryExtractionJob>)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   memoryExtractionAdmission?:MemoryExtractionAdmission;
   additionalTool?:(call:ToolCall,ctx:RunContext)=>Promise<unknown>;
+  /** Trusted host composition only. Never accepted from model or UI input. */
+  verificationExecutor?:VerificationExecutorFactory;
 }
 export class Service {
   readonly sourceWorkbench: SourceWorkbench;
@@ -131,6 +135,8 @@ export class Service {
   private readonly authority:ToolAuthority;
   private readonly hostToolRegistryDigest:string;
   private readonly effects:ToolEffectLedger;
+  private readonly verificationEffects:ToolEffectLedger;
+  private readonly verification:VerificationWorkflow;
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
@@ -178,6 +184,8 @@ export class Service {
     this.effectFlags=createToolEffectFlags(options.toolEffectFlags);
     const registry=buildToolRegistry();this.hostToolRegistryDigest=digest(registry.map(tool=>[tool.id,tool.schemaDigest]));
     this.authority=new ToolAuthority(registry);this.effects=new ToolEffectLedger(store,this.authority,this.effectFlags);
+    this.verificationEffects=new ToolEffectLedger(store,this.authority,createToolEffectFlags({"audit.effectsV1":true,"security.authorityV1":true}));
+    this.verification=new VerificationWorkflow(store,options.verificationExecutor);
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
@@ -955,8 +963,9 @@ export class Service {
         this.assertMutation(thread.id); const op = this.store.get<Operation>("operation", text(p, "operationId", 200));
         if (!op || op.threadId !== thread.id) throw new HarnessError("NOT_FOUND", "Operation not found");
         if (op.revision !== p.revision || op.status !== "prepared") throw new HarnessError("STALE_REVISION", "Operation has changed; review it again");
+        if (isVerificationOperation(op)) this.verification.assertApproval(op);
         const next = { ...op, approved: true }; this.store.put("operation", op.id, thread.id, next);
-        if (this.effectFlags.enabled("security.authorityV1")) { const approval = this.effects.issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
+        if (isVerificationOperation(op) || this.effectFlags.enabled("security.authorityV1")) { const approval = (isVerificationOperation(op) ? this.verificationEffects : this.effects).issueApproval(next, thread); this.store.put("approval", approval.approvalId, thread.id, approval); }
         return next;
       }
       case "operation.reject": {
@@ -1445,6 +1454,7 @@ export class Service {
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
     if(this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1"))return this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
+    if(call.name==="verification_prepare")return this.verificationEffects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
     return this.toolBody(call,ctx,owningThread);
   }
   private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
@@ -1496,6 +1506,7 @@ export class Service {
       this.assertRun(ctx);
       return { ...result, totalBytes: bytes.length };
     }
+    if (call.name === "verification_prepare") return this.prepareVerification(ctx.threadId, args, ctx);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
     if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
     if (call.name === "operation_execute") {
@@ -1573,6 +1584,7 @@ export class Service {
         // commandId is host plumbing for receipt dedup, not declaration data.
         const { commandId: _commandId, ...declarationArgs } = a;
         const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
+        if (this.store.get("verificationManaged", ctx.threadId)) throw new HarnessError("APPROVAL_REQUIRED", "Managed verification requirements can only change through a new exact recipe approval.");
         assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
         this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
         return { requirements: declaration.requirements.length };
@@ -1647,6 +1659,17 @@ export class Service {
     }
     return assessment;
   }
+  async prepareVerification(threadId: string, input: unknown, ctx?: RunContext): Promise<Operation> {
+    this.assertMutation(threadId);
+    const thread=ctx?this.assertRun(ctx):this.thread(threadId),owner=ownerFor(thread,ctx),control=this.aborts.get(threadId)??new AbortController();
+    this.aborts.set(threadId,control);this.retainController(control);
+    const assertCurrent=()=>{if(this.closed||this.updateClosing||control.signal.aborted||digest(ownerFor(this.thread(threadId)))!==digest(owner))throw new HarnessError('CANCELLED_RUN','Verification preparation lost its current owner.');};
+    try {
+      const args=await this.verification.prepare(owner,input,control.signal,assertCurrent);assertCurrent();
+      const intent=args.intent,description=`Run verification recipe ${intent.recipe.recipeId} revision ${intent.recipe.revision}: ${intent.recipe.phases.map(phase=>phase.name).join(', ')}. Each START timeout is the total approved server lifetime through readiness and browser checks. Review exact commands, source inputs, profile, environment and requirement checks below.`;
+      return this.context(threadId,control.signal,undefined,ctx).prepareOperation('verification.run',args,[],{intentDigest:digest(intent),sourceDigest:intent.sourceCut.codeDigest,dependencyDigest:intent.sourceCut.dependencyDigest,environmentId:intent.binding.environmentId},description);
+    } finally {this.releaseController(threadId,control);}
+  }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
     if (!requested) throw new HarnessError('NOT_FOUND', 'Operation unavailable');
@@ -1671,6 +1694,7 @@ export class Service {
     if (op.status !== "prepared") throw new HarnessError("RECONCILIATION_REQUIRED", "An operation is already running or has an uncertain outcome");
     this.assertMutation(op.threadId);
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
+    if (isVerificationOperation(op)) throw new HarnessError('VERIFICATION_EXECUTION_UNAVAILABLE', 'The managed verification dispatch bridge is not available on this host. No approval was consumed and no command ran.');
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
       this.effects.verifyOperationApproval(op, this.thread(op.threadId));
@@ -1788,7 +1812,7 @@ export class Service {
       for (const input of this.store.all<Outbox>("outbox").filter(i => i.status !== "handled")) {if(input.requestContextId)this.requestCustody.release(input.requestContextId,'cancelled');this.store.put("outbox", input.id, input.threadId, { ...input, requestContextId:undefined, status: "persisted" });}
       return { inferenceCalls: 0 };
     });
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) recoverEffects(this.store);
+    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1") || this.store.all<ToolEffectRecord>("toolEffect").some(effect=>effect.toolId==="operation:verification.run"||effect.toolId==="verification_prepare")) recoverEffects(this.store);
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();
