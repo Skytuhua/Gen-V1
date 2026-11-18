@@ -2,11 +2,11 @@
 
 ## Custody
 
-- Worktree: `/home/piadmin/Gen-V1-m13-v6` (git worktree of `/home/piadmin/Gen-V1`).
+- Worktree: `Gen-V1-m13-v6` (git worktree of `Gen-V1`).
 - Remote: `https://github.com/skytuhua-org/Gen-V1.git` (resolves to skytuhua-org/Gen-V1, repository id 1442565952).
 - Branch: `agent/m13-v6`, created from captured `origin/main` `c77d4716d94f72008be04562cbb596f1bb445512`.
 - Audit anchor: `4805af4680094d2af48ecf666688e750797e9dda` (source-inspection anchor only; not a claim of test success).
-- Original checkout `/home/piadmin/Gen-V1` on `fix/t10-agents-grid-v3` preserved untouched (its `apps/web/src/App.tsx`, `tests/e2e/model-picker.spec.ts` modifications and untracked `qwencloud-api-key.txt` were never read into the task branch, reset, cleaned or stashed).
+- Original checkout `Gen-V1` on `fix/t10-agents-grid-v3` preserved untouched (its `apps/web/src/App.tsx`, `tests/e2e/model-picker.spec.ts` modifications and an untracked credential file were never read into the task branch, reset, cleaned or stashed).
 - Preflight duplicate-work search (local worktrees/branches, remote branches, named implementation paths) found no M13 owner; the exact assigned branch/worktree was created. No reset, clean, stash or ref updates performed; no account changes.
 
 ## Scope completed
@@ -54,10 +54,10 @@ The assigned agent for the continuation reviewed the state above, preserved the
 task-owned edits verbatim and ran R01/R02/R03 against the current cut.
 
 - Duplicate-work check: this worktree/branch was already the exact assigned
-  `agent/m13-v6` at `/home/piadmin/Gen-V1-m13-v6`; the prior session's task work
+  `agent/m13-v6` at `Gen-V1-m13-v6`; the prior session's task work
   was uncommitted. No alternate branch/worktree was created. The original
-  checkout `/home/piadmin/Gen-V1` (`fix/t10-agents-grid-v3`, its modified
-  `App.tsx`/`model-picker.spec.ts` and untracked `qwencloud-api-key.txt`) and
+  checkout `Gen-V1` (`fix/t10-agents-grid-v3`, its modified
+  `App.tsx`/`model-picker.spec.ts` and an untracked credential file) and
   every other worktree were preserved untouched; a concurrent live session in
   `Gen-V1-m17-v6` was observed and not modified. No reset, clean, stash or ref
   update occurred.
@@ -431,6 +431,17 @@ produced by the M03 native negative matrix on this platform. M03 recorded
 the Windows matrix BLOCKED and no non-Windows proof attempted — the proof
 is a separate work item that must land before any candidate qualifies.
 
+**Evaluated candidate — FAIL (manager preflight, 2026-11-19):**
+bubblewrap `0.9.0-1ubuntu0.3` (installed archive sha256
+`cd6b143283b464baf078ab09ca19dadc5bcc2423b833c4f9dd7e83f9ba1b640b`) was
+preflighted on this host with an owned no-op userspace/PID/network
+namespace probe. It failed: `loopback: Failed RTM_NEWADDR: Operation not
+permitted` — the kernel denies the netlink loopback-addr operation inside
+the candidate's network namespace on this host. Verdict: **not approved**;
+it must not be used as backend proof, and confinement must not be weakened
+to admit it. The candidate search reopens on the next proof-capable
+implementation; the preflight result itself is honest negative evidence.
+
 ## Exact merge scope of draft #838 (for manager review)
 
 **In scope — default-off, inert without flag+backend+proof:**
@@ -450,3 +461,39 @@ the contract only gates it), backend implementation/selection, flag
 enablement, any change to trusted V1 plugin behavior, Hermes ambient
 plugins (stay disabled). These remain held work items, not defects in the
 merged surface.
+
+## Evidence curation pass — CONTRIBUTING.md compliance (2026-11-19)
+
+Per `CONTRIBUTING.md` ("remove ... private paths ... from logs"; "never
+include ... raw test output in a source commit"), every committed M13
+evidence artifact was audited and curated:
+
+- All 18 files under `docs/implementation/v6/M13/logs/*.log` were
+  rewritten in place as curated receipt summaries. Each keeps its
+  filename (so `receipts.jsonl` `logPath` and `boundedLogRef` still
+  resolve), records the command/argv/start/end/exit code from its
+  receipt, and declares the **sha256 + byte size of the original raw
+  bounded log**, which is the value stored in `receipts.jsonl`
+  `logDigest` and `M13-verification.json` `logDigest`. The digest chain
+  is preserved; the raw bytes are withheld per policy.
+- `logs/receipts.jsonl` — one argv token redacted
+  (`<toolchain>/pnpm` → `pnpm`); command identity unchanged.
+- `M13-verification.json` — `cwdIdentity` → `git worktree agent/m13-v6`,
+  `executableIdentity` → `node v24 (host toolchain, linux-arm64)`:
+  truthful environment identity without absolute private paths.
+- This handoff — absolute worktree paths replaced by worktree names.
+
+No receipt values (names, argv, timestamps, exit codes) were altered;
+`logDigest`/`logBytes` were rebound to the committed curated files per the
+repo's integrity convention (`sha256(boundedLogRef) === logDigest`), and
+the original raw-log digest/byte size are preserved as
+`rawLogDigest`/`rawLogBytes` on each receipt line and inside each curated
+file. Receipts remain bound to the exact SHAs on which they ran.
+
+Post-curation current-head validation (on `d50983ed`, receipts
+`*-d50983ed` + `vitest-public-source-final`): `tests/public-source.test.ts`
+11/11 PASS (4377-source manifest, sorted-unique, runtime ⊆ source, all
+paths exist), `plugin-worker-v3` 18/18, `plugin-lifecycle-v3` 15/15,
+`plugin-protocol-decisions-v6` 5/5 — all exit 0. Evidence integrity
+re-check: PASS (schema clean, every `boundedLogRef` digest matches its
+committed file, `reviewerApproval` false, `bundleStatus` PARTIAL).

@@ -1,4 +1,17 @@
+# Curated receipt summary — typecheck
 
-> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m13-v6
-> tsc --noEmit
+command: pnpm typecheck
+startedAt: 2026-11-18T08:51:39.533Z
+endedAt: 2026-11-18T08:59:36.443Z
+exitCode: 0
 
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 dbc5f9451c60e8f45a392c6b171216145547f0240a4fca87d4fe7180f735ecc3, 70 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+(no retained lines)
+```

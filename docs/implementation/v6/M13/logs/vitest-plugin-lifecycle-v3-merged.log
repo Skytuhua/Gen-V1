@@ -1,10 +1,19 @@
+# Curated receipt summary — vitest-plugin-lifecycle-481fc646
 
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m13-v6[39m
+command: pnpm exec vitest run tests/plugin-lifecycle-v3.test.ts
+startedAt: 2026-11-18T18:31:27.064Z
+endedAt: 2026-11-18T18:31:33.015Z
+exitCode: 0
 
- [32m✓[39m tests/plugin-lifecycle-v3.test.ts [2m([22m[2m15 tests[22m[2m)[22m[33m 991[2mms[22m[39m
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 81698af3f84daed005a4bbf918cfccd71bd25e4d08ec87325725c78202022133, 478 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
 
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m15 passed[39m[22m[90m (15)[39m
-[2m   Start at [22m 10:31:29
-[2m   Duration [22m 3.06s[2m (transform 842ms, setup 0ms, import 1.45s, tests 991ms, environment 0ms)[22m
+Key lines, redacted:
 
+```
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Duration  3.06s (transform 842ms, setup 0ms, import 1.45s, tests 991ms, environment 0ms)
+```

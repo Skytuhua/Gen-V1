@@ -1,15 +1,19 @@
+# Curated receipt summary — vitest-public-source-06c1b490
 
-[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m13-v6[39m
+command: pnpm exec vitest run tests/public-source.test.ts
+startedAt: 2026-11-18T21:28:42.028Z
+endedAt: 2026-11-18T21:29:05.965Z
+exitCode: 0
 
- [32m✓[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m)[22m[33m 17957[2mms[22m[39m
-     [33m[2m✓[22m[39m preserves pinned integration bytes when Windows enables automatic CRLF checkout [33m 321[2mms[22m[39m
-     [33m[2m✓[22m[39m resolves the staged host and worker entries using only admitted runtime sources [33m 8459[2mms[22m[39m
-     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 5944[2mms[22m[39m
-     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 657[2mms[22m[39m
-     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 2522[2mms[22m[39m
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 45e4a046109f3502f560909494d6a723e9352406f6703cce05ecd9d3d8152721, 1126 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
 
-[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
-[2m      Tests [22m [1m[32m11 passed[39m[22m[90m (11)[39m
-[2m   Start at [22m 13:28:46
-[2m   Duration [22m 19.62s[2m (transform 437ms, setup 0ms, import 1.23s, tests 17.96s, environment 0ms)[22m
+Key lines, redacted:
 
+```
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  19.62s (transform 437ms, setup 0ms, import 1.23s, tests 17.96s, environment 0ms)
+```

@@ -1,23 +1,18 @@
+# Curated receipt summary — pnpm-typecheck-481fc646
 
-> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m13-v6
-> tsc --noEmit
+command: pnpm typecheck
+startedAt: 2026-11-18T18:32:37.117Z
+endedAt: 2026-11-18T18:38:02.040Z
+exitCode: 134
 
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 1f75ed1cc4b635f3282196eded6f1fe57b2db02d23ebb583c4c6fc7e7bb81751, 1019 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
  ELIFECYCLE  Command failed with exit code 134.
-
-<--- Last few GCs --->
-
-[441676:0xffffb0720000]   310359 ms: Mark-Compact (reduce) 2044.4 (2059.6) -> 2041.0 (2049.1) MB, pooled: 0 MB, 1583.42 / 0.00 ms  (+ 901.6 ms in 117 steps since start of marking, biggest step 34.8 ms, walltime since start of marking 2663 ms) (average mu [441676:0xffffb0720000]   313522 ms: Mark-Compact 2042.0 (2049.3) -> 2036.7 (2050.6) MB, pooled: 0 MB, 3118.51 / 0.00 ms  (average mu = 0.196, current mu = 0.014) allocation failure; scavenge might not succeed
-
 FATAL ERROR: Ineffective mark-compacts near heap limit Allocation failed - JavaScript heap out of memory
------ Native stack trace -----
-
- 1: 0x72846c node::OOMErrorHandler(char const*, v8::OOMDetails const&) [node]
- 2: 0xb2cd5c  [node]
- 3: 0xb2ce34  [node]
- 4: 0xda7f1c  [node]
- 5: 0xda7f4c  [node]
- 6: 0xda82a4  [node]
- 7: 0xdb7a44  [node]
- 8: 0xdbb6a4  [node]
- 9: 0x17a1ed4  [node]
-Aborted (core dumped)
+```

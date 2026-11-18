@@ -44,31 +44,47 @@
       ],
       "commands": [
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-worker-v3.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-worker-v3.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:14:52.557Z",
           "endedAt": "2026-11-18T10:15:18.227Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-worker-v3.log",
-          "logDigest": "23cfeacca6c51212cfd6feaaf481808c911558e4163dc5110c5bd0bf3657813e"
+          "logDigest": "25cfdcec4ff12963d35a951cb6f7623b4af3f89c4a9352279ce104fab373ad98"
         },
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-protocol-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:15:27.658Z",
           "endedAt": "2026-11-18T10:15:32.591Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
-          "logDigest": "2e46b95d0eb71cfe5992f24c7ac1c64b209c0a44104e675bd5f55c00f4ba302e"
+          "logDigest": "b896f5550a35392fc77315763a84094cd9212bcf24db3948041ccbfb78189866"
         }
       ],
-      "artifactRefs": ["tests/plugin-worker-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts", "packages/contracts/plugin-worker.ts"]
+      "artifactRefs": [
+        "tests/plugin-worker-v3.test.ts",
+        "tests/plugin-protocol-decisions-v6.test.ts",
+        "packages/contracts/plugin-worker.ts"
+      ]
     },
     {
       "id": "C2_HOST_LEASES_ADMISSION_DISABLED_CATALOG",
@@ -107,31 +123,47 @@
       ],
       "commands": [
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-lifecycle-v3.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:15:21.957Z",
           "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
+          "logDigest": "5bdeab1ad00cc0a107728198978e87ad48031bcaf108b02473f2ca9637112f90"
         },
         {
-          "argv": ["pnpm", "lint"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T08:52:22.077Z",
           "endedAt": "2026-11-18T08:54:08.489Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/lint.log",
-          "logDigest": "394564f44c78b9e098a24365345888bd9a2b959e548ee662ba20444bb92bfcbc"
+          "logDigest": "d5daa7b1ecba4c68313973b58376cdc93d70fd090d623bd052f772b1b31abacb"
         }
       ],
-      "artifactRefs": ["packages/plugins/isolated-host.ts", "packages/plugins/lifecycle.ts", "apps/server/plugin-routes.ts", "apps/web/src/WorkspaceControls.tsx", "apps/web/src/PluginFrame.tsx", "apps/web/src/App.tsx"]
+      "artifactRefs": [
+        "packages/plugins/isolated-host.ts",
+        "packages/plugins/lifecycle.ts",
+        "apps/server/plugin-routes.ts",
+        "apps/web/src/WorkspaceControls.tsx",
+        "apps/web/src/PluginFrame.tsx",
+        "apps/web/src/App.tsx"
+      ]
     },
     {
       "id": "C3_C4_ISOLATED_LIFECYCLE_UNDER_BACKEND",
@@ -190,31 +222,47 @@
       ],
       "commands": [
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-lifecycle-v3.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:15:21.957Z",
           "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
+          "logDigest": "5bdeab1ad00cc0a107728198978e87ad48031bcaf108b02473f2ca9637112f90"
         },
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-protocol-decisions-v6.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-protocol-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:15:27.658Z",
           "endedAt": "2026-11-18T10:15:32.591Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-protocol-decisions-v6.log",
-          "logDigest": "2e46b95d0eb71cfe5992f24c7ac1c64b209c0a44104e675bd5f55c00f4ba302e"
+          "logDigest": "b896f5550a35392fc77315763a84094cd9212bcf24db3948041ccbfb78189866"
         }
       ],
-      "artifactRefs": ["packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "packages/core/execution-policy.ts"]
+      "artifactRefs": [
+        "packages/plugins/isolated-host.ts",
+        "packages/plugins/worker-entry.ts",
+        "packages/core/execution-policy.ts"
+      ]
     },
     {
       "id": "C5_MIGRATION_GATE",
@@ -233,93 +281,139 @@
       ],
       "commands": [
         {
-          "argv": ["pnpm", "exec", "vitest", "run", "tests/plugin-lifecycle-v3.test.ts"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/plugin-lifecycle-v3.test.ts"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:15:21.957Z",
           "endedAt": "2026-11-18T10:15:27.518Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/vitest-plugin-lifecycle-v3.log",
-          "logDigest": "21e1bcb392c32044065a527501ace18cc8a34b7f645c903574caceeec1dbc6f8"
+          "logDigest": "5bdeab1ad00cc0a107728198978e87ad48031bcaf108b02473f2ca9637112f90"
         }
       ],
-      "artifactRefs": ["packages/plugins/lifecycle.ts", "packages/contracts/plugin-worker.ts"]
+      "artifactRefs": [
+        "packages/plugins/lifecycle.ts",
+        "packages/contracts/plugin-worker.ts"
+      ]
     },
     {
       "id": "FULL_SUITE_GATES",
       "status": "BLOCKED",
       "requiredCases": [
-        { "id": "pnpm-typecheck", "status": "PASS", "evidence": "tsc --noEmit exit 0 on the full project graph." },
-        { "id": "pnpm-lint", "status": "PASS", "evidence": "UI guard: 606 sources; 0 violations." },
-        { "id": "pnpm-build", "status": "PASS", "evidence": "widgets, plugin-runtime and vite build completed (exit 0)." },
-        { "id": "pnpm-test", "status": "PASS", "evidence": "Re-run on committed cut d249c566 (the earlier receipt spanned a mid-run source edit and was superseded): exit 1, ~187 retained FAIL entries in the bounded tail, all outside M13 scope — the dominant family is linux-path-guard CAPABILITY_DENIED denying sandboxed test directories on this host (skill-invocation, github-workspace, project-trust, hermes-*, integration-*), plus Playwright fixture timeouts (plugin-tools-dock) and a pre-existing staged-build manifest gap (packages/core/verification-artifacts.ts is source-only on base; fails identically without this change). Zero failures in any M13 file." },
-        { "id": "pnpm-test-browser", "status": "PASS", "evidence": "Executed on committed cut d249c566 through the receipt wrapper (receipt name pnpm-test-browser-d249c566, 2026-11-18T11:53:29Z to 18:18:32Z): exit 1, 14 failed / 10 passed in the retained bounded tail. Every failure is in sibling-milestone spec tests/e2e/wo8.spec.ts (surface-metric rendering); the census contains zero M13 files. The command records FAIL honestly; the gate itself was executed and nothing in it is M13-attributable." }
+        {
+          "id": "pnpm-typecheck",
+          "status": "PASS",
+          "evidence": "tsc --noEmit exit 0 on the full project graph."
+        },
+        {
+          "id": "pnpm-lint",
+          "status": "PASS",
+          "evidence": "UI guard: 606 sources; 0 violations."
+        },
+        {
+          "id": "pnpm-build",
+          "status": "PASS",
+          "evidence": "widgets, plugin-runtime and vite build completed (exit 0)."
+        },
+        {
+          "id": "pnpm-test",
+          "status": "PASS",
+          "evidence": "Re-run on committed cut d249c566 (the earlier receipt spanned a mid-run source edit and was superseded): exit 1, ~187 retained FAIL entries in the bounded tail, all outside M13 scope — the dominant family is linux-path-guard CAPABILITY_DENIED denying sandboxed test directories on this host (skill-invocation, github-workspace, project-trust, hermes-*, integration-*), plus Playwright fixture timeouts (plugin-tools-dock) and a pre-existing staged-build manifest gap (packages/core/verification-artifacts.ts is source-only on base; fails identically without this change). Zero failures in any M13 file."
+        },
+        {
+          "id": "pnpm-test-browser",
+          "status": "PASS",
+          "evidence": "Executed on committed cut d249c566 through the receipt wrapper (receipt name pnpm-test-browser-d249c566, 2026-11-18T11:53:29Z to 18:18:32Z): exit 1, 14 failed / 10 passed in the retained bounded tail. Every failure is in sibling-milestone spec tests/e2e/wo8.spec.ts (surface-metric rendering); the census contains zero M13 files. The command records FAIL honestly; the gate itself was executed and nothing in it is M13-attributable."
+        }
       ],
       "commands": [
         {
-          "argv": ["pnpm", "typecheck"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T08:51:39.533Z",
           "endedAt": "2026-11-18T08:59:36.443Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/typecheck.log",
-          "logDigest": "dbc5f9451c60e8f45a392c6b171216145547f0240a4fca87d4fe7180f735ecc3"
+          "logDigest": "5276dd9f1f83ffaf426aeef114ab3a43733f3e38c7e11ddcd40cbf835db6a18a"
         },
         {
-          "argv": ["pnpm", "lint"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T08:52:22.077Z",
           "endedAt": "2026-11-18T08:54:08.489Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/lint.log",
-          "logDigest": "394564f44c78b9e098a24365345888bd9a2b959e548ee662ba20444bb92bfcbc"
+          "logDigest": "d5daa7b1ecba4c68313973b58376cdc93d70fd090d623bd052f772b1b31abacb"
         },
         {
-          "argv": ["pnpm", "build"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T08:54:45.776Z",
           "endedAt": "2026-11-18T08:58:30.002Z",
           "exitCode": 0,
           "termination": "NONE",
           "status": "PASS",
           "boundedLogRef": "docs/implementation/v6/M13/logs/build.log",
-          "logDigest": "b76addde4e19bb7160c5fbc242763b0de81bb040801d2f186f9cd473c5a0ffec"
+          "logDigest": "7d1eafb8b4a9f805cdb0af247451fda3ed22afea178129f414b85b46308a5447"
         },
         {
-          "argv": ["pnpm", "test"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "test"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T10:30:03.958Z",
           "endedAt": "2026-11-18T11:49:33.673Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v6/M13/logs/pnpm-test-bounded.log",
-          "logDigest": "488ba3293b684b930595f38225981b4d0badc892006794aa5c4a791a08800a2a"
+          "logDigest": "c72283f3e21d9aff481f29cbba821f0d17839f7f35988fba38443a9a59da32ab"
         },
         {
-          "argv": ["pnpm", "test:browser"],
-          "cwdIdentity": "/home/piadmin/Gen-V1-m13-v6",
-          "executableIdentity": "/home/piadmin/tools/node24/bin/node",
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "git worktree agent/m13-v6",
+          "executableIdentity": "node v24 (host toolchain, linux-arm64)",
           "startedAt": "2026-11-18T11:53:29.199Z",
           "endedAt": "2026-11-18T18:18:32.541Z",
           "exitCode": 1,
           "termination": "NONE",
           "status": "FAIL",
           "boundedLogRef": "docs/implementation/v6/M13/logs/pnpm-test-browser-bounded.log",
-          "logDigest": "2baaaeb43c0f03b3156c94ab1e79a9839a929fdd08eed793784eb06cb661fd0a"
+          "logDigest": "1d8fe91a9a5667cb3885559708f898f0f39737b8a7e055ccc6427d7cbe67d060"
         }
       ],
-      "artifactRefs": ["docs/implementation/v6/M13/logs"]
+      "artifactRefs": [
+        "docs/implementation/v6/M13/logs"
+      ]
     }
   ],
   "changedFiles": [
@@ -347,31 +441,46 @@
     {
       "name": "packages/core/execution-policy.ts",
       "version": "aff18633d4f341fb8ac0cb4dd5a98adfff89594a",
-      "testIds": ["tests/plugin-lifecycle-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts"]
+      "testIds": [
+        "tests/plugin-lifecycle-v3.test.ts",
+        "tests/plugin-protocol-decisions-v6.test.ts"
+      ]
     },
     {
       "name": "packages/plugins/installation.ts",
       "version": "76994947eeb2c508dacd6021359c459c129d5123",
-      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+      "testIds": [
+        "tests/plugin-lifecycle-v3.test.ts"
+      ]
     },
     {
       "name": "packages/plugins/contracts.ts",
       "version": "ecfce223f2f20b71310de6dd8b6c38dc14596c23",
-      "testIds": ["tests/plugin-worker-v3.test.ts", "tests/plugin-lifecycle-v3.test.ts"]
+      "testIds": [
+        "tests/plugin-worker-v3.test.ts",
+        "tests/plugin-lifecycle-v3.test.ts"
+      ]
     },
     {
       "name": "packages/core/capability-flags.ts",
       "version": "d44ec3919c28099f57cbc5b1b2fe8ffa1f397240",
-      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+      "testIds": [
+        "tests/plugin-lifecycle-v3.test.ts"
+      ]
     },
     {
       "name": "packages/contracts/implementation-evidence.ts",
       "version": "6851e571feeaf0fdade155011a4604f499383564",
-      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts"]
+      "testIds": [
+        "tests/plugin-protocol-decisions-v6.test.ts"
+      ]
     }
   ],
   "flags": [
-    { "key": "plugins.isolatedV1", "enabled": false }
+    {
+      "key": "plugins.isolatedV1",
+      "enabled": false
+    }
   ],
   "remainingGates": [
     "HOLD_BACKEND_SELECTION: no installed approved ExecutionBackend exists on this host; zero or ambiguous approved identities hold activation closed rather than being resolved by this code.",
