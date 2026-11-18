@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/home/piadmin/tools/pnpm",
+    "exec",
+    "vitest",
+    "run",
+    "tests/source-selection-v3.test.ts"
+  ],
+  "cwdIdentity": "/home/piadmin/Gen-V1-m15-v6",
+  "executableIdentity": "/home/piadmin/tools/pnpm",
+  "startedAt": "2026-11-17T07:17:11.563Z",
+  "endedAt": "2026-11-17T07:17:14.366Z",
+  "exitCode": 0,
+  "termination": "NONE",
+  "status": "PASS",
+  "boundedLogRef": "docs/implementation/v6/M15/logs/postmerge-vitest-source-selection-v3.log",
+  "logDigest": "56a74f88cbb320f64295f02f51783ee36a48a93ac511a0fce68fc037e4234021"
+}

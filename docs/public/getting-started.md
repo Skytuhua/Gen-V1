@@ -94,6 +94,14 @@ After an interruption, inspect the saved task state and receipts before resuming
 | Cleanup is unconfirmed | Preserve the blocked state and investigate shutdown; do not clear ownership guards. |
 | A source feature differs from the installer | Compare the [source/preview release notes](release-notes.md). |
 
+## Troubleshooting a fresh development checkout
+
+| Symptom | Cause and fix |
+| --- | --- |
+| `py -3.14` is not recognized, or Hermes reports Python cannot start | CPython **3.14** is not on PATH. Install it, then rerun the pinned `--target` install above. On hosts without the Windows `py` launcher, set `HARNESS_HERMES_PYTHON` to the interpreter's absolute path so the host can find it. |
+| `pnpm install` fails inside `node-pty` (`prebuild` / `node-gyp` errors) | The pinned `node-pty@1.1.0` ships no prebuilt binary for some non-Windows platforms (for example Linux arm64) and falls back to `node-gyp rebuild`. Install a C++ toolchain — `python3`, `g++` and `make` — then rerun `pnpm install` (or `pnpm rebuild node-pty`). The repository patch in `pnpm-workspace.yaml` is applied automatically. |
+| Browser suites fail with `Executable doesn't exist` for `chrome` or `msedge` | Several Playwright configs pin a branded channel (`channel: 'chrome'` or `'msedge'`) instead of the bundled Chromium. Install the channel — `pnpm exec playwright install chrome msedge` or the vendor's system package — or run a suite that uses bundled Chromium. Configs that select `msedge` only on Windows already fall back on other platforms. |
+
 Building an installer also needs pinned integration and Git/GitHub CLI bundles. A JavaScript install alone is insufficient; follow the [full packaging instructions](../getting-started.md#build-a-windows-installer). No private plug-in checkout or real profile is required.
 
 For bugs, follow [CONTRIBUTING.md](../../CONTRIBUTING.md). Report sensitive findings through [SECURITY.md](../../SECURITY.md). The first-party code remains governed by [LICENSE](../../LICENSE).
