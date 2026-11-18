@@ -28,7 +28,9 @@ export function resolveExecutable(name: string): ResolvedExecutable {
   if (/\.(cmd|bat|ps1)$/i.test(name)) throw new HarnessError('UNSAFE_EXECUTABLE', `Refusing to spawn a shell shim without a shell: ${name}`);
   if (name.includes('/') || name.includes('\\') || isAbsolute(name)) {
     const target = resolve(name);
-    if (!existsSync(target)) throw new HarnessError('SPAWN_ERROR', `Executable is missing: ${target}`);
+    const targetStat = statSync(target, { throwIfNoEntry: false });
+    if (!targetStat) throw new HarnessError('SPAWN_ERROR', `Executable is missing: ${target}`);
+    if (!targetStat.isFile()) throw new HarnessError('SPAWN_ERROR', `Executable path is not a file: ${target}`);
     return { file: target, identity: realpathSync(target) };
   }
   for (const dir of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
