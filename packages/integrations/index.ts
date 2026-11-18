@@ -180,7 +180,7 @@ export class IntegrationManager {
    // Node's Error cause is logged by util.inspect independently of message
    // and stack. Walk only native Error causes, without invoking arbitrary
    // object getters, and preserve the original error and cause identities.
-   const pending=[error], seen=new Set<Error>();
+   const pending:Error[]=[error], seen=new Set<Error>();
    while(pending.length){
     const failure=pending.pop()!;
     if(seen.has(failure))continue;
