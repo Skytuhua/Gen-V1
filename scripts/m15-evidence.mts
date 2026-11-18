@@ -11,9 +11,14 @@ const read=(path:string)=>readFileSync(path,'utf8');
 const json=(path:string)=>JSON.parse(read(path));
 const hash=(path:string)=>createHash('sha256').update(readFileSync(path)).digest('hex');
 const write=(path:string,value:unknown)=>writeFileSync(path,JSON.stringify(value,null,2)+'\n');
-const git=(...args:string[])=>execFileSync('git',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']}).trim();
+const gitOutput=(...args:string[])=>execFileSync('git',args,{encoding:'utf8',stdio:['ignore','pipe','pipe']});
+const git=(...args:string[])=>gitOutput(...args).trim();
 const plan=json(prefix+'evidence-plan.json') as {executionBaseSha:string;auditAncestorSha:string;acceptedDependencyCommits:string[];dependencyContracts:{name:string;testIds:string[]}[];inspectedPaths:string[];remainingGates:string[];phases:{id:string;status:PhaseEvidence['status'];cases:PhaseEvidence['requiredCases'];commandIds:string[];artifactRefs:string[]}[]};
-const paths=(base:string)=>[...new Set([...git('diff','--name-only',base).split('\n'),...git('ls-files','--others','--exclude-standard').split('\n')].filter(Boolean).filter(path=>existsSync(path)))].sort();
+// Git's line-oriented output quotes non-ASCII paths and escapes whitespace.
+const paths=(base:string)=>[...new Set([
+ ...gitOutput('diff','--name-only','-z',base,'--').split('\0'),
+ ...gitOutput('ls-files','--others','--exclude-standard','-z','--').split('\0'),
+].filter(path=>path&&existsSync(path)))].sort();
 const walk=(path:string):string[]=>readdirSync(path).sort().flatMap(name=>{const file=join(path,name);return statSync(file).isDirectory()?walk(file):[file];});
 const records=()=>readdirSync(`${root}/m15-logs`).filter(name=>name.endsWith('.json')).sort().flatMap(name=>{
  const file=`${root}/m15-logs/${name}`,value=json(file);
@@ -82,9 +87,10 @@ check(new Set(embedded.map(command=>command.boundedLogRef)).size===embedded.leng
 for(const command of embedded){
  const record=byLog.get(command.boundedLogRef);
  check(Boolean(record)&&JSON.stringify(record!.command)===JSON.stringify(command),`Embedded command differs from immutable receipt: ${command.boundedLogRef}`);
- check(existsSync(command.boundedLogRef)&&hash(command.boundedLogRef)===command.logDigest,`Missing or mismatched command log: ${command.boundedLogRef}`);
- const log=read(command.boundedLogRef);
- check(log.startsWith(`argv: ${JSON.stringify(command.argv)}\ncwd: ${command.cwdIdentity}\nexitCode: ${command.exitCode}\ntermination: ${command.termination}\n`),`Log observation header differs: ${command.boundedLogRef}`);
+ let log:Buffer|undefined;
+ try{log=readFileSync(command.boundedLogRef);}catch{/* Record the unavailable log as an integrity failure below. */}
+ check(Boolean(log)&&createHash('sha256').update(log!).digest('hex')===command.logDigest,`Missing or mismatched command log: ${command.boundedLogRef}`);
+ if(log)check(log.toString('utf8').startsWith(`argv: ${JSON.stringify(command.argv)}\ncwd: ${command.cwdIdentity}\nexitCode: ${command.exitCode}\ntermination: ${command.termination}\n`),`Log observation header differs: ${command.boundedLogRef}`);
  check(Date.parse(command.endedAt)>=Date.parse(command.startedAt),`Invalid command timing: ${command.boundedLogRef}`);
 }
 const artifacts=json(prefix+'artifacts.json').files as {path:string;bytes:number;sha256:string}[];
