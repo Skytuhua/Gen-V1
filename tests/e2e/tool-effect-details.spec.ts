@@ -110,6 +110,31 @@ test('a late response cannot replace evidence fetched after a run-owner change',
   } finally { release(); }
 });
 
+test('a model change refreshes evidence and discards a pending old-model observation', async ({ page }) => {
+  const value = await fixture(page), drawer = await value.open();
+  await expect(drawer.locator('pre')).toContainText('"state": "DISPATCHED"');
+  const initialReads = value.reads(), release = value.holdNext();
+  try {
+    value.observation.effect!.outcome = { error: 'Earlier model observation' };
+    await drawer.getByRole('button', { name: 'Reload evidence', exact: true }).click();
+    await expect.poll(value.reads).toBe(initialReads + 1);
+    value.snapshot.threads[0].modelId = 'test/model-new';
+    value.observation.effect!.outcome = { error: 'Current model observation' };
+    value.observation.freshness = 'STALE';
+    await value.host.publish();
+    await expect(drawer.locator('pre')).toContainText('Current model observation');
+    const old = page.waitForResponse(async response => {
+      if (!new URL(response.url()).pathname.endsWith('/observations') || !response.ok()) return false;
+      return (await response.json()).effect?.outcome?.error === 'Earlier model observation';
+    });
+    release(); await old;
+    await expect(drawer.locator('pre')).toContainText('Current model observation');
+    await expect(drawer.locator('pre')).not.toContainText('Earlier model observation');
+    await expect(drawer.locator('pre')).toContainText('"freshness": "STALE"');
+    expect(value.host.commands.filter(command => command.type.startsWith('operation.'))).toEqual([]);
+  } finally { release(); }
+});
+
 test('repository test approval visibly discloses unrestricted host execution', async ({ page }) => {
   const value = await fixture(page);
   Object.assign(value.operation, { kind: 'repository.test', status: 'prepared', approved: false,
