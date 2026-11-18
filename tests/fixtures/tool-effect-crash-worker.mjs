@@ -4,12 +4,19 @@ const { Store } = await import('../../packages/storage/store.ts');
 const { buildToolRegistry, ToolAuthority } = await import('../../packages/core/tool-authority.ts');
 const { __setEffectFaultHookForTests, createToolEffectFlags, ToolEffectLedger } = await import('../../packages/core/tool-effects.ts');
 const { recoverEffects } = await import('../../packages/core/effect-recovery.ts');
+const { createEffectAuthenticator } = await import('../../packages/core/host-effect-authenticator.ts');
+const { randomBytes, randomUUID } = await import('node:crypto');
 
 const [mode, root, phase] = process.argv.slice(2);
 if (!root || !['crash', 'recover'].includes(mode)) throw new Error('Expected mode and owned fixture root');
 const store = new Store(join(root, 'state'));
+// Authenticated mode signs issued approvals, so the crash worker owns a signer
+// exactly as the product host does when key custody is enabled.
+// Authenticated mode signs issued approvals, so this worker owns a signer exactly
+// as the product host does when key custody is enabled.
 const ledger = new ToolEffectLedger(store, new ToolAuthority(buildToolRegistry()),
-  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }),
+  createEffectAuthenticator(randomBytes(32), randomUUID()));
 const thread = {
   id: 'crash-thread', title: 'Crash fixture', projectName: null, createdAt: '', updatedAt: '',
   status: 'working', epoch: 1, runId: 'crash-run', modelId: null, sessionPath: null,

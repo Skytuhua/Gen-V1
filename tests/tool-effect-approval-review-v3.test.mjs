@@ -6,6 +6,7 @@ const { Service } = await import('../packages/core/service.ts');
 const { Store } = await import('../packages/storage/store.ts');
 const { HarnessError } = await import('../packages/contracts/index.ts');
 const domain = await import('../packages/capabilities/index.ts');
+const { testEffectAuthenticator } = await import('./fixtures/effect-authenticator.ts');
 
 const cleanups = [];
 afterEach(async () => {
@@ -28,8 +29,11 @@ async function fixture() {
     start: async () => {}, followUp: async () => {}, cancel: async () => {},
     compact: async () => {}, history: async () => [], dispose: async () => {},
   };
+  // Authenticated mode requires the host signer: issuing an approval signs the
+  // exact action commitment, so a host without one must refuse to issue it.
+  const authenticator = testEffectAuthenticator();
   const service = new Service(store, runtime, {
-    toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: authenticator,
   });
   cleanups.push(async () => { await service.dispose(); store.close(); await rm(root, { recursive: true, force: true }); });
   const command = (type, threadId, payload = {}) =>
