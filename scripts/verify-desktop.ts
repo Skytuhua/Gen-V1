@@ -62,13 +62,13 @@ try{
  checks.push({name:'Native sidebar pointer and keyboard expansion with draft retention at 100/125/150 percent app zoom',passed:true,details:{zoom:[1,1.25,1.5],actualViewportCases:zoomGeometry,actualDisplays:displayGeometry,physicalDpiChange:false,originalR15Reproduced:false}});
  const composer=main.getByRole('textbox',{name:'Message',exact:true}),composerIdentity=await composer.elementHandle(),nativeCount=app.windows().length;
  await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
- await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
- await main.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+ await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Move chat',exact:true}).click();
+ await main.getByRole('menuitem',{name:'Float',exact:true}).click();
  const float=main.locator('[data-split-view="thread:task-thread"][data-floating="true"]');await expect(float).toBeVisible();expect(app.windows().length).toBe(nativeCount);
  const before=(await float.boundingBox())!,handle=(await float.getByRole('button',{name:'Resize Source-bound task fixture',exact:true}).boundingBox())!;
  await main.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await main.mouse.down();
  try{await main.mouse.move(handle.x+handle.width/2+28,handle.y+handle.height/2+20,{steps:3});await expect.poll(async()=>(await float.boundingBox())!.width).toBeGreaterThan(before.width+10);const measure=await float.evaluate(node=>{const r=node.getBoundingClientRect();return {layout:(node as HTMLElement).offsetWidth,display:r.width};});expect(Math.abs(measure.layout-measure.display)).toBeLessThanOrEqual(1);}finally{await main.mouse.up();}
- await float.getByRole('button',{name:'Placement and move for Source-bound task fixture',exact:true}).click();await main.getByRole('menuitem',{name:'Return to main',exact:true}).click();await expect(float).toHaveCount(0);
+ await float.getByRole('button',{name:'Move chat',exact:true}).click();await main.getByRole('menuitem',{name:'Return to main',exact:true}).click();await expect(float).toHaveCount(0);
  await expect(composer).toHaveValue('Keep this native chat draft.');expect(await composer.evaluate((node,original)=>node===original,composerIdentity)).toBe(true);expect(await composer.evaluate(node=>({start:(node as HTMLTextAreaElement).selectionStart,end:(node as HTMLTextAreaElement).selectionEnd}))).toEqual({start:2,end:6});expect(app.windows().length).toBe(nativeCount);
  checks.push({name:'Native canonical float/real resize/return preserves one composer, draft and caret without a new native window',passed:true});
  const originalMainBounds=(await nativeState(main)).bounds,physicalTransitions:{displayId:number;scaleFactor:number;devicePixelRatio:number;x:number;y:number}[]=[];
