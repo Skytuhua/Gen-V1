@@ -86,9 +86,15 @@ and the drift record stands for the branch line itself.
 - `pnpm test:browser --suite background-work` — exit 0, 11/11 on bundled
   Chromium (drawer states, Respond/Decline, schedules, inbox, close
   warning, cancel custody).
-- `pnpm test:browser` (full, 78 suites) — see `receipts-postmerge.jsonl`;
-  the whole-repo browser gate's prior outcome was a 60-minute runner
-  TIMEOUT on this environment and its characterization is unchanged.
+- `pnpm test:browser` (full, 78 suites) — launched as a separate observed
+  command; still in-flight at handoff writing
+  `logs-pm/test-browser-full.log` (early non-M10 specs fail in the same
+  environmental classes; the scoped M10 suite already passed 11/11). Its
+  `logs-pm/tbf.exit` marker and final log land autonomously; the prior
+  characterization (60-minute runner TIMEOUT on this environment) is
+  unchanged. To append its receipt and refresh the verification phase:
+  `python3 docs/implementation/v6/M10/build-postmerge-receipts.py` then
+  `python3 docs/implementation/v6/M10/update-postmerge-verification.py`.
 
 ## Holds carried forward (unchanged)
 
