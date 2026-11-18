@@ -1690,6 +1690,16 @@ export class Service {
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");
+      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
+        // Module loading yields after admission. Revalidate the durable owner
+        // before the executor can submit an effect; the approval stays spent.
+        const admitted = this.effects.get("operation:" + id + "@" + op.revision), current = this.thread(op.threadId);
+        const owner = admitted?.owner;
+        if (!owner || admitted.state !== "DISPATCHED" || owner.threadId !== current.id || owner.runId !== (current.runId ?? null)
+          || owner.epoch !== current.epoch || owner.accountBinding !== (current.accountId ?? null)
+          || owner.projectId !== (current.projectId ?? null) || owner.workspaceId !== (current.workspaceId ?? null))
+          throw new HarnessError("AUTHORITY_DENIED", "The admitted owner changed before dispatch");
+      }
       let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
       const result = await domain.executeDomainOperation({ ...op, status: "running" }, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
