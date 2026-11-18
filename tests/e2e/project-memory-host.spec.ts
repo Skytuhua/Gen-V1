@@ -1,5 +1,7 @@
 import type { Page } from '@playwright/test';
+import { join } from 'node:path';
 import { memoryPreparedRequestSchema, type MemoryPreparedRequest, type MemoryTombstoneV1 } from '../../packages/contracts/project-memory.ts';
+import { MEMORY_STUDY_POLICY, runMemoryStudy } from '../../evals/project-memory-study.ts';
 import { MEMORY_CLAIM, MEMORY_FIXTURE_LABEL, MEMORY_HOST_URL, MEMORY_SOURCE, MEMORY_SOURCE_PROMPT, type MemoryHostFixture, test, expect } from '../project-memory-host-fixture.ts';
 
 const review = (page: Page) => page.getByRole('dialog', { name: 'Project memory', exact: true });
@@ -238,4 +240,38 @@ test('real concurrent user corrections stay out of recall until explicitly resol
     await info.attach('memory-host-expired-source', { path: expiryImage, contentType: 'image/png' });
     expect((await memoryHost.memory(thread.id)).items[0]!.item).toMatchObject({ revision: 6, state: 'EXPIRED', text: corrected });
   } finally { await concurrent.close(); }
+});
+
+test('the repeated-task runner preserves control custody and unknown spend through the real host protocol', async ({ page, memoryHost }, info) => {
+  // This verifies the actual HTTP runner contract, not model quality. The
+  // scripted runtime deliberately returns non-JSON text and reports no spend.
+  const { thread, proposed } = await createMemoryProject(page, memoryHost);
+  await openReview(page); await review(page).getByRole('tab', { name: 'Proposals', exact: true }).click();
+  const row = review(page).getByRole('article', { name: `Memory ${proposed.id}`, exact: true });
+  await row.getByRole('button', { name: `Edit ${proposed.id}`, exact: true }).click();
+  await review(page).getByRole('textbox', { name: 'Memory text', exact: true }).fill(MEMORY_STUDY_POLICY);
+  await review(page).getByRole('button', { name: 'Accept edited memory', exact: true }).click();
+  await review(page).getByRole('tab', { name: 'Accepted', exact: true }).click();
+  await expect(row).toContainText('Accepted · revision 2');
+  const directory = info.outputPath('scripted-study-protocol');
+  const report = await runMemoryStudy({ destination: directory, host: MEMORY_HOST_URL, modelId: 'fixture/project-memory', projectId: thread.projectId!, sourceThreadId: thread.id, timeoutMs: 15_000 });
+  await info.attach('scripted-study-protocol', { path: join(directory, 'results.json'), contentType: 'application/json' });
+  await info.attach('scripted-study-scope', { body: Buffer.from('Production host HTTP/CSRF, Service, Store and study protocol with scripted foreground/extraction adapters. No model inference, native provider, live quality or measured provider charge.'), contentType: 'text/plain' });
+  expect(report.status).toBe('INCOMPLETE_COST');
+  expect(report.runs).toHaveLength(6); expect(report.warmups).toHaveLength(6);
+  expect(report.execution).toMatchObject({ providerId: 'fixture', providerCalls: null, foregroundSubmissions: 12 });
+  expect(report.summary).toMatchObject({ controlCorrectness: 0, treatmentCorrectness: 0, recallUsefulness: 0, totalAuxiliaryCost: null });
+  expect(report.auxiliaryAfter?.extraction).toMatchObject({ modelCalls: 1, cost: null, pending: 0 });
+  expect(report.runs.every(run => run.foregroundCost === null)).toBe(true);
+  for (const run of report.runs) {
+    const delivery = memoryHost.runtime.deliveries.find(input => input.threadId === run.threadId && input.requestContext?.requestId === run.requestId)!;
+    expect(delivery).toBeDefined();
+    if (run.arm === 'thread-note-only') {
+      expect(run.injectedBytes).toBe(0); expect(run.selectedRevisions).toEqual([]);
+      expect(delivery.memory).toContain(MEMORY_STUDY_POLICY); expect(delivery.prompt).not.toContain(MEMORY_STUDY_POLICY);
+    } else {
+      expect(run.injectedBytes).toBeGreaterThan(0); expect(run.selectedRevisions).toEqual([{ itemId: proposed.id, revision: 2 }]);
+      expect(delivery.memory).toBeUndefined(); expect(delivery.prompt).toContain(MEMORY_STUDY_POLICY);
+    }
+  }
 });

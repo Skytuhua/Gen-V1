@@ -1,0 +1,214 @@
+{
+  "requirements": [
+    {
+      "id": "M16-C01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/interactive-control.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-C01 InteractiveGrantV1 contract"],
+      "reason": "InteractiveGrantV1 contract: grantId, ToolOwner scope, device/session identity, exact target (APPLICATION|BROWSER_TAB), permitted interact ops, origins, capture permission, issue/expiry, revocation generation. Ten-minute expiry, never auto-extended, creation identity binds the granted target."
+    },
+    {
+      "id": "M16-C02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/interactive-control.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-C02/M16-C03 action and capture contracts"],
+      "reason": "ControlActionV1: actionId, grantId, exact target identity, CAPTURE|CLICK|TYPE|KEYPRESS|UPLOAD|DOWNLOAD|NAVIGATE, redacted parameters, pre/post observation references, effect receipt. Capture is a separate action and permission from input."
+    },
+    {
+      "id": "M16-C03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/interactive-control.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-C02/M16-C03 action and capture contracts"],
+      "reason": "CaptureV1: artifactId, target, timestamp, frame dimensions, source owner, user-selected scope (WINDOW|TAB|REGION). No automatic redaction guarantee is declared anywhere."
+    },
+    {
+      "id": "M16-S01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/browser-consent.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-S01/S02 modes, consent preview and driver resolution"],
+      "reason": "Consent previews explicitly list Observe versus Interact and the expiry; a grant exists only after explicit consent through the host. Screenshots or existing sessions grant nothing."
+    },
+    {
+      "id": "M16-S02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/browser-consent.ts", "apps/web/src/ControlConsentPanel.tsx"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-S01/S02 modes, consent preview and driver resolution"],
+      "reason": "Consent request requires the exact target and lists observe/interact permissions and 10-minute expiry before grant. Request records are durable 'controlConsent' store rows."
+    },
+    {
+      "id": "M16-S03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/browser-consent.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-S03 target revalidation at each action"],
+      "reason": "Target is revalidated for each action: new navigation/origin, recreated window or changed creation identity forces new consent before the next action."
+    },
+    {
+      "id": "M16-S04",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/desktop-control.ts"],
+      "testIds": ["tests/desktop-control-v3.test.ts::M16-D05/S04 independent Stop"],
+      "reason": "Stop revokes the dispatch generation before cancelling queued actions, independent of model state; in-flight driver calls complete or cancel, queued ones never dispatch."
+    },
+    {
+      "id": "M16-S05",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/ControlConsentPanel.tsx", "packages/core/browser-consent.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-G surface model and store records"],
+      "reason": "UI presents screenshots as captures that may include private data; no surface implies secrets are automatically hidden or redacted."
+    },
+    {
+      "id": "M16-S06",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/desktop-control.ts"],
+      "testIds": ["tests/desktop-control-v3.test.ts::M16-S06 dispatch serialization, rate and observation freshness", "tests/interactive-control-decisions-v6.test.ts::M16-D04"],
+      "reason": "Dispatch is serialized, at most 5 actions per second (>=200ms spacing), each bound to a fresh observation (<=2000ms) and the current grant generation."
+    },
+    {
+      "id": "M16-S07",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/browser-consent.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-C01 InteractiveGrantV1 contract"],
+      "reason": "Every control request carries explicit ToolOwner {threadId,runId,epoch,projectId,workspaceId,accountBinding} plus authenticated device/session identity; grants are stored under the owner's scope."
+    },
+    {
+      "id": "M16-S08",
+      "disposition": "BLOCKED",
+      "sourcePaths": [],
+      "testIds": [],
+      "reason": "Real-account browser/desktop write test needs an approved installed driver (HOLD_DRIVER_SPECIFICATION). No live browser desktop driver exists in this task."
+    },
+    {
+      "id": "M16-S09",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/desktop-control.ts", "packages/core/browser-consent.ts"],
+      "testIds": ["tests/desktop-control-v3.test.ts::M16-S09/D07 capability detection and driver absence"],
+      "reason": "Probe names the missing driver/backend and leaves input functions unregistered; no generic fallback adapter is installed."
+    },
+    {
+      "id": "M16-S10",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/ControlConsentPanel.tsx", "apps/server/server.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-G surface model and store records"],
+      "reason": "Surface reports mode, exact selected target, Observe/Interact split, expiry, current capability reason and persistent Stop via the /api/threads/:id/control read model."
+    },
+    {
+      "id": "M16-U01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/ControlConsentPanel.tsx"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-G surface model and store records"],
+      "reason": "Persistent indicator while control is active names the controlled app/tab, allowed scope and Stop; the unavailable screen says no live control is active."
+    },
+    {
+      "id": "M16-U02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/ControlConsentPanel.tsx"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-G surface model and store records"],
+      "reason": "Consent presentation separates Observe from Interact and names expiry and origins before any grant."
+    },
+    {
+      "id": "M16-U03",
+      "disposition": "BLOCKED",
+      "sourcePaths": [],
+      "testIds": [],
+      "reason": "STOP closeout against a live driver is untestable without an approved driver (HOLD_DRIVER_SPECIFICATION); Stop semantics are unit-tested on the dispatcher but the live closeout verification is not run."
+    },
+    {
+      "id": "M16-T01",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/browser-consent-v3.test.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts"],
+      "reason": "Contract/behavior test for consent request, grant issuance, revocation, origin/identity revalidation and permission separation. Pure decisions; no driver."
+    },
+    {
+      "id": "M16-T02",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/desktop-control-v3.test.ts"],
+      "testIds": ["tests/desktop-control-v3.test.ts"],
+      "reason": "Dispatcher test: rate spacing, queue cap, observation freshness, geometry binding, stop, capability detection. Fake monotonic clock; no real input."
+    },
+    {
+      "id": "M16-T03",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts"],
+      "reason": "Decision suite wiring the real Service/Store/host path for D01-D06 pure cases."
+    },
+    {
+      "id": "M16-T04",
+      "disposition": "BLOCKED",
+      "sourcePaths": [],
+      "testIds": [],
+      "reason": "Real-target browser capture/interaction acceptance requires an installed approved driver (HOLD_DRIVER_SPECIFICATION, HOLD_PLATFORM_PROOF). NOT_RUN."
+    },
+    {
+      "id": "M16-T05",
+      "disposition": "BLOCKED",
+      "sourcePaths": [],
+      "testIds": [],
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance requires the installed driver on the real platform (HOLD_PLATFORM_PROOF). NOT_RUN."
+    },
+    {
+      "id": "M16-G01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/ControlConsentPanel.tsx", "apps/server/server.ts", "apps/web/src/App.tsx"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-G surface model and store records"],
+      "reason": "Persistent surface shows mode, exact selected target, Observe vs Interact, expiry, capability reason and Stop; unavailable state says no live control is active; no redaction implication."
+    },
+    {
+      "id": "M16-G02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/capability-flags.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-G02 flags are registered default-off and never in UI preferences"],
+      "reason": "control.consentedBrowserV1 and control.selectedDesktopV1 registered default false in the M-series capability registry; no agent/plugin enablement; only host-controlled test injection."
+    },
+    {
+      "id": "M16-G03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/browser-consent.ts", "packages/core/desktop-control.ts"],
+      "testIds": ["tests/browser-consent-v3.test.ts::M16-S03 target revalidation at each action"],
+      "reason": "Rollback: grant revocation bumps revocationGeneration (host-owned store record); dispatcher stop closes owned dispatch generation without touching unrelated connections; receipts/consent records are retained."
+    },
+    {
+      "id": "M16-D01",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D01 no approved driver"],
+      "reason": "No approved driver -> every live capture/input attempt is DRIVER_UNAVAILABLE before any driver call; the consent request records UNAVAILABLE through the real Service path."
+    },
+    {
+      "id": "M16-D02",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts", "packages/core/browser-consent.ts", "packages/core/desktop-control.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D02 PID/title reuse"],
+      "reason": "A replacement window reusing title/PID has a different creation identity; queued and validated input is rejected with TARGET_MISMATCH/NEEDS_NEW_PERMISSION — no input to the wrong target."
+    },
+    {
+      "id": "M16-D03",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts", "packages/core/desktop-control.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D03 moved or DPI-changed target"],
+      "reason": "Moved, resized or DPI-changed target after queueing rejects the pending click with TARGET_MOVED; no automatic coordinate transform."
+    },
+    {
+      "id": "M16-D04",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts", "packages/core/desktop-control.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D04 six actions dispatch at 0/200/.../1000ms"],
+      "reason": "Six actions on a fake monotonic clock dispatch no earlier than 0,200,...,1000ms; the 17th queued action is QUEUE_FULL without driver work."
+    },
+    {
+      "id": "M16-D05",
+      "disposition": "TEST_ONLY",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts", "packages/core/desktop-control.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D05 stop with a hung model"],
+      "reason": "Model hang plus host Stop revokes the generation before queue cancellation; no old-generation input reaches the driver."
+    },
+    {
+      "id": "M16-D06",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
+      "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval; without one it is recorded BLOCKED/NOT_RUN (HOLD_PLATFORM_PROOF)."
+    }
+  ]
+}

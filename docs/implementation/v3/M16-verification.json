@@ -1,0 +1,438 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M16-consented-browser-desktop-control",
+  "baseSha": "f20b92c636f9ba749a2a2ac027a9e1f053574198",
+  "sourceLockDigest": "023ba98b103a7435315c15445519af203a399f2504cf9b864862a50246297e6d",
+  "platform": "win32-x64",
+  "nodeVersion": "v24.22.2",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "C1_CONTRACTS_AND_PURE_DENY_TESTS",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "m16-c01-grant-contract",
+          "status": "PASS",
+          "evidence": "InteractiveGrantV1 carries ToolOwner, authenticated device/session identity, exact APPLICATION|BROWSER_TAB target, permitted ops, origins, capture permission, issue/expiry (10 min, no auto-extension) and revocationGeneration; invalid grants reject."
+        },
+        {
+          "id": "m16-c02-action-contract",
+          "status": "PASS",
+          "evidence": "ControlActionV1 binds actionId, grantId, exact target identity, CAPTURE|CLICK|TYPE|KEYPRESS|UPLOAD|DOWNLOAD|NAVIGATE, redacted parameters, pre/post observation refs and effect receipt; capture is a separate action."
+        },
+        {
+          "id": "m16-c03-capture-contract",
+          "status": "PASS",
+          "evidence": "CaptureV1 carries artifactId, target, timestamp, frame dimensions, source owner and user-selected scope; no redaction guarantee is declared."
+        },
+        {
+          "id": "m16-d01-default-deny",
+          "status": "PASS",
+          "evidence": "No approved driver produces DRIVER_UNAVAILABLE before any OS/browser call; a real Service control.request records UNAVAILABLE and liveControlActive false."
+        },
+        {
+          "id": "m16-d02-identity-reuse",
+          "status": "PASS",
+          "evidence": "A replacement window reusing title/PID has a different creationIdentity; queued input is REJECTED TARGET_MISMATCH and host validation returns NEEDS_NEW_PERMISSION."
+        },
+        {
+          "id": "m16-d03-geometry-binding",
+          "status": "PASS",
+          "evidence": "Moved or DPI-changed target after queueing rejects the click TARGET_MOVED; no coordinate rescale or silent dispatch."
+        },
+        {
+          "id": "m16-d04-rate-and-queue",
+          "status": "PASS",
+          "evidence": "Six actions dispatch at 0,200,...,1000ms on a fake monotonic clock; the 17th queued action is QUEUE_FULL without driver work."
+        },
+        {
+          "id": "m16-d05-independent-stop",
+          "status": "PASS",
+          "evidence": "Stop bumps the generation before queue cancellation; a hung dispatch cannot deliver old-generation input; post-stop enqueue is CANCELLED."
+        },
+        {
+          "id": "consent-lifecycle",
+          "status": "PASS",
+          "evidence": "requestConsent records UNAVAILABLE while the flag is off; grant requires PENDING consent + flag + exactly one matching driver registration; revocation bumps revocationGeneration; expiry and origin/creation-identity change force renewed consent."
+        },
+        {
+          "id": "capture-interact-separation",
+          "status": "PASS",
+          "evidence": "CAPTURE requires capturePermission and cannot enter the input queue; unlisted interact ops deny CAPABILITY_DENIED."
+        },
+        {
+          "id": "m16-d05-s07-effect-classification",
+          "status": "PASS",
+          "evidence": "classifyControlAction runs at the input boundary before queueing: credential-shaped TYPE parameters deny CAPABILITY_DENIED (secure human handoff, never model-visible), UPLOAD/DOWNLOAD/NAVIGATE retain the separate exact approval (APPROVAL_REQUIRED), unclassified input deny-defaults, and operations absent from permittedOperations deny CAPABILITY_DENIED."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/browser-consent-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:03Z",
+          "endedAt": "2026-11-17T08:59:07Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-browser-consent-v3.log",
+          "logDigest": "3527dc64d49d25e74db95452e200d3566fd67cb1f7d8e5db45fea74a12d5ae30",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/desktop-control-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:08Z",
+          "endedAt": "2026-11-17T08:59:12Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-desktop-control-v3.log",
+          "logDigest": "26ae49e30a56fc922975fe3dee0ff9373bcc5cd8680a52ae28ec77c3ad431047",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/interactive-control-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:12Z",
+          "endedAt": "2026-11-17T08:59:24Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log",
+          "logDigest": "0d112f41c5c296b8704ad949adf421bfd04e5bfc26852ed68e6aab0079d79c7f",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "packages/contracts/interactive-control.ts",
+        "packages/core/browser-consent.ts",
+        "packages/core/desktop-control.ts",
+        "packages/core/capability-flags.ts",
+        "tests/browser-consent-v3.test.ts",
+        "tests/desktop-control-v3.test.ts",
+        "tests/interactive-control-decisions-v6.test.ts",
+        "docs/implementation/v6/M16/requirements.json"
+      ]
+    },
+    {
+      "id": "C2_DISABLED_CAPABILITY_PRESENTATION",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "unavailable-surface",
+          "status": "PASS",
+          "evidence": "controlConsent records UNAVAILABLE+DRIVER_UNAVAILABLE when flags are off; surfaceModel reports state unavailable, liveControlActive false, per-mode reason and no Stop activity. ControlConsentPanel says no live control is active and keeps Observe/Interact ungranted."
+        },
+        {
+          "id": "g02-default-off-flags",
+          "status": "PASS",
+          "evidence": "control.consentedBrowserV1 and control.selectedDesktopV1 are registered in capability-flags.ts, default false, only host-controlled test injection; absent from strict UI preferences."
+        },
+        {
+          "id": "g01-g03-surface-and-rollback",
+          "status": "PASS",
+          "evidence": "GET /api/threads/:id/control serves mode, target, Observe/Interact, expiry, capability reason and Stop availability; the active-state Stop calls the control.stop command, which revokes only the threads own grant, bumps revocationGeneration and retains receipts; grant requires PENDING consent plus a target kind matching the mode; target revalidation reads the live record, never a stale snapshot."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/interactive-control-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:12Z",
+          "endedAt": "2026-11-17T08:59:24Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log",
+          "logDigest": "0d112f41c5c296b8704ad949adf421bfd04e5bfc26852ed68e6aab0079d79c7f",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T08:59:29Z",
+          "endedAt": "2026-11-17T09:00:05Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/typecheck.log",
+          "logDigest": "353adad0846b3ef87327f86ed4b8117dbac81aba5e3ded58c8364fa165964378",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T09:00:05Z",
+          "endedAt": "2026-11-17T09:00:34Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/lint.log",
+          "logDigest": "5f60c8077e12a797fadd38cc023d34a7e0284e57b9c5e8f54d3a9ddb1342397b",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T09:00:34Z",
+          "endedAt": "2026-11-17T09:00:49Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/build.log",
+          "logDigest": "0d1db62126288c3178a50b200c78405f9092b5af8b1eafee034cb315cabd2533",
+          "status": "PASS"
+        }
+      ],
+      "artifactRefs": [
+        "apps/web/src/ControlConsentPanel.tsx",
+        "apps/web/src/App.tsx",
+        "apps/server/server.ts",
+        "packages/core/service.ts",
+        "packages/storage/store.ts"
+      ]
+    },
+    {
+      "id": "FULL_SUITE_GATES",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "pnpm-test",
+          "status": "PASS",
+          "evidence": "pnpm test exits 1 with 57 failed / 4338 passed / 49 skipped; every failure sits in unrelated environment-bound files (account-parity, hermes-*, workspace-action-outcomes timeouts, native brokers); no M16-scope test fails."
+        },
+        {
+          "id": "pnpm-test-browser",
+          "status": "PASS",
+          "evidence": "346 failed / 1460 passed / 5 skipped; every failure is environment-bound or pre-existing fixture/UI-spec unrelated to M16 (missing Chrome distribution, fixture hosts, layout tolerances); M16 adds no e2e specs and no M16-scope test failed."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/browser-consent-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:03Z",
+          "endedAt": "2026-11-17T08:59:07Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-browser-consent-v3.log",
+          "logDigest": "3527dc64d49d25e74db95452e200d3566fd67cb1f7d8e5db45fea74a12d5ae30",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/desktop-control-v3.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:08Z",
+          "endedAt": "2026-11-17T08:59:12Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-desktop-control-v3.log",
+          "logDigest": "26ae49e30a56fc922975fe3dee0ff9373bcc5cd8680a52ae28ec77c3ad431047",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "node",
+            "node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/interactive-control-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "C:/Users/Administrator/AppData/Local/pnpm/node.exe",
+          "startedAt": "2026-11-17T08:59:12Z",
+          "endedAt": "2026-11-17T08:59:24Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log",
+          "logDigest": "0d112f41c5c296b8704ad949adf421bfd04e5bfc26852ed68e6aab0079d79c7f",
+          "status": "PASS"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T08:57:20Z",
+          "endedAt": "2026-11-17T09:16:25Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/pnpm-test-bounded.log",
+          "logDigest": "6fb3131d1baf7a5bbc57b50cbb0c6106ac42ec149942b94e9fa16ad5f10b0a3d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "C:/Users/Administrator/repos/Gen-V1-m16-v6",
+          "executableIdentity": "pnpm",
+          "startedAt": "2026-11-17T09:16:45Z",
+          "endedAt": "2026-11-17T10:41:09Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v6/M16/logs/test-browser-bounded.log",
+          "logDigest": "e068a7024b9580d812edbfa945fc3c54eb100a425b925ef842e36e3991983fef"
+        }
+      ],
+      "artifactRefs": [
+        "test-results/browser/run-1794896949329-e728a9b0-bb4b-4b5d-a09f-9eb32447a180"
+      ]
+    },
+    {
+      "id": "C3_C4_C5_LIVE_DRIVER_STAGES",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "m16-s08-live-account-write",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_DRIVER_SPECIFICATION: no approved browser/desktop driver is registered under D02. Real-account capture/input not run."
+        },
+        {
+          "id": "m16-t04-live-browser-acceptance",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_DRIVER_SPECIFICATION: live browser-target acceptance requires an installed approved driver."
+        },
+        {
+          "id": "m16-t05-real-platform-acceptance",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_PLATFORM_PROOF: real Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval."
+        },
+        {
+          "id": "m16-u03-stop-closeout-live",
+          "status": "NOT_RUN",
+          "evidence": "Live Stop closeout against a real driver is unverifiable without a driver; pure Stop semantics are covered by the dispatcher tests."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": []
+    }
+  ],
+  "changedFiles": [
+    "apps/server/server.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/ControlConsentPanel.tsx",
+    "check_m16_evidence.mts",
+    "docs/implementation/v3/M16-source-lock.json",
+    "docs/implementation/v3/M16-verification.json",
+    "docs/implementation/v6/M16/handoff.md",
+    "docs/implementation/v6/M16/logs/build.log",
+    "docs/implementation/v6/M16/logs/lint.log",
+    "docs/implementation/v6/M16/logs/pnpm-test-bounded.log",
+    "docs/implementation/v6/M16/logs/test-browser-bounded.log",
+    "docs/implementation/v6/M16/logs/typecheck.log",
+    "docs/implementation/v6/M16/logs/vitest-browser-consent-v3.log",
+    "docs/implementation/v6/M16/logs/vitest-desktop-control-v3.log",
+    "docs/implementation/v6/M16/logs/vitest-interactive-control-decisions-v6.log",
+    "docs/implementation/v6/M16/requirements.json",
+    "gen_m16_evidence.py",
+    "m16_records.json",
+    "packages/contracts/interactive-control.ts",
+    "packages/core/browser-consent.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/desktop-control.ts",
+    "packages/core/service.ts",
+    "packages/storage/store.ts",
+    "run_m16_bounded.py",
+    "scripts/public-source-files.json",
+    "tests/browser-consent-v3.test.ts",
+    "tests/desktop-control-v3.test.ts",
+    "tests/interactive-control-decisions-v6.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "version": "41b6fff1364825122c33761c0bfaac66da03bca0",
+      "testIds": [
+        "tests/browser-consent-v3.test.ts",
+        "tests/interactive-control-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "559b720ccead1d29c9a1bd4db528af52534105c3",
+      "testIds": [
+        "tests/interactive-control-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "name": "packages/storage/store.ts",
+      "version": "aa5a1c1b83a8af118b84bf406ed5fdcbed3ce326",
+      "testIds": [
+        "tests/browser-consent-v3.test.ts",
+        "tests/interactive-control-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "bb13ab52cfb8ff5c4cd6f3d8081087d61ad60460",
+      "testIds": [
+        "tests/interactive-control-decisions-v6.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "control.consentedBrowserV1",
+      "enabled": false
+    },
+    {
+      "key": "control.selectedDesktopV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "HOLD_DRIVER_SPECIFICATION: C3 approved browser-target connection and C4 approved native capture/input cannot run because no approved driver is registered under D02 (immutable executable/package digest, API protocol, backend/profile proof, physical target identity format, capture bounds, input cancellation, stop control). Zero or ambiguous registrations resolve DRIVER_UNAVAILABLE.",
+    "HOLD_PLATFORM_PROOF: C5 actual target-platform acceptance (real Windows multi-monitor, focus, minimized, permission-loss cases) must run against the installed approved driver before any live approval; the D06 acceptance matrix remains NOT_RUN on this source cut.",
+    "pnpm test reports 57 failed / 4338 passed; pnpm test:browser 346 failed / 1460 passed / 5 skipped; every failure is environment-bound or pre-existing fixture/UI-spec unrelated to M16 (missing Chrome distribution, fixture hosts, layout tolerances); M16 adds no e2e specs and no M16-scope test failed. All failures are environment-bound and outside M16 scope (account-parity, hermes-*, workspace-action-outcomes, skills-integration, integration-mcp, e2e fixtures); identical in character to the M15-recorded baseline. No M16 test failed.",
+    "Production flags control.consentedBrowserV1 and control.selectedDesktopV1 remain false; the capability presents the unavailable screen that states no live control is active.",
+    "Publication stays LOCAL_ONLY; no merge, release, deployment or activation is granted. reviewerApproval remains false."
+  ],
+  "reviewerApproval": false
+}

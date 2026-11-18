@@ -57,6 +57,19 @@ describe('AgentInputV1 admission and delivery lifecycle', () => {
     expect(conflict.delivery).toBe('REJECTED');
     expect(conflict.error).toMatch(/dedupe/i);
   });
+  it('keeps the stored input queued when a retry reuses its inputId with different content', () => {
+    const f = fixture();
+    const admitted = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-1', text: 'first'}), {liveSteer: false});
+    const reused = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-2', text: 'second'}), {liveSteer: false});
+    expect(reused.delivery).toBe('REJECTED');
+    expect(f.inbox.inspect('in-1')).toEqual(admitted);
+    expect(f.inbox.queue('t-child')).toHaveLength(1);
+    expect(f.inbox.text('in-1')).toBe('first');
+    const reusedKey = f.inbox.admit(f.input({inputId: 'in-1', dedupeKey: 'dk-1', text: 'third'}), {liveSteer: false});
+    expect(reusedKey.delivery).toBe('REJECTED');
+    expect(f.inbox.inspect('in-1')).toEqual(admitted);
+    expect(f.inbox.queue('t-child')).toHaveLength(1);
+  });
   it('steering delivers only when the adapter declared live steer; otherwise it queues after current', () => {
     const f = fixture();
     const noSteer = f.inbox.admit(f.input({kind: 'STEER'}), {liveSteer: false});
@@ -141,6 +154,13 @@ describe('AgentMessageV1 board', () => {
     expect(() => f.inbox.postMessage(sender, {messageId: 'm-z', taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'x'.repeat(4097)})).toThrow(/4/);
     for (let i = 0; i < 100; i++) f.inbox.postMessage(sender, {messageId: 'm-' + i, taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'});
     expect(() => f.inbox.postMessage(sender, {messageId: 'm-over', taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'})).toThrow(/100/);
+  });
+  it('releases the active-message cap once earlier messages expire', () => {
+    const f = fixture();
+    const expired = new Date(Date.now() - 60_000).toISOString();
+    for (let i = 0; i < 100; i++) f.inbox.postMessage(sender, {messageId: 'e-' + i, taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi', expiresAt: expired});
+    expect(f.inbox.messages('t-parent')).toHaveLength(0);
+    expect(f.inbox.postMessage(sender, {messageId: 'm-fresh', taskId: 't-parent', recipientOwner: recipient, topic: 't', text: 'hi'}).messageId).toBe('m-fresh');
   });
   it('artifact-ref messages carry no embedded text and replies chain by messageId', () => {
     const f = fixture();

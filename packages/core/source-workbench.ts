@@ -200,7 +200,9 @@ export class SourceWorkbench {
   private currentFile(path: string, grant: ResourceGrant): string {
     this.physical(grant.path, grant.identity);
     if (!inside(resolve(grant.path), resolve(path)) || resolve(realpathSync(path)) !== resolve(path)) denied();
-    assertNotStorage(path, this.store.dataDir);
+    // The owning grant is what admits this file: a stored attachment stays
+    // readable through the conversation's own grant, never through a broader one.
+    assertNotStorage(path, this.store.dataDir, realpathSync(grant.path));
     const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
     try {
       const before = fstatSync(fd, {bigint: true});
