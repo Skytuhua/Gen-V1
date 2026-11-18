@@ -1,0 +1,226 @@
+[bounded excerpt of cont3-full-test.log — full receipt 554741 bytes, linux-arm64, run at tested cut e5de6c3c]
+[retained verbatim: run header; unique failed-file markers in original order; complete Unhandled Errors + final summary]
+[omitted: per-test pass lines and per-failure stack traces; full log retained locally in session evidence]
+
+
+> gen-v1@0.6.5 test /home/piadmin/Gen-V1-m04-v6
+> pnpm build:credential-lease && pnpm build:widgets && vitest run
+
+
+> gen-v1@0.6.5 build:credential-lease /home/piadmin/Gen-V1-m04-v6
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+
+> gen-v1@0.6.5 build:widgets /home/piadmin/Gen-V1-m04-v6
+> node scripts/build-widgets.mjs
+
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m04-v6[39m
+
+(node:13828) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:13827) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+
+--- unique failed test files (61, original order) ---
+tests/review-host.test.ts
+tests/account-login.test.ts
+tests/account-parity.test.ts
+tests/account-profile.test.ts
+tests/agent-projection-scale.test.ts
+tests/agent-projection.test.ts
+tests/agents-workspace-grid.test.ts
+tests/capabilities.test.ts
+tests/checkpoint-restore-v3.test.ts
+tests/code-review-comparisons.test.ts
+tests/private-git-family.test.ts
+tests/project-tools.test.ts
+tests/selective-commit-v3.test.ts
+tests/workspace-action-outcome-routes.test.ts
+tests/workspace-action-outcomes.test.ts
+tests/code-review-reader.test.ts
+tests/conversation-read-models.test.ts
+tests/cursor-git-boundary.test.ts
+tests/cursor-offline-executor.test.ts
+tests/cursor-sdk-mcp-metadata.test.ts
+tests/desktop-host.test.ts
+tests/desktop-native.test.ts
+tests/dev-plugin-runtime.test.ts
+tests/expanded-review-fixtures.test.ts
+tests/git-metadata-guard.test.ts
+tests/github-workspace.test.ts
+tests/hermes-client.test.ts
+tests/hermes-host.test.ts
+tests/hermes-original-integration.test.ts
+tests/hermes-multi-original.test.ts
+tests/hermes-service.test.ts
+tests/integration-host.test.ts
+tests/integration-mcp.test.ts
+tests/integration-packaging-canonical-negative.test.ts
+tests/integrations.test.ts
+tests/managed-git-family.test.ts
+tests/packaged-providers.test.ts
+tests/path-access.test.ts
+tests/plan-extension-v3.test.ts
+tests/plugin-frame-custody.test.ts
+tests/plugin-tools-dock.test.ts
+tests/project-search-host.test.ts
+tests/project-trust-v3.test.ts
+tests/public-source.test.ts
+tests/rename-recovery-v3.test.ts
+tests/request-preparation-service-v3.test.ts
+tests/resource-tree.test.ts
+tests/runtime-pi.test.ts
+tests/runtime-router.test.ts
+tests/server.test.ts
+tests/service.test.ts
+tests/signature-pdf.test.ts
+tests/skill-catalog-apps.test.ts
+tests/skill-catalog-http.test.ts
+tests/skill-catalog.test.ts
+tests/skill-invocation.test.ts
+tests/skills-integration.test.ts
+tests/source-workbench-host-v3.test.ts
+tests/task-memory-recovery.test.ts
+tests/verification-v3.test.ts
+tests/widget-isolation.test.ts
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Unhandled Errors [49m[22m[31m⎯⎯⎯⎯⎯⎯[39m
+[31m[1m
+Vitest caught 7 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.[22m[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mHarnessError[22m: File access check failed — the folder could not be opened safely for this action[39m
+[36m [2m❯[22m denied packages/core/linux-path-guard.ts:[2m11:18[22m[39m
+    [90m  9|[39m type DirectoryPath={path:string;leaf:boolean;dev?:string;ino?:string;e…
+    [90m 10|[39m interface Session {rpc(request:Record<string,unknown>):Promise<readonl…
+    [90m 11|[39m const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+    [90m   |[39m                  [31m^[39m
+    [90m 12|[39m const within=(root:string,path:string)=>path===root||path.startsWith(r…
+    [90m 13|[39m export function validateLinuxDirectoryPaths(paths:DirectoryPath[],root…
+[90m [2m❯[22m packages/core/linux-path-guard.ts:[2m88:24[22m[39m
+[90m [2m❯[22m withLinuxDirectoryGuard packages/core/linux-path-guard.ts:[2m152:42[22m[39m
+[90m [2m❯[22m withAccountLogin packages/runtime-login/account-login.ts:[2m18:5[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'CAPABILITY_DENIED', details: undefined }[39m
+[31mThis error originated in "[1mtests/account-login.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mdoes not admit a successor sign-in when an expired lease still has a live owner[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences cancel during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences replace during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯[39m[1m[41m Unhandled Rejection [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mAssertionError[22m: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+(2 matching properties omitted from actual)[39m
+[90m [2m❯[22m _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:[2m1747:17[22m[39m
+[90m [2m❯[22m _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1607:27[22m[39m
+[90m [2m❯[22m Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:[2m1696:22[22m[39m
+[36m [2m❯[22m tests/github-workspace.test.ts:[2m159:52[22m[39m
+
+[90m [2m❯[22m node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:[2m1903:20[22m[39m
+
+[31mThis error originated in "[1mtests/github-workspace.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mfences expire during private credential writing before rename and preserves the prior token[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: statement has been finalized[39m
+[36m [2m❯[22m Store.get packages/storage/store.ts:[2m96:37[22m[39m
+    [90m 94|[39m   }
+    [90m 95|[39m   [35mget[39m[33m<[39m[33mT[39m [33m=[39m unknown[33m>[39m(kind[33m:[39m string[33m,[39m id[33m:[39m string)[33m:[39m [33mT[39m [33m|[39m [35mnull[39m {
+    [90m 96|[39m     const row = this.statements.get.get(kind, id) as { body: string } …
+    [90m   |[39m                                     [31m^[39m
+    [90m 97|[39m     [35mreturn[39m row [33m?[39m [33mJSON[39m[33m.[39m[34mparse[39m(row[33m.[39mbody) [35mas[39m [33mT[39m [33m:[39m [35mnull[39m[33m;[39m
+    [90m 98|[39m   }
+[90m [2m❯[22m Service.curateIdle packages/core/service.ts:[2m345:49[22m[39m
+[90m [2m❯[22m Timeout._onTimeout packages/core/service.ts:[2m196:82[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ERR_INVALID_STATE' }[39m
+[31mThis error originated in "[1mtests/verification-v3.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mthe panel read model re-digests declared inputs so edits never keep a green Verified[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: statement has been finalized[39m
+[36m [2m❯[22m Store.get packages/storage/store.ts:[2m96:37[22m[39m
+    [90m 94|[39m   }
+    [90m 95|[39m   [35mget[39m[33m<[39m[33mT[39m [33m=[39m unknown[33m>[39m(kind[33m:[39m string[33m,[39m id[33m:[39m string)[33m:[39m [33mT[39m [33m|[39m [35mnull[39m {
+    [90m 96|[39m     const row = this.statements.get.get(kind, id) as { body: string } …
+    [90m   |[39m                                     [31m^[39m
+    [90m 97|[39m     [35mreturn[39m row [33m?[39m [33mJSON[39m[33m.[39m[34mparse[39m(row[33m.[39mbody) [35mas[39m [33mT[39m [33m:[39m [35mnull[39m[33m;[39m
+    [90m 98|[39m   }
+[90m [2m❯[22m Service.curateIdle packages/core/service.ts:[2m345:49[22m[39m
+[90m [2m❯[22m Timeout._onTimeout packages/core/service.ts:[2m196:82[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ERR_INVALID_STATE' }[39m
+[31mThis error originated in "[1mtests/verification-v3.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31mThe latest test that might've caused the error is "[1mrecords review-advisory observations that inform review without satisfying requirements[22m". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.[39m
+
+[31m⎯⎯⎯⎯⎯[39m[1m[41m Uncaught Exception [49m[22m[31m⎯⎯⎯⎯⎯[39m
+[31m[1mError[22m: statement has been finalized[39m
+[36m [2m❯[22m Store.get packages/storage/store.ts:[2m96:37[22m[39m
+    [90m 94|[39m   }
+    [90m 95|[39m   [35mget[39m[33m<[39m[33mT[39m [33m=[39m unknown[33m>[39m(kind[33m:[39m string[33m,[39m id[33m:[39m string)[33m:[39m [33mT[39m [33m|[39m [35mnull[39m {
+    [90m 96|[39m     const row = this.statements.get.get(kind, id) as { body: string } …
+    [90m   |[39m                                     [31m^[39m
+    [90m 97|[39m     [35mreturn[39m row [33m?[39m [33mJSON[39m[33m.[39m[34mparse[39m(row[33m.[39mbody) [35mas[39m [33mT[39m [33m:[39m [35mnull[39m[33m;[39m
+    [90m 98|[39m   }
+[90m [2m❯[22m Service.curateIdle packages/core/service.ts:[2m345:49[22m[39m
+[90m [2m❯[22m Timeout._onTimeout packages/core/service.ts:[2m196:82[22m[39m
+[90m [2m❯[22m listOnTimeout node:internal/timers:[2m605:17[22m[39m
+[90m [2m❯[22m processTimers node:internal/timers:[2m541:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[22m[39m
+[31m[1mSerialized Error:[22m[39m [90m{ code: 'ERR_INVALID_STATE' }[39m
+[31mThis error originated in "[1mtests/verification-v3.test.ts[22m" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.[39m
+[31m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[39m
+
+
+[2m Test Files [22m [1m[31m61 failed[39m[22m[2m | [22m[1m[32m338 passed[39m[22m[2m | [22m[33m5 skipped[39m[90m (404)[39m
+[2m      Tests [22m [1m[31m332 failed[39m[22m[2m | [22m[1m[32m4013 passed[39m[22m[2m | [22m[33m70 skipped[39m[90m (4415)[39m
+[2m     Errors [22m [1m[31m7 errors[39m[22m
+[2m   Start at [22m 02:41:11
+[2m   Duration [22m 3468.34s[2m (transform 257.98s, setup 0ms, import 948.63s, tests 9083.95s, environment 243ms)[22m
+
+ ELIFECYCLE  Test failed. See above for more details.
+pnpm test exit=1 2026-11-18T11:39:03Z

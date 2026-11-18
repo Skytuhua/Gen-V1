@@ -1,0 +1,95 @@
+# M04 v6 — Continuation-3 Evidence Supplement
+
+**Scope.** This supplement carries only the *distinct* continuation-3 receipts produced by the
+verification session committed locally as `b54c1f2a` on `handoff/m04-context-v3`. It is an
+evidence annex — receipts, merge-attempt record, and hold states — extracted into files that do
+not overlap the evidence-correction surface owned by PR #772.
+
+**Out of scope (owned by #772 — preserved, not touched here):**
+
+- `docs/implementation/v3/M04-verification.json` — the historical V3 acceptance record. #772
+  corrects it (host-custody phase → BLOCKED, auxiliary live cases → NOT_RUN, native-CAS wording,
+  added remaining-gate entries). No change to that file is proposed here.
+- `docs/implementation/v6/M04/requirements.json` — the requirement ledger. #772 corrects the
+  S09/S11 reasons (future-dated live authorization removed; native CAS existence corrected).
+  The disposition normalization performed in the continuation-3 session is **not** republished
+  here; the ledger remains #772's surface.
+- `docs/implementation/v6/M04/source-lock.json` — not modified by #772, but the continuation-3
+  session's regeneration (strict-schema repair, `executionBaseSha` → e5de6c3c) interlocks with
+  the verification record #772 owns. Excluded to keep this patch strictly a new-file supplement.
+- `docs/implementation/v6/M04/handoff.md` — continuation-3 was originally recorded inside this
+  file at b54c1f2a. It is restated here as a standalone supplement instead of an edit, so this
+  PR touches zero existing files.
+
+## Identity (R01/R02)
+
+- Repository: `skytuhua-org/Gen-V1` (ID 1442565952).
+- **Tested cut: `e5de6c3c6425e6c3f66b132034a5472b6b6961f8`** — head of `handoff/m04-context-v3`
+  for the entire session; identical on origin at test time.
+- Extraction commit: `b54c1f2ae6b8b38d6b66c31810e14a6774059557` (local-only commit carrying the
+  original continuation-3 record; not pushed as part of this supplement).
+- This supplement is authored against main `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199`.
+- Environment: linux-arm64 (Raspberry Pi 5), Node v24.11.1, pnpm 10.30.3, node-pty native
+  artifact provisioned locally.
+
+## R03 merge attempt record (vs captured main `4aef753e`)
+
+- Merge base: `76d31a944c44c44ec7ea1d795fd4006c898b86fb`; task branch +2/−465.
+- `git merge --no-commit --no-ff 4aef753ec272d6ab9f9f9eec1df0ca232386975b` conflicted in six
+  paths; aborted with `git merge --abort`; worktree restored clean at e5de6c3c.
+- Conflict paths (stage-1 base / stage-2 ours / stage-3 theirs blob identities recorded in the
+  source record):
+
+  | path | stage-1 (base) | stage-2 (task) | stage-3 (main) |
+  |---|---|---|---|
+  | packages/contracts/index.ts | 78c6954b | b0aa4832 | a9d196f9 |
+  | packages/core/service.ts | 743ad372 | 0709e39d | 83415577 |
+  | packages/runtime-hermes/index.ts | ac9c1b21 | 32d09c48 | dbd20a1d |
+  | packages/runtime-hermes/task-pool.ts | 44d1923a | bf3e1241 | 1dca9e85 |
+  | tests/context-request-observation.test.ts | d1a2aea4 | 780d4d9e | aa9b20a3 |
+  | tests/hermes_source_worker.py | d23e80c7 | cd2318cf | e84213fc |
+
+- **HOLD_SOURCE_DRIFT remains in force for joins reconciling the task cut with main on those six
+  paths.** Nothing in this supplement resolves or weakens that hold. Note the merge target has
+  since advanced to ff38c62c; a future join must recapture and re-attempt.
+
+## Receipts at the tested cut (all in `logs/`; digests in `manifest.json`)
+
+- Targeted suites: `context-compiler-v3` 11 PASS; `context-results-v3` 3 PASS; `compaction-v3`
+  8 PASS; `context-contract-preservation-v6` 6 PASS (incl. D01 replay cases).
+- Supporting suites (sequential, same cut): 15 suites / 219 tests PASS + 2 skipped, including
+  CAS apply/mismatch/unsupported cases in `context-request-observation`.
+- Gates: `pnpm typecheck` exit 0; `pnpm lint` exit 0 (564 sources); `pnpm build` exit 0;
+  `pnpm build:credential-lease` and `pnpm build:widgets` exit 0.
+- `pnpm test` exit 1 — 332 failed / 4013 passed / 70 skipped over ~58 min under ~3-agent host
+  load. Failure classes are the documented environment gaps (linux path-guard boundary,
+  pinned Python 3.14 hermes worker, native engines) plus 60s timeouts under contention. The two
+  M04-file timeouts pass in the quiet sequential run at the same cut. **No M04 assertion failure
+  observed; the full gate remains FAIL on this host.**
+- `pnpm exec tsx scripts/test-browser.ts --suite usage-context` — the M04-scoped browser suite,
+  on bundled chromium (msedge is win32-only post-merge): contended run 15 pass / 10 fail;
+  sequential rerun 21 pass / 4 fail. All residuals are `data-usage-fixture-ready` 5s
+  fixture-mount timeouts under host load — not channel unavailability, not inspector assertion
+  failures. U01 tab-navigation and honest unknown/empty/failure rows pass at this cut.
+
+## Holds carried forward (unchanged by this supplement)
+
+1. **HOLD_SOURCE_DRIFT** — the six conflict paths above.
+2. Native worker CAS test provisioned for Windows CI — no local Python 3.14 worker; the CAS
+   *implementation* exists at the cut but installed/Windows acceptance is a separate gate.
+3. U04 measured cache attribution — M11-dependent, NOT_RUN.
+4. Full `pnpm test` gate — FAIL on this host (environment-bound; needs the reviewed CI matrix).
+5. Full `pnpm test:browser` gate — FAIL on this host; Edge/Chrome channel suites remain
+   platform-blocked on linux-arm64.
+6. **HOLD_AUXILIARY_MODEL** — per #772's corrected record, no source-bound live-model
+   authorization/receipts establish the auxiliary study; this supplement asserts nothing
+   contrary. The continuation-3 session's aux-related evidence strings are not republished.
+
+## Non-claims
+
+- No claim of core acceptance, platform acceptance, release readiness, or completeness.
+- `reviewerApproval` remains false. All four M04 flags
+  (`context.compilerV1`, `tools.deferredV1`, `context.lossAwareCompactionV1`,
+  `context.precomputeExperimentV1`) remain default false.
+- No merge into or modification of #772 is proposed. If reviewers prefer the ledger corrections
+  be validated against these receipts, the digests above bind each log to the exact tested cut.
