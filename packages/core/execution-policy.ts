@@ -107,7 +107,7 @@ export interface AdvisoryRisk {
 
 /** Deterministic advisory classifier. It runs after the authority decision,
  * explains why approval is required, and can never convert DENY to ALLOW. */
-export function advisoryRiskAssessment(request: LaunchRequest, profile: ExecutionProfileV1): AdvisoryRisk {
+export function advisoryRiskAssessment(request: LaunchRequest, profile: Pick<ExecutionProfileV1, 'executableAllowlist'>): AdvisoryRisk {
   let uncertainty: AdvisoryRisk['uncertainty'] = 'low';
   let rationale = 'The launch matches the approved executable allowlist.';
   if (request.kind === 'shell') { uncertainty = 'high'; rationale = 'Arbitrary shell syntax is effectful and cannot be classified as read-only.'; }
