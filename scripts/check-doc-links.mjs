@@ -58,7 +58,12 @@ export const readable = (source, keepInlineCode = false, onRawHtml = () => {}) =
     if (keepInlineCode && (commentBlock || (!comment && /^ {0,3}<!--/.test(quoted)))) {
       const end = quoted.indexOf('-->');
       commentBlock = end < 0;
-      if (!commentBlock) onRawHtml(removeComments(quoted.slice(end + 3)));
+      if (!commentBlock) {
+        onRawHtml(removeComments(quoted.slice(end + 3)));
+        // A subsequent raw comment on the same line still owns its closing line.
+        commentBlock = comment;
+        comment = false;
+      }
       indented = false;
       blankBefore = !commentBlock;
       return '';

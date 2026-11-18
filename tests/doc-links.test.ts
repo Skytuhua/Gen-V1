@@ -106,6 +106,18 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('1 broken');
     }finally{bench.cleanup();}
   });
+  it('does not collect Markdown after the closing line of a chained raw comment',()=>{
+    const bench=fixture({
+      'README.md':'[phantom](guide.md#phantom), [real](guide.md#real), [custom](guide.md#custom)\n',
+      'guide.md':'<!-- first --> <!-- second\n--> ## Phantom <a id="custom"></a>\n\n## Real\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('error README.md:1 guide.md#phantom');
+      expect(result.output).toContain('1 broken, 0 warnings');
+    }finally{bench.cleanup();}
+  });
   it('reads both destinations of a linked image',()=>{
     const bench=fixture({'README.md':'# Readme\n\n[![diagram](missing-image.png)](missing-page.md)\n'});
     try{
