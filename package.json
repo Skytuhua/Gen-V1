@@ -21,7 +21,7 @@
     "test:no-lease": "pnpm build:widgets && vitest run",
     "build:credential-lease": "node --import tsx scripts/build-windows-credential-lease.ts",
     "test:browser": "node --import tsx scripts/test-browser.ts",
-    "test:e2e": "pnpm build && tsx scripts/test-browser.ts",
+    "test:e2e": "pnpm build && pnpm test:browser",
     "agent:login": "tsx packages/runtime-login/index.ts",
     "fixtures:create": "tsx scripts/create-fixtures.ts",
     "eval": "node --import tsx evals/runner.ts",
