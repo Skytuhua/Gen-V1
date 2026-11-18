@@ -691,7 +691,7 @@ export class Service {
         this.store.internal("operation.prepared", threadId, () => { this.store.put("operation", op.id, threadId, op); if(capture)this.store.put('operationWriteOrigin',op.id,threadId,capture);this.operationData(op); return op; }); return op;
       },
       progress: (message: string, counts?: unknown) => {
-        if (this.closed) return;
+        if (this.closed || signal?.aborted || this.store.get("archivedThread", threadId)) return;
         // Process/abort event callbacks can arrive after revocation. Drop stale
         // presentation progress instead of throwing out of an event listener.
         if (authority) {
@@ -1675,8 +1675,21 @@ export class Service {
     if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
     const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
     if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-      this.effects.verifyOperationApproval(op, this.thread(op.threadId));
-      this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      try {
+        this.effects.verifyOperationApproval(op, this.thread(op.threadId));
+        this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
+      } catch (error) {
+        if (error instanceof HarnessError && error.code === "APPROVAL_REQUIRED") {
+          const current = this.store.get<Operation>("operation", id);
+          if (current?.status === "prepared" && current.approved && current.revision === op.revision)
+            this.store.internal("operation.approval_required", op.threadId, () => {
+              const review = { ...current, approved: false };
+              this.store.put("operation", id, op.threadId, review); this.operationData(review);
+              return { operationId: id };
+            });
+        }
+        throw error;
+      }
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
       const domain = await import("../capabilities/index.ts");

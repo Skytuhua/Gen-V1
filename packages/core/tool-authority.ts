@@ -125,6 +125,7 @@ export class ToolAuthority {
   private readonly entries = new Map<string, RegistryEntry>();
   constructor(registry: RegistryEntry[]) {
     for (const entry of registry) {
+      toolDefinitionSchema.shape.version.parse(entry.version);
       if (this.entries.has(entry.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + entry.id);
       this.entries.set(entry.id, entry);
     }

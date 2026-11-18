@@ -26,7 +26,7 @@ export type ToolOwner = z.infer<typeof toolOwnerSchema>;
 
 export const toolDefinitionSchema = z.strictObject({
   id: z.string().min(1),
-  version: z.number().int().positive(),
+  version: z.literal(1),
   schemaDigest: z.string().min(1),
   risk: toolRiskSchema,
   replayClass: replayClassSchema,
