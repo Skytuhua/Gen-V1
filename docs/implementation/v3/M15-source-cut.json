@@ -87,9 +87,9 @@
     },
     {
       "path": "apps/web/src/App.tsx",
-      "bytes": 164509,
-      "sha256": "b2c33866619557432974d4de6a71ca2b86f3129e117a10b61b12e0c6f5c2cf0c",
-      "gitBlob": "20833df2893d03b265498246c42e3771edd93eed"
+      "bytes": 164057,
+      "sha256": "f77c1289629f978384911d3a7f418c9301e01f8606738c6ed8a3a87b3d59cb80",
+      "gitBlob": "18d8fa6bc32e7a5d6033652b9e5abe6d809404f1"
     },
     {
       "path": "apps/web/src/AppearanceSettings.tsx",
@@ -213,9 +213,9 @@
     },
     {
       "path": "apps/web/src/ProjectMemoryReview.tsx",
-      "bytes": 22649,
-      "sha256": "0a38028fd02841ec62e24bd8a98b297b937b82e504367daaabc5cb55325a8fe0",
-      "gitBlob": "649739d724686767e59c2c3f665f1bdc06aaf967"
+      "bytes": 22673,
+      "sha256": "1ab958f1d8f3f8d1e1baa24a66890f3e325f507648899c1123cfeb1b70ef14ed",
+      "gitBlob": "117730406a87708f6c27fe459a1ef99600544afb"
     },
     {
       "path": "apps/web/src/SavedDrafts.tsx",
