@@ -75,7 +75,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real-account browser/desktop write test still needs a built, platform-qualified driver artifact (HOLD_PLATFORM_PROOF). The first-party bridge now exists (apps/desktop/control-bridge.ts); live write acceptance is NOT_RUN until Windows receipts land."
+      "reason": "Real-account browser write acceptance still needs the built browser-tab artifact qualified on Windows (HOLD_PLATFORM_PROOF); the selected-window slice is additionally held by HOLD_PICKER_BINDING. NOT_RUN until receipts land."
     },
     {
       "id": "M16-S09",
@@ -145,7 +145,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": [],
       "testIds": [],
-      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance requires the built driver artifact on the real platform (HOLD_PLATFORM_PROOF). Native WGC bridge implemented (packages/core/windows-control-bridge.cc); NOT_RUN."
+      "reason": "Real Windows multi-monitor/focus/minimized/permission-loss acceptance is held twice over: HOLD_PICKER_BINDING — GraphicsCapturePicker exposes no authoritative HWND for the picked item, so the window path fails closed (DRIVER_UNAVAILABLE) until an approved same-object binding exists; then HOLD_PLATFORM_PROOF for real-platform acceptance. NOT_RUN."
     },
     {
       "id": "M16-G01",
@@ -208,7 +208,7 @@
       "disposition": "BLOCKED",
       "sourcePaths": ["tests/interactive-control-decisions-v6.test.ts"],
       "testIds": ["tests/interactive-control-decisions-v6.test.ts::M16-D06 real-platform acceptance stays BLOCKED"],
-      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance must run against the installed approved driver before any live approval; the bridge artifact is built pending Windows receipts, recorded BLOCKED/NOT_RUN (HOLD_PLATFORM_PROOF)."
+      "reason": "Actual Windows multi-monitor/focus/minimized/permission-loss acceptance requires an installed approved driver; the picker cannot return an authoritative window identity (HOLD_PICKER_BINDING), so the window path stays disabled and this remains BLOCKED/NOT_RUN."
     }
   ]
 }

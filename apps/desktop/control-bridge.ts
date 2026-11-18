@@ -172,7 +172,11 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
   };
 
   const requireLiveWindow = async (identity: Identity): Promise<BridgeWindowIdentity> => {
-    if (!deps.native) fail('DRIVER_UNAVAILABLE', 'No approved window driver is present.');
+    // HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker cannot
+    // return an authoritative HWND for the picked item, so no 'win:' identity
+    // is provable and every window path is unavailable until an approved
+    // same-object binding exists.
+    fail('DRIVER_UNAVAILABLE', 'Selected-window control is held: the capture picker cannot return an authoritative window identity.');
     const handle = windowHandle(identity);
     const native = await deps.native.windowIdentity(handle);
     if (!native || `win:${native.handle}:${native.processId}` !== identity.creationIdentity) {
@@ -208,12 +212,9 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
     },
     async pickTarget(payload) {
       if (String(payload.mode) !== 'SELECTED_DESKTOP_APPLICATION') return { candidate: null };
-      if (!deps.native) fail('DRIVER_UNAVAILABLE', 'No approved window driver is present.');
-      const picked = await deps.native.pickWindow(deps.ownerWindowHandle());
-      if (!picked) return { candidate: null };
-      const pickSession = `wgc-${randomUUID()}`;
-      const identity = windowIdentity(picked, pickSession);
-      return { candidate: { target: identity, title: picked.title || null } };
+      // HOLD_PICKER_BINDING: the picker cannot return an authoritative window
+      // identity — refuse rather than mint an unprovable 'win:' identity.
+      fail('DRIVER_UNAVAILABLE', 'Selected-window control is held: the capture picker cannot return an authoritative window identity.');
     },
     async observe(payload) {
       const target = payload.target as Identity;
@@ -320,7 +321,9 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
         artifactSha256,
         adapterModule: deps.adapterModulePath,
         adapterModuleSha256,
-        apiProtocols: deps.native ? ['browser-tab', 'native-window'] : ['browser-tab'],
+        // HOLD_PICKER_BINDING: 'native-window' is not registered — the picker
+        // cannot return an authoritative window identity (D02/D04).
+        apiProtocols: ['browser-tab'],
         backendProofRef: `electron/${deps.apiVersion}`,
         targetIdentityFormat: 'gen-v1.control-target.v1',
         captureBounds: { maxWidth: 8192, maxHeight: 8192, maxBytes: 33554432 },

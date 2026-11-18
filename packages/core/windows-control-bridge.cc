@@ -92,25 +92,11 @@ bool enumerableAppWindow(HWND hwnd) {
   return (rect.right - rect.left) > 0 && (rect.bottom - rect.top) > 0;
 }
 
-struct EnumContext { std::vector<WindowDesc> windows; };
-BOOL CALLBACK enumWindow(HWND hwnd, LPARAM param) {
-  auto* context = reinterpret_cast<EnumContext*>(param);
-  if (!enumerableAppWindow(hwnd)) return TRUE;
-  WindowDesc desc{};
-  desc.hwnd = hwnd;
-  GetWindowThreadProcessId(hwnd, &desc.pid);
-  desc.title = windowText(hwnd);
-  GetWindowRect(hwnd, &desc.rect);
-  desc.dpi = GetDpiForWindow(hwnd);
-  context->windows.push_back(std::move(desc));
-  return TRUE;
-}
-
-std::vector<WindowDesc> appWindows() {
-  EnumContext context{};
-  EnumWindows(enumWindow, reinterpret_cast<LPARAM>(&context));
-  return std::move(context.windows);
-}
+// EnumWindows-driven enumeration was removed: matching a GraphicsCaptureItem
+// back to an HWND by display name or client size cannot prove same-object
+// binding (a display can share a window's title or dimensions). The picker
+// holds no public API returning the picked item's HWND, so the window path is
+// held rather than approximated.
 
 std::optional<WindowDesc> describe(HWND hwnd) {
   if (!IsWindow(hwnd) || !enumerableAppWindow(hwnd)) return std::nullopt;
@@ -265,46 +251,16 @@ void onSta(void (*run)(void*), void* data) {
 
 struct PickResult { bool cancelled = false; WindowDesc window{}; std::string error; HWND owner = nullptr; };
 
+// HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker returns a
+// GraphicsCaptureItem whose DisplayName/Size are not an authoritative window
+// identity, and no public API maps the item back to its HWND. A heuristic
+// match against EnumWindows titles or client dimensions cannot prove which
+// object the picker returned — a display and a same-sized window are
+// indistinguishable — so it was removed and every window operation fails
+// closed until an approved same-object binding exists.
 void pickOnSta(void* raw) {
   auto* result = static_cast<PickResult*>(raw);
-  try {
-    wgc::GraphicsCapturePicker picker{};
-    if (result->owner) {
-      ComPtr<IInitializeWithWindow> init;
-      hr(picker.as<IInitializeWithWindow>()->QueryInterface(IID_PPV_ARGS(&init)), "The capture picker is unavailable.");
-      hr(init->Initialize(result->owner), "The capture picker could not attach to the app window.");
-    }
-    wgc::GraphicsCaptureItem item = picker.PickSingleItemAsync().get();
-    if (!item) { result->cancelled = true; return; }
-    // Bind the picked item to exactly one live application window. A display
-    // pick, zero matches or multiple matches all fail closed.
-    winrt::hstring name = item.DisplayName();
-    auto itemSize = item.Size();
-    std::wstring wanted(name.c_str(), name.size());
-    std::vector<WindowDesc> matches;
-    for (auto& desc : appWindows()) {
-      if (desc.title == wanted) matches.push_back(desc);
-    }
-    if (matches.size() != 1) {
-      // Second pass: DisplayName may carry app name rather than window title
-      // on some shells — try client-area size equality as a fallback before
-      // giving up entirely. Still requires a unique hit.
-      matches.clear();
-      for (auto& desc : appWindows()) {
-        RECT client{};
-        if (GetClientRect(desc.hwnd, &client) && (client.right - client.left) == itemSize.Width && (client.bottom - client.top) == itemSize.Height) matches.push_back(desc);
-      }
-      if (matches.size() != 1) { result->error = matches.empty() ? "The selection could not be bound to a live application window." : "The selection matched multiple windows."; return; }
-    }
-    result->window = matches.front();
-    result->cancelled = false;
-  } catch (const winrt::hresult_error& error) {
-    result->error = "Window selection failed: " + utf8(std::wstring(error.message().c_str(), error.message().size()));
-  } catch (const std::exception& error) {
-    result->error = error.what();
-  } catch (...) {
-    result->error = "Window selection failed.";
-  }
+  result->error = "CONTROL_PICKER_BINDING_UNSUPPORTED: the capture picker cannot return an authoritative window identity; selected-window control is held.";
 }
 
 // ---- WGC capture ----------------------------------------------------------
@@ -424,28 +380,17 @@ class WgcSession {
   wgc::GraphicsCaptureSession session_{nullptr};
 };
 
+// capture/identity are likewise held: no caller can supply a proven HWND while
+// the picker binding gap stands, so these paths refuse rather than capture an
+// unproven window.
 void captureOnSta(void* raw) {
   auto* result = static_cast<CaptureResult*>(raw);
-  try {
-    auto desc = describe(result->hwnd);
-    if (!desc) { result->error = "The selected window no longer exists."; return; }
-    WgcSession session(result->hwnd);
-    if (!session.grab(result->png, result->width, result->height)) result->error = "The selected window produced no capturable frame.";
-    result->window = *desc;
-  } catch (const winrt::hresult_error& error) {
-    result->error = "Window capture failed: " + utf8(std::wstring(error.message().c_str(), error.message().size()));
-  } catch (const std::exception& error) {
-    result->error = error.what();
-  } catch (...) {
-    result->error = "Window capture failed.";
-  }
+  result->error = "CONTROL_PICKER_BINDING_UNSUPPORTED: window capture requires a proven selected window identity; selected-window control is held.";
 }
 
 void identityOnSta(void* raw) {
   auto* result = static_cast<PickResult*>(raw);
-  auto desc = describe(result->owner); // owner field reused to carry the HWND
-  if (desc) { result->window = *desc; result->cancelled = false; }
-  else result->cancelled = true;
+  result->error = "CONTROL_PICKER_BINDING_UNSUPPORTED: window identity requires a proven selected window; selected-window control is held.";
 }
 
 // ---- napi entry points ----------------------------------------------------

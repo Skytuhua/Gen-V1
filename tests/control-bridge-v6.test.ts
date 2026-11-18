@@ -171,7 +171,7 @@ describe('M16 C3 browser adapter via sidecar driver', () => {
   });
 });
 
-describe('M16 C4 window adapter via sidecar driver', () => {
+describe('M16 C4 window adapter via sidecar driver (HOLD_PICKER_BINDING)', () => {
   const windowId = { handle: 0x1f00, processId: 4321, title: 'Notepad', bounds: { x: 5, y: 6, width: 640, height: 480 }, dpiScale: 1 };
   const native = (over: Partial<WindowsWindowBridge> = {}): WindowsWindowBridge => ({
     pickWindow: async () => windowId,
@@ -179,47 +179,33 @@ describe('M16 C4 window adapter via sidecar driver', () => {
     captureWindow: async () => ({ data: Buffer.from([1, 2, 3]), width: 640, height: 480 }),
     ...over,
   });
+  // An identity only the picker path could have minted — fabricated here to
+  // prove every downstream op fails closed rather than trusting it.
+  const fabricated: ControlTargetIdentityV1 = { kind: 'APPLICATION', creationIdentity: 'win:7936:4321', sessionIdentity: 'wgc|wgc-abc|geo|5|6|640|480|dpi|1', origin: null };
 
-  it('picker result becomes a window-bound candidate', async () => {
+  it('picker path refuses: no authoritative window identity can be minted', async () => {
     const { driver, call } = harness({ native: native() });
-    const candidate = await call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION'));
-    expect(candidate!.target.kind).toBe('APPLICATION');
-    expect(candidate!.target.creationIdentity).toBe(`win:${windowId.handle}:${windowId.processId}`);
-    expect(candidate!.title).toBe('Notepad');
+    await expect(call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION'))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
   });
 
-  it('captures the exact selected window', async () => {
+  it('observe refuses a window target even when a native bridge is present', async () => {
     const { driver, call } = harness({ native: native() });
-    const target = targetOf((await call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION')))!);
-    const frame = await call(driver.capture(target));
-    expect(frame.width).toBe(640);
-    expect(frame.data).toEqual(Buffer.from([1, 2, 3]));
+    await expect(call(driver.observe(fabricated))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
   });
 
-  it('refuses when the window vanished', async () => {
-    const nativeBridge = native();
-    const { driver, call } = harness({ native: nativeBridge });
-    const target = targetOf((await call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION')))!);
-    nativeBridge.windowIdentity = async () => null;
-    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+  it('capture refuses a window target even when a native bridge is present', async () => {
+    const { driver, call } = harness({ native: native() });
+    await expect(call(driver.capture(fabricated))).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
   });
 
-  it('refuses when the window moved or changed DPI', async () => {
-    const nativeBridge = native();
-    const { driver, call } = harness({ native: nativeBridge });
-    const target = targetOf((await call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION')))!);
-    const moved = { ...windowId, bounds: { ...windowId.bounds, x: 999 } };
-    nativeBridge.windowIdentity = async () => moved;
-    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
-    const resized = { ...windowId, dpiScale: 2 };
-    nativeBridge.windowIdentity = async () => resized;
-    await expect(call(driver.capture(target))).rejects.toMatchObject({ code: 'TARGET_MISMATCH' });
+  it('cancel on a window target stays a safe no-op (DRIVER_UNAVAILABLE tolerated)', async () => {
+    const { driver, call } = harness({ native: native() });
+    await expect(call(driver.cancel(fabricated))).resolves.toBeUndefined();
   });
 
   it('native input dispatch stays unsupported (no proven delivery path)', async () => {
     const { driver, call } = harness({ native: native() });
-    const target = targetOf((await call(driver.pickTarget('SELECTED_DESKTOP_APPLICATION')))!);
-    const action = { actionId: 'a5', grantId: 'g1', target, action: 'CLICK' as const, redactedParameters: { x: 1, y: 1 }, preObservationRef: null, postObservationRef: null, effectReceipt: null };
+    const action = { actionId: 'a5', grantId: 'g1', target: fabricated, action: 'CLICK' as const, redactedParameters: { x: 1, y: 1 }, preObservationRef: null, postObservationRef: null, effectReceipt: null };
     await expect(call(driver.dispatch(action))).rejects.toMatchObject({ code: 'CONTROL_OP_UNSUPPORTED' });
   });
 

@@ -102,19 +102,23 @@ production flag change.
   contents focus are provable; NAVIGATE reuses the same public-URL guard;
   UPLOAD/DOWNLOAD refuse (session already denies them). No external profiles,
   no remote debugging, no page scripting, no global injection.
-- **Window slice** (`packages/core/windows-control-bridge.cc`): Node-API addon
-  exposing `pickWindow` (system `GraphicsCapturePicker` on a dedicated STA
-  thread; result bound to exactly one live application HWND by title/client
-  match — displays, zero or ambiguous matches fail closed), `windowIdentity`
-  (live HWND+PID+bounds+DPI re-proof) and `captureWindow` (WGC frame pool →
-  staging texture → WIC PNG). Native input dispatch is **unsupported** — no
-  proven selected-target delivery path; the requirement stays held.
+- **Window slice** (`packages/core/windows-control-bridge.cc`): **HELD —
+  HOLD_PICKER_BINDING.** The system `GraphicsCapturePicker` returns a
+  `GraphicsCaptureItem` with no authoritative HWND mapping (D02/D04 blocker
+  found in review): matching `DisplayName`/client dimensions to `EnumWindows`
+  output could not prove which object the picker returned — a display and a
+  same-sized window are indistinguishable — so that heuristic was removed.
+  `pickWindow`, `windowIdentity` and `captureWindow` all reject
+  `CONTROL_PICKER_BINDING_UNSUPPORTED`; the WGC/D3D11/WIC machinery remains
+  compiled for an approved same-object binding mechanism. The module still
+  builds and loads, so the artifact digest remains verifiable.
 - **Registration** (`apps/server/host.ts` + `desktop-controls.ts`): the desktop
   pushes `harness.control.register` + manifest; the host recomputes SHA-256 of
   `artifact` (and `adapterModule` when present) before registering — an edited
-  or stale manifest cannot qualify a different binary (D02). One manifest
-  projects to per-protocol registry entries (`<driverId>:browser-tab`,
-  `<driverId>:native-window`) so `resolve(mode)` still requires uniqueness.
+  or stale manifest cannot qualify a different binary (D02). The manifest
+  registers `browser-tab` only — `native-window` is withheld under
+  HOLD_PICKER_BINDING — so `resolve(SELECTED_DESKTOP_APPLICATION)` fails
+  closed `DRIVER_UNAVAILABLE`.
 - **Surface** (`apps/web/src/ControlConsentPanel.tsx`): pending consent now
   lists/selects driver-named targets and approves via `control.grant`; the
   active state offers consented capture + the same Stop. New routes:
@@ -130,9 +134,15 @@ production flag change.
 
 - Flags `control.consentedBrowserV1`, `control.selectedDesktopV1` remain
   default-off; `reviewerApproval` remains false; no deployment enablement.
-- HOLD_PLATFORM_PROOF stays until the Windows box receipts land: real
-  `windows-control-bridge.node` build SHA-256, `pickWindow` driven against the
-  real `GraphicsCapturePicker`, real `captureWindow` PNG.
+- HOLD_PICKER_BINDING (D02/D04): the system picker yields no authoritative
+  HWND binding; the EnumWindows name/dimension heuristic was removed and the
+  window path fails closed `DRIVER_UNAVAILABLE` /
+  `CONTROL_PICKER_BINDING_UNSUPPORTED` until an approved same-object binding
+  exists. The desktop manifest registers `browser-tab` only.
+- HOLD_PLATFORM_PROOF stays until the Windows box receipts land for the
+  browser slice: real `windows-control-bridge.node` build SHA-256 plus
+  targeted test/typecheck receipts. Receipts recorded on an older cut cannot
+  qualify the window target binding at all.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
@@ -141,6 +151,6 @@ production flag change.
 ## Verification status
 
 - Awaiting delegate receipts from `WIN-M0N0V07LGM1` (targeted vitest files,
-  typecheck, native compile, addon smoke, picker interaction, capture PNG,
+  typecheck, native compile, addon-load smoke, browser-slice candidates,
   artifact SHA-256). This section must be updated with verbatim results before
   any PR moves past draft.
