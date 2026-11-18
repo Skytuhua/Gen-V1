@@ -1,11 +1,12 @@
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { spawnSync } from 'node:child_process';
-import { constants, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { once } from 'node:events';
+import { spawn, spawnSync } from 'node:child_process';
+import { chmodSync, constants, copyFileSync, existsSync, linkSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { runRecordedCommand } from '../scripts/research-baseline.ts';
+import { resolvePackageManager, runRecordedCommand } from '../scripts/research-baseline.ts';
 
 const repository = new URL('../', import.meta.url);
 const runner = new URL('../scripts/research-baseline.ts', import.meta.url).href;
@@ -52,6 +53,24 @@ if (process.argv[2] === '--version') console.log(${JSON.stringify(version)});
 }
 
 describe('M01 installed package manager admission', () => {
+  it.skipIf(process.platform==='win32')('launches executable standalone pnpm with no Corepack', async () => {
+    const bin=mkdtempSync(join(directory,'standalone-bin-')), pnpm=join(bin,'pnpm');
+    mkdirSync(bin,{recursive:true});
+    copyFileSync(node,pnpm);
+    chmodSync(pnpm,0o755);
+    vi.stubEnv('PATH',bin);
+    const execPath=vi.spyOn(process,'execPath','get').mockReturnValue(node);
+    try {
+      const resolved=resolvePackageManager(process.cwd());
+      expect(resolved.file).toBe(pnpm);
+      expect(resolved.prefix).toEqual([]);
+      const child=spawn(resolved.file,['--version'],{stdio:['ignore','ignore','ignore']});
+      expect(await once(child,'close')).toEqual([0,null]);
+      chmodSync(pnpm,0o644);
+      expect(()=>resolvePackageManager(process.cwd())).toThrow(/Corepack or an installed pnpm/);
+    } finally { execPath.mockRestore(); vi.unstubAllEnvs(); }
+  });
+
   it('inherits only the configured Corepack cache for offline commands, unless explicitly overridden', async () => {
     const cache = join(directory, 'configured cache'), override = join(directory, 'other cache');
     vi.stubEnv('COREPACK_HOME', cache);
