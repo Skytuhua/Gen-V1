@@ -205,7 +205,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
   catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
-    if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
+    if (inspected.path.split('/').includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
       issues.push({ code: 'INVALID_INSPECTED_PATH', message: `Inspected path is not a repository-relative path: ${inspected.path}` });
     let actual: string | null = null;
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
