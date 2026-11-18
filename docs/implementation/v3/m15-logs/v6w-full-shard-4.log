@@ -1,0 +1,408 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","test","--maxWorkers=2","--shard=4/4","--reporter=default","--reporter=json","--outputFile=test-results/m15/full-results-shard-4.json"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+
+> gen-v1@0.6.5 test C:\Users\Administrator\repos\Gen-V1-m15-v6
+> pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=4/4" "--reporter=default" "--reporter=json" "--outputFile=test-results/m15/full-results-shard-4.json"
+
+
+> gen-v1@0.6.5 build:credential-lease C:\Users\Administrator\repos\Gen-V1-m15-v6
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+Windows credential lease built.
+
+> gen-v1@0.6.5 build:widgets C:\Users\Administrator\repos\Gen-V1-m15-v6
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ❯ tests/skills-integration.test.ts (11 tests | 9 failed) 71221ms
+   × keeps openai automatic skill review account-pinned through changed defaults, settlement and restart 8413ms
+   × keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart 7994ms
+   × keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart 8038ms
+   × keeps xai automatic skill review account-pinned through changed defaults, settlement and restart 7575ms
+   × keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart 7717ms
+   × keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart 7641ms
+   × keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart 7634ms
+   × keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart 7537ms
+   × keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart 7543ms
+   ✓ registers and executes the shared learning tools in the installed Pi SDK without model calls or ambient skills  980ms
+   ✓ round trips the same skill schemas and real Service writes through the authenticated official MCP bridge 148ms
+ ❯ tests/account-parity.test.ts (11 tests | 11 failed) 85658ms
+   × keeps openai task routing through compaction and history-aware recovery after its default changes 8162ms
+   × keeps openai-codex task routing through compaction and history-aware recovery after its default changes 8051ms
+   × keeps github-copilot task routing through compaction and history-aware recovery after its default changes 8637ms
+   × keeps xai task routing through compaction and history-aware recovery after its default changes 7531ms
+   × keeps claude-code task routing through compaction and history-aware recovery after its default changes 7709ms
+   × keeps gemini-cli task routing through compaction and history-aware recovery after its default changes 7638ms
+   × keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes 7617ms
+   × keeps kimi-coding task routing through compaction and history-aware recovery after its default changes 7555ms
+   × keeps opencode-go task routing through compaction and history-aware recovery after its default changes 7536ms
+   × inherits the parent account for a new side conversation while defaults change before and during startup 7622ms
+   × delegates through Service using the parent account after future defaults change before asynchronous child creation 7598ms
+ ✓ tests/project-search-host.test.ts (51 tests | 1 skipped) 50223ms
+   ✓ bounds the issue list and reports truncation  509ms
+   ✓ stops before reading more than 32 MiB of ordinary file bytes  313ms
+   ✓ stops at 10,000 ordinary files, without visiting the next file  44869ms
+   ✓ expires cursors at five minutes and evicts the oldest snapshot after 100 retained scans  674ms
+   ✓ uses an acquired real Windows guard for ordinary reads; unsupported platforms fail closed  2555ms
+ ✓ tests/review-host.test.ts (9 tests) 52932ms
+   ✓ closes the fixture store when initialization fails after allocating the services  448ms
+     ✓ prepares and exports a real local PDF only after exact native operation approval  9068ms
+     ✓ shows actual before/after SQLite rows and valid row-change annotations  27976ms
+     ✓ keeps the faq topic free of an automatic question form and preserves state through composer continuation  1683ms
+     ✓ keeps pr-dark outcomes illustrative and denies a source mutation with a stale original epoch  6552ms
+     ✓ keeps pr-light outcomes illustrative and denies a source mutation with a stale original epoch  6567ms
+ ✓ tests/desktop-host.test.ts (15 tests) 21147ms
+   ✓ launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token  9147ms
+   ✓ reports a real startup collision without adopting an unrelated HTTP service  2543ms
+   ✓ does not leave its backend running after the owning IPC channel disconnects  9175ms
+ ✓ tests/dependency-contract-execution-v3.test.ts (18 tests) 26756ms
+     ✓ executes exactly the declared files and records current source, commands, and complete assertions  3453ms
+     ✓ reports an observed contract assertion failure as FAIL  3481ms
+     ✓ blocks named tests whose assertions are skipped even when the command exits successfully  3471ms
+     ✓ blocks successful assertions if current tracked source changes during execution  2955ms
+     ✓ blocks a declared file that contains no executable test assertions  3762ms
+     ✓ blocks successful assertions if the supplied source-lock bytes change during execution  2848ms
+     ✓ blocks a missing audit ancestor before launching any command  597ms
+     ✓ blocks an unaccepted dependency commit before launching any command  629ms
+     ✓ blocks a stale contract version before launching any command  688ms
+     ✓ blocks a contract with no test IDs beside a tested contract before launching any command  484ms
+     ✓ blocks a glob test ID before launching any command  478ms
+     ✓ blocks a browser test ID before launching any command  475ms
+     ✓ blocks an untracked source file before launching any command  568ms
+     ✓ blocks a dirty tracked checkout before launching any command  572ms
+     ✓ requires exact working bytes even when local Git attributes normalize them to the locked blob  885ms
+     ✓ blocks an external-looking output junction that resolves into the checkout  474ms
+     ✓ leaves no directory or receipt when output is inside the checkout  453ms
+     ✓ refuses an existing evidence directory and preserves its old receipts  480ms
+ ✓ tests/project-memory-file-sources-v3.test.ts (21 tests) 17289ms
+   ✓ deduplicates selected captures and caps the complete cut at 64 sources and 64 KiB  548ms
+   ✓ extracts an actually captured/sent FILE_RANGE through native Windows admission and Service settlement (Keep captured false)  10043ms
+   ✓ extracts an actually captured/sent FILE_RANGE through native Windows admission and Service settlement (Keep captured true)  5156ms
+ ✓ tests/request-preparation-service-v3.test.ts (34 tests) 4054ms
+   ✓ bounds abandoned preparations and retains only the newest 128 metadata receipts  1975ms
+   ✓ keeps expired, hung preparation jobs in the admission bound until they actually settle  333ms
+ ✓ tests/context-result-custody.test.ts (4 tests) 18958ms
+   ✓ uses the native Windows grant guard for retained domain output and revocation  18908ms
+ ✓ tests/skill-catalog-apps.test.ts (4 tests) 14765ms
+   ✓ discovers only declared installed metadata with verified package custody and never activates the host  4996ms
+   ✓ invalidates installed references after content tampering, registry revocation, or untracked additions  7335ms
+   ✓ rejects package and registry hardlinks instead of accepting an installation based on file location  2420ms
+ ✓ tests/backend-pdf.test.ts (8 tests) 18281ms
+     ✓ rejects repeated page references without blocking the host timer  337ms
+     ✓ rejects cyclic page references before recursive expansion  348ms
+     ✓ bounds source bytes and page count  411ms
+     ✓ preserves source bytes, supported fields, literal text and multi-stroke export  717ms
+     ✓ aborts active processing and retains responsive host timers  1061ms
+     ✓ terminates a genuinely over-budget text parser at the fixed deadline  15043ms
+     ✓ keeps rendering field failures actionable  358ms
+ ✓ tests/memory-native-file-capture-v3.test.ts (3 tests) 9879ms
+     ✓ captures exact UTF-8 bytes through the real guard and reuses the immutable FILE source without modifying the file  4942ms
+     ✓ rejects native-captured FILE recall, detail and recapture after grant revocation  2475ms
+     ✓ rejects native-captured FILE recall, detail and recapture after physical replacement  2460ms
+ ✓ tests/view-loading-state.test.ts (12 tests) 6884ms
+     ✓ workspace reserves its layout at 1440, delays feedback 150ms, and retains edits on refresh  761ms
+     ✓ workspace reserves its layout at 1024, delays feedback 150ms, and retains edits on refresh  618ms
+     ✓ workspace reserves its layout at 768, delays feedback 150ms, and retains edits on refresh  615ms
+     ✓ agents reserves its layout at 1440, delays feedback 150ms, and retains edits on refresh  524ms
+     ✓ agents reserves its layout at 1024, delays feedback 150ms, and retains edits on refresh  544ms
+     ✓ agents reserves its layout at 768, delays feedback 150ms, and retains edits on refresh  555ms
+     ✓ settings reserves its layout at 1440, delays feedback 150ms, and retains edits on refresh  578ms
+     ✓ settings reserves its layout at 1024, delays feedback 150ms, and retains edits on refresh  619ms
+     ✓ settings reserves its layout at 768, delays feedback 150ms, and retains edits on refresh  540ms
+     ✓ workspace cancels fast-load feedback and stays static with default motion  308ms
+     ✓ agents cancels fast-load feedback and stays static with default motion  306ms
+ ✓ tests/skill-catalog.test.ts (23 tests) 127760ms
+   ✓ enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes  23058ms
+   ✓ pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal  9992ms
+   ✓ binds authenticated cursors to inventory, search, page size and connection context  5202ms
+   ✓ denies file/directory symlinks and hardlinks while retaining other safe packages  2412ms
+   ✓ bounds file counts and bytes without truncating a package into an available reference  4855ms
+   ✓ marks an exhausted root inventory unavailable instead of silently presenting a partial catalog  2657ms
+   ✓ counts bytes consumed by rejected packages against the root budget  2486ms
+   ✓ rejects namespace escalation and source substitution without resolving a display name  5201ms
+   ✓ accepts bound references for the full declared source-identity length  5159ms
+   ✓ includes nested installed skill entries beneath another skill package  2578ms
+   ✓ keeps a root skill distinct from a child named after the root directory  3170ms
+   ✓ detects replacement during capture and never returns mixed metadata/custody  2978ms
+   ✓ uses canonical connected project/worktree bindings and separates unavailable project authority  2494ms
+   ✓ discovers only the selected worktree and invalidates its references after rebinding or revocation  4976ms
+   ✓ preserves exact references and pagination after unrelated title updates  9803ms
+   ✓ preserves exact references and pagination after unrelated status updates  11398ms
+   ✓ preserves exact references and pagination after unrelated project metadata updates  10178ms
+   ✓ preserves exact references and pagination after unrelated working-copy branch updates  10260ms
+   ✓ reuses the real bundled integration inventory and covers all declared skills across pages  6330ms
+   ✓ requires composition to supply the installed registry instead of guessing a host plugin directory  2563ms
+stdout | tests/widget-isolation.test.ts > real browser worker isolation > trusted composing iframe Escape never forwards shell dismissal (native)
+Trusted composing Escape observation native {"isTrusted":true,"key":"Escape","keyCode":27,"isComposing":true}
+
+stdout | tests/widget-isolation.test.ts > real browser worker isolation > trusted composing iframe Escape never forwards shell dismissal (legacy)
+Trusted composing Escape observation legacy {"isTrusted":true,"key":"Escape","keyCode":229,"isComposing":false}
+
+ ✓ tests/credential-entry-ime.test.ts (17 tests) 5465ms
+     ✓ IME confirmation retains private-token input ('native composition')  341ms
+     ✓ explicit Save and Replace still submit once ('native composition')  318ms
+     ✓ explicit Save and Replace still submit once ('legacy composition')  349ms
+     ✓ explicit Save and Replace still submit once ('native composition')  317ms
+     ✓ explicit Save and Replace still submit once ('legacy composition')  305ms
+   ✓ recovers a save error settled while hidden after urgent Suspense hide  308ms
+   ✓ recovers a save error settled while revealed after urgent Suspense hide  306ms
+ ✓ tests/widget-isolation.test.ts (22 tests) 10265ms
+     ✓ releases a widget lease only after host acceptance, preserves drafts on failure, and resumes under the same action identity  1086ms
+     ✓ forwards trusted iframe Escape to Widget while rejecting forged worker and wrong-source shell controls  512ms
+     ✓ trusted composing iframe Escape never forwards shell dismissal (native)  594ms
+     ✓ trusted composing iframe Escape never forwards shell dismissal (legacy)  578ms
+     ✓ reuses a resumed dirty lease when iframe focus acquisition completes before the generated action  546ms
+     ✓ rejects a huge sparse root in Chromium without blocking host controls  323ms
+     ✓ rejects a huge sparse children in Chromium without blocking host controls  352ms
+     ✓ runs novel HTML/CSS/JS forms, dirty/checkpoint/emit and theme updates in the same iframe  621ms
+     ✓ blocks worker network/imports/nested workers and never executes markup or navigates the iframe  593ms
+     ✓ terminates a scheduled infinite worker loop while host Settings and main-frame evaluation respond  2600ms
+     ✓ rejects forged remote DOM navigation and executable mutations at the host receiver boundary  555ms
+ ✓ tests/feedback-primitives.test.ts (7 tests) 6364ms
+     ✓ shows, deduplicates, acts on and dismisses toasts  1053ms
+     ✓ expires toasts after their duration  586ms
+     ✓ resumes sibling timers after a keyboard-dismissed toast loses focus  804ms
+     ✓ adopts title attributes as tooltips on hover  1323ms
+     ✓ refreshes a visible tooltip when its hovered button gets a new title  1105ms
+     ✓ strips a trailing retry instruction when a retry button is present  539ms
+ ✓ tests/expanded-review-fixtures.test.ts (11 tests) 9324ms
+     ✓ continues the same interaction object for sendReview without granting execution authority  427ms
+     ✓ publishes the new components only through real Service tool admission  983ms
+     ✓ continues the same Everyday artifact from a source-backed selected option  309ms
+     ✓ runs the named local test only after exact native approval and derives failure from exit status  5938ms
+     ✓ uses the real planning coordinator for scripted jobs and durable question updates  672ms
+ ✓ tests/hermes-library.test.ts (49 tests) 2156ms
+ ✓ tests/tool-effect-snapshot-v3.test.ts (18 tests) 1547ms
+     ✓ refuses an oversized snapshot explicitly instead of publishing a partial cut  798ms
+ ✓ tests/model-discovery.test.ts (29 tests) 1774ms
+ ✓ tests/hermes-runtime.test.ts (88 tests) 6260ms
+   ✓ launches the actual ACP server with an absolute loader from an isolated working directory  419ms
+ ✓ tests/skill-catalog-http.test.ts (2 tests) 3335ms
+   ✓ requires the existing host/session gate and returns metadata without bodies or file paths  2842ms
+   ✓ rejects arbitrary paths, scope escalation and malformed paging without widening host discovery  492ms
+ ✓ tests/plugin-floating-owner-browser.test.ts (4 tests) 1210ms
+ ✓ tests/shell-navigation-scale.test.ts (1 test) 3729ms
+   ✓ returns navigation totals and order bounds for a large imported history  3728ms
+C:\Users\Administrator\repos\Gen-V1-m15-v6\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (C:\Users\Administrator\repos\Gen-V1-m15-v6\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.2
+C:\Users\Administrator\repos\Gen-V1-m15-v6\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13
+var consoleProcessList = getConsoleProcessList(shellPid);
+                         ^
+
+Error: AttachConsole failed
+    at Object.<anonymous> (C:\Users\Administrator\repos\Gen-V1-m15-v6\node_modules\.pnpm\node-pty@1.1.0_patch_hash=c_63374bd937bd06ee9c9aebe333b4d40b\node_modules\node-pty\lib\conpty_console_list_agent.js:13:26)
+    at Module._compile (node:internal/modules/cjs/loader:1929:14)
+    at Object..js (node:internal/modules/cjs/loader:2060:10)
+    at Module.load (node:internal/modules/cjs/loader:1651:32)
+    at Module._load (node:internal/modules/cjs/loader:1443:12)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:261:19)
+    at Module.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:154:5)
+    at node:internal/main/run_main_module:33:47
+
+Node.js v24.22.2
+ ✓ tests/official-runtime-acp.test.ts (17 tests) 969ms
+ ✓ tests/terminal-host.test.ts (2 tests) 3014ms
+   ✓ keeps a real host PTY across readers, scopes input, and confirms termination  321ms
+   ✓ releases native helpers after a terminal exits naturally while retaining its output  2692ms
+ ✓ tests/git-metadata-guard.test.ts (1 test) 2462ms
+   ✓ pins a read-only Git config while allowing index creation in the same pinned metadata directory  2461ms
+ ✓ tests/files-read-commit-owner.test.ts (2 tests) 1454ms
+     ✓ keeps A's success when B renders but never commits  426ms
+     ✓ keeps A's error when B renders but never commits  395ms
+ ✓ tests/desktop-output.test.ts (3 tests) 1065ms
+   ✓ rejects an occupied explicit release before creating staging files or invoking package installation  1039ms
+ ✓ tests/readiness-manifest.test.ts (15 tests) 886ms
+     ✓ timeout yields FAIL without hanging and kills the child  519ms
+ ✓ tests/agent-work-v3.test.ts (29 tests) 2681ms
+ ✓ tests/planning.test.ts (22 tests) 3692ms
+     ✓ retains cancelled job history without overriding a later run of the same stable step  405ms
+     ✓ retains actual running job assignments across replans and never accepts 100% as host approval  333ms
+ ✓ tests/cursor-offline-executor.test.ts (3 tests) 887ms
+   ✓ loads the actual lazy local executor and native parser, then fails closed before account/inference transport  752ms
+ ✓ tests/project-instructions-host.test.ts (24 tests) 1845ms
+ ✓ tests/repository-screenshots-cleanup.test.ts (1 test) 1307ms
+   ✓ stops the owned screenshot server even when browser close rejects  1306ms
+ ✓ tests/signature-approval.test.ts (6 tests) 1289ms
+   ✓ binds every signature resource and hash to approval and exports the prepared bytes  870ms
+   ✓ rejects a changed mark before creating any export  385ms
+ ✓ tests/prediction-runtime.test.ts (15 tests) 987ms
+   ✓ uses the real SDK prediction prompt with no tools, resources or persistent conversation  882ms
+ ✓ tests/verification-executor.test.ts (18 tests) 803ms
+ ✓ tests/service-workspace-admission.test.ts (14 tests) 2183ms
+ ✓ tests/verification-read-models-v3.test.ts (9 tests) 1044ms
+ ✓ tests/learning.test.ts (18 tests) 948ms
+ ✓ tests/workspace-linked-pr.test.ts (14 tests) 674ms
+ ✓ tests/tool-effect-authentication-v3.test.mjs (25 tests) 940ms
+ ✓ tests/ci-queue-guard.test.ts (47 tests) 127ms
+ ✓ tests/plugin-host.test.ts (27 tests) 1493ms
+ ✓ tests/github-output-redaction-v3.test.ts (6 tests) 425ms
+ ✓ tests/capture-ui/scope.test.ts (18 tests) 351ms
+   ✓ includes files introduced by the repository root when gh is unavailable  339ms
+ ✓ tests/native-dock-regression.test.ts (7 tests) 658ms
+ ✓ tests/credential-slots.test.ts (5 tests) 498ms
+ ✓ tests/context-relevance-host.test.ts (19 tests) 1018ms
+ ✓ tests/desktop-memory-export.test.ts (50 tests) 294ms
+ ✓ tests/hermes-client-startup.test.ts (4 tests) 279ms
+ ✓ tests/project-memory-maintenance-host.test.ts (1 test) 367ms
+   ✓ schedules bounded purge through the real host, keeps WAL-pinned bytes pending, and persists completion across restart  366ms
+ ✓ tests/tool-effect-replay-owner-v3.test.ts (11 tests) 325ms
+ ✓ tests/integration-secret-reference-http-v3.test.ts (6 tests) 467ms
+ ✓ tests/side-runtime-cleanup.test.ts (5 tests) 472ms
+ ✓ tests/split-profile-save-receipt.test.ts (6 tests) 271ms
+ ✓ tests/memory-restored-index-v3.test.ts (3 tests) 692ms
+ ✓ tests/verification-artifact-routes.test.ts (6 tests) 859ms
+ ✓ tests/agents-workspace-dispatch.test.ts (4 tests) 385ms
+ ✓ tests/workbench-continuation-v6.test.ts (12 tests) 411ms
+ ✓ tests/conversation-read-http.test.ts (4 tests) 363ms
+ ✓ tests/memory-checkpoint-worker-ownership-v3.test.ts (6 tests) 348ms
+ ✓ tests/planning-service.test.ts (4 tests) 277ms
+ ✓ tests/cursor-service-receipt.test.ts (1 test) 282ms
+ ✓ tests/split-workspace-repository.test.ts (8 tests) 361ms
+ ✓ tests/capture-ui/server-startup.test.ts (9 tests) 172ms
+ ✓ tests/dev-proxy-config.test.ts (4 tests) 226ms
+stdout | tests/baseline-oversized-output-v3.test.ts > measures full result custody versus an authorized bounded range over the same oversized output
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"sampleCountPerArm":1,"record":{"fixture":"oversized-output","model":null,"account":null,"seed":42,"config":"Same 4 MiB durable result after reopen: full storage read versus authorized 4096-byte range","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":5.415099999999995,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":4194304,"outputBytes":4194304,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":12.443600000000004,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":4194304,"outputBytes":4096,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Input bytes count payload data returned by the real storage.get method; metadata/header reads are outside this count.","Output bytes are actual returned payload bytes. The current range implementation still reads the full stored payload.","Fixture generation, durable spill, assertions, and receipt serialization are outside the measured reads.","No disk-I/O reduction, latency improvement, provider behavior, or end-to-end runtime wiring is claimed."]},"observations":{"sourceDigest":"e12456ebfdede27df6b4bc239dd7d88d459a9d28b53a6d6677f12e01d8dc2e47","retainedBytes":4194304,"previewBytes":16384,"offset":1048593,"requestedBytes":4096,"baselineStatus":"FULL_RESULT","candidateStatus":"OK","reopened":true,"foreignOwnerStatus":"UNAVAILABLE"},"limitations":["Current code and owned deterministic inputs, with no provider or model request.","Each arm is one measured local sequence. This is not an end-to-end product or statistical performance certification.","PASS means the stated fixture invariants were observed. Actual underlying operation outcomes are recorded separately."]}
+
+ ✓ tests/baseline-oversized-output-v3.test.ts (1 test) 179ms
+ ✓ tests/workbench-performance-v3.test.ts (7 tests) 187ms
+ ✓ tests/conversation-read-api.test.ts (22 tests) 220ms
+ ✓ tests/project-context-owner.test.ts (2 tests) 142ms
+ ✓ tests/capture-ui/task-surfaces.test.ts (13 tests) 134ms
+ ✓ tests/preferences.test.ts (10 tests) 148ms
+ ✓ tests/current-pi-verification.test.ts (5 tests) 104ms
+ ✓ tests/source-selection-v3.test.ts (8 tests) 124ms
+ ✓ tests/desktop-state-broadcast.test.ts (1 test) 107ms
+ ✓ tests/account-storage-boundary.test.ts (1 test) 87ms
+ ✓ tests/agents-workspace-composer.test.ts (27 tests) 104ms
+ ✓ tests/generated-ui-endurance-v3.test.ts (7 tests) 158ms
+ ✓ tests/dev-launcher.test.ts (1 test) 15ms
+ ✓ tests/build-runner.test.ts (1 test) 70ms
+ ✓ tests/installed-native-save.test.ts (7 tests) 52ms
+ ✓ tests/project-color-preferences.test.ts (8 tests) 100ms
+ ✓ tests/official-runtime-storage.test.ts (5 tests) 97ms
+ ✓ tests/conversation-placement.test.ts (30 tests) 38ms
+ ✓ tests/account-model-refresh.test.ts (3 tests) 100ms
+ ✓ tests/capture-ui/runtime-helpers.test.ts (33 tests) 15ms
+ ✓ tests/secret-custody-v3.test.ts (15 tests) 21ms
+ ✓ tests/split-thread-placement.test.ts (3 tests) 20ms
+ ✓ tests/desktop-update-close.test.ts (17 tests) 7ms
+ ✓ tests/context-compiler-v3.test.ts (11 tests) 14ms
+ ✓ tests/eval-gates.test.ts (8 tests) 16ms
+ ✓ tests/secret-approval-lifetime-v3.test.ts (22 tests) 15ms
+ ✓ tests/desktop-builder-minimatch.test.ts (1 test) 13ms
+ ✓ tests/settings-operations.test.ts (2 tests) 4ms
+ ✓ tests/plugin-floating-owner.test.ts (16 tests) 12ms
+ ✓ tests/edit-preview-v3.test.ts (9 tests) 12ms
+ ✓ tests/software-development.test.ts (5 tests) 13ms
+ ✓ tests/thread-search.test.ts (5 tests) 12ms
+ ✓ tests/capture-ui/browser-data.test.ts (5 tests) 12ms
+ ✓ tests/everyday-catalog.test.ts (4 tests) 9ms
+ ✓ tests/debug-policy-v3.test.ts (6 tests) 11ms
+ ✓ tests/settings-registry.test.ts (7 tests) 10ms
+ ✓ tests/usage-summary-cost.test.ts (2 tests) 14ms
+ ✓ tests/plugin-native.test.ts (5 tests) 10ms
+ ✓ tests/linux-path-guard.test.ts (23 tests) 8ms
+ ✓ tests/project-context-summary.test.ts (3 tests) 7ms
+ ✓ tests/draft-transfer.test.ts (4 tests) 9ms
+ ✓ tests/ui-shell-overlay.test.ts (9 tests) 7ms
+ ✓ tests/desktop-shutdown-send.test.ts (4 tests) 6ms
+ ✓ tests/artifact-inputs.test.ts (6 tests) 6ms
+ ✓ tests/official-claude-history-encoding.test.ts (1 test) 8ms
+ ✓ tests/list-navigation.test.ts (7 tests) 6ms
+ ✓ tests/document-handoff.test.ts (10 tests) 7ms
+ ✓ tests/terminal-opening-race.test.ts (2 tests) 6ms
+ ✓ tests/regression-selection-keys-v3.test.ts (8 tests) 5ms
+ ✓ tests/project-colors.test.ts (5 tests) 5ms
+ ✓ tests/evidence-aggregation-v3.test.ts (9 tests) 4ms
+ ✓ tests/panel-geometry.test.ts (6 tests) 4ms
+ ✓ tests/workspace-native-browser.test.ts (1 test) 3ms
+ ↓ tests/split-workspace-renderer.test.ts (11 tests | 11 skipped)
+ ↓ tests/unsupported-native-custody-v3.test.mjs (3 tests | 3 skipped)
+ ↓ tests/split-app-browser.test.ts (57 tests | 57 skipped)
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 20 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:69:55
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/20]⎯
+
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:103:55
+    101|  const x=await fixture(),a=await x.account('openai','Parent account'),…
+    102|  await x.select('openai',a.id);await x.send('message.send',{content:'I…
+    103|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    104|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    105|  await x.select('openai',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/20]⎯
+
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+AssertionError: expected "vi.fn()" to be called once, but got 0 times
+ ❯ tests/account-parity.test.ts:125:55
+    123|  const x=await fixture(),a=await x.account('gemini-cli','Parent accoun…
+    124|  await x.select('gemini-cli',a.id);await x.send('message.send',{conten…
+    125|  await waitFor(()=>expect(x.native(a)?.adapter.start).toHaveBeenCalled…
+       |                                                       ^
+    126|  const main=x.native(a)!,mainRun=vi.mocked(main.adapter.start).mock.ca…
+    127|  await x.select('gemini-cli',b.id);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/20]⎯
+
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+AssertionError: Target cannot be null or undefined.
+ ❯ tests/skills-integration.test.ts:53:70
+     51|  const x=await fixture(),a=await x.account(providerId,'Current task'),…
+     52|  await x.send('account.select',{providerId,accountId:a.id});await x.se…
+     53|  await waitFor(()=>expect(x.started('primary',a,providerId)?.starts).t…
+       |                                                                      ^
+     54|  expect(input).toMatchObject({threadId:thread.id,modelId,accountId:a.i…
+     55|  expect(await primary.tool(input,'skill_manage',{operations:[createOpe…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/20]⎯
+
+
+ Test Files  2 failed | 120 passed | 3 skipped (125)
+      Tests  20 failed | 1395 passed | 72 skipped (1487)
+   Start at  12:28:19
+   Duration  339.74s (transform 8.31s, setup 0ms, import 38.01s, tests 620.29s, environment 11ms)
+
+JSON report written to C:/Users/Administrator/repos/Gen-V1-m15-v6/test-results/m15/full-results-shard-4.json
+ ELIFECYCLE  Test failed. See above for more details.

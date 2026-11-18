@@ -1,0 +1,17 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/source-selection-v3.test.ts","tests/workbench-performance-v3.test.ts","tests/workbench-recovery-v3.test.ts","tests/workbench-continuation-v6.test.ts","--maxWorkers=2","--reporter=default"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ✓ tests/workbench-recovery-v3.test.ts (11 tests) 324ms
+ ✓ tests/workbench-performance-v3.test.ts (7 tests) 225ms
+ ✓ tests/source-selection-v3.test.ts (8 tests) 262ms
+ ✓ tests/workbench-continuation-v6.test.ts (12 tests) 393ms
+
+ Test Files  4 passed (4)
+      Tests  38 passed (38)
+   Start at  13:06:17
+   Duration  2.66s (transform 1.85s, setup 0ms, import 2.28s, tests 1.20s, environment 0ms)
+
