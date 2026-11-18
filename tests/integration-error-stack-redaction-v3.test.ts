@@ -1,3 +1,4 @@
+import {inspect} from 'node:util';
 import {expect, it} from 'vitest';
 import {IntegrationManager} from '../packages/integrations/index.ts';
 import {createSecretRedactor} from '../packages/core/secret-references.ts';
@@ -84,4 +85,39 @@ it('redacts string Error.cause and safely walks a cyclic Error cause chain', () 
  stringCause.cause = 'child echoed ' + secret;
  expect(sanitize.redactFailure({redactor}, failure)).toBe(failure);
  expect(stringCause.cause).toBe('child echoed [REDACTED]');
+});
+
+it.each([true, false])('redacts or blocks an immutable child cause (configurable=%s)', configurable => {
+ const secret = 'CONTEXT7_IMMUTABLE_CAUSE_FIXTURE_153';
+ const inner = new Error('safe nested failure');
+ Object.defineProperty(inner, 'cause', {
+  value: 'child echoed ' + secret, configurable, writable: false, enumerable: false,
+ });
+ const failure = new Error('safe outer failure', {cause: inner});
+ // Native Node formatting includes a non-enumerable own Error.cause, even
+ // when the property is read-only. This reproduces the leak before sanitizing.
+ expect(inspect(failure)).toContain(secret);
+ const manager = new IntegrationManager({
+  root: process.cwd(), dataRoot: process.cwd(),
+  getPreferences: async () => ({}), setPreference: async () => {},
+  authorize: async () => ({profileId: 'test-only'}),
+  hostComplete: async (_scope, prompt) => ({output: prompt}),
+  onDisable: async () => {},
+ });
+ const redactor = createSecretRedactor([secret]);
+ const sanitize = manager as unknown as {
+  redactFailure(session: {redactor: typeof redactor}, error: Error): Error;
+ };
+ if(configurable){
+  const returned = sanitize.redactFailure({redactor}, failure);
+  expect(returned).toBe(failure);
+  expect(Object.getOwnPropertyDescriptor(inner, 'cause')?.value).toBe('child echoed [REDACTED]');
+  expect(inspect(returned)).not.toContain(secret);
+ }else{
+  let safelyRejected: unknown;
+  try{sanitize.redactFailure({redactor}, failure);}catch(error){safelyRejected=error;}
+  expect(safelyRejected).toBeInstanceOf(Error);
+  expect((safelyRejected as Error).message).toContain('could not be safely redacted');
+  expect(inspect(safelyRejected)).not.toContain(secret);
+ }
 });
