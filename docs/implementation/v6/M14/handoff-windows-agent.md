@@ -4,11 +4,31 @@ Audience: the next agent running on a **Windows x64** host. Goal: clear the
 remaining environmental blockers recorded on Linux/aarch64, rerun the gates,
 and update the evidence + PR #343 truthfully.
 
+## Status update (2026-11-18, head `24304a57`)
+
+- Branch was resumed at `3c40a31e` (upstream fixes to shell fixtures +
+  `SessionBranchMenu` + custody broker) and merged with `origin/main`
+  `89142de9`; only `scripts/public-source-files.json` conflicted — resolved
+  as sorted union (4391 entries, all 18 M14 entries kept).
+- Source lock + evidence rebound to merge commit `689b61f4`
+  (`24304a57` head): `verify-evidence.mjs` passes.
+- Local gates on aarch64: typecheck, lint, build, targeted tests 45/45 PASS.
+- Linked Windows box `WIN-M0N0V07LGM1` was tried for W1–W4 acceptance via
+  `delegate_task` — the environment answered HTTP 524 on task spawn twice
+  (link heartbeat reachable, task dispatch timed out). **If you are on that
+  box, the verifier never ran — the gates below are still open.**
+- Fallback used instead: declared CI `.github/workflows/ci.yml` dispatched
+  on `agent/m14-v3` via `workflow_dispatch` — run
+  https://github.com/skytuhua-org/Gen-V1/actions/runs/44409599408
+  (windows-latest jobs: checks, 4-shard `pnpm test`, browser, hermes,
+  desktop). This covers W1–W3 on a real Windows runner; record its results
+  in `M14-verification.json` when it finishes.
+
 ## Pointers
 
 - Repo: `https://github.com/skytuhua-org/Gen-V1.git`
 - Branch: `agent/m14-v3` — PR https://github.com/skytuhua-org/Gen-V1/pull/343 (draft, open)
-- Handoff head when written: `406261754f1e2d382509ef3871be3edc3ed6e05c`
+- Handoff head when written: `24304a573eaa2bb5743a7bc211f0d270fed7a408`
 - Blocker inventory on the PR: `pull/343#issuecomment-6936435636`
 - Toolchain: Node v24.x, pnpm 10.30.3 (`pnpm-workspace.yaml` pins it)
 - Authoritative evidence bundle: `docs/implementation/v6/M14/` — run
