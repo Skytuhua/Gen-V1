@@ -1,0 +1,29 @@
+START 2026-11-18T08:23:18Z
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m17-v6[39m
+
+(node:1811937) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/read-sync-v3.test.ts [2m([22m[2m16 tests[22m[2m)[22m[33m 10836[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-C02/S04 snapshot emits an ordered public task projection over the authorized scope only [33m 894[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S05/D02 cursor replay returns the same slice; tampering, another grant and bad bounds reject [33m 824[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S06/D03 a stale schema resyncs; a verified retention gap returns RESYNC_REQUIRED, never a silent skip [33m 543[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S05 page bounds: 1,000 authorized deltas per page over a fixed cut; paging resumes exactly at the cut [33m 965[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-T02/D04 revocation between pages or before emission stops authorized delivery [33m 392[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D03/S04 VIEW_EVIDENCE emits evidence deltas only for evidence-class events under explicit scope [33m 390[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S05/D05 advance is explicit: incomplete cursors reject, completed cuts move to new history [33m 674[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S10 multiple devices scope independently; revocation of one leaves the other [33m 1187[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S10 cursor key persists across host restart; unknown or malformed custody blocks [33m 808[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-G02 the read-sync gate stays off without the host flag [33m 586[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S01/T05 remote transport is disabled without configured TLS+auth; there is no HTTP fallback [33m 462[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-C4 client: snapshot paging, Offline/Stale display, resync and explicit refresh [33m 669[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-T03/T04 duplicate and out-of-order pages stay consistent; drafts never execute offline [33m 546[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-S06/U03 a verified gap on refresh marks RESYNCING then repairs from a fresh snapshot [33m 580[2mms[22m[39m
+   [33m[2m✓[22m[39m M17 pairing → sync end-to-end: only an approved device reads, and only its projects [33m 1017[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m16 passed[39m[22m[90m (16)[39m
+[2m   Start at [22m 00:23:19
+[2m   Duration [22m 11.63s[2m (transform 272ms, setup 0ms, import 518ms, tests 10.84s, environment 0ms)[22m
+
+EXIT_CODE=0

@@ -1,0 +1,7 @@
+START 2026-11-18T08:29:19Z
+
+> gen-v1@0.6.5 lint /home/piadmin/Gen-V1-m17-v6
+> tsx scripts/lint-ui.ts --check
+
+UI guard: 606 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.
+EXIT_CODE=0

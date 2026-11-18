@@ -32,6 +32,8 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
+import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {registerOperationProjectTrustRoutes} from './operation-project-trust-routes.ts';
 import {registerOperationExecutionReviewRoutes} from './operation-execution-review-routes.ts';
@@ -238,6 +240,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerConversationReadRoutes(app,conversationReads);
   const toolEffectReads=new ToolEffectReadModels(service.store);
   registerToolEffectReadRoutes(app,toolEffectReads);
+  // M17: host-side pairing management on the session/CSRF API. The
+  // device-facing remote surface is never mounted here — it exists only under
+  // an explicit configured authenticated TLS transport (S01/D07).
+  registerDevicePairingRoutes(app,new DevicePairingHost(service.store),new ReadSyncHost(service.store));
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));

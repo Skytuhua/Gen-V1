@@ -1,0 +1,45 @@
+START 2026-11-18T09:43:34Z
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m17-v6[39m
+
+ [31m❯[39m tests/public-source.test.ts [2m([22m[2m11 tests[22m[2m | [22m[31m1 failed[39m[2m)[22m[33m 16301[2mms[22m[39m
+     [33m[2m✓[22m[39m preserves pinned integration bytes when Windows enables automatic CRLF checkout [33m 463[2mms[22m[39m
+     [32m✓[39m normalizes Windows separators while rejecting traversal, aliases and absolute paths[32m 6[2mms[22m[39m
+     [32m✓[39m preserves the current personal runtime and guarded host inputs by exact name[32m 2[2mms[22m[39m
+     [32m✓[39m excludes private implementation, fixtures, plans, state, credentials and unknown additions[32m 5[2mms[22m[39m
+[31m     [31m×[31m resolves the staged host and worker entries using only admitted runtime sources[39m[33m 2619[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged browser entry using only admitted public sources [33m 4590[2mms[22m[39m
+     [33m[2m✓[22m[39m resolves the staged desktop entries using only admitted public sources [33m 6040[2mms[22m[39m
+     [32m✓[39m admits every browser suite spec and configuration with complete spec coverage[32m 25[2mms[22m[39m
+     [33m[2m✓[22m[39m admits the local import closure of exported TypeScript and JavaScript inputs [33m 2496[2mms[22m[39m
+     [32m✓[39m admits only enumerated inputs and rejects an unexpected payload source[32m 18[2mms[22m[39m
+     [32m✓[39m keeps a unique, sorted manifest and a runtime subset rather than source globs[32m 15[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Tests 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m tests/public-source.test.ts[2m > [22mreviewed public source allowlist[2m > [22mresolves the staged host and worker entries using only admitted runtime sources
+[31m[1mError[22m: Build failed with 7 errors:
+apps/server/server.ts:43:40: ERROR: Could not resolve "../../packages/core/verification-artifacts.ts"
+packages/core/browser-verification.ts:11:42: ERROR: Could not resolve "./verification-artifacts.ts"
+packages/core/project-verification.ts:15:42: ERROR: Could not resolve "./verification-artifacts.ts"
+packages/core/service.ts:1:42: ERROR: Could not resolve "./verification-artifacts.ts"
+packages/core/source-workbench.ts:1:69: ERROR: Could not resolve "./verification-artifacts.ts"
+...[39m
+[90m [2m❯[22m failureErrorWithLog node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m1467:15[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m926:25[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m878:52[22m[39m
+[90m [2m❯[22m buildResponseToResult node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m924:7[22m[39m
+[90m [2m❯[22m node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m951:16[22m[39m
+[90m [2m❯[22m responseCallbacks.<computed> node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m603:9[22m[39m
+[90m [2m❯[22m handleIncomingPacket node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m658:12[22m[39m
+[90m [2m❯[22m Socket.readFromStdout node_modules/.pnpm/esbuild@0.25.12/node_modules/esbuild/lib/main.js:[2m581:7[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m10 passed[39m[22m[90m (11)[39m
+[2m   Start at [22m 01:43:36
+[2m   Duration [22m 19.35s[2m (transform 777ms, setup 0ms, import 2.22s, tests 16.30s, environment 2ms)[22m
+
+EXIT_CODE=1

@@ -1,0 +1,20 @@
+START 2026-11-18T08:23:38Z
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m17-v6[39m
+
+(node:1812296) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/read-sync-decisions-v6.test.ts [2m([22m[2m6 tests[22m[2m)[22m[33m 7669[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D01 pair consumption: approving one challenge twice creates one grant; expired or changed-scope confirmation creates none [33m 1995[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D02 cursor binding: changing owner, filters, generation or signature rejects without leaking another project's rows [33m 1491[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D03 filtered versus missing: skipped foreign-owner sequences still page; deleted retained history requires resync [33m 1466[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D04 revocation: revoking while building a page emits no authorized payload under the old generation [33m 1471[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D05 read-only scope: a VIEW_TASKS device calling submit-input or operation-approve rejects before durable input admission [33m 763[2mms[22m[39m
+   [33m[2m✓[22m[39m M17-D06 offline replay: saved unsent text never executes; TLS failure has no plain-HTTP fallback [33m 480[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m6 passed[39m[22m[90m (6)[39m
+[2m   Start at [22m 00:23:40
+[2m   Duration [22m 9.57s[2m (transform 863ms, setup 0ms, import 1.41s, tests 7.67s, environment 0ms)[22m
+
+EXIT_CODE=0
