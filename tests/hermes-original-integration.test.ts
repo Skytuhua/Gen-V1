@@ -91,9 +91,9 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
   },followUp:async()=>{},cancel:async()=>{releaseSummary();},compact:async()=>{},history:async()=>[],dispose:async()=>{releaseSummary();},
  };};
  const runtime=createHermesRuntime({dataDir:directory,nativeCatalog:native(),systemPrompt:'Stable host policy. Retain the exact user requirements.',
+  onSourceEvent:event=>{if(sourceEvents.length<32)sourceEvents.push(event.event);},
   hostTools:[],skillPolicy:{enabled:false},config:{compression:{enabled:true,protect_first_n:0,protect_last_n:2,abort_on_summary_failure:true},
    auxiliary:{background_review:{enabled:false}}}},{
-  onSourceEvent:event=>{if(sourceEvents.length<32)sourceEvents.push(event.event);},
   createNativeRuntime:options=>{expect(options.modelOnly).toBe(true);return native();},
   createClient:options=>new HermesClient({...options,onHostCall:async call=>{
    if(call.name==='$context.compaction.commit')privateCommits.push(structuredClone(call));
