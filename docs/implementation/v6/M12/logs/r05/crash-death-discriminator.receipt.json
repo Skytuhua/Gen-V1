@@ -1,0 +1,9 @@
+{
+  "case": "tool-program-replay-v3.test.ts + tool-program-recovery-v3.test.ts (post-discriminator)",
+  "cut": "c413a178a693bf53a6ae3054b6aa4f00f14b0e9e + working diff (crash-death discriminator)",
+  "command": "pnpm exec vitest run tests/tool-program-replay-v3.test.ts tests/tool-program-recovery-v3.test.ts --maxWorkers=1 (NODE_OPTIONS=--max-old-space-size=3072)",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "48/48 in 84s on linux-arm64 \u2014 POSIX death shape unchanged; win32 discriminator added via tests/fixtures/tool-program-crash-death-v3.ts (assertCrashDeath). Windows outcome pending CI rerun.",
+  "logDigest": "not-recorded \u2014 console summary only"
+}

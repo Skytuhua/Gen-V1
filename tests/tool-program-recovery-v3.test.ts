@@ -13,6 +13,7 @@ import { PrivateToolResults } from '../packages/core/tool-results.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
 import { REPLAY_OWNER, m12Ledger, m12EffectAuthenticator, type CrashPoint, type ReplayFixtureState } from './fixtures/tool-program-replay-harness-v3.ts';
+import { assertCrashDeath } from './fixtures/tool-program-crash-death-v3.ts';
 
 const cleanups: (() => Promise<void> | void)[] = [];
 afterEach(async () => {
@@ -38,7 +39,7 @@ async function killAt(path: string, point: CrashPoint) {
 }
 async function crashed(point: CrashPoint) {
   const path = directory(), exit = await killAt(path, point);
-  expect(exit, exit.output).toMatchObject({ code: null, signal: 'SIGKILL' });
+  assertCrashDeath(exit);
   const store = new Store(path);
   cleanups.push(() => store.close());
   const state = store.get<ReplayFixtureState>('m12ReplayFixture', 'fixture')!;

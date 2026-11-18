@@ -13,6 +13,7 @@ import { createJavaScriptExecutor } from '../packages/runtime/tool-program-worke
 import type { ProgramExecutor, ProgramExecutionRequest, ProgramJournalV1, NestedCallV1, ToolProgramV1 } from '../packages/contracts/tool-program.ts';
 import type { ToolOwner, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import { CRASH_POINTS, REPLAY_OWNER, REPLAY_SOURCE, openReplayHarness, m12Ledger, type CrashPoint } from './fixtures/tool-program-replay-harness-v3.ts';
+import { assertCrashDeath } from './fixtures/tool-program-crash-death-v3.ts';
 import { toolSchemas } from '../packages/capabilities/schemas.ts';
 
 let executor: ProgramExecutor;
@@ -271,7 +272,7 @@ describe('M12 real process death and explicit exact-owner restart', () => {
   it.each(CRASH_POINTS)('recovers %s without repeating a committed or unknown read', async point => {
     const dir = directory();
     const exit = await killAt(dir, point);
-    expect(exit, exit.output).toMatchObject({ code: null, signal: 'SIGKILL' });
+    assertCrashDeath(exit);
     const f = fixture({}, dir);
     expect(f.state()).toMatchObject({ owner: REPLAY_OWNER, killedAt: point });
     const programId = f.state().programId!;
@@ -309,7 +310,7 @@ describe('M12 real process death and explicit exact-owner restart', () => {
   it('permits an explicitly requested first run after a PREPARED-only crash without inventing a replay journal', async () => {
     const dir = directory();
     const exit = await killAt(dir, 'program.prepared');
-    expect(exit, exit.output).toMatchObject({ code: null, signal: 'SIGKILL' });
+    assertCrashDeath(exit);
     const f = fixture({}, dir), programId = f.state().programId!;
     expect(f.store.get('programJournal', programId)).toBeNull();
     const result = await f.programs.run(programId, REPLAY_OWNER, executor);
