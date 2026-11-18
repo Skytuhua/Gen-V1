@@ -2,6 +2,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest';
 import {existsSync,mkdtempSync,readFileSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {reserveDesktopRelease} from '../scripts/desktop-assets.ts';
 import {
   aggregateStatus,blockedResult,buildManifest,childEnvironment,detectBrowserPrerequisite,
   redactSecrets,runCheck,windowsVerificationPlan,type CheckResult,type CheckSpec,
@@ -114,7 +115,7 @@ describe('prerequisite gating',()=>{
   });
 
   it('packaged Windows verification is BLOCKED off Windows and records the exact Windows commands',()=>{
-    const plan=windowsVerificationPlan('linux','0.6.5');
+    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory());
     expect(plan.blocked).toBe(true);
     expect(plan.errorKind).toBe('platform-unavailable');
     const serialized=JSON.stringify(plan.commands);
@@ -127,8 +128,21 @@ describe('prerequisite gating',()=>{
     expect(result.status).toBe('BLOCKED');
   });
 
+  it('gives each readiness run its own immutable Windows release destination',async()=>{
+    const runA=join(temporaryDirectory(),'release output');
+    const runB=join(temporaryDirectory(),'release output');
+    for(const outputRoot of [runA,runB]){
+      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot);
+      expect(plan.commands[0]?.args).toEqual(['desktop:package','--output-root',outputRoot]);
+      const release=await reserveDesktopRelease(plan.commands[0]!.args[2]!,'0.6.5');
+      expect(plan.commands[1]?.args.slice(-2)).toEqual([
+        join(release,'Gen-V1-Setup-0.6.5-win-x64.exe'),join(release,'win-unpacked'),
+      ]);
+    }
+  });
+
   it('packaged Windows verification is runnable on Windows x64',()=>{
-    const plan=windowsVerificationPlan('win32','0.6.5');
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory());
     expect(plan.blocked).toBe(false);
     expect(plan.errorKind).toBeNull();
     expect(plan.commands.length).toBe(2);

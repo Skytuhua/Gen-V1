@@ -6,7 +6,7 @@
 import {spawn,spawnSync,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {createWriteStream,existsSync,mkdirSync,readdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
-import {dirname,resolve} from 'node:path';
+import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 
 export type ReadinessStatus='PASS'|'FAIL'|'SKIP'|'BLOCKED';
@@ -150,13 +150,13 @@ export function detectBrowserPrerequisite(resolveExecutable:()=>string,exists:(p
 // Packaged Windows verification: package the installer, then verify the installed
 // application. Both steps require Windows x64 (scripts/package-desktop.ts and
 // scripts/verify-installed-desktop.ts refuse other platforms).
-export function windowsVerificationPlan(platform:string,version:string):
+export function windowsVerificationPlan(platform:string,version:string,outputRoot:string):
   {blocked:boolean;errorKind:string|null;commands:Array<{command:string;args:string[]}>}{
-  const release=`dist/desktop-release-${version}`;
+  const release=join(outputRoot,`desktop-release-${version}`);
   const commands=[
-    {command:'pnpm',args:['desktop:package']},
+    {command:'pnpm',args:['desktop:package','--output-root',outputRoot]},
     {command:'pnpm',args:['exec','tsx','scripts/verify-installed-desktop.ts',
-      `${release}/Gen-V1-Setup-${version}-win-x64.exe`,`${release}/win-unpacked`]},
+      join(release,`Gen-V1-Setup-${version}-win-x64.exe`),join(release,'win-unpacked')]},
   ];
   return platform==='win32'
     ?{blocked:false,errorKind:null,commands}
@@ -205,7 +205,8 @@ async function main(){
   const evalResult=await run(spec('eval',['eval','--out',resolve(artifactRoot,'eval')],600_000));
   if(evalResult.exitCode===2)evalResult.note='Honest pending eval manifest: no live host/model supplied; all gates pending.';
 
-  const plan=windowsVerificationPlan(process.platform,version);
+  const packageOutput=resolve(artifactRoot,'desktop-package');
+  const plan=windowsVerificationPlan(process.platform,version,packageOutput);
   const windowsSpec=spec('windows-packaged-verification',plan.commands[0]!.args,3_600_000);
   if(plan.blocked){
     const blocked=blockedResult(windowsSpec,plan.errorKind!,
@@ -218,7 +219,7 @@ async function main(){
     if(packageResult.status!=='PASS'){
       results.push(blockedResult(verifySpec,'prerequisite-unavailable','Packaging did not pass; installed verification was not run.'));
     }else{
-      const releaseDirectory=resolve(root,'dist',`desktop-release-${version}`);
+      const releaseDirectory=resolve(packageOutput,`desktop-release-${version}`);
       const setup=readdirSync(releaseDirectory).find(name=>/^Gen-V1-Setup-.*-win-x64\.exe$/.test(name));
       if(!setup)results.push(blockedResult(verifySpec,'prerequisite-unavailable',`No setup executable found in ${releaseDirectory}`));
       else await run({...verifySpec,args:['exec','tsx','scripts/verify-installed-desktop.ts',
