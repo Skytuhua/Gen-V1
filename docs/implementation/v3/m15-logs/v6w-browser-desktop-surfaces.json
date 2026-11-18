@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "--import",
+    "tsx",
+    "scripts/test-browser.ts",
+    "--suite",
+    "desktop-surfaces"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T10:37:34.224Z",
+  "endedAt": "2026-11-18T10:39:08.496Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-browser-desktop-surfaces.log",
+  "logDigest": "c161fbbb48d3da70a2af793cc496d717fae53d945b454b9d0d95ef4b4fa75ad3"
+}
