@@ -2626,6 +2626,7 @@
     "tests/attention.test.ts",
     "tests/backend-pdf.test.ts",
     "tests/baseline-command-timeout-v3.test.ts",
+    "tests/baseline-concurrent-edits-v3.test.ts",
     "tests/baseline-memory-conflict-v3.test.ts",
     "tests/baseline-oversized-output-v3.test.ts",
     "tests/baseline-package-manager-v3.test.ts",
