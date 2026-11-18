@@ -69,7 +69,7 @@ it('projects stored provenance separately from current recorded state and actual
     current: { operationStatus: 'prepared', approved: false, authority: 'NOT_EVALUATED' },
     execution: { mode: 'TRUSTED_HOST', backendId: 'TRUSTED_HOST', runner: 'context7-stdio',
       policy: { filesystem: 'unrestricted', network: 'unrestricted', processes: 'unrestricted' },
-      isolated: { status: 'BLOCKED', stage: 'ISOLATED_EXECUTION', code: 'BLOCKED_BACKEND_SELECTION', approvedBackendId: null, platformProofRef: null } },
+      isolated: { status: 'BLOCKED', stage: 'ISOLATED_EXECUTION', code: 'UNSUPPORTED_BACKEND', approvedBackendId: null, platformProofRef: null } },
     advice: { state: 'RECORDED', validation: 'NOT_REVALIDATED', recorded: { decisionAtPreparation: 'REQUIRE_APPROVAL', advisory: { cannotAuthorize: true } } },
   });
   expect(response.body).not.toContain('sourceCommitment'); expect(response.body).not.toContain(context7FixtureKey);
@@ -123,6 +123,13 @@ it('does not pretend a metadata GET revalidated changed executable/configuration
   expect((await x.execute(x.operation)).status).toBe('failed'); expect(await x.starts()).toEqual([]);
 });
 
+it('does not rewrite recorded classifier provenance if preparation recording is repeated', async () => {
+  const x = await fixture(), before = x.store.all('operationExecutionAdvice')[0], thread = x.store.get('thread', x.thread.id);
+  expect(before).toBeDefined();
+  x.store.internal('fixture.repeated-preparation', thread.id, () => x.service.executionAdvice.recordPrepared(x.operation, { ...thread, status: 'stopped' }));
+  expect(x.store.all('operationExecutionAdvice')).toEqual([before]);
+});
+
 it('makes advice unavailable when its computation fails without altering the required approval', async () => {
   const x = await fixture('integration.context7', async x => {
     const original = x.service.effects.privateArgumentCommitment.bind(x.service.effects);
@@ -138,11 +145,13 @@ it('makes advice unavailable when its computation fails without altering the req
   expect(x.store.all('approval')).toEqual([]); expect(await x.starts()).toEqual([]);
 });
 
-it('rejects corrupted private metadata without publishing an injected field or exception', async () => {
+it.each(['extra field', 'rationale'])('rejects corrupted private metadata in %s without publishing it', async corruption => {
   const x = await fixture(), row = x.store.all('operationExecutionAdvice')[0];
   expect(row).toBeDefined();
+  const changed = corruption === 'extra field' ? { ...row, credential: context7FixtureKey }
+    : { ...row, recorded: { ...row.recorded, advisory: { ...row.recorded.advisory, rationale: context7FixtureKey } } };
   x.store.internal('fixture.corrupt', x.thread.id, () => x.store.put('operationExecutionAdvice', JSON.stringify([x.operation.id, x.operation.revision]), x.thread.id,
-    { ...row, credential: context7FixtureKey }));
+    changed));
   const response = await x.read();
   expect(response.statusCode).toBe(200); expect(response.json().advice).toEqual({ state: 'UNAVAILABLE', reason: 'INVALID_RECORD' });
   expect(response.body).not.toContain(context7FixtureKey); expect(response.body).not.toContain('sourceCommitment');
