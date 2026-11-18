@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { spawn } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
@@ -128,6 +128,10 @@ describe('recorded command runner', () => {
 });
 
 describe('executable resolution', () => {
+  it('rejects an explicit executable path that is a directory', () => {
+    expect(() => resolveExecutable(dir('directory-executable'))).toThrow(/not a file/i);
+  });
+
   it('refuses .cmd shims and resolves real executables', () => {
     expect(() => resolveExecutable('pnpm.cmd')).toThrow(HarnessError);
     const node = resolveExecutable('node');
@@ -394,6 +398,60 @@ describe('benchmark report shape fixtures', () => {
 });
 
 describe('dependency-contract checker', () => {
+  it('requires a file at a declared contract test path', () => {
+    const checkout = dir('contract-file');
+    const git = (...args: string[]) => execFileSync('git', ['-C', checkout, '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    const source = 'packages/capabilities/process.ts', testId = 'tests/contract.test.ts';
+    git('init', '-q');
+    mkdirSync(join(checkout, 'packages', 'capabilities'), { recursive: true });
+    mkdirSync(join(checkout, testId), { recursive: true });
+    writeFileSync(join(checkout, source), 'export {};');
+    git('add', '--', source);
+    git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Seed');
+    const sha = git('rev-parse', 'HEAD'), blob = git('rev-parse', sha + ':' + source);
+    const lock = sourceLockV3Schema.parse({
+      schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha, inspectedPaths: [{ path: source, blobSha: blob }],
+      publicContracts: [{ name: 'process-launcher', version: blob, testIds: [testId] }], acceptedDependencyCommits: [], approvedDrift: [],
+    });
+    expect(verifySourceLock(checkout, lock).map(issue => issue.code)).toEqual(['CONTRACT_TEST_MISSING']);
+    rmSync(join(checkout, testId), { recursive: true });
+    writeFileSync(join(checkout, testId), 'export {};');
+    expect(verifySourceLock(checkout, lock)).toEqual([]);
+    const nestedLock = sourceLockV3Schema.parse({ ...lock, publicContracts: [
+      { ...lock.publicContracts[0], testIds: [testId + '/case.ts', 'tests/no-second-contract.test.ts'] },
+    ] });
+    expect(verifySourceLock(checkout, nestedLock).map(issue => issue.code)).toEqual([
+      'CONTRACT_TEST_MISSING', 'CONTRACT_TEST_MISSING',
+    ]);
+  });
+
+  it.skipIf(process.platform === 'win32' || process.getuid?.() === 0)('collects all contract issues when a test path is inaccessible', () => {
+    const checkout = dir('inaccessible-contract');
+    const git = (...args: string[]) => execFileSync('git', ['-C', checkout, '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    const source = 'packages/capabilities/process.ts', inaccessible = join(checkout, 'tests', 'locked');
+    git('init', '-q');
+    mkdirSync(join(checkout, 'packages', 'capabilities'), { recursive: true });
+    mkdirSync(inaccessible, { recursive: true });
+    writeFileSync(join(checkout, source), 'export {};');
+    writeFileSync(join(inaccessible, 'example.test.ts'), 'export {};');
+    git('add', '--', source);
+    git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Seed');
+    const sha = git('rev-parse', 'HEAD'), blob = git('rev-parse', sha + ':' + source);
+    const lock = sourceLockV3Schema.parse({
+      schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha, inspectedPaths: [{ path: source, blobSha: blob }],
+      publicContracts: [{ name: 'process-launcher', version: blob, testIds: ['tests/locked/example.test.ts', 'tests/absent.test.ts'] }],
+      acceptedDependencyCommits: [], approvedDrift: [],
+    });
+    try {
+      chmodSync(inaccessible, 0o600);
+      expect(verifySourceLock(checkout, lock).map(issue => issue.code)).toEqual([
+        'CONTRACT_TEST_MISSING', 'CONTRACT_TEST_MISSING',
+      ]);
+    } finally {
+      chmodSync(inaccessible, 0o700);
+    }
+  });
+
   it('flags drift, missing ancestry, contract version mismatch and absent contract tests', () => {
     const lock = sourceLockV3Schema.parse({
       schemaVersion: 3,
