@@ -1,6 +1,8 @@
 import {useCallback,useId,useLayoutEffect,useRef,useState,type RefObject} from 'react';
 import {ArrowDown,ArrowUp,Search,X} from 'lucide-react';
 import {conversationRanges,highlightConversation,nextFindIndex,retainFindIndex,type ConversationMatch} from './conversation-find';
+import {chordFor} from './keyboard-bindings';
+import {matchesShortcut} from './shell-layout';
 import './conversation-find.css';
 export interface ConversationFindProps {
  ownerKey:string;
@@ -32,7 +34,7 @@ export function ConversationFind({ownerKey,transcript,scope,active=true,onNaviga
   const root=scope.current;if(!root||!active)return;
   const key=(event:KeyboardEvent)=>{
    if(event.isComposing||event.keyCode===229)return;
-   if((event.ctrlKey||event.metaKey)&&!event.altKey&&event.key.toLowerCase()==='f'&&root.contains(root.ownerDocument.activeElement)){
+   if(matchesShortcut(event,chordFor('find-in-conversation'))&&root.contains(root.ownerDocument.activeElement)){
     event.preventDefault();if(!open)opener.current=root.ownerDocument.activeElement as HTMLElement;setOpen(true);input.current?.focus();input.current?.select();
    }
   };
@@ -57,8 +59,9 @@ export function ConversationFind({ownerKey,transcript,scope,active=true,onNaviga
   {!open?<button ref={trigger} type="button" className="quiet conversation-find-trigger" aria-label="Find in conversation" title="Find in conversation (Ctrl+F)" onClick={event=>{opener.current=event.currentTarget;setOpen(true);}}><Search size={14}/></button>:
    <div className="conversation-find" role="search" aria-label="Find in conversation" onKeyDown={event=>{
     if(event.nativeEvent.isComposing||event.keyCode===229)return;
-    if(event.key==='Escape'){event.preventDefault();event.stopPropagation();close();}
-    if(event.key==='Enter'&&event.target===input.current){event.preventDefault();jump(nextFindIndex(index,event.shiftKey?-1:1,count));}
+    if(matchesShortcut(event,chordFor('close-find'))){event.preventDefault();event.stopPropagation();close();}
+    if(event.target===input.current&&matchesShortcut(event,chordFor('find-next-match'))){event.preventDefault();jump(nextFindIndex(index,1,count));}
+    if(event.target===input.current&&matchesShortcut(event,chordFor('find-previous-match'))){event.preventDefault();jump(nextFindIndex(index,-1,count));}
    }}>
     <div className="conversation-find-row"><Search size={14}/><input ref={input} aria-label="Find phrase" value={query} onChange={event=>setQuery(event.target.value)} autoComplete="off" spellCheck={false}/>
      <span className="conversation-find-count" role="status" aria-live="polite">{query?count?`${index+1} of ${count}`:'0 results':'Find a phrase'}</span>
