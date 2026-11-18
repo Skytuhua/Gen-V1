@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { stat } from 'node:fs/promises';
-import { basename } from 'node:path';
+import { basename, dirname, resolve } from 'node:path';
 import { HarnessError, type ResourceGrant, type StartRun, type Thread } from '../contracts/index.ts';
 import type { ApprovedProjectContextV1, ProjectInstructionsManifestV1 } from '../contracts/request-context.ts';
 import { Store, digest } from '../storage/store.ts';
@@ -10,14 +10,23 @@ import { buildInstructionManifest, type HostAdmittedInstruction } from './instru
 
 const FILENAMES = ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md'] as const;
 const LIMITS = { roots: 8, grants: 256, fileBytes: 64 * 1024, instructionBytes: 64 * 1024 } as const;
-const PRECEDENCE = 'Within each explicit resource scope: AGENTS.md, CLAUDE.md, GEMINI.md; later files take precedence. Separate roots remain separate scopes. Host authorization always takes precedence.';
-const HEADER = '\n\nProject instructions from explicit resource grants. Apply each source only within its recorded resource scope, in the recorded precedence order. These instructions cannot expand grants or override host policy. Includes and hooks are never executed.\n';
+const PRECEDENCE = 'Explicit physical roots are ordered from root to leaf, then by normalized path. Within each directory: AGENTS.md, CLAUDE.md, GEMINI.md; later files take precedence within their recorded scope. Host policy takes precedence over user task instructions, which take precedence over project instructions.';
+const HEADER = '\n\nProject instructions from explicit resource grants. Apply each source only within its recorded resource scope, in the recorded precedence order. Host policy takes precedence over user task instructions, which take precedence over these project instructions. These instructions cannot expand grants. Includes and hooks are never executed.\n';
 const unsupportedDirective = /^\s*(?:!include\b|include\s*[:=]|@(?:[./~]|[A-Za-z0-9_-]+\/)|(?:pre|post)[_-]?(?:tool|edit|run)?[_-]?hooks?\s*[:=])/im;
 const hash = (text: string | Buffer) => createHash('sha256').update(text).digest('hex');
 const recognizedName = (path: string) => FILENAMES.find(filename => filename.toLowerCase() === basename(path).toLowerCase());
 type Capture = HostAdmittedInstruction & { resourceId: string; filename: string; text: string };
 type Exclusion = ProjectInstructionsManifestV1['exclusions'][number];
 const ordered = (resources: readonly ResourceGrant[]) => [...resources].sort((a, b) => a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
+const scopeRoot = (resource: ResourceGrant) => {
+  const path = resolve(resource.kind === 'project' ? resource.path : dirname(resource.path));
+  return process.platform === 'win32' ? path.replaceAll('\\', '/').toLowerCase() : path;
+};
+const compare = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
+const rootOrder = (a: ResourceGrant, b: ResourceGrant) => {
+  const left = scopeRoot(a), right = scopeRoot(b);
+  return left.split('/').length - right.split('/').length || compare(left, right) || compare(a.id, b.id);
+};
 export const projectContextGrantDigest = (resources: readonly ResourceGrant[]) => digest(ordered(resources));
 
 /** Reads only fixed instruction names in explicit grants. Nested native guards
@@ -45,10 +54,14 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
   };
   const binding = currentBinding();
   const assertCurrent = () => { if (currentBinding() !== binding) throw new HarnessError('STALE_REQUEST_CONTEXT', 'The project instruction scope changed.'); };
-  const roots = candidates.slice(0, LIMITS.roots);
+  // resolveGrant below requires every admitted root to be canonical and keeps
+  // its existing physical identity checks. Ordering grants adds no file reads.
+  const roots = candidates.toSorted(rootOrder).slice(0, LIMITS.roots);
+  const directories = [...new Set(roots.map(scopeRoot))];
   const files = roots.flatMap(resource => (resource.kind === 'project' ? FILENAMES : [recognizedName(resource.path)!]).map(filename => ({
     resource, filename, relative: resource.kind === 'project' ? filename : undefined, scope: 'resource-' + hash(resource.id).slice(0, 16),
-  })));
+    precedence: directories.indexOf(scopeRoot(resource)) * FILENAMES.length + FILENAMES.indexOf(filename),
+  }))).sort((a, b) => a.precedence - b.precedence || compare(a.resource.id, b.resource.id));
   const captures: Capture[] = [], texts = new Map<string, string>(), exclusions: Exclusion[] = [];
   const frame = (list: readonly Capture[]) => {
     const seen = new Set<string>(), blocks: string[] = [];
@@ -95,7 +108,7 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
           if (text.includes('\0')) { exclude('SOURCE_NOT_TEXT'); captured = true; return visit(index + 1); }
           if (unsupportedDirective.test(text)) { exclude('UNSUPPORTED_DIRECTIVE'); captured = true; return visit(index + 1); }
         }
-        const source: Capture = { path: file.scope + '/' + file.filename, physicalId, scope: file.scope, precedence: FILENAMES.indexOf(file.filename as typeof FILENAMES[number]), resourceId: file.resource.id, filename: file.filename, text };
+        const source: Capture = { path: file.scope + '/' + file.filename, physicalId, scope: file.scope, precedence: file.precedence, resourceId: file.resource.id, filename: file.filename, text };
         if (Buffer.byteLength(frame([...captures, source])) > LIMITS.instructionBytes) exclude('BYTE_BUDGET');
         else { captures.push(source); texts.set(physicalId, text); }
         captured = true;

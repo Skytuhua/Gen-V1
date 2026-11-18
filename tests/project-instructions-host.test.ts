@@ -123,6 +123,38 @@ it('loads each physical instruction once when explicit roots alias it', async ()
   expect(context?.instructionText.match(/ONE_PHYSICAL_SOURCE/g)).toHaveLength(1);
 });
 
+it('orders explicitly granted nested project scopes from physical root to leaf before filename precedence', async () => {
+  const f = fixture({ 'CLAUDE.md': 'PARENT_SCOPE_INSTRUCTION' });
+  const child = join(f.root, 'src'); mkdirSync(child);
+  writeFileSync(join(child, 'AGENTS.md'), 'CHILD_SCOPE_INSTRUCTION');
+  const info = statSync(child, { bigint: true });
+  f.store.internal('fixture', 'thread', () => f.store.put('resource', 'child-root', 'thread', {
+    ...f.grant, id: 'child-root', path: child, identity: {dev: String(info.dev), ino: String(info.ino)},
+  }));
+  __setCapabilityFlagForTests('context.compilerV1', true);
+  await f.deliver();
+  const context = f.starts[0]?.approvedProjectContext;
+  expect(context?.instructions.entries.map(entry => entry.resourceId)).toEqual(['project', 'child-root']);
+  expect(context!.instructionText.indexOf('PARENT_SCOPE_INSTRUCTION')).toBeLessThan(context!.instructionText.indexOf('CHILD_SCOPE_INSTRUCTION'));
+  expect(context!.instructionText).toContain('Host policy takes precedence over user task instructions, which take precedence over these project instructions');
+});
+
+it('orders exact instruction file grants in the same physical directory by filename before grant ID', async () => {
+  const f = fixture({'AGENTS.md': 'FIRST_FILENAME', 'CLAUDE.md': 'SECOND_FILENAME'});
+  f.store.internal('fixture', 'thread', () => {
+    f.store.remove('resource', f.grant.id);
+    for (const [id, filename] of [['z-agents', 'AGENTS.md'], ['a-claude', 'CLAUDE.md']] as const) {
+      const path = join(f.root, filename), info = statSync(path, {bigint: true});
+      f.store.put('resource', id, 'thread', {...f.grant, id, kind: 'file', path, identity: {dev: String(info.dev), ino: String(info.ino)}});
+    }
+  });
+  __setCapabilityFlagForTests('context.compilerV1', true);
+  await f.deliver();
+  const context = f.starts[0]?.approvedProjectContext;
+  expect(context?.instructions.entries.map(entry => entry.filename)).toEqual(['AGENTS.md', 'CLAUDE.md']);
+  expect(context!.instructionText.indexOf('FIRST_FILENAME')).toBeLessThan(context!.instructionText.indexOf('SECOND_FILENAME'));
+});
+
 it('refuses outside symlinks and executable includes without opening their target content', async () => {
   const f = fixture({ 'CLAUDE.md': '!include ../outside.md\n', 'GEMINI.md': 'post_edit_hook: execute-outside\n' });
   const outside = join(f.directory, 'outside.md'); writeFileSync(outside, 'OUTSIDE_CONTENT_SENTINEL');
