@@ -27,8 +27,8 @@ const logHandle = (() => {
 })();
 let output = '', ended = false;
 const child = spawn(executable, args, {cwd: cwdIdentity, env: process.env, stdio: ['ignore', 'pipe', 'pipe'], shell: false});
-const collect = chunk => {output += chunk.toString(); if (output.length > 240000) output = '[earlier output truncated]\n' + output.slice(-200000);};
-child.stdout.on('data', collect); child.stderr.on('data', collect);
+const collect = chunk => {output += chunk; if (output.length > 240000) output = '[earlier output truncated]\n' + output.slice(-200000);};
+child.stdout.setEncoding('utf8').on('data', collect); child.stderr.setEncoding('utf8').on('data', collect);
 function finish(exitCode, termination, error) {
   if (ended) return; ended = true;
   if (error) output += `\n${error.message}\n`;
