@@ -38,6 +38,7 @@ import {registerOperationProjectTrustRoutes} from './operation-project-trust-rou
 import {registerOperationExecutionReviewRoutes} from './operation-execution-review-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
+import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
@@ -155,6 +156,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  app.get<{Params: {id: string; candidateId: string}; Querystring: {beforeRequestId?: string}}>('/api/threads/:id/compaction/:candidateId/model-requests', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    return readCompactionModelRequests(service.store, request.params.id, request.params.candidateId, request.query.beforeRequestId);
   });
   // M06 additive verification read model: requirement | observed check |
   // source revision | outcome | freshness | verifier | evidence.

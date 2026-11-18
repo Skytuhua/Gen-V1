@@ -59,6 +59,13 @@ pnpm build
 pnpm test --maxWorkers=1
 ```
 
+Every tracked Markdown file is link-checked except the provenance trees `docs/implementation` and `docs/review-evidence` and the retained upstream bytes under `third-party`. The check runs on every pull request that changes a `.md` file, so run it after moving, renaming or re-anchoring a target; add `--external` to request the remote URLs that scheduled runs probe:
+
+```powershell
+pnpm check:docs-links
+pnpm check:docs-links --external
+```
+
 Some tests inspect or exercise the built interface, so build it before running the full suite. `pnpm test` builds widget assets automatically.
 
 For a focused unit run after the widget assets have been built:

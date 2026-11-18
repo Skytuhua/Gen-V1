@@ -453,6 +453,203 @@ test('last request shows observed broker bytes, then drops them on a new epoch',
   await expect(last).toHaveCount(0);
 });
 
+test('shows bounded read-only relevance candidates without claiming native history was compacted', async ({ page }) => {
+  await page.goto('/usage-context');
+  await update(page, 'request-relevance');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const observation = context(page).getByRole('region', { name: 'Read-only relevance observation' });
+  await expect(observation).toContainText('1 old host read result for review');
+  await expect(observation).toContainText('1.2K bytes potential savings (estimate)');
+  await expect(observation).toContainText('Nothing was removed. Native context is opaque');
+  await expect(observation).toContainText('2 outside the observation window');
+  await observation.getByText('Candidate result observations', { exact: true }).click();
+  await expect(observation).toContainText('host-result:1');
+  await expect(context(page)).toContainText('No loss-aware compaction receipt');
+  await update(page, 'restart');
+  await expect(observation).toHaveCount(0);
+});
+
+test('compaction details expose retained references and separate byte measurements from unavailable cost', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await candidates.getByText('Retained constraint references', { exact: true }).click();
+  await expect(candidates).toContainText('DECISION:taskMemory:keep-tests');
+  await expect(candidates).toContainText('PENDING_APPROVAL:request:review-change');
+  await expect(candidates).toContainText('Estimated reduction: 0 bytes (estimate)');
+  await expect(candidates).toContainText('Measured source: 1.2K bytes; measured result: 600 bytes');
+  await expect(context(page)).toContainText('Omitted native categories: unavailable');
+  await expect(context(page)).toContainText('Complete auxiliary model cost: unavailable');
+  await expect(context(page)).toContainText('Recorded admitted candidates: 1');
+  await expect(context(page)).toContainText('Historical completeness and provider-call counts are unavailable');
+  await expect(context(page)).not.toContainText('cost 0');
+});
+
+test('compaction details keep absent estimates and measurements unavailable', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-unavailable');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await expect(candidates).toContainText('failed');
+  await expect(candidates).toContainText('Estimated reduction: unavailable');
+  await expect(candidates).toContainText('Measured source: unavailable; measured result: unavailable');
+  await expect(context(page)).toContainText('Recorded admitted candidates: 1 · 0 discarded · 1 failed');
+  await expect(context(page)).toContainText('Auxiliary byte accounting: unavailable');
+  await expect(context(page)).not.toContainText('0 bytes (estimate)');
+});
+
+test('compaction details keep a recovered candidate without a receipt unconfirmed', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-unconfirmed');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  await expect(context(page)).toContainText('Native outcome unconfirmed. No applied receipt was recorded.');
+  await expect(context(page)).toContainText('Measured source: unavailable; measured result: unavailable');
+  await expect(context(page)).not.toContainText('Context compacted');
+  await expect(context(page)).not.toContainText('Freed');
+});
+
+test('compaction details page long retained-reference lists without hiding their remaining count', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-many');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Compaction', exact: true }).click();
+  const candidates = context(page).getByRole('list', { name: 'Compaction candidates' });
+  await candidates.getByText('Retained constraint references', { exact: true }).click();
+  const references = candidates.getByRole('list', { name: 'Retained constraint references' });
+  await expect(references.getByRole('listitem')).toHaveCount(32);
+  await expect(candidates).toContainText('Showing 32 of 34 references');
+  await candidates.getByRole('button', { name: 'Show 2 more references', exact: true }).click();
+  await expect(references.getByRole('listitem')).toHaveCount(34);
+  await expect(references).toContainText('native-record:' + 'd'.repeat(64) + ':33');
+  await expect(candidates.getByRole('button', { name: /more references/ })).toHaveCount(0);
+  expect(await references.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+});
+
+test('compaction history stays visible after maintenance advances the epoch without reviving old request bytes', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true});
+  await opener.click(); await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await update(page, 'restart');
+  const history = context(page).getByRole('region', {name: 'Compaction history', exact: true});
+  await expect(history).toBeVisible();
+  await expect(history.getByRole('tab', {name: 'Compaction', exact: true})).toHaveAttribute('aria-selected', 'true');
+  await expect(history.getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await expect(context(page).getByRole('region', {name: 'Last request', exact: true})).toHaveCount(0);
+  await history.getByRole('tab', {name: 'Last request', exact: true}).click();
+  await expect(history.getByRole('tabpanel')).toContainText('Current request observation unavailable');
+  await expect(context(page)).not.toContainText('13 observed prompt bytes');
+  await page.keyboard.press('Escape'); await opener.click();
+  await expect(history.getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+});
+
+for (const field of ['project', 'workspace', 'model', 'account', 'session']) test(`compaction history rejects cached ${field} ownership across close and reopen`, async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-project');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true});
+  await opener.click(); await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await update(page, field === 'session' ? 'session' : 'compaction-owner-' + field);
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+  await page.keyboard.press('Escape'); await update(page, 'clone-compaction'); await opener.click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+  await expect(context(page)).not.toContainText('DECISION:taskMemory:keep-tests');
+});
+
+test('compaction history rejects an owner change while the inspector has never been opened', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-project');
+  await update(page, 'compaction-owner-project'); await update(page, 'clone-compaction');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
+test('compaction history uses the selected host usage row when request observation is disabled', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction-no-observation');
+  await update(page, 'restart');
+  const opener = page.getByRole('button', {name: 'Inspect context', exact: true}); await opener.click();
+  await expect(context(page).getByRole('region', {name: 'Compaction history', exact: true})).toBeVisible();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+  await expect(context(page).getByRole('region', {name: 'Last request', exact: true})).toHaveCount(0);
+  await page.keyboard.press('Escape'); await opener.click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toBeVisible();
+});
+
+for (const owner of ['no-usage-owner', 'foreign-usage-owner']) test(`compaction history without observations rejects ${owner}`, async ({ page }) => {
+  await page.goto('/usage-context?' + owner); await update(page, 'request-compaction-no-observation');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
+test('a selected host usage row never overrides a conflicting request witness', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-compaction'); await update(page, 'foreign-request-witness');
+  await page.getByRole('button', {name: 'Inspect context', exact: true}).click();
+  await expect(context(page).getByRole('list', {name: 'Compaction candidates'})).toHaveCount(0);
+});
+
+test('shows admitted instruction revisions, overlap precedence and refused directives in the existing Sources tab', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-instructions');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  const instructions = context(page).getByRole('region', { name: 'Approved project instructions' });
+  await expect(instructions).toContainText('AGENTS.md · resource project · scope approved-root · precedence 0 · 120 bytes');
+  await expect(instructions).toContainText('SHA-256 ' + 'c'.repeat(64));
+  await expect(instructions).toContainText('Host authorization always takes precedence');
+  await expect(instructions).toContainText('Overlapping instruction sources');
+  await expect(instructions).toContainText('semantic contradictions were not inferred');
+  await expect(instructions).toContainText('GEMINI.md · resource project · excluded: unsupported directive');
+});
+
+test('distinguishes incremental native source metadata from the opaque provider request', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-native-sources');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await expect(context(page)).toContainText('120 observed prompt bytes');
+  await expect(context(page)).toContainText('Native context is opaque');
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  const native = context(page).getByRole('region', { name: 'Original Hermes source metadata' });
+  await expect(native).toContainText('Source generation 1 · 3 source records · 90 serialized source bytes');
+  await expect(native).toContainText('2 compiled records reused · 1 new records compiled');
+  await expect(native).toContainText('native worker fingerprinted 3 records');
+  await expect(native).toContainText('Provider context remains opaque; tokens were not inferred');
+  await expect(native).toContainText('tool · native:1:2 · revision 1 · 40 bytes');
+  await expect(native).toContainText('c'.repeat(64));
+  await update(page, 'restart'); await expect(native).toHaveCount(0);
+});
+
+test('reports unavailable native source metadata without claiming a reconstructed context', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'request-native-unavailable');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await context(page).getByRole('tab', { name: 'Sources', exact: true }).click();
+  await expect(context(page)).toContainText('Native source capture unavailable: source limit');
+  await expect(context(page).getByRole('region', { name: 'Original Hermes source metadata' })).toHaveCount(0);
+});
+
+test('shows actual next-inference bytes while keeping provider input, cache and context reports separate', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'budget-known');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const budget = context(page).getByRole('region', { name: 'Next inference budget' });
+  await expect(budget).toContainText('Request 2: 220 prompt bytes');
+  await expect(budget).toContainText('12 provider-reported input tokens; 80 cache-read tokens');
+  await expect(budget).toContainText('Reported context: 5K tokens');
+  await expect(budget).toContainText('not substituted for input usage');
+  await expect(budget).toContainText('100 native source bytes, including 80 tool-result bytes across 1 result');
+  await expect(budget).toContainText('actual output reserve were not reported');
+  await expect(budget).toContainText('No automatic compaction decision');
+  await update(page, 'restart'); await expect(budget).toHaveCount(0);
+});
+
+test('shows a blocked byte admission even when no provider request was dispatched', async ({ page }) => {
+  await page.goto('/usage-context'); await update(page, 'budget-blocked');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  const budget = context(page).getByRole('region', { name: 'Next inference budget' });
+  await expect(budget).toContainText('Request blocked by the host byte limit. No provider call was started.');
+  await expect(budget).toContainText('Source continuity is unavailable');
+  await expect(budget).toContainText('Token budget unavailable');
+  await expect(context(page).getByRole('region', { name: 'Last request', exact: true })).toHaveCount(0);
+  await update(page, 'thread'); await expect(budget).toHaveCount(0);
+});
+
 test('Requests can filter measured providers even when no usage report exists', async ({ page }) => {
   await page.goto('/usage-context?requests'); await update(page, 'empty');
   await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
@@ -468,4 +665,123 @@ test('Requests can filter measured providers even when no usage report exists', 
   await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toHaveCount(0);
   await modal.getByRole('tab', { name: 'Cost', exact: true }).click();
   await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toBeVisible();
+});
+
+const compactionCostUrl = '/api/threads/thread-one/compaction/candidate-visible/model-requests';
+const compactionRequest = (sequence: number, cost: number | null = 0.125): import('../../packages/contracts/model-request').ModelRequestObservationV1 => ({
+  version: 1, requestId: 'compaction-request-' + sequence,
+  owner: {threadId: 'thread-one', runId: 'compaction:candidate-visible', epoch: 1, sequence, inputIds: [], phase: 'foreground'},
+  binding: {providerId: 'openai', modelId: 'openai/model', accountId: null},
+  timings: {queued: 1700000000000, acquired: 1, runtimeReady: 2, requestSent: 3, firstProviderDelta: null, firstPublicDelta: null, settled: 5, teardownConfirmed: 6},
+  usage: {inputTokens: 12, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost},
+  usageConvention: 'provider-reported', measurementSource: 'scripted-component-fixture', outcome: 'failed',
+});
+const costRegion = (page: Page) => context(page).getByRole('region', {name: 'Compaction model costs', exact: true});
+const costChip = (page: Page, sequence: number) => costRegion(page).getByRole('region', {name: 'Model request ' + sequence, exact: true})
+  .locator('.usage-request-metrics > li').filter({has: page.getByText('Cost', {exact: true})}).locator('.usage-request-chip-value');
+async function openCompactionCosts(page: Page, action = 'request-compaction-unavailable') {
+  await page.goto('/usage-context'); await update(page, action);
+  await page.getByRole('button', {name: 'Inspect context'}).click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+}
+
+test('compaction model costs show failed observations, reported zero and unknown without a total', async ({page}, info) => {
+  await page.setViewportSize({width: 340, height: 420});
+  const zero = {...compactionRequest(2, 0), outcome: 'completed' as const}, unknown = {...compactionRequest(3, null), outcome: 'cancelled' as const};
+  await page.route('**' + compactionCostUrl, route => route.fulfill({json: [compactionRequest(1), zero, unknown]}));
+  await openCompactionCosts(page);
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0.125 (currency not reported)');
+  await expect(costRegion(page).getByRole('region', {name: 'Model request 1', exact: true})).toContainText('failed');
+  await expect(costChip(page, 2)).toHaveText('0 (currency not reported)');
+  await expect(costChip(page, 3)).toHaveText('—');
+  await expect(costRegion(page)).toContainText('Complete spend is unavailable.');
+  await expect(costRegion(page)).toContainText('unreported or interrupted requests');
+  await costChip(page, 1).scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({path: info.outputPath('compaction-retained-model-costs.png'), fullPage: true});
+});
+
+test('compaction model costs page older observations with the exact owned request cursor', async ({page}) => {
+  const cursors: Array<string | null> = [];
+  await page.route('**' + compactionCostUrl + '*', route => {
+    const before = new URL(route.request().url()).searchParams.get('beforeRequestId'); cursors.push(before);
+    return route.fulfill({json: before === null ? Array.from({length: 64}, (_, i) => compactionRequest(66 - i)) : [compactionRequest(2), compactionRequest(1)]});
+  });
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(64);
+  await costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(66);
+  expect(cursors).toEqual([null, 'compaction-request-3']);
+  await expect(costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true})).toHaveCount(0);
+  await expect(costRegion(page)).toContainText('Complete spend is unavailable.');
+});
+
+test('compaction model costs reject an older page that repeats an already displayed request', async ({page}) => {
+  await page.route('**' + compactionCostUrl + '*', route => route.fulfill({json: new URL(route.request().url()).searchParams.has('beforeRequestId')
+    ? [compactionRequest(64)] : Array.from({length: 64}, (_, i) => compactionRequest(64 - i))}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(64);
+  await costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurement response could not be verified.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+});
+
+test('compaction model costs keep missing measurements unknown and clear retained rows after a denied refresh', async ({page}) => {
+  let reads = 0;
+  await page.route('**' + compactionCostUrl, route => ++reads === 1 ? route.fulfill({json: []}) : reads === 2 ? route.fulfill({json: [compactionRequest(1)]})
+    : route.fulfill({status: 403, json: {error: {code: 'CAPABILITY_DENIED', message: 'Compaction measurements are unavailable for this owner.'}}}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('No retained model request measurements are available.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+  await costRegion(page).getByRole('button', {name: 'Refresh model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0.125 (currency not reported)');
+  await costRegion(page).getByRole('button', {name: 'Refresh model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurements are unavailable for this owner.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+});
+
+for (const field of ['project', 'workspace', 'model', 'account', 'session', 'thread']) test(`compaction model costs discard pending ${field} responses across owner changes`, async ({page}) => {
+  let release: (() => Promise<void>) | undefined;
+  await page.route('**' + compactionCostUrl, route => {release = () => route.fulfill({json: [compactionRequest(1, 987.654)]});});
+  await openCompactionCosts(page, 'request-compaction-project');
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).getByRole('status')).toHaveText('Loading model request costs…');
+  await expect.poll(() => Boolean(release)).toBe(true);
+  await update(page, field === 'session' || field === 'thread' ? field : 'compaction-owner-' + field);
+  await release!();
+  await expect(context(page).locator('.usage-request')).toHaveCount(0);
+  await update(page, 'clone-compaction'); await page.keyboard.press('Escape');
+  await page.getByRole('button', {name: 'Inspect context'}).click();
+  await expect(context(page).locator('.usage-request')).toHaveCount(0);
+  await expect(page.getByText('987.654 (currency not reported)', {exact: true})).toHaveCount(0);
+});
+
+test('compaction model costs reread after close and maintenance epoch advance without accepting a late response', async ({page}) => {
+  let reads = 0, release: (() => Promise<void>) | undefined;
+  await page.route('**' + compactionCostUrl, route => {
+    if (++reads === 1) {release = () => route.fulfill({json: [compactionRequest(1, 987.654)]}); return;}
+    return route.fulfill({json: [compactionRequest(1, 0)]});
+  });
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect.poll(() => Boolean(release)).toBe(true); await page.keyboard.press('Escape');
+  await update(page, 'restart'); await page.getByRole('button', {name: 'Inspect context'}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0 (currency not reported)');
+  await release!(); await expect(costChip(page, 1)).toHaveText('0 (currency not reported)');
+  expect(reads).toBe(2); await expect(context(page)).toContainText('Current request observation unavailable.');
+});
+
+for (const invalid of ['foreign thread', 'foreign candidate', 'foreign account', 'future epoch', 'duplicate', 'negative cost']) test(`compaction model costs reject ${invalid} response data`, async ({page}) => {
+  const value = compactionRequest(1);
+  if (invalid === 'foreign thread') value.owner.threadId = 'foreign';
+  if (invalid === 'foreign candidate') value.owner.runId = 'compaction:foreign';
+  if (invalid === 'foreign account') value.binding.accountId = 'foreign';
+  if (invalid === 'future epoch') value.owner.epoch++;
+  if (invalid === 'negative cost') value.usage.cost = -1;
+  await page.route('**' + compactionCostUrl, route => route.fulfill({json: invalid === 'duplicate' ? [value, value] : [value]}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurement response could not be verified.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
 });

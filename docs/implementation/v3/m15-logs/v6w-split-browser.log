@@ -1,0 +1,83 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/split-workspace-renderer.test.ts","tests/split-app-browser.test.ts","--maxWorkers=1","--reporter=default"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ✓ tests/split-app-browser.test.ts (57 tests) 130856ms
+     ✓ keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload  5602ms
+     ✓ archiving the selected conversation leaves an explicit empty main that never revives activeThreadId, even after reload (T02/R02)  4447ms
+     ✓ detaches a conversation to an independent float with an empty main, and returns it with placement recovery (T02/R02)  4974ms
+     ✓ docked grip preserves placement until a drag and opens its menu for 0px click jitter  1437ms
+     ✓ docked grip preserves placement until a drag and opens its menu for 2px click jitter  1390ms
+     ✓ docked drag pointercancel cancels its preview without a placement write  1486ms
+     ✓ docked drag capture-loss cancels its preview without a placement write  1483ms
+     ✓ docked drag Escape cancels its preview without a placement write  1468ms
+     ✓ docked drag blur cancels its preview without a placement write  1507ms
+     ✓ docked drag admits its final rectangle once at release and retains it through a held matching acknowledgement  2506ms
+     ✓ docked drag acknowledgement retains focused Stop owner thread-a  2183ms
+     ✓ docked drag acknowledgement retains focused Stop owner thread-b  1745ms
+     ✓ docked drag preflight failure retains the current view and draft without sending placement  1568ms
+     ✓ a non-primary docked pointer cannot begin or admit placement  1227ms
+     ✓ floating drop uses the owning release target instead of its last hint (false)  1901ms
+     ✓ floating drop uses the owning release target instead of its last hint (true)  1969ms
+     ✓ accepted docked placement with a lost response reconciles without another write  2358ms
+     ✓ placement ACK retains newer focused Stop owner after return  2366ms
+     ✓ placement ACK retains newer focused Stop owner after dock  2092ms
+     ✓ docked edge release commits one real split without an intermediate park  1924ms
+     ✓ placement preflight retains its captured revision for detach  1956ms
+     ✓ placement preflight retains its captured revision for return  2497ms
+     ✓ placement preflight retains its captured revision for dock  2111ms
+     ✓ shrunken float preserves raw placement after click  2792ms
+     ✓ shrunken float preserves raw placement after jitter  2488ms
+     ✓ shrunken float preserves raw placement after move-cancel  2468ms
+     ✓ shrunken float preserves raw placement after resize-cancel  2335ms
+     ✓ shrunken float preserves raw placement after resize-click  2330ms
+     ✓ viewport shrink retains a visible moved float while idle  2164ms
+     ✓ viewport shrink retains a visible moved float while held  2851ms
+     ✓ viewport reflow cancels a held docked preview without a placement write  2008ms
+     ✓ docked drag keeps its owning pointer after a foreign pointerup  1567ms
+     ✓ docked drag keeps its owning pointer after a foreign pointercancel  1578ms
+     ✓ detaching from a multi-tab main overrides the previous tab with an explicit empty main, and navigation clears it (T02/R02)  1853ms
+     ✓ keyboard Stop targets the focused float owner exactly once and leaves the main run untouched (AUD-06)  2322ms
+     ✓ Thread details preference controls a compact conversation metadata line in main and float (T07/R10)  3601ms
+     ✓ docks a float into a real directional pane split at a main edge (T03/R03 #3/#4)  2043ms
+     ✓ divider resize reflows real pane widths without scaling content (T03/R04 #4)  1714ms
+     ✓ embedded transcript Stop routes through the shared composer owner, not raw run.stop (AUD-05)  1389ms
+     ✓ places a sidebar thread into a spatial edge target without duplicating its composer  1638ms
+     ✓ uses one canonical plan in the overview and detailed pane with actual companion sections  1677ms
+     ✓ starts a new chat in the chosen project while preserving a started pane and its pinned account  2245ms
+     ✓ reconciles an explicitly connected unstarted chat without remounting its composer or changing other saved view owners  4654ms
+     ✓ renders the canonical detailed plan requirements in an explicitly recovered canvas panel  1762ms
+     ✓ keeps a narrow focused composer visible on plan publication until the user opens the full plan  1981ms
+     ✓ reopens the same parked and minimized detailed plan on fresh validated revisions without taking composer focus  1866ms
+     ✓ saves and applies split layouts while preserving drafts and the retained v1 canvas through explicit recovery  4537ms
+     ✓ uses the exact host save receipt and preserves geometry during name-only Rename  3260ms
+     ✓ shows installed generic workspaces without replacing the personal workspace bar  3108ms
+     ✓ defaults ordinary Workspace to the shared split plane without a pre-seeded split mode (T02/R02)  1164ms
+     ✓ defaults ordinary Workspace to the plane with a panel toggle, hides the overview while the panel is open, and removes the split history bar  3620ms
+     ✓ a browser dock shares the tool width budget and preserves chat space  1619ms
+     ✓ artifacts stay inside the plane conversation without horizontal overflow (T02)  1485ms
+     ✓ panel bounds retain chat and title bar at drag extremes 1920x1080  2020ms
+     ✓ panel bounds retain chat and title bar at drag extremes 1440x900  1964ms
+     ✓ panel bounds retain chat and title bar at drag extremes 1024x768  1871ms
+     ✓ panel bounds stack tools below chat in a narrow workarea  1282ms
+ ✓ tests/split-workspace-renderer.test.ts (11 tests) 7404ms
+     ✓ uses the shared area menu for keyboard editor selection, Escape and outside dismissal  736ms
+     ✓ mounts a tool view opened in the empty main pane  467ms
+     ✓ keeps editor focus when a pending area action completes  739ms
+     ✓ uses a shared narrow-area chooser without remounting either editor  748ms
+     ✓ does not reopen a menu after responsive layout removes its owning pane  540ms
+     ✓ keeps editor DOM, values and iframe instance when moving and parking views  432ms
+     ✓ supports keyboard divider movement and cancels pointer previews without a command  463ms
+     ✓ retains layout when draft flush fails and restores desktop geometry after narrow mode  740ms
+     ✓ moves a dragged tab to the center target and minimizes to a reachable strip  546ms
+     ✓ rejects an incoming conversation that cannot fit its actual minimum  492ms
+     ✓ keeps editor and recovery controls reachable inside a short pane  768ms
+
+ Test Files  2 passed (2)
+      Tests  68 passed (68)
+   Start at  11:32:52
+   Duration  139.74s (transform 276ms, setup 0ms, import 1.17s, tests 138.26s, environment 0ms)
+

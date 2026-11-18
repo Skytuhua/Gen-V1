@@ -1,5 +1,6 @@
 import { stat } from 'node:fs/promises';
-import { lstatSync, realpathSync } from 'node:fs';
+import { closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { join } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
 import { executionProfileV1Schema, isTrustedHostProfile, type ExecutionProfileV1 } from '../contracts/execution-profile.ts';
@@ -97,13 +98,31 @@ function exactOrigin(value: string): string {
     throw executorDenied('INVALID_INPUT', 'Verification requires exact HTTP origins without credentials or paths.');
   return value;
 }
-interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string }
+interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string; sha256?: string }
 const changedBasis = () => executorDenied('EXECUTION_BINDING_CHANGED', 'Verification execution basis changed.');
+const WITNESS_CHUNK_BYTES = 1024 * 1024;
+/** Timestamp granularity is a coarse clock tick on Linux and two seconds on
+ * FAT-family and some network filesystems, so a same-length in-place rewrite
+ * can leave every stat field untouched. The witness therefore pins the bytes
+ * of the inode it measured, read through a no-follow descriptor whose identity
+ * is rechecked against that measurement. */
+function witnessBytesDigest(path: string, identity: { dev: string; ino: string; size: string }): string {
+  const fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW);
+  try {
+    const value = fstatSync(fd, { bigint: true });
+    if (!value.isFile() || String(value.dev) !== identity.dev || String(value.ino) !== identity.ino) throw changedBasis();
+    const hash = createHash('sha256'), buffer = Buffer.allocUnsafe(Math.min(WITNESS_CHUNK_BYTES, Math.max(1, Number(identity.size))));
+    for (let read = readSync(fd, buffer, 0, buffer.length, null); read > 0; read = readSync(fd, buffer, 0, buffer.length, null)) hash.update(buffer.subarray(0, read));
+    return hash.digest('hex');
+  } finally { closeSync(fd); }
+}
 function basisWitness(path: string, kind: BasisWitness['kind']): BasisWitness {
   try {
     const value = lstatSync(path, { bigint: true });
     if ((kind === 'file' ? !value.isFile() : !value.isDirectory()) || realpathSync(path) !== path) throw changedBasis();
-    return { canonicalPath: path, kind, dev: String(value.dev), ino: String(value.ino), size: String(value.size), mtimeNs: String(value.mtimeNs), ctimeNs: String(value.ctimeNs), nlink: String(value.nlink) };
+    const witness: BasisWitness = { canonicalPath: path, kind, dev: String(value.dev), ino: String(value.ino), size: String(value.size), mtimeNs: String(value.mtimeNs), ctimeNs: String(value.ctimeNs), nlink: String(value.nlink) };
+    if (kind === 'file') witness.sha256 = witnessBytesDigest(path, { dev: witness.dev, ino: witness.ino, size: witness.size });
+    return witness;
   } catch { throw changedBasis(); }
 }
 function assertWitnesses(witnesses: readonly BasisWitness[]): void {

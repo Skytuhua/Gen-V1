@@ -15,6 +15,7 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
     captured.set(sourceId, content);
   };
   if (guidance) add('host-guidance', 'INSTRUCTION', guidance);
+  if (input.approvedProjectContext?.instructionText) add('approved-project-instructions', 'INSTRUCTION', input.approvedProjectContext.instructionText);
   if (input.memory) add('thread-memory', 'MEMORY', input.memory);
   for (const fragment of fragments.slice(0, 32)) add(fragment.id, fragment.isToolResult ? 'TOOL' : 'USER', fragment.content);
   const measured = createContextCompiler({
@@ -26,7 +27,7 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
   }).compile({
     owner: { threadId: input.threadId, workspaceId },
     modelBinding: { modelId: input.modelId, accountId: input.accountId ?? null },
-    contextGeneration: input.epoch, instructionDigest: hash(guidance), toolRegistryDigest, sources,
+    contextGeneration: input.epoch, instructionDigest: hash(guidance + (input.approvedProjectContext?.instructionText ?? '')), toolRegistryDigest, sources,
   });
   const omitted = fragments.slice(32);
   return {
@@ -40,5 +41,6 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
         measurement: 'BYTE_ONLY' as const, exclusionReason: 'Beyond the bounded host projection fragment count' as string | null })),
     ],
     omittedSources: omitted.length,
+    ...(input.approvedProjectContext ? { projectInstructions: input.approvedProjectContext.instructions } : {}),
   };
 }
