@@ -91,7 +91,8 @@ describe('M13 activation gate',()=>{
  it('holds without a current-platform PASS proof',async()=>{
   const unproven=fixture({backends:[backend({proof:{platformProofRef:'p',platform:process.platform,status:'BLOCKED',recordedAt:new Date().toISOString()}})]});
   await expect(unproven.host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'HOLD_PLATFORM_PROOF'}));
-  const foreign=fixture({backends:[backend({proof:{platformProofRef:'p',platform:'win32',status:'PASS',recordedAt:new Date().toISOString()}})]});
+  const foreignPlatform=process.platform==='win32'?'linux':'win32';
+  const foreign=fixture({backends:[backend({proof:{platformProofRef:'p',platform:foreignPlatform,status:'PASS',recordedAt:new Date().toISOString()}})]});
   await expect(foreign.host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'HOLD_PLATFORM_PROOF'}));
  });
 });
