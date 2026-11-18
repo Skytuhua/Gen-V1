@@ -245,3 +245,48 @@ it('reports only eligible old tool-result savings once, without modifying the pr
   expect(JSON.stringify(segments)).toBe(serialized);
   expect(observer.observe({ ...input, cutId: 'cut-2', inspectionBudgetBytes: 10 })).toEqual({ candidateIds: [], estimatedSavingsBytes: 0 });
 });
+
+it.each(['completed', 'failed'] as const)('ignores a %s shadow result from an expired cut while a newer cut is pending', async outcome => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  type Observation = { candidateIds: readonly string[]; estimatedSavingsBytes: number };
+  const timers: Array<() => void> = [];
+  const completions: Array<{ resolve(value: Observation): void; reject(error: Error): void }> = [];
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 2 },
+    observe: () => new Promise<Observation>((resolve, reject) => completions.push({ resolve, reject })),
+    schedule: callback => { timers.push(callback); return timers.length; }, unschedule: () => {},
+  });
+  const cut = { cutId: 'expired', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [] };
+  const expired = phase.run(cut);
+  timers[0]!();
+  expect(await expired).toEqual({ status: 'TIMED_OUT', observation: null });
+  const current = phase.run({ ...cut, cutId: 'current' });
+  let settled = false;
+  void current.then(() => { settled = true; });
+  if (outcome === 'completed') completions[0]!.resolve({ candidateIds: ['expired-only'], estimatedSavingsBytes: 900 });
+  else completions[0]!.reject(new Error('Expired observer failed'));
+  await Promise.resolve();
+  await Promise.resolve();
+  expect(settled).toBe(false);
+  completions[1]!.resolve({ candidateIds: ['current-only'], estimatedSavingsBytes: 40 });
+  expect(await current).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['current-only'], estimatedSavingsBytes: 40 } });
+});
+
+it('ignores an old timeout callback after the next shadow cut starts', async () => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  const timers: Array<() => void> = [];
+  const completions: Array<(value: { candidateIds: readonly string[]; estimatedSavingsBytes: number }) => void> = [];
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: 'aux-account', budgetCalls: 2 },
+    observe: () => new Promise(resolve => completions.push(resolve)),
+    schedule: callback => { timers.push(callback); return timers.length; }, unschedule: () => {},
+  });
+  const cut = { cutId: 'first', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [] };
+  const first = phase.run(cut);
+  completions[0]!({ candidateIds: ['first-only'], estimatedSavingsBytes: 20 });
+  expect((await first).status).toBe('COMPLETED');
+  const current = phase.run({ ...cut, cutId: 'current' });
+  timers[0]!();
+  completions[1]!({ candidateIds: ['current-only'], estimatedSavingsBytes: 40 });
+  expect(await current).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['current-only'], estimatedSavingsBytes: 40 } });
+});

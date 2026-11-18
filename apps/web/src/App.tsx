@@ -238,7 +238,7 @@ export function OperationDecision({ operation, refresh, owner }: { operation: Op
 }
 
 function ResourcePicker({ threadId, close, refresh, opener }: { threadId: string; close: () => void; refresh: () => Promise<void>; opener: HTMLElement | null }) {
-  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected) opener.focus({ preventScroll: true }); }); }, [opener]);
+  useEffect(() => () => { requestAnimationFrame(() => { if (opener?.isConnected && document.activeElement === document.body) opener.focus({ preventScroll: true }); }); }, [opener]);
   const [path, setPath] = useState('');
   const [kind, setKind] = useState('project');
   const [writable, setWritable] = useState(false);
