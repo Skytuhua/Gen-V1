@@ -344,7 +344,6 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .keyboard-shortcuts dd { margin:0; color:var(--text); }
 .sidebar-scrim { display:none; }
 .spinning { animation:spin 1s linear infinite; }
-@media(prefers-reduced-motion:reduce) { .spinning { animation-duration:1.6s; } }
 @keyframes spin { to { transform:rotate(360deg); } }
 @media(min-width:1600px) { .workspace-header { padding-left:32px; padding-right:32px; } }
 @media(max-width:1000px) { .sidebar { width:220px; flex-basis:220px; } .composer-dock { width:calc(100% - 40px); } .conversation-scroll { padding-left:20px; padding-right:20px; } .model-picker select { max-width:120px; } .microphone { display:none; } .runtime-pill { display:none; } }
