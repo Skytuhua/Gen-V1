@@ -1,0 +1,46 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/vitest/vitest.mjs","run","tests/gesture-cleanup.test.ts","--maxWorkers=1","--reporter=default"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ✓ tests/gesture-cleanup.test.ts (24 tests) 24877ms
+     ✓ AUD-01: a right-button press never starts a resize  1341ms
+     ✓ AUD-01: a foreign pointer cannot drive an active resize  778ms
+     ✓ a foreign pointer cannot end or replace an active resize  811ms
+     ✓ AUD-01: window blur ends the resize and clears the root class  702ms
+     ✓ AUD-03: losing pointer capture ends a floating move; later moves do nothing  1218ms
+     ✓ a second pointer cannot replace an active floating move  995ms
+     ✓ AUD-02: window blur cancels a split resize, clears the preview and releases capture  830ms
+     ✓ foreign pointercancel cannot cancel a split resize  782ms
+     ✓ foreign lostpointercapture cannot cancel a split resize  790ms
+     ✓ foreign pointercancel cannot cancel a split corner drag  793ms
+     ✓ foreign lostpointercapture cannot cancel a split corner drag  896ms
+     ✓ foreign pointercancel cannot cancel a floating split move  923ms
+     ✓ foreign pointercancel cannot cancel a floating split resize  770ms
+     ✓ foreign lostpointercapture cannot cancel a floating split move  856ms
+     ✓ foreign lostpointercapture cannot cancel a floating split resize  827ms
+     ✓ floating move uses final pointer bounds (60) and retains its draft  1055ms
+     ✓ floating move uses final pointer bounds (0) and retains its draft  1072ms
+     ✓ floating move uses final pointer bounds (9999) and retains its draft  1000ms
+     ✓ floating resize uses final pointer bounds (60) and retains its draft  1077ms
+     ✓ floating resize uses final pointer bounds (0) and retains its draft  916ms
+     ✓ floating resize uses final pointer bounds (9999) and retains its draft  1026ms
+     ✓ floating header click respects the movement threshold at release (2)  901ms
+     ✓ floating header click respects the movement threshold at release (60)  958ms
+     ✓ AUD-04: an impossible edge split shows no preview; a fitting one does  2086ms
+
+ Test Files  1 passed (1)
+      Tests  24 passed (24)
+   Start at  10:28:52
+   Duration  25.51s (transform 71ms, setup 0ms, import 461ms, tests 24.88s, environment 0ms)
+

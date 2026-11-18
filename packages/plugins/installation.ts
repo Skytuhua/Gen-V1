@@ -114,8 +114,10 @@ export interface PluginScreeningOptions {
  * requires an advisory preflight: exact package/version/digest against the
  * composed advisory database. UNAVAILABLE blocks unless the operator recorded
  * a documented exception; KNOWN_BAD always denies; NO_KNOWN_MATCH never
- * grants trust by itself. With the flag off and no advisory composed, the
- * legacy path is unchanged. */
+ * grants trust by itself. The pure screening helper can record a proposed
+ * exception, but this installer cannot verify an authenticated operator or
+ * durably audit that exception, so it must not use one to activate a package.
+ * With the flag off and no advisory composed, the legacy path is unchanged. */
 export async function installPluginPackage(source:string,root:string,expectedDigest:string,genVersion:string,options?:{screening?:PluginScreeningOptions}):Promise<{manifest:PluginManifest;digest:string;directory:string;screening?:PackageScreeningV1}>{
  const sourcePath=resolve(source),rootPath=resolve(root);if(sourcePath===rootPath||inside(sourcePath,rootPath)||inside(rootPath,sourcePath))throw Error('The plug-in source and installed package directories must be separate.');
  const verified=await verifyPluginPackage(sourcePath,expectedDigest);if(!versionCompatible(verified.manifest,genVersion))throw Error('The plug-in is not compatible with this Gen version.');
@@ -125,7 +127,12 @@ export async function installPluginPackage(source:string,root:string,expectedDig
   if(!advisory)throw Error('Package screening is required but no advisory database is configured.');
   const computation=await screenPackage({name:verified.manifest.id,version:verified.manifest.version,digest:expectedDigest},advisory,{cache:options?.screening?.cache,maxCacheAgeMs:options?.screening?.maxCacheAgeMs,exception:options?.screening?.exception});
   screening=computation.record;
-  if(screeningGate(computation.record)==='BLOCK')throw Error(`Package screening denied activation: ${computation.record.reason}`);
+  const gate=screeningGate(computation.record);
+  // A caller-provided actor/reason is not authenticated operator approval.
+  // Until that authority and a durable separate exception receipt are wired,
+  // refuse exceptional activation rather than laundering it through screening.
+  if(gate==='EXCEPTION_RECORDED')throw Error('Package screening exception requires authenticated approval and durable audit evidence.');
+  if(gate==='BLOCK')throw Error(`Package screening denied activation: ${computation.record.reason}`);
  }
  return withIndexLock(rootPath,async()=>{
   const index=await readPluginIndex(rootPath),parent=join(rootPath,verified.manifest.id),directory=join(parent,verified.manifest.version);await safeDirectory(parent,true);
