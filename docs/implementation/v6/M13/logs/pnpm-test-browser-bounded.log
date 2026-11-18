@@ -1,0 +1,1608 @@
+[bounded: head truncated]
+race.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22) tests/e2e/table-controls.spec.ts:244:1 › QA r1: an invalid neighbor does not disable following an unambiguous active row 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.task-table-scroll')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-table-scroll')[22m
+
+
+      246 |   const fixtureSpec = spec(); fixtureSpec.elements.table.props.changesBinding = 'changes';
+      247 |   const snapshot = taskFixture(fixtureSpec, { rows: data, changes: { rows: [] } }); snapshot.artifacts[0].placement = 'expanded';
+    > 248 |   const host = await serveTaskFixture(page, snapshot); await page.goto('/'); const region = page.locator('.task-table-scroll'); await expect(region).toBeVisible();
+          |                                                                                                                                                      ^
+      249 |   host.setInput('changes', { activeRowId: 'row-55', rows: [{ id: 'row-55', status: 'updated' }] }); await host.publish();
+      250 |   await expect(page.locator('[data-row-id="row-55"]')).toHaveAttribute('data-active', 'true');
+      251 |   await expect.poll(() => region.evaluate(node => node.scrollTop)).toBeGreaterThan(200);
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/table-controls.spec.ts:248:150
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/table-controls/artifacts/table-controls-QA-r1-an-in-e5d18-g-an-unambiguous-active-row/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/table-controls/artifacts/table-controls-QA-r1-an-in-e5d18-g-an-unambiguous-active-row/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  22 failed
+    tests/e2e/table-controls.spec.ts:30:1 › window blur cancels an active column resize ────────────
+    tests/e2e/table-controls.spec.ts:41:1 › resize anchors the grid until release, cancels, fits on double-click and obeys keyboard bounds 
+    tests/e2e/table-controls.spec.ts:60:1 › mouse reorder uses separate grip and drop marker, commits once and keeps selection and focus 
+    tests/e2e/table-controls.spec.ts:76:1 › keyboard reorder moves first data column, announces endpoints and keeps widths by key without animation 
+    tests/e2e/table-controls.spec.ts:87:1 › sort cycles numerically with one aria-sort and filter is literal, clearable and composition-safe 
+    tests/e2e/table-controls.spec.ts:102:1 › filters numeric cells by copied display text or plain digits 
+    tests/e2e/table-controls.spec.ts:116:1 › live rows and columns retain compatible settings; removing sorted column clears sort; remount resets controls 
+    tests/e2e/table-controls.spec.ts:130:59 › missing ids clear index selection on source reorder and local operations retain it 
+    tests/e2e/table-controls.spec.ts:130:59 › duplicate ids clear index selection on source reorder and local operations retain it 
+    tests/e2e/table-controls.spec.ts:137:1 › empty source retains headers, query and clear control; autofit includes hidden rows 
+    tests/e2e/table-controls.spec.ts:147:49 › inline overflow, forced colors, keyboard and 200% zoom in dark; capture 
+    tests/e2e/table-controls.spec.ts:147:49 › inline overflow, forced colors, keyboard and 200% zoom in light; capture 
+    tests/e2e/table-controls.spec.ts:161:1 › edge drag auto-scrolls and pointer cancellation does not commit either gesture 
+    tests/e2e/table-controls.spec.ts:174:1 › custom rowKey preserves selected rows and valid scroll offsets across local operations 
+    tests/e2e/table-controls.spec.ts:195:1 › live removal cancels a gesture and typed numeric values remain complete at their effective minimum 
+    tests/e2e/table-controls.spec.ts:207:1 › truncated repeated labels expose full text on focus and keep separate column keys 
+    tests/e2e/table-controls.spec.ts:216:1 › pointer resize tracks CSS widths at 200% zoom ─────────
+    tests/e2e/table-controls.spec.ts:224:86 › QA r1: missing ids retain per-row live changes and clear selection on source reorder 
+    tests/e2e/table-controls.spec.ts:224:86 › QA r1: duplicate ids retain per-row live changes and clear selection on source reorder 
+    tests/e2e/table-controls.spec.ts:224:86 › QA r1: invalid ids retain per-row live changes and clear selection on source reorder 
+    tests/e2e/table-controls.spec.ts:224:86 › QA r1: custom rowKey ids retain per-row live changes and clear selection on source reorder 
+    tests/e2e/table-controls.spec.ts:244:1 › QA r1: an invalid neighbor does not disable following an unambiguous active row 
+
+Browser suite: task-design (1 spec files)
+
+Running 6 tests using 1 worker
+
+  ✘  1 tests/e2e/task-design.spec.ts:8:46 › light selections are neutral while keyboard focus remains visible (8.0s)
+  ✘  2 tests/e2e/task-design.spec.ts:8:46 › dark selections are neutral while keyboard focus remains visible (8.7s)
+  ✘  3 tests/e2e/task-design.spec.ts:19:1 › statistics lead with the selected trend without repeating measurements in navigation (9.4s)
+  ✘  4 tests/e2e/task-design.spec.ts:29:1 › route geometry stays legible on the night map without a blue surface wash (7.4s)
+  ✘  5 tests/e2e/task-design.spec.ts:36:1 › an image keeps its native proportions beside taller adjustment controls (8.0s)
+  ✘  6 tests/e2e/task-design.spec.ts:44:1 › unclassified chart and progress data use neutral ink rather than an action color (8.3s)
+
+
+  1) tests/e2e/task-design.spec.ts:8:46 › light selections are neutral while keyboard focus remains visible 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.task-choice.is-selected')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-choice.is-selected')[22m
+
+
+       9 |  const snapshot=taskFixture(spec,{plans:choices},{choice:'local'});snapshot.settings.theme=theme;
+      10 |  await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 11 |  const selected=page.locator('.task-choice.is-selected');await expect(selected).toBeVisible();
+         |                                                                                 ^
+      12 |  const appearance=await selected.evaluate(node=>{const rgb=(value:string)=>value.match(/[\d.]+/g)!.slice(0,3).map(Number);return {background:rgb(getComputedStyle(node).backgroundColor),border:rgb(getComputedStyle(node).borderTopColor),canvas:rgb(getComputedStyle(document.body).backgroundColor)};});
+      13 |  for(const color of [appearance.background,appearance.border,appearance.canvas])expect(Math.max(...color)-Math.min(...color)).toBeLessThanOrEqual(2);
+      14 |  if(theme==='dark')expect(appearance.canvas).toEqual([0,0,0]);
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:11:81
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-light-selectio-b9ab7-board-focus-remains-visible/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-light-selectio-b9ab7-board-focus-remains-visible/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/task-design.spec.ts:8:46 › dark selections are neutral while keyboard focus remains visible 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.task-choice.is-selected')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-choice.is-selected')[22m
+
+
+       9 |  const snapshot=taskFixture(spec,{plans:choices},{choice:'local'});snapshot.settings.theme=theme;
+      10 |  await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 11 |  const selected=page.locator('.task-choice.is-selected');await expect(selected).toBeVisible();
+         |                                                                                 ^
+      12 |  const appearance=await selected.evaluate(node=>{const rgb=(value:string)=>value.match(/[\d.]+/g)!.slice(0,3).map(Number);return {background:rgb(getComputedStyle(node).backgroundColor),border:rgb(getComputedStyle(node).borderTopColor),canvas:rgb(getComputedStyle(document.body).backgroundColor)};});
+      13 |  for(const color of [appearance.background,appearance.border,appearance.canvas])expect(Math.max(...color)-Math.min(...color)).toBeLessThanOrEqual(2);
+      14 |  if(theme==='dark')expect(appearance.canvas).toEqual([0,0,0]);
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:11:81
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-dark-selection-65439-board-focus-remains-visible/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-dark-selection-65439-board-focus-remains-visible/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/task-design.spec.ts:19:1 › statistics lead with the selected trend without repeating measurements in navigation 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Selected statistic', exact: true })
+    Expected substring: [32m"184"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Selected statistic', exact: true })[22m
+
+
+      19 | test('statistics lead with the selected trend without repeating measurements in navigation',async({page})=>{
+      20 |  const snapshot=taskFixture({root:'stats',elements:{stats:{type:'Stats',props:{dataBinding:'metrics',stateKey:'metric'}}}},{metrics});const host=await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 21 |  await expect(page.getByRole('region',{name:'Selected statistic',exact:true})).toContainText('184');
+         |                                                                                ^
+      22 |  await expect(page.getByRole('tablist',{name:'Statistics',exact:true})).not.toContainText('184');
+      23 |  await expect(page.getByRole('img',{name:'Response time trend',exact:true})).toBeVisible();
+      24 |  await page.getByRole('tab',{name:'Requests',exact:true}).click();await expect.poll(()=>host.snapshot.userStates[0].values.metric).toBe('requests');
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:21:80
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-statistics-lea-45b6b--measurements-in-navigation/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-statistics-lea-45b6b--measurements-in-navigation/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/task-design.spec.ts:29:1 › route geometry stays legible on the night map without a blue surface wash 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.task-map-route')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-map-route')[22m
+
+
+      28 |
+      29 | test('route geometry stays legible on the night map without a blue surface wash',async({page})=>{
+    > 30 |  await serveTaskFixture(page,taskFixture(linkedMapSpec,{places:linkedMapData},{mapTheme:'night'}));await page.goto('/');await expect(page.locator('.task-map-route')).toBeVisible();
+         |                                                                                                                                                                       ^
+      31 |  const colors=await page.locator('.task-map').evaluate(node=>({route:getComputedStyle(node.querySelector('.task-map-route')!).stroke,land:getComputedStyle(node.querySelector('.map-land')!).fill,park:getComputedStyle(node.querySelector('.map-park')!).fill}));
+      32 |  const luminance=(color:string)=>color.match(/[\d.]+/g)!.slice(0,3).map(value=>{const x=Number(value)/255;return x<=.04045?x/12.92:((x+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);
+      33 |  const ink=luminance(colors.route);for(const background of [colors.land,colors.park]){const base=luminance(background);expect((Math.max(ink,base)+.05)/(Math.min(ink,base)+.05)).toBeGreaterThanOrEqual(3);}
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:30:167
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-route-geometry-340ad-without-a-blue-surface-wash/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-route-geometry-340ad-without-a-blue-surface-wash/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-route-geometry-340ad-without-a-blue-surface-wash/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/task-design.spec.ts:36:1 › an image keeps its native proportions beside taller adjustment controls 
+
+    Error: Timeout 5000ms exceeded while waiting on the predicate
+
+      38 |  await serveTaskFixture(page,taskFixture(spec,{parameters:{controls:Array.from({length:8},(_,index)=>({id:`size${index}`,label:`Dimension ${index+1}`,type:'number',value:1600,min:640,max:3840}))}}));
+      39 |  await page.route('**/api/resources/source/content',route=>route.fulfill({contentType:'image/svg+xml',body:'<svg xmlns="http://www.w3.org/2000/svg" width="960" height="600"><rect width="960" height="600" fill="#888"/></svg>'}));await page.goto('/');const image=page.getByAltText('Original image');
+    > 40 |  await expect.poll(()=>image.evaluate(node=>(node as HTMLImageElement).naturalWidth)).toBe(960);
+         |  ^
+      41 |  const box=(await image.boundingBox())!;expect(box.width/box.height).toBeCloseTo(960/600,2);
+      42 | });
+      43 |
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:40:2
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-an-image-keeps-3c217--taller-adjustment-controls/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-an-image-keeps-3c217--taller-adjustment-controls/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-an-image-keeps-3c217--taller-adjustment-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/task-design.spec.ts:44:1 › unclassified chart and progress data use neutral ink rather than an action color 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.chart rect').first()
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.chart rect').first()[22m
+
+
+      44 | test('unclassified chart and progress data use neutral ink rather than an action color',async({page})=>{
+      45 |  const spec:TaskSpec={root:'data',elements:{data:{type:'Stack',props:{},children:['chart','progress']},chart:{type:'Chart',props:{kind:'bar',rowsBinding:'rows',xKey:'name',yKey:'value'}},progress:{type:'Progress',props:{dataBinding:'progress',max:10}}}};
+    > 46 |  await serveTaskFixture(page,taskFixture(spec,{rows:[{name:'Before',value:3},{name:'After',value:8}],progress:6}));await page.goto('/');await expect(page.locator('.chart rect').first()).toBeVisible();
+         |                                                                                                                                                                                           ^
+      47 |  const colors=await page.locator('.chart rect').evaluateAll(nodes=>nodes.map(node=>getComputedStyle(node).fill));
+      48 |  for(const value of colors){const rgb=value.match(/[\d.]+/g)!.slice(0,3).map(Number);expect(Math.max(...rgb)-Math.min(...rgb)).toBeLessThanOrEqual(2);}
+      49 | });
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-design.spec.ts:46:187
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-unclassified-c-98650-rather-than-an-action-color/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-design/artifacts/task-design-unclassified-c-98650-rather-than-an-action-color/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6 failed
+    tests/e2e/task-design.spec.ts:8:46 › light selections are neutral while keyboard focus remains visible 
+    tests/e2e/task-design.spec.ts:8:46 › dark selections are neutral while keyboard focus remains visible 
+    tests/e2e/task-design.spec.ts:19:1 › statistics lead with the selected trend without repeating measurements in navigation 
+    tests/e2e/task-design.spec.ts:29:1 › route geometry stays legible on the night map without a blue surface wash 
+    tests/e2e/task-design.spec.ts:36:1 › an image keeps its native proportions beside taller adjustment controls 
+    tests/e2e/task-design.spec.ts:44:1 › unclassified chart and progress data use neutral ink rather than an action color 
+
+Browser suite: task-interface (1 spec files)
+
+Running 7 tests using 1 worker
+
+  ✘  1 tests/e2e/task-interface.spec.ts:6:1 › vertical history and horizontal lanes are distinct accessible source views (10.2s)
+  ✘  2 tests/e2e/task-interface.spec.ts:26:1 › progressive Q&A keeps branches, edit identity and focus while deduplicating pending actions (33.8s)
+  ✓  3 tests/e2e/task-interface.spec.ts:82:1 › a pending question cannot duplicate or erase a newer draft and source errors can retry (23.0s)
+  ✓  4 tests/e2e/task-interface.spec.ts:106:1 › a differently worded nested composition uses the same registry without scenario routing (17.8s)
+  ✘  5 tests/e2e/task-interface.spec.ts:125:1 › a linked map retains selected source identity through themes and sends a scoped feedback action (7.4s)
+  ✘  6 tests/e2e/task-interface.spec.ts:147:1 › an explicitly expanded table follows accepted changes locally until the user takes over (7.5s)
+  -  7 tests/e2e/task-interface.spec.ts:165:1 › capture one batched desktop, narrow and theme inspection of reusable task surfaces
+
+
+  1) tests/e2e/task-interface.spec.ts:6:1 › vertical history and horizontal lanes are distinct accessible source views 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.task-graph')
+    Expected: [32m"vertical"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-graph')[22m
+
+
+       7 |   const fixture = await serveTaskFixture(page, taskFixture(branchGraphSpec('vertical'), { graph: branchGraphData }));
+       8 |   await page.goto('/');
+    >  9 |   await expect(page.locator('.task-graph')).toHaveAttribute('data-orientation', 'vertical');
+         |                                             ^
+      10 |   await expect(page.locator('.task-node-hash').first()).toHaveText('7fe91ac');
+      11 |   await page.getByRole('button', { name: /Keep retries ordered/ }).focus();
+      12 |   await expect(page.getByRole('tooltip').filter({ hasText: 'Current' })).toBeVisible();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-interface.spec.ts:9:45
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-vertical-hi-f897e-nct-accessible-source-views/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-vertical-hi-f897e-nct-accessible-source-views/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/task-interface.spec.ts:26:1 › progressive Q&A keeps branches, edit identity and focus while deduplicating pending actions 
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveValue[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  getByRole('textbox', { name: 'Destination note' })
+    Expected: [32m"Keep the labels separate"[39m
+    Received: [31m""[39m
+
+    Call log:
+    [2m  - Expect "toHaveValue" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('textbox', { name: 'Destination note' })[22m
+
+
+      53 |   await expect(page.getByText('Yes. Choose a destination for each package before confirming.', { exact: true })).toBeVisible();
+      54 |   await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveAttribute('data-identity', identity!);
+    > 55 |   await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveValue('Keep the labels separate');
+         |                                                                         ^
+      56 |   await page.getByRole('button', { name: 'Can each destination use a different date?' }).click();
+      57 |   await page.getByRole('button', { name: 'Where can I see the final fee?' }).click();
+      58 |   await expect(page.getByText('Yes, choose a date for each destination before confirming.')).toBeVisible();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-interface.spec.ts:55:73
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-progressive-ace34-duplicating-pending-actions/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-progressive-ace34-duplicating-pending-actions/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-progressive-ace34-duplicating-pending-actions/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/task-interface.spec.ts:125:1 › a linked map retains selected source identity through themes and sends a scoped feedback action 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.task-map')
+    Expected: visible
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-map')[22m
+
+
+      125 | test('a linked map retains selected source identity through themes and sends a scoped feedback action', async ({ page }) => {
+      126 |   const fixture = await serveTaskFixture(page, taskFixture(linkedMapSpec, { places: linkedMapData })); await page.goto('/');
+    > 127 |   await expect(page.locator('.task-map')).toBeVisible();
+          |                                           ^
+      128 |   await page.getByRole('button', { name: 'Select Ceramics room', exact: true }).click();
+      129 |   await expect(page.getByRole('region', { name: 'Selected place' })).toContainText('3 Garden Lane');
+      130 |   await page.getByRole('button', { name: 'Night', exact: true }).click();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-interface.spec.ts:127:43
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-a-linked-ma-faed0-ds-a-scoped-feedback-action/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-a-linked-ma-faed0-ds-a-scoped-feedback-action/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-a-linked-ma-faed0-ds-a-scoped-feedback-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/task-interface.spec.ts:147:1 › an explicitly expanded table follows accepted changes locally until the user takes over 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('td[data-change="updated"]')
+    Expected: [32m"null"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('td[data-change="updated"]')[22m
+
+
+      150 |   snapshot.artifacts[0].placement='expanded';
+      151 |   const fixture = await serveTaskFixture(page, snapshot); await page.goto('/');
+    > 152 |   await expect(page.locator('td[data-change="updated"]')).toHaveAttribute('data-before', 'null');
+          |                                                           ^
+      153 |   const pageScroll = await page.locator('.conversation-scroll').evaluate(node => node.scrollTop);
+      154 |   fixture.setInput('changes', { revision: 2, activeRowId: 'row-35', rows: [{ id: 'row-35', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }] }); await fixture.publish();
+      155 |   await expect.poll(() => page.locator('.task-table-scroll').first().evaluate(node => node.scrollTop)).toBeGreaterThan(200);
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/task-interface.spec.ts:152:59
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-an-explicit-29dad-y-until-the-user-takes-over/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-an-explicit-29dad-y-until-the-user-takes-over/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/task-interface/artifacts/task-interface-an-explicit-29dad-y-until-the-user-takes-over/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    tests/e2e/task-interface.spec.ts:6:1 › vertical history and horizontal lanes are distinct accessible source views 
+    tests/e2e/task-interface.spec.ts:26:1 › progressive Q&A keeps branches, edit identity and focus while deduplicating pending actions 
+    tests/e2e/task-interface.spec.ts:125:1 › a linked map retains selected source identity through themes and sends a scoped feedback action 
+    tests/e2e/task-interface.spec.ts:147:1 › an explicitly expanded table follows accepted changes locally until the user takes over 
+  1 skipped
+  2 passed (2.5m)
+
+Browser suite: ui-shell-controls (1 spec files)
+
+Running 19 tests using 1 worker
+
+  ✘   1 tests/e2e/ui-shell-controls.spec.ts:14:1 › required validation retains visible focus and blocks submission until corrected (9ms)
+  ✘   2 tests/e2e/ui-shell-controls.spec.ts:26:1 › a stale required Select never submits a hidden fallback choice (24ms)
+  ✘   3 tests/e2e/ui-shell-controls.spec.ts:44:1 › shared Select preserves caller-owned invalid feedback for an otherwise valid choice (35ms)
+  ✘   4 tests/e2e/ui-shell-controls.spec.ts:49:1 › a fieldset disabling an open Select closes it and blocks a queued selection (15ms)
+  ✘   5 tests/e2e/ui-shell-controls.spec.ts:59:1 › a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling (27ms)
+  ✘   6 tests/e2e/ui-shell-controls.spec.ts:76:1 › Panels supports keyboard typeahead, invokes the existing tool owner and returns focus (73ms)
+  ✘   7 tests/e2e/ui-shell-controls.spec.ts:91:1 › Select skips disabled choices, preserves form name/disabled semantics and resets to its initial value (11ms)
+  ✘   8 tests/e2e/ui-shell-controls.spec.ts:113:1 › menu arrows wrap enabled rows, typeahead and checkbox selection do not submit a form (41ms)
+  ✘   9 tests/e2e/ui-shell-controls.spec.ts:129:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time (18ms)
+  ✘  10 tests/e2e/ui-shell-controls.spec.ts:155:1 › modal Shift+Tab wraps past rendered but unavailable controls (15ms)
+  ✘  11 tests/e2e/ui-shell-controls.spec.ts:183:1 › Tab leaves a popup for the next field and outside focus does not get stolen (36ms)
+  ✘  12 tests/e2e/ui-shell-controls.spec.ts:196:1 › IME legacy keycode cannot dismiss Select or ActionMenu (31ms)
+  ✘  13 tests/e2e/ui-shell-controls.spec.ts:209:1 › disabling an open Select closes it through re-enabling (39ms)
+  ✘  14 tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in dark (18ms)
+  ✘  15 tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light (75ms)
+  ✘  16 tests/e2e/ui-shell-controls.spec.ts:239:1 › a large selected catalog is visible on the first modal popup frame in a short window (28ms)
+  ✘  17 tests/e2e/ui-shell-controls.spec.ts:262:1 › the actual resource selector renders first-party options and retains its value/callback (31ms)
+  ✘  18 tests/e2e/ui-shell-controls.spec.ts:273:1 › Panels failures stay visible and Layouts keeps its saved-layout controls (14ms)
+  ✘  19 tests/e2e/ui-shell-controls.spec.ts:285:1 › Panels fits a short window with a visible scrollbar and reachable last action (28ms)
+
+
+  1) tests/e2e/ui-shell-controls.spec.ts:14:1 › required validation retains visible focus and blocks submission until corrected 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-required-810f3--submission-until-corrected/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-required-810f3--submission-until-corrected/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/ui-shell-controls.spec.ts:26:1 › a stale required Select never submits a hidden fallback choice 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-stale--70180-ts-a-hidden-fallback-choice/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-stale--70180-ts-a-hidden-fallback-choice/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/ui-shell-controls.spec.ts:44:1 › shared Select preserves caller-owned invalid feedback for an otherwise valid choice 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-shared-S-03b6c-r-an-otherwise-valid-choice/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-shared-S-03b6c-r-an-otherwise-valid-choice/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/ui-shell-controls.spec.ts:49:1 › a fieldset disabling an open Select closes it and blocks a queued selection 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-fields-52aeb-d-blocks-a-queued-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-fields-52aeb-d-blocks-a-queued-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/ui-shell-controls.spec.ts:59:1 › a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-fields-df409--closes-through-re-enabling/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-fields-df409--closes-through-re-enabling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/ui-shell-controls.spec.ts:76:1 › Panels supports keyboard typeahead, invokes the existing tool owner and returns focus 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-s-397e7-ool-owner-and-returns-focus/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-s-397e7-ool-owner-and-returns-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/ui-shell-controls.spec.ts:91:1 › Select skips disabled choices, preserves form name/disabled semantics and resets to its initial value 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Select-s-1122f-resets-to-its-initial-value/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Select-s-1122f-resets-to-its-initial-value/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/ui-shell-controls.spec.ts:113:1 › menu arrows wrap enabled rows, typeahead and checkbox selection do not submit a form 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-menu-arr-48103-ection-do-not-submit-a-form/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-menu-arr-48103-ection-do-not-submit-a-form/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/ui-shell-controls.spec.ts:129:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-IME-keys-c84fb-unwinds-one-layer-at-a-time/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-IME-keys-c84fb-unwinds-one-layer-at-a-time/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/ui-shell-controls.spec.ts:155:1 › modal Shift+Tab wraps past rendered but unavailable controls 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-modal-Sh-a77e9-ed-but-unavailable-controls/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-modal-Sh-a77e9-ed-but-unavailable-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/ui-shell-controls.spec.ts:183:1 › Tab leaves a popup for the next field and outside focus does not get stolen 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Tab-leav-03061-e-focus-does-not-get-stolen/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Tab-leav-03061-e-focus-does-not-get-stolen/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/ui-shell-controls.spec.ts:196:1 › IME legacy keycode cannot dismiss Select or ActionMenu 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-IME-lega-bc4ed-ismiss-Select-or-ActionMenu/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-IME-lega-bc4ed-ismiss-Select-or-ActionMenu/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/ui-shell-controls.spec.ts:209:1 › disabling an open Select closes it through re-enabling 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-disablin-0043f-oses-it-through-re-enabling/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-disablin-0043f-oses-it-through-re-enabling/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in dark 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-selected-312cb-th-spaced-32px-rows-in-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-selected-312cb-th-spaced-32px-rows-in-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-selected-90f64-h-spaced-32px-rows-in-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-selected-90f64-h-spaced-32px-rows-in-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) tests/e2e/ui-shell-controls.spec.ts:239:1 › a large selected catalog is visible on the first modal popup frame in a short window 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-large--765a0-pup-frame-in-a-short-window/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-a-large--765a0-pup-frame-in-a-short-window/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) tests/e2e/ui-shell-controls.spec.ts:262:1 › the actual resource selector renders first-party options and retains its value/callback 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-the-actu-1994b--retains-its-value-callback/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-the-actu-1994b--retains-its-value-callback/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) tests/e2e/ui-shell-controls.spec.ts:273:1 › Panels failures stay visible and Layouts keeps its saved-layout controls 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-079f7-s-its-saved-layout-controls/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-079f7-s-its-saved-layout-controls/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19) tests/e2e/ui-shell-controls.spec.ts:285:1 › Panels fits a short window with a visible scrollbar and reachable last action 
+
+    Error: browserType.launch: Chromium distribution 'msedge' is not found at /opt/microsoft/msedge/msedge
+    Run "pnpm exec playwright install msedge"
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-e04df-r-and-reachable-last-action/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/ui-shell-controls/artifacts/ui-shell-controls-Panels-f-e04df-r-and-reachable-last-action/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  19 failed
+    tests/e2e/ui-shell-controls.spec.ts:14:1 › required validation retains visible focus and blocks submission until corrected 
+    tests/e2e/ui-shell-controls.spec.ts:26:1 › a stale required Select never submits a hidden fallback choice 
+    tests/e2e/ui-shell-controls.spec.ts:44:1 › shared Select preserves caller-owned invalid feedback for an otherwise valid choice 
+    tests/e2e/ui-shell-controls.spec.ts:49:1 › a fieldset disabling an open Select closes it and blocks a queued selection 
+    tests/e2e/ui-shell-controls.spec.ts:59:1 › a fieldset disabling an open ActionMenu blocks queued actions and closes through re-enabling 
+    tests/e2e/ui-shell-controls.spec.ts:76:1 › Panels supports keyboard typeahead, invokes the existing tool owner and returns focus 
+    tests/e2e/ui-shell-controls.spec.ts:91:1 › Select skips disabled choices, preserves form name/disabled semantics and resets to its initial value 
+    tests/e2e/ui-shell-controls.spec.ts:113:1 › menu arrows wrap enabled rows, typeahead and checkbox selection do not submit a form 
+    tests/e2e/ui-shell-controls.spec.ts:129:1 › IME keys leave menu selection and modal ownership unchanged, then Escape unwinds one layer at a time 
+    tests/e2e/ui-shell-controls.spec.ts:155:1 › modal Shift+Tab wraps past rendered but unavailable controls 
+    tests/e2e/ui-shell-controls.spec.ts:183:1 › Tab leaves a popup for the next field and outside focus does not get stolen 
+    tests/e2e/ui-shell-controls.spec.ts:196:1 › IME legacy keycode cannot dismiss Select or ActionMenu 
+    tests/e2e/ui-shell-controls.spec.ts:209:1 › disabling an open Select closes it through re-enabling 
+    tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in dark 
+    tests/e2e/ui-shell-controls.spec.ts:220:40 › selected, hovered and focused states stay distinct with spaced 32px rows in light 
+    tests/e2e/ui-shell-controls.spec.ts:239:1 › a large selected catalog is visible on the first modal popup frame in a short window 
+    tests/e2e/ui-shell-controls.spec.ts:262:1 › the actual resource selector renders first-party options and retains its value/callback 
+    tests/e2e/ui-shell-controls.spec.ts:273:1 › Panels failures stay visible and Layouts keeps its saved-layout controls 
+    tests/e2e/ui-shell-controls.spec.ts:285:1 › Panels fits a short window with a visible scrollbar and reachable last action 
+
+Browser suite: usage-context (1 spec files)
+
+Running 39 tests using 1 worker
+
+  ✘   1 tests/e2e/usage-context.spec.ts:22:1 › verification hides previous-owner evidence while the newly selected conversation loads (7.2s)
+  ✓   2 tests/e2e/usage-context.spec.ts:34:1 › verification rereads a revisited conversation before displaying its previous evidence (4.9s)
+  ✓   3 tests/e2e/usage-context.spec.ts:50:1 › verification refresh failure removes the current-success label and reports unavailable evidence (7.1s)
+  ✓   4 tests/e2e/usage-context.spec.ts:63:1 › verification does not overlap polling reads or replace newer evidence with an older response (4.5s)
+  ✓   5 tests/e2e/usage-context.spec.ts:83:1 › verification does not color a historical pass green when freshness is indeterminate (4.6s)
+  ✓   6 tests/e2e/usage-context.spec.ts:107:1 › verification opens bounded retained logs as text and a screenshot at its captured viewport (6.3s)
+  ✓   7 tests/e2e/usage-context.spec.ts:125:1 › verification discards a late artifact read after another retained reference is selected (6.9s)
+  ✓   8 tests/e2e/usage-context.spec.ts:140:1 › verification reports an unavailable retained artifact without rendering its bytes (5.3s)
+  ✓   9 tests/e2e/usage-context.spec.ts:150:1 › verification check details preserve exact arguments, execution identities and historical outcome (6.5s)
+  ✓  10 tests/e2e/usage-context.spec.ts:171:1 › verification shows browser expected and observed fields with null exit and screenshot identities (4.5s)
+  ✓  11 tests/e2e/usage-context.spec.ts:187:1 › verification keeps one check bound to two requirements independently addressable (4.5s)
+  ✓  12 tests/e2e/usage-context.spec.ts:200:1 › verification expansion keeps the composer reachable in a short canvas (9.1s)
+  ✓  13 tests/e2e/usage-context.spec.ts:225:40 › verification stays inside a narrow window with keyboard scrolling and wrapped details in dark (8.6s)
+  ✓  14 tests/e2e/usage-context.spec.ts:225:40 › verification stays inside a narrow window with keyboard scrolling and wrapped details in light (6.5s)
+  ✓  15 tests/e2e/usage-context.spec.ts:248:1 › a token decrease after a command acknowledgement is not a compaction receipt (3.4s)
+  ✓  16 tests/e2e/usage-context.spec.ts:256:1 › a compaction error does not follow a different thread or session (9.7s)
+  ✓  17 tests/e2e/usage-context.spec.ts:264:1 › a late failure from a prior session cannot update the newly selected context (6.2s)
+  ✓  18 tests/e2e/usage-context.spec.ts:273:1 › context takes keyboard focus on reveal and protects IME Escape before restoring its trigger (5.0s)
+  ✓  19 tests/e2e/usage-context.spec.ts:278:1 › first reveal in a short window clears native caption chrome and all viewport edges (3.3s)
+  ✓  20 tests/e2e/usage-context.spec.ts:285:1 › Requests lists measured requests with stage timings, and absent fields stay unknown (9.9s)
+  ✓  21 tests/e2e/usage-context.spec.ts:300:40 › request outcomes keep fixed semantic colors in dark: completed green, failed red, cancelled neutral (T14/R17) (2.1s)
+  ✓  22 tests/e2e/usage-context.spec.ts:300:40 › request outcomes keep fixed semantic colors in light: completed green, failed red, cancelled neutral (T14/R17) (3.5s)
+  ✓  23 tests/e2e/usage-context.spec.ts:313:1 › Usage has separate Cost, Tokens and Limits with exact reported data and per-metric unknowns (3.1s)
+  ✓  24 tests/e2e/usage-context.spec.ts:322:1 › accepted receipt needs exact ownership; measured freed count is optional and reset on restart (6.4s)
+  ✓  25 tests/e2e/usage-context.spec.ts:329:1 › reported segments fit their capacity track without cumulative separator overflow (2.9s)
+  ✓  26 tests/e2e/usage-context.spec.ts:335:1 › pending sweep is actual-pending only and stopped state is not accepted success (2.1s)
+  ✘  27 tests/e2e/usage-context.spec.ts:341:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work (6.3s)
+  ✓  28 tests/e2e/usage-context.spec.ts:351:1 › unknown and invalid category measurements never retain stale values (4.6s)
+  ✘  29 tests/e2e/usage-context.spec.ts:356:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection (16.8s)
+  ✘  30 tests/e2e/usage-context.spec.ts:369:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state (9.4s)
+  ✘  31 tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow dark (10.8s)
+  ✘  32 tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow light (8.0s)
+  ✓  33 tests/e2e/usage-context.spec.ts:389:40 › context category overflow and details stay reachable in dark (7.2s)
+  ✓  34 tests/e2e/usage-context.spec.ts:389:40 › context category overflow and details stay reachable in light (6.1s)
+  ✓  35 tests/e2e/usage-context.spec.ts:403:1 › accepted transition uses reference timing; reduced motion suppresses travel and sweep (5.4s)
+  ✓  36 tests/e2e/usage-context.spec.ts:415:1 › optional summary keeps whole-header disclosure and opens the same Usage through its independent body action (7.9s)
+  ✓  37 tests/e2e/usage-context.spec.ts:422:1 › invalidating a receipt ends accepted motion immediately and after its timer deadline (4.2s)
+  ✓  38 tests/e2e/usage-context.spec.ts:432:1 › last request shows observed broker bytes, then drops them on a new epoch (11.5s)
+  ✘  39 tests/e2e/usage-context.spec.ts:456:1 › Requests can filter measured providers even when no usage report exists (6.0s)
+
+
+  1) tests/e2e/usage-context.spec.ts:22:1 › verification hides previous-owner evidence while the newly selected conversation loads 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoContainText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: getByRole('region', { name: 'Verification', exact: true })
+    Expected substring: [32m"Private first requirement"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toContainText" with timeout 5000ms[22m
+    [2m  - waiting for getByRole('region', { name: 'Verification', exact: true })[22m
+
+
+      25 |   await page.route('**/api/threads/thread-two/verification', route => {release = () => route.fulfill({json: verificationResult('Second requirement')});});
+      26 |   await page.goto('/usage-context?verification');
+    > 27 |   await expect(verification(page)).toContainText('Private first requirement');
+         |                                    ^
+      28 |   await page.getByRole('button', {name: 'Second conversation', exact: true}).click();
+      29 |   await expect.poll(() => Boolean(release)).toBe(true);
+      30 |   await expect(page.getByText('Private first requirement', {exact: true})).toHaveCount(0);
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:27:36
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-verification-15cce-selected-conversation-loads/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-verification-15cce-selected-conversation-loads/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-verification-15cce-selected-conversation-loads/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/usage-context.spec.ts:341:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('html')
+    Expected: [32m"true"[39m
+    Received: [31m""[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('html')[22m
+    [2m    8 × locator resolved to <html data-theme="dark" data-native-titlebar="true">…</html>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      4 | const fixture = '/@fs/' + resolve('tests/e2e/usage-context-fixture.tsx').replaceAll('\\', '/');
+      5 | const update = async (page: Page, action: string) => {
+    > 6 |   await expect(page.locator('html')).toHaveAttribute('data-usage-fixture-ready', 'true');
+        |                                      ^
+      7 |   await page.evaluate(value => window.dispatchEvent(new CustomEvent('usage-fixture', { detail: value })), action);
+      8 | };
+      9 | const context = (page: Page) => page.getByRole('dialog', { name: 'Context inspector' });
+        at update (/home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:6:38)
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:342:44
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-reported-cat-7c3f8--IME-and-nested-Escape-work/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/usage-context.spec.ts:356:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection 
+
+    [31mTest timeout of 15000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 15000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('dialog', { name: 'Usage', exact: true }).getByRole('combobox', { name: 'Usage scope', exact: true })[22m
+    [2m    - locator resolved to <button type="button" role="combobox" aria-expanded="false" aria-haspopup="listbox" aria-label="Usage scope" class="ui-select-trigger">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    - waiting for element to be visible, enabled and stable[22m
+    [2m    - element is visible, enabled and stable[22m
+    [2m    - scrolling into view if needed[22m
+    [2m    - done scrolling[22m
+
+
+      358 |   await usage(page).getByRole('tab', { name: 'Tokens', exact: true }).focus(); await page.keyboard.press('ArrowRight');
+      359 |   await expect(usage(page).getByRole('tab', { name: 'Limits', exact: true })).toHaveAttribute('aria-selected', 'true');
+    > 360 |   await usage(page).getByRole('combobox', { name: 'Usage scope', exact: true }).click();
+          |                                                                                 ^
+      361 |   const list = usage(page).getByRole('listbox', { name: 'Usage scope', exact: true }); await expect(list).toBeVisible();
+      362 |   await list.getByRole('option', { name: 'Synthetic Alpha', exact: true }).click();
+      363 |   await usage(page).getByRole('button', { name: 'Refresh usage', exact: true }).click();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:360:81
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-scope-provid-aa06b-preserves-tab-and-selection/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/usage-context.spec.ts:369:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('html')
+    Expected: [32m"true"[39m
+    Received: [31m""[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('html')[22m
+    [2m    6 × locator resolved to <html data-theme="dark" data-native-titlebar="true">…</html>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      4 | const fixture = '/@fs/' + resolve('tests/e2e/usage-context-fixture.tsx').replaceAll('\\', '/');
+      5 | const update = async (page: Page, action: string) => {
+    > 6 |   await expect(page.locator('html')).toHaveAttribute('data-usage-fixture-ready', 'true');
+        |                                      ^
+      7 |   await page.evaluate(value => window.dispatchEvent(new CustomEvent('usage-fixture', { detail: value })), action);
+      8 | };
+      9 | const context = (page: Page) => page.getByRole('dialog', { name: 'Context inspector' });
+        at update (/home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:6:38)
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:370:44
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-loading-empt-d9ca2-rve-honest-per-metric-state/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-loading-empt-d9ca2-rve-honest-per-metric-state/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      384 |   const bounds = (await modal.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(8); expect(bounds.y).toBeGreaterThanOrEqual(50);
+      385 |   expect(bounds.x + bounds.width).toBeLessThanOrEqual(332); expect(bounds.y + bounds.height).toBeLessThanOrEqual(312);
+    > 386 |   expect(await modal.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+          |                                                                              ^
+      387 |   await page.screenshot({ path: info.outputPath(`usage-${theme}-short.png`) });
+      388 | });
+      389 | for (const theme of ['dark', 'light']) test(`context category overflow and details stay reachable in ${theme}`, async ({ page }, info) => {
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:386:78
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-9f6c8-ws-scroll-short-narrow-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBe[2m([22m[32mexpected[39m[2m) // Object.is equality[22m
+
+    Expected: [32mtrue[39m
+    Received: [31mfalse[39m
+
+      384 |   const bounds = (await modal.boundingBox())!; expect(bounds.x).toBeGreaterThanOrEqual(8); expect(bounds.y).toBeGreaterThanOrEqual(50);
+      385 |   expect(bounds.x + bounds.width).toBeLessThanOrEqual(332); expect(bounds.y + bounds.height).toBeLessThanOrEqual(312);
+    > 386 |   expect(await modal.evaluate(node => node.scrollWidth <= node.clientWidth)).toBe(true);
+          |                                                                              ^
+      387 |   await page.screenshot({ path: info.outputPath(`usage-${theme}-short.png`) });
+      388 | });
+      389 | for (const theme of ['dark', 'light']) test(`context category overflow and details stay reachable in ${theme}`, async ({ page }, info) => {
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:386:78
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-overflow-kee-2773d-s-scroll-short-narrow-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/usage-context.spec.ts:456:1 › Requests can filter measured providers even when no usage report exists 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveAttribute[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('html')
+    Expected: [32m"true"[39m
+    Received: [31m""[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveAttribute" with timeout 5000ms[22m
+    [2m  - waiting for locator('html')[22m
+    [2m    7 × locator resolved to <html data-theme="dark" data-native-titlebar="true">…</html>[22m
+    [2m      - unexpected value "null"[22m
+
+
+      4 | const fixture = '/@fs/' + resolve('tests/e2e/usage-context-fixture.tsx').replaceAll('\\', '/');
+      5 | const update = async (page: Page, action: string) => {
+    > 6 |   await expect(page.locator('html')).toHaveAttribute('data-usage-fixture-ready', 'true');
+        |                                      ^
+      7 |   await page.evaluate(value => window.dispatchEvent(new CustomEvent('usage-fixture', { detail: value })), action);
+      8 | };
+      9 | const context = (page: Page) => page.getByRole('dialog', { name: 'Context inspector' });
+        at update (/home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:6:38)
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/usage-context.spec.ts:457:53
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-Requests-can-dfc5d-when-no-usage-report-exists/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-Requests-can-dfc5d-when-no-usage-report-exists/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/usage-context/artifacts/usage-context-Requests-can-dfc5d-when-no-usage-report-exists/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    tests/e2e/usage-context.spec.ts:22:1 › verification hides previous-owner evidence while the newly selected conversation loads 
+    tests/e2e/usage-context.spec.ts:341:1 › reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work 
+    tests/e2e/usage-context.spec.ts:356:1 › scope/provider filters remain in the owning modal and refresh preserves tab and selection 
+    tests/e2e/usage-context.spec.ts:369:1 › loading, empty, provider failure and refresh failure preserve honest per-metric state 
+    tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow dark 
+    tests/e2e/usage-context.spec.ts:377:40 › overflow keeps header fixed, rows scroll, short/narrow light 
+    tests/e2e/usage-context.spec.ts:456:1 › Requests can filter measured providers even when no usage report exists 
+  32 passed (5.1m)
+
+Browser suite: wo8 (1 spec files)
+
+Running 24 tests using 1 worker
+
+  ✘   1 tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1440 (37.9s)
+  ✓   2 tests/e2e/wo8.spec.ts:27:3 › usage and context dark 1440 (16.2s)
+  ✓   3 tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1024 (16.0s)
+  ✓   4 tests/e2e/wo8.spec.ts:27:3 › usage and context dark 1024 (6.9s)
+  ✓   5 tests/e2e/wo8.spec.ts:11:3 › thread diff light 1440 (16.0s)
+  ✓   6 tests/e2e/wo8.spec.ts:27:3 › usage and context light 1440 (7.8s)
+  ✘   7 tests/e2e/wo8.spec.ts:11:3 › thread diff light 1024 (22.3s)
+  ✓   8 tests/e2e/wo8.spec.ts:27:3 › usage and context light 1024 (11.0s)
+  ✓   9 tests/e2e/wo8.spec.ts:55:3 › right-aligned stats and full-width numeric tables dark (11.6s)
+  ✓  10 tests/e2e/wo8.spec.ts:98:3 › rendered semantic pairs pass AA dark (6.4s)
+  ✓  11 tests/e2e/wo8.spec.ts:55:3 › right-aligned stats and full-width numeric tables light (8.7s)
+  ✓  12 tests/e2e/wo8.spec.ts:98:3 › rendered semantic pairs pass AA light (6.6s)
+  ✘  13 tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers dark (9.4s)
+  ✘  14 tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light (9.2s)
+  ✘  15 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1440 (10.0s)
+  ✘  16 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1024 (9.3s)
+  ✘  17 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 768 (10.6s)
+  ✘  18 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 (13.3s)
+  ✘  19 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 (8.9s)
+  ✘  20 tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 768 (10.5s)
+  ✘  21 tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering dark (24.5s)
+  ✘  22 tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit dark (9.2s)
+  ✘  23 tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light (24.5s)
+  ✘  24 tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light (9.0s)
+
+
+  1) tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1440 ────────────────────────────────────────────
+
+    [31mTest timeout of 30000ms exceeded.[39m
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.diff')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for locator('.diff')[22m
+
+
+      18 |     snapshot.messages.unshift({ ...snapshot.messages[0], id: 'question', role: 'user', content: 'Review the workspace changes.' });
+      19 |     await serveTaskFixture(page, snapshot); await page.goto('/');
+    > 20 |     await expect(page.locator('.diff')).toBeVisible({timeout:15000});
+         |                                         ^
+      21 |     if(stage==='after'){
+      22 |       await expect(page.locator('.message-role')).toHaveCount(0);
+      23 |       for(const name of ['diff','files']){const link=page.locator('.message-assistant').getByRole('link',{name,exact:true});await expect(link).toHaveAttribute('href',`#${name}`);await expect(link).toHaveCSS('text-decoration-line','underline');}
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:20:41
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-dark-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) tests/e2e/wo8.spec.ts:11:3 › thread diff light 1024 ───────────────────────────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeVisible[2m([22m[2m)[22m failed
+
+    Locator: locator('.diff')
+    Expected: visible
+    Timeout: 15000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toBeVisible" with timeout 15000ms[22m
+    [2m  - waiting for locator('.diff')[22m
+
+
+      18 |     snapshot.messages.unshift({ ...snapshot.messages[0], id: 'question', role: 'user', content: 'Review the workspace changes.' });
+      19 |     await serveTaskFixture(page, snapshot); await page.goto('/');
+    > 20 |     await expect(page.locator('.diff')).toBeVisible({timeout:15000});
+         |                                         ^
+      21 |     if(stage==='after'){
+      22 |       await expect(page.locator('.message-role')).toHaveCount(0);
+      23 |       for(const name of ['diff','files']){const link=page.locator('.message-assistant').getByRole('link',{name,exact:true});await expect(link).toHaveAttribute('href',`#${name}`);await expect(link).toHaveCSS('text-decoration-line','underline');}
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:20:41
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-light-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-light-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-thread-diff-light-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers dark ───────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.task-table td.number')
+    Expected: [32m"123,456,789,012,345"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-table td.number')[22m
+
+
+      115 |   const snapshot=taskFixture({root:'records',elements:{records:{type:'Table',props:{rowsBinding:'records',columns:[{key:'label',label:'Source record'},{key:'value',label:'Reported count',type:'number'},{key:'code',label:'Code'}]}}}}, {records:[{label:'Source record with a long label',value:123456789012345,code:'00123456789'}]});
+      116 |   snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 117 |   const value=page.locator('.task-table td.number');await expect(value).toHaveText('123,456,789,012,345');await expect(value).toHaveCSS('white-space','nowrap');
+          |                                                                         ^
+      118 |   const scroll=page.locator('.task-table-scroll');await expect.poll(()=>scroll.evaluate(element=>element.scrollWidth>element.clientWidth)).toBe(true);await expect(scroll).toHaveAttribute('tabindex','0');await scroll.focus();await expect(scroll).toBeFocused();
+      119 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      120 | });
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:117:73
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light ──────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.task-table td.number')
+    Expected: [32m"123,456,789,012,345"[39m
+    Timeout: 5000ms
+    Error: element(s) not found
+
+    Call log:
+    [2m  - Expect "toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-table td.number')[22m
+
+
+      115 |   const snapshot=taskFixture({root:'records',elements:{records:{type:'Table',props:{rowsBinding:'records',columns:[{key:'label',label:'Source record'},{key:'value',label:'Reported count',type:'number'},{key:'code',label:'Code'}]}}}}, {records:[{label:'Source record with a long label',value:123456789012345,code:'00123456789'}]});
+      116 |   snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 117 |   const value=page.locator('.task-table td.number');await expect(value).toHaveText('123,456,789,012,345');await expect(value).toHaveCSS('white-space','nowrap');
+          |                                                                         ^
+      118 |   const scroll=page.locator('.task-table-scroll');await expect.poll(()=>scroll.evaluate(element=>element.scrollWidth>element.clientWidth)).toBe(true);await expect(scroll).toHaveAttribute('tabindex','0');await scroll.focus();await expect(scroll).toBeFocused();
+      119 |   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+      120 | });
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:117:73
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-inline-numeric-table-preserves-full-numbers-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1440 ──────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1440/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1024 ──────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1024/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 768 ───────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    8 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-768/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-dark-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 ─────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    8 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1440/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1440/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 ─────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    6 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1024/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-1024/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 768 ─────────────────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m3[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      132 |   snapshot.settings.theme=theme;snapshot.artifacts[0].title='Reported metrics';
+      133 |   await serveTaskFixture(page,snapshot);await page.goto('/');
+    > 134 |   const metrics=page.locator('.surface-metric');await expect(metrics).toHaveCount(3);await page.evaluate(()=>document.fonts.ready);
+          |                                                                       ^
+      135 |   if(width===1440)await page.screenshot({path:info.outputPath(`metric-long-value-${stage}-${theme}-${width}.png`),animations:'disabled'});
+      136 |   const numeric=metrics.nth(0);await expect(numeric.locator('strong')).toHaveText('124,800 files');
+      137 |   const pair=await numeric.evaluate(element=>{const label=element.querySelector('span')!.getBoundingClientRect(),value=element.querySelector('strong')!.getBoundingClientRect();return {gap:value.left-label.right,right:value.right,ownerRight:element.getBoundingClientRect().right,overlap:Math.min(label.bottom,value.bottom)-Math.max(label.top,value.top)};});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:134:71
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-768/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-768/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-long-metric-values-stay-visible-light-768/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering dark ─────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.surface-metric strong')
+    Timeout: 5000ms
+    [32m- Expected  - 10[39m
+    [31m+ Received  +  1[39m
+
+    [32m- Array [[39m
+    [32m-   "0.0004",[39m
+    [32m-   "123.456789",[39m
+    [32m-   "0.0000000000000000000000001",[39m
+    [32m-   "-123,456.78901234567",[39m
+    [32m-   "0.12345678901234568",[39m
+    [32m-   "0",[39m
+    [32m-   "0012",[39m
+    [32m-   "12345678901234567890.0000000000000000000004",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "soft toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric strong')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+
+
+      170 |     snapshot.settings.theme=theme;
+      171 |     const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 172 |     await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+          |                                                               ^
+      173 |     await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+      174 |     await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+      175 |     fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:172:63
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.task-table-value')
+    Timeout: 5000ms
+    [32m- Expected  - 10[39m
+    [31m+ Received  +  1[39m
+
+    [32m- Array [[39m
+    [32m-   "0.0004",[39m
+    [32m-   "123.456789",[39m
+    [32m-   "0.0000000000000000000000001",[39m
+    [32m-   "-123,456.78901234567",[39m
+    [32m-   "0.12345678901234568",[39m
+    [32m-   "0",[39m
+    [32m-   "0012",[39m
+    [32m-   "12345678901234567890.0000000000000000000004",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "soft toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-table-value')[22m
+    [2m    5 × locator resolved to 0 elements[22m
+
+
+      171 |     const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+      172 |     await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+    > 173 |     await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+          |                                                          ^
+      174 |     await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+      175 |     fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+      176 |     fixture.setInput("changes",{rows:[{id:"0",cells:[{key:"value",status:"updated",before:0.0004}]}]});await fixture.publish();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:173:58
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-8380d-ic-and-table-rendering-dark/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-8380d-ic-and-table-rendering-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-8380d-ic-and-table-rendering-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit dark ─────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m12[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      186 |     }});
+      187 |     snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 188 |     const metrics=page.locator(".surface-metric");await expect(metrics).toHaveCount(keys.length);
+          |                                                                         ^
+      189 |     await page.evaluate(()=>document.fonts.ready);
+      190 |     for(const width of [1440,1024,768,375]){
+      191 |       await page.setViewportSize({width,height:1000});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:188:73
+
+    attachment #1: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-dark/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-dark/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light ────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.surface-metric strong')
+    Timeout: 5000ms
+    [32m- Expected  - 10[39m
+    [31m+ Received  +  1[39m
+
+    [32m- Array [[39m
+    [32m-   "0.0004",[39m
+    [32m-   "123.456789",[39m
+    [32m-   "0.0000000000000000000000001",[39m
+    [32m-   "-123,456.78901234567",[39m
+    [32m-   "0.12345678901234568",[39m
+    [32m-   "0",[39m
+    [32m-   "0012",[39m
+    [32m-   "12345678901234567890.0000000000000000000004",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "soft toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric strong')[22m
+    [2m    7 × locator resolved to 0 elements[22m
+
+
+      170 |     snapshot.settings.theme=theme;
+      171 |     const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 172 |     await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+          |                                                               ^
+      173 |     await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+      174 |     await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+      175 |     fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:172:63
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveText[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator: locator('.task-table-value')
+    Timeout: 5000ms
+    [32m- Expected  - 10[39m
+    [31m+ Received  +  1[39m
+
+    [32m- Array [[39m
+    [32m-   "0.0004",[39m
+    [32m-   "123.456789",[39m
+    [32m-   "0.0000000000000000000000001",[39m
+    [32m-   "-123,456.78901234567",[39m
+    [32m-   "0.12345678901234568",[39m
+    [32m-   "0",[39m
+    [32m-   "0012",[39m
+    [32m-   "12345678901234567890.0000000000000000000004",[39m
+    [32m- ][39m
+    [31m+ Array [][39m
+
+    Call log:
+    [2m  - Expect "soft toHaveText" with timeout 5000ms[22m
+    [2m  - waiting for locator('.task-table-value')[22m
+    [2m    4 × locator resolved to 0 elements[22m
+
+
+      171 |     const fixture=await serveTaskFixture(page,snapshot);await page.goto("/");
+      172 |     await expect.soft(page.locator(".surface-metric strong")).toHaveText(cases.map(item=>item.expected));
+    > 173 |     await expect.soft(page.locator(".task-table-value")).toHaveText(cases.map(item=>item.expected));
+          |                                                          ^
+      174 |     await expect.soft(page.locator(".task-table-before")).toHaveText("123.456789");
+      175 |     fixture.setInput("records",cases.map(({value},index)=>({id:String(index),value:index===0?123.0000004:value})));
+      176 |     fixture.setInput("changes",{rows:[{id:"0",cells:[{key:"value",status:"updated",before:0.0004}]}]});await fixture.publish();
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:173:58
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-precision-surv-d07fb-c-and-table-rendering-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light ────────
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoHaveCount[2m([22m[32mexpected[39m[2m)[22m failed
+
+    Locator:  locator('.surface-metric')
+    Expected: [32m12[39m
+    Received: [31m0[39m
+    Timeout:  5000ms
+
+    Call log:
+    [2m  - Expect "toHaveCount" with timeout 5000ms[22m
+    [2m  - waiting for locator('.surface-metric')[22m
+    [2m    8 × locator resolved to 0 elements[22m
+    [2m      - unexpected value "0"[22m
+
+
+      186 |     }});
+      187 |     snapshot.settings.theme=theme;await serveTaskFixture(page,snapshot);await page.goto("/");
+    > 188 |     const metrics=page.locator(".surface-metric");await expect(metrics).toHaveCount(keys.length);
+          |                                                                         ^
+      189 |     await page.evaluate(()=>document.fonts.ready);
+      190 |     for(const width of [1440,1024,768,375]){
+      191 |       await page.setViewportSize({width,height:1000});
+        at /home/piadmin/Gen-V1-m13-v6/tests/e2e/wo8.spec.ts:188:73
+
+    Error Context: test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1795002815844-cbb1a792-7d9c-4674-be56-4d44bc7916f9/wo8/artifacts/wo8-numeric-metric-grid-contains-every-value-and-unit-light/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14 failed
+    tests/e2e/wo8.spec.ts:11:3 › thread diff dark 1440 ─────────────────────────────────────────────
+    tests/e2e/wo8.spec.ts:11:3 › thread diff light 1024 ────────────────────────────────────────────
+    tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers dark ────────────────
+    tests/e2e/wo8.spec.ts:112:46 › inline numeric table preserves full numbers light ───────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1440 ───────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 1024 ───────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible dark 768 ────────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1440 ──────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 1024 ──────────────────────
+    tests/e2e/wo8.spec.ts:122:81 › long metric values stay visible light 768 ───────────────────────
+    tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering dark ───────
+    tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit dark ───────────
+    tests/e2e/wo8.spec.ts:153:3 › numeric precision survives metric and table rendering light ──────
+    tests/e2e/wo8.spec.ts:181:3 › numeric metric grid contains every value and unit light ──────────
+  10 passed (7.7m)
+ ELIFECYCLE  Command failed with exit code 1.
+(node:78067) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-1-artifact-settle-vite/deps/react-dom_client.js?v=e70e97ef as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-2-sidebar-collapse-vite/deps/react-dom_client.js?v=6f2d2537 as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-4-thread-move-vite/deps/react-dom_client.js?v=6fb0b71a as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-2-6-vite/deps/react-dom_client.js?v=a0444ef4 as it exceeds the max of 500KB.
+[WebServer] [BABEL] Note: The code generator has deoptimised the styling of /tmp/wo-3-3-composer-press-vite/deps/react-dom_client.js?v=fa2b7aaf as it exceeds the max of 500KB.
+(node:336504) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:384984) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+[BABEL] Note: The code generator has deoptimised the styling of /tmp/wo7-table-controls-vite/deps/react-dom_client.js?v=1ae23d91 as it exceeds the max of 500KB.
+
+Failed browser suites: root (exit 1), workbench-app (exit 1), agents-workspace (exit 1), artifact-settle (exit 1), browser-action (exit 1), compact-model-picker (exit 1), ui-shell-overlays (exit 1), files-reading (exit 1), generated-selects (exit 1), graph-popovers (exit 1), memory-recovery (exit 1), redundant-ui (exit 1), saved-drafts (exit 1), saved-layout-chooser (exit 1), scoped-conversation (exit 1), settings-leaf-selects (exit 1), sidebar-collapse (exit 1), sidebar-shared-menu (exit 1), terminal-excerpts (exit 1), terminal-read (exit 1), thread-hover (exit 1), thread-move (exit 1), usage-app-integration (exit 1), workspace-host (exit 1), memory-recovery-app (exit 1), memory-recovery-journal (exit 1), frontend-refinement (exit 1), conversation-find (exit 1), micro-motion (exit 1), motion-tokens (exit 1), clarity-software (exit 1), clarity-review-parameters (exit 1), clarity-schedule-logs (exit 1), fidelity (exit 1), model-picker (exit 1), workspace (exit 1), chart-coordinates (exit 1), compact-settings (exit 1), compact-tools-cleanup (exit 1), composer-commands (exit 1), composer-prediction (exit 1), context-connections (exit 1), desktop-surfaces (exit 1), everyday (exit 1), floating (exit 1), inline-surfaces (exit 1), native-browser-bounds (exit 1), pdf (exit 1), plan-presentation (exit 1), project-app-integration (exit 1), project-picker (exit 1), project-search (exit 1), project-memory-host (exit 1), wo5-app-integration (exit 1), runtime-presentation (exit 1), shared-panels (exit 1), shell (exit 1), short-tool-overflow (exit 1), side-chat (exit 1), chat-view-modes (exit 1), smooth-operational (exit 1), smooth-pdf (exit 1), snapshot-performance (exit 1), summary-dock (exit 1), t3-centered (exit 1), tabs-identity (exit 1), table-controls (exit 1), task-design (exit 1), task-interface (exit 1), ui-shell-controls (exit 1), usage-context (exit 1), wo8 (exit 1)

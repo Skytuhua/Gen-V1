@@ -159,3 +159,86 @@ HOLD_MIGRATION_PLAN, HOLD_SOURCE_DRIFT (origin/main join, manifest conflict —
 authorized resolution = main-side manifest regeneration plus the M13 entry
 list). `plugins.isolatedV1` remains default-off; no merge and no activation
 are granted by this publication.
+
+## Close-out pass — backend inventory, migration fixture, browser receipt
+
+### M03 backend inventory on this cut
+
+Audited every `ExecutionBackend` construction site repo-wide:
+
+- M03 shipped the **policy contract only** — `ExecutionBackend` interface,
+  `PlatformProof` type, `selectBackend` / `hasCurrentPlatformProof` /
+  `assertProvenBackend` in `packages/core/execution-policy.ts`. M03's own
+  verification records "No such backend exists on this host" and leaves the
+  backend-installation gate OPEN.
+- Host supply: `HostOptions.isolationBackends` → `backends: () =>
+  options.isolationBackends ?? []` (default empty); `approvedBackendId` →
+  `options.approvedBackendId` (unset). `hermes-service.ts` passes
+  `backends: []` explicitly.
+- Every `ExecutionBackend` object literal in the repo is a **synthetic test
+  double** inside `tests/**` (`unit-test-backend`, `test-backend`,
+  `fixture-backend`, `backend-a/b`) whose `proof` fields are fabricated
+  fixtures — none is a registered, installed backend and none carries a real
+  target-platform proof receipt.
+
+**Registered backends: 0. Proof receipts to match to immutable identities:
+0. Eligible candidate: none.**
+
+Exact missing evidence for an eligible candidate (all four required):
+1. An installed backend implementation constructing `ExecutionBackend` with
+   a real `launch()` enforcing declared file/process/network policy.
+2. `installed: true` + `approved: true` granted by the operator/source lock —
+   the contract forbids this code from self-approving.
+3. An `approvedBackendId` supplied by the operator/source lock resolving to
+   exactly one installed approved backend (zero → UNSUPPORTED, ambiguous →
+   BLOCKED, per `selectBackend`).
+4. A `PlatformProof` bound to that backend: `platform === process.platform`
+   on the host (`linux`), `proof.platform === backend.platform`,
+   `status: 'PASS'`, a `platformProofRef` a launch profile can pin — produced
+   by a real proof run on linux-arm64 hardware, not a test literal.
+
+No backend was selected and no flag was enabled; HOLD_BACKEND_SELECTION and
+HOLD_PLATFORM_PROOF stand, now with the exact evidence gap enumerated.
+
+### Migration/update validation + rollback — repository-owned fixture
+
+Exercised the checked-in fixture `tests/plugin-lifecycle-v3.test.ts`
+(synthetic state only — `fixturePackage` tmpdir packages, `plan()` synthetic
+contract, `FakeTransport`; no real customer data) on published head
+`c7ddac31`: receipt `vitest-plugin-lifecycle-c7ddac31`, exit 0, 15/15, log
+digest `7388f007951b4d0240a69948d414845dde68e29f6407976793b2f1b2b237bc9e`.
+Observed: update drains generation 1 before publishing generation 2;
+`requiresMigration` without a complete approved plan → `MIGRATION_PLAN_REQUIRED`
+with the old lease still ACTIVE (nothing drained); a failed new-generation
+launch → `UNKNOWN` with the previous manifest retained; generation-1 replies
+cannot publish into generation 2.
+
+**Smallest proposed migration plan identity** (`pluginMigrationPlanV1Schema`,
+strict, seven required fields): `planId` (≤100 chars) + the version pair
+`inputVersion`/`outputVersion` — the gate matches those exactly against the
+installed and next manifests, e.g.
+`{planId: '<assigned-id>', inputVersion: '1.0.0', outputVersion: '2.0.0'}`.
+
+**Review inputs approval must bind** (the remaining four fields):
+- `backupDigest` — sha256 of a real pre-migration backup snapshot of the
+  private data namespace.
+- `executableSha256` — sha256 of the exact migration executable, which may
+  only ever launch through the proven backend (still held).
+- `approvedAt` — operator approval timestamp.
+- `validationReceipt` — reference to a real post-validation receipt required
+  before migrated data is re-admitted into the namespace.
+
+A schema-valid plan only flips `evaluateMigrationPlan` to READY; approval is
+an operator act this code cannot perform, and even a READY plan's executable
+stays gated by HOLD_PLATFORM_PROOF. HOLD_MIGRATION_PLAN stands until an
+approved plan exists.
+
+### Browser receipt landed
+
+`pnpm test:browser` on `d249c566` finished (receipt
+`pnpm-test-browser-d249c566`, 2026-11-18T11:53:29Z→18:18:32Z, exit 1,
+log digest `2baaaeb43c0f03b3156c94ab1e79a9839a929fdd08eed793784eb06cb661fd0a`):
+14 failed / 10 passed — all 14 failures in sibling-milestone spec
+`tests/e2e/wo8.spec.ts` (`.surface-metric` rendering), zero M13 files.
+Recorded as a FAIL command with the gate executed; previously cited as
+in-flight partial evidence.
