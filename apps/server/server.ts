@@ -34,6 +34,7 @@ import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
+import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
@@ -150,6 +151,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  app.get<{Params: {id: string; candidateId: string}; Querystring: {beforeRequestId?: string}}>('/api/threads/:id/compaction/:candidateId/model-requests', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    return readCompactionModelRequests(service.store, request.params.id, request.params.candidateId, request.query.beforeRequestId);
   });
   // M06 additive verification read model: requirement | observed check |
   // source revision | outcome | freshness | verifier | evidence.
