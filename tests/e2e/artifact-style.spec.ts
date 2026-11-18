@@ -112,7 +112,9 @@ test('a preview worker failure reports its own message', async ({ page }) => {
     window.Worker = class extends Real {
       constructor(url: string | URL, options?: WorkerOptions) {
         super(url, options);
-        if (options?.name?.startsWith('pdf-draft')) setTimeout(() => this.onerror?.(new ErrorEvent('error', { message: 'The draft bundle is unavailable.' })), 50);
+        if (!options?.name?.startsWith('pdf-draft')) return;
+        this.terminate();
+        setTimeout(() => this.onerror?.(new ErrorEvent('error', { message: 'The draft bundle is unavailable.' })), 50);
       }
     } as unknown as typeof Worker;
   });
