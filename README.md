@@ -2,11 +2,11 @@
 
 <p><strong>GEN V1 · WINDOWS PREVIEW</strong></p>
 
-# AI answers you can work with
+# Agent runs you can inspect, review and recover
 
-Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist, a set of options, or an interactive plan right in the conversation so you can start using it.
+Gen V1 is a developer workspace: an agent harness where plans, diffs, logs and pull requests become typed, interactive controls inside the thread — backed by a local host that records every action as a receipt.
 
-**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
+**[Watch the developer demo](docs/public/media/gen-v1-launch.mp4)** · **[Download the Windows preview](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1)** · **[Run from source](#run-from-source)**
 
 <a href="docs/public/media/gen-v1-launch.mp4"><img src="docs/public/media/launch-workspace.webp" width="100%" alt="Watch the launch video. Shown: Gen V1 with a branch graph and the result of a sample pull request merge."></a>
 
@@ -14,39 +14,45 @@ Ask for a study plan, a trip itinerary, or a comparison. Gen V1 puts a checklist
 
 ## See Gen in action
 
-### Turn a deadline into a study plan
-
-Ask for a checklist that fits 30 minutes a night. Check off the first sessions without copying the plan to another app.
-
-![The user sends a study request, Gen displays a four-day checklist, and the user checks two sessions](docs/public/media/launch-study-plan.gif)
-
-[Watch the study plan video](docs/public/media/launch-study-plan.mp4)
-
-### Choose a laptop without comparing three tabs
-
-Ask Gen to put sample laptops side by side. Sort by price, then by weight, and select the one you want to shortlist.
-
-![In Gen V1, the user sends a comparison request, sorts three laptops by price and weight, and selects a row](docs/public/media/launch-laptop-comparison.gif)
-
-[Watch the laptop comparison video](docs/public/media/launch-laptop-comparison.mp4)
-
-### Make a weekend plan, then change it
-
-Ask for a Saturday itinerary with a backup for rain. Open the backup to see the details, then ask Gen to move it to the morning in the same thread.
-
-[Watch the weekend itinerary video](docs/public/media/launch-weekend-trip.mp4) · [See the GIF](docs/public/media/launch-weekend-trip.gif)
-
 ### Review and merge a pull request
 
-Start by asking what changed. Open a commit to inspect conflicting lines, follow the checks, and choose when to merge.
+Ask what changed on the branch. Open a commit to inspect conflicting lines, resolve them, follow the checks, and merge when ready.
 
-[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4) · [See the GIF](docs/public/media/launch-pr-review-workflow.gif)
+![In Gen V1, the user asks for a PR review, opens a conflicting commit, resolves conflicts, and merges](docs/public/media/launch-pr-review-workflow.gif)
+
+[Watch the PR workflow](docs/public/media/launch-pr-review-workflow.mp4)
 
 ### Pinpoint a failed CI check
 
-Search the build log, select the failed step, and open the compiler error right inside the conversation.
+Ask where CI failed. Filter the build log to the first error and open the compiler diagnostic without leaving the thread.
 
-[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4) · [See the GIF](docs/public/media/launch-ci-log-workflow.gif)
+![The user filters a build log to the failed typecheck step and opens the compiler error](docs/public/media/launch-ci-log-workflow.gif)
+
+[Watch the CI workflow](docs/public/media/launch-ci-log-workflow.mp4)
+
+### Turn a migration into a checklist
+
+Ask Gen to break down the session-store migration. The steps land as an interactive checklist you can work through in place.
+
+![The user asks for a migration plan, then checks off completed steps in the generated checklist](docs/public/media/launch-migration-checklist.gif)
+
+[Watch the migration checklist video](docs/public/media/launch-migration-checklist.mp4)
+
+### Compare deploy options
+
+Ask Gen to put candidate base images side by side. Sort by image size or open CVEs and shortlist the one to deploy.
+
+![The user sorts a base image comparison by size and CVEs, then selects a candidate](docs/public/media/launch-runtime-comparison.gif)
+
+[Watch the runtime comparison video](docs/public/media/launch-runtime-comparison.mp4)
+
+### Plan a staged rollout — with the rollback
+
+Ask for a phased rollout of a cache migration. Expand the rollback step to see the escape path, then refine the plan in the same thread.
+
+![The user expands the rollback phase of a rollout plan and asks a follow-up](docs/public/media/launch-rollout-plan.gif)
+
+[Watch the rollout plan video](docs/public/media/launch-rollout-plan.mp4)
 
 These are recordings of the actual Gen browser interface using scripted responses and sample data. They are not live model runs. The PR workflow simulates check results and merging; nothing is sent to GitHub. [Transcripts, stills, and how to reproduce the recordings](docs/public/media/launch-demos.md).
 
@@ -65,7 +71,7 @@ Gen combines **generative UI in the same thread, a local host that saves your pr
 
 ### Try the Windows preview
 
-**[Download v0.6.1 for Windows x64 →](https://github.com/Skytuhua/Gen-V1/releases/tag/v0.6.1)**
+**[Download v0.6.1 for Windows x64 →](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1)**
 
 The published download is an **unsigned prerelease**. Read its notes and compare the installer with `SHA256SUMS.txt` before running it. The source tree includes newer workspace and plug-in changes than the installer. The [demo notes](docs/public/media/launch-demos.md) identify which source was recorded.
 
@@ -76,7 +82,7 @@ The published download is an **unsigned prerelease**. Read its notes and compare
 Use **Windows x64**, **Node.js ≥ 24.10.0**, **pnpm 10.30.3** and **CPython 3.14 with pip**.
 
 ```powershell
-git clone https://github.com/Skytuhua/Gen-V1.git
+git clone https://github.com/skytuhua-org/Gen-V1.git
 cd Gen-V1
 pnpm install --frozen-lockfile
 pnpm build:credential-lease
@@ -114,6 +120,7 @@ Read [release status](docs/public/release-notes.md), [security and local data](S
 | Understand the current preview | [Release notes and limitations](docs/public/release-notes.md) |
 | Understand the host and recovery model | [Architecture](docs/architecture.md) |
 | Build a workspace extension | [Plug-in API](docs/plugin-api.md) |
+| Report a bug or suggest a feature | [Issue forms](#report-an-issue) |
 | Report a security issue privately | [Security policy](SECURITY.md) |
 | Make a useful contribution | [Contributor guide](CONTRIBUTING.md) |
 
@@ -121,17 +128,24 @@ Read [release status](docs/public/release-notes.md), [security and local data](S
 
 Good contributions start with a clear problem. A reproducible bug, a better explanation, an accessibility improvement or a focused fix can all make Gen better.
 
-**[Read the contributor guide →](CONTRIBUTING.md)**
+**[Read the contributor guide →](CONTRIBUTING.md)** — it covers agreeing scope with the maintainer, the `fix/`/`docs/` branch convention, local checks (`pnpm typecheck`, `pnpm build`, `pnpm test --maxWorkers=1`) and what makes a pull request easy to review. A draft PR is welcome for early feedback.
 
-[Report a bug](https://github.com/Skytuhua/Gen-V1/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/Skytuhua/Gen-V1/issues/new?template=feature_request.yml) · [Improve the docs](https://github.com/Skytuhua/Gen-V1/issues/new?template=documentation.yml)
+Coordinate source changes with the maintainer before starting; the current first-party license does not grant general modification or redistribution rights.
 
-Coordinate source changes with the maintainer before starting; the current first-party license does not grant general modification or redistribution rights. The guide explains setup, focused checks and what makes a pull request easy to review.
+### Report an issue
+
+[Report a bug](https://github.com/skytuhua-org/Gen-V1/issues/new?template=bug_report.yml) · [Suggest a feature](https://github.com/skytuhua-org/Gen-V1/issues/new?template=feature_request.yml) · [Improve the docs](https://github.com/skytuhua-org/Gen-V1/issues/new?template=documentation.yml)
+
+- Search [open issues](https://github.com/skytuhua-org/Gen-V1/issues) first — confirming a reproduction on an existing report helps more than a duplicate.
+- For a bug, include the app version, Windows/Node/Python versions where relevant, a minimal reproduction and the expected behavior. You do not need to diagnose the cause before reporting.
+- Redact credentials, account identifiers, private paths and personal conversations from logs and screenshots before attaching them.
+- Report security findings privately through [SECURITY.md](SECURITY.md), not a public issue.
 
 ### Contributors
 
 <a href="https://github.com/Skytuhua"><img src="https://avatars.githubusercontent.com/u/99881928?v=4&amp;s=64" width="56" height="56" alt="Skytuhua, Gen V1 creator and maintainer"></a>
 
-Created and maintained by [Skytuhua](https://github.com/Skytuhua). [View the contribution history →](https://github.com/Skytuhua/Gen-V1/graphs/contributors)
+Created and maintained by [Skytuhua](https://github.com/Skytuhua). [View the contribution history →](https://github.com/skytuhua-org/Gen-V1/graphs/contributors)
 
 ## License and acknowledgments
 

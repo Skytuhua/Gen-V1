@@ -164,7 +164,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  const readyPromise=new Promise<DesktopWindowInfo>((resolve,reject)=>{resolveReady=resolve;rejectReady=reject;});void readyPromise.catch(()=>{});
  const record:WindowRecord={id,surface,window:native,url,ready:false,settled:false,visible:previous?.visible!==false,normalBounds:createNormalBounds(bounds),placement:placement??captureDesktopPlacement(bounds,all),appliedBounds:bounds,monitorRescued:!!placement&&!all.some(display=>display.id===placement.displayId),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(record.ready)return;if(surface.kind==='main')startupDiagnostic('main-deadline');record.settled=true;record.rejectReady(Error('The detached window did not become ready. Your original view remains available.'));loseBrowserOwner(record);native.destroy();},20000)};
  windows.set(id,record);broadcast();
- native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url,currentUrl:native.webContents.mainFrame.url},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
+ native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url.split('#')[0]!,currentUrl:native.webContents.mainFrame.url.split('#')[0]!},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
  native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);secureSessionDownloads(native.webContents.session);
@@ -306,7 +306,7 @@ function registerIpc(){
  });
 }
 async function startBackend():Promise<void>{
- const token=randomBytes(32).toString('hex');launchToken=token;
+ if(!launchToken)launchToken=randomBytes(32).toString('hex');const token=launchToken;
  const env:NodeJS.ProcessEnv={...process.env,HARNESS_DATA_DIR:backendDataDir,HARNESS_PORT:String(backendPort),HARNESS_WIDGET_PORT:String(widgetPort),HARNESS_DESKTOP_LAUNCH_TOKEN:token,HARNESS_DEV:'0'};delete env.ELECTRON_RUN_AS_NODE;delete env.NODE_OPTIONS;
  env.HARNESS_PACKAGED=app.isPackaged?'1':'0';env.HARNESS_BUNDLED_GIT=join(root,'.harness-tool-bundles/git/cmd/git.exe');
  const pathKey=Object.keys(env).find(key=>key.toLowerCase()==='path')??'PATH';env[pathKey]=dirname(env.HARNESS_BUNDLED_GIT)+';'+(env[pathKey]??'');
