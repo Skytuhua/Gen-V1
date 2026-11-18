@@ -175,7 +175,14 @@ export class IntegrationManager {
  private redactFailure<T>(session:Session,error:T):T{
   // A child that fails can echo the values it was given; the model still sees
   // the message, so it crosses the same boundary as a successful result.
-  const redactor=session.redactor;if(redactor?.tracked&&error instanceof Error)error.message=redactor.redact(error.message).text;
+  const redactor=session.redactor;
+  if(redactor?.tracked&&error instanceof Error){
+   // Error.stack can already contain the original child message even after
+   // error.message changes. Both fields cross the same logging boundary.
+   const stack=error.stack;
+   error.message=redactor.redact(error.message).text;
+   if(typeof stack==='string')error.stack=redactor.redact(stack).text;
+  }
   return error;
  }
  private redactOutput<T>(session:Session,value:T):T{
