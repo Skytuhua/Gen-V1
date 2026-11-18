@@ -308,5 +308,29 @@
     ],
     "verification": "Merge tree validated: diff vs e816a081 contains only the 22-commit main delta + manifest union; diff vs ff38c62c is the M12 feature delta."
   },
-  "sourceLockNotes": "executionBaseSha is the recorded merge-commit cut; working-tree blob identities recorded at v6 evidence collection. Files deleted by merged main (retired research workspace) are absent by design: apps/server/research-routes.ts, tests/research-artifacts.test.ts, tests/e2e/research-workspace.playwright.config.ts ROUND 2: executionBaseSha now records merge 0548ebc5 + verification-fix commits 9cfbfd3f + e816a081 (the tested tree). inspectedPaths regenerated at HEAD and extended with the full M12-owned surface (core program/kernel/disclosure/results modules, contracts, server routes, UI panel, all tool-program/python suites and fixtures) \u2014 the round-1 manifest covered the integration surface only. M12.ToolProgramV1 contract version advanced (nestedCall argumentsCommitment accepts the ledger commitment envelope). Dropped paths: none"
+  "sourceLockNotes": "executionBaseSha is the recorded merge-commit cut; working-tree blob identities recorded at v6 evidence collection. Files deleted by merged main (retired research workspace) are absent by design: apps/server/research-routes.ts, tests/research-artifacts.test.ts, tests/e2e/research-workspace.playwright.config.ts ROUND 2: executionBaseSha now records merge 0548ebc5 + verification-fix commits 9cfbfd3f + e816a081 (the tested tree). inspectedPaths regenerated at HEAD and extended with the full M12-owned surface (core program/kernel/disclosure/results modules, contracts, server routes, UI panel, all tool-program/python suites and fixtures) \u2014 the round-1 manifest covered the integration surface only. M12.ToolProgramV1 contract version advanced (nestedCall argumentsCommitment accepts the ledger commitment envelope). Dropped paths: none",
+  "r04": {
+    "merge": "4df19a1cc7946fa844721d0ad0962629ec2c4b62",
+    "tree": "c61b4fedc843abcb8308a1c1ebdfbd589207ea4e",
+    "ours": "941c80457585c9cd4e2947a33703f8837b922ff5",
+    "theirs": "89142de980df86c4236dc49c28f280d78fe79e0d",
+    "method": "git merge-tree in-memory analysis + plumbing (read-tree/update-index/write-tree/commit-tree); zero writes to tested-cut worktrees",
+    "conflicts": [
+      {
+        "path": "scripts/public-source-files.json",
+        "baseBlob": "19c6aab36bb688fcc99a50f0e74392c0f6d7ab22",
+        "oursBlob": "8b990c8dde8bfe80e272706510e136e1216629db",
+        "theirsBlob": "331f4558194225d785406670b859135c1ffd48d1",
+        "resultBlob": "bfe438c5d564faf81c5a6a2dcdd3d206f423c266",
+        "decision": "Current main's manifest preserved plus only the M12-owned entries: source = sorted union (theirs adds tests/integration-error-stack-redaction-v3.test.ts; ours' 43 M12 paths retained; no overlap); runtime keeps ours' 17 M12 modules (theirs unchanged); emitted at theirs' canonical 2-space formatting.",
+        "theirsOnly": [
+          "tests/integration-error-stack-redaction-v3.test.ts"
+        ],
+        "oursOnlyCount": 43
+      }
+    ],
+    "autoMerged": "all other paths clean; 12-file main delta only vs 941c8045",
+    "verification": "Manifest validated at the integrated cut (version 1, sorted+unique, source 4385 / runtime 299, both unions present); tests/public-source.test.ts 13/13 PASS in the detached R04 scout worktree. Prior-cut receipts remain bound to e816a081 (full gates) and 2e949a66 (R03 smoke); this commit adds no new gate evidence.",
+    "log": "tests/public-source.test.ts: 13/13 pass, 18.1s, cut 4df19a1c"
+  }
 }
