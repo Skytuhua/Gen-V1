@@ -396,3 +396,32 @@ protected compaction/decision-change tests (124 files passed); existing main fix
   not waived.
 - LOCAL commit only — publication held so the active proof's head binding
   is not disturbed; push decision rests with the manager.
+
+## Session 13 — flag-less installed acceptance receipt landed (dispatch 44414623739)
+
+Job `135191550723` (`Installed desktop memory retention and opt-in`) on
+`workflow_dispatch` 44414623739 at `f8a4ac69` completed success. The
+additive step `Verify installed default-off acceptance` ran 23:39:47→23:47:03Z
+and its flag-less verifier invocation produced a **passed** receipt from
+artifact `installed-memory-44414623739-1` (id `14482448945`).
+
+Observed generic default-off lifecycle assertions on `f8a4ac69` (exact):
+- `memoryRetentionRequested:false`, `memoryEnabledRequested:false`,
+  `inference:false`, `auth:false`
+- Setup identity `Gen-V1-Setup-0.6.5-win-x64.exe` sha256
+  `476b2a6e27cd580cfa103838165cce093496ecd6edd1f9fe7cdbe6694a243fcc`
+  (477,509,897 B; manifest + owner + verification agree; built from the
+  tested SHA's own packaged artifacts)
+- install exit 0 (333.9 s); 2 owned personal launches `memoryMode:null`,
+  `verifiedOwner`, exit 0 (pids 6804/9960); payload custody match
+  92,944 files sha256 `027edc98…`; provider verification passed;
+  owned uninstall exit 0 — shortcuts/keys/processes absent.
+
+Qualification boundary (unchanged): generic default-off installed
+lifecycle only. M10 installed supervisor, reconnect/cancel and native
+fork remain held (HOLD_SUPERVISOR / HOLD_FORK_API /
+HOLD_EXECUTION_PROFILE). Curated summary at
+`logs-pm/ci-installed-lane/default-off/default-off-verification.summary.md`;
+raw artifact preserved out-of-source (zip sha256 recorded there).
+The old dispatch run's other jobs were still active — no duplicate
+Windows CI was started.

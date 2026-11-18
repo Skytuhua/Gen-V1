@@ -540,6 +540,14 @@
    "revalidation": "focused M10 suites 83/83 PASS on combined cut; implementationEvidenceV3Schema PARSE OK + 0 issues; bundleStatus FAIL preserved; refs+digests verified",
    "shard2Context": "run 44414623739 job 135191550687 failed exactly the 2 hermes-original-integration tests fixed by 60c7aa94 \u2014 explained by consumed fix, not waived; f8a4ac69 run + pending flag-less receipt preserved",
    "published": "local only; push deferred to manager"
+  },
+  "session13FlagLessInstalledReceipt": {
+   "session": 13,
+   "instruction": "verify flag-less installed acceptance receipt from dispatch 44414623739 job 135191550723 artifact 14482448945; record only observed generic default-off assertions; curated/redacted only",
+   "observed": "step 'Verify installed default-off acceptance' success 23:39:47->23:47:03Z on f8a4ac69; flag-less verifier passed:true \u2014 install exit0 333.9s, 2 owned launches memoryMode:null verifiedOwner exit0 (pids 6804/9960), custody match 92,944 files, provider passed, owned uninstall exit0; Setup.exe sha256 476b2a6e27cd580cfa103838165cce093496ecd6edd1f9fe7cdbe6694a243fcc (477,509,897B)",
+   "boundary": "generic default-off installed lifecycle ONLY; supervisor/reconnect-cancel/native-fork holds unchanged",
+   "receiptsDir": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/default-off/",
+   "artifactZipSha256": "f54484ce95d8bc63c2c8176f"
   }
  }
 }
