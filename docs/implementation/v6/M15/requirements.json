@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "task": "M15 responsive source-aware operator workbench — V6 continuation",
  "branch": "agent/m15-v3",
- "publishedHead": "840bb636fb072be137f99e854597b5259e120f7f",
+ "publishedHead": "cc04488b5587d9edb408a7922b692ae1ccc8003c",
  "acceptedBase": "b4aa2caa5a3cedb29a0fddb510e49b5abd802a73",
  "observedMain": "c8fc789ae7f48db91a8abb471be9df49317e0039",
  "recoveredRemoteHead": "25cded33455741974b86c4c71fe96b424bfaf0d2",
