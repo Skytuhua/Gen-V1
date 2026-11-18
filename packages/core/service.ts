@@ -61,6 +61,7 @@ import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
 import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
+import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
 import type { NativeCompactionAdmissionV1, NativeCompactionAckV1, NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
 import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1, type CompactionProjectionV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
@@ -1498,6 +1499,7 @@ export class Service {
         } catch { /* A metadata projection cannot prevent the admitted request. */ }
       }
       this.assertRun(ctx);this.assertBinding(this.thread(threadId),modelProvider(input.modelId),binding);
+      if(!thread.sideParentId&&capabilityEnabled('context.lossAwareCompactionV1'))input={...input,automaticCompactionProtection:{apiVersion:1,required:true}};
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
@@ -1642,6 +1644,13 @@ export class Service {
         if(!parsed.success||event.provider!=='hermes'||old.inferenceBudget?.runId===event.runId&&old.inferenceBudget.epoch===event.epoch&&old.inferenceBudget.budget.sequence>=parsed.data.sequence)return{runId:event.runId};
         const inferenceBudget={threadId:thread.id,runId:event.runId,epoch:event.epoch,budget:parsed.data},usage={...old,inferenceBudget};
         this.store.put('usage',thread.id,thread.id,{id:thread.id,value:usage});return{runId:event.runId,usage};
+      }
+      if(event.type==='context.compaction.refused'){
+        const parsed=automaticCompactionRefusalSchema.safeParse(event.refusal);
+        if(!capabilityEnabled('context.lossAwareCompactionV1')||!parsed.success||!thread.modelId)return{runId:event.runId};
+        const owner=parsed.data.owner;
+        if(owner.ctx.threadId!==thread.id||owner.ctx.runId!==event.runId||owner.ctx.epoch!==event.epoch||owner.modelId!==thread.modelId||thread.sessionPath!==null&&owner.sessionPath!==thread.sessionPath||owner.accountId!==this.binding(thread,modelProvider(thread.modelId)).accountId)return{runId:event.runId};
+        return{runId:event.runId,refusal:parsed.data};
       }
       if (event.type === 'context.request') {
         const count = (value: unknown, maximum: number): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0 && value <= maximum;
