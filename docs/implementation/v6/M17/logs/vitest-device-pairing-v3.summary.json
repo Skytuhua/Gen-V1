@@ -1,0 +1,29 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store \u2014 not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/device-pairing-v3.test.ts"
+ ],
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T10:26:57Z",
+ "endedAt": "2026-11-18T10:29:15Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "resultLines": [
+  "\u2713 M17-S02 challenge lifecycle: consume once, rate-limit failed attempts, cap pending challenges  48027ms",
+  "Test Files  1 passed (1)",
+  "Tests  12 passed (12)"
+ ],
+ "rawArtifact": {
+  "file": "vitest-device-pairing-v3.log",
+  "sha256": "f90903132a750bfb35cfd289b16471ce98e29929c2c81688eac2faef0197e40d",
+  "bytes": 2385,
+  "retention": "agent-owned local evidence store",
+  "published": false
+ }
+}
