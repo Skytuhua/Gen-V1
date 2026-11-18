@@ -248,7 +248,7 @@ test('compaction details expose retained references and separate byte measuremen
   await expect(candidates).toContainText('Estimated reduction: 0 bytes (estimate)');
   await expect(candidates).toContainText('Measured source: 1.2K bytes; measured result: 600 bytes');
   await expect(context(page)).toContainText('Omitted native categories: unavailable');
-  await expect(context(page)).toContainText('Auxiliary model cost: unavailable');
+  await expect(context(page)).toContainText('Complete auxiliary model cost: unavailable');
   await expect(context(page)).toContainText('Recorded admitted candidates: 1');
   await expect(context(page)).toContainText('Historical completeness and provider-call counts are unavailable');
   await expect(context(page)).not.toContainText('cost 0');
@@ -432,4 +432,123 @@ test('Requests can filter measured providers even when no usage report exists', 
   await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toHaveCount(0);
   await modal.getByRole('tab', { name: 'Cost', exact: true }).click();
   await expect(modal.getByRole('combobox', { name: 'Usage scope', exact: true })).toBeVisible();
+});
+
+const compactionCostUrl = '/api/threads/thread-one/compaction/candidate-visible/model-requests';
+const compactionRequest = (sequence: number, cost: number | null = 0.125): import('../../packages/contracts/model-request').ModelRequestObservationV1 => ({
+  version: 1, requestId: 'compaction-request-' + sequence,
+  owner: {threadId: 'thread-one', runId: 'compaction:candidate-visible', epoch: 1, sequence, inputIds: [], phase: 'foreground'},
+  binding: {providerId: 'openai', modelId: 'openai/model', accountId: null},
+  timings: {queued: 1700000000000, acquired: 1, runtimeReady: 2, requestSent: 3, firstProviderDelta: null, firstPublicDelta: null, settled: 5, teardownConfirmed: 6},
+  usage: {inputTokens: 12, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost},
+  usageConvention: 'provider-reported', measurementSource: 'scripted-component-fixture', outcome: 'failed',
+});
+const costRegion = (page: Page) => context(page).getByRole('region', {name: 'Compaction model costs', exact: true});
+const costChip = (page: Page, sequence: number) => costRegion(page).getByRole('region', {name: 'Model request ' + sequence, exact: true})
+  .locator('.usage-request-metrics > li').filter({has: page.getByText('Cost', {exact: true})}).locator('.usage-request-chip-value');
+async function openCompactionCosts(page: Page, action = 'request-compaction-unavailable') {
+  await page.goto('/usage-context'); await update(page, action);
+  await page.getByRole('button', {name: 'Inspect context'}).click();
+  await context(page).getByRole('tab', {name: 'Compaction', exact: true}).click();
+}
+
+test('compaction model costs show failed observations, reported zero and unknown without a total', async ({page}, info) => {
+  await page.setViewportSize({width: 340, height: 420});
+  const zero = {...compactionRequest(2, 0), outcome: 'completed' as const}, unknown = {...compactionRequest(3, null), outcome: 'cancelled' as const};
+  await page.route('**' + compactionCostUrl, route => route.fulfill({json: [compactionRequest(1), zero, unknown]}));
+  await openCompactionCosts(page);
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0.125 (currency not reported)');
+  await expect(costRegion(page).getByRole('region', {name: 'Model request 1', exact: true})).toContainText('failed');
+  await expect(costChip(page, 2)).toHaveText('0 (currency not reported)');
+  await expect(costChip(page, 3)).toHaveText('—');
+  await expect(costRegion(page)).toContainText('Complete spend is unavailable.');
+  await expect(costRegion(page)).toContainText('unreported or interrupted requests');
+  await costChip(page, 1).scrollIntoViewIfNeeded();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({path: info.outputPath('compaction-retained-model-costs.png'), fullPage: true});
+});
+
+test('compaction model costs page older observations with the exact owned request cursor', async ({page}) => {
+  const cursors: Array<string | null> = [];
+  await page.route('**' + compactionCostUrl + '*', route => {
+    const before = new URL(route.request().url()).searchParams.get('beforeRequestId'); cursors.push(before);
+    return route.fulfill({json: before === null ? Array.from({length: 64}, (_, i) => compactionRequest(66 - i)) : [compactionRequest(2), compactionRequest(1)]});
+  });
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(64);
+  await costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(66);
+  expect(cursors).toEqual([null, 'compaction-request-3']);
+  await expect(costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true})).toHaveCount(0);
+  await expect(costRegion(page)).toContainText('Complete spend is unavailable.');
+});
+
+test('compaction model costs reject an older page that repeats an already displayed request', async ({page}) => {
+  await page.route('**' + compactionCostUrl + '*', route => route.fulfill({json: new URL(route.request().url()).searchParams.has('beforeRequestId')
+    ? [compactionRequest(64)] : Array.from({length: 64}, (_, i) => compactionRequest(64 - i))}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(64);
+  await costRegion(page).getByRole('button', {name: 'Load older model requests', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurement response could not be verified.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+});
+
+test('compaction model costs keep missing measurements unknown and clear retained rows after a denied refresh', async ({page}) => {
+  let reads = 0;
+  await page.route('**' + compactionCostUrl, route => ++reads === 1 ? route.fulfill({json: []}) : reads === 2 ? route.fulfill({json: [compactionRequest(1)]})
+    : route.fulfill({status: 403, json: {error: {code: 'CAPABILITY_DENIED', message: 'Compaction measurements are unavailable for this owner.'}}}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('No retained model request measurements are available.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+  await costRegion(page).getByRole('button', {name: 'Refresh model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0.125 (currency not reported)');
+  await costRegion(page).getByRole('button', {name: 'Refresh model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurements are unavailable for this owner.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+});
+
+for (const field of ['project', 'workspace', 'model', 'account', 'session', 'thread']) test(`compaction model costs discard pending ${field} responses across owner changes`, async ({page}) => {
+  let release: (() => Promise<void>) | undefined;
+  await page.route('**' + compactionCostUrl, route => {release = () => route.fulfill({json: [compactionRequest(1, 987.654)]});});
+  await openCompactionCosts(page, 'request-compaction-project');
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page).getByRole('status')).toHaveText('Loading model request costs…');
+  await expect.poll(() => Boolean(release)).toBe(true);
+  await update(page, field === 'session' || field === 'thread' ? field : 'compaction-owner-' + field);
+  await release!();
+  await expect(context(page).locator('.usage-request')).toHaveCount(0);
+  await update(page, 'clone-compaction'); await page.keyboard.press('Escape');
+  await page.getByRole('button', {name: 'Inspect context'}).click();
+  await expect(context(page).locator('.usage-request')).toHaveCount(0);
+  await expect(page.getByText('987.654 (currency not reported)', {exact: true})).toHaveCount(0);
+});
+
+test('compaction model costs reread after close and maintenance epoch advance without accepting a late response', async ({page}) => {
+  let reads = 0, release: (() => Promise<void>) | undefined;
+  await page.route('**' + compactionCostUrl, route => {
+    if (++reads === 1) {release = () => route.fulfill({json: [compactionRequest(1, 987.654)]}); return;}
+    return route.fulfill({json: [compactionRequest(1, 0)]});
+  });
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect.poll(() => Boolean(release)).toBe(true); await page.keyboard.press('Escape');
+  await update(page, 'restart'); await page.getByRole('button', {name: 'Inspect context'}).click();
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+  await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costChip(page, 1)).toHaveText('0 (currency not reported)');
+  await release!(); await expect(costChip(page, 1)).toHaveText('0 (currency not reported)');
+  expect(reads).toBe(2); await expect(context(page)).toContainText('Current request observation unavailable.');
+});
+
+for (const invalid of ['foreign thread', 'foreign candidate', 'foreign account', 'future epoch', 'duplicate', 'negative cost']) test(`compaction model costs reject ${invalid} response data`, async ({page}) => {
+  const value = compactionRequest(1);
+  if (invalid === 'foreign thread') value.owner.threadId = 'foreign';
+  if (invalid === 'foreign candidate') value.owner.runId = 'compaction:foreign';
+  if (invalid === 'foreign account') value.binding.accountId = 'foreign';
+  if (invalid === 'future epoch') value.owner.epoch++;
+  if (invalid === 'negative cost') value.usage.cost = -1;
+  await page.route('**' + compactionCostUrl, route => route.fulfill({json: invalid === 'duplicate' ? [value, value] : [value]}));
+  await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
+  await expect(costRegion(page)).toContainText('Compaction measurement response could not be verified.');
+  await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
 });
