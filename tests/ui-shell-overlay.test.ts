@@ -48,3 +48,32 @@ describe('shared anchored popup geometry', () => {
     }
   });
 });
+
+describe('side placements for anchored panels beside their trigger', () => {
+  const viewport = { left: 0, top: 42, width: 800, height: 558 };
+
+  it('opens a hover card to the right of a sidebar row with the approved gap', () => {
+    const row = { left: 12, right: 260, top: 200, bottom: 232 };
+    expect(placePopover({ anchor: row, viewport, width: 320, height: 240, preferredSide: 'right', align: 'start' })).toEqual({
+      left: 268, top: 200, width: 320, height: 240, side: 'right',
+    });
+  });
+
+  it('flips to the left when the right side cannot hold the card', () => {
+    const row = { left: 640, right: 780, top: 200, bottom: 232 };
+    expect(placePopover({ anchor: row, viewport, width: 320, height: 240, preferredSide: 'right', align: 'start' })).toEqual({
+      left: 312, top: 200, width: 320, height: 240, side: 'left',
+    });
+  });
+
+  it('falls back below instead of squeezing the card into the remaining gap', () => {
+    const result = placePopover({ anchor: { left: 100, right: 200, top: 100, bottom: 132 }, viewport: { left: 0, top: 0, width: 300, height: 400 }, width: 320, height: 240, preferredSide: 'right', align: 'start' });
+    expect(result).toEqual({ left: 8, top: 140, width: 284, height: 240, side: 'below' });
+    expect(result.left + result.width).toBeLessThanOrEqual(292);
+  });
+
+  it('keeps an end-aligned side panel inside the vertical inset', () => {
+    const row = { left: 12, right: 260, top: 200, bottom: 232 };
+    expect(placePopover({ anchor: row, viewport, width: 320, height: 240, preferredSide: 'right' })).toMatchObject({ top: 50, height: 240, side: 'right' });
+  });
+});

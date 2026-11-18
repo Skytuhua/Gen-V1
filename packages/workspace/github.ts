@@ -6,6 +6,7 @@ import {promisify} from 'node:util';
 import {z} from 'zod';
 import {HarnessError} from '../contracts/index.ts';
 import {processEnvironment} from '../capabilities/process.ts';
+import {createSecretRedactor} from '../core/secret-references.ts';
 import type {ProjectTools} from './tools.ts';
 import type {TerminalHost} from './terminal.ts';
 import {GitHubAuth} from './github-auth.ts';
@@ -26,7 +27,19 @@ export class GitHubTools{
  constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir);}
  private environment(){const root=join(this.projects.store.dataDir,'github');return{...processEnvironment(),HOME:root,USERPROFILE:root,GH_CONFIG_DIR:join(root,'config'),GH_HOST:'github.com',GH_PROMPT_DISABLED:'1',GH_NO_UPDATE_NOTIFIER:'1',GIT_TERMINAL_PROMPT:'0'};}
  private parseOutput(output:string){try{return JSON.parse(output) as unknown;}catch{throw new HarnessError('GITHUB_CLI_OUTPUT_INVALID','The GitHub CLI returned unreadable output. Check the bundled gh tool and the repository state.');}}
- private async run(path:string,args:string[]){const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});return(await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:60000,maxBuffer:2*1024*1024,encoding:'utf8'})).stdout;}
+ private async run(path:string,args:string[]){
+  const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});
+  let stdout:string;
+  try{({stdout}=await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:60000,maxBuffer:2*1024*1024,encoding:'utf8'}));}
+  catch{throw new HarnessError('GITHUB_CLI_FAILED','The GitHub CLI did not complete. Check repository access and the bundled tool.');}
+  const redactor=createSecretRedactor([token]);
+  // Decode JSON strings before redaction so escaped ANSI fragments cannot hide
+  // this command's known token. Plain URL output still uses the same redactor.
+  let decoded:unknown;
+  try{decoded=JSON.parse(stdout);}catch{return redactor.redact(stdout).text;}
+  const encoded=JSON.stringify(decoded,(_key:string,value:unknown)=>typeof value==='string'?redactor.redact(value).text:value);
+  return redactor.redact(encoded).text;
+ }
  private async withInput<T>(text:string,target:{url:string;head:string;revision:string;repo:string},action:(path:string)=>Promise<T>):Promise<T>{
   const parent=await secureDirectory(this.projects.store.dataDir,join(this.projects.store.dataDir,'github','requests')),directory=await mkdtemp(join(parent,'request-')),directoryIdentity=await lstat(directory,{bigint:true}),path=join(directory,'input'),bytes=Buffer.from(text,'utf8'),signal=new AbortController().signal;
   let identity:{dev:bigint;ino:bigint}|undefined,value:T|undefined,entered=false,failed=false,failure:unknown;

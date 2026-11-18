@@ -34,7 +34,6 @@ function Fixture() {
       preferences={preferences} matching={matching} selectedId="thread-4" loaded creating={false} search={search} setSearch={setSearch}
       close={() => {}} toggleCollapsed={() => {}} setFolded={(key, folded) => setLayout(value => ({ ...value, folded: { ...value.folded, [key]: folded } }))}
       select={() => {}} create={() => {}} settings={() => {}} rename={() => {}} archive={() => {}}
-      orderBounds={query.has('bounds') ? { minOrder: -100, maxOrder: 100 } : undefined}
       presentation={async(thread, patch) => {
         const apply = () => setRows(value => value.map(row => row.id === thread.id ? { ...row, presentation: { ...row.presentation, ...patch } } : row));
         if (query.has('deferred')) return new Promise<boolean>(resolve => setRequest(() => () => {apply(); resolve(true);}));

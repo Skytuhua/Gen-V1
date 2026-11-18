@@ -109,7 +109,7 @@ it('routes only named managed integration tools and rejects results after the ta
  try{
   await f.message(thread.id);const ctx=f.starts[0],pending=f.service.tool({name:'integration_call',args:{id:'graphify'}},ctx);
   expect(hook).toHaveBeenCalledOnce();await f.send('run.stop',{},thread.id);release();await expect(pending).rejects.toMatchObject({code:'CANCELLED_RUN'});
-  expect(hook).toHaveBeenCalledWith({name:'integration_call',args:{id:'graphify'}},expect.objectContaining({threadId:thread.id,runId:ctx.runId,epoch:ctx.epoch}));
+  expect(hook).toHaveBeenCalledWith({name:'integration_call',args:{id:'graphify'}},expect.objectContaining({threadId:thread.id,runId:ctx.runId,epoch:ctx.epoch}),expect.objectContaining({authenticatedApprovals:false,prepareOperation:expect.any(Function)}));
  }finally{release();}
 });
 
