@@ -1,8 +1,11 @@
 import { expect, it } from 'vitest';
-import { mkdtemp, readdir, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createContextResults } from '../packages/core/context-results';
+import { openContextResultCustody } from '../packages/core/context-result-custody';
+import { resolveGrant } from '../packages/core/security';
+import type { ResourceGrant } from '../packages/contracts';
 
 it('retains an authorized exact range across reopen and reaps expired artifacts', async () => {
   const load = import.meta.glob('../packages/core/context-result-custody.ts')['../packages/core/context-result-custody.ts'];
@@ -31,4 +34,26 @@ it('retains an authorized exact range across reopen and reaps expired artifacts'
   } finally {
     await rm(root, { recursive: true, force: true, maxRetries: 5 });
   }
+});
+
+it('rejects retained result bytes through a broader project grant while permitting ordinary files', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'm04-result-private-')), profile = join(root, 'profile');
+  await mkdir(profile); await writeFile(join(root, 'ordinary.txt'), 'permitted project content');
+  const grant: ResourceGrant = { id: 'project', threadId: 'thread', kind: 'project', path: root, label: 'Project', writable: false, createdAt: '2026-11-17T00:00:00Z' };
+  const vault = createContextResults({ storage: await openContextResultCustody(profile), now: () => 0, isAuthorized: () => true });
+  try {
+    const result = await vault.spill({ owner: { threadId: 'thread', workspaceId: 'workspace', accountId: null }, invocationId: 'invocation', bytes: Buffer.from('retained private result'), mediaType: 'text/plain', expiresAtMs: 100 });
+    expect(result.handle).toBeTruthy();
+    await expect(resolveGrant(grant, `profile/context-results/${result.handle}.result`, false, profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(resolveGrant(grant, 'ordinary.txt', false, profile)).resolves.toBe(join(root, 'ordinary.txt'));
+  } finally { await rm(root, { recursive: true, force: true, maxRetries: 5 }); }
+});
+
+it('keeps verification artifact custody protected through the same broader project grant', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'm06-artifact-private-')), profile = join(root, 'profile');
+  const artifact = join(profile, 'artifacts', 'verification-v1', 'receipt.log');
+  await mkdir(join(profile, 'artifacts', 'verification-v1'), { recursive: true }); await writeFile(artifact, 'retained execution log');
+  const grant: ResourceGrant = { id: 'project', threadId: 'thread', kind: 'project', path: root, label: 'Project', writable: false, createdAt: '2026-11-17T00:00:00Z' };
+  try { await expect(resolveGrant(grant, 'profile/artifacts/verification-v1/receipt.log', false, profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' }); }
+  finally { await rm(root, { recursive: true, force: true, maxRetries: 5 }); }
 });
