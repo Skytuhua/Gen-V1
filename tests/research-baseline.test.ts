@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { constants, copyFileSync, existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
@@ -146,6 +146,44 @@ describe('executable resolution', () => {
       expect(pm.file).not.toMatch(/\.cmd$/i);
       expect(pm.prefix.length).toBeGreaterThan(0);
       expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it('prefers an installed pnpm naming the declared version over corepack', () => {
+    // Corepack can sit next to node and still fail `--version` offline: it has
+    // to fetch the pinned tarball unless that exact version was already run.
+    // A matching installed copy answers without the network, so it must win.
+    const bin = dir('installed-bin'), packageRoot = join(dir('installed-pkg'), 'node_modules', 'pnpm');
+    mkdirSync(join(packageRoot, 'bin'), { recursive: true });
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({ name: 'pnpm', version: '10.30.3' }));
+    writeFileSync(join(packageRoot, 'bin', 'pnpm.cjs'), "process.stdout.write('10.30.3\\n');\n");
+    symlinkSync(join(packageRoot, 'bin', 'pnpm.cjs'), join(bin, 'pnpm'));
+    copyFileSync(process.execPath, join(bin, process.platform === 'win32' ? 'corepack.exe' : 'corepack'), constants.COPYFILE_FICLONE);
+    vi.stubEnv('PATH', bin);
+    try {
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(pm.file).toBe(process.execPath);
+      expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).not.toContain('corepack');
+      expect(pm.prefix.at(-1)).toContain(join('pnpm', 'bin', 'pnpm.cjs'));
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it('keeps a differently versioned installed pnpm as the last resort', () => {
+    const bin = dir('mismatch-bin'), packageRoot = join(dir('mismatch-pkg'), 'node_modules', 'pnpm');
+    mkdirSync(join(packageRoot, 'bin'), { recursive: true });
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({ name: 'pnpm', version: '9.15.0' }));
+    writeFileSync(join(packageRoot, 'bin', 'pnpm.cjs'), "process.stdout.write('9.15.0\\n');\n");
+    symlinkSync(join(packageRoot, 'bin', 'pnpm.cjs'), join(bin, 'pnpm'));
+    vi.stubEnv('PATH', bin);
+    try {
+      // No corepack here, so the mismatch is reported by the caller as the
+      // observed version rather than as a missing toolchain.
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(pm.prefix.at(-1)).toContain(join('pnpm', 'bin', 'pnpm.cjs'));
     } finally { vi.unstubAllEnvs(); }
   });
 });
