@@ -220,3 +220,9 @@ A third review pass on `596ce44c` surfaced two genuine defects:
 - **CI never exercises this path**: `ci.yml` runs `pnpm test` on `windows-latest` where `process.platform==='win32'` routes through the PowerShell guard instead; the Linux broker path is only provisioned by the deployed host supervisor.
 - **The gate cannot PASS on this host at all**: `private_profile()` (`linux-path-guard.py:104`) requires `os.uname().machine == "x86_64"` — the broker is architecturally x64-only and this host is `aarch64`. It also needs a dedicated unused UID, root-owned private ancestry, and `CAP_SYS_ADMIN`. No test command can provision the guard here; only the deployed x86_64 host supervisor can.
 - **`m10.gates` stays FAIL honestly**: the failure is a platform boundary (x64 Linux broker + Windows-only CI path), not an M10 regression. Focused M10 suites (73 tests) and all other gates PASS on real runs.
+
+## Session 7 continued — browser full-gate failures characterized as load flakes
+
+- Isolated `test:browser --suite micro-motion` rerun: **82/83 passed**; all 7 previously-failed specs passed except `shared-smoothness.spec.ts:12` (rAF-sampled panel-height continuity, max frame delta bound 80px observed 124px under load ~6).
+- Standalone `shared-smoothness.spec.ts` rerun gave a *different* failure set (tests 6+12) — non-deterministic results across runs confirm host-performance flakiness, same class as the closed #578. These are animation-sampling assertions on a loaded aarch64 host, unrelated to M10.
+- `test:browser --suite background-work` remains a real 11/11 PASS on this host.

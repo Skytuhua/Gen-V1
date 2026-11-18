@@ -1,0 +1,127 @@
+
+> gen-v1@0.6.5 test:browser /home/piadmin/Gen-V1-m10-v6
+> tsx scripts/test-browser.ts --suite micro-motion
+
+Browser results: /home/piadmin/Gen-V1-m10-v6/test-results/browser/run-1794960216908-068b1309-f463-4064-8ec8-f65b14953eff
+
+Browser suite: micro-motion (8 spec files)
+
+Running 83 tests using 1 worker
+
+  ✓   1 tests/e2e/composer-integration.spec.ts:4:1 › Resume explicitly resets a saved nondefault effort when Default is chosen (9.9s)
+  ✓   2 tests/e2e/composer-integration.spec.ts:5:1 › Resume uses the visible effort choice for a stopped task (5.6s)
+  ✓   3 tests/e2e/composer-integration.spec.ts:6:1 › a RESUME_REQUIRED send failure offers Resume in the error banner and recovers the thread (5.6s)
+  ✓   4 tests/e2e/composer-integration.spec.ts:27:1 › the resume strip stays reachable above the composer while reading earlier messages (4.8s)
+  ✓   5 tests/e2e/composer-integration.spec.ts:38:1 › integrated composer preserves a PR draft and displays only recorded diff counts (8.1s)
+  ✓   6 tests/e2e/composer-integration.spec.ts:44:1 › integrated voice appends to the latest draft and thinking selection reaches the message command (8.8s)
+  ✓   7 tests/e2e/composer-integration.spec.ts:50:1 › fresh assistant messages reveal, while restored history and unchanged snapshots remain quiet (7.8s)
+  ✓   8 tests/e2e/composer-motion.spec.ts:31:1 › composer exposes concise project, changes and PR actions and only actual thinking levels (4.9s)
+  ✓   9 tests/e2e/composer-motion.spec.ts:39:1 › composer unknown counts and unsupported thinking remain unavailable instead of invented (4.0s)
+  ✓  10 tests/e2e/composer-motion.spec.ts:44:1 › voice returns final text once, never sends, and rejects callbacks from an unmounted composer (4.5s)
+  ✓  11 tests/e2e/composer-motion.spec.ts:52:1 › sentence arrival reveals only new prose while retaining selection and untouched code (4.1s)
+  ✓  12 tests/e2e/composer-motion.spec.ts:60:1 › rapid prose updates are bounded and unchanged snapshots or theme changes never replay an entrance (4.8s)
+  ✓  13 tests/e2e/composer-motion.spec.ts:68:1 › reduced-motion prose arrives immediately without a reveal backlog (5.1s)
+  ✓  14 tests/e2e/composer-motion.spec.ts:74:1 › the toolbar remains keyboard reachable within a phone width (3.6s)
+  ✓  15 tests/e2e/composer-motion.spec.ts:78:1 › replacing prose reveals the changed middle and preserves an unchanged selected prefix (3.8s)
+  ✓  16 tests/e2e/composer-motion.spec.ts:84:1 › new tokens do not cancel an already running reveal and restored history stays quiet (3.9s)
+  ✓  17 tests/e2e/composer-motion.spec.ts:97:1 › voice is revoked when work begins and interim transcripts never reach the draft (4.1s)
+  ✓  18 tests/e2e/composer-motion.spec.ts:104:1 › fresh prose may reveal once while code stays immediately readable and unsupported voice explains why (7.4s)
+  ✓  19 tests/e2e/composer-motion.spec.ts:117:48 › app off settles active prose and admits no new reveal (3.7s)
+  ✓  20 tests/e2e/composer-motion.spec.ts:117:48 › app reduced settles active prose and admits no new reveal (3.9s)
+  ✓  21 tests/e2e/markdown.spec.ts:12:1 › renders the genuine Pi trace table with semantic headers and numeric alignment (3.7s)
+  ✓  22 tests/e2e/markdown.spec.ts:21:1 › keeps literal pipes and fenced tables literal while recognizing escaped and code-span pipes (3.6s)
+  ✓  23 tests/e2e/markdown.spec.ts:44:1 › retains heading, inline, nested list and non-default ordered-list semantics (3.8s)
+  ✓  24 tests/e2e/markdown.spec.ts:51:1 › renders hostile HTML and javascript links as inert text inside tables (3.7s)
+  ✓  25 tests/e2e/markdown.spec.ts:57:1 › preserves every supplied value when a table row has extra columns (3.8s)
+  ✓  26 tests/e2e/markdown.spec.ts:62:137 › falls back without dropping content when columns exceed the table budget (3.8s)
+  ✓  27 tests/e2e/markdown.spec.ts:62:137 › falls back without dropping content when derived cells exceed the table budget (3.5s)
+  ✓  28 tests/e2e/markdown.spec.ts:62:137 › falls back without dropping content when rows exceed the table budget (3.5s)
+  ✓  29 tests/e2e/markdown.spec.ts:72:1 › shares the derived-cell budget across separate ragged tables without losing their source (6.7s)
+  ✓  30 tests/e2e/markdown.spec.ts:84:1 › new prose before and after a table never paints a veil over its cells (4.0s)
+  ✓  31 tests/e2e/markdown.spec.ts:97:1 › streamed tables stay unmasked while prose updates retain sentence reveal (5.0s)
+  ✓  32 tests/e2e/markdown.spec.ts:108:151 › table layout contains overflow and stays readable in light (3.9s)
+  ✓  33 tests/e2e/markdown.spec.ts:108:151 › table layout contains overflow and stays readable in dark (4.0s)
+  ✓  34 tests/e2e/markdown.spec.ts:108:151 › table layout contains overflow and stays readable in narrow (4.0s)
+  ✓  35 tests/e2e/micro-motion.spec.ts:29:1 › new prose has a moving soft edge while prior text and code stay fully readable (3.9s)
+  ✓  36 tests/e2e/micro-motion.spec.ts:39:1 › a theme change clears the old-color reveal without replaying the text (3.9s)
+  ✓  37 tests/e2e/micro-motion.spec.ts:46:1 › a new artifact has its final geometry from first paint after a delayed journal read (2.4s)
+  ✓  38 tests/e2e/micro-motion.spec.ts:59:1 › newly published structured prose reveals once while restored prose remains quiet (7.8s)
+  ✓  39 tests/e2e/micro-motion.spec.ts:68:1 › a first fetched answer gets its own text reveal after the real pending phase (4.0s)
+  ✓  40 tests/e2e/micro-motion.spec.ts:75:1 › actual pending follows the prose tail and disappears when the answer settles (3.8s)
+  ✓  41 tests/e2e/micro-motion.spec.ts:82:1 › code remains unmodified and the pending mark stays outside its source block (3.8s)
+  ✓  42 tests/e2e/micro-motion.spec.ts:87:1 › the waiting mark is static under reduced motion and pauses after its branch closes (5.5s)
+  ✓  43 tests/e2e/micro-motion.spec.ts:92:1 › reduced motion keeps real content and immediate focus without spatial reveal effects (5.3s)
+  ✓  44 tests/e2e/micro-motion.spec.ts:99:1 › new prose advances in whole Unicode graphemes with a bounded discrete edge (4.4s)
+  ✓  45 tests/e2e/micro-motion.spec.ts:109:1 › interaction and reduced motion immediately settle arriving prose (4.0s)
+  ✓  46 tests/e2e/micro-motion.spec.ts:117:1 › operation tab status slots keep labels and mounted drafts fixed through completion (4.4s)
+  ✓  47 tests/e2e/proactive-copy.spec.ts:6:1 › secondary place descriptions stay behind details while selection and useful controls remain available (4.4s)
+  ✓  48 tests/e2e/proactive-copy.spec.ts:22:1 › operation tabs show the task title once and retain relevant table metadata (3.9s)
+  ✓  49 tests/e2e/proactive-copy.spec.ts:29:1 › only a newly published live artifact enters; restored history and unchanged snapshots stay steady (7.9s)
+  ✓  50 tests/e2e/proactive-copy.spec.ts:50:1 › an accepted source busy label wins over generic submission text while the action request settles (3.8s)
+  ✓  51 tests/e2e/progressive-fidelity.spec.ts:9:1 › question loading, answer and source-declared follow-ups remain distinct without repeating requests (6.1s)
+  ✓  52 tests/e2e/progressive-fidelity.spec.ts:32:1 › appending answer content reveals only new glyphs and keeps the committed answer opaque (4.2s)
+  ✓  53 tests/e2e/progressive-fidelity.spec.ts:51:1 › unchanged cell change metadata does not replay while newly changed cells animate once (3.8s)
+  ✓  54 tests/e2e/progressive-fidelity.spec.ts:69:1 › context uses numeric category bands with an honest compaction status and a settled total retained across reveal (4.7s)
+  ✓  55 tests/e2e/progressive-fidelity.spec.ts:98:1 › the compact popover stays quota-free when categories are unreported and reduced motion settles measurements immediately (4.6s)
+  ✓  56 tests/e2e/progressive-fidelity.spec.ts:111:1 › unrelated committed snapshots do not restart an accepted context transition (5.0s)
+  ✓  57 tests/e2e/progressive-fidelity.spec.ts:122:1 › the context bands remain inside a narrow viewport and category detail is keyboard accessible (4.1s)
+  ✓  58 tests/e2e/shared-motion.spec.ts:42:1 › closing an answer retains visible outgoing pixels while immediately making its controls inert (4.2s)
+  ✓  59 tests/e2e/shared-motion.spec.ts:53:1 › an interrupted collapse reverses from its current height without replacing local controls (4.5s)
+  ✓  60 tests/e2e/shared-motion.spec.ts:69:1 › reduced motion removes geometry keyframes rather than speeding the travel up (6.7s)
+  ✓  61 tests/e2e/shared-motion.spec.ts:85:1 › a reserved follow-up row morphs into the actual question without discarding its shell immediately (4.1s)
+  ✓  62 tests/e2e/shared-motion.spec.ts:111:1 › accepted status changes animate once while unchanged snapshots preserve the current state (5.1s)
+  ✓  63 tests/e2e/shared-motion.spec.ts:128:1 › a renewed follow-up request interrupts its old handoff and reserves one normal-flow row (4.1s)
+  ✓  64 tests/e2e/shared-motion.spec.ts:140:1 › the live-publication entrance hook plays once and never treats an ordinary rerender as a new artifact (3.7s)
+  ✓  65 tests/e2e/shared-motion.spec.ts:163:48 › app off settles active task effects and region (4.2s)
+  ✓  66 tests/e2e/shared-motion.spec.ts:163:48 › app reduced settles active task effects and region (4.0s)
+  ✓  67 tests/e2e/shared-motion.spec.ts:177:48 › app off settles artifact entrance and releases its subscriptions on unmount (3.9s)
+  ✓  68 tests/e2e/shared-motion.spec.ts:177:48 › app reduced settles artifact entrance and releases its subscriptions on unmount (4.0s)
+  ✓  69 tests/e2e/shared-motion.spec.ts:196:1 › task effects release policy subscriptions on finish and cancellation and keep app Reduced opacity semantics (3.4s)
+  ✓  70 tests/e2e/shared-motion.spec.ts:242:2 › R1 app off completes the real follow-up handoff without a stranded skeleton (4.6s)
+  ✓  71 tests/e2e/shared-motion.spec.ts:258:2 › R1 app off completes real step transitions without leaving panels (4.0s)
+  ✓  72 tests/e2e/shared-motion.spec.ts:269:2 › R1 app off completes real status replacement without an outgoing shell (3.9s)
+  ✓  73 tests/e2e/shared-motion.spec.ts:242:2 › R1 app reduced completes the real follow-up handoff without a stranded skeleton (4.5s)
+  ✓  74 tests/e2e/shared-motion.spec.ts:258:2 › R1 app reduced completes real step transitions without leaving panels (3.9s)
+  ✓  75 tests/e2e/shared-motion.spec.ts:269:2 › R1 app reduced completes real status replacement without an outgoing shell (4.7s)
+  ✓  76 tests/e2e/shared-motion.spec.ts:278:48 › R1 app off preserves the existing finished promise and native finish callback (3.6s)
+  ✓  77 tests/e2e/shared-motion.spec.ts:278:48 › R1 app reduced preserves the existing finished promise and native finish callback (3.7s)
+  ✓  78 tests/e2e/shared-motion.spec.ts:293:48 › R1 app off preserves an explicit caller cancellation before policy delivery (3.7s)
+  ✓  79 tests/e2e/shared-motion.spec.ts:293:48 › R1 app reduced preserves an explicit caller cancellation before policy delivery (4.2s)
+  ✓  80 tests/e2e/shared-smoothness.spec.ts:6:1 › choosing Plan for a first thread migrates the current composer draft (6.2s)
+  ✘  81 tests/e2e/shared-smoothness.spec.ts:12:1 › unequal step panels reshape continuously rather than dropping height after the fade (5.2s)
+  ✓  82 tests/e2e/shared-smoothness.spec.ts:22:1 › frequent running detail updates remain opaque instead of replaying status transitions (5.3s)
+  ✓  83 tests/e2e/shared-smoothness.spec.ts:31:1 › a restored map selection aligns immediately without a synthetic carousel journey (3.6s)
+
+
+  1) tests/e2e/shared-smoothness.spec.ts:12:1 › unequal step panels reshape continuously rather than dropping height after the fade 
+
+    Error: [2mexpect([22m[31mreceived[39m[2m).[22mtoBeLessThan[2m([22m[32mexpected[39m[2m)[22m
+
+    Expected: < [32m80[39m
+    Received:   [31m124.640625[39m
+
+      16 |   await page.getByRole('button',{name:'Next step',exact:true}).click();await expect.poll(()=>page.evaluate(()=>(window as unknown as {stepHeightsDone?:boolean}).stepHeightsDone)).toBe(true);
+      17 |   const values=await page.evaluate(()=>(window as unknown as {stepHeights:number[]}).stepHeights);
+    > 18 |   expect(values.length).toBeGreaterThan(8);expect(Math.max(...values.slice(1).map((v,i)=>Math.abs(v-values[i])))).toBeLessThan(80);
+         |                                                                                                                   ^
+      19 |   await expect(page.getByRole('textbox',{name:'Review note',exact:true})).toHaveValue('Keep this draft');
+      20 | });
+      21 |
+        at /home/piadmin/Gen-V1-m10-v6/tests/e2e/shared-smoothness.spec.ts:18:115
+
+    Error Context: test-results/browser/run-1794960216908-068b1309-f463-4064-8ec8-f65b14953eff/micro-motion/artifacts/shared-smoothness-unequal--9085b-pping-height-after-the-fade/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results/browser/run-1794960216908-068b1309-f463-4064-8ec8-f65b14953eff/micro-motion/artifacts/shared-smoothness-unequal--9085b-pping-height-after-the-fade/trace.zip
+    Usage:
+
+        pnpm exec playwright show-trace test-results/browser/run-1794960216908-068b1309-f463-4064-8ec8-f65b14953eff/micro-motion/artifacts/shared-smoothness-unequal--9085b-pping-height-after-the-fade/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests/e2e/shared-smoothness.spec.ts:12:1 › unequal step panels reshape continuously rather than dropping height after the fade 
+  82 passed (6.5m)
+
+Failed browser suites: micro-motion (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
