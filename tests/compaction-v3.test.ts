@@ -222,6 +222,47 @@ it('gates the shadow relevance phase on an approved auxiliary budget and a fixed
   expect(calls).toBe(before + 2);
 });
 
+it.each([
+  ['an explicit default account', {accountId: null}, true],
+  ['a named account', {accountId: 'aux-account'}, true],
+  ['a missing account', {}, false],
+  ['an undefined account', {accountId: undefined}, false],
+  ['an empty account', {accountId: ''}, false],
+  ['a non-string account', {accountId: 1}, false],
+] as const)('requires an explicit approved shadow route for %s', async (_label, account, available) => {
+  const {createShadowRelevancePhase} = await import('../packages/core/context-relevance.ts');
+  const observe = vi.fn(async () => ({candidateIds: ['old'], estimatedSavingsBytes: 100}));
+  // Malformed runtime objects deliberately exercise the admission boundary.
+  const approval = {modelId: 'aux-model', budgetCalls: 1, ...account} as Parameters<typeof createShadowRelevancePhase>[0]['approval'];
+  const phase = createShadowRelevancePhase({approval, observe});
+  const cut = Object.freeze({cutId: 'account-cut', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: Object.freeze([
+    Object.freeze({id: 'old', inputSequence: 1, bytes: 100, kind: 'tool-result', completed: true, protected: false}),
+  ])});
+  const before = JSON.stringify(cut);
+  expect(await phase.run(cut)).toEqual(available
+    ? {status: 'COMPLETED', observation: {candidateIds: ['old'], estimatedSavingsBytes: 100}}
+    : {status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).toHaveBeenCalledTimes(available ? 1 : 0);
+  expect(await phase.run({...cut, cutId: 'next-account-cut'})).toEqual({status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).toHaveBeenCalledTimes(available ? 1 : 0);
+  expect(JSON.stringify(cut)).toBe(before);
+});
+
+it.each([
+  ['a missing model', {}],
+  ['an undefined model', {modelId: undefined}],
+  ['an empty model', {modelId: ''}],
+  ['a non-string model', {modelId: 1}],
+] as const)('starts no shadow call for %s', async (_label, model) => {
+  const {createShadowRelevancePhase} = await import('../packages/core/context-relevance.ts');
+  const observe = vi.fn(async () => ({candidateIds: [], estimatedSavingsBytes: 0}));
+  const approval = {accountId: null, budgetCalls: 1, ...model} as Parameters<typeof createShadowRelevancePhase>[0]['approval'];
+  const phase = createShadowRelevancePhase({approval, observe});
+  expect(await phase.run({cutId: 'invalid-model-cut', retainedTailStart: 1, inspectionBudgetBytes: 0, segments: []}))
+    .toEqual({status: 'OBSERVER_UNAVAILABLE', observation: null});
+  expect(observe).not.toHaveBeenCalled();
+});
+
 it('reports only eligible old tool-result savings once, without modifying the projected request', async () => {
   const load = import.meta.glob('../packages/core/context-relevance.ts')['../packages/core/context-relevance.ts'];
   if (!load) throw new Error('M04 report-only relevance observer is not implemented');
