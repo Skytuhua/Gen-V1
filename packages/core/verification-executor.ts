@@ -217,7 +217,7 @@ export function createVerificationExecutorFactory(config: VerificationExecutorHo
             url: () => read(() => redactLog(page.url())),
             goto: url => guarded(() => { if (!allowOrigin(new URL(url).origin)) throw executorDenied('CAPABILITY_DENIED', 'Browser navigation origin is not approved.'); return page.goto(url); }),
             click: selector => guarded(() => page.click(selector)), type: (selector, value) => guarded(() => page.type(selector, value)),
-            text: selector => guarded(() => page.text(selector)), visible: selector => guarded(() => page.visible(selector)), screenshot: () => guarded(() => page.screenshot()),
+            text: selector => guarded(async () => { const value = await page.text(selector); return value === null ? null : redactLog(value); }), visible: selector => guarded(() => page.visible(selector)), screenshot: () => guarded(() => page.screenshot()),
           },
           collectedFailures: () => read(() => { const failures = raw.collectedFailures(); return { console: failures.console.slice(0, 100).map(redactLog), network: failures.network.slice(0, 100).map(redactLog) }; }),
           observedOrigins: () => read(() => {
