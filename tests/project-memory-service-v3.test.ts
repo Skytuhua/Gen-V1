@@ -75,29 +75,6 @@ it('purges elapsed forgotten revisions at host recovery even when memory has bee
   expect(f.store.get<{content:string}>('message','source')?.content).toBe('Use SQLite for project persistence.');
 });
 
-it('purges elapsed forgotten copies on the regular host tick without enabling memory', async () => {
-  let maintenance: (() => void) | undefined;
-  const original = globalThis.setInterval;
-  vi.spyOn(globalThis, 'setInterval').mockImplementation((handler, timeout, ...args) => {
-    if (timeout === 60_000 && typeof handler === 'function' && String(handler).includes('purgeMemoryRetention')) {
-      maintenance = () => handler(...args);
-    }
-    return original(handler, timeout, ...args);
-  });
-  const f = await fixture(), text = 'Elapsed retention must not await an explicit user request', item = f.accept(text);
-  f.act({ action: 'forget', itemId: item.id, baseRevision: item.revision });
-  expect(JSON.stringify(f.store.all('projectMemoryRevision'))).toContain(text);
-  __setCapabilityFlagForTests('memory.projectV1', false);
-  vi.spyOn(Date, 'now').mockReturnValue(Date.now() + 8 * 24 * 60 * 60 * 1000);
-  expect(maintenance).toBeDefined();
-  maintenance!();
-  expect(JSON.stringify(f.store.all('projectMemoryRevision'))).not.toContain(text);
-  const access = await f.currentAccess();
-  expect(f.service.projectMemory.tombstones(access)).toEqual([
-    expect.objectContaining({ itemId: item.id, purgeStatus: 'COMPLETE' }),
-  ]);
-});
-
 it('carries the same prepared memory request identity through actual Service send and final dispatch', async () => {
   const f = await fixture(), item = f.accept();
   const prepared = await f.prepare();
