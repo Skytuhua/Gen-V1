@@ -1,0 +1,11 @@
+argv: ["node","C:/Users/user/AppData/Local/Temp/m16-desktop-launch.cjs"]
+cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+ELECTRON_SPAWNED pid=24256
+
+[24256:1118/105715.105:ERROR:net\socket\tcp_socket_win.cc:590] bind() returned an error: Only one usage of each socket address (protocol/network address/port) is normally permitted. (0x2740)
+[24256:1118/105715.106:ERROR:content\browser\devtools\devtools_http_handler.cc:322] Cannot start http server for devtools.
+Gen V1 startup failed: The local backend did not become ready
+ELECTRON_EXIT 0

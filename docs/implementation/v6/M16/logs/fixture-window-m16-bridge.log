@@ -1,0 +1,14 @@
+argv: ["node","C:/Users/user/AppData/Local/Temp/m16-chooser-fixture.cjs"]
+cwd: C:/Users/user/repos/Gen-V1-m16-bridge
+exitCode: 0
+termination: NONE
+
+fixture: launched notepad via cmd start C:\Users\user\AppData\Local\Temp\m16-chooser-fixture-9d4e7.txt, expected title ends "m16-chooser-fixture-9d4e7.txt - Notepad"
+listWindows() -> 9 enumerable app windows
+fixture row: {"handle":265416,"processId":32996,"title":"m16-chooser-fixture-9d4e7.txt - Notepad","bounds":{"x":190,"y":117,"width":1280,"height":902},"dpiScale":1.5}
+fixture row carries own HWND: 265416 (hex 0x40cc8), pid 32996
+windowIdentity(265416) -> {"handle":265416,"processId":32996,"title":"m16-chooser-fixture-9d4e7.txt - Notepad","bounds":{"x":190,"y":117,"width":1280,"height":902},"dpiScale":1.5}
+captureWindow(265416) -> 39596 bytes, 1906x1346; PNG sig ok=true; IHDR 1906x1346; saved C:/Users/user/repos/Gen-V1-m16-bridge/m16-chooser-capture.png
+windowIdentity(0) -> null (expect null/fail-closed)
+pickWindow(null) rejected = CONTROL_PICKER_BINDING_UNSUPPORTED: the capture picker cannot return an authoritative window identity; selected-window control is held.
+fixture: left window pid 32996 open (shared notepad process); chooser qualification complete

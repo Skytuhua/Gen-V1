@@ -1,11 +1,8 @@
-argv: ["powershell","-NoProfile","-Command","Get-FileHash -Algorithm SHA256 packages/core/windows-control-bridge.node"]
+argv: ["certutil","-hashfile","packages/core/windows-control-bridge.node","SHA256"]
 cwd: C:/Users/user/repos/Gen-V1-m16-bridge
 exitCode: 0
 termination: NONE
 
-
-Algorithm       Hash                                                                   Path                            
----------       ----                                                                   ----                            
-SHA256          FC7F21614F1E6424BCAF77E78B8B26027CC6CEBE530CD72947E6C5522B54C1E4       C:\Users\user\repos\Gen-V1-m1...
-
-
+SHA256 hash of packages/core/windows-control-bridge.node:
+aaa362f62062862345222fb982d69eb129cb2d02d529edde3e2488243baba27a
+CertUtil: -hashfile command completed successfully.
