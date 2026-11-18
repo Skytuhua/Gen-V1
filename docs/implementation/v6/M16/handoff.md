@@ -176,11 +176,16 @@ production flag change.
   `windowIdentity` null; **same-process replacement on recycled HWND
   `0xB0898` → old bindingId null + capture refused** (live HWND-recycling
   refusal demonstrated); `dropBinding` → null+refused. `pickWindow` still
-  `CONTROL_PICKER_BINDING_UNSUPPORTED`. Defect found+fixed: teardown
-  `0xC0000005` from static-map item release after WinRT teardown →
-  `a3fced63` drains bindings on env teardown via the STA thread. Browser
-  slice BLOCKED on the deterministic `backend-deadline` environment issue
-  (backend alone boots; Electron-spawned sidecar misses the 60s deadline).
+  `CONTROL_PICKER_BINDING_UNSUPPORTED`. Defect found: teardown
+  `0xC0000005` — held `GraphicsCaptureItem`s released by the static-map
+  destructor after the WinRT apartment died. First fix (env-cleanup drain,
+  `a3fced63`) proved ineffective on re-verification (manual drop exits 0,
+  held bindings still crash — hook fires too late); structural fix
+  `9ffed8e5` heap-allocates the registry and never destructs it, so no item
+  release can outlive the apartment — teardown re-verification pending on
+  this head. Browser slice BLOCKED on the deterministic `backend-deadline`
+  environment issue (backend alone boots; Electron-spawned sidecar misses
+  the 60s deadline; port-9222 also held by the host Chrome fleet).
 - Older receipts @ `bdf5e27c` (hold cut): vitest 56/56, typecheck/lint 0,
   artifact `FC7F2161…C1E4`, all three exports refusing — preserved in git
   history and superseded by the `636d9095` bound-item receipts above.
