@@ -20,7 +20,8 @@ beforeAll(() => {
   // give each case an independent executable directory without another copy.
   copyFileSync(process.execPath, node, constants.COPYFILE_FICLONE);
 });
-afterAll(() => { if (directory) rmSync(directory, { recursive: true, force: true }); });
+// Windows can briefly keep the copied Node executable locked after child exit.
+afterAll(() => { if (directory) rmSync(directory, { recursive: true, force: true, maxRetries: 5 }); });
 
 function fixture(version = '10.30.3') {
   const root = mkdtempSync(join(directory, 'case '));
