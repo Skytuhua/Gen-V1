@@ -116,6 +116,20 @@ test('conflict resolution requires explicit revisions and a note before preservi
   await expect.poll(() => fixture.writes.length).toBe(1); expect(fixture.writes[0].operation).toEqual({action: 'resolve', itemId: 'conflict', baseRevision: 3, survivingRevisions: [2, 3], note: 'Both versions apply to different deployment targets.'});
 });
 
+test('a completed conflict draft cannot be submitted after the review becomes read-only', async ({page}) => {
+  const fixture = await host(page); await page.goto('/project-memory?review-permissions');
+  const panel = modal(page); await panel.getByRole('tab', {name: 'Conflicts', exact: true}).click();
+  const revision = panel.getByRole('checkbox', {name: 'Keep revision 2', exact: true}), note = panel.getByRole('textbox', {name: 'Resolution note', exact: true});
+  const resolve = panel.getByRole('button', {name: 'Resolve conflict', exact: true});
+  await revision.check(); await note.fill('Keep the earlier API version.'); await expect(resolve).toBeEnabled();
+  await page.evaluate(() => (window as unknown as {setReviewReadOnly(value: boolean): void}).setReviewReadOnly(true));
+  await expect(revision).toBeChecked(); await expect(revision).toBeDisabled();
+  await expect(note).toHaveValue('Keep the earlier API version.'); await expect(note).toBeDisabled(); await expect(resolve).toBeDisabled();
+  await resolve.evaluate(button => (button as HTMLButtonElement).form!.requestSubmit());
+  await panel.getByRole('button', {name: 'View source for revision 2', exact: true}).click();
+  await expect(panel.getByRole('region', {name: 'Supporting source'})).toContainText(sourceContent); expect(fixture.writes).toEqual([]);
+});
+
 test('forget names invalidated artifacts before committing and shows pending purge afterward', async ({page}) => {
   const fixture = await host(page); await open(page); const panel = modal(page); await panel.getByRole('button', {name: 'Forget accepted', exact: true}).click();
   const preview = panel.getByRole('region', {name: 'Forget preview'}); await expect(preview).toContainText('index-project-a'); await expect(preview).toContainText('summary-project-a'); await expect(preview).toContainText('immediately'); expect(fixture.writes).toHaveLength(0);
