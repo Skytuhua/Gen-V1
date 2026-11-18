@@ -48,8 +48,28 @@ export function resolvePackageManager(repoRoot: string): PackageManagerResolutio
   // entry on Windows is node.exe plus corepack's per-manager dispatcher.
   const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
   if (existsSync(dispatcher)) return { file: process.execPath, prefix: [dispatcher], declaredVersion: declared };
-  const corepack = resolveExecutable('corepack');
-  return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+  try {
+    const corepack = resolveExecutable('corepack');
+    return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+  } catch (error) {
+    if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
+  }
+  // Corepack is optional when the declared pnpm is already installed. Resolve
+  // npm's symlink or the JavaScript entry beside its Windows shim; never run
+  // a .cmd file through shell:false or download a replacement toolchain.
+  for (const directory of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
+    for (const name of ['pnpm', 'pnpm.exe', 'pnpm.cmd', 'pnpm.CMD']) {
+      const target = join(directory, name);
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      const actual = realpathSync(target);
+      if (/\.exe$/i.test(actual)) return { file: actual, prefix: [], declaredVersion: declared };
+      for (const entry of [actual, join(dirname(actual), 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'), join(dirname(actual), '..', 'pnpm', 'bin', 'pnpm.cjs')]) {
+        if (/\.[cm]?js$/i.test(entry) && existsSync(entry) && statSync(entry).isFile())
+          return { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
+      }
+    }
+  }
+  throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
 }
 
 export interface RecordedObservation {
@@ -84,7 +104,9 @@ export async function runRecordedCommand(file: string, args: string[], options: 
   options.signal?.addEventListener('abort', onAbort, { once: true });
   if (options.signal?.aborted) controller.abort();
   try {
-    const result = await runProcess(resolved.file, args, cwdIdentity, controller.signal, () => {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS, options.environment ?? {}, options.outputLimit ?? OUTPUT_LIMIT);
+    const environment = options.environment?.COREPACK_ENABLE_NETWORK === '0' && process.env.COREPACK_HOME
+      ? { COREPACK_HOME: process.env.COREPACK_HOME, ...options.environment } : options.environment;
+    const result = await runProcess(resolved.file, args, cwdIdentity, controller.signal, () => {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS, environment, options.outputLimit ?? OUTPUT_LIMIT);
     return finish({ cwdIdentity, executableIdentity: resolved.identity, exitCode: result.exitCode, termination: result.cancelled ? 'CANCELLED' : result.timedOut ? 'TIMEOUT' : 'NONE', stdout: result.stdout, stderr: result.stderr, truncated: result.truncated, pid: result.pid });
   } catch (error) {
     if (error instanceof HarnessError && error.code === 'CANCELLED')
@@ -221,11 +243,14 @@ export async function runBaseline(outDir: string, repoRoot = root): Promise<{ co
   if (existsSync(outDir)) throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
   const pm = resolvePackageManager(repoRoot);
   const commands: CommandEvidence[] = [];
-  const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000 });
+  const environment = { COREPACK_ENABLE_NETWORK: '0' };
+  const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000, environment });
   const packageManagerVersion = statusFromObservation(versionObs) !== 'PASS' ? 'unavailable' : versionObs.stdout.trim().split('\n').at(-1) ?? 'unavailable';
   commands.push(await writeCommandEvidence(versionObs, outDir, '00-package-manager', statusFromObservation(versionObs)));
+  if (!pm.declaredVersion || packageManagerVersion !== pm.declaredVersion)
+    throw new HarnessError('INCOMPATIBLE_TOOLCHAIN', `Installed pnpm ${packageManagerVersion} does not match the declared version ${pm.declaredVersion ?? 'unavailable'}.`);
   for (const item of baselineCommands(pm)) {
-    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: DEFAULT_TIMEOUT_MS });
+    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: DEFAULT_TIMEOUT_MS, environment });
     commands.push(await writeCommandEvidence(observation, outDir, `10-${item.id}`, statusFromObservation(observation)));
   }
   return { commands, platform: `${process.platform}-${process.arch}`, nodeVersion: process.version, packageManagerVersion };
