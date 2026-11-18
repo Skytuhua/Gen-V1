@@ -2623,6 +2623,7 @@
     "tests/attention-popups.test.ts",
     "tests/attention.test.ts",
     "tests/backend-pdf.test.ts",
+    "tests/baseline-cancellation-v3.test.ts",
     "tests/baseline-oversized-output-v3.test.ts",
     "tests/browser-consent-v3.test.ts",
     "tests/browser-runner.test.ts",
