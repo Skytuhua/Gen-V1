@@ -1,10 +1,32 @@
 import {expect,it,vi} from 'vitest';
 import type {RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 import {createHermesBroker} from '../packages/runtime-hermes/broker.ts';
+import type {ContextInferenceBudgetV1} from '../packages/contracts/request-context.ts';
 
 const input:StartRun={threadId:'outer',runId:'run',epoch:3,inputId:'input',inputIds:['input'],modelId:'openai/model',accountId:'selected-account',prompt:'user',sessionPath:null,resources:[]};
 function native(){let callbacks!:RuntimeCallbacks;let started!:StartRun;const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:async()=>[],start:vi.fn(async value=>{started=value;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};return{runtime,get input(){return started;},event(type:string,data:Record<string,unknown>={}){callbacks.onEvent({...started,type,...data});},tool(){return callbacks.onTool({name:'write',args:{}},started);}};}
 const post=(broker:{url:string;key:string},body:unknown,signal?:AbortSignal)=>fetch(broker.url,{method:'POST',headers:{Authorization:'Bearer '+broker.key,'content-type':'application/json'},body:JSON.stringify(body),signal});
+it.each([false,true])('blocks the actual next prompt byte limit before native dispatch with measurement enabled=%s',async enabled=>{
+ const factory=vi.fn(()=>native().runtime),budgets:ContextInferenceBudgetV1[]=[],onContextRequest=vi.fn();
+ const b=await createHermesBroker({input,createRuntime:factory,...(enabled?{contextBudget:{scope:null},onContextBudget:(budget:ContextInferenceBudgetV1)=>{budgets.push(budget);}}:{}),onContextRequest});
+ try{b.expect({sequence:1,inputIds:['input'],phase:'foreground'});const response=await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'x'.repeat(16*1024*1024+1)});
+  expect(response.status).toBe(413);expect(await response.json()).toMatchObject({code:'HERMES_CONTEXT_BYTE_LIMIT'});
+  expect(factory).not.toHaveBeenCalled();expect(onContextRequest).not.toHaveBeenCalled();expect(b.usage(1)).toBeNull();
+  expect(budgets).toHaveLength(enabled?1:0);if(enabled)expect(budgets[0]).toMatchObject({byteAdmission:'BLOCKED',promptBytes:16*1024*1024+1,tokenAdmission:'UNAVAILABLE',reservedOutputTokens:null,requiredTokens:null});
+ }finally{await b.close();}
+});
+it('records measured prior usage only for the next inference and does not budget a completed turn',async()=>{
+ const n=native(),budgets:ContextInferenceBudgetV1[]=[],b=await createHermesBroker({input,createRuntime:()=>n.runtime,contextBudget:{scope:'same-source-owner'},onContextBudget:budget=>{budgets.push(budget);}});
+ const cut=(digest:string,previousDigest:string|null,bytes:number)=>({receipt:null,unavailableReason:null,previousDigest,projection:{source:'ORIGINAL_ACP_MESSAGES' as const,measurement:'BYTE_ONLY' as const,generation:1,revisionDigest:digest.repeat(64),change:previousDigest?'APPEND' as const:'RESET' as const,sourceCount:2,sourceBytes:bytes,reusedSources:previousDigest?1:0,compiledSources:previousDigest?1:2,inspectedSources:2,newToolResults:previousDigest?1:null,newToolResultBytes:previousDigest?80:null,sources:[],omittedSources:2}});
+ try{b.expect({sequence:1,inputIds:['input'],phase:'foreground',nativeContext:cut('a',null,100)});const first=post(b,{sessionId:'acp',modelId:input.modelId,prompt:'first'});
+  await vi.waitFor(()=>expect(n.runtime.start).toHaveBeenCalledTimes(1));n.event('usage',{usage:{inputTokens:12,cacheReadTokens:80,contextTokens:5000,contextWindow:10000}});n.event('settled');expect((await first).status).toBe(200);
+  expect(budgets).toHaveLength(1);expect(budgets[0].previousRequest).toBeNull();
+  b.expect({sequence:2,inputIds:['input'],phase:'foreground',nativeContext:cut('b','a'.repeat(64),200)});const second=post(b,{sessionId:'acp',modelId:input.modelId,prompt:'second'});
+  await vi.waitFor(()=>expect(n.runtime.start).toHaveBeenCalledTimes(2));expect(budgets).toHaveLength(2);
+  expect(budgets[1]).toMatchObject({sourceContinuity:'VERIFIED',newSourceBytes:100,newToolResultBytes:80,normalizedInputTokens:null,newUnreportedToolTokens:null,reservedOutputTokens:null,requiredTokens:null,previousRequest:{sequence:1,inputTokens:12,cacheReadTokens:80,reportedContextTokens:5000,contextMeasurement:'UNSPECIFIED'}});
+  n.event('settled');expect((await second).status).toBe(200);expect(budgets).toHaveLength(2);
+ }finally{await b.close();}
+});
 it('awaits owned inference admission before constructing or starting a provider runtime',async()=>{
  const n=native(),factory=vi.fn(()=>n.runtime),onContextRequest=vi.fn();let release!:()=>void;
  const beforeInference=vi.fn(()=>new Promise<void>(done=>{release=done;})),b=await createHermesBroker({input,createRuntime:factory,beforeInference,onContextRequest});

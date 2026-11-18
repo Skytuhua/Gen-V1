@@ -138,6 +138,29 @@ export const nativeContextProjectionSchema = z.strictObject({ source: z.literal(
     value.sources.every((source, index) => source.sourceId === `native:${value.generation}:${index}`) && value.sources.reduce((sum, source) => sum + source.utf8Bytes, 0) <= value.sourceBytes,
   'Native source projection does not match its bounded cut');
 
+/** Current ACP adapters expose no compatible tokenizer or actual output reserve.
+ * Runtime context reports may be estimates; they are not normalized input usage. */
+export const inferenceBudgetSchema = z.strictObject({
+  version: z.literal(1), sequence: nativeCount.min(1), promptBytes: nativeCount.max(32 * 1024 * 1024), maxPromptBytes: z.literal(16 * 1024 * 1024),
+  measurement: z.literal('BYTE_ONLY'), byteAdmission: z.enum(['WITHIN_LIMIT', 'BLOCKED']), tokenAdmission: z.literal('UNAVAILABLE'),
+  sourceContinuity: z.enum(['VERIFIED', 'UNAVAILABLE']), newSourceBytes: nativeCount.max(32 * 1024 * 1024).nullable(), newToolResultBytes: nativeCount.max(32 * 1024 * 1024).nullable(), newToolResults: nativeCount.max(4096).nullable(),
+  previousRequest: z.strictObject({ requestId: z.string().min(1).max(200), sequence: nativeCount.min(1), inputTokens: nativeCount.nullable(), outputTokens: nativeCount.nullable(),
+    cacheReadTokens: nativeCount.nullable(), cacheWriteTokens: nativeCount.nullable(), reportedContextTokens: nativeCount.nullable(), contextWindowTokens: nativeCount.nullable(),
+    usageConvention: z.enum(['provider-reported', 'unreported']), contextMeasurement: z.literal('UNSPECIFIED') }).nullable(),
+  normalizedInputTokens: z.null(), newUnreportedToolTokens: z.literal(0).nullable(), reservedOutputTokens: z.null(), requiredTokens: z.null(), shouldConsiderCompaction: z.null(),
+  unknown: z.array(z.enum(['NORMALIZED_INPUT', 'TOKENIZER', 'OUTPUT_RESERVE', 'CONTEXT_WINDOW', 'SOURCE_CONTINUITY'])).max(5),
+}).refine(value => value.byteAdmission === (value.promptBytes > value.maxPromptBytes ? 'BLOCKED' : 'WITHIN_LIMIT') &&
+  (value.previousRequest === null || value.previousRequest.sequence < value.sequence) && new Set(value.unknown).size === value.unknown.length &&
+  value.unknown.includes('NORMALIZED_INPUT') && value.unknown.includes('OUTPUT_RESERVE') &&
+  (value.sourceContinuity === 'UNAVAILABLE' ? value.newSourceBytes === null && value.newToolResultBytes === null && value.newToolResults === null && value.newUnreportedToolTokens === null :
+    value.previousRequest !== null && value.newSourceBytes !== null && value.newToolResultBytes !== null && value.newToolResults !== null && value.newSourceBytes >= value.newToolResultBytes &&
+    value.newUnreportedToolTokens === (value.newToolResultBytes === 0 ? 0 : null)), 'Inference budget does not match its observed components');
+export type ContextInferenceBudgetV1 = z.infer<typeof inferenceBudgetSchema>;
+export interface ContextInferenceBudgetObservationV1 {
+  readonly threadId: string; readonly runId: string; readonly epoch: number;
+  readonly budget: ContextInferenceBudgetV1;
+}
+
 export interface ContextRequestObservationV1 {
   readonly threadId: string;
   readonly runId: string;

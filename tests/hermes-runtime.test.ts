@@ -78,11 +78,13 @@ it('compiles an owned native source delta only at its real broker request and pr
   const first=post();await vi.waitFor(()=>expect(f.natives[0]?.input).toBeDefined());
   expect(f.events.find(event=>event.type==='context.request')).toMatchObject({sequence:1,promptBytes:26,nativeSources:{source:'ORIGINAL_ACP_MESSAGES',reusedSources:0,compiledSources:2}});
   expect(f.natives[0].input.prompt).toBe('Opaque actual broker input');expect(f.natives[0].input).not.toHaveProperty('nativeContextCut');
+  f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'usage',usage:{inputTokens:12,outputTokens:9,cacheReadTokens:80,contextTokens:5000,contextWindow:10000}});
   f.natives[0].callbacks.onEvent({...f.natives[0].input,type:'settled'});expect((await first).status).toBe(200);
   const tool={sequence:2,id:'native:1:2',revision:1,category:'TOOL',utf8Bytes:40,sha256:hash('native tool')},all=[...sources,tool];
   const next={...cut,previousDigest:cut.revisionDigest,revisionDigest:hash([capture.bindingDigest,schemaDigest,1,all.map(source=>[source.sha256,source.utf8Bytes,source.category])]),sourceCount:3,sourceBytes:90,reusedSources:2,inspectedSources:3,sources:[tool],change:'APPEND',newToolResults:1,newToolResultBytes:40};
   f.event('model_request',{sequence:2,inputIds:['input'],nativeContextCut:next});const second=post();await vi.waitFor(()=>expect(f.natives[1]?.input).toBeDefined());
   expect(f.events.filter(event=>event.type==='context.request').at(-1)).toMatchObject({sequence:2,nativeSources:{sourceCount:3,reusedSources:2,compiledSources:1,newToolResultBytes:40}});
+  expect(f.events.filter(event=>event.type==='context.budget').at(-1)).toMatchObject({provider:'hermes',budget:{sequence:2,measurement:'BYTE_ONLY',sourceContinuity:'VERIFIED',newSourceBytes:40,newToolResultBytes:40,newToolResults:1,previousRequest:{sequence:1,inputTokens:12,cacheReadTokens:80,reportedContextTokens:5000},normalizedInputTokens:null,reservedOutputTokens:null,requiredTokens:null}});
   f.natives[1].callbacks.onEvent({...f.natives[1].input,type:'settled'});expect((await second).status).toBe(200);
   expect(()=>f.event('model_request',{sequence:3,inputIds:['input'],nativeContextCut:{...next,bindingDigest:'f'.repeat(64)}})).toThrow('native context cut');
   await f.settle();

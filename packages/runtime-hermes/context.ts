@@ -19,7 +19,7 @@ export interface NativeContextBinding {
   owner: RequestContextV1['owner']; modelBinding: RequestContextV1['modelBinding'];
   bindingDigest: string; instructionDigest: string; toolRegistryDigest: string; grantDigest: string;
 }
-export interface NativeContextCompilation { receipt: RequestContextV1 | null; projection: NativeContextProjectionV1 | null; unavailableReason: 'SOURCE_LIMIT' | 'UNSUPPORTED_SOURCE' | null }
+export interface NativeContextCompilation { receipt: RequestContextV1 | null; projection: NativeContextProjectionV1 | null; unavailableReason: 'SOURCE_LIMIT' | 'UNSUPPORTED_SOURCE' | null; previousDigest?: string | null }
 const hash = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const invalid = (): never => { throw new HarnessError('HERMES_CONTEXT_INVALID', 'The native context cut does not match its admitted source prefix.'); };
 
@@ -66,7 +66,7 @@ export function createNativeContextCompiler() {
         sources: sources.map(source => ({ sequence: source.sequence, id: source.id, revision: source.revision, category: source.category,
           contentRef: 'native-sha256:' + source.sha256, inclusionReason: 'observed original ACP source metadata; provider formatting remains opaque' })) });
       retained = { scope, generation: cut.generation, digest: cut.revisionDigest, schema: cut.schemaDigest, sources };
-      return { receipt, unavailableReason: null, projection: { source: 'ORIGINAL_ACP_MESSAGES', measurement: 'BYTE_ONLY', generation: cut.generation,
+      return { receipt, unavailableReason: null, previousDigest: cut.previousDigest, projection: { source: 'ORIGINAL_ACP_MESSAGES', measurement: 'BYTE_ONLY', generation: cut.generation,
         revisionDigest: cut.revisionDigest, change: cut.change, sourceCount: cut.sourceCount, sourceBytes: cut.sourceBytes, reusedSources: cut.reusedSources,
         compiledSources: reads, inspectedSources: cut.inspectedSources, newToolResults: cut.newToolResults, newToolResultBytes: cut.newToolResultBytes,
         sources: sources.slice(0, 32).map(source => ({ category: source.category, sourceId: source.id, sourceRevision: source.revision, utf8Bytes: source.utf8Bytes, sha256: source.sha256 })),
