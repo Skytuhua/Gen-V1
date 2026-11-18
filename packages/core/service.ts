@@ -870,7 +870,10 @@ export class Service {
       const domain = await import("../capabilities/index.ts");
       const observed = await domain.reconcileDomainOperation(operation, this.context(thread.id));
       return this.store.command(command, () => {
-        const current = this.store.get<Operation>("operation", operation.id)!;
+        const current = this.store.get<Operation>("operation", operation.id), currentThread = this.store.get<Thread>("thread", thread.id);
+        if (this.closed || !currentThread || this.store.get("archivedThread", thread.id)
+          || digest(ownerFor(currentThread)) !== digest(ownerFor(thread)) || !current || digest(current) !== digest(operation))
+          throw new HarnessError("STALE_OPERATION", "The action or its owner changed while inspecting its outcome. Reload the action before inspecting again.");
         const next = { ...current, status: observed.status, ...(observed.result !== undefined ? { result: observed.result } : {}), error: observed.status === "unknown" ? observed.message : undefined };
         this.store.put("operation", operation.id, thread.id, next); this.operationData(next); return observed;
       });
