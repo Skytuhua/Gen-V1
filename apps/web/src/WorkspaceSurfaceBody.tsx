@@ -21,6 +21,7 @@ import {TerminalBody} from './TerminalBody.tsx';
 export {TerminalBody} from './TerminalBody.tsx';
 import './workspace-tools.css';
 import {ProjectFiles} from './files/ProjectFiles';
+import {panelLabels} from './WorkspaceControls';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
 const post=<T,>(url:string,body:unknown,isCurrent?:()=>boolean)=>authenticated(()=>{if(isCurrent&&!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});}).then(read<T>);
@@ -64,8 +65,8 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  const files=<GrantedFiles snapshot={snapshot} threadId={threadId} preferredResourceId={binding.resourceId}/>,recordedDiff=<RecordedDiffPanel snapshot={snapshot} threadId={threadId} preferences={prefs}/>;
  if(!projectId&&kind==='files')return files;
  if(!projectId&&kind==='diff')return recordedDiff;
- if(!projectId&&(kind==='pull-request'||kind==='linked-pull-requests'))return <><GitHubSignIn active={active} timeFormat={prefs.timeFormat}/><p className="panel-note">Connect and select a project to use {kind}.</p></>;
- if(!projectId)return <p className="panel-note">Connect and select a project to use {kind}.</p>;
+ if(!projectId&&(kind==='pull-request'||kind==='linked-pull-requests'))return <><GitHubSignIn active={active} timeFormat={prefs.timeFormat}/><p className="panel-note">Connect a project to use {panelLabels[kind].toLowerCase()}.</p></>;
+ if(!projectId)return <p className="panel-note">Connect a project to use {panelLabels[kind].toLowerCase()}.</p>;
  const base='/api/projects/'+encodeURIComponent(projectId),query=new URLSearchParams(threadId?{threadId}:{});
  if(kind==='files')return <FilesBody base={base} query={query} active={active} fallback={files}/>;
  if(kind==='diff')return <ChangesBody key={base+'?'+query} base={base} query={query} active={active} recorded={recordedDiff} preferences={prefs}/>;

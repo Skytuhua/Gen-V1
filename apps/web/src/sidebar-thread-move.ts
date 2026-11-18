@@ -93,8 +93,8 @@ export function useThreadMove(sidebar: RefObject<HTMLElement | null>, matching: 
       onClickCapture: (event: { detail: number }) => { pointer.current = event.detail > 0; },
       onKeyDownCapture: () => { pointer.current = false; },
     },
-    prepare: (id: string, order: number) => {
-      const animate = pointer.current && enabled && readMotionPolicy() === 'full';
+    prepare: (id: string, order: number, viaPointer?: boolean) => {
+      const animate = (viaPointer ?? pointer.current) && enabled && readMotionPolicy() === 'full';
       pointer.current = false;
       pending.current = animate ? { id, order, scope, positions: positions(), scrollTop: sidebar.current?.querySelector('.thread-list')?.scrollTop ?? 0 } : null;
       if (!animate) stop();
