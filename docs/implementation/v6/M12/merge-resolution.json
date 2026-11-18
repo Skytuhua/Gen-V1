@@ -332,5 +332,30 @@
     "autoMerged": "all other paths clean; 12-file main delta only vs 941c8045",
     "verification": "Manifest validated at the integrated cut (version 1, sorted+unique, source 4385 / runtime 299, both unions present); tests/public-source.test.ts 13/13 PASS in the detached R04 scout worktree. Prior-cut receipts remain bound to e816a081 (full gates) and 2e949a66 (R03 smoke); this commit adds no new gate evidence.",
     "log": "tests/public-source.test.ts: 13/13 pass, 18.1s, cut 4df19a1c"
+  },
+  "r05": {
+    "main": "d6a8827c48e85104e90c7d0c8cf0c2d468f78fac",
+    "mergeCommit": "10c738a10713c1d8c48b9c4af3ecf1a3968280a1",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "base": "331f455",
+        "ours": "8ac9f3b",
+        "theirs": "bad7fa9",
+        "decision": "sorted unique union \u2014 current main manifest + 44 M12 source / 17 runtime entries; main added 27 M17 source + 3 runtime; result source 4413 runtime 302"
+      },
+      "packages/core/capability-flags.ts": {
+        "base": "c167e5b",
+        "ours": "d32c818",
+        "theirs": "2819153",
+        "decision": "retained both registries \u2014 M17_FLAG_KEYS + M12_FLAG_KEYS, union type | M17FlagKey | M12FlagKey, both hostDefinitions, no duplicate keys, ownership/defaults unchanged"
+      },
+      "apps/server/server.ts": {
+        "base": "1f4e2dc",
+        "ours": "e4b5106",
+        "theirs": "acce5465",
+        "decision": "both route imports kept; registerToolProgramRoutes (M12) and registerDevicePairingRoutes (M17) each registered once with existing wiring"
+      }
+    },
+    "note": "All three conflicts were additive unions; no semantic conflicts appeared. Other upstream changes (M17, M04 supplement) preserved unchanged."
   }
 }
