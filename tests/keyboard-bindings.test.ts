@@ -136,6 +136,12 @@ describe('keyboard binding registry', () => {
     expect(shortcutKeys('Escape', 'other')).toBe('Esc');
     expect(shortcutKeys('Home', 'other')).toBe('Home');
     expect(shortcutKeys('Ctrl+ArrowUp', 'other')).toBe('Ctrl+↑');
+    expect(shortcutKeys('Ctrl+K', 'mac')).toBe('⌘K');
+    expect(shortcutKeys('Ctrl+Meta+K', 'mac')).toBe('⌃⌘K');
+    expect(shortcutKeys('Ctrl+Meta+K', 'other')).toBe('Ctrl+Meta+K');
+    const combined = {key: 'k', ctrlKey: true, metaKey: true, shiftKey: false, altKey: false};
+    expect(matchesShortcut(combined, 'Ctrl+Meta+K')).toBe(true);
+    expect(matchesShortcut({...combined, ctrlKey: false}, 'Ctrl+Meta+K')).toBe(false);
     expect(ariaShortcut('Ctrl+Shift+A')).toBe('Control+Shift+A');
     expect(ariaShortcut('Alt+ArrowUp')).toBe('Alt+ArrowUp');
     expect(shortcutPlatform({platform: 'MacIntel'})).toBe('mac');

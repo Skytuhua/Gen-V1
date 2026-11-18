@@ -73,7 +73,9 @@ export function shortcutPlatform(nav: {platform?: string; userAgent?: string} | 
 /** Formats a canonical chord for the person's keyboard, e.g. ⌘K on mac and Ctrl+K elsewhere. */
 export function shortcutKeys(chord: string, platform: ShortcutPlatform = shortcutPlatform()): string {
   const {modifiers, key} = readChord(chord), named = spellKey(key, displayKeys[key]);
-  return platform === 'mac' ? `${modifiers.map(modifier => macModifiers[modifier] ?? modifier.toUpperCase()).join('')}${named}` : [...modifiers.map(modifier => displayModifiers[modifier] ?? modifier), named].join('+');
+  // A lone Ctrl means either platform modifier, but Ctrl+Meta needs both, so mac must spell the Control key it requires.
+  const both = platform === 'mac' && modifiers.includes('ctrl') && modifiers.includes('meta');
+  return platform === 'mac' ? `${modifiers.map(modifier => both && modifier === 'ctrl' ? '⌃' : macModifiers[modifier] ?? modifier.toUpperCase()).join('')}${named}` : [...modifiers.map(modifier => displayModifiers[modifier] ?? modifier), named].join('+');
 }
 
 /** Canonical aria-keyshortcuts spelling for one chord. */
