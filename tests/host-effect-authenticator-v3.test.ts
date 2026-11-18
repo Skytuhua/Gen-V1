@@ -1,5 +1,20 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import * as childProcess from 'node:child_process';
+
+// ESM module namespaces are not configurable: vi.spyOn cannot wrap 'node:child_process'.
+// Delegate to the real spawn through vi.mock and record the guard children instead.
+const guardChildren = vi.hoisted(() => [] as import('node:child_process').ChildProcess[]);
+vi.mock('node:child_process', async original => {
+  const mod = await original<typeof import('node:child_process')>();
+  return {
+    ...mod,
+    spawn: (...args: Parameters<typeof mod.spawn>) => {
+      const child = mod.spawn(...args);
+      if (Array.isArray(args[1]) && args[1].some(value => String(value).endsWith('windows-path-guard.ps1'))) guardChildren.push(child);
+      return child;
+    },
+  };
+});
 import { once } from 'node:events';
 import { copyFile, link, mkdir, mkdtemp, readFile, rename, rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -158,15 +173,9 @@ describe.runIf(process.platform === 'win32')('real Windows effect-key custody', 
   });
 
   it('revokes synchronous authority when its actual owned native guard exits', async () => {
-    const root = await directory(), originalSpawn = childProcess.spawn;
-    const guards: childProcess.ChildProcess[] = [];
-    vi.spyOn(childProcess, 'spawn').mockImplementation((...args: Parameters<typeof childProcess.spawn>) => {
-      const child = originalSpawn(...args);
-      if (Array.isArray(args[1]) && args[1].some(value => String(value).endsWith('windows-path-guard.ps1'))) guards.push(child);
-      return child;
-    });
+    const root = await directory();
     const custody = owned(await initializeEffectKey(root, { codec }));
-    const guard = guards.filter(child => child.exitCode === null && child.signalCode === null).at(-1);
+    const guard = guardChildren.filter(child => child.exitCode === null && child.signalCode === null).at(-1);
     expect(guard?.pid).toBeTruthy();
     const stopped = once(guard!, 'exit');
     expect(guard!.kill()).toBe(true); await stopped;
