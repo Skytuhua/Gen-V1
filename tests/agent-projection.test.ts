@@ -195,6 +195,16 @@ it('bounds content lookup by signed message identity, independently of conversat
   expect(prepare.mock.calls.some(([sql]) => /SELECT id FROM entities WHERE kind='message' AND thread_id=\?/.test(sql))).toBe(false);
 });
 
+it('refuses transcript text whose SQLite slice contradicts its declared length', () => {
+  const x = setup(); x.putThread(thread('a'));
+  // An unpaired escaped surrogate is written once but its UTF-8 slice expands
+  // into several replacement characters, so the declared length, the returned
+  // text and the cursor arithmetic would disagree.
+  x.putMessage('a', 'long', '\ud800'.repeat(5000)); x.putMessage('a', 'short', 'a\ud83db');
+  const p = x.open();
+  expect(() => p.history({ agentId: 'thread:a' })).toThrow(expect.objectContaining({ code: 'CAPABILITY_DENIED' }));
+});
+
 it('does not inspect stored message bodies to rediscover an already active canonical parent on progress events', () => {
   const x = setup(); x.putThread(thread('a')); x.putPlan('a', [job('reader')]); x.putMessage('a', 'large', 'x'.repeat(100000));
   x.open(); const prepare = vi.spyOn(x.store.db, 'prepare');
