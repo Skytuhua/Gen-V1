@@ -2623,6 +2623,7 @@
     "tests/attention-popups.test.ts",
     "tests/attention.test.ts",
     "tests/backend-pdf.test.ts",
+    "tests/benchmark-report-availability-v3.test.ts",
     "tests/browser-consent-v3.test.ts",
     "tests/browser-runner.test.ts",
     "tests/browser-verification-v3.test.ts",
