@@ -39,6 +39,13 @@ export function m12Ledger(store: Store, authority: ToolAuthority): ToolEffectLed
     createToolEffectFlags({ 'audit.effectsV1': true }),
     createEffectAuthenticator(M12_EFFECT_KEY, M12_EFFECT_KEY_ID));
 }
+
+/** The same deterministic credentials for a Service that reopens a store whose
+ * receipts were admitted by m12Ledger/the crash child: deployment-realistic
+ * custody keeps the same key across restart. */
+export function m12EffectAuthenticator() {
+  return createEffectAuthenticator(M12_EFFECT_KEY, M12_EFFECT_KEY_ID);
+}
 interface HarnessOptions {
   owner: ToolOwner;
   executor: ProgramExecutor;

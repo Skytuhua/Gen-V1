@@ -12,7 +12,7 @@ import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authorit
 import { PrivateToolResults } from '../packages/core/tool-results.ts';
 import { Store } from '../packages/storage/store.ts';
 import * as domain from '../packages/capabilities/index.ts';
-import { REPLAY_OWNER, m12Ledger, type CrashPoint, type ReplayFixtureState } from './fixtures/tool-program-replay-harness-v3.ts';
+import { REPLAY_OWNER, m12Ledger, m12EffectAuthenticator, type CrashPoint, type ReplayFixtureState } from './fixtures/tool-program-replay-harness-v3.ts';
 
 const cleanups: (() => Promise<void> | void)[] = [];
 afterEach(async () => {
@@ -67,8 +67,13 @@ async function crashed(point: CrashPoint) {
     cancel: vi.fn(async () => {}), compact: vi.fn(async () => {}), history: vi.fn(async () => []), dispose: vi.fn(async () => {}),
   };
   const executeRead = vi.spyOn(domain, 'handleDomainTool').mockRejectedValue(new Error('Recovery must not execute a tool'));
-  // No flag overrides and no program executor: exercise actual default-off Service startup.
-  const service = new Service(store, runtime);
+  // No M12 program flag overrides and no program executor: exercise actual
+  // default-off program startup. The reopened store holds audit-mode receipts,
+  // so the Service keeps the producing deployment's effect flag and key custody.
+  const service = new Service(store, runtime, {
+    toolEffectFlags: { 'audit.effectsV1': true },
+    toolEffectAuthenticator: m12EffectAuthenticator(),
+  });
   cleanups.push(() => service.dispose());
   return { store, service, runtime, executeRead, state, programId, unrelated, unlinked };
 }
@@ -85,8 +90,16 @@ function expectNoExecution(f: Awaited<ReturnType<typeof crashed>>) {
   expect(f.executeRead).not.toHaveBeenCalled();
   expect(f.service.programToolMetadata()).toEqual([]);
   expect(f.service.toolProgramView(REPLAY_OWNER.threadId).available).toEqual({ javascript: false, python: false, replay: false });
-  expect(f.store.get('toolEffect', f.unrelated.invocationId)).toEqual(f.unrelated);
-  expect(f.store.get('toolEffect', f.unlinked.invocationId)).toEqual(f.unlinked);
+  // Open M02 receipts without M12 linkage are reconciled by the generic effect
+  // recovery like any other interrupted dispatch: retained, never executed and
+  // rolled back to UNKNOWN_EXTERNAL_OUTCOME — never a committed state.
+  for (const prior of [f.unrelated, f.unlinked]) {
+    expect(f.store.get<ToolEffectRecord>('toolEffect', prior.invocationId)).toMatchObject({
+      invocationId: prior.invocationId, toolId: prior.toolId, owner: prior.owner,
+      privateArgumentCommitment: prior.privateArgumentCommitment, parentInvocationId: prior.parentInvocationId,
+      state: 'UNKNOWN_EXTERNAL_OUTCOME',
+    });
+  }
   for (const value of [f.store.snapshot(), f.store.eventsAfter(0), f.store.all('toolEffect'), f.service.toolProgramView(REPLAY_OWNER.threadId)]) {
     expect(JSON.stringify(value)).not.toContain('M12_REPLAY_PRIVATE_SOURCE');
     expect(JSON.stringify(value)).not.toContain('M12_RECOVERY_PRIVATE_FAILURE');

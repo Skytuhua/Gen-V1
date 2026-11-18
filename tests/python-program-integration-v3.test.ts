@@ -13,6 +13,7 @@ import type { PlatformProof } from '../packages/core/execution-policy.ts';
 import type { ResourceGrant, RuntimeAdapter, Thread } from '../packages/contracts/index.ts';
 import type { ToolOwner, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { ToolProgramResult } from '../packages/core/tool-programs.ts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const native = process.platform === 'linux' && process.arch === 'x64';
 const cleanups: (() => Promise<void>)[] = [], executors: ProgramExecutor[] = [];
@@ -55,6 +56,7 @@ async function fixture(options: { approved?: boolean; platformProof?: PlatformPr
   const store = new Store(join(directory, 'state'));
   const adapter: RuntimeAdapter = { configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
   const service = new Service(store, adapter, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectAuthenticator: testEffectAuthenticator(),
     toolPrograms: { flags: { 'tools.pythonKernelV1': true }, python: provider } });
   const thread: Thread = { id: owner.threadId, runId: owner.runId, epoch: owner.epoch, projectId: owner.projectId!, workspaceId: owner.workspaceId!,
     accountId: owner.accountBinding, title: 'Python integration', projectName: null, status: 'working', modelId: null, sessionPath: null, createdAt: '', updatedAt: '' };

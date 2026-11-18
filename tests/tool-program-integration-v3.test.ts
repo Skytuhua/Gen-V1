@@ -9,6 +9,7 @@ import type { RuntimeAdapter, Thread, ResourceGrant } from '../packages/contract
 import type { ToolProgramResult } from '../packages/core/tool-programs.ts';
 import * as domain from '../packages/capabilities/index.ts';
 import { buildServer } from '../apps/server/server.ts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { vi.restoreAllMocks(); for (const cleanup of cleanups.splice(0)) await cleanup(); });
@@ -17,6 +18,7 @@ async function fixture(enabled = true) {
   const executor = await createJavaScriptExecutor();
   const runtime: RuntimeAdapter = { configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
   const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true },
+    toolEffectAuthenticator: testEffectAuthenticator(),
     toolPrograms: { flags: { 'tools.jsReadProgramV1': enabled }, javascript: executor } });
   const thread: Thread = { id: 'thread', title: 'M12 integration', projectName: null, status: 'working', epoch: 1, runId: 'run', modelId: null, accountId: 'account', sessionPath: null, createdAt: '', updatedAt: '' };
   const filename = join(dir, 'source.json'); await writeFile(filename, '{"rows":[1,2,3]}'); const info = await stat(filename, { bigint: true });
