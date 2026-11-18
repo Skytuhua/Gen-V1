@@ -41,9 +41,9 @@ function samePath(a: string, b: string): boolean {
   return process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b;
 }
 
-/** Compute approved digests for root-relative files. Every path must resolve
- * inside the canonical root through the existing path-identity guards; links,
- * retargets and escapes are rejected, never followed. */
+/** Compute approved digests for root-relative files. Resolved aliases must
+ * stay inside the canonical root. Regular files must have exactly one link,
+ * matching the existing resource guard protection against hardlink aliases. */
 export async function approvedFileDigests(rootCanonicalPath: string, files: readonly { path: string; kind: 'executable' | 'configuration' }[]): Promise<ApprovedDigestV1[]> {
   const root = await canonical(rootCanonicalPath);
   const entries: ApprovedDigestV1[] = [];
@@ -54,6 +54,7 @@ export async function approvedFileDigests(rootCanonicalPath: string, files: read
     if (!inside(root, candidate)) throw new HarnessError('CAPABILITY_DENIED', 'An approved path leaves the trusted root');
     const info = await stat(candidate, { bigint: true });
     if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Approved digests require regular files');
+    if (info.nlink !== 1n) throw new HarnessError('CAPABILITY_DENIED', 'Approved files cannot have hardlink aliases');
     entries.push({ path: parsedPath, kind: file.kind, sha256: await sha256File(candidate) });
   }
   return entries;
@@ -148,13 +149,21 @@ export class ProjectTrustLedger {
     const prior = this.records.get(input.trustId)?.record;
     const record = await createProjectTrust({ ...input, revision: (prior?.revision ?? 0) + 1 });
     const envelope: TrustEnvelope = { version: 1, record, revokedAt: null };
+    const previous = this.records.get(record.trustId);
     this.records.set(record.trustId, Object.freeze(envelope));
-    this.persist(envelope);
-    return record;
+    try { this.persist(envelope); }
+    catch (error) {
+      if (this.records.get(record.trustId) === envelope) {
+        if (previous) this.records.set(record.trustId, previous);
+        else this.records.delete(record.trustId);
+      }
+      throw error;
+    }
+    return structuredClone(record);
   }
   get(trustId: string): Readonly<TrustEnvelope> | null {
     const envelope = this.records.get(trustId);
-    return envelope ? { ...envelope, record: { ...envelope.record } } : null;
+    return envelope ? structuredClone(envelope) : null;
   }
   revoke(trustId: string): boolean {
     const envelope = this.records.get(trustId);
@@ -171,6 +180,10 @@ export class ProjectTrustLedger {
     const envelope = this.records.get(trustId);
     if (!envelope) return { status: 'INVALIDATED', reasons: ['unknown-trust-record'] };
     if (envelope.revokedAt) return { status: 'INVALIDATED', reasons: ['trust-revoked'] };
-    return verifyProjectTrust(envelope.record, rootPath);
+    const verification = await verifyProjectTrust(envelope.record, rootPath);
+    const current = this.records.get(trustId);
+    if (current?.revokedAt) return { status: 'INVALIDATED', reasons: ['trust-revoked'] };
+    if (current !== envelope) return { status: 'INVALIDATED', reasons: ['trust-decision-changed'] };
+    return verification;
   }
 }

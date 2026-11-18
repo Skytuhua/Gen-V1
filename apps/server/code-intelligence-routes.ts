@@ -12,7 +12,7 @@ import {
 } from '../../packages/core/code-intelligence.ts';
 import { EditPreviewRegistry } from '../../packages/core/edit-preview.ts';
 import { DebugRegistry, type DebugAdapter } from '../../packages/core/debug-session.ts';
-import { selectBackend, type ExecutionBackend } from '../../packages/core/execution-policy.ts';
+import { assertProvenBackend, type ExecutionBackend } from '../../packages/core/execution-policy.ts';
 import { hostFlagEnabled, type RegisteredHostFlag } from '../../packages/core/host-flags.ts';
 import { ProjectVerificationService } from '../../packages/core/project-verification.ts';
 import type { CheckObservationV1 } from '../../packages/contracts/verification.ts';
@@ -76,13 +76,9 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   const env = options.env ?? process.env;
   const gate = (flag: Extract<RegisteredHostFlag, `coding.${string}`>) => requireCodeIntelligenceFlag(flag, env);
   // A real language server only launches under the project execution profile:
-  // an installed, approved backend with a PASS platform proof. An injected
-  // adapterFactory is a test seam and bypasses this gate.
-  const requireProvenBackend = () => {
-    const selection = selectBackend(options.approvedBackendId, options.backends ?? []);
-    if (selection.status !== 'SELECTED' || !selection.backend?.proof || selection.backend.proof.status !== 'PASS')
-      throw new HarnessError('UNSUPPORTED', 'Code intelligence requires an installed, approved backend with a PASS platform proof.');
-  };
+  // an installed, approved backend with a PASS platform proof recorded for this
+  // host platform. An injected adapterFactory is a test seam and bypasses this gate.
+  const requireProvenBackend = () => assertProvenBackend(options.backends ?? [], options.approvedBackendId);
   const intelligence = new CodeIntelligence(
     options.adapterFactory ?? ((descriptor, root) => { requireProvenBackend(); return new StdioLspAdapter(descriptor, root); }));
   const previews = new EditPreviewRegistry();

@@ -1,0 +1,16 @@
+
+[1m[30m[46m RUN [49m[39m[22m [36mv4.1.12 [39m[90m/home/piadmin/Gen-V1-m10-v6[39m
+
+(node:1385119) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ [32m✓[39m tests/external-intake-v3.test.ts [2m([22m[2m13 tests[22m[2m)[22m[33m 3112[2mms[22m[39m
+     [33m[2m✓[22m[39m never retries after cancellation [33m 318[2mms[22m[39m
+     [33m[2m✓[22m[39m a repeated issue revision creates no executor call; an authorized new issue creates one proposal only [33m 343[2mms[22m[39m
+     [33m[2m✓[22m[39m exposes no webhook listener or push ingestion surface [33m 406[2mms[22m[39m
+     [33m[2m✓[22m[39m routes approval through thread.create and message.send on the real Service [33m 436[2mms[22m[39m
+
+[2m Test Files [22m [1m[32m1 passed[39m[22m[90m (1)[39m
+[2m      Tests [22m [1m[32m13 passed[39m[22m[90m (13)[39m
+[2m   Start at [22m 23:15:43
+[2m   Duration [22m 7.19s[2m (transform 2.66s, setup 0ms, import 3.77s, tests 3.11s, environment 0ms)[22m
+

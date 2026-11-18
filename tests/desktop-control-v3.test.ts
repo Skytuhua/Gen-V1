@@ -106,6 +106,27 @@ describe('M16-D03/S06 target geometry and identity binding', () => {
   });
 });
 
+describe('M16-S03 browser origin proof before dispatch', () => {
+  it('rejects input when the driver reports no origin for a grant that declares allowed origins', async () => {
+    const now = { value: 1_000_000 };
+    const browserTarget: ControlTargetIdentityV1 = { kind: 'BROWSER_TAB', creationIdentity: 'tab-created-1', sessionIdentity: 'tab-session-1', origin: 'https://app.example' };
+    const browserGrant: InteractiveGrantV1 = { ...grant(now.value), mode: 'CONSENTED_EXISTING_TAB', target: browserTarget, allowedOrigins: ['https://app.example'] };
+    const dispatched: string[] = [];
+    const driver: ControlDriverHandle = {
+      // The observation reports no origin: the declared allowlist is unproven.
+      observe: async () => ({ observationId: 'obs-null', target: { ...browserTarget, origin: null }, geometry, observedAtMs: now.value }),
+      dispatch: async action => { dispatched.push(action.actionId); return { receipt: 'rcpt' }; },
+      cancelInput: async () => {},
+    };
+    const dispatcher = new ControlDispatcher({ driver, registration, nowMs: () => now.value, sleepMs: async ms => { now.value += ms; } });
+    const item = dispatcher.enqueue({ grant: browserGrant, action: click, observation: { observationId: 'obs-1', target: browserTarget, geometry, observedAtMs: now.value } });
+    await dispatcher['draining'];
+    expect(item.outcome).toBe('REJECTED');
+    expect(item.reason).toBe('NEEDS_NEW_PERMISSION');
+    expect(dispatched).toEqual([]);
+  });
+});
+
 describe('M16-D05/S04 independent Stop', () => {
   it('revokes the generation before cancelling queued actions; no old-generation input reaches the driver', async () => {
     const now = { value: 1_000_000 };

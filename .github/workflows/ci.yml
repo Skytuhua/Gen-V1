@@ -4,6 +4,7 @@ on:
   push:
     branches: [main, agent/m05-v3]
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review, converted_to_draft]
   workflow_dispatch:
 
 permissions:
@@ -11,7 +12,10 @@ permissions:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  # A superseded pull-request push has nothing left to prove, so it cancels.
+  # Pushes to a protected branch are the post-merge verification of commits that
+  # already landed: cancelling those meant no push run on main ever completed.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 env:
   GIT_CONFIG_COUNT: 1
@@ -19,9 +23,14 @@ env:
   GIT_CONFIG_VALUE_0: true
 
 jobs:
+  # A draft pull request is not reviewable, so its matrix runs when it becomes
+  # ready for review instead of on every draft push. Six definitions expand
+  # to nine jobs, including installer packaging; draft pushes otherwise starve the
+  # shared runner pool that required checks depend on.
   checks:
     name: Windows checks
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -50,6 +59,9 @@ jobs:
       - name: Check TypeScript and enforce UI architecture policy
         run: pnpm lint
 
+      - name: Check the repository type program
+        run: pnpm typecheck
+
       - name: Check and build the optional visuals plug-in
         run: |
           pnpm --dir plugins/personal-visuals typecheck
@@ -61,6 +73,7 @@ jobs:
   test:
     name: Tests (shard ${{ matrix.shard }}/4)
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     strategy:
       fail-fast: false
@@ -90,6 +103,7 @@ jobs:
   browser:
     name: Browser tests
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -118,7 +132,7 @@ jobs:
       - name: Exercise project memory and affected context browser flows
         run: |
           $failedSuites = @()
-          foreach ($suite in @('project-memory', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
+          foreach ($suite in @('project-memory', 'project-memory-host', 'usage-context', 'frontend-refinement', 'inbox-controls', 'root')) {
             pnpm test:browser --suite $suite
             if ($LASTEXITCODE -ne 0) { $failedSuites += $suite }
           }
@@ -138,10 +152,12 @@ jobs:
             test-results/browser/**/artifacts/**/*.png
             test-results/browser/**/artifacts/**/trace.zip
             test-results/browser/**/artifacts/**/host-observations.json
+            test-results/browser/**/artifacts/**/memory-host-observations.json
 
   hermes:
     name: Hermes contracts
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -175,6 +191,7 @@ jobs:
   desktop:
     name: Desktop build
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 30
     defaults:
       run:
@@ -195,8 +212,9 @@ jobs:
         run: pnpm desktop:build
 
   installed-memory:
-    name: Installed desktop memory retention
+    name: Installed desktop memory retention and opt-in
     runs-on: windows-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
     timeout-minutes: 60
     defaults:
       run:
@@ -272,14 +290,14 @@ jobs:
       - name: Package the production Windows installer
         run: pnpm desktop:package --output-root .harness-installed-package
 
-      - name: Verify installed default-off memory retention and restart
+      - name: Verify installed default-off retention and separate enabled opt-in
         run: |
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
           $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
           $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
           $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
-          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention')
+          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention', '--project-memory-enabled')
           Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
           & pnpm @verifyArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -299,4 +317,6 @@ jobs:
             .harness-desktop-installed/run-*/verification.json
             .harness-desktop-installed/run-*/*.png
             .harness-desktop-installed/run-*/installed-memory-redacted-export.json
+            .harness-desktop-installed/run-*/enabled-memory/*.png
+            .harness-desktop-installed/run-*/enabled-memory/installed-memory-redacted-export.json
             .harness-packaged-providers/run-*/verification.json
