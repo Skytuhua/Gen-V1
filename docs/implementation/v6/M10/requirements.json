@@ -524,6 +524,13 @@
    "tbfTerminal": "tbf.exit EXIT=1 at 19:41Z (terminal, not fabricated); 68/78 suites failed \u2014 545x msedge channel absent, 24x fixture ERR_CONNECTION_REFUSED; background-work 2/9 in-run fixture-port-5821 goto timeouts vs focused 11/11 PASS",
    "m10InstalledInspection": "no existing check runs no-flag verify-installed-desktop.ts \u2014 ci.yml's only installed job (installed-memory) always passes --project-memory-retention --project-memory-enabled; workflow_dispatch re-runs same flags; no other linked Windows runner (WIN-M0N0V07LGM1 powershell box-broken); no downloadable binary pair in CI artifacts",
    "m10InstalledGap": "strictly no-flag M10 installed acceptance requires a new CI job (workflow change, own review) or healthy Windows runner (none linked) \u2014 manager decision"
+  },
+  "session9DefaultOffInstalledCase": {
+   "session": 9,
+   "instruction": "manager: prepare smallest separately reviewable additive Windows CI acceptance case for default-off installed M10; no packaging duplication if artifacts shareable; report seams if blocked; CONTRIBUTING evidence pass",
+   "prepared": "ci.yml installed-memory job: additive step 'Verify installed default-off acceptance' runs flag-less verify-installed-desktop.ts against the job's own packaged Setup.exe/win-unpacked \u2014 valid declared usage, ambient flag activation suppressed (script lines 121-122,202-204); same artifacts, no script/job/packaging changes; receipts covered by existing upload globs; ~12-15min added vs 29min observed, under 60min timeout; block byte-identical 4aef753e..ff38c62c",
+   "notDone": "no dispatch, no new job, no powershell retry, no script edits",
+   "contributingPass": "raw artifact zip removed from commit (sha256 e61b7477\u2026 + artifact id 14455070587 + local copy retained); curated receipts + digests kept; credential scan clean"
   }
  }
 }

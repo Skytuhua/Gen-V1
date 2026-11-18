@@ -258,6 +258,55 @@ acceptance rather than the generic memory lane:
   Windows runner with working packaging tooling (none linked). That is a
   manager decision, not an evidence task this session can close.
 
+## Session 9 — additive default-off installed acceptance case (prepared, draft)
+
+Manager decision: the generic memory lane cannot prove M10-specific
+behavior; prepare the smallest separately reviewable additive Windows CI
+acceptance case inside this PR's scope.
+
+**Inspection findings (cut `ff38c62c`, byte-identical at base `4aef753e`):**
+
+- `scripts/verify-installed-desktop.ts` line 121-122: the flag-less
+  invocation `verify-installed-desktop <Setup.exe> <win-unpacked>` is a
+  **valid declared usage** — no seam missing.
+- Lines 202-204 (`installedVerificationEnvironment`): "Explicit installed
+  phases cannot inherit ambient harness feature activation" — the child
+  env carries only the owned test-data dir and ports; the memory flag is
+  injected solely for `enabled` mode. **A flag-less run is inherently
+  default-off** — install → two owned personal launches → CDP command-line
+  nonce + executable-path identity revalidation → owned synthetic workload
+  (draft persistence into `generative-harness-journal` IDB,
+  settings/providers UI acceptance, `/health`) → payload custody →
+  provider verification → identity-bound uninstall.
+- No script change required; no new helpers needed.
+
+**Prepared change (single additive step, `.github/workflows/ci.yml`,
+`installed-memory` job):** `Verify installed default-off acceptance`
+runs the flag-less verifier against **the same already-packaged**
+`$setup`/`$unpacked` — packaging is not duplicated (same runner, same
+release dir), no production flag changes, no memory-lane changes. The
+existing `Preserve installed verification receipts` globs
+(`run-*/verification.json`, `owner.json`, `*.png`) already cover the new
+run directory — receipts land in the same artifact. Estimated added wall
+≈ 12–15 min on top of the observed 29-min job; `timeout-minutes: 60`
+unchanged. The `installed-memory` block is byte-identical between
+`4aef753e` and `ff38c62c`, so the diff applies cleanly on either cut.
+
+**CONTRIBUTING pass on this PR's evidence:** raw-artifact bundle
+(`installed-memory-44356008329-1.zip`, 1.8 MB raw traces + generated
+output) removed from the commit — curated extracted receipts kept,
+with zip sha256 `e61b7477…` + artifact id `14455070587` + retention note
+recorded in `artifact-inventory.md` (bundle retained locally at
+`/home/piadmin/m10-evidence-local/`). Bounded logs and `cwdIdentity`
+paths follow the merged provenance-tree convention (see
+`docs/implementation/v6/M10/logs/` on main); credential scan clean —
+only provider-package filenames (`mint-api-key.d.ts`) appear.
+
+**Not done (correctly):** no workflow_dispatch fired (would re-run the
+same memory-flag job), no new job created (cannot share artifacts across
+runners without duplicating packaging), no PowerShell retry on
+WIN-M0N0V07LGM1, no script edits.
+
 ## Publication
 
 Evidence-only draft published per manager instruction as PR
