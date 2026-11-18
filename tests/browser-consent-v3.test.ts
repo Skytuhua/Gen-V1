@@ -169,6 +169,19 @@ describe('M16-S03 target revalidation at each action', () => {
     expect(codeOf(() => host.authorizeAction(revoked, 'CLICK', 0))).toBe('CAPABILITY_DENIED');
   });
 
+  it('never accepts an unreported origin for a grant that declares allowed origins', () => {
+    const { host, registry } = fixture();
+    const grant = granted(host, registry);
+    // The driver reported no origin, so nothing proves the tab is still inside
+    // the consented list: input needs renewed consent instead of passing.
+    expect(host.validateTarget(grant, { ...tab, origin: null }, null)).toBe('NEEDS_NEW_PERMISSION');
+    // A grant that declares no origins (fresh verification browser) keeps origin
+    // out of its policy, so the report stays active.
+    const fresh = host.requestConsent(owner, { mode: 'FRESH_VERIFICATION_BROWSER', observe: true, operations: ['CLICK'] });
+    const freshGrant = host.grant(fresh.consentId, owner, tab, device);
+    expect(host.validateTarget(freshGrant, { ...tab, origin: null }, null)).toBe('ACTIVE');
+  });
+
   it('capture and interact permissions are independent and unclassified actions deny', () => {
     const { host, registry } = fixture();
     registry.register(registration());
