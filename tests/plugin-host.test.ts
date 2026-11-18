@@ -168,3 +168,8 @@ it('keeps an in-flight idle check busy when shutdown begins before the host answ
   control.gate.resolve();expect(await closing.result).toBeUndefined();expect(await registry.isBusy()).toBe(false);
  }finally{control?.busy.resolve();control?.gate.resolve();await registry?.close().catch(()=>{});await rm(f.directory,{recursive:true,force:true});}
 });
+it('treats a host that does not report busy as idle instead of permanently busy',async()=>{
+ const f=await fixture({host:`export default {async activate(){return {operations:{echo:async()=>null},close:async()=>{}}}};`});
+ await installPluginPackage(f.source,f.root,f.digest,'0.6.3');const registry=await loadInstalledPlugins(f.root,'0.6.3');
+ expect(await registry.isBusy()).toBe(false);await registry.close();
+});
