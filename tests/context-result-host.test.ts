@@ -166,13 +166,15 @@ it('does not let a mutated original call bypass the grant required by its retain
   expect(await f.range(result.handle, 0, 16)).toEqual({ status: 'UNAVAILABLE' });
 });
 
-it.each([32, 48000])('suppresses a cached %s-byte effect result when replay skips the original resource guard', async length => {
-  const f = fixture(), call = { name: 'repository_read', args: { resourceId: f.grant.id, path: 'source.txt' } };
+it.each([{ enabled: true, length: 32 }, { enabled: true, length: 48000 }, { enabled: false, length: 32 }, { enabled: false, length: 48000 }])('suppresses a cached $length-byte effect result without fresh resource authority (retention enabled: $enabled)', async ({ enabled, length }) => {
+  const f = fixture({ enabled }), call = { name: 'repository_read', args: { resourceId: f.grant.id, path: 'source.txt' } };
   writeFileSync(join(f.project, 'source.txt'), 'private source'.padEnd(length, '.'));
   await f.service.tool(call, f.ctx);
   const effect = f.store.all<{ invocationId: string }>('toolEffect', f.ctx.threadId)[0]!;
+  const receipts = f.store.all('toolEffect', f.ctx.threadId);
   f.store.internal('fixture.revoke', f.ctx.threadId, () => f.store.remove('resource', f.grant.id));
   expect(await f.service.tool({ ...call, args: { ...call.args, invocationId: effect.invocationId } }, f.ctx)).toMatchObject({ status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '' });
+  expect(f.store.all('toolEffect', f.ctx.threadId)).toEqual(receipts);
 });
 
 
@@ -184,4 +186,14 @@ it('leaves small authorized domain results unchanged and keeps the default-off p
 it('does not wrap a small result merely because retained retrieval is enabled', async () => {
   const f = fixture(), result = await f.read('small source');
   expect(result).toEqual(f.store.all<DataRecord>('data', f.ctx.threadId)[0]);
+});
+
+it('does not replay a cached range after its original grant is revoked', async () => {
+  const f = fixture(), result = await f.read(), call = { name: 'context_result_read', args: { handle: result.handle!, offset: 0, length: 16 } };
+  expect(await f.service.tool(call, f.ctx)).toMatchObject({ status: 'OK' });
+  const effect = f.store.all<{ invocationId: string; toolId: string }>('toolEffect', f.ctx.threadId).find(effect => effect.toolId === 'context_result_read')!;
+  const receipts = f.store.all('toolEffect', f.ctx.threadId);
+  f.store.internal('fixture.revoke', f.ctx.threadId, () => f.store.remove('resource', f.grant.id));
+  expect(await f.service.tool({ ...call, args: { ...call.args, invocationId: effect.invocationId } }, f.ctx)).toEqual({ status: 'UNAVAILABLE' });
+  expect(f.store.all('toolEffect', f.ctx.threadId)).toEqual(receipts);
 });
