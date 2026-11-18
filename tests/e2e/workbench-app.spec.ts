@@ -96,6 +96,11 @@ test('evidence preserves reported and observed grades, freshness and unsupported
  await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Sources and evidence'});await dialog.getByRole('button',{name:'Evidence',exact:true}).click();await expect(dialog).toContainText('REPORTED');await expect(dialog).toContainText('OBSERVED');await expect(dialog).toContainText('STALE');await expect(dialog).toContainText('retained-check.log');await expect(dialog).toContainText('UNSUPPORTED');await expect(dialog).not.toContainText('VERIFIED');await page.keyboard.press('Escape');await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toBeFocused();
  await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();await page.getByRole('dialog',{name:'Sources and evidence'}).getByRole('button',{name:'Evidence',exact:true}).click();await page.screenshot({path:info.outputPath('evidence-drawer.png'),fullPage:true});
 });
+test('source candidates are a named group of source buttons',async({page})=>{
+ await fixture(page);await page.getByRole('button',{name:'Sources and evidence',exact:true}).click();
+ const dialog=page.getByRole('dialog',{name:'Sources and evidence'}),group=dialog.getByRole('group',{name:'Available sources'});
+ await expect(group).toBeVisible();await expect(group.getByRole('button',{name:'MESSAGE: Assistant message',exact:true})).toBeVisible();
+});
 test('rollback leaves retained source inspection and removal reachable',async({page})=>{
  const h=await fixture(page);await attach(page);h.state.enabled=false;h.snapshot.threads[0].epoch++;await h.publish();await expect(page.getByText('New source actions are disabled.',{exact:false})).toBeVisible();await page.getByRole('button',{name:'Open source',exact:true}).click();await expect(page.getByRole('dialog',{name:'Sources and evidence'})).toBeVisible();await page.keyboard.press('Escape');await page.getByRole('button',{name:'Remove source',exact:true}).click();await expect(page.getByRole('article',{name:/Selected source/})).toHaveCount(0);await expect(page.getByRole('button',{name:'Sources and evidence',exact:true})).toHaveCount(0);
 });
