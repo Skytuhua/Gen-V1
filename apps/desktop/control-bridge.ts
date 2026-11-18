@@ -50,6 +50,9 @@ export interface BridgeBrowser {
   /** Focus proof: the owning window and contents must both hold focus. */
   focused(): boolean;
   title(): string | null;
+  /** Bumps the navigation generation after a driver-initiated navigate so a
+   * pre-navigation grant identity can never satisfy a post-navigation state. */
+  navigated?(): void;
 }
 
 export interface BridgeWindowIdentity {
@@ -145,7 +148,9 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
   const findBrowser = (identity: Identity): BridgeBrowser => {
     const wanted = String(identity.creationIdentity);
     for (const browser of deps.browsers()) {
-      const live = browserIdentity(browser); // throws when destroyed/unplaced
+      // Dead or unplaced siblings must not mask the consented record.
+      let live: Identity;
+      try { live = browserIdentity(browser); } catch { continue; }
       if (live.creationIdentity === wanted) return browser;
     }
     fail('TARGET_MISMATCH', 'The consented browser target no longer exists.');
@@ -175,7 +180,8 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
     }
     // Recompute the session binding over the live bounds/DPI while keeping the
     // granted pick session — any move/resize/DPI change mismatches (S06/D04).
-    const pickSession = /^wgc-[^|]+/.exec(identity.sessionIdentity)?.[0];
+    const segments = identity.sessionIdentity.split('|');
+    const pickSession = segments[0] === 'wgc' && segments[1]?.startsWith('wgc-') ? segments[1] : null;
     if (!pickSession || windowIdentity(native, pickSession).sessionIdentity !== identity.sessionIdentity) {
       fail('TARGET_MISMATCH', 'The consented window moved, resized or changed DPI since consent was granted.');
     }
@@ -266,6 +272,7 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
         const url = String(params.url ?? '');
         if (!(await deps.allowNavigateUrl(url))) fail('CAPABILITY_DENIED', 'Only public HTTP and HTTPS pages are allowed.');
         await contents.loadURL(url);
+        browser.navigated?.();
       } else {
         // UPLOAD/DOWNLOAD are session-blocked surfaces; unknown kinds are
         // classified before the driver — either way refuse here too.
@@ -279,9 +286,10 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
         if (target.kind === 'BROWSER_TAB') requireLiveBrowser(target);
         else await requireLiveWindow(target);
       } catch (error) {
-        // Stop on a dead target is a successful cancel: nothing can be
-        // in flight to a window or tab that no longer exists (D06).
-        if ((error as ControlBridgeError).code !== 'TARGET_MISMATCH') throw error;
+        // Stop on a dead target (or a driver that has already gone) is a
+        // successful cancel: no input can remain in flight to it (D06).
+        const code = (error as ControlBridgeError).code;
+        if (code !== 'TARGET_MISMATCH' && code !== 'DRIVER_UNAVAILABLE') throw error;
       }
       return {};
     },

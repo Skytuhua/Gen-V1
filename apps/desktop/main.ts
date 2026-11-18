@@ -364,6 +364,7 @@ function attachControlBridge(child:ChildProcess,token:string){
     return record.owner.window.isFocused()&&!record.owner.window.isMinimized()&&record.owner.window.isVisible()&&contents.isFocused();
    },
    title:()=>record.state.title||null,
+   navigated:()=>{record.generation++;},
   };
  };
  const bridge=createControlBridge({
