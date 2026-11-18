@@ -5,6 +5,7 @@
 // and never reports an aggregate PASS while a required suite is skipped or unrun.
 import {spawn,spawnSync,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
+import {once} from 'node:events';
 import {createWriteStream,existsSync,mkdirSync,readdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
 import {dirname,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -85,34 +86,38 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
   let cwdIsDirectory=false;
   try{cwdIsDirectory=statSync(spec.cwd).isDirectory();}catch{/* missing cwd */}
   if(!cwdIsDirectory)return finish({status:'FAIL',errorKind:'bad-cwd'});
-  mkdirSync(dirname(spec.logPath),{recursive:true});
+  try{mkdirSync(dirname(spec.logPath),{recursive:true});}catch{return finish({status:'FAIL',errorKind:'log-error'});}
   const logStream=createWriteStream(spec.logPath);
+  try{await once(logStream,'open');}catch{return finish({status:'FAIL',errorKind:'log-error'});}
   const sink=redactedLogSink(logStream);
   const child=spawn(spec.command,spec.args,{shell:false,cwd:spec.cwd,env:childEnvironment(spec.env),
     stdio:['ignore','pipe','pipe'],windowsHide:true,detached:process.platform!=='win32'});
-  child.stdout?.on('data',chunk=>sink.write(chunk));
-  child.stderr?.on('data',chunk=>sink.write(chunk));
   return await new Promise<CheckResult>(resolvePromise=>{
     let settled=false,timedOut=false;
     let killTimer:ReturnType<typeof setTimeout>|undefined;
     const settle=(partial:{status:ReadinessStatus;errorKind:string|null;exitCode?:number|null;signal?:string|null})=>{
       if(settled)return;settled=true;
       clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);
-      sink.end();
       logStream.once('finish',()=>resolvePromise(finish(partial)));
-      logStream.once('error',()=>resolvePromise(finish({status:'FAIL',errorKind:'log-error'})));
+      sink.end();
     };
     const timeoutTimer=setTimeout(()=>{
       timedOut=true;killProcessTree(child);
       // Bounded even if the child ignores the kill: never hang the baseline.
       killTimer=setTimeout(()=>settle({status:'FAIL',errorKind:'timeout'}),5_000);
     },spec.timeoutMs);
+    logStream.once('error',()=>{
+      if(!settled){settled=true;clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);killProcessTree(child);}
+      resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
+    });
+    child.stdout?.on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stderr?.on('data',chunk=>{if(!settled)sink.write(chunk);});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}
         :{status:'FAIL',errorKind:'spawn-error'});
     });
-    child.once('exit',(code,signal)=>{
+    child.once('close',(code,signal)=>{
       if(timedOut)settle({status:'FAIL',errorKind:'timeout',exitCode:code,signal});
       else if(code===0)settle({status:'PASS',errorKind:null,exitCode:code,signal});
       else if(code!==null)settle({status:'FAIL',errorKind:'nonzero-exit',exitCode:code,signal});

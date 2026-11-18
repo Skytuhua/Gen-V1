@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {existsSync,mkdtempSync,readFileSync,rmSync} from 'node:fs';
+import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {
@@ -83,6 +83,17 @@ describe('runCheck child-process contract',()=>{
     expect(result.errorKind).toBe('bad-cwd');
     expect(result.exitCode).toBeNull();
     expect(existsSync(result.artifact)).toBe(false);
+  });
+
+  it('returns a failed check when the log parent cannot be created',async()=>{
+    const directory=temporaryDirectory(),file=join(directory,'not-a-directory');
+    writeFileSync(file,'occupied');
+    await expect(runCheck(specFor(directory,{logPath:join(file,'probe.log')}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
+  });
+
+  it('returns a failed check when opening the log fails before the child exits',async()=>{
+    const directory=temporaryDirectory();
+    await expect(runCheck(specFor(directory,{logPath:directory,args:['-e','setTimeout(()=>{},15_000)']}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
   });
 
   it('child output is captured to the log artifact',async()=>{
