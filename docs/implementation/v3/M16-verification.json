@@ -353,6 +353,42 @@
       "commands": [],
       "artifactRefs": []
     }
+    {
+      "id": "M16_WINDOWS_CONTROL_BRIDGE_FOLLOWUP",
+      "status": "PARTIAL",
+      "requiredCases": [
+        {
+          "id": "bridge-targeted-tests",
+          "status": "PASS",
+          "evidence": "WIN-M0N0V07LGM1 @ bdf5e27c (a4cb7824 + 2 fix commits): vitest 5 files 56/56 PASS — browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 17, control-runtime-v6 6."
+        },
+        {
+          "id": "bridge-typecheck-lint",
+          "status": "PASS",
+          "evidence": "pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
+        },
+        {
+          "id": "bridge-native-compile",
+          "status": "PASS",
+          "evidence": "pnpm build:credential-lease exit 0; pnpm build:control-bridge exit 0 — windows-control-bridge.node compiles on win32-x64. Artifact SHA-256 FC7F21614F1E6424BCAF77E78B8B26027CC6CEBE530CD72947E6C5522B54C1E4."
+        },
+        {
+          "id": "bridge-hold-refuse",
+          "status": "PASS",
+          "evidence": "Module loads; pickWindow/windowIdentity/captureWindow all reject CONTROL_PICKER_BINDING_UNSUPPORTED at runtime (verified verbatim on the box)."
+        },
+        {
+          "id": "bridge-window-slice",
+          "status": "BLOCKED",
+          "evidence": "HOLD_PICKER_BINDING: GraphicsCapturePicker returns no authoritative HWND mapping; the EnumWindows name/size heuristic was removed rather than trusted. Window path fails closed until an approved same-object binding exists. GraphicsCapturePicker drive and WGC capture acceptance NOT_RUN."
+        },
+        {
+          "id": "bridge-browser-live",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_PLATFORM_PROOF: browser-tab slice compiles and registers but live consented capture/input acceptance against the installed app was not run on this pass."
+        }
+      ]
+    }
   ],
   "changedFiles": [
     "apps/server/server.ts",
@@ -428,6 +464,8 @@
     }
   ],
   "remainingGates": [
+
+    "HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker returns a GraphicsCaptureItem with no authoritative HWND binding — matching DisplayName/client dimensions to EnumWindows output cannot prove which object was picked, so the heuristic was removed and every window path fails closed DRIVER_UNAVAILABLE / CONTROL_PICKER_BINDING_UNSUPPORTED until an approved same-object binding mechanism exists. The manifest registers browser-tab only.",
     "HOLD_DRIVER_SPECIFICATION: C3 approved browser-target connection and C4 approved native capture/input cannot run because no approved driver is registered under D02 (immutable executable/package digest, API protocol, backend/profile proof, physical target identity format, capture bounds, input cancellation, stop control). Zero or ambiguous registrations resolve DRIVER_UNAVAILABLE.",
     "HOLD_PLATFORM_PROOF: C5 actual target-platform acceptance (real Windows multi-monitor, focus, minimized, permission-loss cases) must run against the installed approved driver before any live approval; the D06 acceptance matrix remains NOT_RUN on this source cut.",
     "pnpm test reports 57 failed / 4338 passed; pnpm test:browser 346 failed / 1460 passed / 5 skipped; every failure is environment-bound or pre-existing fixture/UI-spec unrelated to M16 (missing Chrome distribution, fixture hosts, layout tolerances); M16 adds no e2e specs and no M16-scope test failed. All failures are environment-bound and outside M16 scope (account-parity, hermes-*, workspace-action-outcomes, skills-integration, integration-mcp, e2e fixtures); identical in character to the M15-recorded baseline. No M16 test failed.",

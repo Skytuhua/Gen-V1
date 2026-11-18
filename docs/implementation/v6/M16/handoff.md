@@ -150,7 +150,21 @@ production flag change.
 
 ## Verification status
 
-- Awaiting delegate receipts from `WIN-M0N0V07LGM1` (targeted vitest files,
-  typecheck, native compile, addon-load smoke, browser-slice candidates,
-  artifact SHA-256). This section must be updated with verbatim results before
-  any PR moves past draft.
+- `WIN-M0N0V07LGM1` receipts @ `bdf5e27c` (= a4cb7824 + two fix commits that
+  are now branch head): `pnpm install` ok (Electron 45.2.0); vitest 5 files
+  **56/56 PASS** (browser-consent-v3 14, desktop-control-v3 11,
+  interactive-control-decisions-v6 8, control-bridge-v6 17,
+  control-runtime-v6 6); `tsc --noEmit` exit 0; `pnpm lint` 618 sources 0
+  violations; `pnpm build:credential-lease` + `pnpm build:control-bridge`
+  exit 0 — `windows-control-bridge.node` compiles, SHA-256
+  `FC7F21614F1E6424BCAF77E78B8B26027CC6CEBE530CD72947E6C5522B54C1E4`.
+  Hold verified at runtime: `pickWindow`/`windowIdentity`/`captureWindow`
+  reject `CONTROL_PICKER_BINDING_UNSUPPORTED`. Picker drive and live browser
+  acceptance NOT_RUN — `HOLD_PICKER_BINDING`/`HOLD_PLATFORM_PROOF` stand.
+- Delegate fixes on this cut: `windowIdentity` executor checked `cancelled`
+  while the hold path sets `error` — it would have resolved a fabricated
+  zeroed window; fixed to propagate the error (`bdf5e27c`). Also manifest
+  `source[]` splice repair, tsc 5.9 never-narrowing (`fail` → function
+  declaration), `.cc` compile fixes (`winrt/Windows.Foundation.h`,
+  namespaced `IDirect3DDxgiInterfaceAccess`, 3-arg `CreateStreamOnHGlobal`,
+  `user32.lib`), unused-binding cleanup, and test drain/close hygiene.
