@@ -19,7 +19,11 @@ export async function createPdfDraft(source: Uint8Array, values: Record<string, 
     const abort = () => finish(signal?.reason ?? new DOMException('PDF draft aborted.', 'AbortError'));
     const timer = setTimeout(() => finish(new Error('PDF draft processing exceeded the preview time limit. Try again or open the source.')), 15_000);
     signal?.addEventListener('abort', abort, { once: true });
-    worker.onerror = event => { event.preventDefault(); finish(new Error('The PDF draft worker could not process this document.')); };
+    worker.onerror = event => {
+      event.preventDefault();
+      const detail = event.message.slice(0, 1_000);
+      finish(new Error(`The PDF draft worker could not process this document.${detail ? ` ${detail}` : ''}`));
+    };
     worker.onmessageerror = () => finish(new Error('Invalid PDF draft worker response.'));
     worker.onmessage = ({ data }: MessageEvent<unknown>) => {
       if (!data || typeof data !== 'object' || !('id' in data) || data.id !== id) { finish(new Error('Invalid PDF draft worker response.')); return; }
