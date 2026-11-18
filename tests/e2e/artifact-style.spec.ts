@@ -4,6 +4,9 @@ import { validateSurface } from '../../packages/ui-catalog';
 import { createSigningPdfFixture, SIGNING_FIELD_STATE_KEYS, SIGNING_SIGNATURE_BOX } from './document-preview-fixture';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { serveTaskSplitLayout } from './task-interface-fixture';
+import { openApp, reloadApp, warmApp } from './app-ready';
+
+test.beforeAll(async ({ browser, baseURL }) => { await warmApp(browser, baseURL); });
 
 // Hand-authored synthetic compositions. They exercise the renderer and source bindings;
 // they do not establish model generation, execution, signing, or a real external result.
@@ -90,7 +93,7 @@ for (const width of [1440, 960]) test(`long email choices retain readable width 
   await page.setViewportSize({width,height:1000});
   const copy=structuredClone(signing);
   copy.elements.choices.props.options=[{value:'legal@studio.example',label:'legal@studio.example',detail:'Select to replace the PDF Email field in the preview.'},{value:'alex@studio.example',label:'alex@studio.example',detail:'Previous address'}];
-  const state=await host(page,fixture(copy));await page.goto('/');
+  const state=await host(page,fixture(copy));await openApp(page);
   await expect(page.locator('.document-preview')).toHaveAttribute('data-preview-state','ready',{timeout:15000});
   const choice=page.locator('.task-choice').first(),label=choice.locator('.task-choice-copy');
   const row=await choice.boundingBox(),text=await label.boundingBox();
@@ -100,7 +103,7 @@ for (const width of [1440, 960]) test(`long email choices retain readable width 
   expect(navigation!.y-content!.y-content!.height).toBeLessThan(36);
   await page.getByRole('radio',{name:/legal@studio.example/}).check();
   await expect.poll(()=>state.snapshot.userStates[0].values.email).toBe('legal@studio.example');
-  await page.reload();await expect(page.getByRole('radio',{name:/legal@studio.example/})).toBeChecked();
+  await reloadApp(page);await expect(page.getByRole('radio',{name:/legal@studio.example/})).toBeChecked();
 });
 
 test('new composition schemas are strict, bounded and preserve stable step identities', () => {
@@ -116,7 +119,7 @@ test('new composition schemas are strict, bounded and preserve stable step ident
 });
 
 test('current question and mapped form values survive expansion, thread switching and reload', async ({ page }) => {
-  const state = await host(page, fixture(signing)); await page.goto('/');
+  const state = await host(page, fixture(signing)); await openApp(page);
   await page.getByRole('radio', { name: /alex@example.test/ }).check();
   await page.getByRole('textbox', { name: 'Another email address' }).fill('legal@example.test');
   await page.getByRole('button', { name: 'Next step', exact: true }).click();
@@ -134,7 +137,7 @@ test('current question and mapped form values survive expansion, thread switchin
   await page.getByRole('button', { name: 'Service agreement Ready' }).click();
   await expect(page.locator('[data-split-view="thread:one"]')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Confirm your details' })).toBeVisible();
-  await page.reload();
+  await reloadApp(page);
   await expect(page.getByRole('heading', { name: 'Confirm your details' })).toBeVisible();
   await page.getByRole('button', { name: 'Confirm details', exact: true }).click();
   await expect.poll(() => state.commands.find(cmd => cmd.type === 'action.submit')?.payload.payload).toEqual({ email: 'alex@example.test', customEmail: 'legal@example.test' });
@@ -147,14 +150,14 @@ test('current question and mapped form values survive expansion, thread switchin
 
 test('the initial question persists its default step and focuses its matching PDF field', async ({page})=>{
  const initial=fixture(signing);initial.userStates[0].values={name:'Alex Morgan',title:'Designer',signedDate:'October 29, 2026'};
- await host(page,initial);delete initial.userStates[0].values.currentStep;await page.goto('/');
+ await host(page,initial);delete initial.userStates[0].values.currentStep;await openApp(page);
  await expect(page.locator('.document-active-field')).toBeVisible();
  await expect.poll(()=>initial.userStates[0].values.currentStep).toBe('Email');
- await page.reload();await expect(page.locator('.document-active-field')).toBeVisible();
+ await reloadApp(page);await expect(page.locator('.document-active-field')).toBeVisible();
 });
 
 test('bound relationships expose source status and map the selected stable node to actions', async ({ page }) => {
-  const state = await host(page, fixture(operational, 'Delivery dependencies')); await page.goto('/');
+  const state = await host(page, fixture(operational, 'Delivery dependencies')); await openApp(page);
   await expect(page.getByText('Synthetic data · no checks have run', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Review changes', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect selected item' }).click();
@@ -162,7 +165,7 @@ test('bound relationships expose source status and map the selected stable node 
   await page.getByRole('tab', { name: 'Changes', exact: true }).focus(); await page.keyboard.press('Home');
   await expect(page.getByRole('tab', { name: 'Files', exact: true })).toBeFocused();
   await page.keyboard.press('End'); await expect(page.locator('.diff')).toBeVisible();
-  await page.reload(); await expect(page.getByRole('tab', { name: 'Changes', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await reloadApp(page); await expect(page.getByRole('tab', { name: 'Changes', exact: true })).toHaveAttribute('aria-selected', 'true');
   await page.getByRole('button', { name: 'View artifact source' }).click();
   await expect(page.locator('.artifact-source')).toContainText('Immutable source');
 });
@@ -172,27 +175,27 @@ test('status reads actual host operation states and keeps receipt details availa
   initial.artifacts[0].spec!.elements.status.props.label = 'Fixture checks';
   const record = initial.data.find(item => item.id === 'status-data')!;
   record.value = { operationId: 'fixture-operation', kind: 'command.run', status: 'prepared', approved: false, result: null, error: null };
-  await host(page, initial); await page.goto('/');
+  await host(page, initial); await openApp(page);
   await expect(page.getByRole('status').filter({ hasText: 'Fixture checks' })).toContainText('Awaiting approval');
   await page.getByRole('button', { name: 'Review changes', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect selected item' }).click();
   await expect(page.locator('.task-status')).toHaveClass(/status-pending/);
   record.value = { operationId: 'fixture-operation', kind: 'command.run', status: 'running', approved: true, result: null, error: null, progress: { message: 'Inspecting source files' } };
-  await page.reload(); await expect(page.locator('.task-status')).toHaveClass(/status-running/);
+  await reloadApp(page); await expect(page.locator('.task-status')).toHaveClass(/status-running/);
   await expect(page.getByRole('status').filter({ hasText: 'Fixture checks' })).toContainText('Inspecting source files');
   record.value = { operationId: 'fixture-operation', kind: 'command.run', status: 'failed', approved: true, result: { exitCode: 2, stderr: 'Synthetic failure receipt' }, error: 'Command exited with code 2' };
-  await page.reload(); await expect(page.locator('.task-status')).toHaveClass(/status-error/);
+  await reloadApp(page); await expect(page.locator('.task-status')).toHaveClass(/status-error/);
   await page.getByText('Operation details', { exact: true }).click();
   await expect(page.locator('.task-status-receipt')).toContainText('Synthetic failure receipt');
   record.value = { operationId: 'fixture-operation', kind: 'command.run', status: 'succeeded', approved: true, result: { exitCode: 0, stdout: 'Synthetic success receipt' }, error: null };
-  await page.reload(); await expect(page.locator('.task-status')).toHaveClass(/status-success/);
+  await reloadApp(page); await expect(page.locator('.task-status')).toHaveClass(/status-success/);
   await expect(page.getByRole('status').filter({ hasText: 'Fixture checks' })).toContainText('Exit code 0');
   record.value = { operationId: 'fixture-operation', kind: 'command.run', approved: true, result: { exitCode: 0 } };
-  await page.reload(); await expect(page.getByText('Status is unavailable from the connected source.')).toBeVisible();
+  await reloadApp(page); await expect(page.getByText('Status is unavailable from the connected source.')).toBeVisible();
 });
 
 test('connected FAQ branches and follow-up draft retain independent state', async ({ page }) => {
-  await host(page, fixture(faq, 'Account questions', true)); await page.goto('/');
+  await host(page, fixture(faq, 'Account questions', true)); await openApp(page);
   await page.getByRole('button', { name: 'How long do international transfers take?' }).click();
   await page.getByRole('textbox', { name: 'Ask a follow-up' }).fill('Can I schedule a transfer?');
   await page.getByRole('button', { name: 'How do transfers work?' }).click();
@@ -211,7 +214,7 @@ test('capture synthetic signing, operations and FAQ against supplied reference c
   await mkdir(evidencePath, { recursive: true });
   for (const [name, spec, title, compact] of [['signing', signing, 'Service agreement', false], ['operations', operational, 'Delivery dependencies', false], ['faq', faq, 'Account questions', true]] as const) {
     await page.unrouteAll({ behavior: 'wait' }); await host(page, fixture(spec, title, compact));
-    await page.setViewportSize({ width: 1440, height: 1000 }); await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' }); await page.goto('/');
+    await page.setViewportSize({ width: 1440, height: 1000 }); await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' }); await openApp(page);
     await expect(page.locator('.artifact-body')).toBeVisible();
     if (name === 'signing') { await expect(page.getByRole('radio').first()).toBeVisible(); await expect(page.locator('.document-preview-footer')).toContainText(/(?:Draft|PDF) preview · Page/); await expect(page.locator('.document-preview canvas')).toBeVisible(); }
     if (name === 'faq') await page.getByRole('button', { name: 'How long do international transfers take?' }).click();

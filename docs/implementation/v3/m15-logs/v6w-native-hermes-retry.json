@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "tests/hermes-original-integration.test.ts",
+    "--maxWorkers=1",
+    "--reporter=default"
+  ],
+  "cwdIdentity": "C:\\Users\\Administrator\\repos\\Gen-V1-m15-v6",
+  "executableIdentity": "C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe",
+  "startedAt": "2026-11-18T10:28:25.380Z",
+  "endedAt": "2026-11-18T10:30:52.942Z",
+  "exitCode": 1,
+  "termination": "NONE",
+  "status": "FAIL",
+  "boundedLogRef": "docs/implementation/v3/m15-logs/v6w-native-hermes-retry.log",
+  "logDigest": "d9987859cd2e8c058bed3d62124473c9c59866cb71ddd0f22f05af13487bcab8"
+}
