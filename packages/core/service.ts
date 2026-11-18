@@ -5,6 +5,7 @@ import { createContextResults, CONTEXT_PREVIEW_CAP_BYTES, type ContextResultStor
 import { openContextResultCustody } from './context-result-custody.ts';
 import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
+import { createHostRelevanceObserver } from './context-relevance-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
@@ -148,6 +149,30 @@ export class Service {
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
+  private readonly relevanceObserver = createHostRelevanceObserver();
+  private relevanceOwner(thread: Thread) {
+    if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
+    const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
+    if (resources.length > 256) return null;
+    return { threadId: thread.id, binding: digest([thread.runId, thread.epoch, thread.modelId, thread.thinkingLevel ?? null,
+      this.binding(thread, modelProvider(thread.modelId)).accountId, thread.projectId ?? null, thread.workspaceId ?? null,
+      thread.projectId ? this.store.get('workspaceProjectRoot', thread.projectId) : null,
+      thread.workspaceId ? this.store.get('workspaceBinding', thread.workspaceId) : null, resources]) };
+  }
+  private observeReadRelevance(thread: Thread, sequence: number) {
+    try {
+      const owner = this.relevanceOwner(thread);
+      if (!owner) return undefined;
+      // Limit both the query and its projection. If history overflows this
+      // window, unknown older work is protected rather than scanned or assumed settled.
+      const unresolved = (kind: string, pending: readonly string[]) => {
+        const rows = this.store.db.prepare("SELECT json_extract(body,'$.status') AS status FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid DESC LIMIT 129").all(kind, thread.id) as { status: unknown }[];
+        return rows.length > 128 || rows.some(row => typeof row.status !== 'string' || pending.includes(row.status));
+      };
+      const protect = unresolved('request', ['pending']) || unresolved('operation', ['prepared', 'running', 'unknown']);
+      return this.relevanceObserver.observe(owner, sequence, protect);
+    } catch { return undefined; } // Read-only diagnostics cannot block a foreground request.
+  }
   private contextResultsEnabled() { return capabilityEnabled('context.compilerV1') && capabilityEnabled('tools.deferredV1'); }
   private contextResultOwner(thread: Thread) {
     return { threadId: thread.id, workspaceId: JSON.stringify([thread.workspaceId ?? null, thread.projectId ?? null]), accountId: thread.accountId ?? null };
@@ -1520,15 +1545,21 @@ export class Service {
         const toolSnapshot = tool && count(tool.count, 5000) && count(tool.schemaBytes, 128 * 1024) &&
           typeof tool.digest === 'string' && /^[a-f0-9]{64}$/.test(tool.digest)
           ? { count: tool.count, schemaBytes: tool.schemaBytes, digest: tool.digest } : undefined;
+        const relevance = this.observeReadRelevance(thread, sequence);
         const observation: ContextRequestObservationV1 = { threadId: thread.id, runId: event.runId, epoch: event.epoch,
-          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}) };
+          sequence, promptBytes, knownInputs, visibility: 'OPAQUE_NATIVE_CONTEXT', source: 'hermes', ...(toolSnapshot ? { toolSnapshot } : {}), ...(relevance ? { relevance } : {}) };
         const usage = { ...old, lastRequest: observation };
         this.store.put('usage', thread.id, thread.id, { id: thread.id, value: usage });
         return { runId: event.runId, usage };
       }
       if (event.type === "usage" || event.type === "compaction.start" || event.type === "compaction.end") {
         const old = this.store.get<{ value: RuntimeUsage }>("usage", thread.id)?.value ?? EMPTY_USAGE;
-        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest: old.lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
+        let lastRequest = old.lastRequest;
+        if (event.type === 'compaction.end' && event.aborted === false) {
+          this.relevanceObserver.forget(thread.id);
+          if (lastRequest) { const { relevance: _retired, ...retained } = lastRequest; lastRequest = retained; }
+        }
+        const next = { ...old, ...(typeof event.usage === "object" ? event.usage : {}), lastRequest, hostProjection: old.hostProjection, compaction: old.compaction, ...(event.type === "compaction.start" ? { activity: "compacting" } : event.type === "compaction.end" ? { activity: "idle" } : {}) };
         this.store.put("usage", thread.id, thread.id, { id: thread.id, value: next });
         return { runId: event.runId, usage: next };
       }
@@ -1549,6 +1580,7 @@ export class Service {
         }
       }
       if (event.type === "settled") {
+        this.relevanceObserver.forget(thread.id);
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
         const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", event.runId);
         const finished = this.store.get<FinishRecord>("finish", event.runId), finalized = this.store.get<{inputIds: string[]}>("responseCheckpoint", event.runId);
@@ -1571,8 +1603,18 @@ export class Service {
     if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
     if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
     const role:ActorRole=owningThread.sideParentId?'side':'run';
-    if(this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1"))return this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread));
-    return this.toolBody(call,ctx,owningThread);
+    let ticket: ReturnType<typeof this.relevanceObserver.begin>;
+    try {
+      const definition = this.authority.definition(call.name), owner = this.relevanceOwner(owningThread);
+      if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
+    } catch { /* Observation is optional for an otherwise authorized tool result. */ }
+    const result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
+      ? this.effects.invoke({call,ctx,thread:owningThread,role},()=>this.toolBody(call,ctx,owningThread)) : this.toolBody(call,ctx,owningThread));
+    try {
+      const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
+      if (owner) this.relevanceObserver.complete(ticket, owner, result);
+    } catch { /* Never change the delivered result because diagnostics failed. */ }
+    return result;
   }
   private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
     if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
@@ -1938,7 +1980,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     await Promise.allSettled([...this.pending]);
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
