@@ -115,7 +115,12 @@ async function protectedOriginalCompaction(revokeDuringSummary:boolean) {
   for(let index=0;index<5;index++){
    const id='protected-source-input-'+index;
    await command({id,type:'message.send',threadId:thread.id,payload:{content:'M04_EXACT_USER_'+index+': retain the original public API and this 日本語 requirement.',modelId:'openai/protected-source'}});
-   await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)?.status).toBe('handled'),{timeout:60000,interval:100});
+   // Preserve the exact handled requirement; report source-bound state on a timeout.
+   // A plain 'processing' does not reveal whether the native worker was invoked.
+   await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)?.status,JSON.stringify({
+    index,threadStatus:store.get<Thread>('thread',thread.id)?.status,
+    foregroundCalls,summaryCalls,summaryStarted,
+   })).toBe('handled'),{timeout:60000,interval:100});
    await runtime.cancelBackground();
   }
   expect(foregroundCalls).toBe(5);
