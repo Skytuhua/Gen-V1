@@ -360,27 +360,27 @@
         {
           "id": "bridge-targeted-tests",
           "status": "PASS",
-          "evidence": "WIN-M0N0V07LGM1 @ 1b69eef2 (code 0febe547): vitest 5 files 58/58 PASS - browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 19, control-runtime-v6 6."
+          "evidence": "WIN-M0N0V07LGM1 @ 636d9095: vitest 5 files 59/59 PASS - browser-consent-v3 14, desktop-control-v3 11, interactive-control-decisions-v6 8, control-bridge-v6 20, control-runtime-v6 6."
         },
         {
           "id": "bridge-typecheck-lint",
           "status": "PASS",
-          "evidence": "@ 1b69eef2: pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
+          "evidence": "@ 636d9095: pnpm typecheck (tsc --noEmit) exit 0; pnpm lint 618 sources 0 violations; Node v24.14.0, pnpm 10.30.3, Electron 45.2.0 from lockfile."
         },
         {
           "id": "bridge-native-compile",
           "status": "PASS",
-          "evidence": "@ 1b69eef2: pnpm build:control-bridge exit 0 (recompiled .cc chooser path); windows-control-bridge.node SHA-256 AAA362F62062862345222FB982D69EB129CB2D02D529EDDE3E2488243BABA27A (differs from FC7F2161... as expected)."
+          "evidence": "@ 636d9095: pnpm build:control-bridge exit 0 (bound-item .cc); windows-control-bridge.node SHA-256 320823347bc3acff52a247b31d2532892374436c0d68511b25be03b975e74553. NOTE: a3fced63 adds env-teardown binding drain (0xC0000005 fix) — rebuild/hash pending re-verification."
         },
         {
           "id": "bridge-hold-refuse",
           "status": "PASS",
-          "evidence": "@ 1b69eef2 owned-fixture receipt: pickWindow(null) rejected CONTROL_PICKER_BINDING_UNSUPPORTED; windowIdentity(0) -> null fail-closed; chooser ops listWindows/windowIdentity/captureWindow executed verbatim. See fixture-window-m16-bridge.log."
+          "evidence": "@ 636d9095 bound-item receipt: pickWindow(null) rejected CONTROL_PICKER_BINDING_UNSUPPORTED; windowIdentity('bogus') -> null; captureWindow('bogus') rejected binding-closed; all bindingId-keyed ops executed verbatim. See fixture-window-m16-bridge.log."
         },
         {
           "id": "bridge-window-slice",
           "status": "PASS",
-          "evidence": "@ 1b69eef2 owned-fixture (notepad, window we spawned): listWindows()=9 rows; fixture row carries own HWND 265416 (0x40cc8) pid 32996; windowIdentity(265416) re-proves live desc; captureWindow -> 39596-byte PNG 1906x1346 saved m16-chooser-capture.png. Same-object HWND binding, no matching; system-picker pickTarget stays held (HOLD_PICKER_BINDING)."
+          "evidence": "@ 636d9095 owned-fixture (spawned notepad): listWindows()=9 rows each carrying bindingId; fixture row wgc-100000006 (hwnd 0x40cc8, pid 32996); windowIdentity(bindingId) re-proves live desc; captureWindow(bindingId) -> 42618-byte PNG 1906x1346 (m16-bound-item-capture.png). Destroy -> windowIdentity null. Same-process replacement at identical title/geometry landed on recycled hwnd 0xB0898 under NEW binding wgc-200000006 — old bindingId still null and capture refused: held-item identity defeats live HWND recycling. dropBinding -> null+refused. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
         },
         {
           "id": "bridge-browser-live",

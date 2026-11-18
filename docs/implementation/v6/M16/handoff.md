@@ -167,17 +167,23 @@ production flag change.
 
 ## Verification status
 
-- `WIN-M0N0V07LGM1` receipts @ `bdf5e27c` (= a4cb7824 + two fix commits that
-  are now branch head): `pnpm install` ok (Electron 45.2.0); vitest 5 files
-  **56/56 PASS** (browser-consent-v3 14, desktop-control-v3 11,
-  interactive-control-decisions-v6 8, control-bridge-v6 17,
-  control-runtime-v6 6); `tsc --noEmit` exit 0; `pnpm lint` 618 sources 0
-  violations; `pnpm build:credential-lease` + `pnpm build:control-bridge`
-  exit 0 — `windows-control-bridge.node` compiles, SHA-256
-  `FC7F21614F1E6424BCAF77E78B8B26027CC6CEBE530CD72947E6C5522B54C1E4`.
-  Hold verified at runtime: `pickWindow`/`windowIdentity`/`captureWindow`
-  reject `CONTROL_PICKER_BINDING_UNSUPPORTED`. Picker drive and live browser
-  acceptance NOT_RUN — `HOLD_PICKER_BINDING`/`HOLD_PLATFORM_PROOF` stand.
+- `WIN-M0N0V07LGM1` receipts @ `636d9095` (bound-item chooser cut): vitest 5
+  files **59/59 PASS** (control-bridge-v6 now 20); `tsc --noEmit` 0; lint
+  618/0; `pnpm build:control-bridge` 0 — `windows-control-bridge.node`
+  SHA-256 `320823347bc3acff52a247b31d2532892374436c0d68511b25be03b975e74553`.
+  Owned-fixture PASS: `listWindows` 9 bound rows; spawned notepad bound as
+  `wgc-100000006`; `captureWindow` → 42,618-byte PNG 1906×1346; destroy →
+  `windowIdentity` null; **same-process replacement on recycled HWND
+  `0xB0898` → old bindingId null + capture refused** (live HWND-recycling
+  refusal demonstrated); `dropBinding` → null+refused. `pickWindow` still
+  `CONTROL_PICKER_BINDING_UNSUPPORTED`. Defect found+fixed: teardown
+  `0xC0000005` from static-map item release after WinRT teardown →
+  `a3fced63` drains bindings on env teardown via the STA thread. Browser
+  slice BLOCKED on the deterministic `backend-deadline` environment issue
+  (backend alone boots; Electron-spawned sidecar misses the 60s deadline).
+- Older receipts @ `bdf5e27c` (hold cut): vitest 56/56, typecheck/lint 0,
+  artifact `FC7F2161…C1E4`, all three exports refusing — preserved in git
+  history and superseded by the `636d9095` bound-item receipts above.
 - Delegate fixes on this cut: `windowIdentity` executor checked `cancelled`
   while the hold path sets `error` — it would have resolved a fabricated
   zeroed window; fixed to propagate the error (`bdf5e27c`). Also manifest
