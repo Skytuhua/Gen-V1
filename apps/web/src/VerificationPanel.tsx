@@ -138,7 +138,7 @@ function VerificationReadPanel({ threadId }: { threadId: string }) {
     <section className="verification-panel" aria-label="Verification" tabIndex={0}>
       <header>
         <span className="verification-title">Verification</span>
-        {model.label && <span className={outcomeClass(model.label, model.staleBanner ? 'STALE' : 'CURRENT')}>{LABEL_TEXT[model.label]}</span>}
+        {model.label && <span className={outcomeClass(model.label, 'CURRENT')}>{LABEL_TEXT[model.label]}</span>}
         {model.staleBanner && <span className="verification-stale-banner">Stale results — evidence belongs to an earlier source</span>}
       </header>
       {model.summary.missing.length > 0 && (
