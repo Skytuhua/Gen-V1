@@ -587,7 +587,7 @@ export class Service {
           completionError=cause;
         }finally{unsubscribe();this.releaseController(thread.id,control);}
         if(!completed.receipt)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The protected native source did not confirm application.');
-        const proof=completed.receipt;
+        const proof=completed.receipt,usageObservationRef=`compactionUsage:${metadata.candidateId}`;
         const appliedGeneration=this.store.internal('context.compaction.applied',thread.id,()=>{
           const previous=currentGeneration();
           if(!Number.isSafeInteger(previous)||previous<binding.generation||previous>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
@@ -595,11 +595,14 @@ export class Service {
           this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,
             beforeBytes:proof.beforeBytes,afterBytes:proof.afterBytes,nativeReceipt:proof,settled,
             completionError:completionError instanceof Error?completionError.message:completionError?String(completionError):null});
+          // Keep the reference with its checked receipt even if terminal bookkeeping is interrupted.
+          const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
+          if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,metadata:{...attempt.metadata,usageObservationRef}});
           return previous+1;
         }) as number;
         // Only clean up this still-owned maintenance run; a newer owner is untouched.
         if(!settled)this.runtimeFailure(ctx,new HarnessError('HERMES_COMPACTION_UNCONFIRMED','Native compaction applied, but maintenance settlement was not confirmed.'));
-        return {generation:appliedGeneration,usageObservationRef:`compactionUsage:${metadata.candidateId}`};
+        return {generation:appliedGeneration,usageObservationRef};
       }catch(cause){nativeError=cause;throw cause;}
     }});
     if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
