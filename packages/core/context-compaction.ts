@@ -111,31 +111,42 @@ export function createPrecomputeExperiment(options: {
   summarize: (input: { binding: CompactionBindingV1; prefixDigest: string }) => Promise<{ summaryRef: string; costBytes: number }>;
 }) {
   let slot: { binding: CompactionBindingV1; prefixDigest: string; token: number; summaryRef: string | null } | null = null;
+  // Cancellation invalidates a candidate; it cannot stop the injected call or
+  // release its concurrency slot before that call has actually settled.
+  let inFlight = false;
   let tokens = 0;
   const accounting = { attempts: 0, failed: 0, discarded: 0, costBytes: 0 };
   const discard = () => { if (slot) { slot = null; accounting.discarded++; } };
   return {
     prepare(input: { binding: CompactionBindingV1; prefixDigest: string }): { status: 'STARTED' | 'ALREADY_RUNNING' | 'DISABLED' } {
-      if (!options.enabled()) return { status: 'DISABLED' };
-      if (slot) return { status: 'ALREADY_RUNNING' };
+      if (!options.enabled()) { discard(); return { status: 'DISABLED' }; }
+      if (slot || inFlight) return { status: 'ALREADY_RUNNING' };
       if (!input.prefixDigest || !Number.isSafeInteger(input.binding.generation) || input.binding.generation < 0) throw new Error('Invalid precompute prefix or binding');
       const token = ++tokens;
       slot = { binding: { ...input.binding }, prefixDigest: input.prefixDigest, token, summaryRef: null };
+      inFlight = true;
       accounting.attempts++;
-      void options.summarize({ binding: { ...input.binding }, prefixDigest: input.prefixDigest }).then(result => {
-        if (typeof result.costBytes === 'number' && Number.isSafeInteger(result.costBytes) && result.costBytes >= 0) accounting.costBytes += result.costBytes;
-        if (slot?.token !== token) return;
-        if (result.summaryRef) slot.summaryRef = result.summaryRef; else discard();
-      }, (cause: unknown) => {
+      const failed = (cause: unknown) => {
+        inFlight = false;
         const cost = (cause as { costBytes?: unknown } | null)?.costBytes;
         if (typeof cost === 'number' && Number.isSafeInteger(cost) && cost >= 0) accounting.costBytes += cost;
         accounting.failed++;
         if (slot?.token === token) slot = null;
-      });
+      };
+      try {
+        void options.summarize({ binding: { ...input.binding }, prefixDigest: input.prefixDigest }).then(result => {
+          inFlight = false;
+          if (typeof result.costBytes === 'number' && Number.isSafeInteger(result.costBytes) && result.costBytes >= 0) accounting.costBytes += result.costBytes;
+          if (slot?.token !== token) return;
+          if (result.summaryRef) slot.summaryRef = result.summaryRef; else discard();
+        }, failed);
+      } catch (cause) { failed(cause); }
       return { status: 'STARTED' };
     },
     use(input: { current: CompactionBindingV1; prefixDigest: string; retainedTailBytes: number }): { status: 'READY'; summaryRef: string } | { status: 'DISCARDED' | 'NOT_READY' } {
-      if (!slot || slot.summaryRef === null) return { status: 'NOT_READY' };
+      if (!slot) return { status: 'NOT_READY' };
+      if (!options.enabled()) { discard(); return { status: 'DISCARDED' }; }
+      if (slot.summaryRef === null) return { status: 'NOT_READY' };
       if (!sameBinding(slot.binding, input.current) || slot.prefixDigest !== input.prefixDigest ||
         !exactBytes(input.retainedTailBytes) || !exactBytes(options.maxRetainedTailBytes) || input.retainedTailBytes > options.maxRetainedTailBytes) {
         discard();
