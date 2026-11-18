@@ -96,3 +96,17 @@ it.skipIf(process.platform !== 'linux')('requests the canonical ledger-parent na
   });
   expect(invoked).toBe(true);
 });
+
+it.each([
+  ['environment/values.json', '{"version":1,"revision":0,"entries":[]}'],
+  ['checkpoint-store/blobs/' + 'a'.repeat(64), 'retained checkpoint bytes'],
+  ['effect-authority/key.json', 'synthetic protected host key payload'],
+])('denies private %s through direct and ancestor grants', async (relativePath, contents) => {
+  const f = await fixture(), target = join(f.profile, relativePath);
+  await mkdir(dirname(target), { recursive: true }); await writeFile(target, contents);
+  for (const write of [false, true]) {
+    await expect(security.resolveGrant(f.grant(target), undefined, write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+    await expect(security.resolveGrant(f.grant(f.root), 'profile/' + relativePath, write, f.profile)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
+  }
+  await expect(security.resolveGrant(f.grant(f.ordinary), undefined, false, f.profile)).resolves.toBe(f.ordinary);
+});
