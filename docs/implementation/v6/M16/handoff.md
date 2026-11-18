@@ -167,8 +167,17 @@ production flag change.
   confirmed: fresh ephemeral ports 54968–54970 + owned data dir + verified
   nonce → CDP ready in ~0.5s, backend still emitted 0 stdout bytes in 60s
   → `backend-deadline` → `startup-failed` (driver exit 3). Classification:
-  the deadline is real (slow backend startup on this box), not the port
-  collision. Consent/capture/Stop never reachable → browser slice BLOCKED.
+  the deadline is real, not the port collision. Root cause then named by
+  per-stage `launchHost` bisect: everything completes ≈110 ms except
+  `service.recover()` → `source.library.initialize()` — a `skills.list`
+  request into the Hermes worker (`py.exe -3.14 -I -S -B worker.py`) that
+  never settles and has no timeout (standalone backend >300 s, zero output;
+  event loop alive → unbounded promise, not a sync block). On this degraded
+  box the worker spawn likely wedges, but the code path is unbounded
+  regardless. Consent/capture/Stop unreachable → browser slice BLOCKED.
+  Owner decision pending: bound the recover-path call → fail-closed
+  `harness.error` (no deadline extension) vs. environmental verdict on a
+  clean verifier.
 - HOLD_NATIVE_INPUT: native-window input dispatch is refused at the driver
   (`CONTROL_OP_UNSUPPORTED`) — no proven selected-target delivery exists.
 - FRESH_VERIFICATION_BROWSER returns zero candidates this pass — it is not
