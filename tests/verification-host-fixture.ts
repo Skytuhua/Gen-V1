@@ -1,6 +1,6 @@
 import {test as base, expect} from '@playwright/test';
 import {randomUUID} from 'node:crypto';
-import {mkdir, mkdtemp, readFile, rm, writeFile} from 'node:fs/promises';
+import {mkdir, mkdtemp, readFile, realpath, rm, writeFile} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {buildServer} from '../apps/server/server.ts';
@@ -160,7 +160,8 @@ export const test = base.extend<{verificationHost: VerificationHostFixture; veri
   verificationExitCodes: [[], {option: true}],
   verificationComposerQa: [false, {option: true}],
   verificationHost: async ({verificationBackend, verificationExitCodes, verificationComposerQa}, use, info) => {
-    const folder = await mkdtemp(join(tmpdir(), 'gen-verify-host-')), host = new VerificationHostFixture(folder, verificationBackend, verificationExitCodes, verificationComposerQa);
+    // Bind the fixture to the canonical path used by resource admission, including Windows short temp paths.
+    const folder = await realpath(await mkdtemp(join(tmpdir(), 'gen-verify-host-'))), host = new VerificationHostFixture(folder, verificationBackend, verificationExitCodes, verificationComposerQa);
     const prior = process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1;
     process.env.HARNESS_FLAG_VERIFICATION_WORKFLOW_V1 = '1';
     await mkdir(info.outputDir, {recursive: true});

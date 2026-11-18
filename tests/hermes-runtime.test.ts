@@ -43,6 +43,48 @@ it('passes only a matching idle receipt through the optional host channel and re
 });
 
 const run=(extra:Partial<StartRun>={}):StartRun=>({threadId:'thread',runId:'run',epoch:1,inputId:'input',modelId:'openai/model',accountId:null,sessionPath:null,prompt:'Original user prompt',resources:[],...extra});
+const automaticRequirement={apiVersion:1,required:true} as const;
+const automaticCapability={apiVersion:1,strategy:'REFUSE_UNPROTECTED_FOREGROUND'} as const;
+it.each([undefined,{apiVersion:1,strategy:'OTHER'},{apiVersion:2,strategy:'REFUSE_UNPROTECTED_FOREGROUND'}])('rejects required automatic compaction containment without the exact worker capability %j',async capability=>{
+ const f=await fixture({},undefined,undefined,undefined,capability);
+ try{
+  await expect(f.runtime.start(run({automaticCompactionProtection:automaticRequirement}))).rejects.toMatchObject({code:'HERMES_AUTOMATIC_COMPACTION_UNSUPPORTED'});
+  expect(f.source().calls.some(call=>call.method==='agent.start')).toBe(false);
+  expect(f.accounts.claimUse).not.toHaveBeenCalled();
+ }finally{await f.runtime.dispose();}
+});
+it('routes the captured automatic compaction requirement privately and rejects changed active-turn policy',async()=>{
+ const f=await fixture({},undefined,undefined,undefined,automaticCapability),input=run({automaticCompactionProtection:automaticRequirement});
+ try{
+  await f.runtime.start(input);
+  expect(f.start().automaticCompactionProtection).toEqual(automaticRequirement);
+  expect(f.start().prompt).toBe(encodeInput(run()));
+  await expect(f.runtime.followUp(run({inputId:'changed',prompt:'Follow up'}))).rejects.toMatchObject({code:'HERMES_AUTOMATIC_COMPACTION_OWNER'});
+  expect(f.source().calls.some(call=>call.method==='agent.followUp')).toBe(false);
+  await f.runtime.followUp({...input,inputId:'admitted',prompt:'Follow up',automaticCompactionProtection:{required:true,apiVersion:1}});
+  expect(f.source().calls.filter(call=>call.method==='agent.followUp')).toHaveLength(1);
+  await f.settle();
+ }finally{await f.runtime.dispose();}
+});
+it('reports only an owned automatic compaction refusal without publishing applied progress',async()=>{
+ const f=await fixture({},undefined,undefined,undefined,automaticCapability),input=run({automaticCompactionProtection:automaticRequirement});
+ try{
+  await f.runtime.start(input);
+  const refusal={version:1,status:'REFUSED',reason:'AUTOMATIC_PROTECTION_UNAVAILABLE',method:'compress',trigger:'pre_api',
+   owner:{ctx:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},sessionPath:f.start().sessionPath,modelId:input.modelId,accountId:null}};
+  f.event('compaction_refused',refusal);
+  expect(f.events.filter(value=>value.type==='context.compaction.refused')).toEqual([expect.objectContaining({refusal})]);
+  expect(f.events.some(value=>value.type==='activity'&&String(value.message).includes('Automatic compaction was refused'))).toBe(true);
+  for(const malformed of [{...refusal,status:'APPLIED'},{...refusal,owner:{...refusal.owner,sessionPath:'another-source'}},{...refusal,owner:{...refusal.owner,ctx:{...refusal.owner.ctx,runId:'other'}}}])f.event('compaction_refused',malformed);
+  f.event('compaction_refused',refusal,'background_review');
+  expect(f.events.filter(value=>value.type==='context.compaction.refused')).toHaveLength(1);
+  expect(f.events.some(value=>value.type==='compaction.start'||value.type==='compaction.end')).toBe(false);
+  await f.settle();
+ }finally{await f.runtime.dispose();}
+});
+it('leaves automatic compaction policy absent when the host did not require it',async()=>{
+ const f=await fixture();try{await f.runtime.start(run());expect(f.start()).not.toHaveProperty('automaticCompactionProtection');await f.settle();}finally{await f.runtime.dispose();}
+});
 it('awaits the current host owner at actual foreground dispatch and refuses a late admission after settlement',async()=>{
  __setCapabilityFlagForTests('context.compilerV1',true);
  const f=await fixture();let release!:()=>void;const admit=vi.fn(()=>new Promise<void>(done=>{release=done;}));
@@ -91,10 +133,10 @@ it('compiles an owned native source delta only at its real broker request and pr
   await f.settle();
  }finally{__setCapabilityFlagForTests('context.compilerV1',undefined);await f.runtime.dispose();}
 });
-async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapability?:unknown,contextCapability?:unknown,compactionCapability?:unknown){
+async function fixture(extra:Partial<HermesRuntimeOptions>={},checkpointCapability?:unknown,contextCapability?:unknown,compactionCapability?:unknown,automaticCapability?:unknown){
  const dataDir=await mkdtemp(join(tmpdir(),'hermes-runtime-')),events:RuntimeEvent[]=[],sourceEvents:HermesEvent[]=[],sources:{options:ConstructorParameters<typeof HermesClient>[0];calls:{method:string;params:Record<string,unknown>}[];client:HermesSourceClient}[]=[],natives:{callbacks:RuntimeCallbacks;input:StartRun;runtime:RuntimeAdapter}[]=[];
  const accounts={get:()=>null,claimUse:vi.fn(()=>({id:'lease',nonce:'nonce'})),releaseUse:vi.fn()},catalog:RuntimeAdapter={configure(){},models:vi.fn(async()=>[]),start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:vi.fn(async()=>['old-receipt']),dispose:vi.fn(async()=>{})};
- const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability}),...(contextCapability===undefined?{}:{contextCapture:contextCapability}),...(compactionCapability===undefined?{}:{compactionProtection:compactionCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
+ const runtime=createHermesRuntime({dataDir,nativeCatalog:catalog,accounts,hostTools:[{name:'skills_list',description:'old',parameters:{}},{name:'host_task',description:'host',parameters:{type:'object'}}],onSourceEvent:event=>sourceEvents.push(event),...extra},{createClient(options){const entry={options,calls:[] as {method:string;params:Record<string,unknown>}[],client:{} as HermesSourceClient};entry.client={request:vi.fn(async(method,params={})=>{entry.calls.push({method,params});if(method==='hello')return{protocolVersion:1,engineClass:'run_agent.AIAgent',sourceCommit:'c627ec84664d43e0b18b95d9d86d8963747d56c7',...(checkpointCapability===undefined?{}:{memoryCheckpoint:checkpointCapability}),...(contextCapability===undefined?{}:{contextCapture:contextCapability}),...(compactionCapability===undefined?{}:{compactionProtection:compactionCapability}),...(automaticCapability===undefined?{}:{automaticCompactionProtection:automaticCapability})} as any;if(method==='agent.start'||method==='agent.followUp'||method==='agent.cancel')return{accepted:true} as any;if(method==='agent.compact')return{compacted:true} as any;return{} as any;}),dispose:vi.fn(async()=>{})};sources.push(entry);return entry.client;},createNativeRuntime(value){expect(value).toMatchObject({dataDir,accounts,modelOnly:true});const entry={} as typeof natives[number];entry.runtime={configure:next=>{entry.callbacks=next;},models:async()=>[],start:vi.fn(async input=>{entry.input=input;}),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};natives.push(entry);return entry.runtime;}});
  runtime.configure({onEvent:event=>events.push(event),onTool:vi.fn(async()=>({ok:true})),onBeforeInference:()=>{}});
  const source=()=>sources.at(-1)!,start=()=>source().calls.filter(call=>call.method==='agent.start').at(-1)!.params;
  const event=(name:string,data:Record<string,unknown>={},phase='foreground')=>source().options.onEvent?.({event:name,ctx:{...(start().ctx as Record<string,unknown>),phase},data});
