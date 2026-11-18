@@ -181,13 +181,17 @@ production flag change.
   destructor after the WinRT apartment died. Fix history, all box-verified:
   env-cleanup drain (`a3fced63`) fired too late → still AV; leaked registry
   (`9ffed8e5`) removed the AV but the drain hook then deadlocked on a busy
-  STA (`process.exit` + in-flight capture → 120s hang); final fix
-  (`e4531ae2`) deletes the hook — leaked registry means nothing destructs
-  at teardown while runtime drop paths release bindings. Teardown
-  re-verification pending on this head. Browser slice BLOCKED on the
-  deterministic `backend-deadline` environment issue (backend alone boots;
-  Electron-spawned sidecar misses the 60s deadline; port-9222 also held by
-  the host Chrome fleet).
+  STA; final fix (`e4531ae2`) deletes the hook — nothing destructs at
+  teardown while runtime drop paths release bindings. Verified `e4531ae2`:
+  smoke exits clean; fixture assertions all PASS but the fixture process
+  hung at exit on a degraded box (pnpm build — which never loads the addon
+  — hung the same way; ~30 wedged processes + dead powershell; identical
+  op sequences incl. 40×listWindows all exit 0) → environmental
+  process-reaping anomaly, not an addon defect — pending one clean-box
+  fixture re-run for final teardown confirmation. Browser slice BLOCKED on
+  the deterministic `backend-deadline` environment issue (backend alone
+  boots; Electron-spawned sidecar misses the 60s deadline; port-9222 also
+  held by the host Chrome fleet).
 - Older receipts @ `bdf5e27c` (hold cut): vitest 56/56, typecheck/lint 0,
   artifact `FC7F2161…C1E4`, all three exports refusing — preserved in git
   history and superseded by the `636d9095` bound-item receipts above.

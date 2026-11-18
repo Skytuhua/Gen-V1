@@ -375,12 +375,12 @@
         {
           "id": "bridge-hold-refuse",
           "status": "PASS",
-          "evidence": "@ 636d9095 bound-item receipt: pickWindow(null) rejected CONTROL_PICKER_BINDING_UNSUPPORTED; windowIdentity('bogus') -> null; captureWindow('bogus') rejected binding-closed; all bindingId-keyed ops executed verbatim. See fixture-window-m16-bridge.log."
+          "evidence": "@ e4531ae2 bound-item receipt: pickWindow(null) rejected CONTROL_PICKER_BINDING_UNSUPPORTED; windowIdentity('bogus') -> null; captureWindow('bogus') rejected binding-closed; all bindingId-keyed ops verbatim. See smoke-m16-bridge.log (exit 0)."
         },
         {
           "id": "bridge-window-slice",
           "status": "PASS",
-          "evidence": "@ 636d9095 owned-fixture (spawned notepad): listWindows()=9 rows each carrying bindingId; fixture row wgc-100000006 (hwnd 0x40cc8, pid 32996); windowIdentity(bindingId) re-proves live desc; captureWindow(bindingId) -> 42618-byte PNG 1906x1346 (m16-bound-item-capture.png). Destroy -> windowIdentity null. Same-process replacement at identical title/geometry landed on recycled hwnd 0xB0898 under NEW binding wgc-200000006 — old bindingId still null and capture refused: held-item identity defeats live HWND recycling. dropBinding -> null+refused. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
+          "evidence": "@ e4531ae2 owned-fixture (spawned notepad): row wgc-300000006 (hwnd 0xc0b8a); windowIdentity(bindingId) re-proves; captureWindow(bindingId) -> 46491-byte PNG 1906x1345. Destroy -> null; same-process replacement under NEW binding wgc-500000006 (recycled handle) -> old bindingId null + capture refused — held-item identity defeats live HWND recycling, demonstrated twice across runs. dropBinding -> null+refused. OPEN: the fixture process then hung at exit on a degraded box — pnpm build (no addon loaded) hung identically and identical op sequences all exit 0; environmental process-reaping anomaly pending one clean-box re-run. See fixture-window-m16-bridge.log. System-picker pickTarget stays held (HOLD_PICKER_BINDING)."
         },
         {
           "id": "bridge-browser-live",
