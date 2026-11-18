@@ -107,6 +107,42 @@ it.each(['id', 'runId', 'epoch', 'accountId', 'projectId', 'workspaceId'])
     expect(x.ledger.get('operation:' + x.operation.id + '@1')).toBeNull();
   });
 
+
+it.each(['id', 'runId', 'epoch', 'accountId', 'projectId', 'workspaceId'])
+  ('refuses a settled operation receipt when current owner %s changes', async field => {
+    const x = await fixture(); x.approve();
+    const originalEffect = x.dispatch();
+    x.ledger.settle(originalEffect.invocationId, { value: { writes: 1 } }, 'SUCCEEDED');
+    const before = x.ledger.get(originalEffect.invocationId), sequence = x.store.sequence;
+    const current = { ...x.thread, [field]: field === 'epoch' ? 2 : 'different-owner' };
+    const mark = vi.fn();
+    expect(() => x.ledger.admitOperationDispatch(x.operation, current, mark))
+      .toThrow(expect.objectContaining({ code: 'INVOCATION_CONFLICT' }));
+    expect(mark).not.toHaveBeenCalled();
+    expect(x.ledger.get(originalEffect.invocationId)).toEqual(before);
+    expect(x.store.sequence).toBe(sequence);
+  });
+
+it.each(['kind', 'args', 'preconditions', 'resourceIds'])
+  ('refuses settled receipt reuse when the operation %s changes', async field => {
+    const x = await fixture(); x.approve();
+    const originalEffect = x.dispatch();
+    x.ledger.settle(originalEffect.invocationId, { value: { writes: 1 } }, 'SUCCEEDED');
+    const before = x.ledger.get(originalEffect.invocationId), sequence = x.store.sequence;
+    const overrides = {
+      kind: { kind: 'fixture.other' },
+      args: { args: { ...x.operation.args, target: 'unapproved' } },
+      preconditions: { preconditions: { revision: '2' } },
+      resourceIds: { resourceIds: ['grant-not-in-original-action'] },
+    };
+    const changed = { ...x.operation, ...overrides[field] }, mark = vi.fn();
+    expect(() => x.ledger.admitOperationDispatch(changed, x.thread, mark))
+      .toThrow(expect.objectContaining({ code: 'INVOCATION_CONFLICT' }));
+    expect(mark).not.toHaveBeenCalled();
+    expect(x.ledger.get(originalEffect.invocationId)).toEqual(before);
+    expect(x.store.sequence).toBe(sequence);
+  });
+
 it('survives Store restart with the same key and preserves the single dispatch receipt', async () => {
   const x = await fixture(), approval = x.approve(); x.reopen(signer());
   const effect = x.dispatch(); x.ledger.settle(effect.invocationId, { value: { writes: 1 } }, 'SUCCEEDED');
