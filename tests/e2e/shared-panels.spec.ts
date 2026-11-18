@@ -10,11 +10,11 @@ test.beforeEach(async({page})=>{
 test('default launcher opens the real tool tabs and keeps browser and device boundaries',async({page})=>{
  const panel=page.getByRole('complementary',{name:'Workspace panel'}),launcher=panel.getByRole('region',{name:'Workspace launcher'});
  await expect(launcher.getByRole('button',{name:'Browser',exact:true})).toHaveCount(0);await expect(launcher.getByRole('button',{name:'Device',exact:true})).toBeDisabled();
- for(const [label,kind] of [['Terminal','terminal'],['Pull request','pull-request'],['Linked pull requests','linked-pull-requests']]){
+ for(const label of ['Terminal','Pull request','Linked pull requests']){
   await panel.getByRole('tab',{name:'Artifact',exact:true}).click();await launcher.getByRole('button',{name:label,exact:true}).click();
-  await expect(panel.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');await expect(panel.getByRole('tabpanel')).toContainText('Connect and select a project to use '+kind);
+  await expect(panel.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');await expect(panel.getByRole('tabpanel')).toContainText('Connect a project to use '+label.toLowerCase());
  }
- await openSurface(page,panel,'Output');await expect(panel.getByRole('tabpanel')).toContainText('Recorded executor receipts and output.');await expect(panel.getByRole('tabpanel')).not.toContainText('PTY input are unavailable');
+ await openSurface(page,panel,'Output');await expect(panel.getByRole('tabpanel')).toContainText('No executor output yet');await expect(panel.getByRole('tabpanel')).not.toContainText('PTY input are unavailable');
 });
 test('canvas launch requests go to the owning canvas callback',async({page})=>{
  const canvas=page.getByRole('region',{name:'Canvas launcher'});
@@ -180,7 +180,7 @@ test('profile sign-in works without a project and leaves the Terminal project ga
  await context.grantPermissions(['clipboard-read','clipboard-write']);const{panel,actions}=await profileAuthFixture(page);await expect(panel.getByRole('button',{name:'Sign in to GitHub',exact:true})).toBeEnabled();await panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();
  await expect(panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();await expect(panel.getByRole('link',{name:'https://github.com/login/device',exact:true})).toHaveAttribute('href','https://github.com/login/device');await expect(panel).toContainText('Waiting for GitHub');await expect(panel).toContainText('Expires');
  await panel.getByRole('button',{name:'Copy code',exact:true}).click();expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe('ABCD-EFGH');await expect(panel.getByRole('status')).toContainText('Copied');await panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await expect.poll(()=>actions.some(item=>item.action==='cancel')).toBe(true);await expect(panel).toContainText('Sign-in cancelled');
- await openSurface(page,panel,'Terminal');await expect(panel).toContainText('Connect and select a project to use terminal');
+ await openSurface(page,panel,'Terminal');await expect(panel).toContainText('Connect a project to use terminal');
 });
 test('cancelled profile sign-in ignores an authenticated stale poll response',async({page})=>{
  const host=await profileAuthFixture(page);host.holdPoll();await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect.poll(()=>host.actions.some(item=>item.action==='poll')).toBe(true);await host.panel.getByRole('button',{name:'Cancel sign-in',exact:true}).click();await host.releasePoll();await expect(host.panel).toContainText('Sign-in cancelled');await expect(host.panel).not.toContainText('stale-user');

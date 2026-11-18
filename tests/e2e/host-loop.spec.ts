@@ -7,6 +7,53 @@ import { GENERATED_APPS_ENABLED } from '../../packages/core/widgets.ts';
 // Integration verification only. No route interception, mocked fetch/EventSource,
 // real-provider calls, user projects, production setup data, or shell effects.
 const notes = (page: Page) => page.getByRole('textbox', { name: 'Review notes' });
+
+test('trusted catalog rejects broken and oversized updates, then supports a real repaired action, focus, reload and cancellation', async ({ page, host }, info) => {
+  await openHost(page); await sendFixture(page, 'document');
+  const original = host.artifact('structured'), owner = { ...host.runtime.activeRunContext! };
+  const broken = { root: 'run', elements: { run: { type: 'Button', props: { label: 'Run checked action', actionId: 'undeclared-check' } } } };
+  // Exercise the actual Service admission boundary, without poisoning the
+  // scripted runtime's health observer with an intentional negative fixture.
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: broken, actions: {} } }, owner)).rejects.toMatchObject({ code: 'INVALID_SPEC' });
+  expect(host.artifact('structured')).toEqual(original);
+  await expect(notes(page)).toBeVisible();
+  const oversized = documentSpec(); oversized.elements.document.props.text = 'x'.repeat(128 * 1024);
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: oversized } }, owner)).rejects.toMatchObject({ code: 'INVALID_SPEC' });
+  expect(host.artifact('structured')).toEqual(original);
+
+  const repaired = documentSpec();
+  repaired.elements.document.props.text = Array.from({ length: 90 }, (_, index) => `## Observation ${index + 1}\n\nRetained source-backed fixture detail for observation ${index + 1}.`).join('\n\n') + '\n\nFinal retained observation.';
+  repaired.elements.action.props.label = 'Run checked action';
+  const accepted = await host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: original.revision,
+    title: original.title, spec: repaired, actions: { continue: { kind: 'agent', prompt: 'Continue source review' } } } }, owner) as { artifactId: string; revision: number };
+  expect(accepted).toMatchObject({ artifactId: original.id, revision: original.revision + 1 });
+  const artifact = region(page, 'Evidence document');
+  await expect(artifact.getByText('Final retained observation.', { exact: true })).toBeAttached();
+  await notes(page).fill('Keep the reviewed draft through reload and cancellation.');
+  await expect(notes(page)).toBeFocused();
+  await expect.poll(() => host.snapshot().userStates.find(state => state.id === original.stateId)?.values.note).toBe('Keep the reviewed draft through reload and cancellation.');
+  await expect(artifact.getByRole('button', { name: 'Saved', exact: true })).toBeVisible();
+  await page.reload();
+  await expect(notes(page)).toHaveValue('Keep the reviewed draft through reload and cancellation.');
+  await expect(artifact.getByText('Final retained observation.', { exact: true })).toBeAttached();
+  const before = host.runtime.deliveries.length;
+  await artifact.getByRole('button', { name: 'Run checked action', exact: true }).click();
+  await expect.poll(() => host.runtime.deliveries.length).toBe(before + 1);
+  expect(host.runtime.deliveries.at(-1)?.method).toBe('followUp');
+  expect(host.commands.filter(command => command.type === 'action.submit')).toHaveLength(1);
+  await page.getByRole('button', { name: 'Stop agent', exact: true }).click();
+  await expect.poll(() => host.service.thread(original.threadId).status).toBe('stopped');
+  const retained = host.artifact('structured');
+  await expect(host.service.tool({ name: 'ui_present', args: { artifactId: original.id, baseRevision: retained.revision,
+    title: 'Late publication', spec: documentSpec() } }, owner)).rejects.toMatchObject({ code: 'CANCELLED_RUN' });
+  expect(host.artifact('structured')).toEqual(retained);
+  await expect(notes(page)).toHaveValue('Keep the reviewed draft through reload and cancellation.');
+  await page.getByRole('button', { name: 'Settings', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toBeVisible();
+  await evidence(page, info, 'trusted-catalog-endurance');
+});
 const region = (page: Page, name: string) => page.getByRole('region', { name, exact: true }).or(page.getByRole('dialog', { name, exact: true }));
 async function widgetFrame(page: Page): Promise<Frame> {
   await expect(page.locator('iframe')).toHaveCount(1);
@@ -113,10 +160,20 @@ test('durable decision validation and acceptance continue the same owning runtim
 
 test('generated operation button requires native approval; restart restores without repeating effects', async ({ page, host }, info) => {
   test.setTimeout(60_000);
+  const caseStarted = performance.now();
+  const stage = (phase: string) => console.info('M01_RESTART_STAGE ' + JSON.stringify({
+    phase, elapsedMs: performance.now() - caseStarted, commands: host.commands.length,
+  }));
+  page.on('request', request => { if (request.isNavigationRequest()) stage('navigation-request:' + new URL(request.url()).pathname); });
+  page.on('response', response => { if (response.request().isNavigationRequest()) stage('navigation-response:' + response.status()); });
+  page.on('domcontentloaded', () => stage('domcontentloaded'));
+  page.on('load', () => stage('load'));
+  stage('case-start');
   await openHost(page);
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Projects & Working Copies', exact: true }).click();
-  await grantFixtureFile(page, host); await sendFixture(page, 'operation', host);
+  await grantFixtureFile(page, host); stage('grant-ready');
+  await sendFixture(page, 'operation', host); stage('operation-prepared');
   const artifact = region(page, 'Evidence document');
   await expect(artifact.getByRole('button', { name: 'Apply document replacement' })).toBeVisible();
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();
@@ -132,27 +189,29 @@ test('generated operation button requires native approval; restart restores with
   await expect(approval).toBeVisible(); expect(await readFile(host.sourceFile, 'utf8')).toBe(BEFORE);
   await evidence(page, info, 'native-operation-approval');
   const started = performance.now();
+  stage('approval-start');
   await approval.getByRole('button', { name: 'Approve operation', exact: true }).click();
   await expect.poll(() => host.snapshot().operations[0]?.status).toBe('succeeded');
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
   await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
-  const effectMs = performance.now() - started;
+  const effectMs = performance.now() - started; stage('effect-recorded');
   const modified = (await stat(host.sourceFile)).mtimeMs;
   const beforeRestart = host.snapshot();
-  await page.goto('about:blank'); await host.restart();
+  stage('detach-page-start'); await page.goto('about:blank'); stage('detach-page-complete');
+  await host.restart(phase => stage('host-' + phase));
   expect(host.runtime.deliveries).toHaveLength(0);
   expect(host.snapshot().operations).toEqual(beforeRestart.operations);
   expect(host.snapshot().artifacts).toEqual(beforeRestart.artifacts);
   expect(host.snapshot().userStates).toEqual(beforeRestart.userStates);
   expect(host.snapshot().threads[0]?.status).toBe('interrupted');
-  await openHost(page);
+  stage('restored-navigation-start'); await openHost(page); stage('restored-navigation-complete');
   await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
   await expect(region(page, 'Evidence document')).toBeVisible();
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
   expect((await stat(host.sourceFile)).mtimeMs).toBe(modified);
   expect(host.runtime.deliveries).toHaveLength(0);
   expect(host.store.eventsAfter(0).filter(value => value.type === 'operation.started')).toHaveLength(1);
-  await evidence(page, info, 'restart-restored-receipt');
+  await evidence(page, info, 'restart-restored-receipt'); stage('recovery-evidence-complete');
   await performanceEvidence(info, { approveToRecordedEffectMs: effectMs, recoveryRuntimeCalls: host.runtime.deliveries.length });
 });
 

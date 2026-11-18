@@ -53,17 +53,20 @@ describe("plan timeline presentation", () => {
     expect(html).toContain('Completed');
     expect(html).not.toContain('Plan unavailable');
     expect(html).not.toContain('data-agent-id="core"');
-    expect(html).toContain('Read-only delegated transcript');
+    expect(html).not.toContain('Read-only delegated transcript');
   });
   it("keeps the summary compact: completion count first, completed details closed, active and waiting work open", () => {
     const html = render();
     expect(html).not.toContain("<h3>Improve the workspace</h3>");
     expect(html).toContain('aria-label="Task plan: Improve the workspace"');
     expect(html).toContain("Keep reading position during updates.");
-    // Completion count and current action lead the summary metadata.
+    // The summary leads with the completion count; revision stays on the
+    // completion tooltip instead of a chrome pill, and agent count is not
+    // repeated beside it.
     expect(html.indexOf("1/4 complete")).toBeGreaterThan(-1);
-    expect(html.indexOf("1/4 complete")).toBeLessThan(html.indexOf("4 agents"));
-    expect(html.indexOf("4 agents")).toBeLessThan(html.indexOf("Rev 1"));
+    expect(html).toContain('title="Plan revision 1"');
+    expect(html).not.toContain("Rev 1");
+    expect(html).not.toContain("4 agents");
     // Completed step and agent details start closed.
     expect(summaryState(html, 'data-step-id="scope"')).toBe("false");
     expect(summaryState(html, 'data-agent-id="child"')).toBe("false");

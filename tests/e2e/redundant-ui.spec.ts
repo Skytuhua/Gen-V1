@@ -153,7 +153,7 @@ test('Notes preserves its unsaved draft through navigation and reload',async({pa
  await expect(page.getByRole('region',{name:'Thread memory',exact:true})).toHaveCount(1);
 });
 test('retained destinations surface actual loading/error/empty boundaries',async({page})=>{
- await page.goto('/redundant-ui?state=loading');await expect(page.locator('.project-context-card')).toContainText('Reading project');
+ await page.goto('/redundant-ui?state=loading');await expect(page.locator('.project-context-card')).toContainText('Loading project');
  await page.evaluate(()=>window.dispatchEvent(new Event('redundant-release')));await expect(page.getByRole('button',{name:'work/layout',exact:true})).toBeVisible();
  await page.goto('/redundant-ui?state=error');await expect(page.locator('.project-context-card').getByRole('alert')).toContainText('could not load');
  await page.goto('/redundant-ui?state=empty');await expect(page.locator('.project-context-card')).toContainText('No project connected.');

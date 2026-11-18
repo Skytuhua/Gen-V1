@@ -115,3 +115,19 @@ it('previews are owner-scoped',()=>{
  expect(registry.get(preview.previewId,'run-2')).toBeNull();
  expect(()=>registry.append(preview.previewId,'run-2','x')).toThrowError(HarnessError);
 });
+
+it('closed previews release their aggregate and memory budget',()=>{
+ const raw=args('a.ts','x'.repeat(40)),bytes=Buffer.byteLength(raw);
+ const limits={...CODE_INTELLIGENCE_LIMITS,previewAggregateBytes:Math.floor(bytes*1.5),previewBufferBytes:bytes*4};
+ const registry=new EditPreviewRegistry(limits);
+ const first=registry.begin(owner,schemaDigest);
+ registry.append(first.previewId,owner,raw);
+ registry.seal(first.previewId,owner,()=>null);
+ registry.validateFinal(first.previewId,owner,sha(raw));
+ expect(registry.settle(first.previewId,owner,'APPLIED').state).toBe('APPLIED');
+ // The settled preview keeps its history row but no longer consumes the
+ // aggregate budget reserved for open previews.
+ const second=registry.begin(owner,schemaDigest);
+ expect(registry.append(second.previewId,owner,raw).state).toBe('STREAMING_UNAPPLIED');
+ expect(registry.list(owner).map(preview=>preview.state)).toEqual(['APPLIED','STREAMING_UNAPPLIED']);
+});

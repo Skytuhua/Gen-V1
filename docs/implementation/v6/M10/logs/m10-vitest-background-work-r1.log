@@ -1,0 +1,76 @@
+
+ RUN  v4.1.12 /home/piadmin/Gen-V1-m10-v6
+
+(node:730685) ExperimentalWarning: SQLite is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ❯ tests/background-work-v3.test.ts (23 tests | 4 failed) 20838ms
+     × restart before claim delivers once; restart after uncertain claim never redelivers without reconciliation 8981ms
+     × blocks delivery when the owner epoch changed and never revives prior authority 564ms
+     × requires persisted opt-in, a >=60s interval and one idle job per profile 452ms
+     × drain prevents new admission, cancels eligible work and records uncertainty 910ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/background-work-v3.test.ts > M10-S01/T01 scheduler claims and restart > restart before claim delivers once; restart after uncertain claim never redelivers without reconciliation
+Error: Timed out waiting for condition
+ ❯ waitFor tests/background-work-v3.test.ts:44:38
+     42|   const deadline = Date.now() + timeoutMs;
+     43|   while (!assertion()) {
+     44|     if (Date.now() > deadline) throw new Error("Timed out waiting for …
+       |                                      ^
+     45|     await new Promise(resolve => setTimeout(resolve, 20));
+     46|   }
+ ❯ tests/background-work-v3.test.ts:129:5
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  tests/background-work-v3.test.ts > M10-S04 revalidation > blocks delivery when the owner epoch changed and never revives prior authority
+HarnessError: This run no longer has authority.
+ ❯ BackgroundWorkCoordinator.admit packages/core/background-work.ts:148:13
+    146|     if (!thread || this.store.get("archivedThread", input.owner.thread…
+    147|     if (input.owner.runId !== null && (thread.runId !== input.owner.ru…
+    148|       throw new HarnessError("CANCELLED_RUN", "This run no longer has …
+       |             ^
+    149|     if (input.owner.projectId !== (thread.projectId ?? null)) throw ne…
+    150|     return this.store.command(command, () => {
+ ❯ tests/background-work-v3.test.ts:146:32
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  tests/background-work-v3.test.ts > M10-S06/T03 idle opt-in, preemption and permit custody > requires persisted opt-in, a >=60s interval and one idle job per profile
+AssertionError: expected function to throw an error, but it didn't
+ ❯ tests/background-work-v3.test.ts:171:136
+    169|     const first = f.coordinator.admit(command("background.work.admit")…
+    170|     expect(first.state).toBe("QUEUED");
+    171|     expect(() => f.coordinator.admit(command("background.work.admit"),…
+       |                                                                                                                                        ^
+    172|   });
+    173|   it("foreground admission cancels queued idle work and keeps a runnin…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  tests/background-work-v3.test.ts > M10-S12/T06 shutdown and clock movement > drain prevents new admission, cancels eligible work and records uncertainty
+AssertionError: expected 1 to be +0 // Object.is equality
+
+- Expected
++ Received
+
+- 0
++ 1
+
+ ❯ tests/background-work-v3.test.ts:333:24
+    331|     f.advance(2_000);
+    332|     await scheduler.tick();
+    333|     expect(deliveries).toBe(0);
+       |                        ^
+    334|     expect(() => f.coordinator.admit(command("background.work.admit"),…
+    335|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 19 passed (23)
+   Start at  05:01:35
+   Duration  34.58s (transform 9.42s, setup 0ms, import 12.64s, tests 20.84s, environment 0ms)
+

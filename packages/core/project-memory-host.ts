@@ -3,7 +3,7 @@ import type { MemoryCheckpointRequestV1, MemoryCheckpointAckV1, MemoryCheckpoint
 import type { RequestPreparationV1 } from '../contracts/request-context.ts';
 import { PROJECT_MEMORY_LIMITS, memoryPreparedRequestSchema, memoryScope, type MemoryAccess, type MemoryAction, type MemoryPreparedRequest, type MemoryRecallResult, type MemoryRecallV1, type MemoryScope, type StoredMemory } from '../contracts/project-memory.ts';
 import { Store, digest } from '../storage/store.ts';
-import { ProjectMemory } from './project-memory.ts';
+import { ProjectMemory, type ProjectMemoryOptions } from './project-memory.ts';
 import { MemoryRequestSnapshots } from './memory-retrieval.ts';
 import { MemoryExtractionCoordinator, type MemoryExtractionAdmission, type MemoryExtractionJob } from './memory-extraction.ts';
 import { MemoryConsolidator, checkpointBeforeCompaction } from './memory-consolidation.ts';
@@ -26,6 +26,7 @@ interface Captured {
 interface Scheduled { id: string; source: RunContext; modelId: string; thinkingLevel: string | null; access: MemoryAccess; controller: AbortController; work?: Promise<void> }
 export interface ProjectMemoryHostOptions {
   memory?: ProjectMemory;
+  readFileSource?: ProjectMemoryOptions['readFileSource'];
   extractionFactory?: (job: Readonly<MemoryExtractionJob>) => RuntimeAdapter | Promise<RuntimeAdapter>;
   extractionAdmission?: MemoryExtractionAdmission;
   canExtract?: () => boolean;
@@ -49,7 +50,7 @@ export class ProjectMemoryHost {
   private readonly consolidator: MemoryConsolidator;
   private closed = false;
   constructor(private readonly store: Store, private readonly options: ProjectMemoryHostOptions = {}) {
-    this.memory = options.memory ?? new ProjectMemory(store);
+    this.memory = options.memory ?? new ProjectMemory(store, {readFileSource: options.readFileSource});
     this.extractor = new MemoryExtractionCoordinator(store, this.memory, {admit: options.extractionAdmission, factory: job => {
       if (!options.extractionFactory) throw new HarnessError('MEMORY_EXTRACTION_UNAVAILABLE', 'This host has no ephemeral extraction runtime.');
       return options.extractionFactory(job);
