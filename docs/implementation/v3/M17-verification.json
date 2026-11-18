@@ -401,42 +401,25 @@
   },
   {
    "id": "FULL_SUITE_GATES",
-   "status": "PASS",
+   "status": "FAIL",
    "requiredCases": [
     {
-     "id": "M17-scope-in-aggregate",
-     "status": "PASS",
-     "evidence": "In the recorded `pnpm test` aggregate (exit 1, 53 failed files all environment-bound or pre-existing), M17 suites ran: read-sync-v3 16/16 and read-sync-decisions-v6 6/6 passed; device-pairing-v3 recorded one flake (random deviceToken last-nibble collision in the wrong-token case) which was identified, made deterministic in-place, and now passes standalone 12/12 (post-fix receipt attached in C1)."
+     "id": "M17-repository-test-suite",
+     "status": "FAIL",
+     "evidence": "The historical repository suite exited 1 with 53 failing files. The scoped M17 rerun is recorded separately under INTEGRATED_CUT_REVALIDATION."
     },
     {
      "id": "M17-public-source-manifest",
-     "status": "PASS",
-     "evidence": "public-source.test.ts fails only the staged host/worker runtime resolution for inherited verification-artifacts.ts entries that are absent from `runtime` on this base cut (fixed upstream by PR #765 / 8442085c, not integrated); every M17-owned manifest entry resolves."
+     "status": "FAIL",
+     "evidence": "The historical manifest test exited 1 because the staged runtime lacked the inherited verification-artifacts.ts entries. The integrated-cut manifest pass is recorded separately."
+    },
+    {
+     "id": "M17-browser-suite",
+     "status": "FAIL",
+     "evidence": "The historical browser suite exited 1 with 69 of 72 suites failing on the Linux aarch64 host. No successful aggregate browser run is recorded."
     }
    ],
    "commands": [
-    {
-     "argv": [
-      "pnpm",
-      "exec",
-      "vitest",
-      "run",
-      "tests/device-pairing-v3.test.ts",
-      "tests/read-sync-v3.test.ts",
-      "tests/read-sync-decisions-v6.test.ts",
-      "tests/remote-transport-v3.test.ts",
-      "tests/public-source.test.ts"
-     ],
-     "cwdIdentity": "<milestone-worktree>",
-     "executableIdentity": "pnpm 10.30.3 (Node.js v24.11.1)",
-     "startedAt": "2026-11-18T13:51:53Z",
-     "endedAt": "2026-11-18T13:52:54Z",
-     "exitCode": 0,
-     "termination": "NONE",
-     "boundedLogRef": "docs/implementation/v6/M17/logs/vitest-m17-suite-integrated-a71dd850.summary.json",
-     "logDigest": "2590e23bc205211fe10614195e0bc4fa7eeb47b49ccbc9212098e8115dfbe7dd",
-     "status": "PASS"
-    },
     {
      "argv": [
       "pnpm",
@@ -663,11 +646,11 @@
   }
  ],
  "remainingGates": [
-  "HOLD_REMOTE_TRANSPORT: a usable production remote surface still requires an exact configured authenticated endpoint (TLS cert/key + clientAuth) that passes the separate deployment gate; none was supplied. Owned-test transport was proven on this cut (tests/remote-transport-v3.test.ts + vitest-remote-transport-v3.log): real loopback TLS through buildRemoteReadSyncServer with ephemeral test certificates \u2014 but that is test-owned proof only, not deployment authorization. The localhost application API is unchanged and unexposed.",
+  "HOLD_REMOTE_TRANSPORT: a usable production remote surface still requires an exact configured authenticated endpoint (TLS cert/key + clientAuth) that passes the separate deployment gate; none was supplied. Owned-test transport was proven on this cut (tests/remote-transport-v3.test.ts + vitest-remote-transport-v3.summary.json): real loopback TLS through buildRemoteReadSyncServer with ephemeral test certificates \u2014 but that is test-owned proof only, not deployment authorization. The localhost application API is unchanged and unexposed.",
   "HOLD_REMOTE_INPUT: submitInputV1 remains default-off; remote input and operation approval reject REMOTE_INPUT_DISABLED before durable admission until independent durable-input (M09) and authority (M02) contracts are proven.",
-  "INHERITED: public-source.test.ts staged host/worker runtime build fails on this base because packages/{contracts,core}/verification-artifacts.ts are absent from scripts/public-source-files.json `runtime` at c77d4716; fixed upstream by PR #765 (8442085c) which was deliberately not integrated into this cut. Evidence: vitest-public-source-inherited.log.",
+  "INHERITED: public-source.test.ts staged host/worker runtime build fails on this base because packages/{contracts,core}/verification-artifacts.ts are absent from scripts/public-source-files.json `runtime` at c77d4716; fixed upstream by PR #765 (8442085c) which was deliberately not integrated into this cut. Evidence: vitest-public-source-inherited.summary.json.",
   "pnpm test aggregate recorded exit 1 with 53 failed test files, all environment-bound or pre-existing (server.test.ts, skills-integration, hermes-*, M16-D06 platform expectation PLATFORM_UNSUPPORTED-vs-DRIVER_UNAVAILABLE on Linux, and the device-pairing-v3 flake fixed post-run); M17-scope suites pass independently.",
-  "pnpm test:browser recorded exit 1: 69 of 72 e2e suites failed on this headless aarch64 host (app-fixture timeouts and unmet native/electron expectations dominate; the same class of environment-bound failures as the vitest aggregate). M17 ships no e2e specs and no M17-related assertion appears in the failing output; receipt: pnpm-test-browser.log."
+  "pnpm test:browser recorded exit 1: 69 of 72 e2e suites failed on this headless aarch64 host (app-fixture timeouts and unmet native/electron expectations dominate; the same class of environment-bound failures as the vitest aggregate). M17 ships no e2e specs and no M17-related assertion appears in the failing output; receipt: pnpm-test-browser.summary.json."
  ],
  "reviewerApproval": false
 }

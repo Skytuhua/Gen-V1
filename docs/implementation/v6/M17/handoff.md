@@ -59,7 +59,7 @@ branch refs/heads/fix/t10-agents-grid-v3
 ## Untested / remaining gates
 
 - No production remote listener ran: C3 usable-transport deployment proof stays BLOCKED until an exact approved TLS+auth configuration exists and passes the separate deployment gate (owned-test transport evidence above does not satisfy it).
-- `pnpm test` and `pnpm test:browser` outcomes are recorded verbatim in the verification doc; environment-bound failures outside M17 scope are named, not reclassified.
+- `FULL_SUITE_GATES` records the historical repository test, staged manifest test, and browser-suite failures. `INTEGRATED_CUT_REVALIDATION` records the passing focused M17 and manifest suite at `a71dd850`. Full CI remains pending.
 - Production flags `remote.readSyncV1` and `remote.submitInputV1` remain false; reviewerApproval remains false; publication stays LOCAL_ONLY.
 - Evidence set: `docs/implementation/v3/M17-source-lock.json`, `docs/implementation/v3/M17-verification.json`, `docs/implementation/v6/M17/requirements.json`, `docs/implementation/v6/M17/logs/*.summary.json` (curated summaries; raw tool output removed per CONTRIBUTING.md, originals + SHA-256 preserved in agent-owned local store, not published) — all bound to base `c77d4716`.
 - Post-handoff: `origin/main` advanced to `ff38c62c`; merged into this branch (conflicts resolved in `Settings.tsx` and `public-source-files.json` — upstream `PREFERENCE_BINDINGS`/`harness-keyboard-reference` plus the upstream `verification-artifacts.ts` runtime fix from #765). Post-merge re-verify on the merged tree: `vitest` on all four M17/public-source files — 45/45 PASS, including `public-source.test.ts` 11/11 (upstream fix landed via merge; the recorded failure receipt remains bound to `c77d4716`).
