@@ -10,7 +10,7 @@ import { ControlRuntime } from '../packages/core/control-runtime.ts';
 import { __setCapabilityFlagForTests } from '../packages/core/capability-flags.ts';
 import { HarnessError } from '../packages/contracts/index.ts';
 import type { ControlDriverOperations } from '../packages/core/desktop-control.ts';
-import type { ControlDriverRegistrationV1, ControlTargetIdentityV1, InteractiveGrantV1 } from '../packages/contracts/interactive-control.ts';
+import type { ControlDriverRegistrationV1, ControlTargetIdentityV1 } from '../packages/contracts/interactive-control.ts';
 import type { ToolOwner } from '../packages/contracts/tool-effects.ts';
 
 afterEach(() => vi.restoreAllMocks());
@@ -31,7 +31,7 @@ function driver(over: Partial<ControlDriverOperations> = {}): ControlDriverOpera
   return {
     candidates: async () => [{ target, title: 'Example' }],
     pickTarget: async () => null,
-    observe: async () => ({ observationId: 'obs-1', target, geometry: { x: 0, y: 0, width: 400, height: 300, dpiScale: 1 }, observedAtMs: 1_000 }),
+    observe: async () => ({ observationId: 'obs-1', target, geometry: { x: 0, y: 0, width: 400, height: 300, dpiScale: 1 }, observedAtMs: Date.now() }),
     capture: async () => ({ data: PNG, width: 400, height: 300, mimeType: 'image/png' }),
     dispatch: async () => ({ receipt: 'r1' }),
     cancelInput: async () => {},
@@ -45,25 +45,30 @@ function harness() {
   const registry = new ControlDriverRegistry();
   const consent = new BrowserConsentHost(store, { registry });
   const runtime = new ControlRuntime(store, consent, { registry, device, artifactRoot: dir });
+  // The pending request has to be recorded while the capability is enabled;
+  // the tests themselves drive the flag from here on.
+  __setCapabilityFlagForTests('control.consentedBrowserV1', true);
   const request = consent.requestConsent(owner, { mode: 'CONSENTED_EXISTING_TAB', observe: true, operations: ['CLICK'], allowedOrigins: ['https://public.example'] });
+  __setCapabilityFlagForTests('control.consentedBrowserV1', false);
   return { dir, store, registry, consent, runtime, request };
 }
 
 describe('M16 ControlRuntime host ownership', () => {
   it('D01/D02 unattached driver still resolves DRIVER_UNAVAILABLE for targets', async () => {
-    const { dir, registry, runtime } = harness();
+    const { dir, store, registry, runtime } = harness();
     try {
       __setCapabilityFlagForTests('control.consentedBrowserV1', true);
       await expect(runtime.targets('CONSENTED_EXISTING_TAB')).rejects.toMatchObject({ code: 'DRIVER_UNAVAILABLE' });
       expect(() => registry.resolve('CONSENTED_EXISTING_TAB')).toThrow(HarnessError);
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it('targets require the capability flag even with a driver attached', async () => {
-    const { dir, registry, runtime } = harness();
+    const { dir, store, registry, runtime } = harness();
     try {
       registry.register(registration);
       runtime.attachDriver(driver());
@@ -73,14 +78,16 @@ describe('M16 ControlRuntime host ownership', () => {
       expect(targets[0]!.target).toEqual(target);
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it('grant → capture stores a digested PNG under the host artifact root only', async () => {
-    const { dir, store, runtime, request } = harness();
+    const { dir, store, registry, runtime, request } = harness();
     try {
       __setCapabilityFlagForTests('control.consentedBrowserV1', true);
+      registry.register(registration);
       runtime.attachDriver(driver());
       const grant = runtime.grant(request.consentId, owner, target);
       const { capture, artifactRef } = await runtime.capture(owner.threadId);
@@ -91,6 +98,7 @@ describe('M16 ControlRuntime host ownership', () => {
       expect(grant.target).toEqual(target);
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });
@@ -100,20 +108,23 @@ describe('M16 ControlRuntime host ownership', () => {
     try {
       __setCapabilityFlagForTests('control.consentedBrowserV1', true);
       const observeOff = consent.requestConsent(owner, { mode: 'CONSENTED_EXISTING_TAB', observe: false, operations: ['CLICK'], allowedOrigins: ['https://public.example'] });
+      registry.register(registration);
       runtime.attachDriver(driver());
       runtime.grant(observeOff.consentId, owner, target);
       await expect(runtime.capture(owner.threadId)).rejects.toMatchObject({ code: 'CAPABILITY_DENIED' });
       expect(store.all('controlCapture', owner.threadId)).toHaveLength(0);
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it('action enqueues through the dispatcher and persists the settled record', async () => {
-    const { dir, store, runtime, request } = harness();
+    const { dir, store, registry, runtime, request } = harness();
     try {
       __setCapabilityFlagForTests('control.consentedBrowserV1', true);
+      registry.register(registration);
       runtime.attachDriver(driver());
       runtime.grant(request.consentId, owner, target);
       const observation = { observationId: 'obs-fresh', target, geometry: { x: 0, y: 0, width: 400, height: 300, dpiScale: 1 }, observedAtMs: Date.now() };
@@ -123,14 +134,16 @@ describe('M16 ControlRuntime host ownership', () => {
       expect(records).toHaveLength(1);
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });
 
   it('stop revokes the grant and drops the thread dispatcher', async () => {
-    const { dir, runtime, request, consent } = harness();
+    const { dir, store, registry, runtime, request, consent } = harness();
     try {
       __setCapabilityFlagForTests('control.consentedBrowserV1', true);
+      registry.register(registration);
       runtime.attachDriver(driver());
       runtime.grant(request.consentId, owner, target);
       const surface = await runtime.stop(owner.threadId);
@@ -139,6 +152,7 @@ describe('M16 ControlRuntime host ownership', () => {
       expect(consent.activeGrant(owner.threadId)).toBeNull();
     } finally {
       __setCapabilityFlagForTests('control.consentedBrowserV1', false);
+      store.close();
       rmSync(dir, { recursive: true, force: true });
     }
   });

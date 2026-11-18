@@ -70,7 +70,7 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {ControlRuntime} from './control-runtime.ts';
 import type {ControlDriverOperations} from './desktop-control.ts';
-import {controlTargetIdentityV1Schema, controlModeSchema, type ControlDriverRegistrationV1, type ControlMode} from '../contracts/interactive-control.ts';
+import {controlTargetIdentityV1Schema, controlModeSchema, type ControlDriverRegistrationV1} from '../contracts/interactive-control.ts';
 import {hostname} from 'node:os';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';

@@ -20,6 +20,7 @@
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <node_api.h>
 #include <winrt/base.h>
+#include <winrt/Windows.Foundation.h>
 #include <winrt/Windows.Graphics.Capture.h>
 #include <winrt/Windows.Graphics.DirectX.h>
 #include <winrt/Windows.Graphics.DirectX.Direct3D11.h>
@@ -46,6 +47,7 @@ namespace wgi = winrt::Windows::Graphics::Imaging;
 namespace wdx = winrt::Windows::Graphics::DirectX;
 namespace wdx3 = winrt::Windows::Graphics::DirectX::Direct3D11;
 using Microsoft::WRL::ComPtr;
+using Windows::Graphics::DirectX::Direct3D11::IDirect3DDxgiInterfaceAccess;
 
 void require(bool condition, const char* stage) { if (!condition) throw std::runtime_error(stage); }
 void hr(HRESULT result, const char* stage) { require(SUCCEEDED(result), stage); }
@@ -340,7 +342,8 @@ class WgcSession {
     hr(wic->CreateBitmapFromMemory(desc.Width, height, GUID_WICPixelFormat32bppBGRA, desc.Width * 4, (UINT)pixels.size(), pixels.data(), &bitmap), "The captured frame is unreadable.");
     ComPtr<IWICStream> stream;
     hr(wic->CreateStream(&stream), "The PNG encoder is unavailable.");
-    ComPtr<IStream> memory(CreateStreamOnHGlobal(nullptr, TRUE));
+    ComPtr<IStream> memory;
+    hr(CreateStreamOnHGlobal(nullptr, TRUE, memory.GetAddressOf()), "The PNG encoder is unavailable.");
     hr(stream->InitializeFromIStream(memory.Get()), "The PNG encoder is unavailable.");
     ComPtr<IWICBitmapEncoder> encoder;
     hr(wic->CreateEncoder(GUID_ContainerFormatPng, nullptr, &encoder), "The PNG encoder is unavailable.");

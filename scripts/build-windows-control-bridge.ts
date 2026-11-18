@@ -33,7 +33,7 @@ export async function buildWindowsControlBridge(outputDirectory = join(root, 'pa
   await writeFile(response, [
     '/nologo', '/LD', '/EHsc', '/std:c++17', '/O2', '/MT', '/DNAPI_VERSION=8', '/DNODE_GYP_MODULE_NAME=windows_control_bridge',
     `/I"${include}"`, `"${source}"`, `"${library}"`,
-    'windowsapp.lib', 'd3d11.lib', 'dxgi.lib', 'ole32.lib', 'dwmapi.lib',
+    'windowsapp.lib', 'd3d11.lib', 'dxgi.lib', 'ole32.lib', 'dwmapi.lib', 'user32.lib',
     '/link', `/OUT:"${output}"`,
   ].join(' '));
   run(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/cmd.exe'), ['/d', '/s', '/c', `call "${setup}" -arch=x64 >nul && cl.exe @"${response}"`], cache, { ...process.env, PATH: dirname(vswhere) + ';' + process.env.PATH });

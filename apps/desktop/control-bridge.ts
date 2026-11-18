@@ -23,11 +23,11 @@ import {createRequire} from 'node:module';
  * 'native-window'. */
 
 export interface ControlBridgeError extends Error { code?: string }
-const fail = (code: string, message: string): never => {
+function fail(code: string, message: string): never {
   const error: ControlBridgeError = new Error(message);
   error.code = code;
   throw error;
-};
+}
 
 export interface BridgeWebContents {
   id: number;
@@ -123,18 +123,6 @@ function browserOrigin(rawUrl: string): string | null {
   }
 }
 
-function windowIdentity(nativeId: BridgeWindowIdentity, pickSession: string): Identity {
-  const { bounds } = nativeId;
-  return {
-    kind: 'APPLICATION',
-    // HWND + owning process: the OS creation token available for a live
-    // window. Re-validated on every observe/capture (S06).
-    creationIdentity: `win:${nativeId.handle}:${nativeId.processId}`,
-    sessionIdentity: SESSION_BIND(['wgc', pickSession, 'geo', bounds.x, bounds.y, bounds.width, bounds.height, 'dpi', nativeId.dpiScale]),
-    origin: null,
-  };
-}
-
 export interface ControlBridge {
   /** Routes one 'harness.control.call' frame; returns true when handled. */
   handleCall(value: Record<string, unknown>): Promise<boolean>;
@@ -165,31 +153,12 @@ export function createControlBridge(deps: ControlBridgeDeps): ControlBridge {
     return { browser, live };
   };
 
-  const windowHandle = (identity: Identity): number => {
-    const match = /^win:(\d+):(\d+)$/.exec(String(identity.creationIdentity));
-    if (!match) fail('TARGET_MISMATCH', 'The consented window target has an unproven identity.');
-    return Number(match[1]);
-  };
-
-  const requireLiveWindow = async (identity: Identity): Promise<BridgeWindowIdentity> => {
+  const requireLiveWindow = async (_identity: Identity): Promise<BridgeWindowIdentity> => {
     // HOLD_PICKER_BINDING (D02/D04): the system GraphicsCapturePicker cannot
     // return an authoritative HWND for the picked item, so no 'win:' identity
     // is provable and every window path is unavailable until an approved
     // same-object binding exists.
     fail('DRIVER_UNAVAILABLE', 'Selected-window control is held: the capture picker cannot return an authoritative window identity.');
-    const handle = windowHandle(identity);
-    const native = await deps.native.windowIdentity(handle);
-    if (!native || `win:${native.handle}:${native.processId}` !== identity.creationIdentity) {
-      fail('TARGET_MISMATCH', 'The consented window no longer exists or its identity cannot be proven.');
-    }
-    // Recompute the session binding over the live bounds/DPI while keeping the
-    // granted pick session — any move/resize/DPI change mismatches (S06/D04).
-    const segments = identity.sessionIdentity.split('|');
-    const pickSession = segments[0] === 'wgc' && segments[1]?.startsWith('wgc-') ? segments[1] : null;
-    if (!pickSession || windowIdentity(native, pickSession).sessionIdentity !== identity.sessionIdentity) {
-      fail('TARGET_MISMATCH', 'The consented window moved, resized or changed DPI since consent was granted.');
-    }
-    return native;
   };
 
   const observation = (target: Identity) => ({ observationId: `obs-${randomUUID()}`, target, geometry: geometryOf(target), observedAtMs: deps.now() });

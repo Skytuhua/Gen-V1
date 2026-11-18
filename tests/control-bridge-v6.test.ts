@@ -4,7 +4,6 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { createControlBridge, handleRegisterReply, type BridgeBrowser, type BridgeWebContents, type WindowsWindowBridge } from '../apps/desktop/control-bridge.ts';
 import { createControlSidecarChannel, createSidecarControlDriver } from '../packages/core/control-sidecar-driver.ts';
-import { HarnessError } from '../packages/contracts/index.ts';
 import type { ControlTargetIdentityV1 } from '../packages/contracts/interactive-control.ts';
 
 afterEach(() => vi.restoreAllMocks());
@@ -38,7 +37,12 @@ function harness(options: { native?: WindowsWindowBridge | null; browsers?: Brid
   const replies = () => sent.splice(0).filter(v => v.type === 'harness.control.result');
   const call = async <T>(request: Promise<T>): Promise<T> => {
     const pending = request.catch(error => error);
-    for (const reply of replies()) channel.handleReply(reply);
+    // The bridge answers on a later tick; keep feeding its replies into the
+    // channel until the driver's request settles.
+    for (;;) {
+      for (const reply of replies()) channel.handleReply(reply);
+      if (await Promise.race([pending.then(() => true), new Promise(resolve => setImmediate(() => resolve(false)))])) break;
+    }
     const result = await pending;
     if (result instanceof Error) throw result;
     return result as T;
@@ -69,7 +73,7 @@ function fakeBrowser(over: { generation?: () => number; focused?: boolean; geome
     id: 'browser-1',
     get generation() { return over.generation ? over.generation() : 0; },
     contents,
-    geometry: over.geometry !== undefined ? () => over.geometry : () => ({ x: 10, y: 20, width: 400, height: 300, dpiScale: 1 }),
+    geometry: () => (over.geometry === undefined ? { x: 10, y: 20, width: 400, height: 300, dpiScale: 1 } : over.geometry),
     focused: () => over.focused ?? true,
     title: () => 'Example tab',
   };
@@ -200,7 +204,7 @@ describe('M16 C4 window adapter via sidecar driver (HOLD_PICKER_BINDING)', () =>
 
   it('cancel on a window target stays a safe no-op (DRIVER_UNAVAILABLE tolerated)', async () => {
     const { driver, call } = harness({ native: native() });
-    await expect(call(driver.cancel(fabricated))).resolves.toBeUndefined();
+    await expect(call(driver.cancelInput(fabricated))).resolves.toBeUndefined();
   });
 
   it('native input dispatch stays unsupported (no proven delivery path)', async () => {

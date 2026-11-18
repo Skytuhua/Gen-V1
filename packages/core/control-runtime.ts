@@ -140,7 +140,7 @@ export class ControlRuntime {
    * The action is validated against the live grant, host-classified (D05),
    * enqueued with a fresh observation and settled before the durable
    * 'controlAction' record is written. Nothing bypasses the queue. */
-  async action(threadId: string, owner: ToolOwner, input: { action: string; parameters?: Record<string, unknown>; observation: unknown }): Promise<{ action: ControlActionV1; outcome: QueuedControlAction['outcome']; reason?: string }> {
+  async action(threadId: string, _owner: ToolOwner, input: { action: string; parameters?: Record<string, unknown>; observation: unknown }): Promise<{ action: ControlActionV1; outcome: QueuedControlAction['outcome']; reason?: string }> {
     if (!ACTION_KINDS.includes(input.action as ActionKind) || input.action === 'CAPTURE') throw new HarnessError('INVALID_INPUT', 'Choose a valid control input action.');
     const grant = this.activeGrant(threadId);
     const kind = input.action as Exclude<ActionKind, 'CAPTURE'>;

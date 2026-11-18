@@ -7,7 +7,7 @@ import {createRequire} from 'node:module';
 import {GITHUB_DEVICE_URL,githubDevicePopup} from './github-device-policy.ts';
 import {createDesktopUpdater,type DesktopUpdater,type DesktopUpdateDriver,type UpdateStatus} from './updater.ts';
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
-import {createControlBridge,handleRegisterReply,loadWindowsWindowBridge,type BridgeBrowser,type ControlBridge} from './control-bridge.ts';
+import {createControlBridge,handleRegisterReply,loadWindowsWindowBridge,type BridgeBrowser} from './control-bridge.ts';
 import {resolve,join,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {DESKTOP_CHANNELS as channels,desktopId,desktopSurfaceKey,parseDesktopSurface,parseDesktopLayout,parseDesktopWindowControl,type DesktopLayout,type DesktopLayoutEntry,type DesktopSurface,type DesktopWindowInfo,type DesktopContext,type DesktopState,type DesktopBrowserState} from '../../packages/desktop-contract/index.ts';
@@ -333,9 +333,7 @@ async function startBackend():Promise<void>{
 // M16 C3/C4: the approved first-party bridge registers with the backend over
 // the launch-token channel each time a backend comes up. A failed registration
 // leaves the control surface unavailable — never a fallback driver (D01/D02).
-let controlBridge:ControlBridge|undefined;
 function attachControlBridge(child:ChildProcess,token:string){
- controlBridge=undefined;
  const adapterModulePath=fileURLToPath(import.meta.url);
  const nativePath=join(root,'packages/core/windows-control-bridge.node');
  const native=loadWindowsWindowBridge(join(root,'packages/core/package.json'));
@@ -350,7 +348,7 @@ function attachControlBridge(child:ChildProcess,token:string){
     isFocused:()=>contents.isFocused(),
     getURL:()=>contents.getURL(),
     capturePage:async()=>{const image=await contents.capturePage();return {toPNG:()=>image.toPNG(),getSize:()=>image.getSize()};},
-    sendInputEvent:event=>contents.sendInputEvent(event as Parameters<typeof contents.sendInputEvent>[0]),
+    sendInputEvent:event=>contents.sendInputEvent(event as unknown as Parameters<typeof contents.sendInputEvent>[0]),
     loadURL:url=>contents.loadURL(url),
    },
    geometry(){
@@ -388,9 +386,7 @@ function attachControlBridge(child:ChildProcess,token:string){
   if(handleRegisterReply(input))return;
   void bridge.handleCall(input).catch(()=>{});
  });
- void bridge.register().then(result=>{
-  if(result.registered)controlBridge=bridge;
- }).catch(error=>{
+ void bridge.register().catch(error=>{
   // Registration failure is not a startup failure: the surface stays
   // DRIVER_UNAVAILABLE and the console keeps the concrete reason.
   console.warn('Control driver registration failed:',String(error instanceof Error?error.message:error).slice(0,300));
