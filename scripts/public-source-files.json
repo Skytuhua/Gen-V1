@@ -3161,6 +3161,7 @@
     "tests/inference-budget.test.ts",
     "tests/installed-desktop-verification.test.ts",
     "tests/installed-native-save.test.ts",
+    "tests/integration-error-stack-redaction-v3.test.ts",
     "tests/integration-host.test.ts",
     "tests/integration-mcp.test.ts",
     "tests/integration-packaging-canonical-negative.test.ts",
