@@ -215,7 +215,10 @@ export class DurableWakeupScheduler {
         const previousDue = Math.max(wakeup.nextDueAtMs ?? anchorMs, wakeup.lastProcessedDueAtMs !== null ? wakeup.lastProcessedDueAtMs + intervalMs : anchorMs);
         // Persist missed occurrences between the previous due instant and the
         // latest admitted one (bounded per tick; the count is always exact).
-        const missed = input.scheduledDueAtMs > previousDue ? Math.max(0, Math.round((input.scheduledDueAtMs - previousDue) / intervalMs) - 1) : 0;
+        // The initial anchor does not count as a skipped interval. For a
+        // previously active cadence, previousDue is itself still unprocessed.
+        const firstMissableDue = Math.max(previousDue, anchorMs + intervalMs);
+        const missed = Math.max(0, Math.round((input.scheduledDueAtMs - firstMissableDue) / intervalMs));
         skippedTotal += missed;
         // S11: persist every intended missed occurrence; the hard cap is only
         // a host memory guard for pathological multi-year jumps.
