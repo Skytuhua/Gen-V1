@@ -210,6 +210,24 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }finally{await page.close();}
  },30000);
 
+ it('moves a float that fills the clamp area by edge slack instead of pinning in place',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   const floatSurface=page.locator('[data-split-view="thread:thread-a"]');
+   await floatSurface.getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible'});
+   await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
+   await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
+   await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
+   for(let i=0;i<3;i++){const box=(await floatSurface.locator('.split-float-resize').boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+500,box.y+box.height/2+400,{steps:4});await page.mouse.up();}
+   const pinned=(await floatSurface.boundingBox())!;
+   const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
+   await page.mouse.move(gripBox.x+gripBox.width/2+120,gripBox.y+gripBox.height/2,{steps:6});await page.mouse.up();
+   const moved=(await floatSurface.boundingBox())!;
+   expect(Math.abs(moved.x-pinned.x)).toBeGreaterThan(20);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
  for(const delta of [0,2]) it(`docked grip preserves placement until a drag and opens its menu for ${delta}px click jitter`,async()=>{
   const host=await fixture(),{page}=host;try{
    const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true}),key='harness:conversation-placement:v1:'+host.layout.id;
