@@ -53,3 +53,16 @@ it('cancels delayed factory startup without starting a model and retains failed 
 it('evicts old slots and expires them without allowing historical regeneration',async()=>{
  vi.useFakeTimers();const x=fixture();for(let n=0;n<33;n++)x.predictions.settled(basis(String(n)));x.current=basis('0');expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});x.current=basis('32');await vi.advanceTimersByTimeAsync(10*60*1000);expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});expect(x.models).toEqual([]);
 });
+
+it('bounds the actual serialized prediction context for JSON-heavy chat text',()=>{
+ const text=('"'+String.fromCharCode(92)+String.fromCharCode(1)+'😀').repeat(4000);
+ const m=(id:string,role:Message['role'],content:string):Message=>({id,threadId:'thread',role,content,runId:null,createdAt:''});
+ const latest=m('reply','assistant','The file is ready.');
+ const context=predictionContext([m('previous','user',text),latest]);
+ const parsed=JSON.parse(context);
+ expect(Buffer.byteLength(context)).toBeLessThanOrEqual(PREDICTION_LIMITS.contextBytes);
+ expect(parsed.at(-1)).toEqual({role:'assistant',content:latest.content});
+ expect(parsed[0].content.length).toBeGreaterThan(1000);
+ expect(text.startsWith(parsed[0].content)).toBe(true);
+ expect(parsed[0].content).not.toMatch(/[\uD800-\uDBFF]$/u);
+});

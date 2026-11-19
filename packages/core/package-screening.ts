@@ -155,9 +155,12 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
  * separate trust decision — it can block or stay neutral, never authorize. */
 export function screeningGate(record: PackageScreeningV1): 'BLOCK' | 'NEUTRAL' | 'EXCEPTION_RECORDED' {
   const parsed = packageScreeningV1Schema.parse(record);
-  if (parsed.status === 'KNOWN_BAD' || (parsed.status === 'UNAVAILABLE' && parsed.decision === 'DENY')) return 'BLOCK';
-  if (parsed.decision === 'OPERATOR_EXCEPTION') return 'EXCEPTION_RECORDED';
-  return 'NEUTRAL'; // NO_KNOWN_MATCH: no objection, and no trust granted.
+  // Status and decision must agree: a forged or corrupted persisted record
+  // must not turn UNAVAILABLE into a neutral result or grant an exception.
+  if (parsed.status === 'KNOWN_BAD') return 'BLOCK';
+  if (parsed.status === 'UNAVAILABLE')
+    return parsed.decision === 'OPERATOR_EXCEPTION' ? 'EXCEPTION_RECORDED' : 'BLOCK';
+  return parsed.decision === 'ALLOW' ? 'NEUTRAL' : 'BLOCK';
 }
 
 export interface ScreeningAdvisory {

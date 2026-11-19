@@ -33,6 +33,18 @@ function cache(initial?: PackageScreeningV1): ScreeningRecordCache {
 }
 
 describe('M03 cached package screening authority', () => {
+  it('fails closed on inconsistent persisted screening status and decision pairs', () => {
+    const cases: Array<Pick<PackageScreeningV1, 'status' | 'decision'>> = [
+      { status: 'UNAVAILABLE', decision: 'ALLOW' },
+      { status: 'NO_KNOWN_MATCH', decision: 'DENY' },
+      { status: 'NO_KNOWN_MATCH', decision: 'OPERATOR_EXCEPTION' },
+      { status: 'KNOWN_BAD', decision: 'ALLOW' },
+    ];
+    for (const invalid of cases) {
+      expect(screeningGate(record(invalid))).toBe('BLOCK');
+    }
+  });
+
   it('does not reuse an earlier operator exception without a current exception', async () => {
     const stored = cache();
     const first = await screenPackage(identity, unavailable, { cache: stored, now, exception });
