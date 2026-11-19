@@ -24,6 +24,21 @@ test('left ticked scrollbar supports keys, track clicks, dragging, and history d
  await bar.focus();await page.keyboard.press('End');await expect.poll(()=>scroll.evaluate(node=>node.scrollHeight-node.clientHeight-node.scrollTop)).toBeLessThan(2);
  await page.getByRole('textbox',{name:'Outside draft'}).fill('Keep this draft');await page.getByRole('button',{name:'Grow transcript'}).click();await expect(page.getByRole('textbox',{name:'Outside draft'})).toHaveValue('Keep this draft');
 });
+test('compact scrollbar keeps its 12px strip interactive without covering content',async({page})=>{
+ await page.setViewportSize({width:640,height:800});
+ const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});
+ const bounds=(await bar.boundingBox())!;expect(bounds.width).toBe(12);
+ expect(await page.locator('.chat-scroll-track').evaluate(node=>getComputedStyle(node).width)).toBe('1px');
+ expect(await page.locator('.chat-scroll-thumb').evaluate(node=>getComputedStyle(node).width)).toBe('3px');
+ // The rail must fill only the 12px padding strip: a click just inside the
+ // content edge reaches the scroller instead of being intercepted by it.
+ await scroll.click({position:{x:14,y:Math.round(bounds.height/2)}});
+ const saved=await scroll.evaluate(node=>node.scrollTop);
+ await bar.click({position:{x:6,y:Math.round(bounds.height*.7)}});await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(saved);
+ const afterTrack=await scroll.evaluate(node=>node.scrollTop),thumb=(await page.locator('.chat-scroll-thumb').boundingBox())!;
+ await page.mouse.move(thumb.x+1,thumb.y+2);await page.mouse.down();await page.mouse.move(thumb.x+1,bounds.y+10,{steps:6});await page.mouse.up();
+ await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeLessThan(afterTrack);
+});
 test('a different pointer cannot end the active scrollbar drag',async({page})=>{
  const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});
  await bar.focus();await page.keyboard.press('Home');
