@@ -106,3 +106,19 @@ it('permits a described tool only after a fresh request snapshot and rechecks ad
   allowed = false;
   expect(session.canInvoke('deferred')).toBe(false);
 });
+
+it('does not spend deferred discovery slots on already-direct tools', async () => {
+  const { createProgressiveToolSession } = await tools() as typeof import('../packages/core/context-tool-discovery.ts');
+  const direct = Array.from({ length: 64 }, (_, index) => ({
+    name: 'direct-' + index, description: 'Direct tool', schema: {}, exposure: 'DIRECT' as const,
+  }));
+  const session = createProgressiveToolSession([
+    ...direct, { name: 'deferred', description: 'Deferred tool', schema: {}, exposure: 'DEFERRED' },
+  ], () => true);
+  session.capture();
+  for (const entry of direct) expect(session.describe(entry.name)).not.toBeNull();
+  expect(session.describe('deferred')).not.toBeNull();
+  expect(session.canInvoke('deferred')).toBe(false);
+  expect(session.capture().tools.map(tool => tool.name)).toContain('deferred');
+  expect(session.canInvoke('deferred')).toBe(true);
+});
