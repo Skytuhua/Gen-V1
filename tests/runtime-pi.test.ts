@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RunContext, StartRun } from "../packages/contracts/index.ts";
 import { encodeInput, extractInputIds } from "../packages/runtime-pi/input-envelope.ts";
-import { openTaskSession, taskPaths } from "../packages/runtime-pi/session.ts";
+import { openTaskSession, taskPaths, validateSessionPath } from "../packages/runtime-pi/session.ts";
 import { EventNormalizer } from "../packages/runtime-pi/events.ts";
 import { ToolBridge, routeToolCall } from "../packages/runtime-pi/ipc.ts";
 import { createHostTools, createHostResourceLoader } from "../packages/runtime-pi/tool-definitions.ts";
@@ -616,4 +616,24 @@ describe("subscription login storage", () => {
     expect(await getOrCreateDeviceId(dir)).toBe(ids[0]);
     expect(await readFile(join(dir, "pi", "device-id"), "utf8")).toBe(ids[0]);
   });
+});
+
+it("validates only the Pi session header without loading the transcript body", async () => {
+  const root = await mkdtemp(join(tmpdir(), "pi-header-bound-"));
+  const sessions = taskPaths(root, "thread").sessionsDir;
+  const path = join(sessions, "saved.jsonl");
+  try {
+    await mkdir(sessions, {recursive: true});
+    const header = JSON.stringify({type: "session", id: "test", version: 3, cwd: "/日本語"});
+    await writeFile(path, header + "\r\n" + "historical content\n".repeat(100_000));
+    const fullRead = vi.spyOn(fileSystem, "readFile");
+    try {
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+      expect(fullRead).not.toHaveBeenCalled();
+      await writeFile(path, header);
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+    } finally { fullRead.mockRestore(); }
+    await writeFile(path, JSON.stringify({type: "session", id: "test", version: 3, extra: "x".repeat(64 * 1024)}));
+    await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({code: "PI_SESSION_INVALID"});
+  } finally { await rm(root, {recursive: true, force: true}); }
 });
