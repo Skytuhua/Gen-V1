@@ -12,8 +12,13 @@ import {verifyPluginPackage,type VerifiedPackage} from './installation.ts';
 // by shipping a declared isolated.json; the host binds the verified inventory
 // digest and protocol version, never the declaration alone.
 
+/** Package-relative path of the optional declaration that opts a package into
+ * the isolated extension lane. */
 export const ISOLATED_DECLARATION_PATH='isolated.json';
 
+/** A package admitted to the isolated lane: the V2 manifest derived from its
+ * declaration (bound to the verified digest and worker protocol version) plus
+ * the verified trusted package itself. */
 export interface AdmittedIsolatedPackage{manifest:PluginManifestV2;verified:VerifiedPackage}
 
 /** Verify the pinned package and read its optional isolated-lane declaration.
@@ -43,8 +48,15 @@ export async function admitIsolatedPackage(directory:string,expectedDigest:strin
 /* through the proven backend, never with host privileges.               */
 /* ------------------------------------------------------------------ */
 
+/** Whether an update may proceed: `READY`, or `MIGRATION_PLAN_REQUIRED` with
+ * the reason — a blocked update, never an ad hoc migration. */
 export type MigrationDecision={status:'READY'}|{status:'MIGRATION_PLAN_REQUIRED';reason:string};
 
+/** Gate a data-migrating update on a complete pre-existing migration contract.
+ * The plan must parse as `pluginMigrationPlanV1Schema` and its input/output
+ * versions must exactly match the installed and next manifests. Any missing,
+ * malformed or version-mismatched plan yields `MIGRATION_PLAN_REQUIRED`.
+ * Validation only — the plan executes solely through the proven backend. */
 export function evaluateMigrationPlan(current:PluginManifestV2,next:PluginManifestV2,plan:unknown):MigrationDecision{
  const parsed=pluginMigrationPlanV1Schema.safeParse(plan);
  if(!parsed.success)return{status:'MIGRATION_PLAN_REQUIRED',reason:'The update needs a pre-existing approved migration contract.'};
@@ -57,8 +69,16 @@ export function evaluateMigrationPlan(current:PluginManifestV2,next:PluginManife
 /* needs identified before any drain begins.                            */
 /* ------------------------------------------------------------------ */
 
+/** What an update would change: newly declared and removed capabilities,
+ * whether the update needs a data migration, and a blocking code (currently
+ * `MIGRATION_PLAN_REQUIRED`) or null when nothing blocks it. */
 export interface UpdatePreview{capabilityExpansion:string[];capabilityRemoved:string[];migrationRequired:boolean;blocked:string|null}
 
+/** Diff an update before any drain begins. Returns the capability
+ * expansion/removal and `migrationRequired`. Fails closed: when a migration is
+ * required, `blocked` is always `MIGRATION_PLAN_REQUIRED` — a validated
+ * contract alone never unblocks a migration until a verified execution and
+ * validation path exists. `_migrationPlan` is reserved for that path. */
 export function updatePreview(current:PluginManifestV2,next:PluginManifestV2,requiresMigration:boolean,_migrationPlan?:unknown):UpdatePreview{
  const previous=new Set(current.declaredCapabilities),following=new Set(next.declaredCapabilities);
  const preview:UpdatePreview={

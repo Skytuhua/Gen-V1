@@ -35,6 +35,10 @@ const sessionError=(code:string,message:string)=>new HarnessError(code,message);
 /* kinds, extra fields and oversize frames never reach dispatch.        */
 /* ------------------------------------------------------------------ */
 
+/** Serialize one WorkerFrameV1 to the wire format: a 4-byte unsigned
+ * little-endian byte-length prefix followed by UTF-8 JSON. The frame must
+ * satisfy `workerFrameV1Schema`; throws FRAME_TOO_LARGE when the encoded body
+ * exceeds the 1 MiB bound. */
 export function encodeWorkerFrame(frame:WorkerFrameV1):Buffer{
  const parsed=workerFrameV1Schema.parse(frame);
  const body=Buffer.from(JSON.stringify(parsed),'utf8');
@@ -42,8 +46,13 @@ export function encodeWorkerFrame(frame:WorkerFrameV1):Buffer{
  const out=Buffer.alloc(4+body.length);out.writeUInt32LE(body.length,0);body.copy(out,4);return out;
 }
 
+/** Incremental decoder for the same length-prefixed wire format. The
+ * announced length is rejected before any payload allocation; invalid UTF-8,
+ * unknown kinds, extra fields and oversize frames throw PROTOCOL_VIOLATION or
+ * FRAME_TOO_LARGE and never reach dispatch. */
 export class WorkerFrameDecoder{
  private buffered=Buffer.alloc(0);
+ /** Feed raw bytes; returns every complete frame the chunk finished. */
  push(chunk:Uint8Array):WorkerFrameV1[]{
   this.buffered=this.buffered.length?Buffer.concat([this.buffered,Buffer.from(chunk)]):Buffer.from(chunk);
   const frames:WorkerFrameV1[]=[];
@@ -70,21 +79,33 @@ export class WorkerFrameDecoder{
 /* whether termination was confirmed.                                   */
 /* ------------------------------------------------------------------ */
 
+/** How a worker process ended: its exit code or terminating signal, either
+ * possibly null. */
 export interface WorkerExit{code:number|null;signal:string|null}
+/** The owned channel to one worker process tree. `onFrame`/`onExit` REPLACE
+ * the current handler. */
 export interface WorkerTransport{
+ /** Write one frame to the worker; throws once the worker has exited. */
  send(frame:WorkerFrameV1):void;
+ /** Replace the frame handler. */
  onFrame(handler:(frame:WorkerFrameV1)=>void):void;
+ /** Replace the exit handler; invoked immediately if the exit already happened. */
  onExit(handler:(exit:WorkerExit)=>void):void;
  /** Kill the exact owned process tree. Resolves true only when termination
   * is confirmed; false means cleanup is uncertain. */
  terminate():Promise<boolean>;
 }
 
+/** Everything a launcher needs to start one generation: the verified package
+ * directory, the plug-in's private data directory and the generation it runs
+ * under. */
 export interface WorkerLaunchSpec{
  packageDir:string;dataDir:string;generation:number;
  /** Child environment built from the host allowlist, never process.env. */
  env:Record<string,string|undefined>;
 }
+/** Starts one worker generation on an owned transport; the returned transport
+ * is the only channel the session ever uses. */
 export interface WorkerLauncher{launch(spec:WorkerLaunchSpec):Promise<WorkerTransport>}
 
 /** Real private-pipe transport over a spawned child process' stdio. The pipes
@@ -164,6 +185,11 @@ function terminateOnce(transport:WorkerTransport):Promise<boolean>{
  return attempt;
 }
 
+/** One authenticated worker generation on one transport. Handles the
+ * HELLO→READY handshake, REQUEST/CANCEL/RESPONSE dispatch with at most
+ * WORKER_MAX_INFLIGHT_REQUESTS in-flight calls, stale-generation filtering,
+ * bounded drain and a SHUTDOWN→grace→kill stop. A protocol violation or
+ * worker exit closes it permanently and rejects every pending call. */
 export class IsolatedWorkerSession{
  private readonly pending=new Map<number,PendingCall>();
  private nextRequestId=1;
@@ -244,10 +270,19 @@ export class IsolatedWorkerSession{
   for(const call of this.pending.values()){this.settleCall(call);call.reject(sessionError('WORKER_EXITED','The isolated extension exited.'));}this.pending.clear();
   this.onClosed?.('exit');
  }
+ /** Whether this session can still dispatch: false after a violation, a
+  * worker exit or a completed shutdown. */
  get isOpen():boolean{return this.open;}
+ /** Frames dropped for carrying a stale generation number. */
  get staleReplies():number{return this.staleCount;}
+ /** Snapshot of the currently in-flight calls. */
  get activeCalls():PendingCall[]{return [...this.pending.values()].map(call=>({...call}));}
 
+/** Dispatch one operation to the worker. `input` must clone to ≤256 KiB of
+ * JSON; `signal` cancels with a best-effort CANCEL frame. Throws
+ * WORKER_UNAVAILABLE before the handshake completes, PLUGIN_BUSY at 32
+ * in-flight calls, CANCELLED when aborted, and rejects on worker failure,
+ * OPERATION_FAILED replies and protocol violations. */
  async request(operation:string,input:unknown,signal?:AbortSignal):Promise<unknown>{
   if(!this.open||!this.handshakeDone)throw sessionError('WORKER_UNAVAILABLE','The isolated extension is unavailable.');
   if(this.pending.size>=WORKER_MAX_INFLIGHT_REQUESTS)throw sessionError('PLUGIN_BUSY','The isolated extension already has 32 in-flight requests.');
@@ -302,6 +337,10 @@ export class IsolatedWorkerSession{
 /* IsolatedExtensionHost — host-owned leases over worker generations.    */
 /* ------------------------------------------------------------------ */
 
+/** Host-side state of one registered isolated extension: its verified V2
+ * manifest and directories, owner scopes, the current lease and worker
+ * session, a blocking hold code, whether private data is retained, the
+ * in-flight stop, and an admitted but not-yet-published STARTING generation. */
 export interface IsolatedExtensionRecord{
  manifest:PluginManifestV2;
  packageDir:string;
@@ -317,6 +356,8 @@ export interface IsolatedExtensionRecord{
  starting?:StartingGeneration|null;
 }
 
+/** A STARTING generation tracked from admission until its launch and
+ * handshake settle, so Stop can fence replacement on the outcome. */
 export interface StartingGeneration{
  lease:PluginLeaseV1;
  /** Resolves (never rejects) once the launch/handshake path has finished and
@@ -324,6 +365,9 @@ export interface StartingGeneration{
  settled:Promise<'stopped'|'unconfirmed'>;
 }
 
+/** Host wiring the isolated lane runs under: the feature flag, the approved
+ * backend id and installed backends for the admission gate, plus optional
+ * drain/shutdown/handshake bounds. */
 export interface IsolatedHostOptions{
  enabled:()=>boolean;
  approvedBackendId:()=>string|null|undefined;
@@ -344,6 +388,11 @@ export interface IsolatedHostOptions{
  handshakeDeadlineMs?:number;
 }
 
+/** Outcome of an update attempt: `UPDATED` with the new generation's lease;
+ * `MIGRATION_PLAN_REQUIRED` when the update needs a migration (always blocked
+ * on this host); `BLOCKED` when the admission gate held; or `UNKNOWN` when
+ * the old generation could not be confirmed stopped or the new one failed
+ * after the record was restored. */
 export type UpdateResult=
  |{status:'UPDATED';lease:PluginLeaseV1}
  |{status:'MIGRATION_PLAN_REQUIRED'}
@@ -352,6 +401,12 @@ export type UpdateResult=
 
 const declaredOperations=(manifest:PluginManifestV2)=>new Set([...manifest.toolSchemas.map(tool=>tool.name),...Object.values(manifest.lifecycle??{}).filter((value):value is string=>Boolean(value))]);
 
+/** Host-owned leases over worker generations. Registration is leased to one
+ * generation: revoking the lease revokes every tool and UI contribution at
+ * once. Activation only proceeds behind the feature flag with exactly one
+ * installed, independently approved M03 backend holding a current-platform
+ * PASS proof — otherwise it fails closed with a recorded hold. A generation
+ * whose stop was never confirmed stays UNKNOWN and fences the namespace. */
 export class IsolatedExtensionHost{
  private readonly records=new Map<string,IsolatedExtensionRecord>();
  private readonly generations=new Map<string,number>();
@@ -397,6 +452,13 @@ export class IsolatedExtensionHost{
   session.onClosed=()=>{if(record.session===session)record.session=null;if(record.lease===lease&&lease.state==='ACTIVE')lease.state='FAILED';};
  }
 
+/** Launch the next generation for a registered plug-in and move its lease
+ * STARTING→ACTIVE once the worker handshake echoes the bound identity and
+ * advertises only manifest-declared operations. Throws NOT_FOUND,
+ * INVALID_STATE when a writable generation exists, the admission hold code
+ * (ACTIVATION_DISABLED, HOLD_BACKEND_SELECTION, HOLD_PLATFORM_PROOF,
+ * HOLD_BACKEND_LAUNCH_BINDING), or ACTIVATION_FAILED/protocol errors — a
+ * start-up with unconfirmed cleanup leaves the lease UNKNOWN, never STOPPED. */
  async activate(pluginId:string):Promise<PluginLeaseV1>{
   const record=this.records.get(pluginId);if(!record)throw new HarnessError('NOT_FOUND','The isolated extension is not registered.');
   if(record.lease&&['STARTING','ACTIVE','DRAINING','UNKNOWN'].includes(record.lease.state))throw new HarnessError('INVALID_STATE','The isolated extension already has a writable generation.');
@@ -456,6 +518,9 @@ export class IsolatedExtensionHost{
   }
  }
 
+/** Invoke a registered tool on the ACTIVE generation. Host mediation only
+ * allows operations present on the lease's tool registrations; throws
+ * UNAVAILABLE or GENERATION_STALE when the generation changed mid-call. */
  async dispatch(pluginId:string,operation:string,input:unknown,signal?:AbortSignal):Promise<unknown>{
   const record=this.records.get(pluginId);
   if(!record||!record.lease||record.lease.state!=='ACTIVE'||!record.session?.isOpen)throw new HarnessError('UNAVAILABLE','The isolated extension is unavailable.');
@@ -500,12 +565,20 @@ export class IsolatedExtensionHost{
   return record.stopping;
  }
 
+/** Revoke the lease, drain, and stop the worker. Returns the resulting lease
+ * state — STOPPED only when exit was confirmed; UNKNOWN means cleanup was
+ * never proven and the namespace stays fenced. Throws NOT_FOUND. */
  async disable(pluginId:string):Promise<PluginLeaseState>{
   const record=this.records.get(pluginId);if(!record)throw new HarnessError('NOT_FOUND','The isolated extension is not registered.');
   await this.stop(record);
   return record.lease?.state??'STOPPED';
  }
 
+/** Replace a registered plug-in's generation. A migration-needing update is
+ * always MIGRATION_PLAN_REQUIRED on this host. Otherwise the old generation
+ * must stop confirmed before the new one activates; its record is restored on
+ * activation failure. Throws NOT_FOUND or INVALID_INPUT on a mismatched
+ * manifest identity. */
  async update(pluginId:string,next:{manifest:unknown;packageDir:string;dataDir:string;requiresMigration?:boolean;migrationPlan?:unknown}):Promise<UpdateResult>{
   const record=this.records.get(pluginId);if(!record)throw new HarnessError('NOT_FOUND','The isolated extension is not registered.');
   const manifest=pluginManifestV2Schema.parse(next.manifest);
@@ -526,9 +599,14 @@ export class IsolatedExtensionHost{
   catch(cause){record.manifest=previous.manifest;record.packageDir=previous.packageDir;record.dataDir=previous.dataDir;return{status:'UNKNOWN',reason:cause instanceof Error?cause.message:'The new generation could not start.'};}
  }
 
+/** The host-side record for a registered plug-in, or undefined. */
  record(pluginId:string):IsolatedExtensionRecord|undefined{return this.records.get(pluginId);}
+ /** Stale-generation frames dropped across every live session. */
  get droppedStaleReplies():number{let count=0;for(const record of this.records.values())count+=record.session?.staleReplies??0;return count;}
 
+ /** The Extensions surface rows: every trusted plug-in as ACTIVE plus each
+ * isolated record with its lease state, digest, declared capabilities and any
+ * blocking hold. Empty when the lane is disabled. */
  catalog(trusted:readonly PluginManifest[]=[]):ExtensionViewV1[]{
   // Flag off: the Extensions surface contributes nothing, trusted rows included.
   if(!this.options.enabled())return[];
@@ -539,5 +617,7 @@ export class IsolatedExtensionHost{
   return rows;
  }
 
+/** Stop every registered extension, fencing any generation whose shutdown
+ * was unconfirmed. */
  async close():Promise<void>{for(const record of this.records.values())await this.stop(record);}
 }

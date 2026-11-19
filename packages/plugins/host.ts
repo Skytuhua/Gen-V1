@@ -5,6 +5,10 @@ import {checkInstalledCompatibility,readPluginIndex,safeDirectory,validGenVersio
 export {installPluginPackage,removePlugin} from './installation.ts';
 
 interface LoadedPlugin {record:ActivePlugin;verified:VerifiedPackage;instance?:PluginHostInstance;pending:Set<AbortController>}
+/** The live registry of installed plug-ins returned by `loadInstalledPlugins`.
+ * Every read re-checks the index and package digest, so a tampered or replaced
+ * package fails closed rather than serving stale trust. Incompatible plug-ins
+ * stay listed but never activate; their errors surface via `failures`. */
 export interface PluginRegistry {
  list():PluginManifest[];
  failures():{id:string;message:string}[];

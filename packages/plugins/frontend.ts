@@ -1,4 +1,8 @@
 import {pluginManifestSchema,pluginWorkspacesSchema,type ConversationAdapter,type PluginManifest,type PluginWorkspaceContribution} from './contracts.ts';
+/** Presentation contributions a plug-in registers in the isolated runtime:
+ * navigation entries, its conversation adapter, and optional panels, window
+ * behavior declarations and workspace contributions that must equal the
+ * installed manifest's. */
 export interface PluginRegistration {
   navigation:{id:string;title:string}[];
   conversation:ConversationAdapter;
