@@ -246,3 +246,16 @@ it('keeps rendered anchors after a comment terminator without indexing indented 
     expect(result.output).toContain('2 broken');
   }finally{bench.cleanup();}
 });
+
+it('does not count an ATX heading again before a thematic break',()=>{
+  const bench=fixture({
+    'guide.md':'# Build\n---\n\n# Build\n',
+    'README.md':'[real duplicate](guide.md#build-1) [phantom anchor](guide.md#-build)\n',
+  });
+  try{
+    const result=bench.run();
+    expect(result.status,result.output).toBe(1);
+    expect(result.output).toContain('no heading or anchor "#-build"');
+    expect(result.output).not.toContain('no heading or anchor "#build-1"');
+  }finally{bench.cleanup();}
+});
