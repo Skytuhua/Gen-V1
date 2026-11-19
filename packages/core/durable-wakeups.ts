@@ -309,7 +309,15 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.delivered", null, () => {
           this.setOccurrence(key, { state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs: this.now(), blockedReason: null, updatedAt: iso(this.now()) });
+          if (!wakeup || wakeup.scheduleRevision !== admitted.scheduleRevision || wakeup.state === "CANCELLED") return;
+          const stamp = this.now();
+          const lastRunAtMs = Math.max(wakeup.lastRunAtMs ?? stamp, stamp);
+          if (wakeup.state === "CLAIMED" && wakeup.occurrenceKey === key) {
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs, blockedReason: null, updatedAt: iso(stamp) });
+          } else if (wakeup.trigger.kind === "INTERVAL_UTC" && wakeup.lastRunAtMs !== lastRunAtMs) {
+            // A successful older occurrence contributes history, not ownership.
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
+          }
         });
         return;
       }

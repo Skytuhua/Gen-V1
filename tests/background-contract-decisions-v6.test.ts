@@ -131,14 +131,17 @@ describe("M10-D03 clock movement", () => {
     await scheduler.tick();
     const newerKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor + interval);
     expect(scheduler.schedules()[0]).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey });
+    const newerLease = scheduler.schedules()[0]!.leaseExpiresAtMs;
+    f.advance(5);
     finishOld();
     await old;
     await Promise.resolve();
-    expect(scheduler.schedules()[0]).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey });
+    expect(scheduler.schedules()[0]).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey, leaseExpiresAtMs: newerLease, lastRunAtMs: f.now() });
+    f.advance(5);
     finishNew();
     await next;
     await Promise.resolve();
-    expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", occurrenceKey: null });
+    expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", occurrenceKey: null, lastRunAtMs: f.now() });
     expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").map(row => row.state)).toEqual(["DELIVERED", "DELIVERED"]);
   });
 
