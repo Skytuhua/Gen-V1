@@ -1,4 +1,4 @@
-import {chromium,expect,type Browser} from '@playwright/test';
+import {chromium,expect,type Browser,type Page} from '@playwright/test';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {createReadStream} from 'node:fs';
 import {mkdir,readFile,writeFile,readdir,lstat,realpath,copyFile,unlink,rmdir} from 'node:fs/promises';
@@ -194,6 +194,69 @@ export async function packageContentManifest(directory:string,options:{installed
 export function assertMatchingContents(expected:ContentManifest,actual:ContentManifest){
  if(expected.files.length!==actual.files.length||expected.bytes!==actual.bytes||expected.sha256!==actual.sha256)throw Error('Installed and expected unpacked payload contents differ.');
 }
+
+/** Programmatic opt-in integration seam (M16 C3/C4 callable scenario, etc.).
+ * The callback fires inside launchInstalled only after readiness and the
+ * existing exact ownership verification of the launched installed page, before
+ * the existing close/cleanup path — never instead of them. */
+export interface InstalledVerifierProvenance{
+ sourceSha:string;           // checkout/CI build identity bound through the verified build record
+ packageVersion:string;      // version parsed from the verified unpacked payload
+ installerSha256:string;     // digest of the actually invoked installer
+ executableSha256:string;    // digest of the exact launched installed executable
+ payloadSha256:string;       // verified matching-content digest (install ≡ unpacked)
+}
+export interface InstalledVerifierIntegrationContext{
+ page:Page;
+ directory:string;           // owned disposable data profile (HARNESS_DESKTOP_TEST_DATA_DIR)
+ origin:string;              // owned loopback host origin
+ iteration:number;
+ provenance:InstalledVerifierProvenance;
+ controlAddon:{packageRelativePath:string;sha256:string}|null;
+}
+export type InstalledVerifierIntegrationCallback=(context:InstalledVerifierIntegrationContext)=>Promise<Record<string,unknown>>;
+export interface InstalledVerifierIntegrationOffer{callback:InstalledVerifierIntegrationCallback;provenance:InstalledVerifierProvenance;controlAddon:{packageRelativePath:string;sha256:string}|null}
+const INSTALLED_CONTROL_ADDON_PATH='resources/host/packages/core/windows-control-bridge.node';
+/** The control addon's digest comes from the verified expected payload manifest. */
+export function installedControlAddon(expected:ContentManifest){
+ const entry=expected.files.find(file=>file.path===INSTALLED_CONTROL_ADDON_PATH);
+ return entry?{packageRelativePath:entry.path,sha256:entry.sha256}:null;
+}
+/** Resolves every provenance input the seam supplies — installer digest, the
+ * exact launched executable digest, the verified matching-content payload
+ * digest, the payload version, and the source SHA bound through the build
+ * record adjacent to the invoked installer. The record is only trusted after
+ * its file list proves the invoked installer digest; a record without a
+ * checkout identity leaves provenance unbound (fail-closed, recorded), and a
+ * record that disagrees with the invoked artifacts is rejected outright —
+ * nothing is filled from a filename or the checkout HEAD. */
+export async function resolveInstalledVerifierProvenance(input:{setup:string;setupSha256:string;executable:string;expected:ContentManifest;packageVersion:string;buildRecordPath?:string}):Promise<{status:'bound';provenance:InstalledVerifierProvenance;missing:[]}|{status:'unbound';provenance:null;missing:string[]}>{
+ const missing:string[]=[];
+ const recordPath=input.buildRecordPath??join(dirname(input.setup),'build-manifest.json');
+ let record:unknown;try{record=JSON.parse(await readFile(recordPath,'utf8'));}
+ catch{missing.push('checkout build identity: '+recordPath+' is absent or unreadable — no verified source SHA');}
+ let sourceSha:string|null=null;
+ if(record!==undefined){
+  const files=(record as {files?:unknown}).files;
+  const entry=Array.isArray(files)?(files as {file?:unknown;sha256?:unknown}[]).find(file=>typeof file.file==='string'&&win32.basename(file.file)===win32.basename(input.setup)):undefined;
+  if(!entry||entry.sha256!==input.setupSha256)throw Error('The adjacent build record does not bind the invoked installer digest; provenance is refused.');
+  const candidate=(record as {sourceSha?:unknown}).sourceSha;
+  if(candidate===undefined||candidate===null)missing.push('checkout build identity: '+recordPath+' binds the invoked installer but carries no sourceSha field');
+  else if(typeof candidate!=='string'||!/^[0-9a-f]{40}$/.test(candidate))throw Error('The build record sourceSha is malformed; provenance is refused.');
+  else sourceSha=candidate;
+ }
+ if(missing.length)return{status:'unbound',provenance:null,missing};
+ return{status:'bound',provenance:{sourceSha:sourceSha!,packageVersion:input.packageVersion,installerSha256:input.setupSha256,executableSha256:await hashFile(input.executable),payloadSha256:input.expected.sha256},missing:[]};
+}
+/** Invokes the opt-in integration callback with the verified-owned page and
+ * resolves receipt merge. Caller supplies only already-verified values; the
+ * callback's errors propagate so the launch fails closed while lifecycle
+ * cleanup stays with this verifier. */
+export async function invokeInstalledVerifierIntegration(input:{offer:InstalledVerifierIntegrationOffer;page:Page;directory:string;origin:string;iteration:number;receipt:Record<string,unknown>}){
+ const context:InstalledVerifierIntegrationContext={page:input.page,directory:input.directory,origin:input.origin,iteration:input.iteration,provenance:input.offer.provenance,controlAddon:input.offer.controlAddon};
+ const value=await input.offer.callback(context);
+ ((input.receipt.integrations??=[]) as unknown[]).push({iteration:input.iteration,kind:'installed-verifier-integration',receipt:value});
+}
 function baseEnvironment():NodeJS.ProcessEnv{
  const env:NodeJS.ProcessEnv={};
  for(const key of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM','TEMP','TMP','USERPROFILE','HOME','LOCALAPPDATA','APPDATA'])if(process.env[key]!==undefined)env[key]=process.env[key];
@@ -387,7 +450,7 @@ export async function assertInstalledConnectionReady(providerId:string,read:()=>
  catch(cause){const detail=cause instanceof Error?cause.message:'Readiness check failed.';throw Error(`Installed subscription ${providerId}: ${detail}`,{cause});}
 }
 
-async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention){
+async function launchInstalled(executable:string,directory:string,iteration:number,receipt:Record<string,unknown>,ports:readonly[number,number,number],memory?:MemoryRetention,integration?:InstalledVerifierIntegrationOffer){
  if(memory)await (await import('./installed-memory-retention.ts')).assertInstalledMemoryProfile(memory.seed);
  const [hostPort,widgetPort,debugPort]=ports,nonce=randomUUID(),origin='http://127.0.0.1:'+hostPort,debugOrigin='http://127.0.0.1:'+debugPort;
  const child=spawn(executable,['--remote-debugging-port='+debugPort,'--remote-debugging-address=127.0.0.1','--enable-automation','--harness-verification='+nonce],{cwd:win32.dirname(executable),env:installedVerificationEnvironment(directory,ports,memory?.mode),windowsHide:false,stdio:['ignore','pipe','pipe']});
@@ -419,6 +482,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
   }else if(!memory)await expect(message).toHaveValue('Keep this installed-app draft.');
   if(memory){if(!child.pid)throw Error('The owned installed process has no PID.');await (await import('./installed-memory-retention.ts')).verifyInstalledMemoryUI(page,memory.seed,iteration,memory.observations,{pid:child.pid,executable,isAlive:()=>child.exitCode===null&&child.signalCode===null},memory.mode);}
   expect((await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok).toBe(true);
+  if(integration)await invokeInstalledVerifierIntegration({offer:integration,page,directory,origin,iteration,receipt});
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await waitForOwnedExit(child);assertInstalledCleanExit(child);
   await expect.poll(async()=>{try{return (await fetch(origin+'/health',{signal:AbortSignal.timeout(1000)})).ok;}catch{return false;}},{timeout:15000}).toBe(false);
   if(memory)memory.observations.push(await (await import('./installed-memory-retention.ts')).observeInstalledMemoryStorage(memory.seed,iteration,memory.mode));
@@ -431,7 +495,7 @@ async function launchInstalled(executable:string,directory:string,iteration:numb
  }
 }
 
-export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean;memoryEnabled?:boolean}={}){
+export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPath:string,options:{memoryRetention?:boolean;memoryEnabled?:boolean;onVerifiedInstalledPage?:InstalledVerifierIntegrationCallback}={}){
  if(options.memoryEnabled&&!options.memoryRetention)throw Error('Enabled memory verification requires the separate default-off retention phase.');
  if(process.platform!=='win32'||process.arch!=='x64')throw Error('This verification requires Windows x64.');
  if(!isAbsolute(setupPath)||!isAbsolute(expectedUnpackedPath))throw Error('Pass absolute installer and expected unpacked-directory paths.');
@@ -472,7 +536,14 @@ export async function verifyInstalledDesktop(setupPath:string,expectedUnpackedPa
    memory={seed,observations:[],mode:'default-off'};
    receipt.memoryRetention={version:1,scope:'Seeded disposable retained records reviewed through the exact installed application with production memory flags off. No enabled recall, automatic extraction, native checkpoint or live-provider evaluation.',seed,hostDefaultOff:true,seedEnablement:'Constructor-local fixture creation only; project disabled before installed launch.',providerNetworkCalls:null,observations:memory.observations};
   }
-  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory);
+  const executable=join(installDirectory,APP_FILE),ports=await verificationPorts();
+  let integrationOffer:InstalledVerifierIntegrationOffer|undefined;
+  if(options.onVerifiedInstalledPage){
+   const resolution=await resolveInstalledVerifierProvenance({setup,setupSha256:setupIdentity.sha256,executable,expected,packageVersion:version}),controlAddon=installedControlAddon(expected);
+   if(resolution.status==='bound')integrationOffer={callback:options.onVerifiedInstalledPage,provenance:resolution.provenance,controlAddon};
+   receipt.installedIntegration=resolution.status==='bound'?{status:'bound',controlAddon}:{status:'unbound',missing:resolution.missing,controlAddon};
+  }
+  await launchInstalled(executable,ownedDirectory,1,receipt,ports,memory,integrationOffer);await launchInstalled(executable,ownedDirectory,2,receipt,ports,memory,integrationOffer);
   if(options.memoryEnabled){
    // Keep the default-off receipt and profile intact. The enabled phase owns
    // a separate, new profile and uses the production host environment path.
