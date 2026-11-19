@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Main pushes use immutable revisions so pending verification is not replaced.
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.sha || github.ref }}
   # A superseded pull-request push has nothing left to prove, so it cancels.
   # Pushes to a protected branch are the post-merge verification of commits that
   # already landed: cancelling those meant no push run on main ever completed.
