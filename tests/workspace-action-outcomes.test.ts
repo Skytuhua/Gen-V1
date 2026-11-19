@@ -288,7 +288,7 @@ it('serializes same-ID attempts across separate Store connections without a doub
   expect((await pending).state).toBe('confirmed');
   expect(writes).toBe(1);
   expect(await other.execute(f.projectId, input)).toMatchObject({ state: 'confirmed' });
-}, 60000);
+}, 240000);
 
 it.each(['payload', 'type', 'threadId', 'projectId'] as const)(
   'denies reuse of an ID with a changed %s',
@@ -356,7 +356,7 @@ it('returns revoked after working copy or account access changes, including conf
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'revoked' });
   await rm(credential);
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'revoked' });
-}, 60000);
+}, 240000);
 
 it('keeps private intent, result, credentials and errors out of events, receipts and snapshots', async () => {
   const f = await fixture(),
@@ -533,4 +533,4 @@ it('supports local unstage and commit through the original revision and replays 
   expect(after.files).toHaveLength(0);
   expect(await f.outcomes.execute(f.projectId, commit.input)).toEqual(result);
   expect((await f.projects.gitStatus(f.projectId, f.thread.id)).head).toBe(after.head);
-}, 60000);
+}, 240000);

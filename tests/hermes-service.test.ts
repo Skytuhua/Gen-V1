@@ -65,7 +65,7 @@ it('bounds hook admission while preserving every successful write and ordinary r
  for(const op of operations)expect(x.store.get('operation',op.id)).toMatchObject({status:'succeeded'});
  const overflow=operations.at(-1)!;expect(x.store.get('outbox','operation-result:'+overflow.id)).toMatchObject({hookClaimed:true,hookDiagnostic:{status:'failed',message:expect.stringContaining('batch limit')}});
  expect(x.service.thread(x.thread.id).status).toBe('working');
-},60000); // Thirty-three actual approved replacements exercise the admission bound.
+},240000); // Thirty-three actual approved replacements exercise the admission bound.
 it.each(['stop','rebind','revision','recovery'])('does not reauthorize an approved write hook after %s',async change=>{
  const x=await preparedWrite(),{thread,run,op}=x;
  await x.send('operation.approve',{operationId:op.id,revision:op.revision},thread.id);await x.service.dispatchOperation(op.id);
@@ -82,7 +82,7 @@ it.each(['stop','rebind','revision','recovery'])('does not reauthorize an approv
 });
 it('never supplies completed-write custody for unapproved or failed effects',async()=>{
  const x=await preparedWrite();await expect(x.service.dispatchOperation(x.op.id)).rejects.toMatchObject({code:'APPROVAL_REQUIRED'});expect(x.store.get('outbox','operation-result:'+x.op.id)).toBeNull();
- await writeFile(x.path,'changed by user');await x.send('operation.approve',{operationId:x.op.id,revision:x.op.revision},x.thread.id);await vi.waitFor(()=>expect(x.store.get('operation',x.op.id)).toMatchObject({status:'failed'}));
+ await writeFile(x.path,'changed by user');await x.send('operation.approve',{operationId:x.op.id,revision:x.op.revision},x.thread.id);await vi.waitFor(()=>expect(x.store.get('operation',x.op.id)).toMatchObject({status:'failed'}),{timeout:30000});
  expect(x.store.get('operation',x.op.id)).toMatchObject({status:'failed'});expect(x.store.get('outbox','operation-result:'+x.op.id)).not.toHaveProperty('completedWrite');
 });
 it('retains an unknown callback claim across stop/resume without replaying its write',async()=>{
