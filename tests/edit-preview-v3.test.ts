@@ -145,3 +145,18 @@ it('a failed final seal invalidates an incomplete preview and frees its slot for
  registry.append(retry.previewId,owner,args('a.ts','complete'));
  expect(registry.seal(retry.previewId,owner,()=>null).state).toBe('READY_UNAPPLIED');
 });
+
+it('rolls back an unpublishable final preview without retaining its argument bytes',()=>{
+ const registry=new EditPreviewRegistry();
+ const preview=registry.begin(owner,schemaDigest);
+ const raw=args('a.ts','proposed text');
+ registry.append(preview.previewId,owner,raw);
+ expect(registry['previews'].get(preview.previewId)?.bufferedBytes).toBe(Buffer.byteLength(raw));
+
+ // A bad preimage digest from the host must not leave a partially sealed preview.
+ expect(()=>registry.seal(preview.previewId,owner,()=>'not-a-digest')).toThrow();
+ expect(registry.get(preview.previewId,owner)).toMatchObject({
+  state:'INVALID',finalArgumentsDigest:null,targetFiles:[],
+ });
+ expect(registry['previews'].get(preview.previewId)).toMatchObject({buffered:[],bufferedBytes:0});
+});
