@@ -33,8 +33,9 @@ test('compact scrollbar keeps its 12px strip interactive without covering conten
  // The rail must fill only the 12px padding strip: a click just inside the
  // content edge reaches the scroller instead of being intercepted by it.
  await scroll.click({position:{x:14,y:Math.round(bounds.height/2)}});
- const saved=await scroll.evaluate(node=>node.scrollTop);
- await bar.click({position:{x:6,y:Math.round(bounds.height*.7)}});await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(saved);
+ // The fixture springs to the tail on open; pin the start before measuring.
+ await bar.focus();await page.keyboard.press('Home');await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBe(0);
+ await bar.click({position:{x:6,y:Math.round(bounds.height*.7)}});await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeGreaterThan(50);
  const afterTrack=await scroll.evaluate(node=>node.scrollTop),thumb=(await page.locator('.chat-scroll-thumb').boundingBox())!;
  await page.mouse.move(thumb.x+1,thumb.y+2);await page.mouse.down();await page.mouse.move(thumb.x+1,bounds.y+10,{steps:6});await page.mouse.up();
  await expect.poll(()=>scroll.evaluate(node=>node.scrollTop)).toBeLessThan(afterTrack);
