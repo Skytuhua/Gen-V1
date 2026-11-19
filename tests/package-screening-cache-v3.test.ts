@@ -221,6 +221,46 @@ describe('M03 cached package screening authority', () => {
     expect(screeningGate(result.record)).toBe('BLOCK');
   });
 
+  it('retains a stale known-bad block when the advisory refresh is unavailable or stale', async () => {
+    const twoDaysLater = () => Date.parse(checkedAt) + 2 * 24 * 60 * 60 * 1000;
+    const stored = cache(record({ status: 'KNOWN_BAD', decision: 'DENY' }));
+    let queries = 0;
+    const unavailableRefresh: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => { queries++; return { status: 'UNAVAILABLE' }; },
+    };
+    for (const exceptionInput of [exception, undefined, exception]) {
+      const refreshed = await screenPackage(identity, unavailableRefresh, {
+        cache: stored, now: twoDaysLater, exception: exceptionInput,
+      });
+      expect(refreshed).toMatchObject({
+        cacheHit: true, staleCache: true,
+        record: { status: 'KNOWN_BAD', decision: 'DENY', checkedAt },
+      });
+      expect(screeningGate(refreshed.record)).toBe('BLOCK');
+      expect(refreshed.exception).toBeUndefined();
+    }
+    expect(queries).toBe(3);
+
+    const staleClean: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({ status: 'NO_MATCH', asOf: checkedAt }),
+    };
+    const staleResult = await screenPackage(identity, staleClean, { cache: stored, now: twoDaysLater, exception });
+    expect(staleResult.record).toMatchObject({ status: 'KNOWN_BAD', decision: 'DENY' });
+    expect(screeningGate(staleResult.record)).toBe('BLOCK');
+
+    // A genuinely fresh snapshot can supersede the prior match, but remains neutral, never trusted.
+    const freshClean: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({ status: 'NO_MATCH', asOf: new Date(twoDaysLater()).toISOString() }),
+    };
+    const cleared = await screenPackage(identity, freshClean, { cache: stored, now: twoDaysLater });
+    expect(cleared).toMatchObject({ cacheHit: false, staleCache: true });
+    expect(cleared.record).toMatchObject({ status: 'NO_KNOWN_MATCH', decision: 'ALLOW' });
+    expect(screeningGate(cleared.record)).toBe('NEUTRAL');
+  });
+
   it('rechecks stale cache and retains unavailable as a distinct denial', async () => {
     const next = await screenPackage(identity, unavailable, {
       cache: cache(record()), now, maxCacheAgeMs: 999,
