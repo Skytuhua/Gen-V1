@@ -13,7 +13,7 @@ import {
 } from '../packages/contracts/implementation-evidence.ts';
 import {
   CONTRACT_SOURCES, benchmarkReportHtml, resolveExecutable, resolvePackageManager, runRecordedCommand,
-  statusFromObservation, verifySourceLock, writeCommandEvidence,
+  runBaseline, statusFromObservation, verifySourceLock, writeCommandEvidence,
 } from '../scripts/research-baseline.ts';
 
 const dirs: string[] = [];
@@ -42,6 +42,24 @@ describe('recorded command runner', () => {
     expect(evidence.argv).toEqual(['node', '-e', 'process.exit(0)']);
     expect(commandEvidenceSchema.parse(evidence)).toBeTruthy();
     expect(validateCommandEvidence(evidence)).toEqual([]);
+  });
+
+  it('lets only one baseline claim a new evidence directory', async () => {
+    const fixture = dir('baseline-claim'), out = join(fixture, 'output', 'attempt');
+    const pnpm = join(fixture, 'node_modules', 'pnpm');
+    mkdirSync(join(pnpm, 'bin'), { recursive: true });
+    writeFileSync(join(fixture, 'package.json'), JSON.stringify({ packageManager: 'pnpm@10.30.3' }));
+    writeFileSync(join(pnpm, 'package.json'), JSON.stringify({ name: 'pnpm', version: '10.30.3' }));
+    writeFileSync(join(fixture, 'pnpm.cmd'), 'not executed');
+    writeFileSync(join(pnpm, 'bin', 'pnpm.cjs'), "if (process.argv[2] === '--version') console.log('10.30.3');");
+    vi.stubEnv('PATH', fixture);
+    try {
+      const attempts = await Promise.allSettled([runBaseline(out, fixture), runBaseline(out, fixture)]);
+      expect(attempts.filter(attempt => attempt.status === 'fulfilled')).toHaveLength(1);
+      const rejected = attempts.find(attempt => attempt.status === 'rejected');
+      expect(rejected?.reason).toMatchObject({ code: 'INVALID_INPUT' });
+      expect(existsSync(join(out, '00-package-manager.log'))).toBe(true);
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it('records an exit-7 command as FAIL, never an expected negative', async () => {

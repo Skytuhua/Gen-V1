@@ -310,6 +310,15 @@ export async function runBaseline(outDir: string, repoRoot = root, options: Base
   const commandTimeoutMs = baselineCommandTimeout(options.commandTimeoutMs === undefined ? DEFAULT_TIMEOUT_MS : options.commandTimeoutMs);
   if (existsSync(outDir)) throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
   const pm = resolvePackageManager(repoRoot);
+  // Take exclusive custody before starting a command; a concurrent run must
+  // not write overlapping receipts even when both saw an absent directory.
+  await mkdir(dirname(outDir), { recursive: true });
+  try { await mkdir(outDir); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST')
+      throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
+    throw error;
+  }
   const commands: CommandEvidence[] = [];
   const environment = { COREPACK_ENABLE_NETWORK: '0' };
   const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000, environment });
