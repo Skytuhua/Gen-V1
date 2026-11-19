@@ -194,7 +194,11 @@ let entered=false;
 await assert.rejects(withPathGuard([{path:'/etc',leaf:false}],signal,async()=>{entered=true;}),{code:'CAPABILITY_DENIED'});assert.equal(entered,false);
 await symlink(directory,join(root,'redirect'));
 await assert.rejects(withPathGuard([{path:join(root,'redirect'),leaf:false}],signal,async()=>{entered=true;}),{code:'CAPABILITY_DENIED'});await unlink(join(root,'redirect'));
-await assert.rejects(withPathGuard([{path:join(directory,'save.txt'),leaf:true}],signal,async()=>{}),{code:'CAPABILITY_DENIED'});
+await withPathGuard([{path:join(directory,'save.txt'),leaf:true}],signal,async()=>{
+ await assert.rejects(rename(join(directory,'save.txt'),join(directory,'save-renamed.txt')),{code:'EBUSY'});
+ await writeFile(join(directory,'save.txt'),'leaf writable');
+});
+assert.equal(await readFile(join(directory,'save.txt'),'utf8'),'leaf writable');
 
 const parent=join(root,'engine');await mkdir(parent,{mode:0o700,recursive:true});
 const client=new HermesClient({home:join(parent,'home'),timeoutMs:10000});

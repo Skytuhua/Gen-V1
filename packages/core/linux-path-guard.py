@@ -306,8 +306,14 @@ class DirectoryGuard:
         mounts = self.credential_mounts(prepared, False)
         self.credential_processes(prepared, mounts)
         held = [record['path'] for record in mount_records() if record['id'] in mounts]
-        for path in held:
-            self.pin(path)
+        pinned = []
+        try:
+            for path in held:
+                self.pin(path)
+                pinned.append(path)
+        except BaseException:
+            self.release_paths(pinned)
+            raise
         identifier = uuid.uuid4().hex
         barrier = dict(parent=parent, mounts=mounts, held=held, expires=time.monotonic() + duration / 1000, fenced=False)
         self.barriers[identifier] = barrier
@@ -364,29 +370,49 @@ class DirectoryGuard:
             info = os.fstat(fd)
             if not stat.S_ISDIR(info.st_mode) or info.st_uid != self.uid or info.st_mode & 0o022:
                 raise PermissionError("Private ordinary directory required")
+            mounted = False
             if path != self.root:
                 name = os.fsencode(f"/proc/self/fd/{fd}")
                 checked(LIBC.mount(name, name, None, 4096, None))  # Mandatory rename/unlink protection.
-            after = os.stat(path, follow_symlinks=False)
-            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
-                raise PermissionError("Directory identity changed")
+                mounted = True
+            try:
+                after = os.stat(path, follow_symlinks=False)
+                if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                    raise PermissionError("Directory identity changed")
+            except BaseException:
+                if mounted:
+                    try:
+                        LIBC.umount2(os.fsencode(path), 2)
+                    except Exception:
+                        pass  # An undetached mount stays fenced; the caller still sees denial.
+                raise
             self.pins[path] = 1
         finally:
             os.close(fd)
 
     def release_paths(self, paths):
+        # Each pin releases independently: a failed detach keeps its ledger
+        # entry and fence, and one failure must not skip the remaining release.
+        first_error = None
         for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
             if path not in self.pins:
                 continue  # Consumed by an owned remove/replace.
             if self.pins[path] == 1:
-                if path != self.root:
-                    # MNT_DETACH: release ends the lease like a handle close even
-                    # while a child still maps or roots inside the mount.
-                    checked(LIBC.umount2(os.fsencode(path), 2))
+                try:
+                    if path != self.root:
+                        # MNT_DETACH: release ends the lease like a handle close even
+                        # while a child still maps or roots inside the mount.
+                        checked(LIBC.umount2(os.fsencode(path), 2))
+                except BaseException as error:
+                    if first_error is None:
+                        first_error = error
+                    continue
                 del self.pins[path]
                 self.readonly_pins.discard(path)
             else:
                 self.pins[path] -= 1
+        if first_error is not None:
+            raise first_error
 
     def drop_pin(self, path, writable_only=False):
         if path not in self.pins:
@@ -416,16 +442,23 @@ class DirectoryGuard:
                 raise PermissionError("Directory identity mismatch")
             name = os.fsencode(f"/proc/self/fd/{fd}")
             checked(LIBC.mount(name, name, None, 4096, None))  # Rename/unlink protection, like directory pins.
-            if read_only:
-                bound = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                if read_only:
+                    bound = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                    try:
+                        attributes = MountAttr(1, 0, 0, 0)  # MOUNT_ATTR_RDONLY on the bind mount itself
+                        syscall(442, ctypes.c_int(bound), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
+                    finally:
+                        os.close(bound)
+                after = os.stat(path, follow_symlinks=False)
+                if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                    raise PermissionError("File identity changed")
+            except BaseException:
                 try:
-                    attributes = MountAttr(1, 0, 0, 0)  # MOUNT_ATTR_RDONLY on the bind mount itself
-                    syscall(442, ctypes.c_int(bound), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
-                finally:
-                    os.close(bound)
-            after = os.stat(path, follow_symlinks=False)
-            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
-                raise PermissionError("File identity changed")
+                    LIBC.umount2(os.fsencode(path), 2)
+                except Exception:
+                    pass  # An undetached mount stays fenced; the caller still sees denial.
+                raise
             self.pins[path] = 1
             if read_only:
                 self.readonly_pins.add(path)
