@@ -381,3 +381,29 @@ it.each([
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:5})).not.toContain(secret);
 });
+
+it('fails closed on an inherited custom Error inspection hook', () => {
+ const secret='CONTEXT7_ERROR_CUSTOM_INSPECT_FIXTURE_172';
+ const failure=new Error('safe child failure');
+ const prototype=Object.create(Error.prototype) as object;
+ Object.defineProperty(prototype,inspect.custom,{value:()=>secret,configurable:true});
+ Object.setPrototypeOf(failure,prototype);
+ // Node invokes inherited hooks even when message, stack and cause are clean.
+ expect(inspect(failure,{depth:5})).toContain(secret);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:5})).not.toContain(secret);
+});
