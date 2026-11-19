@@ -87,6 +87,14 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
 - Avoid host restart hangs when event-stream clients disconnect during shutdown, without waiting for duplicate close events.
 - Keep the isolated extension lifecycle off by default and its catalog hidden while disabled; keep migration updates blocked and prevent worker replacement until prior shutdown is confirmed.
 - Bound provider history and session-header reads, reject malformed history, and tighten startup deadlines, cancellation cleanup and optional usage waits.
+- Keep Inbox notifications beyond a 30-item delivery batch pending for the next
+  delivery instead of marking them delivered unseen. (#915)
+- Resolve project environment overrides before decrypting, so a shadowed device
+  secret is never unprotected. (#917)
+- Skip null or malformed entries in external issue intake without dropping the
+  valid issues in the same batch. (#920)
+- Bound optional composer prediction context by its serialized size, including
+  escaped characters, so JSON-heavy chats stay within the limit. (#933)
 
 Advanced host capabilities are separately gated and generally default off;
 listing source work here does not grant execution authority, prove provider
