@@ -13,7 +13,7 @@ import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
-import { destroyEventStreams, streamEvents } from './event-stream.ts';
+import { destroyEventStreams, registerEventStream } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
@@ -282,7 +282,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
-    streams.set(reply.raw, streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw)));
+    registerEventStream(streams, reply.raw, service.store, after);
   });
   app.get<{ Params: { id: string } }>("/api/artifacts/:id/source", async (request, reply) => {
     const artifact = service.store.get<ArtifactRecord>("artifact", request.params.id);
