@@ -5,7 +5,7 @@
 // they index maps and join paths; they are never shell fragments.
 import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
-import { join, resolve, sep } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface SourceChange { path: string; status: 'A' | 'M' | 'D' | 'R' | 'C'; previousPath?: string }
@@ -49,7 +49,10 @@ function normalizedRepoPath(path: string): string | null {
 }
 
 export function discoverTestFiles(testDir: string): string[] {
-  return readdirSync(testDir, { recursive: true }).map(String).map(path => path.replaceAll(sep, '/'))
+  return readdirSync(testDir, { recursive: true, withFileTypes: true })
+    // Directory names can end in a test suffix; only files are tests.
+    .filter(entry => !entry.isDirectory())
+    .map(entry => relative(testDir, join(entry.parentPath, entry.name)).replaceAll(sep, '/'))
     // This package fixture is run by node --test, not by the Vitest config.
     .filter(path => TEST_FILE.test(path) && path !== 'plugin-api-package.test.mjs');
 }
