@@ -420,6 +420,18 @@ describe("M10 review regressions", () => {
     expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
     expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === held[0]!.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
   });
+  it("settles a known unsubmitted firing when its blocked schedule is cancelled", () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver, revalidate: () => ({ ok: false, blockedReason: "WAITING_HUMAN" }) });
+    cleanups.push(() => scheduler.stop());
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "work" } });
+    scheduler.hostEvent("runtime.settled", "work", "event");
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "PENDING", dispatch: "NOT_DISPATCHED" }]);
+    scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "CANCELLED", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null }]);
+    expect(deliver).not.toHaveBeenCalled();
+  });
   it("a held firing stranded before resume redelivers through recover()", async () => {
     const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
     enable("jobs.backgroundV1");
