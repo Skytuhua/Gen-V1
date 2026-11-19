@@ -177,6 +177,38 @@ test("deep nested agents and long output labels fit a 280px panel without hiding
   await page.screenshot({ path: test.info().outputPath("deep-narrow.png") });
 });
 
+test("branch cards stack below 560px and split only when each column keeps 260px", async ({
+  page,
+}) => {
+  const branches = page.locator(
+    '[data-step-id="build"] > .plan-step-details .plan-branches > .plan-agents',
+  );
+  for (const [width, columns] of [
+    [280, 1],
+    [320, 1],
+    [465, 1],
+    [559, 1],
+    // At >=560 the pane may split, but only once each branch card keeps 260 px
+    // usable width: 16 px insets + 10 px gap need a ~562 px pane.
+    [600, 2],
+  ] as const) {
+    await page.setViewportSize({ width, height: 700 });
+    await expect
+      .poll(() =>
+        branches.evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length),
+      )
+      .toBe(columns);
+  }
+});
+
+test("a dependency link expands its collapsed target step", async ({ page }) => {
+  const build = page.locator('[data-step-id="build"] > .plan-step-summary');
+  await build.click();
+  await expect(build).toHaveAttribute("aria-expanded", "false");
+  await page.locator('[data-step-id="verify"] .plan-dependencies a').first().click();
+  await expect(build).toHaveAttribute("aria-expanded", "true");
+});
+
 test("manual collapse survives reopening the plan with the same exact thread and step identity", async ({
   page,
 }) => {

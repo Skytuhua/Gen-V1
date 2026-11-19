@@ -142,6 +142,8 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
     resolvePlanOpen(collapsed, identity(kind, id), kind, status);
   const toggle = (kind: string, id: string, status?: string) =>
     setCollapsed((old) => togglePlanCollapse(old, identity(kind, id), kind, status));
+  const expand = (kind: string, id: string) =>
+    setCollapsed((old) => ({ ...old, [identity(kind, id)]: false }));
   const projection = useMemo(() => {
     if (!record) return null;
     try {
@@ -198,7 +200,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
   const allOpen =
     timeline.steps.every((step) => open("step", step.id, step.status)) &&
     plan.agents.every((job) => open("agent", job.id, job.status));
-  const agentProps = { open, toggle, snapshot, threadId: timeline.threadId, onOpenAgentTranscript };
+  const agentProps = { open, toggle, expand, snapshot, threadId: timeline.threadId, onOpenAgentTranscript };
   if (focusAgentId) {
     const lanes = [...timeline.steps.flatMap(step => step.agents), ...timeline.unassignedAgents];
     for (const lane of lanes) lanes.push(...lane.children);

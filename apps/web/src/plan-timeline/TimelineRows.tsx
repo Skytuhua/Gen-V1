@@ -43,6 +43,7 @@ const checks = {
 interface RowProps {
   open(kind: string, id: string, status?: string): boolean;
   toggle(kind: string, id: string, status?: string): void;
+  expand(kind: string, id: string): void;
   snapshot: Snapshot;
   threadId: string;
   onOpenAgentTranscript?: (job: AgentJob, threadId: string) => void;
@@ -231,7 +232,7 @@ export function TimelineStep({
           <GitMerge size={13} aria-hidden="true" />
           <span>After</span>
           {step.dependsOn.map((dependency) => (
-            <a key={dependency} href={`#${stepDomId(dependency)}`}>
+            <a key={dependency} href={`#${stepDomId(dependency)}`} onClick={() => props.expand("step", dependency)}>
               {steps.find((item) => item.id === dependency)!.title}
             </a>
           ))}
