@@ -482,13 +482,26 @@
         "tests/tool-program-continuation-v6.test.ts"
       ],
       "reason": "14 conflicted paths composed semantically against main 4aef753e (main's ledger schemaDigest + signed-commitment semantics kept; M12's journal-layer full-definition matching, programTools admission/plumbing, flag unions, custody joins, manifest union honoring main's retired-workspace deletions, research-workspace e2e config deletion accepted; 10 post-merge verification fixes recorded in merge-resolution.json). Focused suites on merged tree: replay-v3 33/33 PASS, python-kernel-v3 21/21 PASS, continuation-v6 7/7 PASS; tool-program-v3 20/22 \u2014 the two restored 64-call default-limit boundary cases recorded PROGRAM_DEADLINE under host contention (receipt preserved); typecheck PASS."
+    },
+    {
+      "id": "M12-D06",
+      "clause": "Retained-data accounting for the private Python working directory: logical file length and allocated bytes each have a separate inclusive 64 MiB (67,108,864 byte) ceiling and are never summed. Check before launch (refuse) and after the supervisor's stopped-state proof before accepting a result (fail -> RESET_REQUIRED), never deleting retained files. Missing or invalid accounting fails closed. Existing per-file, entry, depth, type, link and cancellation bounds are kept. Accepted retained-state accounting only, not a transient hard filesystem quota.",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": [
+        "packages/runtime/python-program-worker.ts",
+        "tests/python-retained-data-v6.test.ts"
+      ],
+      "testIds": [
+        "tests/python-retained-data-v6.test.ts"
+      ],
+      "reason": "User policy decision (64 MiB each, inclusive, separate). Helper inspectPythonPrivateDirectory, used by the worker pre-cell (verifyRuntime, before start/launch) and post-cell (finish, after control('pause') stopped proof, before resolve). Owned temp-directory fixtures prove exact logical boundary 67,108,864 admitted and +1 refused, exact measured allocated boundary admitted and -1 ceiling refused, a dense 64 MiB file refused on allocated bytes, metrics not summed, unavailable accounting fails closed, and existing link/special/entry 4096/depth 32/cancellation refusals. Worker wiring through the native interpreter is NOT exercised (native suites are held); no platform proof is claimed."
     }
   ],
   "holds": [
     {
       "code": "HOLD_PLATFORM_BOUND",
-      "scope": "Aggregate process-tree memory, aggregate retained-directory disk quota, hard noncooperative host-I/O termination, Windows/installed-desktop coverage.",
-      "reason": "Unproved on recorded linux-x64 base and unproved here on linux-arm64. Never promoted to proved bounds."
+      "scope": "Aggregate process-tree memory, transient (in-cell) disk use / hard filesystem quota for the private Python directory, hard noncooperative host-I/O termination, Windows/installed-desktop coverage.",
+      "reason": "Unproved on recorded linux-x64 base and unproved here on linux-arm64. Never promoted to proved bounds. Retained-data accounting (M12-D06) bounds only accepted retained state at cell boundaries; it is not a filesystem quota."
     },
     {
       "code": "HOLD_PLATFORM_BOUND",

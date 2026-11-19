@@ -145,8 +145,15 @@ guest result frames cannot disable the watchdog while code continues running.
 Successful cells retain variables only in the live owned process. Stop,
 cancellation, failed cells and host recovery invalidate that state. Reset
 advances the generation before accepting another cell and never replays prior
-cells or reverses files and remote effects. Aggregate process-tree memory and
-retained-directory disk quotas are not claimed.
+cells or reverses files and remote effects. Retained data in the private
+working directory is accounted before each cell launches and again after the
+supervisor proves the guest stopped, before a result is accepted: logical file
+length and allocated bytes each have a separate inclusive 64 MiB ceiling, and
+missing or invalid accounting refuses. An overage refuses the cell, or fails it
+and requires a kernel reset, without deleting retained files. This bounds
+accepted retained state only; it is not a hard filesystem quota, and transient
+disk use while a cell runs is not bounded. Aggregate process-tree memory is not
+claimed.
 
 Durable JavaScript replay is a separate experiment. Deterministic seed/clock,
 issued identities/counts and delivery order are committed before values reach

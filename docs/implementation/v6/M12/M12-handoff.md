@@ -81,7 +81,8 @@ Not run at this cut: `pnpm lint`, `pnpm test` (full), `pnpm build`, `pnpm test:b
 
 - Linux-x64-only Python confinement suites (`python-program-backend-v3`, `python-program-integration-v3`) gate on `process.arch` x64 and skip on aarch64; linux-x64 evidence remains historical only.
 - No whole-process-tree memory bound: only the 128 MiB guest WASM linear-memory bound is proved (`memoryScope: GUEST_WASM_LINEAR`, `wholeExecutorMemoryLimitBytes: null`).
-- No aggregate retained-directory disk quota; no hard noncooperative host-I/O teardown deadline (D05 proves only that such operations stay owned/uncertain).
+- Retained-data accounting (M12-D06) for the private Python directory: separate inclusive 64 MiB ceilings for logical length and allocated bytes, checked before launch and after the stopped-state proof before a result is accepted (overage fails the cell, RESET_REQUIRED, files kept); unavailable accounting fails closed. Fixture-tested via `tests/python-retained-data-v6.test.ts`; worker wiring through the native interpreter is not exercised while the native suites are held. **This is accepted retained-state accounting, not a hard filesystem quota**: transient disk use during a cell stays unbounded (HOLD_PLATFORM_BOUND).
+- No hard noncooperative host-I/O teardown deadline (D05 proves only that such operations stay owned/uncertain).
 - No Windows or installed-desktop proof on this target.
 - `pnpm test:browser` chrome-channel suites need `/opt/google/chrome`/`msedge`, absent here; the channel is not changed to obtain passes.
 

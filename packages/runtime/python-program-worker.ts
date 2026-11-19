@@ -55,6 +55,77 @@ async function checked<T>(operation: () => Promise<T>, checkpoint: Checkpoint): 
   checkpoint(); const value = await operation(); checkpoint(); return value;
 }
 
+/** Approved retained-data policy for the private Python working directory.
+ * Each total has its own inclusive 64 MiB ceiling; the two metrics are never
+ * added together. This bounds the ACCEPTED RETAINED STATE observed at cell
+ * boundaries (before launch/dispatch and after the supervisor's stopped-state
+ * proof). It is not a hard filesystem quota: while a cell runs, transient disk
+ * use is bounded only by the per-file limit and the backing filesystem. */
+export const PYTHON_RETAINED_DATA_LIMITS = Object.freeze({ maxLogicalBytes: 67_108_864n, maxAllocatedBytes: 67_108_864n });
+
+/** Accounting from one structural walk of the private directory. */
+export interface PythonPrivateDirectoryAccounting {
+  /** Inspected entries including the root at depth zero. */
+  readonly entries: number;
+  readonly maxDepth: number;
+  readonly regularFiles: number;
+  /** Sum of st_size (logical file length) over regular files. */
+  readonly logicalBytes: bigint;
+  /** Sum of st_blocks * 512 over every inspected entry, directories included. */
+  readonly allocatedBytes: bigint;
+}
+
+/** The fail-closed structural walk used before each cell and after each
+ * stopped cell: at most PYTHON_PREFLIGHT_DIRECTORY_LIMITS entries/depth,
+ * streaming opendir batches of 32, no symbolic links, multiply linked files or
+ * special files, and each retained-data total at most its own ceiling. Missing
+ * or invalid size/block metadata refuses rather than counting as zero. The
+ * checkpoint runs around every filesystem await, so cancellation or the cell
+ * deadline stops traversal before the next filesystem operation. */
+export async function inspectPythonPrivateDirectory(root: string, checkpoint: Checkpoint = noCheckpoint,
+  limits: { readonly maxLogicalBytes: bigint; readonly maxAllocatedBytes: bigint } = PYTHON_RETAINED_DATA_LIMITS): Promise<PythonPrivateDirectoryAccounting> {
+  // Callers may only tighten the approved ceilings (fixture boundary tests).
+  if (typeof limits.maxLogicalBytes !== 'bigint' || typeof limits.maxAllocatedBytes !== 'bigint' || limits.maxLogicalBytes < 0n || limits.maxAllocatedBytes < 0n ||
+      limits.maxLogicalBytes > PYTHON_RETAINED_DATA_LIMITS.maxLogicalBytes || limits.maxAllocatedBytes > PYTHON_RETAINED_DATA_LIMITS.maxAllocatedBytes)
+    throw failure('PYTHON_RETAINED_DATA_UNAVAILABLE', 'Retained-data limits cannot exceed the approved 64 MiB ceilings');
+  let entries = 0, maxDepth = 0, regularFiles = 0, logicalBytes = 0n, allocatedBytes = 0n;
+  const inspect = async (path: string, depth: number): Promise<void> => {
+    checkpoint();
+    if (++entries > PYTHON_PREFLIGHT_DIRECTORY_LIMITS.maxEntries || depth > PYTHON_PREFLIGHT_DIRECTORY_LIMITS.maxDepth)
+      throw failure('PYTHON_DIRECTORY_LIMIT', 'The private Python directory exceeds 4096 entries or depth 32');
+    const info = await checked(() => lstat(path, { bigint: true }), checkpoint);
+    if (info.isSymbolicLink() || info.isFile() && info.nlink !== 1n) throw failure('PYTHON_PROFILE_DENIED', 'The private Python directory contains linked files');
+    if (typeof info.blocks !== 'bigint' || info.blocks < 0n || typeof info.size !== 'bigint' || info.size < 0n)
+      throw failure('PYTHON_RETAINED_DATA_UNAVAILABLE', 'The private Python directory size accounting is unavailable');
+    maxDepth = Math.max(maxDepth, depth); allocatedBytes += info.blocks * 512n;
+    if (allocatedBytes > limits.maxAllocatedBytes)
+      throw failure('PYTHON_RETAINED_DATA_LIMIT', 'The private Python directory exceeds its 64 MiB allocated-bytes ceiling');
+    if (info.isDirectory()) {
+      checkpoint(); const directory = await opendir(path, { bufferSize: 32 });
+      try {
+        checkpoint();
+        for (;;) {
+          const entry = await checked(() => directory.read(), checkpoint);
+          if (!entry) break;
+          await inspect(join(path, entry.name), depth + 1);
+        }
+      } finally { await directory.close(); }
+    }
+    else if (info.isFile()) {
+      regularFiles += 1; logicalBytes += info.size;
+      if (logicalBytes > limits.maxLogicalBytes)
+        throw failure('PYTHON_RETAINED_DATA_LIMIT', 'The private Python directory exceeds its 64 MiB logical-bytes ceiling');
+    }
+    else throw failure('PYTHON_PROFILE_DENIED', 'The private Python directory contains a special file');
+  };
+  try { await inspect(root, 0); }
+  catch (error) {
+    if (error instanceof HarnessError) throw error;
+    throw failure('PYTHON_RETAINED_DATA_UNAVAILABLE', 'The private Python directory could not be accounted');
+  }
+  return Object.freeze({ entries, maxDepth, regularFiles, logicalBytes, allocatedBytes });
+}
+
 async function hashFile(path: string, checkpoint: Checkpoint = noCheckpoint, signal?: AbortSignal): Promise<string> {
   const info = await checked(() => lstat(path), checkpoint);
   if (!info.isFile() || info.size > 256 * 1024 * 1024)
@@ -233,31 +304,17 @@ class PythonProgramWorker implements ProgramExecutor {
       libraries: expected.libraries.map(({ path, mountPath }) => ({ path, mountPath })) }, checkpoint, active.preflight.signal);
     if (pythonRuntimeFingerprint(actual) !== this.proof.runtimeFingerprint)
       throw failure('PYTHON_RUNTIME_CHANGED', 'The approved Python runtime bytes changed; a new kernel approval is required');
+    await this.verifyPrivateDirectory(active);
+  }
+
+  /** Canonical identity plus the retained-data walk of the private directory. */
+  private async verifyPrivateDirectory(active: ActiveCell): Promise<void> {
+    const checkpoint = () => this.checkpoint(active);
     const cwd = await checked(() => lstat(this.options.launch.cwd, { bigint: true }), checkpoint);
     if (await checked(() => realpath(this.options.launch.cwd), checkpoint) !== this.options.launch.cwd ||
         String(cwd.dev) !== this.cwdIdentity.dev || String(cwd.ino) !== this.cwdIdentity.ino)
       throw failure('PYTHON_PROFILE_DENIED', 'The private Python directory changed its canonical identity');
-    let entries = 0;
-    const inspect = async (path: string, depth: number): Promise<void> => {
-      checkpoint();
-      if (++entries > PYTHON_PREFLIGHT_DIRECTORY_LIMITS.maxEntries || depth > PYTHON_PREFLIGHT_DIRECTORY_LIMITS.maxDepth)
-        throw failure('PYTHON_DIRECTORY_LIMIT', 'The private Python directory exceeds 4096 entries or depth 32');
-      const info = await checked(() => lstat(path), checkpoint);
-      if (info.isSymbolicLink() || info.isFile() && info.nlink !== 1) throw failure('PYTHON_PROFILE_DENIED', 'The private Python directory contains linked files');
-      if (info.isDirectory()) {
-        checkpoint(); const directory = await opendir(path, { bufferSize: 32 });
-        try {
-          checkpoint();
-          for (;;) {
-            const entry = await checked(() => directory.read(), checkpoint);
-            if (!entry) break;
-            await inspect(join(path, entry.name), depth + 1);
-          }
-        } finally { await directory.close(); }
-      }
-      else if (!info.isFile()) throw failure('PYTHON_PROFILE_DENIED', 'The private Python directory contains a special file');
-    };
-    await inspect(this.options.launch.cwd, 0); checkpoint();
+    await inspectPythonPrivateDirectory(this.options.launch.cwd, checkpoint); checkpoint();
   }
 
   private arguments(): string[] {
@@ -438,6 +495,11 @@ class PythonProgramWorker implements ProgramExecutor {
       await this.control('pause');
       if (this.active !== active || this.closed) return;
       this.paused = true;
+      // Only after the stopped-state proof: the guest cannot write while the
+      // retained state is measured. Overage fails the cell (the kernel layer
+      // then requires reset); retained files are preserved, never deleted.
+      await this.verifyPrivateDirectory(active);
+      if (this.active !== active || this.closed) return;
       this.cleanup(active); this.active = undefined; active.resolve(value);
     } catch (error) { if (this.active === active && !this.closed) await this.fail(error); }
   }
