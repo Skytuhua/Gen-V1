@@ -79,7 +79,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
       parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY';
-    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && age <= maxAge) {
+    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && maxAge > 0 && age <= maxAge) {
       return { record: { ...parsed, cacheAgeMs: age }, cacheHit: true, staleCache: false };
     }
     staleCache = true;
