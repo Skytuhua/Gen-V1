@@ -126,12 +126,7 @@ it('reports Copilot as signed in only after the bounded token exchange issues a 
   expect(requests[0].headers.get('authorization')).toBe(`Bearer ${githubToken}`); expect(requests[0].redirect).toBe('error'); expect(requests[0].signal).toBeInstanceOf(AbortSignal);
   expect(JSON.stringify(value)).not.toMatch(new RegExp(`${githubToken}|issued-private-token|private-copilot-access`));
 });
-it('sends the Copilot check only to the saved enterprise host', async () => {
-  const store = await copilotFixture({ enterpriseUrl: 'https://ghe.example.com' }), requests = stubFetch(() => Response.json({ token: 't', expires_at: 1 }));
-  expect(await readAccountAuth(store,{providerId:'github-copilot',accountId:null})).toMatchObject({state:'authenticated'});
-  expect(requests[0].url).toBe('https://api.ghe.example.com/copilot_internal/v2/token');
-});
-it.each(['http://ghe.example.com', 'https://ghe.example.com:8443', 'https://user@ghe.example.com', 'localhost', 7])('keeps an unsafe Copilot enterprise host unconfirmed without a request (%s)', async enterpriseUrl => {
+it.each(['https://ghe.example.com', 'ghe.example.com', 'https://api.github.com.evil.example', 'http://ghe.example.com', 7])('keeps a Copilot sign-in with a saved enterprise host unconfirmed without sending the token (%s)', async enterpriseUrl => {
   const store = await copilotFixture({ enterpriseUrl }), requests = stubFetch(() => Response.json({ token: 't', expires_at: 1 }));
   expect(await readAccountAuth(store,{providerId:'github-copilot',accountId:null})).toMatchObject({state:'unavailable'}); expect(requests).toEqual([]);
 });
