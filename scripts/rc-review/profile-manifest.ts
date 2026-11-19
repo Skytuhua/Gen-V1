@@ -1,0 +1,28 @@
+import {DatabaseSync} from 'node:sqlite';
+import {lstat,readdir,readFile} from 'node:fs/promises';
+import {basename,join,resolve} from 'node:path';
+import {args,hash,json,main,output,run,sha,windows} from './common.ts';
+import {nsisApplicationGuid} from '../verify-installed-desktop.ts';
+
+type Snapshot={version:1;identifiers:{appId:string|null;profile:string;host:string;accounts:string[]};appIdEvidence?:unknown;files:{root:string;path:string;bytes:number;sha256:string}[];entities:Record<string,{id:string;sha256:string}[]>;counts:Record<string,number>};
+const caches=new Set(['Cache','Code Cache','GPUCache','DawnCache','ShaderCache','GrShaderCache','Crashpad']);
+export async function snapshot(profile:string,host:string,installDir?:string):Promise<Snapshot>{
+ const result:Snapshot={version:1,identifiers:{appId:null,profile:basename(profile),host:basename(host),accounts:[]},files:[],entities:{},counts:{}};
+ for(const [root,directory]of Object.entries({profile,host})){async function walk(dir:string,part=''){for(const entry of await readdir(dir,{withFileTypes:true}).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){if(caches.has(entry.name))continue;const path=join(dir,entry.name),relative=(part?part+'/':'')+entry.name;if(entry.isSymbolicLink())throw Error('Refusing redirected profile path: '+relative);if(entry.isDirectory())await walk(path,relative);else{const info=await lstat(path);if(!info.isFile())throw Error('Non-file profile entry: '+relative);result.files.push({root,path:relative,bytes:info.size,sha256:await hash(path)});}}}await walk(directory);}
+ result.identifiers.accounts=(await readdir(join(host,'accounts'),{withFileTypes:true}).catch(error=>{if(error.code==='ENOENT')return [];throw error;})).filter(entry=>entry.isDirectory()).map(entry=>entry.name).sort();
+ if(installDir){const metadata=JSON.parse(await readFile(join(installDir,'resources/host/package.json'),'utf8'));result.identifiers.appId=metadata.build?.appId??null;if(result.identifiers.appId)result.appIdEvidence={source:'installed host metadata'};else{
+  windows();const expected='local.generativeharness.desktop',guid=nsisApplicationGuid(expected),probe=String.raw`$ErrorActionPreference='Stop';$path='HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\'+$env:RC_NSIS_GUID;$entry=Get-ItemProperty -LiteralPath $path;[Console]::Write(($entry|Select-Object InstallLocation,DisplayVersion|ConvertTo-Json -Compress))`;
+  const entry=JSON.parse(await run('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(probe,'utf16le').toString('base64')],{capture:true,env:{...process.env,RC_NSIS_GUID:guid}}));if(typeof entry.InstallLocation!=='string'||resolve(entry.InstallLocation).toLowerCase()!==resolve(installDir).toLowerCase())throw Error('Installed NSIS appId identity does not own this directory.');result.identifiers.appId=expected;result.appIdEvidence={source:'installed HKCU NSIS key derived from appId (not a runtime endpoint)',guid,...entry};
+ }}
+ try{await lstat(join(host,'harness.sqlite'));const db=new DatabaseSync(join(host,'harness.sqlite'),{readOnly:true});try{for(const row of db.prepare('SELECT kind,id,body FROM entities ORDER BY kind,id').all() as {kind:string;id:string;body:string}[]){(result.entities[row.kind]??=[]).push({id:row.id,sha256:sha(row.body)});}for(const [kind,rows]of Object.entries(result.entities))result.counts[kind]=rows.length;}finally{db.close();}}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
+ result.files.sort((a,b)=>(a.root+'/'+a.path).localeCompare(b.root+'/'+b.path));return result;
+}
+export function compare(before:Snapshot,after:Snapshot){
+ const missingEntities:{kind:string;id:string}[]=[],changedEntities:{kind:string;id:string}[]=[];
+ for(const [kind,rows]of Object.entries(before.entities))for(const row of rows){const next=after.entities[kind]?.find(item=>item.id===row.id);if(!next)missingEntities.push({kind,id:row.id});else if(next.sha256!==row.sha256)changedEntities.push({kind,id:row.id});}
+ const missingFiles=before.files.filter(file=>!after.files.some(next=>next.root===file.root&&next.path===file.path));
+ const identifierChanges=Object.keys(before.identifiers).filter(key=>JSON.stringify(before.identifiers[key as keyof Snapshot['identifiers']])!==JSON.stringify(after.identifiers[key as keyof Snapshot['identifiers']]));
+ const additiveKinds=Object.keys(after.entities).filter(kind=>!Object.hasOwn(before.entities,kind));
+ return {passed:!missingEntities.length&&!changedEntities.length&&!missingFiles.length&&!identifierChanges.length,missingEntities,changedEntities,missingFiles,identifierChanges,additiveKinds,scope:'Changed existing entity bodies are conservative losses requiring review; new kinds are additive, not proof of preservation.'};
+}
+main(import.meta.url,async()=>{windows();const {positionals,options}=args(),out=output(options);if(positionals[0]==='snapshot'){const value=await snapshot(resolve(options.profile??join(process.env.APPDATA!,'GenerativeHarnessDesktop')),resolve(options.host??join(process.env.LOCALAPPDATA!,'GenerativeHarness')),options.install);await json(join(out,'profile-manifest.json'),value);console.log(JSON.stringify({files:value.files.length,counts:value.counts,path:join(out,'profile-manifest.json')}));}else if(positionals[0]==='compare'&&positionals.length===3){const value=compare(JSON.parse(await readFile(positionals[1],'utf8')),JSON.parse(await readFile(positionals[2],'utf8')));await json(join(out,'profile-compare.json'),value);console.log(JSON.stringify(value,null,2));if(!value.passed)process.exitCode=1;}else throw Error('Usage: profile-manifest snapshot [--profile path --host path --install path] --out dir | compare before.json after.json --out dir');});
