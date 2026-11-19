@@ -10,9 +10,50 @@ The [v0.6.1 prerelease](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6
 
 The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the source setup instructions to try changes made after the v0.6.1 prerelease. Release availability can change; check the [release list](https://github.com/skytuhua-org/Gen-V1/releases) before choosing an installer.
 
-## Unreleased 0.6.5 source
+<a id="unreleased-065-source"></a>
 
-For the latest source changes, see the [unreleased changelog](../../CHANGELOG.md#unreleased--065-visual-workspace-preview) and [visual workspace guide](../visual-workspace.md).
+## 0.6.5 — YYYY-MM-DD
+
+This source preview covers all changes since v0.6.1, including the 0.6.4 source
+preview. See the [grouped changelog](../../CHANGELOG.md#065--yyyy-mm-dd) and
+[visual workspace guide](../visual-workspace.md). Highlights include:
+
+- **Workspace and UI:** durable split layouts, retained editors, in-app floating
+  conversations, parked-view recovery, undo/redo, named layouts, project colors
+  and a unified overview/plan timeline. Legacy canvas records survive retirement
+  of the built-in Code Review, Research, Custom and Visuals presets.
+- **Conversations and agents:** loaded-message search, saved local prompts,
+  command/skill selection, terminal excerpts and paged Personal/agent reads.
+  Separately gated work adds typed delegation, budgeted multi-agent tasks,
+  background scheduling, human handoffs, proposed GitHub intake, fixed-cut
+  inspection, quoted-context new tasks and inert history imports.
+- **Context, memory and Hermes:** inspectable request budgets, usage/timing and
+  compaction costs; gated source-bound context preparation, repository maps,
+  loss-aware compaction and opt-in source-linked project memory with review,
+  exclusions and recovery. Shared model scheduling and bounded provider history
+  improve runtime accounting and cleanup; warm reuse remains experimental.
+- **Integrations and MCP:** public plug-in API v1, independently versioned and
+  integrity-checked packages, durable plug-in data and optional Personal Visuals.
+  Approved Context7 operations expose reference/advisory provenance. Isolated
+  extension workers and paired-device read sync have separate activation holds.
+- **Git and developer tools:** managed worktrees, selective commits, checkpoint
+  history and diff review; gated restore, code intelligence, rename recovery,
+  restricted debugging, build/browser verification and a source-aware workbench.
+- **Settings and attention:** searchable supported settings, reversible appearance
+  previews, protected environment values, a shared shortcut reference, durable
+  Inbox/custom attention and improved profile-scoped GitHub sign-in.
+- **Desktop and updater:** guarded stable-update checks, deferred/retry handling,
+  restored conversation detachment/docking, closed-window recovery, stable bounds,
+  compact startup feedback and stronger packaging/export checks.
+- **Security, performance and fixes:** separately gated project trust, secret
+  references, single-use approvals and recoverable effect receipts; stronger MCP
+  credential redaction, document permissions and custody checks. Paged reads,
+  lazy panels and reduced rescanning accompany fixes to drafts/focus, stale plans,
+  checkpoints, terminal UTF-8, scheduling races and synchronization.
+
+Advanced host capabilities are separately gated and generally default off;
+listing source work here does not grant execution authority, prove provider
+entitlement or establish installed-release acceptance.
 
 ## 0.6.4 source preview
 
@@ -31,12 +72,33 @@ The [screenshots and videos](media/README.md) show the actual public browser int
 
 The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
 
-The following remain open:
+### Known issues
 
-- Installed stable upgrade/updater acceptance on a suitable isolated Windows target.
-- Independent live sign-in, model entitlement and task acceptance for providers beyond the evidenced OpenAI route.
-- The broader generated-application quality pilot.
-- Physical multi-monitor and mixed-DPI acceptance.
+- Installed stable-upgrade acceptance (upgrading an installed stable build to
+  0.6.5 via the updater) is still open/unverified. Source or candidate checks do
+  not prove preservation of a real installed profile.
+- Independent live sign-in, model entitlement and task acceptance beyond the
+  evidenced OpenAI route, and the broader generated-application quality pilot,
+  remain open.
+- Physical multi-monitor/mixed-DPI placement, native popup focus/sound/privacy,
+  DPAPI round-trip and browser occlusion still require target acceptance.
+- New native canvas-panel detachment/free-floating desktop views are unavailable.
+  Gemini/Cursor native compaction, the separate OpenCode agent runtime and
+  Meta/Muse access remain unavailable; tested native session forks are unsupported.
+- Isolated-extension activation still has a backend-launch-binding hold;
+  consented browser/desktop control drivers remain blocked. Paired-client
+  production TLS transport is not deployed and remote input/approval is denied.
+- Advanced capabilities retain default-off and per-platform acceptance gates.
+  Historical full-suite failures, skipped/opt-in checks and partial milestone
+  evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
+  warnings and visual-fidelity/user acceptance remain unresolved.
+
+The [visual-workspace verification report](../visual-workspace-verification.md),
+[extension handoff](../implementation/v6/M13/handoff.md),
+[session capability evidence](../implementation/v6/M14/handoff.md),
+[control handoff](../implementation/v6/M16/handoff.md) and
+[paired-client handoff](../implementation/v6/M17/handoff.md) record scoped checks
+and holds, not blanket release approval.
 
 A bounded review of 28 captured alerts from the older default branch found none applicable to the evaluated 0.6.4 source. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
 
