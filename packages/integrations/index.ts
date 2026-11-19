@@ -204,10 +204,9 @@ export class IntegrationManager {
        else throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
       }
      }else if(cause.value instanceof Error)pending.push(cause.value);
-     else if(cause.value!==null&&(typeof cause.value==='object'||typeof cause.value==='function')){
-      // Node prints arbitrary structured causes, including nested credential
-      // fields and custom inspect hooks. Never inspect or traverse untrusted
-      // metadata with getters just to guess whether it holds a secret.
+     else if(cause.value!==null&&cause.value!==undefined){
+      // Node prints number, bigint, Symbol and structured Error causes.
+      // Do not surface unclassified causes or invoke untrusted getters.
       throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
      }
     }
