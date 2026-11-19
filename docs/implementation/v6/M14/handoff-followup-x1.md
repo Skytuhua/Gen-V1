@@ -84,22 +84,19 @@ redesign.
 ## Verification performed (aarch64, this host)
 
 - `python3 -m py_compile` + `node --check`: both edited files parse.
-- Mocked-LIBC unit checks (no real mounts, synthetic return codes):
-  - failed `pin()` unwind → `checked()` catches the `-1`, path
-    quarantined, subsequent acquisition denied. PASS
-  - `release_paths` → child detach failure keeps ancestors held,
-    independent paths still released. PASS
-  - `release` handler → group retains only the unresolved set on
-    refusal; retry resolves cleanly with no double decrement. PASS
-  - unknown group release → refused. PASS
-  - credential-scope ancestry → prepared entry retained on unresolved
-    release; pending ancillary cleanup raises `CustodyUncertain`
-    while the settled group release completes. PASS
+- Committed regression suite `tests/linux_path_guard_cleanup.py`
+  (repo convention: `python3 -I -S -B`, unittest, stdlib
+  `unittest.mock` only — runs from a clean checkout with no broker,
+  no native mounts, synthetic return codes and paths only), **5/5
+  PASS**:
   - failed `acquire` → leftovers recorded under `self.unresolved` and
     the id never becomes a usable lease. PASS
   - quarantined descendant → parent ancestry retained, independent
     sibling released; `drop_pin` refuses the same ancestry. PASS
-  - refcount >1 pin → decremented without detach. PASS
+  - `release` handler → group retains only the unresolved set on
+    refusal; retry resolves cleanly with no double decrement. PASS
+  - pending ancillary credential cleanup → `CustodyUncertain` while
+    the settled group release completes. PASS
 - `vitest run tests/linux-path-guard.test.ts tests/public-source.test.ts`:
   2 files, **41/41 PASS** (admitted/denied matrix + credential
   negative tests all synthetic — broker-free).
