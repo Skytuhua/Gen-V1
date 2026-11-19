@@ -122,7 +122,9 @@ export class EditPreviewRegistry {
 
   /** Parse the complete accumulated arguments and bind proposed digests.
    * `beforeDigestFor` supplies the current preimage digest per path; a null
-   * result marks that file's baseline unknown rather than guessing it. */
+   * result marks that file's baseline unknown rather than guessing it.
+   * A failed seal is terminal, even if arguments are incomplete. Begin a
+   * fresh preview to send the arguments again. */
   seal(previewId: string, owner: string, beforeDigestFor: (path: string) => string | null): EditPreviewV1 {
     const preview = this.require(previewId, owner);
     if (preview.state !== "STREAMING_UNAPPLIED")
