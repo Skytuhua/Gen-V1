@@ -133,6 +133,76 @@ describe('M03 cached package screening authority', () => {
     }
   });
 
+  it('rechecks a recently cached clean result when its advisory snapshot is stale', async () => {
+    const staleSnapshot = '2026-11-15T00:00:00.000Z';
+    const stored = cache(record({
+      checkedAt: new Date(now()).toISOString(),
+      advisory: { database: 'current-db', asOf: staleSnapshot },
+    }));
+    let queries = 0;
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => { queries++; return { status: 'MATCH', advisoryIds: ['TEST-STALENESS'] }; },
+    };
+    const result = await screenPackage(identity, advisory, { cache: stored, now });
+    expect(result).toMatchObject({ cacheHit: false, staleCache: true });
+    expect(queries).toBe(1);
+    expect(result.record.status).toBe('KNOWN_BAD');
+    expect(screeningGate(result.record)).toBe('BLOCK');
+  });
+
+  it('blocks old or future-dated NO_MATCH advisory snapshots instead of caching a clean answer', async () => {
+    for (const asOf of ['2026-11-15T00:00:00.000Z', '2026-11-18T00:00:00.000Z']) {
+      let queries = 0;
+      const advisory: AdvisoryDatabase = {
+        database: 'current-db',
+        query: async () => { queries++; return { status: 'NO_MATCH', asOf }; },
+      };
+      const stored = cache();
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const result = await screenPackage(identity, advisory, { cache: stored, now });
+        expect(result.record).toMatchObject({
+          status: 'UNAVAILABLE', decision: 'DENY',
+          advisory: { database: 'current-db', asOf },
+        });
+        expect(screeningGate(result.record)).toBe('BLOCK');
+        expect(result.cacheHit).toBe(false);
+      }
+      expect(queries).toBe(2);
+    }
+  });
+
+  it('accepts a fresh snapshot created during an in-flight advisory query', async () => {
+    const start = Date.parse(checkedAt);
+    let clock = start;
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => {
+        clock += 50;
+        const asOf = new Date(clock).toISOString();
+        clock += 50;
+        return { status: 'NO_MATCH', asOf };
+      },
+    };
+    const result = await screenPackage(identity, advisory, { now: () => clock });
+    expect(result.record.status).toBe('NO_KNOWN_MATCH');
+    expect(screeningGate(result.record)).toBe('NEUTRAL');
+    expect(result.record.advisory.asOf).toBe(new Date(start + 50).toISOString());
+    expect(result.record.checkedAt).toBe(new Date(start + 100).toISOString());
+  });
+
+  it('retains a known-bad denial even if the matching advisory snapshot is old', async () => {
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({
+        status: 'MATCH', asOf: '2026-11-15T00:00:00.000Z', advisoryIds: ['TEST-KNOWN-BAD'],
+      }),
+    };
+    const result = await screenPackage(identity, advisory, { now });
+    expect(result.record.status).toBe('KNOWN_BAD');
+    expect(screeningGate(result.record)).toBe('BLOCK');
+  });
+
   it('rechecks stale cache and retains unavailable as a distinct denial', async () => {
     const next = await screenPackage(identity, unavailable, {
       cache: cache(record()), now, maxCacheAgeMs: 999,

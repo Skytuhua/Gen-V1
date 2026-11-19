@@ -73,36 +73,44 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     const parsed = packageScreeningV1Schema.parse(cached);
     const age = now() - Date.parse(parsed.checkedAt);
     const validAge = Number.isSafeInteger(age) && age >= 0;
+    // Fresh query time is not proof that the advisory database snapshot is fresh.
+    const snapshotAge = now() - Date.parse(parsed.advisory.asOf);
+    const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
+      snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
     const sameIdentity = parsed.pkg.name === pkg.name && parsed.pkg.version === pkg.version &&
       parsed.pkg.digest === pkg.digest && parsed.advisory.database === advisory.database;
     // Cached screening facts cannot carry an operator's earlier authority.
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
       parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY';
-    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && maxAge > 0 && age <= maxAge) {
+    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && freshSnapshot && maxAge > 0 && age <= maxAge) {
       return { record: { ...parsed, cacheAgeMs: age }, cacheHit: true, staleCache: false };
     }
     staleCache = true;
     if (validAge) previousCacheAgeMs = age;
   }
-  const checkedAt = new Date(now()).toISOString();
   let result: AdvisoryQueryResult;
   try { result = await advisory.query(Object.freeze({ ...pkg })); }
   catch { result = { status: 'UNAVAILABLE' }; }
+  // Capture the completed query time: its snapshot may advance while awaiting.
+  const checkedAt = new Date(now()).toISOString();
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
+  const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
+  const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
+    snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
   let status: PackageScreeningV1['status'];
   let decision: PackageScreeningV1['decision'];
   let reason: string;
   if (result.status === 'MATCH') {
     status = 'KNOWN_BAD'; decision = 'DENY';
     reason = `Exact advisory match on ${advisory.database}: ${(result.advisoryIds ?? []).join(', ') || 'unidentified'}.`;
-  } else if (result.status === 'NO_MATCH') {
+  } else if (result.status === 'NO_MATCH' && freshSnapshot) {
     status = 'NO_KNOWN_MATCH'; decision = 'ALLOW';
     reason = `No exact advisory match in ${advisory.database} as of ${asOf}. A clean lookup is not evidence of safety and does not grant trust.`;
   } else {
     status = 'UNAVAILABLE'; decision = options.exception ? 'OPERATOR_EXCEPTION' : 'DENY';
     reason = options.exception
-      ? `Advisory database ${advisory.database} was unavailable; the operator recorded a documented exception.`
+      ? `Advisory database ${advisory.database} was unavailable or stale; the operator recorded a documented exception.`
       : `Advisory database ${advisory.database} was unavailable or stale; untrusted activation stays blocked.`;
   }
   if (options.exception && status !== 'NO_KNOWN_MATCH') {
