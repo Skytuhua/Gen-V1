@@ -18,8 +18,8 @@ This source preview covers all changes since v0.6.1, including the 0.6.4 source
 preview. See the [grouped changelog](../../CHANGELOG.md#065--yyyy-mm-dd) and
 [visual workspace guide](../visual-workspace.md). Highlights include:
 
-Interim scope: items explicitly numbered below are unmerged and pending 0.6.5
-freeze gates, not shipped changes. #584 is deferred.
+Interim scope: #788, #789, #589, #896, #936 and #782 are unmerged and pending
+0.6.5 freeze gates, not shipped changes. #584 is deferred.
 
 Providers: OpenAI — **Verified** (recorded live acceptance); Claude, Gemini,
 Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
