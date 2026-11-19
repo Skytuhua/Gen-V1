@@ -315,7 +315,7 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await page.reload();
   await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
   await expect(page.getByRole('complementary', { name: 'Workspace panel', exact: true })).toBeVisible();
-  await expect(page.getByRole('tab', { name: 'Artifact', exact: true })).toHaveAttribute('aria-selected', 'true');
+  await expect(page.getByRole('heading', { name: 'Open a surface', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Hide panel', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect context usage' }).click();
   await expect(page.getByRole('dialog', { name: 'Context inspector' })).toContainText('Not reported');
@@ -606,7 +606,7 @@ test('P2: concurrent first-thread composer actions share creation and retain the
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   // The creation response is still held while genuinely conflicting handlers run.
   await input.fill('Next draft typed behind the creation barrier');
-  await page.locator('input[type=file]').setInputFiles({ name: 'conflicting.txt', mimeType: 'text/plain', buffer: Buffer.from('Intercepted fixture') });
+  await page.locator('input[type=file][multiple]:not(.embedded-thread-app *)').setInputFiles({ name: 'conflicting.txt', mimeType: 'text/plain', buffer: Buffer.from('Intercepted fixture') });
   await input.press('Enter'); await page.keyboard.press('Control+Shift+O');
   creation.release();
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'message.send').length).toBe(1);
@@ -640,7 +640,7 @@ test('P2: typing between initial draft migration and composer activation stays o
   await page.route('**/api/snapshot', async route => { if (holdSnapshot) { refreshStarted.release(); await refreshing.promise; } await route.fallback(); });
   await page.goto('/'); const input = page.getByRole('textbox', { name: 'Message', exact: true });
   await input.fill('Draft before migration');
-  await page.locator('input[type=file]').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
+  await page.locator('input[type=file][multiple]:not(.embedded-thread-app *)').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   holdSnapshot = true; creation.release(); await refreshStarted.promise;
   await input.fill('Typed after migration before activation');
@@ -731,7 +731,7 @@ for (const resource of ['upload', 'picker'] as const) test(`regression: delayed 
   state.afterCommand = async cmd => { if (cmd.type === 'thread.create') await held.promise; };
   await page.goto('/'); const input = page.getByRole('textbox', { name: 'Message', exact: true });
   await input.fill('Old resource draft');
-  if (resource === 'upload') await page.locator('input[type=file]').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
+  if (resource === 'upload') await page.locator('input[type=file][multiple]:not(.embedded-thread-app *)').setInputFiles({ name: 'draft.txt', mimeType: 'text/plain', buffer: Buffer.from('Fixture bytes') });
   else await grantResourceDialog(page);
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'thread.create').length).toBe(1);
   await input.fill('New text typed during resource creation'); held.release();
@@ -1098,7 +1098,7 @@ test('resource picker survives thread creation and uploads contain the selected 
   await grant.getByRole('button', { name: 'Add resource', exact: true }).click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('A draft before granting access');
-  await page.locator('input[type=file]').setInputFiles({ name: 'evidence.txt', mimeType: 'text/plain', buffer: Buffer.from('Actual attachment bytes') });
+  await page.locator('input[type=file][multiple]:not(.embedded-thread-app *)').setInputFiles({ name: 'evidence.txt', mimeType: 'text/plain', buffer: Buffer.from('Actual attachment bytes') });
   await expect.poll(() => state.commands.find(item => item.type === 'resource.upload')?.payload).toEqual({ name: 'evidence.txt', mimeType: 'text/plain', base64: Buffer.from('Actual attachment bytes').toString('base64') });
 });
 

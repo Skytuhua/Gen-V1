@@ -28,8 +28,8 @@ async function fixture(page: Page, width: number, height: number, artifact = fal
 async function geometry(page: Page) {
   return page.evaluate(() => {
     const rect = (selector: string) => {const node = document.querySelector(selector); if (!node) return null; const box = node.getBoundingClientRect(); return {top: box.top, bottom: box.bottom, height: box.height, left: box.left, right: box.right};};
-    const owner = document.querySelector('.shell-workarea')!;
-    return {switcher: rect('.workspace-switcher')!, owner: rect('.shell-workarea')!, browser: rect('.desktop-browser-native')!, dock: rect('.desktop-browser-dock')!, panel: rect('.workspace-panel-content'), documentOverflow: document.documentElement.scrollWidth - innerWidth, scrollHeight: owner.scrollHeight, clientHeight: owner.clientHeight};
+    const owner = document.querySelector('.shell-workarea:not(.embedded-thread-app *)')!;
+    return {switcher: rect('.workspace-switcher')!, owner: rect('.shell-workarea:not(.embedded-thread-app *)')!, browser: rect('.desktop-browser-native')!, dock: rect('.desktop-browser-dock')!, panel: rect('.workspace-panel-content'), documentOverflow: document.documentElement.scrollWidth - innerWidth, scrollHeight: owner.scrollHeight, clientHeight: owner.clientHeight};
   });
 }
 
@@ -92,7 +92,7 @@ test('removing Browser before the panel releases its normal-flow space without r
   const before = await geometry(page);
   await page.evaluate(() => Reflect.get(window, 'setShortToolBrowserVisible')(false));
   await expect(page.locator('.desktop-browser-dock')).toHaveCount(0);
-  await expect.poll(() => page.locator('.shell-workarea').evaluate(node => node.scrollHeight)).toBeLessThan(before.scrollHeight);
+  await expect.poll(() => page.locator('.shell-workarea:not(.embedded-thread-app *)').evaluate(node => node.scrollHeight)).toBeLessThan(before.scrollHeight);
   await expect(page.locator('.workspace-panel-content')).toHaveCount(1);
   await page.getByRole('button', {name: 'Hide panel', exact: true}).click();
   await expect(page.locator('.workspace-tools')).toHaveCount(0);
@@ -104,14 +104,14 @@ test('keeps the selected artifact in its scrolled owner without remounting or pa
   const artifact = page.locator('.artifact-in-workspace');
   await expect(artifact).toHaveCount(1);
   await artifact.evaluate(node => Object.assign(window, {originalShortArtifact: node}));
-  await page.locator('.shell-workarea').evaluate(node => {node.scrollTop = 150;});
+  await page.locator('.shell-workarea:not(.embedded-thread-app *)').evaluate(node => {node.scrollTop = 150;});
   await expect.poll(() => artifact.evaluate(node => {
-    const box = node.getBoundingClientRect(), body = document.querySelector('.workspace-panel-content')!.getBoundingClientRect(), owner = document.querySelector('.shell-workarea')!.getBoundingClientRect();
+    const box = node.getBoundingClientRect(), body = document.querySelector('.workspace-panel-content')!.getBoundingClientRect(), owner = document.querySelector('.shell-workarea:not(.embedded-thread-app *)')!.getBoundingClientRect();
     return box.top >= Math.max(body.top, owner.top) && box.bottom <= Math.min(body.bottom, owner.bottom) && box.height > 0;
   })).toBe(true);
-  await page.locator('.shell-workarea').evaluate(node => {node.scrollTop = 0;});
+  await page.locator('.shell-workarea:not(.embedded-thread-app *)').evaluate(node => {node.scrollTop = 0;});
   await expect.poll(() => artifact.evaluate(node => {
-    const box = node.getBoundingClientRect(), body = document.querySelector('.workspace-panel-content')!.getBoundingClientRect(), owner = document.querySelector('.shell-workarea')!.getBoundingClientRect();
+    const box = node.getBoundingClientRect(), body = document.querySelector('.workspace-panel-content')!.getBoundingClientRect(), owner = document.querySelector('.shell-workarea:not(.embedded-thread-app *)')!.getBoundingClientRect();
     const top = Math.max(0, body.top, owner.top), bottom = Math.min(innerHeight, body.bottom, owner.bottom);
     const hidden = getComputedStyle(node).visibility === 'hidden' || getComputedStyle(node).display === 'none';
     return bottom - top <= 24 ? hidden : hidden || box.top >= top && box.bottom <= bottom && box.height > 0;

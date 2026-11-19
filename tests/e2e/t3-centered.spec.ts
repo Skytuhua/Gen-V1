@@ -73,7 +73,7 @@ test('automatic Plan summary reserves task space while telemetry preserves the m
   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep my next message');
   const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
   const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await expect(summary).toBeVisible();
-  const layout=await page.locator('.summary-layout').boundingBox(),dock=await page.locator('.summary-dock').boundingBox(),workspace=await page.locator('main.workspace').boundingBox();
+  const layout=await page.locator('.summary-layout:not(.embedded-thread-app *)').boundingBox(),dock=await page.locator('.summary-dock:not(.embedded-thread-app *)').boundingBox(),workspace=await page.locator('main.workspace').boundingBox();
   expect(dock!.width).toBeGreaterThanOrEqual(270);expect(dock!.width).toBeLessThanOrEqual(310);
   expect(workspace!.width).toBeCloseTo(layout!.width-dock!.width-6,0);await centered(page);
   const body=await summary.elementHandle();
