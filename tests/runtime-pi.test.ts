@@ -637,3 +637,21 @@ it("validates only the Pi session header without loading the transcript body", a
     await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({code: "PI_SESSION_INVALID"});
   } finally { await rm(root, {recursive: true, force: true}); }
 });
+
+it.each(["throw", "callback"] as const)("clears the Pi acknowledgment timer when an IPC follow-up fails via %s", async mode => {
+  const workers = mockWorkers(), runtime = createPiRuntime({dataDir: await temp()});
+  runtime.configure({onTool: async () => null, onEvent: () => {}});
+  try {
+    await runtime.start(input);
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
+    const count = vi.getTimerCount(), failure = new Error("Synthetic IPC send failure");
+    workers.children[0].send.mockImplementationOnce((_message: unknown, callback: (error: Error) => void) => {
+      if (mode === "throw") throw failure;
+      queueMicrotask(() => callback(failure));
+      return false;
+    });
+    await expect(runtime.followUp({...input, inputId: "send-failed"})).rejects.toThrow(failure);
+    expect(vi.getTimerCount()).toBe(count);
+    await expect(runtime.followUp({...input, inputId: "send-retry"})).resolves.toBeUndefined();
+  } finally { vi.useRealTimers(); await runtime.dispose(); }
+});
