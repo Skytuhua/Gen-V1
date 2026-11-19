@@ -207,8 +207,7 @@ export class IntegrationManager {
      else if(typeof cause.value==='symbol'||(cause.value!==null&&(typeof cause.value==='object'||typeof cause.value==='function'))){
       // Node prints Symbol descriptions and arbitrary structured causes,
       // including nested credential fields and custom inspect hooks.
-      // metadata with getters just to guess whether it holds a secret.
-      // metadata with getters just to guess whether it holds a secret.
+      // Never inspect untrusted metadata or invoke getters to guess its content.
       throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
      }
     }
