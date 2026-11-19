@@ -16,6 +16,9 @@ Changes are grouped by release. Verification scopes are recorded separately from
   docking. New canvas-panel detachment remains unavailable.
 - Retire the built-in Code Review, Research and Custom presets without
   discarding saved canvas records.
+- Verify saved Kimi Code keys with a bounded authenticated account check;
+  refused keys show **Not accepted**. Other saved credentials stay
+  **Saved, not verified**.
 
 See [usage](docs/visual-workspace.md) and [verification boundaries](docs/visual-workspace-verification.md).
 

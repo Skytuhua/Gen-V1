@@ -5,7 +5,9 @@ import { unavailableIdentity, type AccountAuthStatus, type AccountAuthTarget } f
 import { accountResolver, beginAccountLogin, endAccountLogin, holdAccountLogin, holdAccountUse, liveAccountLease } from '../core/accounts.ts';
 import type { Store } from '../storage/store.ts';
 import { withAccountProfile } from './account-profile.ts';
-import { createLiteralCredentialStore } from '../runtime-pi/credentials.ts';
+import { createLiteralCredentialStore, type LiteralCredentialStore } from '../runtime-pi/credentials.ts';
+import { probeKimiEntitlement } from '../runtime-pi/plan-keys.ts';
+import type { EntitlementOutcome } from '../runtime-pi/entitlement.ts';
 import { taskPaths } from '../runtime-pi/session.ts';
 import { loadSdk } from '../runtime-pi/sdk.ts';
 import { cursorAccountStatus, cursorLocalSignout } from '../runtime-official/cursor.ts';
@@ -36,10 +38,21 @@ const probe: Probe = async (root, { providerId }, signal) => {
     return { state: 'authenticated', identity, message: 'Claude supplied authenticated account metadata. Immutable subject identity and safe reconnect staging are unavailable; use a new local account to change users.' };
   }
   if (providerId === 'gemini-cli') return { state: 'unknown', identity: unavailableIdentity(), message: 'The pinned Gemini ACP interface does not expose account identity or a reliable sign-in status. Use its native console.' };
-  const credentials = await createLiteralCredentialStore(taskPaths(root, 'login').authPath);
-  const configured = (await credentials.list()).some(row => row.providerId === providerId);
-  return { state: configured ? 'configured' : 'signed-out', identity: unavailableIdentity(), message: configured ? 'A local credential is configured. This SDK does not expose authenticated account identity; credential presence does not prove sign-in or entitlement.' : 'No supported local credential is configured. Sign in through the connection console.' };
+  const stored = await (await createLiteralCredentialStore(taskPaths(root, 'login').authPath)).read(providerId, { signal });
+  if (!stored) return { state: 'signed-out', identity: unavailableIdentity(), message: 'No supported local credential is configured. Sign in through the connection console.' };
+  const checked = await entitlement(providerId, stored, signal);
+  if (!checked) return { state: 'configured', identity: unavailableIdentity(), message: 'A local credential is configured. This SDK does not expose authenticated account identity; credential presence does not prove sign-in or entitlement.' };
+  const { label, outcome } = checked;
+  if (outcome === 'accepted') return { state: 'authenticated', identity: unavailableIdentity(), message: `${label} accepted this saved credential in an authenticated account check. Account identity, quota and per-model access are unavailable.` };
+  if (outcome === 'rejected') return { state: 'rejected', identity: unavailableIdentity(), message: `${label} rejected this saved credential. Sign in again through the connection console. No app-side API billing fallback.` };
+  return { state: 'unavailable', identity: unavailableIdentity(), message: `${label} could not confirm this saved credential (deadline, rate limit or provider error). Retry the check. No app-side API billing fallback.` };
 };
+type StoredCredential = NonNullable<Awaited<ReturnType<LiteralCredentialStore['read']>>>;
+/** Bounded authenticated probes where the provider offers one; other saved credentials stay "Saved, not verified". */
+async function entitlement(providerId: AccountAuthTarget['providerId'], credential: StoredCredential, signal?: AbortSignal): Promise<{ label: string; outcome: EntitlementOutcome } | undefined> {
+  if (providerId === 'kimi-coding' && credential.type === 'api_key' && credential.key) return { label: 'Kimi Code', outcome: await probeKimiEntitlement(credential.key, signal) };
+  return undefined;
+}
 const localSignout = (providerId: AccountAuthTarget['providerId']) => !isOfficialRuntimeProviderId(providerId) || providerId === 'cursor-sdk';
 const unconfirmed = (error: unknown) => ['PI_CANCEL_UNCONFIRMED', 'RUNTIME_TEARDOWN_FAILED'].includes(String((error as { code?: unknown })?.code));
 

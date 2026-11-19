@@ -66,3 +66,49 @@ it('retains mutation and use holds if native cleanup cannot be confirmed', async
 it('does not invent signout commands for unsupported official providers', async () => {
   const {store}=await fixture(), remove=vi.fn();await expect(signOutAccount(store,{providerId:'claude-code',accountId:null},remove)).rejects.toMatchObject({code:'ACCOUNT_SIGNOUT_UNSUPPORTED'});expect(remove).not.toHaveBeenCalled();
 });
+const planKey = 'sk-kimi-never-return-fixture';
+async function planFixture(provider: 'kimi-coding' | 'opencode-go') {
+  const {root,store}=await fixture(), mark = provider === 'kimi-coding' ? 'kimi-code-membership-v1' : 'opencode-go-v1';
+  await mkdir(join(root,'pi')); await writeFile(join(root,'pi','auth.json'),JSON.stringify({[provider]:{type:'api_key',key:planKey,env:{HARNESS_CONNECTION_KIND:mark}}}));
+  return store;
+}
+function stubFetch(respond: () => Response | Promise<Response>) { const requests: Request[] = []; vi.stubGlobal('fetch', vi.fn(async (input: string, init?: RequestInit) => { requests.push(new Request(input, init)); return respond(); })); return requests; }
+afterEach(() => { vi.unstubAllGlobals(); });
+it('reports Kimi as signed in only after a bounded authenticated catalog check accepts the saved key', async () => {
+  const store = await planFixture('kimi-coding'), requests = stubFetch(() => Response.json({ data: [{ id: 'kimi-for-coding' }] }));
+  const value = await readAccountAuth(store,{providerId:'kimi-coding',accountId:null});
+  expect(value).toMatchObject({state:'authenticated',identity:unavailableIdentity(),lastCheckedAt:expect.any(String)});
+  expect(requests).toHaveLength(1); expect(requests[0].url).toBe('https://api.kimi.com/coding/v1/models');
+  expect(requests[0].headers.get('authorization')).toBe(`Bearer ${planKey}`); expect(requests[0].redirect).toBe('error'); expect(requests[0].signal).toBeInstanceOf(AbortSignal);
+  expect(JSON.stringify(value)).not.toContain(planKey); expect(store.all('accountUse')).toEqual([]);
+});
+it.each([401, 403])('reports a Kimi key the provider refuses (HTTP %i) as rejected', async status => {
+  const store = await planFixture('kimi-coding'); stubFetch(() => new Response('{"error":"private provider detail"}', { status, headers: { 'content-type': 'application/json' } }));
+  const value = await readAccountAuth(store,{providerId:'kimi-coding',accountId:null});
+  expect(value).toMatchObject({state:'rejected',identity:unavailableIdentity()}); expect(value.message).toMatch(/No app-side API billing fallback/);
+  expect(JSON.stringify(value)).not.toMatch(new RegExp(`${planKey}|private provider detail`));
+});
+it.each([
+  ['rate limit', () => new Response('{}', { status: 429, headers: { 'content-type': 'application/json' } })],
+  ['provider error', () => new Response('{}', { status: 503, headers: { 'content-type': 'application/json' } })],
+  ['redirect', () => new Response(null, { status: 302, headers: { location: 'https://example.invalid' } })],
+  ['non-JSON body', () => new Response('<html>', { headers: { 'content-type': 'text/html' } })],
+  ['malformed catalog', () => Response.json({ data: [] })],
+  ['oversized body', () => new Response('{}', { headers: { 'content-type': 'application/json', 'content-length': String(1024 * 1024) } })],
+  ['network failure', () => Promise.reject(new TypeError('private network detail'))]
+] as const)('keeps a Kimi check that fails without an authentication refusal unconfirmed (%s)', async (_name, respond) => {
+  const store = await planFixture('kimi-coding'); stubFetch(respond);
+  const value = await readAccountAuth(store,{providerId:'kimi-coding',accountId:null});
+  expect(value).toMatchObject({state:'unavailable',identity:unavailableIdentity()}); expect(JSON.stringify(value)).not.toMatch(new RegExp(`${planKey}|private network detail`));
+});
+it('propagates cancellation of an in-flight Kimi check instead of reporting a result', async () => {
+  const store = await planFixture('kimi-coding'), control = new AbortController();
+  vi.stubGlobal('fetch', vi.fn((_input: string, init?: RequestInit) => new Promise<Response>((_resolve, reject) => { init?.signal?.addEventListener('abort', () => reject(init.signal!.reason)); queueMicrotask(() => control.abort()); })));
+  await expect(readAccountAuth(store,{providerId:'kimi-coding',accountId:null},undefined,control.signal)).rejects.toMatchObject({name:'AbortError'});
+  expect(store.all('accountUse')).toEqual([]);
+});
+it.each(['opencode-go', 'openai'] as const)('keeps %s saved but not verified without any network check', async providerId => {
+  const requests = stubFetch(() => Response.json({}));
+  const store = providerId === 'opencode-go' ? await planFixture('opencode-go') : await (async () => { const {root,store} = await fixture(); await mkdir(join(root,'pi')); await writeFile(join(root,'pi','auth.json'),JSON.stringify({openai:{type:'oauth',access:'private-access',refresh:'private-refresh',expires:Date.now()+60000}})); return store; })();
+  expect(await readAccountAuth(store,{providerId,accountId:null})).toMatchObject({state:'configured',identity:unavailableIdentity()}); expect(requests).toEqual([]);
+});

@@ -16,7 +16,7 @@ import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
 import { useDesktop } from './desktop-context';
 import './connections.css';
-const AUTH_LABELS: Record<string, string> = {error: 'Status unavailable', checking: 'Checking connection…', cancelling: 'Stopping sign-in', configured: 'Saved, not verified', authenticated: 'Signed in', 'signed-out': 'Not signed in', blocked: 'Connection blocked', 'signing-in': 'Sign-in in progress', unavailable: 'Unavailable', unknown: 'Status unknown'};
+const AUTH_LABELS: Record<string, string> = {error: 'Status unavailable', checking: 'Checking connection…', cancelling: 'Stopping sign-in', configured: 'Saved, not verified', authenticated: 'Signed in', rejected: 'Not accepted', 'signed-out': 'Not signed in', blocked: 'Connection blocked', 'signing-in': 'Sign-in in progress', unavailable: 'Unavailable', unknown: 'Status unknown'};
 function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthChanged }: { target: AccountAuthTarget; flow?: AccountLoginFlow; desktop: ReturnType<typeof useDesktop>; login: () => void; label:string; busy:boolean; onAuthChanged:AccountAuthChanged }) {
   const [auth, setAuth] = useState<AccountAuthStatus | null>(null), [checking, setChecking] = useState(()=>!flow||!['opening','waiting','cancelling','blocked'].includes(flow.state)), [error, setError] = useState('');
   const generation = useRef(0), pending = useRef(false), read = useRef<AbortController|null>(null);
@@ -45,7 +45,7 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
   const identity=auth?.identity.availability==='unavailable'?'':[auth?.identity.email??auth?.identity.subject,auth?.identity.organization,auth?.identity.subscription].filter(Boolean).join(' · ');
   return <div className="connection-account-auth" aria-busy={checking || !!active} data-state={connectionState}>
     <p className="connection-auth-summary" role="status"><strong>{AUTH_LABELS[connectionState] ?? connectionState.replaceAll('-', ' ')}</strong></p>
-    {auth&&['blocked','unavailable'].includes(auth.state)&&<p role="status">{auth.message}</p>}
+    {auth&&['blocked','rejected','unavailable'].includes(auth.state)&&<p role="status">{auth.message}</p>}
     {identity&&<p>{identity}</p>}
     {flow && <p className="connection-flow-message" data-flow-state={flow.state} aria-live="polite">{flow.message}</p>}
     {error && <p className="error-text" role="status">{error}</p>}

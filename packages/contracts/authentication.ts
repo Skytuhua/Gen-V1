@@ -10,7 +10,7 @@ export interface AccountIdentity {
   subscription: string | null;
 }
 export interface AccountAuthStatus extends AccountAuthTarget {
-  state: 'signed-out' | 'configured' | 'authenticated' | 'signing-in' | 'blocked' | 'unknown' | 'unavailable';
+  state: 'signed-out' | 'configured' | 'authenticated' | 'rejected' | 'signing-in' | 'blocked' | 'unknown' | 'unavailable';
   identity: AccountIdentity;
   lastCheckedAt: string | null;
   localSignout: boolean;
