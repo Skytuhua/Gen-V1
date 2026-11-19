@@ -1,0 +1,17 @@
+# Curated receipt summary — lint
+
+command: pnpm lint
+startedAt: 2026-11-18T08:52:22.077Z
+endedAt: 2026-11-18T08:54:08.489Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 394564f44c78b9e098a24365345888bd9a2b959e548ee662ba20444bb92bfcbc, 209 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+UI guard: 606 sources; 0 violations; 39 inventoried legacy/geometry occurrences (not primitive approvals); 0 retired entries.
+```

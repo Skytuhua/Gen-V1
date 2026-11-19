@@ -1,0 +1,18 @@
+# Curated receipt summary — vitest-public-source-final
+
+command: pnpm exec vitest run tests/public-source.test.ts
+startedAt: 2026-11-18T22:18:34.118Z
+endedAt: 2026-11-18T22:18:46.106Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 ff6e899cae4cd5a9dca066188f7b7706beea4a45d7162c47ef9bacffa82af784, 991 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+ Test Files  1 passed (1)
+   Duration  10.89s (transform 336ms, setup 0ms, import 978ms, tests 9.67s, environment 0ms)
+```
