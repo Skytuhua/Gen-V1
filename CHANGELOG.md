@@ -9,8 +9,17 @@ Source availability does not establish installed-release acceptance. Advanced
 host capabilities below remain separately gated; a source implementation does
 not enable them by default.
 
+Interim scope: items explicitly numbered below are unmerged and pending 0.6.5
+freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decision.
+
 ### Workspace and UI
 
+- Include keyboard-created source selections so Ask/Attach/Open do not require a
+  pointer (#788), control boundaries meeting 3:1 non-text contrast in both themes
+  (#789), and layout-resilience verification at UI zoom and OS text scaling (#589).
+- Include UI acceptance repairs (#896): preserve main selection when detaching a
+  non-main conversation, improve dock previews and keyboard float resizing, and
+  refine compact composer, plan and workspace-surface behavior.
 - Add a durable split workspace with existing-thread dragging, retained editors,
   in-app floating conversations, parked-view recovery, undo/redo and named layouts;
   preserve legacy canvases and exact saved-layout ownership.
@@ -97,6 +106,8 @@ not enable them by default.
 
 ### Security
 
+- Include retaining a known-bad integration denial when advisory refresh fails
+  (#936), rather than losing the prior denial during a failed refresh.
 - Add separately gated project trust review, opaque secret references and
   single-use approvals with a recoverable tool-effect ledger; recheck authority
   and revocation at execution rather than trusting a prior UI decision.
@@ -126,16 +137,22 @@ not enable them by default.
   remain open.
 - Physical multi-monitor/mixed-DPI placement, native popup focus/sound/privacy,
   DPAPI round-trip and browser occlusion still require target acceptance.
+  Desktop acceptance across mixed-DPI and multi-monitor setups (#584) is deferred
+  from 0.6.5.
 - New native canvas-panel detachment/free-floating desktop views are unavailable.
   Gemini/Cursor native compaction, the separate OpenCode agent runtime and
   Meta/Muse access remain unavailable; tested native session forks are unsupported.
 - Isolated-extension activation still has a backend-launch-binding hold;
-  consented browser/desktop control drivers remain blocked. Paired-client
+  consented browser/desktop control drivers remain blocked (#812, pending owner
+  decision). Paired-client
   production TLS transport is not deployed and remote input/approval is denied.
 - Advanced capabilities retain default-off and per-platform acceptance gates.
   Historical full-suite failures, skipped/opt-in checks and partial milestone
   evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
   warnings and visual-fidelity/user acceptance remain unresolved.
+- Independent installed-Windows memory retention and opt-in qualification (#782)
+  is included pending 0.6.5 freeze gates; this draft CI-only work is not completed
+  acceptance or a user-facing feature.
 
 See [usage](docs/visual-workspace.md), [visual verification boundaries](docs/visual-workspace-verification.md)
 and [preview acceptance limits](docs/public/release-notes.md#known-issues).
