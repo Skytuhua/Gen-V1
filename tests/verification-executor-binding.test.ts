@@ -169,20 +169,17 @@ it('rejects a byte appended after the measured length even when descriptor metad
   expect(appended).toBe(true);
 });
 
-it('rejects premature EOF before reading the measured length', async () => {
+it('rejects premature EOF without retrying or probing past the measured length', async () => {
   const f = await fixture(), binding = await f.authority.describe(f.input);
   const target = lstatSync(f.executable, { bigint: true }), originalRead = fs.readSync;
-  let prematureEof = false;
+  let targetReads = 0;
   vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
     const identity = fs.fstatSync(args[0], { bigint: true });
-    if (!prematureEof && identity.dev === target.dev && identity.ino === target.ino) {
-      prematureEof = true;
-      return 0;
-    }
+    if (identity.dev === target.dev && identity.ino === target.ino && ++targetReads === 1) return 0;
     return originalRead(...args);
   }) as typeof fs.readSync);
   expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
-  expect(prematureEof).toBe(true);
+  expect(targetReads).toBe(1);
 });
 
 it('rejects backend implementation replacement during asynchronous preparation', async () => {
