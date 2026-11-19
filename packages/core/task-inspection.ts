@@ -10,7 +10,10 @@ function sourcePage(store: Store, threadId: string, args: Record<string, unknown
   let value: unknown = data.value; const pointer = args.pointer ?? '';
   if (typeof pointer !== 'string' || pointer.length > 2048 || pointer !== '' && !pointer.startsWith('/')) throw new HarnessError('INVALID_DATA_REF', 'Pointers are relative to data.value.');
   if (pointer) for (const token of pointer.slice(1).split('/')) {
+    if (/~(?![01])/.test(token)) throw new HarnessError('INVALID_DATA_REF', 'This data path has invalid JSON Pointer escaping.');
     const key = token.replace(/~1/g, '/').replace(/~0/g, '~');
+    if (Array.isArray(value) && (!/^(0|[1-9][0-9]*)$/.test(key) || Number(key) >= value.length))
+      throw new HarnessError('INVALID_DATA_REF', 'This data path is unavailable.');
     if (['__proto__', 'prototype', 'constructor'].includes(key) || !value || typeof value !== 'object' || !Object.hasOwn(value, key)) throw new HarnessError('INVALID_DATA_REF', 'This data path is unavailable.');
     value = (value as Record<string, unknown>)[key];
   }
