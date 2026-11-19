@@ -69,6 +69,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const cached = options.cache?.get(key);
   let staleCache = false;
   let previousCacheAgeMs = 0;
+  let previousKnownBad: PackageScreeningV1 | undefined;
   if (cached) {
     const parsed = packageScreeningV1Schema.parse(cached);
     const age = now() - Date.parse(parsed.checkedAt);
@@ -79,6 +80,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
       snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
     const sameIdentity = parsed.pkg.name === pkg.name && parsed.pkg.version === pkg.version &&
       parsed.pkg.digest === pkg.digest && parsed.advisory.database === advisory.database;
+    if (sameIdentity && parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY') previousKnownBad = parsed;
     // Cached screening facts cannot carry an operator's earlier authority.
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
@@ -104,6 +106,16 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
   const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
     snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
+  // A failed or stale refresh cannot erase a previously verified match.
+  // Keep its original snapshot provenance for every subsequent recheck;
+  // only a fresh negative or another positive response can replace it.
+  if (previousKnownBad && result.status !== 'MATCH' &&
+      !(result.status === 'NO_MATCH' && freshSnapshot)) {
+    return {
+      record: { ...previousKnownBad, cacheAgeMs: previousCacheAgeMs },
+      cacheHit: true, staleCache: true,
+    };
+  }
   let status: PackageScreeningV1['status'];
   let decision: PackageScreeningV1['decision'];
   let reason: string;
