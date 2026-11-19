@@ -136,11 +136,16 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { worker.pending.delete(requestId); reject(new Error(`Pi ${command} did not acknowledge within ${timeoutMs / 1000} seconds.`)); }, timeoutMs);
       worker.pending.set(requestId, { resolve, reject, timer });
-      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...(purpose?{purpose}:{}), ...args }, error => {
-        if (!error) return;
-        const pending = worker.pending.get(requestId);
-        if (pending) { clearTimeout(timer); worker.pending.delete(requestId); reject(error); }
-      });
+      const fail = (error: unknown) => {
+        if (!worker.pending.delete(requestId)) return;
+        clearTimeout(timer);
+        reject(error);
+      };
+      try {
+        worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...(purpose?{purpose}:{}), ...args }, error => {
+          if (error) fail(error);
+        });
+      } catch (error) { fail(error); }
     });
   }
   async function terminate(worker: Worker) {
