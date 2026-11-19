@@ -173,6 +173,13 @@ class DirectoryGuard:
         # pin ledger; quarantining them stops acquisitions borrowing the
         # anomalous mount while the state is unresolved.
         self.quarantined: set = set()
+        # Failed-acquisition rollback pins that stayed fenced keep a named
+        # cleanup owner here — recorded, not releasable as a lease.
+        self.unresolved: dict = {}
+
+    def record_unresolved(self, owner, paths):
+        if paths:
+            self.unresolved[owner] = self.unresolved.get(owner, []) + paths
 
     def credential_parent(self, auth):
         if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:manager-runtime/)?(?:(?!manager-|\.\.?(?=/|$))[^/]+/)*accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
@@ -194,7 +201,7 @@ class DirectoryGuard:
         except BaseException:
             if fd >= 0:
                 os.close(fd)
-            self.release_paths(held)
+            self.record_unresolved(parent, self.release_paths(held))
             raise
 
     def credential_mounts(self, prepared, readonly):
@@ -316,7 +323,7 @@ class DirectoryGuard:
                 self.pin(path)
                 pinned.append(path)
         except BaseException:
-            self.release_paths(pinned)
+            self.record_unresolved(parent, self.release_paths(pinned))
             raise
         identifier = uuid.uuid4().hex
         barrier = dict(parent=parent, mounts=mounts, held=held, expires=time.monotonic() + duration / 1000, fenced=False)
@@ -413,7 +420,9 @@ class DirectoryGuard:
         for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
             if path not in self.pins:
                 continue  # Consumed by an owned remove/replace.
-            if any(held.startswith(path + "/") for held in unresolved):
+            # A still-held child — unresolved this pass or quarantined from a
+            # failed unwind — keeps its ancestors held; siblings release.
+            if any(held.startswith(path + "/") for held in unresolved) or any(quarantined.startswith(path + "/") for quarantined in self.quarantined):
                 unresolved.append(path)
                 continue
             if self.pins[path] == 1:
@@ -434,6 +443,8 @@ class DirectoryGuard:
     def drop_pin(self, path, writable_only=False):
         if path not in self.pins:
             return
+        if any(quarantined.startswith(path + "/") for quarantined in self.quarantined):
+            raise PermissionError("Quarantined child retains ancestry custody")
         if self.pins[path] != 1:
             raise PermissionError("Path is pinned by another guard lease")
         if writable_only and path in self.readonly_pins:
@@ -614,6 +625,7 @@ class DirectoryGuard:
                 self.groups[request["id"]] = unresolved
                 raise PermissionError("Guard cleanup did not settle")
             del self.groups[request["id"]]
+            pending = False
             if not self.groups and not self.barriers:
                 # Credential ancestry pins are scope-scoped: drop them once no
                 # guarded scope remains so fixture trees stay replaceable.
@@ -621,9 +633,14 @@ class DirectoryGuard:
                     unresolved = self.release_paths(prepared["held"])
                     if unresolved:
                         prepared["held"] = unresolved
+                        pending = True
                     else:
                         os.close(prepared["fd"])
                         del self.credentials[parent]
+            if pending:
+                # Ancillary credential cleanup is explicitly uncertain — the
+                # stage is not complete and the prepared entries keep custody.
+                raise CustodyUncertain('Ancillary credential cleanup did not settle')
             return {"id": request["id"], "entries": []}
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
             entries = request["paths"]
@@ -683,7 +700,7 @@ class DirectoryGuard:
                             self.tree(path, bool(entry.get("gitMetadataImport")), manifest, held)
                 self.groups[request["id"]] = held
             except BaseException:
-                self.release_paths(held)
+                self.record_unresolved(request["id"], self.release_paths(held))
                 raise
             return {"id": request["id"], "entries": manifest}
         elif command == "removeOwned" and set(request) == {"command", "id", "path", "dev", "ino", "empty", "directory"}:

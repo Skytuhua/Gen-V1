@@ -52,19 +52,28 @@ fail-closed. No `.ts` changes, no shared files touched:
 3. **`release_paths()`** — now returns the unresolved subset instead
    of aborting: each pin releases independently; a failed detach
    keeps its ledger entry and fence; a still-held child's ancestors
-   stay held (releasing them would strand the child mount under a
-   detached parent); independent paths release normally.
+   stay held — including children quarantined by a failed earlier
+   unwind — while independent siblings release normally.
 4. **`release` command** — no longer pops the group before release.
    An unresolved cleanup stores the *unresolved-only* held list under
    the lease (ownership and identity retained; a cleanup refusal does
    not claim release — it raises) and a retry resumes exactly the
    unresolved set, so released paths cannot be double-decremented.
    Fully-settled groups are deleted as before.
-5. **Credential-scope cleanup** — `release_credential` retains the
+5. **Failed-rollback ownership** — every unwind caller now records its
+   unresolved leftovers under a named cleanup owner in
+   `self.unresolved` (the failed lease id for ordinary `acquire`, the
+   credential parent for `prepare_credential`/`acquire_credential`),
+   instead of leaving ownerless refcounts. A failed acquire's id
+   enters `unresolved`, never `groups` — it is not a usable lease.
+6. **Credential-scope cleanup** — `release_credential` retains the
    barrier's held list on unresolved ancestry release and raises
    `CustodyUncertain`; the scope-scoped credential-clear loop retains
    each `prepared` entry whose `held` pins did not fully release
-   (fd kept open) instead of clearing unconditionally.
+   (fd kept open) and raises `CustodyUncertain` so pending ancillary
+   cleanup is explicitly uncertain rather than claimed complete.
+7. **`drop_pin`** — refuses to release a parent that has a quarantined
+   descendant (`Quarantined child retains ancestry custody`).
 
 Out of scope per instruction: no `.ts` client changes (the
 `withLinuxDirectoryGuard` release-error masking in `finally` was noted
@@ -84,7 +93,12 @@ redesign.
     refusal; retry resolves cleanly with no double decrement. PASS
   - unknown group release → refused. PASS
   - credential-scope ancestry → prepared entry retained on unresolved
-    release. PASS
+    release; pending ancillary cleanup raises `CustodyUncertain`
+    while the settled group release completes. PASS
+  - failed `acquire` → leftovers recorded under `self.unresolved` and
+    the id never becomes a usable lease. PASS
+  - quarantined descendant → parent ancestry retained, independent
+    sibling released; `drop_pin` refuses the same ancestry. PASS
   - refcount >1 pin → decremented without detach. PASS
 - `vitest run tests/linux-path-guard.test.ts tests/public-source.test.ts`:
   2 files, **41/41 PASS** (admitted/denied matrix + credential
