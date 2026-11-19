@@ -29,6 +29,7 @@ function visible(range:Range,root:HTMLElement):boolean {
   }
   // A range crossing a hidden descendant must not acquire its unpainted bytes.
   for(const node of root.querySelectorAll('*'))if(range.intersectsNode(node)) {
+    if(!node.textContent)continue;
     const style=getComputedStyle(node);
     if(node.matches('[hidden],[inert],[aria-hidden="true"],iframe,input,textarea,button,a,[contenteditable="true"]')||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)===0||style.contentVisibility==='hidden')return false;
     // A selected interior descendant can clip bytes even though neither range
@@ -54,11 +55,15 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
   useLayoutEffect(()=>{authored.current=root.current?.textContent??'';setExactRendering(authored.current===text);revision.current++;setCandidate(null);setError('');setBusy(false);},[text,enabled]);
   useEffect(()=>{
     if(!enabled)return;
+    let dismissed:Range|null=null;
+    const sameRange=(left:Range,right:Range)=>left.startContainer===right.startContainer&&left.startOffset===right.startOffset&&left.endContainer===right.endContainer&&left.endOffset===right.endOffset;
     const read=()=>{
       if(composing.current||toolbar.current?.contains(document.activeElement))return;
       const selection=getSelection(),element=root.current;
-      if(!element||!selection||selection.rangeCount!==1||selection.isCollapsed){setCandidate(null);return;}
+      if(!element||!selection||selection.rangeCount!==1||selection.isCollapsed){dismissed=null;setCandidate(null);return;}
       const range=selection.getRangeAt(0);
+      if(dismissed&&sameRange(dismissed,range))return;
+      dismissed=null;
       if(authored.current!==latest.current.text||!element.contains(range.startContainer)||!element.contains(range.endContainer)||element.textContent!==authored.current||!visible(range,element)){setCandidate(null);return;}
       const focused=document.activeElement;
       if(focused&&focused!==document.body&&!element.contains(focused)&&!element.parentElement?.contains(focused)){setCandidate(null);return;}
@@ -68,9 +73,33 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     };
     const key=(event:KeyboardEvent)=>{
       if(event.isComposing||event.keyCode===229||composing.current)return;
+      const element=root.current,selection=getSelection();
+      const buttons=toolbar.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)');
+      if(event.key==='Tab'&&candidateRef.current){
+        if(!event.shiftKey&&document.activeElement===element&&buttons?.length){event.preventDefault();buttons[0].focus();return;}
+        if(event.shiftKey&&document.activeElement===buttons?.[0]){event.preventDefault();element?.focus({preventScroll:true});return;}
+      }
+      if(element&&document.activeElement===element&&selection){
+        if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='a'){
+          event.preventDefault();const range=document.createRange();range.selectNodeContents(element);selection.removeAllRanges();selection.addRange(range);read();return;
+        }
+        const granularity=event.key==='Home'||event.key==='End'?'lineboundary':event.key==='ArrowUp'||event.key==='ArrowDown'?'line':event.key==='ArrowLeft'||event.key==='ArrowRight'?'character':null;
+        if(event.shiftKey&&granularity&&typeof selection.modify==='function'){
+          event.preventDefault();
+          const backward=event.key==='ArrowLeft'||event.key==='ArrowUp'||event.key==='Home';
+          if(!selection.anchorNode||!selection.focusNode||!element.contains(selection.anchorNode)||!element.contains(selection.focusNode)){
+            const range=document.createRange();range.selectNodeContents(element);range.collapse(!backward);selection.removeAllRanges();selection.addRange(range);
+          }
+          selection.modify('extend',backward?'backward':'forward',granularity);
+          if(selection.focusNode&&!element.contains(selection.focusNode)){
+            const boundary=document.createRange();boundary.selectNodeContents(element);boundary.collapse(backward);selection.extend(boundary.startContainer,boundary.startOffset);
+          }
+          read();return;
+        }
+      }
       if(candidateRef.current&&document.activeElement!==document.body&&!root.current?.contains(document.activeElement)&&!toolbar.current?.contains(document.activeElement)){setCandidate(null);return;}
-      if(event.key==='Escape'&&candidateRef.current){event.preventDefault();event.stopPropagation();setCandidate(null);getSelection()?.removeAllRanges();root.current?.focus({preventScroll:true});}
-      if(event.key==='F10'&&event.shiftKey&&candidateRef.current){event.preventDefault();toolbar.current?.querySelector<HTMLButtonElement>('button')?.focus();}
+      if(event.key==='Escape'&&candidateRef.current){event.preventDefault();event.stopPropagation();dismissed=selection?.rangeCount===1?selection.getRangeAt(0).cloneRange():null;setCandidate(null);root.current?.focus({preventScroll:true});}
+      if(event.key==='F10'&&event.shiftKey&&candidateRef.current){event.preventDefault();buttons?.[0]?.focus();}
     };
     const start=()=>{composing.current=true;setCandidate(null);},end=()=>{composing.current=false;};
     const dismiss=()=>setCandidate(null);
