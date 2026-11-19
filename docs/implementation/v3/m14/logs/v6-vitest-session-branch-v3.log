@@ -1,0 +1,15 @@
+== bounded redacted evidence summary ==
+originalSha256: d67e3d3dcb297ac0d9b18efe830d1ce4c428c96bb416943c7b50e2822b5f1958
+originalBytes: 1076
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ✓ tests/session-branch-v3.test.ts (11 tests) 9091ms
+     ✓ records explicit incomplete coverage for a truncated capture  6921ms
+     ✓ fences capture reads to the recorded owner — revocation and removal stay unavailable  337ms
+     ✓ rejects quotes that are not part of the source thread  406ms
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  15.14s (transform 3.83s, setup 0ms, import 5.59s, tests 9.09s, environment 0ms)
+EXIT:0

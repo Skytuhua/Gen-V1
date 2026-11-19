@@ -9,13 +9,19 @@ const processes = [
   spawn(process.execPath, ["--import", "tsx", "apps/server/main.ts"], { stdio: "inherit", env: { ...process.env, HARNESS_DEV: "1" } }),
   spawn(process.execPath, ["node_modules/vite/bin/vite.js"], { stdio: "inherit" })
 ];
-let closing = false;
+const active = new Set(processes);
+let closing = false, shutdownTimer;
 function close(code=0) {
   if (closing) return;
   closing = true;
   process.exitCode = code;
-  for (const child of processes) child.kill();
-  setTimeout(() => process.exit(code), 300).unref();
+  for (const child of active) child.kill();
+  if (active.size) {
+    shutdownTimer = setTimeout(() => {
+      for (const child of active) child.kill('SIGKILL');
+    }, 300);
+    shutdownTimer.unref();
+  }
 }
 for (const [index, child] of processes.entries()) {
   const name = index === 0 ? "server" : "vite";
@@ -23,6 +29,13 @@ for (const [index, child] of processes.entries()) {
     console.error(`Development ${name} process error: ${error.message}`);
     close(1);
   });
-  child.on("exit", code => close(code ?? 1));
+  child.once("exit", code => {
+    active.delete(child);
+    close(code ?? 1);
+  });
+  child.once("close", () => {
+    active.delete(child);
+    if (!active.size) clearTimeout(shutdownTimer);
+  });
 }
 process.on("SIGINT",()=>close());process.on("SIGTERM",()=>close());

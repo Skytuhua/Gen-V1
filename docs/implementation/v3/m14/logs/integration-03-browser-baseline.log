@@ -1,0 +1,10 @@
+== bounded redacted evidence summary ==
+originalSha256: d26131ef1086fc541050e356ac5b14b25a0289edb4e20578b73b9432c5033fde
+originalBytes: 1020
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+      const error = new UVExceptionWithHostPort(rval, 'listen', address, port);
+Error: listen EPERM: operation not permitted <tmp>/<entry>
+ ELIFECYCLE  Command failed with exit code 1.

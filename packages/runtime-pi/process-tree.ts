@@ -11,7 +11,9 @@ export async function terminateProcessTree(child: ChildProcess): Promise<void> {
       // The child may have exited between the initial check and taskkill, with
       // its exit event still pending delivery; give it a short grace before
       // treating the cancellation as unconfirmed.
-      await Promise.race([exit, new Promise<void>(resolve => setTimeout(resolve, 1000))]);
+      let graceTimer: ReturnType<typeof setTimeout> | undefined;
+      try { await Promise.race([exit, new Promise<void>(resolve => { graceTimer = setTimeout(resolve, 1000); })]); }
+      finally { clearTimeout(graceTimer); }
       if (child.exitCode === null && child.signalCode === null) {
         child.kill("SIGKILL");
         throw new HarnessError("PI_CANCEL_UNCONFIRMED", "Windows could not confirm Pi process-tree cancellation. Inspect the run before resuming.");

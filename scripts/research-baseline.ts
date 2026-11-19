@@ -6,7 +6,7 @@
 // real corepack executable (or a resolved JS entry under process.execPath).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +36,16 @@ export function resolveExecutable(name: string): ResolvedExecutable {
   for (const dir of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
     for (const candidate of [name, `${name}.exe`, `${name}.com`]) {
       const target = join(dir, candidate);
-      if (existsSync(target) && statSync(target).isFile()) return { file: target, identity: realpathSync(target) };
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      if (process.platform !== 'win32') {
+        try { accessSync(target, constants.X_OK); }
+        catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          if (code === 'EACCES' || code === 'ENOENT' || code === 'ENOTDIR') continue;
+          throw error;
+        }
+      }
+      return { file: target, identity: realpathSync(target) };
     }
   }
   throw new HarnessError('SPAWN_ERROR', `Executable is not on PATH: ${name}`);
@@ -76,6 +85,13 @@ function installedPnpm(declared: string | null): InstalledPnpm | null {
         // A later PATH entry may still carry the declared version.
         if (version !== null && version === declared) return { resolution, matchesDeclared: true };
         fallback ??= { resolution, matchesDeclared: false };
+      }
+      // Standalone Unix installers ship a runnable pnpm with no extension.
+      if (process.platform !== 'win32' && name === 'pnpm' && !shimmed(actual)) {
+        try {
+          accessSync(actual, constants.X_OK);
+          fallback ??= { resolution: { file: actual, prefix: [], declaredVersion: declared }, matchesDeclared: false };
+        } catch { /* Ignore an extensionless candidate that cannot be executed. */ }
       }
     }
   }
@@ -158,7 +174,7 @@ export function statusFromObservation(observation: RecordedObservation, options:
   const marker = options.expectedNegativeMarker;
   if (marker === undefined) return 'PASS';
   const output = `${observation.stdout}\n${observation.stderr}`;
-  return (typeof marker === 'string' ? output.includes(marker) : marker.test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
+  return (typeof marker === 'string' ? output.includes(marker) : new RegExp(marker.source, marker.flags).test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
 }
 
 export async function writeCommandEvidence(observation: RecordedObservation, outDir: string, id: string, status: CommandStatus, expectedNegative?: ExpectedNegative): Promise<CommandEvidence> {
@@ -197,7 +213,11 @@ export const CONTRACT_SOURCES: Record<string, string> = {
 };
 
 function git(rootDir: string, args: string[]): string {
-  return execFileSync('git', ['-C', rootDir, ...args], { encoding: 'utf8', windowsHide: true }).trim();
+  // Evidence checks inspect only the checkout. A partial clone must not
+  // fetch an unknown pin implicitly or hang waiting for a promisor remote.
+  return execFileSync('git', ['-C', rootDir, ...args], {
+    encoding: 'utf8', windowsHide: true, env: { ...process.env, GIT_NO_LAZY_FETCH: '1' },
+  }).trim();
 }
 
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
@@ -207,7 +227,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
   catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
-    if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
+    if (inspected.path.split('/').includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
       issues.push({ code: 'INVALID_INSPECTED_PATH', message: `Inspected path is not a repository-relative path: ${inspected.path}` });
     let actual: string | null = null;
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
@@ -218,7 +238,7 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
   for (const sha of lock.acceptedDependencyCommits) {
-    try { execFileSync('git', ['-C', rootDir, 'merge-base', '--is-ancestor', sha, lock.executionBaseSha], { windowsHide: true }); }
+    try { git(rootDir, ['merge-base', '--is-ancestor', sha, lock.executionBaseSha]); }
     catch { issues.push({ code: 'DEPENDENCY_NOT_ACCEPTED', message: `Accepted dependency commit ${sha} is not an ancestor of ${lock.executionBaseSha}.` }); }
   }
   for (const contract of lock.publicContracts) {
@@ -290,6 +310,15 @@ export async function runBaseline(outDir: string, repoRoot = root, options: Base
   const commandTimeoutMs = baselineCommandTimeout(options.commandTimeoutMs === undefined ? DEFAULT_TIMEOUT_MS : options.commandTimeoutMs);
   if (existsSync(outDir)) throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
   const pm = resolvePackageManager(repoRoot);
+  // Take exclusive custody before starting a command; a concurrent run must
+  // not write overlapping receipts even when both saw an absent directory.
+  await mkdir(dirname(outDir), { recursive: true });
+  try { await mkdir(outDir); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST')
+      throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
+    throw error;
+  }
   const commands: CommandEvidence[] = [];
   const environment = { COREPACK_ENABLE_NETWORK: '0' };
   const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000, environment });

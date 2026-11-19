@@ -1,0 +1,55 @@
+{
+  "reason": "Initial staged whitespace check exited 2 on verbatim log trailing whitespace and repeated final blank lines. Preserve command text/results while normalizing presentation.",
+  "transformations": [
+    "Remove ANSI terminal color/control sequences",
+    "Remove trailing spaces and tabs on lines",
+    "Keep exactly one final newline for nonempty logs; retain empty logs"
+  ],
+  "changedLogs": [
+    {
+      "path": "docs/implementation/v3/m14/logs/core-01-evidence-gates.log",
+      "originalSha256": "320bbbb0db8d5a18279ffc84e1fc452ea9402ef486c270a05daabefb37cfe0a5",
+      "normalizedSha256": "1d94b569805618cad93fd2b86b6137f16d181e1d672e6a3133928a198f035d05"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/core-02-current-contracts.log",
+      "originalSha256": "f08cac3d77f6ab338d81b759b3a015032da64fbba94efa53a00423f5f65a64f8",
+      "normalizedSha256": "861fc0511fe6950af0dec28002fe581b4284aff95fa99d5b0472e70d1b350217"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/integration-01-typecheck.log",
+      "originalSha256": "d09bfbabddd2cd6c9f3419199679538df507f74cdce589e9b9e06ea95883e30f",
+      "normalizedSha256": "daa6ae7ce7b5ded3ff22846ef6b1931046fcb79b73c776c9c5793840827405e2"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/integration-05-browser-root-node-import.log",
+      "originalSha256": "a00bb76b92cfd825447ca65a2f557f1021a45d3e0698633bc9274ac2a63e58b7",
+      "normalizedSha256": "0b44054f0ca69c144945b86695b9bdd7f3bbe7b6730b2a8d602e8b93fa675228"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/integration-06-unit-baseline.log",
+      "originalSha256": "82854c04e0a83572fb9ab50175ac384dc0ed3d2c669b6b34be22dcceefcdb7c6",
+      "normalizedSha256": "6a50dc4bfe850e712770787050e677fdadb4d9fa0fa7ebf9f1911283d643d54a"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/setup-03-generated-assets.log",
+      "originalSha256": "efd67ee3d643c60169cf3d1109b8e001b8210ac59bd3c7d05acb4a73c2f38f22",
+      "normalizedSha256": "64d42849b41e802b6f8e35825a541e8274782f85e68f104519143a94e646d2d4"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/source-10-target-drift.log",
+      "originalSha256": "8977d0d67e0c23c4fc97f8de3ddf90e11498c6c3593e767a12681aefd9011758",
+      "normalizedSha256": "be3cf17ad4d04eb521b635a5a27712060a74ad22ce69d11d21ed3dc227785abb"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/target-01-session-branch.log",
+      "originalSha256": "f035ca24f56267c528d8032fb3175839d38f7825bc8f97f3b54310abbc081142",
+      "normalizedSha256": "30bfafc53f5d93efd41aca9cb48125383e2b05b5c851d2ff63eddede63d0d026"
+    },
+    {
+      "path": "docs/implementation/v3/m14/logs/target-02-history-import.log",
+      "originalSha256": "72b8f11e0289dbc1909d11ee51a76d4d9584c8f9300516094fec8a2c27af5778",
+      "normalizedSha256": "07ddf3e685cdc9dca48e0473414b656cc026c276d8bb68b3f710346376e84e31"
+    }
+  ]
+}

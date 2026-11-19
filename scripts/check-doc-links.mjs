@@ -43,7 +43,7 @@ export const anchorsOf = text => {
   const headings = [
     ...text.matchAll(/^ {0,3}#{1,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm),
     ...text.matchAll(/^ {0,3}(\S.*)\n {0,3}(?:=+|-+)[ \t]*$/gm),
-  ];
+  ].sort((a, b) => a.index - b.index);
   for (const [, heading] of headings) {
     const base = slug(heading);
     let candidate = base, count = counters.get(base) ?? 0;
@@ -96,9 +96,10 @@ export async function probeUrl(url, { request = fetch, retryDelayMs = 1_000 } = 
 }
 
 function main() {
-  const git = (args, input) => {
+  const git = (args, input, allowedStatuses = [0]) => {
     const result = spawnSync('git', args, { input, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, windowsHide: true });
     if (result.error) throw result.error;
+    if (!allowedStatuses.includes(result.status)) throw new Error('git ' + args[0] + ' failed (exit ' + (result.status ?? 'unknown') + ')');
     return result;
   };
   const tracked = git(['ls-files', '-z']).stdout.split('\0').filter(Boolean);
@@ -139,7 +140,7 @@ function main() {
   }
   const ignored = new Set();
   if (uncommitted.length) {
-    const local = git(['check-ignore', '--stdin', '-z'], uncommitted.map(entry => entry.resolved).join('\0') + '\0').stdout.split('\0').filter(Boolean);
+    const local = git(['check-ignore', '--stdin', '-z'], uncommitted.map(entry => entry.resolved).join('\0') + '\0', [0, 1]).stdout.split('\0').filter(Boolean);
     for (const entry of uncommitted) {
       if (local.includes(entry.resolved)) ignored.add(entry);
       else report(failures, entry.file, entry.line, entry.target, 'no tracked file or directory at ' + entry.resolved);

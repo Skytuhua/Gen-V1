@@ -1,0 +1,11 @@
+== bounded redacted evidence summary ==
+originalSha256: e69756543a85d4251e965e1949b50691030271d0ede6478eee949a4d38122d53
+originalBytes: 8274
+flags: machinePath=True ansi=False rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+✓ 1792 modules transformed.
+✓ built in 38.32s
+✓ 2129 modules transformed.
+✓ built in 42.23s

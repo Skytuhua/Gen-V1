@@ -84,6 +84,17 @@ it('reads live untracked path/content hits, sorts paths then kinds/lines, and ha
   expect((await f.search.search(f.projectId, { q: 'missing' })).matches).toEqual([]);
 });
 
+it('keeps a late filename match visible in the bounded path preview', async () => {
+  const f = await fixture();
+  const path = ['a'.repeat(185), 'b'.repeat(185), 'c'.repeat(185), 'needle-after-long-prefix.txt'].join('/');
+  await f.write(path, 'no match in content');
+  const result = await f.search.search(f.projectId, { q: 'needle-after-long-prefix' });
+  expect(result.matches).toHaveLength(1);
+  expect(result.matches[0]).toMatchObject({ path, kind: 'path', line: null, column: null });
+  expect(result.matches[0]!.preview).toContain('needle-after-long-prefix');
+  expect([...result.matches[0]!.preview]).toHaveLength(512);
+});
+
 it('includes a late matching term in its bounded preview and keeps the full line column', async () => {
   const f = await fixture(), term = 'W'.repeat(200);
   await f.write('long-line.txt', '😀'.repeat(600) + term + ' after ' + 'z'.repeat(350));
@@ -328,7 +339,7 @@ it('uses an acquired real Windows guard for ordinary reads; unsupported platform
   const f = await fixture(); await f.write('a.txt', 'needle');
   const actual = await vi.importActual<typeof import('../packages/core/file-access.ts')>('../packages/core/file-access.ts');
   vi.mocked(withPathGuard).mockImplementation(actual.withPathGuard);
-  if (process.platform === 'win32') {
+  if (process.platform === 'win32' || process.platform === 'linux') {
     // Keep cold PowerShell startup outside the scan budget; nested acquisitions still use the real guard.
     await actual.withPathGuard([{ path: await fs.realpath(f.path), leaf: false }], new AbortController().signal, async () => {
       const result = await f.search.search(f.projectId, { q: 'needle' });

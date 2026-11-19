@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {execFileSync} from 'node:child_process';
+import {execFileSync,spawnSync} from 'node:child_process';
 import {mkdirSync,mkdtempSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
@@ -24,6 +24,18 @@ function fixture(files:Record<string,string>){
 }
 
 describe('documentation link check',()=>{
+  it('fails rather than reporting a clean scan if Git cannot list tracked files',()=>{
+    const root=mkdtempSync(join(tmpdir(),'doc-links-no-git-'));
+    try{
+      const env={...process.env};
+      delete env.GIT_DIR; delete env.GIT_WORK_TREE;
+      const result=spawnSync(process.execPath,[script],{cwd:root,env,encoding:'utf8'});
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('git ls-files failed');
+      expect(result.stdout).not.toContain('0 broken');
+    }finally{rmSync(root,{recursive:true,force:true});}
+  });
+
   it('reports the file, line and reason for a dead path, a missing anchor and a moved repository URL',()=>{
     const bench=fixture({
       '.gitignore':'/docs/evidence/\n',
@@ -104,6 +116,17 @@ describe('documentation link check',()=>{
       expect(result.status).toBe(1);
       expect(result.output).toContain('error README.md:3 guide.md#absent\n    no heading or anchor "#absent" in guide.md');
       expect(result.output).toContain('1 broken');
+    }finally{bench.cleanup();}
+  });
+  it('assigns colliding anchors in document order across heading styles',()=>{
+    const bench=fixture({
+      'guide.md':'Foo\n===\n\nFoo\n===\n\n## Foo-1\n',
+      'README.md':'[actual anchor](guide.md#foo-1-1)\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(0);
+      expect(result.output).toContain('0 broken');
     }finally{bench.cleanup();}
   });
   it('reads both destinations of a linked image',()=>{

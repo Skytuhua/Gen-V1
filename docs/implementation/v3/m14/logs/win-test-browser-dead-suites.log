@@ -1,0 +1,12 @@
+GEN_WO5_SERVER_EXTERNAL=1 rerun of the 6 suites whose config.webServer uses Unix "exec timeout" (never started on win-x64).
+External vite servers started manually per-suite (pnpm exec vite --config tests/e2e/<suite>.vite.config.ts --configLoader runner --port <pinned>), real Edge v157, serial. Per-suite stats from test-results/browser/run-*/<suite>/results.json.
+
+file-checkpoints expected=21 unexpected=0 flaky=0 skipped=0
+terminal-excerpts expected=9 unexpected=0 flaky=0 skipped=0
+conversation-find expected=1 unexpected=10 flaky=0 skipped=0
+project-search expected=38 unexpected=0 flaky=0 skipped=0
+redundant-ui expected=7 unexpected=11 flaky=0 skipped=0
+wo5-app-integration expected=0 unexpected=9 flaky=0 skipped=0
+
+TOTAL expected=76 unexpected=30
+Previously: all 6 dead at webServer startup (Unix exec timeout), 0 results.
