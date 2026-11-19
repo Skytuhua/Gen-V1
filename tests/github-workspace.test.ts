@@ -1,4 +1,5 @@
 import {deferred} from './fixtures/deferred.ts';
+import {fakeSecretCodec} from './fixtures/secret-codec.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {syncBuiltinESMExports} from 'node:module';
 import {lstat,mkdir,mkdtemp,readFile,readdir,rm,writeFile} from 'node:fs/promises';
@@ -9,12 +10,22 @@ import {GitHubTools} from '../packages/workspace/github.ts';
 import type {ProjectTools} from '../packages/workspace/tools.ts';
 import type {TerminalHost} from '../packages/workspace/terminal.ts';
 const cleanup:(()=>Promise<void>)[]=[];afterEach(async()=>{vi.restoreAllMocks();syncBuiltinESMExports();for(const close of cleanup.splice(0).reverse())await close();});
+const codec=fakeSecretCodec();
+it.each(['success','unavailable'] as const)('reads legacy GitHub credentials and migrates when storage is %s',async(mode)=>{
+ const{root}=await authFixture(),path=join(root,'github','credentials.json');await mkdir(dirname(path));const prior=JSON.stringify({version:1,token:'legacy-profile-token',login:'fixture-user'});await writeFile(path,prior);
+ const secrets=mode==='success'?codec:{...codec,protect:async()=>{throw Error('Unavailable');}};
+ expect(await new GitHubAuth(root,fetch,secrets).token()).toBe('legacy-profile-token');const bytes=await readFile(path,'utf8');if(mode==='success'){expect(JSON.parse(bytes).version).toBe(2);expect(bytes).not.toContain('legacy-profile-token');expect(await new GitHubAuth(root,fetch,secrets).token()).toBe('legacy-profile-token');}else expect(bytes).toBe(prior);
+ expect((await readdir(dirname(path))).filter(name=>name.endsWith('.tmp'))).toEqual([]);
+});
+it.each(['tampered','empty'] as const)('rejects %s GitHub ciphertext',async(protectedValue)=>{
+ const{root}=await authFixture(),path=join(root,'github','credentials.json');await mkdir(dirname(path));await writeFile(path,JSON.stringify({version:2,protected:protectedValue==='empty'?'':protectedValue}));await expect(new GitHubAuth(root,fetch,codec).token()).rejects.toThrow();
+});
 it('keeps device authorization tokens private and requires a Gen V1 credential before CLI use',async()=>{
  const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
  const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-device-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:900,interval:5}:String(url).endsWith('/access_token')?{access_token:'private-profile-token'}:{login:'fixture-user'}),{status:200,headers:{'Content-Type':'application/json'}}));
- const auth=new GitHubAuth(root,request as typeof fetch);await expect(auth.token()).rejects.toThrow(/Sign in/);
+ const auth=new GitHubAuth(root,request as typeof fetch,codec);await expect(auth.token()).rejects.toThrow(/Sign in/);
  const flow=await auth.start();expect(JSON.stringify(flow)).not.toContain('private-device-code');expect(await auth.poll(flow.id)).toEqual({status:'pending'});expect(request).toHaveBeenCalledTimes(1);
- now+=5001;const result=await auth.poll(flow.id);expect(result).toEqual({status:'authenticated',login:'fixture-user'});expect(JSON.stringify(result)).not.toContain('private-profile-token');expect(await new GitHubAuth(root).token()).toBe('private-profile-token');
+ now+=5001;const result=await auth.poll(flow.id);expect(result).toEqual({status:'authenticated',login:'fixture-user'});expect(JSON.stringify(result)).not.toContain('private-profile-token');expect(await readFile(join(root,'github','credentials.json'),'utf8')).not.toContain('private-profile-token');expect(await new GitHubAuth(root,fetch,codec).token()).toBe('private-profile-token');
 });
 it('refuses to create a PR when the GitHub branch differs from the reviewed local commit',async()=>{
  const{github,run,status}=await createdPullRequest(async()=>JSON.stringify({headRefOid:'a'.repeat(40)}));run.mockResolvedValueOnce(JSON.stringify({object:{sha:'b'.repeat(40)}}));
@@ -141,7 +152,7 @@ it.each(['success','verification failure'] as const)('retains publication state 
 async function authFixture(){
  const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
  const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:60,interval:1}:String(url).endsWith('/access_token')?{access_token:'new-profile-token'}:{login:'fixture-user'}),{status:200}));
- const auth=new GitHubAuth(root,request as typeof fetch);return{root,auth,request,advance:(ms:number)=>{now+=ms;}};
+ const auth=new GitHubAuth(root,request as typeof fetch,codec);return{root,auth,request,advance:(ms:number)=>{now+=ms;}};
 }
 it.each(['cancel','replace','expire'] as const)('fences %s while a token request is in flight',async(change)=>{
  const{root,auth,request,advance}=await authFixture(),flow=await auth.start(),pending=deferred<Response>();advance(1001);request.mockImplementationOnce(()=>pending.promise);const poll=auth.poll(flow.id),rejected=expect(poll).rejects.toMatchObject({code:'GITHUB_AUTH_EXPIRED'});
