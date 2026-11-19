@@ -46,8 +46,14 @@ describe('chat layout geometry',()=>{
  });
  it('lets a float that fills the area still move within edge slack',()=>{
   const view={width:420,height:671};
-  expect(clampChatRect({x:140,y:120,width:380,height:594},view,64)).toEqual({x:84,y:57,width:380,height:594});
+  // Slack only opens away from the header grip (right) and resize corner
+  // (bottom-right): the float may slide left or down, but its top header and
+  // right edge always stay inside the clip so every control stays reachable.
+  expect(clampChatRect({x:140,y:120,width:380,height:594},view,64)).toEqual({x:20,y:57,width:380,height:594});
   expect(clampChatRect({x:-500,y:-500,width:380,height:594},view,64)).toEqual({x:-44,y:20,width:380,height:594});
+  // A height-filling float may slide down but never up out of its header.
+  expect(clampChatRect({x:140,y:200,width:380,height:631},view,64)).toEqual({x:20,y:84,width:380,height:631});
+  expect(clampChatRect({x:-500,y:-500,width:380,height:631},view,64)).toEqual({x:-44,y:20,width:380,height:631});
   // Without slack the same rects clamp strictly inside the area.
   expect(clampChatRect({x:140,y:120,width:380,height:594},view)).toEqual({x:20,y:57,width:380,height:594});
   expect(clampChatRect({x:-500,y:-500,width:380,height:594},view)).toEqual({x:20,y:20,width:380,height:594});

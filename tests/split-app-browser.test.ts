@@ -220,10 +220,21 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    for(let i=0;i<3;i++){const box=(await floatSurface.locator('.split-float-resize').boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+500,box.y+box.height/2+400,{steps:4});await page.mouse.up();}
    const pinned=(await floatSurface.boundingBox())!;
    const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   // Slack opens left/down only: a leftward drag moves the float while its
+   // header and right-edge controls stay inside the clip.
    await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
-   await page.mouse.move(gripBox.x+gripBox.width/2+120,gripBox.y+gripBox.height/2,{steps:6});await page.mouse.up();
+   await page.mouse.move(gripBox.x+gripBox.width/2-120,gripBox.y+gripBox.height/2,{steps:6});await page.mouse.up();
    const moved=(await floatSurface.boundingBox())!;
    expect(Math.abs(moved.x-pinned.x)).toBeGreaterThan(20);
+   const movedGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!,movedResize=(await floatSurface.locator('.split-float-resize').boundingBox())!;
+   expect(movedGrip.x+movedGrip.width).toBeLessThanOrEqual(moved.x+moved.width);
+   expect(movedResize.x+movedResize.width).toBeLessThanOrEqual(moved.x+moved.width);
+   // A rightward drag stays pinned at the edge rather than clipping controls.
+   await page.mouse.move(movedGrip.x+movedGrip.width/2,movedGrip.y+movedGrip.height/2);await page.mouse.down();
+   await page.mouse.move(movedGrip.x+movedGrip.width/2+300,movedGrip.y+movedGrip.height/2,{steps:6});await page.mouse.up();
+   const settled=(await floatSurface.boundingBox())!,settledGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   expect(settled.x+settled.width).toBeLessThanOrEqual((await page.locator('.split-workspace').boundingBox())!.width);
+   expect(settledGrip.x+settledGrip.width).toBeLessThanOrEqual(settled.x+settled.width);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);

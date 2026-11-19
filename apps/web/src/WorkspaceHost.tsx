@@ -290,7 +290,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
         onChoosePreset={choosePreset} toolsVisible={false} pluginWorkspaces={pluginWorkspaces} onSelectPluginWorkspace={(pluginId,workspaceId)=>fail(()=>openConversation(undefined,'plugin-workspace',{pluginId,workspaceId}))} pluginCatalogError={pluginCatalogError} onRetryPluginCatalog={pluginCatalog.retry} addPanel={async () => {throw Error('Choose Workspace to open tools.');}} updatePanel={async () => {throw Error('Choose Workspace to arrange tools.');}}/>
       {error && <div className="workspace-error" role="status">{error}<button className="icon-button" aria-label="Dismiss error" onClick={dismissError}><X size={15}/></button></div>}
       <div className="workspace-host-content" inert={settingsOpen}><AgentsWorkspace controller={controller} composers={composers} hasConversations={Boolean(navigation.page?.items.length)} projects={workspace.envelope?.projects.filter(project => project.authority.kind === 'local')}
-        preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
+        preferences={{density: preferences.density, projectColors: preferences.projectColors}}
         onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/></div>
     </div>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>

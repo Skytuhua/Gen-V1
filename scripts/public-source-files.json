@@ -2650,6 +2650,7 @@
     "scripts/review-pr.ts",
     "scripts/run-dependency-contracts.ts",
     "scripts/run-desktop.ts",
+    "scripts/seed-ui-acceptance-profile.ts",
     "scripts/software-development-fixtures.ts",
     "scripts/task-design-scenes.ts",
     "scripts/test-browser.ts",

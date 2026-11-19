@@ -416,7 +416,7 @@ jobs:
 
       - name: Exercise saved layouts and retired records in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
-        run: node scripts/m15-record.mjs "c4-windows-saved-layout-chooser-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite saved-layout-chooser
+        run: node scripts/m15-record.mjs "c4-windows-ui-shell-controls-$env:GITHUB_RUN_ID-$env:GITHUB_RUN_ATTEMPT" (Get-Command node).Source --import tsx scripts/test-browser.ts --suite ui-shell-controls
 
       - name: Exercise App usage, shell errors and mobile navigation in Edge
         if: ${{ !cancelled() && steps.setup.outcome == 'success' && steps.build.outcome == 'success' }}
