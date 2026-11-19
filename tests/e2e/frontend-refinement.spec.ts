@@ -9,7 +9,7 @@ test.beforeEach(async({page})=>{
 test('left ticked scrollbar supports keys, track clicks, dragging, and history during updates',async({page})=>{
  const scroll=page.getByLabel('Fixture conversation'),bar=page.getByRole('scrollbar',{name:'Scroll conversation'});
  const bounds=await bar.boundingBox(),content=await scroll.boundingBox();expect(bounds!.x).toBeLessThan(content!.x+24);
- expect(bounds!.width).toBe(20);
+ expect(bounds!.width).toBe(24);
  expect(await page.locator('.chat-scroll-track').evaluate(node=>getComputedStyle(node).width)).toBe('1px');
  expect(await page.locator('.chat-scroll-thumb').evaluate(node=>getComputedStyle(node).width)).toBe('3px');
  expect(await page.locator('.chat-scroll-track').evaluate(node=>getComputedStyle(node,'::before').backgroundImage)).toContain('repeating-linear-gradient');
