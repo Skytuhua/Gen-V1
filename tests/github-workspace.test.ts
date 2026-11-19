@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {syncBuiltinESMExports} from 'node:module';
 import {lstat,mkdir,mkdtemp,readFile,readdir,rm,writeFile} from 'node:fs/promises';
@@ -137,7 +138,6 @@ it.each(['success','verification failure'] as const)('retains publication state 
  expect(warn).toHaveBeenCalled();expect(await readFile(join(dirname(payloads[0].path),'unowned.txt'),'utf8')).toBe('Keep this unexpected file');await expect(lstat(payloads[0].path)).rejects.toMatchObject({code:'ENOENT'});
 });
 
-function deferred<T>(){let resolve!:(value:T)=>void;const promise=new Promise<T>(accept=>{resolve=accept;});return{promise,resolve};}
 async function authFixture(){
  const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
  const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:60,interval:1}:String(url).endsWith('/access_token')?{access_token:'new-profile-token'}:{login:'fixture-user'}),{status:200}));

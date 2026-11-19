@@ -1,0 +1,9 @@
+argv: ["/home/piadmin/tools/pnpm","typecheck"]
+cwd: /home/piadmin/Gen-V1-m15-v6
+exitCode: 0
+termination: NONE
+
+
+> gen-v1@0.6.5 typecheck /home/piadmin/Gen-V1-m15-v6
+> tsc --noEmit
+

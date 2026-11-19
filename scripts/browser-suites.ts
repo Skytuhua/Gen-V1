@@ -1,11 +1,13 @@
 export interface BrowserSuite { name:string; config:string; specs:string[]; project?:string; env?:Record<string,string> }
 
 export const rootBrowserSpecs = [
+  'operation-execution-advice.spec.ts',
   'artifact-acknowledgment.spec.ts', 'clarity-data-work.spec.ts', 'dark-default.spec.ts',
+  'integration-secret-references.spec.ts',
   'document-window.spec.ts', 'host-loop.spec.ts', 'journal-reload.spec.ts', 'latency.spec.ts',
   'map-theme.spec.ts', 'migration-redesign.spec.ts', 'operational-motion.spec.ts', 'overnight-shell.spec.ts',
   'plan-timeline.spec.ts', 'review-capture-theme.spec.ts', 'shell-micro-motion.spec.ts',
-  'signing-motion.spec.ts', 'skills.spec.ts',
+  'signing-motion.spec.ts', 'skills.spec.ts', 'tool-effect-details.spec.ts', 'tool-effects-host.spec.ts', 'project-trust-review.spec.ts',
 ];
 
 const suite = (name:string, specs=[`${name}.spec.ts`], options:Partial<BrowserSuite>={}):BrowserSuite =>
@@ -20,6 +22,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('agents-workspace', ['agents-workspace.spec.ts', 'agents-workspace-evidence.spec.ts'], {env:{AGENTSUI_APP_CANDIDATE:'1'}}),
   suite('artifact-settle', ['artifact-settle.spec.ts']),
   suite('browser-action'),
+  suite('background-work'),
   suite('compact-model-picker', ['compact-model-picker.spec.ts', 'model-composer-refinement.spec.ts', 'subscription-accounts.spec.ts']),
   suite('ui-shell-overlays'),
   suite('file-checkpoints'),
@@ -92,7 +95,6 @@ export const browserSuites:BrowserSuite[] = [
   suite('task-interface'),
   suite('ui-shell-controls'),
   suite('usage-context'),
-  suite('verification-host'),
   suite('wo8'),
 ];
 

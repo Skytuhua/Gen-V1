@@ -138,7 +138,9 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
             context.event('assistant.message', { messageId, content: frame.result, inputIds: [...turnIds] });
           }
           if (frame.subtype !== 'success' || frame.is_error) context.event('error', { message: 'Official Claude Code ended the turn with an error. Persisted history will determine input delivery.' });
-          const usage = await query.getContextUsage({ detail: 'summary' }).catch(() => undefined);
+          // This optional snapshot cannot hold up terminal settlement.
+          const usage = await bounded(Promise.resolve().then(() => query.getContextUsage({ detail: 'summary' })), 1000, 'Claude context usage was not available.').catch(() => undefined);
+          if (closed || failed || !context.current()) continue;
           context.event('usage', { usage: { contextTokens: finite(usage?.totalTokens), contextWindow: finite(usage?.maxTokens), inputTokens: finite(frame.usage?.input_tokens), outputTokens: finite(frame.usage?.output_tokens), cost: null, sessionPercent: null, weeklyPercent: null, activity: pending.size || frame.queued_turn_count > 0 ? 'running' : 'idle' } });
           messageId = randomUUID(); emittedText = false; turnIds = [];
           if ((frame.queued_turn_count === 0 || frame.subtype !== 'success' || !pending.size) && !(frame.queued_turn_count > 0)) context.event('settled', { aborted: false });

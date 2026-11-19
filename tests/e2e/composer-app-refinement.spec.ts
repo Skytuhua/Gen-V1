@@ -4,6 +4,9 @@ import type {HostCommand,Thread} from '../../packages/contracts';
 import type {WorkspaceEnvelope} from '../../packages/contracts/workspace';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
+import {snapshotServed,warmApp} from './app-ready';
+
+test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
 
 async function fixture(page:Page,started=false){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture content'}}}});
@@ -34,7 +37,7 @@ async function fixture(page:Page,started=false){
   else return route.fallback();
   snapshot.seq++;return route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result}});
  });
- await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+ const served=snapshotServed(page);await page.goto('/');await served;await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  return {...host,envelope,commands,workspaceCommands};
 }
 
@@ -158,11 +161,11 @@ test('a ready plan opens automatically and right-side tools can only be minimize
  await draft.fill('Keep writing while the plan arrives');await draft.focus();
  const context=page.getByRole('region',{name:'Project overview window',exact:true});
  host.snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-04T00:00:00Z',value:{version:1,title:'Review the next steps',steps:[{id:'inspect',title:'Inspect the current draft',status:'working',requirements:[],agentIds:[]}],agents:[]}});
- await host.publish();await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();await expect(draft).toHaveValue('Keep writing while the plan arrives');
+ await host.publish();const rail=page.getByRole('region',{name:'Task plan: Review the next steps',exact:true});await expect(rail).toBeVisible();await expect(rail.getByText('Inspect the current draft',{exact:true})).toBeVisible();await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Review the next steps',{exact:true})).toBeVisible();await expect(draft).toHaveValue('Keep writing while the plan arrives');
  await page.getByRole('button',{name:'Show live usage',exact:true}).click();const usage=page.getByRole('region',{name:'Live usage',exact:true});await expect(usage).toBeVisible();
  for(const tool of [context,usage])await expect(tool.getByRole('button',{name:/close |detach|reset .*position|resize|^move /i})).toHaveCount(0);
  await context.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context).toBeVisible();
- await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Inspect the current draft',{exact:true})).toBeVisible();
+ await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context.getByText('Review the next steps',{exact:true})).toBeVisible();
  await expect(draft).toHaveValue('Keep writing while the plan arrives');
 });
 

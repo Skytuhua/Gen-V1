@@ -1,0 +1,15 @@
+== bounded redacted evidence summary ==
+originalSha256: 1ad118e836835d97224ec3102d517f32124515e96bf65edc0a266bb4bbdda141
+originalBytes: 1186
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ✓ tests/history-import-decisions-v6.test.ts (11 tests) 3112ms
+     ✓ admits exactly 20 MiB for validation and rejects 20 MiB+1 before JSON parsing  403ms
+     ✓ rejects the whole import for cycles with nothing published  343ms
+     ✓ cancel before publish leaves no active records; cancel after returns the committed receipt  377ms
+     ✓ imported system/tool command text leaves executor, grant and memory counters at zero  373ms
+ Test Files  1 passed (1)
+      Tests  11 passed (11)
+   Duration  9.33s (transform 3.92s, setup 0ms, import 5.79s, tests 3.11s, environment 0ms)

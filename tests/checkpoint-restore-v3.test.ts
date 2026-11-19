@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { Store } from "../packages/storage/store.ts";
 import { checkpointScope } from "../packages/workspace/edit-journal.ts";
-import { CheckpointService } from "../packages/workspace/checkpoints.ts";
+import { CheckpointService, unifiedDiff } from "../packages/workspace/checkpoints.ts";
 import { readCheckpointDetail, readCheckpointList, readCheckpointReview } from "../apps/web/src/file-checkpoint-api.ts";
 import type { CheckpointOwner } from "../apps/web/src/file-checkpoint-api.ts";
 
@@ -269,4 +269,29 @@ it("refuses to re-apply a plan left APPLYING by a killed process", async () => {
   await expect(service.applyRestore(owner, { planId: plan.id, approvalId: "approval-kill", root: project })).rejects.toMatchObject({ code: "REVISION_CHANGED" });
   expect(store.get<{ state: string }>("workspaceRestorePlan", plan.id)!.state).toBe("APPLYING");
   expect((await readFile(join(project, "a.txt"), "utf8"))).toBe("a-old\n");
+});
+
+it("emits unified diffs whose headers, counts and markers apply to the exact bytes", () => {
+  // A middle edit keeps context on both sides and reports real start lines.
+  expect(unifiedDiff("f.txt", Buffer.from("a\nb\nc\n"), Buffer.from("a\nB\nc\n")).diff)
+    .toBe("--- a/f.txt\n+++ b/f.txt\n@@ -1,3 +1,3 @@\n a\n-b\n+B\n c\n");
+  // Appending at EOF must not re-emit the phantom line that a trailing newline splits into.
+  const before = Array.from({ length: 20 }, (_, index) => `line${index + 1}`).join("\n") + "\n";
+  expect(unifiedDiff("f.txt", Buffer.from(before), Buffer.from(before + "E1\nE2\n")).diff)
+    .toBe("--- a/f.txt\n+++ b/f.txt\n@@ -18,3 +18,5 @@\n line18\n line19\n line20\n+E1\n+E2\n");
+  // Gaining the final newline is a change to that line, never shared context.
+  expect(unifiedDiff("f.txt", Buffer.from("a\nb"), Buffer.from("a\nb\n")).diff)
+    .toBe("--- a/f.txt\n+++ b/f.txt\n@@ -1,2 +1,2 @@\n a\n-b\n\\ No newline at end of file\n+b\n");
+  // Identical bytes report no diff; a new file starts its hunk at 0,0.
+  expect(unifiedDiff("f.txt", null, Buffer.from(""))).toEqual({ diff: null, truncated: false });
+  expect(unifiedDiff("f.txt", null, Buffer.from("x\n")).diff).toBe("--- a/f.txt\n+++ b/f.txt\n@@ -0,0 +1,1 @@\n+x\n");
+});
+
+it("clips checkpoint diff previews at a complete UTF-8 scalar within the byte limit", () => {
+  const prefix = "--- a/f.txt\n+++ b/f.txt\n@@ -0,0 +1,1 @@\n+";
+  const pad = "x".repeat(128 * 1024 - Buffer.byteLength(prefix) - 1);
+  const result = unifiedDiff("f.txt", null, Buffer.from(pad + "😀 tail\n"));
+  expect(result.truncated).toBe(true);
+  expect(result.diff?.endsWith("x")).toBe(true);
+  expect(Buffer.byteLength(result.diff!)).toBeLessThanOrEqual(128 * 1024);
 });

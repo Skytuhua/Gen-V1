@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, readFile, realpath, stat } from "node:fs/promises";
+import { mkdir, open, realpath, stat } from "node:fs/promises";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { HarnessError, type StartRun } from "../contracts/index.ts";
 import { loadSdk } from "./sdk.ts";
@@ -16,17 +16,38 @@ function within(root: string, path: string) {
   return part !== "" && !part.startsWith("..") && !isAbsolute(part);
 }
 
+const SESSION_HEADER_BYTES = 64 * 1024;
+const invalidHeader = () => new HarnessError("PI_SESSION_INVALID", "The selected Pi session has an invalid session header.");
+
+// Resume only needs the first JSONL record. Transcript size must not determine
+// the memory cost of this validation.
+async function readSessionHeader(path: string): Promise<string> {
+  const file = await open(path, "r");
+  try {
+    const header = Buffer.alloc(SESSION_HEADER_BYTES + 1);
+    let length = 0;
+    while (length < header.length) {
+      const {bytesRead} = await file.read(header, length, Math.min(4096, header.length - length), length);
+      if (!bytesRead) return header.toString("utf8", 0, length);
+      const newline = header.subarray(length, length + bytesRead).indexOf(10);
+      if (newline !== -1) return header.toString("utf8", 0, length + newline);
+      length += bytesRead;
+    }
+    throw invalidHeader();
+  } finally { await file.close(); }
+}
+
 export async function validateSessionPath(dataDir: string, sessionPath: string, threadId?: string): Promise<string> {
   const expected = threadId === undefined ? resolve(dataDir, "pi", "tasks") : taskPaths(dataDir, threadId).sessionsDir;
   const path = resolve(sessionPath);
   if (!within(expected, path) || !path.endsWith(".jsonl")) throw new HarnessError("PI_SESSION_MISMATCH", "Pi session does not belong to this task.");
   const [realRoot, realFile] = await Promise.all([realpath(expected), realpath(path)]);
   if (!within(realRoot, realFile) || !(await stat(realFile)).isFile()) throw new HarnessError("PI_SESSION_MISMATCH", "Pi session is outside task storage.");
-  const first = (await readFile(realFile, "utf8")).split(/\r?\n/, 1)[0];
+  const first = await readSessionHeader(realFile);
   try {
     const header = JSON.parse(first);
     if (header.type !== "session" || typeof header.id !== "string" || typeof header.version !== "number") throw new Error();
-  } catch { throw new HarnessError("PI_SESSION_INVALID", "The selected Pi session has an invalid session header."); }
+  } catch { throw invalidHeader(); }
   return realFile;
 }
 

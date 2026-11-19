@@ -1,5 +1,5 @@
-import {VERIFICATION_PREPARE} from './verification-tools.ts';
 import { HarnessError } from "../contracts/index.ts";
+import { integrationPrepareArgsSchema } from "../contracts/integration-secrets.ts";
 import {
   actorRoleSchema,
   toolDefinitionSchema,
@@ -32,6 +32,11 @@ export interface RegistryEntry extends ToolDefinitionV1 {
   approval: "operation" | "explicit" | "none";
 }
 
+const registryEntrySchema = toolDefinitionSchema.extend({
+  executorBinding: z.enum(["read", "store", "presentation", "domain-prepare", "domain", "process", "network"]),
+  approval: z.enum(["operation", "explicit", "none"]),
+});
+
 type Row = [name: string, risk: ToolRisk, replay: ReplayClass, roles: ActorRole[], binding: ExecutorBinding, approval: RegistryEntry["approval"]];
 
 const RUN: ActorRole[] = ["run"];
@@ -48,7 +53,6 @@ const CLASSIFICATION: Row[] = [
   ["ui_close", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "presentation", "none"],
   ["task_finish", "WORKSPACE_WRITE", "NONREPLAYABLE", ["run", "side", "planning_child"], "store", "none"],
   ["verification_declare", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
-  ["verification_prepare", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain-prepare", "operation"],
   ["task_memory", "WORKSPACE_WRITE", "PROVIDER_IDEMPOTENT", RUN, "store", "none"],
   ["plan_update", "WORKSPACE_WRITE", "NONREPLAYABLE", RUN, "store", "none"],
   ["agent_progress", "WORKSPACE_WRITE", "NONREPLAYABLE", ["planning_child"], "store", "none"],
@@ -61,6 +65,7 @@ const CLASSIFICATION: Row[] = [
   ["harness_session_search", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["integration_list", "READ", "READ_RETRYABLE", RUN, "network", "none"],
   ["integration_call", "NETWORK_WRITE", "PROVIDER_IDEMPOTENT", RUN, "network", "explicit"],
+  ["integration_prepare", "HOST_EXECUTE", "NONREPLAYABLE", RUN, "domain-prepare", "operation"],
   ["repository_map", "READ", "READ_RETRYABLE", RUN, "read", "none"],
   ["repository_files", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
   ["repository_read", "READ", "READ_RETRYABLE", READ_ROLES, "read", "none"],
@@ -78,7 +83,8 @@ const CLASSIFICATION: Row[] = [
 ];
 
 function parametersFor(name: string): Record<string, unknown> {
-  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, VERIFICATION_PREPARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
+  if (name === "integration_prepare") return z.toJSONSchema(integrationPrepareArgsSchema) as Record<string, unknown>;
+  const known = [...UI_TOOLS, ...PLANNING_TOOLS, TASK_FINISH, VERIFICATION_DECLARE, OPERATION_EXECUTE, TASK_MEMORY, ...SKILL_TOOLS, CONTEXT_RESULT_READ, REPOSITORY_MAP].find(tool => tool.name === name);
   if (known) return known.parameters;
   const schema = toolSchemas[name as keyof typeof toolSchemas];
   if (schema) return z.toJSONSchema(schema) as Record<string, unknown>;
@@ -129,8 +135,11 @@ export class ToolAuthority {
   private readonly entries = new Map<string, RegistryEntry>();
   constructor(registry: RegistryEntry[]) {
     for (const entry of registry) {
-      if (this.entries.has(entry.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + entry.id);
-      this.entries.set(entry.id, entry);
+      const definition = registryEntrySchema.parse(entry);
+      if (!INTERNAL_BINDINGS.has(definition.executorBinding) && definition.approval === "none" && definition.risk !== "READ")
+        throw new HarnessError("REGISTRY_CONFLICT", "Unclassified external effect requires an approval path: " + definition.id);
+      if (this.entries.has(definition.id)) throw new HarnessError("REGISTRY_CONFLICT", "Duplicate tool registration: " + definition.id);
+      this.entries.set(definition.id, definition);
     }
   }
   definition(name: string): RegistryEntry | undefined { return this.entries.get(name); }

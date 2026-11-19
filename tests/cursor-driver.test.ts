@@ -123,3 +123,79 @@ describe('Cursor official worker facade', () => {
     release(); await vi.waitFor(() => expect(t.calls).toContainEqual({ type: 'receipt-ack', uuid: wire.uuid, sessionId: 'native-session' })); await driver.close();
   });
 });
+
+it('cancels Cursor startup while its IPC write is still pending', async () => {
+  const {openCursor} = await import('../packages/runtime-official/cursor.ts');
+  const f = await fixture(), t = transport();
+  let releaseWrite: (() => void) | undefined;
+  const stalled = (...args: Parameters<typeof t.spawn>) => {
+    const child = t.spawn(...args), send = child.send;
+    child.send = (message: {type: string}, callback: (error: Error | null) => void) => {
+      if (message.type === 'initialize') {
+        releaseWrite = () => callback(null);
+        return false; // Buffered IPC write: the callback arrives later.
+      }
+      return send(message, callback);
+    };
+    return child;
+  };
+  let outcome: unknown;
+  const opening = openCursor(f.ctx, stalled as typeof spawn, 'native-model').catch(error => { outcome = error; });
+  try {
+    expect(releaseWrite).toBeTypeOf('function');
+    f.revoke();
+    await f.ready.close();
+    await new Promise<void>(resolve => setImmediate(resolve));
+    expect(outcome).toMatchObject({code: 'OFFICIAL_RUN_ABORTED'});
+    expect(t.children[0].exitCode).toBe(0);
+  } finally {
+    releaseWrite?.();
+    await f.ready.close();
+    await opening;
+  }
+});
+
+it('bounds Cursor startup if the initialize write never completes', async () => {
+  const {openCursor} = await import('../packages/runtime-official/cursor.ts');
+  const f = await fixture(), t = transport();
+  const stalled = (...args: Parameters<typeof t.spawn>) => {
+    const child = t.spawn(...args), send = child.send;
+    child.send = (message: {type: string}, callback: (error: Error | null) => void) =>
+      message.type === 'initialize' ? false : send(message, callback);
+    return child;
+  };
+  vi.useFakeTimers();
+  try {
+    let outcome: unknown;
+    const opening = openCursor(f.ctx, stalled as typeof spawn, 'native-model').catch(error => { outcome = error; });
+    await vi.advanceTimersByTimeAsync(29_999);
+    expect(outcome).toBeUndefined();
+    await vi.advanceTimersByTimeAsync(1);
+    expect(outcome).toBeInstanceOf(Error);
+    expect(t.children[0].exitCode).toBe(0);
+    await opening;
+  } finally { vi.useRealTimers(); await f.ready.close(); }
+});
+
+it('makes concurrent Cursor close callers wait for the same pending teardown', async () => {
+  const {openCursor} = await import('../packages/runtime-official/cursor.ts');
+  const f = await fixture(), t = transport(child => child.emit('message', {type: 'ready', sessionId: 'native-session',
+    models: [{id: 'cursor-sdk/native-model', provider: 'cursor-sdk', name: 'Native'}]}));
+  const driver = await openCursor(f.ctx, t.spawn as any, 'native-model');
+  const child = t.children[0], send = child.send;
+  let finish: (() => void) | undefined;
+  child.send = (message: {type: string}, callback: (error: Error | null) => void) => {
+    if (message.type === 'close') { finish = () => send(message, callback); return true; }
+    return send(message, callback);
+  };
+  const first = driver.close(), second = driver.close();
+  try {
+    expect(finish).toBeTypeOf('function');
+    expect(second).toBe(first);
+    expect(child.exitCode).toBeNull();
+  } finally {
+    finish?.();
+    await Promise.all([first, second]);
+  }
+  expect(child.exitCode).toBe(0);
+});

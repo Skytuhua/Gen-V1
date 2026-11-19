@@ -1,4 +1,3 @@
-import {assertVerificationReadBasis, type VerificationReadBasis} from './verification-workflow.ts';
 import {attestVerificationArtifacts, VerificationArtifactStore} from './verification-artifacts.ts';
 import {createHash, randomUUID} from 'node:crypto';
 import {closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync} from 'node:fs';
@@ -15,7 +14,7 @@ import {capabilityEnabled} from './capability-flags.ts';
 import {hostFlagEnabled} from './host-flags.ts';
 import {readBoundFile, withResourceGrant} from './file-access.ts';
 import {assertNotStorage, inside} from './security.ts';
-import {computeAssessment, observationFreshness, observationMatchesThreadOwner} from './verification-gate.ts';
+import {computeAssessment, observationMatchesThreadOwner} from './verification-gate.ts';
 import {assertVerificationSourceRoot, sourceDigestSync} from './project-verification.ts';
 import type {ToolEffectRecord} from '../contracts/tool-effects.ts';
 
@@ -33,6 +32,7 @@ interface RequestContextRecord {status: 'HOST_PREPARED'; inputId: string; runId:
 export interface WorkbenchQueuedInput {id: string; threadId: string; content: string; status: 'persisted' | 'processing' | 'handled'; runId: string | null; enteredRuntime?: boolean; requestContextId?: string; sourceRefs?: SourceRefV1[]; sourceFailure?: {code: string; reason: string}; sourceRecovery?: {action: 'KEEP_CAPTURED' | 'CANCEL'; commandId: string; at: string; resumeRequired: boolean}}
 export interface PreparedSourceContext {refs: SourceRefV1[]; text: string; assertCurrent: () => void}
 export interface RetainedFileSource {captureId: string; source: Extract<SelectedSourceV1, {kind: 'FILE_RANGE'}>; label: string; text: string; assertCurrent: () => void}
+const FILE_LEAF_GUARD = process.platform === 'win32' || process.platform === 'linux';
 /** Host-owned module reads expose metadata only and retain the owning read fence. */
 export interface WorkbenchModuleRead {
   readonly state: Exclude<WorkbenchModuleV1['state'], 'UNSUPPORTED'>;
@@ -41,7 +41,6 @@ export interface WorkbenchModuleRead {
   readonly assertCurrent: () => void;
 }
 export interface SourceWorkbenchHostReaders {
-  readonly readVerificationBasis?: (threadId: string) => Promise<VerificationReadBasis | null>;
   readonly requestContextEnabled?: () => boolean;
   readonly readMemoryModule?: (owner: Readonly<LogicalOwnerV1 & {projectId: string}>) => Promise<WorkbenchModuleRead>;
 }
@@ -167,12 +166,12 @@ export class SourceWorkbench {
     // read guard before our commit. A selected-file stat is not a complete Git
     // revision witness. Do not enable capture until the owner supplies one.
     if (kind === 'DIFF_HUNK') throw new HarnessError('SOURCE_UNSUPPORTED', 'Diff capture requires an atomic complete-revision witness from the owning comparison service.');
-    if (kind === 'FILE_RANGE' && process.platform !== 'win32') throw new HarnessError('SOURCE_UNSUPPORTED', 'This platform has no admitted file-read leaf guard for source capture.');
+    if (kind === 'FILE_RANGE' && !FILE_LEAF_GUARD) throw new HarnessError('SOURCE_UNSUPPORTED', 'This platform has no admitted file-read leaf guard for source capture.');
   }
   private sourceCapabilities(): SourceCapabilityV1[] {
     return [
       {kind: 'MESSAGE', state: 'AVAILABLE', reason: null},
-      {kind: 'FILE_RANGE', state: process.platform === 'win32' ? 'AVAILABLE' : 'UNSUPPORTED', reason: process.platform === 'win32' ? null : 'The existing native guard does not admit file leaf reads on this platform.'},
+      {kind: 'FILE_RANGE', state: FILE_LEAF_GUARD ? 'AVAILABLE' : 'UNSUPPORTED', reason: FILE_LEAF_GUARD ? null : 'The existing native guard does not admit file leaf reads on this platform.'},
       {kind: 'DIFF_HUNK', state: 'UNSUPPORTED', reason: 'Diff capture requires an atomic complete-revision witness from the owning comparison service.'},
       {kind: 'ARTIFACT_REGION', state: 'AVAILABLE', reason: null},
     ];
@@ -204,7 +203,9 @@ export class SourceWorkbench {
   private currentFile(path: string, grant: ResourceGrant): string {
     this.physical(grant.path, grant.identity);
     if (!inside(resolve(grant.path), resolve(path)) || resolve(realpathSync(path)) !== resolve(path)) denied();
-    assertNotStorage(path, this.store.dataDir);
+    // The owning grant is what admits this file: a stored attachment stays
+    // readable through the conversation's own grant, never through a broader one.
+    assertNotStorage(path, this.store.dataDir, realpathSync(grant.path));
     const fd = openSync(path, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0));
     try {
       const before = fstatSync(fd, {bigint: true});
@@ -409,7 +410,7 @@ export class SourceWorkbench {
     const sourceCapabilities = this.sourceCapabilities();
     if (!enabled) return {logicalOwner, enabled, sources: [], sourceCapabilities};
     const sources: SourceCandidateV1[] = this.store.messagesFor(threadId, undefined, 20).messages.filter(message => message.role === 'assistant').map(message => ({locator: {kind: 'MESSAGE', sourceId: message.id}, label: 'Assistant: ' + message.content.slice(0, 70)}));
-    for (const grant of process.platform === 'win32' ? this.store.all<ResourceGrant>('resource', threadId).slice(0, 40) : []) {
+    for (const grant of FILE_LEAF_GUARD ? this.store.all<ResourceGrant>('resource', threadId).slice(0, 40) : []) {
       try {await withResourceGrant(grant, this.store.dataDir, undefined, false, new AbortController().signal, async path => {
         if ((await stat(path)).isFile()) sources.push({locator: {kind: 'FILE_RANGE', sourceId: grant.id}, label: grant.label.slice(0, 300)});
         else for (const entry of (await readdir(path, {withFileTypes: true})).slice(0, 30)) if (entry.isFile() && !entry.name.startsWith('.') && !entry.isSymbolicLink()) sources.push({locator: {kind: 'FILE_RANGE', sourceId: grant.id, path: entry.name}, label: entry.name});
@@ -485,16 +486,14 @@ export class SourceWorkbench {
       module('M11', 'Request timings', capabilityEnabled('models.requestMetricsV1') ? 'AVAILABLE' : 'DISABLED', capabilityEnabled('models.requestMetricsV1') ? null : 'Measured request timings are disabled. Unknown timings remain unknown.', '/api/snapshot'),
       module('M14', 'Conversation branches', 'UNSUPPORTED', 'No tested conversation-branch contract is registered for this panel.', null),
     ];
-    const verificationBasis = await this.hostReaders.readVerificationBasis?.(threadId) ?? null;
     memoryRead?.assertCurrent();
     if (this.assertOwner(logicalOwner) !== ownerStamp) denied('The evidence owner changed during this read.');
     // Finish verification after every metadata await so source, declaration and
     // effect changes cannot leave an earlier green cut in the returned model.
     const currentThread = this.store.get<Thread>('thread', threadId), declaration = this.store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
     const verificationItems: WorkbenchEvidenceItemV1[] = [];
-    const managed = Boolean(this.store.get('verificationManaged', threadId));
     let current: {codeDigest: string; dependencyDigest: string; environmentId: string} | null = null;
-    if (declaration) try {if (managed) assertVerificationReadBasis(this.store, threadId, verificationBasis); assertVerificationSourceRoot(this.store, threadId, declaration.rootPath); current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: verificationBasis?.environmentId ?? declaration.environmentId}; if (managed) assertVerificationReadBasis(this.store, threadId, verificationBasis);} catch {current = null; /* Unknown freshness remains unknown. */}
+    if (declaration) try {assertVerificationSourceRoot(this.store, threadId, declaration.rootPath); current = {codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId};} catch {/* Unknown freshness remains unknown. */}
     const observations: CheckObservationV1[] = [], checkRows=latest('checkObservation',101), visualRows=latest('visualObservation',101);
     // One extra row proves whether the displayed cut is complete. A bound
     // failure outside that cut must never disappear into a Verified summary.
@@ -508,9 +507,9 @@ export class SourceWorkbench {
     // An old-account observation cannot supply a hidden Verified requirement.
     const recorded = latest<DeliverableAssessmentV1>('assessment', 1)[0];
     const unresolvedEffects = this.store.all<ToolEffectRecord>('toolEffect', threadId).filter(effect => !['SUCCEEDED', 'FAILED', 'CANCELLED', 'DENIED'].includes(effect.state)).map(effect => effect.invocationId);
-    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), recipeDigest: verificationBasis?.recipeDigest, verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
+    const assessment = observationsComplete && recorded && declaration && current ? computeAssessment({threadId, sourceCut: {headSha: recorded.sourceCut.headSha, ...current}, requirements: declaration.requirements, observations: observations.filter(check => check.observationKind !== 'review-advisory'), artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration.requirements), unresolvedEffects: unresolvedEffects.slice(0, 64), verifierIdentity: recorded.verifierIdentity, provenance: `workbench read recomputed from complete current authorized observations; unresolved effects: ${unresolvedEffects.length}`}) : null;
     const assessed = new Map(assessment?.requirements.map(requirement => [requirement.id, requirement]));
-    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? observationFreshness(check, {...current, recipeDigest: verificationBasis?.recipeDigest}) === 'CURRENT' ? 'CURRENT' : 'STALE' : 'UNKNOWN';
+    const freshnessOf = (check: CheckObservationV1): WorkbenchEvidenceItemV1['freshness'] => current ? check.codeDigest === current.codeDigest && check.dependencyDigest === current.dependencyDigest && check.environmentId === current.environmentId ? 'CURRENT' : 'STALE' : 'UNKNOWN';
     const artifactMetadata = new VerificationArtifactStore(this.store);
     for (const check of observations) {
       const freshness = freshnessOf(check);
@@ -524,13 +523,12 @@ export class SourceWorkbench {
     for (const requirement of declaration?.requirements ?? []) {
       const bound = observations.filter(check => requirement.checkRefs.includes(check.checkId) || requirement.checkRefs.includes(check.executionId));
       const freshness = !observationsComplete || !bound.length || !current ? 'UNKNOWN' : bound.some(check => freshnessOf(check) === 'STALE') ? 'STALE' : 'CURRENT';
-      const assessedOutcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? (managed && !current ? 'BLOCKED' : 'UNVERIFIED') : 'UNVERIFIED_PARTIAL';
+      const assessedOutcome = observationsComplete ? assessed.get(requirement.id)?.assessment ?? 'UNVERIFIED' : 'UNVERIFIED_PARTIAL';
       const outcome = assessedOutcome === 'VERIFIED' && unresolvedEffects.length ? 'BLOCKED' : assessedOutcome;
       verificationItems.push({id: 'requirement:' + requirement.id, kind: 'REQUIREMENT', label: requirement.id, grade: outcome === 'VERIFIED' && freshness === 'CURRENT' ? 'VERIFIED' : 'REPORTED', freshness, outcome, sourceRevision: current?.codeDigest ?? null, command: null, logRefs: [], screenshotRefs: []});
     }
     if(!observationsComplete)verificationItems.push({id:'verification-partial',kind:'CLAIM',label:'Verification history exceeds this panel\'s read limit. Displayed checks are partial; requirements are not verified from this cut.',grade:'REPORTED',freshness:'UNKNOWN',outcome:'PARTIAL',sourceRevision:null,command:null,logRefs:[],screenshotRefs:[]});
     if (declaration && unresolvedEffects.length) verificationItems.push({id: 'verification-effects', kind: 'CLAIM', label: `${unresolvedEffects.length} unresolved external effects block current verification.`, grade: 'REPORTED', freshness: 'CURRENT', outcome: 'BLOCKED', sourceRevision: null, command: null, logRefs: [], screenshotRefs: []});
-    if (managed && !current) verificationItems.push({id: 'verification-authority', kind: 'CLAIM', label: 'Current approved execution authority or source inputs are unavailable.', grade: 'REPORTED', freshness: 'UNKNOWN', outcome: 'BLOCKED', sourceRevision: null, command: null, logRefs: [], screenshotRefs: []});
     items.unshift(...verificationItems);
     return {logicalOwner, items, modules};
   }

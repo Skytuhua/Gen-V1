@@ -1,0 +1,19 @@
+# Curated receipt summary — vitest-plugin-lifecycle-0dc1a1f4
+
+command: pnpm exec vitest run tests/plugin-lifecycle-v3.test.ts
+startedAt: 2026-11-18T21:51:45.068Z
+endedAt: 2026-11-18T21:51:48.067Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 2c744107b935407076c4902e4cb5cfb8a663922aa37a3e90c03d2145af7fa2d7, 478 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+ Test Files  1 passed (1)
+      Tests  15 passed (15)
+   Duration  1.62s (transform 422ms, setup 0ms, import 669ms, tests 622ms, environment 0ms)
+```

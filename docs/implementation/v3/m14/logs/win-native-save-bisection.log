@@ -1,0 +1,19 @@
+== bounded redacted evidence summary ==
+originalSha256: ee9ca4ce87d105629b19919059248fea3b1702749108f472e001ad35fc3e4fc3
+originalBytes: 2181
+flags: machinePath=False ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+- idle child, stdio ['pipe','pipe','pipe'] + Node IPC channel: FAIL
+- idle child, stdin 'ignore', stdout/stderr pipes, stdout handshake: PASS
+rewritten). Typecheck/lint/unit(4/4)/package all green.
+Verify (verify-installed-desktop --project-memory-retention, real
+packaged build): STILL FAILS identically ("the native save was
+interrupted or its byte count changed", nativeSave.dialog.status=
+['ignore','pipe','pipe'] + HARNESS_BACKEND_STDIN=0 (backend skips
+  .harness-release-output-stdin0c -> verify run-1794930564447-*:
+  FAILS IDENTICALLY (dialog.status=running, byte check fails).
+explains the cancel. The real backend fails with ANY stdio shape,
+while the idle child passed with the same shapes -> the earlier
+unproven rework of a launch-token custody channel). Status: FAIL,

@@ -9,6 +9,7 @@ import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authorit
 import { createHostTools, loadDomainTools } from '../packages/runtime-pi/tool-definitions';
 import { hermesContextExposure, isBoundedContextRead } from '../packages/core/context-progressive-tools';
 import type { DataRecord, ResourceGrant, RuntimeAdapter } from '../packages/contracts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const custody = vi.hoisted(() => ({ active: 0, read: [] as string[], afterRead: undefined as (() => void) | undefined, hold: undefined as Promise<void> | undefined }));
 // Portable host orchestration test. Resolution and file bytes are real; native
@@ -38,7 +39,7 @@ function fixture(files: Record<string, string>) {
   const info = statSync(root, { bigint: true }), ctx = { threadId: 'thread', runId: 'run', epoch: 1 };
   const grant: ResourceGrant = { id: 'project', threadId: 'thread', kind: 'project', path: root, label: 'Approved project', writable: false, createdAt: '', identity: { dev: String(info.dev), ino: String(info.ino) } };
   const runtime: RuntimeAdapter = { configure: () => {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true } });
+  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
   store.internal('fixture', 'thread', () => {
     store.put('thread', 'thread', 'thread', { id: 'thread', title: 'Fixture', status: 'working', modelId: 'test/model', accountId: null, sessionPath: '/synthetic-session', ...ctx });
     store.put('resource', grant.id, grant.threadId, grant);

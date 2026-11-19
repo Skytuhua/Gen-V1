@@ -5,12 +5,16 @@ import {mkdir,writeFile,lstat,readdir,mkdtemp,rm} from 'node:fs/promises';
 import {basename,dirname,isAbsolute,join,relative,resolve} from 'node:path';
 import {promisify} from 'node:util';
 import {Client} from '@modelcontextprotocol/sdk/client/index.js';
-import {StdioClientTransport} from '@modelcontextprotocol/sdk/client/stdio.js';
+import {StdioClientTransport,type StdioServerParameters} from '@modelcontextprotocol/sdk/client/stdio.js';
 import type {Tool} from '@modelcontextprotocol/sdk/types.js';
+import {HarnessError} from '../contracts/index.ts';
+import type {IntegrationPrepareArgs} from '../contracts/integration-secrets.ts';
 import {integrationPreferenceSchema,type HostComplete,type IntegrationId,type IntegrationPreference,type IntegrationPreferences,type IntegrationScope,type IntegrationStatus} from '../contracts/integrations.ts';
 import {dependencyFile,integrationIds,ordinaryFile,payloadPath,readManifest,verifyDefinition,type IntegrationDefinition,type IntegrationManifest} from './manifest.ts';
 import {readBoundFile,replaceOwnedFile,withPathGuard} from '../core/file-access.ts';
+import {createSecretRedactor,type SecretRedactor} from '../core/secret-references.ts';
 import {inlineJson} from './inline-json.ts';
+import type {Context7ExecutionBinding,Context7LaunchDescriptor} from './context7-execution.ts';
 
 export interface ResolvedIntegrationScope {profileId:string;projectRoot?:string;scope?:IntegrationScope;runId?:string|null;epoch?:number}
 export interface IntegrationManagerOptions {
@@ -21,12 +25,21 @@ export interface IntegrationManagerOptions {
  hostComplete:HostComplete;onDisable:(id:IntegrationId)=>Promise<void>;
  context7Key?:()=>Promise<string|undefined>;
 }
-interface Session {id:IntegrationId;key:string;scope:IntegrationScope;generation:number;client:Client;transport:StdioClientTransport;starting:Promise<void>;ready:boolean;released?:boolean;bridge?:Server;controllers:Set<AbortController>;closing?:Promise<void>}
+class ObservedStdioTransport extends StdioClientTransport {
+ started=false;
+ constructor(server:StdioServerParameters,private readonly beforeStart?:()=>void){super(server);}
+ override async start(){this.beforeStart?.();await super.start();this.started=true;}
+}
+interface Session {id:IntegrationId;key:string;scope:IntegrationScope;generation:number;client:Client;transport:ObservedStdioTransport;starting:Promise<void>;ready:boolean;released?:boolean;bridge?:Server;controllers:Set<AbortController>;closing?:Promise<void>;redactor?:SecretRedactor}
 interface OwnedCommand {id:IntegrationId;scope?:IntegrationScope;child:ChildProcess;settled:Promise<unknown>}
+interface Context7Permit {operationId:string;binding:Context7ExecutionBinding;signal:AbortSignal;assertCurrent():void;resolveSecret():Promise<string>;selected(session:Session):void}
 const hash=(value:string)=>createHash('sha256').update(value).digest('hex').slice(0,24);
 const promptfooTools=new Set(['run_evaluation','list_evaluations','get_evaluation_details']);
 const graphTools=new Set(['query_graph','get_node','get_neighbors','get_community','god_nodes','graph_stats','shortest_path']);
 const deterministicAssertions=new Set(['equals','contains','icontains','not-contains','not-icontains','starts-with','regex','not-regex','is-json','contains-json','rouge-n','levenshtein','latency','cost','is-xml','contains-xml']);
+// V8's native Error.stack accessor remains an accessor after materialization.
+// Match its descriptor by identity, never by function name or source text.
+const nativeStackAccessors=Object.getOwnPropertyDescriptor(new Error('native stack probe'),'stack');
 function object(value:unknown):Record<string,unknown>{if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Integration arguments must be an object');return value as Record<string,unknown>;}
 function inside(root:string,path:string){const target=resolve(root,path),part=relative(resolve(root),target);if(part==='..'||part.startsWith('..'+(process.platform==='win32'?'\\':'/'))||isAbsolute(part))throw Error('Integration path leaves the authorized project');return target;}
 async function scopedTarget(root:string,path:string,mustExist=false){const target=inside(root,path);let cursor=target;while(true){try{const info=await lstat(cursor);if(info.isSymbolicLink()||info.isFile()&&info.nlink!==1)throw Error('Integration project paths cannot traverse links');}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT'||mustExist&&cursor===target)throw error;}if(cursor===resolve(root))break;const parent=dirname(cursor);if(parent===cursor)throw Error('Integration path leaves its project');cursor=parent;}return target;}
@@ -61,6 +74,14 @@ export class IntegrationManager {
  }
  async workerConfig(scope:IntegrationScope){const resolvedScope=await this.resolved(scope,'workerConfig');const enabled:IntegrationId[]=[];for(const id of integrationIds)if((await this.preference(id,scope)).enabled&&!this.blocked.has(id)&&await this.available(await this.definition(id)))enabled.push(id);return {enabled,ponytailMode:(await this.preference('ponytail',scope)).mode??'full',...(resolvedScope.projectRoot?{projectRoot:resolvedScope.projectRoot}:{})};}
  private async admitted(id:IntegrationId,scope:IntegrationScope,operation:string){const scoped=await this.resolved(scope,operation,true);if(!(await this.preference(id,scope)).enabled||this.blocked.has(id)||this.stopping.has(id))throw Error('Integration is disabled or stopping');const item=await this.definition(id);if(!await this.available(item))throw Error('Bundled integration is unavailable: '+this.installErrors.get(id));return {item,scoped};}
+ async context7Launch(scope:IntegrationScope):Promise<Context7LaunchDescriptor>{
+  const {item,scoped}=await this.admitted('context7',scope,'mcp');
+  if(!item.capabilities.mcp||item.runtime?.kind!=='node'||!item.runtime.package)throw new HarnessError('INTEGRATION_UNAVAILABLE','The installed Context7 destination is unavailable.');
+  // The approved launch binds an exact working-directory identity, so a task
+  // without a project root has no destination to bind.
+  if(!scoped.projectRoot)throw new HarnessError('INTEGRATION_UNAVAILABLE','Choose a task project before approving a Context7 action.');
+  return {executable:this.options.nodeExecutable??process.execPath,entry:payloadPath(this.root,item.runtime.entry),manifest:join(this.root,'third-party/integrations/manifest.json'),packageManifest:join(this.root,'node_modules',item.runtime.package,'package.json'),cwd:scoped.projectRoot,args:[...item.runtime.args]};
+ }
  private environment(directory:string):Record<string,string>{const env:Record<string,string>={};for(const key of ['SystemRoot','WINDIR','COMSPEC','TEMP','TMP','PATH'])if(process.env[key])env[key]=process.env[key]!;return {...env,HOME:directory,USERPROFILE:directory,APPDATA:join(directory,'roaming'),LOCALAPPDATA:join(directory,'local'),XDG_CONFIG_HOME:join(directory,'config'),PYTHON_MANAGER_AUTOMATIC_INSTALL:'false',PYTHONDONTWRITEBYTECODE:'1',PYTHONIOENCODING:'utf-8',PYTHONHASHSEED:'0',GRAPHIFY_BACKEND:'none',GRAPHIFY_NO_AUTO_REFRESH:'1',PROMPTFOO_DISABLE_TELEMETRY:'1',PROMPTFOO_DISABLE_UPDATE:'1',PROMPTFOO_DISABLE_REDTEAM_REMOTE_GENERATION:'true',PROMPTFOO_CONFIG_DIR:directory,IMPECCABLE_BIN:join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe')};}
  private pythonArgs(entry:string,args:string[]){return [...(this.options.pythonExecutable?[]:['-3.14']),'-I','-S','-B',join(this.root,'packages/integrations/python-entry.py'),entry,...args];}
  private python(){return this.options.pythonExecutable??join(process.env.SystemRoot??'C:/Windows','py.exe');}
@@ -85,21 +106,30 @@ export class IntegrationManager {
   })().catch(()=>{if(!response.headersSent)response.writeHead(502,{'Content-Type':'application/json'});response.end(JSON.stringify({error:'Native evaluation did not complete'}));});});
   session.bridge=server;await new Promise<void>((accept,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',accept);});const address=server.address();if(!address||typeof address==='string')throw Error('Native evaluation bridge unavailable');return `http://127.0.0.1:${address.port}/complete`;
  }
- private async session(id:IntegrationId,scope:IntegrationScope):Promise<Session>{
+ private async session(id:IntegrationId,scope:IntegrationScope,permit?:Context7Permit):Promise<Session>{
   const {item,scoped}=await this.admitted(id,scope,'mcp');if(!item.capabilities.mcp||!item.runtime)throw Error('Integration does not expose an MCP server');
+  if(permit){if(id!=='context7'||permit.signal.aborted)throw new HarnessError('CANCELLED','The approved Context7 action was cancelled.');permit.assertCurrent();}
   const effectiveScope=scoped.scope??scope;
-  const key=hash(JSON.stringify([id,scoped.profileId,effectiveScope.projectId,scoped.projectRoot,effectiveScope.threadId,effectiveScope.accountId,effectiveScope.modelId,scoped.runId,scoped.epoch]));let session=this.sessions.get(key);if(session){if(session.closing){await session.closing;return this.session(id,scope);}await session.starting;if(!session.ready){await this.closeSession(session);return this.session(id,scope);}return session;}
+  const key=hash(JSON.stringify([id,scoped.profileId,effectiveScope.projectId,scoped.projectRoot,effectiveScope.threadId,effectiveScope.accountId,effectiveScope.modelId,scoped.runId,scoped.epoch,...(permit?[permit.operationId]:[])]));let session=this.sessions.get(key);if(session){if(session.closing){await session.closing;return this.session(id,scope,permit);}await session.starting;if(!session.ready){await this.closeSession(session);return this.session(id,scope,permit);}return session;}
   const directory=join(this.options.dataRoot,'integrations',hash(scoped.profileId),key),env=this.environment(directory);
   const client=new Client({name:'gen-v1-integrations',version:'1.0.0'},{capabilities:{}});
-  const runtime=item.runtime,command=runtime.kind==='node'?(this.options.nodeExecutable??process.execPath):this.python(),args=runtime.kind==='node'?[payloadPath(this.root,runtime.entry),...runtime.args]:this.pythonArgs(runtime.entry,runtime.args);
-  const transport=new StdioClientTransport({command,args,cwd:id==='promptfoo'?directory:scoped.projectRoot,env,stderr:'pipe',maxBufferSize:8*1024*1024});
+  const runtime=item.runtime,command=permit?.binding.executable.path??(runtime.kind==='node'?(this.options.nodeExecutable??process.execPath):this.python()),args=permit?.binding.argv??(runtime.kind==='node'?[payloadPath(this.root,runtime.entry),...runtime.args]:this.pythonArgs(runtime.entry,runtime.args));
+  const transport=new ObservedStdioTransport({command,args,cwd:permit?.binding.cwd.path??(id==='promptfoo'?directory:scoped.projectRoot),env,stderr:'pipe',maxBufferSize:8*1024*1024},permit?.assertCurrent);
   transport.stderr?.on('data',()=>{});
   session={id,key,scope:{...effectiveScope,...(scoped.epoch===undefined?{}:{epoch:scoped.epoch,runId:scoped.runId})},generation:this.generations.get(id)??0,client,transport,starting:Promise.resolve(),ready:false,controllers:new Set()};this.sessions.set(key,session);
+  permit?.selected(session);
   const selected=session;client.onclose=()=>{void this.closeSession(selected).catch(()=>this.failures.set(id,'Integration teardown did not confirm completion'));};client.onerror=()=>{void this.closeSession(selected).catch(()=>this.failures.set(id,'Integration teardown did not confirm completion'));};session.starting=(async()=>{try{
-   await mkdir(directory,{recursive:true});if(id==='context7'){const secret=await this.options.context7Key?.();if(secret)env.CONTEXT7_API_KEY=secret;}
+   await mkdir(directory,{recursive:true});permit?.assertCurrent();if(id==='context7'){const secret=permit?await permit.resolveSecret():await this.options.context7Key?.();if(secret){
+    // The declared redactor cannot track short secrets. Never deliver one to a
+    // child that can echo it into a model-visible result or error.
+    if(!createSecretRedactor([secret]).tracked)throw new HarnessError('SECRET_REF_REDACTION_UNSUPPORTED','Context7 credential cannot be protected by the supported output-redaction scope.');
+    env.CONTEXT7_API_KEY=secret;
+   }}
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
    if(id==='promptfoo'){const token=randomBytes(32).toString('hex');env.HARNESS_PROMPTFOO_BRIDGE_URL=await this.completionBridge(selected,token);env.HARNESS_PROMPTFOO_BRIDGE_TOKEN=token;}
    if(this.disposed||this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0))throw Error('Integration startup grant revoked');
+   selected.redactor=createSecretRedactor([env.CONTEXT7_API_KEY,env.HARNESS_PROMPTFOO_BRIDGE_TOKEN].filter((value):value is string=>typeof value==='string'));
+   permit?.assertCurrent();if(permit?.signal.aborted)throw new HarnessError('CANCELLED','The approved Context7 action was cancelled.');
    await client.connect(transport,{timeout:30000});if(this.blocked.has(id)||selected.released||selected.generation!==(this.generations.get(id)??0)){await this.closeSession(selected);throw Error('Integration was disabled during startup');}selected.ready=true;this.failures.delete(id);
   }catch(error){this.failures.set(id,'Bundled MCP did not initialize');await this.closeSession(selected);throw error;}})();await session.starting;return session;
  }
@@ -145,7 +175,142 @@ export class IntegrationManager {
    await this.publishTree(stagedOut,root,'graphify-out',scope,'graphify');return {result};
   }finally{await rm(stage,{recursive:true,force:true});}
  }
- async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools();return result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true);};return id==='graphify'?this.graphRead(scope,list):list();}
+ private redactFailure<T>(session:Session,error:T):T{
+  // A child that fails can echo the values it was given; the model still sees
+  // the message, so it crosses the same boundary as a successful result.
+  const redactor=session.redactor;
+  // Promises can reject with arbitrary values, not only Error instances.
+  // An MCP child rejection must not bypass the known-credential sink guard.
+  if(redactor?.tracked&&typeof error==='string')return redactor.redact(error).text as T;
+  if(redactor?.tracked&&!(error instanceof Error))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+  if(redactor?.tracked&&error instanceof Error){
+   // Node's Error cause is logged by util.inspect independently of message
+   // and stack. Walk only native Error causes, without invoking arbitrary
+   // object getters, and preserve the original error and cause identities.
+   const pending:Error[]=[error], seen=new Set<Error>();
+   while(pending.length){
+    const failure=pending.pop()!;
+    if(seen.has(failure))continue;
+    seen.add(failure);
+    // Node's formatter invokes inherited util.inspect.custom hooks independently
+    // of Error fields. Reject them before returning the original child Error.
+    for(let proto:object|null=Object.getPrototypeOf(failure);proto;proto=Object.getPrototypeOf(proto)){
+     if(Object.getOwnPropertyDescriptor(proto,Symbol.for('nodejs.util.inspect.custom')))
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+    }
+    // Node's Error formatter reads name, message, stack and cause through
+    // both own and inherited descriptors. Accessors can ignore redaction writes
+    // or expose a token while the failure is formatted; never invoke them.
+    for(const key of ['name','message','stack','cause'] as const){
+     let holder:object|null=failure;
+     let field:PropertyDescriptor|undefined;
+     while(holder){
+      field=Object.getOwnPropertyDescriptor(holder,key);
+      if(field)break;
+      holder=Object.getPrototypeOf(holder);
+     }
+     if(!field)continue;
+     if(!('value' in field)){
+      // The intrinsic Error.stack getter is safe to read. Child-defined or
+      // inherited accessors are not. Replace the native descriptor with a
+      // redacted data property before the Error reaches any formatter.
+      if(key==='stack'&&holder===failure&&field.configurable&&
+       nativeStackAccessors?.get&&nativeStackAccessors.set&&
+       field.get===nativeStackAccessors.get&&field.set===nativeStackAccessors.set){
+       const stack=failure.stack;
+       if(typeof stack!=='string')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,'stack',{value:redactor.redact(stack).text,writable:true,configurable:true,enumerable:field.enumerable});
+       continue;
+      }
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+     if(key==='cause'){
+      // An inherited cause is not owned and cannot be scrubbed in place.
+      if(holder!==failure&&field.value!==null&&field.value!==undefined)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      continue;
+     }
+     if(typeof field.value!=='string')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const redacted=redactor.redact(field.value).text;
+     if(redacted!==field.value){
+      if(holder!==failure||(!field.writable&&!field.configurable))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      Object.defineProperty(failure,key,{...field,value:redacted});
+     }
+    }
+    const cause=Object.getOwnPropertyDescriptor(failure,'cause');
+    if(cause&&'value' in cause){
+     if(typeof cause.value==='string'){
+      const redacted=redactor.redact(cause.value).text;
+      if(redacted!==cause.value){
+       if(cause.writable)failure.cause=redacted;
+       else if(cause.configurable)Object.defineProperty(failure,'cause',{...cause,value:redacted});
+       // A frozen native cause can still be printed by Node's error formatter.
+       // Never return the original error if the injected secret cannot be scrubbed.
+       else throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      }
+     }else if(cause.value instanceof Error)pending.push(cause.value);
+     else if(cause.value!==null&&cause.value!==undefined){
+      // Node prints number, bigint, Symbol and structured Error causes.
+      // Do not surface unclassified causes or invoke untrusted getters.
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
+    // Node's error formatter also prints own metadata, not just the stack and cause.
+    // Structured fields and accessors can contain credentials or custom inspect
+    // hooks. Refuse them without evaluating their content or invoking getters.
+    for(const key of Reflect.ownKeys(failure)){
+     if(key==='message'||key==='stack'||key==='cause')continue;
+     // Node also prints property NAMES; known raw or encoded secrets in keys
+      // must not reach the formatter, even when the property value is harmless.
+      if(typeof key==='symbol'||redactor.redact(key).text!==key)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const field=Object.getOwnPropertyDescriptor(failure,key);
+     if(!field)continue;
+     if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const value=field.value;
+     if(typeof value==='string'){
+      const redacted=redactor.redact(value).text;
+      if(redacted!==value){
+       if(!field.writable&&!field.configurable)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,key,{...field,value:redacted});
+      }
+     }else if(typeof value==='symbol'||value!==null&&(typeof value==='object'||typeof value==='function')){
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
+   }
+  }
+  return error;
+ }
+ private redactOutput<T>(session:Session,value:T):T{
+  // Keep the values injected into this exact child until its results settle.
+  // Match decoded string values, including ANSI-split or encoded known secrets.
+  const redactor=session.redactor;if(!redactor?.tracked)return value;
+  const json=JSON.stringify(value,(_key,item)=>typeof item==='string'?redactor.redact(item).text:item);
+  return JSON.parse(redactor.redact(json).text) as T;
+ }
+ /** One host-approved request owns one temporary credential-bearing child.
+  * This entry is not exposed as a model tool or an HTTP route. */
+ async approvedContext7(scope:IntegrationScope,request:IntegrationPrepareArgs,input:Omit<Context7Permit,'selected'>){
+  let selected:Session|undefined;
+  const stop=()=>{if(selected)void this.closeSession(selected).catch(()=>{});};
+  input.signal.addEventListener('abort',stop,{once:true});
+  const current=()=>{input.assertCurrent();if(input.signal.aborted||selected?.released)throw new HarnessError('CANCELLED','The approved Context7 action was cancelled.');};
+  try{
+   current();const session=await this.session('context7',scope,{...input,assertCurrent:current,selected:value=>{selected=value;if(input.signal.aborted)stop();}});
+   current();const tools=await session.client.listTools(undefined,{signal:input.signal,timeout:60000}).catch(error=>{throw this.redactFailure(session,error);});current();
+   if(request.action==='list_tools')return this.redactOutput(session,{tools:tools.tools});
+   if(!tools.tools.some(tool=>tool.name===request.tool))throw new HarnessError('INTEGRATION_TOOL_UNAVAILABLE','The approved Context7 tool is unavailable.');
+   const result=await session.client.callTool({name:request.tool!,arguments:request.args??{}},undefined,{signal:input.signal,timeout:60000}).catch(error=>{const redacted=this.redactFailure(session,error);if(redacted instanceof HarnessError)throw redacted;if(selected?.transport.started)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action did not confirm completion.');throw new HarnessError('INTEGRATION_UNAVAILABLE','The approved Context7 action could not start.');});current();
+   return this.redactOutput(session,result);
+  }catch(error){
+   if(selected?.transport.started)throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 action did not confirm completion.');
+   if(error instanceof HarnessError)throw error;
+   throw new HarnessError('INTEGRATION_UNAVAILABLE','The approved Context7 action could not start.');
+  }finally{
+   input.signal.removeEventListener('abort',stop);
+   if(selected)try{await this.closeSession(selected);}catch{throw new HarnessError('OPERATION_OUTCOME_UNKNOWN','The approved Context7 child did not confirm teardown.');}
+  }
+ }
+ async listTools(id:IntegrationId,scope:IntegrationScope):Promise<Tool[]>{const list=async()=>{const session=await this.session(id,scope);const result=await session.client.listTools().catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result.tools.filter(tool=>id==='promptfoo'?promptfooTools.has(tool.name):id==='graphify'?graphTools.has(tool.name):id==='spec-kit'?['specify_version','specify_list_commands','specify_describe_command','specify_run_command'].includes(tool.name):true));};return id==='graphify'?this.graphRead(scope,list):list();}
  private async prepareEvaluation(args:Record<string,unknown>,scope:IntegrationScope,session:Session){
   const {scoped}=await this.admitted('promptfoo',scope,'evaluate');const root=scoped.projectRoot!;
   let config:Record<string,unknown>;if(args.config!==undefined)config=object(args.config);else{if(typeof args.configPath!=='string')throw Error('Evaluation requires an explicit configuration');const path=await scopedFile(root,args.configPath);if(!path.endsWith('.json'))throw Error('Native evaluations require a JSON configuration');const data=await withPathGuard([{path,leaf:true,readOnly:true}],new AbortController().signal,()=>readBoundFile(path,1024*1024));config=object(JSON.parse(data.toString()));}
@@ -164,7 +329,7 @@ export class IntegrationManager {
  async callTool(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){
   const input={...object(args)},tools=await this.listTools(id,scope),tool=tools.find(tool=>tool.name===name);if(!tool)throw Error('Integration tool is not admitted');const {scoped}=await this.admitted(id,scope,'tool'),session=await this.session(id,scope);
   let forwarded=input;if(id==='graphify')forwarded={...input,project_path:scoped.projectRoot};if(id==='spec-kit'&&name==='specify_run_command'&&input.command!=='version')throw Error('Spec Kit MCP commands are read-only version queries');if(id==='promptfoo'&&name==='run_evaluation')forwarded=await this.prepareEvaluation(input,scope,session);
-  const invoke=()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');return session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000});};return id==='graphify'?this.graphRead(scope,invoke):invoke();
+  const invoke=async()=>{if(this.blocked.has(id)||session.released||session.generation!==(this.generations.get(id)??0))throw Error('Integration grant revoked');const result=await session.client.callTool({name,arguments:forwarded},undefined,{timeout:id==='promptfoo'?300000:60000}).catch(error=>{throw this.redactFailure(session,error);});return this.redactOutput(session,result);};return id==='graphify'?this.graphRead(scope,invoke):invoke();
  }
  async health(id:IntegrationId,scope:IntegrationScope){const {item,scoped}=await this.admitted(id,scope,'health');if(item.capabilities.mcp)return {tools:(await this.listTools(id,scope)).map(tool=>tool.name)};if(id==='impeccable'||id==='biome'){const executable=id==='impeccable'?join(this.root,'third-party/integrations/impeccable/engine/impeccable.exe'):join(this.root,'node_modules/@biomejs/cli-win32-x64/biome.exe');const result=await this.runNative(id,executable,['--version'],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','diagnostics')),10000,scoped.scope??scope,scoped.projectRoot);return {version:result.stdout.trim()};}return {skills:item.capabilities.skills};}
  async command(id:IntegrationId,name:string,args:unknown,scope:IntegrationScope){

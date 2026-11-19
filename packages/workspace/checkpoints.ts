@@ -31,7 +31,6 @@ import { sha256hex } from "./edit-journal.ts";
 
 export const CHECKPOINT_KIND = "workspaceCheckpoint" as const;
 export const RESTORE_PLAN_KIND = "workspaceRestorePlan" as const;
-export const REPOSITORY_GROUP_KIND = "workspaceRepositoryGroup" as const;
 export const REPOSITORY_RECIPE_KIND = "workspaceRepositoryRecipe" as const;
 
 // Adapter-visible cap: the frozen web contract lists at most 100 files.
@@ -70,8 +69,17 @@ const exclusionReason = (path: string, data: Buffer | null, statBytes?: number):
 // Bounded unified diff (context 3) between two utf-8 texts; truncates to the
 // adapter's 128 KiB response limit and reports truncation.
 export function unifiedDiff(path: string, before: Buffer | null, after: Buffer | null): { diff: string | null; truncated: boolean } {
-  const a = (before ?? Buffer.alloc(0)).toString("utf8").split("\n");
-  const b = (after ?? Buffer.alloc(0)).toString("utf8").split("\n");
+  // Split without the phantom empty line a trailing newline produces. A last
+  // line that lacks one is a different line from the same text that ends with
+  // one, so it carries a sentinel: the sentinel is compared, never printed.
+  const lines = (value: Buffer | null) => {
+    const text = (value ?? Buffer.alloc(0)).toString("utf8");
+    if (!text) return [] as string[];
+    const parts = (text.endsWith("\n") ? text.slice(0, -1) : text).split("\n");
+    if (!text.endsWith("\n")) parts[parts.length - 1] += "\n";
+    return parts;
+  };
+  const a = lines(before), b = lines(after);
   const m = a.length, n = b.length;
   // LCS table for modest files; bounded by the 8 MiB file cap but keep it cheap.
   if (m * n > 4_000_000) return { diff: `Binary or oversized content differs for ${path}.`, truncated: true };
@@ -88,23 +96,40 @@ export function unifiedDiff(path: string, before: Buffer | null, after: Buffer |
   while (j < n) ops.push({ kind: "+", text: b[j++]! });
   // Group changes with 3 lines of context into hunks.
   const hunks: string[] = [];
-  let at = 0;
+  let at = 0, covered = 0, oldCursor = 0, newCursor = 0;
   while (at < ops.length) {
     while (at < ops.length && ops[at]!.kind === " ") at++;
     if (at >= ops.length) break;
-    const start = Math.max(0, at - 3);
+    const start = Math.max(covered, at - 3);
     let end = at;
     while (end < ops.length && (ops[end]!.kind !== " " || end - at < 7)) end = ops[end]!.kind !== " " ? end + 1 : end + 1;
     const slice = ops.slice(start, Math.min(ops.length, end));
+    while (covered < start) { if (ops[covered]!.kind !== "+") oldCursor++; if (ops[covered]!.kind !== "-") newCursor++; covered++; }
     const oldLines = slice.filter((o) => o.kind !== "+").length;
     const newLines = slice.filter((o) => o.kind !== "-").length;
-    hunks.push(`@@ -${oldLines},${oldLines} +${newLines},${newLines} @@\n` + slice.map((o) => o.kind + o.text).join("\n"));
+    const oldStart = oldLines ? oldCursor + 1 : oldCursor, newStart = newLines ? newCursor + 1 : newCursor;
+    for (const op of slice) { if (op.kind !== "+") oldCursor++; if (op.kind !== "-") newCursor++; }
+    const body: string[] = [];
+    for (const op of slice) {
+      // The sentinel never reaches the output; the marker line stands in for
+      // the missing newline, exactly as git prints it.
+      const marked = op.text.endsWith("\n");
+      body.push(op.kind + (marked ? op.text.slice(0, -1) : op.text));
+      if (marked) body.push("\\ No newline at end of file");
+    }
+    hunks.push(`@@ -${oldStart},${oldLines} +${newStart},${newLines} @@\n` + body.join("\n"));
     at = end;
+    covered = end;
   }
   const header = `--- a/${path}\n+++ b/${path}\n`;
   let diff = header + (hunks.length ? hunks.join("\n") + "\n" : "");
   const truncated = Buffer.byteLength(diff, "utf8") > REVIEW_DIFF_LIMIT;
-  if (truncated) diff = Buffer.from(diff, "utf8").subarray(0, REVIEW_DIFF_LIMIT).toString("utf8");
+  if (truncated) {
+    const bytes = Buffer.from(diff, "utf8");
+    let end = REVIEW_DIFF_LIMIT;
+    while ((bytes[end]! & 0xc0) === 0x80) end--;
+    diff = bytes.subarray(0, end).toString("utf8");
+  }
   return { diff: diff === header ? null : diff, truncated };
 }
 
@@ -216,7 +241,7 @@ export class CheckpointService {
         let ino: string | null = null;
         try {
           const info = await lstat(target, { bigint: true });
-          if (info.isSymbolicLink() || info.isDirectory()) {
+          if (info.isSymbolicLink() || !info.isFile()) {
             exclusions.push({ path, reason: "unsupported" });
             continue;
           }
@@ -404,7 +429,17 @@ export class CheckpointService {
       if (!file) throw new HarnessError("NOT_FOUND", `The checkpoint has no file at ${path}.`);
       const target = await this.readBlob(file.blobRef, signal);
       const absolute = join(input.root, ...path.split("/"));
-      const current = await this.readOptional(absolute, signal);
+      let current: Buffer | null = null;
+      try {
+        current = await this.readOptional(absolute, signal);
+      } catch (error) {
+        const code = error instanceof HarnessError ? error.code : null;
+        if (code === "RESOURCE_LIMIT" || code === "CAPABILITY_DENIED") {
+          files.push({ path, currentHash: null, targetHash: file.digest, diff: null, diffTruncated: false, status: code === "RESOURCE_LIMIT" ? "too_large" : "unreadable" });
+          continue;
+        }
+        throw error;
+      }
       if (target === null) {
         files.push({ path, currentHash: current ? sha256hex(current) : null, targetHash: null, diff: null, diffTruncated: false, status: "missing" });
         continue;
@@ -469,9 +504,9 @@ export class CheckpointService {
     if (plan.approvalId !== input.approvalId) throw new HarnessError("CAPABILITY_DENIED", "Restore needs the exact approval for this plan.");
     if (plan.state !== "PREVIEW") throw new HarnessError("REVISION_CHANGED", "This restore plan was already applied or superseded.");
     const checkpoint = this.checkpoint(scope, plan.checkpointId);
-    this.transition(plan, "APPLYING");
 
-    // The exact pre-restore checkpoint is the recovery anchor.
+    // The exact pre-restore checkpoint is the recovery anchor. It must exist
+    // before the plan leaves PREVIEW — a failure here keeps the plan usable.
     const preRestore = await this.create({
       owner: scope,
       root: input.root,
@@ -480,6 +515,7 @@ export class CheckpointService {
       provenance: { kind: "restore_backup", operationId: plan.id },
       signal,
     });
+    this.transition(plan, "APPLYING");
     this.store.internal("workspace.restore.pre-checkpoint", scope.threadId, () => {
       const latest = this.store.get<StoredRestorePlan>(RESTORE_PLAN_KIND, plan.id);
       if (latest) this.store.put(RESTORE_PLAN_KIND, plan.id, scope.threadId, { ...latest, preRestoreCheckpointId: preRestore.id });
@@ -575,32 +611,37 @@ export class CheckpointService {
       [{ path: directory, leaf: false, allowChildWrites: true }],
       signal,
       async () => {
-        const file = await open(temp, "wx", 0o600);
-        let tempIdentity: { dev: bigint; ino: bigint };
         try {
-          await file.writeFile(bytes);
-          const info = await file.stat({ bigint: true });
-          tempIdentity = { dev: info.dev, ino: info.ino };
-        } finally {
-          await file.close();
-        }
-        if (before === null) {
-          // New file: hard-link the temp into place. EEXIST means another
-          // writer created the destination between preview and apply — those
-          // bytes have no recovery backup, so the rename must never clobber.
+          const file = await open(temp, "wx", 0o600);
+          let tempIdentity: { dev: bigint; ino: bigint };
           try {
-            await link(temp, absolute);
-          } catch (error) {
-            await rm(temp, { force: true }).catch(() => {});
-            if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new HarnessError("REVISION_CHANGED", `The destination ${absolute} appeared during restore.`);
-            throw error;
+            await file.writeFile(bytes);
+            const info = await file.stat({ bigint: true });
+            tempIdentity = { dev: info.dev, ino: info.ino };
+          } finally {
+            await file.close();
           }
-          await rm(temp, { force: true });
-          return;
+          if (before === null) {
+            // New file: hard-link the temp into place. EEXIST means another
+            // writer created the destination between preview and apply — those
+            // bytes have no recovery backup, so the rename must never clobber.
+            try {
+              await link(temp, absolute);
+            } catch (error) {
+              if ((error as NodeJS.ErrnoException).code === "EEXIST") throw new HarnessError("REVISION_CHANGED", `The destination ${absolute} appeared during restore.`);
+              throw error;
+            }
+            return;
+          }
+          // identity names the verified temp source; the destination preimage is
+          // re-verified against the preview digest on a single opened handle.
+          await replaceOwnedFile(temp, absolute, tempIdentity, sha256hex(bytes), signal, sha256hex(before));
+        } finally {
+          // A successful link leaves the temp name as a second hardlink, and a
+          // successful replace consumes it via rename — rm covers both plus
+          // every failure path.
+          await rm(temp, { force: true }).catch(() => {});
         }
-        // identity names the verified temp source; the destination preimage is
-        // re-verified against the preview digest on a single opened handle.
-        await replaceOwnedFile(temp, absolute, tempIdentity, sha256hex(bytes), signal, sha256hex(before));
       },
     );
   }

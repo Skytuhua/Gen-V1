@@ -1,0 +1,36 @@
+{
+  "candidateSummary": {
+    "files": "45 failed | 333 passed | 4 skipped (382)",
+    "tests": "300 failed | 3854 passed | 58 skipped (4212)"
+  },
+  "baselineSummary": {
+    "files": "44 failed | 330 passed | 4 skipped (378)",
+    "tests": "298 failed | 3805 passed | 58 skipped (4161)"
+  },
+  "candidateFailedIdentities": 300,
+  "baselineFailedIdentities": 298,
+  "shared": 298,
+  "candidateOnly": [
+    "tests/desktop-host.test.ts > reports a real startup collision without adopting an unrelated HTTP service",
+    "tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file"
+  ],
+  "baselineOnly": [],
+  "candidateOnlyInvestigation": [
+    {
+      "id": "tests/desktop-host.test.ts > reports a real startup collision without adopting an unrelated HTTP service",
+      "isolatedCandidateRerun": "PASS",
+      "conclusion": "load-induced flake in the full parallel run; passes in isolation on the candidate cut"
+    },
+    {
+      "id": "tests/project-search-host.test.ts > stops at 10,000 ordinary files, without visiting the next file",
+      "isolatedCandidateRerun": "FAIL (60s timeout)",
+      "isolatedBaselineRerun": "FAIL (61s timeout)",
+      "conclusion": "reproduces on the pristine baseline in isolation; environmental filesystem/timing sensitivity under shared-machine load, not an M10 regression"
+    }
+  ],
+  "newM10Tests": {
+    "files": 4,
+    "tests": 51,
+    "failed": 0
+  }
+}

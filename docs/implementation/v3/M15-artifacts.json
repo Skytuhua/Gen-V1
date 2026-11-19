@@ -37,8 +37,8 @@
     },
     {
       "path": "docs/implementation/v3/M15-evidence-plan.json",
-      "bytes": 35106,
-      "sha256": "0c8aed3205f8620fca4b53d8d7922af10bd7c0b0c1dad4ae2a0492cc6c588844"
+      "bytes": 45431,
+      "sha256": "f00dab7e2073972f369b0e5365723b984a1b4b85abe838f2bb03f179ee7d6ac9"
     },
     {
       "path": "docs/implementation/v3/M15-feature-comparison.md",
@@ -1776,11 +1776,6 @@
       "sha256": "62ab788a547a04b9f7bd620ab9ae0d907740531d85fcba9a7855fad05229680c"
     },
     {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\browser\\extracted\\test-results\\browser\\run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67\\workbench\\artifacts\\workbench-M15-controlled-r-a899a-with-100-000-retained-lines\\m15-renderer-performance.json",
-      "bytes": 9538,
-      "sha256": "ca87290749fbeb8aed8c4627f088dd09995f2388c89d3bb4d3bc989130a1ca63"
-    },
-    {
       "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\browser\\extracted\\test-results\\browser\\run-1794799883817-a28993b2-8c72-429a-baad-b9056adcbe67\\workbench\\results.json",
       "bytes": 41276,
       "sha256": "14bf87104eeec605d24e449c7c32605a51b0e25b3a14746af57d80212b98525e"
@@ -2126,111 +2121,6 @@
       "sha256": "b2e2ea9cccf5c9b34217fbf860e31f0503e03ac3fde96d6e779b25d534ffbba1"
     },
     {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\host-observations.json",
-      "bytes": 9399,
-      "sha256": "1d572b99f145a2919bec0e1a29e14adce06921e70c8f729ef6a97619397f90b5"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\isolated-host-MO0sXu\\fixture-session-d5cb2c7b-0924-4287-b356-71eb31edc523.json",
-      "bytes": 40,
-      "sha256": "8458ed1b71854316306c391a6e82a321ee2d212178858e3e477489c00e5db17b"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\performance-observations.json",
-      "bytes": 284,
-      "sha256": "9ade73c101e2e86d6fd2b329c79ff8aa68f065517d684b0d7145ea581078db93"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\host-observations.json",
-      "bytes": 9468,
-      "sha256": "cb14a43729813e925bc7786d09c001d12e7d04d55fa17b7b19b9f3a69d3b45e0"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\isolated-host-h4D2yO\\fixture-session-cfed0847-c018-44a4-b98f-54d38553c23d.json",
-      "bytes": 40,
-      "sha256": "a2e047ab6f9fc456fb1ee12e1de5dde01119052248debe3d8845f69b3ce4336c"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\performance-observations.json",
-      "bytes": 846,
-      "sha256": "813452e8571f4fa3503f6a39ff34b9e8a0298b6dc05f90d42526be2938573baa"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\host-observations.json",
-      "bytes": 12069,
-      "sha256": "349eb42b2ca15fedcc84b91d84a38b3dbb4c6cc7775bfbda3a08bf4a0afe502b"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\isolated-host-mcn1Ek\\fixture-session-8af25c5f-1c93-4935-a365-f87ad24632c9.json",
-      "bytes": 79,
-      "sha256": "84382a79cd0af1f422051e9055e2ec1334bb1772de7f8c43fbda3e4f40953c78"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\performance-observations.json",
-      "bytes": 251,
-      "sha256": "8b5ce79d4c88f42047729a3b98634152d3b070f8990566fb2caaa53269261906"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\host-observations.json",
-      "bytes": 15919,
-      "sha256": "407230e648755af023f34e057b30301fe92f47647146dab00ff804e67e8bd4c5"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\isolated-host-1PWuqL\\fixture-session-e88fbe67-afc5-4ffc-be43-9fb6db7d9c4e.json",
-      "bytes": 79,
-      "sha256": "bcdb6542eab8ce9dbc6b56c7f9861ac0b65bba14edb8df060d2b518a195d99c5"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\performance-observations.json",
-      "bytes": 281,
-      "sha256": "ab0abcb2b4f1f316de5631235baad5c3fe91f29ebe898c34bef65aec90ec84f0"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-operat-44f07-s-without-repeating-effects\\host-observations.json",
-      "bytes": 777,
-      "sha256": "493cb1daeb4a0904905fa3d0207bdf3637b9519eafbc4aebe6c858a22a1605f3"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-progra-94327--and-durable-artifact-state\\host-observations.json",
-      "bytes": 7345,
-      "sha256": "22dba9cd36cd01d0192b828485362d983d185ed6ef4761ed879db5524cffb9c9"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-generated-progra-94327--and-durable-artifact-state\\isolated-host-fsats5\\fixture-session-3566b67f-364f-4e04-b6b8-35737ec43eb1.json",
-      "bytes": 40,
-      "sha256": "eef6df1a148311ed8c374400e309444d20ca3927a8f82b9b9ab901e223d90077"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-stale-structured-98b59-retains-its-local-review-UI\\host-observations.json",
-      "bytes": 9638,
-      "sha256": "b1bff3d8d759665b8c9508e67fb59b5a3d49fd7c353397a2ec7b6a0ec11fc34a"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-stale-structured-98b59-retains-its-local-review-UI\\isolated-host-XKwh7Y\\fixture-session-3bf37049-d317-4cb8-9921-da6cdf0cc6b5.json",
-      "bytes": 40,
-      "sha256": "000c342db1f8419ce9eef9f6759644be6516e7aeaca6744e22fbb308074a0348"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\host-loop-the-real-host-re-03d67-rving-its-trusted-interface\\host-observations.json",
-      "bytes": 777,
-      "sha256": "5a866c4c60cf50b25a109a4c54ce63adadd92a70f1caff09a50fc4c153d2be4e"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\host-observations.json",
-      "bytes": 55330,
-      "sha256": "647c724a82b4f9646aedfc4b969419a2b56c17f5c33b5f997db51a38804ec253"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\isolated-host-AoqOMH\\fixture-session-29ea75bd-f0ed-4d66-8e5a-1525ce8b6883.json",
-      "bytes": 40,
-      "sha256": "505e646f3d9e408d605ee5da939aff71f5d7bdce1f90d59cbe35d052b69dfc2c"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\latency.json",
-      "bytes": 3906,
-      "sha256": "dd7edc27494a1b5873a3a7f4fa710f90d2333c0f5ffb6c9131e3b5c6fe77f48c"
-    },
-    {
       "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\baseline\\test-results\\browser\\run-1794800080824-b0701fa6-738b-4a08-bac7-f5d7867a682b\\root\\results.json",
       "bytes": 647296,
       "sha256": "09f7071547065aeacb23d5ee6ad00b91cb964578209f42f14287766e5253bac4"
@@ -2239,111 +2129,6 @@
       "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\docs\\implementation\\v3\\m15-logs\\c3-windows-root-candidate-43797606300-1.json",
       "bytes": 625,
       "sha256": "03851f8ced405501d02ee204a3540cf89447f783c971698917d8286e71a97fd4"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\host-observations.json",
-      "bytes": 9389,
-      "sha256": "9978afe2691801ef09e4731d745df1ef33aa6e6e01d80198eec010b6d148cb09"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\isolated-host-XI5lbG\\fixture-session-bf12d9f4-52e3-4fcc-87c4-232daf4a6956.json",
-      "bytes": 40,
-      "sha256": "abd82cab67f30b2a95be18e64bdb691255dd2666979ffa88e4703f5ff2bfeae0"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-actual-create-se-41b58-ost-autosave-survive-reload\\performance-observations.json",
-      "bytes": 285,
-      "sha256": "99ea17df2d5cc9678ba5697d4334c790db72d361ffda4ff80b3f998c163c7788"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\host-observations.json",
-      "bytes": 9458,
-      "sha256": "6c72f14ec4caf3b7fb11faf0ae3a060a06e55e5c1069b77ab367d8ed27bef3df"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\isolated-host-lHSulb\\fixture-session-65542aaf-a15d-4568-a0b6-1beca1629207.json",
-      "bytes": 40,
-      "sha256": "0c6ae3f1dd7d1b322f47df82fce339dd3bb939ee0ad28c30bb4ec945e0980b50"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-cross-site-infin-5a091--host-navigation-responsive\\performance-observations.json",
-      "bytes": 846,
-      "sha256": "93f8ed3db4b7c57379941d806118ee0bf23ab67d3642ca6682d1a1eb212a5a8a"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\host-observations.json",
-      "bytes": 12049,
-      "sha256": "f5c5c38c708d7313c86d914d65733d5789b955606fe60d03b2aeba5a1e679839"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\isolated-host-ff2AZL\\fixture-session-81e57f40-cbdd-41d6-9df5-71ebbdc04ba3.json",
-      "bytes": 79,
-      "sha256": "8248728bec6c2c9f74cfa9fbb824a6fa5844a0b358c885a3087b4729a798281c"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-durable-decision-ac3f4-he-same-owning-runtime-once\\performance-observations.json",
-      "bytes": 251,
-      "sha256": "9372570d5597d4c06014fce256ea00df564a010fb61231a6c203b0d7c50dfd2a"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\host-observations.json",
-      "bytes": 15899,
-      "sha256": "6e222c582ecb4b01eb78da2068686fa20563ba9042f772b0ad90a218f40f0072"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\isolated-host-1BK4QU\\fixture-session-103dca29-92df-4375-bc5c-321d40ff2ac9.json",
-      "bytes": 79,
-      "sha256": "9f5e92dd5c19e32ba9d1d59f0d4d3c7a59c904cdcdd0f1a63e66f35a9adab102"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-app-va-de827-t-and-preserves-same-iframe\\performance-observations.json",
-      "bytes": 281,
-      "sha256": "5209d758c7e76e5546c065b755c49b3809a06df0faac1d75d80bd2f293ad5e94"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-operat-44f07-s-without-repeating-effects\\host-observations.json",
-      "bytes": 777,
-      "sha256": "0e85900d090188a8abe6654a8cb1d0accf87202f332414b570dda3954024aae2"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-progra-94327--and-durable-artifact-state\\host-observations.json",
-      "bytes": 7335,
-      "sha256": "2a6350368ea7158b13e786df8537f695f53f94393a9e775c6b9c6f138bb6c25a"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-generated-progra-94327--and-durable-artifact-state\\isolated-host-ine5fE\\fixture-session-915c8091-9e8d-42b2-91da-0cfa670ae14a.json",
-      "bytes": 40,
-      "sha256": "82563cf9b51c7f660948afff797fb1b698b2be520c5ad9a72ecf54599b77fabc"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-stale-structured-98b59-retains-its-local-review-UI\\host-observations.json",
-      "bytes": 9628,
-      "sha256": "abca80d02ab7ae2761538ec3ac7b846cdcea48210d0262bc1dba7ef1d4447937"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-stale-structured-98b59-retains-its-local-review-UI\\isolated-host-BvvBIl\\fixture-session-a3fb0089-8b02-4ef7-bd9e-c45f76d8d25d.json",
-      "bytes": 40,
-      "sha256": "0d4a66e2defdf0137a5d43640700b2388bb9b78de4ff80fe6a333396359c98a2"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\host-loop-the-real-host-re-03d67-rving-its-trusted-interface\\host-observations.json",
-      "bytes": 777,
-      "sha256": "017620ff1c2991f4d1bcc948142d8afae52c718c505a722e3b8efff4bb61c84f"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\host-observations.json",
-      "bytes": 55320,
-      "sha256": "7033652451a1909a942ba965df7dd5766c7a9eacad72beb0de550dd95469ac9e"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\isolated-host-GsdGul\\fixture-session-819b06b5-193d-4e7e-a252-1a4b2515c0b9.json",
-      "bytes": 40,
-      "sha256": "0c6df41736f9fbbc51e0e42ba1171dccba7df6785ce0b24c5e191901c3e90222"
-    },
-    {
-      "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\artifacts\\latency-records-local-comm-0054b--independently-of-inference\\latency.json",
-      "bytes": 3744,
-      "sha256": "aebb2c0d1ee4e83f358513002a1737bb085f4fcb92e590b6a6ab79bf3fefc41e"
     },
     {
       "path": "docs\\implementation\\v3\\m15-artifacts\\c3-windows-run-43797606300-attempt-1\\root-browser\\extracted\\test-results\\browser\\run-1794801090151-cb1dc1f7-12da-4471-beb6-cbf4a4c55e58\\root\\results.json",
@@ -5531,6 +5316,11 @@
       "sha256": "e6a523b04ac7a6ee395d2d9a0cd75cc85c41b3cd63c0296e605ebd2bb84323f0"
     },
     {
+      "path": "docs\\implementation\\v3\\m15-artifacts\\v6w-renderer-performance-01\\m15-renderer-performance.json",
+      "bytes": 9499,
+      "sha256": "c1f595a6f7bf8e1447de26d7b4c38cc086c83117fb3a76919787b7236d82662a"
+    },
+    {
       "path": "docs\\implementation\\v3\\m15-logs\\activity-contract-green.json",
       "bytes": 666,
       "sha256": "e5e45c0b248caec6e0633883d7802baa67fd4a53f4b271afa0b8028dafb81d1f"
@@ -7661,6 +7451,256 @@
       "sha256": "a87a77f1c074d6854adee252d6b99524e3a6f8e98d139777f5cf2e3a2378ed85"
     },
     {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-agents-actual-app-44310248562-1.json",
+      "bytes": 808,
+      "sha256": "1bdde3ee75b047ad41fed69c807ffeba5a4bdfbc125b51c4919f409b2a8c240e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-agents-actual-app-44310248562-1.log",
+      "bytes": 3359,
+      "sha256": "25f1d3aa6fe630fff65bcdbcf41916dfb0ba22d790d99be7074f6b4b82277c8b"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-agents-workspace-44310248562-1.json",
+      "bytes": 639,
+      "sha256": "7ec457e7f8f7c3a31980e8f5b01db8182ebab326622098d9fb34be5e01d5aeee"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-agents-workspace-44310248562-1.log",
+      "bytes": 3584,
+      "sha256": "ef0e6a969bbb420067a5ef5cfb0c5c30132961927e22a018bda57afc46dfa574"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-artifact-acknowledgment-44310248562-1.json",
+      "bytes": 840,
+      "sha256": "933114292814df56eb46f17cc790e0815472cc497a73f38c3138ccd6ce39a72e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-artifact-acknowledgment-44310248562-1.log",
+      "bytes": 544,
+      "sha256": "0d9270db301625abbd2aa14467b271fa4e414ee270441d68f6e7f0b537fed3e6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-chat-view-modes-44310248562-1.json",
+      "bytes": 637,
+      "sha256": "f40821c9187ac0a4e52f42598f096fd033baeb388dcbd50d6b3ca68f90e876f0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-chat-view-modes-44310248562-1.log",
+      "bytes": 1176,
+      "sha256": "8cdda464b718c215eeb7f756591999e84cfc296cdfe51ec285080dc3946cc661"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-desktop-surfaces-44310248562-1.json",
+      "bytes": 639,
+      "sha256": "ae4ddd78cc4a7b14eec4967b30d82512d05986a7130bb84bb9351a051b73a679"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-desktop-surfaces-44310248562-1.log",
+      "bytes": 5429,
+      "sha256": "f84819779be4a97719fe4e4662cc828d6c1f93d1e54e70d297704391e0aaf124"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-frontend-refinement-44310248562-1.json",
+      "bytes": 645,
+      "sha256": "23aed5c2ddf21ca9d321ef7e93ae4eb0926a2c688fb357481b3ce9d0d7fb1abd"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-frontend-refinement-44310248562-1.log",
+      "bytes": 13929,
+      "sha256": "8c08ba921b31a3151cff72997d3633a2c9410b79e680b23890370dd21fb11092"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-1-44310248562-1.json",
+      "bytes": 762,
+      "sha256": "6a3e48dae762a1724edbc367398d73e1decef07255825de1943fafcd4ac92cec"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-1-44310248562-1.log",
+      "bytes": 74949,
+      "sha256": "4c36935029d01625979f786904159a90c3b908eea9d388bec61684c084c951f1"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-2-44310248562-1.json",
+      "bytes": 762,
+      "sha256": "8af35234501f740e54addc16c6856c8afbd370235c61258caa0bec92997ea8c1"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-2-44310248562-1.log",
+      "bytes": 62618,
+      "sha256": "26470f374b2eac6ba1b53c95b04ac53546f8d258a3dc97144a8f20b1ded2c22c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-3-44310248562-1.json",
+      "bytes": 762,
+      "sha256": "b2412f62358fa4f2a26317656f5323ec035d2ccac14d307a02cc039c2223c73f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-3-44310248562-1.log",
+      "bytes": 59805,
+      "sha256": "f2133ec001ec42fbf8a11c3e0a7b0fddb54ac0e7787c058a91d1269bf0e5b874"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-4-44310248562-1.json",
+      "bytes": 762,
+      "sha256": "0395aac2ecc967080bda1821e0552d496571aef5870930260d90e43e7df414e2"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-full-shard-4-44310248562-1.log",
+      "bytes": 57556,
+      "sha256": "ce3051dd4fdb04e8543ebbfe5ad2c00e56fff6a86c68476236d2bda54ceda03d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-native-44310248562-1.json",
+      "bytes": 2306,
+      "sha256": "46f23f0510915f481a7d8e70c012975f4571cb3663d7a6a2a99a24b29cf0fc49"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-native-44310248562-1.log",
+      "bytes": 26670,
+      "sha256": "867887c144c2ab9ee7b7aba10dc5c0432981c1cc70aafe93a194ba27f1f689a5"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-project-memory-44310248562-1.json",
+      "bytes": 635,
+      "sha256": "fe92f98f81b880872b09a71d8b9104456da43e7d808552fd972fcf58ad4e9f2f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-project-memory-44310248562-1.log",
+      "bytes": 2868,
+      "sha256": "77da7080b3503625d898a3861241ecb4bfd65f5819a1f854cf5dd8f25ef06f6a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-root-baseline-44310248562-1.json",
+      "bytes": 634,
+      "sha256": "45dc60a60f342070714ce3d5c42d813ef957034250ab2fd4bd32ab17f7f2be52"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-root-baseline-44310248562-1.log",
+      "bytes": 15572,
+      "sha256": "78efee2b3e808062174b503d1dc06c1a371e898a4c51257c2e7a411fbb1097f0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-root-candidate-44310248562-1.json",
+      "bytes": 625,
+      "sha256": "fa05557ddf7b2fe35eaf67337aa0da4cd10eb9d448351ff148e0c07569c73b47"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-root-candidate-44310248562-1.log",
+      "bytes": 38302,
+      "sha256": "6a1fe8d59b3f45b8f6430dc5508dad2ad24f2b2ed94e6d2806fcfb82d631fe39"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-saved-drafts-44310248562-1.json",
+      "bytes": 631,
+      "sha256": "2e32b3d3575cc87a031b2fe6b5a2145278f49503eeafec4a33da4ae7eaaef0be"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-saved-drafts-44310248562-1.log",
+      "bytes": 4125,
+      "sha256": "ae88dc384dddba77b13f3c36f2a0ec92f6317e192e1eb202fed0a0a193fc199d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-saved-layout-chooser-44310248562-1.json",
+      "bytes": 647,
+      "sha256": "17f699ae9d00c2a1e9178fcaa705fe4a24495b8ee9b9a72ce066e2676de9f99d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-saved-layout-chooser-44310248562-1.log",
+      "bytes": 2563,
+      "sha256": "1cbc2ce29deb70cc9c14864247b7e8a6ded5792a5eaf08fce95354815b7657bd"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-scoped-conversation-44310248562-1.json",
+      "bytes": 645,
+      "sha256": "41187cb66f24ea2f39e070024a940cd1860bc4a1ad761e6d8c7fc09701d65adf"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-scoped-conversation-44310248562-1.log",
+      "bytes": 2532,
+      "sha256": "cb962d97557d05b24c2c335bf31b2ebf6c7a4a9f362df496e24112740843565e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-split-browser-44310248562-1.json",
+      "bytes": 2118,
+      "sha256": "0f7abb77efc6a7ab3d5c53d613778ea06bc8afe80ac5c1dd5e2481d389f8ddf6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-split-browser-44310248562-1.log",
+      "bytes": 11418,
+      "sha256": "d49b7232c506cd535c3dc707beb7e3db25464ee725690703754f628bfffa5216"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-ui-shell-controls-44310248562-1.json",
+      "bytes": 641,
+      "sha256": "df825ba2db79600f25fd740bb7273cff835224ac943eddba314cbff5fb30c228"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-ui-shell-controls-44310248562-1.log",
+      "bytes": 3082,
+      "sha256": "2f7309b5a6315fe45b764115010898d6b974a0fe7e0592c4b2179b5e1bea88d9"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-ui-shell-overlays-44310248562-1.json",
+      "bytes": 641,
+      "sha256": "86277fcd4b4cb21b40c6d69e9e8eb0c49c46651dabc4bc1659eb417511b1a122"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-ui-shell-overlays-44310248562-1.log",
+      "bytes": 2401,
+      "sha256": "1a9c6bd833cfede816d70af22f06f9342685d0b4168d0e9f344d3efd077ae9a3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-usage-app-integration-44310248562-1.json",
+      "bytes": 649,
+      "sha256": "03d385f1456b06d2be98883992ea6ca798df768b581a5d3a6b3987287c30897c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-usage-app-integration-44310248562-1.log",
+      "bytes": 3404,
+      "sha256": "b6525ac7dc76e817d7984aa2dcf79799b1cda7a68ac9fe2e7ac7e813e600c22c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-usage-context-44310248562-1.json",
+      "bytes": 633,
+      "sha256": "bd9d863b1de1b59ea94ce1f97171696465cb3c26c2bcd0fcdd2a1b192d3d8cc3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-usage-context-44310248562-1.log",
+      "bytes": 11255,
+      "sha256": "77f6959c3e583c699660d589e78d84a819de3e6431fa0dedbde70cf240cbc22d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workbench-44310248562-1.json",
+      "bytes": 625,
+      "sha256": "1c8469d6c5933f25d539fe716dff09451256774a10179b1e6d4cc6634f13430f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workbench-44310248562-1.log",
+      "bytes": 3334,
+      "sha256": "7d138260f690412c646557171765374e98fd1e181c1ef6d621f70c93811832bb"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workbench-app-44310248562-1.json",
+      "bytes": 633,
+      "sha256": "740edf5c80c31163f043d14e97e220bbcd211aab395f2e21b2cdcf05588c49a8"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workbench-app-44310248562-1.log",
+      "bytes": 4254,
+      "sha256": "ae1b4fce3b320eace6f0a7951494dfe34af90af4257b71b464ff34a2f6f278ed"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workspace-host-44310248562-1.json",
+      "bytes": 635,
+      "sha256": "b10a047b281a274a596f9b9d06b3edf9c04f91df8436d0c3eb3c579449992eaa"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\c4-windows-workspace-host-44310248562-1.log",
+      "bytes": 7594,
+      "sha256": "58b35ed4f81a65a603b4fba14a7b9ab4c58ece9584080bdae71d6b701814fd0c"
+    },
+    {
       "path": "docs\\implementation\\v3\\m15-logs\\c4-workbench-app-final-01.json",
       "bytes": 763,
       "sha256": "da4a16c43f82b27e4bd9ba5546b45912f54185ce8a60579fcbfe42f71865c06e"
@@ -8989,6 +9029,566 @@
       "path": "docs\\implementation\\v3\\m15-logs\\v6-vitest-workbench-recovery-v3.json",
       "bytes": 574,
       "sha256": "7842fd7b1d6b9b92b6d79058eb3d9f38fc21a7081538eecb5863433339ba5c3d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6base-gate-test-browser.json",
+      "bytes": 494,
+      "sha256": "8ba6aa0b7336c0eedcc81f7c55d565c23f2eae758e4e04f1a055941962d9561c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6base-gate-test.json",
+      "bytes": 478,
+      "sha256": "30c354df4830a9d8d576a6d69517d5d61bea33f857736abd0bdca27ad4b31727"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-gate-build.json",
+      "bytes": 472,
+      "sha256": "2982bc95f03b33d7bd7c0aca246a749ecb35b7d657792333d999faf218c18228"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-gate-lint.json",
+      "bytes": 470,
+      "sha256": "a6ee9ac464ed7ae6277fef7a32faf87ea92ae3b2cd4265eeb88a00f2fe650db6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-gate-test-browser.json",
+      "bytes": 492,
+      "sha256": "95ad9647d4b3427427eec3f0d23c65ce8563981baf12de99e0b74c5e5fd27f1b"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-gate-test.json",
+      "bytes": 470,
+      "sha256": "0e86ff2f094b620444fe7375518a0016509f16fa435a772a1086860bd50eb4f0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-gate-typecheck.json",
+      "bytes": 480,
+      "sha256": "0f4253660974d3b0d41f2ef3ed875d92b2fd806643a1907ce8db3b5806c3a1e1"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-vitest-source-selection-v3.json",
+      "bytes": 553,
+      "sha256": "7e1cef36b5aadbf069be7bdc53251e5839c00f41da22d35967105d95a2b5bd22"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-vitest-workbench-continuation-v6.json",
+      "bytes": 565,
+      "sha256": "8fbdeb83b739218d30b445e42dd46202a9606f9e7440cf1c8c49394e3c5c2738"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-vitest-workbench-performance-v3.json",
+      "bytes": 563,
+      "sha256": "4bfbd32b91d9783113ddaf9c175a793392ab5a54f84b1641980f44a20e1ac179"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm-vitest-workbench-recovery-v3.json",
+      "bytes": 557,
+      "sha256": "30da1895ece4ee3d351176bcbc181766dc580f5b04bfaf43fc72f83e0ca18c09"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm2-gate-test-browser.json",
+      "bytes": 487,
+      "sha256": "c4fbf3034611e1a94a3d788ca83fb5a378a051af7168c093e68c3cc0ac616b75"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6pm2-gate-test.json",
+      "bytes": 471,
+      "sha256": "1be5b0b6117e6fc41a76f0c7ad427d357fea9ac4b3086602aa31a96a6724cfeb"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-actual-app.json",
+      "bytes": 802,
+      "sha256": "200c9d2bcb423ae7b1ea94d5846febe186cf59730a5fd77faca106876f501871"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-actual-app.log",
+      "bytes": 3373,
+      "sha256": "10033350851e9022ff9d7fb1de1f1a2171435c3735dcc0a250c25998a0a74336"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-workspace-r2.json",
+      "bytes": 694,
+      "sha256": "9cd4e5cdd660c7ec4d9dfba7ba9e0cccf0a5f849cf91af3b6c82ba25a3020d87"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-workspace-r2.log",
+      "bytes": 3832,
+      "sha256": "04e9acf9e5474776204509e85f1e5266212b952369ba2e7730094cbf3d53c64b"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-workspace.json",
+      "bytes": 633,
+      "sha256": "dea4ddc89e6b1baf39b3101e89cb6f321c1b0abbe58779bfc1bb9972670ab11c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-agents-workspace.log",
+      "bytes": 9204,
+      "sha256": "e67358529f484db16dc96a9ffda318776d851198f76c82f435e94b6baf0b9ce1"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-artifact-acknowledgment.json",
+      "bytes": 834,
+      "sha256": "189ca71fa8297378022c152a9e00c85d8a3e19ae39a2e288969e012249758dd6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-artifact-acknowledgment.log",
+      "bytes": 559,
+      "sha256": "63eef947629c0e313d23d1739bda58e4fd52971eea354e96e8e5eb77f098330d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-chat-view-modes-r2.json",
+      "bytes": 634,
+      "sha256": "fd7ad17c1774ac53f9864044b630e234185e3e0a4fcef242fd78066cf2f72649"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-chat-view-modes-r2.log",
+      "bytes": 1215,
+      "sha256": "e3aee1a4036a22c08ea7dd50a843dc2aa9ae4d2b298b5a871a6bbdd9803fa95a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-chat-view-modes.json",
+      "bytes": 631,
+      "sha256": "7f1b3df79bd2f3e37ec8898f50af2ae99f45e652bcf52cd1626047fc75bcb628"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-chat-view-modes.log",
+      "bytes": 8527,
+      "sha256": "a53888cf8581a641dddfce51d0e14f0849d46961cccaa383b0af2cf3e01e2fe3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-desktop-surfaces-r2.json",
+      "bytes": 636,
+      "sha256": "fe065b498b8adb965c3e5b2f29045b49437a3117cfc3c4d010c38619f28721d6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-desktop-surfaces-r2.log",
+      "bytes": 5468,
+      "sha256": "587cd0054ba14434fbe18d117f4ba9ec94baf8a945a6f4a9c85c48a9a7579bdf"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-desktop-surfaces.json",
+      "bytes": 633,
+      "sha256": "43c5a77e0d3e4dba0e8165e882c41446ebae415d338324d43ee503df94c081a4"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-desktop-surfaces.log",
+      "bytes": 21049,
+      "sha256": "c161fbbb48d3da70a2af793cc496d717fae53d945b454b9d0d95ef4b4fa75ad3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-frontend-refinement.json",
+      "bytes": 639,
+      "sha256": "20701696870e43430960dcf7ad05d1afb49d961601b58cc1b6d8d4f3a686e9e0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-frontend-refinement.log",
+      "bytes": 13965,
+      "sha256": "0dd276040db00f283e76185b5790a6551e34aa75ca05e0d361d10764805d17f0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-project-memory.json",
+      "bytes": 629,
+      "sha256": "f024b7f47118608053ac81771c10d5203cff1a85f361936bea8fb01b79aaa073"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-project-memory.log",
+      "bytes": 2907,
+      "sha256": "cb8228ce8966c2838cbd8db6419e28f14f31207b3abbc5b274b3d4a906b223ac"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-root.json",
+      "bytes": 609,
+      "sha256": "e69763d82f3898b9cb421b0a11c91358cb9629909f0a9922f54dfefb0940816f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-root.log",
+      "bytes": 41740,
+      "sha256": "2042a1e8237820b4cf83c6de5bbb2354350d65a4c539a2bb987d3c3a7403c414"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-saved-drafts.json",
+      "bytes": 625,
+      "sha256": "7aa52681b94708709f2695c32c5cfa9194bf658487fcecb8c71fc2f4e76e3d3d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-saved-drafts.log",
+      "bytes": 4164,
+      "sha256": "26d3264e5dbb69202d87c74489697f42c1274794349babf30da89a04bee6b7d2"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-saved-layout-chooser.json",
+      "bytes": 641,
+      "sha256": "9d9e84270d65bcfa585b07c32935966627b443d098db5e50eb751f719859b54b"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-saved-layout-chooser.log",
+      "bytes": 2596,
+      "sha256": "c0b318377676a5e42a4d9d6984915ebc3bae974799ab5b890328912e07b7afba"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-scoped-conversation.json",
+      "bytes": 639,
+      "sha256": "9547848828d31dc570ba67ced55d70a13438f4353f3e6f5eb703136264b4b2ff"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-scoped-conversation.log",
+      "bytes": 2571,
+      "sha256": "aad17ef7798aefb354766699fb029db1406e92fcf75d6ed87979f9583656121c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-ui-shell-controls.json",
+      "bytes": 635,
+      "sha256": "3d43d734ddcc7f7edd25514bc2921cfe300c3f7d0ef5c8d6fee0c75802c9fb7f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-ui-shell-controls.log",
+      "bytes": 3121,
+      "sha256": "e26c064c22d5b8ebcd84b80abc0e6a23e27f40944b555353c6e3436a9dfe56ce"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-ui-shell-overlays.json",
+      "bytes": 635,
+      "sha256": "377690d54d6bc3f68769151d6fa98caa3b1d4ceb1fef96f4cd5f2d4f9ac09049"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-ui-shell-overlays.log",
+      "bytes": 2441,
+      "sha256": "73178c837a36d31e2bec2cc768204baf63767125ac2582a3acf77b73861aae23"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-usage-app-integration.json",
+      "bytes": 643,
+      "sha256": "405f518ee08ff0e1c62dd18b05bdf6ff43e459e8addceb7f7c8f272b1db7fa97"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-usage-app-integration.log",
+      "bytes": 3443,
+      "sha256": "0d18ca48bcfed38eaf8aae8c2139ce06eda5cb3d8f57ca91ce638d415e024784"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-usage-context.json",
+      "bytes": 627,
+      "sha256": "f204336eac8ea2f7aa387697e704273fc64387eaa457e2cb3a184b60dca07334"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-usage-context.log",
+      "bytes": 11287,
+      "sha256": "4b80353fa44c5630c678b3971d00b2c341aacae110cfec4bc046b4909cbd164a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app-r2.json",
+      "bytes": 630,
+      "sha256": "bd34716d7110b1b0771ad7d8a307055b657ac91200c33c6dc14c7966c1a1a977"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app-r2.log",
+      "bytes": 6752,
+      "sha256": "baa5fbd610f6479b2906ab586beaed220b91d3cfa5ff0413967aed78518b7663"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app-r3.json",
+      "bytes": 630,
+      "sha256": "d1f327f2d45f86e7b7a08a3ffc0da37005a7ddf53e093102dae6fc79e4eaa0f1"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app-r3.log",
+      "bytes": 4293,
+      "sha256": "cb35acb6e301ef8643bb46c9d00d1e5a83dcf5ca70d03653f2120e1333d4325e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app.json",
+      "bytes": 627,
+      "sha256": "ae70ab7574aa9bd5f0a3c0627822e5dd7ac388d25abeb55fffd010e409900e0d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench-app.log",
+      "bytes": 6752,
+      "sha256": "ca8efe70f88d8e9cd44dbfb7a75d8fa3207588e8083efbe43332cad002dcb4d6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench.json",
+      "bytes": 619,
+      "sha256": "7051ab9f3205acafc38e1d2ed37a5f946feb151fa5fa0c0e9b4efe35f9ee21df"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workbench.log",
+      "bytes": 3373,
+      "sha256": "88606623009612a26ee538ca48f6d1c0d9db3dd587c0399d1c9c3390c17c862d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workspace-host-r2.json",
+      "bytes": 690,
+      "sha256": "de6c8fe28ac56179d66bf6ccea6cc9fa69623ceaa3985e4dd5f5f0c8965fdc4a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workspace-host-r2.log",
+      "bytes": 7840,
+      "sha256": "6ba6c1fd567abb427b6aadfc4beee0e37a84af270a5026902207a1fa2ee51c8f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workspace-host.json",
+      "bytes": 629,
+      "sha256": "e4b4a557265fa32b2ced7c252e572660333d802b4a4b8cf2565ef05bbc449552"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-browser-workspace-host.log",
+      "bytes": 10186,
+      "sha256": "9995cdd311835b0884391fa999aac00ccdf26765d919ed29d9f83e49c7490449"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-retry-1.json",
+      "bytes": 906,
+      "sha256": "5c0f5375c0a1a7121002294d2364661c179ead820f31234b9d18799d588a0fe3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-retry-1.log",
+      "bytes": 18851,
+      "sha256": "d78598157363391c1d15c8a9613f28ff7c506da0b06824c598935ce52ad3dae9"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-1.json",
+      "bytes": 775,
+      "sha256": "34fc42f3be199b40e600c51bd36a63e574f9e84d6b62e7f5a7631a258515bff5"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-1.log",
+      "bytes": 49517,
+      "sha256": "c23a2be53e6b9ab825840cdace3ea37b560e5f63f1db8957a32e83d95ef112fe"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-2.json",
+      "bytes": 775,
+      "sha256": "8a009b712839451254b2e16528b7dfbe76742f9b59b2ee51a3158966d765d01a"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-2.log",
+      "bytes": 46932,
+      "sha256": "7a30844e604d4b1f89b504a6059bee73e030b3d2a4ffd7f7a6d928e4d1efb547"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-3.json",
+      "bytes": 775,
+      "sha256": "cff31cff9643434276d536ff601b49cdd5a6775994529342924db6c268bda367"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-3.log",
+      "bytes": 30507,
+      "sha256": "ed10b4d4f2383694791055a282a6ff4e0bc59726fb1946192fba6aa91cb3fdb6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-4.json",
+      "bytes": 775,
+      "sha256": "c37b0d55cc1b08341a57a00723d3f1859ccf8358704d7bdc9f43633e5f9f3843"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-shard-4.log",
+      "bytes": 33439,
+      "sha256": "d012a97a3195c6f9b170bfad56f221c8d404865fb6c233ecbb918dbc88f807d4"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-test.json",
+      "bytes": 619,
+      "sha256": "183136595c29b6fbb0d22e3d183dea07247bf2d3a1230be2043594479a35b0ab"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-full-test.log",
+      "bytes": 36316,
+      "sha256": "27429030caaa4d91095420570e0e7803c9e04000e1de4fd373b537021c2b80a6"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build-r3.json",
+      "bytes": 624,
+      "sha256": "878889314bf41f05dc97b1b5a203058d46698d9347694e03df49b114fb712e0c"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build-r3.log",
+      "bytes": 12269,
+      "sha256": "e2f8b550542cd43c26a61960bdb462e56ac57858404cd47047665da02df19e98"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build-r4.json",
+      "bytes": 624,
+      "sha256": "57f4a64aa33b59722924fffbbe0ed7ddc0175ef999b6aaf2c29e6aac2dc2b15e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build-r4.log",
+      "bytes": 12270,
+      "sha256": "50e5d8e143af59698bb19eb81708e3fc06ceb4dc689dd8cfc29d5087c7420f52"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build.json",
+      "bytes": 573,
+      "sha256": "e3c0ee1544b51cb357b1a902fd51b7764de372bba9871afb4f571e46bc5748b0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-build.log",
+      "bytes": 985,
+      "sha256": "a692b614fd67a1946fa0f52f3bafb17f8957924b7c6992460de21a0a6cd5bd3e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint-r2.json",
+      "bytes": 622,
+      "sha256": "7764e427418eda8abaa97dbbd537635e0b70e7f8f2fa232922a706984a3245eb"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint-r2.log",
+      "bytes": 4763,
+      "sha256": "b430614f1f5afe254c3b0c8d86e8d6bc9985794ba9a2b1589edf0689e3d9fb68"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint-r3.json",
+      "bytes": 622,
+      "sha256": "e27530d81753b96e104964eb5c062d729d5dc07aa891c883ff70e6ec49262ac9"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint-r3.log",
+      "bytes": 450,
+      "sha256": "fdb532f18ea95b2508a6f517a3e0afc1de8248a2ec569cf268d37cd3824cfe31"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint.json",
+      "bytes": 589,
+      "sha256": "a53033da19b2f18b24afa1585cc09f4a769ac902082ba34fc1000b2b9ab361a3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-lint.log",
+      "bytes": 312,
+      "sha256": "9a35db640c1da58abbbca382c5051dd78aa7086dbc24a547505eb691cd4d70e7"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck-r2.json",
+      "bytes": 632,
+      "sha256": "0babc69c027463fd8d37a5e921884e37acb7f166211c7e453d372024f1ceba3f"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck-r2.log",
+      "bytes": 696,
+      "sha256": "65106058b4877e330da30fa3ee0b49c329622b15e92bab1b4fcbef7b6f7376c9"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck-r3.json",
+      "bytes": 632,
+      "sha256": "54e6f1b749c7811ae3987cfb836b070721f3a8fdfe1a72ea1f63929f3cf23fc3"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck-r3.log",
+      "bytes": 316,
+      "sha256": "bc6a06e2ef3926de29a05e05a8f51113da3285075d0d12b6cf0e5e8503765e5d"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck.json",
+      "bytes": 581,
+      "sha256": "0170b15102f808ef473d9158c19eb138c4e458ec0298d2e0ba0215018da65401"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gate-typecheck.log",
+      "bytes": 183,
+      "sha256": "035acc4043224b45f8f4a84cee34cb8ab61b6d4150615640f3f77869230b2de0"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gesture-1.json",
+      "bytes": 655,
+      "sha256": "5cb52a33e514f82be84af0900df3a0d489be38fabdc1d5f23102bd40e7a10984"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-gesture-1.log",
+      "bytes": 2826,
+      "sha256": "0b875f18cdf94cbb532f03fe1c0a776f1f61ea9da277c83a9c2356065ec4ebef"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-1.json",
+      "bytes": 2294,
+      "sha256": "09b016b615171a199e9d1fc3006f1f1e2e13c7458759a3a5d1667d3b1a3b88ad"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-1.log",
+      "bytes": 12859,
+      "sha256": "5e35d718c21a97bbe7bb8653895cf71b526b48e02dc06c70ff5dbb2c24593b98"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-2.json",
+      "bytes": 2294,
+      "sha256": "ac9b64bcbd4f0988eefbb03cc83fec525fd4c2916ec68922591126f2af25525e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-2.log",
+      "bytes": 11357,
+      "sha256": "02f415fe30b222f64d731a0e1de54f2bed13da1ed64f553e5b5a2aed75e51265"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-hermes-retry.json",
+      "bytes": 677,
+      "sha256": "cf9ace0f5605ea05133673b11906c67fb308aa3a1e702c7c40600341c8bcece8"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-native-hermes-retry.log",
+      "bytes": 2002,
+      "sha256": "d9987859cd2e8c058bed3d62124473c9c59866cb71ddd0f22f05af13487bcab8"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline-r2.json",
+      "bytes": 739,
+      "sha256": "802726e0ed9d54a2ef42c0b94fee15922b3d4d60437ab1d0363a0f65d3cb89ed"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline-r2.log",
+      "bytes": 5823,
+      "sha256": "5eff2768592376e76da80eddb7f1c2b9288183bbba5acae1e91f24ae943a0f37"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline.json",
+      "bytes": 619,
+      "sha256": "b8cfd85ac67c6f98a58776944d45707ee16ab45c11c11e5c999daede4fd01725"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-baseline.log",
+      "bytes": 21183,
+      "sha256": "ccbc5733a2aa8395821b72d32b4f7a24a087a6ead30097e1a62ecd86167ac5ce"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-candidate.json",
+      "bytes": 611,
+      "sha256": "7a94fee80a297da9b96eb5f1a5d0200725c86b3d02eec86829a894eaf10f6aad"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-root-candidate.log",
+      "bytes": 38412,
+      "sha256": "e80f5bcb019e07f237878b749581febdd48e50bf76930f421219dfd33ef48f4e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-split-browser.json",
+      "bytes": 707,
+      "sha256": "eeffcd1e145d568432f29c3ec33b62782cc8a6397902db5816b3c6600b023aa8"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-split-browser.log",
+      "bytes": 7105,
+      "sha256": "c3ae0e77ba3809f94fa46ba5bed18af6259bea43c0632ad3294f93ca3ba7a45e"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-targeted-1.log",
+      "bytes": 827,
+      "sha256": "6f9bec0ce0c43099124fd82cfa174d72b2c7b3aaab95369f6dbbc52af919c021"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-targeted-2.json",
+      "bytes": 796,
+      "sha256": "3c2e9d9333651102a54863ba345bb3250816b2bdb60f2924766383792c719689"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-targeted-2.log",
+      "bytes": 836,
+      "sha256": "72559d3d19a1707e85483fb3b273b69caf5bbfc8dc7b06855c3777b5c90e10be"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-targeted-3.json",
+      "bytes": 796,
+      "sha256": "f8a2849ab2934116e70850b7c04350e4494db7870cc922b25e8f5e23c84e2ded"
+    },
+    {
+      "path": "docs\\implementation\\v3\\m15-logs\\v6w-targeted-3.log",
+      "bytes": 836,
+      "sha256": "9a30eaef3a630fc8594a30bd43c9e7ada8721f5ee1a3454f79f6cf6f108f46c5"
     }
   ]
 }

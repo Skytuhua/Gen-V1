@@ -8,7 +8,13 @@ import { resolveGrant } from '../packages/core/security';
 import type { ResourceGrant, RuntimeAdapter } from '../packages/contracts';
 import { Service } from '../packages/core/service';
 import { Store } from '../packages/storage/store';
-import { configureHostCapabilityFlags } from '../packages/core/capability-flags';
+import { __setCapabilityFlagForTests } from '../packages/core/capability-flags';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
+
+function configureHostCapabilityFlags(overrides: Readonly<Partial<Record<'context.compilerV1' | 'tools.deferredV1', boolean>>>) {
+  for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, overrides[key]);
+  return () => { for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, undefined); };
+}
 
 it('retains an authorized exact range across reopen and reaps expired artifacts', async () => {
   const load = import.meta.glob('../packages/core/context-result-custody.ts')['../packages/core/context-result-custody.ts'];
@@ -66,7 +72,7 @@ it.skipIf(process.platform !== 'win32')('uses the native Windows grant guard for
   await mkdir(project); await writeFile(join(project, 'source.txt'), 'BEGIN\n' + 'native retained source\n'.repeat(2000) + 'END');
   const release = configureHostCapabilityFlags({ 'context.compilerV1': true, 'tools.deferredV1': true }), store = new Store(join(root, 'profile'));
   const runtime: RuntimeAdapter = { configure() {}, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true } });
+  const service = new Service(store, runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
   const ctx = { threadId: 'thread', runId: 'run', epoch: 1 }, info = await stat(project, { bigint: true });
   const grant: ResourceGrant = { id: 'source', threadId: ctx.threadId, kind: 'project', path: project, label: 'Native source', writable: false, createdAt: '', identity: { dev: String(info.dev), ino: String(info.ino) } };
   try {

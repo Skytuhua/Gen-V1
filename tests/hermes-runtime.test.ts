@@ -346,24 +346,6 @@ it('admits three main engines plus independent read-only readers through the can
  }finally{await reader.dispose();await f.runtime.dispose();}
 });
 
-it('pins a restricted child catalog before asynchronous settings and exposes no inherited host or library authority',async()=>{
- const f=await fixture({settings:async()=>({hostTools:[{name:'host_task',description:'parent',parameters:{type:'object'}}],systemPrompt:'parent instructions',skillPolicy:{enabled:true,allowWrites:true},integrations:{enabled:['humanizer'],ponytailMode:'off'},projectRoot:'/parent/project'})});
- const policy={hostTools:[{name:'qa_run',description:'Parent-owned approved verification only',parameters:{type:'object',properties:{},additionalProperties:false}}],systemPrompt:'Restricted advisory QA'};
- const child=f.runtime.createTaskRuntime(policy),onTool=vi.fn(async()=>({executed:true}));
- policy.hostTools[0].name='shell_exec';policy.systemPrompt='mutated caller';
- child.configure({onEvent(){},onTool});
- try{
-  await child.start(run({threadId:'qa-child',runId:'qa-run'}));const source=f.source(),params=f.start();
-  expect(params.hostTools).toEqual([{name:'qa_run',description:'Parent-owned approved verification only',parameters:{type:'object',properties:{},additionalProperties:false}}]);
-  expect(params.systemPrompt).toBe('Restricted advisory QA');expect(params.skillPolicy).toMatchObject({enabled:false,allowWrites:false,backgroundReview:false});
-  expect(params.integrations).toEqual({enabled:[],ponytailMode:'off'});expect(params.projectRoot).toBeUndefined();expect(source.calls[0].params.sharedLibrary).toBe(false);
-  const invoke=(name:string,args:Record<string,unknown>={})=>source.options.onHostCall!({id:name,name,args,ctx:params.ctx as Record<string,unknown>});
-  for(const name of ['host_task','shell_exec','verification_prepare','task_delegate','$background.acquire'])await expect(invoke(name)).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
-  await expect(invoke('$library.tool',{name:'skill_view',args:{name:'hidden'}})).rejects.toMatchObject({code:'HERMES_TOOL_DENIED'});
-  expect(onTool).not.toHaveBeenCalled();expect(await invoke('qa_run')).toEqual({executed:true});expect(onTool).toHaveBeenCalledTimes(1);
- }finally{await child.dispose();await f.runtime.dispose();}
-});
-
 it('serializes original reviews across workers and cancels a queued review admission',async()=>{
  const f=await fixture();try{
   await f.runtime.start(run());await f.runtime.start(run({threadId:'peer',runId:'peer-run',inputId:'peer-input'}));

@@ -1,0 +1,93 @@
+== bounded redacted evidence summary ==
+originalSha256: 158955462a159313cb6713b4f803e5cb9e8dab3ea835df3f9c3e68be4ebd97ad
+originalBytes: 13515
+flags: machinePath=False ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+ ❯ tests/skill-invocation.test.ts:344:13
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+TypeError: Cannot read properties of undefined (reading 'ref')
+ ❯ fixture tests/skill-invocation.test.ts:29:48
+ ❯ tests/skill-invocation.test.ts:352:13
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Object.models packages/runtime/index.ts:109:18
+ ❯ Service.sendMessage packages/core/service.ts:931:18
+ ❯ Service.command packages/core/service.ts:614:147
+ ❯ tests/skills-integration.test.ts:52:61
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ Module.handleDomainTool packages/capabilities/index.ts:115:66
+ ❯ tests/task-memory-recovery.test.ts:120:14
+⎯⎯⎯⎯⎯⎯ Unhandled Errors ⎯⎯⎯⎯⎯⎯
+Vitest caught 4 unhandled errors during the test run.
+This might cause false positive tests. Resolve unhandled errors to make sure your tests are not affected.
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ denied packages/core/linux-path-guard.ts:11:18
+     11| const denied=()=>new HarnessError('CAPABILITY_DENIED','File access che…
+     12| const within=(root:string,path:string)=>path===root||path.startsWith(r…
+ ❯ packages/core/linux-path-guard.ts:88:24
+ ❯ withLinuxDirectoryGuard packages/core/linux-path-guard.ts:152:42
+ ❯ withAccountLogin packages/runtime-login/account-login.ts:18:5
+Serialized Error: { code: 'CAPABILITY_DENIED', details: undefined }
+This error originated in "tests/account-login.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "does not admit a successor sign-in when an expired lease still has a live owner". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences cancel during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences replace during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+AssertionError: expected HarnessError: File access check failed — … { …(2) } to match object { code: 'GITHUB_AUTH_EXPIRED' }
+ ❯ _Assertion.__VITEST_REJECTS__ node_modules/.pnpm/@vitest+expect@4.1.12/node_modules/@vitest/expect/dist/index.js:1747:17
+ ❯ _Assertion.propertyGetter node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1607:27
+ ❯ Object.proxyGetter [as get] node_modules/.pnpm/chai@6.3.0/node_modules/chai/index.js:1696:22
+ ❯ tests/github-workspace.test.ts:159:52
+ ❯ node_modules/.pnpm/@vitest+runner@4.1.12/node_modules/@vitest/runner/dist/chunk-artifact.js:1903:20
+This error originated in "tests/github-workspace.test.ts" test file. It doesn't mean the error was thrown inside the file itself, but while it was running.
+The latest test that might've caused the error is "fences expire during private credential writing before rename and preserves the prior token". It might mean one of the following:
+- The error was thrown, while Vitest was running this test.
+- If the error occurred after the test had been completed, this was the last documented test before it was thrown.
+ Test Files  45 failed | 333 passed | 4 skipped (382)
+      Tests  298 failed | 3845 passed | 58 skipped (4201)
+     Errors  4 errors
+   Duration  917.69s (transform 56.57s, setup 0ms, import 443.57s, tests 2043.60s, environment 228ms)
+ ELIFECYCLE  Test failed. See above for more details.

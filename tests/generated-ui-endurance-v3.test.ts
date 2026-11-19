@@ -1,6 +1,6 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {validateSurface,SURFACE_LIMITS} from '../packages/ui-catalog/index';
@@ -10,19 +10,14 @@ import type {InputRequest} from '../packages/contracts/index';
 import {HarnessError} from '../packages/contracts/index';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
-
-/** M06 generated-UI endurance: the trusted catalog/admission path is exercised
- * for schema rejection, stale binding, reload, long output and broken
- * interactions. Expected-failure fixtures must fail for the intended reason,
- * then the repaired fixture passes. The globally-disabled generated-code
- * capability is not re-enabled — GENERATED_APPS_ENABLED reflects the existing
- * trusted widget path only. */
+/** Pure admission checks. Actual reload, focus, cancellation and worker
+ * isolation are exercised through tests/e2e/host-loop.spec.ts and
+ * tests/widget-isolation.test.ts. Admission alone is not browser evidence.
+ * This suite does not change the existing generated-code activation policy. */
 
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const THREAD='t1';
 
 const surface=(elements:Record<string,{type:string;props:Record<string,unknown>;children?:string[]}>,root='root')=>({root,elements});
@@ -71,7 +66,7 @@ it('a stale request binding is rejected, then the refreshed binding passes',()=>
  expect(fresh.actions.pick.requestRevision).toBe(3); // host stamps the revision it verified
 });
 
-it('reload preserves admitted presentation and bindings when fields are omitted',()=>{
+it('admission preserves existing presentation and bindings when fields are omitted',()=>{
  const store=stateStore();
  store.internal('test.fixture',THREAD,()=>store.put('data','d1',THREAD,{id:'d1',threadId:THREAD,revision:1,value:{total:5},createdAt:new Date().toISOString()}));
  const spec=surface({root:{type:'Stack',props:{},children:['m']},m:{type:'Metric',props:{label:'Total',dataBinding:'t'}}});
@@ -81,7 +76,7 @@ it('reload preserves admitted presentation and bindings when fields are omitted'
  expect(again.bindings.t).toEqual({mode:'live',id:'d1'});
 });
 
-it('control surfaces keep focus primitives valid and invalid state references rejected',()=>{
+it('control schemas admit focusable inputs and reject invalid state references',()=>{
  // A focusable form: Form + Input stateKey stays valid through admission.
  const spec=surface({
   root:{type:'Form',props:{title:'Review',actionId:'submit'},children:['email']},
@@ -93,7 +88,7 @@ it('control surfaces keep focus primitives valid and invalid state references re
  expect(()=>validateSurface(bad)).toThrow();
 });
 
-it('cancellation-adjacent evidence: withdrawn requests cannot back an action and unknown routes are rejected',()=>{
+it('missing requests cannot back an action and unknown routes are rejected',()=>{
  const store=stateStore();
  // No request record at all -> the action cannot claim it.
  const spec=surface({root:{type:'Stack',props:{},children:['go']},go:{type:'Button',props:{label:'Choose',actionId:'pick'}}});

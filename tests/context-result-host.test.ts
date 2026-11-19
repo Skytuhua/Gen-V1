@@ -4,8 +4,14 @@ import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 import { Service } from '../packages/core/service';
 import { Store } from '../packages/storage/store';
-import { configureHostCapabilityFlags } from '../packages/core/capability-flags';
+import { __setCapabilityFlagForTests } from '../packages/core/capability-flags';
+
+function configureHostCapabilityFlags(overrides: Readonly<Partial<Record<'context.compilerV1' | 'tools.deferredV1', boolean>>>) {
+  for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, overrides[key]);
+  return () => { for (const key of ['context.compilerV1', 'tools.deferredV1'] as const) __setCapabilityFlagForTests(key, undefined); };
+}
 import type { DataRecord, ResourceGrant, RuntimeAdapter, RuntimeCallbacks, RuntimeUsage, Thread } from '../packages/contracts';
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const hooks = vi.hoisted(() => ({ afterPut: undefined as (() => void) | undefined, afterGet: undefined as (() => void) | undefined, beforeRead: undefined as (() => Promise<void>) | undefined }));
 // Portable host orchestration proof. Only the native guard is substituted;
@@ -39,7 +45,7 @@ function fixture(options: { enabled?: boolean; deferred?: boolean; additionalToo
   const store = new Store(join(folder, 'profile'));
   let callbacks!: RuntimeCallbacks;
   const runtime: RuntimeAdapter = { configure(value) { callbacks = value; }, models: async () => [], start: async () => {}, followUp: async () => {}, cancel: async () => {}, compact: async () => {}, history: async () => [], dispose: async () => {} };
-  const service = new Service(store, runtime, { additionalTool: options.additionalTool, toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true } });
+  const service = new Service(store, runtime, { additionalTool: options.additionalTool, toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
   const ctx = { threadId: 'thread', runId: 'run', epoch: 1 }, info = statSync(project, { bigint: true });
   const grant: ResourceGrant = { id: 'project', threadId: ctx.threadId, kind: 'project', path: project, label: 'Granted source', writable: false, createdAt: '', identity: { dev: String(info.dev), ino: String(info.ino) } };
   store.internal('fixture', ctx.threadId, () => {
@@ -125,7 +131,7 @@ it('suppresses a preview when the captured physical source is replaced during pe
 
 it('does not reconstruct live invocation authority from persisted result metadata after Service reopen', async () => {
   const f = fixture(), result = await f.read(); await f.service.dispose();
-  const reopened = new Service(f.store, f.service.runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true } });
+  const reopened = new Service(f.store, f.service.runtime, { toolEffectFlags: { 'audit.effectsV1': true, 'security.authorityV1': true }, toolEffectAuthenticator: testEffectAuthenticator() });
   try { expect(await reopened.tool({ name: 'context_result_read', args: { handle: result.handle!, offset: 0, length: 16 } }, f.ctx)).toEqual({ status: 'UNAVAILABLE' }); }
   finally { await reopened.dispose(); }
 });

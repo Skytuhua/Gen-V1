@@ -14,7 +14,7 @@ test('the plan rail uses real checklist progress and keeps unknown agent progres
   const snapshot=fixture(),host=await serveTaskFixture(page,snapshot);await page.goto('/');await openPlan(page);
   const rail=page.getByRole('region',{name:/^Task plan(?::|$)/});await expect(rail).toHaveAttribute('aria-label','Task plan: Repair checkout failures');
   await expect(rail.locator('[data-agent-id="agent-tests"] .plan-agent-summary')).toContainText('50%');
-  const unknown=rail.locator('[data-agent-id="agent-review"]');await expect(unknown.locator('.plan-agent-summary')).not.toContainText('%');await expect(unknown.getByText('Progress not reported.',{exact:true})).toBeVisible();
+  const unknown=rail.locator('[data-agent-id="agent-review"]');await expect(unknown.locator('.plan-agent-summary')).not.toContainText('%');await expect(unknown.getByText(/progress/i)).toHaveCount(0);
   const agent=await rail.locator('[data-agent-id="agent-tests"]').elementHandle();
   const current=snapshot.data.find(data=>data.id===planDataId('task-thread'))!;const value=current.value as PlanRecord;value.agents[0].completedRequirementIds.push('locate');value.agents[0].status='needs_review';current.revision++;await host.publish();
   await expect(rail.locator('[data-agent-id="agent-tests"] .plan-agent-summary')).toContainText('100%');

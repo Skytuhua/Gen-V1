@@ -199,7 +199,10 @@
     "Later observed main 199a2e240aac0374228e82599fe7aeba4afafaf2 is unaccepted. Its M07 and other changes require separate owning integration review; no runtime compatibility or merge approval is claimed. Ordinary PR CI retains accepted-b4aa bytes and separate merge-tree provenance.",
     "The controlled renderer fixture reports 5.6 ms/34 rows versus 2038.1 ms/100000 rows, excludes paint and uses a stubbed read model. It does not establish whole-App startup, full task-tree scaling, installed-desktop DPI or universal-device performance.",
     "Unavailable atomic complete-diff witness, authenticated historical-artifact reader, trusted formatted-inline offsets and optional M10/M14 integrations remain blocked. Feature rollback retains current-code durable source references; old binaries lacking the account-admission witness can fail closed. ui.sourceWorkbenchV1 and reviewerApproval remain false. No merge, release, deployment or activation is granted.",
-    "V6 continuation adds tests/workbench-continuation-v6.test.ts plus docs/implementation/v6/M15/ records on the published c993 cut. The unpublished D01 workflow repair could not be byte-verified against its recorded hashes and remains HOLD_UNPUBLISHED_CUSTODY; a base merge to observed main a79a897d conflicts in 10 files and remains HOLD_SOURCE_DRIFT. Local phase gates here: typecheck/lint/build PASS; pnpm test FAIL 52/4102 and test:browser FAIL 463/1149, both environment-bound (no M15-scope failures). Neither hold grants merge, release or activation; ui.sourceWorkbenchV1 and reviewerApproval stay false."
+    "V6 continuation adds tests/workbench-continuation-v6.test.ts plus docs/implementation/v6/M15/ records on the published c993 cut. The unpublished D01 workflow repair could not be byte-verified against its recorded hashes and remains HOLD_UNPUBLISHED_CUSTODY; a base merge to observed main a79a897d conflicts in 10 files and remains HOLD_SOURCE_DRIFT. Local phase gates here: typecheck/lint/build PASS; pnpm test FAIL 52/4102 and test:browser FAIL 463/1149, both environment-bound (no M15-scope failures). Neither hold grants merge, release or activation; ui.sourceWorkbenchV1 and reviewerApproval stay false.",
+    "Post-merge continuation on linux-arm64 (recovered remote head 25cded33, ancestor of main; R03 merge of main 33639138 committed cleanly): all four v6 targeted suites plus pnpm typecheck, lint and build pass as observed v6pm-* receipts. pnpm test observed statuses: FAIL (pre-pty) then FAIL (post-pty fix); pnpm test:browser observed statuses: FAIL then FAIL — actual receipts retained in ATTEMPT_HISTORY. Separate-cut baseline at main 33639138 (identical product code, detached worktree): pnpm test FAIL (305/4048, failed-file set a strict superset of the candidate's) and test:browser FAIL (every candidate-failed suite also fails on baseline; candidate strictly greener) — confirming environment-bound failures, no M15 regression. C4 Windows native/installed, configured Edge/Chromium suites and repository shards remain NOT_RUN (HOLD_PLATFORM_PROOF): the m15-evidence workflow triggers only on pushes to agent/m15-v3, which no longer exists remotely after the PR #390 merge, and this continuation keeps publication LOCAL_ONLY. D01: recorded payload hashes remain unreproducible (HOLD_UNPUBLISHED_CUSTODY for the payload); the equivalent env block is verified present via explicit commit 0539bc1f. Flags ui.sourceWorkbenchV1 and reviewerApproval remain false.",
+    "Re-published continuation at 249bd5be (fix commit cf420068 plus source-cut refresh): branch agent/m15-v3 restored remotely and PR #732 opened. The first Windows M15 evidence run on pre-fix head 8942531d completed: root browser comparison, native contracts and shard 3/4 SUCCESS; browser contracts (installed Edge) FAILURE. That failure exposed two deterministic M15-scope defects, reproduced locally on headless chromium and fixed at cf420068: (1) placeSplitThread emitted split-workspace.view.activate instead of the authored canonical view.open when returning to an existing thread view (main-side shortcut 62baa5be postdated the M15 spec; canonical view.open preserves the existing view binding and editor custody); (2) ConflictReview left the Resolution note field and Resolve conflict button enabled under readOnly, violating S11. Local re-verification on the fixed head: workbench-app 26/26, workbench 21/21, saved-drafts 27/27, thread-move 24/24, all four targeted vitest suites, typecheck, lint and build PASS; chat-view-modes unchanged at 3/6 (pre-existing drag/IME platform failures). A fresh M15 evidence run re-triggered on Windows at 249bd5be — all 7 jobs (native contracts, Edge browser contracts, 4 repository shards, root browser comparison) queued at time of writing; HOLD_PLATFORM_PROOF remains until it completes. HOLD_UNPUBLISHED_CUSTODY for the D01 payload and reviewerApproval=false are unchanged.",
+    "C4 Windows actual gates executed on 840bb636fb072be137f99e854597b5259e120f7f via CI run 44310248562 plus local replays on this Windows Server 2022 box (receipts v6w-*): installed-Edge browser matrix 18/18 suites PASS including agents-actual-app and split-browser vitest (68/68); root baseline+candidate PASS with candidate at parity; native 37-file suite executes and shard set completes with exactly one residual failure family — tests/hermes-original-integration.test.ts x2 (outbox handled vs processing), identical on main-side PR #675 CI, on this run's native job and shard 2/4, and on the local box replay — proven inherited from main, not M15-scope, and not altered for a pass. Local full-shard replays additionally fail ~40 tests in account-parity/skills-integration/account-profile/runtime-router/workspace-action-outcomes/hermes-service that pass on CI and fail identically on the accepted-b4aa baseline worktree — box-environment-bound, not M15 regression. Bounded performance measured on the runner and locally: windowed renderer fixture p95 4.9 ms under-100ms with 34/300 mounted rows over 100000 retained lines (docs/implementation/v3/m15-artifacts/v6w-renderer-performance-01/). HOLD_PLATFORM_PROOF is resolved by this run; the inherited hermes pair remains an honest open failure owned outside M15. ui.sourceWorkbenchV1 and reviewerApproval remain false; publication per R12 only."
   ],
   "phases": [
     {
@@ -273,7 +276,10 @@
       "commandIds": [
         "c4-typecheck-final-03",
         "c4-build-final-03",
-        "c4-ui-policy-final-02"
+        "c4-ui-policy-final-02",
+        "v6w-gate-typecheck-r3",
+        "v6w-gate-lint-r3",
+        "v6w-gate-build-r4"
       ],
       "artifactRefs": [
         "docs/implementation/v3/m15-artifacts/c4-validation-final-03/source-cut.json",
@@ -387,25 +393,28 @@
     },
     {
       "id": "WINDOWS_NATIVE_ACTUAL",
-      "status": "NOT_RUN",
+      "status": "FAIL",
       "cases": [
         {
           "id": "windows-native-37-file-selection",
-          "status": "NOT_RUN",
-          "evidence": "Execute the exact v4 native command against the future published C4 head/tree/run/attempt. Declaration and Linux skips are not actual-target execution."
+          "status": "PASS",
+          "evidence": "CI run 44310248562 job m15-native on 840bb636fb072be137f99e854597b5259e120f7f executed the exact v4 37-file native command on windows-2022: 36/37 files, 496 passed, 2 failed, 1 skipped. Receipt c4-windows-native-44310248562-1; independent local replay v6w-native-2 reproduces the identical result."
         },
         {
           "id": "windows-leaf-guard-and-first-account-capture",
-          "status": "NOT_RUN",
-          "evidence": "Both locally skipped Windows source-host bodies must actually execute and be reviewed."
+          "status": "PASS",
+          "evidence": "Both locally-skipped Windows source-host bodies (memory-native-file-capture, memory-native-checkpoint, memory-extraction-native) executed green on the runner and on the local Windows box."
         },
         {
           "id": "hermes-source-memory-and-history-continuity",
-          "status": "NOT_RUN",
-          "evidence": "The combined real Hermes/Store/M04/M05 fixture requires actual Windows execution; scripted transport does not establish live-provider operation."
+          "status": "FAIL",
+          "evidence": "tests/hermes-original-integration.test.ts fails 2 tests: expected outbox status handled, got processing. Identical failure on this CI run, on shard 2/4 of the same run, and on main-side PR #675 CI — proven inherited from main, not M15-scope. No timeout or assertion was altered to obtain any pass."
         }
       ],
-      "commandIds": [],
+      "commandIds": [
+        "c4-windows-native-44310248562-1",
+        "v6w-native-2"
+      ],
       "artifactRefs": [
         ".github/workflows/m15-evidence.yml",
         "docs/implementation/v3/m15-artifacts/c4-reviews-01/workflow-v4-proposal-01/ingest-ci-artifact.py"
@@ -413,100 +422,119 @@
     },
     {
       "id": "WINDOWS_BROWSER_ACTUAL",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "cases": [
         {
           "id": "actual-windows-browser-workbench",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-workbench-app",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-project-memory",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-frontend-refinement",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-saved-drafts",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-chat-view-modes",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-artifact-acknowledgment",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-scoped-conversation",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-ui-shell-overlays",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-ui-shell-controls",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-usage-context",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-agents-workspace",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-agents-actual-app",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-workspace-host",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-saved-layout-chooser",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-usage-app-integration",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-desktop-surfaces",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         },
         {
           "id": "actual-windows-browser-split-browser",
-          "status": "NOT_RUN",
-          "evidence": "Exact future C4 push head, run and attempt; preserve declared channel, complete suite selection and original deadlines. Missing or cancelled evidence is not a pass."
+          "status": "PASS",
+          "evidence": "Executed on CI run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f on windows-2022 with installed Edge (msedge channel); suite green. Receipts c4-windows-*-44310248562-1; local box replay of every suite also PASS (v6w-browser-*, v6w-split-browser)."
         }
       ],
-      "commandIds": [],
+      "commandIds": [
+        "c4-windows-workbench-44310248562-1",
+        "c4-windows-workbench-app-44310248562-1",
+        "c4-windows-project-memory-44310248562-1",
+        "c4-windows-frontend-refinement-44310248562-1",
+        "c4-windows-saved-drafts-44310248562-1",
+        "c4-windows-chat-view-modes-44310248562-1",
+        "c4-windows-artifact-acknowledgment-44310248562-1",
+        "c4-windows-scoped-conversation-44310248562-1",
+        "c4-windows-ui-shell-overlays-44310248562-1",
+        "c4-windows-ui-shell-controls-44310248562-1",
+        "c4-windows-usage-context-44310248562-1",
+        "c4-windows-agents-workspace-44310248562-1",
+        "c4-windows-agents-actual-app-44310248562-1",
+        "c4-windows-workspace-host-44310248562-1",
+        "c4-windows-saved-layout-chooser-44310248562-1",
+        "c4-windows-usage-app-integration-44310248562-1",
+        "c4-windows-desktop-surfaces-44310248562-1",
+        "c4-windows-split-browser-44310248562-1"
+      ],
       "artifactRefs": [
         ".github/workflows/m15-evidence.yml",
         "docs/implementation/v3/m15-artifacts/c4-reviews-01/final-publication-plan-01/workflow-contract.json"
@@ -514,50 +542,58 @@
     },
     {
       "id": "FULL_REPOSITORY_ACTUAL",
-      "status": "NOT_RUN",
+      "status": "FAIL",
       "cases": [
         {
           "id": "actual-windows-full-shard-1-of-4",
-          "status": "NOT_RUN",
-          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+          "status": "PASS",
+          "evidence": "CI shard 1/4 PASS on run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f."
         },
         {
           "id": "actual-windows-full-shard-2-of-4",
-          "status": "NOT_RUN",
-          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+          "status": "FAIL",
+          "evidence": "CI shard 2/4 fails only tests/hermes-original-integration.test.ts x2 (handled vs processing) — same inherited pair as the native job and PR #675 CI; all other 124 files pass."
         },
         {
           "id": "actual-windows-full-shard-3-of-4",
-          "status": "NOT_RUN",
-          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+          "status": "PASS",
+          "evidence": "CI shard 3/4 PASS on run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f."
         },
         {
           "id": "actual-windows-full-shard-4-of-4",
-          "status": "NOT_RUN",
-          "evidence": "Unfiltered pnpm test with the existing CI setup and exact pushed head; retain JSON, command receipt, source metadata and skips."
+          "status": "PASS",
+          "evidence": "CI shard 4/4 PASS on run 44310248562 at 840bb636fb072be137f99e854597b5259e120f7f (project-search-host 10000-file bound passed; its earlier run flake did not reproduce)."
         }
       ],
-      "commandIds": [],
+      "commandIds": [
+        "c4-windows-full-shard-1-44310248562-1",
+        "c4-windows-full-shard-2-44310248562-1",
+        "c4-windows-full-shard-3-44310248562-1",
+        "c4-windows-full-shard-4-44310248562-1"
+      ],
       "artifactRefs": [
         ".github/workflows/m15-evidence.yml"
       ]
     },
     {
       "id": "ROOT_BROWSER_COMPARISON_ACTUAL",
-      "status": "NOT_RUN",
+      "status": "PASS",
       "cases": [
         {
           "id": "accepted-b4aa-root-suite",
-          "status": "NOT_RUN",
-          "evidence": "Complete root suite at accepted b4aa with independent source metadata and command outcome."
+          "status": "PASS",
+          "evidence": "CI root-browser job ran the accepted b4aa baseline root suite on windows-2022 run 44310248562: PASS (authoritative separate-source-cut evidence). Local baseline replay v6w-root-baseline: 110 pass + 2 flaky (host-loop, shell-micro-motion); shell-micro-motion green on retry, host-loop still fails locally on this box even on retry (v6w-root-baseline-r2, box-bound flake) — CI baseline PASS stands."
         },
         {
           "id": "candidate-c4-root-suite",
-          "status": "NOT_RUN",
-          "evidence": "Complete root suite at the actual future published C4 commit; comparison retains every failure and does not turn matching failures into PASS."
+          "status": "PASS",
+          "evidence": "CI candidate root suite on 840bb636fb072be137f99e854597b5259e120f7f PASS; local replay v6w-root-candidate 171 pass, 1 skip. Candidate is at parity with baseline — no M15 regression."
         }
       ],
-      "commandIds": [],
+      "commandIds": [
+        "c4-windows-root-baseline-44310248562-1",
+        "c4-windows-root-candidate-44310248562-1"
+      ],
       "artifactRefs": [
         ".github/workflows/m15-evidence.yml",
         "docs/implementation/v3/m15-artifacts/c3-windows-run-43797606300-attempt-1/root-browser-comparison-01.json"
@@ -701,6 +737,45 @@
         "docs/implementation/v6/M15/requirements.json",
         "docs/implementation/v6/M15/handoff.md",
         "docs/implementation/v6/M15/feature-comparison.md"
+      ]
+    },
+    {
+      "id": "V6_POSTMERGE_LINUX",
+      "status": "PASS",
+      "cases": [
+        {
+          "id": "postmerge-targeted-suites-linux",
+          "status": "PASS",
+          "evidence": "The four named v6 targeted suites pass on linux-arm64 (Node v24.11.1, pnpm 10.30.3) against the merged tree (agent/m15-v3 integrated with main 33639138): source-selection-v3, workbench-performance-v3, workbench-recovery-v3, workbench-continuation-v6."
+        },
+        {
+          "id": "postmerge-static-and-build-gates-linux",
+          "status": "PASS",
+          "evidence": "pnpm typecheck, pnpm lint and pnpm build pass as separate observed receipts on linux-arm64 against the merged tree."
+        },
+        {
+          "id": "postmerge-baseline-comparison",
+          "status": "PASS",
+          "evidence": "R09 separate-source-cut baseline executed in detached worktree /home/piadmin/Gen-V1-m15-v6-baseline at captured main 33639138 (product code identical to candidate; PR #390 already merged). Baseline pnpm test FAIL 305/4048 across 44 files — a strict superset of the candidate's 43 failed files (extra file is a baseline-only flake); every candidate failure reproduces on the baseline. Baseline pnpm test:browser ran all 78 suites to completion: every candidate-failed suite also fails on baseline, and the candidate is strictly greener (composer-press 22/0 and saved-drafts 27/0 green on candidate, 1 unexpected each on baseline). No M15 regression detected. Receipts v6base-gate-test and v6base-gate-test-browser retained."
+        },
+        {
+          "id": "postmerge-custody-and-disposition",
+          "status": "PASS",
+          "evidence": "Recovered remote head 25cded33 is an ancestor of main; PR #390 merged at 2eec9061. requirements.json D01 re-audited: recorded payload hashes unreproducible; equivalent longpaths env block verified present in both named workflows via explicit commit 0539bc1f. Original checkout, sibling worktrees, stash and untracked files preserved."
+        }
+      ],
+      "commandIds": [
+        "v6pm-vitest-source-selection-v3",
+        "v6pm-vitest-workbench-performance-v3",
+        "v6pm-vitest-workbench-recovery-v3",
+        "v6pm-vitest-workbench-continuation-v6",
+        "v6pm-gate-typecheck",
+        "v6pm-gate-lint",
+        "v6pm-gate-build"
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M15/requirements.json",
+        "docs/implementation/v6/M15/handoff-postmerge.md"
       ]
     }
   ]

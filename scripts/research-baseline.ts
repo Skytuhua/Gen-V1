@@ -6,7 +6,7 @@
 // real corepack executable (or a resolved JS entry under process.execPath).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,28 +28,98 @@ export function resolveExecutable(name: string): ResolvedExecutable {
   if (/\.(cmd|bat|ps1)$/i.test(name)) throw new HarnessError('UNSAFE_EXECUTABLE', `Refusing to spawn a shell shim without a shell: ${name}`);
   if (name.includes('/') || name.includes('\\') || isAbsolute(name)) {
     const target = resolve(name);
-    if (!existsSync(target)) throw new HarnessError('SPAWN_ERROR', `Executable is missing: ${target}`);
+    const targetStat = statSync(target, { throwIfNoEntry: false });
+    if (!targetStat) throw new HarnessError('SPAWN_ERROR', `Executable is missing: ${target}`);
+    if (!targetStat.isFile()) throw new HarnessError('SPAWN_ERROR', `Executable path is not a file: ${target}`);
     return { file: target, identity: realpathSync(target) };
   }
   for (const dir of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
     for (const candidate of [name, `${name}.exe`, `${name}.com`]) {
       const target = join(dir, candidate);
-      if (existsSync(target) && statSync(target).isFile()) return { file: target, identity: realpathSync(target) };
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      if (process.platform !== 'win32') {
+        try { accessSync(target, constants.X_OK); }
+        catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          if (code === 'EACCES' || code === 'ENOENT' || code === 'ENOTDIR') continue;
+          throw error;
+        }
+      }
+      return { file: target, identity: realpathSync(target) };
     }
   }
   throw new HarnessError('SPAWN_ERROR', `Executable is not on PATH: ${name}`);
 }
 
 export interface PackageManagerResolution { file: string; prefix: string[]; declaredVersion: string | null }
+interface InstalledPnpm { resolution: PackageManagerResolution; matchesDeclared: boolean }
+// Resolve an installed pnpm (npm's symlink or the JavaScript entry beside its
+// Windows shim) and read the version from its own package metadata. A shim is
+// never returned: `shell:false` cannot run a .cmd file, and corepack shims
+// resolve to corepack's dispatcher, which is handled separately.
+function installedPnpm(declared: string | null): InstalledPnpm | null {
+  // A corepack shim is not an installed copy: it is the dispatcher, which the
+  // caller falls back to only after this search fails to produce a match.
+  const shimmed = (path: string) => path.split(/[\\/]/).includes('corepack');
+  let fallback: InstalledPnpm | null = null;
+  for (const directory of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
+    for (const name of ['pnpm', 'pnpm.exe', 'pnpm.cmd', 'pnpm.CMD']) {
+      const target = join(directory, name);
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      const actual = realpathSync(target);
+      if (/\.exe$/i.test(actual)) {
+        if (!shimmed(actual)) fallback ??= { resolution: { file: actual, prefix: [], declaredVersion: declared }, matchesDeclared: false };
+        continue;
+      }
+      for (const entry of [actual, join(dirname(actual), 'node_modules', 'pnpm', 'bin', 'pnpm.cjs'), join(dirname(actual), '..', 'pnpm', 'bin', 'pnpm.cjs')]) {
+        if (!/\.[cm]?js$/i.test(entry) || !existsSync(entry) || !statSync(entry).isFile() || shimmed(entry)) continue;
+        let version: string | null = null;
+        for (const metadataPath of [join(dirname(entry), 'package.json'), join(dirname(entry), '..', 'package.json')]) {
+          if (!existsSync(metadataPath)) continue;
+          try {
+            const metadata = JSON.parse(readFileSync(metadataPath, 'utf8'));
+            if (metadata?.name === 'pnpm' && typeof metadata.version === 'string') { version = metadata.version; break; }
+          } catch { /* Unreadable metadata is not a version claim. */ }
+        }
+        const resolution = { file: process.execPath, prefix: [realpathSync(entry)], declaredVersion: declared };
+        // A later PATH entry may still carry the declared version.
+        if (version !== null && version === declared) return { resolution, matchesDeclared: true };
+        fallback ??= { resolution, matchesDeclared: false };
+      }
+      // Standalone Unix installers ship a runnable pnpm with no extension.
+      if (process.platform !== 'win32' && name === 'pnpm' && !shimmed(actual)) {
+        try {
+          accessSync(actual, constants.X_OK);
+          fallback ??= { resolution: { file: actual, prefix: [], declaredVersion: declared }, matchesDeclared: false };
+        } catch { /* Ignore an extensionless candidate that cannot be executed. */ }
+      }
+    }
+  }
+  return fallback;
+}
 export function resolvePackageManager(repoRoot: string): PackageManagerResolution {
   const pkg = JSON.parse(readFileSync(join(repoRoot, 'package.json'), 'utf8'));
   const declared = typeof pkg.packageManager === 'string' ? pkg.packageManager.split('@').at(-1)! : null;
+  // An installed copy that names the declared version answers `--version`
+  // offline. Corepack may sit beside node and still be unable to fetch that
+  // version with COREPACK_ENABLE_NETWORK=0, so it never outranks this match.
+  const installed = installedPnpm(declared);
+  if (installed?.matchesDeclared) return installed.resolution;
   // `corepack enable` lays down POSIX/.cmd shims, not a PE image, so the real
   // entry on Windows is node.exe plus corepack's per-manager dispatcher.
   const dispatcher = join(dirname(process.execPath), 'node_modules', 'corepack', 'dist', 'pnpm.js');
   if (existsSync(dispatcher)) return { file: process.execPath, prefix: [dispatcher], declaredVersion: declared };
-  const corepack = resolveExecutable('corepack');
-  return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+  try {
+    const corepack = resolveExecutable('corepack');
+    return { file: corepack.file, prefix: ['pnpm'], declaredVersion: declared };
+  } catch (error) {
+    if (!(error instanceof HarnessError) || error.code !== 'SPAWN_ERROR') throw error;
+  }
+  // Corepack is optional when the declared pnpm is already installed; a
+  // different installed version is still preferred over refusing to run, so
+  // the caller reports the observed mismatch instead of a missing toolchain.
+  if (installed) return installed.resolution;
+  throw new HarnessError('SPAWN_ERROR', 'Corepack or an installed pnpm executable/JavaScript entry is required.');
 }
 
 export interface RecordedObservation {
@@ -84,7 +154,9 @@ export async function runRecordedCommand(file: string, args: string[], options: 
   options.signal?.addEventListener('abort', onAbort, { once: true });
   if (options.signal?.aborted) controller.abort();
   try {
-    const result = await runProcess(resolved.file, args, cwdIdentity, controller.signal, () => {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS, options.environment ?? {}, options.outputLimit ?? OUTPUT_LIMIT);
+    const environment = options.environment?.COREPACK_ENABLE_NETWORK === '0' && process.env.COREPACK_HOME
+      ? { COREPACK_HOME: process.env.COREPACK_HOME, ...options.environment } : options.environment;
+    const result = await runProcess(resolved.file, args, cwdIdentity, controller.signal, () => {}, options.timeoutMs ?? DEFAULT_TIMEOUT_MS, environment, options.outputLimit ?? OUTPUT_LIMIT);
     return finish({ cwdIdentity, executableIdentity: resolved.identity, exitCode: result.exitCode, termination: result.cancelled ? 'CANCELLED' : result.timedOut ? 'TIMEOUT' : 'NONE', stdout: result.stdout, stderr: result.stderr, truncated: result.truncated, pid: result.pid });
   } catch (error) {
     if (error instanceof HarnessError && error.code === 'CANCELLED')
@@ -102,7 +174,7 @@ export function statusFromObservation(observation: RecordedObservation, options:
   const marker = options.expectedNegativeMarker;
   if (marker === undefined) return 'PASS';
   const output = `${observation.stdout}\n${observation.stderr}`;
-  return (typeof marker === 'string' ? output.includes(marker) : marker.test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
+  return (typeof marker === 'string' ? output.includes(marker) : new RegExp(marker.source, marker.flags).test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
 }
 
 export async function writeCommandEvidence(observation: RecordedObservation, outDir: string, id: string, status: CommandStatus, expectedNegative?: ExpectedNegative): Promise<CommandEvidence> {
@@ -141,26 +213,32 @@ export const CONTRACT_SOURCES: Record<string, string> = {
 };
 
 function git(rootDir: string, args: string[]): string {
-  return execFileSync('git', ['-C', rootDir, ...args], { encoding: 'utf8', windowsHide: true }).trim();
+  // Evidence checks inspect only the checkout. A partial clone must not
+  // fetch an unknown pin implicitly or hang waiting for a promisor remote.
+  return execFileSync('git', ['-C', rootDir, ...args], {
+    encoding: 'utf8', windowsHide: true, env: { ...process.env, GIT_NO_LAZY_FETCH: '1' },
+  }).trim();
 }
 
 export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceIssue[] {
   const issues: EvidenceIssue[] = [];
   sourceLockV3Schema.parse(lock);
+  try { git(rootDir, ['merge-base', '--is-ancestor', lock.auditAncestorSha, lock.executionBaseSha]); }
+  catch { issues.push({ code: 'AUDIT_NOT_ANCESTOR', message: 'Audit commit ' + lock.auditAncestorSha + ' is not an ancestor of ' + lock.executionBaseSha + '.' }); }
   const approved = new Map(lock.approvedDrift.map(item => [item.path, item]));
   for (const inspected of lock.inspectedPaths) {
-    if (inspected.path.includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
+    if (inspected.path.split('/').includes('..') || isAbsolute(inspected.path) || inspected.path.includes('\\') || inspected.path.includes(':'))
       issues.push({ code: 'INVALID_INSPECTED_PATH', message: `Inspected path is not a repository-relative path: ${inspected.path}` });
     let actual: string | null = null;
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${inspected.path}`]); } catch { /* missing at base */ }
     const drift = approved.get(inspected.path);
     if (actual === inspected.blobSha) continue;
-    if (drift && drift.fromBlob === inspected.blobSha)
+    if (drift && drift.fromBlob === inspected.blobSha && drift.toBlob === actual)
       issues.push({ code: 'APPROVED_DRIFT_PRESENT', message: `${inspected.path}: recorded approved drift to ${drift.toBlob} — ${drift.note}` });
     else issues.push({ code: 'SOURCE_DRIFT', message: `${inspected.path}: blob at base is ${actual ?? 'missing'}, expected ${inspected.blobSha}` });
   }
   for (const sha of lock.acceptedDependencyCommits) {
-    try { execFileSync('git', ['-C', rootDir, 'merge-base', '--is-ancestor', sha, lock.executionBaseSha], { windowsHide: true }); }
+    try { git(rootDir, ['merge-base', '--is-ancestor', sha, lock.executionBaseSha]); }
     catch { issues.push({ code: 'DEPENDENCY_NOT_ACCEPTED', message: `Accepted dependency commit ${sha} is not an ancestor of ${lock.executionBaseSha}.` }); }
   }
   for (const contract of lock.publicContracts) {
@@ -170,8 +248,13 @@ export function verifySourceLock(rootDir: string, lock: SourceLockV3): EvidenceI
     try { actual = git(rootDir, ['rev-parse', `${lock.executionBaseSha}:${source}`]); } catch { /* missing */ }
     if (actual !== contract.version)
       issues.push({ code: 'CONTRACT_VERSION_MISMATCH', message: `Contract ${contract.name} version ${contract.version} does not match ${source} blob ${actual ?? 'missing'} at base.` });
-    for (const testId of contract.testIds)
-      if (!existsSync(join(rootDir, testId))) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test is absent: ${testId}` });
+    for (const testId of contract.testIds) {
+      let isFile = false;
+      // Missing or inaccessible test files cannot establish compatibility.
+      try { isFile = statSync(join(rootDir, testId), { throwIfNoEntry: false })?.isFile() ?? false; }
+      catch { /* collect the issue and continue checking the other entries */ }
+      if (!isFile) issues.push({ code: 'CONTRACT_TEST_MISSING', message: `Contract ${contract.name} test is not an accessible regular file: ${testId}` });
+    }
   }
   return issues;
 }
@@ -186,7 +269,12 @@ const cell = (value: number | null, suffix = '') => `<td>${value === null ? 'una
 // unavailable measurement, failed check and expected-negative reproduction.
 // Byte budgets are labelled bytes, never tokens.
 export function benchmarkReportHtml(records: readonly BenchmarkRecord[]): string {
-  const rows = records.flatMap(record => [record.baseline, record.candidate].filter((run): run is NonNullable<typeof run> => run !== null).map(run => {
+  const rows = records.flatMap(record => (['baseline', 'candidate'] as const).map(role => {
+    const run = record[role] ?? { role, status: 'UNAVAILABLE', measurement: {
+      elapsedMs: null, coldStartMs: null, firstPublicResponseMs: null, requests: null,
+      inputBytes: null, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
+      totalCostBytes: null, backgroundCostBytes: null, completionQuality: null,
+    } };
     const m = run.measurement;
     return `<tr class="${run.status.toLowerCase()}"><td>${escapeHtml(record.fixture)}</td><td>${escapeHtml(record.config)}</td><td>${record.model ? escapeHtml(record.model) : 'unavailable'}</td><td>${run.role}</td><td class="status">${run.status}</td><td>${record.seed}</td>`
       + cell(m.elapsedMs, ' ms') + cell(m.coldStartMs, ' ms') + cell(m.firstPublicResponseMs, ' ms') + cell(m.requests)
@@ -210,29 +298,60 @@ const baselineCommands = (pm: PackageManagerResolution): BaselineCommand[] => [
   { id: 'test-browser', args: [...pm.prefix, 'test:browser'], required: true },
 ];
 
-export async function runBaseline(outDir: string, repoRoot = root): Promise<{ commands: CommandEvidence[]; platform: string; nodeVersion: string; packageManagerVersion: string }> {
+export interface BaselineOptions { commandTimeoutMs?: number }
+function baselineCommandTimeout(value: unknown): number {
+  // Node timers overflow beyond this finite signed 32-bit range.
+  if (typeof value !== 'number' || !Number.isSafeInteger(value) || value < 1 || value > 2_147_483_647)
+    throw new HarnessError('INVALID_INPUT', 'Command timeout must be an integer from 1 to 2147483647 milliseconds.');
+  return value;
+}
+
+export async function runBaseline(outDir: string, repoRoot = root, options: BaselineOptions = {}): Promise<{ commands: CommandEvidence[]; platform: string; nodeVersion: string; packageManagerVersion: string; commandTimeoutMs: number }> {
+  const commandTimeoutMs = baselineCommandTimeout(options.commandTimeoutMs === undefined ? DEFAULT_TIMEOUT_MS : options.commandTimeoutMs);
   if (existsSync(outDir)) throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
   const pm = resolvePackageManager(repoRoot);
+  // Take exclusive custody before starting a command; a concurrent run must
+  // not write overlapping receipts even when both saw an absent directory.
+  await mkdir(dirname(outDir), { recursive: true });
+  try { await mkdir(outDir); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST')
+      throw new HarnessError('INVALID_INPUT', `Output directory must be new: ${outDir}`);
+    throw error;
+  }
   const commands: CommandEvidence[] = [];
-  const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000 });
+  const environment = { COREPACK_ENABLE_NETWORK: '0' };
+  const versionObs = await runRecordedCommand(pm.file, [...pm.prefix, '--version'], { cwd: repoRoot, timeoutMs: 60_000, environment });
   const packageManagerVersion = statusFromObservation(versionObs) !== 'PASS' ? 'unavailable' : versionObs.stdout.trim().split('\n').at(-1) ?? 'unavailable';
   commands.push(await writeCommandEvidence(versionObs, outDir, '00-package-manager', statusFromObservation(versionObs)));
+  if (!pm.declaredVersion || packageManagerVersion !== pm.declaredVersion)
+    throw new HarnessError('INCOMPATIBLE_TOOLCHAIN', `Installed pnpm ${packageManagerVersion} does not match the declared version ${pm.declaredVersion ?? 'unavailable'}.`);
   for (const item of baselineCommands(pm)) {
-    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: DEFAULT_TIMEOUT_MS });
+    const observation = await runRecordedCommand(pm.file, item.args, { cwd: repoRoot, signal: undefined, timeoutMs: commandTimeoutMs, environment });
     commands.push(await writeCommandEvidence(observation, outDir, `10-${item.id}`, statusFromObservation(observation)));
   }
-  return { commands, platform: `${process.platform}-${process.arch}`, nodeVersion: process.version, packageManagerVersion };
+  return { commands, platform: `${process.platform}-${process.arch}`, nodeVersion: process.version, packageManagerVersion, commandTimeoutMs };
 }
 
 export function baselineMain(args: string[]): Promise<number> {
-  const outIndex = args.indexOf('--out');
-  if (outIndex < 0 || !args[outIndex + 1] || args.length !== 2) {
-    console.error('Usage: tsx scripts/research-baseline.ts --out <NEW-directory>');
+  const usage = () => {
+    console.error('Usage: tsx scripts/research-baseline.ts --out <NEW-directory> [--command-timeout-ms <1..2147483647>]');
     return Promise.resolve(2);
+  };
+  let outDir: string | undefined, commandTimeoutMs: number | undefined;
+  for (let index = 0; index < args.length; index += 2) {
+    const name = args[index], value = args[index + 1];
+    if (!value || value.startsWith('--')) return usage();
+    if (name === '--out' && outDir === undefined) outDir = value;
+    else if (name === '--command-timeout-ms' && commandTimeoutMs === undefined && /^[1-9][0-9]*$/.test(value)) {
+      try { commandTimeoutMs = baselineCommandTimeout(Number(value)); }
+      catch { return usage(); }
+    } else return usage();
   }
-  return runBaseline(resolve(args[outIndex + 1])).then(result => {
+  if (outDir === undefined) return usage();
+  return runBaseline(resolve(outDir), root, { commandTimeoutMs }).then(result => {
     const failed = result.commands.filter(command => command.status === 'FAIL' || command.status === 'BLOCKED');
-    console.log(JSON.stringify({ platform: result.platform, nodeVersion: result.nodeVersion, packageManagerVersion: result.packageManagerVersion, commands: result.commands.map(command => ({ status: command.status, argv: command.argv, exitCode: command.exitCode, termination: command.termination })) }, null, 2));
+    console.log(JSON.stringify({ platform: result.platform, nodeVersion: result.nodeVersion, packageManagerVersion: result.packageManagerVersion, commandTimeoutMs: result.commandTimeoutMs, commands: result.commands.map(command => ({ status: command.status, argv: command.argv, exitCode: command.exitCode, termination: command.termination })) }, null, 2));
     return failed.length ? 1 : 0;
   });
 }

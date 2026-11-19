@@ -1,0 +1,11 @@
+
+Running 6 tests using 1 worker
+
+  ✓  1 tests/e2e/context-connections.spec.ts:9:1 › thread note drafts survive reload and accepted notes can be forgotten (17.7s)
+  ✓  2 tests/e2e/context-connections.spec.ts:27:1 › subscription inventory exposes OAuth, plan keys and official runtimes with explicit connection commands (15.2s)
+  ✓  3 tests/e2e/context-connections.spec.ts:40:1 › ordinary chat does not download unused task component families (4.1s)
+  ✓  4 tests/e2e/context-connections.spec.ts:48:1 › an older note draft cannot silently overwrite a newer agent note, including after reload (9.0s)
+  ✓  5 tests/e2e/context-connections.spec.ts:65:1 › a saved note named new never shares a journal or mount identity with a fresh note (7.9s)
+  ✓  6 tests/e2e/context-connections.spec.ts:74:3 › absolute local clock format (T07/R10) › connection check time follows the system/24h/12h preference at the 13:05 fixture (10.0s)
+
+  6 passed (1.1m)

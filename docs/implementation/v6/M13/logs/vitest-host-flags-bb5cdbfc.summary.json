@@ -1,0 +1,30 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store — not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/host-capability-flags.test.ts"
+ ],
+ "testedSha": "bb5cdbfcb1dc98965d6609ba7ed2784a50c78ce2",
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T23:33:44.799Z",
+ "endedAt": "2026-11-18T23:33:50.669Z",
+ "exitCode": 1,
+ "termination": "NONE",
+ "resultLines": [
+  "Test Files  1 failed (1)",
+  "Tests  no tests — suite load failure",
+  "Error: Failed to load native module pty.node (node-pty linux-arm64 prebuild absent on this host — environment-bound, zero tests ran, not a merge regression)"
+ ],
+ "rawArtifact": {
+  "file": "vitest-host-flags-bb5cdbfc.log",
+  "sha256": "2c93e10f52ca903235bfe0e9ce41dcdccfe082e257b1a63b781f3b6a2c86e340",
+  "bytes": 1874,
+  "retention": "agent-owned local evidence store (m13-custody/bb5cdbfc)",
+  "published": false
+ }
+}

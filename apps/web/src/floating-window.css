@@ -61,4 +61,4 @@
 .floating-usage-window[data-minimize-only=true] .floating-window-summary {font-size:11px;gap:4px;}
 :root[data-theme=dark] .floating-window {box-shadow:0 12px 42px #0005,0 0 0 1px var(--border);}
 @media(max-width:700px) {.floating-window .plan-status {padding:16px 14px 22px;}.floating-window-summary {gap:7px;font-size:11px;}.floating-window-summary .usage-context-inline {display:none;}.floating-usage-details {padding:12px;}}
-@media(prefers-reduced-motion:reduce) {.floating-window {transition:none;}.floating-window-body,.usage-context-track>span {transition-duration:60ms;}}
+@media(prefers-reduced-motion:reduce) {.floating-window {transition:none;}.floating-window-body {transition-duration:60ms;}.usage-context-track>span {transition:none;}}

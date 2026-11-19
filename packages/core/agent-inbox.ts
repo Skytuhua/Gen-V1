@@ -107,7 +107,10 @@ export class AgentInbox {
       updatedAt: now,
       error: error.slice(0, 1024),
     });
-    this.hooks.store.internal('agentInput.reject', spec.taskId, () => this.hooks.store.put(INPUT_KIND, record.inputId, spec.taskId, record));
+    // A rejection describes this resubmission only. It must never replace an
+    // input identity that already holds a queued or delivered record, or the
+    // rejected retry would silently delete the caller's pending input.
+    if (!this.hooks.store.get(INPUT_KIND, record.inputId)) this.hooks.store.internal('agentInput.reject', spec.taskId, () => this.hooks.store.put(INPUT_KIND, record.inputId, spec.taskId, record));
     return record;
   }
 
@@ -205,7 +208,10 @@ export class AgentInbox {
       createdAt: now,
     });
     // Mailboxes are data, not control: posting never creates grants or runs commands.
+    // The cap bounds active messages, exactly as messages() reports them: an
+    // expired message no longer holds a board slot.
     const active = store.all<AgentMessageV1>(MESSAGE_KIND).filter(message => message.taskId === spec.taskId
+      && message.expiresAt > now
       && (message.receipt.status === 'POSTED' || message.receipt.status === 'DELIVERED'));
     if (active.length >= AGENT_WORK_LIMITS.activeMessagesPerTask) throw new HarnessError('INVALID_AGENT_MESSAGE', `Task ${spec.taskId} already has ${AGENT_WORK_LIMITS.activeMessagesPerTask} active messages`);
     store.internal('agentMessage.post', spec.taskId, () => store.put(MESSAGE_KIND, record.messageId, spec.taskId, record));

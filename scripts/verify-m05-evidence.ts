@@ -10,7 +10,7 @@ import { bundleStatus, implementationEvidenceV3Schema, sourceLockV3Schema, valid
 const root = resolve(fileURLToPath(new URL('../', import.meta.url)));
 const directory = resolve(root, 'docs/implementation/v3');
 const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex');
-const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim();
+const git = (...args: string[]) => execFileSync('git', args, { cwd: root, encoding: 'utf8' });
 const errors: string[] = [];
 const lockBytes = readFileSync(resolve(directory, 'M05-source-lock.json'));
 const lock = sourceLockV3Schema.parse(JSON.parse(lockBytes.toString('utf8')));
@@ -18,7 +18,7 @@ const evidence = implementationEvidenceV3Schema.parse(JSON.parse(readFileSync(re
 if (sha256(lockBytes) !== evidence.sourceLockDigest) errors.push('Source lock digest mismatch.');
 errors.push(...validateImplementationEvidence(evidence, { expectedBaseSha: lock.executionBaseSha, requiredContracts: lock.publicContracts }).map(issue => `${issue.code}: ${issue.message}`));
 for (const path of lock.inspectedPaths) {
-  if (git('rev-parse', `${lock.executionBaseSha}:${path.path}`) !== path.blobSha) errors.push(`Accepted source blob changed: ${path.path}`);
+  if (git('rev-parse', `${lock.executionBaseSha}:${path.path}`).trim() !== path.blobSha) errors.push(`Accepted source blob changed: ${path.path}`);
 }
 for (const commit of lock.acceptedDependencyCommits) {
   try { execFileSync('git', ['merge-base', '--is-ancestor', commit, lock.executionBaseSha], { cwd: root }); }
@@ -32,7 +32,7 @@ for (const phase of evidence.phases) {
     const contained = relative(root, path);
     if (!contained || contained.startsWith('..') || isAbsolute(contained) || !existsSync(path)) { errors.push(`Missing log: ${command.boundedLogRef}`); continue; }
     if (statSync(path).size > 65536) errors.push(`Unbounded log: ${command.boundedLogRef}`);
-    if (sha256(readFileSync(path)) !== command.logDigest) errors.push(`Log digest mismatch: ${command.boundedLogRef}`);
+    else if (sha256(readFileSync(path)) !== command.logDigest) errors.push(`Log digest mismatch: ${command.boundedLogRef}`);
     if (Date.parse(command.endedAt) < Date.parse(command.startedAt)) errors.push(`Invalid command times: ${command.boundedLogRef}`);
   }
   for (const path of phase.artifactRefs) if (!existsSync(resolve(root, path))) errors.push(`Missing artifact: ${path}`);
@@ -40,8 +40,8 @@ for (const phase of evidence.phases) {
 for (const path of evidence.changedFiles) if (!existsSync(resolve(root, path))) errors.push(`Missing changed file: ${path}`);
 const expected = new Set(evidence.changedFiles);
 const actual = new Set([
-  ...git('diff', '--name-only', lock.executionBaseSha).split('\n'),
-  ...git('ls-files', '--others', '--exclude-standard').split('\n'),
+  ...git('diff', '--name-only', '-z', lock.executionBaseSha, '--').split('\0'),
+  ...git('ls-files', '--others', '--exclude-standard', '-z').split('\0'),
 ].filter(Boolean));
 for (const path of actual) if (!expected.has(path)) errors.push(`Unrecorded change: ${path}`);
 for (const path of expected) if (!actual.has(path)) errors.push(`Receipt lists an unchanged path: ${path}`);

@@ -1,3 +1,4 @@
+import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -27,7 +28,7 @@ async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-effect-recovery-'));
   const store = new Store(join(root, 'state'));
   const authority = new ToolAuthority(buildToolRegistry());
-  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }));
+  const ledger = new ToolEffectLedger(store, authority, createToolEffectFlags({ 'audit.effectsV1': true, 'security.authorityV1': true }), testEffectAuthenticator());
   cleanups.push(async () => { store.close(); await rm(root, { recursive: true, force: true }); });
   return { store, authority, ledger };
 }
@@ -149,7 +150,7 @@ it('does not repeat an effect across an invocation page boundary', async () => {
   expect(new Set(seen).size).toBe(3);
 });
 
-const operationDefinition = { id: 'operation:file.replace', version: 1, schemaDigest: 'd', risk: 'HOST_EXECUTE' as const, replayClass: 'NONREPLAYABLE' as const, allowedRoles: ['run' as const], executorBinding: 'domain' as const, approval: 'operation' as const };
+const operationDefinition = { id: 'operation:file.replace', version: 1 as const, schemaDigest: 'd', risk: 'HOST_EXECUTE' as const, replayClass: 'NONREPLAYABLE' as const, allowedRoles: ['run' as const], executorBinding: 'domain' as const, approval: 'operation' as const };
 const crashedOperation = { id: 'op-crash', threadId: 'thread-1', revision: 1, kind: 'file.replace', description: '', args: {}, resourceIds: [], preconditions: {}, status: 'succeeded' as const, approved: true, createdAt: '', result: { done: true } };
 
 it('settles a crashed operation dispatch from the committed operation record', async () => {

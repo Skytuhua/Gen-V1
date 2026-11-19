@@ -84,15 +84,44 @@ export const M11_FLAG_KEYS = [
 ] as const;
 export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 
+// M14 flag set: branchable sessions and inert history imports. Both stay off
+// until each sub-capability carries its own proof; disabling them removes
+// creation/import while preserving captured and imported provenance.
+export const M14_FLAG_KEYS = ["sessions.branchV1", "sessions.inertImportV1"] as const;
+export type M14FlagKey = (typeof M14_FLAG_KEYS)[number];
+
 export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
 export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
+
+// M10 flag set: durable background work and human handoffs. Each risky
+// sub-capability keeps its own key and proof; contracts and ordinary RUN jobs
+// never unlock service lifetime, idle review forks or external intake.
+export const M10_FLAG_KEYS = [
+  "jobs.backgroundV1",
+  "jobs.serviceLifetimeV1",
+  "jobs.idleReviewV1",
+  "integrations.intakeV1",
+] as const;
+export type M10FlagKey = (typeof M10_FLAG_KEYS)[number];
 
 // M16 flag set: consented browser/desktop control. Each risky sub-capability
 // keeps its own key and its own proof; one core test never unlocks both.
 export const M16_FLAG_KEYS = ["control.consentedBrowserV1", "control.selectedDesktopV1"] as const;
 export type M16FlagKey = (typeof M16_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M15FlagKey | M16FlagKey;
+// M13 flag set: isolated extension worker lane. Activation requires an M03
+// approved backend with a PASS platform proof; the flag never re-labels a
+// trusted plug-in as isolated and never enables ambient Hermes plug-ins.
+export const M13_FLAG_KEYS = ["plugins.isolatedV1"] as const;
+export type M13FlagKey = (typeof M13_FLAG_KEYS)[number];
+
+// M17 flag set: paired-client remote access. Read synchronization and remote
+// input submission are separate release gates; each keeps its own key and
+// proof — one passing core test never unlocks the other.
+export const M17_FLAG_KEYS = ["remote.readSyncV1", "remote.submitInputV1"] as const;
+export type M17FlagKey = (typeof M17_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey;
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
@@ -115,6 +144,15 @@ const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "tools.deferredV1", owner: "m04", description: "Progressive tool schema disclosure." },
   { key: "context.lossAwareCompactionV1", owner: "m04", description: "Loss-aware native compaction." },
   { key: "context.precomputeExperimentV1", owner: "m04", description: "Experimental summary precomputation." },
+  { key: "sessions.branchV1", owner: "m14", description: "Immutable Inspect captures and explicitly labeled quoted-context new tasks; native fork stays unproven." },
+  { key: "sessions.inertImportV1", owner: "m14", description: "Strict ArchiveV1 inert history imports: staged validation, owner-bound dedup and atomic publication." },
+  { key: "jobs.backgroundV1", owner: "m10", description: "Durable background work records, one Store scheduler and owned RUN-lifetime commands." },
+  { key: "jobs.serviceLifetimeV1", owner: "m10", description: "APPROVED_SERVICE lifetime; off until an installed supervisor has target-platform PASS evidence." },
+  { key: "jobs.idleReviewV1", owner: "m10", description: "Opt-in idle verification/review work; off until the pinned fork API and auxiliary budget are proven." },
+  { key: "integrations.intakeV1", owner: "m10", description: "Authenticated read-only GitHub polling intake; proposals only until explicit user approval." },
+  { key: "plugins.isolatedV1", owner: "m13", description: "Isolated extension worker lane: leased registrations and lifecycle over private authenticated pipes; activation requires a proven M03 backend." },
+  { key: "remote.readSyncV1", owner: "m17", description: "Paired-device read-only synchronization of public task/evidence projections over a configured authenticated TLS transport." },
+  { key: "remote.submitInputV1", owner: "m17", description: "Paired-device input submission; reserved and denied until the M09 durable-input and M02 authority bindings are proven." },
 ];
 let hostFlags = createCapabilityFlags<CapabilityFlagKey>(hostDefinitions);
 let hostOwners = 0;

@@ -221,13 +221,9 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
       >
         <header className="plan-status-header">
           <div className="plan-context-toolbar" aria-label="Plan progress and actions">
-            <span className="plan-completion">
+            <span className="plan-completion" title={`Plan revision ${timeline.revision}`}>
               {complete}/{timeline.steps.length} complete
             </span>
-            <span>
-              {record.value.agents.length} {record.value.agents.length === 1 ? "agent" : "agents"}
-            </span>
-            <span className="plan-revision-pill">Rev {timeline.revision}</span>
             <div className="plan-toolbar-actions">
               {current && (
                 <button type="button" className="quiet plan-jump" aria-label="Jump to current" onClick={jump}>

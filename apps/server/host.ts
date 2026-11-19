@@ -7,7 +7,7 @@ import {createRuntime} from '../../packages/runtime/index.ts';
 import {accountResolver} from '../../packages/core/accounts.ts';
 import {buildServer,buildWidgetServer,type MountRegistry} from './server.ts';
 import {acquireProfileLease,type ProfileLease} from './profile-lease.ts';
-import {createHermesService,type HermesHostCapabilities} from './hermes-service.ts';
+import {createProtectedHermesService,type EffectServiceOptions} from './effect-service.ts';
 import {WorkspaceRepository} from '../../packages/core/workspace-layout.ts';
 import {AttentionRepository} from '../../packages/core/attention.ts';
 import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
@@ -16,16 +16,20 @@ import {randomUUID} from 'node:crypto';
 import {readFile} from 'node:fs/promises';
 import {loadInstalledPlugins,type PluginRegistry} from '../../packages/plugins/host.ts';
 import {checkInstalledCompatibility} from '../../packages/plugins/installation.ts';
+import {IsolatedExtensionHost,createSpawnWorkerLauncher} from '../../packages/plugins/isolated-host.ts';
+import {admitIsolatedPackage} from '../../packages/plugins/lifecycle.ts';
+import {readPluginIndex} from '../../packages/plugins/installation.ts';
+import type {ExecutionBackend} from '../../packages/core/execution-policy.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
-import {configureHostCapabilityFlags,readCapabilityFlagOverrides,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
+import {configureHostCapabilityFlags,readCapabilityFlagOverrides,capabilityEnabled,type CapabilityFlagKey} from '../../packages/core/capability-flags.ts';
 
-export interface HostOptions extends HermesHostCapabilities {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>}
+export interface HostOptions {dataDir:string;port:number;widgetPort:number;dev:boolean;pluginDir?:string;launchToken?:string;capabilityFlags?:Readonly<Partial<Record<CapabilityFlagKey,boolean>>>;toolEffectFlags?:EffectServiceOptions['toolEffectFlags'];approvedBackendId?:string;isolationBackends?:readonly ExecutionBackend[]}
 export interface RunningHost {attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;origin:string;widgetOrigin:string;pid:number;close():Promise<void>;nativeLayout?:DesktopLayout;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?(surface:unknown):Promise<boolean>;pluginCompatibility?(version:string):Promise<{allowed:boolean}>;updateReadiness?():Promise<{idle:boolean}>;prepareUpdateClose?():Promise<{idle:boolean}>}
 export interface HostFactories {
  acquireProfile:typeof acquireProfileLease;
  createStore(dataDir:string):Store;
  createRuntime:typeof createRuntime;
- createService(store:Store,runtime:ReturnType<typeof createRuntime>,capabilities?:HermesHostCapabilities):Service;
+ createService(store:Store,runtime:ReturnType<typeof createRuntime>,options?:EffectServiceOptions):Service|Promise<Service>;
  buildServer:typeof buildServer;
  buildWidgetServer:typeof buildWidgetServer;
  loadPlugins:typeof loadInstalledPlugins;
@@ -49,8 +53,8 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  const hostPort=port(options.port,'HARNESS_PORT'),widgetPort=port(options.widgetPort,'HARNESS_WIDGET_PORT');
  if(hostPort===widgetPort)throw new Error('The host and widget ports must be different.');
  if(!options.dataDir.trim())throw new Error('The harness data directory must be nonempty.');
- const make:HostFactories={acquireProfile:acquireProfileLease,createStore:dataDir=>new Store(dataDir),createRuntime,createService:createHermesService,buildServer,buildWidgetServer,loadPlugins:loadInstalledPlugins,createSkillCatalog:createPersonalSkillCatalog,...overrides};
- let plugins:PluginRegistry|undefined,pluginLoadFailed=false;
+ const make:HostFactories={acquireProfile:acquireProfileLease,createStore:dataDir=>new Store(dataDir),createRuntime,createService:createProtectedHermesService,buildServer,buildWidgetServer,loadPlugins:loadInstalledPlugins,createSkillCatalog:createPersonalSkillCatalog,...overrides};
+ let plugins:PluginRegistry|undefined,pluginLoadFailed=false,isolated:IsolatedExtensionHost|undefined;
  let profile:ProfileLease|undefined,store:Store|undefined,runtime:ReturnType<typeof createRuntime>|undefined,service:Service|undefined,app:Awaited<ReturnType<typeof buildServer>>|undefined,widgets:Awaited<ReturnType<typeof buildWidgetServer>>|undefined,closing:Promise<void>|undefined,accepting=false;
  let releaseCapabilities:(()=>void)|undefined;
  const close=()=>closing??= (async()=>{
@@ -60,6 +64,7 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
    Promise.resolve().then(()=>app?.close()),
    Promise.resolve().then(()=>widgets?.close()),
    Promise.resolve().then(()=>service?service.dispose():runtime?.dispose()),
+   Promise.resolve().then(()=>isolated?.close()),
    Promise.resolve().then(()=>plugins?.close()),
   ]);
   const failures:unknown[]=results.filter((result):result is PromiseRejectedResult=>result.status==='rejected').map(result=>result.reason);
@@ -70,14 +75,33 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
  try {
   profile=make.acquireProfile(resolve(options.dataDir));
   releaseCapabilities=configureHostCapabilityFlags(options.capabilityFlags);
-  store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=make.createService(store,runtime,{verificationExecutor:options.verificationExecutor});
+  store=make.createStore(profile.dataDir);runtime=make.createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)});service=await make.createService(store,runtime,{toolEffectFlags:options.toolEffectFlags});
   const pluginRoot=resolve(options.pluginDir??process.env.HARNESS_PLUGIN_DIR??join(process.env.LOCALAPPDATA??homedir(),'GenV1','plugins'));
   const version=JSON.parse(await readFile(fileURLToPath(new URL('../../package.json',import.meta.url)),'utf8')).version as string;
   try{plugins=await make.loadPlugins(pluginRoot,version);}catch{pluginLoadFailed=true;}
   const pluginFailures=plugins?.failures?.()??[];if(pluginFailures.length)pluginLoadFailed=true;
   const pluginError=pluginLoadFailed?(pluginFailures.length?pluginFailures.map(failure=>failure.message).join(' '):'An installed plug-in could not load. Its saved data is retained.'):undefined;
+  // M13 isolated lane: registered beside the trusted lane, never replacing it.
+  // With no installed approved backend every activation fails closed and the
+  // recorded hold is what the catalog reports.
+  isolated=new IsolatedExtensionHost({
+   enabled:()=>capabilityEnabled('plugins.isolatedV1'),
+   approvedBackendId:()=>options.approvedBackendId,
+   backends:()=>options.isolationBackends??[],
+   launcher:createSpawnWorkerLauncher({entryPath:fileURLToPath(new URL('../../packages/plugins/worker-entry.ts',import.meta.url)),genVersion:version}),
+   // DEP-M13-BACKEND-01: no approved backend-bound worker launcher exists on
+   // this host, so production wiring holds activation closed
+   // (HOLD_BACKEND_LAUNCH_BINDING) before anything starts — the
+   // development/test direct-spawn transport above is never reachable here.
+   productionLauncher:()=>undefined,
+  });
+  if(capabilityEnabled('plugins.isolatedV1')){
+   for(const record of await readPluginIndex(pluginRoot).catch(()=>[])){
+    try{const admitted=await admitIsolatedPackage(join(pluginRoot,record.id,record.version),record.digest);if(admitted)isolated.register(admitted.manifest,{packageDir:admitted.verified.directory,dataDir:join(pluginRoot,'data',record.id)});}catch{/* an ineligible or invalid declaration stays trusted-only */}
+   }
+  }
   const mounts:MountRegistry=new Map();
-  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,launchToken:options.launchToken,...(pluginError?{pluginError}:{})});
+  app=await make.buildServer(service,{port:hostPort,widgetPort,dev:options.dev,mounts,plugins,skillCatalog:make.createSkillCatalog(store,{pluginRoot}),admitPluginRequest:()=>accepting,launchToken:options.launchToken,isolatedExtensions:isolated,...(pluginError?{pluginError}:{})});
   widgets=await make.buildWidgetServer(service,mounts,widgetPort);
   // Own both ports before recovering durable runs. A collision must not alter
   // another live host's task authority, and early clients must wait for recovery.

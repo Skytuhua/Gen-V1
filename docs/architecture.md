@@ -1,6 +1,6 @@
 # Architecture
 
-Last updated: 2026-11-01.
+Last updated: 2026-11-17.
 
 Gen V1 has one local application host, a React interface and a native Electron shell. The production primary agent is the pinned original Hermes Python engine. Native provider adapters supply model text; the host owns application capabilities and durable projections.
 
@@ -23,6 +23,8 @@ flowchart TD
 
 [apps/server/host.ts](../apps/server/host.ts) acquires the profile lease, starts both loopback origins and recovers durable state. [apps/server/hermes-service.ts](../apps/server/hermes-service.ts) selects the production Hermes composition. Tests and embedders can inject a runtime without changing that default.
 
+Two boundaries sit beside that flow. An installed plug-in runs in its own opaque frame behind a source-checked, data-only bridge and never receives a personal bridge; see [the plug-in API](plugin-api.md). Project work — git storage, code review, selective commits, checkpoints and the terminal — runs through `packages/workspace` under the same host authority and resource grants as every other tool.
+
 ## Module map
 
 | Area | Responsibility |
@@ -30,15 +32,29 @@ flowchart TD
 | [apps/web](../apps/web) | Conversation, task views, settings, draft journals and desktop bridge client |
 | [apps/desktop](../apps/desktop) | Native windows, isolated remote browser, sign-in consoles and owned backend lifecycle |
 | [apps/server](../apps/server) | HTTP/SSE, session/CSRF checks, startup and widget mounts |
-| [packages/core](../packages/core) | Commands, run ownership, tools, actions, approvals and projections |
+| [packages/contracts](../packages/contracts) | Shared types, zod schemas and small runtime values such as `HarnessError` for threads, tools, operations, planning, preferences and connections; imported by the host, the interface and the tests |
+| [packages/desktop-contract](../packages/desktop-contract) | Typed desktop surface and layout references exchanged between the host and the Electron shell |
+| [packages/core](../packages/core) | Commands, run ownership, tools, actions, approvals and projections, plus capability flags, context compilation, project memory, background work and verification gates |
+| [packages/capabilities](../packages/capabilities) | Domain tools over admitted resources (repository read/status/diff/log, file replacement, repository tests, SQLite and PDF) with prepared operations and reconciliation |
+| [packages/workspace](../packages/workspace) | Project working copies: git storage and branch operations, code review, selective commits, checkpoints, edit journals, the terminal and project search |
 | [packages/storage](../packages/storage) | SQLite transactions, command receipts and workspace event sequence |
+| [packages/agent-projection](../packages/agent-projection) | Personal agent inventory, history and content projections served by the host |
+| [packages/research](../packages/research) | Research source capture and passage repository, constructed by `packages/core` |
+| [packages/skill-catalog](../packages/skill-catalog) | Skill catalog repository, filesystem and harness adapters, and per-file custody hashes for saved skills |
+| [packages/skill-invocation](../packages/skill-invocation) | Skill reference binding and admitted materialization; exercised by its own test and not yet constructed by the host |
 | [packages/runtime-hermes](../packages/runtime-hermes) | Python transport, source skill library and authenticated native-model broker |
 | [packages/runtime](../packages/runtime) | Selected account routing and account-profile ownership |
 | [packages/runtime-pi](../packages/runtime-pi) | Pi subscription authentication, model selection and owned worker execution |
 | [packages/runtime-official](../packages/runtime-official) | Published Claude/Gemini/Cursor runtime protocols and session validation |
+| [packages/runtime-login](../packages/runtime-login) | The `pnpm agent:login` command: provider sign-in and account creation outside the desktop console |
+| [packages/plugins](../packages/plugins) | Plug-in manifests, verified package installation, host loading and the sandboxed frame protocol |
+| [packages/integrations](../packages/integrations) | MCP integration host over stdio transports, Context7 execution, secret references and status manifests |
 | [packages/ui-catalog](../packages/ui-catalog) | Trusted components, schemas, composition examples and renderer definitions |
+| [packages/ui-shell](../packages/ui-shell) | Shared React presentation components and layout helpers: chat view, overlays, menus, docks, focus retention and design tokens |
 | [packages/widgets](../packages/widgets) | Opaque generated-app workers, DOM validation and watchdog control |
 | [third-party](../third-party) | Pinned original/adapted source, manifests and upstream notices |
+
+`packages/contracts` carries shared types, zod schemas and a few pure runtime values such as `HarnessError`; it holds no mutable state and constructs nothing. Every other package is reached from the host or the interface, directly or through `packages/core`, except `packages/skill-invocation`, whose only consumer today is its own test.
 
 ## Ownership and persistence
 

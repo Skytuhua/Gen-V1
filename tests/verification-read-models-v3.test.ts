@@ -4,9 +4,9 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import {Store} from '../packages/storage/store';
 import {verificationPanelModel} from '../packages/core/verification-read-models';
-import {computeAssessment, SecurityFindingLedger} from '../packages/core/verification-gate';
+import {computeAssessment} from '../packages/core/verification-gate';
 import {sourceDigestSync} from '../packages/core/project-verification';
-import type {CheckObservationV1, SecurityFindingV1, VerificationDeclarationV1, VisualObservationV1} from '../packages/contracts/verification';
+import type {CheckObservationV1, VerificationDeclarationV1, VisualObservationV1} from '../packages/contracts/verification';
 import type {ToolEffectRecord, ToolOwner} from '../packages/contracts/tool-effects';
 
 const cleanup: (() => void)[] = [];
@@ -40,28 +40,6 @@ function fixture() {
   };
   return {root, store, declaration, observation, stamp, save};
 }
-
-it('projects source-bound advisory findings without granting completion and preserves stale source history',()=>{
-  const f=fixture(),ledger=new SecurityFindingLedger(f.store);
-  f.store.internal('fixture.declaration','t1',()=>f.store.put('verificationDeclaration','t1','t1',f.declaration));
-  const finding:Omit<SecurityFindingV1,'updatedAt'>={version:1,findingId:'security-1',source:{path:'app.ts',blobSha:'a'.repeat(40),line:1},authorizedScope:'Read-only review of the approved source files. No external testing.',observation:'<script>untrusted advisory text</script>',impact:'Reported concern requires confirmation.',status:'OPEN',reproduction:'Inspect the approved source location.',createdAt:f.stamp,evidenceQuality:'ADVISORY',provenance:{owner,executionId:f.observation.executionId,codeDigest:f.observation.codeDigest,dependencyDigest:f.observation.dependencyDigest}};
-  ledger.record(finding,'t1');
-  expect(verificationPanelModel(f.store,'t1')).toMatchObject({label:null,summary:{verified:0},securityFindings:{truncated:false,invalid:0,items:[{findingId:'security-1',evidenceQuality:'ADVISORY',freshness:'CURRENT',scopeAuthority:'HOST_RECORDED',source:finding.source}]}});
-  writeFileSync(join(f.root,'app.ts'),'changed after advisory review');
-  expect(verificationPanelModel(f.store,'t1')).toMatchObject({label:null,securityFindings:{items:[{evidenceQuality:'ADVISORY',freshness:'STALE'}]}});
-  expect(ledger.all('t1')[0]!.observation).toBe(finding.observation);
-});
-
-it('marks legacy and foreign-owner findings unverified and reports bounded or invalid history',()=>{
-  const f=fixture(),ledger=new SecurityFindingLedger(f.store);
-  const finding={version:1 as const,findingId:'legacy',source:{path:'app.ts',blobSha:'b'.repeat(40),line:null},authorizedScope:'Historical reported scope',observation:'Historical report',impact:'Not independently tested',status:'OPEN' as const,reproduction:null,createdAt:f.stamp};
-  ledger.record(finding,'t1');
-  ledger.record({...finding,findingId:'foreign',evidenceQuality:'EXECUTED',provenance:{owner:{...owner,accountBinding:'other-account'},executionId:'foreign-execution',codeDigest:f.observation.codeDigest,dependencyDigest:f.observation.dependencyDigest}},'t1');
-  expect(verificationPanelModel(f.store,'t1')).toMatchObject({label:null,securityFindings:{items:[{evidenceQuality:'UNVERIFIED',freshness:'INDETERMINATE',scopeAuthority:'UNVERIFIED'},{evidenceQuality:'UNVERIFIED',freshness:'INDETERMINATE',scopeAuthority:'UNVERIFIED'}]}});
-  f.store.internal('fixture.finding-bound','t1',()=>{for(let i=0;i<51;i++)f.store.put('securityFinding','bound-'+i,'t1',{...finding,findingId:'bound-'+i,updatedAt:f.stamp});f.store.put('securityFinding','invalid','t1',{...finding,observation:'x'.repeat(2001)});});
-  const model=verificationPanelModel(f.store,'t1') as unknown as {securityFindings:{items:unknown[];truncated:boolean;invalid:number}};
-  expect(model.securityFindings.items.length).toBeLessThanOrEqual(50);expect(model.securityFindings).toMatchObject({truncated:true,invalid:1});
-});
 
 it('shows every check from a bound execution under its actual requirement', () => {
   const f = fixture();

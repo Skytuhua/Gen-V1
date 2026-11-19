@@ -46,10 +46,7 @@ export interface HermesEngine extends RuntimeAdapter {
  sourceTool(params:Record<string,unknown>,authority?:HermesLibraryAuthority):Promise<unknown>;
  refreshIntegrations(disabledIds:IntegrationId[]):Promise<void>;
 }
-/** Host-owned role policy. Restricted tasks never inherit the parent's tools,
- * source library, integrations, project root, or migrated native history. */
-export interface HermesRestrictedTaskPolicy {readonly hostTools:NonNullable<HermesSettings['hostTools']>;readonly systemPrompt:string}
-export interface HermesRuntime extends HermesEngine {createTaskRuntime(policy?:HermesRestrictedTaskPolicy):RuntimeAdapter}
+export interface HermesRuntime extends HermesEngine {createTaskRuntime():RuntimeAdapter}
 export interface HermesEngineOptions extends HermesRuntimeOptions {readOnly?:boolean;sharedLibrary?:(params:Record<string,unknown>,authority:HermesLibraryAuthority)=>Promise<unknown>}
 type Owner={automaticRefusalReported?:boolean;contextBinding?:NativeContextBinding;contextRequested?:boolean;contextReads?:number;toolSnapshot?:{sequence:number;count:number;schemaBytes:number;digest:string};progressiveTools?:ReturnType<typeof createProgressiveToolSession>;input:StartRun;source:HermesSourceClient;settings:HermesSettings;tools:Set<string>;path:string;broker:HermesBroker;known:Set<string>;tickets:Map<string,string[]>;entered:Set<string>;lease?:AccountUseLease;done:Promise<void>;finish:()=>void;foreground:boolean;review:boolean;uiSettled:boolean;closing?:Promise<void>;writes:Promise<void>;failure?:unknown;usage:RuntimeUsage[];maintenance?:RunContext;lastMessage?:string;reviewAbort?:AbortController;reviewRelease?:()=>void;libraryRevoked?:boolean;libraryCalls:Set<Promise<unknown>>;memoryCheckpoint?:StartRun['memoryCheckpoint'];checkpointWork?:Promise<unknown>;compactionProtection?:NativeCompactionEnvelopeV1;compactionCommitAttempted?:boolean;compactionCommitAccepted?:boolean};
 type Admission={input:StartRun;maintenance:boolean;revoked:boolean;controller:AbortController;done:Promise<void>;finish():void};

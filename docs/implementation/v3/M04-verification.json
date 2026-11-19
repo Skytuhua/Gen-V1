@@ -313,8 +313,7 @@
       ],
       "artifactRefs": [
         "docs/implementation/v6/M04/logs/support.log"
-      ],
-      "evidence": "Corrective source review at 2026-11-18 UTC: native agent.history/agent.compact at the qualified source cut include expectedHistorySha256 compare-and-swap. The prior future-dated user confirmation and absent-CAS claim were inconsistent with inspected source. Recorded tests demonstrate code-level admission and protected history; complete same-revision Windows and installed verification remain separate release gates."
+      ]
     },
     {
       "id": "v6.auxiliary-model",
@@ -337,8 +336,7 @@
         }
       ],
       "commands": [],
-      "artifactRefs": [],
-      "evidence": "Corrective review at 2026-11-18 UTC: the previous 2026-12-16 owner-authorization claim is future-dated and no approved provider/model/account, request identifiers, authenticated usage receipts or independently inspectable live evaluation command are recorded. The prior aux-live-gpt-6-luna.json artifact is preserved as an unverified summary, not evidence of ten actual API calls. Offline negative and bounded-coordinator cases have separate source-bound tests; the three LIVE cases are NOT_RUN, with HOLD_AUXILIARY_MODEL. Do not authorize spending, model calls or production activation from the historical record."
+      "artifactRefs": []
     },
     {
       "id": "v6.ui-inspector",
@@ -361,8 +359,7 @@
         }
       ],
       "commands": [],
-      "artifactRefs": [],
-      "evidence": "U01 fields and U03 data path resolved on source; real-browser proof remains BLOCKED (no msedge/chrome channel on linux-arm64)."
+      "artifactRefs": []
     },
     {
       "id": "v6.platform-gates",
@@ -689,6 +686,9 @@
     }
   ],
   "remainingGates": [
+    "v6.native-compaction: Corrective source review at 2026-11-18 UTC: native agent.history/agent.compact at the qualified source cut include expectedHistorySha256 compare-and-swap. The prior future-dated user confirmation and absent-CAS claim were inconsistent with inspected source. Recorded tests demonstrate code-level admission and protected history; complete same-revision Windows and installed verification remain separate release gates.",
+    "v6.auxiliary-model: Corrective review at 2026-11-18 UTC: the previous 2026-12-16 owner-authorization claim is future-dated and no approved provider/model/account, request identifiers, authenticated usage receipts or independently inspectable live evaluation command are recorded. The prior aux-live-gpt-6-luna.json artifact is preserved as an unverified summary, not evidence of ten actual API calls. Offline negative and bounded-coordinator cases have separate source-bound tests; the three LIVE cases are NOT_RUN, with HOLD_AUXILIARY_MODEL. Do not authorize spending, model calls or production activation from the historical record.",
+    "v6.ui-inspector: U01 fields and U03 data path resolved on source; real-browser proof remains BLOCKED (no msedge/chrome channel on linux-arm64).",
     "M04 host-custody integration: recorded D01, C3 and U02 behavior is preserved as historical text, but this acceptance phase has no executed command receipts; a same-source source-bound command record is required before PASS.",
     "HOLD_AUXILIARY_MODEL: no source-bound authorization and provider receipts establish a live shadow/precompute quality or cost study; the future-dated summary is unverified.",
     "Native compaction apply: exact-source-cut CAS implemented end to end (worker.py agent.compact expectedHistorySha256 precondition verified inside the native process before mutation + agent.history historySha256; service applyLossAwareCompaction -> adapter nativeHistoryDigest -> runtime.compact digest precondition; measured before/after bytes in compactionUsage). Adapters without nativeHistoryDigest still refuse via UNSUPPORTED_COMPACTION.",

@@ -98,7 +98,7 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
         {job.summary && (
           <div className="plan-fact">
             <strong>
-              {job.status === "working" || job.status === "queued" ? "Current activity" : "Result"}
+              {job.status === "working" || job.status === "queued" ? "Latest report" : "Result"}
             </strong>
             <p>{job.summary}</p>
           </div>
@@ -116,7 +116,6 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
             ))}
           </ul>
         )}
-        {progress === null && <p className="plan-muted">Progress not reported.</p>}
         {job.evidence?.length ? (
           <div className="plan-fact">
             <strong>Evidence</strong>
@@ -162,7 +161,6 @@ export function AgentLane({ lane, ...props }: RowProps & { lane: PlanAgentLane }
       </MotionRegion>
       {transcript && (
         <div className="plan-agent-transcript" role="log" aria-label={`${job.name} transcript`}>
-          <p className="plan-muted">Read-only transcript</p>
           {messages.length ? (
             messages.map((message) => (
               <div key={message.id}>
@@ -196,6 +194,36 @@ export function TimelineStep({
   const expanded = props.open("step", step.id, step.status),
     id = useId();
   const dependents = steps.filter((next) => next.dependsOn.includes(step.id));
+  const hasDetails = Boolean(
+    step.reportedStatus !== step.status ||
+      step.objective ||
+      step.details ||
+      step.blockers?.length ||
+      step.checks.length ||
+      step.agents.length ||
+      step.result ||
+      step.outputs?.length,
+  );
+  const summary = (
+    <>
+      <span className="plan-step-node" aria-hidden="true">
+        {step.status === "accepted" || step.status === "completed" ? (
+          <Check size={13} />
+        ) : step.status === "failed" || step.status === "blocked" ? (
+          <TriangleAlert size={13} />
+        ) : (
+          <Circle size={10} />
+        )}
+      </span>
+      <span className="plan-step-copy">
+        <strong>{step.title}</strong>
+        <span>
+          Step {index + 1} <span className="plan-step-badge">{states[step.status]}</span>
+        </span>
+      </span>
+      {hasDetails && <ChevronRight size={14} aria-hidden="true" />}
+    </>
+  );
   return (
     <li id={domId} className={`plan-step step-${step.status}`} data-step-id={step.id}>
       {step.dependsOn.length > 0 && (
@@ -209,30 +237,20 @@ export function TimelineStep({
           ))}
         </div>
       )}
-      <button
-        className="plan-step-summary"
-        type="button"
-        aria-expanded={expanded}
-        aria-controls={id}
-        onClick={() => props.toggle("step", step.id, step.status)}
-      >
-        <span className="plan-step-node" aria-hidden="true">
-          {step.status === "accepted" || step.status === "completed" ? (
-            <Check size={13} />
-          ) : step.status === "failed" || step.status === "blocked" ? (
-            <TriangleAlert size={13} />
-          ) : (
-            <Circle size={10} />
-          )}
-        </span>
-        <span className="plan-step-copy">
-          <strong>{step.title}</strong>
-          <span>
-            Step {index + 1} <span className="plan-step-badge">{states[step.status]}</span>
-          </span>
-        </span>
-        <ChevronRight size={14} aria-hidden="true" />
-      </button>
+      {hasDetails ? (
+        <button
+          className="plan-step-summary"
+          type="button"
+          aria-expanded={expanded}
+          aria-controls={id}
+          onClick={() => props.toggle("step", step.id, step.status)}
+        >
+          {summary}
+        </button>
+      ) : (
+        <div className="plan-step-summary plan-step-static" tabIndex={-1}>{summary}</div>
+      )}
+      {hasDetails && (
       <MotionRegion id={id} open={expanded} className="plan-step-details" animate={false}>
         {step.reportedStatus !== step.status && (
           <p className="plan-muted">Reported step state: {states[step.reportedStatus]}</p>
@@ -316,13 +334,8 @@ export function TimelineStep({
             </ul>
           </div>
         ) : null}
-        {!step.objective &&
-          !step.details &&
-          !step.checks.length &&
-          !step.agents.length &&
-          !step.result &&
-          !step.outputs?.length && <p className="plan-muted">No details reported.</p>}
       </MotionRegion>
+      )}
     </li>
   );
 }

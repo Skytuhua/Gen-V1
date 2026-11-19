@@ -215,6 +215,17 @@ it.runIf(process.platform === 'win32')('reauthorizes retained file bytes after g
   expect(f.store.all('outbox', f.thread.id)).toEqual([]);
 });
 
+it.runIf(process.platform === 'win32')('reads an uploaded attachment through its own conversation grant and never through a profile grant [Windows required]', async () => {
+  const f = fixture(), workbench = f.workbench(), folder = join(f.store.dataDir, 'attachments', f.thread.id);
+  mkdirSync(folder, {recursive: true}); const path = join(folder, 'upload-attachment-note.txt'); writeFileSync(path, 'attached\nbytes\n');
+  const grant: ResourceGrant = {id: 'attachment-grant', threadId: f.thread.id, kind: 'attachment', path, label: 'note.txt', writable: false, createdAt: f.thread.createdAt};
+  f.store.internal('fixture.attachment-grant', f.thread.id, () => f.store.put('resource', grant.id, f.thread.id, grant));
+  expect((await workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: grant.id}})).text).toBe('attached\nbytes\n');
+  const profile: ResourceGrant = {id: 'profile-grant', threadId: f.thread.id, kind: 'project', path: f.store.dataDir, label: 'profile', writable: false, createdAt: f.thread.createdAt};
+  f.store.internal('fixture.profile-grant', f.thread.id, () => f.store.put('resource', profile.id, f.thread.id, profile));
+  await expect(workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: profile.id, path: 'attachments/' + f.thread.id + '/upload-attachment-note.txt'}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+});
+
 it.runIf(process.platform === 'win32')('admits the first captured file under its selected account [Windows native guard, runtime fixture]', async () => {
   const f = await emptyTaskAccountFixture(true), path = join(f.root, 'first-source.txt'); writeFileSync(path, 'first\nselected second\nthird\n');
   const grant: ResourceGrant = {id: 'first-file-grant', threadId: f.thread.id, kind: 'file', path, label: 'first-source.txt', writable: false, createdAt: f.thread.createdAt};
@@ -363,10 +374,12 @@ it('blocks dispatch if a source mutates during the M04 finalize boundary', async
   expect(f.starts).toEqual([]); expect(f.store.get('outbox', 'finalize-send')).toMatchObject({sourceRefs: [captured.ref], enteredRuntime: false});
 });
 
-it.runIf(process.platform === 'linux')('keeps file captures unavailable under the real unsupported Linux leaf guard', async () => {
+it.runIf(process.platform === 'linux')('admits file captures under the real Linux leaf guard', async () => {
   const f = fixture(), workbench = f.workbench(), path = join(f.root, 'guarded.txt'); writeFileSync(path, 'retained source');
   f.store.internal('fixture.grant', f.thread.id, () => f.store.put('resource', 'grant-linux', f.thread.id, {id: 'grant-linux', threadId: f.thread.id, kind: 'file', path, label: 'guarded.txt', writable: false, createdAt: f.thread.createdAt}));
-  await expect(workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  const descriptor = await workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}});
+  expect(descriptor).toMatchObject({label: 'guarded.txt', locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}});
+  expect(descriptor.contentDigest).toMatch(/^[a-f0-9]{64}$/);
   expect(f.store.all('sourceCapture', f.thread.id)).toEqual([]);
 });
 

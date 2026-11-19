@@ -24,8 +24,8 @@ const MAX_REPAIR_ATTEMPTS = 3;
 /* stored outcome.                                                      */
 /* ------------------------------------------------------------------ */
 
-export function observationFreshness(observation: Pick<CheckObservationV1, 'codeDigest' | 'dependencyDigest' | 'environmentId'> & Partial<Pick<CheckObservationV1, 'recipeDigest'>>, current: { codeDigest: string; dependencyDigest: string; environmentId: string; recipeDigest?: string }): ObservationFreshness {
-  if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId && (current.recipeDigest === undefined || observation.recipeDigest === current.recipeDigest)) return 'CURRENT';
+export function observationFreshness(observation: Pick<CheckObservationV1, 'codeDigest' | 'dependencyDigest' | 'environmentId'>, current: { codeDigest: string; dependencyDigest: string; environmentId: string }): ObservationFreshness {
+  if (observation.codeDigest === current.codeDigest && observation.dependencyDigest === current.dependencyDigest && observation.environmentId === current.environmentId) return 'CURRENT';
   if (!observation.codeDigest || !observation.dependencyDigest) return 'INDETERMINATE';
   return 'STALE';
 }
@@ -113,18 +113,6 @@ export interface RepairState {
   stopped: RepairStopReason | null;
 }
 
-/** Stable check identity excludes per-execution IDs and source edits. */
-export function verificationFailureIdentity(observed: CheckObservationV1 | VisualObservationV1, detail?: string): string {
-  return digest({
-    phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
-    cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
-    outcome: observed.outcome, exitCode: observed.exitCode,
-    item: 'checklistItemId' in observed ? observed.checklistItemId : null,
-    assertion: 'assertion' in observed ? observed.assertion : null,
-    detail: detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
-  });
-}
-
 export class BoundedRepairLoop {
   private state: RepairState;
   constructor(private readonly store: Store, private readonly owner: ToolOwner, recipeId: string, requirementIds: readonly string[]) {
@@ -174,7 +162,14 @@ export class BoundedRepairLoop {
           throw new HarnessError('REPAIR_SCOPE', 'Repair evidence belongs to another owner binding');
         // Execution and observation IDs are new for every retest. Compare the
         // stable check identity and actual failure instead of those run IDs.
-        return verificationFailureIdentity(observed, failure.detail);
+        return digest({
+          phase: observed.phase, kind: observed.observationKind, argv: observed.argv,
+          cwd: observed.cwdIdentity, recipe: observed.recipeDigest, environment: observed.environmentId,
+          outcome: observed.outcome, exitCode: observed.exitCode,
+          item: 'checklistItemId' in observed ? observed.checklistItemId : null,
+          assertion: 'assertion' in observed ? observed.assertion : null,
+          detail: failure.detail ?? observed.detail ?? ('observed' in observed ? observed.observed : ''),
+        });
       }).sort()),
       outcome: input.outcome,
       recordedAt: now(),
@@ -199,17 +194,10 @@ export class SecurityFindingLedger {
   constructor(private readonly store: Store) {}
   record(finding: Omit<SecurityFindingV1, 'updatedAt'>, threadId: string): SecurityFindingV1 {
     const parsed = securityFindingV1Schema.parse({ ...finding, updatedAt: finding.createdAt });
-    const owner = parsed.provenance?.owner;
-    if (owner && owner.threadId !== threadId) throw new HarnessError('STALE_FINDING_OWNER', 'The finding owner does not match this thread.');
+    const id = `finding-${digest({ source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
     return this.store.internal('securityFinding.recorded', threadId, (): SecurityFindingV1 => {
-      const legacyId = `finding-${digest({ source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
-      const legacy = this.store.db.prepare('SELECT thread_id FROM entities WHERE kind = ? AND id = ?').get('securityFinding', legacyId) as {thread_id: string | null} | undefined;
-      // Preserve same-owner legacy rows. Another thread must never move or
-      // replace a finding merely because it reviewed identical source bytes.
-      const logicalOwner = owner ? {projectId: owner.projectId, workspaceId: owner.workspaceId, accountBinding: owner.accountBinding} : undefined;
-      const id = !owner && legacy?.thread_id === threadId ? legacyId : `finding-${digest({ threadId, ...(logicalOwner ? {logicalOwner} : {}), source: parsed.source, findingId: parsed.findingId }).slice(0, 24)}`;
       const prior = this.store.get<SecurityFindingV1>('securityFinding', id);
-      const merged = prior ? { ...parsed, createdAt: prior.createdAt, updatedAt: now() } : parsed;
+      const merged = prior ? { ...parsed, updatedAt: now() } : parsed;
       this.store.put('securityFinding', id, threadId, merged);
       return merged;
     }) as SecurityFindingV1;
@@ -236,8 +224,6 @@ export interface AssessmentInput {
   observations: (CheckObservationV1 | VisualObservationV1)[];
   /** Host-only current byte attestations. Never a model or browser argument. */
   artifactAttestations?: readonly VerificationArtifactAttestation[];
-  /** Current host-approved recipe identity, when a managed recipe is active. */
-  recipeDigest?: string;
   unresolvedEffects: string[];
   verifierIdentity: string;
   provenance: string;
@@ -280,7 +266,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
         !proofs.some(proof => proof?.kind === 'SCREENSHOT' && proof.sha256 === obs.screenshotDigest && digest(proof.viewport) === digest(obs.viewport)))) return 'screenshot';
     return proofs.some(proof => !proof) ? 'artifact' : null;
   };
-  const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId, recipeDigest: input.recipeDigest };
+  const current = { codeDigest: input.sourceCut.codeDigest, dependencyDigest: input.sourceCut.dependencyDigest, environmentId: input.sourceCut.environmentId };
   const requirements: AssessedRequirement[] = input.requirements.map(req => {
     const bound = input.observations.filter(obs => req.checkRefs.some(ref => match(obs, ref)));
     // Direct check bindings still inherit the terminal state of the execution
@@ -295,7 +281,6 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
     // all checks it produced, so one fresh PASS cannot hide a missing, stale
     // or unsettled sibling check. Advisory and audit-only evidence cannot
     // satisfy a reference even when its recorded outcome is PASS.
-    // Current executed failures are present evidence; their outcome is graded below.
     for (const ref of new Set(req.checkRefs)) {
       const checks = bound.filter(obs => match(obs, ref));
       const refExecutions = new Set(checks.map(executionKey));
@@ -306,7 +291,7 @@ export function computeAssessment(input: AssessmentInput): DeliverableAssessment
       else if (related.some(obs => observationFreshness(obs, current) === 'STALE'))
         missing.push(`evidence for ${req.id} (${ref}) is stale against the current source`);
       else if (related.some(obs => observationFreshness(obs, current) !== 'CURRENT' || obs.outcome === 'UNKNOWN') ||
-        !checks.some(obs => ['PASS', 'FAIL', 'BLOCKED', 'CANCELLED'].includes(obs.outcome) && canVerify(obs)))
+        !checks.some(obs => obs.outcome === 'PASS' && canVerify(obs)))
         missing.push(`evidence for ${req.id} (${ref}) is indeterminate or missing`);
     }
     let assessment: AssessedRequirement['assessment'] = 'UNVERIFIED';

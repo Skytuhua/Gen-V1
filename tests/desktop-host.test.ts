@@ -23,14 +23,6 @@ function mocks(){
  return {profile,store,runtime,service,app,widgets,factories};
 }
 
-it('forwards an opaque host-owned verification executor without deriving one from environment settings',async()=>{
- const m=mocks(),executor={describe:vi.fn(),assertCurrent:vi.fn(),open:vi.fn()};
- const host=await launchHost({...options,verificationExecutor:executor},m.factories);cleanup.push(()=>host.close());
- expect(m.factories.createService).toHaveBeenCalledWith(m.store,m.runtime,{verificationExecutor:executor});
- expect(readHostOptions({HARNESS_VERIFICATION_EXECUTOR:'caller-authority'})).not.toHaveProperty('verificationExecutor');
- expect(executor.describe).not.toHaveBeenCalled();expect(executor.open).not.toHaveBeenCalled();
-});
-
 it('rejects a second host using the same canonical profile and different ports before Store or recovery',async()=>{
  const directory=await mkdtemp(join(tmpdir(),'harness-profile-owner-')),first=mocks(),second=mocks();
  delete (first.factories as Partial<HostFactories>).acquireProfile;delete (second.factories as Partial<HostFactories>).acquireProfile;
@@ -94,6 +86,23 @@ it('disposes the runtime if service construction fails and cleanup remains idemp
  const m=mocks();vi.mocked(m.factories.createService).mockImplementationOnce(()=>{throw new Error('Service setup failed');});
  await expect(launchHost(options,m.factories)).rejects.toThrow('Service setup failed');expect(m.runtime.dispose).toHaveBeenCalledOnce();expect(m.store.close).toHaveBeenCalledOnce();
  const other=mocks(),host=await launchHost(options,other.factories);await Promise.all([host.close(),host.close()]);expect(other.service.dispose).toHaveBeenCalledOnce();expect(other.app.close).toHaveBeenCalledOnce();expect(other.store.close).toHaveBeenCalledOnce();
+});
+
+it('awaits protected Service construction before opening listeners or recovering the profile',async()=>{
+ const m=mocks(),flags={'audit.effectsV1':true,'security.authorityV1':true};let release!:()=>void;
+ vi.mocked(m.factories.createService).mockImplementationOnce(async()=>{await new Promise<void>(done=>{release=done;});return m.service as unknown as Awaited<ReturnType<HostFactories['createService']>>;});
+ const pending=launchHost({...options,toolEffectFlags:flags},m.factories);
+ try{
+  await vi.waitFor(()=>expect(m.factories.createService).toHaveBeenCalledWith(m.store,m.runtime,{toolEffectFlags:flags}));
+  expect(m.factories.acquireProfile).toHaveBeenCalledOnce();expect(m.factories.buildServer).not.toHaveBeenCalled();expect(m.service.recover).not.toHaveBeenCalled();expect(m.profile.close).not.toHaveBeenCalled();
+  release();const host=await pending;cleanup.push(()=>host.close());expect(m.service.recover).toHaveBeenCalledOnce();
+ }finally{release?.();await pending.then(host=>host.close(),()=>{});}
+});
+
+it('releases acquired host resources when asynchronous protected Service setup rejects',async()=>{
+ const m=mocks();vi.mocked(m.factories.createService).mockRejectedValueOnce(Error('Owned asynchronous setup failure'));
+ await expect(launchHost(options,m.factories)).rejects.toThrow('Owned asynchronous setup failure');
+ expect(m.runtime.dispose).toHaveBeenCalledOnce();expect(m.store.close).toHaveBeenCalledOnce();expect(m.profile.close).toHaveBeenCalledOnce();expect(m.factories.buildServer).not.toHaveBeenCalled();
 });
 
 it('still closes storage when an individual shutdown component rejects',async()=>{

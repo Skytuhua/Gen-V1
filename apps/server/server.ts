@@ -13,15 +13,17 @@ import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
-import { streamEvents } from './event-stream.ts';
+import { destroyEventStreams, registerEventStream } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
+import {registerBackgroundRoutes} from './background-routes.ts';
 import {registerPluginRoutes} from './plugin-routes.ts';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
+import type {IsolatedExtensionHost} from '../../packages/plugins/isolated-host.ts';
 import {registerSkillCatalogRoutes} from './skill-catalog-routes.ts';
 import {createPersonalSkillCatalog} from '../../packages/skill-catalog/adapters.ts';
 import type {SkillCatalogRepository} from '../../packages/skill-catalog/repository.ts';
@@ -31,10 +33,17 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
+import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
+import {registerOperationProjectTrustRoutes} from './operation-project-trust-routes.ts';
+import {registerOperationExecutionReviewRoutes} from './operation-execution-review-routes.ts';
 import {ConversationReadModels} from '../../packages/core/conversation-read-models.ts';
+import {SessionBranchReadModels} from '../../packages/core/session-branches.ts';
+import {registerSessionBranchReadRoutes} from './session-branch-routes.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
+import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
@@ -42,7 +51,7 @@ import type {PersonalAgentInventory} from '../../packages/contracts/agent-invent
 type Mount = { artifactId: string; revision: number; expiresAt: number };
 const shellPreferencesSchema=z.object({...preferencesSchema.shape,keybindings:z.object(preferencesSchema.shape.keybindings.shape)});
 export type MountRegistry = Map<string, Mount>;
-export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory; launchToken?:string }
+export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory; launchToken?:string; isolatedExtensions?:IsolatedExtensionHost }
 const commandSchema = z.object({ id: z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_-]+$/), type: z.string().min(1).max(100), threadId: z.string().max(200).optional(), payload: z.record(z.string(), z.unknown()) }).strict();
 const mime = (path: string) => ({ ".html": "text/html", ".js": "text/javascript", ".mjs": "text/javascript", ".css": "text/css", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".woff2": "font/woff2", ".woff": "font/woff", ".pdf": "application/pdf", ".json": "application/json", ".txt": "text/plain", ".md": "text/plain", ".csv": "text/csv" })[extname(path).toLowerCase()] ?? "application/octet-stream";
 // Build output resolves beside this module; the launch directory is not trusted input.
@@ -58,7 +67,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const widgetPort = options.widgetPort ?? 4318;
   const origins = new Set(["http://127.0.0.1:" + options.port, "http://localhost:" + options.port, ...(options.dev ? ["http://127.0.0.1:5173", "http://localhost:5173"] : [])]);
   const hosts = new Set(["127.0.0.1:" + options.port, "localhost:" + options.port]);
-  const streams = new Set<import("node:http").ServerResponse>();
+  const streams = new Map<import("node:http").ServerResponse, () => void>();
   app.setErrorHandler((error, _request, reply) => {
     const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
     const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
@@ -101,7 +110,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header("Set-Cookie", "harness_session=" + token + "; Path=/; HttpOnly; SameSite=Strict; Max-Age=86400").header("Cache-Control", "no-store");
     return { csrfToken: session.csrf, widgetOrigin: "http://localhost:" + widgetPort };
   });
-  registerPluginRoutes(app,options.plugins,'http://127.0.0.1:'+options.port,()=>service.store.snapshot().settings.theme,options.pluginError,options.admitPluginRequest);
+  registerPluginRoutes(app,options.plugins,'http://127.0.0.1:'+options.port,()=>service.store.snapshot().settings.theme,options.pluginError,options.admitPluginRequest,options.isolatedExtensions);
   app.get('/api/shell-settings',async(_request,reply)=>{
     reply.header('Cache-Control','no-store');
     const settings=service.store.get<Snapshot['settings']>('settings','global')??{theme:'dark',modelId:null};
@@ -162,7 +171,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header('Cache-Control', 'no-store');
     const { id } = request.params;
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
-    return { seq: service.store.sequence, verification: await service.verificationPanel(id) };
+    return { seq: service.store.sequence, verification: verificationPanelModel(service.store, id) };
   });
   app.get<{ Params: { id: string; artifactId: string } }>('/api/threads/:id/verification/artifacts/:artifactId', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');
@@ -196,7 +205,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const query = (request.query.q ?? '').slice(0, 500).toLocaleLowerCase();
     if (!query) return { threadIds: [] };
     const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
-    const threadIds = ids.filter(id => service.store.get('thread', id)
+    const threadIds = ids.filter(id => service.store.get('thread', id) && !service.store.get('archivedThread', id)
       && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
     return { threadIds };
   });
@@ -226,7 +235,10 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerSourceWorkbenchRoutes(app,service);
   registerCodeIntelligenceRoutes(app,service);
   registerProjectMemoryRoutes(app,()=>service.projectMemory,service);
+  registerOperationProjectTrustRoutes(app,service);
+  registerOperationExecutionReviewRoutes(app,service);
   registerAttentionRoutes(app,service);
+  registerBackgroundRoutes(app,service);
   const agentInventory=options.agentInventory??new AgentProjection(service.store);
   registerAgentInventoryRoutes(app,agentInventory);
   registerAgentInputRoutes(app,service.planning);
@@ -234,8 +246,14 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerShellReadRoutes(app,service.store);
   const conversationReads=new ConversationReadModels(service.store);
   registerConversationReadRoutes(app,conversationReads);
+  const sessionBranchReads=new SessionBranchReadModels(service.store);
+  registerSessionBranchReadRoutes(app,sessionBranchReads);
   const toolEffectReads=new ToolEffectReadModels(service.store);
   registerToolEffectReadRoutes(app,toolEffectReads);
+  // M17: host-side pairing management on the session/CSRF API. The
+  // device-facing remote surface is never mounted here — it exists only under
+  // an explicit configured authenticated TLS transport (S01/D07).
+  registerDevicePairingRoutes(app,new DevicePairingHost(service.store),new ReadSyncHost(service.store));
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
@@ -264,8 +282,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
-    streams.add(reply.raw);
-    streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw));
+    registerEventStream(streams, reply.raw, service.store, after);
   });
   app.get<{ Params: { id: string } }>("/api/artifacts/:id/source", async (request, reply) => {
     const artifact = service.store.get<ArtifactRecord>("artifact", request.params.id);
@@ -343,8 +360,9 @@ export async function buildServer(service: Service, options: ServerOptions) {
     } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
   });
   app.addHook("preClose", async () => {
-    await Promise.all([...streams].map(stream => new Promise<void>(done => { stream.once('close', done); stream.destroy(); })));
-    streams.clear();
+    // SSE responses are hijacked from Fastify's normal lifecycle. Destroy
+    // them without waiting for a second close event after a disconnect.
+    destroyEventStreams(streams);
   });
   return app;
 }

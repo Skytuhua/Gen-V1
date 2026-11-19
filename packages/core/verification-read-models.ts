@@ -1,14 +1,11 @@
-import {assertVerificationReadBasis, type VerificationReadBasis} from './verification-workflow.ts';
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import type { Store } from '../storage/store.ts';
 import type { Thread } from '../contracts/index.ts';
-import type {VerificationWorkflowView} from '../contracts/verification-repair.ts';
 import type { ToolEffectRecord } from '../contracts/tool-effects.ts';
 import type {
   CheckObservationV1, CompletionLabel, DeliverableAssessmentV1,
-  SecurityFindingV1, VerificationDeclarationV1, VisualObservationV1,
+  VerificationDeclarationV1, VisualObservationV1,
 } from '../contracts/verification.ts';
-import {securityFindingV1Schema} from '../contracts/verification.ts';
 import { computeAssessment, observationFreshness, observationMatchesThreadOwner } from './verification-gate.ts';
 import { assertVerificationSourceRoot, sourceDigestSync } from './project-verification.ts';
 
@@ -46,20 +43,11 @@ export interface VerificationPanelRow {
   details?: VerificationCheckDetails;
 }
 
-export interface SecurityFindingView extends Omit<SecurityFindingV1, 'provenance' | 'evidenceQuality'> {
-  evidenceQuality: NonNullable<SecurityFindingV1['evidenceQuality']>;
-  freshness: 'CURRENT' | 'STALE' | 'INDETERMINATE';
-  scopeAuthority: 'HOST_RECORDED' | 'UNVERIFIED';
-  executionId: string | null;
-}
-
 export interface VerificationPanelModel {
-  workflow?: VerificationWorkflowView | null;
   label: CompletionLabel | null;
   staleBanner: boolean;
   summary: { verified: number; failed: number; unverified: number; blocked: number; missing: string[] };
   rows: VerificationPanelRow[];
-  securityFindings?: {items: SecurityFindingView[]; truncated: boolean; invalid: number};
 }
 
 const short = (value: string) => (value.length > 12 ? value.slice(0, 12) : value);
@@ -79,8 +67,8 @@ function checkDetails(obs: CheckObservationV1 | VisualObservationV1): Verificati
   };
 }
 
-export function verificationPanelModel(store: Store, threadId: string, basis: VerificationReadBasis | null = null): VerificationPanelModel {
-  const thread = store.get<Thread>('thread', threadId), managed = Boolean(store.get('verificationManaged', threadId));
+export function verificationPanelModel(store: Store, threadId: string): VerificationPanelModel {
+  const thread = store.get<Thread>('thread', threadId);
   const declaration = store.get<VerificationDeclarationV1>('verificationDeclaration', threadId);
   const assessments = store.all<DeliverableAssessmentV1>('assessment', threadId);
   const latest = assessments.at(-1) ?? null;
@@ -95,14 +83,12 @@ export function verificationPanelModel(store: Store, threadId: string, basis: Ve
   let current: { codeDigest: string; dependencyDigest: string; environmentId: string } | null = null;
   if (declaration) {
     try {
-      if (managed) assertVerificationReadBasis(store, threadId, basis);
       assertVerificationSourceRoot(store, threadId, declaration.rootPath);
       current = {
         codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles),
         dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles),
-        environmentId: basis?.environmentId ?? declaration.environmentId,
+        environmentId: declaration.environmentId,
       };
-      if (managed) assertVerificationReadBasis(store, threadId, basis);
     } catch {
       current = null;
     }
@@ -126,21 +112,19 @@ export function verificationPanelModel(store: Store, threadId: string, basis: Ve
       unresolvedEffects,
       verifierIdentity: latest?.verifierIdentity ?? 'verification-panel',
       provenance: 'read model recomputed against live source digests',
-      recipeDigest: basis?.recipeDigest,
     }) : null;
   if (!current && recomputed) {
     // A fallback digest is serialization plumbing, never evidence that a live
     // source matches. Even a matching historical value cannot establish this.
     for (const requirement of recomputed.requirements) {
       if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
-      if (managed && requirement.assessment === 'UNVERIFIED') requirement.assessment = 'BLOCKED';
-      requirement.missing = [...requirement.missing, managed ? 'current approved execution authority or source inputs are unavailable' : declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
+      requirement.missing = [...requirement.missing, declaration ? 'current source inputs are unavailable' : 'current verification declaration is unavailable'].slice(0, 64);
     }
-    if (recomputed.label === 'VERIFIED' || managed && recomputed.label === 'COMPLETED_UNVERIFIED') recomputed.label = managed ? 'BLOCKED' : 'COMPLETED_UNVERIFIED';
+    if (recomputed.label === 'VERIFIED') recomputed.label = 'COMPLETED_UNVERIFIED';
   }
 
   const matches = (obs: CheckObservationV1, ref: string) => obs.checkId === ref || obs.executionId === ref;
-  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, {...current, recipeDigest: basis?.recipeDigest}) : 'INDETERMINATE' as const);
+  const freshnessOf = (obs: CheckObservationV1) => (current && observationMatchesThreadOwner(obs, thread) ? observationFreshness(obs, current) : 'INDETERMINATE' as const);
 
   const rows: VerificationPanelRow[] = [];
   const assessed = new Map((recomputed?.requirements ?? latest?.requirements ?? []).map(req => [req.id, req]));
@@ -189,22 +173,5 @@ export function verificationPanelModel(store: Store, threadId: string, basis: Ve
   // A completion label exists only after a saved completion assessment — the
   // task_finish boundary. Before that the panel still recomputes requirement
   // rows and freshness against the live cut, but shows no label.
-  // Findings stay outside check/requirement grading. In particular, advisory
-  // review and a recorded severity can never supply a successful check.
-  const findingRows=store.db.prepare('SELECT body FROM entities WHERE kind = ? AND thread_id = ? ORDER BY rowid DESC LIMIT 51').all('securityFinding',threadId) as {body:string}[];
-  const findings:SecurityFindingView[]=[];let invalid=0;
-  for(const row of findingRows.slice(0,50)){
-    try{
-      const finding=securityFindingV1Schema.parse(JSON.parse(row.body)),{provenance,evidenceQuality,...recorded}=finding;
-      const owned=Boolean(provenance&&observationMatchesThreadOwner({owner:provenance.owner},thread));
-      const listed=Boolean(declaration&&[...declaration.sourceFiles,...declaration.dependencyFiles].includes(finding.source.path));
-      const freshness=owned&&listed&&current&&provenance
-        ? provenance.codeDigest===current.codeDigest&&provenance.dependencyDigest===current.dependencyDigest?'CURRENT' as const:'STALE' as const
-        : 'INDETERMINATE' as const;
-      findings.push({...recorded,evidenceQuality:owned?evidenceQuality??'UNVERIFIED':'UNVERIFIED',freshness,
-        scopeAuthority:owned?'HOST_RECORDED':'UNVERIFIED',executionId:provenance?.executionId??null});
-    }catch{invalid++;}
-  }
-  return { label: latest ? (recomputed?.label ?? latest.label) : null, staleBanner, summary: counts, rows,
-    securityFindings:{items:findings,truncated:findingRows.length>50,invalid} };
+  return { label: latest ? (recomputed?.label ?? latest.label) : null, staleBanner, summary: counts, rows };
 }

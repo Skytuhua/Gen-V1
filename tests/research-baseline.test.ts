@@ -1,10 +1,9 @@
-import { afterEach, describe, expect, it } from 'vitest';
-import { spawn } from 'node:child_process';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { chmodSync, constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { performance } from 'node:perf_hooks';
+import { delimiter, join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
 import { createCapabilityFlags, CapabilityFlags } from '../packages/core/capability-flags.ts';
 import {
@@ -14,7 +13,7 @@ import {
 } from '../packages/contracts/implementation-evidence.ts';
 import {
   CONTRACT_SOURCES, benchmarkReportHtml, resolveExecutable, resolvePackageManager, runRecordedCommand,
-  statusFromObservation, verifySourceLock, writeCommandEvidence,
+  runBaseline, statusFromObservation, verifySourceLock, writeCommandEvidence,
 } from '../scripts/research-baseline.ts';
 
 const dirs: string[] = [];
@@ -43,6 +42,24 @@ describe('recorded command runner', () => {
     expect(evidence.argv).toEqual(['node', '-e', 'process.exit(0)']);
     expect(commandEvidenceSchema.parse(evidence)).toBeTruthy();
     expect(validateCommandEvidence(evidence)).toEqual([]);
+  });
+
+  it('lets only one baseline claim a new evidence directory', async () => {
+    const fixture = dir('baseline-claim'), out = join(fixture, 'output', 'attempt');
+    const pnpm = join(fixture, 'node_modules', 'pnpm');
+    mkdirSync(join(pnpm, 'bin'), { recursive: true });
+    writeFileSync(join(fixture, 'package.json'), JSON.stringify({ packageManager: 'pnpm@10.30.3' }));
+    writeFileSync(join(pnpm, 'package.json'), JSON.stringify({ name: 'pnpm', version: '10.30.3' }));
+    writeFileSync(join(fixture, 'pnpm.cmd'), 'not executed');
+    writeFileSync(join(pnpm, 'bin', 'pnpm.cjs'), "if (process.argv[2] === '--version') console.log('10.30.3');");
+    vi.stubEnv('PATH', fixture);
+    try {
+      const attempts = await Promise.allSettled([runBaseline(out, fixture), runBaseline(out, fixture)]);
+      expect(attempts.filter(attempt => attempt.status === 'fulfilled')).toHaveLength(1);
+      const rejected = attempts.find(attempt => attempt.status === 'rejected');
+      expect(rejected?.reason).toMatchObject({ code: 'INVALID_INPUT' });
+      expect(existsSync(join(out, '00-package-manager.log'))).toBe(true);
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it('records an exit-7 command as FAIL, never an expected negative', async () => {
@@ -123,12 +140,20 @@ describe('recorded command runner', () => {
     expect(status).toBe('EXPECTED_NEGATIVE');
     const evidence = await writeCommandEvidence(obs, dir('neg'), 'neg', status, { assertedFailure: 'bad-value-42', observed: true });
     expect(validateCommandEvidence(evidence)).toEqual([]);
+    const marker = /bad-value-42/g;
+    expect(statusFromObservation(obs, { expectedNegativeMarker: marker })).toBe('EXPECTED_NEGATIVE');
+    expect(statusFromObservation(obs, { expectedNegativeMarker: marker })).toBe('EXPECTED_NEGATIVE');
+    expect(marker.lastIndex).toBe(0);
     const wrongMarker = statusFromObservation(obs, { expectedNegativeMarker: 'some-other-value' });
     expect(wrongMarker).toBe('FAIL');
   });
 });
 
 describe('executable resolution', () => {
+  it('rejects an explicit executable path that is a directory', () => {
+    expect(() => resolveExecutable(dir('directory-executable'))).toThrow(/not a file/i);
+  });
+
   it('refuses .cmd shims and resolves real executables', () => {
     expect(() => resolveExecutable('pnpm.cmd')).toThrow(HarnessError);
     const node = resolveExecutable('node');
@@ -136,13 +161,74 @@ describe('executable resolution', () => {
     expect(() => resolveExecutable('definitely-missing-m01')).toThrow(/not on PATH|missing/);
   });
 
+  it.skipIf(process.platform === 'win32')('searches past a non-executable PATH entry', async () => {
+    const earlier = dir('nonexec');
+    const later = dir('valid-bin');
+    const name = 'audit-fixture-command';
+    writeFileSync(join(earlier, name), 'not executable', { mode: 0o644 });
+    writeFileSync(join(later, name), '#!/bin/sh\nprintf working', { mode: 0o755 });
+    vi.stubEnv('PATH', [earlier, later].join(delimiter));
+    try {
+      const result = await runRecordedCommand(name, [], { cwd: process.cwd() });
+      expect(result).toMatchObject({ termination: 'NONE', exitCode: 0, stdout: 'working' });
+    } finally { vi.unstubAllEnvs(); }
+  });
+
   it('resolves the declared pnpm through the corepack executable', () => {
-    const pm = resolvePackageManager(process.cwd());
-    expect(pm.declaredVersion).toBe('10.30.3');
-    expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).toContain('corepack');
-    expect(pm.file).not.toMatch(/\.cmd$/i);
-    expect(pm.prefix.length).toBeGreaterThan(0);
-    expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
+    const bin = dir('resolver');
+    copyFileSync(process.execPath, join(bin, process.platform === 'win32' ? 'corepack.exe' : 'corepack'), constants.COPYFILE_FICLONE);
+    vi.stubEnv('PATH', bin);
+    try {
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).toContain('corepack');
+      expect(pm.file).not.toMatch(/\.cmd$/i);
+      expect(pm.prefix.length).toBeGreaterThan(0);
+      expect(pm.prefix.every(arg => !/\.(cmd|bat|ps1)$/i.test(arg))).toBe(true);
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it('prefers an installed pnpm naming the declared version over corepack', () => {
+    // Corepack can sit next to node and still fail `--version` offline: it has
+    // to fetch the pinned tarball unless that exact version was already run.
+    // A matching installed copy answers without the network, so it must win.
+    const bin = dir('installed-bin'), packageRoot = join(dir('installed-pkg'), 'node_modules', 'pnpm');
+    mkdirSync(join(packageRoot, 'bin'), { recursive: true });
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({ name: 'pnpm', version: '10.30.3' }));
+    writeFileSync(join(packageRoot, 'bin', 'pnpm.cjs'), "process.stdout.write('10.30.3\\n');\n");
+    symlinkSync(join(packageRoot, 'bin', 'pnpm.cjs'), join(bin, 'pnpm'));
+    copyFileSync(process.execPath, join(bin, process.platform === 'win32' ? 'corepack.exe' : 'corepack'), constants.COPYFILE_FICLONE);
+    vi.stubEnv('PATH', bin);
+    try {
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(pm.file).toBe(process.execPath);
+      expect(`${pm.file} ${pm.prefix.join(' ')}`.toLowerCase()).not.toContain('corepack');
+      expect(pm.prefix.at(-1)).toContain(join('pnpm', 'bin', 'pnpm.cjs'));
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it('keeps a differently versioned installed pnpm as the last resort', () => {
+    const bin = dir('mismatch-bin'), packageRoot = join(dir('mismatch-pkg'), 'node_modules', 'pnpm');
+    mkdirSync(join(packageRoot, 'bin'), { recursive: true });
+    mkdirSync(bin, { recursive: true });
+    writeFileSync(join(packageRoot, 'package.json'), JSON.stringify({ name: 'pnpm', version: '9.15.0' }));
+    writeFileSync(join(packageRoot, 'bin', 'pnpm.cjs'), "process.stdout.write('9.15.0\\n');\n");
+    symlinkSync(join(packageRoot, 'bin', 'pnpm.cjs'), join(bin, 'pnpm'));
+    // Corepack's per-manager dispatcher sits beside node, not on PATH, so the
+    // fallback is only reachable once this run has no dispatcher next to it.
+    const node = join(dir('mismatch-node'), process.platform === 'win32' ? 'node.exe' : 'node');
+    writeFileSync(node, '');
+    vi.stubEnv('PATH', bin);
+    const execPath = vi.spyOn(process, 'execPath', 'get').mockReturnValue(node);
+    try {
+      // No corepack here, so the mismatch is reported by the caller as the
+      // observed version rather than as a missing toolchain.
+      const pm = resolvePackageManager(process.cwd());
+      expect(pm.declaredVersion).toBe('10.30.3');
+      expect(pm.prefix.at(-1)).toContain(join('pnpm', 'bin', 'pnpm.cjs'));
+    } finally { execPath.mockRestore(); vi.unstubAllEnvs(); }
   });
 });
 
@@ -314,62 +400,93 @@ describe('crash/race fixtures', () => {
   });
 });
 
-describe('benchmark fixtures', () => {
-  const actions = (seed: number, count: number) => {
-    const rand = mulberry(seed);
-    return Array.from({ length: count }, () => ['read', 'grant', 'send', 'settle', 'compact'][Math.floor(rand() * 5)]!);
-  };
-  const workload = (fixture: string, seed: number, steps: number): { record: BenchmarkRecord; actions: string[] } => {
-    const started = performance.now();
-    const controlActions = actions(seed, steps);
-    let checksum = 0;
-    for (const action of controlActions) checksum = (checksum + action.length) | 0;
-    const elapsedMs = Math.round(performance.now() - started);
+describe('benchmark report shape fixtures', () => {
+  const record = (): BenchmarkRecord => {
     const measurement = {
-      elapsedMs, coldStartMs: null, firstPublicResponseMs: null, requests: null,
-      inputBytes: checksum, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
-      totalCostBytes: checksum, backgroundCostBytes: null, completionQuality: null,
+      elapsedMs: null, coldStartMs: null, firstPublicResponseMs: null, requests: null,
+      inputBytes: null, outputBytes: null, cacheInputBytes: null, cacheOutputBytes: null,
+      totalCostBytes: null, backgroundCostBytes: null, completionQuality: null,
     };
-    const make = (role: 'baseline' | 'candidate') => ({ role, status: 'PASS' as const, measurement });
     return {
-      record: { fixture, model: null, account: null, config: `seed-${seed}-steps-${steps}`, seed, baseline: make('baseline'), candidate: make('candidate'), notes: [] },
-      actions: controlActions,
+      fixture: 'renderer-only-fixture', model: null, account: null, config: 'Report formatting only', seed: 42,
+      baseline: { role: 'baseline', status: 'UNAVAILABLE', measurement },
+      candidate: { role: 'candidate', status: 'UNAVAILABLE', measurement: { ...measurement } },
+      notes: ['No workload or provider request was executed by this report shape fixture.'],
     };
   };
 
-  it('cover the required fixture set and keep unknown measurements null', () => {
-    const fixtures = ['long-session', 'tool-catalog-100', 'tool-catalog-500', 'oversized-output', 'memory-conflict', 'cancellation', 'concurrent-edits', 'large-ui-history'];
-    const records = fixtures.map((fixture, index) => workload(fixture, [1, 2, 7, 42, 99][index % 5]!, 100).record);
-    for (const record of records) {
-      expect(record.baseline!.measurement.cacheInputBytes).toBeNull();
-      expect(record.baseline!.measurement.cacheOutputBytes).toBeNull();
-      expect(record.baseline!.measurement.elapsedMs).not.toBeNull();
-    }
-    const html = benchmarkReportHtml(records);
+  it('labels both arms and keeps unmeasured values unavailable', () => {
+    const html = benchmarkReportHtml([record()]);
     expect(html).toContain('baseline');
     expect(html).toContain('candidate');
     expect(html).toContain('unavailable');
-    expect(html).toContain(' B'); // byte budgets labelled bytes, never tokens
-    expect(html).not.toContain('token');
+    expect(html).toContain('UNAVAILABLE');
   });
 
-  it('keep a setup failure distinct from a model-quality failure or expected regression', () => {
-    const broken = workload('cancellation', 42, 50).record;
-    broken.baseline = { role: 'baseline', status: 'SETUP_FAILED', measurement: { ...broken.baseline!.measurement, elapsedMs: null } };
-    const html = benchmarkReportHtml([broken]);
-    expect(html).toContain('SETUP_FAILED');
-    expect(broken.baseline.status).not.toBe('EXPECTED_NEGATIVE');
-    expect(broken.baseline.status).not.toBe('FAIL');
-  });
-
-  it('reproduce identical control actions for a fixed seed', () => {
-    for (const seed of [1, 2, 7, 42, 99]) {
-      expect(actions(seed, 200)).toEqual(actions(seed, 200));
-    }
+  it('renders setup failure separately from model-quality failure and expected regression', () => {
+    const broken = record();
+    broken.baseline!.status = 'SETUP_FAILED';
+    expect(benchmarkReportHtml([broken])).toContain('SETUP_FAILED');
+    expect(broken.baseline!.status).not.toBe('EXPECTED_NEGATIVE');
+    expect(broken.baseline!.status).not.toBe('FAIL');
   });
 });
 
 describe('dependency-contract checker', () => {
+  it('requires a file at a declared contract test path', () => {
+    const checkout = dir('contract-file');
+    const git = (...args: string[]) => execFileSync('git', ['-C', checkout, '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    const source = 'packages/capabilities/process.ts', testId = 'tests/contract.test.ts';
+    git('init', '-q');
+    mkdirSync(join(checkout, 'packages', 'capabilities'), { recursive: true });
+    mkdirSync(join(checkout, testId), { recursive: true });
+    writeFileSync(join(checkout, source), 'export {};');
+    git('add', '--', source);
+    git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Seed');
+    const sha = git('rev-parse', 'HEAD'), blob = git('rev-parse', sha + ':' + source);
+    const lock = sourceLockV3Schema.parse({
+      schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha, inspectedPaths: [{ path: source, blobSha: blob }],
+      publicContracts: [{ name: 'process-launcher', version: blob, testIds: [testId] }], acceptedDependencyCommits: [], approvedDrift: [],
+    });
+    expect(verifySourceLock(checkout, lock).map(issue => issue.code)).toEqual(['CONTRACT_TEST_MISSING']);
+    rmSync(join(checkout, testId), { recursive: true });
+    writeFileSync(join(checkout, testId), 'export {};');
+    expect(verifySourceLock(checkout, lock)).toEqual([]);
+    const nestedLock = sourceLockV3Schema.parse({ ...lock, publicContracts: [
+      { ...lock.publicContracts[0], testIds: [testId + '/case.ts', 'tests/no-second-contract.test.ts'] },
+    ] });
+    expect(verifySourceLock(checkout, nestedLock).map(issue => issue.code)).toEqual([
+      'CONTRACT_TEST_MISSING', 'CONTRACT_TEST_MISSING',
+    ]);
+  });
+
+  it.skipIf(process.platform === 'win32' || process.getuid?.() === 0)('collects all contract issues when a test path is inaccessible', () => {
+    const checkout = dir('inaccessible-contract');
+    const git = (...args: string[]) => execFileSync('git', ['-C', checkout, '-c', 'commit.gpgsign=false', '-c', 'core.hooksPath=', ...args], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+    const source = 'packages/capabilities/process.ts', inaccessible = join(checkout, 'tests', 'locked');
+    git('init', '-q');
+    mkdirSync(join(checkout, 'packages', 'capabilities'), { recursive: true });
+    mkdirSync(inaccessible, { recursive: true });
+    writeFileSync(join(checkout, source), 'export {};');
+    writeFileSync(join(inaccessible, 'example.test.ts'), 'export {};');
+    git('add', '--', source);
+    git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '-qm', 'Seed');
+    const sha = git('rev-parse', 'HEAD'), blob = git('rev-parse', sha + ':' + source);
+    const lock = sourceLockV3Schema.parse({
+      schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha, inspectedPaths: [{ path: source, blobSha: blob }],
+      publicContracts: [{ name: 'process-launcher', version: blob, testIds: ['tests/locked/example.test.ts', 'tests/absent.test.ts'] }],
+      acceptedDependencyCommits: [], approvedDrift: [],
+    });
+    try {
+      chmodSync(inaccessible, 0o600);
+      expect(verifySourceLock(checkout, lock).map(issue => issue.code)).toEqual([
+        'CONTRACT_TEST_MISSING', 'CONTRACT_TEST_MISSING',
+      ]);
+    } finally {
+      chmodSync(inaccessible, 0o700);
+    }
+  });
+
   it('flags drift, missing ancestry, contract version mismatch and absent contract tests', () => {
     const lock = sourceLockV3Schema.parse({
       schemaVersion: 3,
@@ -388,4 +505,21 @@ describe('dependency-contract checker', () => {
     expect(codes).toContain('CONTRACT_TEST_MISSING');
     expect(CONTRACT_SOURCES['process-launcher']).toBe('packages/capabilities/process.ts');
   });
+});
+
+it('validates an exact locked blob whose ordinary filename contains consecutive dots', () => {
+  const root = dir('source-lock-dots');
+  const path = 'compatibility..snapshot.ts';
+  const git = (...args: string[]) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', windowsHide: true }).trim();
+  git('init', '-q');
+  writeFileSync(join(root, path), 'export const fixture = true;\n');
+  git('add', '--', path);
+  git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false', '-c', 'core.hooksPath=.git/no-hooks', 'commit', '-qm', 'source fixture');
+  const sha = git('rev-parse', 'HEAD');
+  const lock = sourceLockV3Schema.parse({
+    schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha,
+    inspectedPaths: [{ path, blobSha: git('rev-parse', sha + ':' + path) }],
+    publicContracts: [], acceptedDependencyCommits: [], approvedDrift: [],
+  });
+  expect(verifySourceLock(root, lock)).toEqual([]);
 });

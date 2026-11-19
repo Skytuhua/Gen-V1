@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach,vi} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync,renameSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {mkdirSync,writeFileSync,renameSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {
  evaluateExecution,selectBackend,classifyShellCommand,digestFileSha256,
@@ -10,9 +11,7 @@ import {createProjectTrust} from '../packages/core/project-trust';
 import {executionProfileV1Schema,WORKSPACE_EXECUTE_NO_NETWORK,TRUSTED_HOST,type ExecutionProfileV1} from '../packages/contracts/execution-profile';
 import {hostFlagEnabled} from '../packages/core/host-flags';
 
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});vi.restoreAllMocks();});
+afterEach(()=>{cleanTempDirs();vi.restoreAllMocks();});
 const FLAGS_ON={HARNESS_FLAG_SECURITY_EXECUTION_PROFILES_V1:'1',HARNESS_FLAG_SECURITY_PROJECT_TRUST_V1:'1',HARNESS_FLAG_SECURITY_SECRET_REFS_V1:'1'};
 
 function fixture(){
@@ -28,14 +27,14 @@ async function trusted(root:string){
  return createProjectTrust({trustId:'exec-trust',rootPath:root,approvedFiles:approved,scope,decision:'trusted'});
 }
 function proof(over:Partial<PlatformProof>={}):PlatformProof{
- return {platformProofRef:'proof-win-v1',platform:'win32',status:'PASS',recordedAt:new Date().toISOString(),...over};
+ return {platformProofRef:'proof-fixture-v1',platform:process.platform,status:'PASS',recordedAt:new Date().toISOString(),...over};
 }
 function backend(over:Partial<ExecutionBackend>={}):ExecutionBackend{
- return {backendId:'backend-a',platform:'win32',installed:true,approved:true,proof:proof(),launch:vi.fn(async()=>({id:'handle-1',terminate:async()=>{}})),...over};
+ return {backendId:'backend-a',platform:process.platform,installed:true,approved:true,proof:proof(),launch:vi.fn(async()=>({id:'handle-1',terminate:async()=>{}})),...over};
 }
 async function profile(root:string,over:Record<string,unknown>={}){
  const executableSha256=await digestFileSha256(join(root,'tool.exe'));
- const base:Record<string,unknown>={profileId:WORKSPACE_EXECUTE_NO_NETWORK,version:1,backendId:'backend-a',capabilities:['process.execute','fs.read'],readRoots:[root],writeRoots:[],networkPolicy:{mode:'none'},secretRefs:[],executableAllowlist:[{executableSha256,argv:['run','--fast']}],platformProofRef:'proof-win-v1',...over};
+ const base:Record<string,unknown>={profileId:WORKSPACE_EXECUTE_NO_NETWORK,version:1,backendId:'backend-a',capabilities:['process.execute','fs.read'],readRoots:[root],writeRoots:[],networkPolicy:{mode:'none'},secretRefs:[],executableAllowlist:[{executableSha256,argv:['run','--fast']}],platformProofRef:'proof-fixture-v1',...over};
  return executionProfileV1Schema.parse(base) as ExecutionProfileV1;
 }
 const execRequest=(root:string,over:Partial<Extract<LaunchRequest,{kind:'executable'}>>={}):LaunchRequest=>({kind:'executable',executable:join(root,'tool.exe'),argv:['run','--fast'],cwd:root,...over});

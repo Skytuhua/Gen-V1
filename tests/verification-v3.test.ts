@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {describe,it,expect,afterEach} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {
@@ -13,15 +14,13 @@ import type {ApprovalV1,ToolEffectRecord,ToolOwner} from '../packages/contracts/
 import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
 import {VerificationArtifactStore} from '../packages/core/verification-artifacts';
+import {testEffectAuthenticator} from './fixtures/effect-authenticator';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
-
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 
 const owner=(threadId='t1'):ToolOwner=>({threadId,runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null});
@@ -379,7 +378,9 @@ it('an audited task_finish does not block its own completion assessment',async()
  const {Service}=await import('../packages/core/service');
  const root=workspace();const store=stateStore();
  const runtime={configure:()=>{},models:async()=>[],start:async()=>{},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};
- const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true}});
+ // Audited effects require host custody: without a signer the enabled ledger
+ // rejects every admission, so the fixture supplies one real key.
+ const service=new Service(store,runtime as never,{toolEffectFlags:{'audit.effectsV1':true},toolEffectAuthenticator:testEffectAuthenticator()});
  const stamp=new Date().toISOString();
  store.internal('test.fixture','t1',()=>store.put('thread','t1','t1',{id:'t1',threadId:'t1',title:'T',kind:'main',mode:'build',projectName:null,status:'working',createdAt:stamp,updatedAt:stamp,modelId:'test/model',sessionPath:null,runId:'r1',epoch:1}));
  attestProject(store,root);
@@ -526,30 +527,6 @@ describe('complete requirement evidence',()=>{
   const result=assess(['build','test'],[observation('build'),observation('test')]);
   expect(result.label).toBe('VERIFIED');
   expect(result.requirements[0].missing).toEqual([]);
- });
-
- it.each([
-  ['FAIL','FAILED'], ['BLOCKED','BLOCKED'], ['CANCELLED','FAILED'],
- ] as const)('a current %s check is observed evidence rather than a missing check',(outcome,label)=>{
-  const result=assess(['exec-complete','test'],[
-   observation('test',{outcome,exitCode:outcome==='FAIL'?1:null}),
-   observation('cleanup',{phase:'TEARDOWN',observationKind:'cleanup'}),
-  ]);
-  expect(result.label).toBe(label);
-  expect(result.requirements[0]).toMatchObject({assessment:label,missing:[]});
- });
-
- it('a recorded failure still reports unavailable artifact custody',()=>{
-  const result=assess(['test'],[observation('test',{outcome:'FAIL',exitCode:1,artifactRefs:['untrusted://log']})]);
-  expect(result.label).toBe('FAILED');
-  expect(result.requirements[0].missing).toEqual(['artifact custody is unavailable for build-and-test (test)']);
- });
-
- it('does not turn an unsupported persisted outcome into verification',()=>{
-  const recorded={...observation('test'),outcome:'unsupported'} as unknown as CheckObservationV1;
-  const result=assess(['test'],[recorded]);
-  expect(result.label).toBe('COMPLETED_UNVERIFIED');
-  expect(result.requirements[0].missing).toEqual(['evidence for build-and-test (test) is indeterminate or missing']);
  });
 
  it('a browser artifact reference cannot attest its own screenshot custody',()=>{
