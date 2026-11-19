@@ -17,6 +17,28 @@ Changes are grouped by release. Verification scopes are recorded separately from
 - Retire the built-in Code Review, Research and Custom presets without
   discarding saved canvas records.
 
+### Runtime reliability and safety
+
+- Preserve schedule pauses, cancellations, newer leases and blocked states
+  during recovery and late delivery reconciliation.
+- Reject plan progress and report writes based on stale revisions; advance
+  report cursors only through the events actually consumed.
+- Bound package advisory cache reuse to 24 hours, require fresh snapshot
+  provenance for clean results, and block inconsistent screening decisions.
+- Validate initial terminal commands before spawning; retain complete
+  characters when trimming scrollback and keep transcript cursors in bounds.
+- Measure thread-note budgets against the stored text, keeping memory bounded
+  for continuity rather than treating it as source evidence or approval.
+- Redact integration error metadata and reject causes, property names or
+  formatter accessors that cannot be safely scrubbed of credentials.
+- Avoid host restart hangs when event-stream clients disconnect during
+  shutdown, without waiting for duplicate close events.
+- Keep the isolated extension lifecycle off by default and its catalog hidden
+  while disabled; keep migration updates blocked and prevent worker replacement
+  until prior shutdown is confirmed.
+- Bound provider history and session-header reads, reject malformed history,
+  and tighten startup deadlines, cancellation cleanup and optional usage waits.
+
 See [usage](docs/visual-workspace.md) and [verification boundaries](docs/visual-workspace-verification.md).
 
 ## 0.6.4 source preview
