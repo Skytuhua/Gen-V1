@@ -41,6 +41,15 @@ export interface WakeupSchedulerOptions {
 
 const iso = (ms: number) => new Date(ms).toISOString();
 
+export async function waitForBackgroundDrain(work: Promise<unknown>, boundedMs: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([work, new Promise<void>(resolve => { timer = setTimeout(resolve, boundedMs); })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export class DurableWakeupScheduler {
   private readonly store: Store;
   private readonly now: () => number;
@@ -215,7 +224,10 @@ export class DurableWakeupScheduler {
         const previousDue = Math.max(wakeup.nextDueAtMs ?? anchorMs, wakeup.lastProcessedDueAtMs !== null ? wakeup.lastProcessedDueAtMs + intervalMs : anchorMs);
         // Persist missed occurrences between the previous due instant and the
         // latest admitted one (bounded per tick; the count is always exact).
-        const missed = input.scheduledDueAtMs > previousDue ? Math.max(0, Math.round((input.scheduledDueAtMs - previousDue) / intervalMs) - 1) : 0;
+        // The initial anchor does not count as a skipped interval. For a
+        // previously active cadence, previousDue is itself still unprocessed.
+        const firstMissableDue = Math.max(previousDue, anchorMs + intervalMs);
+        const missed = Math.max(0, Math.round((input.scheduledDueAtMs - firstMissableDue) / intervalMs));
         skippedTotal += missed;
         // S11: persist every intended missed occurrence; the hard cap is only
         // a host memory guard for pathological multi-year jumps.
@@ -496,7 +508,7 @@ export class DurableWakeupScheduler {
     });
     const waiters = [...this.inFlight.values()].map(owner => owner.promise);
     let uncertain = 0;
-    await Promise.race([Promise.allSettled(waiters), new Promise(resolve => setTimeout(resolve, boundedMs))]);
+    await waitForBackgroundDrain(Promise.allSettled(waiters), boundedMs);
     this.store.internal("background.wakeups.drained", null, () => {
       const stamp = this.now();
       for (const [key] of this.inFlight) {

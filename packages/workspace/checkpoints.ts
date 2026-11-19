@@ -31,7 +31,6 @@ import { sha256hex } from "./edit-journal.ts";
 
 export const CHECKPOINT_KIND = "workspaceCheckpoint" as const;
 export const RESTORE_PLAN_KIND = "workspaceRestorePlan" as const;
-export const REPOSITORY_GROUP_KIND = "workspaceRepositoryGroup" as const;
 export const REPOSITORY_RECIPE_KIND = "workspaceRepositoryRecipe" as const;
 
 // Adapter-visible cap: the frozen web contract lists at most 100 files.

@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -16,12 +17,6 @@ afterEach(async () => {
   for (const cleanup of cleanups.splice(0).reverse()) await cleanup();
   vi.restoreAllMocks();
 });
-
-const deferred = () => {
-  let resolve!: () => void;
-  const promise = new Promise<void>(done => { resolve = done; });
-  return { promise, resolve };
-};
 
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'effect-operation-owner-'));

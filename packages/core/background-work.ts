@@ -7,7 +7,7 @@ import type { ModelRequestGate } from "../runtime/model-capacity.ts";
 import { Store, digest } from "../storage/store.ts";
 import { validateJson } from "./widgets.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
-import { DurableWakeupScheduler, type DeliveryOutcome, type WakeupDelivery, type WakeupRecord } from "./durable-wakeups.ts";
+import { DurableWakeupScheduler, waitForBackgroundDrain, type DeliveryOutcome, type WakeupDelivery, type WakeupRecord } from "./durable-wakeups.ts";
 import {
   BACKGROUND_HOLD_REASONS, BACKGROUND_SCHEDULER_LIMITS, backgroundWorkV1Schema, humanStepV1Schema,
   type BackgroundOutcome, type BackgroundWorkKind, type BackgroundWorkV1, type HumanStepV1,
@@ -490,7 +490,7 @@ export class BackgroundWorkCoordinator {
       if (process.platform === "win32") session.child.kill();
       else process.kill(-identity.pid, "SIGKILL");
     } catch { /* The group may already be gone; the exit receipt decides. */ }
-    await Promise.race([session.done, new Promise(resolve => setTimeout(resolve, BACKGROUND_SCHEDULER_LIMITS.shutdownDrainMs))]);
+    await waitForBackgroundDrain(session.done, BACKGROUND_SCHEDULER_LIMITS.shutdownDrainMs);
     const after = this.requireWork(workId);
     if (!session.exited) {
       this.markUnknown(workId, "Teardown was not acknowledged within the bounded wait.");
@@ -821,7 +821,7 @@ export class BackgroundWorkCoordinator {
       }
     });
     const stops = [...this.sessions.keys()].map(workId => this.stopCommand(workId).catch(() => ({ stopped: false, state: "UNKNOWN" as const })));
-    await Promise.race([Promise.allSettled(stops), new Promise(resolve => setTimeout(resolve, boundedMs))]);
+    await waitForBackgroundDrain(Promise.allSettled(stops), boundedMs);
     this.store.internal("background.work.drained", null, () => {
       for (const [workId, session] of this.sessions) {
         const work = this.store.get<BackgroundWorkRecord>("backgroundWork", workId);
@@ -831,7 +831,7 @@ export class BackgroundWorkCoordinator {
         }
       }
     });
-    await Promise.race([Promise.allSettled([...this.executorWork]), new Promise(resolve => setTimeout(resolve, boundedMs))]);
+    await waitForBackgroundDrain(Promise.allSettled([...this.executorWork]), boundedMs);
     return { cancelled, uncertain };
   }
 

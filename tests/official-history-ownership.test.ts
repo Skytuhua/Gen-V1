@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { EventEmitter } from 'node:events';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -12,7 +13,6 @@ import type { HistoryReceipt } from '../packages/runtime-official/internal.ts';
 vi.mock('node:child_process', async original => ({ ...await original<typeof import('node:child_process')>(), spawn: vi.fn() }));
 const directories: string[] = [];
 afterEach(async () => { vi.restoreAllMocks(); for (const directory of directories.splice(0)) await rm(directory, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 }); });
-function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(done => { resolve = done; }); return { promise, resolve }; }
 async function fixture() {
   const dataDir = await mkdtemp(join(tmpdir(), 'official-history-owner-')); directories.push(dataDir);
   const manifest = await openManifest(dataDir, 'claude-code', 'thread', null);

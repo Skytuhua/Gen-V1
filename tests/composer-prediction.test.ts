@@ -1,10 +1,10 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {ComposerPredictions,predictionContext,parsePrediction,PREDICTION_LIMITS,type PredictionBasis} from '../packages/core/composer-prediction.ts';
 import type {Message,RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{vi.useRealTimers();for(const close of cleanups.splice(0).reverse())await close();});
-const deferred=<T,>()=>{let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return{promise,resolve};};
 function adapter(){let callbacks!:RuntimeCallbacks;const starts:StartRun[]=[];const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:vi.fn(async()=>[]),start:vi.fn(async value=>{starts.push(value);}),followUp:vi.fn(async()=>{}),cancel:vi.fn(async()=>{}),compact:vi.fn(async()=>{}),history:vi.fn(async()=>[]),dispose:vi.fn(async()=>{})};return{runtime,starts,get callbacks(){return callbacks;},settle(text='{"suggestion":"What should I check next?"}'){const run=starts[0];callbacks.onEvent({...run,type:'assistant.message',messageId:'prediction-output',content:text});callbacks.onEvent({...run,type:'settled'});}};}
 const basis=(threadId='thread'):PredictionBasis=>({threadId,replyId:'reply',modelId:'openai/model',accountId:null,epoch:2,context:'[{"role":"user","content":"Please check."},{"role":"assistant","content":"Checked."}]'});
 function fixture(){let current:PredictionBasis|null=basis();const models:ReturnType<typeof adapter>[]=[];const predictions=new ComposerPredictions({factory:()=>{const next=adapter();models.push(next);return next.runtime;},current:id=>current?.threadId===id?current:null});cleanups.push(()=>predictions.dispose());return{predictions,models,get current(){return current;},set current(value:PredictionBasis|null){current=value;}};}

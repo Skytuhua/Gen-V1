@@ -98,6 +98,20 @@ describe("M10-D02 lease after uncertain dispatch", () => {
 });
 
 describe("M10-D03 clock movement", () => {
+  it("records the first missed interval after a previously delivered tick", async () => {
+    const f = storeFixture("m10-missed-slot-");
+    const interval = 60_000, anchor = f.now();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => ({ status: "DELIVERED" }) });
+    cleanups.push(() => scheduler.stop());
+    scheduler.register(command("background.wakeup.register"), { taskId: "task-missed", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: interval } });
+    await scheduler.tick();
+    f.advance(2 * interval);
+    await scheduler.tick();
+    const skipped = f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => item.state === "SKIPPED");
+    expect(skipped.map(item => item.scheduledDueAtMs)).toEqual([anchor + interval]);
+    expect(scheduler.schedules()[0]!.skippedTotal).toBe(1);
+  });
+
   it("forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key", async () => {
     const f = storeFixture("m10-d03-");
     const admitted: number[] = [];

@@ -1,13 +1,25 @@
 import {describe,it,expect} from 'vitest';
-import {NODE_ARCHIVE_EXTRACT_COMMAND,runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
+import {NODE_ARCHIVE_EXTRACT_COMMAND,reserveDesktopStage,runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {readFileSync} from 'node:fs';
+import {execFileSync} from 'node:child_process';
+import {chmodSync,copyFileSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {mkdtemp,mkdir,readFile,writeFile,readdir,rm,symlink} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 
 describe('desktop distribution custody',()=>{
+ it('never adopts an earlier stage with the same timestamp',async()=>{
+  const root=await mkdtemp(join(tmpdir(),'gen-stage-'));
+  try{
+   const timestamp=1700000000000,old=join(root,'desktop-stage-'+timestamp);
+   await mkdir(old);await writeFile(join(old,'old-payload'),'stale');
+   const [first,second]=await Promise.all([reserveDesktopStage(root,timestamp),reserveDesktopStage(root,timestamp)]);
+   expect(new Set([old,first,second]).size).toBe(3);
+   expect(await readdir(first)).toEqual([]);expect(await readdir(second)).toEqual([]);
+   expect(await readFile(join(old,'old-payload'),'utf8')).toBe('stale');
+  }finally{await rm(root,{recursive:true,force:true,maxRetries:5});}
+ });
  it('requires every fixed provider entry and published distribution before accepting a package',()=>{
   expect(REQUIRED_RUNTIME_FILES).toEqual(expect.arrayContaining([
    'host/packages/runtime-login/index.ts','host/packages/runtime/index.ts','host/apps/server/main.ts',
@@ -102,4 +114,27 @@ describe('desktop distribution custody',()=>{
   expect(config.directories.app).toBe('C:/build/desktop-app');
   expect(JSON.stringify(config)).not.toMatch(/userdata|auth\.json|\.codex/);
  });
+});
+
+it.skipIf(process.platform==='win32')('runs JavaScript build tasks with the same Node executable as the parent',()=>{
+ const root=mkdtempSync(join(tmpdir(),'gen-build-node-'));
+ try{
+  mkdirSync(join(root,'scripts'));
+  mkdirSync(join(root,'bin'));
+  copyFileSync(new URL('../scripts/build.mjs',import.meta.url),join(root,'scripts','build.mjs'));
+  for(const name of ['build-widgets','build-plugin-runtime']){
+   writeFileSync(join(root,'scripts',name+'.mjs'),`import {writeFileSync} from 'node:fs';writeFileSync('${name}.node-path',process.execPath);`);
+  }
+  for(const [name,line] of [['node','exit 23'],['pnpm','exit 0']]){
+   const file=join(root,'bin',name);
+   writeFileSync(file,'#!/bin/sh\n'+line+'\n');
+   chmodSync(file,0o755);
+  }
+  expect(()=>execFileSync(process.execPath,['scripts/build.mjs'],{cwd:root,env:{...process.env,PATH:join(root,'bin')},stdio:'pipe'})).not.toThrow();
+  for(const name of ['build-widgets','build-plugin-runtime']){
+   expect(readFileSync(join(root,name+'.node-path'),'utf8')).toBe(process.execPath);
+  }
+ }finally{
+  rmSync(root,{recursive:true,force:true});
+ }
 });
