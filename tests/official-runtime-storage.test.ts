@@ -91,6 +91,9 @@ describe('official distribution version verification',()=>{
  it('rejects a successful process that did not report a version',async()=>{
   await expect(probe("process.stdout.write('  ')")).rejects.toThrow('Unexpected CLI version output.');
  });
+ it('rejects an otherwise successful probe exceeding the combined output budget',async()=>{
+  await expect(probe("process.stdout.write('1.2.3\\n'); process.stderr.write('note: '.repeat(12000));")).rejects.toThrow('Official version output exceeded its bound.');
+ });
  it('keeps a nonempty version from a successfully exited process',async()=>{
   await expect(probe("process.stdout.write('1.2.3\\n')")).resolves.toBe('1.2.3');
  });

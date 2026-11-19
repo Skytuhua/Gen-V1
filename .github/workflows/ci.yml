@@ -63,10 +63,11 @@ jobs:
       - name: Check the repository type program
         run: pnpm typecheck
 
-      - name: Check and build the optional visuals plug-in
-        run: |
-          pnpm --dir plugins/personal-visuals typecheck
-          pnpm --dir plugins/personal-visuals build
+      - name: Typecheck the optional visuals plug-in
+        run: pnpm --dir plugins/personal-visuals typecheck
+
+      - name: Build the optional visuals plug-in
+        run: pnpm --dir plugins/personal-visuals build
 
       - name: Build web application
         run: pnpm build
