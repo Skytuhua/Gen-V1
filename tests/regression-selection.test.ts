@@ -152,10 +152,12 @@ describe('regression test selection', () => {
     const removedOnly = select([{ path: 'tests/store.test.ts', status: 'D' }]);
     expect(removedOnly.tests).toEqual([]);
     expect(removedOnly.issues.map(i => i.code)).toContain('REMOVED_TEST');
+    expect(removedOnly.needsReview).toBe(true);
     const noTestsAfterRemoval = selectRegressionTests(
       [{ path: 'tests/only.test.ts', status: 'D' }], ['tests/only.test.ts'], map);
     expect(noTestsAfterRemoval.coverage).toBe('NONE');
     expect(noTestsAfterRemoval.issues.map(i => i.code)).toContain('REMOVED_TEST');
+    expect(noTestsAfterRemoval.needsReview).toBe(true);
   });
 
   it('selects a changed test file itself when it still exists', () => {
