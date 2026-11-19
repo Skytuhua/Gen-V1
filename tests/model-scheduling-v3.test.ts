@@ -125,3 +125,18 @@ it('measures production queue time independently of wall-clock adjustments',asyn
   expect(request.queuedMs).toBe(37);
  }finally{wall.mockRestore();monotonic.mockRestore();}
 });
+
+it('gives a transport offered after invalidation its own full idle window',async()=>{
+ vi.useFakeTimers();
+ try{
+  const pool=new StatelessTransportPool(),first=transport(),second=transport();
+  expect(pool.offer(key(),first)).toBe(true);
+  await vi.advanceTimersByTimeAsync(STATELESS_IDLE_EXPIRY_MS/2);
+  await pool.invalidate(key());
+  expect(first.closed).toBe(true);
+  expect(pool.offer(key(),second)).toBe(true);
+  await vi.advanceTimersByTimeAsync(STATELESS_IDLE_EXPIRY_MS/2);
+  expect(second.closed).toBe(false);
+  expect(await pool.take(key())).toBe(second);
+ }finally{vi.useRealTimers();}
+});
