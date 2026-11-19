@@ -43,7 +43,7 @@ export const anchorsOf = text => {
   const headings = [
     ...text.matchAll(/^ {0,3}#{1,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm),
     ...text.matchAll(/^ {0,3}(\S.*)\n {0,3}(?:=+|-+)[ \t]*$/gm),
-  ];
+  ].sort((a, b) => a.index - b.index);
   for (const [, heading] of headings) {
     const base = slug(heading);
     let candidate = base, count = counters.get(base) ?? 0;
