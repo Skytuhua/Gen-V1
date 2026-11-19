@@ -384,7 +384,7 @@
       }
     },
     "autoMergeInspection": "server.ts routes intact; all M12 files byte-identical post-merge; no new semantic conflicts.",
-    "windowsComparison": "clean-main Windows run 44416861265 at 4bcdc82a: context-result-host 32/32, context-result-custody 4/4 \u2014 comparison evidence only (not a pass on any M12 cut). This RECLASSIFIES the shard-2/4 context-result failures on c413a178 as M12-attributable (file main-owned and unchanged, but behavior regresses on the merged tree \u2014 an M12 shared-module interaction; diagnosis pending). Earlier \"inherited/main-side\" classification superseded.",
+    "windowsComparison": "clean-main Windows run 44416861265 at 4bcdc82a: context-result-host 32/32, context-result-custody 4/4 \u2014 comparison evidence only (not a pass on any M12 cut). This RECLASSIFIES the shard-2/4 context-result failures on c413a178 as M12-attributable (file main-owned and unchanged, but behavior regresses on the merged tree \u2014 an M12 shared-module interaction; diagnosis pending). Earlier \"inherited/main-side\" classification superseded. DIAGNOSIS COMPLETE @5559b05f: M12 ctx.readResource in the shared domain context bypassed lineage.wrap (withResource-only observation) \\u2192 observed=false \\u2192 FULL_RESULT_UNAVAILABLE on all retained reads; platform-independent (linux repro 24/32). Fix: readResource scoped to executeProgramRead only; ordinary reads return to withResource+lineage. Receipt logs/r05/context-result-regression.receipt.json.",
     "note": "LOCAL ONLY \u2014 not pushed; Windows run 44426865521 actively testing published head 096da165."
   }
 }
