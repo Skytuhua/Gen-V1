@@ -4,7 +4,7 @@ import {dirname,join} from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
 import {args,json,main,output,required,windows} from './common.ts';
 import {flagsOff} from './flags-off.ts';
-import {installedSession} from './installed-session.ts';
+import {installedSession,nativeBounds} from './installed-session.ts';
 import type {Seed} from './seed-v061-profile.ts';
 
 main(import.meta.url,async()=>{
@@ -13,9 +13,9 @@ main(import.meta.url,async()=>{
  try{
   await flagsOff(dirname(exe),out);
   const metadata=JSON.parse(await readFile(join(dirname(exe),'resources/host/package.json'),'utf8'));expect(metadata.version).toBe('0.6.5');
-  await installedSession(exe,async page=>{
+  await installedSession(exe,async(page,pid)=>{
    await expect(page.locator('html')).toHaveAttribute('data-theme',(seed.settings as {theme:string}).theme);
-   if(seed.layout){const session=await page.context().newCDPSession(page),{windowId}=await session.send('Browser.getWindowForTarget');expect((await session.send('Browser.getWindowBounds',{windowId})).bounds).toEqual(seed.layout);await session.detach();checks.push('Native main-window geometry restored');}
+   if(seed.layout){expect(await nativeBounds(pid)).toEqual(seed.layout);checks.push('Native main-window geometry restored');}
    for(const thread of seed.threads){await page.locator('.thread-item').filter({hasText:thread.title}).click();await expect(page.getByText(thread.message,{exact:true})).toBeVisible();await expect(page.getByRole('textbox',{name:'Delivery note',exact:true})).toHaveValue(thread.artifactValue);if(thread.draft)await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue(thread.draft);
     const data=await page.evaluate(async id=>{const response=await fetch('/api/threads/'+encodeURIComponent(id)+'/snapshot');if(!response.ok)throw Error('Thread detail unavailable');return response.json();},thread.id);expect(JSON.stringify(data)).toContain(thread.memory);
     const info=await page.evaluate(id=>window.harnessDesktop!.detach({kind:'workspace',threadId:id,tab:'notes'}),thread.id);await expect.poll(()=>page.context().pages().some(child=>child.url().includes(info.id))).toBe(true);const notes=page.context().pages().find(child=>child.url().includes(info.id))!;await expect(notes.getByRole('textbox',{name:'Note rc-note',exact:true})).toHaveValue(thread.memory);await notes.screenshot({path:join(out,thread.id+'-memory.png')});await notes.evaluate(()=>window.harnessDesktop!.reattach());checks.push(thread.id+': thread/message/artifact/draft and notes visible');

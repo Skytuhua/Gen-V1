@@ -14,6 +14,15 @@ corepack pnpm exec tsx scripts/rc-review/run-rc-review.ts --phase upgrade --out 
 
 `$out` must already contain the clean lifecycle receipt and candidate `rc-build.json`. Upgrade phase verifies the baseline setup against `C:\gen-rc\baseline\v0.6.1\SHA256SUMS.txt`, installs baseline, seeds real default profiles, types two native unsent drafts over owned CDP, resizes the main window, quits cleanly, snapshots, installs candidate over the same destination, snapshots again, compares and runs native visibility checks. No live credentials are generated.
 
+To reuse the prepared historical baseline after clean-install qualification, supply `--profile-archive C:\gen-rc\baseline\v0.6.1\profile-archive` instead of `--v061-worktree`. Upgrade installs v0.6.1 first, verifies every archived file's SHA-256, restores only into empty profile roots, and compares the restored files/entities/identifiers exactly against the archived pre-upgrade manifest before running candidate setup. Account profiles are included under the archived host root. `seed.json`, `restored-manifest.json` and `restore-compare.json` are retained in `$out`; corrupt archives or nonempty destinations fail closed.
+
+Archive/restore standalone commands (application and host must be stopped):
+
+```powershell
+corepack pnpm exec tsx scripts/rc-review/profile-archive.ts archive --archive C:\gen-rc\baseline\v0.6.1\profile-archive --seed "$out\seed.json" --manifest C:\gen-rc\baseline\v0.6.1\pre-upgrade-manifest.json
+corepack pnpm exec tsx scripts/rc-review/profile-archive.ts restore --archive C:\gen-rc\baseline\v0.6.1\profile-archive --install $install --out $out
+```
+
 Manual equivalents (for diagnosis, not bypassing custody):
 
 ```powershell

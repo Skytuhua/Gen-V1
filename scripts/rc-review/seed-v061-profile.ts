@@ -4,7 +4,7 @@ import {mkdir,readdir,readFile,writeFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {pathToFileURL} from 'node:url';
 import {args,json,main,output,required,run,windows} from './common.ts';
-import {installedSession} from './installed-session.ts';
+import {installedSession,nativeBounds} from './installed-session.ts';
 
 export type Seed={version:1;synthetic:true;threads:{id:string;title:string;message:string;artifactValue:string;draft:string;memory:string;artifactId:string;stateId:string}[];account:{id:string;directory:string};settings:unknown;layout?:unknown;passed:boolean};
 main(import.meta.url,async()=>{
@@ -25,8 +25,8 @@ main(import.meta.url,async()=>{
   }store.put('settings','global',null,seed.settings);store.put('account',account.id,null,account);
  });}finally{store.close();}
  await mkdir(directory,{recursive:true});await writeFile(join(directory,'RC-SYNTHETIC-NO-TOKENS.txt'),'Synthetic profile metadata only; no credentials.\n');await json(join(out,'seed.json'),seed);
- try{await installedSession(executable,async page=>{
+ try{await installedSession(executable,async(page,pid)=>{
   for(const thread of seed.threads.slice(0,2)){await page.locator('.thread-item').filter({hasText:thread.title}).click();const composer=page.getByRole('textbox',{name:'Message',exact:true});await composer.fill(thread.draft);await expect.poll(()=>page.evaluate(id=>new Promise<unknown>((accept,reject)=>{const request=indexedDB.open('generative-harness-journal',1);request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,row=db.transaction('entries').objectStore('entries').get('draft:'+id);row.onsuccess=()=>{accept(row.result?.value);db.close();};row.onerror=()=>reject(row.error);};}),thread.id)).toBe(thread.draft);}
-  const cdp=await page.context().newCDPSession(page),{windowId}=await cdp.send('Browser.getWindowForTarget');await cdp.send('Browser.setWindowBounds',{windowId,bounds:{left:80,top:80,width:1100,height:780,windowState:'normal'}});seed.layout=(await cdp.send('Browser.getWindowBounds',{windowId})).bounds;await cdp.detach();await page.screenshot({path:join(out,'seed-drafts.png')});
+  seed.layout=await nativeBounds(pid,{left:80,top:80,width:1100,height:780});await page.screenshot({path:join(out,'seed-drafts.png')});
  });seed.passed=true;}finally{await json(join(out,'seed.json'),seed);}console.log('Seeded 3 historical threads, accepted artifact states, notes, settings, synthetic account; 2 native drafts.');
 });

@@ -10,6 +10,7 @@ All commands run from the review-branch repo root. In PowerShell, set `$out` to 
    corepack pnpm exec tsx scripts/rc-review/run-rc-review.ts --phase build --commit <sha> --label dry-run --out $out
    ```
    Use `--label freeze` only for the actual freeze SHA; dba9dde9 is dry-run-only. Preserve `rc-build.json`, setup and build-manifest hashes. Build rejects source drift.
+   For an isolated candidate checkout, add `--worktree C:\gen-rc\worktrees\dba9dde9`; the branch's harness stays outside that clean checkout. Install its pinned Node/Python/integration/tool inputs first per the repository build instructions. `rc-build.json` records the target worktree and elapsed build milliseconds.
 3. Run clean lifecycle **before any installed upgrade**. Preflight refuses existing Gen V1 registry keys, processes, shortcuts or updater cache:
    ```powershell
    corepack pnpm exec tsx scripts/rc-review/run-rc-review.ts --phase clean --out $out --allow-install disposable-vm
