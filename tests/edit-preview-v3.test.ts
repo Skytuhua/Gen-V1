@@ -133,7 +133,8 @@ it('closed previews release their aggregate and memory budget',()=>{
 });
 
 it('a failed final seal invalidates an incomplete preview and frees its slot for a new edit',()=>{
- const registry=new EditPreviewRegistry({...CODE_INTELLIGENCE_LIMITS,openPreviewsPerRun:1});
+ const registry=new EditPreviewRegistry();
+ for(let index=1;index<CODE_INTELLIGENCE_LIMITS.openPreviewsPerRun;index++)registry.begin(owner,schemaDigest);
  const preview=registry.begin(owner,schemaDigest);
  registry.append(preview.previewId,owner,'{"files":');
  expect(()=>registry.seal(preview.previewId,owner,()=>null)).toThrowError(/not valid JSON/);
