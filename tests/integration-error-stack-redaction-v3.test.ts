@@ -321,3 +321,28 @@ it.each(['number', 'bigint'] as const)('fails closed on a numeric credential in 
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:6})).not.toContain(secret);
 });
+
+it.each(['raw', 'base64'] as const)('fails closed on credential-bearing child Error metadata keys (%s)', form => {
+ const secret='CONTEXT7_ERROR_METADATA_KEY_FIXTURE_162';
+ const exposed=form==='raw'?secret:Buffer.from(secret,'utf8').toString('base64');
+ const failure=new Error('safe child failure');
+ Object.defineProperty(failure,'child_'+exposed,{value:42,enumerable:true,configurable:true});
+ // Node prints own property names, even when their values are nonsecret.
+ expect(inspect(failure,{depth:5})).toContain(exposed);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:5})).not.toContain(exposed);
+});
