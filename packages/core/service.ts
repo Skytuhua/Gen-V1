@@ -546,6 +546,18 @@ export class Service {
     assertOwner();
     const context = this.context(owner.threadId, signal, undefined, ctx);
     const result = await domain.handleDomainTool(call.name, call.args, { ...context,
+      // Program reads use the direct bound read; ordinary reads must keep the
+      // withResource route so result lineage can observe them.
+      readResource: async (id: string, relativePath: string | undefined, maxBytes: number) => {
+        assertOwner();
+        const grant = this.store.get<ResourceGrant>('resource', id);
+        if (!grant || grant.threadId !== owner.threadId) throw new HarnessError('CAPABILITY_DENIED', 'Resource is not granted to this thread');
+        const commitment = digest(grant);
+        const value = await readResourceGrant(grant, this.store.dataDir, relativePath, maxBytes, signal);
+        assertOwner();
+        if (digest(this.store.get<ResourceGrant>('resource', id)) !== commitment) throw new HarnessError('CAPABILITY_DENIED', 'Resource grant changed during the read');
+        return value;
+      },
       publishData: (value, provenance) => {
         assertOwner();
         // The normal domain schema and resource guard remain in control. Its
@@ -1038,16 +1050,6 @@ export class Service {
         return binding.familyId ? privateFamilyForBinding(this.store,binding) : binding;
       },
       resolveResource: (id: string, relativePath?: string, write?: boolean) => { assertAuthority(); return this.resolveResource(threadId, id, relativePath, write); },
-      readResource: async (id: string, relativePath: string | undefined, maxBytes: number) => {
-        assertAuthority();
-        const grant = this.store.get<ResourceGrant>('resource', id);
-        if (!grant || grant.threadId !== threadId) throw new HarnessError('CAPABILITY_DENIED', 'Resource is not granted to this thread');
-        const commitment = digest(grant);
-        const value = await readResourceGrant(grant, this.store.dataDir, relativePath, maxBytes, signal ?? new AbortController().signal);
-        assertAuthority();
-        if (digest(this.store.get<ResourceGrant>('resource', id)) !== commitment) throw new HarnessError('CAPABILITY_DENIED', 'Resource grant changed during the read');
-        return value;
-      },
       withResource: <T>(id: string, relativePath: string | undefined, write: boolean, action: (path: string) => Promise<T>): Promise<T> => {
         assertAuthority();
         const grant = this.store.get<ResourceGrant>("resource", id);
