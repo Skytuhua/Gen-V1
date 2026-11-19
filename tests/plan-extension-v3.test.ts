@@ -154,6 +154,20 @@ describe('progress and report watermark', () => {
     expect(again.watermark).toBe(report.nextWatermark);
     expect(f.extensions.get(saved.planId)!.reportWatermark).toBe(again.nextWatermark);
   });
+  it('does not advance a report watermark after the canonical plan changes', () => {
+    const f = fixture();
+    const saved = f.extensions.put(f.extension({reportWatermark: f.store.sequence}));
+    f.store.internal('plan.changed', f.threadId, () => f.store.put('data', f.planId, f.threadId, {
+      id: f.planId, threadId: f.threadId, revision: 2,
+      value: {...f.record, steps: [...f.record.steps, step('new-step')]},
+      provenance: PLANNING_PROVENANCE, createdAt: 'now',
+    }));
+    const sequence = f.store.sequence;
+    expect(() => f.extensions.report(f.planId)).toThrowError(expect.objectContaining({code: 'STALE_PLAN_REVISION'}));
+    expect(f.extensions.get(f.planId)).toEqual(saved);
+    expect(f.store.all('agentWorkReport')).toEqual([]);
+    expect(f.store.sequence).toBe(sequence);
+  });
   it('does not skip an event committed by a subscriber after the report window was read', () => {
     const f = fixture();
     const saved = f.extensions.put(f.extension({reportWatermark: f.store.sequence}));

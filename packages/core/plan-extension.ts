@@ -146,6 +146,8 @@ export class PlanExtensionStore {
     store.internal('agentWorkReport', record.threadId, () => {
       const extension = this.get(planId);
       if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
+      if (extension.canonicalRevision !== record.revision)
+        throw new HarnessError('STALE_PLAN_REVISION', 'Reporting requires an extension pinned to the current canonical plan.');
       const watermark = extension.reportWatermark;
       const raw = store.eventsAfter(watermark, AGENT_WORK_LIMITS.reportEvents);
       const deltas = raw.filter(event => event.threadId === record.threadId && !SELF_EVENT.test(event.type));
