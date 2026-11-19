@@ -58,15 +58,14 @@
 
 // The addon is linked /DELAYLOAD:node.exe so its node imports bind to the
 // host executable at load time: inside Electron there is no node.exe to
-// resolve, and a plain node.lib import table aborts the host on require().
-// Same mechanism node-gyp injects as win_delay_load_hook.cc.
+// resolve. Same preload mechanism node-gyp injects as win_delay_load_hook.cc,
+// declared via the installed SDK's own type.
 static FARPROC WINAPI delayLoadNodeExe(unsigned int dliNotify,PDelayLoadInfo info){
  if(dliNotify!=dliNotePreLoadLibrary)return NULL;
  if(_stricmp(info->szDll,"node.exe")!=0)return NULL;
  return (FARPROC)GetModuleHandle(NULL);
 }
-extern "C" PfnDliHook __pfnDliNotifyHook2=delayLoadNodeExe;
-extern "C" PfnDliHook __pfnDliFailureHook2=delayLoadNodeExe;
+decltype(__pfnDliNotifyHook2) __pfnDliNotifyHook2=delayLoadNodeExe;
 
 namespace {
 namespace wgc = winrt::Windows::Graphics::Capture;

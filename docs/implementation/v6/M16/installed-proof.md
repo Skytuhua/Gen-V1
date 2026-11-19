@@ -159,26 +159,33 @@ on windows-latest:
   = fatal abort, not a graceful quit): `failure: process-exit`,
   `firstFailure: null`, no `startup-failed` diagnostic.
 
-Root cause (source-bound, M16-owned): `attachControlBridge`
+Most probable cause (source-bound, M16-owned — consistent with the receipt
+but not conclusively proven from the Crashpad code alone): `attachControlBridge`
 (`apps/desktop/main.ts:327`) runs on every backend attach and calls
 `loadWindowsWindowBridge` → `require('./windows-control-bridge.node')`
-unconditionally (`control-bridge.ts:410`). The shipped addon was linked
-against plain `node.lib` with **normal PE imports of `node.exe`** — inside
-Electron there is no `node.exe`, so the loader aborts the process (the
-documented node.lib/Electron import failure mode). The `try/catch` cannot
-observe a native abort. `windows-credential-lease.node` is unaffected — it
-is required only backend-side in the node child, where `node.lib` linking
-is correct.
+unconditionally (`control-bridge.ts:410`). The shipped addon was built
+against **Node 24's headers and `node.lib`**, with normal PE imports of
+`node.exe` — inside Electron there is no `node.exe`, and a mismatched
+node.lib/Electron import can terminate the host rather than raise a
+catchable error. `windows-credential-lease.node` is unaffected — it is
+required only backend-side in the node child, where `node.lib` linking is
+correct.
 
-Repair applied (this cut): the addon now links `/DELAYLOAD:node.exe` +
-`delayimp.lib`, and `windows-control-bridge.cc` carries the standard
-delay-load hook (`__pfnDliNotifyHook2`/`__pfnDliFailureHook2` →
+Repair applied (this cut), following Electron's Windows native-module
+guidance: the addon is compiled against **Electron 45.2.0's headers and
+`node.lib`** (pinned by SHA-256 in a dedicated
+`.harness-windows-control-bridge-build` cache — header archive
+`42eaab65…3c72`, `win-x64/node.lib` `c4ba898a4…3156`), links
+`/DELAYLOAD:node.exe` + `delayimp.lib`, and `windows-control-bridge.cc`
+carries the preload delay hook (`decltype(__pfnDliNotifyHook2)` →
 `GetModuleHandle(NULL)` for `node.exe`) — the same mechanism node-gyp
-injects as `win_delay_load_hook.cc`. Under `node.exe` the hook resolves to
-itself; under Electron it resolves the host executable, so `require` either
-succeeds or throws cleanly into the designed `return null` fail-closed path.
-Not provable on Linux: needs a hosted Windows run to show the installed app
-surviving attach and reaching `harness.ready`.
+injects as `win_delay_load_hook.cc`. The design contract is unchanged:
+`require` must either produce the addon or fail into the designed
+`return null` fail-closed path; this repair removes the known-bad
+`node.exe` import dependency that made failure fatal. The Node-host
+`require` smoke in the build script is diagnostic only — the acceptance
+load is the installed Electron process reaching `harness.ready` on the
+next Windows artifact. Not provable on Linux.
 
 An unrelated `Tests (shard 4/4)` `view-loading-state` fixture failure also
 appears in run `44426869497` — separate file, separate owner surface, not
