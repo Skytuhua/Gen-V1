@@ -355,3 +355,41 @@ describe('M13 STARTING generation revocation',()=>{
   await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
  });
 });
+
+describe('M13 advertised-operation registration',()=>{
+ const start=async(operations:string[])=>{
+  const transport=new FakeTransport();transport.operations=operations;
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher:{async launch(){return transport;}},drainSettleMs:40,shutdownGraceMs:40,handshakeDeadlineMs:200});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  const lease=await host.activate('sample-ext');
+  return {host,transport,lease};
+ };
+ it('registers only the declared tools the worker advertised and refuses an omitted declared tool',async()=>{
+  const {host,transport,lease}=await start(['echo']);
+  expect(lease.registrations.filter(item=>item.kind==='tool').map(item=>item.id)).toEqual(['echo']);
+  expect(await host.dispatch('sample-ext','echo',{a:1})).toEqual({a:1});
+  await expect(host.dispatch('sample-ext','secretProbe',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  expect(transport.sent.some(frame=>frame.kind==='REQUEST'&&(frame.payload as {operation?:string}).operation==='secretProbe')).toBe(false);
+  await host.close();
+ });
+ it('an empty READY registers no tools and dispatches nothing',async()=>{
+  const {host,transport,lease}=await start([]);
+  expect(lease.registrations.filter(item=>item.kind==='tool')).toEqual([]);
+  await expect(host.dispatch('sample-ext','echo',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  expect(transport.sent.some(frame=>frame.kind==='REQUEST')).toBe(false);
+  await host.close();
+ });
+ it('keeps full registration and dispatch when every declared tool is advertised',async()=>{
+  const {host,lease}=await start(['echo','secretProbe']);
+  expect(lease.registrations.filter(item=>item.kind==='tool').map(item=>item.id).sort()).toEqual(['echo','secretProbe']);
+  expect(await host.dispatch('sample-ext','secretProbe',{b:2})).toEqual({b:2});
+  await host.close();
+ });
+ it('still rejects an undeclared claim even when declared tools are advertised',async()=>{
+  const transport=new FakeTransport();transport.operations=['echo','rmrf'];
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher:{async launch(){return transport;}},drainSettleMs:40,shutdownGraceMs:40,handshakeDeadlineMs:200});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  expect(host.record('sample-ext')?.lease?.registrations).toEqual([]);
+ });
+});

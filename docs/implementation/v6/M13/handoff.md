@@ -627,3 +627,12 @@ including for ordinary failed activations. Also restores termination of a
 worker after a post-connect protocol violation, which the previous head
 skipped. Still held separately: advertised operations, native acceptance,
 backend/profile, DEP-M13-BACKEND-01. CI not dispatched for this head.
+
+## Advertised-operations repair (#900)
+
+Callable tool registrations are now the intersection of the manifest's
+declared tools and the operations the worker advertised in a validated READY.
+An omitted declared tool is never registered or dispatched; an undeclared
+claim is still a PROTOCOL_VIOLATION. UI registration remains manifest-bound
+(no approved protocol binds it to READY). Native acceptance, backend/profile
+and DEP-M13-BACKEND-01 holds are unchanged; no CI dispatched for this head.

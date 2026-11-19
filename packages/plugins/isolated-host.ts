@@ -429,7 +429,11 @@ export class IsolatedExtensionHost{
    if(revoked())throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');
    record.session=session;this.bind(record,session,lease);
    lease.state='ACTIVE';
-   lease.registrations=[...record.manifest.toolSchemas.map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
+   // Callable tools are the intersection of the manifest's declared tools and
+   // the operations the worker validly advertised in READY. A declared tool the
+   // worker did not advertise is never callable; UI semantics stay manifest-bound.
+   const advertised=new Set(ready.operations);
+   lease.registrations=[...record.manifest.toolSchemas.filter(tool=>advertised.has(tool.name)).map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
    return structuredClone(lease);
   }catch(cause){
    const code=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
