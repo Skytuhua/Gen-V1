@@ -211,6 +211,26 @@ export class IntegrationManager {
       throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
      }
     }
+    // Node's error formatter also prints own metadata, not just the stack and cause.
+    // Structured fields and accessors can contain credentials or custom inspect
+    // hooks. Refuse them without evaluating their content or invoking getters.
+    for(const key of Reflect.ownKeys(failure)){
+     if(key==='message'||key==='stack'||key==='cause')continue;
+     if(typeof key==='symbol')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const field=Object.getOwnPropertyDescriptor(failure,key);
+     if(!field)continue;
+     if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const value=field.value;
+     if(typeof value==='string'){
+      const redacted=redactor.redact(value).text;
+      if(redacted!==value){
+       if(!field.writable&&!field.configurable)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,key,{...field,value:redacted});
+      }
+     }else if(typeof value==='symbol'||value!==null&&(typeof value==='object'||typeof value==='function')){
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
    }
   }
   return error;
