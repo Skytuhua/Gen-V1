@@ -86,7 +86,7 @@ async function actions(name:ExpandedScenario,page:Page,host:Host,id:string,chapt
   }
 }
 
-export async function recordExpandedReview(options:{output:string;scenarios?:ExpandedScenario[];theme?:'dark'|'light'}){
+async function recordExpandedReview(options:{output:string;scenarios?:ExpandedScenario[];theme?:'dark'|'light'}){
   const theme=captureTheme(options.theme);
   const output=resolve(options.output);await mkdir(dirname(output),{recursive:true});await mkdir(output,{recursive:false});
   const host=await openExpandedReviewHost(join(output,'fixture-'+randomUUID().slice(0,8))),browser=await openCaptureBrowser();
