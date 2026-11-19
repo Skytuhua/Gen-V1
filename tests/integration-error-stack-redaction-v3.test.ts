@@ -360,10 +360,15 @@ it.each([
   Object.setPrototypeOf(failure,target);
   Reflect.deleteProperty(failure,key);
  }
+ let getterReads=0;
  Object.defineProperty(target,key,{
-  get:()=>secret,set:()=>{},enumerable:true,configurable:true,
+  get:()=>{getterReads++;return secret;},set:()=>{},enumerable:true,configurable:true,
  });
- expect(inspect(failure,{depth:5})).toContain(secret);
+ // Node 24 does not always print inherited cause accessors in inspect(),
+ // but a caller reading Error.cause can still disclose the credential.
+ if(key==='cause'&&inherited)expect(failure.cause).toBe(secret);
+ else expect(inspect(failure,{depth:5})).toContain(secret);
+ const exposedReads=getterReads;
  const manager=new IntegrationManager({
   root:process.cwd(),dataRoot:process.cwd(),
   getPreferences:async()=>({}),setPreference:async()=>{},
@@ -380,6 +385,7 @@ it.each([
  expect(rejected).toBeInstanceOf(Error);
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:5})).not.toContain(secret);
+ expect(getterReads).toBe(exposedReads);
 });
 
 it('fails closed on an inherited custom Error inspection hook', () => {
