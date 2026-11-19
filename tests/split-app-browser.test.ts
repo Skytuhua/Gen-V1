@@ -231,12 +231,15 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const movedGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!,movedResize=(await floatSurface.locator('.split-float-resize').boundingBox())!;
    expect(movedGrip.x+movedGrip.width).toBeLessThanOrEqual(moved.x+moved.width);
    expect(movedResize.x+movedResize.width).toBeLessThanOrEqual(moved.x+moved.width);
+   // The downward drag must also keep every control inside the workspace clip.
+   expect(movedGrip.y+movedGrip.height).toBeLessThanOrEqual(wsBox.y+wsBox.height);
+   expect(movedResize.y+movedResize.height).toBeLessThanOrEqual(wsBox.y+wsBox.height);
    // A rightward drag stays pinned at the edge rather than clipping controls:
    // grabbing the title (left of the dock zone) and dragging right lands in the
    // pane centre while the float clamps at the area edge.
    const movedTitle=(await floatSurface.locator('.split-float-title').boundingBox())!;
    await page.mouse.move(movedTitle.x+movedTitle.width/2,movedTitle.y+movedTitle.height/2);await page.mouse.down();
-   await page.mouse.move(movedTitle.x+movedTitle.width/2+300,movedTitle.y+movedTitle.height/2,{steps:6});await page.mouse.up();
+   await page.mouse.move(wsBox.x+wsBox.width/2+150,wsBox.y+wsBox.height/2,{steps:6});await page.mouse.up();
    const settled=(await floatSurface.boundingBox())!,settledGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!;
    expect(settled.x).toBeGreaterThan(moved.x);
    expect(settled.x+settled.width).toBeLessThanOrEqual(wsBox.x+wsBox.width);
