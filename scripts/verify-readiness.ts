@@ -9,6 +9,7 @@ import {once} from 'node:events';
 import {createWriteStream,existsSync,mkdirSync,readdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {resolvePackageManager,type PackageManagerResolution} from './research-baseline.ts';
 
 export type ReadinessStatus='PASS'|'FAIL'|'SKIP'|'BLOCKED';
 
@@ -168,6 +169,14 @@ export function windowsVerificationPlan(platform:string,version:string,outputRoo
     :{blocked:true,errorKind:'platform-unavailable',commands};
 }
 
+/** Use a real binary or pnpm's JS entry; shell:false cannot run a .cmd shim. */
+export function readinessPackageChecks(root:string):(spec:CheckSpec)=>Promise<CheckResult>{
+  let manager:PackageManagerResolution;
+  try{manager=resolvePackageManager(root);}
+  catch{return async spec=>blockedResult(spec,'missing-binary','Could not resolve a runnable pnpm executable or JavaScript entry.');}
+  return spec=>runCheck({...spec,command:manager.file,args:[...manager.prefix,...spec.args]});
+}
+
 async function main(){
   const root=resolve(fileURLToPath(new URL('../',import.meta.url)));
   const startedAt=new Date().toISOString();
@@ -182,9 +191,10 @@ async function main(){
     id,command:'pnpm',args,cwd:root,timeoutMs,required:true,
     logPath:resolve(artifactRoot,`${id.replaceAll(':','-')}.log`)});
   const results:CheckResult[]=[];
+  const runPackageCheck=readinessPackageChecks(root);
   const run=async(check:CheckSpec)=>{
     console.log(`RUN ${check.id}: ${check.command} ${check.args.join(' ')}`);
-    const result=await runCheck(check);
+    const result=await runPackageCheck(check);
     console.log(`${result.status} ${check.id} exit=${result.exitCode??'-'} ${result.errorKind??''} (${result.durationMs}ms)`);
     results.push(result);
     return result;

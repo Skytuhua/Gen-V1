@@ -86,6 +86,13 @@ function installedPnpm(declared: string | null): InstalledPnpm | null {
         if (version !== null && version === declared) return { resolution, matchesDeclared: true };
         fallback ??= { resolution, matchesDeclared: false };
       }
+      // Standalone Unix installers ship a runnable pnpm with no extension.
+      if (process.platform !== 'win32' && name === 'pnpm' && !shimmed(actual)) {
+        try {
+          accessSync(actual, constants.X_OK);
+          fallback ??= { resolution: { file: actual, prefix: [], declaredVersion: declared }, matchesDeclared: false };
+        } catch { /* Ignore an extensionless candidate that cannot be executed. */ }
+      }
     }
   }
   return fallback;
