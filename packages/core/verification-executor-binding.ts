@@ -102,7 +102,7 @@ interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev:
 const changedBasis = () => executorDenied('EXECUTION_BINDING_CHANGED', 'Verification execution basis changed.');
 const WITNESS_CHUNK_BYTES = 1024 * 1024;
 // Match ProjectTrust's approved-file and execution-policy's executable bounds.
-const MAX_APPROVED_FILE_BYTES = 64 * 1024 * 1024, MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
+export const MAX_APPROVED_FILE_BYTES = 64 * 1024 * 1024, MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
 /** Timestamp granularity is a coarse clock tick on Linux and two seconds on
  * FAT-family and some network filesystems, so a same-length in-place rewrite
  * can leave every stat field untouched. The witness therefore pins the bytes
