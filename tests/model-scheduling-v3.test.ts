@@ -67,6 +67,15 @@ it('stateless pooling requires exact keys, clears owner state, expires idle tran
  const invalidated=transport();expect(pool.offer(key(),invalidated)).toBe(true);
  await pool.invalidate(key());expect(invalidated.closed).toBe(true);
 });
+it('closes an idle transport when resetting it for reuse fails', async () => {
+ const pool = new StatelessTransportPool();
+ const failure = new Error('reset failed');
+ const item = {...transport(), reset: () => Promise.reject(failure)};
+ expect(pool.offer(key(), item)).toBe(true);
+ await expect(pool.take(key())).rejects.toBe(failure);
+ expect(item.closed).toBe(true);
+ expect(await pool.take(key())).toBeNull();
+});
 it('two accounts on two threads never observe each other\'s transport inputs',async()=>{
  const pool=new StatelessTransportPool();
  const requests=(label:string)=>{const inputs:string[]=[];return{transport:{...transport(),reset(){this.resetCount++;},send(input:string){inputs.push(label+':'+input);}},inputs};};
