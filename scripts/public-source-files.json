@@ -3393,6 +3393,7 @@
     "tests/project-tools.test.ts",
     "tests/project-trust-v3.test.ts",
     "tests/public-source.test.ts",
+    "tests/pure-helper-modules.test.ts",
     "tests/qa-delegation-v3.test.ts",
     "tests/read-sync-decisions-v6.test.ts",
     "tests/read-sync-v3.test.ts",
