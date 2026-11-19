@@ -17,6 +17,7 @@ export class TerminalHost{
  }
  async open(input:{projectId:string;threadId?:string;terminalId?:string;cols?:number;rows?:number;command?:string;program?:string;args?:string[];environment?:Record<string,string|undefined>}){
   const projectId=identifier.parse(input.projectId),threadId=input.threadId===undefined?undefined:identifier.parse(input.threadId),terminalId=input.terminalId?identifier.parse(input.terminalId):randomUUID();
+  const command=input.command?z.string().min(1).max(8000).parse(input.command):undefined;
   const binding=await this.projects.binding(projectId,threadId),existing=this.sessions.get(terminalId);
   if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');return this.result(existing,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
@@ -37,7 +38,7 @@ export class TerminalHost{
   this.sessions.set(terminalId,session);this.persist(session);
   pty.onData(data=>{session.output+=data;if(session.output.length>512*1024){const remove=session.output.length-512*1024;session.output=session.output.slice(remove);session.offset+=remove;}});
   pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);this.evictExited();finish();});
-  if(input.command)pty.write(z.string().min(1).max(8000).parse(input.command)+'\r');
+  if(command!==undefined)pty.write(command+'\r');
   return this.result(session,0);
  }
  private persist(session:Session){this.projects.store.internal('terminal.changed',session.threadId??null,()=>this.projects.store.put('terminalSession',session.id,session.threadId??null,{id:session.id,projectId:session.projectId,threadId:session.threadId,exited:session.exited,exitCode:session.exitCode}));}
