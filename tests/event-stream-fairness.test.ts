@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { ServerResponse } from 'node:http';
 import { expect, it, vi } from 'vitest';
-import { streamEvents } from '../apps/server/event-stream';
+import { destroyEventStreams, streamEvents } from '../apps/server/event-stream';
 
 function fixture() {
   const events = Array.from({ length: 97 }, (_, index) => ({
@@ -23,7 +23,7 @@ function fixture() {
     subscribe: () => unsubscribe,
   };
   streamEvents(response as unknown as ServerResponse, store, 0, onClose);
-  return { writes, close: () => response.emit('close'), unsubscribe, onClose };
+  return { response: response as unknown as ServerResponse, writes, close: () => response.emit('close'), unsubscribe, onClose };
 }
 
 it('yields during fast history replay without changing delivery order', async () => {
@@ -45,4 +45,22 @@ it('does not resume replay after the consumer closes between batches', async () 
   expect(f.writes).toHaveLength(initial);
   expect(f.unsubscribe).toHaveBeenCalledTimes(1);
   expect(f.onClose).toHaveBeenCalledTimes(1);
+});
+
+it('destroys active SSE streams and does not wait for a second close event', () => {
+  const active = fixture();
+  const streams = new Set<ServerResponse>([active.response]);
+  destroyEventStreams(streams);
+  expect(streams.size).toBe(0);
+  expect(active.unsubscribe).toHaveBeenCalledTimes(1);
+  expect(active.onClose).toHaveBeenCalledTimes(1);
+
+  // A closed response can remain in a shutdown snapshot after it has
+  // already emitted 'close'. Node does not promise a second close event.
+  const destroy = vi.fn();
+  const stale = Object.assign(new EventEmitter(), { destroy }) as unknown as ServerResponse;
+  const lingering = new Set<ServerResponse>([stale]);
+  destroyEventStreams(lingering);
+  expect(destroy).toHaveBeenCalledTimes(1);
+  expect(lingering.size).toBe(0);
 });
