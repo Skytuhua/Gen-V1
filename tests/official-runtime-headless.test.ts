@@ -52,7 +52,7 @@ describe('Gemini official headless native continuation', () => {
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
   });
 
-  it.each(['before-exit','after-exit','during-cancel','cancel-timeout'])('handles native resume stream lifecycle %s', async phase => {
+  it.each(['before-exit','after-exit','during-cancel','cancel-timeout','without-final-newline'])('handles native resume stream lifecycle %s', async phase => {
     const { dataDir, manifest } = await fixture();
     const children: any[] = []; const calls: any[] = []; const inputs: string[] = [];
     const spawn = vi.fn((file: string, args: string[], settings: any) => {
@@ -125,8 +125,9 @@ describe('Gemini official headless native continuation', () => {
     }
     if(phase==='after-exit'){child.exitCode=0;child.emit('exit',0,null);await new Promise(done=>setImmediate(done));}
     child.emitFrame({ type: 'message', role: 'assistant', content: 'current response', delta: true });
-    child.emitFrame({ type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } });
-    if(phase==='before-exit'){child.exitCode = 0; child.emit('exit', 0, null);}
+    const terminal = { type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } };
+    if (phase === 'without-final-newline') child.stdout.write(JSON.stringify(terminal)); else child.emitFrame(terminal);
+    if(phase==='before-exit'||phase==='without-final-newline'){child.exitCode = 0; child.emit('exit', 0, null);}
     child.stdout.end();child.emit('close',0,null);
     await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
     expect(events.find(event => event.type === 'assistant.message')).toMatchObject({ content: 'current response', inputIds: ['input-new'] });
