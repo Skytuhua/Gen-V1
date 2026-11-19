@@ -29,3 +29,37 @@
 - Fixes applied in this worktree (verified: the three tests pass; full `workbench-app` 26/26, `workbench` 21/21, `saved-drafts` 27/27, `thread-move` 24/24, `chat-view-modes` unchanged 3/6 pre-existing drag/IME failures; vitest targeted suites, typecheck, lint, build all PASS): `apps/web/src/App.tsx` — `placeSplitThread` now always sends the canonical `view.open` produced by `threadPlacementCommand` (which carries the existing view's full binding, so editor custody is preserved); `apps/web/src/ProjectMemoryReview.tsx` — `Resolution note` textarea and `Resolve conflict` now include `readOnly` in their disabled conditions.
 - Not run here: repository shards and the general `CI` workflow were still queued at handoff; installed-Edge suites for `chat-view-modes`/`agents-workspace`/`workspace-host`/`usage-app-integration`/`desktop-surfaces` failures show run-to-run flake variance (different step sets failed across heads `25cded33` and `8942531d`) and are classified separately from the two deterministic defects above.
 - Named holds: HOLD_UNPUBLISHED_CUSTODY (D01 recorded payload bytes remain unrecoverable; satisfied outcome applied via explicit `0539bc1f` decision instead). Flags `ui.sourceWorkbenchV1` and `reviewerApproval` remain false.
+
+## Windows evidence run 44231173805 (head `e59e1ea5`) — completed classification
+
+PR #732 was squash-merged into main as `babb0834` and the remote `agent/m15-v3` ref was deleted. The owned cut was then merged to a tree byte-identical to `origin/main` `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199` (merge commit `0813138c`; all conflicts resolved to upstream since the branch's content already landed via #732 and subsequent merged fixes).
+
+The completed `m15-evidence` run on the stale cut `e59e1ea5` completed 6/7 jobs green (native contracts, all four full-repo shards, root browser comparison SUCCESS). The installed-Edge browser-contracts job failed on 13 tests across five suites. Each failure maps to a fix or spec repair already merged on main — **missing evidence on a stale cut, not a concrete M15 defect**:
+
+| Stale-cut failure (suite → spec) | Accepted merged fix on main | Main receipt (run 44310248562) |
+|---|---|---|
+| chat-view-modes → chat-view-escape ×3 (drag/IME) | `07bf3d24` spec repair (Detach-chat entry; stale chrome) + `8198009b` readiness/motion stabilization | PASS 25 |
+| agents-workspace → agents-workspace-evidence ×2 (grid 1440, 768) | `840bb636` `?app=1` fixture param / stabilization | PASS 25 |
+| workspace-host → :2471 plugin workspace tabs | `840bb636` plugin-workspace selection clobber fix | PASS |
+| usage-app-integration → shell-error-ownership ×2 + :251 usage | `db367512` Usage fixture alignment, `3bc30aeb` shared shell fixture | PASS 19 |
+| desktop-surfaces → ×4 (detach/artifact-editor/close) | `07bf3d24` role=alert selector repair | PASS 37 |
+
+The earlier `workbench-app` failures were separately fixed by this branch (`cf420068`) and independently on main (`07bf3d24` spec side; `1a2eb4a5`/#719 readOnly side) — step 9 of the same run went green at `e59e1ea5`.
+
+### Exact-main installed-Edge verification (WIN-M0N0V07LGM1, read/test-only verifier thread)
+
+On exact main `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199` with installed Edge `157.0.4341.60`, Node `v24.14.0`, pnpm `10.30.3`, running the workflow's `scripts/test-browser.ts --suite` commands: chat-view-modes 6/0, workspace-host 50/0, usage-app-integration 19/0, desktop-surfaces 37/0, agents-workspace 24/1 — **136/137 pass**. Sole failure: `agents-workspace-evidence.spec.ts:200` "populated grid evidence at 1440 (after)", a 5 s visibility timeout on `.workspace-host` (deterministic, 2/2 runs on that box — the element never mounts, `#root` stays empty).
+
+Residual root-caused to the box, not the product: both 1440 traces show the app's local WebSocket blocked with `net::ERR_BLOCKED_BY_LOCAL_NETWORK_ACCESS_CHECKS` plus a Vite HMR connection failure — Edge 157's Private Network Access policy blocking loopback sockets on that machine, so the app cannot bootstrap. Zero `pageerror`/request-failed events; rendered viewport measured at exactly 1440 CSS px (window-size clamping ruled out; the box has a 2560×1600 primary screen). The same case passed on the org CI Windows receipt for this code (run 44310248562) at 6.3 s.
+
+Disposition: 12/13 stale-cut failures do not reproduce on current main; the one residual match is an environment policy block on the verifier machine, not a defect — no eligible product or spec change. HOLD_PLATFORM_PROOF for the Edge gate is therefore reduced to a single named observation (Edge local-network-access policy on non-CI hardware blocks the 1440 evidence case); HOLD_UNPUBLISHED_CUSTODY is unchanged. No merge or activation performed; the owned cut stays local (remote branch deleted post-#732).
+
+## Exact-SHA org CI re-proof — run 44406027316
+
+To bind the installed-Edge acceptance to the exact current SHA rather than a verifier box with a policy-blocked loopback, `refs/heads/agent/m15-v3` was re-created at `ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199` (no new commits; the branch exists solely as the reviewed `m15-evidence.yml` push trigger — PR #732 is merged and untouched). Run `44406027316` executed on that exact SHA.
+
+At trigger time `ff38c62c` was the head of main. The checked browser source paths (`apps/web`, `tests/e2e`, `scripts/test-browser.ts`, `playwright.config.ts`, and `.github/workflows/m15-evidence.yml`) have no diff from `ff38c62c` to `db3c0cf6`. All seven job receipts remain bound to `ff38c62c`.
+
+Result — run `44406027316` **completed SUCCESS, 7/7 jobs green on exact `ff38c62c`**: native contracts, all four full-repo shards, root browser comparison, and `M15 browser contracts (Windows and installed Edge)` — including `Exercise the agents workspace in Edge` (the step containing `agents-workspace-evidence.spec.ts:200` "populated grid evidence at 1440", the single residual on the verifier box). The verifier-box failure is therefore confirmed environmental (Edge Private Network Access policy blocking loopback WebSockets on `WIN-M0N0V07LGM1`), reproduced nowhere on org CI across two independent runs (`44310248562` at `840bb636`, `44406027316` at `ff38c62c`).
+
+**HOLD_PLATFORM_PROOF is discharged for the installed-Edge acceptance gate** — source-bound org CI proof exists at `ff38c62c`. The installed Windows desktop source and draft handoff remains unverified. The Chromium desktop-surfaces suite used the scripted bridge. The only named environmental observation retained: non-CI Windows hardware with enforced Edge local-network-access policy cannot bootstrap the app's loopback socket (no product or spec change indicated; the correct rerun environment is org CI or a Windows box without that policy). `HOLD_UNPUBLISHED_CUSTODY` (D01 payload bytes) remains unchanged. No merge, activation, or flag change performed.
