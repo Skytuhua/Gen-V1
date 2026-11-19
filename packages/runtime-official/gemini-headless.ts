@@ -108,7 +108,19 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     models,
     async submit(wire) { assert(); queue.push(wire); void drain(); },
     async compact() { throw new HarnessError('OFFICIAL_COMPACTION_UNSUPPORTED', 'This pinned native headless Gemini session does not advertise a verifiable /compress command result.'); },
-    async close() { if (closed) return; closed = true; queue.length = 0; if (active && active.exitCode === null && active.signalCode === null) { active.kill('SIGINT'); await bounded(new Promise<void>(resolve => active!.once('exit', () => resolve())), 500, 'Official Gemini cancellation grace elapsed.').catch(() => {}); } },
+    async close() {
+      if (closed) return;
+      closed = true; queue.length = 0;
+      const child = active;
+      if (!child || child.exitCode !== null || child.signalCode !== null) return;
+      let onExit!: () => void;
+      const exited = new Promise<void>(resolve => { onExit = resolve; });
+      child.once('exit', onExit);
+      try {
+        child.kill('SIGINT');
+        await bounded(exited, 500, 'Official Gemini cancellation grace elapsed.').catch(() => {});
+      } finally { child.removeListener('exit', onExit); }
+    },
   };
   context.ready(driver);
   return driver;
