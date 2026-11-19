@@ -63,6 +63,49 @@ describe('official Claude SDK runtime', () => {
       barrier.resolve();await vi.waitFor(()=>expect(events.some(event=>event.type==='settled')).toBe(true));expect(fake.closeCount).toBe(1);
     }finally{barrier.resolve();await runtime.dispose();}
   });
+  it('settles a completed turn when optional context usage never arrives', async () => {
+    const fake = scripted(), events: RuntimeEvent[] = [], lateUsage = deferred<{totalTokens: number; maxTokens: number}>();
+    const runtime = createOfficialRuntime({ dataDir: await mkdtemp(join(tmpdir(), 'official-usage-timeout-')) }, fake.dependencies);
+    runtime.configure({onEvent: event => events.push(event), onTool: async () => null});
+    try {
+      await runtime.start(run());
+      await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
+      fake.query.mock.results[0].value.getContextUsage.mockImplementation(() => lateUsage.promise);
+      fake.events.push({type: 'result', subtype: 'success', session_id: fake.options.sessionId, user_message_uuids: [fake.accepted[0].uuid], queued_turn_count: 0, usage: {input_tokens: 7}});
+      await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true), {timeout: 2400});
+      expect(events.find(event => event.type === 'usage')).toMatchObject({usage: {contextTokens: null, contextWindow: null, inputTokens: 7, activity: 'idle'}});
+      expect(fake.closeCount).toBe(1);
+    } finally {
+      lateUsage.resolve({totalTokens: 12, maxTokens: 100});
+      await runtime.dispose();
+    }
+  });
+  it('ignores a late context usage response after cancelling its owner', async () => {
+    const fake = scripted(), events: RuntimeEvent[] = [], lookup = deferred<void>();
+    const usage = deferred<{totalTokens: number; maxTokens: number}>();
+    const runtime = createOfficialRuntime({dataDir: await mkdtemp(join(tmpdir(), 'official-usage-cancel-'))}, fake.dependencies);
+    runtime.configure({onEvent: event => events.push(event), onTool: async () => null});
+    const input = run();
+    try {
+      await runtime.start(input);
+      await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
+      fake.query.mock.results[0].value.getContextUsage.mockImplementation(() => {
+        lookup.resolve();
+        return usage.promise;
+      });
+      fake.events.push({type: 'result', subtype: 'success', session_id: fake.options.sessionId, user_message_uuids: [fake.accepted[0].uuid], queued_turn_count: 0});
+      await lookup.promise;
+      await runtime.cancel(input);
+      usage.resolve({totalTokens: 12, maxTokens: 100});
+      await new Promise<void>(resolve => setImmediate(resolve));
+      expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      expect(events.some(event => event.type === 'usage')).toBe(false);
+      expect(fake.closeCount).toBe(1);
+    } finally {
+      usage.resolve({totalTokens: 12, maxTokens: 100});
+      await runtime.dispose();
+    }
+  });
   it('never reports successful settlement when native close fails',async()=>{
     const fake=scripted(),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-teardown-failure-'))},fake.dependencies);
     runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
