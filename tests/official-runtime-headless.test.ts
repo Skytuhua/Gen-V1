@@ -38,6 +38,12 @@ describe('Gemini official headless native continuation', () => {
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
   });
 
+  it('classifies a damaged native history header instead of throwing a raw parsing exception', async () => {
+    const { dataDir, manifest, nativeFile } = await fixture();
+    await writeFile(nativeFile, 'null\n');
+    await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
+  });
+
   it.each(['before-exit','after-exit'])('runs native resume and accepts current-turn stdout arriving %s', async phase => {
     const { dataDir, manifest } = await fixture();
     const children: any[] = []; const calls: any[] = []; const inputs: string[] = [];
