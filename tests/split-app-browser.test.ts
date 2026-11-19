@@ -238,6 +238,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.mouse.move(movedTitle.x+movedTitle.width/2,movedTitle.y+movedTitle.height/2);await page.mouse.down();
    await page.mouse.move(movedTitle.x+movedTitle.width/2+300,movedTitle.y+movedTitle.height/2,{steps:6});await page.mouse.up();
    const settled=(await floatSurface.boundingBox())!,settledGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!;
+   expect(settled.x).toBeGreaterThan(moved.x);
    expect(settled.x+settled.width).toBeLessThanOrEqual(wsBox.x+wsBox.width);
    expect(settledGrip.x+settledGrip.width).toBeLessThanOrEqual(settled.x+settled.width);
    expect(host.errors).toEqual([]);
