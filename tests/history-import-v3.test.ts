@@ -221,14 +221,14 @@ describe('staging ownership', () => {
 it('pages an imported conversation whose external ID contains dots', async () => {
   __setCapabilityFlagForTests('sessions.inertImportV1', true);
   const f = await fixture();
-  const input = archive({conversations: [{externalId:'archive.v1.conversation',messages:[message('first'),message('second')]}]});
-  const staged = (await f.send('historyImport.stage', {archive:JSON.stringify(input)}, f.thread.id)).result as {staged:{importId:string}};
-  const committed = (await f.send('historyImport.commit', {importId:staged.staged.importId}, f.thread.id)).result as {conversations:string[]};
+  const input = archive({ conversations: [{ externalId: 'archive.v1.conversation', messages: [message('first'), message('second')] }] });
+  const staged = (await f.send('historyImport.stage', { archive: JSON.stringify(input) }, f.thread.id)).result as { staged: { importId: string } };
+  const committed = (await f.send('historyImport.commit', { importId: staged.staged.importId }, f.thread.id)).result as { conversations: string[] };
   const reads = new SessionBranchReadModels(f.store);
-  const latest = reads.importedMessages(committed.conversations[0]!, {limit:1});
-  expect(latest.messages.map(m=>m.id)).toEqual(['second']);
+  const latest = reads.importedMessages(committed.conversations[0]!, { limit: 1 });
+  expect(latest.messages.map(m => m.id)).toEqual(['second']);
   expect(latest.nextCursor).toBeTruthy();
-  const older = reads.importedMessages(committed.conversations[0]!, {limit:1,cursor:latest.nextCursor});
-  expect(older.messages.map(m=>m.id)).toEqual(['first']);
+  const older = reads.importedMessages(committed.conversations[0]!, { limit: 1, cursor: latest.nextCursor });
+  expect(older.messages.map(m => m.id)).toEqual(['first']);
   expect(older.nextCursor).toBeNull();
 });
