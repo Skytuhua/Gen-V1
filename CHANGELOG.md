@@ -18,8 +18,9 @@ Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
 availability or verification of every 0.6.5 build. See the
 [verification record](docs/verification/README.md).
 
-Generated apps are **Preview**. Code signing and promotion to the stable channel
-are owner decisions not yet made; stable-update support is not a release promise.
+Generated apps are **Preview**. 0.6.5 ships as an **unsigned prerelease (preview)**,
+not a stable-channel promotion. Expect Windows SmartScreen to show a
+"Windows protected your PC" warning when installing it.
 
 ### Workspace and UI
 
