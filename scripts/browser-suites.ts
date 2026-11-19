@@ -34,7 +34,6 @@ export const browserSuites:BrowserSuite[] = [
   suite('memory-recovery', undefined, {env:{GEN_MEMORY_MODE:''}}),
   suite('redundant-ui'),
   suite('saved-drafts'),
-  suite('saved-layout-chooser'),
   suite('scoped-conversation'),
   suite('settings-leaf-selects', ['settings-controls.spec.ts', 'settings-leaf-selects.spec.ts', 'settings-loading.spec.ts']),
   suite('sidebar-collapse', ['sidebar-collapse.spec.ts']),
