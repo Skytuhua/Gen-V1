@@ -60,6 +60,17 @@ it('preserves every job for a manual dispatch without a pull request payload',()
   expect(scheduledJobs({name:'workflow_dispatch',ref:'refs/heads/main'})).toEqual(requiredJobs);
 });
 
+it('does not let a successful visuals package build mask a failed typecheck',()=>{
+  const checks=jobSource.split(/^  checks:\n/m)[1]?.split(/^  test:\n/m)[0]??'';
+  const typecheck=checks.split(/^      - name:/m).find(block=>block.includes('pnpm --dir plugins/personal-visuals typecheck'));
+  const build=checks.split(/^      - name:/m).find(block=>block.includes('pnpm --dir plugins/personal-visuals build'));
+  expect(typecheck).toBeDefined();
+  expect(build).toBeDefined();
+  expect(typecheck).not.toBe(build);
+  expect(typecheck).not.toMatch(/^        (?:if|continue-on-error):/m);
+  expect(build).not.toMatch(/^        (?:if|continue-on-error):/m);
+});
+
 const auditWorkflow=readFileSync(new URL('../.github/workflows/m01-m03-audit.yml',import.meta.url),'utf8').replaceAll('\r\n','\n');
 const auditTypes=/^  pull_request:\n    types:\s*\[([^\]\n]+)\]/m.exec(auditWorkflow)?.[1].split(',').map(value=>value.trim())??['opened','synchronize','reopened'];
 const auditPaths=[...auditWorkflow.matchAll(/^      - '([^'\n]+)'$/gm)].map(match=>match[1]);
