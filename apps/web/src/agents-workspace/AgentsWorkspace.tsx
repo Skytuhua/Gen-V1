@@ -22,7 +22,7 @@ export interface AgentsWorkspaceProps {
  controller: AgentsWorkspaceController;
  composers: SharedAgentComposers;
  onOpenConversation(threadId: string, intent?: 'model'): void;
- preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>};
+ preferences?: {density?: 'compact' | 'comfortable' | 'touch'; projectColors?: Record<string, string>};
  projects?: readonly {id: string; name: string}[];
  hasConversations?: boolean;
 }
