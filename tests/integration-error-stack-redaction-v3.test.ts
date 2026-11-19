@@ -407,3 +407,30 @@ it('fails closed on an inherited custom Error inspection hook', () => {
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:5})).not.toContain(secret);
 });
+it('preserves genuine Node stack accessors and safe diagnostics while redacting credentials', () => {
+ const secret='CONTEXT7_NATIVE_ERROR_STACK_FIXTURE_181';
+ const failure=new Error('Upstream request timed out after '+secret);
+ const original=Object.getOwnPropertyDescriptor(failure,'stack');
+ // Node 24 keeps native Error.stack as a getter even after it is read.
+ expect(typeof original?.get).toBe('function');
+ expect(failure.stack).toContain(secret);
+ expect(Object.getOwnPropertyDescriptor(failure,'stack')?.get).toBe(original?.get);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ const returned=sanitize.redactFailure({redactor},failure);
+ expect(returned).toBe(failure);
+ expect(returned.message).toContain('Upstream request timed out');
+ expect(returned.stack).toContain('Upstream request timed out');
+ expect(returned.message).toContain('[REDACTED]');
+ expect(returned.stack).toContain('[REDACTED]');
+ expect(inspect(returned,{depth:5})).not.toContain(secret);
+});
