@@ -105,5 +105,6 @@ it('only accepts JSON Pointer escapes and actual array indices when inspecting s
   expect(read('/a~1b')).toHaveProperty('value','literal slash');
   expect(()=>read('/items/length')).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
   expect(()=>read('/a~2')).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
+  for(const rejected of ['/items/1','/items/01','/items/-','/a~']) expect(()=>read(rejected)).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
  } finally {store.close();rmSync(dir,{recursive:true,force:true});}
 });
