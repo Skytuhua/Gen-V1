@@ -7,9 +7,9 @@ import { executionProfileV1Schema, isTrustedHostProfile, type ExecutionProfileV1
 import { toolOwnerSchema, type ToolOwner } from '../contracts/tool-effects.ts';
 import { digest } from '../storage/store.ts';
 import { canonical, inside } from './security.ts';
-import { digestFileSha256, selectBackend, type ApprovedLaunch, type ExecutionBackend } from './execution-policy.ts';
+import { digestFileSha256, MAX_EXECUTABLE_BYTES, selectBackend, type ApprovedLaunch, type ExecutionBackend } from './execution-policy.ts';
 import { hostFlagEnabled } from './host-flags.ts';
-import { canonicalRootIdentity, trustScopeCovers, type ProjectTrustLedger, type RootIdentity } from './project-trust.ts';
+import { canonicalRootIdentity, MAX_DIGEST_FILE_BYTES, trustScopeCovers, type ProjectTrustLedger, type RootIdentity } from './project-trust.ts';
 import type { SecretReferenceLedger } from './secret-references.ts';
 import type { BrowserDriver } from './browser-verification.ts';
 import type { LaunchedProcess, ListenerProbe } from './project-verification.ts';
@@ -101,8 +101,6 @@ function exactOrigin(value: string): string {
 interface BasisWitness { canonicalPath: string; kind: 'file' | 'directory'; dev: string; ino: string; size: string; mtimeNs: string; ctimeNs: string; nlink: string; sha256?: string; maxBytes?: number }
 const changedBasis = () => executorDenied('EXECUTION_BINDING_CHANGED', 'Verification execution basis changed.');
 const WITNESS_CHUNK_BYTES = 1024 * 1024;
-// Match ProjectTrust's approved-file and execution-policy's executable bounds.
-export const MAX_APPROVED_FILE_BYTES = 64 * 1024 * 1024, MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
 /** Timestamp granularity is a coarse clock tick on Linux and two seconds on
  * FAT-family and some network filesystems, so a same-length in-place rewrite
  * can leave every stat field untouched. The witness therefore pins the bytes
@@ -127,7 +125,7 @@ function witnessBytesDigest(path: string, identity: BasisWitness): string {
     return hash.digest('hex');
   } finally { closeSync(fd); }
 }
-function basisWitness(path: string, kind: BasisWitness['kind'], maxBytes = MAX_APPROVED_FILE_BYTES): BasisWitness {
+function basisWitness(path: string, kind: BasisWitness['kind'], maxBytes = MAX_DIGEST_FILE_BYTES): BasisWitness {
   try {
     const value = lstatSync(path, { bigint: true });
     if ((kind === 'file' ? !value.isFile() : !value.isDirectory()) || realpathSync(path) !== path) throw changedBasis();

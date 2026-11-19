@@ -3,10 +3,10 @@ import * as fs from 'node:fs';
 import { mkdtempSync, writeFileSync, rmSync, renameSync, mkdirSync, lstatSync, truncateSync, appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ProjectTrustLedger } from '../packages/core/project-trust.ts';
+import { MAX_DIGEST_FILE_BYTES, ProjectTrustLedger } from '../packages/core/project-trust.ts';
 import { SecretReferenceLedger } from '../packages/core/secret-references.ts';
-import { digestFileSha256 } from '../packages/core/execution-policy.ts';
-import { createVerificationBindingAuthority, MAX_APPROVED_FILE_BYTES, MAX_EXECUTABLE_BYTES, type DescribeVerificationExecutor, type ObservedVerificationBackend, type VerificationExecutorHostConfig } from '../packages/core/verification-executor-binding.ts';
+import { digestFileSha256, MAX_EXECUTABLE_BYTES } from '../packages/core/execution-policy.ts';
+import { createVerificationBindingAuthority, type DescribeVerificationExecutor, type ObservedVerificationBackend, type VerificationExecutorHostConfig } from '../packages/core/verification-executor-binding.ts';
 import { createVerificationExecutorFactory } from '../packages/core/verification-executor.ts';
 import type { ExecutionProfileV1 } from '../packages/contracts/execution-profile.ts';
 
@@ -120,7 +120,7 @@ it.each(['configuration', 'executable'] as const)('rejects an oversized %s witne
   writeFileSync(path, kind === 'configuration' ? 'approved config' : 'unit-test executable bytes');
   if (kind === 'configuration') await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
   else (f.config.executables as { id: string; path: string }[])[0]!.path = path;
-  truncateSync(path, (kind === 'configuration' ? MAX_APPROVED_FILE_BYTES : MAX_EXECUTABLE_BYTES) + 1);
+  truncateSync(path, (kind === 'configuration' ? MAX_DIGEST_FILE_BYTES : MAX_EXECUTABLE_BYTES) + 1);
   let bytesRead = 0;
   const originalRead = fs.readSync;
   vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
