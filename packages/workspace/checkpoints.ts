@@ -69,6 +69,7 @@ const exclusionReason = (path: string, data: Buffer | null, statBytes?: number):
 // Bounded unified diff (context 3) between two utf-8 texts; truncates to the
 // adapter's 128 KiB response limit and reports truncation.
 export function unifiedDiff(path: string, before: Buffer | null, after: Buffer | null): { diff: string | null; truncated: boolean } {
+  if (before !== null && after !== null && before.equals(after)) return { diff: null, truncated: false };
   // Split without the phantom empty line a trailing newline produces. A last
   // line that lacks one is a different line from the same text that ends with
   // one, so it carries a sentinel: the sentinel is compared, never printed.

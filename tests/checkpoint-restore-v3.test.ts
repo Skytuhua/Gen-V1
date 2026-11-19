@@ -295,3 +295,8 @@ it("clips checkpoint diff previews at a complete UTF-8 scalar within the byte li
   expect(result.diff?.endsWith("x")).toBe(true);
   expect(Buffer.byteLength(result.diff!)).toBeLessThanOrEqual(128 * 1024);
 });
+
+it("reports no change for identical files beyond the line comparison limit", () => {
+  const text = Array.from({ length: 2_100 }, (_, index) => `line ${index}\n`).join("");
+  expect(unifiedDiff("large.txt", Buffer.from(text), Buffer.from(text))).toEqual({ diff: null, truncated: false });
+});
