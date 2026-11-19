@@ -364,7 +364,15 @@ export class DurableWakeupScheduler {
       await new Promise(resolve => setTimeout(resolve, delay));
       if (this.draining) return;
       const still = this.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key);
-      if (!still || still.state !== "CLAIMED") return;
+      if (!still || still.state !== "CLAIMED" || still.claimGeneration !== admitted.claimGeneration) return;
+      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", admitted.wakeupId);
+      if (!wakeup || wakeup.state === "CANCELLED") {
+        // The preceding failure was a known transient read failure, so no
+        // unsettled write is being discarded by cancelling this retry.
+        this.store.internal("background.occurrence.cancelled", null, () =>
+          this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null }));
+        return;
+      }
     }
   }
 

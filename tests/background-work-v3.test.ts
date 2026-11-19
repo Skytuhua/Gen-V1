@@ -818,3 +818,20 @@ describe("M10 v6 completeness regressions", () => {
     }
   });
 });
+
+it("does not retry a transient read after its wakeup is cancelled during backoff", async () => {
+  const f = fixture();
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+  try {
+    const deliver = vi.fn(async () => ({ status: "FAILED" as const, error: "temporary read failure", transient: true }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+    await scheduler.tick();
+    expect(deliver).toHaveBeenCalledTimes(1);
+    scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+    await vi.advanceTimersByTimeAsync(2_100);
+    expect(deliver).toHaveBeenCalledTimes(1);
+    expect(scheduler.schedules()[0]!.state).toBe("CANCELLED");
+    expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence")[0]!.state).toBe("CANCELLED");
+  } finally { vi.useRealTimers(); }
+});
