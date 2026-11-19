@@ -131,13 +131,27 @@ describe('progress and report watermark', () => {
     const report = f.extensions.report(saved.planId);
     expect(report.watermark).toBe(saved.reportWatermark);
     expect(report.deltas).toHaveLength(2);
-    expect(report.nextWatermark).toBeGreaterThan(report.deltas[1].seq);
-    // The stored watermark moved past the report's own durable record.
+    expect(report.nextWatermark).toBe(report.deltas[1].seq);
+    // The stored watermark covers the read window, not later report events.
     expect(f.extensions.get(saved.planId)!.reportWatermark).toBe(report.nextWatermark);
     const again = f.extensions.report(saved.planId);
     expect(again.deltas).toHaveLength(0);
     expect(again.watermark).toBe(report.nextWatermark);
     expect(f.extensions.get(saved.planId)!.reportWatermark).toBe(again.nextWatermark);
+  });
+  it('does not skip an event committed by a subscriber after the report window was read', () => {
+    const f = fixture();
+    const saved = f.extensions.put(f.extension({reportWatermark: f.store.sequence}));
+    const stop = f.store.subscribe(event => {
+      if (event.type !== 'agentWorkReport') return;
+      f.store.internal('evt.after-window', f.threadId, () => null);
+    });
+    try {
+      const first = f.extensions.report(saved.planId);
+      expect(first.deltas).toHaveLength(0);
+      const second = f.extensions.report(saved.planId);
+      expect(second.deltas.map(delta => delta.type)).toEqual(['evt.after-window']);
+    } finally { stop(); }
   });
   it('reaches task events beyond a page of unrelated events', () => {
     const f = fixture();
