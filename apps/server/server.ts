@@ -13,7 +13,7 @@ import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
-import { streamEvents } from './event-stream.ts';
+import { destroyEventStreams, streamEvents } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
@@ -361,8 +361,9 @@ export async function buildServer(service: Service, options: ServerOptions) {
     } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
   });
   app.addHook("preClose", async () => {
-    await Promise.all([...streams].map(stream => new Promise<void>(done => { stream.once('close', done); stream.destroy(); })));
-    streams.clear();
+    // SSE responses are hijacked from Fastify's normal lifecycle. Destroy
+    // them without waiting for a second close event after a disconnect.
+    destroyEventStreams(streams);
   });
   return app;
 }
