@@ -15,6 +15,15 @@ it('revalidates the canonical binding after secret resolution before starting a 
  const {host,projects}=fixture();projects.binding.mockResolvedValueOnce({path:'C:/before'}).mockResolvedValue({path:'C:/after'});
  await expect(host.open({projectId:'project-a',threadId:'thread-a'})).rejects.toThrow('changed');expect(mocks.spawn).not.toHaveBeenCalled();
 });
+it('returns an empty range at the current end for a cursor beyond the transcript',async()=>{
+ const {host}=fixture();const input={projectId:'project-a',terminalId:'terminal-a'};
+ await host.open(input);
+ const emit=(mocks.spawn.mock.results[0]?.value.onData.mock.calls as unknown as [(data:string)=>void][])?.[0]?.[0];
+ emit('ready');
+ await expect(host.read(input.terminalId,input.projectId,undefined,500)).resolves.toMatchObject({output:'',start:5,cursor:5});
+ await expect(host.read(input.terminalId,input.projectId,undefined,2)).resolves.toMatchObject({output:'ady',start:2,cursor:5});
+});
+
 it('rejects an oversized initial command before starting or reserving a terminal',async()=>{
  const {host}=fixture();const input={projectId:'project-a',threadId:'thread-a',terminalId:'terminal-a'};
  await expect(host.open({...input,command:'x'.repeat(8001)})).rejects.toThrow();
