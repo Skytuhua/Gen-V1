@@ -22,7 +22,7 @@ export function useProjectContext(projectId?:string,threadId?:string,workspaceId
     catch(reason){lastError=reason;if(controller.signal.aborted||captured!==generation.current)return;if(!(reason instanceof ApiError&&reason.code==='REVISION_CHANGED'))throw reason;await new Promise(resolve=>setTimeout(resolve,250));}
    }
    if(lastError)throw lastError;if(captured!==generation.current)return;
-   const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next,loading:false,error:malformed?'The project context response was malformed.':''});}
+   const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next??null,loading:false,error:malformed?'The project context response was malformed.':''});}
   catch(reason){if(captured===generation.current&&!controller.signal.aborted)setState({owner,context:null,loading:false,error:reason instanceof Error?reason.message:'Project context could not be loaded.'});}
   finally{if(pending.current===controller)pending.current=null;}
  },[projectId,threadId,owner]);
