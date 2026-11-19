@@ -1,6 +1,6 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {validateSurface,SURFACE_LIMITS} from '../packages/ui-catalog/index';
@@ -10,7 +10,6 @@ import type {InputRequest} from '../packages/contracts/index';
 import {HarnessError} from '../packages/contracts/index';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
-
 /** Pure admission checks. Actual reload, focus, cancellation and worker
  * isolation are exercised through tests/e2e/host-loop.spec.ts and
  * tests/widget-isolation.test.ts. Admission alone is not browser evidence.
@@ -18,9 +17,7 @@ const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessErro
 
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const THREAD='t1';
 
 const surface=(elements:Record<string,{type:string;props:Record<string,unknown>;children?:string[]}>,root='root')=>({root,elements});

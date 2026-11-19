@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach, expect, it, vi} from 'vitest';
 import {rmSync} from 'node:fs';
 import type {RuntimeAdapter, RuntimeCallbacks, StartRun, Thread} from '../packages/contracts/index.ts';
@@ -17,7 +18,6 @@ type Admission = (job: Readonly<MemoryExtractionJob>, signal: AbortSignal) => Pr
 const source = {threadId: 'thread', runId: 'run', epoch: 1};
 const fixtures: Awaited<ReturnType<typeof memoryFixture>>[] = [];
 const turn = () => new Promise<void>(resolve => setImmediate(resolve));
-function deferred<T>() {let resolve!: (value: T) => void, reject!: (reason: Error) => void; const promise = new Promise<T>((done, fail) => {resolve = done; reject = fail;}); return {promise, resolve, reject};}
 async function fixture(modelId = 'provider/model') {
   const f = await memoryFixture(store => store.internal('fixture-model', 'thread', () => store.put('thread', 'thread', 'thread', {...store.get<Thread>('thread', 'thread')!, modelId})));
   fixtures.push(f);

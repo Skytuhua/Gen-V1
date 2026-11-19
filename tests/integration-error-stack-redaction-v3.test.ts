@@ -1,3 +1,4 @@
+import {inspect} from 'node:util';
 import {expect, it} from 'vitest';
 import {IntegrationManager} from '../packages/integrations/index.ts';
 import {createSecretRedactor} from '../packages/core/secret-references.ts';
@@ -86,6 +87,70 @@ it('redacts string Error.cause and safely walks a cyclic Error cause chain', () 
  expect(stringCause.cause).toBe('child echoed [REDACTED]');
 });
 
+it.each([true, false])('redacts or blocks an immutable child cause (configurable=%s)', configurable => {
+ const secret = 'CONTEXT7_IMMUTABLE_CAUSE_FIXTURE_153';
+ const inner = new Error('safe nested failure');
+ Object.defineProperty(inner, 'cause', {
+  value: 'child echoed ' + secret, configurable, writable: false, enumerable: false,
+ });
+ const failure = new Error('safe outer failure', {cause: inner});
+ // Native Node formatting includes a non-enumerable own Error.cause, even
+ // when the property is read-only. This reproduces the leak before sanitizing.
+ expect(inspect(failure)).toContain(secret);
+ const manager = new IntegrationManager({
+  root: process.cwd(), dataRoot: process.cwd(),
+  getPreferences: async () => ({}), setPreference: async () => {},
+  authorize: async () => ({profileId: 'test-only'}),
+  hostComplete: async (_scope, prompt) => ({output: prompt}),
+  onDisable: async () => {},
+ });
+ const redactor = createSecretRedactor([secret]);
+ const sanitize = manager as unknown as {
+  redactFailure(session: {redactor: typeof redactor}, error: Error): Error;
+ };
+ if(configurable){
+  const returned = sanitize.redactFailure({redactor}, failure);
+  expect(returned).toBe(failure);
+  expect(Object.getOwnPropertyDescriptor(inner, 'cause')?.value).toBe('child echoed [REDACTED]');
+  expect(inspect(returned)).not.toContain(secret);
+ }else{
+  let safelyRejected: unknown;
+  try{sanitize.redactFailure({redactor}, failure);}catch(error){safelyRejected=error;}
+  expect(safelyRejected).toBeInstanceOf(Error);
+  expect((safelyRejected as Error).message).toContain('could not be safely redacted');
+  expect(inspect(safelyRejected)).not.toContain(secret);
+ }
+});
+
+it.each(['raw', 'base64'] as const)('blocks structured child Error.cause metadata (%s) without invoking getters', form => {
+ const secret = 'CONTEXT7_STRUCTURED_CAUSE_FIXTURE_154';
+ const exposed = form === 'raw' ? secret : Buffer.from(secret, 'utf8').toString('base64');
+ let getterCalls = 0;
+ const metadata = {token: exposed};
+ Object.defineProperty(metadata, 'unsafeGetter', {
+  enumerable: true, get() { getterCalls++; throw new Error('untrusted getter must not run'); },
+ });
+ const failure = new Error('safe outer failure', {cause: {details: metadata}});
+ // The real Node formatter prints even nested values in Error.cause.
+ expect(inspect(failure, {depth: 6})).toContain(exposed);
+ const manager = new IntegrationManager({
+  root: process.cwd(), dataRoot: process.cwd(),
+  getPreferences: async () => ({}), setPreference: async () => {},
+  authorize: async () => ({profileId: 'test-only'}),
+  hostComplete: async (_scope, prompt) => ({output: prompt}),
+  onDisable: async () => {},
+ });
+ const redactor = createSecretRedactor([secret]);
+ const sanitize = manager as unknown as {
+  redactFailure(session: {redactor: typeof redactor}, error: Error): Error;
+ };
+ let rejected: unknown;
+ try { sanitize.redactFailure({redactor}, failure); } catch (error) { rejected = error; }
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected)).not.toContain(exposed);
+ expect(getterCalls).toBe(0);
+});
 it.each(['raw', 'base64'] as const)('redacts a non-Error child rejection (%s) before it can be surfaced', form => {
  const secret='CONTEXT7_THROWN_STRING_FIXTURE_155';
  const exposed=form==='raw'?secret:Buffer.from(secret,'utf8').toString('base64');

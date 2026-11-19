@@ -1,433 +1,553 @@
 {
-  "schemaVersion": 1,
-  "task": "M10 V6 durable background work and human handoffs",
-  "branch": "agent/m10-v6",
-  "worktree": "/home/piadmin/Gen-V1-m10-v6",
-  "auditAnchorSha": "4805af4680094d2af48ecf666688e750797e9dda",
-  "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
-  "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution — capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
-  "ownershipSearch": {
-    "localWorktrees": [
-      "Gen-V1 (fix/t10-agents-grid-v3, preserved)",
-      "Gen-V1-m04-v6 (handoff/m04-context-v3, preserved)",
-      "/tmp/gv1-audit (detached, preserved)",
-      "/tmp/gv1-f1 (fix/model-bind-race, preserved)"
-    ],
-    "remoteBranchesChecked": [
-      "origin/main",
-      "origin/agent/m12-v3",
-      "origin/agent/m12-v3-history"
-    ],
-    "pr355": "agent/m12-v3 (M12 bundle, open draft). Its M10-labeled subset is the private-result/disclosure subset inside packages/core/tool-programs.ts and packages/contracts/tool-results.ts on that branch only; not present on main, not duplicated here, M12 branch not taken over.",
-    "existingM10FilesOnMain": "none of packages/contracts/background-work.ts, packages/core/background-work.ts, packages/core/durable-wakeups.ts, packages/core/external-intake.ts, tests/background-work-v3.test.ts, tests/human-handoff-v3.test.ts, tests/external-intake-v3.test.ts exist on the execution base; all are create-if-absent",
-    "result": "no existing M10 task owner found; assigned branch/worktree created from captured origin/main"
+ "schemaVersion": 1,
+ "task": "M10 V6 durable background work and human handoffs",
+ "branch": "agent/m10-v6",
+ "worktree": "<task-worktree>",
+ "auditAnchorSha": "4805af4680094d2af48ecf666688e750797e9dda",
+ "executionBaseSha": "1c09d492278b1014bc3ab5455191b1f5913c96d8",
+ "baseIntegration": "R03 merge --no-commit --no-ff of captured origin/main: Already up to date at creation (no-op; branch created directly from captured main 1c09d492). Session-3: origin/main at 33639138 conflicted in 3 files; per R03 aborted with blob identities recorded, join marked HOLD_SOURCE_DRIFT. Session-4 (explicit user authorization to resolve): origin/main re-captured as 567498568611bc33379b31a0630dfaf3691b339f and merged via faithful resolution \u2014 capability-flags keeps M15+M04+M10 keys, App.tsx keeps main's customDock rewrite plus background-work wiring, server.ts keeps main's CRLF base plus both route registrations. Merge commit cbb964169ed900253d78681e90d6069b9f22139c; combined tree verified (targeted 60/60, typecheck, lint, build). Effective task base is now the merge parent 56749856.",
+ "ownershipSearch": {
+  "localWorktrees": [
+   "Gen-V1 (fix/t10-agents-grid-v3, preserved)",
+   "Gen-V1-m04-v6 (handoff/m04-context-v3, preserved)",
+   "/tmp/gv1-audit (detached, preserved)",
+   "/tmp/gv1-f1 (fix/model-bind-race, preserved)"
+  ],
+  "remoteBranchesChecked": [
+   "origin/main",
+   "origin/agent/m12-v3",
+   "origin/agent/m12-v3-history"
+  ],
+  "pr355": "agent/m12-v3 (M12 bundle, open draft). Its M10-labeled subset is the private-result/disclosure subset inside packages/core/tool-programs.ts and packages/contracts/tool-results.ts on that branch only; not present on main, not duplicated here, M12 branch not taken over.",
+  "existingM10FilesOnMain": "none of packages/contracts/background-work.ts, packages/core/background-work.ts, packages/core/durable-wakeups.ts, packages/core/external-intake.ts, tests/background-work-v3.test.ts, tests/human-handoff-v3.test.ts, tests/external-intake-v3.test.ts exist on the execution base; all are create-if-absent",
+  "result": "no existing M10 task owner found; assigned branch/worktree created from captured origin/main"
+ },
+ "requirements": [
+  {
+   "id": "M10-C01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/background-work.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "BackgroundWorkV1 strict contract absent on base; created reusing toolOwnerSchema from packages/contracts/tool-effects.ts. SETTLED requires observed terminal outcome; UNKNOWN forces outcome=null; RUN default lifetime. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
   },
-  "requirements": [
+  {
+   "id": "M10-C02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/background-work.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "WakeupV1 tagged AT_UTC/INTERVAL_UTC/HOST_EVENT triggers, display-only scheduleTimezone, occurrence identity, claim generation and lease fields; payloads carry no authority. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
+  },
+  {
+   "id": "M10-C03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/background-work.ts",
+    "packages/core/background-work.ts"
+   ],
+   "testIds": [
+    "tests/human-handoff-v3.test.ts"
+   ],
+   "reason": "HumanStepV1 correlates one request revision to owner and resume binding; action approval still requires the exact M02 envelope. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
+  },
+  {
+   "id": "M10-C04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/contracts/background-work.ts",
+    "packages/core/external-intake.ts"
+   ],
+   "testIds": [
+    "tests/external-intake-v3.test.ts"
+   ],
+   "reason": "IntakeV1 records source installation, numeric repository, event/delivery identity, payload digest and REJECTED/PROPOSED/APPROVED disposition; external content never supplies authority. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + tests/background-contract-decisions-v6.test.ts (48/48 PASS)."
+  },
+  {
+   "id": "M10-S01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/durable-wakeups.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "One scheduler over the existing Store: 1000ms tick, at most 50 due records inspected per tick (shared budget across due wakeups and expired claims), synchronous claim transactions, 30000ms lease, 10000ms heartbeat, claimGeneration increment, exact occurrenceKey formulas, restart reconciliation before replacement delivery. No second database. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/service.ts",
+    "apps/server/hermes-service.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Owned RUN-lifetime command state with exact process identity (pid + creation token), bounded output with cursor retrieval; command launch bound to the M03 evaluateExecution policy through the production host. Remaining gap: the foreground-timeout Continue-in-background offer is not wired to the operation timeout UI (recorded in remainingGates). Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Host loss marks RUN-lifetime commands UNKNOWN until an exact owned-process exit/teardown receipt; APPROVED_SERVICE admission blocked with HOLD_SUPERVISOR because no installed supervisor has target-platform PASS evidence. No supervisor selected or installed. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/durable-wakeups.ts",
+    "packages/core/background-work.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Delivery revalidates current task state, owner run/epoch, project, account binding and a host-injected account/grant/budget authority hook (Service binds assertAccountAvailable); stale lease/epoch triggers reconciliation only; missing provider/permission yields BLOCKED without tight retry. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S05",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/service.ts"
+   ],
+   "testIds": [
+    "tests/human-handoff-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Human steps pause automatic retries; accepted response correlates exact request revision and owner and enqueues one durable follow-up; credential entry never uses plaintext message content; stale answers to superseded revisions rejected. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S06",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/durable-wakeups.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Persisted per-project/profile idle opt-in, >=60000ms interval, one idle job per profile, read-only verification/organization proposals only; foreground admission cancels queued idle work; running idle keeps its permit until confirmed teardown. Actual idle review model execution stays behind jobs.idleReviewV1 and the C5 fork gate. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S07",
+   "disposition": "BLOCKED",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/runtime-hermes/task-pool.ts",
+    "packages/runtime-hermes/client.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "HOLD_FORK_API: the pinned Hermes wrapper exposes no callable fork API. Review fork admission returns UNSUPPORTED_FORK; auxiliary budget absence blocks. A new parent turn invalidates actionable fork output (tested) while late results remain historical. Live fork execution is not claimed. Session-5 post-merge: hold unchanged; UNSUPPORTED_FORK path verified on cut 4aef753e."
+  },
+  {
+   "id": "M10-S08",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/runtime/model-capacity.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Model capacity permits released only after confirmed native teardown of each occurrence (success or cancellation); account lease release never inferred from timeout or closed UI; advisory outputs kept separate from foreground messages until structured settlement. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S09",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/external-intake.ts",
+    "packages/workspace/github-auth.ts"
+   ],
+   "testIds": [
+    "tests/external-intake-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Authenticated read-only polling through the existing GitHubAuth connection once per 60000ms while explicitly enabled; only the configured numeric repository ID and issue records; dedupe by repository ID + issue node ID + updated_at; payload digest retained; no webhook listener. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S10",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/external-intake.ts",
+    "packages/core/service.ts"
+   ],
+   "testIds": [
+    "tests/external-intake-v3.test.ts"
+   ],
+   "reason": "Approved external tasks route through the same thread.create/message.send project, role and execution gates as manual tasks; unknown senders/inferred tasks stay proposals; source links and decisions stored; no auto-push/merge/publish/recurring schedule from external text. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S11",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/durable-wakeups.ts",
+    "packages/core/external-intake.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/external-intake-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Retry only host-classified transient read failures: 3 attempts, 1000ms/2000ms delays; no retry after cancellation/authorization/validation failure or uncertain nonreplayable dispatch; every intended missed occurrence persisted (100k host memory guard for pathological jumps); only the latest due occurrence admitted, never burst-replayed. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-S12",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/durable-wakeups.ts",
+    "packages/core/service.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Shutdown drain: no new admission, cancel eligible work, bounded wait for owned teardown, uncertainty recorded; vanished process never settles work by itself. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts (43/43 PASS)."
+  },
+  {
+   "id": "M10-U01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/BackgroundWork.tsx",
+    "apps/server/background-routes.ts"
+   ],
+   "testIds": [
+    "tests/e2e/background-work.spec.ts"
+   ],
+   "reason": "Task-owned background drawer: Waiting/Running/Waiting for you/Blocked/Completed/Outcome unknown; command, owner, elapsed, output and Open child task visible. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
+  },
+  {
+   "id": "M10-U02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/BackgroundWork.tsx"
+   ],
+   "testIds": [
+    "tests/e2e/background-work.spec.ts"
+   ],
+   "reason": "Human-action cards explain the exact blocked step with secure Respond/Decline through the existing handoff command path; a regression test proves attention dismiss-popup neither completes nor approves the step; credential steps route to the secure host surface. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
+  },
+  {
+   "id": "M10-U03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/BackgroundWork.tsx",
+    "apps/server/background-routes.ts"
+   ],
+   "testIds": [
+    "tests/e2e/background-work.spec.ts"
+   ],
+   "reason": "External inbox separates proposed from approved work with repository, authenticated source and duplicate/rejected state; schedules expose next occurrence, display timezone, pause and last actual run. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
+  },
+  {
+   "id": "M10-U04",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "apps/web/src/BackgroundWork.tsx",
+    "packages/core/background-work.ts"
+   ],
+   "testIds": [
+    "tests/e2e/background-work.spec.ts"
+   ],
+   "reason": "Close warning states work stops with the app because no proven service supervisor exists; no laptop-sleep execution promise. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/e2e/background-work.spec.ts drawer suite (see receipts) + vitest coverage."
+  },
+  {
+   "id": "M10-T01",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Two-scheduler race and restart before/after claim acceptance cases. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-T02",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "PID reuse, orphan process, broken supervisor connection, missing exit acknowledgment yield UNKNOWN. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-T03",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "Foreground preemption of eligible idle jobs without releasing a still-active account permit. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-T04",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/human-handoff-v3.test.ts"
+   ],
+   "testIds": [
+    "tests/human-handoff-v3.test.ts"
+   ],
+   "reason": "Stale/duplicate/cross-thread human responses never resume the wrong work. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-T05",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/external-intake-v3.test.ts"
+   ],
+   "testIds": [
+    "tests/external-intake-v3.test.ts"
+   ],
+   "reason": "Forged webhook, wrong repository, duplicate delivery and prompt injection create no unauthorized execution. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-T06",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-work-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Wall-clock jump and DST-display transitions preserve occurrence identity; shutdown prevents new admission. Session-5 post-merge: case exercised on cut 4aef753e; targeted vitest suites (83/83 PASS)."
+  },
+  {
+   "id": "M10-G01",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/capability-flags.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/external-intake-v3.test.ts"
+   ],
+   "reason": "Contracts and ordinary owned RUN jobs pass independently of an OS service; APPROVED_SERVICE and idle/source forks unavailable until demonstrated; external approval never inferred from repository write access. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
+  },
+  {
+   "id": "M10-G02",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/capability-flags.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts"
+   ],
+   "reason": "jobs.backgroundV1, jobs.serviceLifetimeV1, jobs.idleReviewV1, integrations.intakeV1 added to the existing host registry without replacing other keys; default false; absent from strict UI preferences; no agent/plugin toggle. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
+  },
+  {
+   "id": "M10-G03",
+   "disposition": "PRESERVE_EXISTING",
+   "sourcePaths": [
+    "packages/core/background-work.ts",
+    "packages/core/durable-wakeups.ts",
+    "packages/core/external-intake.ts"
+   ],
+   "testIds": [
+    "tests/background-work-v3.test.ts",
+    "tests/external-intake-v3.test.ts"
+   ],
+   "reason": "Rollback pauses wakeups and intake, preserves occurrence/effect receipts, stops owned running jobs (identity-verified) and cancels eligible queued work; uncertain processes stay quarantined for inspection. Session-5 post-merge: disposition IMPLEMENT->PRESERVE_EXISTING; code inspected present on cut 4aef753e and covered by tests/background-work-v3.test.ts + capability-flags inspection."
+  },
+  {
+   "id": "M10-D01",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Two claimers race one occurrence; exactly one successful admission receipt. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
+  },
+  {
+   "id": "M10-D02",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Lease expiry after uncertain external dispatch: no second submit, UNKNOWN until reconciliation. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
+  },
+  {
+   "id": "M10-D03",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
+  },
+  {
+   "id": "M10-D04",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Human answer replay: identical answer one delivery, changed answer CONFLICT, no new approval grant. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
+  },
+  {
+   "id": "M10-D05",
+   "disposition": "TEST_ONLY",
+   "sourcePaths": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "testIds": [
+    "tests/background-contract-decisions-v6.test.ts"
+   ],
+   "reason": "Polling intake: wrong repository, repeated revision and injected commands create no executor call; authorized new issue creates one proposal only. Session-5 post-merge: case exercised on cut 4aef753e; tests/background-contract-decisions-v6.test.ts (5/5 PASS)."
+  }
+ ],
+ "postMergeVerification": {
+  "session": 5,
+  "remoteBranchDeleted": "origin/agent/m10-v6 absent post-merge of PR #501 (squash 016738f7); stale tracking tip a5aa3798 is the recovered published head",
+  "branchCustody": "local agent/m10-v6 fast-forwarded 23a311b7..a5aa3798 (pure FF to recovered head); no force update",
+  "capturedMain": "4aef753ec272d6ab9f9f9eec1df0ca232386975b",
+  "mergeAttempt": {
+   "command": "git merge --no-commit --no-ff 4aef753ec272d6ab9f9f9eec1df0ca232386975b on agent/m10-v6 at a5aa3798",
+   "result": "conflicts on 4 paths; git merge --abort per R03; join marked HOLD_SOURCE_DRIFT (stale pre-squash line only; all task content already on main)",
+   "mergeBase": "3f7f96840255f3f21c1983ef23c5dee946f5ce05",
+   "conflicts": [
     {
-      "id": "M10-C01",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/contracts/background-work.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "BackgroundWorkV1 strict contract absent on base; created reusing toolOwnerSchema from packages/contracts/tool-effects.ts. SETTLED requires observed terminal outcome; UNKNOWN forces outcome=null; RUN default lifetime."
+     "path": "packages/core/external-intake.ts",
+     "base": null,
+     "ours": "6988becfe7dd8a9c7a6af57e60de2bfcbea09acc",
+     "theirs": "59d104f037ae99992c70a3c4ee5a88c1021a7cd6"
     },
     {
-      "id": "M10-C02",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/contracts/background-work.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "WakeupV1 tagged AT_UTC/INTERVAL_UTC/HOST_EVENT triggers, display-only scheduleTimezone, occurrence identity, claim generation and lease fields; payloads carry no authority."
+     "path": "packages/core/service.ts",
+     "base": "03b6ee8bac50547083848a1fab3a98438058a15b",
+     "ours": "986b00f61dd152bf1e36ea336f6fdf2ff633f153",
+     "theirs": "83415577c6186558a1100daf933de4e9e5be0602"
     },
     {
-      "id": "M10-C03",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/contracts/background-work.ts",
-        "packages/core/background-work.ts"
-      ],
-      "testIds": [
-        "tests/human-handoff-v3.test.ts"
-      ],
-      "reason": "HumanStepV1 correlates one request revision to owner and resume binding; action approval still requires the exact M02 envelope."
+     "path": "scripts/public-source-files.json",
+     "base": "2e5d94227e916525e7d23a40a34b4fe0c5805d8b",
+     "ours": "9d3d2c5756fb5df5327f876602af28ada81f544e",
+     "theirs": "6c0964767f162de858e4425354d8064c74353703"
     },
     {
-      "id": "M10-C04",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/contracts/background-work.ts",
-        "packages/core/external-intake.ts"
-      ],
-      "testIds": [
-        "tests/external-intake-v3.test.ts"
-      ],
-      "reason": "IntakeV1 records source installation, numeric repository, event/delivery identity, payload digest and REJECTED/PROPOSED/APPROVED disposition; external content never supplies authority."
-    },
-    {
-      "id": "M10-S01",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/durable-wakeups.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "One scheduler over the existing Store: 1000ms tick, at most 50 due records inspected per tick (shared budget across due wakeups and expired claims), synchronous claim transactions, 30000ms lease, 10000ms heartbeat, claimGeneration increment, exact occurrenceKey formulas, restart reconciliation before replacement delivery. No second database."
-    },
-    {
-      "id": "M10-S02",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/service.ts",
-        "apps/server/hermes-service.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Owned RUN-lifetime command state with exact process identity (pid + creation token), bounded output with cursor retrieval; command launch bound to the M03 evaluateExecution policy through the production host. Remaining gap: the foreground-timeout Continue-in-background offer is not wired to the operation timeout UI (recorded in remainingGates)."
-    },
-    {
-      "id": "M10-S03",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Host loss marks RUN-lifetime commands UNKNOWN until an exact owned-process exit/teardown receipt; APPROVED_SERVICE admission blocked with HOLD_SUPERVISOR because no installed supervisor has target-platform PASS evidence. No supervisor selected or installed."
-    },
-    {
-      "id": "M10-S04",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/durable-wakeups.ts",
-        "packages/core/background-work.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Delivery revalidates current task state, owner run/epoch, project, account binding and a host-injected account/grant/budget authority hook (Service binds assertAccountAvailable); stale lease/epoch triggers reconciliation only; missing provider/permission yields BLOCKED without tight retry."
-    },
-    {
-      "id": "M10-S05",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/service.ts"
-      ],
-      "testIds": [
-        "tests/human-handoff-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Human steps pause automatic retries; accepted response correlates exact request revision and owner and enqueues one durable follow-up; credential entry never uses plaintext message content; stale answers to superseded revisions rejected."
-    },
-    {
-      "id": "M10-S06",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/durable-wakeups.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Persisted per-project/profile idle opt-in, >=60000ms interval, one idle job per profile, read-only verification/organization proposals only; foreground admission cancels queued idle work; running idle keeps its permit until confirmed teardown. Actual idle review model execution stays behind jobs.idleReviewV1 and the C5 fork gate."
-    },
-    {
-      "id": "M10-S07",
-      "disposition": "BLOCKED",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/runtime-hermes/task-pool.ts",
-        "packages/runtime-hermes/client.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "HOLD_FORK_API: the pinned Hermes wrapper exposes no callable fork API. Review fork admission returns UNSUPPORTED_FORK; auxiliary budget absence blocks. A new parent turn invalidates actionable fork output (tested) while late results remain historical. Live fork execution is not claimed."
-    },
-    {
-      "id": "M10-S08",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/runtime/model-capacity.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Model capacity permits released only after confirmed native teardown of each occurrence (success or cancellation); account lease release never inferred from timeout or closed UI; advisory outputs kept separate from foreground messages until structured settlement."
-    },
-    {
-      "id": "M10-S09",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/external-intake.ts",
-        "packages/workspace/github-auth.ts"
-      ],
-      "testIds": [
-        "tests/external-intake-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Authenticated read-only polling through the existing GitHubAuth connection once per 60000ms while explicitly enabled; only the configured numeric repository ID and issue records; dedupe by repository ID + issue node ID + updated_at; payload digest retained; no webhook listener."
-    },
-    {
-      "id": "M10-S10",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/external-intake.ts",
-        "packages/core/service.ts"
-      ],
-      "testIds": [
-        "tests/external-intake-v3.test.ts"
-      ],
-      "reason": "Approved external tasks route through the same thread.create/message.send project, role and execution gates as manual tasks; unknown senders/inferred tasks stay proposals; source links and decisions stored; no auto-push/merge/publish/recurring schedule from external text."
-    },
-    {
-      "id": "M10-S11",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/durable-wakeups.ts",
-        "packages/core/external-intake.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/external-intake-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Retry only host-classified transient read failures: 3 attempts, 1000ms/2000ms delays; no retry after cancellation/authorization/validation failure or uncertain nonreplayable dispatch; every intended missed occurrence persisted (100k host memory guard for pathological jumps); only the latest due occurrence admitted, never burst-replayed."
-    },
-    {
-      "id": "M10-S12",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/durable-wakeups.ts",
-        "packages/core/service.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Shutdown drain: no new admission, cancel eligible work, bounded wait for owned teardown, uncertainty recorded; vanished process never settles work by itself."
-    },
-    {
-      "id": "M10-U01",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "apps/web/src/BackgroundWork.tsx",
-        "apps/server/background-routes.ts"
-      ],
-      "testIds": [
-        "tests/e2e/background-work.spec.ts"
-      ],
-      "reason": "Task-owned background drawer: Waiting/Running/Waiting for you/Blocked/Completed/Outcome unknown; command, owner, elapsed, output and Open child task visible."
-    },
-    {
-      "id": "M10-U02",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "apps/web/src/BackgroundWork.tsx"
-      ],
-      "testIds": [
-        "tests/e2e/background-work.spec.ts"
-      ],
-      "reason": "Human-action cards explain the exact blocked step with secure Respond/Decline through the existing handoff command path; a regression test proves attention dismiss-popup neither completes nor approves the step; credential steps route to the secure host surface."
-    },
-    {
-      "id": "M10-U03",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "apps/web/src/BackgroundWork.tsx",
-        "apps/server/background-routes.ts"
-      ],
-      "testIds": [
-        "tests/e2e/background-work.spec.ts"
-      ],
-      "reason": "External inbox separates proposed from approved work with repository, authenticated source and duplicate/rejected state; schedules expose next occurrence, display timezone, pause and last actual run."
-    },
-    {
-      "id": "M10-U04",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "apps/web/src/BackgroundWork.tsx",
-        "packages/core/background-work.ts"
-      ],
-      "testIds": [
-        "tests/e2e/background-work.spec.ts"
-      ],
-      "reason": "Close warning states work stops with the app because no proven service supervisor exists; no laptop-sleep execution promise."
-    },
-    {
-      "id": "M10-T01",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Two-scheduler race and restart before/after claim acceptance cases."
-    },
-    {
-      "id": "M10-T02",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "PID reuse, orphan process, broken supervisor connection, missing exit acknowledgment yield UNKNOWN."
-    },
-    {
-      "id": "M10-T03",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "Foreground preemption of eligible idle jobs without releasing a still-active account permit."
-    },
-    {
-      "id": "M10-T04",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/human-handoff-v3.test.ts"
-      ],
-      "testIds": [
-        "tests/human-handoff-v3.test.ts"
-      ],
-      "reason": "Stale/duplicate/cross-thread human responses never resume the wrong work."
-    },
-    {
-      "id": "M10-T05",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/external-intake-v3.test.ts"
-      ],
-      "testIds": [
-        "tests/external-intake-v3.test.ts"
-      ],
-      "reason": "Forged webhook, wrong repository, duplicate delivery and prompt injection create no unauthorized execution."
-    },
-    {
-      "id": "M10-T06",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-work-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Wall-clock jump and DST-display transitions preserve occurrence identity; shutdown prevents new admission."
-    },
-    {
-      "id": "M10-G01",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/capability-flags.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/external-intake-v3.test.ts"
-      ],
-      "reason": "Contracts and ordinary owned RUN jobs pass independently of an OS service; APPROVED_SERVICE and idle/source forks unavailable until demonstrated; external approval never inferred from repository write access."
-    },
-    {
-      "id": "M10-G02",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/capability-flags.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts"
-      ],
-      "reason": "jobs.backgroundV1, jobs.serviceLifetimeV1, jobs.idleReviewV1, integrations.intakeV1 added to the existing host registry without replacing other keys; default false; absent from strict UI preferences; no agent/plugin toggle."
-    },
-    {
-      "id": "M10-G03",
-      "disposition": "IMPLEMENT",
-      "sourcePaths": [
-        "packages/core/background-work.ts",
-        "packages/core/durable-wakeups.ts",
-        "packages/core/external-intake.ts"
-      ],
-      "testIds": [
-        "tests/background-work-v3.test.ts",
-        "tests/external-intake-v3.test.ts"
-      ],
-      "reason": "Rollback pauses wakeups and intake, preserves occurrence/effect receipts, stops owned running jobs (identity-verified) and cancels eligible queued work; uncertain processes stay quarantined for inspection."
-    },
-    {
-      "id": "M10-D01",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Two claimers race one occurrence; exactly one successful admission receipt."
-    },
-    {
-      "id": "M10-D02",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Lease expiry after uncertain external dispatch: no second submit, UNKNOWN until reconciliation."
-    },
-    {
-      "id": "M10-D03",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key."
-    },
-    {
-      "id": "M10-D04",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Human answer replay: identical answer one delivery, changed answer CONFLICT, no new approval grant."
-    },
-    {
-      "id": "M10-D05",
-      "disposition": "TEST_ONLY",
-      "sourcePaths": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "testIds": [
-        "tests/background-contract-decisions-v6.test.ts"
-      ],
-      "reason": "Polling intake: wrong repository, repeated revision and injected commands create no executor call; authorized new issue creates one proposal only."
+     "path": "tests/external-intake-v3.test.ts",
+     "base": null,
+     "ours": "16bc877c8e2fd927da265a6c9f6ebb7e624b0f17",
+     "theirs": "8f9892af7208a57dfd89cd8aa80d4c09464804d6"
     }
-  ]
+   ]
+  },
+  "verificationWorktree": "<worktree> (detached at 4aef753e; /tmp scratch worktree destroyed by /tmp wipe mid-session, first-pass results re-verified here)",
+  "receipts": "docs/implementation/v6/M10/receipts-postmerge.jsonl",
+  "handoff": "docs/implementation/v6/M10/handoff-postmerge.md",
+  "session6WindowsLane": {
+   "session": 6,
+   "instruction": "manager: run distinct M10 installed/native proof on linked Windows WIN-M0N0V07LGM1; no fallback, no flag activation; update draft #837 only; no merge",
+   "verifier": "isolated T3 thread mcp:launch:26d517050bbdc5deb6d809892770f014e64161daca9195c3328ee6ae092b7a20 (model gpt-6.1-sol) in worktree C:\\Users\\user\\.t3\\worktrees\\Generative Harness\\t3-bda7e1cb-57082b926f0db7f0; verification-only, no commits/pushes; final status clean",
+   "sourceSha": "ff38c62c3b0f8856e08f528f3c2ea8b1c1fea199",
+   "containsPrs": {
+    "501": "016738f7b57117ffe9dbbd756cb3cd173c01e202",
+    "786": "1d65ae1e",
+    "mergeBaseAncestry": "both exit 0"
+   },
+   "environment": "Windows 11 Home/Core 25H2 build 10.0.26200.9974 x64; Node v24.14.0; pnpm 10.30.3; Playwright 1.56.1 bundled Chromium 141.0.7390.37",
+   "results": {
+    "pnpm install": "PASS exit0",
+    "pnpm build:widgets": "PASS exit0",
+    "vitest": "PASS 83/83 (background-work 43, human-handoff 11, external-intake 24, decisions 5)",
+    "browser --suite background-work": "PASS 12/12 bundled Chromium",
+    "desktop:package": "FAIL exit1 ENV_MISSING .harness-hermes-python-deps; no Setup.exe/win-unpacked",
+    "verify-installed-desktop": "NOT_RUN UNSUPPORTED_ENV_MISSING (install/launch/CDP-identity/UI-acceptance/uninstall all unexercised; no workaround per no-fallback)",
+    "installedSupervisor": "HELD",
+    "forkApis": "HELD",
+    "flags": "unchanged default-off; reviewerApproval false",
+    "defects": "zero REAL_DEFECT failures observed"
+   },
+   "receipts": "docs/implementation/v6/M10/receipts-windows.jsonl",
+   "report": "docs/implementation/v6/M10/logs-pm/win-verifier-report.md",
+   "verificationPhase": "m10.postmerge-v6-windows in docs/implementation/v3/M10-verification.json",
+   "followup": {
+    "instruction": "manager: recover .harness-hermes-python-deps via pinned repo inputs (setup action python:true + installed-memory job staging at ff38c62c); rerun desktop:package + installed verifier; report exact failing step if a declared prerequisite is unavailable",
+    "prerequisiteRecovery": {
+     "python": "CPython 3.14.3 x64 present (HARNESS_HERMES_PYTHON=C:\\Users\\user\\AppData\\Local\\Python\\pythoncore-3.14-64\\python.exe)",
+     "hermesDeps": "PASS \u2014 pip --target .harness-hermes-python-deps 33/33 dists (5,342 files)",
+     "integrationWheels": "PASS \u2014 91/91 archive sha256 + --require-hashes 91 dists (7,619 files); pwsh step stalled pre-entry, cmd+python equivalent with identical checks recorded as shell substitution",
+     "gitGhBundles": "PASS \u2014 archive sha256 + 386 per-file checks; collectGitTools 386 files/147,868,460 bytes"
+    },
+    "desktopPackage": "KILLED at 530.81s \u2014 UNSUPPORTED_ENV_STALL: internal powershell.exe Expand-Archive (Node zip) child stalled 161.45s; forced exit 1; release dir empty, no Setup.exe/win-unpacked, no artifact SHA",
+    "verifyInstalledDesktop": "NOT_RUN \u2014 all phases unexercised; no workaround",
+    "run2Note": "run 2 interrupted at ~95min silent hang (the stalled packaging child); run 3 reported observed state without retry",
+    "report": "docs/implementation/v6/M10/logs-pm/win-verifier-report-r2r3.md",
+    "flags": "unchanged; no commits/pushes; worktree clean"
+   }
+  },
+  "session7CiInstalledLane": {
+   "session": 7,
+   "instruction": "manager: do not repeat failing local PowerShell packaging; check authenticated GitHub workflow artifacts for provenance-verifiable Setup.exe + win-unpacked at ff38c62c; name exact artifact gap if absent; update #837 only",
+   "outcome": "CI run 44356008329 (push, success) at cut; job 134984166865 installed-memory ran verify-installed-desktop.ts passed:true (install/4 owned launches/payload custody/provider/uninstall all green). ARTIFACT_GAP_NAMED: binaries not uploaded \u2014 receipts-only artifact; no downloadable exact-cut pair; box-local packaging not rerun; ENV_STALL record stands.",
+   "receiptsDir": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/",
+   "setupSha256": "afa42167eac4af0dad6651043237da3cc2b6b68bc29c0d810056f9da35d87753",
+   "payloadManifestSha256": "a8ff5f5f0ef9c8116ff2d551bece0b2671c2920678bc17f6c5bf8fc24ddbcea5"
+  },
+  "session8TerminalAndM10Installed": {
+   "session": 8,
+   "instruction": "manager: capture detached browser receipt if terminal; resume installed M10 gap via supported Windows runner or declared CI lane on exact cut; inspect whether existing checks can run M10-specific installed acceptance; no blind packaging rerun",
+   "tbfTerminal": "tbf.exit EXIT=1 at 19:41Z (terminal, not fabricated); 68/78 suites failed \u2014 545x msedge channel absent, 24x fixture ERR_CONNECTION_REFUSED; background-work 2/9 in-run fixture-port-5821 goto timeouts vs focused 11/11 PASS",
+   "m10InstalledInspection": "no existing check runs no-flag verify-installed-desktop.ts \u2014 ci.yml's only installed job (installed-memory) always passes --project-memory-retention --project-memory-enabled; workflow_dispatch re-runs same flags; no other linked Windows runner (WIN-M0N0V07LGM1 powershell box-broken); no downloadable binary pair in CI artifacts",
+   "m10InstalledGap": "strictly no-flag M10 installed acceptance requires a new CI job (workflow change, own review) or healthy Windows runner (none linked) \u2014 manager decision"
+  },
+  "session9DefaultOffInstalledCase": {
+   "session": 9,
+   "instruction": "manager: prepare smallest separately reviewable additive Windows CI acceptance case for default-off installed M10; no packaging duplication if artifacts shareable; report seams if blocked; CONTRIBUTING evidence pass",
+   "prepared": "ci.yml installed-memory job: additive step 'Verify installed default-off acceptance' runs flag-less verify-installed-desktop.ts against the job's own packaged Setup.exe/win-unpacked \u2014 valid declared usage, ambient flag activation suppressed (script lines 121-122,202-204); same artifacts, no script/job/packaging changes; receipts covered by existing upload globs; ~12-15min added vs 29min observed, under 60min timeout; block byte-identical 4aef753e..ff38c62c",
+   "notDone": "no dispatch, no new job, no powershell retry, no script edits",
+   "contributingPass": "raw artifact zip removed from commit (sha256 e61b7477\u2026 + artifact id 14455070587 + local copy retained); curated receipts + digests kept; credential scan clean"
+  },
+  "session12R03ForwardIntegration": {
+   "session": 12,
+   "instruction": "consume existing main fix 60c7aa94 (#828) via clean R03 forward integration of captured main 4bcdc82a if custody/heads match and merge-tree conflict-free; revalidate focused M10 + strict evidence on combined cut; local commit only",
+   "custodyCheck": "HEAD 16c0cfb6 atop merge-base 4aef753e; 60c7aa94 ancestor of 4bcdc82a, absent from HEAD; merge-tree conflict-free (be1097aa)",
+   "merge": "f4e71b56 --no-ff merge of 4bcdc82a; fix consumed unchanged (diff on fix-touched paths empty)",
+   "revalidation": "focused M10 suites 83/83 PASS on combined cut; implementationEvidenceV3Schema PARSE OK + 0 issues; bundleStatus FAIL preserved; refs+digests verified",
+   "shard2Context": "run 44414623739 job 135191550687 failed exactly the 2 hermes-original-integration tests fixed by 60c7aa94 \u2014 explained by consumed fix, not waived; f8a4ac69 run + pending flag-less receipt preserved",
+   "published": "local only; push deferred to manager"
+  },
+  "session13FlagLessInstalledReceipt": {
+   "session": 13,
+   "instruction": "verify flag-less installed acceptance receipt from dispatch 44414623739 job 135191550723 artifact 14482448945; record only observed generic default-off assertions; curated/redacted only",
+   "observed": "step 'Verify installed default-off acceptance' success 23:39:47->23:47:03Z on f8a4ac69; flag-less verifier passed:true \u2014 install exit0 333.9s, 2 owned launches memoryMode:null verifiedOwner exit0 (pids 6804/9960), custody match 92,944 files, provider passed, owned uninstall exit0; Setup.exe sha256 476b2a6e27cd580cfa103838165cce093496ecd6edd1f9fe7cdbe6694a243fcc (477,509,897B)",
+   "boundary": "generic default-off installed lifecycle ONLY; supervisor/reconnect-cancel/native-fork holds unchanged",
+   "receiptsDir": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/default-off/",
+   "artifactZipSha256": "f54484ce95d8bc63c2c8176f"
+  }
+ }
 }

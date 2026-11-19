@@ -194,8 +194,22 @@ export class IntegrationManager {
     if(typeof stack==='string')failure.stack=redactor.redact(stack).text;
     const cause=Object.getOwnPropertyDescriptor(failure,'cause');
     if(cause&&'value' in cause){
-     if(typeof cause.value==='string'&&cause.writable)failure.cause=redactor.redact(cause.value).text;
-     else if(cause.value instanceof Error)pending.push(cause.value);
+     if(typeof cause.value==='string'){
+      const redacted=redactor.redact(cause.value).text;
+      if(redacted!==cause.value){
+       if(cause.writable)failure.cause=redacted;
+       else if(cause.configurable)Object.defineProperty(failure,'cause',{...cause,value:redacted});
+       // A frozen native cause can still be printed by Node's error formatter.
+       // Never return the original error if the injected secret cannot be scrubbed.
+       else throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      }
+     }else if(cause.value instanceof Error)pending.push(cause.value);
+     else if(cause.value!==null&&(typeof cause.value==='object'||typeof cause.value==='function')){
+      // Node prints arbitrary structured causes, including nested credential
+      // fields and custom inspect hooks. Never inspect or traverse untrusted
+      // metadata with getters just to guess whether it holds a secret.
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
     }
    }
   }
