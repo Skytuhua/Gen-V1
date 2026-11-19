@@ -18,8 +18,8 @@ This source preview covers all changes since v0.6.1, including the 0.6.4 source
 preview. See the [grouped changelog](../../CHANGELOG.md#065--yyyy-mm-dd) and
 [visual workspace guide](../visual-workspace.md). Highlights include:
 
-Interim scope: #788, #789, #589, #896, #936 and #782 are unmerged and pending
-0.6.5 freeze gates, not shipped changes. #584 is deferred.
+Interim scope: see [Pending 0.6.5 freeze gates (not yet merged)](#pending-065-freeze-gates-not-yet-merged)
+for unmerged scope, not shipped changes. #584 is deferred.
 
 Providers: OpenAI — **Verified** (recorded live acceptance); Claude, Gemini,
 Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
@@ -35,13 +35,6 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
   conversations, parked-view recovery, undo/redo, named layouts, project colors
   and a unified overview/plan timeline. Legacy canvas records survive retirement
   of the built-in Code Review, Research, Custom and Visuals presets.
-- **Pending workspace accessibility and acceptance:** keyboard-created source
-  selections for pointer-free Ask/Attach/Open (#788), control boundaries meeting
-  3:1 non-text contrast in both themes (#789), and layout-resilience verification
-  at UI zoom and OS text scaling (#589). UI acceptance repairs (#896) preserve
-  main selection when detaching a non-main conversation, improve dock previews
-  and keyboard float resizing, and refine compact composer, plan and
-  workspace-surface behavior.
 - **Conversations and agents:** loaded-message search, saved local prompts,
   command/skill selection, terminal excerpts and paged Personal/agent reads.
   Separately gated work adds typed delegation, budgeted multi-agent tasks,
@@ -68,8 +61,6 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
 - **Security:** separately gated project trust, secret
   references, single-use approvals and recoverable effect receipts; stronger MCP
   credential redaction at MCP output, document permissions and custody checks.
-- **Pending security repair:** retain a known-bad integration denial when
-  advisory refresh fails (#936), rather than losing the prior denial.
 
 ### Performance and fixes
 
@@ -117,6 +108,21 @@ The [screenshots and videos](media/README.md) show the actual public browser int
 
 The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
 
+### Pending 0.6.5 freeze gates (not yet merged)
+
+These items are in 0.6.5 scope but not merged and ship only if they pass freeze gates.
+
+- Keyboard-created source selections so Ask/Attach/Open do not require a pointer
+  (#788), control boundaries meeting 3:1 non-text contrast in both themes (#789),
+  and layout-resilience verification at UI zoom and OS text scaling (#589).
+- UI acceptance repairs (#896): preserve main selection when detaching a non-main
+  conversation, improve dock previews and keyboard float resizing, and refine
+  compact composer, plan and workspace-surface behavior.
+- Retain a known-bad integration denial when advisory refresh fails (#936),
+  rather than losing the prior denial during a failed refresh.
+- Independent installed-Windows memory retention and opt-in qualification (#782):
+  draft CI-only work, not completed acceptance or a user-facing feature.
+
 ### Known issues
 
 - Installed stable-upgrade acceptance (upgrading an installed stable build to
@@ -138,9 +144,6 @@ The 0.6.4 source preview passed its Windows CI run. Focused native candidate che
   Historical full-suite failures, skipped/opt-in checks and partial milestone
   evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
   warnings and visual-fidelity/user acceptance remain unresolved.
-- Independent installed-Windows memory retention and opt-in qualification (#782)
-  is included pending 0.6.5 freeze gates; this draft CI-only work is not completed
-  acceptance or a user-facing feature.
 
 The [visual-workspace verification report](../visual-workspace-verification.md),
 [extension handoff](../implementation/v6/M13/handoff.md) and
