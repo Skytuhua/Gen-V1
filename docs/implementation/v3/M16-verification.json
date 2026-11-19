@@ -386,6 +386,26 @@
           "id": "bridge-browser-live",
           "status": "NOT_RUN",
           "evidence": "@ e4531ae2 (39d1d6da) isolated-ports re-run: backend-deadline CONFIRMED, port collision excluded — fresh ephemeral ports 54968/54969/54970 (listen(0), no 9222/4317/4318), owned data dir, nonce verified (NONCE_OK). CDP ready in ~0.5s; backend emitted 0 stdout/169 stderr bytes in 60s → backend-deadline → startup-failed (verbatim \"Gen V1 startup failed: The local backend did not become ready\"; Electron self-exited 0; driver exit 3 = main-page-deadline). Standalone backend stays silent >300s: discriminator @ 98d8f599 proved the Hermes worker healthy (direct spawn+hello OK) and located the stall in withPathGuard's previously unbounded teardown `await closed` (packages/core/file-access.ts) when the powershell guard child cannot be killed — bounded denial became a permanent hang. Owner-authorized fix on this branch: bounded close (2s grace → one kill → ≤2s confirm), session invalidated + references released, fail-closed CAPABILITY_DENIED on unconfirmed teardown, original error preserved → a wedged guard now rejects ≈49s → backend-error diagnosed inside the deadline. Consent/capture/Stop sequence still unreachable until a clean, isolated run reaches harness.ready → BLOCKED. See fixture-browser-m16-bridge.log."
+        },
+        {
+          "id": "bridge-electron-build-inputs",
+          "status": "PASS",
+          "evidence": "@ f43fe925 hosted run 44439237141 (workflow_dispatch, windows-latest) job 135275662840: windows-control-bridge.cc compiled+linked under /std:c++20 against pinned Electron 45.2.0 headers (node-v45.2.0-headers.tar.gz sha256 42eaab65c533d5bb3189a39f6d653138362d4ad1dfcb94cba9b713d77e873c72) and Electron win-x64/node.lib (sha256 c4ba898a42b8e5e37eeecae6e89c9831d59e0e2d9a279b4189fc2b349ac63156) from the dedicated verified cache, with /DELAYLOAD:node.exe + delayimp.lib + preload delay hook (decltype(__pfnDliNotifyHook2)). The script's clean-PATH Node-host require/pickWindow check passed (diagnostic only). Earlier MSVC 14.51.36231 C2338 STL1011 failure (run 44417512648 job 135201569165, pre-/std:c++20 — version stated only where that run's evidence supports it) and the plain node.lib Electron-host abort candidate (run 44426869497 job 135233864834, exit 0xFFFF7003) are retained as superseded evidence."
+        },
+        {
+          "id": "bridge-hosted-packaging",
+          "status": "PASS",
+          "evidence": "@ f43fe925 run 44439237141 job 135275662840: pnpm desktop:package produced win-unpacked + Gen-V1-Setup-0.6.5-win-x64.exe + build-manifest.json; installed receipt (artifact 14492739962, zip sha256 2007f91a26bcc6c10f5553a627af664ae3291bf97be099199315121d0a1abc7f) records Setup sha256 86773017f5567a96f31a5594c6cac145d4d65deebf84dc62e5f8d6ed7dba8a78 and exact-match payloadCustody 92955 files / 2578380642 bytes sha256 fbe8741ce5685e678d01fe596bf8fcb8f6401c8b2a83b3ad8c381a2608919c69; providerVerification passed; identity-bound uninstall + cache removal clean."
+        },
+        {
+          "id": "bridge-installed-readiness",
+          "status": "PASS",
+          "evidence": "@ f43fe925 run 44439237141 job 135275662840 generic installed verifier: four ownership-verified launches (2x default-off + 2x memory-enabled), all verifiedOwner true, ephemeral ports, exitCode 0 — readiness observed at 30711, 8643, 9617 and 8856 ms — no 0xFFFF7003 abort signature. The receipt establishes owned installed readiness and clean exit only; it does not establish addon load, protocol registration, or live registration (no M16 control registration record)."
+        },
+        {
+          "id": "bridge-installed-control-scenario",
+          "status": "NOT_RUN",
+          "evidence": "Owned browser/selected-window consent, authoritative target identity, bounded capture and independent Stop remain NOT_RUN on this cut: the generic installed lane emits no M16 scenario receipt, and the scenario module is callable only via the M15-custodied installed hook (no owner-authorized integration yet). The receipt also emits no per-file Gen V1.exe / windows-control-bridge.node / windows-credential-lease.node digests — only Setup + aggregate payload digests; individual executable/addon identities remain unrecorded and are a stated requirement for the next evidence cut."
         }
       ],
       "commands": [
