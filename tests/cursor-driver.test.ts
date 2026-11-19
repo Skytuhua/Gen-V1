@@ -123,3 +123,34 @@ describe('Cursor official worker facade', () => {
     release(); await vi.waitFor(() => expect(t.calls).toContainEqual({ type: 'receipt-ack', uuid: wire.uuid, sessionId: 'native-session' })); await driver.close();
   });
 });
+
+it('cancels Cursor startup while its IPC write is still pending', async () => {
+  const {openCursor} = await import('../packages/runtime-official/cursor.ts');
+  const f = await fixture(), t = transport();
+  let releaseWrite: (() => void) | undefined;
+  const stalled = (...args: Parameters<typeof t.spawn>) => {
+    const child = t.spawn(...args), send = child.send;
+    child.send = (message: {type: string}, callback: (error: Error | null) => void) => {
+      if (message.type === 'initialize') {
+        releaseWrite = () => callback(null);
+        return false; // Buffered IPC write: the callback arrives later.
+      }
+      return send(message, callback);
+    };
+    return child;
+  };
+  let outcome: unknown;
+  const opening = openCursor(f.ctx, stalled as typeof spawn, 'native-model').catch(error => { outcome = error; });
+  try {
+    expect(releaseWrite).toBeTypeOf('function');
+    f.revoke();
+    await f.ready.close();
+    await new Promise<void>(resolve => setImmediate(resolve));
+    expect(outcome).toMatchObject({code: 'OFFICIAL_RUN_ABORTED'});
+    expect(t.children[0].exitCode).toBe(0);
+  } finally {
+    releaseWrite?.();
+    await f.ready.close();
+    await opening;
+  }
+});
