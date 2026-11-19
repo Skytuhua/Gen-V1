@@ -19,7 +19,16 @@ availability or verification of every 0.6.5 build. See the
 [verification record](docs/verification/README.md).
 
 Generated apps are **Preview**. 0.6.5 ships as an **unsigned prerelease (preview)**,
-not a stable-channel promotion. Expect Windows SmartScreen to show a
+not a stable-channel promotion.
+
+**Upgrading from v0.6.1:** download and run the 0.6.5 installer over the existing
+install; the in-app updater is not available in v0.6.1. There is no rollback to
+v0.6.1. Close the app fully and back up your profile/data first: the default
+backend data is in `%LOCALAPPDATA%\GenerativeHarness` and the desktop window/session
+profile is in `%APPDATA%\GenerativeHarnessDesktop`
+([documented locations](docs/public/getting-started.md#keep-your-data-recoverable)).
+In-app stable-update checks apply only to later upgrades from 0.6.5.
+Expect Windows SmartScreen to show a
 "Windows protected your PC" warning when installing it.
 
 ### Workspace and UI
@@ -159,9 +168,8 @@ These items are in 0.6.5 scope but not merged and ship only if they pass freeze 
 
 ### Known issues
 
-- Installed stable-upgrade acceptance (upgrading an installed stable build to
-  0.6.5 via the updater) is still open/unverified; source or candidate checks do
-  not prove preservation of a real installed profile.
+- Acceptance of installing 0.6.5 over an existing v0.6.1 install with profile/data
+  preserved is still open/unverified; source or candidate checks do not prove it.
 - Independent live sign-in, model entitlement and task acceptance beyond the
   evidenced OpenAI route, and the broader generated-application **Preview** quality pilot,
   remain open.
