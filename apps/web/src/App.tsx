@@ -441,7 +441,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
         {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
       </div>
       {!compact&&<ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>}
-      {compact&&<span className="composer-inline-actions">{sendControls}</span>}
+      {compact&&<span className="composer-inline-actions">{preferences.showUsageFooter&&onShowUsage&&<button type="button" className="composer-tool composer-usage-launcher" aria-label={usageOpen?'Hide live usage':'Show live usage'} title={usageOpen?'Hide live usage':'Show live usage'} aria-pressed={usageOpen} onClick={onShowUsage}><Activity size={15}/></button>}{sendControls}</span>}
       </div>
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
       {!compact&&<ComposerToolbar modelPickerRef={modelPicker} models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} modelScopeHint={thread?'New conversations only.':'Applies to new tasks.'} onModelNewTask={onNewTask} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
@@ -889,7 +889,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   useEffect(()=>{
     if(!loaded||!workspaceEnvelope||pinnedThreadId||navigationOnly||layout.activeTab!=='usage'||splitEnabled&&!convSplitState.layout)return;
     if(layout.rightPanelOpen&&!splitEnabled&&!canvasActive&&!customDock&&!selectedPluginId){setUsageThreadId(thread?.id??null);setUsageOpen(true);}
-    setLayout(value=>value.activeTab==='usage'?{...value,activeTab:'notes'}:value);
+    setLayout(value=>value.activeTab==='usage'?{...value,activeTab:'notes',openTabs:value.openTabs.includes('notes')?value.openTabs:[...value.openTabs,'notes']}:value);
   },[loaded,workspaceEnvelope,pinnedThreadId,navigationOnly,layout.activeTab,layout.rightPanelOpen,canvasActive,customDock,splitEnabled,convSplitState.layout,selectedPluginId,thread?.id]);
   const [reviewRequest,setReviewRequest]=useState<ReviewRequest>();
   const pendingReviewId=useRef<number|undefined>(undefined);

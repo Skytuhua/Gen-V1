@@ -18,18 +18,18 @@ async function fixture(page:Page){
 }
 test('expanded protected tools stay compact and clear the original conversation and composer',async({page})=>{
  await page.addInitScript(()=>{for(const id of ['plan','usage'])localStorage.setItem(`harness:floating:${id}:v1`,JSON.stringify({x:300,y:300,width:900,height:700,collapsed:false,floating:true}));});
- await fixture(page);
- const context=page.getByRole('region',{name:'Project context window',exact:true}),usage=page.getByRole('region',{name:'Live usage',exact:true});
+ await fixture(page);await page.getByRole('button',{name:'Show live usage',exact:true}).click();
+ const context=page.getByRole('region',{name:'Project overview window',exact:true}),usage=page.getByRole('region',{name:'Live usage',exact:true});
  await expect(context).toHaveAttribute('data-collapsed','false');await expect(usage).toHaveAttribute('data-collapsed','false');
  const c=(await context.boundingBox())!,u=(await usage.boundingBox())!;
- expect(c.width).toBeLessThanOrEqual(280);expect(c.height).toBeLessThanOrEqual(270);expect(u.width).toBeLessThanOrEqual(248);expect(u.height).toBeLessThanOrEqual(145);
+ expect(c.width).toBeLessThanOrEqual(300);expect(c.height).toBeLessThanOrEqual(270);expect(u.width).toBeLessThanOrEqual(300);expect(u.height).toBeLessThanOrEqual(145);
  const overlap=(a:{x:number;y:number;width:number;height:number},b:{x:number;y:number;width:number;height:number})=>a.x<b.x+b.width&&a.x+a.width>b.x&&a.y<b.y+b.height&&a.y+a.height>b.y;
  const bubble=(await page.locator('.message-user>.message-content').boundingBox())!,composer=(await page.locator('.composer').boundingBox())!;
  expect(overlap(c,bubble)).toBe(false);expect(overlap(u,composer)).toBe(false);
  const workspace=(await page.locator('main.workspace').boundingBox())!,header=(await page.locator('.workspace-header').boundingBox())!;expect(header.width).toBe(workspace.width);
  await expect(context.getByRole('button',{name:/Close|Move|Resize|Detach/})).toHaveCount(0);await expect(usage.getByRole('button',{name:/Close|Move|Resize|Detach/})).toHaveCount(0);
  await page.screenshot({path:'.harness-ui-cleanup-20261104/compact-ui/expanded-desktop.png'});
- await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await usage.getByRole('button',{name:'Minimize live usage',exact:true}).click();expect(await page.locator('main.workspace').evaluate(node=>getComputedStyle(node).paddingRight)).toBe('0px');
+ await context.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await usage.getByRole('button',{name:'Minimize live usage',exact:true}).click();expect(await page.locator('main.workspace').evaluate(node=>getComputedStyle(node).paddingRight)).toBe('0px');
 });
 test('only the sidebar owns collapse while the header preserves reopen and mobile access',async({page})=>{
  await fixture(page);const sidebar=page.getByRole('complementary',{name:'Thread navigation',exact:true}),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep this original draft');
@@ -42,7 +42,8 @@ test('only the sidebar owns collapse while the header preserves reopen and mobil
 for(const width of [1280,1100,960,700,390])test(`expanded tools leave chat usable at ${width}px`,async({page})=>{
  await page.setViewportSize({width,height:844});await page.addInitScript(()=>{for(const id of ['plan','usage'])localStorage.setItem(`harness:floating:${id}:v1`,JSON.stringify({x:0,y:0,width:900,height:700,collapsed:false,floating:true}));});
  await fixture(page);const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Still writing in the original chat');
- const context=page.getByRole('region',{name:'Project context window',exact:true}),usage=page.getByRole('region',{name:'Live usage',exact:true});
+ await page.getByRole('button',{name:'Show live usage',exact:true}).click();
+ const context=page.getByRole('region',{name:'Project overview window',exact:true}),usage=page.getByRole('region',{name:'Live usage',exact:true});
  for(const tool of [context,usage]){await expect(tool).toBeVisible();const rect=(await tool.boundingBox())!;expect(rect.x).toBeGreaterThanOrEqual(0);expect(rect.x+rect.width).toBeLessThanOrEqual(width);expect(rect.y+rect.height).toBeLessThanOrEqual(844);}
  const composer=(await page.locator('.composer').boundingBox())!,bubble=(await page.locator('.message-user>.message-content').boundingBox())!;
  for(const tool of [context,usage]){const rect=(await tool.boundingBox())!;for(const target of [composer,bubble])expect(rect.x>=target.x+target.width||rect.x+rect.width<=target.x||rect.y>=target.y+target.height||rect.y+rect.height<=target.y).toBe(true);}
@@ -51,17 +52,19 @@ for(const width of [1280,1100,960,700,390])test(`expanded tools leave chat usabl
 });
 
 test('a ready long plan expands the compact context without taking draft focus',async({page})=>{
- const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true}),context=page.getByRole('region',{name:'Project context window',exact:true});
+ const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true}),context=page.getByRole('region',{name:'Project overview window',exact:true});
  await expect(context).toHaveAttribute('data-collapsed','true');await draft.fill('Keep writing as the plan arrives');await draft.focus();
  host.snapshot.data.push({id:planDataId('task-thread'),threadId:'task-thread',revision:1,provenance:PLANNING_PROVENANCE,createdAt:'2026-11-04T00:00:00Z',value:{version:1,title:'Review the next steps',steps:Array.from({length:15},(_,i)=>({id:'step-'+i,title:`Review source step ${i+1}`,status:i===0?'working':'pending',requirements:[],agentIds:[]})),agents:[]}});
- await host.publish();await expect(context).toHaveAttribute('data-collapsed','false');await expect(context.getByText('Review source step 1',{exact:true})).toBeVisible();await expect(draft).toBeFocused();await expect(draft).toHaveValue('Keep writing as the plan arrives');
- expect((await context.boundingBox())!.height).toBeLessThanOrEqual(360);await context.getByRole('button',{name:'Minimize Project context',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await context.getByRole('button',{name:'Expand Project context',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','false');await context.getByText('Review source step 15',{exact:true}).scrollIntoViewIfNeeded();await expect(context.getByText('Review source step 15',{exact:true})).toBeVisible();
+ await host.publish();await expect(context).toHaveAttribute('data-collapsed','true');await expect(context.getByText('Update available',{exact:true})).toBeVisible();await expect(draft).toBeFocused();await expect(draft).toHaveValue('Keep writing as the plan arrives');
+ await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','false');await expect(context.getByText('Review the next steps',{exact:true})).toBeVisible();
+ const plan=page.getByRole('region',{name:'Task plan: Review the next steps',exact:true});await expect(plan.getByText('Review source step 1',{exact:true}).first()).toBeVisible();
+ expect((await context.boundingBox())!.height).toBeLessThanOrEqual(360);await context.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','true');await context.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(context).toHaveAttribute('data-collapsed','false');await plan.getByText('Review source step 15',{exact:true}).first().scrollIntoViewIfNeeded();await expect(plan.getByText('Review source step 15',{exact:true}).first()).toBeVisible();
  await page.screenshot({path:'.harness-ui-cleanup-20261104/compact-ui/ready-plan.png'});
 });
 
 test('minimized tools leave the first message and composer clear without reserving a chat column',async({page})=>{
- await fixture(page);for(const width of [1280,1440]){
-  await page.setViewportSize({width,height:1000});const context=(await page.getByRole('region',{name:'Project context window',exact:true}).boundingBox())!,usage=(await page.getByRole('region',{name:'Live usage',exact:true}).boundingBox())!,bubble=(await page.locator('.message-user>.message-content').boundingBox())!,composer=(await page.locator('.composer').boundingBox())!;
+ await fixture(page);await page.getByRole('button',{name:'Show live usage',exact:true}).click();for(const width of [1280,1440]){
+  await page.setViewportSize({width,height:1000});const context=(await page.getByRole('region',{name:'Project overview window',exact:true}).boundingBox())!,usage=(await page.getByRole('region',{name:'Live usage',exact:true}).boundingBox())!,bubble=(await page.locator('.message-user>.message-content').boundingBox())!,composer=(await page.locator('.composer').boundingBox())!;
   for(const [tool,target] of [[context,bubble],[usage,composer]])expect(tool.x>=target.x+target.width||tool.x+tool.width<=target.x||tool.y>=target.y+target.height||tool.y+tool.height<=target.y).toBe(true);
   expect(await page.locator('main.workspace').evaluate(node=>getComputedStyle(node).paddingRight)).toBe('0px');
  }

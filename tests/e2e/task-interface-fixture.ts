@@ -93,7 +93,7 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     await route.fulfill({ json: { commandId: command.id, seq: snapshot.seq, result } });
     // The real host broadcasts accepted settings writes to every snapshot subscriber
     // (embedded conversations included); mirror that so tests see the same propagation.
-    if (command.type === 'settings.update') await page.evaluate(seq => window.dispatchEvent(new CustomEvent('task-fixture-update', { detail: seq })), snapshot.seq);
+    if (command.type === 'settings.update') await page.evaluate(seq => window.dispatchEvent(new CustomEvent('task-fixture-update', { detail: seq })), snapshot.seq).catch(() => {});
   });
   return {
     commands, snapshot,
