@@ -1,0 +1,71 @@
+{
+  "cut": "eeeb723c00277d40eea74075d9b11f0b19390659",
+  "run": {
+    "id": 44438814557,
+    "headSha": "eeeb723c00277d40eea74075d9b11f0b19390659",
+    "headBranch": "agent/m12-v3",
+    "event": "workflow_dispatch",
+    "createdAt": "2026-11-19T01:41:39Z",
+    "status": "completed",
+    "conclusion": "success — 9/9 after attempt-2 retry of the two failed jobs"
+  },
+  "attempt1": {
+    "terminal": true,
+    "jobs": [
+      { "id": 135274289050, "name": "Hermes contracts", "conclusion": "success" },
+      { "id": 135274289305, "name": "Tests (shard 4/4)", "conclusion": "failure", "observed": "job log independently shows recovery-v3 15/15 PASS + context-result-custody 4/4 PASS", "note": "RETAINED: unrelated pre-assertion/startup job verdict FAIL — the log's per-test results (recovery 15/15, custody 4/4) are recorded separately from the job verdict and match attempt-2 retry results" },
+      { "id": 135274289362, "name": "Tests (shard 3/4)", "conclusion": "success" },
+      { "id": 135274289401, "name": "Tests (shard 2/4)", "conclusion": "success", "observed": "replay-v3 33/33 PASS; context-result-host 32/32 PASS — Windows-verifies the 5559b05f readResource fix for the host family" },
+      { "id": 135274289411, "name": "Tests (shard 1/4)", "conclusion": "success" },
+      { "id": 135274289432, "name": "Windows checks", "conclusion": "success" },
+      { "id": 135274289528, "name": "Browser tests", "conclusion": "failure", "note": "RETAINED: manager-classified pre-assertion startup failure — job verdict FAIL" },
+      { "id": 135274289554, "name": "Desktop build", "conclusion": "success" },
+      { "id": 135274289697, "name": "Installed desktop memory retention and other custody", "conclusion": "success" }
+    ],
+    "artifact": {
+      "id": 14493505916,
+      "belongsTo": "attempt 1",
+      "verifies": "generic owned installation/custody/launch only — NOT the M12 cut or M12 suite behavior",
+      "setupDigest": "f1ea5169996706ecda77576ccdc344c1cf0bde385bf8d71dc14944366b09b8b4",
+      "zipDigest": "3d2addc2c76cac0dca84a0ec5c65c30a0cde6326c4509de63d5e6d5fdbda6db0"
+    }
+  },
+  "attempt2": {
+    "terminal": true,
+    "scope": "manager-initiated same-run retry of the two attempt-1 failed jobs only",
+    "jobs": [
+      { "id": 135305997978, "name": "Browser tests", "conclusion": "success", "observed": "PASS including the former artifact-width case" },
+      { "id": 135305998186, "name": "Tests (shard 4/4)", "conclusion": "success", "observed": "recovery-v3 15/15 PASS; context-result-custody 4/4 PASS — Windows-verifies the 5559b05f readResource fix for the custody family" }
+    ],
+    "reverifiedSuccess": [
+      { "id": 135306044198, "name": "Tests (shard 1/4)" },
+      { "id": 135306050309, "name": "Tests (shard 2/4)" },
+      { "id": 135306038061, "name": "Tests (shard 3/4)" },
+      { "id": 135306056913, "name": "Hermes contracts" },
+      { "id": 135306000820, "name": "Windows checks" },
+      { "id": 135306066350, "name": "Desktop build" },
+      { "id": 135306000019, "name": "Installed desktop memory retention and other custody" }
+    ]
+  },
+  "comparator": {
+    "runId": 44437308915,
+    "headSha": "8dd79d0024aabb66fd7516308f9e99243b83446b",
+    "headBranch": "agent/m13-v6",
+    "conclusion": "success",
+    "note": "different SHA on a different branch — comparison evidence only; manager compared same-spec startup cases to classify the attempt-1 failures as pre-assertion/infra, not an M12-cut pass"
+  },
+  "priorRuns": {
+    "44426865521": {
+      "headSha": "096da165a853b44e5734701e8c3c555f4b0b6f90",
+      "attempt1Terminal": true,
+      "shard2_job_135233849822": "replay 33/33 PASS; context-result-host 24 FAIL",
+      "shard4_job_135233849917": "recovery 15/15 PASS; custody ordinary-flow FAIL"
+    },
+    "44416861265": {
+      "headSha": "4bcdc82a",
+      "note": "clean-main comparison only — context-result-host 32/32, custody 4/4; not a pass on any M12 cut"
+    }
+  },
+  "honestQualification": "Run 44438814557 concluded SUCCESS 9/9 on eeeb723c: the 5559b05f readResource fix is Windows-verified for both context-result families (host 32/32 attempt-1 shard2; custody 4/4 attempt-2 shard4) plus replay 33/33, recovery 15/15, Browser PASS. Attempt-1 shard4 + Browser failures retained as pre-assertion/infra (job verdicts), distinct from attempt-2 observed test results. Artifact 14493505916 verifies generic owned installation/custody/launch only. Still unproven: Linux-x64 Python confinement (arm64 unavailable), CAP_SYS_ADMIN/broker guard suites, browser channel platform prerequisites, installed-desktop acceptance beyond the generic artifact, whole-process memory, aggregate retained-directory quota, full-gate suite. Flags off; reviewerApproval false; no production readiness claim.",
+  "logDigest": "not-recorded — job identities via GitHub jobs API; job logs require admin scope (403 on download); per-test counts as manager-reported"
+}
