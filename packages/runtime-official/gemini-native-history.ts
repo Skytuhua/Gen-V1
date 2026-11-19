@@ -32,7 +32,9 @@ export async function findGeminiNativeSession(dataDir: string, manifest: Manifes
   const marker = await boundedFile(home, join(project, '.project_root'), 8192);
   if (normalize(marker.trim()) !== normalize(taskDir)) throw mismatch();
   const chats = join(project, 'chats');
-  const actualChats = await realpath(chats);
+  let actualChats: string;
+  try { actualChats = await realpath(chats); }
+  catch (error) { if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null; throw error; }
   if (!within(await realpath(home), actualChats)) throw mismatch();
   const entries = await readdir(actualChats, { withFileTypes: true });
   if (entries.length > 4096) throw new HarnessError('OFFICIAL_HISTORY_LIMIT', 'Official Gemini history directory exceeds the bounded reader limit.');
