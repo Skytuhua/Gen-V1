@@ -57,6 +57,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('fidelity', ['graph-fidelity.spec.ts', 'signing-fidelity.spec.ts']),
   suite('model-picker', ['composer-reference.spec.ts', 'model-picker.spec.ts']),
   suite('workspace', ['workspace-components.spec.ts', 'workspace-ui.spec.ts']),
+  suite('visual-matrix'),
   suite('chart-coordinates'),
   suite('compact-settings'),
   suite('compact-tools-cleanup'),
