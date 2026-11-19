@@ -2,6 +2,10 @@ import {afterEach, describe, expect, it} from 'vitest';
 import {mkdtempSync, realpathSync, lstatSync, rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join, resolve, sep} from 'node:path';
+import Fastify from 'fastify';
+import {registerAgentWorkRoutes} from '../apps/server/agent-work-routes.ts';
+import type {Service} from '../packages/core/service.ts';
+import type {Thread} from '../packages/contracts/index.ts';
 import {Store} from '../packages/storage/store.ts';
 import type {PlanRecord, PlanStep} from '../packages/contracts/planning.ts';
 import {planDataId, PLANNING_PROVENANCE} from '../packages/contracts/planning.ts';
@@ -108,6 +112,17 @@ describe('progress and report watermark', () => {
     const none = f.extensions.progress(planId, {});
     expect(none).toEqual({completed: 0, total: 4, pending: 4, unknown: 0});
   });
+  it('does not calculate current progress with weights pinned to an older plan', () => {
+    const f = fixture();
+    const {planId} = f.extensions.put(f.extension());
+    f.store.internal('plan.changed', f.threadId, () => f.store.put('data', planId, f.threadId, {
+      id: planId, threadId: f.threadId, revision: 2,
+      value: {...f.record, steps: [...f.record.steps, step('new-step')]},
+      provenance: PLANNING_PROVENANCE, createdAt: 'now',
+    }));
+    expect(() => f.extensions.progress(planId, {ag1: 'completed', s2: 'completed', s3: 'completed', 'new-step': 'pending'}))
+      .toThrowError(expect.objectContaining({code: 'STALE_PLAN_REVISION'}));
+  });
   it('node weight conservation holds across a tree of descendants', () => {
     const f = fixture();
     const tree = f.extension({
@@ -169,4 +184,35 @@ describe('progress and report watermark', () => {
     expect(third.deltas).toHaveLength(0);
     expect(third.watermark).toBe(second.nextWatermark);
   });
+});
+
+it('returns no plan extension when the canonical record is stale, missing, or not a plan', async () => {
+  const f = fixture();
+  const saved = f.extensions.put(f.extension());
+  f.store.internal('task fixture', f.threadId, () => f.store.put('thread', f.threadId, f.threadId, {
+    id: f.threadId, title: 'Task', createdAt: 'now', updatedAt: 'now', kind: 'main',
+    projectName: null, status: 'working', epoch: 1, runId: 'run', modelId: null, sessionPath: null,
+  } satisfies Thread));
+  const app = Fastify();
+  cleanups.push(() => app.close());
+  registerAgentWorkRoutes(app, {store: f.store, planExtensions: f.extensions} as Service);
+  const read = () => app.inject({url: '/api/agent-work/plan?taskId=' + f.threadId});
+  const current = await read();
+  expect(current.statusCode).toBe(200);
+  expect(current.headers['cache-control']).toBe('no-store');
+  expect(current.json()).toMatchObject({extension: true, planId: f.planId, weights: saved.weights});
+  const canonical = f.store.get<{revision: number; provenance: string}>('data', f.planId)!;
+  for (const [name, record] of [
+    ['stale', {...canonical, revision: 2}],
+    ['wrong provenance', {...canonical, provenance: 'fixture.other'}],
+    ['missing', null],
+  ] as const) {
+    f.store.internal('canonical ' + name, f.threadId, () => {
+      if (record) f.store.put('data', f.planId, f.threadId, record);
+      else f.store.remove('data', f.planId);
+    });
+    const response = await read();
+    expect(response.statusCode, name).toBe(200);
+    expect(response.json(), name).toEqual({extension: false, planId: f.planId});
+  }
 });

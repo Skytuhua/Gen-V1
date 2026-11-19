@@ -114,6 +114,8 @@ export class PlanExtensionStore {
   progress(planId: string, statuses: Record<string, 'completed' | 'pending' | 'unknown'>): PlanProgress {
     const extension = this.get(planId);
     if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
+    if (extension.canonicalRevision !== this.canonical(planId).record.revision)
+      throw new HarnessError('STALE_PLAN_REVISION', 'Progress requires weights pinned to the current canonical plan.');
     const weightBy = new Map(extension.weights.map(weight => [weight.nodeId, weight.units]));
     const delegated = new Map<string, number>();
     for (const rel of extension.parentRelationships)
