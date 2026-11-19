@@ -76,6 +76,19 @@ it('closes an idle transport when resetting it for reuse fails', async () => {
  expect(item.closed).toBe(true);
  expect(await pool.take(key())).toBeNull();
 });
+it('preserves the reset and close failures in order without returning the idle transport', async () => {
+ const pool = new StatelessTransportPool();
+ const resetFailure = new Error('reset failed');
+ const closeFailure = new Error('close failed');
+ const close = vi.fn(async () => { throw closeFailure; });
+ const item = {...transport(), reset: async () => { throw resetFailure; }, close};
+ expect(pool.offer(key(), item)).toBe(true);
+ const error = await pool.take(key()).catch((failure: unknown) => failure);
+ expect(error).toBeInstanceOf(AggregateError);
+ expect(error).toMatchObject({errors: [resetFailure, closeFailure]});
+ expect(close).toHaveBeenCalledOnce();
+ expect(await pool.take(key())).toBeNull();
+});
 it('two accounts on two threads never observe each other\'s transport inputs',async()=>{
  const pool=new StatelessTransportPool();
  const requests=(label:string)=>{const inputs:string[]=[];return{transport:{...transport(),reset(){this.resetCount++;},send(input:string){inputs.push(label+':'+input);}},inputs};};
