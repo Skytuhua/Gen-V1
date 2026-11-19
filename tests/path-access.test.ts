@@ -128,6 +128,18 @@ it("serves approved ordinary bytes and holds every directory ancestor through fi
   await rename(folder, folder + "-moved");
 });
 
+it("pins a child-write directory whose marker path exceeds MAX_PATH", async () => {
+  if (process.platform !== "win32") return;
+  const root = await mkdtemp(join(tmpdir(), "harness-path-access-"));
+  cleanups.push(() => rm(root, { recursive: true, force: true }));
+  // Native opens without the extended prefix reported the marker's parent as missing.
+  const deep = join(root, "a".repeat(60), "b".repeat(60), "c".repeat(60));
+  await mkdir(deep, { recursive: true });
+  await withPathGuard([{ path: deep, leaf: false, allowChildWrites: true, childWriteRoot: root }], new AbortController().signal, async () => {
+    expect(statSync(join(deep, ".harness-directory-guard")).isFile()).toBe(true);
+  });
+});
+
 it("allows ordinary child replacement while its parent directory is guarded", async () => {
   const f = await fixture(), a = join(f.root, "a.txt"), b = join(f.root, "b.txt");
   await writeFile(a, "after"); await writeFile(b, "before");
