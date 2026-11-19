@@ -1,7 +1,7 @@
 import { EventEmitter } from 'node:events';
 import type { ServerResponse } from 'node:http';
 import { expect, it, vi } from 'vitest';
-import { destroyEventStreams, streamEvents } from '../apps/server/event-stream';
+import { destroyEventStreams, registerEventStream, streamEvents } from '../apps/server/event-stream';
 
 function fixture(emitCloseOnDestroy = true) {
   const events = Array.from({ length: 97 }, (_, index) => ({
@@ -67,4 +67,23 @@ it('destroys active SSE streams and does not wait for a second close event', () 
   expect(lingering.size).toBe(0);
   silent.close();
   expect(silent.onClose).toHaveBeenCalledTimes(1);
+});
+
+
+it('does not consume stream slots when a response was already closed before registration', () => {
+  const streams = new Map<ServerResponse, () => void>();
+  const store: Parameters<typeof streamEvents>[1] = {
+    eventsAfter: vi.fn(() => []),
+    subscribe: vi.fn(() => vi.fn()),
+  };
+  // A client can disconnect between Fastify hijack and the stream route.
+  // Thirty-two dead responses must not exhaust the 32-reader limit.
+  for (let index = 0; index < 32; index++) {
+    const response = Object.assign(new EventEmitter(), index % 2 === 0
+      ? { destroyed: true } : { writableEnded: true }) as unknown as ServerResponse;
+    registerEventStream(streams, response, store, 0);
+    expect(streams.size).toBe(0);
+  }
+  expect(store.subscribe).not.toHaveBeenCalled();
+  expect(store.eventsAfter).not.toHaveBeenCalled();
 });
