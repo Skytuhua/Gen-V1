@@ -67,7 +67,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const widgetPort = options.widgetPort ?? 4318;
   const origins = new Set(["http://127.0.0.1:" + options.port, "http://localhost:" + options.port, ...(options.dev ? ["http://127.0.0.1:5173", "http://localhost:5173"] : [])]);
   const hosts = new Set(["127.0.0.1:" + options.port, "localhost:" + options.port]);
-  const streams = new Set<import("node:http").ServerResponse>();
+  const streams = new Map<import("node:http").ServerResponse, () => void>();
   app.setErrorHandler((error, _request, reply) => {
     const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
     const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
@@ -282,8 +282,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
-    streams.add(reply.raw);
-    streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw));
+    streams.set(reply.raw, streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw)));
   });
   app.get<{ Params: { id: string } }>("/api/artifacts/:id/source", async (request, reply) => {
     const artifact = service.store.get<ArtifactRecord>("artifact", request.params.id);
