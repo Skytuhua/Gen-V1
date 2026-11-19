@@ -2,6 +2,8 @@ import {describe,expect,it} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {mkdtemp,mkdir,writeFile,readFile,copyFile,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
+import {createRequire} from 'node:module';
+import {fileURLToPath,pathToFileURL} from 'node:url';
 import {dirname,join,relative,resolve} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {build} from 'esbuild';
@@ -11,6 +13,19 @@ import {runtimeSourceAllowed} from '../scripts/desktop-assets.ts';
 import {browserSuites,validateBrowserSuites} from '../scripts/browser-suites.ts';
 
 describe('reviewed public source allowlist',()=>{
+  it('rejects a private export receipt inside the public destination before copying',async()=>{
+    const root=await mkdtemp(join(tmpdir(),'gen-public-receipt-'));
+    const source=join(root,'source'),target=join(root,'public'),receipt=join(target,'receipt.json');
+    await mkdir(source);
+    const script=fileURLToPath(new URL('../scripts/export-public-source.ts',import.meta.url));
+    const loader=pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
+    try{
+      expect(()=>execFileSync(process.execPath,['--import',loader,script,target,receipt],{cwd:source,stdio:['ignore','pipe','pipe']}))
+        .toThrow(/Private export receipt must be outside the public destination/);
+      await expect(readFile(receipt)).rejects.toMatchObject({code:'ENOENT'});
+      await expect(readFile(target)).rejects.toMatchObject({code:'ENOENT'});
+    }finally{await rm(root,{recursive:true,force:true,maxRetries:5});}
+  });
   it('preserves pinned integration bytes when Windows enables automatic CRLF checkout',async()=>{
     const root=await mkdtemp(join(tmpdir(),'harness-public-byte-checkout-'));
     const env={...process.env,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:process.platform==='win32'?'NUL':'/dev/null'};

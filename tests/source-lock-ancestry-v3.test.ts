@@ -1,6 +1,6 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import type { SourceLockV3 } from '../packages/contracts/implementation-evidence.ts';
@@ -55,6 +55,23 @@ describe('M01 source-lock audit ancestry', () => {
     const value = repository('missing audit');
     const issues = verifySourceLock(value.root, { ...value.lock, auditAncestorSha: '0'.repeat(40) });
     expect(issues.map(issue => issue.code)).toContain('AUDIT_NOT_ANCESTOR');
+  });
+
+  it('does not lazy-fetch a missing execution pin from a partial-clone remote', () => {
+    const value = repository('missing execution pin');
+    value.git('config', 'remote.origin.url', join(value.root, 'unused-local-remote'));
+    value.git('config', 'remote.origin.promisor', 'true');
+    value.git('config', 'extensions.partialClone', 'origin');
+    const trace = join(value.root, 'git-trace.log');
+    vi.stubEnv('GIT_TRACE', trace);
+    vi.stubEnv('GIT_NO_LAZY_FETCH', undefined);
+    try {
+      const issues = verifySourceLock(value.root, { ...value.lock, executionBaseSha: 'b'.repeat(40) });
+      expect(issues.map(issue => issue.code)).toContain('SOURCE_DRIFT');
+      const commands = readFileSync(trace, 'utf8');
+      expect(commands).toContain('rev-parse');
+      expect(commands).not.toMatch(/built-in: git fetch|run_command:.*git.* fetch /);
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it('rejects an audit commit that exists only in another repository', () => {

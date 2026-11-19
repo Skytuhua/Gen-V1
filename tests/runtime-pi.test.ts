@@ -23,6 +23,29 @@ import { terminateProcessTree } from "../packages/runtime-pi/process-tree.ts";
 vi.mock("node:child_process", async importOriginal => ({ ...await importOriginal<typeof import("node:child_process")>() }));
 vi.mock("node:fs/promises", async importOriginal => ({ ...await importOriginal<typeof import("node:fs/promises")>() }));
 
+it("clears the Windows cancellation grace timer when the worker exits", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  vi.useFakeTimers();
+  Object.defineProperty(process, "platform", { ...descriptor, value: "win32" });
+  try {
+    const child = Object.assign(new EventEmitter(), { pid: 101, exitCode: null as number | null, signalCode: null, kill: vi.fn() });
+    vi.spyOn(childProcess, "execFile").mockImplementation(((...args: unknown[]) => {
+      (args.at(-1) as (error: Error) => void)(new Error("The worker just exited"));
+    }) as typeof childProcess.execFile);
+    const cancelled = terminateProcessTree(child as unknown as childProcess.ChildProcess);
+    await Promise.resolve();
+    expect(vi.getTimerCount()).toBe(1);
+    child.exitCode = 0;
+    child.emit("exit", 0, null);
+    await cancelled;
+    expect(vi.getTimerCount()).toBe(0);
+    expect(child.kill).not.toHaveBeenCalled();
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    vi.useRealTimers();
+  }
+});
+
 const ctx: RunContext = { threadId: "task-a", runId: "run-a", epoch: 3 };
 const input: StartRun = { ...ctx, prompt: "Please inspect the granted file.", modelId: "openai/gpt-5.4", sessionPath: null, inputId: "input-001", resources: [] };
 const temporary: string[] = [];

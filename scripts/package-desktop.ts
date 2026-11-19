@@ -3,7 +3,7 @@ import {resolve,join,relative,dirname,isAbsolute} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {build,type Configuration} from 'electron-builder';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,stageRepositoryMapParser,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_ARCHIVE_EXTRACT_COMMAND,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
+import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,stageRepositoryMapParser,readDesktopOutputRoot,reserveDesktopRelease,reserveDesktopStage,REQUIRED_RUNTIME_FILES,NODE_ARCHIVE_EXTRACT_COMMAND,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
 import {collectHermesPayload,discoverHermesPython,stageHermesPayload,verifyHermesPayload,verifyRelocatedHermesPython} from './hermes-assets.ts';
 import {collectIntegrationPayload,stageIntegrationPayload,verifyIntegrationPayload,verifyRelocatedIntegrations} from './integration-assets.ts';
 import {collectGitTools,stageGitTools} from './git-assets.ts';
@@ -11,7 +11,7 @@ import {buildWindowsCredentialLease} from './build-windows-credential-lease.ts';
 import {buildWindowsControlBridge} from './build-windows-control-bridge.ts';
 
 if(process.platform!=='win32'||process.arch!=='x64')throw Error('This package target requires Windows x64');
-const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=resolve(dist,'desktop-stage-'+Date.now()),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
+const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=await reserveDesktopStage(dist),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
 const python=await discoverHermesPython(),hermes=await collectHermesPayload(root,python);
 const wheelDirectory=process.env.HARNESS_INTEGRATION_WHEELS;
 if(wheelDirectory!==undefined&&(!wheelDirectory||!isAbsolute(wheelDirectory)))throw Error('HARNESS_INTEGRATION_WHEELS must name an explicit absolute archive directory');

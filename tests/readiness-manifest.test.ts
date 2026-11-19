@@ -1,11 +1,11 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {existsSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {reserveDesktopRelease} from '../scripts/desktop-assets.ts';
 import {
   aggregateStatus,blockedResult,buildManifest,childEnvironment,detectBrowserPrerequisite,
-  redactSecrets,runCheck,windowsVerificationPlan,type CheckResult,type CheckSpec,
+  redactSecrets,runCheck,readinessPackageChecks,windowsVerificationPlan,type CheckResult,type CheckSpec,
 } from '../scripts/verify-readiness.ts';
 
 // Negative-case contract for scripts/verify-readiness.ts (WO-F01 spec step 5).
@@ -119,6 +119,24 @@ describe('runCheck child-process contract',()=>{
   });
 });
 
+describe('readiness package-manager launch',()=>{
+  it('runs through the JavaScript pnpm entry when PATH has only a Windows shim',async()=>{
+    const directory=temporaryDirectory(),installed=join(directory,'node_modules','pnpm');
+    mkdirSync(join(installed,'bin'),{recursive:true});
+    writeFileSync(join(directory,'package.json'),JSON.stringify({packageManager:'pnpm@10.30.3'}));
+    writeFileSync(join(directory,'pnpm.cmd'),'@exit /b 9');
+    writeFileSync(join(installed,'package.json'),JSON.stringify({name:'pnpm',version:'10.30.3'}));
+    writeFileSync(join(installed,'bin','pnpm.cjs'),'console.log(JSON.stringify(process.argv.slice(2)))');
+    vi.stubEnv('PATH',directory);
+    const run=readinessPackageChecks(directory);
+    const result=await run(specFor(directory,{command:'pnpm',args:['test:browser','--suite','root']}));
+    expect(result).toMatchObject({status:'PASS',command:process.execPath,
+      args:[join(installed,'bin','pnpm.cjs'),'test:browser','--suite','root']});
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('["test:browser","--suite","root"]');
+  });
+});
+
 describe('prerequisite gating',()=>{
   it('omitted browser prerequisites yield BLOCKED without running the suite',()=>{
     const directory=temporaryDirectory();
@@ -140,7 +158,7 @@ describe('prerequisite gating',()=>{
   });
 
   it('packaged Windows verification is BLOCKED off Windows and records the exact Windows commands',()=>{
-    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory());
+    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(true);
     expect(plan.errorKind).toBe('platform-unavailable');
     const serialized=JSON.stringify(plan.commands);
@@ -157,7 +175,7 @@ describe('prerequisite gating',()=>{
     const runA=join(temporaryDirectory(),'release output');
     const runB=join(temporaryDirectory(),'release output');
     for(const outputRoot of [runA,runB]){
-      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot);
+      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot,'x64');
       expect(plan.commands[0]?.args).toEqual(['desktop:package','--output-root',outputRoot]);
       const release=await reserveDesktopRelease(plan.commands[0]!.args[2]!,'0.6.5');
       expect(plan.commands[1]?.args.slice(-2)).toEqual([
@@ -166,8 +184,13 @@ describe('prerequisite gating',()=>{
     }
   });
 
+  it.each(['arm64','ia32'])('blocks unsupported Windows %s before packaging',arch=>{
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),arch);
+    expect(plan).toMatchObject({blocked:true,errorKind:'platform-unavailable'});
+    expect(plan.commands).toHaveLength(2);
+  });
   it('packaged Windows verification is runnable on Windows x64',()=>{
-    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory());
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(false);
     expect(plan.errorKind).toBeNull();
     expect(plan.commands.length).toBe(2);

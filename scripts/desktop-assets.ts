@@ -1,6 +1,6 @@
 import {publicRuntimeSourceAllowed} from './public-source.ts';
 import {createHash} from 'node:crypto';
-import {mkdir,lstat,readFile,writeFile,copyFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,lstat,readFile,writeFile,copyFile} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 
 export function readDesktopOutputRoot(args:string[]):string{
@@ -15,6 +15,10 @@ export async function reserveDesktopRelease(outputRoot:string,version:string):Pr
  await mkdir(resolve(outputRoot),{recursive:true});
  try{await mkdir(release);}catch(error){if((error as NodeJS.ErrnoException).code==='EEXIST')throw Error('The desktop release destination already exists. Choose another --output-root; existing releases are never overwritten.');throw error;}
  return release;
+}
+
+export async function reserveDesktopStage(outputRoot:string,timestamp=Date.now()):Promise<string>{
+ return mkdtemp(resolve(outputRoot,'desktop-stage-'+timestamp+'-'));
 }
 
 export const NODE_ARCHIVE_EXTRACT_COMMAND=[
