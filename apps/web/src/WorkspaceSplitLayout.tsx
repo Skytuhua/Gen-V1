@@ -40,7 +40,10 @@ const defaultTitle=(view:SurfaceRef)=>view.kind==='thread'?'Conversation':view.k
 
 function keepFloatVisible(rect:ChatRect,viewport:ChatViewport):ChatRect{
  if(viewport.width<=0||viewport.height<=0)return rect;const bounds=chatBounds(viewport);
- return rect.x>=bounds.left&&rect.y>=bounds.top&&rect.x+rect.width<=bounds.right&&rect.y+rect.height<=bounds.bottom?rect:clampChatRect(rect,viewport);
+ // Keep rects a move drag could admit (64px slack on edge-filling floats); only project placements beyond that.
+ const slack=64,sx=rect.width>=bounds.right-bounds.left?slack:0,sy=rect.height>=bounds.bottom-bounds.top?slack:0;
+ const minX=Math.min(bounds.left,bounds.right-rect.width),maxX=Math.max(bounds.left,bounds.right-rect.width),minY=Math.min(bounds.top,bounds.bottom-rect.height),maxY=Math.max(bounds.top,bounds.bottom-rect.height);
+ return rect.x>=minX-sx&&rect.x<=maxX&&rect.y>=minY&&rect.y<=maxY+sy?rect:clampChatRect(rect,viewport);
 }
 
 /** View bodies keep one stable DOM parent; layout changes only reposition their slots. */
