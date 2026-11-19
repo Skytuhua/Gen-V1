@@ -108,6 +108,17 @@ describe('progress and report watermark', () => {
     const none = f.extensions.progress(planId, {});
     expect(none).toEqual({completed: 0, total: 4, pending: 4, unknown: 0});
   });
+  it('does not calculate current progress with weights pinned to an older plan', () => {
+    const f = fixture();
+    const {planId} = f.extensions.put(f.extension());
+    f.store.internal('plan.changed', f.threadId, () => f.store.put('data', planId, f.threadId, {
+      id: planId, threadId: f.threadId, revision: 2,
+      value: {...f.record, steps: [...f.record.steps, step('new-step')]},
+      provenance: PLANNING_PROVENANCE, createdAt: 'now',
+    }));
+    expect(() => f.extensions.progress(planId, {ag1: 'completed', s2: 'completed', s3: 'completed', 'new-step': 'pending'}))
+      .toThrowError(expect.objectContaining({code: 'STALE_PLAN_REVISION'}));
+  });
   it('node weight conservation holds across a tree of descendants', () => {
     const f = fixture();
     const tree = f.extension({
