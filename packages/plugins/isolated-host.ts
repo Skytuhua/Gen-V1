@@ -449,10 +449,11 @@ export class IsolatedExtensionHost{
   const manifest=pluginManifestV2Schema.parse(next.manifest);
   if(manifest.pluginId!==record.manifest.pluginId)throw new HarnessError('INVALID_INPUT','The updated manifest does not match the installed plug-in.');
   if(next.requiresMigration){
-   // An update needing migration without the complete pre-existing approved
-   // contract is a blocked update: old package and data stay untouched.
-   const decision=evaluateMigrationPlan(record.manifest,manifest,next.migrationPlan);
-   if(decision.status!=='READY')return{status:'MIGRATION_PLAN_REQUIRED'};
+   // Fail closed: no verified migration execution/validation path exists on
+   // this host, so a migration-needing update stays blocked even when the
+   // supplied contract is complete. Old package and data stay untouched; the
+   // contract is only ever validated here, never executed.
+   return{status:'MIGRATION_PLAN_REQUIRED'};
   }
   const gate=this.admission();if(!gate.ok){record.blocked=gate.hold;return{status:'BLOCKED',reason:gate.hold};}
   const stopped=await this.stop(record);
@@ -467,6 +468,8 @@ export class IsolatedExtensionHost{
  get droppedStaleReplies():number{let count=0;for(const record of this.records.values())count+=record.session?.staleReplies??0;return count;}
 
  catalog(trusted:readonly PluginManifest[]=[]):ExtensionViewV1[]{
+  // Flag off: the Extensions surface contributes nothing, trusted rows included.
+  if(!this.options.enabled())return[];
   const rows:ExtensionViewV1[]=trusted.map(manifest=>({pluginId:manifest.id,name:manifest.name,version:manifest.version,hostKind:'trusted' as const,state:'ACTIVE' as const}));
   for(const record of this.records.values()){
    rows.push({pluginId:record.manifest.pluginId,name:record.manifest.pluginId,version:record.manifest.version,hostKind:'isolated',state:record.lease?.state??'STOPPED',packageDigest:record.manifest.packageDigest,...(record.lease?{generation:record.lease.generation}:{}),declaredCapabilities:[...record.manifest.declaredCapabilities],dataScope:record.manifest.dataNamespace,...(record.blocked?{updateBlocked:record.blocked}:{}),retainedData:record.retainedData});

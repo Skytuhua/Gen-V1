@@ -598,3 +598,21 @@ Merged-cut validation (receipts `*-81154b2c`, canonical
 Merge stays LOCAL — Windows run 44424565994 retains its original cut; no
 push, no dispatch while it is active. `d249c566` receipts and redacted
 evidence retained under their real tested cuts.
+
+## Post-merge guard follow-up (#838 review, draft)
+
+Corrected: the Extensions catalog contributes no rows (trusted included)
+while `plugins.isolatedV1` is off; a migration-needing update and its
+preview stay `MIGRATION_PLAN_REQUIRED` even with a complete contract, because
+no verified migration execution/validation path exists. Focused synthetic
+tests only; no worker run beyond the existing suites, no flag, deployment or
+backend-binding change.
+
+Release-only holds (reviewed statically, not changed here):
+- HOLD-LIFECYCLE-START-STOP: `stop()` during STARTING has no session to
+  drain, so the lease can read STOPPED while a launch is still in flight; the
+  late transport is shut down on handshake, but a launch-in-flight tracker is
+  needed before release.
+- HOLD-ADVERTISED-OPS: registrations derive from the manifest, not the
+  intersection with the worker's advertised `ready.operations`.
+- HOLD-BACKEND-LAUNCH-BINDING: unchanged (DEP-M13-BACKEND-01).

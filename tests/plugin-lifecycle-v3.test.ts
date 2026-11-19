@@ -156,7 +156,7 @@ describe('M13 leased lifecycle',()=>{
   await host.close();
  });
  it('blocks a migration-needing update without a complete approved plan',async()=>{
-  const {host,manifest:current}=fixture();
+  const {host,transports,manifest:current}=fixture();
   await host.activate('sample-ext');
   const next=manifest({version:'2.0.0'});
   expect(await host.update('sample-ext',{manifest:next,packageDir:'/p',dataDir:'/d',requiresMigration:true})).toEqual({status:'MIGRATION_PLAN_REQUIRED'});
@@ -167,7 +167,13 @@ describe('M13 leased lifecycle',()=>{
   expect(host.record('sample-ext')?.lease?.state).toBe('ACTIVE');
   const preview=updatePreview(current,next,true);
   expect(preview.blocked).toBe('MIGRATION_PLAN_REQUIRED');
-  expect(updatePreview(current,next,true,plan()).blocked).toBeNull();
+  // A complete, matching contract is still blocked: no verified migration
+  // execution/validation path exists, so nothing may proceed or drain.
+  expect(updatePreview(current,next,true,plan()).blocked).toBe('MIGRATION_PLAN_REQUIRED');
+  expect(await host.update('sample-ext',{manifest:next,packageDir:'/p',dataDir:'/d',requiresMigration:true,migrationPlan:plan()})).toEqual({status:'MIGRATION_PLAN_REQUIRED'});
+  expect(host.record('sample-ext')?.lease?.state).toBe('ACTIVE');
+  expect(host.record('sample-ext')?.manifest.version).toBe('1.0.0');
+  expect(transports).toHaveLength(1);
   await host.close();
  });
  it('leaves the previous package and namespace intact when the new generation fails',async()=>{
@@ -213,13 +219,19 @@ describe('M13 leased lifecycle',()=>{
   await pending;
  });
  it('catalog merges trusted and isolated rows with state, digest and block reason',async()=>{
-  const {host}=fixture({enabled:false});
+  const {host}=fixture({backendId:null});
   await host.activate('sample-ext').catch(()=>{});
   const trusted=[{id:'trusted-ext',name:'Trusted',version:'1.0.0',apiVersion:1 as const,compatibleGenVersions:'>=0.6.0',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'}];
   const rows=host.catalog(trusted);
   expect(rows).toEqual(expect.arrayContaining([
    expect.objectContaining({pluginId:'trusted-ext',hostKind:'trusted',state:'ACTIVE'}),
-   expect.objectContaining({pluginId:'sample-ext',hostKind:'isolated',state:'STOPPED',updateBlocked:'ACTIVATION_DISABLED',retainedData:true,packageDigest:hash('package')}),
+   expect.objectContaining({pluginId:'sample-ext',hostKind:'isolated',state:'STOPPED',updateBlocked:'HOLD_BACKEND_SELECTION',retainedData:true,packageDigest:hash('package')}),
   ]));
+ });
+ it('contributes no rows, trusted included, while the isolated flag is off',async()=>{
+  const {host}=fixture({enabled:false});
+  await host.activate('sample-ext').catch(()=>{});
+  const trusted=[{id:'trusted-ext',name:'Trusted',version:'1.0.0',apiVersion:1 as const,compatibleGenVersions:'>=0.6.0',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'}];
+  expect(host.catalog(trusted)).toEqual([]);
  });
 });
