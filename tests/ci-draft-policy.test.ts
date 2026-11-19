@@ -67,6 +67,7 @@ it('does not let a successful visuals package build mask a failed typecheck',()=
   expect(typecheck).toBeDefined();
   expect(build).toBeDefined();
   expect(typecheck).not.toBe(build);
+  expect(typecheck).not.toMatch(/^        (?:if|continue-on-error):/m);
   expect(build).not.toMatch(/^        (?:if|continue-on-error):/m);
 });
 
