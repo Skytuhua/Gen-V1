@@ -26,6 +26,8 @@
 #define NOMINMAX
 #define UNICODE
 #include <windows.h>
+#include <delayimp.h>
+#include <string.h>
 #include <windows.graphics.capture.interop.h>
 #include <windows.graphics.directx.direct3d11.interop.h>
 #include <node_api.h>
@@ -53,6 +55,18 @@
 #include <atomic>
 #include <mutex>
 #include <condition_variable>
+
+// The addon is linked /DELAYLOAD:node.exe so its node imports bind to the
+// host executable at load time: inside Electron there is no node.exe to
+// resolve, and a plain node.lib import table aborts the host on require().
+// Same mechanism node-gyp injects as win_delay_load_hook.cc.
+static FARPROC WINAPI delayLoadNodeExe(unsigned int dliNotify,PDelayLoadInfo info){
+ if(dliNotify!=dliNotePreLoadLibrary)return NULL;
+ if(_stricmp(info->szDll,"node.exe")!=0)return NULL;
+ return (FARPROC)GetModuleHandle(NULL);
+}
+extern "C" PfnDliHook __pfnDliNotifyHook2=delayLoadNodeExe;
+extern "C" PfnDliHook __pfnDliFailureHook2=delayLoadNodeExe;
 
 namespace {
 namespace wgc = winrt::Windows::Graphics::Capture;

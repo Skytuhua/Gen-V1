@@ -141,6 +141,49 @@ shows `Gen-V1-Setup-*-win-x64.exe` + `win-unpacked` produced, packaging stays
 blocked upstream of every M16 installed gate. Publication/dispatch of this
 cut is the manager's call as a separate explicit source cut.
 
+### 3a-i. Compile/packaging proven on 50a342d2; installed main-process abort identified and repaired
+
+Run `44426869497` (@`50a342d2`, job `135233864834`, artifact `14488226796`)
+on windows-latest:
+
+- **PASS — C++20 compile/link**: `windows-control-bridge.cc` compiled and
+  linked clean under `/std:c++20` (lib+exp created); the script's clean-PATH
+  `require`/`pickWindow` load check passed (packaging proceeded).
+- **PASS — packaging**: `win-unpacked` + `Gen-V1-Setup-0.6.5-win-x64.exe`
+  produced; `payloadCustody` matched exactly (92955 files / 2.578 GB,
+  sha256 `3fecb18…`); provider verification passed; identity-bound
+  uninstall + cache removal clean.
+- **FAIL — installed startup**: the installed app reached `backend-ready`
+  at 28.567s, then the **Electron main process terminated** ~250ms later
+  with code `0xFFFF7003` (crashpad `kTerminationCodeNotConnectedToHandler`
+  = fatal abort, not a graceful quit): `failure: process-exit`,
+  `firstFailure: null`, no `startup-failed` diagnostic.
+
+Root cause (source-bound, M16-owned): `attachControlBridge`
+(`apps/desktop/main.ts:327`) runs on every backend attach and calls
+`loadWindowsWindowBridge` → `require('./windows-control-bridge.node')`
+unconditionally (`control-bridge.ts:410`). The shipped addon was linked
+against plain `node.lib` with **normal PE imports of `node.exe`** — inside
+Electron there is no `node.exe`, so the loader aborts the process (the
+documented node.lib/Electron import failure mode). The `try/catch` cannot
+observe a native abort. `windows-credential-lease.node` is unaffected — it
+is required only backend-side in the node child, where `node.lib` linking
+is correct.
+
+Repair applied (this cut): the addon now links `/DELAYLOAD:node.exe` +
+`delayimp.lib`, and `windows-control-bridge.cc` carries the standard
+delay-load hook (`__pfnDliNotifyHook2`/`__pfnDliFailureHook2` →
+`GetModuleHandle(NULL)` for `node.exe`) — the same mechanism node-gyp
+injects as `win_delay_load_hook.cc`. Under `node.exe` the hook resolves to
+itself; under Electron it resolves the host executable, so `require` either
+succeeds or throws cleanly into the designed `return null` fail-closed path.
+Not provable on Linux: needs a hosted Windows run to show the installed app
+surviving attach and reaching `harness.ready`.
+
+An unrelated `Tests (shard 4/4)` `view-loading-state` fixture failure also
+appears in run `44426869497` — separate file, separate owner surface, not
+an M16 gate.
+
 ## 4. Missing host prerequisites for live proof
 
 Recorded honestly — proof is NOT obtained here:

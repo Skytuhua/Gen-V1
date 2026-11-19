@@ -33,8 +33,11 @@ export async function buildWindowsControlBridge(outputDirectory = join(root, 'pa
   await writeFile(response, [
     '/nologo', '/LD', '/EHsc', '/std:c++20', '/O2', '/MT', '/DNAPI_VERSION=8', '/DNODE_GYP_MODULE_NAME=windows_control_bridge',
     `/I"${include}"`, `"${source}"`, `"${library}"`,
-    'windowsapp.lib', 'd3d11.lib', 'dxgi.lib', 'ole32.lib', 'dwmapi.lib', 'user32.lib',
-    '/link', `/OUT:"${output}"`,
+    'windowsapp.lib', 'd3d11.lib', 'dxgi.lib', 'ole32.lib', 'dwmapi.lib', 'user32.lib', 'delayimp.lib',
+    // The addon loads inside Electron's main process: delay-load node.exe so the
+    // delay hook resolves its imports from the host executable (a plain node.lib
+    // import table aborts the host on require).
+    '/link', '/DELAYLOAD:node.exe', `/OUT:"${output}"`,
   ].join(' '));
   run(join(process.env.SystemRoot ?? 'C:\\Windows', 'System32/cmd.exe'), ['/d', '/s', '/c', `call "${setup}" -arch=x64 >nul && cl.exe @"${response}"`], cache, { ...process.env, PATH: dirname(vswhere) + ';' + process.env.PATH });
   // Developer PATH must not hide unstaged native DLL dependencies.
