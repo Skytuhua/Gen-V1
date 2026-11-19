@@ -6,7 +6,7 @@
 // real corepack executable (or a resolved JS entry under process.execPath).
 import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
+import { accessSync, constants, existsSync, readFileSync, realpathSync, statSync } from 'node:fs';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { delimiter, dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -36,7 +36,16 @@ export function resolveExecutable(name: string): ResolvedExecutable {
   for (const dir of (process.env.PATH ?? process.env.Path ?? '').split(delimiter).filter(Boolean)) {
     for (const candidate of [name, `${name}.exe`, `${name}.com`]) {
       const target = join(dir, candidate);
-      if (existsSync(target) && statSync(target).isFile()) return { file: target, identity: realpathSync(target) };
+      if (!existsSync(target) || !statSync(target).isFile()) continue;
+      if (process.platform !== 'win32') {
+        try { accessSync(target, constants.X_OK); }
+        catch (error) {
+          const code = (error as NodeJS.ErrnoException).code;
+          if (code === 'EACCES' || code === 'ENOENT' || code === 'ENOTDIR') continue;
+          throw error;
+        }
+      }
+      return { file: target, identity: realpathSync(target) };
     }
   }
   throw new HarnessError('SPAWN_ERROR', `Executable is not on PATH: ${name}`);

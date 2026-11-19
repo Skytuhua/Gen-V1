@@ -3,7 +3,7 @@ import { execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
 import { chmodSync, constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { delimiter, join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
 import { createCapabilityFlags, CapabilityFlags } from '../packages/core/capability-flags.ts';
 import {
@@ -137,6 +137,19 @@ describe('executable resolution', () => {
     const node = resolveExecutable('node');
     expect(node.identity.toLowerCase()).toContain('node');
     expect(() => resolveExecutable('definitely-missing-m01')).toThrow(/not on PATH|missing/);
+  });
+
+  it.skipIf(process.platform === 'win32')('searches past a non-executable PATH entry', async () => {
+    const earlier = dir('nonexec');
+    const later = dir('valid-bin');
+    const name = 'audit-fixture-command';
+    writeFileSync(join(earlier, name), 'not executable', { mode: 0o644 });
+    writeFileSync(join(later, name), '#!/bin/sh\nprintf working', { mode: 0o755 });
+    vi.stubEnv('PATH', [earlier, later].join(delimiter));
+    try {
+      const result = await runRecordedCommand(name, [], { cwd: process.cwd() });
+      expect(result).toMatchObject({ termination: 'NONE', exitCode: 0, stdout: 'working' });
+    } finally { vi.unstubAllEnvs(); }
   });
 
   it('resolves the declared pnpm through the corepack executable', () => {
