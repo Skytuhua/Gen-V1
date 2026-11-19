@@ -5,7 +5,7 @@
 // they index maps and join paths; they are never shell fragments.
 import { execFileSync } from 'node:child_process';
 import { readdirSync } from 'node:fs';
-import { join, resolve, sep } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface SourceChange { path: string; status: 'A' | 'M' | 'D' | 'R' | 'C'; previousPath?: string }
@@ -19,8 +19,9 @@ export interface SelectionResult {
 
 // Test file names must stay plain repository-relative data. Anything else is
 // rejected outright so a hostile name can never reach a command line.
-const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/;
-const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
+// Match the extensions explicitly admitted by vitest.config.ts.
+const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.(?:[jt]sx?|[cm][jt]s)$/;
+const TEST_FILE = /\.test\.(?:[jt]sx?|[cm][jt]s)$/;
 const DOC_ONLY = /^(?:docs\/|.*\.md$|.*\.mdx$|CHANGELOG\.md$|LICENSE$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$)/i;
 
 export const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
@@ -49,8 +50,12 @@ function normalizedRepoPath(path: string): string | null {
 }
 
 export function discoverTestFiles(testDir: string): string[] {
-  return readdirSync(testDir, { recursive: true }).map(String).map(path => path.replaceAll(sep, '/'))
-    .filter(path => /\.test\.[cm]?[jt]sx?$/.test(path));
+  return readdirSync(testDir, { recursive: true, withFileTypes: true })
+    // Directory names can end in a test suffix; only files are tests.
+    .filter(entry => !entry.isDirectory())
+    .map(entry => relative(testDir, join(entry.parentPath, entry.name)).replaceAll(sep, '/'))
+    // This package fixture is run by node --test, not by the Vitest config.
+    .filter(path => TEST_FILE.test(path) && path !== 'plugin-api-package.test.mjs');
 }
 
 export function selectRegressionTests(changes: readonly SourceChange[], existingTests: readonly string[], mapping: Record<string, string[]> = DEFAULT_SOURCE_TEST_MAP): SelectionResult {
@@ -111,6 +116,10 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     selectFor(path);
   }
   if (forcedFull) {
+    if (existing.size === 0) {
+      issues.push({ path: '', code: 'EMPTY_SELECTION', message: 'The full-suite fallback has no test files' });
+      return { tests: [], coverage: 'NONE', needsReview: true, issues };
+    }
     return { tests: [...existing].sort(), coverage: 'FULL', needsReview: true, issues };
   }
   const tests = [...selected].sort();
@@ -122,7 +131,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
 }
 
 export function changedSources(root: string, baseRef: string): SourceChange[] {
-  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-z', '-M', `${baseRef}...HEAD`], { encoding: 'utf8', windowsHide: true });
+  const out = execFileSync('git', ['-C', root, 'diff', '--name-status', '-z', '-M', `${baseRef}...HEAD`, '--'], { encoding: 'utf8', windowsHide: true });
   const changes: SourceChange[] = [];
   // NUL framing preserves the original filenames instead of Git's quoted display form.
   const fields = out.split('\0');

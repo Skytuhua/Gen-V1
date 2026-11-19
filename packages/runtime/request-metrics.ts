@@ -48,12 +48,12 @@ export class RequestMetrics {
     this.timings.queued = queuedAt;
   }
 
-  private elapsed(): number {
-    return Math.max(0, this.now() - this.start);
+  private elapsed(observedAt = this.now()): number {
+    return Math.max(0, observedAt - this.start);
   }
 
-  /** Mark a stage; first write wins so a repeated signal cannot backdate it. */
-  mark(stage: ModelRequestStage): number | null {
+  /** Mark a stage at its observed time on this clock; the first write wins. */
+  mark(stage: ModelRequestStage, observedAt?: number): number | null {
     if (!STAGE_SET.has(stage)) return null;
     // A buffered transport publishes after teardown is confirmed: the
     // observation is already finished when the response is actually sent, so
@@ -61,12 +61,12 @@ export class RequestMetrics {
     if (this.done) {
       if (stage !== 'firstPublicDelta') return null;
       if (this.timings.firstPublicDelta === null) {
-        this.timings.firstPublicDelta = this.elapsed();
+        this.timings.firstPublicDelta = this.elapsed(observedAt);
         if (this.snapshot) this.snapshot.timings.firstPublicDelta = this.timings.firstPublicDelta;
       }
       return this.timings.firstPublicDelta;
     }
-    if (this.timings[stage] === null) this.timings[stage] = this.elapsed();
+    if (this.timings[stage] === null) this.timings[stage] = this.elapsed(observedAt);
     return this.timings[stage];
   }
 

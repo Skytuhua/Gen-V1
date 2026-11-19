@@ -1,8 +1,9 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach,vi} from 'vitest';
-import {mkdtempSync,rmSync,writeFileSync,lstatSync} from 'node:fs';
+import {rmSync,writeFileSync,lstatSync} from 'node:fs';
 import {crc32,deflateSync} from 'node:zlib';
 import {VerificationArtifactStore,attestVerificationArtifacts} from '../packages/core/verification-artifacts';
-import {tmpdir} from 'node:os';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {runBrowserChecklist,type BrowserDriver,type BrowserSession,type BrowserPage} from '../packages/core/browser-verification';
@@ -14,12 +15,9 @@ import {hostFlagEnabled} from '../packages/core/host-flags';
 import {HarnessError} from '../packages/contracts/index';
 const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
-
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{vi.useRealTimers();for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{vi.useRealTimers();for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 const owner:ToolOwner={threadId:'t1',runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null};
 

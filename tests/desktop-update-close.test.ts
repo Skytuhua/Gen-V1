@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {createRequire} from 'node:module';
 import {EventEmitter} from 'node:events';
 import {expect,it,vi} from 'vitest';
@@ -5,7 +6,6 @@ import {createDesktopUpdater,type UpdateCloseProof} from '../apps/desktop/update
 
 const semver=createRequire(import.meta.url)('semver') as {valid(value:string):string|null;prerelease(value:string):unknown[]|null;gt(left:string,right:string):boolean};
 const clean:UpdateCloseProof={activeWorkAtClose:false,osSessionEnding:false,savedStateFlushed:true,backendStoppedCleanly:true};
-function deferred<T>(){let resolve!:(value:T)=>void;const promise=new Promise<T>(yes=>{resolve=yes;});return {promise,resolve};}
 class Updater extends EventEmitter {
  channel:string|null=null;allowPrerelease=true;allowDowngrade=true;autoDownload=true;autoInstallOnAppQuit=true;installs:{silent?:boolean;restart?:boolean}[]=[];
  async checkForUpdates(){return {isUpdateAvailable:true,updateInfo:{version:'0.7.0'}};}

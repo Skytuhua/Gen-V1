@@ -1,0 +1,25 @@
+# Curated receipt summary — pnpm-test-browser-d249c566
+
+command: pnpm test:browser
+startedAt: 2026-11-18T11:53:29.199Z
+endedAt: 2026-11-18T18:18:32.541Z
+exitCode: 1
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 2baaaeb43c0f03b3156c94ab1e79a9839a929fdd08eed793784eb06cb661fd0a, 131098 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Outcome: FAIL — 14 failed / 10 passed. Every failure is in sibling-milestone spec
+tests/e2e/wo8.spec.ts (numeric metric/surface-metric rendering timeouts); zero M13 files.
+
+Failure census (spec names only, repo-relative):
+
+```
+tests/e2e/wo8.spec.ts — 14 failures:
+  thread diff dark 1440; thread diff light 1024
+  inline numeric table preserves full numbers (dark, light)
+  long metric values stay visible (dark+light × 1440/1024/768)
+  numeric precision survives metric and table rendering (dark, light)
+  numeric metric grid contains every value and unit (dark, light)
+```

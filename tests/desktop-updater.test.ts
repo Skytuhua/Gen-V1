@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {createRequire} from 'node:module';
 import {EventEmitter} from 'node:events';
 import {afterEach,expect,it,vi} from 'vitest';
@@ -5,7 +6,6 @@ import {createDesktopUpdater,type UpdateStatus} from '../apps/desktop/updater.ts
 
 const semver=createRequire(import.meta.url)('semver') as {valid(value:string):string|null;prerelease(value:string):unknown[]|null;gt(left:string,right:string):boolean};
 const isStableNewerVersion=(candidate:string,current:string)=>Boolean(semver.valid(candidate)&&!semver.prerelease(candidate)&&semver.gt(candidate,current));
-function deferred<T>(){let resolve!:(value:T)=>void,reject!:(error:Error)=>void;const promise=new Promise<T>((yes,no)=>{resolve=yes;reject=no;});return {promise,resolve,reject};}
 class FakeUpdater extends EventEmitter {
  channel:string|null=null;allowPrerelease=true;allowDowngrade=true;autoDownload=true;autoInstallOnAppQuit=true;
  checks=0;downloads=0;installs:{silent?:boolean;restart?:boolean}[]=[];

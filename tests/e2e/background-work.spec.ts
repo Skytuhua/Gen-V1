@@ -170,3 +170,52 @@ test('cancel is offered only for live work and records the owned stop', async ({
   await expect.poll(() => calls(page)).toContainEqual({ type: 'cancel', id: 'w-queued' });
   await expect(card(page, 'w-queued').locator('.background-outcome')).toHaveText('Cancelled');
 });
+
+const actedOn = (page: Page) => page.evaluate(() => {
+  const element = document.activeElement as HTMLElement | null;
+  return element?.closest('.background-card')?.getAttribute('data-work-id')
+    ?? element?.closest('.background-schedule')?.getAttribute('data-wakeup-id')
+    ?? element?.closest('.background-intake')?.getAttribute('aria-label')
+    ?? element?.tagName ?? null;
+});
+
+test('keyboard actions keep focus in the acted-on unit and the output disclosure names its region', async ({ page }) => {
+  const { requests, errors } = await fixture(page);
+  const human = card(page, 'w-human');
+  await human.getByLabel('Answer').fill('proceed carefully');
+  await human.getByRole('button', { name: 'Respond' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(human.locator('.background-human')).toHaveCount(0);
+  await expect.poll(() => actedOn(page)).toBe('w-human');
+
+  await card(page, 'w-running').getByRole('button', { name: 'Cancel' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(card(page, 'w-running').getByRole('button', { name: 'Cancel' })).toHaveCount(0);
+  await expect.poll(() => actedOn(page)).toBe('w-running');
+
+  const row = page.locator('.background-schedule[data-wakeup-id="s-interval"]');
+  await row.getByRole('button', { name: 'Pause' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(row.getByRole('button', { name: 'Resume' })).toBeVisible();
+  await expect.poll(() => actedOn(page)).toBe('s-interval');
+
+  const proposed = page.locator('[data-intake-id="i-proposed"]');
+  await proposed.getByRole('combobox', { name: 'Approval model' }).focus();
+  await page.keyboard.press('Enter');
+  await page.keyboard.press('ArrowDown');
+  await page.keyboard.press('Enter');
+  await proposed.getByRole('button', { name: 'Approve' }).focus();
+  await page.keyboard.press('Enter');
+  await expect(page.locator('[data-intake-list="approved"]')).toContainText('Repair the export path');
+  await expect.poll(() => actedOn(page)).toBe('External task inbox');
+
+  const queued = card(page, 'w-queued'), toggle = queued.getByRole('button', { name: 'Output', exact: true });
+  await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  const region = queued.getByRole('region', { name: 'Output for Nightly verification' });
+  await expect(region).toBeVisible();
+  await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+  expect(await region.getAttribute('id')).toBe(await toggle.getAttribute('aria-controls'));
+  expect(requests).toEqual([]); expect(errors).toEqual([]);
+});

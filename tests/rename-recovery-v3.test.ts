@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,writeFileSync,readFileSync,readdirSync,rmSync,existsSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {writeFileSync,readFileSync,readdirSync,existsSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {pathToFileURL} from 'node:url';
@@ -8,10 +9,8 @@ import {CodeIntelligence,type LanguageServerAdapter,type LspWorkspaceEdit} from 
 import {renamePlanV1Schema} from '../packages/contracts/code-intelligence.ts';
 
 const sha=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
 const disposables:{dispose():Promise<void>}[]=[];
-afterEach(async()=>{for(const d of disposables.splice(0))await d.dispose();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(async()=>{for(const d of disposables.splice(0))await d.dispose();cleanTempDirs();});
 
 const descriptor={language:'typescript',executable:'/approved/tsserver',argv:['--stdio'],configDigest:'a'.repeat(64)};
 

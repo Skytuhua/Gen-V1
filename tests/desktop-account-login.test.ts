@@ -1,7 +1,7 @@
+import {deferred} from './fixtures/deferred.ts';
 import { expect, it, vi } from 'vitest';
 import { createAccountLoginFlows } from '../apps/desktop/account-login.ts';
 
-function deferred() { let resolve!: () => void, reject!: (e: Error) => void; const promise = new Promise<void>((yes, no) => { resolve = yes; reject = no; }); return { promise, resolve, reject }; }
 it('recovers only the active owner as defensive metadata, including blocked cleanup', async () => {
   const completion = deferred(), flows = createAccountLoginFlows(async () => ({ completion: completion.promise, cancel: async () => {} }));
   expect(flows.current()).toBeNull();

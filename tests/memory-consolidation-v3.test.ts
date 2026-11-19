@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createHash } from 'node:crypto';
 import { mkdtempSync, rmSync } from 'node:fs';
@@ -29,7 +30,6 @@ function item(id = 'utc', revision = 1, text = 'Use UTC for exported timestamps.
 function tombstone(id = 'utc'): MemoryTombstoneV1 {
   return { itemId: id, deletionRevision: 2, projectIdentity: access.projectIdentity, deletedAt: stamp, sourceExclusions: [source().ref], affectedDerivedArtifacts: [], purgeStatus: 'PENDING' };
 }
-function deferred<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>(done => { resolve = done; }); return { promise, resolve }; }
 function fixture() {
   const directory = mkdtempSync(join(tmpdir(), 'm05-consolidation-')), store = new Store(directory);
   cleanups.push(() => { if (store.db.isOpen) store.close(); rmSync(directory, { recursive: true, force: true }); });

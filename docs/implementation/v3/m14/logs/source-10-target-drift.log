@@ -1,0 +1,13 @@
+== bounded redacted evidence summary ==
+originalSha256: be3cf17ad4d04eb521b635a5a27712060a74ad22ce69d11d21ed3dc227785abb
+originalBytes: 2244
+flags: machinePath=False ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+                 raise PermissionError("Skill is disabled or protected by the host")
+             if name == "skill_manage":
+     cwd: dirname(manifest.path), env: officialRuntimeEnvironment(dataDir, 'claude-code'), stdio: ['ignore', 'pipe', 'ignore'], detached: process.platform !== 'win32', windowsHide: true,
+     const failed = () => reject(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Claude history connection closed unexpectedly. Input delivery remains unresolved.'));
+     child.on('error', failed); child.stdout?.on('error', failed);
+     child.once('close', code => code === 0 ? resolve() : reject(new Error('Official Claude Code history could not be read. Inputs with uncertain delivery remain unresolved.')));

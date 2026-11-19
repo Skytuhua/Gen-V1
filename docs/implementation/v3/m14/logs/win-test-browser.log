@@ -1,0 +1,148 @@
+== bounded redacted evidence summary ==
+originalSha256: 8e7605411db96eaa3159cd9555d5791ed666c391c211d888757a4de102a56665
+originalBytes: 190000
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+    Error: locator.click: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-layout--371fd-knowns-never-appear-as-zero\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-layout--371fd-knowns-never-appear-as-zero\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-layout--371fd-knowns-never-appear-as-zero\trace.zip
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-artifac-4c9fa-et-mount-and-unsaved-editor\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-artifac-4c9fa-et-mount-and-unsaved-editor\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-artifac-4c9fa-et-mount-and-unsaved-editor\trace.zip
+  10) tests\e2e\frontend.spec.ts:1153:1 › workspace files, diffs and executor output show actual scoped snapshot evidence
+    Error: locator.click: Test timeout of 30000ms exceeded.
+      338 |   await expect(panel.getByText('Scoped fixture contents', { exact: true })).toBeVisible();
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-files-d-6384b-al-scoped-snapshot-evidence\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-files-d-6384b-al-scoped-snapshot-evidence\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-workspace-files-d-6384b-al-scoped-snapshot-evidence\trace.zip
+    Error: locator.focus: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-reported-context--69bfb-red-and-keyboard-accessible\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-reported-context--69bfb-red-and-keyboard-accessible\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-reported-context--69bfb-red-and-keyboard-accessible\trace.zip
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+      460 |   const input = kind === 'widget' ? page.frameLocator('iframe.widget-frame').getByRole('textbox', { name: 'Widget note' }) : page.getByRole('textbox', { name: 'Review name' });
+      462 |   const activity = page.locator('details.activity'), summary = activity.locator('summary');
+      463 |   await expect(activity).toHaveCount(1);
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-43c2e-ing-the-structured-artifact\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-43c2e-ing-the-structured-artifact\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-43c2e-ing-the-structured-artifact\trace.zip
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+      460 |   const input = kind === 'widget' ? page.frameLocator('iframe.widget-frame').getByRole('textbox', { name: 'Widget note' }) : page.getByRole('textbox', { name: 'Review name' });
+      462 |   const activity = page.locator('details.activity'), summary = activity.locator('summary');
+      463 |   await expect(activity).toHaveCount(1);
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-3384e-ounting-the-widget-artifact\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-3384e-ounting-the-widget-artifact\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-gro-3384e-ounting-the-widget-artifact\trace.zip
+    Error: expect(locator).toHaveCount(expected) failed
+    Locator:  locator('details.activity > summary')
+    Expected: 4
+      - Expect "toHaveCount" with timeout 5000ms
+      - waiting for locator('details.activity > summary')
+        9 × locator resolved to 0 elements
+          - unexpected value "0"
+      512 |   const summaries = page.locator('details.activity > summary');
+    > 513 |   await expect(summaries).toHaveCount(4);
+      516 |     'Work activity · 1 update · artifact_create: finished', `Work activity · 2 updates · tool_${'long_name_'.repeat(25)}: failed <img src=x onerror=alert(1)>`,
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-sto-2bede-and-empty-artifact-messages\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-sto-2bede-and-empty-artifact-messages\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-sto-2bede-and-empty-artifact-messages\trace.zip
+    Error: expect(locator).toContainText(expected) failed
+    Locator: locator('details.activity > summary')
+    Expected substring: "1 update"
+    Error: element(s) not found
+      - waiting for locator('details.activity > summary')
+      534 |   const scroller = page.locator('.conversation-scroll'), summary = page.locator('details.activity > summary');
+    > 535 |   await expect(summary).toContainText('1 update');
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-upd-651bf--following-an-expanded-tail\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-upd-651bf--following-an-expanded-tail\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-upd-651bf--following-an-expanded-tail\trace.zip
+    Error: expect(locator).toHaveAccessibleName(expected) failed
+    Locator: locator('details.activity').locator('summary')
+    Expected: "Work activity · 120 updates · resource_read: progress 120"
+    Error: element(s) not found
+      - Expect "toHaveAccessibleName" with timeout 5000ms
+      - waiting for locator('details.activity').locator('summary')
+    > 566 |   await expect(activity.locator('summary')).toHaveAccessibleName('Work activity · 120 updates · resource_read: progress 120');
+      567 |   await activity.locator('summary').focus(); await activity.locator('summary').press('Enter');
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-kee-e7828-up-across-the-history-limit\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-kee-e7828-up-across-the-history-limit\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-work-activity-kee-e7828-up-across-the-history-limit\trace.zip
+    Error: expect(locator).toBeDisabled() failed
+    Expected: disabled
+    Error: element(s) not found
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-concurrent-fir-f4de7-n-and-retain-the-next-draft\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-concurrent-fir-f4de7-n-and-retain-the-next-draft\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-concurrent-fir-f4de7-n-and-retain-the-next-draft\trace.zip
+    Error: expect(locator).toHaveValue(expected) failed
+    Expected: "Typed after migration before activation"
+    Error: element(s) not found
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-typing-between-a84f1-stays-on-the-created-thread\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-typing-between-a84f1-stays-on-the-created-thread\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-typing-between-a84f1-stays-on-the-created-thread\trace.zip
+    Error: locator.click: Test timeout of 30000ms exceeded.
+      639 |   await expect.poll(() => state.commands.find(cmd => cmd.type === 'request.respond')?.payload).toEqual({ requestId: 'optional', revision: 1, response: {} });
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-absent-optiona-dcec4-stay-omitted-from-decisions\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-absent-optiona-dcec4-stay-omitted-from-decisions\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-absent-optiona-dcec4-stay-omitted-from-decisions\trace.zip
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-optional-conta-2d700--through-opt-out-and-opt-in\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-optional-conta-2d700--through-opt-out-and-opt-in\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-optional-conta-2d700--through-opt-out-and-opt-in\trace.zip
+  21) tests\e2e\frontend.spec.ts:2043:47 › P2: widget dirty action errors appear in trusted UI without replacing its draft
+    Error: locator.elementHandle: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-dirty-a-092f2-without-replacing-its-draft\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-dirty-a-092f2-without-replacing-its-draft\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-dirty-a-092f2-without-replacing-its-draft\trace.zip
+  22) tests\e2e\frontend.spec.ts:2043:47 › P2: widget http409 action errors appear in trusted UI without replacing its draft
+    Error: locator.elementHandle: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-http409-7205d-without-replacing-its-draft\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-http409-7205d-without-replacing-its-draft\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-P2-widget-http409-7205d-without-replacing-its-draft\trace.zip
+    Error: expect(locator).toHaveValue(expected) failed
+    Expected: "New text typed during resource creation"
+    Error: element(s) not found
+      712 |   if (resource === 'picker') { await expect(page.getByRole('dialog', { name: 'Add a resource' })).toBeVisible(); await page.getByRole('dialog', { name: 'Add a resource' }).getByRole('button', { name: 'Cancel', exact: true }).click(); }
+      713 |   else await expect.poll(() => state.commands.filter(cmd => cmd.type === 'resource.upload').length).toBe(1);
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-5d728--newest-composer-generation\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-5d728--newest-composer-generation\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-5d728--newest-composer-generation\trace.zip
+    Error: expect(locator).toHaveValue(expected) failed
+    Expected: "New text typed during resource creation"
+    Error: element(s) not found
+      712 |   if (resource === 'picker') { await expect(page.getByRole('dialog', { name: 'Add a resource' })).toBeVisible(); await page.getByRole('dialog', { name: 'Add a resource' }).getByRole('button', { name: 'Cancel', exact: true }).click(); }
+      713 |   else await expect.poll(() => state.commands.filter(cmd => cmd.type === 'resource.upload').length).toBe(1);
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-b6af2--newest-composer-generation\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-b6af2--newest-composer-generation\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-delaye-b6af2--newest-composer-generation\trace.zip
+  25) tests\e2e\frontend.spec.ts:2151:47 › regression: widget release failure preserves the draft and allows archive retry
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    > 725 |   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Retain after failed discard');
+      728 |   if (failure === 'release') state.failRelease = true; else state.failArchive = true;
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-67dc0-ft-and-allows-archive-retry\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-67dc0-ft-and-allows-archive-retry\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-67dc0-ft-and-allows-archive-retry\trace.zip
+  26) tests\e2e\frontend.spec.ts:2151:47 › regression: widget archive failure preserves the draft and allows archive retry
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    > 725 |   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Retain after failed discard');
+      728 |   if (failure === 'release') state.failRelease = true; else state.failArchive = true;
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-f4861-ft-and-allows-archive-retry\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-f4861-ft-and-allows-archive-retry\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-widget-f4861-ft-and-allows-archive-retry\trace.zip
+    Error: locator.fill: Test timeout of 30000ms exceeded.
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-nested-f687a-rafts-and-revision-identity\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-nested-f687a-rafts-and-revision-identity\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-nested-f687a-rafts-and-revision-identity\trace.zip
+    Error: locator.click: Test timeout of 30000ms exceeded.
+      767 |   expect(state.commands.filter(cmd => cmd.type === 'request.respond')).toHaveLength(0);
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-invali-ee325-bmit-and-remain-recoverable\error-context.md
+    test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-invali-ee325-bmit-and-remain-recoverable\trace.zip
+        pnpm exec playwright show-trace test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-invali-ee325-bmit-and-remain-recoverable\trace.zip
+    Error: expect(locator).toHaveValue(expected) failed
+    Expected: "Original checkpoint"
+    Error: element(s) not found
+    Error Context: test-results\browser\run-1794891654578-cbcafce1-4544-4c65-8f1e-86bb443cc303\shell\artifacts\frontend-regression-Escape-2a359-its-retained-expanded-mount\error-context.md
+... [bounded: 360 further result lines preserved in out-of-source custody original]

@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync,renameSync,symlinkSync,readFileSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {mkdirSync,writeFileSync,renameSync,symlinkSync,readFileSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {createHash} from 'node:crypto';
 import {
@@ -13,9 +14,7 @@ import {
 } from '../packages/contracts/execution-profile';
 import {withPathGuard} from '../packages/core/file-access';
 
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{cleanTempDirs();});
 const sha=(value:string|Buffer)=>createHash('sha256').update(value).digest('hex');
 const digestOf=(path:string)=>sha(readFileSync(path));
 

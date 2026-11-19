@@ -1,0 +1,8 @@
+== bounded redacted evidence summary ==
+originalSha256: 07ddf3e685cdc9dca48e0473414b656cc026c276d8bb68b3f710346376e84e31
+originalBytes: 238
+flags: machinePath=True ansi=False rawOutput=True
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+No test files found, exiting with code 1
