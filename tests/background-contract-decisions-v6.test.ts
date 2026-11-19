@@ -97,6 +97,25 @@ describe("M10-D02 lease after uncertain dispatch", () => {
   });
 });
 
+it.each(["DELIVERED", "NOT_DISPATCHED"] as const)("reconciles %s history without re-arming an operator-cancelled schedule", async observed => {
+  const f = storeFixture("m10-cancelled-receipt-");
+  const deliver = vi.fn(async () => ({ status: "UNCERTAIN" as const, reason: "receipt unavailable" }));
+  const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+  cleanups.push(() => scheduler.stop());
+  const stamp = f.now();
+  const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "cancelled", trigger: { kind: "AT_UTC", dueAtMs: stamp } });
+  await scheduler.tick();
+  const key = occurrenceKeyForTime(wakeup.wakeupId, wakeup.scheduleRevision, stamp);
+  await vi.waitFor(() => expect(f.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key)?.state).toBe("UNKNOWN"));
+  scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+  const cancelled = scheduler.schedules()[0];
+  const receipt = scheduler.reconcile(command("background.occurrence.reconcile"), key, { observed });
+  expect(scheduler.schedules()[0]).toEqual(cancelled);
+  expect(receipt).toMatchObject(observed === "DELIVERED"
+    ? { state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED" }
+    : { state: "CANCELLED", dispatch: "NOT_DISPATCHED" });
+});
+
 describe("M10-D03 clock movement", () => {
   it("records the first missed interval after a previously delivered tick", async () => {
     const f = storeFixture("m10-missed-slot-");
