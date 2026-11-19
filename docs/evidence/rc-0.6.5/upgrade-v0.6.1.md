@@ -18,6 +18,8 @@ To reuse the prepared historical baseline after clean-install qualification, sup
 
 Archive/restore standalone commands (application and host must be stopped):
 
+Snapshots identify SQLite files by header and record every table's row count, including empty tables. App-owned databases additionally record content hashes keyed by primary key (or rowid); missing databases/tables/rows, reduced counts and overwritten rows fail comparison. SQLite main/WAL/SHM byte changes are classified rather than mistaken for semantic data loss. Chromium-managed databases under the profile's `session/` tree named `Cookies`, `History`, `QuotaManager`, `Web Data`, `Login Data`, `Favicons`, `Top Sites`, `Network Action Predictor`, `DIPS`, `SharedStorage`, `Trust Tokens`, `Reporting and NEL`, `Media History` or `ClientCertificates` are explicitly `chromium-volatile`: their inventory/counts remain evidence, but comparison excludes their churn (including sidecars) and never calls it app-data preservation. IndexedDB/Local Storage LevelDB data files are not excluded; only their `LOCK`/diagnostic `LOG` files are classified as volatile. Archive restoration still requires exact file/entity equality, including volatile files, before first launch.
+
 ```powershell
 corepack pnpm exec tsx scripts/rc-review/profile-archive.ts archive --archive C:\gen-rc\baseline\v0.6.1\profile-archive --seed "$out\seed.json" --manifest C:\gen-rc\baseline\v0.6.1\pre-upgrade-manifest.json
 corepack pnpm exec tsx scripts/rc-review/profile-archive.ts restore --archive C:\gen-rc\baseline\v0.6.1\profile-archive --install $install --out $out
