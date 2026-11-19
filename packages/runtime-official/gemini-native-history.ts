@@ -43,10 +43,11 @@ export async function findGeminiNativeSession(dataDir: string, manifest: Manifes
     if (!entry.isFile()) throw mismatch();
     const path = join(actualChats, entry.name);
     const text = await boundedFile(actualChats, path, 32 * 1024 * 1024);
-    let header: any;
+    let header: unknown;
     try { header = JSON.parse(text.slice(0, text.indexOf('\n') < 0 ? undefined : text.indexOf('\n'))); } catch { throw mismatch(); }
+    if (header === null || typeof header !== 'object' || !('sessionId' in header) || typeof header.sessionId !== 'string') throw mismatch();
     if (header.sessionId !== manifest.value.sessionId) continue;
-    if (header.projectHash !== createHash('sha256').update(taskDir).digest('hex')) throw mismatch();
+    if (!('projectHash' in header) || header.projectHash !== createHash('sha256').update(taskDir).digest('hex')) throw mismatch();
     return { path, text };
   }
   return null;
