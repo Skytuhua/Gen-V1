@@ -3433,6 +3433,7 @@
     "tests/sidebar-reorder.test.ts",
     "tests/signature-approval.test.ts",
     "tests/signature-pdf.test.ts",
+    "tests/skill-materialize.test.ts",
     "tests/skills-http.test.ts",
     "tests/skills-integration.test.ts",
     "tests/skills.test.ts",
