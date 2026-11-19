@@ -174,7 +174,7 @@ export function statusFromObservation(observation: RecordedObservation, options:
   const marker = options.expectedNegativeMarker;
   if (marker === undefined) return 'PASS';
   const output = `${observation.stdout}\n${observation.stderr}`;
-  return (typeof marker === 'string' ? output.includes(marker) : marker.test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
+  return (typeof marker === 'string' ? output.includes(marker) : new RegExp(marker.source, marker.flags).test(output)) ? 'EXPECTED_NEGATIVE' : 'FAIL';
 }
 
 export async function writeCommandEvidence(observation: RecordedObservation, outDir: string, id: string, status: CommandStatus, expectedNegative?: ExpectedNegative): Promise<CommandEvidence> {

@@ -140,6 +140,10 @@ describe('recorded command runner', () => {
     expect(status).toBe('EXPECTED_NEGATIVE');
     const evidence = await writeCommandEvidence(obs, dir('neg'), 'neg', status, { assertedFailure: 'bad-value-42', observed: true });
     expect(validateCommandEvidence(evidence)).toEqual([]);
+    const marker = /bad-value-42/g;
+    expect(statusFromObservation(obs, { expectedNegativeMarker: marker })).toBe('EXPECTED_NEGATIVE');
+    expect(statusFromObservation(obs, { expectedNegativeMarker: marker })).toBe('EXPECTED_NEGATIVE');
+    expect(marker.lastIndex).toBe(0);
     const wrongMarker = statusFromObservation(obs, { expectedNegativeMarker: 'some-other-value' });
     expect(wrongMarker).toBe('FAIL');
   });
