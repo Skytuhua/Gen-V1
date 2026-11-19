@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { PassThrough, Writable } from 'node:stream';
@@ -36,6 +36,14 @@ describe('Gemini official headless native continuation', () => {
     expect(await readGeminiNativeHistory(dataDir, manifest)).toEqual([{ uuid: 'old-client-uuid', inputIds: ['old-input'] }]);
     await writeFile(nativeFile, JSON.stringify({ ...header, projectHash: 'foreign-project' }) + '\n' + JSON.stringify({ type: 'user', content: encodeInput(input({ runId: 'r-old', epoch: 1, inputId: 'old-input' })) }));
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
+  });
+
+  it('keeps history unresolved when a registered project has no chats directory', async () => {
+    const { dataDir, manifest, nativeFile } = await fixture();
+    try {
+      await rm(dirname(nativeFile), { recursive: true });
+      await expect(readGeminiNativeHistory(dataDir, manifest)).resolves.toEqual([]);
+    } finally { await rm(dataDir, { recursive: true, force: true }); }
   });
 
   it('classifies a damaged native history header instead of throwing a raw parsing exception', async () => {

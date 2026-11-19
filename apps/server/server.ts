@@ -13,7 +13,7 @@ import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
-import { streamEvents } from './event-stream.ts';
+import { destroyEventStreams, registerEventStream } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
@@ -67,7 +67,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   const widgetPort = options.widgetPort ?? 4318;
   const origins = new Set(["http://127.0.0.1:" + options.port, "http://localhost:" + options.port, ...(options.dev ? ["http://127.0.0.1:5173", "http://localhost:5173"] : [])]);
   const hosts = new Set(["127.0.0.1:" + options.port, "localhost:" + options.port]);
-  const streams = new Set<import("node:http").ServerResponse>();
+  const streams = new Map<import("node:http").ServerResponse, () => void>();
   app.setErrorHandler((error, _request, reply) => {
     const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
     const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
@@ -282,8 +282,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
-    streams.add(reply.raw);
-    streamEvents(reply.raw, service.store, after, () => streams.delete(reply.raw));
+    registerEventStream(streams, reply.raw, service.store, after);
   });
   app.get<{ Params: { id: string } }>("/api/artifacts/:id/source", async (request, reply) => {
     const artifact = service.store.get<ArtifactRecord>("artifact", request.params.id);
@@ -361,8 +360,9 @@ export async function buildServer(service: Service, options: ServerOptions) {
     } catch { return reply.code(503).type("text/plain").send("Build the application with pnpm build, or use pnpm dev."); }
   });
   app.addHook("preClose", async () => {
-    await Promise.all([...streams].map(stream => new Promise<void>(done => { stream.once('close', done); stream.destroy(); })));
-    streams.clear();
+    // SSE responses are hijacked from Fastify's normal lifecycle. Destroy
+    // them without waiting for a second close event after a disconnect.
+    destroyEventStreams(streams);
   });
   return app;
 }

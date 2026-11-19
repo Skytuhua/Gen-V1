@@ -598,3 +598,41 @@ Merged-cut validation (receipts `*-81154b2c`, canonical
 Merge stays LOCAL — Windows run 44424565994 retains its original cut; no
 push, no dispatch while it is active. `d249c566` receipts and redacted
 evidence retained under their real tested cuts.
+
+## Post-merge guard follow-up (#838 review, draft)
+
+Corrected: the Extensions catalog contributes no rows (trusted included)
+while `plugins.isolatedV1` is off; a migration-needing update and its
+preview stay `MIGRATION_PLAN_REQUIRED` even with a complete contract, because
+no verified migration execution/validation path exists. Focused synthetic
+tests only; no worker run beyond the existing suites, no flag, deployment or
+backend-binding change.
+
+Release-only holds (reviewed statically, not changed here):
+- HOLD-LIFECYCLE-START-STOP: RESOLVED in the next commit on this draft: a STARTING generation is tracked through launch and handshake, Stop revokes registrations at once and waits (bounded) for the late worker, replacement stays fenced until exit is confirmed, otherwise the lease is retained UNKNOWN.
+- HOLD-ADVERTISED-OPS: registrations derive from the manifest, not the
+  intersection with the worker's advertised `ready.operations`.
+- HOLD-BACKEND-LAUNCH-BINDING: unchanged (DEP-M13-BACKEND-01).
+
+Correction: the earlier statement that `tsc --noEmit` was clean on 671320d2 was not established (the run printed nothing and the unused `evaluateMigrationPlan` import in isolated-host.ts is a TS6133 error). Fixed in the follow-up commit; `tsc --noEmit` with an 8 GiB heap now exits 0.
+
+## Startup cleanup single-owner correction (#900 review)
+
+`activate()` now gives each admitted startup one cleanup outcome. All layers
+(handshake failure, protocol violation, shutdown, activation cleanup) share one
+termination attempt per transport (`terminateOnce`), so a confirmed exit is
+never overwritten by a repeat attempt. The failure diagnostic (`blocked`) is
+recorded before state mutation; an unconfirmed cleanup always retains UNKNOWN,
+including for ordinary failed activations. Also restores termination of a
+worker after a post-connect protocol violation, which the previous head
+skipped. Still held separately: advertised operations, native acceptance,
+backend/profile, DEP-M13-BACKEND-01. CI not dispatched for this head.
+
+## Advertised-operations repair (#900)
+
+Callable tool registrations are now the intersection of the manifest's
+declared tools and the operations the worker advertised in a validated READY.
+An omitted declared tool is never registered or dispatched; an undeclared
+claim is still a PROTOCOL_VIOLATION. UI registration remains manifest-bound
+(no approved protocol binds it to READY). Native acceptance, backend/profile
+and DEP-M13-BACKEND-01 holds are unchanged; no CI dispatched for this head.

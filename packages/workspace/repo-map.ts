@@ -44,6 +44,15 @@ export function buildRepoMap(grantedPaths: readonly string[], readAdmitted: (pat
         ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement) || ts.isInterfaceDeclaration(statement) || ts.isTypeAliasDeclaration(statement) || ts.isEnumDeclaration(statement) || ts.isModuleDeclaration(statement) || ts.isImportEqualsDeclaration(statement) ? [statement.name] : [];
       for (const name of named) if (name && (ts.isIdentifier(name) || ts.isStringLiteral(name))) exported(name.text, name);
     }
+    // TypeScript import types are declared module dependencies even when
+    // nested in another type. A runtime import() call is a different node.
+    const pending: ts.Node[] = [tree];
+    while (pending.length) {
+      const node = pending.pop()!;
+      if (ts.isImportTypeNode(node) && ts.isLiteralTypeNode(node.argument) && ts.isStringLiteral(node.argument.literal))
+        edges.add(node.argument.literal.text);
+      ts.forEachChild(node, child => { pending.push(child); });
+    }
     entry.imports = [...edges].sort(compare);
     entry.exports.sort((a, b) => compare(a.name, b.name) || a.line - b.line);
   }

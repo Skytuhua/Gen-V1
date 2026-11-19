@@ -59,7 +59,7 @@ export function evaluateMigrationPlan(current:PluginManifestV2,next:PluginManife
 
 export interface UpdatePreview{capabilityExpansion:string[];capabilityRemoved:string[];migrationRequired:boolean;blocked:string|null}
 
-export function updatePreview(current:PluginManifestV2,next:PluginManifestV2,requiresMigration:boolean,migrationPlan?:unknown):UpdatePreview{
+export function updatePreview(current:PluginManifestV2,next:PluginManifestV2,requiresMigration:boolean,_migrationPlan?:unknown):UpdatePreview{
  const previous=new Set(current.declaredCapabilities),following=new Set(next.declaredCapabilities);
  const preview:UpdatePreview={
   capabilityExpansion:[...following].filter(capability=>!previous.has(capability)),
@@ -67,6 +67,8 @@ export function updatePreview(current:PluginManifestV2,next:PluginManifestV2,req
   migrationRequired:requiresMigration,
   blocked:null,
  };
- if(requiresMigration&&evaluateMigrationPlan(current,next,migrationPlan).status!=='READY')preview.blocked='MIGRATION_PLAN_REQUIRED';
+ // Fail closed: a validated contract alone never unblocks a migration until a
+ // verified execution/validation path exists.
+ if(requiresMigration)preview.blocked='MIGRATION_PLAN_REQUIRED';
  return preview;
 }
