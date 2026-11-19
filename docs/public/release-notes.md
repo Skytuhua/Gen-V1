@@ -14,6 +14,10 @@ The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the
 
 For the latest source changes, see the [unreleased changelog](../../CHANGELOG.md#unreleased--065-visual-workspace-preview) and [visual workspace guide](../visual-workspace.md).
 
+Current source adds durable split layouts and named layouts, Inbox attention and optional plug-in workspaces. Workspace and All Agents remain the built-in choices; Code Review, Research and Custom are retired choices with saved records retained for recovery. Settings has 12 active sections; the older 21-section inventory is not the current navigation.
+
+Generated apps have `GENERATED_APPS_ENABLED = true`, gating discovery, creation and artifact mounting. The 0.6.0 changelog records the earlier actual-host checks, not acceptance of every later source revision or the broader quality pilot. **Support level (supported vs preview): pending owner decision.** Source availability is not installed-Windows upgrade acceptance.
+
 ## 0.6.4 source preview
 
 The 0.6.4 preview kept the original conversation workspace, project/thread navigation, compact composer, neutral dark/light themes and interactive task catalog. Changes include:

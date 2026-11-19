@@ -1,10 +1,20 @@
 # Implementation ledger
 
-## Current v0.5.2 preview
+## Current 0.6.5
+
+The root `package.json` is version `0.6.5`; [CHANGELOG.md](../CHANGELOG.md#unreleased--065-visual-workspace-preview) identifies it as an unreleased visual workspace preview, not a published stable installer. Current source includes durable split layouts, named layouts, Inbox attention and optional plug-in workspaces. Workspace and All Agents are the built-in choices; retired Code Review, Research and Custom records remain available for compatible recovery rather than new preset creation.
+
+The active `SETTINGS_SECTIONS` registry in `apps/web/src/Settings.tsx` contains **12 sections**, not the historical 21-section inventory. Chat width defaults to Wide (760px), with Comfortable (680px) and Full available width also selectable. Inline signing pairs stack below 620px available width.
+
+`GENERATED_APPS_ENABLED = true` in `packages/core/widgets.ts`. It controls generated-app discovery, the `ui_create_widget` creation gate and the artifact mount endpoint. The 0.6.0 changelog records the earlier actual-host acceptance; it does not establish acceptance of every later revision or the broader quality pilot. **Support level (supported vs preview): pending owner decision.**
+
+The sections below preserve historical checkpoint results, not current-main verification counts or availability. Current usage and limits are in [the visual workspace guide](visual-workspace.md) and [public release notes](public/release-notes.md).
+
+## Historical v0.5.2 preview
 
 The [snapshot-performance release](evidence/snapshot-performance-20261031/release.md) contains two measured frontend fixes only: stable revision-bound inputs and reused table display cells. Checks pass 628 units, four real-host performance regressions, TypeScript/build, exact package custody and 14 unpacked native scenarios. The broader browser run passed 124 cases with two opt-in skips; its cold-PDF readiness failure passes unchanged in focused source and production reruns. Clean installation was not attempted after the safety preflight found an existing installation. Other subscription sign-ins remain deferred. Timing evidence supports reduced repeated work, not a general responsiveness guarantee.
 
-## Previous v0.5.1 preview
+## Historical v0.5.1 preview
 
 The [verified release](evidence/runtime-clarity-20261031/report.md) preserves the centered shell, 48-component catalog and nine connection IDs. Settings/focus, unsupported compaction, measurement receipts and Cursor bootstrap Git context are repaired. Final checks pass 618 units, 86 browser cases with two opt-in capture skips, TypeScript/build and independent reviews. Clean setup, all 29,940 installed files, two installed boots with draft recovery, owned uninstall, 14 native scenarios and 15 actual single-display checks pass. The earlier [goal audit](evidence/current-goal-audit-20261031/report.md) retains Pi/SQLite memory-recovery evidence. Full Cursor account execution, physical multi-monitor coverage and quota-blocked genuine continuation remain open.
 
@@ -19,7 +29,7 @@ The source is on feat/generative-harness. The original specification is preserve
 
 Implemented foundations: shared contracts, SQLite event/projection/receipt host, authenticated loopback HTTP/SSE, exact Pi sessions and subscription login, neutral shell, 31-component strict catalog including MapView, versioned generated-app storage, native operation approvals, resource tools, disposable fixtures and frozen evaluation cases. Generated-app creation/mounting remain disabled.
 
-## Current frontend rebuild
+## Historical frontend rebuild
 
 The T3 baseline is `da8cc591dadd75819ae62961da4a882767efb145`. Both sidebars, the wider shell, 21 settings sections plus Diagnostics/Licenses and 341 classified inventory rows are implemented. Unsupported settings remain searchable with disabled controls and reasons. Narrative/compact widths are 760px, standard artifacts 1040px, and wide artifacts use available width; signing stacks below 760px available width.
 
@@ -55,7 +65,7 @@ The real signing task used one artifact from revision 1 to 5. Local edits surviv
 
 ## Generated-app boundary
 
-GENERATED_APPS_ENABLED remains false pending final acceptance. The controller fetches the fixed IIFE without credentials or redirects, then the receiver creates an opaque data worker inheriting its CSP. The fetched asset's HTTP CSP is defense in depth. Host-owned packages/widgets/theme.ts base classes and tokens are discoverable. No generated host JavaScript or hard memory quota is claimed; trusted PDF workers are a separate path.
+`GENERATED_APPS_ENABLED` is true in current source; the earlier disabled checkpoint descriptions above are historical. Support level (supported vs preview): pending owner decision. The controller fetches the fixed IIFE without credentials or redirects, then the receiver creates an opaque data worker inheriting its CSP. The fetched asset's HTTP CSP is defense in depth. Host-owned packages/widgets/theme.ts base classes and tokens are discoverable. No generated host JavaScript or hard memory quota is claimed; trusted PDF workers are a separate path.
 
 ChatGPT subscription login succeeded and the user selected GPT-6.1 Sol. Credentials remain in application-owned Pi storage and are never printed. No API billing fallback is enabled.
 
