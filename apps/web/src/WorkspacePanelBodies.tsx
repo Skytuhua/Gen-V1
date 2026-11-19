@@ -26,7 +26,7 @@ const SURFACE_ICONS: Record<string, typeof Folder> = {
 export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}={}) {
   const workspace = useWorkspace();
   const [error,setError]=useState('');
-  const open=(id:string)=>{setError('');try{const result=onOpenTool?onOpenTool(id as WorkspacePanelKind):workspace.openSurface?.(id);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
+  const open=(id:string)=>{setError('');try{const entry=WORKSPACE_SURFACES.find(surface=>surface.id===id);const result=entry?.tab&&onOpenTool?onOpenTool(id as WorkspacePanelKind):workspace.openSurface?.(id);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
   return <section className="workspace-launcher" aria-label="Workspace launcher" onKeyDown={event=>{
     const target=event.target as HTMLElement;
     if(target.closest('input,textarea,select,[contenteditable]')||event.altKey||event.ctrlKey||event.metaKey)return;
