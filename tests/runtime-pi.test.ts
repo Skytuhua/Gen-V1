@@ -123,6 +123,33 @@ function mockWorkers() {
   return { children, commands, spawnWorker, terminate };
 }
 
+it("rediscovers only the invalidated Pi provider when requested by scope", async () => {
+  const workers = mockWorkers(), runtime = createPiRuntime({dataDir: await temp()});
+  const spawnWorker = workers.spawnWorker.getMockImplementation()!;
+  let id = "openai/before";
+  workers.spawnWorker.mockImplementation((...args) => {
+    const child: any = spawnWorker(...args), send = child.send.getMockImplementation();
+    child.send.mockImplementation((message: any, callback: any) => {
+      if (message.command !== "models") return send(message, callback);
+      workers.commands.push(message);
+      const value = [{id, provider: "openai", name: id}, {id: "anthropic/kept", provider: "anthropic", name: "kept"}]
+        .filter(model => !message.providerId || model.provider === message.providerId);
+      queueMicrotask(() => { child.emit("message", {type: "response", requestId: message.requestId, value}); callback(null); });
+      return true;
+    });
+    return child;
+  });
+  try {
+    expect((await runtime.models()).map(model => model.id)).toEqual(["openai/before", "anthropic/kept"]);
+    id = "openai/after";
+    await runtime.invalidateModels!({providerId: "openai"});
+    expect((await runtime.models({providerId: "anthropic"})).map(model => model.id)).toEqual(["anthropic/kept"]);
+    expect((await runtime.models({providerId: "openai"})).map(model => model.id)).toEqual(["openai/after"]);
+    expect(workers.commands.filter(c => c.command === "models").map(c => c.providerId)).toEqual([undefined, "openai"]);
+    expect((await runtime.models()).map(model => model.id).sort()).toEqual(["anthropic/kept", "openai/after"]);
+  } finally { await runtime.dispose(); }
+});
+
 describe("durable delivery", () => {
   it("extracts only complete, leading application envelopes from persisted user entries", () => {
     const encoded = encodeInput(input);

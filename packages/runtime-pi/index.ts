@@ -35,6 +35,8 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   let modelCache: ModelInfo[] | undefined;
   let modelDiscovery: Promise<ModelInfo[]> | undefined;
   let modelCacheEpoch=0,modelDiscoveryEpoch=0,modelDiscoveryProvider:string|undefined;
+  // An empty provider can be a fresh result or an invalidated cache slot.
+  const invalidatedProviders=new Set<string>();
   function serial<T>(key: string, action: () => Promise<T>): Promise<T> {
     const previous = locks.get(key) ?? Promise.resolve();
     const next = previous.catch(() => {}).then(action);
@@ -198,7 +200,8 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       assertAuthority();
       if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if (!modelDiscovery) {
-        if (modelCache && !options?.refresh) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        if(modelCache&&!options?.refresh&&(options?.providerId?!invalidatedProviders.has(options.providerId):!invalidatedProviders.size)) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        if(modelCache&&options?.providerId)invalidatedProviders.add(options.providerId);
         modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
         const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
         modelDiscovery = (async () => {
@@ -208,14 +211,19 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
           finally { await terminate(worker); }
           assertAuthority();
           if(options?.providerId)models=models.filter(model=>model.provider===options.providerId);
-          if(epoch===modelCacheEpoch)modelCache = options?.providerId?(modelCache?[...modelCache,...models]:undefined):models;
+          if(epoch===modelCacheEpoch){
+           modelCache = options?.providerId?(modelCache?[...modelCache,...models]:undefined):models;
+           if(options?.providerId)invalidatedProviders.delete(options.providerId);else invalidatedProviders.clear();
+          }
           return models;
         })().finally(() => { modelDiscovery = undefined; });
       }
       return structuredClone(await modelDiscovery);
     },
     async invalidateModels(options) {
-      modelCacheEpoch++;modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
+      modelCacheEpoch++;
+      if(options?.providerId&&modelCache)invalidatedProviders.add(options.providerId);else invalidatedProviders.clear();
+      modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
     },
     start(input) { return queueRun(input, "start"); },
     followUp(input) { if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {
