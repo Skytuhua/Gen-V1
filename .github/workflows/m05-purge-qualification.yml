@@ -2,7 +2,14 @@ name: M05 bounded purge qualification
 
 on:
   pull_request:
-    paths: ['.github/workflows/m05-purge-qualification.yml']
+    paths:
+      - '.github/workflows/m05-purge-qualification.yml'
+      - 'tests/project-memory-service-v3.test.ts'
+      - 'tests/memory-forget-v3.test.ts'
+      - 'packages/core/project-memory.ts'
+      - 'packages/contracts/project-memory.ts'
+      - 'apps/server/project-memory-routes.ts'
+      - 'packages/core/service.ts'
   workflow_dispatch:
 
 permissions:
@@ -25,7 +32,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-24.04, windows-latest]
     defaults:
       run:
         shell: pwsh
@@ -55,7 +62,16 @@ jobs:
           pnpm exec vitest run tests/project-memory-service-v3.test.ts tests/memory-forget-v3.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=.harness-qualification/m05-purge.json
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $result = Get-Content -Raw -LiteralPath .harness-qualification/m05-purge.json | ConvertFrom-Json
-          if ($result.numTotalTests -lt 2 -or $result.numFailedTests -ne 0 -or $result.numPendingTests -ne 0 -or $result.numPassedTests -ne $result.numTotalTests) { throw 'M05 required purge cases failed, skipped or were not executed' }
+          if ($result.numTotalTests -lt 2 -or $result.numFailedTests -ne 0 -or $result.numPendingTests -ne 0 -or $result.numTodoTests -ne 0 -or $result.numPassedTests -ne $result.numTotalTests) { throw 'M05 required purge cases failed, skipped or were not executed' }
+          $requiredCases = @(
+            'purges elapsed forgotten revisions at host recovery even when memory has been disabled'
+            'purges elapsed forgotten copies on the regular host tick without enabling memory'
+          )
+          $files = @($result.testResults | Where-Object { ($_.name -replace '\\','/').EndsWith('tests/project-memory-service-v3.test.ts') })
+          foreach ($case in $requiredCases) {
+            $assertionsFound = @($files.assertionResults | Where-Object { $_.title -eq $case -or $_.fullName -eq $case })
+            if ($assertionsFound.Count -ne 1 -or $assertionsFound[0].status -ne 'passed') { throw "M05 required purge case missing, ambiguous or not passed: $case" }
+          }
           Write-Output ('M05_PURGE_RESULTS=' + (@{sourceSha=(git rev-parse HEAD).Trim(); platform=$env:RUNNER_OS; total=$result.numTotalTests; passed=$result.numPassedTests; failed=$result.numFailedTests; skipped=$result.numPendingTests} | ConvertTo-Json -Compress))
       - name: Retain bounded verification report
         if: always()
