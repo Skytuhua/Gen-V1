@@ -332,9 +332,8 @@ export class ReadSyncClient {
     return 'applied';
   }
 
-  private async pump(transport: ReadSyncTransport, first: SyncPageV1): Promise<void> {
+  private async pump(transport: ReadSyncTransport, first: SyncPageV1, generation: number): Promise<void> {
     let page: SyncPageV1 | null = first;
-    const generation = ++this.requestGeneration;
     while (page) {
       const accepted = this.acceptPage(generation, page);
       if (accepted === 'invalid') throw denied('INVALID_CURSOR', 'The remote page failed validation.');
@@ -347,6 +346,7 @@ export class ReadSyncClient {
   /** Full authorized snapshot then bounded pages to the cut. A RESYNC during
    * paging restarts from a fresh snapshot — never a silent gap (S06/U03). */
   async sync(transport: ReadSyncTransport): Promise<RemoteViewStatus> {
+    const generation = ++this.requestGeneration;
     this.status = 'RESYNCING';
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
@@ -355,11 +355,13 @@ export class ReadSyncClient {
         this.appliedSeq = 0;
         this.cursor = null;
         const first = await transport.snapshot();
-        await this.pump(transport, first);
+        await this.pump(transport, first, generation);
+        if (generation !== this.requestGeneration) return this.status;
         this.status = 'SYNCED';
         this.lastError = null;
         return this.status;
       } catch (error) {
+        if (generation !== this.requestGeneration) return this.status;
         if (!(error instanceof HarnessError && error.code === 'RESYNC_REQUIRED')) {
           this.lastError = error instanceof Error ? error.message : String(error);
           this.status = 'OFFLINE';
@@ -376,12 +378,15 @@ export class ReadSyncClient {
    * the view RESYNCING and falls back to a fresh authorized snapshot. */
   async refresh(transport: ReadSyncTransport): Promise<RemoteViewStatus> {
     if (!this.cursor) return this.sync(transport);
+    const generation = ++this.requestGeneration;
     try {
       const first = await transport.advance(this.cursor);
-      await this.pump(transport, first);
+      await this.pump(transport, first, generation);
+      if (generation !== this.requestGeneration) return this.status;
       this.status = 'SYNCED';
       this.lastError = null;
     } catch (error) {
+      if (generation !== this.requestGeneration) return this.status;
       const code = error instanceof HarnessError ? error.code : '';
       if (code === 'RESYNC_REQUIRED') { this.status = 'RESYNCING'; return this.sync(transport); }
       this.lastError = error instanceof Error ? error.message : String(error);
@@ -409,6 +414,8 @@ export class ReadSyncClient {
   /** S09: explicit device-scoped cache clear. Local drafts are retained —
    * they are unsent local state, not host data. */
   clearCache(): void {
+    // A response issued before the explicit clear cannot restore host rows.
+    this.requestGeneration++;
     this.tasks.clear();
     this.evidence.clear();
     this.cursor = null;
