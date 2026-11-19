@@ -36,7 +36,16 @@ export class TerminalHost{
   const pty=spawn(input.program??shell,input.args??args,{name:'xterm-256color',cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env:(input.environment??{...processEnvironment(),...configured}) as Record<string,string>,useConpty:true});
   let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;})};
   this.sessions.set(terminalId,session);this.persist(session);
-  pty.onData(data=>{session.output+=data;if(session.output.length>512*1024){const remove=session.output.length-512*1024;session.output=session.output.slice(remove);session.offset+=remove;}});
+  pty.onData(data=>{
+   session.output+=data;
+   if(session.output.length>512*1024){
+    let remove=session.output.length-512*1024;
+    const before=session.output.charCodeAt(remove-1),after=session.output.charCodeAt(remove);
+    // Preserve the stream's UTF-16 cursor units without returning half a character.
+    if(before>=0xd800&&before<=0xdbff&&after>=0xdc00&&after<=0xdfff)remove++;
+    session.output=session.output.slice(remove);session.offset+=remove;
+   }
+  });
   pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);this.evictExited();finish();});
   if(command!==undefined)pty.write(command+'\r');
   return this.result(session,0);

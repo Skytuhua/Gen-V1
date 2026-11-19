@@ -23,3 +23,16 @@ it('rejects an oversized initial command before starting or reserving a terminal
  expect(mocks.spawn).toHaveBeenCalledOnce();
  expect(mocks.spawn.mock.results[0]?.value.write).toHaveBeenCalledWith('echo ready\r');
 });
+
+it('keeps the retained output and its cursor on a complete UTF-16 character boundary',async()=>{
+ const {host}=fixture();
+ const opened=await host.open({projectId:'project-a',terminalId:'unicode'});
+ const onData=mocks.spawn.mock.results[0]!.value.onData.mock.calls[0]![0] as (data:string)=>void;
+ const cap=512*1024;
+ onData('😀'+'x'.repeat(cap-1));
+ const result=await host.read(opened.id,opened.projectId);
+ expect(result.start).toBe(2);
+ expect(result.cursor).toBe(cap+1);
+ expect(result.output).toBe('x'.repeat(cap-1));
+ expect((await host.read(opened.id,opened.projectId,undefined,result.cursor)).output).toBe('');
+});
