@@ -90,6 +90,19 @@ test.describe('M15 selection action completion',()=>{
 });
 test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
 test('M15 hidden and clipped source text is refused',async({page})=>{await page.goto('/fixture');await page.locator('#source-text').evaluate(el=>{el.style.opacity='0';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await page.locator('#source-text').evaluate(el=>{el.style.opacity='1';el.style.width='2px';el.style.overflow='hidden';el.style.whiteSpace='nowrap';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
+for(const tag of ['iframe','input','textarea','select','button','a','object','embed','contenteditable'])test(`M15 refuses a selection crossing a text-empty ${tag}`,async({page})=>{
+ await page.goto('/fixture');await page.locator('#source-text').evaluate((element,tag)=>{
+  const embedded=document.createElement(tag==='contenteditable'?'span':tag);
+  if(tag==='contenteditable')embedded.setAttribute('contenteditable','true');
+  Object.assign(embedded.style,{display:'inline-block',width:'16px',height:'16px'});
+  element.replaceChildren(document.createTextNode('Visible selected '),embedded,document.createTextNode('text from an assistant.'));
+  const range=document.createRange();range.setStart(element.firstChild!,8);range.setEnd(element.lastChild!,4);
+  getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));
+ },tag);
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('selected text');
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');
+});
 test('M15 refuses a clipped interior span even when both selection endpoints are visible',async({page})=>{
  await page.goto('/fixture');await page.locator('#source-text').evaluate(element=>{element.replaceChildren(document.createTextNode('Visible '),Object.assign(document.createElement('span'),{textContent:'selected text'}),document.createTextNode(' from an assistant.'));const span=element.querySelector('span')!;Object.assign(span.style,{display:'inline-block',width:'2px',overflow:'hidden',whiteSpace:'nowrap'});const range=document.createRange();range.setStart(element.firstChild!,0);range.setEnd(element.lastChild!,5);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');

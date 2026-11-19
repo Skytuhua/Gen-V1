@@ -14,6 +14,7 @@ export function mapSelectedText(content:string,selected:string):VisibleSourceSel
 }
 function elementOf(node:Node):Element|null{return node instanceof Element?node:node.parentElement;}
 function visible(range:Range,root:HTMLElement):boolean {
+  const interactive='iframe,input,textarea,select,button,a,[contenteditable="true"],object,embed,audio,video';
   const rects=[...range.getClientRects()].filter(rect=>rect.width>0&&rect.height>0);
   if(!rects.length)return false;
   for(const rect of rects) {
@@ -21,7 +22,7 @@ function visible(range:Range,root:HTMLElement):boolean {
     for(const endpoint of [range.startContainer,range.endContainer]) {
       for(let element=elementOf(endpoint);element;element=element.parentElement) {
         const style=getComputedStyle(element),bounds=element.getBoundingClientRect();
-        if(element.matches('[hidden],[inert],[aria-hidden="true"],iframe,input,textarea,button,a,[contenteditable="true"]')||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)===0||style.contentVisibility==='hidden')return false;
+        if(element.matches(`[hidden],[inert],[aria-hidden="true"],${interactive}`)||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)===0||style.contentVisibility==='hidden')return false;
         if(/hidden|clip|auto|scroll/.test(style.overflowX)&& (rect.left<bounds.left-1||rect.right>bounds.right+1))return false;
         if(/hidden|clip|auto|scroll/.test(style.overflowY)&& (rect.top<bounds.top-1||rect.bottom>bounds.bottom+1))return false;
       }
@@ -29,9 +30,10 @@ function visible(range:Range,root:HTMLElement):boolean {
   }
   // A range crossing a hidden descendant must not acquire its unpainted bytes.
   for(const node of root.querySelectorAll('*'))if(range.intersectsNode(node)) {
+    if(node.matches(interactive))return false;
     if(!node.textContent)continue;
     const style=getComputedStyle(node);
-    if(node.matches('[hidden],[inert],[aria-hidden="true"],iframe,input,textarea,button,a,[contenteditable="true"]')||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)===0||style.contentVisibility==='hidden')return false;
+    if(node.matches('[hidden],[inert],[aria-hidden="true"]')||style.display==='none'||style.visibility!=='visible'||Number(style.opacity)===0||style.contentVisibility==='hidden')return false;
     // A selected interior descendant can clip bytes even though neither range
     // endpoint is inside it. Check only this descendant's selected portion.
     const inside=range.cloneRange(),bounds=node.getBoundingClientRect();
