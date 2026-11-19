@@ -116,6 +116,38 @@ it.each(["DELIVERED", "NOT_DISPATCHED"] as const)("reconciles %s history without
     : { state: "CANCELLED", dispatch: "NOT_DISPATCHED" });
 });
 
+it.each(["DELIVERED", "NOT_DISPATCHED"] as const)("reconciling %s for an older interval preserves the current interval claim", async observed => {
+  const f = storeFixture("m10-overlapping-receipts-");
+  const anchor = f.now(), interval = 60_000;
+  let finish!: () => void;
+  const pending = new Promise<void>(resolve => { finish = resolve; });
+  const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now,
+    deliver: async ({ occurrence }) => {
+      if (occurrence.scheduledDueAtMs === anchor) return { status: "UNCERTAIN", reason: "receipt unavailable" };
+      await pending;
+      return { status: "DELIVERED" };
+    },
+  });
+  cleanups.push(async () => { finish(); await scheduler.drain(); });
+  const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "task-overlap-receipt", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: interval } });
+  const olderKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor), newerKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor + interval);
+  await scheduler.tick();
+  await vi.waitFor(() => expect(f.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", olderKey)?.state).toBe("UNKNOWN"));
+  f.advance(interval);
+  await scheduler.tick();
+  const before = scheduler.schedules()[0]!;
+  expect(before).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey });
+  f.advance(5);
+  const result = scheduler.reconcile(command("background.occurrence.reconcile"), olderKey, { observed });
+  expect(result.state).toBe(observed === "DELIVERED" ? "DELIVERED" : "PENDING");
+  expect(scheduler.schedules()[0]).toMatchObject({
+    state: "CLAIMED", occurrenceKey: newerKey, leaseExpiresAtMs: before.leaseExpiresAtMs,
+    nextDueAtMs: before.nextDueAtMs, lastRunAtMs: observed === "DELIVERED" ? f.now() : before.lastRunAtMs,
+  });
+  finish();
+  await vi.waitFor(() => expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", occurrenceKey: null, lastRunAtMs: f.now() }));
+});
+
 describe("M10-D03 clock movement", () => {
   it("records the first missed interval after a previously delivered tick", async () => {
     const f = storeFixture("m10-missed-slot-");

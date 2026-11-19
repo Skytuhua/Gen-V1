@@ -412,7 +412,22 @@ export class DurableWakeupScheduler {
         ? { ...occurrence, state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null, updatedAt: iso(stamp) }
         : { ...occurrence, state: cancelled ? "CANCELLED" : "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
       this.store.put("backgroundOccurrence", occurrenceKey, null, next);
-      if (wakeup && !cancelled) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs, lastRunAtMs: receipt.observed === "DELIVERED" ? stamp : wakeup.lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+      if (wakeup && !cancelled) {
+        const lastRunAtMs = receipt.observed === "DELIVERED" ? Math.max(wakeup.lastRunAtMs ?? stamp, stamp) : wakeup.lastRunAtMs;
+        const anotherClaim = wakeup.state === "CLAIMED" && wakeup.occurrenceKey !== occurrenceKey;
+        if (anotherClaim) {
+          // Reconciling an older occurrence may update history, not the live lease.
+          if (wakeup.trigger.kind === "INTERVAL_UTC" && lastRunAtMs !== wakeup.lastRunAtMs)
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
+        } else {
+          this.store.put("backgroundWakeup", wakeup.wakeupId, null, {
+            ...wakeup,
+            state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING",
+            nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs,
+            lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp),
+          });
+        }
+      }
       return next;
     }).result as BackgroundOccurrenceV1;
   }
