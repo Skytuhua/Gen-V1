@@ -81,14 +81,56 @@ but is a behavioral question, not a bounded fix), no M12/M16
 `file-access.ts`, no ancestry/existing-writer redesign, no policy
 redesign.
 
+## Guard-side diagnosis — WSL verifier ordinal 29 (credential-loss/barrier FAIL)
+
+Verifier reported: native directory custody PASS; credential-loss and
+credential-barrier FAIL at ordinary credential submount admission.
+Guard-side review found the defect in the **normal broker lifecycle**,
+not the owned-profile fixture — the fixture drives `withAccountProfile`
+exactly as the real runtime does and correctly caught it.
+
+**Root cause.** `withNativeDirectories` acquires `allowChildWrites`
+custody for `pi`, `pi/tasks`, `pi/tasks/<task>` and
+`pi/tasks/<task>/sessions`; every such acquire applies a read-only
+`.harness-directory-guard` leaf bind mount inside the directory — i.e.
+the broker's own ledgered mounts (`self.pins` + `self.readonly_pins`)
+inside the credential parent. `credential_mounts` admission required
+every submount to be a directory whose `ro` flag equals the fence
+state, so the guard rejected its own ordinary mounts:
+`Unsupported credential submount` → `CAPABILITY_DENIED` on every
+`credential-acquire` under the real lifecycle.
+
+**Correction (broker only, all checks preserved):**
+
+1. `credential_mounts` — a ledgered read-only leaf (`S_ISREG` and
+   present in `self.readonly_pins`) is admitted as the guard's own
+   custody; its expected `ro` flag is `readonly or leaf` because a
+   permanent leaf fence does not track the barrier state. Directory
+   submounts are unchanged; foreign mounts, unledgered mounts and
+   writable file pins inside the parent are still rejected.
+2. `release_credential` — the recursive un-fence also clears the
+   permanent `ro` on leaf binds; the held leaf mounts are re-fenced
+   before the settle check so custody matches the ledger. Any failure
+   still raises `CustodyUncertain`.
+
+No guard, check, or rejection was removed; no permission widened.
+`pin()` needed no change — its `self.pins` early return precedes the
+`O_DIRECTORY` open, so re-pinning a ledgered leaf already works.
+
 ## Verification performed (aarch64, this host)
 
-- `python3 -m py_compile` + `node --check`: both edited files parse.
+- `python3 -m py_compile`: both edited files parse.
 - Committed regression suite `tests/linux_path_guard_cleanup.py`
   (repo convention: `python3 -I -S -B`, unittest, stdlib
   `unittest.mock` only — runs from a clean checkout with no broker,
-  no native mounts, synthetic return codes and paths only), **5/5
-  PASS**:
+  no native mounts, synthetic return codes and paths only), **9/9
+  PASS** — the original five plus four admission/restoration cases:
+  - ledgered read-only leaf + directory submounts admitted in both
+    unfenced and fenced passes; foreign writable alias, unledgered
+    submount and writable file pin still rejected. PASS
+  - barrier release re-fences the ledgered leaf after the recursive
+    un-fence and settles; a failed leaf re-fence raises
+    `CustodyUncertain` with the barrier retained. PASS
   - failed `acquire` → leftovers recorded under `self.unresolved` and
     the id never becomes a usable lease. PASS
   - quarantined descendant → parent ancestry retained, independent

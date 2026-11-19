@@ -217,7 +217,12 @@ class DirectoryGuard:
             if within(parent, record['path']):
                 relative = os.path.relpath(record['path'], parent)
                 expected = target['root'] if relative == '.' else os.path.join(target['root'], relative)
-                if record['path'] not in self.pins or record['dev'] != target['dev'] or record['root'] != expected or record['filesystem'] != 'ext4' or not stat.S_ISDIR(os.stat(record['path']).st_mode) or ('ro' in record['flags']) != readonly:
+                info = os.stat(record['path']).st_mode
+                # A ledgered read-only leaf (a pinned child-write marker or an
+                # explicit read-only file) is the guard's own custody: it stays
+                # fenced instead of tracking the barrier's readonly state.
+                leaf = record['path'] in self.readonly_pins and stat.S_ISREG(info)
+                if record['path'] not in self.pins or record['dev'] != target['dev'] or record['root'] != expected or record['filesystem'] != 'ext4' or not (stat.S_ISDIR(info) or leaf) or ('ro' in record['flags']) != (readonly or leaf):
                     raise PermissionError('Unsupported credential submount')
                 descendants.append(record['id'])
             elif record['dev'] == target['dev'] and (within(record['root'], target['root']) or within(target['root'], record['root'])) and not within(record['path'], parent) and 'ro' not in record['flags']:
@@ -351,6 +356,15 @@ class DirectoryGuard:
                 if self.credential_mounts(prepared, True) != barrier['mounts']:
                     raise PermissionError('Credential mount set changed')
                 mount_readonly(prepared['fd'], False)
+                for path in barrier['held']:
+                    # The recursive un-fence also clears each leaf pin's
+                    # permanent fence; restore it so custody matches the ledger.
+                    if path in self.readonly_pins:
+                        leaf = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                        try:
+                            mount_readonly(leaf, True)
+                        finally:
+                            os.close(leaf)
                 barrier['fenced'] = False
                 if self.credential_mounts(prepared, False) != barrier['mounts']:
                     raise PermissionError('Credential restoration did not settle')
