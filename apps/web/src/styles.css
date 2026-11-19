@@ -262,7 +262,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .disclosure-body>.markdown { padding-top:1px; }
 fieldset { border:0; padding:0; margin:0; min-width:0; }
 .markdown :is(h1,h2,h3,h4,h5,h6) { margin:18px 0 9px; font-size:15px; line-height:1.5; letter-spacing:0; }
-.jump-latest { position:absolute; bottom:165px; left:50%; transform:translateX(-50%); border:1px solid var(--border); background:var(--surface); z-index:10; border-radius:20px; box-shadow:var(--elevation); }
+.jump-latest { position:absolute; bottom:165px; left:50%; transform:translateX(-50%); border:1px solid var(--control-border); background:var(--surface); z-index:10; border-radius:20px; box-shadow:var(--elevation); }
 .load-history { display:flex; margin:0 auto 22px; }
 .table-scroll { overflow:auto; margin:0 -4px; }
 table { width:100%; border-collapse:collapse; font-size:12px; text-align:left; font-variant-numeric:tabular-nums; }

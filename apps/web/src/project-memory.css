@@ -9,7 +9,7 @@
 .project-memory-heading>div {min-width:0;}
 .project-memory-heading p,.project-memory-caption,.project-memory-row>header>span {color:var(--muted);font-size:12px;}
 .project-memory-actions {display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
-.project-memory-body button {min-height:32px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;color:var(--text);background:var(--surface);}
+.project-memory-body button {min-height:32px;padding:6px 10px;border:1px solid var(--control-border);border-radius:6px;font:inherit;color:var(--text);background:var(--surface);}
 .project-memory-body button:hover:not(:disabled) {background:var(--hover);}
 .project-memory-body button:disabled {opacity:.55;cursor:default;}
 .project-memory-body :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px;}

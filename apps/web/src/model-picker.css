@@ -107,6 +107,6 @@
 @media(forced-colors:active){.model-picker-option[aria-selected=true]{border:1px solid Highlight}.model-picker-effort[aria-checked=true]{border:1px solid Highlight}}
 
 .model-picker-scope{margin:.4rem .6rem;font-size:.78rem;color:var(--muted,#9aa0a6)}
-.model-picker-new-task{margin:.4rem .6rem .6rem;padding:.45rem .7rem;border:1px solid var(--border,#333);border-radius:.45rem;background:transparent;color:inherit;font-size:.82rem;cursor:pointer;text-align:left}
+.model-picker-new-task{margin:.4rem .6rem .6rem;padding:.45rem .7rem;border:1px solid var(--control-border);border-radius:.45rem;background:transparent;color:inherit;font-size:.82rem;cursor:pointer;text-align:left}
 .model-picker-new-task:hover:not(:disabled){background:var(--hover,#2a2a2a)}
 .model-picker-new-task:disabled{opacity:.5;cursor:default}

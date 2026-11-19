@@ -50,6 +50,8 @@ const PAIRS: readonly Pair[] = [
   nonText('--control-border', '--canvas', 'control outlines against the workspace'),
   nonText('--control-border', '--surface', 'input, select, action, composer, dock and search outlines'),
   nonText('--control-border', '--hover', 'hovered control outlines'),
+  nonText('--control-border', '--subtle', 'control outlines inside task surfaces'),
+  nonText('--control-border', '--selection-bg', 'selected controls and checkpoint actions'),
   text('--text', '--canvas', 'conversation, dock and decision copy on the workspace canvas'),
   text('--text', '--sidebar', 'thread titles and settings navigation labels'),
   text('--text', '--surface', 'composer, dock cards and settings content'),
@@ -124,6 +126,45 @@ describe('appearance theme contrast audit', () => {
   it('paints the surfaces this audit covers with the tokens it measures', () => {
     expect(sidebar).toMatch(/\.sidebar \.thread-item-meta\[data-thread-state='working'\] \.thread-item-status \{\s*color: var\(--accent-text\)/);
     expect(styles).toMatch(/\.send-button \{[^}]*color:var\(--accent-ink,#fff\)/);
+  });
+
+  it('keeps search, textarea, button and radio boundaries on the control token', () => {
+    const boundaries = {
+      'apps/web/src/agent-inbox.css': ['.agent-inbox .inbox-search>label'],
+      'apps/web/src/exploration-tools.css': ['.exploration-field textarea', '.log-search'],
+      'apps/web/src/conversation-find.css': ['.conversation-find'],
+      'apps/web/src/everyday-data.css': ['.everyday-option-selector', '.everyday-comparison-table th.is-selected .everyday-option-selector'],
+      'apps/web/src/file-checkpoints.css': ['.file-checkpoints button'],
+      'apps/web/src/document-preview.css': ['.document-preview-failure button'],
+      'apps/web/src/image-compare.css': ['.image-compare-message button'],
+      'apps/web/src/github-sign-in.css': ['.github-sign-in button'],
+      'apps/web/src/project-memory.css': ['.project-memory-body button'],
+      'apps/web/src/settings.css': ['.settings-result', '.settings-switch'],
+      'apps/web/src/sidebar-context.css': ['.sidebar .search-field'],
+      'apps/web/src/interaction-tools.css': ['.review-item-nav[aria-current=step]', '.review-decision-choice'],
+      'apps/web/src/connections.css': ['.connection-providers button'],
+      'apps/web/src/software-development.css': ['.software-list button', '.software-blocking-checks button'],
+      'apps/web/src/model-picker.css': ['.model-picker-new-task'],
+      'apps/web/src/task-table.css': ['.task-table .task-table-follow', '.task-table-filter-field'],
+      'apps/web/src/composer-toolbar.css': ['.composer-context-chip'],
+      'apps/web/src/side-chat.css': ['.side-chat-composer'],
+      'apps/web/src/workspace-canvas.css': ['.canvas-side-composer textarea'],
+      'apps/web/src/work-objects.css': ['.trace-filter', '.architecture-node', '.architecture-node[aria-pressed=true]', '.workflow-card', '.workflow-card[data-selected=true]'],
+      'apps/web/src/frontend-fidelity.css': ['.document-download>a'],
+      'packages/ui-shell/feedback.css': ['.ui-error .ui-error-retry'],
+      'apps/web/src/appearance-settings.css': ['.appearance-settings .color-swatch'],
+      'apps/web/src/terminal-excerpts.css': ['.terminal-excerpt-chip'],
+      'apps/web/src/map-view.css': ['.task-map-point'],
+      'apps/web/src/styles.css': ['.jump-latest'],
+    };
+    for (const [path, selectors] of Object.entries(boundaries)) {
+      const rules = [...source(path).matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+      for (const selector of selectors) {
+        const bodies = rules.filter(rule => rule[1]!.split(',').some(name => name.trim() === selector)).map(rule => rule[2]!).join('');
+        expect(bodies, path + ': ' + selector).toContain('var(--control-border');
+        expect(bodies, path + ': ' + selector).not.toContain('var(--border');
+      }
+    }
   });
 
   it('fails the pairs it would catch if a token regressed', () => {

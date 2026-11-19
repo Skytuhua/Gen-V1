@@ -22,7 +22,7 @@
 .document-preview-footer p { margin:0; color:var(--muted,#717177); font-size:11px; }
 .document-preview-failure { display:flex; flex-wrap:wrap; align-items:center; gap:10px; min-height:180px; padding:20px 14px; font-size:12px; }
 .document-preview-failure p { flex-basis:100%; margin:0; line-height:1.6; max-height:6.4em; overflow:auto; overflow-wrap:anywhere; }
-.document-preview-failure button { border:1px solid var(--border,#e9e9ec); border-radius:6px; background:var(--surface,#fff); padding:6px 9px; color:var(--text,#202023); }
+.document-preview-failure button { border:1px solid var(--control-border); border-radius:6px; background:var(--surface,#fff); padding:6px 9px; color:var(--text,#202023); }
 .document-preview-failure a { color:var(--accent,#4765d6); text-underline-offset:3px; }
 .document-preview :is(button,a):focus-visible,.signature-pad :is(button,input,canvas):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 .signature-pad { min-width:0; color:var(--text,#202023); font-size:13px; }
