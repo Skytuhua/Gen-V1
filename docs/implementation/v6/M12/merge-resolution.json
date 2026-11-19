@@ -357,5 +357,19 @@
       }
     },
     "note": "All three conflicts were additive unions; no semantic conflicts appeared. Other upstream changes (M17, M04 supplement) preserved unchanged."
+  },
+  "r06": {
+    "main": "75196a246a3708463caa1aa493e64112c5ec2dc5",
+    "mergeCommit": "f48d14234937358b14ae236a408caa071b40d5cc",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "decision": "sorted unique union \u2014 current main + M12 source/runtime (result 4462/306); main added M14 session-branch/history-import entries"
+      },
+      "packages/core/capability-flags.ts": {
+        "decision": "retained all registries \u2014 M14_FLAG_KEYS (sessions.branchV1, sessions.inertImportV1, owner m14) + M17 + M12; union | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M17FlagKey | M12FlagKey; no duplicate keys; defaults unchanged"
+      }
+    },
+    "autoMergeInspection": "server.ts: registerToolProgramRoutes (M12) + registerDevicePairingRoutes (M17) intact; service.ts: M14 session.branch/import handlers flag-gated, disjoint regions; crash-death discriminator + all M12 files byte-identical post-merge; scripts/capture-ui/shell-api.ts upstream-only.",
+    "note": "LOCAL ONLY \u2014 not pushed while Windows run 44411197628 is active. No new semantic conflicts."
   }
 }
