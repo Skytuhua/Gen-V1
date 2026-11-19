@@ -1,5 +1,6 @@
 import {afterEach,describe,expect,it} from 'vitest';
 import Fastify from 'fastify';
+import {IsolatedExtensionHost} from '../packages/plugins/isolated-host.ts';
 import {registerPluginRoutes} from '../apps/server/plugin-routes.ts';
 import type {PluginRegistry} from '../packages/plugins/host.ts';
 import {request as httpRequest} from 'node:http';
@@ -17,6 +18,16 @@ function setup(){
   registerPluginRoutes(app,registry,'http://127.0.0.1:4317');return {app,seen};
 }
 describe('installed plugin routes',()=>{
+  it('omits the Extensions rows from the catalog while the isolated flag is off and keeps trusted plugins',async()=>{
+    const app=Fastify();apps.push(app);
+    const trusted={id:'sample-plugin',name:'Sample',version:'1.0.0',apiVersion:1,compatibleGenVersions:'^0.6.3',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'};
+    const registry={list:()=>[trusted]} as unknown as PluginRegistry;
+    const host=new IsolatedExtensionHost({enabled:()=>false,approvedBackendId:()=>null,backends:()=>[],launcher:{async launch(){throw new Error('must not launch');}}});
+    registerPluginRoutes(app,registry,'http://127.0.0.1:4317',undefined,undefined,()=>true,host);
+    const body=(await app.inject('/api/plugins')).json();
+    expect(body.plugins).toEqual([trusted]);
+    expect(body).not.toHaveProperty('extensions');
+  });
   it.each(['Recovered owner notes','',42,false,null,['draft'],{draft:'saved'}])('round-trips a JSON recovery value without converting strings to plain text: %j',async value=>{
     const app=Fastify();apps.push(app);
     const registry={dispatch:async()=>value} as unknown as PluginRegistry;

@@ -124,7 +124,12 @@ export function unifiedDiff(path: string, before: Buffer | null, after: Buffer |
   const header = `--- a/${path}\n+++ b/${path}\n`;
   let diff = header + (hunks.length ? hunks.join("\n") + "\n" : "");
   const truncated = Buffer.byteLength(diff, "utf8") > REVIEW_DIFF_LIMIT;
-  if (truncated) diff = Buffer.from(diff, "utf8").subarray(0, REVIEW_DIFF_LIMIT).toString("utf8");
+  if (truncated) {
+    const bytes = Buffer.from(diff, "utf8");
+    let end = REVIEW_DIFF_LIMIT;
+    while ((bytes[end]! & 0xc0) === 0x80) end--;
+    diff = bytes.subarray(0, end).toString("utf8");
+  }
   return { diff: diff === header ? null : diff, truncated };
 }
 

@@ -32,6 +32,8 @@ it('records a stable request id and monotonic stage timings with owned binding',
   // The observation is emitted once at teardown and again when the response
   // actually commits with the final firstPublicDelta stamp.
   expect(observations).toHaveLength(2);
+  expect(observations[0]).toMatchObject({ timings: { firstPublicDelta: null } });
+  expect(observations[1]).toMatchObject({ timings: { firstPublicDelta: observation!.timings.firstPublicDelta } });
  }finally{await b.close();}
 });
 it('records dispatch before output emitted while the native start promise is pending',async()=>{
