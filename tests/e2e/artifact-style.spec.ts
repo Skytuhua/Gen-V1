@@ -106,6 +106,24 @@ for (const width of [1440, 960]) test(`long email choices retain readable width 
   await reloadApp(page);await expect(page.getByRole('radio',{name:/legal@studio.example/})).toBeChecked();
 });
 
+test('a preview worker failure reports its own message', async ({ page }) => {
+  await page.addInitScript(() => {
+    const Real = window.Worker;
+    window.Worker = class extends Real {
+      constructor(url: string | URL, options?: WorkerOptions) {
+        super(url, options);
+        if (!options?.name?.startsWith('pdf-draft')) return;
+        this.terminate();
+        setTimeout(() => this.onerror?.(new ErrorEvent('error', { message: 'The draft bundle is unavailable.' })), 50);
+      }
+    } as unknown as typeof Worker;
+  });
+  await host(page, fixture(structuredClone(signing))); await openApp(page);
+  const failure = page.locator('.document-preview-failure');
+  await expect(failure).toContainText('The PDF draft worker could not process this document.');
+  await expect(failure).toContainText('The draft bundle is unavailable.');
+});
+
 test('new composition schemas are strict, bounded and preserve stable step identities', () => {
   for (const spec of [signing, operational, faq]) expect(() => validateSurface(spec)).not.toThrow();
   const single = (type: string, props: Record<string, unknown>) => ({ root: 'a', elements: { a: { type, props } } });
