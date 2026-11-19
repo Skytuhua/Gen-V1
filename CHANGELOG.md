@@ -66,8 +66,7 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
   recovery, native checkpoints, study/recall controls and scheduled purge.
 - Route Hermes model traffic through shared request scheduling and accounting;
   enforce call/token budgets and isolate warm-transport reuse experiments.
-- Harden Pi, Claude, Gemini and Cursor startup, cancellation, history byte limits,
-  UTF-8 handling, telemetry and process/listener cleanup.
+- Preserve provider telemetry and improve UTF-8 history decoding.
 
 ### Integrations, MCP and plug-ins
 
@@ -76,7 +75,7 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
 - Add generic optional plug-in workspaces and the independent Personal Visuals
   plug-in; the main workspace works without an installed plug-in.
 - Add approved host integration operations and Context7 reference delivery with
-  inspectable provenance, advisory freshness checks and protected MCP output.
+  inspectable provenance and protected MCP output.
 - Add a separately gated isolated-extension worker lane with leased lifecycle and
   declared-tool registration; activation requires a proven confined backend.
 
@@ -121,8 +120,7 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
   and revocation at execution rather than trusting a prior UI decision.
 - Strengthen platform confinement/custody checks, plug-in document permissions,
   opaque-frame replacement handling and protected resource boundaries.
-- Redact injected integration credentials across MCP output and structured errors;
-  reject unsafe error metadata and stale or unproven advisory screening results.
+- Redact injected integration credentials across MCP output.
 
 ### Performance and fixes
 
@@ -131,8 +129,19 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
   scans, renderer notices, search work and formatting allocations.
 - Preserve composer focus, drafts, IME Escape behavior, disabled-control semantics,
   editor identity and conversation ownership through switches, reloads and docking.
-- Fix stale plan/report writes, checkpoint diff/apply and Git status parsing,
-  split UTF-8 previews/terminal scrollback and scheduler cancellation/lease races.
+- Fix checkpoint diff/apply, Git status parsing and split UTF-8 diff previews.
+
+### Runtime reliability and safety
+
+- Preserve schedule pauses, cancellations, newer leases and blocked states during recovery and late delivery reconciliation.
+- Reject plan progress and report writes based on stale revisions; advance report cursors only through the events actually consumed.
+- Bound package advisory cache reuse to 24 hours, require fresh snapshot provenance for clean results, and block inconsistent screening decisions.
+- Validate initial terminal commands before spawning; retain complete characters when trimming scrollback and keep transcript cursors in bounds.
+- Measure thread-note budgets against the stored text, keeping memory bounded for continuity rather than treating it as source evidence or approval.
+- Redact integration error metadata and reject causes, property names or formatter accessors that cannot be safely scrubbed of credentials.
+- Avoid host restart hangs when event-stream clients disconnect during shutdown, without waiting for duplicate close events.
+- Keep the isolated extension lifecycle off by default and its catalog hidden while disabled; keep migration updates blocked and prevent worker replacement until prior shutdown is confirmed.
+- Bound provider history and session-header reads, reject malformed history, and tighten startup deadlines, cancellation cleanup and optional usage waits.
 
 ### Known issues
 

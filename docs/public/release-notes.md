@@ -50,8 +50,8 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
 - **Context, memory and Hermes:** inspectable request budgets, usage/timing and
   compaction costs; gated source-bound context preparation, repository maps,
   loss-aware compaction and opt-in source-linked project memory with review,
-  exclusions and recovery. Shared model scheduling and bounded provider history
-  improve runtime accounting and cleanup; warm reuse remains experimental.
+  exclusions and recovery. Shared model scheduling improves runtime accounting;
+  warm reuse remains experimental.
 - **Integrations and MCP:** public plug-in API v1, independently versioned and
   integrity-checked packages, durable plug-in data and optional Personal Visuals.
   Approved Context7 operations expose reference/advisory provenance. Isolated
@@ -65,13 +65,28 @@ not a stable-channel promotion. Expect Windows SmartScreen to show a
 - **Desktop and updater:** guarded stable-update checks, deferred/retry handling,
   restored conversation detachment/docking, closed-window recovery, stable bounds,
   compact startup feedback and stronger packaging/export checks.
-- **Security, performance and fixes:** separately gated project trust, secret
+- **Security:** separately gated project trust, secret
   references, single-use approvals and recoverable effect receipts; stronger MCP
-  credential redaction, document permissions and custody checks. Paged reads,
-  lazy panels and reduced rescanning accompany fixes to drafts/focus, stale plans,
-  checkpoints, terminal UTF-8 and scheduling races.
+  credential redaction at MCP output, document permissions and custody checks.
 - **Pending security repair:** retain a known-bad integration denial when
   advisory refresh fails (#936), rather than losing the prior denial.
+
+### Performance and fixes
+
+- Paged reads, lazy panels and reduced rescanning accompany fixes to drafts/focus
+  and checkpoints.
+
+### Runtime reliability and safety
+
+- Preserve schedule pauses, cancellations, newer leases and blocked states during recovery and late delivery reconciliation.
+- Reject plan progress and report writes based on stale revisions; advance report cursors only through the events actually consumed.
+- Bound package advisory cache reuse to 24 hours, require fresh snapshot provenance for clean results, and block inconsistent screening decisions.
+- Validate initial terminal commands before spawning; retain complete characters when trimming scrollback and keep transcript cursors in bounds.
+- Measure thread-note budgets against the stored text, keeping memory bounded for continuity rather than treating it as source evidence or approval.
+- Redact integration error metadata and reject causes, property names or formatter accessors that cannot be safely scrubbed of credentials.
+- Avoid host restart hangs when event-stream clients disconnect during shutdown, without waiting for duplicate close events.
+- Keep the isolated extension lifecycle off by default and its catalog hidden while disabled; keep migration updates blocked and prevent worker replacement until prior shutdown is confirmed.
+- Bound provider history and session-header reads, reject malformed history, and tighten startup deadlines, cancellation cleanup and optional usage waits.
 
 Advanced host capabilities are separately gated and generally default off;
 listing source work here does not grant execution authority, prove provider
