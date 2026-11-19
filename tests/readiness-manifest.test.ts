@@ -140,7 +140,7 @@ describe('prerequisite gating',()=>{
   });
 
   it('packaged Windows verification is BLOCKED off Windows and records the exact Windows commands',()=>{
-    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory());
+    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(true);
     expect(plan.errorKind).toBe('platform-unavailable');
     const serialized=JSON.stringify(plan.commands);
@@ -157,7 +157,7 @@ describe('prerequisite gating',()=>{
     const runA=join(temporaryDirectory(),'release output');
     const runB=join(temporaryDirectory(),'release output');
     for(const outputRoot of [runA,runB]){
-      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot);
+      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot,'x64');
       expect(plan.commands[0]?.args).toEqual(['desktop:package','--output-root',outputRoot]);
       const release=await reserveDesktopRelease(plan.commands[0]!.args[2]!,'0.6.5');
       expect(plan.commands[1]?.args.slice(-2)).toEqual([
@@ -166,8 +166,13 @@ describe('prerequisite gating',()=>{
     }
   });
 
+  it.each(['arm64','ia32'])('blocks unsupported Windows %s before packaging',arch=>{
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),arch);
+    expect(plan).toMatchObject({blocked:true,errorKind:'platform-unavailable'});
+    expect(plan.commands).toHaveLength(2);
+  });
   it('packaged Windows verification is runnable on Windows x64',()=>{
-    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory());
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(false);
     expect(plan.errorKind).toBeNull();
     expect(plan.commands.length).toBe(2);

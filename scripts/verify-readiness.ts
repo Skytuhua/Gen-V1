@@ -155,7 +155,7 @@ export function detectBrowserPrerequisite(resolveExecutable:()=>string,exists:(p
 // Packaged Windows verification: package the installer, then verify the installed
 // application. Both steps require Windows x64 (scripts/package-desktop.ts and
 // scripts/verify-installed-desktop.ts refuse other platforms).
-export function windowsVerificationPlan(platform:string,version:string,outputRoot:string):
+export function windowsVerificationPlan(platform:string,version:string,outputRoot:string,architecture:string):
   {blocked:boolean;errorKind:string|null;commands:Array<{command:string;args:string[]}>}{
   const release=join(outputRoot,`desktop-release-${version}`);
   const commands=[
@@ -163,7 +163,7 @@ export function windowsVerificationPlan(platform:string,version:string,outputRoo
     {command:'pnpm',args:['exec','tsx','scripts/verify-installed-desktop.ts',
       join(release,`Gen-V1-Setup-${version}-win-x64.exe`),join(release,'win-unpacked')]},
   ];
-  return platform==='win32'
+  return platform==='win32'&&architecture==='x64'
     ?{blocked:false,errorKind:null,commands}
     :{blocked:true,errorKind:'platform-unavailable',commands};
 }
@@ -211,7 +211,7 @@ async function main(){
   if(evalResult.exitCode===2)evalResult.note='Honest pending eval manifest: no live host/model supplied; all gates pending.';
 
   const packageOutput=resolve(artifactRoot,'desktop-package');
-  const plan=windowsVerificationPlan(process.platform,version,packageOutput);
+  const plan=windowsVerificationPlan(process.platform,version,packageOutput,process.arch);
   const windowsSpec=spec('windows-packaged-verification',plan.commands[0]!.args,3_600_000);
   if(plan.blocked){
     const blocked=blockedResult(windowsSpec,plan.errorKind!,
