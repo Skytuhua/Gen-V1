@@ -1,0 +1,170 @@
+name: Draft desktop release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      channel:
+        description: Release channel (must match the package version)
+        type: choice
+        options: [stable, prerelease]
+        default: stable
+        required: true
+      ref:
+        description: Optional source ref (defaults to the selected workflow ref)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: windows-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ inputs.ref || github.ref }}
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'true'
+
+      - name: Validate release identity and channel
+        id: release
+        env:
+          RELEASE_EVENT: ${{ github.event_name }}
+          RELEASE_REF: ${{ github.ref_name }}
+          RELEASE_CHANNEL: ${{ inputs.channel }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+          $env:RELEASE_VERSION = $version
+          node --input-type=module -e "import semver from 'semver'; if (semver.valid(process.env.RELEASE_VERSION) !== process.env.RELEASE_VERSION) throw Error('Invalid release semver');"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $tag = 'v' + $version
+          $isPrerelease = $null -ne ($version | Select-String '^[0-9]+\.[0-9]+\.[0-9]+-')
+          $channel = $env:RELEASE_CHANNEL
+          if ($env:RELEASE_EVENT -eq 'push') {
+            if ($env:RELEASE_REF -cne $tag) { throw 'Tag must equal v + package.json version' }
+            $channel = if ($isPrerelease) { 'prerelease' } else { 'stable' }
+          }
+          if ($channel -notin @('stable', 'prerelease')) { throw 'Invalid release channel' }
+          if (($channel -eq 'prerelease') -ne $isPrerelease) { throw 'Prerelease channel requires a semver prerelease version; stable requires none' }
+          $sha = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          "tag=$tag" >> $env:GITHUB_OUTPUT
+          "sha=$sha" >> $env:GITHUB_OUTPUT
+          "HARNESS_RELEASE_CHANNEL=$channel" >> $env:GITHUB_ENV
+          "RELEASE_TAG=$tag" >> $env:GITHUB_ENV
+          "RELEASE_SHA=$sha" >> $env:GITHUB_ENV
+          "RELEASE_VERSION=$version" >> $env:GITHUB_ENV
+
+      - name: Stage pinned integration wheels for canonical packaging
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
+          $wheels = Join-Path $env:RUNNER_TEMP ('gen-packaging-wheels-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $wheels | Out-Null
+          $names = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::OrdinalIgnoreCase)
+          foreach ($distribution in $lock.distributions) {
+            if ($distribution.sourceUrl -notmatch '^https://files\.pythonhosted\.org/[^?#\s]+\.whl$' -or $distribution.wheelSha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid pinned integration wheel identity' }
+            $name = [System.IO.Path]::GetFileName(([System.Uri]$distribution.sourceUrl).AbsolutePath)
+            if ($name -notmatch '^[A-Za-z0-9_.+-]+\.whl$' -or -not $names.Add($name)) { throw 'Ambiguous pinned integration wheel filename' }
+            $archive = Join-Path $wheels $name
+            Invoke-WebRequest -Uri $distribution.sourceUrl -OutFile $archive -TimeoutSec 180
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $distribution.wheelSha256) { throw 'Pinned integration wheel archive checksum mismatch' }
+          }
+          "HARNESS_INTEGRATION_WHEELS=$wheels" >> $env:GITHUB_ENV
+          Write-Output ('HARNESS_PINNED_INTEGRATION_WHEELS=' + (@{count=$names.Count; sourceLockSha256=(Get-FileHash -LiteralPath third-party/integrations/PYTHON_LOCK.json -Algorithm SHA256).Hash.ToLowerInvariant()} | ConvertTo-Json -Compress))
+
+      - name: Stage declared Git and GitHub CLI packaging inputs
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $manifest = Get-Content -Raw -LiteralPath third-party/git-tools/manifest.json | ConvertFrom-Json
+          $scratch = Join-Path $env:RUNNER_TEMP ('gen-installed-inputs-' + [guid]::NewGuid().ToString('N'))
+          New-Item -ItemType Directory -Path $scratch | Out-Null
+          foreach ($tool in @(@{name='git'; pin=$manifest.git}, @{name='gh'; pin=$manifest.github})) {
+            $pin = $tool.pin
+            if ($pin.url -notmatch '^https://github\.com/(git-for-windows/git|cli/cli)/releases/download/[^?#\s]+\.zip$' -or $pin.archiveSha256 -notmatch '^[0-9a-f]{64}$') {
+              throw 'Invalid declared Git packaging archive identity'
+            }
+            $archive = Join-Path $scratch ($tool.name + '.zip')
+            Invoke-WebRequest -Uri $pin.url -OutFile $archive -TimeoutSec 180
+            if ((Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant() -ne $pin.archiveSha256) {
+              throw 'Declared Git packaging archive checksum mismatch'
+            }
+            $expanded = Join-Path $scratch $tool.name
+            Expand-Archive -LiteralPath $archive -DestinationPath $expanded
+            $source = $expanded
+            if ($tool.name -eq 'gh' -and -not (Test-Path -LiteralPath (Join-Path $source 'bin/gh.exe'))) {
+              $source = Join-Path $expanded ('gh_' + $pin.version + '_windows_amd64')
+            }
+            $prefix = '.harness-tool-bundles/' + $tool.name + '/'
+            $destination = Join-Path $PWD ('.harness-tool-bundles/' + $tool.name)
+            if (Test-Path -LiteralPath $destination) { throw 'Packaging input destination already exists' }
+            New-Item -ItemType Directory -Path $destination | Out-Null
+            foreach ($file in @($manifest.files | Where-Object { $_.path.StartsWith($prefix) })) {
+              $relative = $file.path.Substring($prefix.Length)
+              if ([string]::IsNullOrWhiteSpace($relative) -or $relative -match '(^|/)\.\.?(/|$)|[\\:]|^/|//|/$' -or $file.sha256 -notmatch '^[0-9a-f]{64}$') { throw 'Invalid declared Git payload path' }
+              $payloadInput = Join-Path $source $relative
+              $payloadOutput = Join-Path $destination $relative
+              if ((Get-Item -LiteralPath $payloadInput).Length -ne $file.bytes -or (Get-FileHash -LiteralPath $payloadInput -Algorithm SHA256).Hash.ToLowerInvariant() -ne $file.sha256) { throw 'Declared Git payload checksum mismatch' }
+              New-Item -ItemType Directory -Path (Split-Path -Parent $payloadOutput) -Force | Out-Null
+              Copy-Item -LiteralPath $payloadInput -Destination $payloadOutput
+            }
+          }
+          node --import tsx --input-type=module -e "import {collectGitTools} from './scripts/git-assets.ts'; const value=await collectGitTools(process.cwd()); console.log(JSON.stringify({files:value.files.length,bytes:value.bytes}));"
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Package the production Windows installer
+        run: pnpm desktop:package --output-root .harness-release-package
+
+      # Future signing must use WINDOWS_CSC_LINK / WINDOWS_CSC_KEY_PASSWORD
+      # during packaging, before blockmap, feed checksums and manifest are written.
+      - name: Signing hook (unsigned placeholder)
+        run: Write-Output 'Unsigned release; certificate signing is not configured.'
+
+      - name: Upload only to a draft GitHub release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $repo = 'skytuhua-org/Gen-V1'
+          $release = Join-Path $PWD ('.harness-release-package/desktop-release-' + $env:RELEASE_VERSION)
+          $installer = 'Gen-V1-Setup-' + $env:RELEASE_VERSION + '-win-x64.exe'
+          $feed = if ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease') { 'beta.yml' } else { 'latest.yml' }
+          $assets = @($installer, ($installer + '.blockmap'), $feed, 'build-manifest.json') | ForEach-Object {
+            $path = Join-Path $release $_
+            if (-not (Test-Path -LiteralPath $path -PathType Leaf) -or (Get-Item -LiteralPath $path).Length -eq 0) { throw "Missing release artifact: $_" }
+            $path
+          }
+          # Listing failure (including auth/network errors) is fatal, not "not found".
+          $releasesJson = gh api --paginate --slurp "repos/$repo/releases?per_page=100"
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing releases' }
+          $existing = @($releasesJson | ConvertFrom-Json | ForEach-Object { $_ } | ForEach-Object { $_ } | Where-Object { $_.tag_name -ceq $env:RELEASE_TAG })
+          if ($existing.Count -gt 1) { throw 'Ambiguous existing release' }
+          if ($existing.Count -eq 1) {
+            if (-not $existing[0].draft) { throw 'Refusing to modify a published release' }
+            if ([bool]$existing[0].prerelease -ne ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease')) { throw 'Existing draft channel mismatch' }
+            gh release upload $env:RELEASE_TAG @assets --clobber --repo $repo
+          } else {
+            $createArgs = @('release', 'create', $env:RELEASE_TAG, '--draft', '--repo', $repo, '--target', $env:RELEASE_SHA, '--title', ('Gen V1 ' + $env:RELEASE_TAG))
+            if ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease') { $createArgs += '--prerelease' }
+            gh @createArgs @assets
+          }
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
