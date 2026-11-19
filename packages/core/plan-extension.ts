@@ -138,24 +138,25 @@ export class PlanExtensionStore {
    * advances only after the report itself is durably recorded; on restart it
    * simply resumes from the stored position. */
   report(planId: string): PlanReport {
-    const extension = this.get(planId);
-    if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
-    const {record} = this.canonical(extension.planId);
-    const watermark = extension.reportWatermark;
-    const raw = this.hooks.store.eventsAfter(watermark, AGENT_WORK_LIMITS.reportEvents);
-    const deltas = raw.filter(event => event.threadId === record.threadId && !SELF_EVENT.test(event.type));
-    const reportId = `plan-report:${planId}:${extension.extensionRevision}`;
-    this.hooks.store.internal('agentWorkReport', record.threadId, () =>
-      this.hooks.store.put(REPORT_KIND, reportId, record.threadId, {
+    const store = this.hooks.store;
+    const {record} = this.canonical(planId);
+    let report!: PlanReport;
+    store.internal('agentWorkReport', record.threadId, () => {
+      const extension = this.get(planId);
+      if (!extension) throw new HarnessError('INVALID_PLAN_EXTENSION', `No plan extension at ${planId}`);
+      const watermark = extension.reportWatermark;
+      const raw = store.eventsAfter(watermark, AGENT_WORK_LIMITS.reportEvents);
+      const deltas = raw.filter(event => event.threadId === record.threadId && !SELF_EVENT.test(event.type));
+      const reportId = `plan-report:${planId}:${extension.extensionRevision}`;
+      // Advance only over the raw window consumed, together with its report.
+      // A subscriber can commit more events as soon as this transaction ends.
+      const nextWatermark = raw.at(-1)?.seq ?? watermark;
+      store.put(REPORT_KIND, reportId, record.threadId, {
         id: reportId, planId, watermark, deltaSeqs: deltas.map(delta => delta.seq), createdAt: new Date().toISOString(),
-      }));
-    // The watermark covers the raw window actually consumed, not the filtered
-    // count — task events beyond a full page are reached by later reports.
-    const nextWatermark = raw.length >= AGENT_WORK_LIMITS.reportEvents ? raw[raw.length - 1].seq : this.hooks.store.sequence;
-    this.hooks.store.internal('planExtension.watermark', record.threadId, () => {
-      const current = this.hooks.store.get<PlanExtensionV1>(KIND, planId);
-      if (current) this.hooks.store.put(KIND, planId, record.threadId, {...current, reportWatermark: nextWatermark, extensionRevision: current.extensionRevision + 1});
+      });
+      store.put(KIND, planId, record.threadId, {...extension, reportWatermark: nextWatermark, extensionRevision: extension.extensionRevision + 1});
+      report = {planId, watermark, nextWatermark, deltas, reportId};
     });
-    return {planId, watermark, nextWatermark, deltas, reportId};
+    return report;
   }
 }
