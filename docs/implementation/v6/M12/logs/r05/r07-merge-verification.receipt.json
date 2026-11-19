@@ -1,0 +1,8 @@
+{
+  "cut": "0ae8e3de17a0057329575e5eb897d5beee287ced",
+  "command": "pnpm typecheck; vitest run project-trust-v3 tool-program-replay-v3 tool-program-recovery-v3 public-source tool-program-v3 --maxWorkers=1",
+  "exitCode": 0,
+  "status": "PASS",
+  "note": "R07 local merge (main 2b41659c + M12). typecheck 0 errors; 93/93: project-trust ~10, replay 33, recovery 15, public-source 13, tool-program-v3 22 (64/65 + flags). Validators: schema-valid, lock digest match, 0 errors, baseSha e816a081, flags off, reviewerApproval false. Local only \u2014 run 44426865521 active on published 096da165.",
+  "logDigest": "not-recorded \u2014 console summary"
+}

@@ -371,5 +371,20 @@
     },
     "autoMergeInspection": "server.ts: registerToolProgramRoutes (M12) + registerDevicePairingRoutes (M17) intact; service.ts: M14 session.branch/import handlers flag-gated, disjoint regions; crash-death discriminator + all M12 files byte-identical post-merge; scripts/capture-ui/shell-api.ts upstream-only.",
     "note": "LOCAL ONLY \u2014 not pushed while Windows run 44411197628 is active. No new semantic conflicts."
+  },
+  "r07": {
+    "main": "2b41659c4cc4226c2527bafb73924638db35f520",
+    "mergeCommit": "0ae8e3de17a0057329575e5eb897d5beee287ced",
+    "conflicts": {
+      "scripts/public-source-files.json": {
+        "decision": "sorted unique union \u2014 result 4471 source / 306 runtime"
+      },
+      "tests/project-trust-v3.test.ts": {
+        "decision": "upstream fixture structure taken (cleanTempDirs/temp-dir.ts, LF normalization); M12 ordinary grant read keeps the withBoundFileRead descriptor contract (descriptorPath callback) \u2014 both file-access exports coexist, assertion intent identical. Whole-file conflict was mostly CRLF/LF noise; real semantic delta ~9 lines + the withBoundFileRead call site."
+      }
+    },
+    "autoMergeInspection": "server.ts routes intact; all M12 files byte-identical post-merge; no new semantic conflicts.",
+    "windowsComparison": "clean-main Windows run 44416861265 at 4bcdc82a: context-result-host 32/32, context-result-custody 4/4 \u2014 comparison evidence only (not a pass on any M12 cut). This RECLASSIFIES the shard-2/4 context-result failures on c413a178 as M12-attributable (file main-owned and unchanged, but behavior regresses on the merged tree \u2014 an M12 shared-module interaction; diagnosis pending). Earlier \"inherited/main-side\" classification superseded.",
+    "note": "LOCAL ONLY \u2014 not pushed; Windows run 44426865521 actively testing published head 096da165."
   }
 }
