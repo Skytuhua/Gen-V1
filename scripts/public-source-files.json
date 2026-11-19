@@ -3247,6 +3247,7 @@
     "tests/linux-path-guard.test.ts",
     "tests/lsp-revisions-v3.test.ts",
     "tests/lsp-stdio-lifecycle.test.ts",
+    "tests/m15-record-output.test.ts",
     "tests/managed-git-family.test.ts",
     "tests/memory-checkpoint-worker-ownership-v3.test.ts",
     "tests/memory-consolidation-v3.test.ts",
