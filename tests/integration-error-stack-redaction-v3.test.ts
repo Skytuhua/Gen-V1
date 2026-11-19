@@ -346,3 +346,38 @@ it.each(['raw', 'base64'] as const)('fails closed on credential-bearing child Er
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:5})).not.toContain(exposed);
 });
+
+it.each([
+ ['stack', false], ['message', false], ['name', false],
+ ['message', true], ['name', true], ['cause', true],
+] as const)('fails closed on an unsafe formatter accessor (%s, inherited=%s)', (key, inherited) => {
+ const secret='CONTEXT7_ERROR_ACCESSOR_SINK_FIXTURE_171';
+ const failure=new Error('safe child failure');
+ // Node's formatter evaluates these properties even when they live on a
+ // custom Error prototype. A setter can deliberately ignore redacted writes.
+ const target=inherited?Object.create(Error.prototype) as object:failure;
+ if(inherited){
+  Object.setPrototypeOf(failure,target);
+  Reflect.deleteProperty(failure,key);
+ }
+ Object.defineProperty(target,key,{
+  get:()=>secret,set:()=>{},enumerable:true,configurable:true,
+ });
+ expect(inspect(failure,{depth:5})).toContain(secret);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:5})).not.toContain(secret);
+});
