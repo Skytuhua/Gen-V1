@@ -1,5 +1,5 @@
 import {afterEach,expect,it,vi} from 'vitest';
-import {mkdtemp,mkdir,writeFile,rm,copyFile,readFile} from 'node:fs/promises';
+import {mkdtemp,mkdir,writeFile,rm,copyFile,readFile,readdir} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {DatabaseSync} from 'node:sqlite';
@@ -9,6 +9,7 @@ import {pnpm,run} from '../scripts/rc-review/common.ts';
 import {archiveProfile,restoreProfile} from '../scripts/rc-review/profile-archive.ts';
 
 const roots:string[]=[];
+it('refuses outdated manifest versions before comparison or restore writes',async()=>{const {root,profile,host}=await fixture(),before=await snapshot(profile,host),old=structuredClone(before);Reflect.set(old,'version',1);expect(()=>compare(old,before)).toThrow('re-snapshot needed');expect(()=>compare(before,old)).toThrow('re-snapshot needed');const seed=join(root,'seed.json'),manifest=join(root,'old.json'),archive=join(root,'archive');await writeFile(seed,'{}');await writeFile(manifest,JSON.stringify(old));await archiveProfile(profile,host,seed,manifest,archive);await expect(restoreProfile(archive,profile,host,join(root,'refused'))).rejects.toThrow('re-snapshot needed');expect(await readdir(profile)).toEqual([]);expect(await readdir(host)).toEqual([]);});
 async function fixture(){const root=await mkdtemp(join(tmpdir(),'rc-manifest-'));roots.push(root);const profile=join(root,'GenerativeHarnessDesktop'),host=join(root,'GenerativeHarness');await mkdir(profile);await mkdir(host);return {root,profile,host};}
 afterEach(async()=>{await Promise.all(roots.splice(0).map(root=>rm(root,{recursive:true,force:true})))});
 it('inventories empty profiles without inventing a database or app identity',async()=>{const {profile,host}=await fixture();const value=await snapshot(profile,host);expect(value.files).toEqual([]);expect(value.entities).toEqual({});expect(value.identifiers.appId).toBeNull();expect(compare(value,value).passed).toBe(true);});

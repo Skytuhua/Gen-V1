@@ -5,13 +5,14 @@ import {args,hash,json,main,output,run,sha,windows} from './common.ts';
 import {nsisApplicationGuid} from '../verify-installed-desktop.ts';
 
 type RowHash={id:string;sha256:string;count?:number};
-type Snapshot={version:1;identifiers:{appId:string|null;profile:string;host:string;accounts:string[]};appIdEvidence?:unknown;files:{root:string;path:string;bytes:number;sha256:string}[];databases?:{root:string;path:string;tables:Record<string,number>;classification?:'app-owned'|'chromium-volatile';rows?:Record<string,RowHash[]>}[];entities:Record<string,RowHash[]>;counts:Record<string,number>};
+type Snapshot={version:2;identifiers:{appId:string|null;profile:string;host:string;accounts:string[]};appIdEvidence?:unknown;files:{root:string;path:string;bytes:number;sha256:string}[];databases?:{root:string;path:string;tables:Record<string,number>;classification?:'app-owned'|'chromium-volatile';rows?:Record<string,RowHash[]>}[];entities:Record<string,RowHash[]>;counts:Record<string,number>};
+export function assertManifestVersion(...snapshots:{version?:number}[]){if(snapshots.some(value=>value.version!==2))throw Error('Profile manifest format mismatch; re-snapshot needed (expected version 2).');}
 const caches=new Set(['Cache','Code Cache','GPUCache','DawnCache','ShaderCache','GrShaderCache','Crashpad']);
 const chromiumDatabases=new Set(['Cookies','History','QuotaManager','Web Data','Login Data','Favicons','Top Sites','Network Action Predictor','DIPS','SharedStorage','Trust Tokens','Reporting and NEL','Media History','ClientCertificates']);
 const quote=(name:string)=>'"'+name.replaceAll('"','""')+'"';
 const content=(value:unknown)=>JSON.stringify(value,(_key,item)=>typeof item==='bigint'?{integer:item.toString()}:item instanceof Uint8Array?{blob:Buffer.from(item).toString('base64')}:item);
 export async function snapshot(profile:string,host:string,installDir?:string):Promise<Snapshot>{
- const result:Snapshot={version:1,identifiers:{appId:null,profile:basename(profile),host:basename(host),accounts:[]},files:[],entities:{},counts:{}};
+ const result:Snapshot={version:2,identifiers:{appId:null,profile:basename(profile),host:basename(host),accounts:[]},files:[],entities:{},counts:{}};
  async function inventory(){for(const [root,directory]of Object.entries({profile,host})){async function walk(dir:string,part=''){for(const entry of await readdir(dir,{withFileTypes:true}).catch(error=>{if(error.code==='ENOENT')return [];throw error;})){if(caches.has(entry.name))continue;const path=join(dir,entry.name),relative=(part?part+'/':'')+entry.name;if(entry.isSymbolicLink())throw Error('Refusing redirected profile path: '+relative);if(entry.isDirectory())await walk(path,relative);else{const info=await lstat(path);if(!info.isFile())throw Error('Non-file profile entry: '+relative);result.files.push({root,path:relative,bytes:info.size,sha256:await hash(path)});}}}await walk(directory);}}
  result.identifiers.accounts=(await readdir(join(host,'accounts'),{withFileTypes:true}).catch(error=>{if(error.code==='ENOENT')return [];throw error;})).filter(entry=>entry.isDirectory()).map(entry=>entry.name).sort();
  if(installDir){const metadata=JSON.parse(await readFile(join(installDir,'resources/host/package.json'),'utf8'));result.identifiers.appId=metadata.build?.appId??null;if(result.identifiers.appId)result.appIdEvidence={source:'installed host metadata'};else{
@@ -28,6 +29,7 @@ export async function snapshot(profile:string,host:string,installDir?:string):Pr
  result.databases.sort((a,b)=>(a.root+'/'+a.path).localeCompare(b.root+'/'+b.path));result.files=[];await inventory();result.files.sort((a,b)=>(a.root+'/'+a.path).localeCompare(b.root+'/'+b.path));return result;
 }
 export function compare(before:Snapshot,after:Snapshot){
+ assertManifestVersion(before,after);
  const missingEntities:{kind:string;id:string}[]=[],changedEntities:{kind:string;id:string}[]=[];
  for(const [kind,rows]of Object.entries(before.entities))for(const row of rows){const next=after.entities[kind]?.find(item=>item.id===row.id);if(!next)missingEntities.push({kind,id:row.id});else if(next.sha256!==row.sha256)changedEntities.push({kind,id:row.id});}
  const databaseLosses:{root:string;path:string;table?:string;beforeRows?:number;afterRows?:number;reason:string}[]=[],rowLosses:{root:string;path:string;table:string;id:string;reason:string}[]=[],ignoredDatabases:{root:string;path:string;reason:string}[]=[];

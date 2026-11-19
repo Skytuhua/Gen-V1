@@ -1,7 +1,7 @@
 import {copyFile,lstat,mkdir,readdir,readFile} from 'node:fs/promises';
 import {join,resolve} from 'node:path';
 import {args,hash,json,main,output,required,windows} from './common.ts';
-import {compare,snapshot} from './profile-manifest.ts';
+import {assertManifestVersion,compare,snapshot} from './profile-manifest.ts';
 
 type Inventory={version:1;files:{root:'profile'|'host';path:string;bytes:number;sha256:string}[];directories:{root:'profile'|'host';path:string}[];seedSha256:string;manifestSha256:string};
 function relative(path:string){if(!path||path.includes('\\')||path.includes(':')||path.includes('\0')||path.split('/').some(part=>!part||part==='.'||part==='..'))throw Error('Unsafe archive path.');return path;}
@@ -15,10 +15,11 @@ export async function archiveProfile(profile:string,host:string,seed:string,mani
 export async function restoreProfile(archive:string,profile:string,host:string,out:string,install?:string){
  const inventory=JSON.parse(await readFile(join(archive,'archive.json'),'utf8')) as Inventory;if(inventory.version!==1||!Array.isArray(inventory.files)||!Array.isArray(inventory.directories))throw Error('Unsupported archive.');
  if(await hash(join(archive,'seed.json'))!==inventory.seedSha256||await hash(join(archive,'pre-upgrade-manifest.json'))!==inventory.manifestSha256)throw Error('Archive metadata SHA-256 mismatch.');
+ const before=JSON.parse(await readFile(join(archive,'pre-upgrade-manifest.json'),'utf8'));assertManifestVersion(before);
  const roots={profile,host};for(const item of [...inventory.directories,...inventory.files]){if(!Object.hasOwn(roots,item.root))throw Error('Unknown archive root.');relative(item.path);await ordinary(join(archive,item.root),true);const parts=item.path.split('/');for(let i=1;i<parts.length;i++)await ordinary(join(archive,item.root,...parts.slice(0,i)),true);}
  for(const item of inventory.files){const path=join(archive,item.root,item.path),info=await ordinary(path,false);if(info.size!==item.bytes||await hash(path)!==item.sha256)throw Error('Archive file SHA-256 mismatch: '+item.path);}
  await empty(profile);await empty(host);for(const path of [profile,host])await mkdir(path,{recursive:true});for(const item of inventory.directories)await mkdir(join(roots[item.root],item.path),{recursive:true});for(const item of inventory.files)await copyFile(join(archive,item.root,item.path),join(roots[item.root],item.path));
- await mkdir(out,{recursive:true});await copyFile(join(archive,'seed.json'),join(out,'seed.json'));const before=JSON.parse(await readFile(join(archive,'pre-upgrade-manifest.json'),'utf8')),after=await snapshot(profile,host,install),difference=compare(before,after),exactFiles=JSON.stringify(before.files)===JSON.stringify(after.files),exactEntities=JSON.stringify(before.entities)===JSON.stringify(after.entities),passed=difference.passed&&exactFiles&&exactEntities;
+ await mkdir(out,{recursive:true});await copyFile(join(archive,'seed.json'),join(out,'seed.json'));const after=await snapshot(profile,host,install),difference=compare(before,after),exactFiles=JSON.stringify(before.files)===JSON.stringify(after.files),exactEntities=JSON.stringify(before.entities)===JSON.stringify(after.entities),passed=difference.passed&&exactFiles&&exactEntities;
  await json(join(out,'restored-manifest.json'),after);await json(join(out,'restore-compare.json'),{...difference,exactFiles,exactEntities,passed});if(!passed)throw Error('Restored profile does not exactly match archived snapshot.');return {...difference,exactFiles,exactEntities,passed};
 }
 main(import.meta.url,async()=>{windows();const {options,positionals}=args(),profile=resolve(options.profile??join(process.env.APPDATA!,'GenerativeHarnessDesktop')),host=resolve(options.host??join(process.env.LOCALAPPDATA!,'GenerativeHarness'));if(positionals[0]==='archive')console.log(JSON.stringify(await archiveProfile(profile,host,required(options,'seed'),required(options,'manifest'),required(options,'archive'))));else if(positionals[0]==='restore')console.log(JSON.stringify(await restoreProfile(required(options,'archive'),profile,host,output(options),options.install),null,2));else throw Error('Usage: profile-archive archive --archive dir --seed path --manifest path | restore --archive dir --out dir [--install dir]');});
