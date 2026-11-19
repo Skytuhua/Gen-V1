@@ -127,16 +127,28 @@ export class EditPreviewRegistry {
     const preview = this.require(previewId, owner);
     if (preview.state !== "STREAMING_UNAPPLIED")
       throw new HarnessError("INVALID_INPUT", "The edit preview is no longer streaming.");
-    const parsed = parseFinalArguments(Buffer.concat(preview.buffered).toString("utf8"));
-    preview.finalArgumentsDigest = parsed.digest;
-    preview.targetFiles = parsed.targets.map(target => ({
-      path: target.path,
-      identity: null,
-      beforeDigest: beforeDigestFor(target.path),
-      proposedDigest: sha(target.proposedContent),
-    }));
-    preview.state = "READY_UNAPPLIED";
-    return this.view(preview);
+    try {
+      const parsed = parseFinalArguments(Buffer.concat(preview.buffered).toString("utf8"));
+      const candidate: Preview = {
+        ...preview,
+        finalArgumentsDigest: parsed.digest,
+        targetFiles: parsed.targets.map(target => ({
+          path: target.path,
+          identity: null,
+          beforeDigest: beforeDigestFor(target.path),
+          proposedDigest: sha(target.proposedContent),
+        })),
+        state: "READY_UNAPPLIED",
+      };
+      const result = this.view(candidate);
+      this.previews.set(previewId, candidate);
+      return result;
+    } catch (error) {
+      // A failed final seal is terminal for this stream, not a partial result.
+      preview.state = "INVALID";
+      this.release(preview);
+      throw error;
+    }
   }
 
   /** Final arguments must match the digest the preview was sealed with. A

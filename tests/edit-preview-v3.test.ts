@@ -131,3 +131,16 @@ it('closed previews release their aggregate and memory budget',()=>{
  expect(registry.append(second.previewId,owner,raw).state).toBe('STREAMING_UNAPPLIED');
  expect(registry.list(owner).map(preview=>preview.state)).toEqual(['APPLIED','STREAMING_UNAPPLIED']);
 });
+
+it('a failed final seal invalidates an incomplete preview and frees its slot for a new edit',()=>{
+ const registry=new EditPreviewRegistry({...CODE_INTELLIGENCE_LIMITS,openPreviewsPerRun:1});
+ const preview=registry.begin(owner,schemaDigest);
+ registry.append(preview.previewId,owner,'{"files":');
+ expect(()=>registry.seal(preview.previewId,owner,()=>null)).toThrowError(/not valid JSON/);
+ expect(registry.get(preview.previewId,owner)).toMatchObject({
+  state:'INVALID',finalArgumentsDigest:null,targetFiles:[],
+ });
+ const retry=registry.begin(owner,schemaDigest);
+ registry.append(retry.previewId,owner,args('a.ts','complete'));
+ expect(registry.seal(retry.previewId,owner,()=>null).state).toBe('READY_UNAPPLIED');
+});
