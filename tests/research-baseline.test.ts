@@ -506,3 +506,20 @@ describe('dependency-contract checker', () => {
     expect(CONTRACT_SOURCES['process-launcher']).toBe('packages/capabilities/process.ts');
   });
 });
+
+it('validates an exact locked blob whose ordinary filename contains consecutive dots', () => {
+  const root = dir('source-lock-dots');
+  const path = 'compatibility..snapshot.ts';
+  const git = (...args: string[]) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', windowsHide: true }).trim();
+  git('init', '-q');
+  writeFileSync(join(root, path), 'export const fixture = true;\n');
+  git('add', '--', path);
+  git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', '-c', 'commit.gpgSign=false', '-c', 'core.hooksPath=.git/no-hooks', 'commit', '-qm', 'source fixture');
+  const sha = git('rev-parse', 'HEAD');
+  const lock = sourceLockV3Schema.parse({
+    schemaVersion: 3, auditAncestorSha: sha, executionBaseSha: sha,
+    inspectedPaths: [{ path, blobSha: git('rev-parse', sha + ':' + path) }],
+    publicContracts: [], acceptedDependencyCommits: [], approvedDrift: [],
+  });
+  expect(verifySourceLock(root, lock)).toEqual([]);
+});
