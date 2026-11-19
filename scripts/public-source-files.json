@@ -10,6 +10,7 @@
     ".github/pull_request_template.md",
     ".github/workflows/ci.yml",
     ".github/workflows/m04-m06-qualification.yml",
+    ".github/workflows/m05-installed-memory-qualification.yml",
     ".github/workflows/m15-evidence.yml",
     ".gitignore",
     "CHANGELOG.md",
