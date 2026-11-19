@@ -115,6 +115,10 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     selectFor(path);
   }
   if (forcedFull) {
+    if (existing.size === 0) {
+      issues.push({ path: '', code: 'EMPTY_SELECTION', message: 'The full-suite fallback has no test files' });
+      return { tests: [], coverage: 'NONE', needsReview: true, issues };
+    }
     return { tests: [...existing].sort(), coverage: 'FULL', needsReview: true, issues };
   }
   const tests = [...selected].sort();
