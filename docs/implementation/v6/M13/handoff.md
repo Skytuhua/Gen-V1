@@ -564,3 +564,37 @@ prior accepted receipts are preserved under their actual tested cuts.
 
 Merge stays LOCAL per instruction — Windows run 44414394897 still has
 active jobs; no push, no CI dispatch, no flag changes.
+
+## M14-main integration merge 81154b2c (2026-11-19, LOCAL — not pushed)
+
+Forward-merged the exact main cut `75196a246a3708463caa1aa493e64112c5ec2dc5`
+(feat(M14): branchable sessions + inert history imports) into `agent/m13-v6`
+at published head `9a990b78`. Conflict set again exactly the two predicted:
+
+- `packages/core/capability-flags.ts` — only the `CapabilityFlagKey` union
+  line conflicted; resolved as full union (`M14FlagKey` + `M13FlagKey` +
+  `M17FlagKey` and all prior). `M14_FLAG_KEYS`, M14 `hostDefinitions`
+  (owner m14) auto-merged cleanly; verified on merged cut: 29 flags, all
+  three milestones' keys present, all default-false.
+- `scripts/public-source-files.json` — theirs (4418/289) ∪ exact
+  M13-owned admissions (43 source / 4 runtime) → 4465/293 after the four
+  merge-run summaries; sorted unique, zero removals.
+
+Auto-merge inspection: `server.ts` — M13 `isolatedExtensions` +
+`registerPluginRoutes(...,isolatedExtensions)`, M17
+`DevicePairingHost`/`ReadSyncHost`/`registerDevicePairingRoutes`, and M14
+`SessionBranchReadModels`/`registerSessionBranchReadRoutes` (branch/history
+read surface) all intact. `App.tsx` — M13 `extensions` prop + `PluginFrame`,
+M14 `SessionBranch*`/`ContextInspector` wiring intact; M17 `PairedDevices`
+panel remains in `Settings.tsx`.
+
+Merged-cut validation (receipts `*-81154b2c`, canonical
+`*.summary.json`; raw bounded logs preserved in out-of-source custody
+`m13-custody/81154b2c`, never published):
+- PASS: public-source 11/11 (manifest 4465), plugin-worker-v3 18/18,
+  plugin-lifecycle-v3 15/15, plugin-protocol-decisions-v6 5/5.
+- Evidence validator: PASS integrity; computed `bundleStatus` remains FAIL.
+
+Merge stays LOCAL — Windows run 44424565994 retains its original cut; no
+push, no dispatch while it is active. `d249c566` receipts and redacted
+evidence retained under their real tested cuts.
