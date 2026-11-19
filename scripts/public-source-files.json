@@ -3247,6 +3247,7 @@
     "tests/linux-path-guard.test.ts",
     "tests/lsp-revisions-v3.test.ts",
     "tests/lsp-stdio-lifecycle.test.ts",
+    "tests/m05-evidence-inventory.test.ts",
     "tests/m15-command-receipt.test.ts",
     "tests/m15-dash-path.test.ts",
     "tests/m15-missing-log.test.ts",
