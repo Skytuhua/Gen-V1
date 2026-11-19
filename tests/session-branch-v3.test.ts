@@ -61,6 +61,22 @@ describe('adapter capability matrix', () => {
 });
 
 describe('Inspect point — immutable fixed cut', () => {
+  it('does not exceed the Inspect content budget when the newest message alone is over it', async () => {
+    __setCapabilityFlagForTests('sessions.branchV1', true);
+    const f = await fixture();
+    f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2 + 1));
+    const inspect = async () => ((await f.send('session.branch', {intent:'INSPECT'}, f.thread.id)).result as {capture:{captureId:string}}).capture;
+    const overflow = f.reads.captureMessages((await inspect()).captureId);
+    expect(overflow.coverage).toBe('TRUNCATED');
+    expect(overflow.truncated).toBe(1);
+    expect(overflow.messages).toHaveLength(0);
+    expect(overflow.incompleteSource).toContain('TRUNCATED_HISTORY');
+    // Replace the oversized source message with one exactly at the byte budget.
+    f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2));
+    const exact = f.reads.captureMessages((await inspect()).captureId);
+    expect(exact).toMatchObject({coverage:'COMPLETE',truncated:0});
+    expect(Buffer.byteLength(exact.messages[0]!.content)).toBe(SESSION_CAPTURE_LIMITS.maxContentBytes);
+  });
   it('captures an owner-bound frozen view that new events never move', async () => {
     __setCapabilityFlagForTests('sessions.branchV1', true);
     const f = await fixture();
@@ -194,20 +210,4 @@ describe('branch and file authority', () => {
     expect(f.runtime.start).not.toHaveBeenCalled();
     expect(f.runtime.compact).not.toHaveBeenCalled();
   });
-});
-
-it('does not exceed the Inspect content budget when the newest message alone is over it', async () => {
-  __setCapabilityFlagForTests('sessions.branchV1', true);
-  const f = await fixture();
-  f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2 + 1));
-  const inspect = async () => ((await f.send('session.branch', {intent:'INSPECT'}, f.thread.id)).result as {capture:{captureId:string}}).capture;
-  const overflow = f.reads.captureMessages((await inspect()).captureId);
-  expect(overflow.coverage).toBe('TRUNCATED');
-  expect(overflow.truncated).toBe(1);
-  expect(overflow.messages).toHaveLength(0);
-  expect(overflow.incompleteSource).toContain('TRUNCATED_HISTORY');
-  f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2));
-  const exact = f.reads.captureMessages((await inspect()).captureId);
-  expect(exact).toMatchObject({coverage:'COMPLETE',truncated:0});
-  expect(Buffer.byteLength(exact.messages[0]!.content)).toBe(SESSION_CAPTURE_LIMITS.maxContentBytes);
 });
