@@ -50,7 +50,8 @@ function normalizedRepoPath(path: string): string | null {
 
 export function discoverTestFiles(testDir: string): string[] {
   return readdirSync(testDir, { recursive: true }).map(String).map(path => path.replaceAll(sep, '/'))
-    .filter(path => /\.test\.[cm]?[jt]sx?$/.test(path));
+    // This package fixture is run by node --test, not by the Vitest config.
+    .filter(path => TEST_FILE.test(path) && path !== 'plugin-api-package.test.mjs');
 }
 
 export function selectRegressionTests(changes: readonly SourceChange[], existingTests: readonly string[], mapping: Record<string, string[]> = DEFAULT_SOURCE_TEST_MAP): SelectionResult {

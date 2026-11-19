@@ -163,6 +163,7 @@ describe('regression test selection', () => {
     const found = discoverTestFiles(testsDir);
     expect(found.length).toBeGreaterThan(200);
     expect(readdirSync(join(testsDir, 'e2e')).length).toBeGreaterThan(0);
+    expect(found).not.toContain('plugin-api-package.test.mjs');
     expect(found).toContain('research-baseline.test.ts');
     expect(found).toContain('regression-selection.test.ts');
     expect(found.every(name => /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/.test(name))).toBe(true);
