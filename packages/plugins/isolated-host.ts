@@ -308,7 +308,17 @@ export interface IsolatedHostOptions{
  enabled:()=>boolean;
  approvedBackendId:()=>string|null|undefined;
  backends:()=>readonly ExecutionBackend[];
+ /** Development/test transport seam. In production wiring this is never
+  * reached: activation launches only through the launcher returned by
+  * productionLauncher. */
  launcher:WorkerLauncher;
+ /** Production binding: the worker launcher confined by the selected
+  * backend's launch(), or undefined when no approved backend-bound
+  * launcher exists. When wired, activation holds
+  * HOLD_BACKEND_LAUNCH_BINDING unless it returns a launcher for the
+  * selected backend — backend metadata alone never promotes the
+  * development/test transport. */
+ productionLauncher?:(backend:ExecutionBackend)=>WorkerLauncher|undefined;
  drainSettleMs?:number;
  shutdownGraceMs?:number;
  handshakeDeadlineMs?:number;
@@ -337,14 +347,21 @@ export class IsolatedExtensionHost{
  private nextGeneration(pluginId:string):number{const generation=(this.generations.get(pluginId)??0)+1;this.generations.set(pluginId,generation);return generation;}
 
  /** Admission gate: flag on, exactly one installed approved backend with a
-  * current-platform PASS proof. Zero or ambiguous identities hold; the gate
-  * never resolves the ambiguity itself and never falls back. */
- private admission():{ok:true}|{ok:false;hold:string;reason:string}{
+  * current-platform PASS proof, and — when production wiring declares
+  * productionLauncher — a worker launcher bound to that backend's confined
+  * launch. Zero or ambiguous identities hold; the gate never resolves the
+  * ambiguity itself and never falls back. */
+ private admission():{ok:true;launcher:WorkerLauncher}|{ok:false;hold:string;reason:string}{
   if(!this.options.enabled())return{ok:false,hold:'ACTIVATION_DISABLED',reason:'The isolated extension lane is disabled on this host.'};
   const selection=selectBackend(this.options.approvedBackendId(),this.options.backends());
   if(selection.status!=='SELECTED')return{ok:false,hold:'HOLD_BACKEND_SELECTION',reason:selection.reason};
   if(!hasCurrentPlatformProof(selection.backend))return{ok:false,hold:'HOLD_PLATFORM_PROOF',reason:'The approved backend has no PASS platform proof for this host platform.'};
-  return{ok:true};
+  if(this.options.productionLauncher){
+   const bound=this.options.productionLauncher(selection.backend);
+   if(!bound)return{ok:false,hold:'HOLD_BACKEND_LAUNCH_BINDING',reason:'No worker launcher is bound to the approved backend\u2019s confined launch; the development/test transport is never a production binding.'};
+   return{ok:true,launcher:bound};
+  }
+  return{ok:true,launcher:this.options.launcher};
  }
 
  /** Register an installed, already-verified package for the isolated lane. No
@@ -370,7 +387,7 @@ export class IsolatedExtensionHost{
   record.lease=lease;
   let transport:WorkerTransport|undefined;
   try{
-   transport=await this.options.launcher.launch({packageDir:record.packageDir,dataDir:record.dataDir,generation,env:processEnvironment()});
+   transport=await gate.launcher.launch({packageDir:record.packageDir,dataDir:record.dataDir,generation,env:processEnvironment()});
    const {session,ready}=await IsolatedWorkerSession.connect(transport,{pluginId:record.manifest.pluginId,packageDigest:record.manifest.packageDigest,dataNamespace:record.manifest.dataNamespace,generation},this.handshakeDeadlineMs);
    // A worker claim is never permission: only operations the manifest
    // declared may register; anything else is a protocol violation.

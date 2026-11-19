@@ -95,6 +95,21 @@ describe('M13 activation gate',()=>{
   const foreign=fixture({backends:[backend({proof:{platformProofRef:'p',platform:foreignPlatform,status:'PASS',recordedAt:new Date().toISOString()}})]});
   await expect(foreign.host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'HOLD_PLATFORM_PROOF'}));
  });
+ it('reports HOLD_BACKEND_LAUNCH_BINDING and never reaches the test transport when production wiring has no backend-bound launcher',async()=>{
+  let launches=0;let boundCalls=0;
+  const host=new IsolatedExtensionHost({
+   enabled:()=>true,
+   approvedBackendId:()=>'test-backend',
+   backends:()=>[backend()],
+   launcher:{async launch(){launches++;throw new Error('the development/test transport must never be reached');}},
+   productionLauncher:(selected)=>{boundCalls++;expect(selected.backendId).toBe('test-backend');return undefined;},
+   drainSettleMs:40,shutdownGraceMs:40,handshakeDeadlineMs:200,
+  });
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'HOLD_BACKEND_LAUNCH_BINDING'}));
+  expect(boundCalls).toBe(1);
+  expect(launches).toBe(0);
+ });
 });
 
 describe('M13 leased lifecycle',()=>{

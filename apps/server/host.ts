@@ -89,6 +89,11 @@ export async function launchHost(options:HostOptions,overrides:Partial<HostFacto
    approvedBackendId:()=>options.approvedBackendId,
    backends:()=>options.isolationBackends??[],
    launcher:createSpawnWorkerLauncher({entryPath:fileURLToPath(new URL('../../packages/plugins/worker-entry.ts',import.meta.url)),genVersion:version}),
+   // DEP-M13-BACKEND-01: no approved backend-bound worker launcher exists on
+   // this host, so production wiring holds activation closed
+   // (HOLD_BACKEND_LAUNCH_BINDING) before anything starts — the
+   // development/test direct-spawn transport above is never reachable here.
+   productionLauncher:()=>undefined,
   });
   if(capabilityEnabled('plugins.isolatedV1')){
    for(const record of await readPluginIndex(pluginRoot).catch(()=>[])){
