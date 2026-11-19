@@ -111,6 +111,15 @@ describe('runCheck child-process contract',()=>{
     await expect.poll(()=>existsSync('/proc/'+pid),{timeout:3000}).toBe(false);
   });
 
+  it('preserves UTF-8 characters split across pipe chunks',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      args:['-e','const value=Buffer.from("測試 café 🚲");process.stdout.write(value.subarray(0,1));setTimeout(()=>process.stdout.write(Buffer.concat([value.subarray(1),Buffer.from("\\n")])),100)'],
+    }));
+    expect(result.status).toBe('PASS');
+    expect(readFileSync(result.artifact,'utf8')).toBe('測試 café 🚲\n');
+  });
+
   it('child output is captured to the log artifact',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{args:['-e','console.log("f01-log-marker")']}));

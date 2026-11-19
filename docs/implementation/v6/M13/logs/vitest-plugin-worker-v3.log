@@ -1,0 +1,19 @@
+# Curated receipt summary — vitest-plugin-worker-v3-d249c566
+
+command: pnpm exec vitest run tests/plugin-worker-v3.test.ts
+startedAt: 2026-11-18T10:14:52.557Z
+endedAt: 2026-11-18T10:15:18.227Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 23cfeacca6c51212cfd6feaaf481808c911558e4163dc5110c5bd0bf3657813e, 604 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+ Test Files  1 passed (1)
+      Tests  18 passed (18)
+   Duration  13.36s (transform 4.01s, setup 0ms, import 5.69s, tests 4.51s, environment 0ms)
+```

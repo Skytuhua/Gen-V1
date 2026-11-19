@@ -68,12 +68,17 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
    const id=randomUUID(),nativeInput:StartRun={threadId:'hermes-model-'+id,runId:id,epoch:1,inputId:id,modelId:input.modelId,accountId:input.accountId??null,thinkingLevel:input.thinkingLevel,sessionPath:null,prompt:body.prompt,resources:[]};
    const providerId=input.modelId.split('/')[0];
    const metrics=new RequestMetrics({version:1,requestId:id,owner:{threadId:input.threadId,runId:input.runId,epoch:input.epoch,sequence:metadata.sequence,inputIds:[...metadata.inputIds],phase:metadata.phase==='foreground'?'foreground':'background'},binding:{providerId,modelId:input.modelId,accountId:input.accountId??null},measurementSource:'hermes-broker'});
-   const stage=(name:ModelRequestStage)=>{if(metrics.mark(name)!==null){try{options.onStage?.(name,metadata);}catch{/* Stage observers cannot release a live request. */}}};
+   const stage=(name:ModelRequestStage,observedAt?:number)=>{if(metrics.mark(name,observedAt)!==null){try{options.onStage?.(name,metadata);}catch{/* Stage observers cannot release a live request. */}}};
    const completion=deferred<void>();void completion.promise.catch(()=>{});let content='',usage:RuntimeUsage|null=null,failure:unknown,entered=false,writes=Promise.resolve();
    owner=active={ctx:nativeInput,controller:new AbortController(),cancelled:false,completion,operation:Promise.resolve()};
    const owned=owner;
    owned.operation=(async()=>{
-    let release:(()=>void)|undefined,dispatched=false;
+    let release:(()=>void)|undefined,dispatched=false,firstDeltaAt:number|undefined;
+    const firstDelta=()=>{
+     if(firstDeltaAt!==undefined)return;
+     firstDeltaAt=performance.now();
+     if(dispatched)stage('firstProviderDelta',firstDeltaAt);
+    };
     try{
      try{options.onStage?.('queued',metadata);}catch{/* Stage observers cannot release a live request. */}
      options.budget?.admit();
@@ -90,15 +95,19 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      runtime.configure({onTool:async()=>{throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The model transport cannot execute host tools.');},onEvent(event:RuntimeEvent){
     if(active!==owned||owned.cancelled||event.threadId!==nativeInput.threadId||event.runId!==nativeInput.runId||event.epoch!==nativeInput.epoch)return;
     if(event.type==='input.processing'&&!entered&&Array.isArray(event.inputIds)&&event.inputIds.includes(id)){entered=true;if(metadata.phase==='foreground')writes=writes.then(()=>options.onInput?.([...metadata.inputIds]));}
-    if(event.type==='assistant.delta')stage('firstProviderDelta');
-    if(event.type==='assistant.message'&&typeof event.content==='string'&&!failure){stage('firstProviderDelta');if(Buffer.byteLength(event.content)>MODEL_ONLY_MAX_WIRE_BYTES-Buffer.byteLength(content))failure=invalid();else content+=event.content;}
+    if(event.type==='assistant.delta')firstDelta();
+    if(event.type==='assistant.message'&&typeof event.content==='string'&&!failure){firstDelta();if(Buffer.byteLength(event.content)>MODEL_ONLY_MAX_WIRE_BYTES-Buffer.byteLength(content))failure=invalid();else content+=event.content;}
     if(event.type==='usage')usage=measured(event.usage);
     if(event.type==='error')failure=new HarnessError('HERMES_NATIVE_FAILED','The selected native model could not complete its request.');
     if(event.type==='settled'){if(event.aborted===true)failure=new HarnessError('HERMES_MODEL_CANCELLED','The selected native model was cancelled.');completion.resolve();}
      }});
      stage('runtimeReady');
      if(metadata.phase==='foreground')try{options.onContextRequest?.({sequence:metadata.sequence,promptBytes:Buffer.byteLength(nativeInput.prompt),knownInputs:new Set(metadata.inputIds).size,...(metadata.nativeContext?{nativeContext:metadata.nativeContext}:{}),...(metadata.nativeSourcesUnavailable?{nativeSourcesUnavailable:metadata.nativeSourcesUnavailable}:{})});}catch{/* Observations do not affect admission or teardown. */}
-     await runtime.start(nativeInput);dispatched=true;stage('requestSent');await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
+     // The adapter can deliver output before its start promise resolves.
+     // Confirm dispatch on resolution, retaining the actual event timestamps.
+     const sentAt=performance.now();await runtime.start(nativeInput);dispatched=true;stage('requestSent',sentAt);
+     if(firstDeltaAt!==undefined)stage('firstProviderDelta',firstDeltaAt);
+     await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }catch(error){
      if(failure===undefined)failure=error;
      throw error;

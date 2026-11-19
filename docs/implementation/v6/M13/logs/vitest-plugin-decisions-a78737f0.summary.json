@@ -1,0 +1,30 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store — not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/plugin-protocol-decisions-v6.test.ts"
+ ],
+ "testedSha": "a78737f0",
+ "testedTree": "source files apps/server/host.ts, packages/plugins/isolated-host.ts, tests/plugin-lifecycle-v3.test.ts last modified before this run started; committed unchanged as a78737f0",
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-19T04:02:45.040Z",
+ "endedAt": "2026-11-19T04:02:47.155Z",
+ "exitCode": 0,
+ "termination": "NONE",
+ "resultLines": [
+  "Test Files  1 passed (1)",
+  "Tests  5 passed (5)"
+ ],
+ "rawArtifact": {
+  "file": "vitest-plugin-decisions-a78737f0.log",
+  "sha256": "01991bc9122231fea54a0bec3189ed94cee13adf4f1165cce530632246921812",
+  "bytes": 484,
+  "retention": "agent-owned local evidence store (m13-custody/binding-8dd79d00)",
+  "published": false
+ }
+}

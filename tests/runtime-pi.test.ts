@@ -46,6 +46,27 @@ it("clears the Windows cancellation grace timer when the worker exits", async ()
   }
 });
 
+it("removes the exit listener when worker cancellation cannot be confirmed", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  vi.useFakeTimers();
+  Object.defineProperty(process, "platform", { ...descriptor, value: "win32" });
+  try {
+    const child = Object.assign(new EventEmitter(), { pid: 101, exitCode: null, signalCode: null, kill: vi.fn() });
+    vi.spyOn(childProcess, "execFile").mockImplementation(((...args: unknown[]) => {
+      (args.at(-1) as (error: Error | null) => void)(null);
+    }) as typeof childProcess.execFile);
+    const cancelled = terminateProcessTree(child as unknown as childProcess.ChildProcess);
+    const rejected = expect(cancelled).rejects.toMatchObject({ code: "PI_CANCEL_UNCONFIRMED" });
+    await vi.advanceTimersByTimeAsync(5_000);
+    await rejected;
+    expect(child.listenerCount("exit")).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    vi.useRealTimers();
+  }
+});
+
 const ctx: RunContext = { threadId: "task-a", runId: "run-a", epoch: 3 };
 const input: StartRun = { ...ctx, prompt: "Please inspect the granted file.", modelId: "openai/gpt-5.4", sessionPath: null, inputId: "input-001", resources: [] };
 const temporary: string[] = [];
