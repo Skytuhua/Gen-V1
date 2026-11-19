@@ -3,6 +3,14 @@ import { setImmediate as yieldToHost } from 'node:timers/promises';
 import type { ServerResponse } from 'node:http';
 import type { Store } from '../../packages/storage/store.ts';
 
+/** Release hijacked SSE responses during Fastify preClose without waiting for
+ * a second 'close' event. The client's disconnect can race with shutdown,
+ * and an already-destroyed response need not emit 'close' again. */
+export function destroyEventStreams(streams: Set<ServerResponse>): void {
+  for (const stream of streams) stream.destroy();
+  streams.clear();
+}
+
 /** The durable ledger is the queue. Retain only one event while a reader drains. */
 export function streamEvents(response: ServerResponse, store: Pick<Store, 'eventsAfter' | 'subscribe'>, after: number, onClose: () => void): void {
   if (response.destroyed || response.writableEnded) { onClose(); return; }
