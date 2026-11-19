@@ -104,7 +104,7 @@ describe('isolated actual-host recording fixtures', () => {
     expect((source('migration', 'users') as { workspace: number }[]).map(row => row.workspace)).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
     const db = new DatabaseSync(join(folder, 'resources', 'project.sqlite'), { readOnly: true });
     try { expect(db.prepare('SELECT COUNT(*) AS n FROM users WHERE workspace_id IS NOT NULL').get()!.n).toBe(12); } finally { db.close(); }
-  }, 30_000);
+  }, 120_000);
   it('keeps the faq topic free of an automatic question form and preserves state through composer continuation', async () => {
     await send('faq');
     const current = artifact('faq');

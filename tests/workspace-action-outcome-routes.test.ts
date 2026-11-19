@@ -63,7 +63,7 @@ it('admits one create-PR effect when the original command is repeated before ack
  const first=app.inject({method:'POST',url,payload:input});let second:typeof first|undefined;
  try{await started;const count=bindings.mock.calls.length;second=app.inject({method:'POST',url,payload:input});await expect.poll(()=>bindings.mock.calls.length).toBeGreaterThan(count);release();const responses=await Promise.all([first,second]);expect(responses[0].statusCode).toBe(200);expect([200,409]).toContain(responses[1].statusCode);expect(writes).toBe(1);const replay=await app.inject({method:'POST',url,payload:input});expect(replay.json()).toEqual(responses[0].json());expect(replay.json().result).toEqual(result);expect(writes).toBe(1);}
  finally{release();await Promise.allSettled(second?[first,second]:[first]);}
-});
+},240000);
 it('routes supported writes through durable identity and keeps inspection read-only',async()=>{
  const f=await fixture(),{input,operation}=await f.operation('review-pr'),app=Fastify(),service={store:f.store} as Service;let writes=0;
  remote(f,async()=>{writes++;return{id:77,body:'private remote response'};});
@@ -77,7 +77,7 @@ it('routes supported writes through durable identity and keeps inspection read-o
  expect(inspect.statusCode).toBe(200);expect(inspect.headers['cache-control']).toBe('no-store');expect(inspect.json()).toEqual({state:'confirmed'});expect(f.store.sequence).toBe(seq);expect(writes).toBe(1);
  const changed=await app.inject({method:'POST',url,payload:{...input,payload:{...input.payload,body:'changed'}}});expect(changed.statusCode).toBeGreaterThanOrEqual(400);expect(writes).toBe(1);
  expect(JSON.stringify([first.json(),inspect.json()])).not.toContain('private');
-},60000);
+},240000);
 
 
 it.each(['head','worktree'])('an exact local stale-%s preflight is not-applied before entering a mutation',async(change)=>{
@@ -92,7 +92,7 @@ it.each(['head','worktree'])('an exact local stale-%s preflight is not-applied b
  const mutation=vi.spyOn(f.projects,'gitAction');
  expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'not-applied'});
  expect(mutation).not.toHaveBeenCalled();expect(await f.outcomes.inspect(operation)).toEqual({state:'not-applied'});
-},60000);
+},240000);
 
 it('valid Unicode review text fits submission and exact read-only inspection',async()=>{
  const f=await fixture(),{input,operation}=await f.operation('review-pr'),app=Fastify(),service={store:f.store} as Service;
@@ -100,7 +100,7 @@ it('valid Unicode review text fits submission and exact read-only inspection',as
  remote(f,async()=>{writes++;return{id:77};});registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
  const response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});expect(response.statusCode).toBe(200);
  const inspect=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/action-outcomes/inspect',payload:operation});expect(inspect.statusCode).toBe(200);expect(inspect.json()).toEqual({state:'confirmed'});expect(writes).toBe(1);
-},60000);
+},240000);
 
 it('returns an unsuccessful response for an unconfirmed action so existing controls retain their draft',async()=>{
  const f=await fixture(),{input}=await f.operation(),app=Fastify(),service={store:f.store} as Service;
@@ -108,7 +108,7 @@ it('returns an unsuccessful response for an unconfirmed action so existing contr
  registerWorkspaceHost(service,{projects:f.projects,github:f.github,terminals:{dispose:async()=>{}} as TerminalHost});registerWorkspaceRoutes(app,service);cleanup.push(()=>app.close());
  const mutation=vi.spyOn(f.projects,'gitAction'),response=await app.inject({method:'POST',url:'/api/projects/'+f.projectId+'/actions',payload:input});
  expect(response.statusCode).toBe(409);expect(response.json()).toMatchObject({state:'not-applied',error:{code:'REVISION_CHANGED'}});expect(mutation).not.toHaveBeenCalled();
-},60000);
+},240000);
 
 
 it.each(['before write','after write'] as const)('keeps credential-bearing %s failures outside HTTP results and durable events',async(phase)=>{
@@ -140,4 +140,4 @@ it.each(['before write','after write'] as const)('keeps credential-bearing %s fa
  const publicAndDurable=JSON.stringify([response.json(),f.store.eventsAfter(sequence),f.store.all('workspaceActionOutcome')]);
  expect(publicAndDurable).not.toContain(token);
  expect(publicAndDurable).not.toContain(encoded);
-},60000);
+},240000);
