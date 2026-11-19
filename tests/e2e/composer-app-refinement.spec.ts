@@ -147,7 +147,7 @@ test('chat header omits retired controls while sidebar rename and archive remain
  const header=page.locator('.workspace-header');
  await expect(header.locator('.desktop-window-actions,.header-thread-status,.thread-menu-wrap')).toHaveCount(0);
  await expect(header.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)|side conversation|project context|thread options/i})).toHaveCount(0);
- await expect(page.getByRole('button',{name:'Open workspace panel',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Open panel',exact:true})).toBeVisible();
  await expect(header.getByText('Ready',{exact:true})).toHaveCount(0);
  await expect(page.getByRole('button',{name:/detach (thread|artifact|workspace|plan|navigation|browser)/i})).toHaveCount(0);
  await page.getByRole('button',{name:'Options for Original chat',exact:true}).click();

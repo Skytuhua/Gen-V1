@@ -66,13 +66,13 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
 
 test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ await page.getByRole('button',{name:'Open panel',exact:true}).click();
  const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
  await files.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Files',exact:true}).click();
  await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
- await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ await page.getByRole('button',{name:'Hide panel',exact:true}).click();await expect(files).toHaveCount(0);
+ await page.getByRole('button',{name:'Open panel',exact:true}).click();
  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.getByRole('button',{name:'Inspect changes',exact:true}).click();

@@ -302,7 +302,7 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await host(page, populated()); await page.goto('/');
   await page.getByRole('button', { name: 'Collapse sidebar', exact: true }).click();
   await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
-  await page.getByRole('button', { name: 'Open workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Open panel', exact: true }).click();
   await expect(page.getByRole('heading', { name: 'Open a surface', exact: true })).toBeVisible();
   const launcher = page.getByRole('region', { name: 'Workspace launcher' });
   await expect(launcher.getByRole('button', { name: 'Device', exact: true })).toBeDisabled();
@@ -316,7 +316,7 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
   await expect(page.getByRole('complementary', { name: 'Workspace panel', exact: true })).toBeVisible();
   await expect(page.getByRole('tab', { name: 'Artifact', exact: true })).toHaveAttribute('aria-selected', 'true');
-  await page.getByRole('button', { name: 'Hide workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Hide panel', exact: true }).click();
   await page.getByRole('button', { name: 'Inspect context usage' }).click();
   await expect(page.getByRole('dialog', { name: 'Context inspector' })).toContainText('Not reported');
   await expect(page.getByRole('progressbar', { name: 'Context used' })).toHaveCount(0);
@@ -354,7 +354,7 @@ test('workspace files, diffs and executor output show actual scoped snapshot evi
   await page.route('**/api/resources/project-one/tree**', async route => { reads.push(new URL(route.request().url()).pathname); await route.fulfill({ json: { path: '', entries: [{ name: 'example.txt', path: 'example.txt', kind: 'file', bytes: 22 }], truncated: false } }); });
   await page.route('**/api/resources/project-one/content**', async route => { reads.push(new URL(route.request().url()).search); await route.fulfill({ contentType: 'text/plain', body: 'Scoped fixture contents' }); });
   await page.goto('/');
-  await page.getByRole('button', { name: 'Open workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Open panel', exact: true }).click();
   const panel = page.getByRole('complementary', { name: 'Workspace panel' });
   await panel.getByRole('button', { name: 'Add surface', exact: true }).click();
   await page.getByRole('menuitem', { name: 'Files', exact: true }).click();
@@ -445,7 +445,7 @@ test('capture shell and settings review batch', async ({ page }, testInfo) => {
   await page.screenshot({ path: testInfo.outputPath('shell-desktop.png'), fullPage: true });
   await page.getByRole('button', { name: 'Open artifact in workspace', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('shell-workspace.png'), fullPage: true });
-  await page.getByRole('button', { name: 'Hide workspace panel', exact: true }).click();
+  await page.getByRole('button', { name: 'Hide panel', exact: true }).click();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();
   await page.getByRole('dialog', { name: 'Settings', exact: true }).getByRole('button', { name: 'Appearance', exact: true }).click();
   await page.screenshot({ path: testInfo.outputPath('shell-settings.png'), fullPage: true });

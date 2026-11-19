@@ -133,7 +133,7 @@ test('review: an existing native browser action remains visible and retryable',a
 });
 
 test('review: a failed detached workspace close retains the editable surface',async({page})=>{
- await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
+ await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Hide panel',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText: 'Dock destination is unavailable'})).toBeVisible();await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();
 });
 
@@ -149,9 +149,9 @@ test('review: detached browser follows saved theme and subsequent system changes
 async function checkSinglePanelOpener(page:Page,draft:string){
  const composer=page.getByRole('textbox',{name:'Message',exact:true});await composer.fill(draft);
  await expect(composer).toHaveCount(1);const retained=await composer.elementHandle();
- const opener=page.getByRole('button',{name:'Open workspace panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
+ const opener=page.getByRole('button',{name:'Open panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(panel).toBeVisible();
- const close=page.getByRole('button',{name:'Hide workspace panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
+ const close=page.getByRole('button',{name:'Hide panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
  await expect(opener).toBeFocused();await expect(composer).toHaveValue(draft);await expect(composer).toHaveCount(1);
  expect(await retained!.evaluate(element=>element.isConnected&&element===document.querySelector('textarea[aria-label="Message"]'))).toBe(true);
 }

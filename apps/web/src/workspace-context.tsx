@@ -17,6 +17,8 @@ export interface WorkspaceContextValue {
   requestOpenDocument?: (id:string) => void;
   closeDocument?: (id:string) => void;
   placeDocument?: (id:string,placement:DocumentWindowPlacement) => void;
+  openSurface?: (id:string) => void | Promise<void>;
+  surfaceAvailability?: Record<string,string|undefined>;
 }
 const WorkspaceContext = createContext<WorkspaceContextValue>({ activeArtifactId: null, requestOpenArtifact: () => {}, closeArtifact: () => {}, rightPanelOpen: false, activeTab: 'artifact', setActiveTab: () => {} });
 export function WorkspaceProvider({ value, children }: { value: WorkspaceContextValue; children: ReactNode }) { return <WorkspaceContext value={value}>{children}</WorkspaceContext>; }

@@ -35,7 +35,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  async function fixture({plan=false,plugins=[],retainedCanvas=false,retainedPlan=false,unstarted=false,width=1600,height=1000,deferPluginFlush=false,mode='split',singleThread=false,mainTabs=false}:{plan?:boolean;plugins?:PluginManifest[];retainedCanvas?:boolean;retainedPlan?:boolean;unstarted?:boolean;width?:number;height?:number;deferPluginFlush?:boolean;mode?:'split'|'chat'|'default';singleThread?:boolean;mainTabs?:boolean}={}){
   const page=await browser!.newPage({viewport:{width,height}});page.setDefaultTimeout(7000);
   const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));
-  await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split')localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
+  await page.addInitScript((initialMode)=>{if(window.parent===window){localStorage.setItem('harness:selected-thread','thread-a');if(initialMode==='split'&&!localStorage.getItem('harness:workspace-mode:v3'))localStorage.setItem('harness:workspace-mode:v3','split');}},mode);
   const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic artifact retained in the original renderer'}}}});
   const main={...snapshot.threads[0]!,id:'thread-a',title:'First investigation',projectId:'project-a',projectName:'First project',modelId:'test/model-a'};
   snapshot.threads=[main,{...main,id:'thread-b',title:'Second investigation',projectId:'project-b',projectName:'Second project',modelId:'test/model-b'},{...main,id:'agent-a',title:'Inspect source',kind:'delegate',parentThreadId:'thread-a',status:'working'},{...main,id:'side-a',title:'Related discussion',kind:'side',sideParentId:'thread-a'}];
@@ -108,7 +108,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   }else if(mode==='default'){
    await page.locator('[data-split-view="thread:thread-a"] textarea[aria-label="Message"], .shell-workarea textarea[aria-label="Message"]').first().waitFor({state:'visible',timeout:20000});
   }else await page.locator('.shell-workarea').getByRole('textbox',{name:'Message',exact:true}).first().waitFor({state:'visible',timeout:20000});
-  return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
+  return{...host,page,errors,splitCommands,workspaceCommands,envelope,profiles,get layout(){return layout;},async issue(type:string,payload:Record<string,unknown>){layout=applySplitWorkspaceCommand(layout,type,payload);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));},
+   async postSplit(type:string,payload:Record<string,unknown>){const error=await page.evaluate(async(body)=>{const response=await fetch('/api/split-workspace/commands',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return response.ok?null:response.status+' '+await response.text();},{id:crypto.randomUUID(),type:'split-workspace.'+type,payload:{...payload,workspaceId:'workspace',baseRevision:layout.revision}});if(error)throw Error('Split command failed: '+error);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));},
+   async postWorkspace(type:string,payload:Record<string,unknown>){const error=await page.evaluate(async(body)=>{const response=await fetch('/api/workspace/commands',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body)});return response.ok?null:response.status+' '+await response.text();},{id:crypto.randomUUID(),type,payload});if(error)throw Error('Workspace command failed: '+error);await page.evaluate(()=>window.dispatchEvent(new Event('harness:workspace-changed')));}};
  }
 
  it('keeps full thread renderers, drafts and exact send owners through tab movement, parking and reload',async()=>{
@@ -593,18 +595,18 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    const first=page.locator('[data-split-view="thread:thread-a"]'),draft=first.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the same unstarted draft');await page.evaluate(()=>{(window as any).beforeProjectComposer=document.querySelector('[data-split-view="thread:thread-a"] textarea');});
    await host.issue('view.open',{paneId:'pane-main',view:{id:'files:project-a',kind:'files',binding:{authority:{kind:'local'},projectId:'project-a'}}});await host.issue('view.park',{viewId:'files:project-a'});await draft.waitFor({state:'visible'});
    const original=structuredClone(host.snapshot.threads.find(thread=>thread.id==='thread-a')!),captured=structuredClone(host.layout.views['thread:thread-a']!.binding),others=structuredClone(Object.fromEntries(Object.entries(host.layout.views).filter(([id])=>id!=='thread:thread-a')));
-   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout\u2026',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Before project change');await page.getByRole('button',{name:'Save',exact:true}).click();await page.getByRole('dialog',{name:'Save current layout',exact:true}).waitFor({state:'detached'});await page.getByRole('button',{name:'Apply Before project change',exact:true}).waitFor({state:'visible'});const profileId=[...host.profiles.keys()][0]!;await page.getByRole('button',{name:'Layouts',exact:true}).click();
+   await host.postSplit('profile.save',{name:'Before project change',resultVersion:2});const profileId=[...host.profiles.keys()][0]!;
    await first.getByRole('button',{name:'Select project',exact:true}).click();const picker=page.getByRole('dialog',{name:'Select project',exact:true});await picker.getByRole('option',{name:'Second project',exact:true}).click();await picker.waitFor({state:'hidden'});
    expect(host.snapshot.threads.find(thread=>thread.id==='thread-a')).toEqual({...original,projectId:'project-b',projectName:'Second project'});expect(host.layout.views['thread:thread-a']!.binding).toEqual({...captured,projectId:'project-b'});expect(host.profiles.get(profileId)!.layout.views['thread:thread-a']!.binding.projectId).toBe('project-b');expect(Object.fromEntries(Object.entries(host.layout.views).filter(([id])=>id!=='thread:thread-a'))).toEqual(others);expect(Object.fromEntries(Object.entries(host.profiles.get(profileId)!.layout.views).filter(([id])=>id!=='thread:thread-a'))).toEqual(others);
    const reconciliation=host.splitCommands.find(command=>command.type==='split-workspace.thread.reconcile');expect(reconciliation?.payload.expectedBinding).toEqual(captured);expect(reconciliation?.payload.projectId).toBe('project-b');expect(host.workspaceCommands.filter(command=>command.type==='workspace.project.connect').map(command=>command.payload.threadId)).toEqual(['thread-a']);expect(host.commands.some(command=>command.type==='thread.create'||command.type==='message.send')).toBe(false);expect(await draft.inputValue()).toBe('Keep the same unstarted draft');expect(await page.evaluate(()=>(window as any).beforeProjectComposer===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(await first.getByRole('combobox',{name:'Model',exact:true}).textContent()).toContain('Model A');
    const transfer=await page.evaluateHandle(()=>new DataTransfer());await page.locator('.sidebar .thread-item').filter({hasText:'First investigation'}).dispatchEvent('dragstart',{dataTransfer:transfer});const box=await page.locator('[data-split-pane="right"] .split-pane-slot').boundingBox();if(!box)throw Error('Missing re-placement target');await page.locator('.split-workspace').dispatchEvent('drop',{dataTransfer:transfer,clientX:box.x+box.width/2,clientY:box.y+box.height/2});await page.waitForFunction(()=>document.querySelector('[data-split-view="thread:thread-a"]')?.getAttribute('data-pane-id')==='right');
-   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Actions for Before project change',exact:true}).click();await page.getByRole('menuitem',{name:'Update',exact:true}).click();await expect.poll(()=>host.profiles.get(profileId)!.layout.panes.right!.activeViewId).toBe('thread:thread-a');expect(host.profiles.get(profileId)!.layout.views['thread:thread-a']!.binding.projectId).toBe('project-b');expect(Object.fromEntries(Object.entries(host.layout.views).filter(([id])=>id!=='thread:thread-a'))).toEqual(others);expect(await draft.inputValue()).toBe('Keep the same unstarted draft');expect(await page.evaluate(()=>(window as any).beforeProjectComposer===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(await page.locator('.workspace-error').count()).toBe(0);expect(host.errors).toEqual([]);
+   await host.postSplit('profile.save',{name:'Before project change',profileId,resultVersion:2});await expect.poll(()=>host.profiles.get(profileId)!.layout.panes.right!.activeViewId).toBe('thread:thread-a');expect(host.profiles.get(profileId)!.layout.views['thread:thread-a']!.binding.projectId).toBe('project-b');expect(Object.fromEntries(Object.entries(host.layout.views).filter(([id])=>id!=='thread:thread-a'))).toEqual(others);expect(await draft.inputValue()).toBe('Keep the same unstarted draft');expect(await page.evaluate(()=>(window as any).beforeProjectComposer===document.querySelector('[data-split-view="thread:thread-a"] textarea'))).toBe(true);expect(await page.locator('.workspace-error').count()).toBe(0);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
 
  it('renders the canonical detailed plan requirements in an explicitly recovered canvas panel',async()=>{
   const host=await fixture({plan:true,retainedPlan:true}),{page}=host;try{
-   const retained=structuredClone(host.envelope);await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});await detail.locator('[data-step-id="inspect"] > .plan-step-summary').click();
+   const retained=structuredClone(host.envelope);await host.postWorkspace('workspace.profile.apply',{profileId:'retained-desk'});await page.evaluate(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));await page.reload();const panel=page.locator('[data-panel-id="retained-plan"]'),detail=panel.getByRole('region',{name:/^Task plan(?::|$)/});await detail.waitFor({state:'visible'});await detail.locator('[data-step-id="inspect"] > .plan-step-summary').click();
    expect(await detail.getAttribute('aria-label')).toBe('Task plan: Inspect then verify');expect(await detail.getByText('Retain the original draft',{exact:true}).isVisible()).toBe(true);expect(await detail.locator('[data-step-id="inspect"] > .plan-step-summary').getAttribute('aria-expanded')).toBe('true');expect(await detail.getByText('Read the actual source',{exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('region',{name:'Plan summary',exact:true}).count()).toBe(0);expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
@@ -638,37 +640,31 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await a.fill('First layout draft');await b.fill('Second layout draft');const retained=structuredClone(host.envelope);
    await host.issue('view.move',{viewId:'thread:thread-b',paneId:'pane-main'});await host.issue('pane.collapse',{paneId:'right',collapsed:true});await b.waitFor({state:'visible'});
    const saved=structuredClone(host.layout),presentation=(value:SplitWorkspaceLayout)=>({...value,revision:0,undoDepth:0,redoDepth:0});
-   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout\u2026',exact:true}).click();await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Review layout');await page.getByRole('button',{name:'Save',exact:true}).click();await page.getByRole('dialog',{name:'Save current layout',exact:true}).waitFor({state:'detached'});
-   await page.getByRole('button',{name:'Apply Review layout',exact:true}).waitFor({state:'visible'});expect(host.profiles.size).toBe(1);const profile=[...host.profiles.values()][0]!;expect(presentation(profile.layout)).toEqual(presentation(saved));
+   await host.postSplit('profile.save',{name:'Review layout',resultVersion:2});
+   expect(host.profiles.size).toBe(1);const profile=[...host.profiles.values()][0]!;expect(presentation(profile.layout)).toEqual(presentation(saved));
    await host.issue('view.move',{viewId:'thread:thread-b',paneId:'right'});await b.waitFor({state:'visible'});expect(host.layout.focusedPaneId).toBe('right');expect(host.layout.panes.right!.collapsed).toBe(false);
-   await page.getByRole('button',{name:'Apply Review layout',exact:true}).click();await page.locator('[data-split-pane="right"].is-collapsed').waitFor({state:'visible'});await b.waitFor({state:'visible'});
+   await host.postSplit('profile.apply',{profileId:profile.id});await page.locator('[data-split-pane="right"].is-collapsed').waitFor({state:'visible'});await b.waitFor({state:'visible'});
    expect(presentation(host.layout)).toEqual(presentation(saved));expect(await page.locator('[data-split-pane="pane-main"]').getAttribute('class')).toContain('is-focused');expect(await page.locator('[data-split-pane="pane-main"] [role="tab"][aria-selected="true"]').textContent()).toBe('Second investigation');expect(await a.inputValue()).toBe('First layout draft');expect(await b.inputValue()).toBe('Second layout draft');
-   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Recover Retained desk',exact:true}).click();const legacy=page.locator('[data-panel-id="retained-usage"]');await legacy.waitFor({state:'visible'});
+   await host.postWorkspace('workspace.profile.apply',{profileId:'retained-desk'});await page.evaluate(()=>localStorage.setItem('harness:workspace-mode:v3','retained-canvas'));await page.reload();const legacy=page.locator('[data-panel-id="retained-usage"]');await legacy.waitFor({state:'visible'});
    expect(await legacy.evaluate(node=>{const element=node as HTMLElement;return{left:element.style.left,top:element.style.top,width:element.style.width,height:element.style.height};})).toEqual({left:'56px',top:'72px',width:'352px',height:'320px'});expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);
-   await page.evaluate(()=>localStorage.setItem('harness:workspace-mode:v3','split'));await page.reload();await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Apply Review layout',exact:true}).click();await b.waitFor({state:'visible'});await page.locator('[data-split-pane="right"].is-collapsed').waitFor({state:'visible'});
+   await page.evaluate(()=>localStorage.setItem('harness:workspace-mode:v3','split'));await page.reload();await page.locator('[data-split-pane="pane-main"] [role="tab"][aria-selected="true"]',{hasText:'First investigation'}).waitFor({state:'visible'});await host.postSplit('profile.apply',{profileId:profile.id});await b.waitFor({state:'visible'});await page.locator('[data-split-pane="right"].is-collapsed').waitFor({state:'visible'});
    expect(presentation(host.layout)).toEqual(presentation(saved));expect(await a.inputValue()).toBe('First layout draft');expect(await b.inputValue()).toBe('Second layout draft');expect({...host.envelope,state:{...host.envelope.state,revision:retained.state.revision}}).toEqual(retained);expect(host.workspaceCommands.map(command=>command.type)).toEqual(['workspace.profile.apply']);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save')).toHaveLength(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.apply')).toHaveLength(2);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
 
- it('uses the exact host save receipt and preserves geometry during name-only Rename',async()=>{
+ it('uses the exact host save receipt and preserves geometry during name-only rename',async()=>{
   const host=await fixture();const {page}=host;
   try{
    // Another client creates a layout after this window loaded its empty inventory.
    host.profiles.set('unseen',{id:'unseen',name:'Desk',updatedAt:stamp,layout:structuredClone(host.layout)});
-   await page.getByRole('button',{name:'Layouts',exact:true}).click();await page.getByRole('button',{name:'Save current layout…',exact:true}).click();
-   await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Desk');await page.getByRole('button',{name:'Save',exact:true}).click();
-   await page.getByRole('dialog',{name:'Save current layout',exact:true}).waitFor({state:'hidden'});
-   const row=page.locator('.saved-layout-row[data-layout-key="split:layout-2"]');await row.getByText('Current',{exact:true}).waitFor({state:'visible'});
+   await host.postSplit('profile.save',{name:'Desk',resultVersion:2});
    expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save').map(command=>command.payload.resultVersion)).toEqual([2]);
    const saved=structuredClone(host.profiles.get('layout-2')!.layout);
-   await host.issue('pane.resize',{splitId:'columns',ratio:.62});await row.getByText('Modified',{exact:true}).waitFor({state:'visible'});
+   await host.issue('pane.resize',{splitId:'columns',ratio:.62});
    const working=structuredClone(host.layout);
-   await row.getByRole('button',{name:'Actions for Desk',exact:true}).click();await page.getByRole('menuitem',{name:'Rename',exact:true}).click();
-   await page.getByRole('textbox',{name:'Layout name',exact:true}).fill('Review desk');await page.getByRole('button',{name:'Rename',exact:true}).click();
-   await page.getByRole('dialog',{name:'Rename layout',exact:true}).waitFor({state:'hidden'});
+   await host.postSplit('profile.rename',{profileId:'layout-2',name:'Review desk'});
    expect(host.profiles.get('layout-2')!.name).toBe('Review desk');expect(host.profiles.get('layout-2')!.layout).toEqual(saved);
-   expect({...host.layout,revision:0}).toEqual({...working,revision:0});expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.rename')).toHaveLength(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save')).toHaveLength(1);expect(host.errors).toEqual([]);
-  }finally{await page.close();}
+   expect({...host.layout,revision:0}).toEqual({...working,revision:0});expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.rename')).toHaveLength(1);expect(host.splitCommands.filter(command=>command.type==='split-workspace.profile.save')).toHaveLength(1);expect(host.errors).toEqual([]); }finally{await page.close();}
  },20000);
 
  it('shows installed generic workspaces without replacing the personal workspace bar',async()=>{
@@ -699,14 +695,14 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    expect(await page.locator('.split-workspace').count()).toBeGreaterThan(0);
    const message=page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true});await message.waitFor({state:'visible'});
    const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.waitFor({state:'visible'});
-   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
    const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await panel.waitFor({state:'visible'});
-    expect(await panel.getByRole('button',{name:'Close workspace panel',exact:true}).count()).toBe(0);
+    expect(await panel.getByRole('button',{name:'Hide panel',exact:true}).count()).toBe(0);
    await overview.waitFor({state:'hidden'});
     await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Plan',exact:true}).click();
     await panel.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Notes',exact:true}).click();
     expect(await panel.getByRole('tab',{name:'Plan',exact:true}).isVisible()).toBe(true);expect(await panel.getByRole('tab',{name:'Notes',exact:true}).isVisible()).toBe(true);
-   await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
+   await page.getByRole('button',{name:'Hide panel',exact:true}).click();await panel.waitFor({state:'hidden'});await overview.waitFor({state:'visible'});
    expect(await page.getByRole('button',{name:'Undo layout',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Redo',exact:true}).count()).toBe(0);expect(await page.getByRole('button',{name:'Restore last layout',exact:true}).count()).toBe(0);expect(await page.locator('.split-workspace-hint').count()).toBe(0);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
@@ -714,7 +710,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  it('a browser dock shares the tool width budget and preserves chat space',async()=>{
   const{page}=await fixture({width:1440,height:900,mode:'chat'});
   try{
-   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
    await page.evaluate(()=>{const slot=document.createElement('section');slot.className='desktop-browser-dock';slot.setAttribute('aria-label','Synthetic browser geometry');slot.textContent='Browser slot geometry';(document.querySelector('.workspace-tools')??document.querySelector('.shell-workarea'))!.appendChild(slot);});
    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width};};return{chat:box('.split-root-workarea'),panel:box('.workspace-right'),browser:box('.desktop-browser-dock'),owner:box('.shell-workarea')};});
    expect(boxes.chat.width).toBeGreaterThanOrEqual(420);expect(boxes.chat.right).toBeLessThanOrEqual(boxes.panel.x);
@@ -735,7 +731,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  for(const size of [{width:1920,height:1080},{width:1440,height:900},{width:1024,height:768}])it(`panel bounds retain chat and title bar at drag extremes ${size.width}x${size.height}`,async()=>{
   const{page}=await fixture({...size,mode:'chat'});
   try{
-   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
    const separator=page.getByRole('separator',{name:'Resize workspace panel',exact:true});
    for(const end of [1,size.width-1]){
     const handle=(await separator.boundingBox())!;await page.mouse.move(handle.x+handle.width/2,handle.y+30);await page.mouse.down();await page.mouse.move(end,handle.y+30,{steps:5});await page.mouse.up();
@@ -751,7 +747,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
  it('panel bounds stack tools below chat in a narrow workarea',async()=>{
   const{page}=await fixture({width:900,height:700,mode:'chat'});
   try{
-   await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
    const boxes=await page.evaluate(()=>{const box=(selector:string)=>{const a=document.querySelector(selector)!.getBoundingClientRect();return{x:a.x,y:a.y,right:a.right,bottom:a.bottom,width:a.width,height:a.height};};return{chat:box('.split-root-workarea'),panel:box('.workspace-right'),owner:box('.shell-workarea'),title:box('.workspace-switcher')};});
    expect(boxes.panel.y).toBeGreaterThanOrEqual(boxes.chat.bottom);expect(boxes.panel.bottom).toBeLessThanOrEqual(boxes.owner.bottom+1);
    expect(boxes.panel.height).toBeLessThanOrEqual(boxes.owner.height*.45+1);expect(boxes.chat.height).toBeGreaterThanOrEqual(240);
@@ -960,6 +956,134 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.mouse.move(box.x+box.width/2+90,box.y+box.height/2+40,{steps:5});await page.mouse.up();
    const moved=(await surface.boundingBox())!;
    expect(moved.x-beforeDrag.x).toBeGreaterThan(50);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ const SURFACE_ORDER=['Browser','Terminal','Files','Diff','Pull request','Linked pull requests','Device','Side chat','Artifact','Plan','Notes','Output','Usage'];
+
+ it('renders one shared ordered surface list in the empty panel and plus menu (T04/R05)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
+   const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});
+   // Clean profile: the centered launcher is the whole surface — no selected tab, no artifact picker.
+   await panel.getByRole('heading',{name:'Open a surface',exact:true}).waitFor({state:'visible'});
+   expect(await panel.locator('[role=tab][aria-selected=true]').count()).toBe(0);
+   expect(await panel.locator('.panel-toolbar').count()).toBe(0);
+   expect(await panel.locator('.workspace-launcher button').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).toEqual(SURFACE_ORDER);
+   // Unavailable surfaces stay listed, disabled, with the specific reason.
+   const device=panel.getByRole('button',{name:'Device',exact:true});
+   await pw(device).toBeDisabled();
+   await pw(device).toContainText(/not connected|unavailable/i);
+   const browser=panel.getByRole('button',{name:'Browser',exact:true});
+   await pw(browser).toBeDisabled();
+   await pw(browser).toContainText(/desktop/i);
+   // The plus menu renders the same list in the same order.
+   await panel.getByRole('button',{name:'Add surface',exact:true}).click();
+   const menuLabels=await page.locator('[role=menuitem], [role=menu] [role=menuitemradio]').evaluateAll(nodes=>nodes.map(node=>node.textContent?.trim()));
+   expect(menuLabels).toEqual(SURFACE_ORDER);
+   const deviceItem=page.getByRole('menuitem',{name:/Device/});
+   expect(await deviceItem.getAttribute('aria-disabled')==='true'||await deviceItem.isDisabled()).toBe(true);
+   await page.keyboard.press('Escape');
+   // Letter shortcuts live inside the focused launcher only.
+   await panel.locator('.workspace-launcher button[aria-label="Files"]').focus();
+   await page.keyboard.press('f');
+   await pw(panel.locator('[role=tab][aria-selected=true]',{hasText:'Files'})).toHaveCount(1);
+   expect(await panel.locator('[role=tab]').count()).toBe(1);
+   // Re-opening an already-open surface activates its existing tab.
+   await panel.getByRole('button',{name:'Add surface',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Files',exact:true}).click();
+   expect(await panel.locator('[role=tab]').count()).toBe(1);
+   await pw(panel.locator('[role=tab][aria-selected=true]',{hasText:'Files'})).toHaveCount(1);
+   // The launcher shortcut never fires from a text field.
+   const draft=panel.locator('textarea').first();
+   if(await draft.count()){await draft.focus();await page.keyboard.press('p');expect(await panel.locator('[role=tab]',{hasText:'Pull request'}).count()).toBe(0);}
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('restores the previously active surface on hide and reopen (T04/R05)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
+   const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});
+   await panel.getByRole('button',{name:'Files',exact:true}).click();
+   await panel.getByRole('button',{name:'Add surface',exact:true}).click();
+   await page.getByRole('menuitem',{name:'Notes',exact:true}).click();
+   await pw(panel.locator('[role=tab][aria-selected=true]',{hasText:'Notes'})).toHaveCount(1);
+   await page.getByRole('button',{name:'Hide panel',exact:true}).click();
+   await panel.waitFor({state:'hidden'});
+   await page.getByRole('button',{name:'Open panel',exact:true}).click();
+   await panel.waitFor({state:'visible'});
+   await pw(panel.locator('[role=tab][aria-selected=true]',{hasText:'Notes'})).toHaveCount(1);
+   expect(await panel.locator('[role=tab]').evaluateAll(nodes=>nodes.map(node=>node.textContent?.trim()))).toEqual(['Files','Notes']);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('shows no saved-layout or switch-layout chrome in the shell (T04/R05)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   for(const probe of [/layout/i,/Saved workspace/])expect(await page.getByRole('button',{name:probe}).count(),probe.toString()).toBe(0);
+   expect(await page.getByRole('combobox',{name:/layout|Saved workspace/i}).count()).toBe(0);
+   expect(await page.getByRole('button',{name:'Open panel',exact:true}).count()).toBe(1);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('maps the chat rail drag onto the real scroll range (T04/R06)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   await page.setViewportSize({width:1200,height:430});
+   const scroller=page.locator('[data-split-view="thread:thread-a"] .conversation-scroll');
+   await scroller.waitFor({state:'visible'});
+   const indicator=page.locator('[data-split-view="thread:thread-a"] .chat-scroll-indicator');
+   await pw.poll(async()=>scroller.evaluate(el=>el.scrollHeight-el.clientHeight)).toBeGreaterThan(40);
+   const strip=await indicator.evaluate(el=>{const s=getComputedStyle(el);return{width:parseFloat(s.width),cursor:s.cursor};});
+   expect(strip.width).toBeGreaterThanOrEqual(23);
+   const track=await indicator.locator('.chat-scroll-track').evaluate(el=>getComputedStyle(el).width);
+   const thumb=await indicator.locator('.chat-scroll-thumb').evaluate(el=>getComputedStyle(el).width);
+   expect(parseFloat(track)).toBeLessThanOrEqual(1.5);
+   expect(parseFloat(thumb)).toBeLessThanOrEqual(3.5);
+   // Dragging the thumb to the bottom of the track lands at the real scroll maximum.
+   const trackBox=(await indicator.locator('.chat-scroll-track').boundingBox())!;
+   const thumbBox=(await indicator.locator('.chat-scroll-thumb').boundingBox())!;
+   await page.mouse.move(thumbBox.x+thumbBox.width/2,thumbBox.y+2);await page.mouse.down();
+   await page.mouse.move(trackBox.x+trackBox.width/2,trackBox.y+trackBox.height-1,{steps:8});await page.mouse.up();
+   const after=await scroller.evaluate(el=>({top:el.scrollTop,max:el.scrollHeight-el.clientHeight}));
+   expect(Math.abs(after.top-after.max)).toBeLessThanOrEqual(6);
+   // A parked/empty pane presents no deceptive thumb.
+   await host.issue('view.park',{viewId:'thread:thread-a'});
+   await page.waitForFunction(()=>!document.querySelector('.chat-scroll-indicator[data-scrollable="true"]'));
+   await pw(page.locator('.chat-scroll-indicator[data-scrollable="true"]')).toHaveCount(0);
+   expect(host.errors).toEqual([]);
+  }finally{await page.close();}
+ },30000);
+
+ it('collapses and reopens the sidebar by shortcut, mouse and keyboard (T04/R07)',async()=>{
+  const host=await fixture({mode:'default',singleThread:true}),{page}=host;try{
+   const sidebar=page.locator('.app-shell>.sidebar');
+   await sidebar.waitFor({state:'visible'});
+   const before=(await sidebar.boundingBox())!;expect(before.width).toBeGreaterThan(180);
+   // Configured shortcut collapses and expands.
+   await page.keyboard.press('Control+b');
+   await pw(sidebar).toBeHidden();
+   const recovery=page.getByRole('button',{name:'Open sidebar',exact:true});
+   await recovery.waitFor({state:'visible'});
+   // The reopen control's center is hit-testable, not covered by a drag region.
+   const hit=await recovery.evaluate(el=>{const box=el.getBoundingClientRect();const target=document.elementFromPoint(box.x+box.width/2,box.y+box.height/2);return target?el.contains(target)||target.contains(el):false;});
+   expect(hit).toBe(true);
+   await recovery.click();
+   await sidebar.waitFor({state:'visible'});
+   // Mouse path.
+   await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
+   await pw(sidebar).toBeHidden();
+   await recovery.click();await sidebar.waitFor({state:'visible'});
+   // Keyboard path: focus the collapse control and press Enter; focus lands on a visible control.
+   const collapse=page.getByRole('button',{name:'Collapse sidebar',exact:true});
+   await collapse.focus();await page.keyboard.press('Enter');
+   await pw(sidebar).toBeHidden();
+   await recovery.focus();await page.keyboard.press('Enter');
+   await sidebar.waitFor({state:'visible'});
+   const focusVisible=await page.evaluate(()=>{const el=document.activeElement as HTMLElement|null;if(!el||el===document.body)return true;const box=el.getBoundingClientRect();return box.width>0&&box.height>0&&getComputedStyle(el).visibility!=='hidden';});
+   expect(focusVisible).toBe(true);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);

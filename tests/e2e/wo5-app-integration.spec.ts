@@ -48,7 +48,7 @@ async function host(page:Page){
  return {snapshot,commands,unexpected,workingCopy};
 }
 async function panel(page:Page,name:string){
- const open=page.getByRole('button',{name:'Open workspace panel',exact:true});if(await open.count())await open.click();
+ const open=page.getByRole('button',{name:'Open panel',exact:true});if(await open.count())await open.click();
  const target=page.getByRole('tab',{name,exact:true});
  if(!await target.count()){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name,exact:true}).click();}
  await target.click();

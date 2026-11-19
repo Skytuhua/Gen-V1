@@ -41,8 +41,8 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
   snapshot.userStates=snapshot.artifacts.map(artifact=>({...snapshot.userStates[0],id:artifact.stateId}));
   await serveTaskFixture(page,snapshot);await page.goto('/');
   await expect(page.locator('.artifact')).toHaveCount(3);await matchesComposer(page);
-  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await matchesComposer(page);
-  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();
+  await page.getByRole('button',{name:'Open panel',exact:true}).click();await matchesComposer(page);
+  await page.getByRole('button',{name:'Hide panel',exact:true}).click();
   await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();await matchesComposer(page);
   await page.setViewportSize({width:900,height:1000});await matchesComposer(page);
   await page.setViewportSize({width:390,height:844});await matchesComposer(page);
@@ -89,11 +89,11 @@ test('automatic Plan summary reserves task space while telemetry preserves the m
 test('explicit workspace panels claim only their own width and closing restores the full centered surface',async({page})=>{
   await page.setViewportSize({width:1920,height:1080});await serveTaskFixture(page,fixture(false));await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
   const input=await page.getByRole('textbox',{name:'Review name',exact:true}).elementHandle(),before=await page.locator('main.workspace').boundingBox();
-  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();await centered(page);
+  await page.getByRole('button',{name:'Open panel',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();await centered(page);
   await expect.poll(()=>page.getByRole('complementary',{name:'Workspace panel',exact:true}).evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);
   const main=await page.locator('main.workspace').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
   expect(panel!.x-(main!.x+main!.width)).toBeCloseTo(6,0);expect(panel!.x+panel!.width).toBeCloseTo(1920,0);
-  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
+  await page.getByRole('button',{name:'Hide panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
   expect(await page.getByRole('textbox',{name:'Review name',exact:true}).evaluate((node,old)=>node===old,input)).toBe(true);
 });
 
