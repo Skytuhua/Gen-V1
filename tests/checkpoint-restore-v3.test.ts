@@ -286,3 +286,12 @@ it("emits unified diffs whose headers, counts and markers apply to the exact byt
   expect(unifiedDiff("f.txt", null, Buffer.from(""))).toEqual({ diff: null, truncated: false });
   expect(unifiedDiff("f.txt", null, Buffer.from("x\n")).diff).toBe("--- a/f.txt\n+++ b/f.txt\n@@ -0,0 +1,1 @@\n+x\n");
 });
+
+it("clips checkpoint diff previews at a complete UTF-8 scalar within the byte limit", () => {
+  const prefix = "--- a/f.txt\n+++ b/f.txt\n@@ -0,0 +1,1 @@\n+";
+  const pad = "x".repeat(128 * 1024 - Buffer.byteLength(prefix) - 1);
+  const result = unifiedDiff("f.txt", null, Buffer.from(pad + "😀 tail\n"));
+  expect(result.truncated).toBe(true);
+  expect(result.diff?.endsWith("x")).toBe(true);
+  expect(Buffer.byteLength(result.diff!)).toBeLessThanOrEqual(128 * 1024);
+});
