@@ -116,13 +116,21 @@ describe('M03 cached package screening authority', () => {
     expect(queries).toBe(0);
   });
 
-  it('allows zero cache lifetime to force an advisory recheck', async () => {
-    const result = await screenPackage(identity, knownBad, {
-      cache: cache(record()), now, maxCacheAgeMs: 0,
-    });
-    expect(result).toMatchObject({ cacheHit: false, staleCache: true });
-    expect(result.record.status).toBe('KNOWN_BAD');
-    expect(screeningGate(result.record)).toBe('BLOCK');
+  it('rechecks at zero cache lifetime, including equal checkedAt and now timestamps', async () => {
+    for (const clock of [now, () => Date.parse(checkedAt)]) {
+      let queries = 0;
+      const advisory: AdvisoryDatabase = {
+        database: 'current-db',
+        query: async () => { queries++; return { status: 'MATCH', advisoryIds: ['TEST-001'] }; },
+      };
+      const result = await screenPackage(identity, advisory, {
+        cache: cache(record()), now: clock, maxCacheAgeMs: 0,
+      });
+      expect(result).toMatchObject({ cacheHit: false, staleCache: true });
+      expect(result.record.status).toBe('KNOWN_BAD');
+      expect(screeningGate(result.record)).toBe('BLOCK');
+      expect(queries).toBe(1);
+    }
   });
 
   it('rechecks stale cache and retains unavailable as a distinct denial', async () => {
