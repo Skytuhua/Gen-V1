@@ -1,6 +1,5 @@
 // T3 settings search inventory, pinned to da8cc591dadd75819ae62961da4a882767efb145.
 // Labels and search terms transcribed from the upstream source; behavior is classified locally.
-export const T3_SETTINGS_SOURCE = 'https://github.com/pingdotgg/t3code/blob/da8cc591dadd75819ae62961da4a882767efb145/apps/web/src/components/settings/settingsSearch.ts';
 export interface SettingsInventoryRow { id: string; title: string; section: string; terms: string }
 // One pinned setting per row; labelled columns avoid repeating the same object shape.
 type IndexedSetting = [id: string, title: string, section: string, terms: string];
