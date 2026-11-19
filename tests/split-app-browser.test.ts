@@ -219,21 +219,26 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.waitForFunction(()=>!!document.querySelector('[data-split-view="thread:thread-a"][data-floating="true"]'));
    for(let i=0;i<3;i++){const box=(await floatSurface.locator('.split-float-resize').boundingBox())!;await page.mouse.move(box.x+box.width/2,box.y+box.height/2);await page.mouse.down();await page.mouse.move(box.x+box.width/2+500,box.y+box.height/2+400,{steps:4});await page.mouse.up();}
    const pinned=(await floatSurface.boundingBox())!;
+   const wsBox=(await page.locator('.split-workspace').boundingBox())!;
    const gripBox=(await floatSurface.locator('.split-float-grip').boundingBox())!;
    // Slack opens left/down only: a leftward drag moves the float while its
-   // header and right-edge controls stay inside the clip.
+   // header and right-edge controls stay inside the clip. The drag also moves
+   // down so its release lands in the pane's centre rather than the top dock zone.
    await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();
-   await page.mouse.move(gripBox.x+gripBox.width/2-120,gripBox.y+gripBox.height/2,{steps:6});await page.mouse.up();
+   await page.mouse.move(gripBox.x+gripBox.width/2-120,gripBox.y+gripBox.height/2+140,{steps:6});await page.mouse.up();
    const moved=(await floatSurface.boundingBox())!;
    expect(Math.abs(moved.x-pinned.x)).toBeGreaterThan(20);
    const movedGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!,movedResize=(await floatSurface.locator('.split-float-resize').boundingBox())!;
    expect(movedGrip.x+movedGrip.width).toBeLessThanOrEqual(moved.x+moved.width);
    expect(movedResize.x+movedResize.width).toBeLessThanOrEqual(moved.x+moved.width);
-   // A rightward drag stays pinned at the edge rather than clipping controls.
-   await page.mouse.move(movedGrip.x+movedGrip.width/2,movedGrip.y+movedGrip.height/2);await page.mouse.down();
-   await page.mouse.move(movedGrip.x+movedGrip.width/2+300,movedGrip.y+movedGrip.height/2,{steps:6});await page.mouse.up();
+   // A rightward drag stays pinned at the edge rather than clipping controls:
+   // grabbing the title (left of the dock zone) and dragging right lands in the
+   // pane centre while the float clamps at the area edge.
+   const movedTitle=(await floatSurface.locator('.split-float-title').boundingBox())!;
+   await page.mouse.move(movedTitle.x+movedTitle.width/2,movedTitle.y+movedTitle.height/2);await page.mouse.down();
+   await page.mouse.move(movedTitle.x+movedTitle.width/2+300,movedTitle.y+movedTitle.height/2,{steps:6});await page.mouse.up();
    const settled=(await floatSurface.boundingBox())!,settledGrip=(await floatSurface.locator('.split-float-grip').boundingBox())!;
-   expect(settled.x+settled.width).toBeLessThanOrEqual((await page.locator('.split-workspace').boundingBox())!.width);
+   expect(settled.x+settled.width).toBeLessThanOrEqual(wsBox.x+wsBox.width);
    expect(settledGrip.x+settledGrip.width).toBeLessThanOrEqual(settled.x+settled.width);
    expect(host.errors).toEqual([]);
   }finally{await page.close();}
