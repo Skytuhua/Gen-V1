@@ -161,8 +161,11 @@ export class DurableWakeupScheduler {
     // expiry after an uncertain dispatch never authorizes a second submit.
     // S01: at most 50 due records inspected per tick, shared across new due
     // wakeups and expired claims needing reconciliation.
+    const recoverable = new Set(this.store.all<WakeupRecord>("backgroundWakeup")
+      .filter(wakeup => !wakeup.paused && wakeup.state !== "CANCELLED" && wakeup.state !== "DELIVERED" && wakeup.state !== "BLOCKED")
+      .map(wakeup => wakeup.wakeupId));
     const expired = this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence")
-      .filter(item => item.state === "CLAIMED" && item.leaseExpiresAtMs !== null && item.leaseExpiresAtMs <= stamp)
+      .filter(item => item.state === "CLAIMED" && item.leaseExpiresAtMs !== null && item.leaseExpiresAtMs <= stamp && recoverable.has(item.wakeupId))
       .slice(0, Math.max(0, this.limits.dueBatchLimit - due.length));
     for (const occurrence of expired) {
       const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
