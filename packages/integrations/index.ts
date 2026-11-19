@@ -215,7 +215,9 @@ export class IntegrationManager {
     // hooks. Refuse them without evaluating their content or invoking getters.
     for(const key of Reflect.ownKeys(failure)){
      if(key==='message'||key==='stack'||key==='cause')continue;
-     if(typeof key==='symbol')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     // Node also prints property NAMES; known raw or encoded secrets in keys
+      // must not reach the formatter, even when the property value is harmless.
+      if(typeof key==='symbol'||redactor.redact(key).text!==key)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
      const field=Object.getOwnPropertyDescriptor(failure,key);
      if(!field)continue;
      if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
