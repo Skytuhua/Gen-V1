@@ -15,13 +15,21 @@ const same=(left:RunContext,right:RunContext)=>left.threadId===right.threadId&&l
 
 /** Canonical chat text only: no attachments, tools, native history or profile data. */
 export function predictionContext(messages:readonly Message[]):string {
- const selected:{role:'user'|'assistant';content:string}[]=[];let bytes=0;
+ const selected:{role:'user'|'assistant';content:string}[]=[];let bytes=2; // JSON array brackets
  for(let i=messages.length-1;i>=0&&selected.length<PREDICTION_LIMITS.messages;i--){
   const message=messages[i];if(message.role==='activity'||!message.content)continue;
-  const remaining=PREDICTION_LIMITS.contextBytes-bytes;if(!remaining)break;
+  const entry={role:message.role,content:''};
+  const overhead=Buffer.byteLength(JSON.stringify(entry))+(selected.length?1:0);
+  const remaining=PREDICTION_LIMITS.contextBytes-bytes-overhead;if(remaining<=0)break;
   let content=message.content;
-  if(Buffer.byteLength(content)>remaining){let count=0;const characters:string[]=[];for(const character of content){const size=Buffer.byteLength(character);if(count+size>remaining)break;characters.push(character);count+=size;}content=characters.join('');}
-  selected.push({role:message.role,content});bytes+=Buffer.byteLength(content);
+  let size=content.length>remaining?remaining+1:Buffer.byteLength(JSON.stringify(content))-2;
+  if(size>remaining){
+   size=0;const characters:string[]=[];
+   for(const character of content){const encoded=Buffer.byteLength(JSON.stringify(character))-2;if(size+encoded>remaining)break;characters.push(character);size+=encoded;}
+   content=characters.join('');
+  }
+  if(!content)break;
+  selected.push({...entry,content});bytes+=overhead+size;
  }
  return JSON.stringify(selected.reverse());
 }
