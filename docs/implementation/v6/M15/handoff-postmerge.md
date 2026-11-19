@@ -63,3 +63,33 @@ At trigger time `ff38c62c` was the head of main. The checked browser source path
 Result — run `44406027316` **completed SUCCESS, 7/7 jobs green on exact `ff38c62c`**: native contracts, all four full-repo shards, root browser comparison, and `M15 browser contracts (Windows and installed Edge)` — including `Exercise the agents workspace in Edge` (the step containing `agents-workspace-evidence.spec.ts:200` "populated grid evidence at 1440", the single residual on the verifier box). The verifier-box failure is therefore confirmed environmental (Edge Private Network Access policy blocking loopback WebSockets on `WIN-M0N0V07LGM1`), reproduced nowhere on org CI across two independent runs (`44310248562` at `840bb636`, `44406027316` at `ff38c62c`).
 
 **HOLD_PLATFORM_PROOF is discharged for the installed-Edge acceptance gate** — source-bound org CI proof exists at `ff38c62c`. The installed Windows desktop source and draft handoff remains unverified. The Chromium desktop-surfaces suite used the scripted bridge. The only named environmental observation retained: non-CI Windows hardware with enforced Edge local-network-access policy cannot bootstrap the app's loopback socket (no product or spec change indicated; the correct rerun environment is org CI or a Windows box without that policy). `HOLD_UNPUBLISHED_CUSTODY` (D01 payload bytes) remains unchanged. No merge, activation, or flag change performed.
+
+## Installed workbench custody — dispatched verification run 44418295418
+
+A distinct installed-desktop leg ran via `workflow_dispatch` of `ci.yml` on `verify/m15-installed-workbench-db3c0cf6` at `86e705732afa3a8f8ed29e1eeb35be7f991489be` (the verify branch's harness head; `productCut` recorded by the receipt as `db3c0cf6`). Job `135204274180` ("Installed desktop memory retention and opt-in") ran `scripts/verify-installed-desktop.ts` twice — memory phases plus `--workbench-custody` — and completed SUCCESS. Artifact `14486607582` (`installed-m15-workbench-44418295418-1`, distinct from the `installed-memory-44418295418-1` artifact `14487160256`) carries `verification-summary.json` + three redacted screenshots; zip sha256 `f4203eee1b1c882fc752fb613a59a843d108e6de7c0605393b15da65145fb54c`.
+
+Receipt digests (source-bound): `testedSha` `86e70573…` matches the dispatched head; installer `setupSha256` `696af790a97717a33767004d4aa04795e2073a9c7d2c06a7cc925c18f31bbea7`; `executableSha256` `e942a593ffb556dae3aaea26058efce2715290e5eb3fe5567ecf0243bd89cc4d`; `payloadSha256` `86d62f755f1e5524cd26107419f4d3041bec10c8ab95f9a03db2770d5a4eb1c5`; `draftSha256` `4feb220ce4e110380b1d194dd406f033106d315e4ab085c750a369bfb0cb4948` (identical across both launches); selected capture digests `a299cf…`/`cdddc0…` identical post-restart; screenshot digests `afb6e922…`, `576317fe…`, `fef3b311…`. Version `0.6.5`, Windows `10.0.26100.0`, Node `v24.22.2`, `passed: true`, `exitCode: 0`, cleanup `uninstalled-owned-installation`, two launches with `verifiedOwner` + `workbenchCustody` true.
+
+Observation → v6 case validation (13 observations, all present and consistent):
+
+| Step (observation) | Counts/digests | v6 leg proven |
+|---|---|---|
+| owner-workbench-enabled | owner title bound | S-enablement: workbench active under the owned task only |
+| ask-captured-no-submit | captures=1, sends=0 | capture custody without submission (draft begins) |
+| second-source-attached | captures=2, sends=0 | second owner-bound source capture, no send |
+| queued-delivery-durable | sends=0, sendMode `AFTER_CURRENT` | U-leg: queued owner-bound delivery mode persisted without a model |
+| unrelated-owner-untouched | unrelatedDraft=false, unrelatedSourceContext=false | T03 owner isolation on a second task |
+| native-detach | detachedSurface `thread:installed-workbench-owner` | native window detach of the owning thread |
+| native-reattach-custody | journal keys `draft:`+`source-context:`, draftSha256, refs=2, captureIds×2, `AFTER_CURRENT` | C01–C03 custody through product detach/reattach on the real bridge |
+| request-observation (×2) | iter1 captures=2/sends=0, iter2 0/0 | no message submissions observed; provider network traffic not measured (`providerNetworkCalls` recorded `null` by explicit measurement limit) |
+| restart-owner-retained | identical draftSha256, captureIds, sendMode | T05/D-leg: custody survives exact installed process restart |
+| restart-unrelated-untouched | screenshot retained | unrelated task untouched across restart |
+| post-exit-storage (×2) | owner captures=2, unrelated=0, outbox 0/0, userMessages 0/0, admissions=0 | storage partition truth; nothing submitted or admitted |
+
+`queuedDispatch` bound: the summary records `NOT_RUN: installed run has no provider or model binding`. The fixture proves the durable *queue mode* (`AFTER_CURRENT` persisted in the owner journal across detach/reattach and restart — verified); real provider dispatch remains **unproved** (`NOT_RUN`) — no model endpoint was exercised or claimed.
+
+Run classification: the workflow overall FAILED only on `Tests (shard 2/4)` — `tests/public-source.test.ts` "local import closure" missing two allowlist entries for the verification branch's own new files (`scripts/installed-workbench-custody.ts` imported by `scripts/verify-installed-desktop.ts` and `tests/installed-desktop-verification.test.ts`). Harness-side allowlist omission on the verify branch, unrelated to the custody job (8/9 jobs green including Browser tests, Windows checks, Hermes, Desktop build) and not a product defect.
+
+Old-cut note: `productCut` `db3c0cf6` predates current main `2b41659c`, and `App.tsx` plus additional draft/preview files (`draft-limits.ts`, `pdf-draft.ts`, `document-preview.css`, `service.ts`, `source-workbench.ts`, `capability-flags.ts`, the v6 test file) changed between them. The evidence is therefore asserted only as source-bound proof for the packaged `db3c0cf6` build via the recorded digests — it is not extended to the current desktop cut.
+
+Disposition: the specific observed test cases above are proven at `db3c0cf6` on Windows x64 installed-desktop; the full provider-dependent gate remains open (provider dispatch `NOT_RUN`, provider network traffic not measured). `HOLD_UNPUBLISHED_CUSTODY` (D01 payload bytes) unchanged. Flags `ui.sourceWorkbenchV1` and `reviewerApproval` remain false; no activation, merge, flag change, or product edit performed.
