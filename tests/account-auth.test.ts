@@ -112,3 +112,34 @@ it.each(['opencode-go', 'openai'] as const)('keeps %s saved but not verified wit
   const store = providerId === 'opencode-go' ? await planFixture('opencode-go') : await (async () => { const {root,store} = await fixture(); await mkdir(join(root,'pi')); await writeFile(join(root,'pi','auth.json'),JSON.stringify({openai:{type:'oauth',access:'private-access',refresh:'private-refresh',expires:Date.now()+60000}})); return store; })();
   expect(await readAccountAuth(store,{providerId,accountId:null})).toMatchObject({state:'configured',identity:unavailableIdentity()}); expect(requests).toEqual([]);
 });
+const githubToken = 'gho_never_return_fixture';
+async function copilotFixture(extra: Record<string, unknown> = {}) {
+  const {root,store}=await fixture(); await mkdir(join(root,'pi'));
+  await writeFile(join(root,'pi','auth.json'),JSON.stringify({'github-copilot':{type:'oauth',access:'tid=private-copilot-access',refresh:githubToken,expires:Date.now()+60000,...extra}}));
+  return store;
+}
+it('reports Copilot as signed in only after the bounded token exchange issues a Copilot token, without returning it', async () => {
+  const store = await copilotFixture(), requests = stubFetch(() => Response.json({ token: 'tid=issued-private-token', expires_at: 1_900_000_000 }));
+  const value = await readAccountAuth(store,{providerId:'github-copilot',accountId:null});
+  expect(value).toMatchObject({state:'authenticated',identity:unavailableIdentity()});
+  expect(requests).toHaveLength(1); expect(requests[0].url).toBe('https://api.github.com/copilot_internal/v2/token');
+  expect(requests[0].headers.get('authorization')).toBe(`Bearer ${githubToken}`); expect(requests[0].redirect).toBe('error'); expect(requests[0].signal).toBeInstanceOf(AbortSignal);
+  expect(JSON.stringify(value)).not.toMatch(new RegExp(`${githubToken}|issued-private-token|private-copilot-access`));
+});
+it.each(['https://ghe.example.com', 'ghe.example.com', 'https://api.github.com.evil.example', 'http://ghe.example.com', 7])('keeps a Copilot sign-in with a saved enterprise host unconfirmed without sending the token (%s)', async enterpriseUrl => {
+  const store = await copilotFixture({ enterpriseUrl }), requests = stubFetch(() => Response.json({ token: 't', expires_at: 1 }));
+  expect(await readAccountAuth(store,{providerId:'github-copilot',accountId:null})).toMatchObject({state:'unavailable'}); expect(requests).toEqual([]);
+});
+it.each([401, 403])('reports a GitHub token refused for Copilot (HTTP %i) as rejected', async status => {
+  const store = await copilotFixture(); stubFetch(() => new Response('{"message":"private detail"}', { status, headers: { 'content-type': 'application/json' } }));
+  const value = await readAccountAuth(store,{providerId:'github-copilot',accountId:null});
+  expect(value).toMatchObject({state:'rejected'}); expect(JSON.stringify(value)).not.toMatch(new RegExp(`${githubToken}|private detail`));
+});
+it.each([
+  ['rate limit', () => new Response('{}', { status: 429, headers: { 'content-type': 'application/json' } })],
+  ['missing token', () => Response.json({ expires_at: 1 })],
+  ['network failure', () => Promise.reject(new TypeError('private network detail'))]
+] as const)('keeps a Copilot check without an authentication refusal unconfirmed (%s)', async (_name, respond) => {
+  const store = await copilotFixture(); stubFetch(respond);
+  expect(await readAccountAuth(store,{providerId:'github-copilot',accountId:null})).toMatchObject({state:'unavailable'});
+});
