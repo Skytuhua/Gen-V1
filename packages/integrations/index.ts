@@ -189,9 +189,31 @@ export class IntegrationManager {
     const failure=pending.pop()!;
     if(seen.has(failure))continue;
     seen.add(failure);
-    const stack=failure.stack;
-    failure.message=redactor.redact(failure.message).text;
-    if(typeof stack==='string')failure.stack=redactor.redact(stack).text;
+    // Node's Error formatter reads name, message, stack and cause through
+    // both own and inherited descriptors. Accessors can ignore redaction writes
+    // or expose a token while the failure is formatted; never invoke them.
+    for(const key of ['name','message','stack','cause'] as const){
+     let holder:object|null=failure;
+     let field:PropertyDescriptor|undefined;
+     while(holder){
+      field=Object.getOwnPropertyDescriptor(holder,key);
+      if(field)break;
+      holder=Object.getPrototypeOf(holder);
+     }
+     if(!field)continue;
+     if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     if(key==='cause'){
+      // An inherited cause is not owned and cannot be scrubbed in place.
+      if(holder!==failure&&field.value!==null&&field.value!==undefined)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      continue;
+     }
+     if(typeof field.value!=='string')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const redacted=redactor.redact(field.value).text;
+     if(redacted!==field.value){
+      if(holder!==failure||(!field.writable&&!field.configurable))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      Object.defineProperty(failure,key,{...field,value:redacted});
+     }
+    }
     const cause=Object.getOwnPropertyDescriptor(failure,'cause');
     if(cause&&'value' in cause){
      if(typeof cause.value==='string'){
