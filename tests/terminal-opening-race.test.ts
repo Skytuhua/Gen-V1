@@ -15,3 +15,11 @@ it('revalidates the canonical binding after secret resolution before starting a 
  const {host,projects}=fixture();projects.binding.mockResolvedValueOnce({path:'C:/before'}).mockResolvedValue({path:'C:/after'});
  await expect(host.open({projectId:'project-a',threadId:'thread-a'})).rejects.toThrow('changed');expect(mocks.spawn).not.toHaveBeenCalled();
 });
+it('rejects an oversized initial command before starting or reserving a terminal',async()=>{
+ const {host}=fixture();const input={projectId:'project-a',threadId:'thread-a',terminalId:'terminal-a'};
+ await expect(host.open({...input,command:'x'.repeat(8001)})).rejects.toThrow();
+ expect(mocks.spawn).not.toHaveBeenCalled();
+ await expect(host.open({...input,command:'echo ready'})).resolves.toMatchObject({id:'terminal-a'});
+ expect(mocks.spawn).toHaveBeenCalledOnce();
+ expect(mocks.spawn.mock.results[0]?.value.write).toHaveBeenCalledWith('echo ready\r');
+});
