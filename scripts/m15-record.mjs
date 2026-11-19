@@ -1,7 +1,7 @@
 // Dependency-free command evidence for M15. Every attempt gets a new record.
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
-import {closeSync, mkdirSync, openSync, writeFileSync, existsSync, realpathSync} from 'node:fs';
+import {accessSync, constants, statSync, closeSync, mkdirSync, openSync, writeFileSync, existsSync, realpathSync} from 'node:fs';
 import {resolve, join, delimiter} from 'node:path';
 const [id, executable, ...args] = process.argv.slice(2);
 if (!id || !/^[a-z0-9-]+$/.test(id) || !executable) throw Error('Usage: node scripts/m15-record.mjs ID COMMAND ...ARGS');
@@ -10,7 +10,15 @@ mkdirSync(dir, {recursive: true});
 const logRef = `${dir}/${id}.log`, recordRef = `${dir}/${id}.json`;
 if (existsSync(recordRef)) throw Error('Use a new ID; failed evidence is immutable.');
 const startedAt = new Date().toISOString(), cwdIdentity = realpathSync('.');
-const executablePath = /[/\\]/.test(executable) ? resolve(executable) : (process.env.PATH ?? '').split(delimiter).map(p => join(p, executable)).find(existsSync);
+const runnablePathEntry = path => {
+  if (process.platform === 'win32') return existsSync(path);
+  try {
+    if (!statSync(path).isFile()) return false;
+    accessSync(path, constants.X_OK);
+    return true;
+  } catch { return false; }
+};
+const executablePath = /[/\\]/.test(executable) ? resolve(executable) : (process.env.PATH ?? '').split(delimiter).map(p => join(p, executable)).find(runnablePathEntry);
 // An unavailable canonical path must not hide the actual spawn result.
 let executableIdentity = executable;
 if (executablePath) {
