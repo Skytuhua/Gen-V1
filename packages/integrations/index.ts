@@ -189,6 +189,12 @@ export class IntegrationManager {
     const failure=pending.pop()!;
     if(seen.has(failure))continue;
     seen.add(failure);
+    // Node's formatter invokes inherited util.inspect.custom hooks independently
+    // of Error fields. Reject them before returning the original child Error.
+    for(let proto:object|null=Object.getPrototypeOf(failure);proto;proto=Object.getPrototypeOf(proto)){
+     if(Object.getOwnPropertyDescriptor(proto,Symbol.for('nodejs.util.inspect.custom')))
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+    }
     // Node's Error formatter reads name, message, stack and cause through
     // both own and inherited descriptors. Accessors can ignore redaction writes
     // or expose a token while the failure is formatted; never invoke them.
