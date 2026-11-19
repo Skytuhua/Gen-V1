@@ -3190,6 +3190,8 @@
     "tests/e2e/usage-context-fixture.tsx",
     "tests/e2e/usage-context.playwright.config.ts",
     "tests/e2e/usage-context.spec.ts",
+    "tests/e2e/visual-matrix.playwright.config.ts",
+    "tests/e2e/visual-matrix.spec.ts",
     "tests/e2e/vite.config.ts",
     "tests/e2e/wo5-app-integration.playwright.config.ts",
     "tests/e2e/wo5-app-integration.spec.ts",

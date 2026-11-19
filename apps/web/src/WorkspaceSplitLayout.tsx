@@ -77,7 +77,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  };
  const keyFloat=(event:KeyboardEvent<HTMLElement>,viewId:string)=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;const rect=floatRectOf(viewId);if(!rect)return;event.preventDefault();const step=event.shiftKey?24:8,dx=event.key==='ArrowLeft'?-step:event.key==='ArrowRight'?step:0,dy=event.key==='ArrowUp'?-step:event.key==='ArrowDown'?step:0;const next=clampChatRect({...rect,x:rect.x+dx,y:rect.y+dy},{width:size.width,height:size.height});setFloatRects(current=>({...current,[viewId]:next}));onMoveFloat?.(viewId,next);};
  useEffect(()=>{const escape=(event:globalThis.KeyboardEvent)=>{if(event.key==='Escape'){if(floatGesture.current){event.preventDefault();cancelFloat();}setFloatMenu(null);}};const blur=()=>{cancelFloat();setFloatMenu(null);};window.addEventListener('keydown',escape);window.addEventListener('blur',blur);return()=>{window.removeEventListener('keydown',escape);window.removeEventListener('blur',blur);cancelFloat();};},[cancelFloat]);
- const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||(toolDock?size.height<minimum.height:size.width<700)),topBar=narrow?30:0;
+ const minimum=minimumSplitSize(layout),narrow=size.width>0&&(size.width<minimum.width||size.height<minimum.height||(!toolDock&&size.width<700)),topBar=narrow?30:0;
  const mainPaneId=resolveMainPaneId(layout);
  useEffect(()=>{if(menuPane&&(!layout.panes[menuPane]||layout.panes[menuPane].collapsed||narrow&&layout.focusedPaneId!==menuPane))setMenuPane(null);},[menuPane,layout.panes,layout.focusedPaneId,narrow]);
  const measure=useCallback(()=>{
