@@ -297,3 +297,27 @@ it.each(['raw', 'base64'] as const)('fails closed on a credential-bearing Symbol
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:6})).not.toContain(exposed);
 });
+
+it.each(['number', 'bigint'] as const)('fails closed on a numeric credential in Error.cause (%s)', kind => {
+ const secret='987654321234';
+ const cause=kind==='number'?Number(secret):BigInt(secret);
+ const failure=new Error('safe child failure',{cause});
+ // Native Node rendering exposes both number and bigint causes verbatim.
+ expect(inspect(failure,{depth:6})).toContain(secret);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:6})).not.toContain(secret);
+});
