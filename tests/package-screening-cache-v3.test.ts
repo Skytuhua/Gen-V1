@@ -172,6 +172,25 @@ describe('M03 cached package screening authority', () => {
     }
   });
 
+  it('accepts a fresh snapshot created during an in-flight advisory query', async () => {
+    const start = Date.parse(checkedAt);
+    let clock = start;
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => {
+        clock += 50;
+        const asOf = new Date(clock).toISOString();
+        clock += 50;
+        return { status: 'NO_MATCH', asOf };
+      },
+    };
+    const result = await screenPackage(identity, advisory, { now: () => clock });
+    expect(result.record.status).toBe('NO_KNOWN_MATCH');
+    expect(screeningGate(result.record)).toBe('NEUTRAL');
+    expect(result.record.advisory.asOf).toBe(new Date(start + 50).toISOString());
+    expect(result.record.checkedAt).toBe(new Date(start + 100).toISOString());
+  });
+
   it('retains a known-bad denial even if the matching advisory snapshot is old', async () => {
     const advisory: AdvisoryDatabase = {
       database: 'current-db',
