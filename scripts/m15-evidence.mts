@@ -87,9 +87,10 @@ check(new Set(embedded.map(command=>command.boundedLogRef)).size===embedded.leng
 for(const command of embedded){
  const record=byLog.get(command.boundedLogRef);
  check(Boolean(record)&&JSON.stringify(record!.command)===JSON.stringify(command),`Embedded command differs from immutable receipt: ${command.boundedLogRef}`);
- check(existsSync(command.boundedLogRef)&&hash(command.boundedLogRef)===command.logDigest,`Missing or mismatched command log: ${command.boundedLogRef}`);
- const log=read(command.boundedLogRef);
- check(log.startsWith(`argv: ${JSON.stringify(command.argv)}\ncwd: ${command.cwdIdentity}\nexitCode: ${command.exitCode}\ntermination: ${command.termination}\n`),`Log observation header differs: ${command.boundedLogRef}`);
+ let log:Buffer|undefined;
+ try{log=readFileSync(command.boundedLogRef);}catch{/* Record the unavailable log as an integrity failure below. */}
+ check(Boolean(log)&&createHash('sha256').update(log!).digest('hex')===command.logDigest,`Missing or mismatched command log: ${command.boundedLogRef}`);
+ if(log)check(log.toString('utf8').startsWith(`argv: ${JSON.stringify(command.argv)}\ncwd: ${command.cwdIdentity}\nexitCode: ${command.exitCode}\ntermination: ${command.termination}\n`),`Log observation header differs: ${command.boundedLogRef}`);
  check(Date.parse(command.endedAt)>=Date.parse(command.startedAt),`Invalid command timing: ${command.boundedLogRef}`);
 }
 const artifacts=json(prefix+'artifacts.json').files as {path:string;bytes:number;sha256:string}[];
