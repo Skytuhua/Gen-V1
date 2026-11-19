@@ -15,7 +15,7 @@ const plan=(over:Record<string,unknown>={})=>({planId:'migration-1',inputVersion
 const backend=(over:Partial<ExecutionBackend>={}):ExecutionBackend=>({backendId:'test-backend',platform:process.platform,installed:true,approved:true,proof:{platformProofRef:'proof-1',platform:process.platform,status:'PASS',recordedAt:new Date().toISOString()},launch:async()=>({id:'x',terminate:async()=>{}}),...over});
 
 class FakeTransport implements WorkerTransport{
- sent:WorkerFrameV1[]=[];terminated=false;confirmTerminate=true;operations=['echo','secretProbe'];settleRequests=true;
+ sent:WorkerFrameV1[]=[];terminated=false;terminateCalls=0;confirmTerminate=true;operations=['echo','secretProbe'];settleRequests=true;
  private frameHandler?:((frame:WorkerFrameV1)=>void);private exitHandler?:((exit:WorkerExit)=>void);private exitInfo?:WorkerExit;
  send(frame:WorkerFrameV1){
   this.sent.push(frame);
@@ -24,7 +24,7 @@ class FakeTransport implements WorkerTransport{
  }
  onFrame(handler:(frame:WorkerFrameV1)=>void){this.frameHandler=handler;}
  onExit(handler:(exit:WorkerExit)=>void){this.exitHandler=handler;if(this.exitInfo)handler(this.exitInfo);}
- async terminate(){this.terminated=true;if(this.confirmTerminate)this.exit({code:0,signal:'SIGKILL'});return this.confirmTerminate;}
+ async terminate(){this.terminateCalls++;this.terminated=true;if(this.confirmTerminate)this.exit({code:0,signal:'SIGKILL'});return this.confirmTerminate;}
  emit(frame:WorkerFrameV1){this.frameHandler?.(frame);}
  exit(info:WorkerExit){this.exitInfo??=info;this.exitHandler?.(this.exitInfo);}
 }
@@ -267,6 +267,7 @@ describe('M13 STARTING generation revocation',()=>{
   expect(await stopping).toBe('STOPPED');
   expect(await outcome).toMatchObject({code:'INVALID_STATE'});
   expect(late.terminated).toBe(true);
+  expect(late.terminateCalls).toBe(1);
   expect(late.sent.some(frame=>frame.kind==='HELLO')).toBe(false);
   expect(host.record('sample-ext')?.session).toBeNull();
   // After confirmed cleanup a replacement may start.
@@ -288,6 +289,7 @@ describe('M13 STARTING generation revocation',()=>{
   expect(await stopping).toBe('STOPPED');
   expect(await outcome).toMatchObject({code:'INVALID_STATE'});
   expect(transport.terminated).toBe(true);
+  expect(transport.terminateCalls).toBe(1);
   expect(host.record('sample-ext')?.lease?.state).toBe('STOPPED');
   expect(host.record('sample-ext')?.session).toBeNull();
  });
@@ -300,6 +302,7 @@ describe('M13 STARTING generation revocation',()=>{
   gate.resolve(late);
   expect(await stopping).toBe('UNKNOWN');
   await outcome;
+  expect(late.terminateCalls).toBe(1);
   expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
   await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
   expect(await host.update('sample-ext',{manifest:manifest({version:'2.0.0'}),packageDir:'/p',dataDir:'/d'})).toMatchObject({status:'UNKNOWN'});
@@ -315,5 +318,40 @@ describe('M13 STARTING generation revocation',()=>{
   await outcome;
   expect(lateWorker.terminated).toBe(true);
   expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
+ });
+
+ it('terminates a revoked late worker exactly once and keeps the confirmed exit',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  const stopping=host.disable('sample-ext');
+  gate.resolve(late);
+  expect(await stopping).toBe('STOPPED');
+  await outcome;
+  expect(late.terminateCalls).toBe(1);
+  expect(host.record('sample-ext')?.lease?.state).toBe('STOPPED');
+  expect(host.record('sample-ext')?.blocked).toBeNull();
+ });
+ it('keeps the diagnostic and one safe cleanup for an ordinary failed activation',async()=>{
+  const transport=new FakeTransport();transport.operations=['undeclaredOperation'];
+  const host=build({launch:async()=>transport});
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  const record=host.record('sample-ext')!;
+  expect(record.blocked).toBe('PROTOCOL_VIOLATION');
+  expect(record.lease?.state).toBe('FAILED');
+  expect(record.session).toBeNull();
+  expect(transport.terminateCalls).toBe(1);
+  expect(host.catalog([])).toEqual(expect.arrayContaining([expect.objectContaining({pluginId:'sample-ext',state:'FAILED',updateBlocked:'PROTOCOL_VIOLATION'})]));
+ });
+ it('retains UNKNOWN with its diagnostic when an ordinary failed activation cannot confirm exit',async()=>{
+  const transport=new FakeTransport();transport.operations=['undeclaredOperation'];transport.confirmTerminate=false;
+  const host=build({launch:async()=>transport});
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  const record=host.record('sample-ext')!;
+  expect(record.blocked).toBe('PROTOCOL_VIOLATION');
+  expect(record.lease?.state).toBe('UNKNOWN');
+  expect(transport.terminateCalls).toBe(1);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
  });
 });

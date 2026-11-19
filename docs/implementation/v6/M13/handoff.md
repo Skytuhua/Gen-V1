@@ -615,3 +615,15 @@ Release-only holds (reviewed statically, not changed here):
 - HOLD-BACKEND-LAUNCH-BINDING: unchanged (DEP-M13-BACKEND-01).
 
 Correction: the earlier statement that `tsc --noEmit` was clean on 671320d2 was not established (the run printed nothing and the unused `evaluateMigrationPlan` import in isolated-host.ts is a TS6133 error). Fixed in the follow-up commit; `tsc --noEmit` with an 8 GiB heap now exits 0.
+
+## Startup cleanup single-owner correction (#900 review)
+
+`activate()` now gives each admitted startup one cleanup outcome. All layers
+(handshake failure, protocol violation, shutdown, activation cleanup) share one
+termination attempt per transport (`terminateOnce`), so a confirmed exit is
+never overwritten by a repeat attempt. The failure diagnostic (`blocked`) is
+recorded before state mutation; an unconfirmed cleanup always retains UNKNOWN,
+including for ordinary failed activations. Also restores termination of a
+worker after a post-connect protocol violation, which the previous head
+skipped. Still held separately: advertised operations, native acceptance,
+backend/profile, DEP-M13-BACKEND-01. CI not dispatched for this head.

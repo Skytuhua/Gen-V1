@@ -153,6 +153,17 @@ export function createSpawnWorkerLauncher(options:SpawnWorkerOptions):WorkerLaun
 interface PendingCall{operation:string;startedAt:string;signal?:AbortSignal;abort?:()=>void;resolve:(value:unknown)=>void;reject:(error:unknown)=>void}
 const GENERATION_ZERO=0;
 
+/** One termination per owned transport: every layer (handshake failure,
+ * protocol violation, shutdown, activation cleanup) shares the same attempt
+ * and its confirmed/unconfirmed result, so cleanup is never duplicated and a
+ * confirmed exit is never overwritten by a second attempt. */
+const terminations=new WeakMap<WorkerTransport,Promise<boolean>>();
+function terminateOnce(transport:WorkerTransport):Promise<boolean>{
+ let attempt=terminations.get(transport);
+ if(!attempt){attempt=Promise.resolve().then(()=>transport.terminate()).catch(()=>false);terminations.set(transport,attempt);}
+ return attempt;
+}
+
 export class IsolatedWorkerSession{
  private readonly pending=new Map<number,PendingCall>();
  private nextRequestId=1;
@@ -185,7 +196,7 @@ export class IsolatedWorkerSession{
    });
    const payload=workerHelloPayloadSchema.parse({nonce,pluginId:hello.pluginId,packageDigest:hello.packageDigest,dataNamespace:hello.dataNamespace});
    try{transport.send({protocolVersion:WORKER_PROTOCOL_VERSION,requestId:GENERATION_ZERO,generation:hello.generation,kind:'HELLO',payload});}catch(cause){finish(()=>reject(cause));}
-  }).catch(cause=>{void transport.terminate().catch(()=>{});throw cause;});
+  }).catch(cause=>{void terminateOnce(transport);throw cause;});
   session.handshakeDone=true;
   session.bind();
   return {session,ready};
@@ -226,7 +237,7 @@ export class IsolatedWorkerSession{
  private violate(error:unknown):void{
   if(!this.open)return;this.open=false;
   for(const call of this.pending.values()){this.settleCall(call);call.reject(error);}this.pending.clear();
-  void this.transport.terminate().catch(()=>{});this.onClosed?.('violation');
+  void terminateOnce(this.transport);this.onClosed?.('violation');
  }
  private closedByWorker():void{
   if(!this.open)return;this.open=false;
@@ -281,7 +292,7 @@ export class IsolatedWorkerSession{
    if(this.exited){clearTimeout(timer);resolve(true);}
   });
   if(exited){this.exited??={code:0,signal:null};this.closedByWorker();return'stopped';}
-  const confirmed=await this.transport.terminate().catch(()=>false);
+  const confirmed=await terminateOnce(this.transport);
   this.closedByWorker();
   return confirmed?'stopped':'unconfirmed';
  }
@@ -399,32 +410,41 @@ export class IsolatedExtensionHost{
   record.starting=starting;
   const revoked=()=>lease.state!=='STARTING';
   let transport:WorkerTransport|undefined;
+  let owned:IsolatedWorkerSession|undefined;
   let cleanup:'stopped'|'unconfirmed'='stopped';
   try{
    transport=await gate.launcher.launch({packageDir:record.packageDir,dataDir:record.dataDir,generation,env:processEnvironment()});
    // Stop may have revoked this generation while the launch was in flight:
-   // the late worker is terminated and never connected or published.
-   if(revoked()){cleanup=(await transport.terminate().catch(()=>false))?'stopped':'unconfirmed';throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
+   // the late worker is cleaned up by the single owner below and never
+   // connected or published.
+   if(revoked())throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');
    const {session,ready}=await IsolatedWorkerSession.connect(transport,{pluginId:record.manifest.pluginId,packageDigest:record.manifest.packageDigest,dataNamespace:record.manifest.dataNamespace,generation},this.handshakeDeadlineMs);
+   owned=session;
    // A worker claim is never permission: only operations the manifest
    // declared may register; anything else is a protocol violation.
    const declared=declaredOperations(record.manifest);
    for(const operation of ready.operations)if(!declared.has(operation))throw new HarnessError('PROTOCOL_VIOLATION','The isolated extension claimed an undeclared operation.');
    // A concurrent drain/disable may have revoked this lease while the
    // handshake was in-flight; never publish ACTIVE over a revoked lease.
-   if(revoked()){cleanup=await session.shutdown(this.shutdownGraceMs).catch(()=>'unconfirmed' as const);throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
+   if(revoked())throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');
    record.session=session;this.bind(record,session,lease);
    lease.state='ACTIVE';
    lease.registrations=[...record.manifest.toolSchemas.map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
    return structuredClone(lease);
   }catch(cause){
-   // A revoked generation keeps the state Stop assigned (DRAINING, then
-   // STOPPED or UNKNOWN); only an unrevoked failure becomes FAILED.
-   if(revoked()&&transport&&cleanup==='stopped')cleanup=(await transport.terminate().catch(()=>false))?'stopped':'unconfirmed';
-   if(!revoked())lease.state='FAILED';
-   else if(cleanup==='unconfirmed')lease.state='UNKNOWN';
-   else void transport?.terminate().catch(()=>{});
-   if(!revoked()||cleanup==='unconfirmed')record.blocked=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
+   const code=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
+   // Diagnostics are recorded before any state mutation. A revoked startup
+   // is Stop's outcome, not a failure, so it records a diagnostic only when
+   // its cleanup is unconfirmed.
+   if(!revoked())record.blocked=code;
+   // Exactly one cleanup outcome per admitted startup. Lower layers share the
+   // same termination attempt (terminateOnce), so nothing is repeated.
+   if(transport)cleanup=owned?await owned.shutdown(this.shutdownGraceMs).catch(()=>'unconfirmed' as const):(await terminateOnce(transport))?'stopped':'unconfirmed';
+   if(cleanup==='unconfirmed'){
+    // Never report Stopped or free the writable namespace for a worker whose
+    // exit was not proven.
+    record.blocked=code;record.session=null;lease.state='UNKNOWN';
+   }else if(lease.state==='STARTING')lease.state='FAILED';
    throw cause;
   }finally{
    if(record.starting===starting)record.starting=null;
