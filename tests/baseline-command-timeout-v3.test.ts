@@ -21,7 +21,7 @@ beforeAll(() => {
 });
 afterAll(() => {
   for (const path of links.splice(0)) unlinkSync(path);
-  if (directory) rmSync(directory, { recursive: true, force: true });
+  if (directory) rmSync(directory, { recursive: true, force: true, maxRetries: 5 });
 });
 
 function fixture(testDelayMs = 0) {

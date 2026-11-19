@@ -69,7 +69,7 @@ export class ExternalIntakeCoordinator {
       const previous = this.store.get<IntakeConfig>("intakeConfig", "global");
       const config: IntakeConfig = {
         repositoryId: input.repositoryId, enabled: input.enabled === true,
-        projectId: input.projectId ?? previous?.projectId ?? null,
+        projectId: input.projectId === undefined ? previous?.projectId ?? null : input.projectId,
         sourceInstallation: previous?.sourceInstallation ?? null, updatedAt: iso(this.now()),
       };
       this.store.put("intakeConfig", "global", null, config);

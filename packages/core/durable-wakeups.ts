@@ -41,6 +41,15 @@ export interface WakeupSchedulerOptions {
 
 const iso = (ms: number) => new Date(ms).toISOString();
 
+export async function waitForBackgroundDrain(work: Promise<unknown>, boundedMs: number): Promise<void> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([work, new Promise<void>(resolve => { timer = setTimeout(resolve, boundedMs); })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export class DurableWakeupScheduler {
   private readonly store: Store;
   private readonly now: () => number;
@@ -164,7 +173,7 @@ export class DurableWakeupScheduler {
           if (!current || current.state !== "CLAIMED") return;
           this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...current, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(this.now()) });
           const owner = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-          if (owner && owner.state === "CLAIMED") this.store.put("backgroundWakeup", owner.wakeupId, null, { ...owner, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (owner?.state === "CLAIMED" && owner.occurrenceKey === occurrence.occurrenceKey) this.store.put("backgroundWakeup", owner.wakeupId, null, { ...owner, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         continue;
       }
@@ -194,7 +203,8 @@ export class DurableWakeupScheduler {
             // Lease expiry alone never proves a previous dispatch did not occur.
             const unknown: BackgroundOccurrenceV1 = { ...occurrence, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
             this.store.put("backgroundOccurrence", key, null, unknown);
-            this.store.put("backgroundWakeup", wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+            if (wakeup.occurrenceKey === key)
+              this.store.put("backgroundWakeup", wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
             return null;
           }
           occurrence = { ...occurrence, claimGeneration: occurrence.claimGeneration + 1, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) };
@@ -215,7 +225,10 @@ export class DurableWakeupScheduler {
         const previousDue = Math.max(wakeup.nextDueAtMs ?? anchorMs, wakeup.lastProcessedDueAtMs !== null ? wakeup.lastProcessedDueAtMs + intervalMs : anchorMs);
         // Persist missed occurrences between the previous due instant and the
         // latest admitted one (bounded per tick; the count is always exact).
-        const missed = input.scheduledDueAtMs > previousDue ? Math.max(0, Math.round((input.scheduledDueAtMs - previousDue) / intervalMs) - 1) : 0;
+        // The initial anchor does not count as a skipped interval. For a
+        // previously active cadence, previousDue is itself still unprocessed.
+        const firstMissableDue = Math.max(previousDue, anchorMs + intervalMs);
+        const missed = Math.max(0, Math.round((input.scheduledDueAtMs - firstMissableDue) / intervalMs));
         skippedTotal += missed;
         // S11: persist every intended missed occurrence; the hard cap is only
         // a host memory guard for pathological multi-year jumps.
@@ -265,7 +278,7 @@ export class DurableWakeupScheduler {
       this.store.internal("background.occurrence.blocked", null, () => {
         this.setOccurrence(key, held ? { state: "PENDING", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
         const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-        if (wakeup) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: revalidation.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+        if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: revalidation.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
       });
       return;
     }
@@ -296,7 +309,15 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.delivered", null, () => {
           this.setOccurrence(key, { state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs: this.now(), blockedReason: null, updatedAt: iso(this.now()) });
+          if (!wakeup || wakeup.scheduleRevision !== admitted.scheduleRevision || wakeup.state === "CANCELLED") return;
+          const stamp = this.now();
+          const lastRunAtMs = Math.max(wakeup.lastRunAtMs ?? stamp, stamp);
+          if (wakeup.state === "CLAIMED" && wakeup.occurrenceKey === key) {
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs, blockedReason: null, updatedAt: iso(stamp) });
+          } else if (wakeup.trigger.kind === "INTERVAL_UTC" && wakeup.lastRunAtMs !== lastRunAtMs) {
+            // A successful older occurrence contributes history, not ownership.
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
+          }
         });
         return;
       }
@@ -304,7 +325,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.unknown", null, () => {
           this.setOccurrence(key, { state: "UNKNOWN", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -315,7 +336,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.blocked", null, () => {
           this.setOccurrence(key, held ? { state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: outcome.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: outcome.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -326,7 +347,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.blocked", null, () => {
           this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: "DELIVERY_FAILED", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: "DELIVERY_FAILED", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -351,7 +372,7 @@ export class DurableWakeupScheduler {
         const occurrence = this.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key);
         if (occurrence && occurrence.state === "CLAIMED") this.store.put("backgroundOccurrence", key, null, { ...occurrence, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
         const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", owner.wakeupId);
-        if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", owner.wakeupId, null, { ...wakeup, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
+        if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", owner.wakeupId, null, { ...wakeup, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
       });
     }
   }
@@ -367,7 +388,7 @@ export class DurableWakeupScheduler {
         if (occurrence.dispatch === "DISPATCHED_UNCONFIRMED") {
           this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...occurrence, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(stamp) });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === occurrence.occurrenceKey) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
         }
       }
     });
@@ -384,12 +405,29 @@ export class DurableWakeupScheduler {
       if (occurrence.state !== "UNKNOWN" && !(occurrence.state === "CLAIMED" && occurrence.dispatch === "DISPATCHED_UNCONFIRMED"))
         throw new HarnessError("INVALID_INPUT", "Only an uncertain occurrence can be reconciled.");
       const stamp = this.now();
+      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
+      const cancelled = wakeup?.state === "CANCELLED";
+      // Late evidence settles history, but cannot reverse an operator cancellation.
       const next: BackgroundOccurrenceV1 = receipt.observed === "DELIVERED"
         ? { ...occurrence, state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null, updatedAt: iso(stamp) }
-        : { ...occurrence, state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
+        : { ...occurrence, state: cancelled ? "CANCELLED" : "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
       this.store.put("backgroundOccurrence", occurrenceKey, null, next);
-      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-      if (wakeup) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs, lastRunAtMs: receipt.observed === "DELIVERED" ? stamp : wakeup.lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+      if (wakeup && !cancelled) {
+        const lastRunAtMs = receipt.observed === "DELIVERED" ? Math.max(wakeup.lastRunAtMs ?? stamp, stamp) : wakeup.lastRunAtMs;
+        const anotherClaim = wakeup.state === "CLAIMED" && wakeup.occurrenceKey !== occurrenceKey;
+        if (anotherClaim) {
+          // Reconciling an older occurrence may update history, not the live lease.
+          if (wakeup.trigger.kind === "INTERVAL_UTC" && lastRunAtMs !== wakeup.lastRunAtMs)
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
+        } else {
+          this.store.put("backgroundWakeup", wakeup.wakeupId, null, {
+            ...wakeup,
+            state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING",
+            nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs,
+            lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp),
+          });
+        }
+      }
       return next;
     }).result as BackgroundOccurrenceV1;
   }
@@ -496,7 +534,7 @@ export class DurableWakeupScheduler {
     });
     const waiters = [...this.inFlight.values()].map(owner => owner.promise);
     let uncertain = 0;
-    await Promise.race([Promise.allSettled(waiters), new Promise(resolve => setTimeout(resolve, boundedMs))]);
+    await waitForBackgroundDrain(Promise.allSettled(waiters), boundedMs);
     this.store.internal("background.wakeups.drained", null, () => {
       const stamp = this.now();
       for (const [key] of this.inFlight) {

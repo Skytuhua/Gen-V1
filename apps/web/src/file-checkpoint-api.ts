@@ -123,6 +123,3 @@ export function createHttpCheckpointAdapter(base:string,threadId:string|undefine
     },
   };
 }
-/** Server reports whether checkpoint reads and restore are enabled plus the
- *  owner scope the UI must echo on every call. */
-export const getCheckpointCapability=(base:string,threadId?:string)=>authenticated(()=>fetch(`${base}/checkpoints/capability${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store'})).then(read<{available:boolean;restore:boolean;owner?:CheckpointOwner}>);

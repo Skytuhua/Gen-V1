@@ -5,9 +5,11 @@
 // and never reports an aggregate PASS while a required suite is skipped or unrun.
 import {spawn,spawnSync,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
+import {once} from 'node:events';
 import {createWriteStream,existsSync,mkdirSync,readdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
-import {dirname,resolve} from 'node:path';
+import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {resolvePackageManager,type PackageManagerResolution} from './research-baseline.ts';
 
 export type ReadinessStatus='PASS'|'FAIL'|'SKIP'|'BLOCKED';
 
@@ -85,34 +87,39 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
   let cwdIsDirectory=false;
   try{cwdIsDirectory=statSync(spec.cwd).isDirectory();}catch{/* missing cwd */}
   if(!cwdIsDirectory)return finish({status:'FAIL',errorKind:'bad-cwd'});
-  mkdirSync(dirname(spec.logPath),{recursive:true});
+  try{mkdirSync(dirname(spec.logPath),{recursive:true});}catch{return finish({status:'FAIL',errorKind:'log-error'});}
   const logStream=createWriteStream(spec.logPath);
+  try{await once(logStream,'open');}catch{return finish({status:'FAIL',errorKind:'log-error'});}
   const sink=redactedLogSink(logStream);
   const child=spawn(spec.command,spec.args,{shell:false,cwd:spec.cwd,env:childEnvironment(spec.env),
     stdio:['ignore','pipe','pipe'],windowsHide:true,detached:process.platform!=='win32'});
-  child.stdout?.on('data',chunk=>sink.write(chunk));
-  child.stderr?.on('data',chunk=>sink.write(chunk));
   return await new Promise<CheckResult>(resolvePromise=>{
     let settled=false,timedOut=false;
     let killTimer:ReturnType<typeof setTimeout>|undefined;
     const settle=(partial:{status:ReadinessStatus;errorKind:string|null;exitCode?:number|null;signal?:string|null})=>{
       if(settled)return;settled=true;
       clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);
-      sink.end();
       logStream.once('finish',()=>resolvePromise(finish(partial)));
-      logStream.once('error',()=>resolvePromise(finish({status:'FAIL',errorKind:'log-error'})));
+      sink.end();
     };
     const timeoutTimer=setTimeout(()=>{
       timedOut=true;killProcessTree(child);
       // Bounded even if the child ignores the kill: never hang the baseline.
       killTimer=setTimeout(()=>settle({status:'FAIL',errorKind:'timeout'}),5_000);
     },spec.timeoutMs);
+    logStream.once('error',()=>{
+      if(!settled){settled=true;clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);killProcessTree(child);}
+      resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
+    });
+    // Decode each byte stream incrementally before merging and redacting lines.
+    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}
         :{status:'FAIL',errorKind:'spawn-error'});
     });
-    child.once('exit',(code,signal)=>{
+    child.once('close',(code,signal)=>{
       if(timedOut)settle({status:'FAIL',errorKind:'timeout',exitCode:code,signal});
       else if(code===0)settle({status:'PASS',errorKind:null,exitCode:code,signal});
       else if(code!==null)settle({status:'FAIL',errorKind:'nonzero-exit',exitCode:code,signal});
@@ -150,17 +157,25 @@ export function detectBrowserPrerequisite(resolveExecutable:()=>string,exists:(p
 // Packaged Windows verification: package the installer, then verify the installed
 // application. Both steps require Windows x64 (scripts/package-desktop.ts and
 // scripts/verify-installed-desktop.ts refuse other platforms).
-export function windowsVerificationPlan(platform:string,version:string):
+export function windowsVerificationPlan(platform:string,version:string,outputRoot:string,architecture:string):
   {blocked:boolean;errorKind:string|null;commands:Array<{command:string;args:string[]}>}{
-  const release=`dist/desktop-release-${version}`;
+  const release=join(outputRoot,`desktop-release-${version}`);
   const commands=[
-    {command:'pnpm',args:['desktop:package']},
+    {command:'pnpm',args:['desktop:package','--output-root',outputRoot]},
     {command:'pnpm',args:['exec','tsx','scripts/verify-installed-desktop.ts',
-      `${release}/Gen-V1-Setup-${version}-win-x64.exe`,`${release}/win-unpacked`]},
+      join(release,`Gen-V1-Setup-${version}-win-x64.exe`),join(release,'win-unpacked')]},
   ];
-  return platform==='win32'
+  return platform==='win32'&&architecture==='x64'
     ?{blocked:false,errorKind:null,commands}
     :{blocked:true,errorKind:'platform-unavailable',commands};
+}
+
+/** Use a real binary or pnpm's JS entry; shell:false cannot run a .cmd shim. */
+export function readinessPackageChecks(root:string):(spec:CheckSpec)=>Promise<CheckResult>{
+  let manager:PackageManagerResolution;
+  try{manager=resolvePackageManager(root);}
+  catch{return async spec=>blockedResult(spec,'missing-binary','Could not resolve a runnable pnpm executable or JavaScript entry.');}
+  return spec=>runCheck({...spec,command:manager.file,args:[...manager.prefix,...spec.args]});
 }
 
 async function main(){
@@ -177,9 +192,10 @@ async function main(){
     id,command:'pnpm',args,cwd:root,timeoutMs,required:true,
     logPath:resolve(artifactRoot,`${id.replaceAll(':','-')}.log`)});
   const results:CheckResult[]=[];
+  const runPackageCheck=readinessPackageChecks(root);
   const run=async(check:CheckSpec)=>{
     console.log(`RUN ${check.id}: ${check.command} ${check.args.join(' ')}`);
-    const result=await runCheck(check);
+    const result=await runPackageCheck(check);
     console.log(`${result.status} ${check.id} exit=${result.exitCode??'-'} ${result.errorKind??''} (${result.durationMs}ms)`);
     results.push(result);
     return result;
@@ -205,7 +221,8 @@ async function main(){
   const evalResult=await run(spec('eval',['eval','--out',resolve(artifactRoot,'eval')],600_000));
   if(evalResult.exitCode===2)evalResult.note='Honest pending eval manifest: no live host/model supplied; all gates pending.';
 
-  const plan=windowsVerificationPlan(process.platform,version);
+  const packageOutput=resolve(artifactRoot,'desktop-package');
+  const plan=windowsVerificationPlan(process.platform,version,packageOutput,process.arch);
   const windowsSpec=spec('windows-packaged-verification',plan.commands[0]!.args,3_600_000);
   if(plan.blocked){
     const blocked=blockedResult(windowsSpec,plan.errorKind!,
@@ -218,7 +235,7 @@ async function main(){
     if(packageResult.status!=='PASS'){
       results.push(blockedResult(verifySpec,'prerequisite-unavailable','Packaging did not pass; installed verification was not run.'));
     }else{
-      const releaseDirectory=resolve(root,'dist',`desktop-release-${version}`);
+      const releaseDirectory=resolve(packageOutput,`desktop-release-${version}`);
       const setup=readdirSync(releaseDirectory).find(name=>/^Gen-V1-Setup-.*-win-x64\.exe$/.test(name));
       if(!setup)results.push(blockedResult(verifySpec,'prerequisite-unavailable',`No setup executable found in ${releaseDirectory}`));
       else await run({...verifySpec,args:['exec','tsx','scripts/verify-installed-desktop.ts',

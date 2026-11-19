@@ -1,0 +1,13 @@
+== bounded redacted evidence summary ==
+originalSha256: 7ee15cfe1b211eb6be40933b583a83b92f8320c3b2710d5c60f3d64319952e6b
+originalBytes: 919
+flags: machinePath=True ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+ ✓ tests/history-import-v3.test.ts (12 tests) 2549ms
+     ✓ keeps cancellation deterministic before and after commit  407ms
+     ✓ blocks publication of fields classified secret and reports access-bearing links without dereferencing them  425ms
+ Test Files  1 passed (1)
+      Tests  12 passed (12)
+   Duration  9.33s (transform 4.02s, setup 0ms, import 5.91s, tests 2.55s, environment 0ms)

@@ -36,9 +36,13 @@ async function scratch(brokenRuntime=false){
     import {appendFileSync,statSync} from 'node:fs';
     // Windows kill() terminates immediately. Deliver fixture signals over IPC
     // so the real launcher and fixture handlers execute their cleanup paths.
-    if(process.platform==='win32')process.on('message',signal=>{
-      if((signal==='SIGINT'||signal==='SIGTERM')&&!process.emit(signal))process.exit(1);
-    });
+    if(process.platform==='win32'){
+      process.on('message',signal=>{
+        if((signal==='SIGINT'||signal==='SIGTERM')&&!process.emit(signal))process.exit(1);
+      });
+      // The probe must not keep the launcher alive after its real children exit.
+      process.channel?.unref();
+    }
     const spawn=childProcess.spawn;
     childProcess.spawn=(command,args,options)=>{
       const kind=args[0]==='--import'&&args[1]==='tsx'&&args[2]==='apps/server/main.ts'?'server':args[0]==='node_modules/vite/bin/vite.js'?'vite':null;
@@ -48,7 +52,10 @@ async function scratch(brokenRuntime=false){
       const fixtureArgs=kind==='server'?['--import','tsx',${JSON.stringify(join(repository,'tests/fixtures/dev-plugin-runtime-host.ts'))}]:['--eval',"require('node:fs').appendFileSync('vite-started.log','started');setInterval(()=>{},1000);process.on('SIGTERM',()=>{require('node:fs').appendFileSync('stopped.log','vite\\\\n');process.exit(0);});"];
       if(process.platform==='win32')fixtureArgs.unshift('--import',import.meta.url);
       const child=spawn(command,fixtureArgs,process.platform==='win32'?{...options,stdio:['inherit','inherit','inherit','ipc']}:options);
-      if(process.platform==='win32')child.kill=(signal='SIGTERM')=>{if(!child.connected)return false;child.send(signal);return true;};
+      if(process.platform==='win32'){
+        const forceKill=child.kill.bind(child);
+        child.kill=(signal='SIGTERM')=>{if(signal!=='SIGTERM'||!child.connected)return forceKill(signal);child.send(signal);return true;};
+      }
       return child;
     };
     syncBuiltinESMExports();

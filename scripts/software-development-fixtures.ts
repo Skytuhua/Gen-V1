@@ -1,6 +1,5 @@
 import type {SurfaceSpec} from '../packages/contracts/index.ts';
 
-export const SOFTWARE_REVIEW_PROVENANCE='Deterministic software-interface fixtures. File contents, test outcomes, API contracts and pipeline records are fictional; no test, network request, build or deployment is executed by these views.';
 export const SOFTWARE_FIXTURE_DATA={
   Diagnostics:{title:'Test failures',items:[
     {id:'quantity',title:'includes item quantity',status:'failed',file:'quantity.test.mjs',line:4,message:'Expected 12, received 3',expected:'12',actual:'3',code:'assert.equal(total([{price:3, quantity:4}]), 12);',durationMs:8},

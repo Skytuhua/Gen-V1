@@ -11,7 +11,8 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  # Main pushes use immutable revisions so pending verification is not replaced.
+  group: ${{ github.workflow }}-${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && github.sha || github.ref }}
   # A superseded pull-request push has nothing left to prove, so it cancels.
   # Pushes to a protected branch are the post-merge verification of commits that
   # already landed: cancelling those meant no push run on main ever completed.
@@ -62,10 +63,11 @@ jobs:
       - name: Check the repository type program
         run: pnpm typecheck
 
-      - name: Check and build the optional visuals plug-in
-        run: |
-          pnpm --dir plugins/personal-visuals typecheck
-          pnpm --dir plugins/personal-visuals build
+      - name: Typecheck the optional visuals plug-in
+        run: pnpm --dir plugins/personal-visuals typecheck
+
+      - name: Build the optional visuals plug-in
+        run: pnpm --dir plugins/personal-visuals build
 
       - name: Build web application
         run: pnpm build
@@ -298,6 +300,23 @@ jobs:
           $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
           $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
           $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked, '--project-memory-retention', '--project-memory-enabled')
+          Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
+          & pnpm @verifyArgs
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      # The declared installed lane is also valid without memory options: the
+      # verifier launches the exact installed executable with ambient feature
+      # activation suppressed, so a flag-less run is the default-off installed
+      # acceptance. It reuses this job's already pinned and packaged artifacts —
+      # packaging is not duplicated, and no production flag is changed.
+      - name: Verify installed default-off acceptance
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
+          $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
+          $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
+          $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
+          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked)
           Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
           & pnpm @verifyArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

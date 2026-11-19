@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { changedSources, discoverTestFiles, selectRegressionTests, type SourceChange } from '../scripts/select-regression-tests.ts';
 import { dirname, join } from 'node:path';
-import { mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -112,6 +112,11 @@ describe('regression test selection', () => {
     expect(result.issues.map(i => i.code)).toContain('UNMAPPED_SOURCE');
   });
 
+  it('does not claim full coverage when an unmapped source has no available tests', () => {
+    const result = selectRegressionTests([{ path: 'packages/core/unknown.ts', status: 'M' }], [], map);
+    expect(result).toMatchObject({ tests: [], coverage: 'NONE', needsReview: true });
+    expect(result.issues.map(issue => issue.code)).toEqual(['UNMAPPED_SOURCE', 'EMPTY_SELECTION']);
+  });
   it('falls back to the full suite when every mapped test was removed', () => {
     const stale = { 'packages/core/thing.ts': ['tests/gone-1.test.ts', 'tests/gone-2.test.ts'] };
     const result = selectRegressionTests([{ path: 'packages/core/thing.ts', status: 'M' }], existing, stale);
@@ -159,10 +164,35 @@ describe('regression test selection', () => {
     expect(result.coverage).toBe('PARTIAL');
   });
 
+  it('indexes files, not folders whose names end with a test suffix', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-discovery-'));
+    try {
+      const nested = join(root, 'fixture.test.ts');
+      mkdirSync(nested);
+      writeFileSync(join(nested, 'actual.test.ts'), '');
+      expect(discoverTestFiles(root)).toEqual(['fixture.test.ts/actual.test.ts']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('does not advertise extensions the configured Vitest suite does not run', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-extensions-'));
+    try {
+      for (const name of ['plain.test.ts', 'plain.test.mts', 'fixture.test.ctsx', 'fixture.test.mjsx']) {
+        writeFileSync(join(root, name), '');
+      }
+      expect(discoverTestFiles(root).sort()).toEqual(['plain.test.mts', 'plain.test.ts']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('discovers the real suite inventory', () => {
     const found = discoverTestFiles(testsDir);
     expect(found.length).toBeGreaterThan(200);
     expect(readdirSync(join(testsDir, 'e2e')).length).toBeGreaterThan(0);
+    expect(found).not.toContain('plugin-api-package.test.mjs');
     expect(found).toContain('research-baseline.test.ts');
     expect(found).toContain('regression-selection.test.ts');
     expect(found.every(name => /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/.test(name))).toBe(true);

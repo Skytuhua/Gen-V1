@@ -1,0 +1,101 @@
+{
+  "recordedAt": "2026-11-15T10:01:41.339Z",
+  "requestedRepository": "Skytuhua/Gen-V1",
+  "canonicalRepository": {
+    "id": "1442565952",
+    "name": "Gen-V1",
+    "owner": {
+      "login": "skytuhua-org",
+      "id": 356795121,
+      "type": "Organization",
+      "avatar_url": "https://avatars.githubusercontent.com/u/356795121?v=4",
+      "url": "https://api.github.com/users/skytuhua-org"
+    },
+    "repository_full_name": "skytuhua-org/Gen-V1",
+    "permissions": {
+      "admin": true,
+      "maintain": true,
+      "pull": true,
+      "push": true,
+      "triage": true
+    },
+    "allow_auto_merge": false,
+    "allow_merge_commit": true,
+    "allow_rebase_merge": true,
+    "allow_squash_merge": true,
+    "allow_update_branch": false,
+    "clone_url": "https://github.com/skytuhua-org/Gen-V1.git",
+    "size": 66870,
+    "default_branch": "main",
+    "git_commits_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/commits{/sha}",
+    "git_refs_url": "https://api.github.com/repos/skytuhua-org/Gen-V1/git/refs{/sha}",
+    "git_url": "git://github.com/skytuhua-org/Gen-V1.git",
+    "master_branch": null,
+    "visibility": "public",
+    "archived": false,
+    "is_code_search_indexed": null
+  },
+  "m04PullRequest": {
+    "url": "https://github.com/skytuhua-org/Gen-V1/pull/326",
+    "number": 326,
+    "state": "open",
+    "merged": false,
+    "mergeable": false,
+    "draft": true,
+    "body": "## Handoff only. Do not merge yet.\nThis draft preserves partial M04 with all flags off. Start with [the handoff](docs/implementation/v3/M04-handoff.md) and the [PARTIAL evidence receipt](docs/implementation/v3/M04-verification.json).\n\nImplemented: deterministic context core and admitted host metadata, owned Hermes deferred-schema enforcement, bounded catalog-result custody, Context Inspector evidence, and tested draft source-pin helpers. Native compaction stays unsupported where safe application is unavailable.\n\nNext: wire the composer, finish adapter/history integration, classify remaining failures against the unchanged base, and verify exact-head acceptance. The export/source inventory is unchanged in this draft and needs review and registration before packaging.\n\nThe prior offline candidate passed 121 focused tests and 21 Chromium tests. Full local regression was not green; some failures reproduce on the unchanged base. No live-provider, release, or merge claim.",
+    "title": "Draft: M04 context compiler and tool disclosure handoff",
+    "base": "main",
+    "base_sha": "de3876a451268d81bbec9d3c94a9ad8d5b291d66",
+    "head": "handoff/m04-context-v3",
+    "head_sha": "9851e2b40b555401a000b0a135048eb684f8b964",
+    "head_repo_id": 1442565952,
+    "head_repo_full_name": "skytuhua-org/Gen-V1",
+    "merge_commit_sha": null,
+    "user": {
+      "login": "Skytuhua",
+      "name": "Skytuhua",
+      "email": null,
+      "avatar_url": "https://avatars.githubusercontent.com/u/99881928?v=4",
+      "id": 99881928
+    },
+    "requested_reviewers": null,
+    "requested_team_reviewers": null,
+    "diff": null,
+    "comments": null,
+    "created_at": "2026-11-15T06:02:47Z",
+    "updated_at": "2026-11-15T06:02:47Z",
+    "closed_at": null,
+    "merged_at": null,
+    "commits": 1,
+    "changed_files": 49,
+    "additions": 2285,
+    "deletions": 27,
+    "display_url": "https://github.com/skytuhua-org/Gen-V1/pull/326",
+    "display_title": "Draft: M04 context compiler and tool disclosure handoff"
+  },
+  "m05PullRequestSearch": {
+    "query": "M05",
+    "repository": "skytuhua-org/Gen-V1",
+    "state": "all",
+    "result": {
+      "issues": []
+    },
+    "limitation": "A search result is not proof that all conceptual behaviors are absent. Required accepted contracts remain unverified."
+  },
+  "sourceBase": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "qualification": "Remote metadata is prerequisite evidence only. No draft or unmerged head is accepted as an M14 dependency.",
+  "earlierDiagnosticFailures": [
+    {
+      "operation": "GitHub PR search scoped to Skytuhua/Gen-V1",
+      "result": "HTTP 422 repository search validation. Repository metadata resolved the existing repository to skytuhua-org/Gen-V1, same repository ID 1442565952; the canonical search succeeded."
+    },
+    {
+      "operation": "gh repo view Skytuhua/Gen-V1 --json nameWithOwner,url,defaultBranchRef",
+      "result": "Exit 4: GitHub CLI has no authenticated account. No login/account switch attempted; the existing GitHub connector was used."
+    },
+    {
+      "operation": "GitHub get_pr_info using repo_full_name",
+      "result": "Argument binding rejected: repository_full_name is required. Corrected tool arguments succeeded."
+    }
+  ]
+}

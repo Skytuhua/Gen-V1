@@ -70,6 +70,8 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
+import {applySessionBranch} from './session-branches.ts';
+import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
 import type {MemoryAccess,MemoryAction,MemoryScope} from '../contracts/project-memory.ts';
 import {BackgroundWorkCoordinator,type BackgroundWorkOptions} from './background-work.ts';
@@ -395,9 +397,10 @@ export class Service {
   }
   freezeForUpdate():boolean {this.updateClosing=true;return this.isUpdateIdle();}
   private get reviewing():boolean{return this.source?.runtime.reviewBusy??this.learning.busy;}
+  private get preferences() { return getPreferences(this.store.get<Snapshot['settings']>('settings','global') ?? {}); }
   private cancelReview():Promise<void>{return this.source?.runtime.cancelBackground()??this.learning.cancel();}
   private predictionBasis(threadId:string,settling=false):PredictionBasis|null {
-    if(this.closed||this.updateClosing||this.predictionMutations||!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).composerPredictions)return null;
+    if(this.closed||this.updateClosing||this.predictionMutations||!this.preferences.composerPredictions)return null;
     const thread=this.store.get<Thread>('thread',threadId);
     if(!thread||thread.sideParentId||!thread.modelId||thread.runId||!['ready','completed'].includes(thread.status)||this.store.get('archivedThread',thread.id)||this.store.all<Thread>('thread').some(item=>item.runId)||!settling&&(this.source?.runtime.sourceBusy||this.reviewing)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status)))return null;
     try{assertAccountAvailable(this.store,modelProvider(thread.modelId),thread.accountId??null);}catch{return null;}
@@ -439,7 +442,7 @@ export class Service {
       return {value:{skill:value.skill,content:value.content,files:value.files,...(a.versionOffset===undefined?{}:{versions:value.versions,nextVersionOffset:value.nextVersionOffset})}};
     }
     let committed=0;
-    const apply=()=>{const result=applySkillOperations(this.store,a.operations,actor,{requireApproval:getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).learningApproval,readVersions});if(result.status==='applied')committed=result.appliedOperations??result.changes.length;return result;};
+    const apply=()=>{const result=applySkillOperations(this.store,a.operations,actor,{requireApproval:this.preferences.learningApproval,readVersions});if(result.status==='applied')committed=result.appliedOperations??result.changes.length;return result;};
     const result=(a.commandId===undefined?this.store.internal('skill.managed',actor.threadId??null,apply):this.store.command({id:text(a,'commandId',200),type:'skill_manage',threadId:actor.threadId,payload:a},apply).result) as SkillChangeResult;
     if(actor.threadId&&committed)this.learningCalls.set(actor.threadId,0);
     return {value:result,appliedChanges:committed};
@@ -453,7 +456,7 @@ export class Service {
   private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult {
     this.effects.assertAdmissionsEnabled();
     this.assertLearningSource(job);
-    if(!getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}).learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
+    if(!this.preferences.learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
     if(call.name==='session_search')return {value:searchSessions(this.store,call.args)};
     try{return this.skillTool(call,this.skillActor('agent',job.source),reads);}
     catch(error){if(error instanceof HarnessError&&['INVALID_SKILL','STALE_SKILL','SKILL_READ_REQUIRED','SKILL_PROTECTED','SKILL_DISABLED','NOT_FOUND','SKILL_FULL'].includes(error.code))return {value:{error:{code:error.code,message:error.message}}};throw error;}
@@ -467,7 +470,7 @@ export class Service {
   private async reviewAfter(ctx:RunContext,force=false):Promise<boolean> {
     if(this.source)return false;
     if(this.closed||!this.learningSupported||this.learning.busy)return false;
-    const thread=this.store.get<Thread>('thread',ctx.threadId),preferences=getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{});
+    const thread=this.store.get<Thread>('thread',ctx.threadId),preferences=this.preferences;
     if(!thread||thread.sideParentId||thread.mode==='plan'||thread.epoch!==ctx.epoch||thread.runId||!thread.modelId||!isConnectionProviderId(modelProvider(thread.modelId))||!['ready','completed'].includes(thread.status)||this.store.get('archivedThread',thread.id)||this.store.all<Thread>('thread').some(item=>item.runId)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status))||!preferences.learningEnabled||!force&&(!preferences.learningInterval||(this.learningCalls.get(thread.id)??0)<preferences.learningInterval))return false;
     if(!this.store.all<Message>('message',thread.id).some(message=>message.role==='assistant'&&message.runId===ctx.runId))return false;
     const job:LearningJob={source:{...ctx},modelId:thread.modelId,accountId:thread.accountId??null,thinkingLevel:thread.thinkingLevel,prompt:learningReviewPrompt(this.store,thread,ctx,skillIndex(this.store))};
@@ -476,7 +479,7 @@ export class Service {
     return this.learning.start(job);
   }
   private curateIdle():void {
-    const preferences=getPreferences(this.store.get<Snapshot['settings']>('settings','global')??{}),stamp=Date.now();
+    const preferences=this.preferences,stamp=Date.now();
     if(!preferences.skillCurator||this.reviewing||stamp-this.lastActivity<2*60*60*1000||this.store.all<Thread>('thread').some(thread=>thread.runId))return;
     const old=this.store.get<{lastCuratedAt?:string}>('learningStatus','global');
     if(old?.lastCuratedAt&&stamp-Date.parse(old.lastCuratedAt)<7*24*60*60*1000)return;
@@ -1125,6 +1128,28 @@ export class Service {
     // any handler mutates epoch/runId, or the trailing text would be dropped.
     this.flushDeltas(thread.id);
     if(thread.sideParentId&&!['message.send','run.stop','run.resume','thread.rename','thread.presentation','thread.archive'].includes(command.type))throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer questions without changing the main task or accessing files.');
+    if (command.type === 'session.branch') {
+      if (!capabilityEnabled('sessions.branchV1')) throw new HarnessError('CAPABILITY_DENIED', 'Session branching is disabled on this host.');
+      return this.store.command(command, () => applySessionBranch(this.store, this.thread(thread.id), p, { accountExists: id => this.store.get('account', id) !== null }));
+    }
+    if (command.type.startsWith('historyImport.')) {
+      if (!capabilityEnabled('sessions.inertImportV1')) throw new HarnessError('CAPABILITY_DENIED', 'History import is disabled on this host.');
+      const owner = { threadId: thread.id, projectId: thread.projectId ?? null };
+      if (command.type === 'historyImport.stage') {
+        // Format admission is pure CPU work — it completes before the staging
+        // transaction so a 20 MiB document never holds the write lock.
+        const bytes = typeof p.archive === 'string' ? Buffer.from(text(p, 'archive', 22 * 1024 * 1024), 'utf8')
+          : typeof p.archiveBase64 === 'string' ? Buffer.from(text(p, 'archiveBase64', 30 * 1024 * 1024), 'base64')
+          : (() => { throw new HarnessError('INVALID_INPUT', 'An ArchiveV1 JSON archive is required'); })();
+        const prepared = prepareImport(bytes);
+        return this.store.command(command, () => stageImport(this.store, owner, prepared));
+      }
+      if (command.type === 'historyImport.commit')
+        return this.store.command(command, () => commitImport(this.store, owner, text(p, 'importId', 200)));
+      if (command.type === 'historyImport.cancel')
+        return this.store.command(command, () => cancelImport(this.store, owner, text(p, 'importId', 200)));
+      throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+    }
     if (command.type.startsWith('agentWork.')) {
       const ctx: RunContext = { threadId: thread.id, runId: thread.runId ?? '', epoch: thread.epoch };
       return this.agentWorkCommand(ctx, command);
@@ -1256,7 +1281,7 @@ export class Service {
       case 'background.human.decline': return sync(this.backgroundWork.declineHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision) }));
       case 'background.idle.configure': return sync(this.backgroundWork.configureIdle(command, { projectId: text(p, 'projectId', 160), profileId: text(p, 'profileId', 160), enabled: p.enabled === true, intervalMs: Number(p.intervalMs) }));
       case 'background.pauseAll': return sync(this.backgroundWork.pauseAll(command));
-      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) }));
+      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' || p.projectId === null ? { projectId: p.projectId } : {}) }));
       case 'intake.poll': {
         const result = await this.intake.pollOnce();
         return this.store.command(command, () => result);

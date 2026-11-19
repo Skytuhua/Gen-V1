@@ -32,6 +32,9 @@ export async function canonical(path: string, allowNew = false): Promise<string>
   if (process.platform === "win32") {
     const absolute = resolve(path);
     if (!/^[a-z]:[\\/]/i.test(absolute) || absolute.slice(2).includes(":") || path.includes("\0")) throw new HarnessError("CAPABILITY_DENIED", "Only ordinary local filesystem paths are supported");
+  } else if (path.includes("\0") || path.includes(":") || path.includes("\\")) {
+    // Alternate-stream and device-namespace spellings are denied uniformly.
+    throw new HarnessError("CAPABILITY_DENIED", "Only ordinary local filesystem paths are supported");
   }
   try { return await realpath(resolve(path)); }
   catch (error) {

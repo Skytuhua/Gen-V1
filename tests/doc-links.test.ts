@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {execFileSync} from 'node:child_process';
+import {execFileSync,spawnSync} from 'node:child_process';
 import {mkdirSync,mkdtempSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {dirname,join} from 'node:path';
@@ -24,6 +24,18 @@ function fixture(files:Record<string,string>){
 }
 
 describe('documentation link check',()=>{
+  it('fails rather than reporting a clean scan if Git cannot list tracked files',()=>{
+    const root=mkdtempSync(join(tmpdir(),'doc-links-no-git-'));
+    try{
+      const env={...process.env};
+      delete env.GIT_DIR; delete env.GIT_WORK_TREE;
+      const result=spawnSync(process.execPath,[script],{cwd:root,env,encoding:'utf8'});
+      expect(result.status).toBe(1);
+      expect(result.stderr).toContain('git ls-files failed');
+      expect(result.stdout).not.toContain('0 broken');
+    }finally{rmSync(root,{recursive:true,force:true});}
+  });
+
   it('reports the file, line and reason for a dead path, a missing anchor and a moved repository URL',()=>{
     const bench=fixture({
       '.gitignore':'/docs/evidence/\n',
@@ -106,6 +118,29 @@ describe('documentation link check',()=>{
       expect(result.output).toContain('1 broken');
     }finally{bench.cleanup();}
   });
+  it('does not collect Markdown after the closing line of a chained raw comment',()=>{
+    const bench=fixture({
+      'README.md':'[phantom](guide.md#phantom), [real](guide.md#real), [custom](guide.md#custom)\n',
+      'guide.md':'<!-- first --> <!-- second\n--> ## Phantom <a id="custom"></a>\n\n## Real\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(1);
+      expect(result.output).toContain('error README.md:1 guide.md#phantom');
+      expect(result.output).toContain('1 broken, 0 warnings');
+    }finally{bench.cleanup();}
+  });
+  it('assigns colliding anchors in document order across heading styles',()=>{
+    const bench=fixture({
+      'guide.md':'Foo\n===\n\nFoo\n===\n\n## Foo-1\n',
+      'README.md':'[actual anchor](guide.md#foo-1-1)\n',
+    });
+    try{
+      const result=bench.run();
+      expect(result.status).toBe(0);
+      expect(result.output).toContain('0 broken');
+    }finally{bench.cleanup();}
+  });
   it('reads both destinations of a linked image',()=>{
     const bench=fixture({'README.md':'# Readme\n\n[![diagram](missing-image.png)](missing-page.md)\n'});
     try{
@@ -138,4 +173,76 @@ describe('documentation link check',()=>{
     const options={cwd:fileURLToPath(new URL('..',import.meta.url)),encoding:'utf8' as const,windowsHide:true,stdio:['ignore','pipe','pipe'] as ['ignore','pipe','pipe']};
     expect(execFileSync(process.execPath,[script],options)).toContain('broken, 0 warnings');
   });
+});
+
+it('checks anchors from rendered headings, not comments or fenced code',()=>{
+  const bench=fixture({
+    'README.md':'[real](guide.md#run-setup) [fenced](guide.md#run-setup-1) [sample](guide.md#sample) [comment](guide.md#comment) [custom](guide.md#real-anchor)',
+    'guide.md':[
+      '<!--', '## Comment', '-->', '',
+      '  ```markdown','## Run setup','<a id="sample"></a>','  ```','',
+      '## Run `setup`','<a id="real-anchor"></a>',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status).toBe(1);
+    for(const anchor of ['run-setup-1','sample','comment'])expect(result.output).toContain('no heading or anchor "#'+anchor+'"');
+    expect(result.output).not.toContain('no heading or anchor "#run-setup"');
+    expect(result.output).not.toContain('no heading or anchor "#real-anchor"');
+    expect(result.output).toContain('3 broken');
+  }finally{bench.cleanup();}
+});
+
+it('retains real anchors around comments and quoted code fences',()=>{
+  const bench=fixture({
+    'README.md':'[compact](guide.md#ab) [outside](guide.md#real-between) [after](guide.md#after-quote)',
+    'guide.md':[
+      '## A<!-- description -->B', '',
+      '```html', '<!--', '```', '',
+      '## Real between', '',
+      '```html', '-->', '```', '',
+      '> ```markdown', '> ## Example', '',
+      '## After quote',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status,result.output).toBe(0);
+  }finally{bench.cleanup();}
+});
+
+it('does not turn trailing text in HTML comment blocks into anchors',()=>{
+  const bench=fixture({
+    'README.md':'[real](guide.md#example) [invented](guide.md#example-1) [also invented](guide.md#outside)',
+    'guide.md':['<!-- note -->## Example','', '## Example','', '<!--', '--> ## Outside'].join('\n'),
+  });
+  try {
+    const result=bench.run();
+    expect(result.status,result.output).toBe(1);
+    expect(result.output).toContain('no heading or anchor "#example-1"');
+    expect(result.output).toContain('no heading or anchor "#outside"');
+    expect(result.output).not.toContain('no heading or anchor "#example"');
+  } finally { bench.cleanup(); }
+});
+
+it('keeps rendered anchors after a comment terminator without indexing indented examples',()=>{
+  const bench=fixture({
+    'README.md':'[single](guide.md#single) [multiple](guide.md#multiple) [example one](guide.md#example-one) [example two](guide.md#example-two)',
+    'guide.md':[
+      '<!-- single --> <a id="single"></a>',
+      '    <a id="example-one"></a>',
+      '',
+      '<!-- multi',
+      '--> <a name="multiple"></a>',
+      '    <a id="example-two"></a>',
+    ].join('\n'),
+  });
+  try{
+    const result=bench.run();
+    expect(result.status).toBe(1);
+    for(const anchor of ['example-one','example-two'])expect(result.output).toContain('no heading or anchor "#'+anchor+'"');
+    for(const anchor of ['single','multiple'])expect(result.output).not.toContain('no heading or anchor "#'+anchor+'"');
+    expect(result.output).toContain('2 broken');
+  }finally{bench.cleanup();}
 });

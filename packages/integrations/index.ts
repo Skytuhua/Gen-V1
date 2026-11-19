@@ -176,12 +176,63 @@ export class IntegrationManager {
   // A child that fails can echo the values it was given; the model still sees
   // the message, so it crosses the same boundary as a successful result.
   const redactor=session.redactor;
+  // Promises can reject with arbitrary values, not only Error instances.
+  // An MCP child rejection must not bypass the known-credential sink guard.
+  if(redactor?.tracked&&typeof error==='string')return redactor.redact(error).text as T;
+  if(redactor?.tracked&&!(error instanceof Error))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
   if(redactor?.tracked&&error instanceof Error){
-   // Error.stack can already contain the original child message even after
-   // error.message changes. Both fields cross the same logging boundary.
-   const stack=error.stack;
-   error.message=redactor.redact(error.message).text;
-   if(typeof stack==='string')error.stack=redactor.redact(stack).text;
+   // Node's Error cause is logged by util.inspect independently of message
+   // and stack. Walk only native Error causes, without invoking arbitrary
+   // object getters, and preserve the original error and cause identities.
+   const pending:Error[]=[error], seen=new Set<Error>();
+   while(pending.length){
+    const failure=pending.pop()!;
+    if(seen.has(failure))continue;
+    seen.add(failure);
+    const stack=failure.stack;
+    failure.message=redactor.redact(failure.message).text;
+    if(typeof stack==='string')failure.stack=redactor.redact(stack).text;
+    const cause=Object.getOwnPropertyDescriptor(failure,'cause');
+    if(cause&&'value' in cause){
+     if(typeof cause.value==='string'){
+      const redacted=redactor.redact(cause.value).text;
+      if(redacted!==cause.value){
+       if(cause.writable)failure.cause=redacted;
+       else if(cause.configurable)Object.defineProperty(failure,'cause',{...cause,value:redacted});
+       // A frozen native cause can still be printed by Node's error formatter.
+       // Never return the original error if the injected secret cannot be scrubbed.
+       else throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      }
+     }else if(cause.value instanceof Error)pending.push(cause.value);
+     else if(cause.value!==null&&cause.value!==undefined){
+      // Node prints number, bigint, Symbol and structured Error causes.
+      // Do not surface unclassified causes or invoke untrusted getters.
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
+    // Node's error formatter also prints own metadata, not just the stack and cause.
+    // Structured fields and accessors can contain credentials or custom inspect
+    // hooks. Refuse them without evaluating their content or invoking getters.
+    for(const key of Reflect.ownKeys(failure)){
+     if(key==='message'||key==='stack'||key==='cause')continue;
+     // Node also prints property NAMES; known raw or encoded secrets in keys
+      // must not reach the formatter, even when the property value is harmless.
+      if(typeof key==='symbol'||redactor.redact(key).text!==key)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const field=Object.getOwnPropertyDescriptor(failure,key);
+     if(!field)continue;
+     if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const value=field.value;
+     if(typeof value==='string'){
+      const redacted=redactor.redact(value).text;
+      if(redacted!==value){
+       if(!field.writable&&!field.configurable)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,key,{...field,value:redacted});
+      }
+     }else if(typeof value==='symbol'||value!==null&&(typeof value==='object'||typeof value==='function')){
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
+   }
   }
   return error;
  }

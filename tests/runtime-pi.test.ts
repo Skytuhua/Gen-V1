@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RunContext, StartRun } from "../packages/contracts/index.ts";
 import { encodeInput, extractInputIds } from "../packages/runtime-pi/input-envelope.ts";
-import { openTaskSession, taskPaths } from "../packages/runtime-pi/session.ts";
+import { openTaskSession, taskPaths, validateSessionPath } from "../packages/runtime-pi/session.ts";
 import { EventNormalizer } from "../packages/runtime-pi/events.ts";
 import { ToolBridge, routeToolCall } from "../packages/runtime-pi/ipc.ts";
 import { createHostTools, createHostResourceLoader } from "../packages/runtime-pi/tool-definitions.ts";
@@ -22,6 +22,50 @@ import { terminateProcessTree } from "../packages/runtime-pi/process-tree.ts";
 
 vi.mock("node:child_process", async importOriginal => ({ ...await importOriginal<typeof import("node:child_process")>() }));
 vi.mock("node:fs/promises", async importOriginal => ({ ...await importOriginal<typeof import("node:fs/promises")>() }));
+
+it("clears the Windows cancellation grace timer when the worker exits", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  vi.useFakeTimers();
+  Object.defineProperty(process, "platform", { ...descriptor, value: "win32" });
+  try {
+    const child = Object.assign(new EventEmitter(), { pid: 101, exitCode: null as number | null, signalCode: null, kill: vi.fn() });
+    vi.spyOn(childProcess, "execFile").mockImplementation(((...args: unknown[]) => {
+      (args.at(-1) as (error: Error) => void)(new Error("The worker just exited"));
+    }) as typeof childProcess.execFile);
+    const cancelled = terminateProcessTree(child as unknown as childProcess.ChildProcess);
+    await Promise.resolve();
+    expect(vi.getTimerCount()).toBe(1);
+    child.exitCode = 0;
+    child.emit("exit", 0, null);
+    await cancelled;
+    expect(vi.getTimerCount()).toBe(0);
+    expect(child.kill).not.toHaveBeenCalled();
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    vi.useRealTimers();
+  }
+});
+
+it("removes the exit listener when worker cancellation cannot be confirmed", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  vi.useFakeTimers();
+  Object.defineProperty(process, "platform", { ...descriptor, value: "win32" });
+  try {
+    const child = Object.assign(new EventEmitter(), { pid: 101, exitCode: null, signalCode: null, kill: vi.fn() });
+    vi.spyOn(childProcess, "execFile").mockImplementation(((...args: unknown[]) => {
+      (args.at(-1) as (error: Error | null) => void)(null);
+    }) as typeof childProcess.execFile);
+    const cancelled = terminateProcessTree(child as unknown as childProcess.ChildProcess);
+    const rejected = expect(cancelled).rejects.toMatchObject({ code: "PI_CANCEL_UNCONFIRMED" });
+    await vi.advanceTimersByTimeAsync(5_000);
+    await rejected;
+    expect(child.listenerCount("exit")).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    vi.useRealTimers();
+  }
+});
 
 const ctx: RunContext = { threadId: "task-a", runId: "run-a", epoch: 3 };
 const input: StartRun = { ...ctx, prompt: "Please inspect the granted file.", modelId: "openai/gpt-5.4", sessionPath: null, inputId: "input-001", resources: [] };
@@ -572,4 +616,24 @@ describe("subscription login storage", () => {
     expect(await getOrCreateDeviceId(dir)).toBe(ids[0]);
     expect(await readFile(join(dir, "pi", "device-id"), "utf8")).toBe(ids[0]);
   });
+});
+
+it("validates only the Pi session header without loading the transcript body", async () => {
+  const root = await mkdtemp(join(tmpdir(), "pi-header-bound-"));
+  const sessions = taskPaths(root, "thread").sessionsDir;
+  const path = join(sessions, "saved.jsonl");
+  try {
+    await mkdir(sessions, {recursive: true});
+    const header = JSON.stringify({type: "session", id: "test", version: 3, cwd: "/日本語"});
+    await writeFile(path, header + "\r\n" + "historical content\n".repeat(100_000));
+    const fullRead = vi.spyOn(fileSystem, "readFile");
+    try {
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+      expect(fullRead).not.toHaveBeenCalled();
+      await writeFile(path, header);
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+    } finally { fullRead.mockRestore(); }
+    await writeFile(path, JSON.stringify({type: "session", id: "test", version: 3, extra: "x".repeat(64 * 1024)}));
+    await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({code: "PI_SESSION_INVALID"});
+  } finally { await rm(root, {recursive: true, force: true}); }
 });

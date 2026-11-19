@@ -546,6 +546,18 @@ describe("M10 review regressions", () => {
 });
 
 describe("M10-S12/T06 shutdown and clock movement", () => {
+  it("clears unused timeout handles after idle shutdown", async () => {
+    const f = fixture();
+    vi.useFakeTimers();
+    try {
+      const baseline = vi.getTimerCount();
+      await f.coordinator.drain();
+      expect(vi.getTimerCount()).toBe(baseline);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("drain prevents new admission, cancels eligible work and records uncertainty", async () => {
     const f = fixture();
     enable("jobs.backgroundV1");
