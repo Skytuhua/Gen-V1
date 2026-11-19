@@ -405,12 +405,14 @@ export class DurableWakeupScheduler {
       if (occurrence.state !== "UNKNOWN" && !(occurrence.state === "CLAIMED" && occurrence.dispatch === "DISPATCHED_UNCONFIRMED"))
         throw new HarnessError("INVALID_INPUT", "Only an uncertain occurrence can be reconciled.");
       const stamp = this.now();
+      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
+      const cancelled = wakeup?.state === "CANCELLED";
+      // Late evidence settles history, but cannot reverse an operator cancellation.
       const next: BackgroundOccurrenceV1 = receipt.observed === "DELIVERED"
         ? { ...occurrence, state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null, updatedAt: iso(stamp) }
-        : { ...occurrence, state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
+        : { ...occurrence, state: cancelled ? "CANCELLED" : "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
       this.store.put("backgroundOccurrence", occurrenceKey, null, next);
-      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-      if (wakeup) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs, lastRunAtMs: receipt.observed === "DELIVERED" ? stamp : wakeup.lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+      if (wakeup && !cancelled) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: receipt.observed === "DELIVERED" && wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", nextDueAtMs: receipt.observed === "NOT_DISPATCHED" && wakeup.trigger.kind === "AT_UTC" ? wakeup.trigger.dueAtMs : wakeup.nextDueAtMs, lastRunAtMs: receipt.observed === "DELIVERED" ? stamp : wakeup.lastRunAtMs, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
       return next;
     }).result as BackgroundOccurrenceV1;
   }

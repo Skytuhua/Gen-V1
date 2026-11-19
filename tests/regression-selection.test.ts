@@ -176,6 +176,18 @@ describe('regression test selection', () => {
     }
   });
 
+  it('does not advertise extensions the configured Vitest suite does not run', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-extensions-'));
+    try {
+      for (const name of ['plain.test.ts', 'plain.test.mts', 'fixture.test.ctsx', 'fixture.test.mjsx']) {
+        writeFileSync(join(root, name), '');
+      }
+      expect(discoverTestFiles(root).sort()).toEqual(['plain.test.mts', 'plain.test.ts']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('discovers the real suite inventory', () => {
     const found = discoverTestFiles(testsDir);
     expect(found.length).toBeGreaterThan(200);

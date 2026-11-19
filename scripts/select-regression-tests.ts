@@ -19,8 +19,9 @@ export interface SelectionResult {
 
 // Test file names must stay plain repository-relative data. Anything else is
 // rejected outright so a hostile name can never reach a command line.
-const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/;
-const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
+// Match the extensions explicitly admitted by vitest.config.ts.
+const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.(?:[jt]sx?|[cm][jt]s)$/;
+const TEST_FILE = /\.test\.(?:[jt]sx?|[cm][jt]s)$/;
 const DOC_ONLY = /^(?:docs\/|.*\.md$|.*\.mdx$|CHANGELOG\.md$|LICENSE$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$)/i;
 
 export const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {

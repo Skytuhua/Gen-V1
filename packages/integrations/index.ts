@@ -176,6 +176,10 @@ export class IntegrationManager {
   // A child that fails can echo the values it was given; the model still sees
   // the message, so it crosses the same boundary as a successful result.
   const redactor=session.redactor;
+  // Promises can reject with arbitrary values, not only Error instances.
+  // An MCP child rejection must not bypass the known-credential sink guard.
+  if(redactor?.tracked&&typeof error==='string')return redactor.redact(error).text as T;
+  if(redactor?.tracked&&!(error instanceof Error))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
   if(redactor?.tracked&&error instanceof Error){
    // Node's Error cause is logged by util.inspect independently of message
    // and stack. Walk only native Error causes, without invoking arbitrary
