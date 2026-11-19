@@ -98,6 +98,41 @@ describe('M03 cached package screening authority', () => {
     expect(next.exception).toBeUndefined();
   });
 
+  it('rejects non-finite, negative, fractional or longer-than-24h cache lifetimes', async () => {
+    // Before the fix, Infinity reused this two-day-old NO_KNOWN_MATCH entry
+    // without querying a now-known-bad advisory database.
+    const oldCleanResult = cache(record());
+    let queries = 0;
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => { queries++; return { status: 'MATCH', advisoryIds: ['TEST-002'] }; },
+    };
+    const twoDaysLater = () => Date.parse(checkedAt) + 2 * 24 * 60 * 60 * 1000;
+    for (const maxCacheAgeMs of [Infinity, NaN, -1, 0.5, 24 * 60 * 60 * 1000 + 1]) {
+      await expect(screenPackage(identity, advisory, {
+        cache: oldCleanResult, now: twoDaysLater, maxCacheAgeMs,
+      })).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+    }
+    expect(queries).toBe(0);
+  });
+
+  it('rechecks at zero cache lifetime, including equal checkedAt and now timestamps', async () => {
+    for (const clock of [now, () => Date.parse(checkedAt)]) {
+      let queries = 0;
+      const advisory: AdvisoryDatabase = {
+        database: 'current-db',
+        query: async () => { queries++; return { status: 'MATCH', advisoryIds: ['TEST-001'] }; },
+      };
+      const result = await screenPackage(identity, advisory, {
+        cache: cache(record()), now: clock, maxCacheAgeMs: 0,
+      });
+      expect(result).toMatchObject({ cacheHit: false, staleCache: true });
+      expect(result.record.status).toBe('KNOWN_BAD');
+      expect(screeningGate(result.record)).toBe('BLOCK');
+      expect(queries).toBe(1);
+    }
+  });
+
   it('rechecks stale cache and retains unavailable as a distinct denial', async () => {
     const next = await screenPackage(identity, unavailable, {
       cache: cache(record()), now, maxCacheAgeMs: 999,

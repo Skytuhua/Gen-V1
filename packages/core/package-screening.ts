@@ -60,6 +60,11 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const pkg = validateIdentity(identity);
   const now = options.now ?? Date.now;
   const maxAge = options.maxCacheAgeMs ?? DEFAULT_MAX_CACHE_AGE_MS;
+  // A caller-supplied unbounded TTL must not keep a clean advisory result
+  // reusable indefinitely after the advisory database becomes unavailable.
+  if (!Number.isSafeInteger(maxAge) || maxAge < 0 || maxAge > DEFAULT_MAX_CACHE_AGE_MS) {
+    throw new HarnessError('INVALID_INPUT', 'Package screening cache lifetime must be a finite integer between 0 and 24 hours.');
+  }
   const key = cacheKey(pkg);
   const cached = options.cache?.get(key);
   let staleCache = false;
@@ -74,7 +79,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
       parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY';
-    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && age <= maxAge) {
+    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && maxAge > 0 && age <= maxAge) {
       return { record: { ...parsed, cacheAgeMs: age }, cacheHit: true, staleCache: false };
     }
     staleCache = true;
