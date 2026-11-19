@@ -200,7 +200,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       assertAuthority();
       if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if (!modelDiscovery) {
-        if(modelCache&&!options?.refresh&&(options?.providerId?!invalidatedProviders.has(options.providerId):!invalidatedProviders.size)) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        if(modelCache&&!options?.refresh&&(!options?.providerId||!invalidatedProviders.has(options.providerId))) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
         if(modelCache&&options?.providerId)invalidatedProviders.add(options.providerId);
         modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
         const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
