@@ -60,6 +60,22 @@ export class AttentionRepository {
  destination(eventId:string):AttentionItem['destination']{const item=this.sync().find(value=>value.id===eventId);if(!item)throw new HarnessError('NOT_FOUND','This inbox item is no longer available.');return item.destination;}
  command(input:AttentionCommand){const parsed=attentionCommandSchema.parse(input);this.destination(parsed.eventId);return this.store.command({id:parsed.id,type:'attention.'+parsed.type,payload:{eventId:parsed.eventId}},()=>{const stored=this.store.get<StoredAttention>('attentionItem',parsed.eventId);if(!stored)throw new HarnessError('NOT_FOUND','Inbox item is unavailable.');const item={...stored.item,...(parsed.type==='dismiss-popup'?{popupDismissed:true}:{read:parsed.type==='read'})};this.store.put('attentionItem',item.id,item.threadId,{...stored,item,pending:parsed.type==='unread'?false:stored.pending});return item;});}
  /** Consume a new delivery before presentation: crash/reconnect cannot replay sound. The durable Inbox remains. */
- claimDelivery():AttentionDelivery{const items=this.sync(),queued=items.filter(item=>{const saved=this.store.get<StoredAttention>('attentionItem',item.id);return saved?.pending&&saved.claimedKey!==item.notificationKey&&!item.read&&!item.popupDismissed&&item.state!=='resolved';}),fresh=queued.filter(item=>{const saved=this.store.get<StoredAttention>('attentionItem',item.id);return this.now().getTime()-Date.parse(saved?.queuedAt??item.createdAt)<=5*60_000;});if(queued.length)this.store.internal('attention.delivery.claimed',null,()=>{for(const item of queued){const saved=this.store.get<StoredAttention>('attentionItem',item.id)!;this.store.put('attentionItem',item.id,item.threadId,{...saved,pending:false,claimedKey:item.notificationKey});}});const preferences=getPreferences(this.store.get<Snapshot["settings"]>("settings","global")??{});return{items:fresh.slice(0,30),preferences:{threadNotifications:preferences.threadNotifications,inAppNotifications:preferences.inAppNotifications,volume:preferences.notificationVolume,preview:preferences.notificationPreview,quietHours:preferences.notificationQuietHours}};}
+ claimDelivery():AttentionDelivery{
+  const items=this.sync(),now=this.now().getTime(),fresh:AttentionItem[]=[],consumed:{item:AttentionItem;saved:StoredAttention}[]=[];
+  for(const item of items){
+   const saved=this.store.get<StoredAttention>('attentionItem',item.id);
+   if(!saved?.pending||saved.claimedKey===item.notificationKey||item.read||item.popupDismissed||item.state==='resolved')continue;
+   const isFresh=now-Date.parse(saved.queuedAt??item.createdAt)<=5*60_000;
+   if(isFresh){
+    // Overflow is still eligible for the next poll, not part of this claim.
+    if(fresh.length>=30)continue;
+    fresh.push(item);
+   }
+   consumed.push({item,saved});
+  }
+  if(consumed.length)this.store.internal('attention.delivery.claimed',null,()=>{for(const {item,saved} of consumed)this.store.put('attentionItem',item.id,item.threadId,{...saved,pending:false,claimedKey:item.notificationKey});});
+  const preferences=getPreferences(this.store.get<Snapshot["settings"]>("settings","global")??{});
+  return{items:fresh,preferences:{threadNotifications:preferences.threadNotifications,inAppNotifications:preferences.inAppNotifications,volume:preferences.notificationVolume,preview:preferences.notificationPreview,quietHours:preferences.notificationQuietHours}};
+ }
  markOpen(eventId:string){const destination=this.destination(eventId);this.command({id:randomUUID(),eventId,type:'read'});return destination;}
 }
