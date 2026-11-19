@@ -89,10 +89,11 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     staleCache = true;
     if (validAge) previousCacheAgeMs = age;
   }
-  const checkedAt = new Date(now()).toISOString();
   let result: AdvisoryQueryResult;
   try { result = await advisory.query(Object.freeze({ ...pkg })); }
   catch { result = { status: 'UNAVAILABLE' }; }
+  // Capture the completed query time: its snapshot may advance while awaiting.
+  const checkedAt = new Date(now()).toISOString();
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
   const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
   const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
