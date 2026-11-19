@@ -126,7 +126,9 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
   if (!tests.length && sawCodeChange)
     issues.push({ path: '', code: 'EMPTY_SELECTION', message: 'Selection would run zero tests for code changes' });
   if (!tests.length)
-    return { tests, coverage: 'NONE', needsReview: issues.some(i => i.code !== 'REMOVED_TEST'), issues };
+    // Deleted test files are themselves a coverage loss. Never mark their
+    // zero-test selection as review-free merely because no suite can run.
+    return { tests, coverage: 'NONE', needsReview: issues.length > 0, issues };
   return { tests, coverage: 'PARTIAL', needsReview: issues.length > 0, issues };
 }
 
