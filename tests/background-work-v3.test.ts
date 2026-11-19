@@ -10,7 +10,7 @@ import { DurableWakeupScheduler } from "../packages/core/durable-wakeups.ts";
 import { ModelCapacity } from "../packages/runtime/model-capacity.ts";
 import { __setCapabilityFlagForTests, registeredCapabilityFlags } from "../packages/core/capability-flags.ts";
 import type { RuntimeAdapter, Thread } from "../packages/contracts/index.ts";
-import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
+import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForEvent, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
 
 const cleanups: (() => void | Promise<void>)[] = [];
 afterEach(async () => {
@@ -698,6 +698,26 @@ describe("M10 v6 completeness regressions", () => {
     expect(f.store.all("backgroundAdmission")).toHaveLength(50);
     await scheduler.tick();
     await waitFor(() => f.store.all("backgroundAdmission").length === 60);
+  });
+  it("does not spend the recovery batch on expired claims whose schedules are paused", async () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+    cleanups.push(() => scheduler.stop());
+    for (let index = 0; index <= 50; index++) {
+      const wakeupId = `recovery-${String(index).padStart(2, "0")}`;
+      scheduler.register(command("background.wakeup.register"), { wakeupId, taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: wakeupId } });
+      const key = occurrenceKeyForEvent(wakeupId, 1, "event");
+      const stamp = new Date(f.now()).toISOString();
+      f.store.internal("fixture.expired-claim", null, () => f.store.put("backgroundOccurrence", key, null, {
+        occurrenceKey: key, wakeupId, scheduleRevision: 1, scheduledDueAtMs: null, hostEventId: "event",
+        state: "CLAIMED", dispatch: "NOT_DISPATCHED", claimGeneration: 1, admissionId: null,
+        leaseExpiresAtMs: f.now() - 1, createdAt: stamp, updatedAt: stamp,
+      } satisfies BackgroundOccurrenceV1));
+      if (index < 50) scheduler.pause(command("background.wakeup.pause"), wakeupId);
+    }
+    expect((await scheduler.tick()).map(item => item.wakeup.wakeupId)).toEqual(["recovery-50"]);
+    expect(deliver).toHaveBeenCalledTimes(1);
   });
   it("S11: every missed occurrence is persisted, not only a bounded sample", async () => {
     const f = fixture();
