@@ -9,14 +9,25 @@ import {terminateProcessTree} from '../packages/runtime-pi/process-tree.ts';
 export function readOfficialVersion(command:{file:string;args:string[]},cwd:string,env:NodeJS.ProcessEnv):Promise<string>{
  const child=spawn(command.file,[...command.args,'--version'],{cwd,env,windowsHide:true,stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  return new Promise<string>((done,reject)=>{
-  let text='';const timer=setTimeout(()=>{void terminateProcessTree(child).finally(()=>reject(Error('Official distribution version check exceeded its deadline.')));},30000);
-  child.once('error',error=>{clearTimeout(timer);reject(error);});
-  child.stdout.on('data',chunk=>{text+=String(chunk);if(text.length>65536){void terminateProcessTree(child);reject(Error('Official version output exceeded its bound.'));}});
-  child.stderr.on('data',()=>{});
+  const stdout:Buffer[]=[];let bytes=0,settled=false;
+  const fail=(error:Error)=>{
+   if(settled)return;settled=true;clearTimeout(timer);
+   void terminateProcessTree(child).then(()=>reject(error),reject);
+  };
+  const timer=setTimeout(()=>fail(Error('Official distribution version check exceeded its deadline.')),30000);
+  child.once('error',fail);
+  const capture=(chunk:Buffer,keep:boolean)=>{
+   if(settled)return;
+   bytes+=chunk.length;
+   if(bytes>65536){fail(Error('Official version output exceeded its bound.'));return;}
+   if(keep)stdout.push(chunk);
+  };
+  child.stdout.on('data',(chunk:Buffer)=>capture(chunk,true));
+  child.stderr.on('data',(chunk:Buffer)=>capture(chunk,false));
   child.once('close',code=>{
-   clearTimeout(timer);
+   if(settled)return;settled=true;clearTimeout(timer);
    if(code!==0){reject(Error('Official distribution version check failed.'));return;}
-   const version=text.trim();
+   const version=Buffer.concat(stdout).toString('utf8').trim();
    if(!version){reject(Error('Unexpected CLI version output.'));return;}
    done(version);
   });
