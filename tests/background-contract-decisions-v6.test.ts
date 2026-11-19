@@ -112,6 +112,36 @@ describe("M10-D03 clock movement", () => {
     expect(scheduler.schedules()[0]!.skippedTotal).toBe(1);
   });
 
+  it("keeps a newer interval claim intact when an older interval finishes", async () => {
+    const f = storeFixture("m10-overlapping-slots-");
+    const anchor = f.now(), interval = 60_000;
+    let finishOld!: () => void, finishNew!: () => void;
+    const old = new Promise<void>(resolve => { finishOld = resolve; });
+    const next = new Promise<void>(resolve => { finishNew = resolve; });
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now,
+      deliver: async ({ occurrence }) => {
+        await (occurrence.scheduledDueAtMs === anchor ? old : next);
+        return { status: "DELIVERED" };
+      },
+    });
+    cleanups.push(async () => { finishOld(); finishNew(); await scheduler.drain(); });
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "task-overlap", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: interval } });
+    await scheduler.tick();
+    f.advance(interval);
+    await scheduler.tick();
+    const newerKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor + interval);
+    expect(scheduler.schedules()[0]).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey });
+    finishOld();
+    await old;
+    await Promise.resolve();
+    expect(scheduler.schedules()[0]).toMatchObject({ state: "CLAIMED", occurrenceKey: newerKey });
+    finishNew();
+    await next;
+    await Promise.resolve();
+    expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", occurrenceKey: null });
+    expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").map(row => row.state)).toEqual(["DELIVERED", "DELIVERED"]);
+  });
+
   it("forward jump across five intervals then backward: one latest admission, four skipped occurrences, no duplicate consumed key", async () => {
     const f = storeFixture("m10-d03-");
     const admitted: number[] = [];

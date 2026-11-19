@@ -173,7 +173,7 @@ export class DurableWakeupScheduler {
           if (!current || current.state !== "CLAIMED") return;
           this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...current, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(this.now()) });
           const owner = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-          if (owner && owner.state === "CLAIMED") this.store.put("backgroundWakeup", owner.wakeupId, null, { ...owner, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (owner?.state === "CLAIMED" && owner.occurrenceKey === occurrence.occurrenceKey) this.store.put("backgroundWakeup", owner.wakeupId, null, { ...owner, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         continue;
       }
@@ -203,7 +203,8 @@ export class DurableWakeupScheduler {
             // Lease expiry alone never proves a previous dispatch did not occur.
             const unknown: BackgroundOccurrenceV1 = { ...occurrence, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(stamp) };
             this.store.put("backgroundOccurrence", key, null, unknown);
-            this.store.put("backgroundWakeup", wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+            if (wakeup.occurrenceKey === key)
+              this.store.put("backgroundWakeup", wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
             return null;
           }
           occurrence = { ...occurrence, claimGeneration: occurrence.claimGeneration + 1, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) };
@@ -277,7 +278,7 @@ export class DurableWakeupScheduler {
       this.store.internal("background.occurrence.blocked", null, () => {
         this.setOccurrence(key, held ? { state: "PENDING", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
         const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-        if (wakeup) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: revalidation.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+        if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: revalidation.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
       });
       return;
     }
@@ -308,7 +309,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.delivered", null, () => {
           this.setOccurrence(key, { state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs: this.now(), blockedReason: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: wakeup.trigger.kind === "AT_UTC" ? "DELIVERED" : "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, lastRunAtMs: this.now(), blockedReason: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -316,7 +317,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.unknown", null, () => {
           this.setOccurrence(key, { state: "UNKNOWN", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -327,7 +328,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.blocked", null, () => {
           this.setOccurrence(key, held ? { state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null } : { state: "CANCELLED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: outcome.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: outcome.blockedReason, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -338,7 +339,7 @@ export class DurableWakeupScheduler {
         this.store.internal("background.occurrence.blocked", null, () => {
           this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", delivery.wakeup.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: "DELIVERY_FAILED", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "BLOCKED", blockedReason: "DELIVERY_FAILED", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
         });
         return;
       }
@@ -363,7 +364,7 @@ export class DurableWakeupScheduler {
         const occurrence = this.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key);
         if (occurrence && occurrence.state === "CLAIMED") this.store.put("backgroundOccurrence", key, null, { ...occurrence, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
         const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", owner.wakeupId);
-        if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", owner.wakeupId, null, { ...wakeup, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
+        if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === key) this.store.put("backgroundWakeup", owner.wakeupId, null, { ...wakeup, leaseExpiresAtMs: stamp + this.limits.leaseMs, updatedAt: iso(stamp) });
       });
     }
   }
@@ -379,7 +380,7 @@ export class DurableWakeupScheduler {
         if (occurrence.dispatch === "DISPATCHED_UNCONFIRMED") {
           this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...occurrence, state: "UNKNOWN", leaseExpiresAtMs: null, updatedAt: iso(stamp) });
           const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
-          if (wakeup && wakeup.state === "CLAIMED") this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
+          if (wakeup?.state === "CLAIMED" && wakeup.occurrenceKey === occurrence.occurrenceKey) this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) });
         }
       }
     });
