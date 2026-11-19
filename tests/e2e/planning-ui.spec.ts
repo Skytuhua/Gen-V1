@@ -60,7 +60,9 @@ test('live usage reflects reported values and can be disabled without inventing 
   const snapshot=fixture();snapshot.usage['task-thread']={...EMPTY_USAGE,contextTokens:5000,contextWindow:100000,inputTokens:12000,outputTokens:400,activity:'running'};const host=await serveTaskFixture(page,snapshot);await page.goto('/');await page.getByRole('button',{name:'Show live usage',exact:true}).click();
   const footer=page.getByRole('region',{name:'Live usage',exact:true});await expect(footer).toContainText('12,000');await footer.getByRole('button',{name:'Inspect live usage',exact:true}).click();const openUsage=footer.getByRole('button',{name:'Open Usage',exact:true});await expect(openUsage).toBeVisible();
   snapshot.usage['task-thread']={...snapshot.usage['task-thread'],outputTokens:900,cost:0.0125};await host.publish();await expect(footer).toContainText('Live usage');await expect(footer).not.toContainText('$');
-  await openUsage.click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();await page.getByRole('button',{name:'Close dialog',exact:true}).click();
+  await openUsage.click();const usageDialog=page.getByRole('dialog',{name:'Usage',exact:true});await expect(usageDialog).toBeVisible();
+  await expect(usageDialog).toContainText('0.0125 (currency not reported)');await usageDialog.getByRole('tab',{name:'Tokens',exact:true}).click();await expect(usageDialog).toContainText('900');
+  await page.getByRole('button',{name:'Close dialog',exact:true}).click();
   snapshot.settings.preferences={...snapshot.settings.preferences,showUsageFooter:false};await host.publish();await expect(footer).toHaveCount(0);
 });
 
