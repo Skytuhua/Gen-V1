@@ -219,6 +219,12 @@ export class DurableWakeupScheduler {
           leaseExpiresAtMs: stamp + this.limits.leaseMs, createdAt: iso(stamp), updatedAt: iso(stamp),
         });
       }
+      // Lease recovery may reclaim an earlier firing after a newer interval
+      // has already advanced the cadence. Reclaim only the old occurrence.
+      if (input.intervalAnchor && input.scheduledDueAtMs !== null && wakeup.lastProcessedDueAtMs !== null && input.scheduledDueAtMs < wakeup.lastProcessedDueAtMs) {
+        this.store.put("backgroundOccurrence", key, null, occurrence);
+        return { wakeup, occurrence };
+      }
       let nextDueAtMs = wakeup.nextDueAtMs, skippedTotal = wakeup.skippedTotal, lastProcessedDueAtMs = wakeup.lastProcessedDueAtMs;
       if (input.intervalAnchor && input.scheduledDueAtMs !== null) {
         const { anchorMs, intervalMs } = input.intervalAnchor;
