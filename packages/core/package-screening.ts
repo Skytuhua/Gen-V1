@@ -94,6 +94,12 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   catch { result = { status: 'UNAVAILABLE' }; }
   // Capture the completed query time: its snapshot may advance while awaiting.
   const checkedAt = new Date(now()).toISOString();
+  // A returned NO_MATCH without an attested database snapshot cannot
+  // borrow the local query timestamp as evidence of a fresh advisory DB.
+  if (result.status === 'NO_MATCH' &&
+      (typeof result.asOf !== 'string' || !Number.isFinite(Date.parse(result.asOf)))) {
+    throw new HarnessError('INVALID_INPUT', 'A clean advisory result requires an explicit, valid database snapshot time.');
+  }
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
   const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
   const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&

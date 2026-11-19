@@ -172,6 +172,24 @@ describe('M03 cached package screening authority', () => {
     }
   });
 
+  it('rejects NO_MATCH without declared snapshot provenance before caching a clean result', async () => {
+    for (const asOf of [undefined, '', 'not-a-date']) {
+      let cached = false;
+      let queried = 0;
+      const advisory: AdvisoryDatabase = {
+        database: 'current-db',
+        query: async () => {
+          queried++;
+          return { status: 'NO_MATCH', ...(asOf === undefined ? {} : { asOf }) };
+        },
+      };
+      await expect(screenPackage(identity, advisory, {
+        now, cache: { get: () => undefined, put: () => { cached = true; } },
+      })).rejects.toMatchObject({ code: 'INVALID_INPUT' });
+      expect(queried).toBe(1);
+      expect(cached).toBe(false);
+    }
+  });
   it('accepts a fresh snapshot created during an in-flight advisory query', async () => {
     const start = Date.parse(checkedAt);
     let clock = start;
