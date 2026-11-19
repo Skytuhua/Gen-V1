@@ -208,6 +208,7 @@ test('dropdown popovers anchor to their trigger inside the settings dialog with 
   await trigger.click();
   const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });
   await expect(list).toBeVisible();
+  await list.evaluate(node => Promise.all(node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').map(animation => animation.finished.catch(() => {}))));
   const anchor = await trigger.boundingBox(), popup = await list.boundingBox();
   expect(Math.abs(popup!.x + popup!.width - (anchor!.x + anchor!.width))).toBeLessThanOrEqual(2);
   expect(Math.abs(popup!.y - (anchor!.y + anchor!.height + 8))).toBeLessThanOrEqual(2);
