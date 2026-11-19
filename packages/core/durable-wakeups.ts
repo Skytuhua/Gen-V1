@@ -509,7 +509,7 @@ export class DurableWakeupScheduler {
     const wakeup = this.requireWakeup(wakeupId);
     const stamp = this.now();
     for (const occurrence of this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => item.wakeupId === wakeupId)) {
-      if (occurrence.state === "CLAIMED" && occurrence.dispatch === "NOT_DISPATCHED")
+      if ((occurrence.state === "CLAIMED" || occurrence.state === "PENDING") && occurrence.dispatch === "NOT_DISPATCHED")
         this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...occurrence, state: "CANCELLED", leaseExpiresAtMs: null, updatedAt: iso(stamp) });
     }
     const next: WakeupRecord = { ...wakeup, state: "CANCELLED", paused: true, nextDueAtMs: null, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) };
