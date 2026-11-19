@@ -12,6 +12,23 @@ export function destroyEventStreams(streams: Map<ServerResponse, () => void>): v
   for (const shutdown of shutdowns) shutdown();
 }
 
+/** Register only a live reader. A socket may already be closed when a
+ * hijacked route reaches its stream setup, in which case its cleanup happens
+ * synchronously before insertion into the host's reader registry. */
+export function registerEventStream(
+  streams: Map<ServerResponse, () => void>,
+  response: ServerResponse,
+  store: Pick<Store, 'eventsAfter' | 'subscribe'>,
+  after: number,
+): void {
+  let closed = false;
+  const shutdown = streamEvents(response, store, after, () => {
+    closed = true;
+    streams.delete(response);
+  });
+  if (!closed) streams.set(response, shutdown);
+}
+
 /** The durable ledger is the queue. Retain only one event while a reader drains. */
 export function streamEvents(response: ServerResponse, store: Pick<Store, 'eventsAfter' | 'subscribe'>, after: number, onClose: () => void): () => void {
   if (response.destroyed || response.writableEnded) { onClose(); return () => {}; }
