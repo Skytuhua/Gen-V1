@@ -424,8 +424,8 @@ export class DurableWakeupScheduler {
       if (wakeup && !cancelled) {
         const lastRunAtMs = receipt.observed === "DELIVERED" ? Math.max(wakeup.lastRunAtMs ?? stamp, stamp) : wakeup.lastRunAtMs;
         const anotherClaim = wakeup.state === "CLAIMED" && wakeup.occurrenceKey !== occurrenceKey;
-        if (anotherClaim) {
-          // Reconciling an older occurrence may update history, not the live lease.
+        if (anotherClaim || wakeup.state === "BLOCKED") {
+          // An older receipt may update history, not the live lease or a newer block.
           if (wakeup.trigger.kind === "INTERVAL_UTC" && lastRunAtMs !== wakeup.lastRunAtMs)
             this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
         } else {

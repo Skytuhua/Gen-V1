@@ -731,6 +731,25 @@ describe("M10 v6 completeness regressions", () => {
     expect((await scheduler.tick()).map(item => item.wakeup.wakeupId)).toEqual(["recovery-50"]);
     expect(deliver).toHaveBeenCalledTimes(1);
   });
+  it("records an older interval delivery without clearing a newer block", async () => {
+    const f = fixture();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async ({ occurrence }) =>
+      occurrence.scheduledDueAtMs === anchor ? { status: "UNCERTAIN", reason: "Receipt delayed" } : { status: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" } });
+    cleanups.push(() => scheduler.stop());
+    const anchor = f.now();
+    const { wakeupId } = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: 60_000 } });
+    await scheduler.tick();
+    const oldKey = occurrenceKeyForTime(wakeupId, 1, anchor);
+    expect(scheduler.occurrences(wakeupId)[0]?.state).toBe("UNKNOWN");
+    f.advance(60_000);
+    await scheduler.tick();
+    const blocked = scheduler.schedules().find(item => item.wakeupId === wakeupId)!;
+    expect(blocked).toMatchObject({ state: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" });
+    expect(scheduler.reconcile(command("background.occurrence.reconcile"), oldKey, { observed: "DELIVERED" }).state).toBe("DELIVERED");
+    expect(scheduler.schedules().find(item => item.wakeupId === wakeupId)).toMatchObject({
+      state: "BLOCKED", blockedReason: blocked.blockedReason, nextDueAtMs: blocked.nextDueAtMs, lastRunAtMs: f.now(),
+    });
+  });
   it("S11: every missed occurrence is persisted, not only a bounded sample", async () => {
     const f = fixture();
     const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => ({ status: "DELIVERED" as const }) });
