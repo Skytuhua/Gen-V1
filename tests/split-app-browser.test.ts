@@ -26,6 +26,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   let ready=false;for(let i=0;i<300;i++){if(server.exitCode!==null)throw Error('Owned Vite exited: '+serverLog);try{const response=await fetch(origin,{signal:AbortSignal.timeout(500)});if(response.ok){ready=true;break;}}catch{}await new Promise(resolve=>setTimeout(resolve,100));}
   if(!ready)throw Error('Owned Vite did not start: '+serverLog);
   browser=await chromium.launch({headless:true,channel:process.env.GEN_TEST_BROWSER_CHANNEL??'chrome'});
+  // Compile the app graph once here: the first fixture would otherwise carry the
+  // cold Vite transform inside its own readiness wait on a loaded runner.
+  const warm=await browser.newPage();try{await warm.goto(origin,{timeout:30000,waitUntil:'load'});}finally{await warm.close();}
  },60000);
  afterAll(async()=>{try{await browser?.close();}finally{if(server&&server.exitCode===null){server.kill();await new Promise<void>(resolve=>{const timer=setTimeout(resolve,2000);server!.once('exit',()=>{clearTimeout(timer);resolve();});});}}});
 
@@ -96,7 +99,9 @@ describe.runIf(enabled)('actual App split workspace',()=>{
   await page.route('**/split-app-check',route=>route.fulfill({contentType:'text/html',body:`<html><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${fixtureModule}');</script></body></html>`}));
   // Cold Vite module loading has its own startup budget; interactions retain
   // the seven-second timeout and each test's existing overall bound.
+  const served=page.waitForResponse(response=>new URL(response.url()).pathname==='/api/snapshot'&&response.status()===200,{timeout:40000});
   await page.goto(origin+'/split-app-check',{timeout:20000});
+  await served;
   if(mode==='split'){
    if(width<700){await page.getByRole('combobox',{name:'Active workspace area',exact:true}).click();await page.getByRole('option',{name:'First investigation',exact:true}).click();}
    await page.locator('[data-split-view="thread:thread-a"]').getByRole('textbox',{name:'Message',exact:true}).waitFor({state:'visible',timeout:20000});

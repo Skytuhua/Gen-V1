@@ -215,7 +215,8 @@ export class ProjectSearch {
         catch { issue(relative, 'binary'); return; }
         if (data.includes(0)) { issue(relative, 'binary'); return; }
         const sha256 = createHash('sha256').update(data).digest('hex');
-        if (fold(relative).includes(query)) add({ path: relative, kind: 'path', line: null, column: null, preview: preview(relative), sha256 });
+        const pathColumn = findColumn(relative, query);
+        if (pathColumn !== null) add({ path: relative, kind: 'path', line: null, column: null, preview: preview(relative, pathColumn), sha256 });
         let line = 1, start = 0;
         // Avoid allocating an array for up to a million tiny lines.
         for (let end = 0; end <= text.length; end++) {

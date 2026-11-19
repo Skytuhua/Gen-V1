@@ -1,6 +1,7 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {describe,it,expect,afterEach} from 'vitest';
-import {mkdtempSync,mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+import {mkdirSync,writeFileSync,rmSync,lstatSync} from 'node:fs';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {
@@ -17,12 +18,9 @@ import {testEffectAuthenticator} from './fixtures/effect-authenticator';
 const code=(fn:()=>unknown):string=>{try{fn();}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 const codeAsync=async(p:Promise<unknown>):Promise<string>=>{try{await p;}catch(e){return (e as HarnessError).code;}return 'NO_THROW';};
 
-
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);const stamp=new Date().toISOString();store.internal('test.owner','t1',()=>store.put('thread','t1','t1',{id:'t1',title:'Verification',projectName:null,createdAt:stamp,updatedAt:stamp,status:'working',epoch:1,runId:'r1',modelId:null,sessionPath:null}));return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const FLAGS_ON={HARNESS_FLAG_VERIFICATION_WORKFLOW_V1:'1'};
 
 const owner=(threadId='t1'):ToolOwner=>({threadId,runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null});

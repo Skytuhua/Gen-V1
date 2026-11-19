@@ -4,6 +4,9 @@ import type {HostCommand,Thread} from '../../packages/contracts';
 import type {WorkspaceEnvelope} from '../../packages/contracts/workspace';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
+import {snapshotServed,warmApp} from './app-ready';
+
+test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
 
 async function fixture(page:Page,started=false){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture content'}}}});
@@ -34,7 +37,7 @@ async function fixture(page:Page,started=false){
   else return route.fallback();
   snapshot.seq++;return route.fulfill({json:{commandId:command.id,seq:snapshot.seq,result}});
  });
- await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});
+ const served=snapshotServed(page);await page.goto('/');await served;await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  return {...host,envelope,commands,workspaceCommands};
 }
 

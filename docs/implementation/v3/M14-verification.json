@@ -1,0 +1,1164 @@
+{
+  "schemaVersion": 3,
+  "bundleId": "M14",
+  "baseSha": "50da8ae6791ee3c1a17387e558cf4bde4f6c98af",
+  "sourceLockDigest": "18a0a15c94d9dab6dd9e91eabed9196c8f23bafe10e914625dbc29ad11e3b7de",
+  "platform": "linux-arm64",
+  "nodeVersion": "v24.11.1",
+  "packageManagerVersion": "10.30.3",
+  "phases": [
+    {
+      "id": "CORE.source-custody",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "worktree-isolation",
+          "status": "PASS",
+          "evidence": "Recovered remote head b27c8360 into <home>/Gen-V1-m14-v6 on agent/m14-v3; original checkout on fix/t10-agents-grid-v3 with user edits and qwencloud-api-key.txt preserved untouched."
+        },
+        {
+          "id": "canonical-remote",
+          "status": "PASS",
+          "evidence": "origin resolves to github.com/skytuhua-org/Gen-V1 (repository ID 1442565952)."
+        },
+        {
+          "id": "base-integration",
+          "status": "PASS",
+          "evidence": "Fetched origin/main 71b3b405 without checkout; clean worktree merged via git merge --no-commit --no-ff into merge commit ea48854b; no conflicts, no ours/theirs resolution."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:02Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M14/source-lock.json"
+      ]
+    },
+    {
+      "id": "CORE.toolchain",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "declared-versions",
+          "status": "PASS",
+          "evidence": "Node v24.11.1 satisfies >=24.10.0; pnpm 10.30.3 matches package.json; pnpm install --frozen-lockfile succeeded; native build scripts (node-pty, keytar, protobufjs) remained ignored as before."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "node",
+            "--version"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "node",
+          "startedAt": "2026-11-16T05:37:03Z",
+          "endedAt": "2026-11-16T05:37:04Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-toolchain.log",
+          "logDigest": "c7610637033ccb28d105608966e6f1d6d60adb914c3966f659ff72a05e86a1cf"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "CORE.existing-contract-tests",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "consumed-contract-suites",
+          "status": "PASS",
+          "evidence": "8 of 9 consumed contract files pass: store, conversation-read-models, tool-effects-v3, request-preparation-service-v3, project-memory-v3, m01-m02-compatibility, research-baseline, m14-evidence-gates."
+        },
+        {
+          "id": "linux-directory-custody",
+          "status": "FAIL",
+          "evidence": "capabilities.test.ts: 13 failures of class CAPABILITY_DENIED from packages/core/linux-path-guard.ts. Root cause verified: packages/core/linux-path-guard.py private_profile() requires os.uname().machine==\"x86_64\" plus euid 0 and ext4 — this aarch64 host cannot launch the custody broker at all; the AppArmor userns restriction is a separate earlier denial now confirmed irrelevant (temporarily relaxed then restored with no effect). x86_64-only environmental gate, not an M14 product failure."
+        },
+        {
+          "id": "windows-consumed-contract-suites",
+          "status": "PASS",
+          "evidence": "win-x64: 9 of 9 consumed contract files pass (147 tests) including capabilities.test.ts — the Windows path guard satisfies the custody class that aarch64 could not launch."
+        },
+        {
+          "id": "win-x1-wsl2-custody-class",
+          "status": "PASS",
+          "evidence": "linux-path-guard custody broker launches under WSL2 (x86_64 kernel, euid 0, ext4 state-root owned by a third uid): all 4 fixture probes pass — LOCAL_NATIVE_IDMAPPED_DIRECTORY_CUSTODY (guardedRename EBUSY, atomicSave, nestedRelease, EACCES, symlink/hardlink rejected, Hermes hello pythonVersion 3.14.10), LOCAL_SYNTHETIC_CREDENTIAL_ALIAS_QUALIFICATION, UNPROTECTED_LINUX (denied), LOCAL_NESTED_ACCOUNT_PROFILE. The aarch64 blocker does not apply on x86_64."
+        },
+        {
+          "id": "windows-integrations-python314",
+          "status": "PASS",
+          "evidence": "py -3.14 resolves to <python314>\\python.exe (3.14.9) after provisioning the nuget CPython 3.14 win32-x64 package and adding the legacy-launcher ExecutablePath registry value; integrations suite rerun 24/24 PASS."
+        },
+        {
+          "id": "win-x1-wsl2-custody-vitest",
+          "status": "FAIL",
+          "evidence": "Broker-wrapped vitest on WSL2 x86_64 (each test process itself spawned as a broker child inside <custody-root>): 27 of 42 custody-adjacent files fully pass under live custody — including linux-path-guard 23/23, memory-storage-boundary-v3 9/9, session-branch-v3 11/11, history-import-v3 12/12, hermes-client 13/13, service-workspace-admission 14/14. 16 files retain failures: all trace to the same class — grant types the Linux contract denies (readOnly/tree/leaf/empty/gitMetadataImport) which the Windows path guard admits — surfacing as CAPABILITY_DENIED or as empty-fixture downstream failures (skill-catalog 19/23, skill-invocation 36/36 list() returns no skills under custody). Largest residual files: selective-commit-v3 13/13, code-review-comparisons 12/12, path-access 12/32, private-git-family 12/19, checkpoint-restore-v3 11/14, capabilities 13/24, account-profile 4/10. Contract asymmetry surfaced for the orchestrator — not relaxed to pass. No failure implicates M14 code."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/store.test.ts",
+            "tests/conversation-read-models.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/m14-evidence-gates.test.ts",
+            "--maxWorkers=4"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:43:22Z",
+          "endedAt": "2026-11-16T05:44:44Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
+          "logDigest": "809c48a9d2490ea095eed95b984864d8e7734587b0c309447d27a1c7482351f9"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/store.test.ts",
+            "tests/conversation-read-models.test.ts",
+            "tests/tool-effects-v3.test.ts",
+            "tests/request-preparation-service-v3.test.ts",
+            "tests/project-memory-v3.test.ts",
+            "tests/m01-m02-compatibility.test.ts",
+            "tests/research-baseline.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/m14-evidence-gates.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:59:21Z",
+          "endedAt": "2026-11-17T04:01:49Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-consumed-contract-tests.log",
+          "logDigest": "fa5b3d8209bcec6d540a7f7294e87747685da2ab8f1cc2e3cc3367ab6d34bfe5"
+        },
+        {
+          "argv": [
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "<custody-root>",
+            "--",
+            "<node24>/bin/node",
+            "--import",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>"
+          ],
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:30:00Z",
+          "endedAt": "2026-11-17T05:40:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
+        },
+        {
+          "argv": [
+            "<node24>/bin/node",
+            "--import",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
+            "credential-mounts"
+          ],
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<node24>/bin/node (v24.22.2, WSL2 Ubuntu)",
+          "startedAt": "2026-11-17T05:40:00Z",
+          "endedAt": "2026-11-17T05:44:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
+        },
+        {
+          "argv": [
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "<custody-root>",
+            "--",
+            "<node24>/bin/node",
+            "--import",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
+            "unprotected"
+          ],
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:44:00Z",
+          "endedAt": "2026-11-17T05:45:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
+        },
+        {
+          "argv": [
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<wsl-repo>/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "<custody-root>",
+            "--",
+            "<node24>/bin/node",
+            "--import",
+            "file://<wsl-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<wsl-repo>/tests/fixtures/linux-path-guard/native.mjs",
+            "<wsl-repo>",
+            "account-profile-child"
+          ],
+          "cwdIdentity": "<wsl-repo> (WSL2 Ubuntu x86_64, ext4)",
+          "executableIdentity": "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+          "startedAt": "2026-11-17T05:45:00Z",
+          "endedAt": "2026-11-17T05:46:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody.log",
+          "logDigest": "7960fbd1a78bb129f234ad3ce6db31d899bcad23519424ddd61c66ce499fe56d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/integrations.test.ts",
+            "tests/integration-hermes-python.test.ts",
+            "tests/integration-mcp.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:58:51Z",
+          "endedAt": "2026-11-17T05:00:08Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-integrations-rerun.log",
+          "logDigest": "371d6ad4d29d4f3b515672f3b338b544054cc1eaa3303613e96fa0ebbd6f478f"
+        },
+        {
+          "argv": [
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<custody-root>/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "<custody-root>",
+            "--",
+            "<node24>/bin/node",
+            "--import",
+            "file://<custody-root>/node_modules/tsx/dist/esm/index.mjs",
+            "<custody-root>/node_modules/vitest/vitest.mjs",
+            "run",
+            "tests/capabilities.test.ts",
+            "tests/linux-path-guard.test.ts",
+            "tests/memory-storage-boundary-v3.test.ts",
+            "--root",
+            "<custody-root>",
+            "--pool=threads"
+          ],
+          "cwdIdentity": "<custody-root> (WSL2 Ubuntu x86_64, ext4, TMPDIR=<custody-root>, repo copy owned uid 2000 mode 0700)",
+          "executableIdentity": "python3.14 (broker) -> node v24.22.2",
+          "startedAt": "2026-11-17T08:54:00Z",
+          "endedAt": "2026-11-17T08:56:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-vitest-broker.log",
+          "logDigest": "f57d56ed47f68bd3e464161e1130212593bd3162a0b8372dfb89c97aa23b7b27"
+        },
+        {
+          "argv": [
+            "<root>/.local/share/uv/python/cpython-3.14-linux-x86_64-gnu/bin/python3.14",
+            "<custody-root>/packages/core/linux-path-guard.py",
+            "--uid",
+            "62153",
+            "--gid",
+            "62153",
+            "--state-root",
+            "<custody-root>",
+            "--",
+            "<node24>/bin/node",
+            "--import",
+            "file://<custody-root>/node_modules/tsx/dist/esm/index.mjs",
+            "<custody-root>/node_modules/vitest/vitest.mjs",
+            "run",
+            "<one test file at a time>",
+            "--root",
+            "<custody-root>",
+            "--pool=threads"
+          ],
+          "cwdIdentity": "<custody-root> (WSL2 Ubuntu x86_64, ext4, TMPDIR=<custody-root>, repo copy owned uid 2000 mode 0700)",
+          "executableIdentity": "python3.14 (broker) -> node v24.22.2; 40 custody-adjacent test files each run as a broker child",
+          "startedAt": "2026-11-17T09:55:00Z",
+          "endedAt": "2026-11-17T10:45:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-x1-wsl-custody-vitest-all.log",
+          "logDigest": "4e8ec8870e0a7807c2db5d9b39946613342823fac68b49c833e0236885a8ff64"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "CORE.required-dependencies",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "m04-request-custody",
+          "status": "PASS",
+          "evidence": "Merged main carries packages/core/request-custody.ts + prepareRequestContext (M04); request-preparation-service-v3 tests pass."
+        },
+        {
+          "id": "m05-project-memory",
+          "status": "PASS",
+          "evidence": "Merged main carries packages/core/project-memory-host.ts + contracts/project-memory.ts (M05); project-memory-v3 tests pass. Prior prerequisite gate is resolved — M05 is consumed read-only."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "log",
+            "--oneline",
+            "-4"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:01Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION.typecheck-and-build",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "typecheck",
+          "status": "PASS",
+          "evidence": "tsc --noEmit clean across the merged tree including session-branches, history-import and SessionBranchMenu."
+        },
+        {
+          "id": "lint",
+          "status": "PASS",
+          "evidence": "lint-ui: 543 sources, 0 violations."
+        },
+        {
+          "id": "build",
+          "status": "PASS",
+          "evidence": "scripts/build.mjs completed; web bundle includes the SessionBranchMenu chunk."
+        },
+        {
+          "id": "windows-gates",
+          "status": "PASS",
+          "evidence": "win-x64 (Windows Server 2025, node v24.22.2, pnpm 10.30.3): tsc --noEmit clean, lint-ui --check 0 violations, vite build PASS."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:30:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-typecheck.log",
+          "logDigest": "6adadaba762c303ca5d714989ae92627bd2894a63f5147ee11ccd484aed98a8d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:37:30Z",
+          "endedAt": "2026-11-16T05:38:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-lint.log",
+          "logDigest": "c98b191f3419039d036d30422728e08e006a49d3f44914cb5458fc426d6f1528"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:38:40Z",
+          "endedAt": "2026-11-16T05:39:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-build.log",
+          "logDigest": "e93202a2f2dbdb5ea2b6a7e9d186705ba379061b2b4514373aea48a811568abe"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "typecheck"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:55:30Z",
+          "endedAt": "2026-11-17T03:58:03Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-typecheck.log",
+          "logDigest": "e98502f3972f5d590cc97e7c13d9da34e99effc428a5b8c7651edd12c4a8caa5"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "lint"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:58:10Z",
+          "endedAt": "2026-11-17T03:59:06Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-lint.log",
+          "logDigest": "ada73fc3b6d9fbeb46284b3adf5347e312ee9e1e9bb8d41ce1306847a72c1da7"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T03:58:30Z",
+          "endedAt": "2026-11-17T03:59:15Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-build.log",
+          "logDigest": "5bef41df812c606b200e08853cfee7a29e4a54dd32a3bcb37f55b6454d6f0ecb"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION.prerequisite-assets",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "credential-lease-and-widgets",
+          "status": "PASS",
+          "evidence": "pnpm build:credential-lease and pnpm build:widgets both exit 0 before test runs."
+        },
+        {
+          "id": "windows-hermes-bundle",
+          "status": "PASS",
+          "evidence": "CPython 3.14.9 win32-x64 provisioned at <python314> (nuget package, no UAC); the staged hermes host bundle materialized inside desktop:package with HARNESS_HERMES_PYTHON (pnpm install of staged host + projection succeeded)."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "build:credential-lease"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:40:00Z",
+          "endedAt": "2026-11-16T05:40:15Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+          "logDigest": "3f23321ebb98a5a0bf22ab2488df9a2312947b8cf7e7a5e9f26aabac09143088"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "build:widgets"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:40:15Z",
+          "endedAt": "2026-11-16T05:41:00Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+          "logDigest": "3f23321ebb98a5a0bf22ab2488df9a2312947b8cf7e7a5e9f26aabac09143088"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION.required-test-entrypoint",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "session-branch-v3",
+          "status": "PASS",
+          "evidence": "10/10 tests: capability matrix, fixed-cut captures, owner fencing, quote-task creation, FORK_UNSUPPORTED, zero side effects."
+        },
+        {
+          "id": "history-import-v3",
+          "status": "PASS",
+          "evidence": "12/12 tests: ArchiveV1 admission, graph validation, staged atomic commit, dedup, cancel semantics, secret blocking, owner fencing, flag gating."
+        },
+        {
+          "id": "history-import-decisions-v6",
+          "status": "PASS",
+          "evidence": "11/11 tests: exact D01-D05 decision cases."
+        },
+        {
+          "id": "windows-packaged-tests",
+          "status": "PASS",
+          "evidence": "win-x64 packaged-native tests that could not run on aarch64 Linux now pass 27/27: packaged-providers (rg.exe), desktop-packaging, cursor-offline-executor, cursor-sdk-mcp-metadata."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/session-branch-v3.test.ts"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:00Z",
+          "endedAt": "2026-11-16T05:29:18Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
+          "logDigest": "09e0665acecea9bba1bc32551f596536e64ac01fabfcee2ed587e49d595313db"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-v3.test.ts"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:20Z",
+          "endedAt": "2026-11-16T05:29:38Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
+          "logDigest": "12f548899c5f54ff70e461a6591d9b2dfee6206a8257aee4865be891338fc385"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:29:58Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+          "logDigest": "f2be42767aac89e0c6176aaffe1537b95f5eba5f0952e14290c04d17d649dfcf"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/packaged-providers.test.ts",
+            "tests/desktop-packaging.test.ts",
+            "tests/cursor-offline-executor.test.ts",
+            "tests/cursor-sdk-mcp-metadata.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T06:53:21Z",
+          "endedAt": "2026-11-17T06:53:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-w1-packaged-tests.log",
+          "logDigest": "d55c4f99432620a63b03c8757af58cc545d93f2c76daf95d4e013e121a0237fe"
+        }
+      ],
+      "artifactRefs": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts",
+        "tests/history-import-decisions-v6.test.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-admitted-acceptance",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "M14-D01",
+          "status": "PASS",
+          "evidence": "20 MiB admitted, +1 IMPORT_TOO_LARGE pre-parse; 100 conversations/10,000 messages maxima."
+        },
+        {
+          "id": "M14-D02",
+          "status": "PASS",
+          "evidence": "Duplicate ids, cross-conversation parents, cycles reject whole import; zero published records."
+        },
+        {
+          "id": "M14-D03",
+          "status": "PASS",
+          "evidence": "Cancel before publish removes staging only; after commit returns committed receipt; never half-public."
+        },
+        {
+          "id": "M14-D04",
+          "status": "PASS",
+          "evidence": "System/tool command text imports inertly; zero operation/resource/memory entities; runtime.start/compact uncalled."
+        },
+        {
+          "id": "M14-D05",
+          "status": "PASS",
+          "evidence": "History-export-only provider stays UNSUPPORTED; quote-task is a distinct labeled new task."
+        },
+        {
+          "id": "M14-T01-fixed-cut",
+          "status": "PASS",
+          "evidence": "Post-cut and cross-thread messages never enter a capture page."
+        },
+        {
+          "id": "M14-S10-dedup",
+          "status": "PASS",
+          "evidence": "Identical digest reimport returns existing receipt; other owner cannot observe it."
+        },
+        {
+          "id": "M14-S11-owner-revocation",
+          "status": "PASS",
+          "evidence": "Capture reads re-fence ownership: account swap and thread removal deny with no substituted content."
+        },
+        {
+          "id": "M14-G02-flags",
+          "status": "PASS",
+          "evidence": "sessions.branchV1 and sessions.inertImportV1 registered host-owned default-false; every command denied while off."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/history-import-decisions-v6.test.ts"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:29:40Z",
+          "endedAt": "2026-11-16T05:29:58Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+          "logDigest": "f2be42767aac89e0c6176aaffe1537b95f5eba5f0952e14290c04d17d649dfcf"
+        }
+      ],
+      "artifactRefs": [
+        "packages/core/session-branches.ts",
+        "packages/core/history-import.ts",
+        "packages/contracts/session-branch.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-native-fork",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "tested-adapter-fork-api",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_NATIVE_FORK: no RuntimeAdapter implementation (hermes, pi, official-claude, official-gemini, official-cursor) exposes a tested fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION returns FORK_UNSUPPORTED and creates nothing — asserted in tests."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "packages/core/session-branches.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.M14-external-format",
+      "status": "BLOCKED",
+      "requiredCases": [
+        {
+          "id": "admitted-parser-manifest",
+          "status": "NOT_RUN",
+          "evidence": "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON admitted; ZIP/gzip/binary payloads reject as UNSUPPORTED_IMPORT_FORMAT; no DeepSeek/Codex support claimed pending a pinned parser manifest."
+        }
+      ],
+      "commands": [],
+      "artifactRefs": [
+        "packages/core/history-import.ts"
+      ]
+    },
+    {
+      "id": "INTEGRATION.direct-unit-baseline",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "full-vitest",
+          "status": "FAIL",
+          "evidence": "pnpm test (build:credential-lease + build:widgets + vitest run): 3845 passed / 298 failed / 58 skipped, 45 of 382 files failing in 918s. Environment fixes (node-pty build, win32 SDK install) cleared 21 previously-failing files vs the audited 66. Remaining failures: ~40 files of x86_64-pinned linux-path-guard custody tests (broker requires x86_64+root+ext4; host is aarch64), Windows-only packaged-native tests (rg.exe, vendored win32 .node), missing bundled hermes-python toolchain, and shared-box contention timeouts. No M14-caused failure."
+        },
+        {
+          "id": "windows-unit-baseline",
+          "status": "FAIL",
+          "evidence": "pnpm test on win-x64: 4086 passed / 67 failed / 48 skipped, 23 of 382 files failing in 1162s — a large improvement over the aarch64 baseline (298 failed). py -3.14 provisioning cleared all 24 integration/hermes python-resolution failures. Quiet single-worker rerun of the residual set: 29 fail / 127 pass, dominated by windows-path-guard Acquire latency (each acquire spawns powershell+Add-Type ~5-15s, exceeding the 60s vitest timeout under multi-acquire tests), plus hermes custody denials and integration-mcp Graphify/spec-kit environment gaps. No failure implicates M14 product code (session-branches, history-import, contracts, routes, SessionBranchMenu all pass)."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "--maxWorkers=4"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:13:16Z",
+          "endedAt": "2026-11-16T05:26:03Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
+          "logDigest": "6239c405d7f183115ff80881019b5d1296a3012a402d4a952de90935c4854cfc"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:01:59Z",
+          "endedAt": "2026-11-17T04:21:31Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-pnpm-test.log",
+          "logDigest": "ef1f53b9a7c47b419a6356a6bc1f9368da4e7a90e29d1bc061983d6bfb6a4825"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "exec",
+            "vitest",
+            "run",
+            "tests/hermes-client.test.ts",
+            "tests/hermes-service.test.ts",
+            "tests/account-parity.test.ts",
+            "tests/skills-integration.test.ts",
+            "tests/account-profile.test.ts",
+            "tests/runtime-router.test.ts",
+            "tests/capabilities.test.ts",
+            "tests/code-review-comparisons.test.ts",
+            "tests/private-git-family.test.ts",
+            "tests/workspace-action-outcomes.test.ts",
+            "--maxWorkers=1"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T06:53:44Z",
+          "endedAt": "2026-11-17T07:19:52Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-failures-rerun2.log",
+          "logDigest": "07a5a5480f7b08917913d5494200b363212ad98af30d40c34b5e1b6243002785"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "INTEGRATION.baseline-browser",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "playwright-gate",
+          "status": "FAIL",
+          "evidence": "pnpm test:browser now executes real specs after the node-pty build fix (28 passed across projects). Remaining failures are platform/environmental: browser-action.spec.ts needs <chrome-dir>/chrome and ui-shell-overlays.spec.ts needs <msedge-dir>/msedge — neither Chrome nor Edge exists for aarch64 Linux; plus sibling-worktree dev-server port conflicts (5397/5499/5636) and EACCES on foreign /tmp artifacts. No M14 browser surface is implicated."
+        },
+        {
+          "id": "windows-browser-baseline",
+          "status": "FAIL",
+          "evidence": "win-x64 real Edge (v157): first run 35 of 76 suites failed (~418 test failures, run under parallel load); quiet serial rerun of all 35 failed suites - all 35 fail again (417 unexpected + 6 suites never starting at the Unix `exec timeout` config.webServer convention). External-vite workaround (GEN_WO5_SERVER_EXTERNAL=1 + per-suite vite on pinned ports) cleared all 6 dead suites: file-checkpoints 21/21, terminal-excerpts 9/9, project-search 38/38 PASS; conversation-find 1/11, redundant-ui 7/18, wo5-app-integration 0/9 FAIL. Largest test-fail clusters: shell 63, files-reading 46, generated-selects 42, settings-leaf-selects 34, terminal-read 26, memory-recovery 25, graph-popovers/sidebar-shared-menu 24, browser-action 22, pdf 20 - Windows-specific UI-timing baseline consistent with previously recorded win baselines (shared-panels 6, workspace improved to 1). No failure implicates M14 surfaces (no session-branch/import tests among failures)."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "<home>/tools/pnpm",
+          "startedAt": "2026-11-16T05:24:00Z",
+          "endedAt": "2026-11-16T05:25:40Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-test-browser.log",
+          "logDigest": "08d3d2d640df4d23a4a371e76c1c75976bf44f78d86451e283091adaffeeba9d"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T05:00:30Z",
+          "endedAt": "2026-11-17T06:45:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser.log",
+          "logDigest": "3c0259ea220884c5ebeb2180a00e5cd9b13f6b8529e5d495c50ef3c432c309a4"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "<35 previously-failed suites, serial>"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T07:20:00Z",
+          "endedAt": "2026-11-17T08:13:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser-rerun.log",
+          "logDigest": "9a5c6df14c6a015c83493cd1a22c396a63c01753e97932006185e365330122b8"
+        },
+        {
+          "argv": [
+            "GEN_WO5_SERVER_EXTERNAL=1",
+            "pnpm",
+            "test:browser",
+            "--suite",
+            "<file-checkpoints|terminal-excerpts|conversation-find|project-search|redundant-ui|wo5-app-integration>"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2), external vite per suite on pinned ports 5521-5527, Edge v157",
+          "startedAt": "2026-11-17T09:00:00Z",
+          "endedAt": "2026-11-17T09:45:00Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-test-browser-dead-suites.log",
+          "logDigest": "1aa344f96e77cf1d0f1a1756d64a0c7e6d2a77b18d11681f7d64886c0eec33f4"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "PLATFORM.native-and-installed-desktop",
+      "status": "FAIL",
+      "requiredCases": [
+        {
+          "id": "windows-native-and-installed-desktop",
+          "status": "FAIL",
+          "evidence": "desktop:build and desktop:package produce Gen-V1-Setup-0.6.5-win-x64.exe + win-unpacked on win-x64. verify-installed-desktop runs the full owned matrix - NSIS install, payload custody, provider verification, two installed launches with local recovery, memory proposal review/accept/reject - and fails only at the project-memory native-save export: the UIA worker completes the real Save-As dialog (file-name-set, save-invoked, dialog-closed at 8.4s) but no file is written and Electron's DownloadItem 'done' resolves interrupted, so the app's custody check rejects it ('the native save was interrupted or its byte count changed'). Observed failure mode: the Save-As dialog's committed path never materializes as a completed DownloadItem - a harness/app issue, not M14 code. Bisection refuted the parent-child channel theory: an idle Node child failed with an stdio:'ipc' channel and passed without one, but the real backend fails identically with newline-JSON-over-stdio and with stdin:'ignore' (no channel at all) - the discriminating factor is inside the real backend/harness environment and root cause remains open (win-native-save-bisection.log). Deterministic across runs. Packaged-providers verification passed (passed:true)."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "pnpm",
+            "desktop:build"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T04:40:00Z",
+          "endedAt": "2026-11-17T04:44:30Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-build.log",
+          "logDigest": "085cd3382284187819f3b14afbbec2c5871f823984ce4de0a7ee41406d7c9697"
+        },
+        {
+          "argv": [
+            "pnpm",
+            "desktop:package"
+          ],
+          "cwdIdentity": "<win-repo>",
+          "executableIdentity": "<npm-bin>\\pnpm.cmd (pnpm 10.30.3, node v24.22.2)",
+          "startedAt": "2026-11-17T05:10:00Z",
+          "endedAt": "2026-11-17T05:24:26Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-desktop-package.log",
+          "logDigest": "da8108b303b818a1cbc154f48a9c03034bb3087573d60075c3b1aa3e5dc2fc0f"
+        },
+        {
+          "argv": [
+            "node",
+            "--import",
+            "file:///<win-repo>/node_modules/tsx/dist/esm/index.mjs",
+            "<win-repo>\\scripts\\verify-installed-desktop.ts",
+            "<win-repo>\\.harness-installed-package\\desktop-release-0.6.5\\Gen-V1-Setup-0.6.5-win-x64.exe",
+            "<win-repo>\\.harness-installed-package\\desktop-release-0.6.5\\win-unpacked",
+            "--project-memory-retention"
+          ],
+          "cwdIdentity": "<v-drive>",
+          "executableIdentity": "<toolcache>\\node\\24.22.2\\x64\\node.exe",
+          "startedAt": "2026-11-17T06:37:09Z",
+          "endedAt": "2026-11-17T06:52:39Z",
+          "exitCode": 1,
+          "termination": "NONE",
+          "status": "FAIL",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/win-verify-installed2.log",
+          "logDigest": "c22dfedde705924fa96c8186942f1ad305ca04e5ea7decc7514c744ecd70cee6"
+        }
+      ],
+      "artifactRefs": []
+    },
+    {
+      "id": "CORE.handoff-integrity",
+      "status": "PASS",
+      "requiredCases": [
+        {
+          "id": "requirement-matrix",
+          "status": "PASS",
+          "evidence": "docs/implementation/v6/M14/requirements.json covers every retained C/S/U/T/G clause and D01-D05 with dispositions and source/test bindings."
+        },
+        {
+          "id": "source-lock",
+          "status": "PASS",
+          "evidence": "docs/implementation/v6/M14/source-lock.json records execution base 5de9d4a6, inspected blobs and consumed contracts; audit-era lock preserved unchanged."
+        }
+      ],
+      "commands": [
+        {
+          "argv": [
+            "git",
+            "rev-parse",
+            "HEAD"
+          ],
+          "cwdIdentity": "<home>/Gen-V1-m14-v6",
+          "executableIdentity": "git",
+          "startedAt": "2026-11-16T05:37:00Z",
+          "endedAt": "2026-11-16T05:37:01Z",
+          "exitCode": 0,
+          "termination": "NONE",
+          "status": "PASS",
+          "boundedLogRef": "docs/implementation/v3/m14/logs/v6-source-custody.log",
+          "logDigest": "e110b6cd8a27cb5a8cb400be5f914db4c2a9545dd269dc2d64471cb76d5f7679"
+        }
+      ],
+      "artifactRefs": [
+        "docs/implementation/v6/M14/requirements.json",
+        "docs/implementation/v6/M14/source-lock.json"
+      ]
+    }
+  ],
+  "changedFiles": [
+    "apps/server/server.ts",
+    "apps/server/session-branch-routes.ts",
+    "apps/web/src/App.tsx",
+    "apps/web/src/SessionBranchMenu.tsx",
+    "apps/web/src/session-branch-api.ts",
+    "apps/web/src/session-branch.css",
+    "docs/implementation/v3/M14-verification.json",
+    "docs/implementation/v3/m14/logs/v6-build.log",
+    "docs/implementation/v3/m14/logs/v6-consumed-contract-tests.log",
+    "docs/implementation/v3/m14/logs/v6-lint.log",
+    "docs/implementation/v3/m14/logs/v6-prerequisite-builds.log",
+    "docs/implementation/v3/m14/logs/v6-source-custody.log",
+    "docs/implementation/v3/m14/logs/v6-test-browser.log",
+    "docs/implementation/v3/m14/logs/v6-toolchain.log",
+    "docs/implementation/v3/m14/logs/v6-typecheck.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-full-tail.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-history-import-decisions-v6.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-history-import-v3.log",
+    "docs/implementation/v3/m14/logs/v6-vitest-session-branch-v3.log",
+    "docs/implementation/v6/M14/requirements.json",
+    "docs/implementation/v6/M14/source-lock.json",
+    "docs/implementation/v6/M14/verify-evidence.mjs",
+    "packages/contracts/session-branch.ts",
+    "packages/core/capability-flags.ts",
+    "packages/core/history-import.ts",
+    "packages/core/service.ts",
+    "packages/core/session-branches.ts",
+    "scripts/public-source-files.json",
+    "tests/history-import-decisions-v6.test.ts",
+    "tests/history-import-v3.test.ts",
+    "tests/session-branch-v3.test.ts"
+  ],
+  "dependencyContracts": [
+    {
+      "name": "runtime-adapter",
+      "version": "a9d196f949239a8de432e0faf2e0ecba7d772ce4",
+      "testIds": [
+        "tests/runtime-pi.test.ts",
+        "tests/hermes-runtime.test.ts",
+        "tests/official-history-ownership.test.ts"
+      ]
+    },
+    {
+      "name": "store-command",
+      "version": "4a078eb988ebe9c25b00f203c25aeae7679e8bde",
+      "testIds": [
+        "tests/store.test.ts",
+        "tests/conversation-read-models.test.ts"
+      ]
+    },
+    {
+      "name": "M01.ImplementationEvidenceV3",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
+      "testIds": [
+        "tests/m14-evidence-gates.test.ts",
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ]
+    },
+    {
+      "name": "M01.CapabilityFlags",
+      "version": "1299f7b5d238e93a56760238331e8fefccf08633",
+      "testIds": [
+        "tests/session-branch-v3.test.ts",
+        "tests/history-import-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M02.ToolEffectV1",
+      "version": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M04.RequestContextV1",
+      "version": "0efc0f5312a34743df9fdfd70cc74226b135d204",
+      "testIds": [
+        "tests/request-preparation-service-v3.test.ts",
+        "tests/secret-custody-v3.test.ts"
+      ]
+    },
+    {
+      "name": "M05.ProjectMemoryV1",
+      "version": "760aaecd420b260b7d8c948f89ef0d32718b17e7",
+      "testIds": [
+        "tests/project-memory-v3.test.ts",
+        "tests/project-memory-service-v3.test.ts"
+      ]
+    }
+  ],
+  "flags": [
+    {
+      "key": "sessions.branchV1",
+      "enabled": false
+    },
+    {
+      "key": "sessions.inertImportV1",
+      "enabled": false
+    }
+  ],
+  "remainingGates": [
+    "HOLD_NATIVE_FORK: no RuntimeAdapter exposes a tested native fork API; RuntimeAdapter.history returns receipt IDs only. FORK_CONVERSATION stays FORK_UNSUPPORTED until a named adapter API plus platform proof exists.",
+    "HOLD_EXTERNAL_FORMAT: only strict ArchiveV1 JSON is admitted; ZIP/gzip/binary formats reject as UNSUPPORTED_IMPORT_FORMAT pending a pinned parser/license/dependency manifest.",
+    "HOLD_IMMUTABLE_SOURCE: projected UI messages are not a native transcript; Inspect uses a host-copied fixed cut, never receipt IDs as message history.",
+    "Full vitest baseline: aarch64 3845 pass / 298 fail / 58 skip (45/382 files, post node-pty+win32-SDK env fixes, cleared 21 files); win-x64 Server 2025 run 4086 pass / 67 fail / 48 skip — win receipts at cut 30b5d649, aarch64 at earlier cut. Failures remain environmental (x86_64 custody broker on Linux, win32 packaged natives, bundled python, guard-acquire latency, integration-mcp gaps); no M14-caused failure.",
+    "Browser gate: aarch64 run executes real specs (28 pass) but Chrome/Edge aarch64 builds absent; win-x64 run 41/76 suites pass, 35 suite failures dominated by shell/files-reading/generated-selects clusters and Unix-only timeout convention — no M14 surface implicated.",
+    "PLATFORM: Windows/installed-desktop evidence NOT_RUN on Linux; no platform claim.",
+    "UI acceptance is source-bound (typecheck, lint, build, unit dispatch) — no live browser proof of the SessionBranchMenu exists on this host.",
+    "Both sessions.branchV1 and sessions.inertImportV1 remain default-off; production flags and reviewerApproval stay false.",
+    "No live evaluation ran; no model endpoint, payment, credential or deployment was authorized.",
+    "Branch pushed to agent/m14-v3 (PR #343 open draft, linked); no merge performed or authorized — merge decision belongs to the manager.",
+    "UNVERIFIED: PR body claims 63/63 custody-manifest green under the real WSL2 broker — in-tree receipts (cut a99f6d07=30b5d649, pre-broker-extension) show 4/4 probes PASS but 27/42 vitest files; a 63/63 claim needs exact command+SHA+dedicated-broker receipt before it can count as PASS."
+  ],
+  "reviewerApproval": false
+}

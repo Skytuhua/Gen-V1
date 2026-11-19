@@ -38,7 +38,13 @@ describe('Gemini official headless native continuation', () => {
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
   });
 
-  it.each(['before-exit','after-exit'])('runs native resume and accepts current-turn stdout arriving %s', async phase => {
+  it('classifies a damaged native history header instead of throwing a raw parsing exception', async () => {
+    const { dataDir, manifest, nativeFile } = await fixture();
+    await writeFile(nativeFile, 'null\n');
+    await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
+  });
+
+  it.each(['before-exit','after-exit','during-cancel','cancel-timeout'])('handles native resume stream lifecycle %s', async phase => {
     const { dataDir, manifest } = await fixture();
     const children: any[] = []; const calls: any[] = []; const inputs: string[] = [];
     const spawn = vi.fn((file: string, args: string[], settings: any) => {
@@ -74,6 +80,41 @@ describe('Gemini official headless native continuation', () => {
     expect(inputs[0]).not.toContain('@'); expect(inputs[0]).toContain('\\u0040');
     expect(events.some(event => event.type === 'input.processing')).toBe(false);
     const child = children[1];
+    if (phase === 'cancel-timeout') {
+      child.kill = vi.fn(() => true);
+      const authorityListeners = child.listenerCount('exit');
+      try {
+        await runtime.cancel(input());
+        expect(child.kill).toHaveBeenCalledWith('SIGINT');
+        expect(child.listenerCount('exit')).toBe(authorityListeners);
+        expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      } finally {
+        child.exitCode = 0;
+        child.emit('exit', 0, null);
+        child.stdout.end();
+        child.emit('close', 0, null);
+        await runtime.dispose();
+      }
+      return;
+    }
+    if (phase === 'during-cancel') {
+      // The fixture delivers exit synchronously from kill, as with an already
+      // completed child. A listener attached afterwards cannot observe it.
+      child.kill = vi.fn(() => {
+        child.exitCode = 0;
+        child.emit('exit', 0, null);
+        child.stdout.end();
+        child.emit('close', 0, null);
+        return true;
+      });
+      try {
+        await runtime.cancel(input());
+        expect(child.kill).toHaveBeenCalledWith('SIGINT');
+        expect(child.listenerCount('exit')).toBe(0);
+        expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      } finally { await runtime.dispose(); }
+      return;
+    }
     if(phase==='after-exit'){child.exitCode=0;child.emit('exit',0,null);await new Promise(done=>setImmediate(done));}
     child.emitFrame({ type: 'message', role: 'assistant', content: 'current response', delta: true });
     child.emitFrame({ type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } });

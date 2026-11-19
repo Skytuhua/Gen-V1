@@ -1,6 +1,6 @@
 import {publicRuntimeSourceAllowed} from './public-source.ts';
 import {createHash} from 'node:crypto';
-import {mkdir,lstat,readFile,writeFile,copyFile} from 'node:fs/promises';
+import {mkdir,mkdtemp,lstat,readFile,writeFile,copyFile} from 'node:fs/promises';
 import {resolve,dirname} from 'node:path';
 
 export function readDesktopOutputRoot(args:string[]):string{
@@ -17,6 +17,15 @@ export async function reserveDesktopRelease(outputRoot:string,version:string):Pr
  return release;
 }
 
+export async function reserveDesktopStage(outputRoot:string,timestamp=Date.now()):Promise<string>{
+ return mkdtemp(resolve(outputRoot,'desktop-stage-'+timestamp+'-'));
+}
+
+export const NODE_ARCHIVE_EXTRACT_COMMAND=[
+ "$ErrorActionPreference = 'Stop'",
+ 'Add-Type -AssemblyName System.IO.Compression.FileSystem',
+ '[System.IO.Compression.ZipFile]::ExtractToDirectory($env:HARNESS_NODE_ZIP, $env:HARNESS_NODE_EXTRACT)'
+].join('; ');
 export const NODE_VERSION='24.22.2';
 export const NODE_ARCHIVE_SHA256='ca1bff5d8ead13c9f2ea404a176db46bd430704d5b5113734049fa365e7799e2';
 export const REQUIRED_RUNTIME_FILES=[

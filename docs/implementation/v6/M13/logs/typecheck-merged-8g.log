@@ -1,0 +1,17 @@
+# Curated receipt summary — pnpm-typecheck-481fc646-8g
+
+command: pnpm typecheck
+startedAt: 2026-11-18T18:38:28.653Z
+endedAt: 2026-11-18T18:45:21.531Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 dbc5f9451c60e8f45a392c6b171216145547f0240a4fca87d4fe7180f735ecc3, 70 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+(no retained lines)
+```

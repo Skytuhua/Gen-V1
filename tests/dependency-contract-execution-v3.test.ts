@@ -103,6 +103,15 @@ describe('M01 current dependency compatibility execution', () => {
     expect(readFileSync(join(value.out, 'source-lock.json'), 'utf8')).toBe(originalLock);
   }, 120_000);
 
+  it('reports a missing evidence parent as blocked before executing tests', async () => {
+    const value = fixture();
+    const missing = join(value.directory, 'missing-parent', 'execution');
+    await expect(runDependencyContracts(value.lockPath, missing, value.root)).resolves.toMatchObject({
+      status: 'BLOCKED', source: null, commands: [],
+      issues: [{ code: 'COMPATIBILITY_SETUP_BLOCKED', message: expect.any(String) }],
+    });
+    expect(existsSync(missing)).toBe(false);
+  });
   it('reports an observed contract assertion failure as FAIL', async () => {
     const value = fixture(passingTest.replace('toBe(42)', 'toBe(43)'));
     const receipt = await value.run();

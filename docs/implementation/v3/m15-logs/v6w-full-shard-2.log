@@ -1,0 +1,508 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","test","--maxWorkers=2","--shard=2/4","--reporter=default","--reporter=json","--outputFile=test-results/m15/full-results-shard-2.json"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 1
+termination: NONE
+
+> gen-v1@0.6.5 test C:\Users\Administrator\repos\Gen-V1-m15-v6
+> pnpm build:credential-lease && pnpm build:widgets && vitest run "--maxWorkers=2" "--shard=2/4" "--reporter=default" "--reporter=json" "--outputFile=test-results/m15/full-results-shard-2.json"
+
+
+> gen-v1@0.6.5 build:credential-lease C:\Users\Administrator\repos\Gen-V1-m15-v6
+> node --import tsx scripts/build-windows-credential-lease.ts
+
+Windows credential lease built.
+
+> gen-v1@0.6.5 build:widgets C:\Users\Administrator\repos\Gen-V1-m15-v6
+> node scripts/build-widgets.mjs
+
+
+ RUN  v4.1.12 C:/Users/Administrator/repos/Gen-V1-m15-v6
+
+ ❯ tests/hermes-original-integration.test.ts (4 tests | 4 failed) 126041ms
+   × persists actual original-worker source generations through the real broker and Service without copying native content 2556ms
+   × runs original Python and ACP through the native broker, persists a skill and finishes through the real Service 2519ms
+   × applies protected original Hermes compaction through authenticated Service HTTP 60869ms
+   × rejects original Hermes compaction when a host decision changes during its summary 60096ms
+ ❯ tests/account-profile.test.ts (10 tests | 1 failed) 25477ms
+   ✓ preserves T3 credential-binding hashing and unambiguous tuple boundaries 2ms
+   ✓ isolates account and provider roots without using the account label 1ms
+   ✓ rejects unsaved IDs and unavailable providers before constructing a profile path 1ms
+   ✓ rejects an accounts junction and holds the acquired namespace against replacement  4865ms
+   ✓ rejects native descendant directory redirects and hardlinked credential files before entry  4854ms
+   ✓ pins native directories while allowing legitimate atomic credential replacement  2495ms
+   × keeps each writable account directory nonempty with a pinned ordinary marker 2512ms
+   ✓ rejects a missing writable account directory before entering native work  2602ms
+   ✓ rejects missing and file-valued writable directories without an explicit ancestor scope  5410ms
+   ✓ keeps official home namespaces pinned while native credential files remain atomically replaceable  2732ms
+ ❯ tests/runtime-router.test.ts (21 tests | 1 failed) 14729ms
+   ✓ merges available runtime models without hiding a signed-in provider behind another auth failure 5ms
+   ✓ routes a targeted legacy catalog to only its provider and claims no unrelated account use 2ms
+   ✓ invalidates only the affected provider adapter without discarding another native catalog 1ms
+   ✓ keeps an unrelated active legacy run when a targeted signed-out provider has no catalog 1ms
+   ✓ routes the requested model and rejects a session belonging to a different runtime before startup 1ms
+   ✓ revokes callbacks before cancelling an in-flight startup and rejects late tool calls 1ms
+   ✓ retains cancellation ownership after an error and revokes a settled run before follow-up 1ms
+   ✓ cancels the original adapter if startup rejects after acquiring a worker 1ms
+   ✓ cannot redirect an active follow-up to another provider and keeps single-run ownership 1ms
+   ✓ routes compaction and history without passing official manifests to Pi or allowing outside sessions 1ms
+   ✓ disposes both adapters and rejects new work after disposal 2ms
+   ✓ keeps concurrent disposal pending and account ownership held until adapter cleanup completes 57ms
+   ✓ retains failed disposal and its account ownership for every later caller 1ms
+   ✓ keeps pending Cursor models out of public discovery and rejects task admission before adapter startup 1ms
+   ✓ routes admitted Cursor discovery and work to its official adapter without a Pi fallback 1ms
+   ✓ routes private Cursor history to the official adapter and rejects cross-provider resume 1ms
+   × lazily isolates account adapters, pins routing and denies cross-account sessions 2422ms
+   ✓ scopes named-account model discovery to its provider and blocks a profile being signed in  2402ms
+   ✓ rejects redirected named-account directories before any auth or session adapter call  4977ms
+   ✓ rejects a resolver that changes the provider of an already acquired account profile  2443ms
+   ✓ denies a descendant Pi junction before actual session validation can resolve another account history  2407ms
+ ✓ tests/source-workbench-hermes-v3.test.ts (2 tests) 42458ms
+   ✓ retains first-file M15 evidence across a real Hermes session [Windows native guard, real Python/ACP, scripted model transport]  21145ms
+   ✓ delivers prepared M05 memory and retained M15 file evidence through one real Hermes history [Windows, scripted model transport]  21312ms
+ ✓ tests/hermes-multi-original.test.ts (1 test) 10117ms
+   ✓ runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls  10116ms
+ ✓ tests/skill-invocation.test.ts (36 tests) 291212ms
+   ✓ materializes exact entry bytes and captured support without changing prompt or resources  7433ms
+   ✓ denies stale support, forged identity, cross-source and private-provider references  14337ms
+   ✓ rejects every changed authority dimension before admission  2399ms
+   ✓ fences authority changes during catalog awaits and again before commit/runtime/support reads  9673ms
+   ✓ honors pre-abort and an abort that wins a catalog await without producing an admission  4765ms
+   ✓ denies support-bytes between fresh catalog custody and materialization  7220ms
+   ✓ denies entry-bytes between fresh catalog custody and materialization  7186ms
+   ✓ denies file-swap between fresh catalog custody and materialization  7195ms
+   ✓ denies directory-swap between fresh catalog custody and materialization  7096ms
+   ✓ denies hardlink between fresh catalog custody and materialization  7197ms
+   ✓ denies junction between fresh catalog custody and materialization  5008ms
+   ✓ denies extra-file between fresh catalog custody and materialization  7156ms
+   ✓ revalidates the canonical source after capture rather than accepting its earlier index  7223ms
+   ✓ restores authenticated exact bytes across host restart without rediscovering changed skills  7710ms
+   ✓ rejects command-ID reuse with changed content, model, thinking, reference or authority  7512ms
+   ✓ denies replay tampering and key loss instead of falling back to rediscovery  7710ms
+   ✓ denies forged admissions, mismatched runtime owners and arbitrary support paths  8006ms
+   ✓ reads the exact Harness version/document with no latest-name or ambient projection fallback  2547ms
+   ✓ denies a package exceeding files instead of silently truncating it  8225ms
+   ✓ denies a package exceeding fileBytes instead of silently truncating it  8090ms
+   ✓ denies a package exceeding packageBytes instead of silently truncating it  7536ms
+   ✓ rejects malformed payloads rather than accepting browser supplied text, paths or authority grants  2479ms
+   ✓ selection preserves every reference field without a body read or admission capability, and bundles for browsers  2511ms
+   ✓ denies a changed runtime thinking level even when the model is unchanged  7585ms
+   ✓ preserves UTF-8 BOM and original line endings in admitted guidance  10289ms
+   ✓ admits all selected references in order, never silently dropping a stale second selection  22359ms
+   ✓ bounds Harness entry bytes before materializing an oversized saved document  2424ms
+   ✓ captures only a verified installed App package, without activating its host, and rechecks registry revocation  14821ms
+   ✓ uses the bundled manifest pin and denies an index replacement between custody and capture  15206ms
+   ✓ resolves only the connected canonical project/worktree and denies its root identity changing  11507ms
+   ✓ aborts after capture while the final source recheck is in flight  8282ms
+   ✓ returns cancellation while an obsolete catalog read is still pending  4844ms
+   ✓ replays the same command after an actual Store reopen without another message or current-source read  8325ms
+   ✓ precommit authority revalidation leaves message/outbox/capture storage empty on a race  10036ms
+   ✓ sanitizes authority-provider failures at precommit without leaking host paths  9595ms
+   ✓ accepts the parent raw skills array while taking expected authority only from host options  9722ms
+ ✓ tests/host-effect-authenticator-v3.test.ts (17 tests) 109341ms
+     ✓ persists through real CurrentUser DPAPI and reopens the same authority  24656ms
+     ✓ allows only one competing initializer and never overwrites its key  11800ms
+     ✓ holds read-only file custody until close  11079ms
+     ✓ owns custody independently after an ambient native guard closes  15922ms
+     ✓ refuses lost keys and refuses to recreate a partially initialized profile  12869ms
+     ✓ binds the key to its exact profile and requested key identity  16988ms
+     ✓ refuses multi-link key files and hides unprotect failure details  10104ms
+     ✓ revokes synchronous authority when its actual owned native guard exits  5902ms
+ ✓ tests/managed-git-family.test.ts (15 tests) 46203ms
+   ✓ requires host attestation for linked worktrees and retains ordinary repositories  6351ms
+   ✓ snapshots the attested worktree HEAD, index and source, without other worktrees or hooks  3750ms
+   ✓ passes only the host-resolved family for the granted domain repository root  5882ms
+   ✓ rejects unsupported common config even when the worktree provides a config override  2764ms
+   ✓ refuses an unrelated linked worktree even with another trusted binding  345ms
+   ✓ refuses changed managed identity  2809ms
+   ✓ refuses changed managed common identity  3055ms
+   ✓ refuses changed managed git identity  3350ms
+   ✓ refuses changed managed pointer  3207ms
+   ✓ refuses changed managed backref  3422ms
+   ✓ refuses changed managed commondir  3564ms
+   ✓ refuses changed managed config  3642ms
+   ✓ refuses changed managed alternates  4050ms
+ ✓ tests/context7-approved-operation-v3.test.mjs (21 tests) 45063ms
+     ✓ prepares bound opaque metadata without approval or credential delivery  550ms
+     ✓ delivers the exact configured credential once after signed approval and closes that session  5299ms
+     ✓ supports approved tool discovery without starting a child from an ordinary list request  4775ms
+     ✓ does not dispatch a prepared request without the native user approval command  537ms
+     ✓ refuses a reference after credential replace  611ms
+     ✓ refuses a reference after credential clear  644ms
+     ✓ rejects changed entry bytes before credential resolution  1271ms
+     ✓ rejects changed manifest bytes before credential resolution  1387ms
+     ✓ rejects a replaced working-directory identity even with the same path  1146ms
+     ✓ keeps a native custody denial closed without a fallback child  638ms
+     ✓ rechecks the exact owner after asynchronous custody acquisition  926ms
+     ✓ redacts a known credential before the approved result reaches public Store records  4115ms
+     ✓ drains a real pending child and records uncertainty after native loss  5396ms
+     ✓ drains a real pending child and records uncertainty after key revocation  4706ms
+     ✓ drains a real pending child and records uncertainty after Stop  4024ms
+     ✓ preserves the observed result when native custody rejects after confirmed child teardown  4410ms
+     ✓ retains known uncertainty when native release rejects after interrupted child work  3959ms
+▲ [WARNING] "import.meta" is not available with the "iife" output format and will be empty [empty-import-meta]
+
+    apps/web/src/pdf-draft.ts:11:63:
+      11 │ ...('./pdf-draft.worker.ts', import.meta.url), { type: 'module', n...
+         ╵                              ~~~~~~~~~~~
+
+  You need to set the output format to "esm" for "import.meta" to work correctly.
+
+ ✓ tests/artifact-settle.test.ts (11 tests) 25956ms
+     ✓ deliberate collapse shrinks the whole artifact and lifts following content, reopen restores the saved input  3175ms
+     ✓ restoration reserves final layout while held and keeps following content fixed (split stability invariant)  1955ms
+     ✓ journal restoration gates the entrance: nothing plays while held, one body reveal after release  1581ms
+     ✓ one body entrance keeps outer geometry stable and cleans up when publication is interrupted  1474ms
+     ✓ nested disclosures, sibling evidence and focus safety shrink without blank slots  2881ms
+     ✓ a Steps panel inside a disclosure collapses and restores its saved step input  2565ms
+     ✓ an inline artifact body keeps no empty reserve below its content  1740ms
+     ✓ reduced and off motion collapse instantly and rapid reversal settles the last state  3293ms
+     ✓ streaming answer growth moves following content down in flow without a gap  2343ms
+     ✓ a failed disclosure action keeps error and retry truthful  892ms
+     ✓ journal reload restores the bound disclosure state without replaying the entrance  2802ms
+ ✓ tests/service.test.ts (19 tests) 10550ms
+     ✓ records a completed effect arriving after Stop without reviving its run  6690ms
+     ✓ a generated operation button leads to native approval and cannot approve by its label  2586ms
+ ✓ tests/plan-key-connections.test.ts (43 tests) 8129ms
+     ✓ selects a healthy Go model without validating an unrelated expired Kimi key  349ms
+     ✓ captures fresh Kimi model validation and fixed coding inference without OAuth or Moonshot fallback  419ms
+     ✓ captures anthropic-messages Go SDK transport through the fixed plan boundary  568ms
+     ✓ requires a stable Go session before any inference transport  388ms
+     ✓ never follows a Go redirect or propagates provider error bodies that can echo a key  714ms
+     ✓ never resolves a foreign command credential during native provider background refresh  1162ms
+ ✓ tests/widget-action-owner.test.ts (12 tests) 6069ms
+     ✓ does not show an old action error in B  559ms
+     ✓ waits for the queued action before explicitly releasing its lease  407ms
+     ✓ keeps A lease until its checkpoint settles after B mounts  408ms
+     ✓ keeps A lease until its queued action settles after B mounts  420ms
+     ✓ preserves the imperative release handle  335ms
+     ✓ does not show an old checkpoint success in B  422ms
+     ✓ does not show an old checkpoint error in B  456ms
+     ✓ keeps old A lease success bound to its original generation after A-B-A  468ms
+     ✓ keeps old A lease error bound to its original generation after A-B-A  500ms
+     ✓ lets B act without waiting for A lease  395ms
+     ✓ does not show an old lease error in B  412ms
+     ✓ retains A action ownership after A lease settles  388ms
+ ✓ tests/repository-map-custody.test.ts (4 tests | 1 skipped) 10629ms
+   ✓ retains all actual native file guards through map publication  2821ms
+   ✓ binds a fresh read to changed source bytes instead of returning the old parsed entry  5294ms
+   ✓ denies a private native-history target behind a real directory junction  2514ms
+ ✓ tests/task-memory-recovery.test.ts (3 tests) 8623ms
+   ✓ keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery  6749ms
+   ✓ injects restored notes once into an installed Pi SDK session and refreshes them after disk restoration and reload  1702ms
+ ✓ tests/account-login.test.ts (6 tests) 20575ms
+   ✓ does not admit a successor sign-in when an expired lease still has a live owner  3594ms
+   ✓ reserves the exact named profile for sign-in and releases it after a failed native login  13483ms
+   ✓ retains a durable account hold when native login shutdown is unconfirmed  3336ms
+ ✓ tests/public-source.test.ts (11 tests) 3458ms
+     ✓ resolves the staged host and worker entries using only admitted runtime sources  703ms
+     ✓ resolves the staged browser entry using only admitted public sources  1012ms
+     ✓ resolves the staged desktop entries using only admitted public sources  406ms
+     ✓ admits the local import closure of exported TypeScript and JavaScript inputs  1033ms
+ ✓ tests/plugin-validation-policy.test.ts (2 tests) 7892ms
+   ✓ boots the actual presentation bundle in an opaque browser frame without Node globals or dynamic code  7871ms
+ ✓ tests/browser-verification-v3.test.ts (40 tests) 2856ms
+   ✓ a deleted required screenshot cannot verify through the gate, task_finish or panel  593ms
+ ✓ tests/baseline-package-manager-v3.test.ts (5 tests) 5828ms
+     ✓ inherits only the configured Corepack cache for offline commands, unless explicitly overridden  3119ms
+     ✓ runs the declared baseline commands with installed pnpm when Corepack is absent  847ms
+     ✓ refuses a shell shim that has no installed JavaScript entry  449ms
+     ✓ refuses an installed version mismatch before running project scripts  509ms
+     ✓ disables Corepack downloads for the version probe and every baseline command  839ms
+ ✓ tests/project-memory-preparation-ui.test.ts (16 tests) 3576ms
+   ✓ keeps visible prepared controls on their committed disabled during a suspended render  2150ms
+   ✓ keeps visible prepared controls on their committed input during a suspended render  1332ms
+ ✓ tests/resource-tree.test.ts (1 test) 5893ms
+   ✓ lists one granted directory lazily, omits unsafe leaves and denies traversal  5892ms
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+ ✓ tests/research-baseline.test.ts (27 tests) 3203ms
+     ✓ times out a hung child and kills its process tree  1650ms
+     ✓ reproduce identical control actions and effect counts per fixed seed  535ms
+ ✓ tests/context-result-host.test.ts (32 tests) 3166ms
+ ✓ tests/verification-artifact-gate-v3.test.ts (19 tests) 2428ms
+     ✓ bounds the full current artifact read cut and leaves omitted required artifacts blocked  1444ms
+ ✓ tests/memory-extraction-scheduler-v3.test.ts (16 tests) 1785ms
+ ✓ tests/cursor-driver.test.ts (12 tests) 2354ms
+     ✓ starts the actual fixed worker and exits it on startup cancellation without SDK login  721ms
+     ✓ starts and closes the actual discovery worker without accepting an unproven private credential file  951ms
+ ✓ tests/context7-native-admission-v3.test.mjs (1 test) 8089ms
+   ✓ holds actual Windows native custody through one approved owned MCP action and teardown  8087ms
+ ✓ tests/windows-credential-lease.test.ts (8 tests) 4314ms
+     ✓ refuses a pre-existing writable mapping after its originating file stream closes  3372ms
+ ✓ tests/side-draft-owner.test.ts (4 tests) 3002ms
+     ✓ keeps errors from typing during migration with the destination owner  721ms
+     ✓ still reports a failure for the current draft owner  375ms
+     ✓ does not show an old draft error after A to B  330ms
+     ✓ does not show an old draft error after A to B to A  448ms
+ ✓ tests/project-memory-request-http-v3.test.ts (12 tests) 2162ms
+   ✓ requires the Personal host session and CSRF before preparing or excluding memory  307ms
+ ✓ tests/saved-drafts-suspended-audit.test.ts (2 tests) 2076ms
+     ✓ keeps a pending restore available when a disabled render suspends  553ms
+     ✓ blocks the pending restore when disabled commits and recovers after enabling  552ms
+ ✓ tests/startup-feedback.test.ts (8 tests) 2555ms
+     ✓ keeps all feedback below OS controls without overflow at 420x190  317ms
+ ✓ tests/packaged-providers.test.ts (9 tests) 1392ms
+     ✓ imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper  1156ms
+ ✓ tests/review-regressions.test.ts (18 tests) 1105ms
+ ✓ tests/project-context-committed-action.test.ts (5 tests) 2047ms
+     ✓ ignores old A action success after A-C  351ms
+ ✓ tests/agent-follow-up.test.ts (18 tests) 2285ms
+ ✓ tests/chat-gesture-audit.test.ts (1 test) 1594ms
+     ✓ cancels an active drag on window blur  401ms
+ ✓ tests/workspace-action-outcome-authority.test.ts (24 tests) 1005ms
+ ✓ tests/accounts.test.ts (16 tests) 1238ms
+ ✓ tests/memory-host-lifecycle-v3.test.ts (7 tests) 526ms
+stdout | tests/baseline-workloads-v3.test.ts > measures real SQLite source reads for a 1,024-source growing context
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"long-session","model":null,"account":null,"seed":42,"config":"16 growing cuts of 64 sources: fresh compiler per cut versus incremental compiler reuse","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":92.07599999999996,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":4628828,"outputBytes":1530331,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":26.997299999999996,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":544682,"outputBytes":1530331,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes are actual SQLite source text reads, including repeated reads; output bytes are serialized metadata receipts. Fixture writes and output serialization are outside the timer."]},"observations":{"sourceCount":1024,"cuts":16,"baselineSourceReads":8704,"candidateSourceReads":1024,"identicalReceipts":true}}
+
+stdout | tests/baseline-workloads-v3.test.ts > measures independent eager and progressive 100-tool schema projections
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"tool-catalog-100","model":null,"account":null,"seed":42,"config":"Same admitted schemas, two request projections: all direct versus one direct plus one described deferred tool","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":1.220199999999977,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":22291,"outputBytes":40176,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":0.44470000000001164,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":22489,"outputBytes":609,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes serialize registered catalog entries; output bytes sum the two actual frozen tool-schema arrays. Discovery permissions are identical; no invocation occurred."]},"observations":{"registeredTools":100,"baselineVisibleTools":[99,99],"candidateVisibleTools":[1,2]}}
+
+stdout | tests/baseline-workloads-v3.test.ts > measures independent eager and progressive 500-tool schema projections
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"tool-catalog-500","model":null,"account":null,"seed":42,"config":"Same admitted schemas, two request projections: all direct versus one direct plus one described deferred tool","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":3.3661999999999352,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":111891,"outputBytes":203374,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":1.2345000000000255,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":112889,"outputBytes":609,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Input bytes serialize registered catalog entries; output bytes sum the two actual frozen tool-schema arrays. Discovery permissions are identical; no invocation occurred."]},"observations":{"registeredTools":500,"baselineVisibleTools":[499,499],"candidateVisibleTools":[1,2]}}
+
+stdout | tests/baseline-workloads-v3.test.ts > measures bounded inspection of 2,000 actual SQLite operation records
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","scenariosOutsideThisReceipt":["oversized-output","memory-conflict","cancellation","concurrent-edits"],"workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"record":{"fixture":"large-ui-history","model":null,"account":null,"seed":42,"config":"Same retained operations: full same-thread Store read versus bounded task-inspection metadata projection","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":30.5157999999999,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":16936671,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":21.74480000000017,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":3249,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Current core code with synthetic local inputs; no provider or native model request was executed.","Elapsed time measures one local core call sequence; no latency improvement or product performance claim.","Read-model response bytes only; this does not measure browser rendering or history virtualization. SQLite page input bytes are unmeasured; retained full results are checked after inspection."]},"observations":{"retainedOperations":2000,"resultBytesPerOperation":8192,"fullResultsPreserved":true}}
+
+ ✓ tests/baseline-workloads-v3.test.ts (4 tests) 1388ms
+   ✓ measures bounded inspection of 2,000 actual SQLite operation records  1150ms
+ ✓ tests/memory-extraction-runtime-v3.test.ts (11 tests) 861ms
+ ✓ tests/runtime-model-only.test.ts (12 tests) 1038ms
+   ✓ configures the installed Pi SDK as a text model with no ambient or host tools  843ms
+ ✓ tests/theme-contrast.test.ts (29 tests) 911ms
+     ✓ keeps every custom accent the settings accept readable as text and as a fill  898ms
+ ✓ tests/ci-merged-pr-cleanup.test.ts (12 tests) 160ms
+stdout | tests/baseline-memory-conflict-v3.test.ts > measures serial memory edits and explicit stale-edit recovery to the same desired final note
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"sampleCountPerArm":1,"record":{"fixture":"memory-conflict","model":null,"account":null,"seed":42,"config":"32 pairs of identical desired note edits: serial current revisions versus stale rejection and explicit reread/retry","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":117.16779999999994,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":12579,"outputBytes":19165,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":99.2632000000001,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":18868,"outputBytes":22237,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Both arms execute the current Service memory.save command and real SQLite transactions, and commit the same desired sequence/final note.","Input bytes are serialized command envelopes; output bytes are actual receipts or typed public error envelopes.","The measured sequence includes command receipt serialization and source rereads; thread/setup/cleanup and final assertions are outside it.","The scenario includes 32 extra rejected commands. This compares conflict-recovery overhead, not a product optimization or historical implementation."]},"observations":{"rounds":32,"baseline":{"accepted":64,"rejected":0,"final":{"key":"decision","content":"seed-42-final-edit-31","revision":65,"author":"user"}},"candidate":{"accepted":64,"rejected":32,"final":{"key":"decision","content":"seed-42-final-edit-31","revision":65,"author":"user"}},"rejectedCode":"STALE_MEMORY","rejectedCommandsPersisted":0,"runtimeCalls":0},"limitations":["Current code and owned deterministic inputs, with no provider or model request.","Each arm is one measured local sequence. This is not an end-to-end product or statistical performance certification.","PASS means the stated fixture invariants were observed. Actual underlying operation outcomes are recorded separately."]}
+
+ ✓ tests/baseline-memory-conflict-v3.test.ts (1 test) 336ms
+   ✓ measures serial memory edits and explicit stale-edit recovery to the same desired final note  334ms
+ ✓ tests/tool-effects-v3.test.ts (13 tests) 524ms
+ ✓ tests/project-memory-ui.test.ts (22 tests) 772ms
+   ✓ makes project memory reachable from an owning main project context without making a request  421ms
+ ✓ tests/verification-source-digest.test.ts (5 tests) 424ms
+ ✓ tests/verification-executor-binding.test.ts (29 tests) 493ms
+ ✓ tests/official-runtime-cursor-integration.test.ts (8 tests) 712ms
+   ✓ owns discovery children before awaiting SDK results and waits for their cancellation on dispose  318ms
+ ✓ tests/composer-prediction.test.ts (11 tests) 666ms
+ ✓ tests/cursor-mcp.test.ts (3 tests) 552ms
+   ✓ preserves supported host-operation lifetime without a shorter proxy deadline or late header writes  321ms
+ ✓ tests/model-transport-v3.test.ts (9 tests) 483ms
+ ✓ tests/agents-workspace.test.ts (18 tests) 382ms
+stdout | tests/baseline-cancellation-v3.test.ts > records normal completion and explicit cancellation of the same ready owned process
+M01_OFFLINE_BENCHMARK {"scope":"OFFLINE_CORE_ONLY","workflowSha":null,"runtime":{"node":"v24.22.2","platform":"win32","architecture":"x64"},"sampleCountPerArm":1,"record":{"fixture":"cancellation","model":null,"account":null,"seed":42,"config":"Identical ready owned Node child: explicit normal-release control versus AbortSignal cancellation scenario","baseline":{"role":"baseline","status":"PASS","measurement":{"elapsedMs":74.0684,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":12800,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"candidate":{"role":"candidate","status":"PASS","measurement":{"elapsedMs":142.9395,"coldStartMs":null,"firstPublicResponseMs":null,"requests":null,"inputBytes":null,"outputBytes":0,"cacheInputBytes":null,"cacheOutputBytes":null,"totalCostBytes":null,"backgroundCostBytes":null,"completionQuality":null}},"notes":["Both arms use the real shell-free runProcess launcher and the same child readiness handshake.","The control is released to produce deterministic output. The scenario is cancelled while waiting and must produce no output.","Elapsed covers child launch through actual process settlement; abort-to-close latency is separately observed.","Output bytes are captured stdout plus stderr. Process, filesystem, and provider input bytes are not measured and remain null.","The arms intentionally have different successful fixture outcomes. This is cancellation behavior, not an optimization or historical-build comparison.","This does not certify native confinement, arbitrary descendants, model cancellation, or a full application workflow."]},"observations":{"expected":{"baseline":"succeeded","candidate":"cancelled"},"baseline":{"status":"succeeded","exitCode":0,"signal":null,"cancelled":false,"timedOut":false,"pid":2372,"readinessObserved":true,"readinessMs":52.94630000000001,"abortToCloseMs":null},"candidate":{"status":"cancelled","exitCode":1,"signal":null,"cancelled":true,"timedOut":false,"pid":2304,"readinessObserved":true,"readinessMs":52.635400000000004,"abortToCloseMs":90.30310000000003}},"limitations":["Current code and owned deterministic inputs, with no provider or model request.","Each arm is one measured local sequence. This is not an end-to-end product or statistical performance certification.","PASS means the stated fixture invariants were observed. Actual underlying operation outcomes are recorded separately."]}
+
+ ✓ tests/baseline-cancellation-v3.test.ts (1 test) 237ms
+ ✓ tests/project-memory-http-v3.test.ts (3 tests) 423ms
+ ✓ tests/host-fixture-cleanup.test.ts (2 tests) 217ms
+ ✓ tests/context-efficiency.test.ts (11 tests) 401ms
+   ✓ never constructs a workspace snapshot or leaks another thread during inspection  356ms
+ ✓ tests/credential-store.test.ts (34 tests | 1 skipped) 380ms
+ ✓ tests/browser-consent-v3.test.ts (14 tests) 411ms
+ ✓ tests/tool-effect-read-owner-v3.test.ts (14 tests) 352ms
+ ✓ tests/tool-effect-public-projection-v3.test.mjs (5 tests) 359ms
+ ✓ tests/usage-accounting-v3.test.ts (5 tests) 285ms
+ ✓ tests/workbench-recovery-v3.test.ts (11 tests) 291ms
+ ✓ tests/desktop-preload-accounts.test.ts (5 tests) 21ms
+ ✓ tests/process.test.ts (2 tests) 228ms
+ ✓ tests/research-service-integration.test.ts (2 tests) 250ms
+ ✓ tests/tool-effect-late-progress-v3.test.mjs (4 tests) 318ms
+ ✓ tests/verification-source-authority.test.ts (8 tests) 358ms
+ ✓ tests/execution-boundary-v3.test.ts (14 tests) 274ms
+ ✓ tests/granted-resource-api.test.ts (1 test) 182ms
+ ✓ tests/official-runtime-mcp.test.ts (2 tests) 163ms
+ ✓ tests/thinking-level.test.ts (5 tests) 225ms
+ ✓ tests/tool-effect-approval-review-v3.test.mjs (2 tests) 212ms
+ ✓ tests/scoped-conversation-reader.test.ts (29 tests) 142ms
+ ✓ tests/compact-settings.test.ts (5 tests) 86ms
+ ✓ tests/tool-registry-validation-v3.test.ts (13 tests) 59ms
+ ✓ tests/source-composer-v3.test.ts (8 tests) 92ms
+ ✓ tests/agents-workspace-follow-up.test.ts (7 tests) 69ms
+ ✓ tests/keyboard-bindings.test.ts (10 tests) 107ms
+ ✓ tests/workspace-host-agents.test.ts (1 test) 60ms
+ ✓ tests/project-trust-custody-v3.test.ts (6 tests) 75ms
+ ✓ tests/memory-retrieval-v3.test.ts (23 tests) 64ms
+ ✓ tests/execution-platform-proof-v3.test.ts (9 tests) 90ms
+ ✓ tests/terminal-excerpts.test.ts (5 tests) 55ms
+ ❯ tests/workspace-action-outcomes.test.ts (27 tests | 5 failed) 944269ms
+   ✓ accepts canonical Unicode review text without normalizing a leading BOM or whitespace 5ms
+   ✓ bounds created receipt URLs to their repository while preserving canonical case differences 2ms
+   ✓ a create preflight refusal is not-applied and permits a fresh reviewed intent  46609ms
+   ✓ retains an uncertain create command across restart without repeating its effect  35063ms
+   ✓ keeps a post-push create failure uncertain without pushing the original intent again  37397ms
+   ✓ recovers an admitted legacy create receipt without a new effect or extra result fields  25567ms
+   ✓ refuses a recovered PR request whose pinned repository changed  16312ms
+   ✓ never publishes a created result for a different repository or reviewed revision  21121ms
+   ✓ commits intent before local write and private result before event, then replays after Store restart  31609ms
+   ✓ retains interrupted remote write as uncertain across restart without submitting it again  44815ms
+   ✓ serializes same-ID attempts across separate Store connections without a double write  56968ms
+   ✓ denies reuse of an ID with a changed payload  22559ms
+   ✓ denies reuse of an ID with a changed type  22567ms
+   ✓ denies reuse of an ID with a changed threadId  22387ms
+   ✓ denies reuse of an ID with a changed projectId  22627ms
+   ✓ inspects original payload/revision without current diff, review reads, or any write  28872ms
+   × returns revoked after working copy or account access changes, including confirmed receipts 60028ms
+   ✓ keeps private intent, result, credentials and errors out of events, receipts and snapshots  28022ms
+   ✓ keeps missing and legacy records uncertain without adopting unbound receipts  47291ms
+   × records not-applied only after host rejection before starting and never restarts that ID 60016ms
+   ✓ keeps failures after started uncertain even when there is no receipt  23596ms
+   × keeps completed external write uncertain if durable result commit fails 60016ms
+   ✓ recovers a confirmed review when the remote branch name differs from the managed local branch  39013ms
+   × keeps an active prepared reservation uncertain until its owner durably proves no execution began 61580ms
+   ✓ pins profile access while GitHubTools is awaiting remote validation  28674ms
+   ✓ rejects a profile replaced between inspection identity capture and credential read  41509ms
+   × supports local unstage and commit through the original revision and replays a commit without a second write 60040ms
+ ✓ tests/copy-clarity.test.ts (4 tests) 41ms
+ ✓ tests/composer-prediction-client.test.ts (3 tests) 45ms
+ ✓ tests/project-trust-hardlinks-v3.test.ts (4 tests) 82ms
+ ✓ tests/attachment-grant-boundary-v3.test.ts (3 tests) 32ms
+ ✓ tests/package-screening-cache-v3.test.ts (12 tests) 50ms
+ ✓ tests/settings-search-filter.test.ts (6 tests) 28ms
+ ✓ tests/tool-authority-v3.test.ts (6 tests) 33ms
+ ✓ tests/task-composition.test.ts (4 tests) 16ms
+ ✓ tests/split-tool-placement.test.ts (3 tests) 35ms
+ ✓ tests/workspace-canvas-layout.test.ts (17 tests) 35ms
+ ✓ tests/capture-ui/review-coverage.test.ts (53 tests) 17ms
+ ✓ tests/preferences-appearance.test.ts (10 tests) 14ms
+ ✓ tests/proactive-presentation.test.ts (3 tests) 53ms
+ ✓ tests/desktop-control-v3.test.ts (11 tests) 13ms
+ ✓ tests/thread-messages-owner.test.ts (4 tests) 13ms
+ ✓ tests/capture-ui/outputs.test.ts (57 tests) 18ms
+ ✓ tests/secret-resolution-races-v3.test.ts (6 tests) 11ms
+ ✓ tests/composer-commands.test.ts (3 tests) 12ms
+ ✓ tests/compact-draft-transfer.test.ts (6 tests) 12ms
+ ✓ tests/layout-profile.test.ts (3 tests) 19ms
+ ✓ tests/github-device-policy.test.ts (51 tests) 15ms
+ ✓ tests/inference-budget.test.ts (8 tests) 12ms
+ ✓ tests/tooltip-escape.test.ts (5 tests) 12ms
+ ✓ tests/sidebar-reorder.test.ts (28 tests) 16ms
+ ✓ tests/document-window.test.ts (2 tests) 12ms
+ ✓ tests/usage-context.test.ts (15 tests) 9ms
+ ✓ tests/copy-button-ownership.test.ts (2 tests) 13ms
+ ✓ tests/plugin-frame.test.ts (3 tests) 7ms
+ ✓ tests/desktop-backend-handoff.test.ts (5 tests) 10ms
+ ✓ tests/desktop-host-ipc.test.ts (2 tests) 6ms
+ ✓ tests/task-status.test.ts (3 tests) 3ms
+ ✓ tests/benchmark-report-availability-v3.test.ts (4 tests) 6ms
+ ✓ tests/desktop-host-controls.test.ts (2 tests) 5ms
+ ✓ tests/summary-collapse-state.test.ts (5 tests) 11ms
+ ✓ tests/ui-focus-retention.test.ts (3 tests) 5ms
+ ✓ tests/shell-shortcut-roundtrip.test.ts (2 tests) 3ms
+ ✓ tests/ci-concurrency-policy.test.ts (1 test) 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 11 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+HarnessError: File access check failed — the folder could not be opened safely for this action
+ ❯ ChildProcess.failed packages/core/file-access.ts:64:35
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/11]⎯
+
+ FAIL  tests/hermes-original-integration.test.ts > persists actual original-worker source generations through the real broker and Service without copying native content
+ FAIL  tests/hermes-original-integration.test.ts > runs original Python and ACP through the native broker, persists a skill and finishes through the real Service
+HarnessError: The Hermes source worker stopped before completing its request.
+ ❯ HermesClient.fail packages/runtime-hermes/client.ts:103:37
+    101|  }
+    102|  private fail(code:string):void {
+    103|   if(this.closed)return;const error=new HarnessError(code,'The Hermes …
+       |                                     ^
+    104|   this.closed=true;for(const pending of this.pending.values()){clearTi…
+    105|   try{this.options.onFailure?.(error);}catch{/* An observer cannot pre…
+ ❯ ChildProcess.<anonymous> packages/runtime-hermes/client.ts:58:48
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/11]⎯
+
+ FAIL  tests/hermes-original-integration.test.ts > applies protected original Hermes compaction through authenticated Service HTTP
+ FAIL  tests/hermes-original-integration.test.ts > rejects original Hermes compaction when a host decision changes during its summary
+AssertionError: expected 'processing' to be 'handled' // Object.is equality
+
+Expected: "handled"
+Received: "processing"
+
+ ❯ vi.waitFor.timeout tests/hermes-original-integration.test.ts:118:81
+    116|    const id='protected-source-input-'+index;
+    117|    await command({id,type:'message.send',threadId:thread.id,payload:{c…
+    118|    await vi.waitFor(()=>expect(store.get<{status:string}>('outbox',id)…
+       |                                                                                 ^
+    119|    await runtime.cancelBackground();
+    120|   }
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/11]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:342:1
+    340| }, 60000);
+    341|
+    342| it('returns revoked after working copy or account access changes, incl…
+       | ^
+    343|   const f = await fixture(),
+    344|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/11]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > records not-applied only after host rejection before starting and never restarts that ID
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:397:1
+    395| }, 60000);
+    396|
+    397| it('records not-applied only after host rejection before starting and …
+       | ^
+    398|   const f = await fixture(),
+    399|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/11]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps completed external write uncertain if durable result commit fails
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:425:1
+    423| }, 60000);
+    424|
+    425| it('keeps completed external write uncertain if durable result commit …
+       | ^
+    426|   const f = await fixture(),
+    427|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/11]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:452:1
+    450| }, 60000);
+    451|
+    452| it('keeps an active prepared reservation uncertain until its owner dur…
+       | ^
+    453|   const f = await fixture(),
+    454|     { input, operation } = await f.operation('review-pr');
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/11]⎯
+
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+Error: Test timed out in 60000ms.
+If this is a long-running test, pass a timeout value as the last argument or configure it globally with "testTimeout".
+ ❯ tests/workspace-action-outcomes.test.ts:518:1
+    516| }, 60000);
+    517|
+    518| it('supports local unstage and commit through the original revision an…
+       | ^
+    519|   const f = await fixture();
+    520|   await writeFile(join(f.binding.path, 'one.txt'), 'private local chan…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/11]⎯
+
+
+ Test Files  4 failed | 121 passed (125)
+      Tests  11 failed | 1360 passed | 2 skipped (1373)
+   Start at  12:03:33
+   Duration  951.57s (transform 6.68s, setup 0ms, import 40.24s, tests 1838.18s, environment 11ms)
+
+JSON report written to C:/Users/Administrator/repos/Gen-V1-m15-v6/test-results/m15/full-results-shard-2.json
+ ELIFECYCLE  Test failed. See above for more details.

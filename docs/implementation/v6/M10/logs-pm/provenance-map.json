@@ -1,0 +1,194 @@
+{
+ "schema": "m10.postmerge-curation/v1",
+ "entries": [
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/test-browser-full.log",
+   "originalBytes": 2646719,
+   "originalSha256": "76ebaaf06e147072a66df6437e6c0d4d2388ddec5cfdf145aef11c84df3f2552",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/test-browser-full.summary.md",
+   "summarySha256": "b8197c212123ddf470a893d4494c3e1e4c71d981d8ddfa606d90c649a56ecf45",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/test-full.log",
+   "originalBytes": 677534,
+   "originalSha256": "b9c69a13f62770dca40c66e8f2f3bc19d957babd7e4ad40ec966842f7ea85795",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/test-full.summary.md",
+   "summarySha256": "b43e60992a497f128825725c8918ff8220483bb8f479ebcec5fec0b09b384f65",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/browser-background-work.log",
+   "originalBytes": 1830,
+   "originalSha256": "b9ab1ce610049a64d83001aef59053747467b34c515674cee5f65e1f48016de6",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/browser-background-work.summary.md",
+   "summarySha256": "da7944ffaf83be62bbbefff7673f5df4b5412266887496082f84ccba01dfd99f",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/build-widgets.log",
+   "originalBytes": 97,
+   "originalSha256": "8598f9e20c77d748788f3214e6da8d0740890a4ea0ba2c1ad85f02ac4847d80f",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/build-widgets.summary.md",
+   "summarySha256": "47441b7fb9ad30b4bf01601eed01fc39ade513b4f3157feba90900b68b3dd3e9",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/build.log",
+   "originalBytes": 8813,
+   "originalSha256": "ce6d75a31a10e4947edf0b4df869308e91fab004d745e7a01b7780b83525199a",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/build.summary.md",
+   "summarySha256": "0b362ed061f23165ed6de64a45c2dccb92e2b3776921715602fc4b0e75e6c956",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/lint.log",
+   "originalBytes": 214,
+   "originalSha256": "c035c4112e75813d5c06b9ed92244cbbeb487ab0761a876ba8ae9f4a370167bd",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/lint.summary.md",
+   "summarySha256": "6e999044289cc18a342ef8045bb612b607dbd1c685046b22358cfd7792c2078b",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/typecheck.log",
+   "originalBytes": 990,
+   "originalSha256": "134765f9d96be3493af36df134815cb762fe061c407d0b2861287cf4c4526c6b",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/typecheck.summary.md",
+   "summarySha256": "4741a10903db21e548c842bb1ab8a94bf5e09ba415f016f963c91d59814bea5f",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/typecheck-r2.log",
+   "originalBytes": 1023,
+   "originalSha256": "42313d1f5bd6f2fe67184ff66946cd2e381595fe808c32623345e3c57a00c522",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/typecheck-r2.summary.md",
+   "summarySha256": "90e8f35774643eb518077db7476e83cd45183da455961fea4c4569fd9c853849",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/typecheck-r3.log",
+   "originalBytes": 769,
+   "originalSha256": "c97d58fa2e71a4a1ddd4932e153bd273c197425ac5e80cdbed8fc0da0b49caf1",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/typecheck-r3.summary.md",
+   "summarySha256": "91b88539c89f68cb109afa6ac28bb75944ddeeee13e1241f494d9010e5ad8dd7",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/typecheck-r4.log",
+   "originalBytes": 75,
+   "originalSha256": "f27513dc97180506c628931e7fbc3c7da7d7647ca5821aa2fcae850787270c2f",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/typecheck-r4.summary.md",
+   "summarySha256": "4f3c3d6cdbfc0174b18a5145bfe53009392e0d8e137ec82c6818f7811563d352",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work.log",
+   "originalBytes": 7313,
+   "originalSha256": "576b38322900b1ac203ffa510e779f5dd689f3f78f9010bf1e776df5c17d262e",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work.summary.md",
+   "summarySha256": "a207a65da54f64f243f49735cf75c158e8d51e034b580de328cb679095533bbd",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r2.log",
+   "originalBytes": 6835,
+   "originalSha256": "8fd581bf5a6990ede2aee738b32ffaa4a8000dbe26cd1871bfb99c3cdfa34c0c",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r2.summary.md",
+   "summarySha256": "7f0cee79b1436b3416d119cbb43c9e3bae6045daaaf2dff5e881edd38d63ceab",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r3.log",
+   "originalBytes": 5671,
+   "originalSha256": "21b02569985b53306f01b58080cb0e78235506e1dc8ba046bf264a88a22de214",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-background-work-r3.summary.md",
+   "summarySha256": "fe4a3cb2ea118ba06bc79fab14aea85e17cf7f7bc7a9b1e04e2f3640a3d0b72d",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-decisions.log",
+   "originalBytes": 1520,
+   "originalSha256": "8caed8a34350467ee1321b236a719610303b1de62139f891fd387a4426869e46",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-decisions.summary.md",
+   "summarySha256": "b3b2100f889aa468c0e068c6b24a3fdd47d5c4ea1574e21a0794f55e1f1ffdf1",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-external-intake.log",
+   "originalBytes": 3656,
+   "originalSha256": "c6eaa32f107d921b6102d9ea86d45f76e65cb641059793f0710c67ee20d61f41",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-external-intake.summary.md",
+   "summarySha256": "f7c40b692cb7ea75d0059d130e9699cd683bd60ced28b1cd2281fd0de1928f11",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-handoff-intake-decisions.log",
+   "originalBytes": 267,
+   "originalSha256": "e1da032e3d94c31ab4391efc8c3c73074c4f56decc82b1463a030cb5db7f8e42",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-handoff-intake-decisions.summary.md",
+   "summarySha256": "39e0b9e7c15e7382715e539c1a99a28f325891950a5c228a86643480321b686e",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/vitest-human-handoff.log",
+   "originalBytes": 2031,
+   "originalSha256": "ed1e2b00a30d3c1a791b3562c07ea1614542792b85be0364e00839e35cbf2208",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/vitest-human-handoff.summary.md",
+   "summarySha256": "2dc53b8dbe0bb12a831badaa0cc692e970badbe4ddd4dec3bf2127359af1623d",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/build-manifest.json",
+   "originalBytes": 15611,
+   "originalSha256": "3be1b2988f2d6bb60489c9b423728e9f07614899b3b898b59ad322708b55e30b",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/build-manifest.summary.md",
+   "summarySha256": "8000de26196d2f712f16b6c0c783cddae90be2ed2629d0d9726e80faa99e55b8",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.json",
+   "originalBytes": 60530,
+   "originalSha256": "6b0ccde44e8d73657734dcc17889a212c0ce60f396226b6d692b21351f62ed54",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/installed-verification.summary.md",
+   "summarySha256": "2975ff9afd15e358b30207083c8c71b3360263961e0f0ea9b6c189380e8d67cf",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/owner.json",
+   "originalBytes": 330,
+   "originalSha256": "4c7e4e5e1e40751173a44bf22fb5c8bf7653e6bfc04c1fdfa268f626beffbc06",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/owner.summary.md",
+   "summarySha256": "f1c7ea8adbf53e3f768bbe7d8168cabaae7a987ce3f5a5599b79c7ed3cc41907",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  },
+  {
+   "originalPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/packaged-providers-verification.json",
+   "originalBytes": 168090,
+   "originalSha256": "c1f8f51a11fa9a9a89c16685823a4a5bc4ed185433259442fbf1872e44bd1461",
+   "summaryPath": "docs/implementation/v6/M10/logs-pm/ci-installed-lane/packaged-providers-verification.summary.md",
+   "summarySha256": "821315705ac844a0b5c656261448b18e87f2c1346262ea38a44e2f7838c7cbdb",
+   "originalPreserved": "out-of-source local retention",
+   "note": "raw output replaced by curated summary per CONTRIBUTING shared-evidence rules"
+  }
+ ]
+}

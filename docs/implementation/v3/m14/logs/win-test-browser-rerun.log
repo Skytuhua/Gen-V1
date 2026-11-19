@@ -1,0 +1,148 @@
+== bounded redacted evidence summary ==
+originalSha256: 837b1000d20ece9850908c021638b818d4a230814bcb2a4ffbb37035d49bc54a
+originalBytes: 14341
+flags: machinePath=False ansi=True rawOutput=False
+custody: original bytes preserved out-of-source (custody-manifest.json, outside source tree)
+redactions: ANSI stripped; machine paths tokenized; output bounded to result lines
+==
+===SUITE root===
+  1 skipped
+  113 passed (4.6m)
+Failed browser suites: root (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE browser-action===
+    tests\e2e\browser-action.spec.ts:184:7 › detached › successful stop clears the local error using current native control state
+Failed browser suites: browser-action (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE file-checkpoints===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: file-checkpoints (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE files-reading===
+Failed browser suites: files-reading (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE generated-selects===
+Failed browser suites: generated-selects (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE graph-popovers===
+Failed browser suites: graph-popovers (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE inbox-controls===
+    tests\e2e\inbox-controls.spec.ts:219:1 › reading and failed canonical navigation never approve or falsely mark an unread item read
+Failed browser suites: inbox-controls (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE memory-recovery===
+    tests\e2e\memory-recovery.spec.ts:832:5 › synthetic visual: short-error ────────────────────────
+Failed browser suites: memory-recovery (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE redundant-ui===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: redundant-ui (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE saved-layout-chooser===
+  13 passed (24.3s)
+Failed browser suites: saved-layout-chooser (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE settings-leaf-selects===
+    tests\e2e\settings-loading.spec.ts:112:1 › a failed Settings chunk preserves the conversation and can be safely reloaded
+    tests\e2e\settings-loading.spec.ts:179:1 › failed draft persistence blocks Settings recovery reload and retains the memory draft
+Failed browser suites: settings-leaf-selects (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE sidebar-shared-menu===
+Failed browser suites: sidebar-shared-menu (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE terminal-excerpts===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: terminal-excerpts (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE terminal-read===
+    tests\e2e\terminal-read.spec.ts:784:1 › an unbound start fails closed when its pending caller ID cannot be retained
+Failed browser suites: terminal-read (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE usage-app-integration===
+    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope
+  10 passed (1.2m)
+Failed browser suites: usage-app-integration (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE memory-recovery-app===
+    tests\e2e\usage-app-integration.spec.ts:457:1 › review: an open restored Usage tab resolves its loaded conversation scope
+Failed browser suites: memory-recovery-app (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE memory-recovery-journal===
+Failed browser suites: memory-recovery-journal (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE conversation-find===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: conversation-find (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE micro-motion===
+  76 passed (3.2m)
+Failed browser suites: micro-motion (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE workspace===
+  1 failed
+  32 passed (52.0s)
+Failed browser suites: workspace (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE compact-settings===
+Failed browser suites: compact-settings (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE compact-tools-cleanup===
+  1 passed (1.6m)
+Failed browser suites: compact-tools-cleanup (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE composer-prediction===
+  7 passed (1.7m)
+Failed browser suites: composer-prediction (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE floating===
+  5 passed (3.7m)
+Failed browser suites: floating (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE inline-surfaces===
+  1 failed
+  9 passed (46.2s)
+Failed browser suites: inline-surfaces (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE pdf===
+  1 passed (2.7m)
+Failed browser suites: pdf (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE project-search===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: project-search (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE wo5-app-integration===
+Error: Process from config.webServer was not able to start. Exit code: 1
+Failed browser suites: wo5-app-integration (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE runtime-presentation===
+  6 passed (1.4m)
+Failed browser suites: runtime-presentation (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE shared-panels===
+    tests\e2e\shared-panels.spec.ts:1164:1 › invalid profile sign-in responses show one actionable error and never expose an arbitrary opener
+  24 passed (1.3m)
+Failed browser suites: shared-panels (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE shell===
+  2 skipped
+  4 passed (21.7m)
+Failed browser suites: shell (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE short-tool-overflow===
+  10 passed (41.4s)
+Failed browser suites: short-tool-overflow (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE smooth-pdf===
+  9 passed (42.3s)
+Failed browser suites: smooth-pdf (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE t3-centered===
+  3 passed (27.1s)
+Failed browser suites: t3-centered (exit 1)
+ ELIFECYCLE  Command failed with exit code 1.
+===SUITE task-interface===
+    tests\e2e\task-interface.spec.ts:178:1 › a pending question cannot duplicate or erase a newer draft and source errors can retry
+  1 skipped
+... [bounded: 3 further result lines preserved in out-of-source custody original]

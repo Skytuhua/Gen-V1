@@ -42,4 +42,4 @@
 .task-map-feedback,.task-map-source { margin-top:8px; font-size:10px; color:var(--muted); }
 @keyframes task-map-route-in { from { stroke-dasharray:1; stroke-dashoffset:1; } to { stroke-dasharray:1; stroke-dashoffset:0; } }
 @media(max-width:600px) { .task-map-plan { height:245px; } .task-map-heading { align-items:flex-start; flex-direction:column; } .task-map-point-label { max-width:180px; overflow:hidden; text-overflow:ellipsis; } }
-@media(prefers-reduced-motion:reduce) { .task-map-route { animation:none; } .task-map * { transition-duration:1ms!important; } }
+@media(prefers-reduced-motion:reduce) { .task-map-route { animation:none; } .task-map * { transition-duration:1ms!important; } .task-map-point-label { transition:none; } }
