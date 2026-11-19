@@ -972,6 +972,16 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     if(target)focusSplitOwner(target);publishMainSelection(next);return next;
   };
   const placementBase=(layout:SplitWorkspaceLayout,mainPaneId:string):ConversationPlacementRecord=>mainPlacement??{version:1,workspaceId:layout.id,mainPaneId,mainSelection:{kind:'new'},floating:{},mainBasis:mainBasisOf(layout,mainPaneId)};
+  // Placement commands all follow pending-intent → acknowledged send → commit-or-recover (T02/T03). commit runs only when the expectation holds.
+  const runPlacementCommand=async(base:ConversationPlacementRecord,intent:PendingPlacementIntent,type:string,payload:Record<string,unknown>,commit:(next:SplitWorkspaceLayout)=>void)=>{
+    writePlacementRecord({...base,pending:intent});
+    try{
+      await prepareWorkspace();
+      const next=await convSplitState.send(type,{...payload,baseRevision:intent.baseRevision});
+      if(expectationHolds(next,intent.expectation))commit(next);
+      else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
+    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
+  };
   // Detach parks the conversation and floats it on the same plane; main becomes explicitly empty (T02/R02).
   const detachConversation=async(view:SurfaceRef,requestedRect?:ChatRect)=>{
     const current=convSplitState.layout;
@@ -980,16 +990,11 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     const base=placementBase(current,mainPaneId);
     const expectation=capturePlacementExpectation(current,{type:'view.park',payload:{viewId:view.id}},mainPaneId);
     const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'detach',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:{kind:'empty'},desiredMainPaneId:mainPaneId,floatingAdd:{[view.id]:{view,rect}},floatingRemove:[],expectation};
-    writePlacementRecord({...base,pending:intent});
-    try{
-      await prepareWorkspace();
-      const next=await convSplitState.send('view.park',{viewId:view.id,baseRevision:current.revision});
-      if(expectationHolds(next,expectation)){
-        writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'empty'},floating:{...base.floating,[view.id]:{view,rect}},mainBasis:mainBasisOf(next,mainPaneId)});
-        const focusedThreadId=focusedSplitThread(next);
-        placedThread.current=focusedThreadId??null;setSelectedId(focusedThreadId??null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
-      }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
+    await runPlacementCommand(base,intent,'view.park',{viewId:view.id},next=>{
+      writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'empty'},floating:{...base.floating,[view.id]:{view,rect}},mainBasis:mainBasisOf(next,mainPaneId)});
+      const focusedThreadId=focusedSplitThread(next);
+      placedThread.current=focusedThreadId??null;setSelectedId(focusedThreadId??null);try{localStorage.removeItem('harness:selected-thread');}catch{/* Selection remains usable. */}
+    });
   };
   // Return replaces the main pane with the floating conversation, parking whatever occupied main (T02/R02).
   const returnConversation=async(view:SurfaceRef)=>{
@@ -999,38 +1004,28 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     const base=placementBase(current,mainPaneId);
     const expectation=capturePlacementExpectation(current,{type:'view.open',payload:{paneId:mainPaneId,view,placement:'replace'}},mainPaneId);
     const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'return',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:{kind:'thread',threadId},desiredMainPaneId:mainPaneId,floatingAdd:{},floatingRemove:[view.id],expectation};
-    writePlacementRecord({...base,pending:intent});
-    try{
-      await prepareWorkspace();
-      const next=await convSplitState.send('view.open',{paneId:mainPaneId,view,placement:'replace',baseRevision:current.revision});
-      if(expectationHolds(next,expectation)){
-        const floating={...base.floating};delete floating[view.id];
-        writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'thread',threadId},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
-      }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
+    await runPlacementCommand(base,intent,'view.open',{paneId:mainPaneId,view,placement:'replace'},next=>{
+      const floating={...base.floating};delete floating[view.id];
+      writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:{kind:'thread',threadId},floating,mainBasis:mainBasisOf(next,mainPaneId)});
+      const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
+    });
   };
   // Docking a float into a real pane split is an acknowledged command, never a local geometry change (T03/R03).
   const dockFloat=async(view:SurfaceRef,paneId:string,edge:SplitDropEdge,outer=false)=>{
     const current=convSplitState.layout;
     if(!current||view.binding.authority.kind!=='local'||!view.binding.threadId)return;
-    const base=mainPlacement;if(!base)return;
+    const threadId=view.binding.threadId,base=mainPlacement;if(!base)return;
     const mainPaneId=resolveMainPaneId(current);
     const payload={paneId,newPaneId:'pane-'+crypto.randomUUID(),splitId:'split-'+crypto.randomUUID(),axis:edge==='left'||edge==='right'?'horizontal':'vertical',before:edge==='left'||edge==='top',view,...(outer?{outer:true}:{})};
     const expectation=capturePlacementExpectation(current,{type:'pane.split',payload},mainPaneId);
     const intent:PendingPlacementIntent={id:crypto.randomUUID(),kind:'dock',baseRevision:current.revision,targetViewId:view.id,desiredMainSelection:base.mainSelection,desiredMainPaneId:mainPaneId,floatingAdd:{},floatingRemove:[view.id],expectation};
-    writePlacementRecord({...base,pending:intent});
-    try{
-      await prepareWorkspace();
-      const next=await convSplitState.send('pane.split',{...payload,baseRevision:current.revision});
-      if(expectationHolds(next,expectation)){
-        const floating={...base.floating};delete floating[view.id];
-        const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
-        const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
-        writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
-        const focusedThreadId=focusedSplitThread(next)??view.binding.threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',view.binding.threadId);}catch{/* Selection remains usable. */}
-      }else writePlacementRecord({...base,pending:undefined,recovery:'layout-changed'});
-    }catch(cause){const message=messageOf(cause);convSplitState.dismissError(message);setError(message);}
+    await runPlacementCommand(base,intent,'pane.split',payload,next=>{
+      const floating={...base.floating};delete floating[view.id];
+      const activeViewId=next.panes[mainPaneId]?.activeViewId,activeView=activeViewId?next.views[activeViewId]:undefined;
+      const activeThreadId=activeView?.kind==='thread'&&activeView.binding.authority.kind==='local'?activeView.binding.threadId:undefined;
+      writePlacementRecord({version:1,workspaceId:next.id,mainPaneId,mainSelection:activeThreadId?{kind:'thread',threadId:activeThreadId}:{kind:'empty'},floating,mainBasis:mainBasisOf(next,mainPaneId)});
+      const focusedThreadId=focusedSplitThread(next)??threadId;placedThread.current=focusedThreadId;setSelectedId(focusedThreadId);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Selection remains usable. */}
+    });
   };
   // Local float geometry persists without a split command; the plane keeps the live rect (T02/R02).
   const moveFloat=(viewId:string,rect:ChatRect)=>{
