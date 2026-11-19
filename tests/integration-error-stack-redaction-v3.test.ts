@@ -197,3 +197,79 @@ it('fails closed on a structured non-Error child rejection without inspecting ge
  expect(String(rejected)).not.toContain(secret);
  expect(getterCalls).toBe(0);
 });
+
+it.each(['raw', 'base64'] as const)('blocks structured child Error metadata before Node logging (%s)', form => {
+ const secret='CONTEXT7_ERROR_OWN_METADATA_FIXTURE_157';
+ const exposed=form==='raw'?secret:Buffer.from(secret,'utf8').toString('base64');
+ let getterCalls=0;
+ const details={token:exposed};
+ Object.defineProperty(details,'hostile',{get(){getterCalls++;throw Error('must not inspect');}});
+ const failure=new Error('safe child failure') as Error&{data?:unknown};
+ failure.data=details;
+ expect(inspect(failure,{depth:6})).toContain(exposed);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:6})).not.toContain(exposed);
+ expect(getterCalls).toBe(0);
+});
+
+it.each(['raw', 'base64'] as const)('redacts a primitive own Error field (%s)', form => {
+ const secret='CONTEXT7_ERROR_OWN_STRING_FIXTURE_158';
+ const exposed=form==='raw'?secret:Buffer.from(secret,'utf8').toString('base64');
+ const failure=new Error('safe child failure') as Error&{response?:string};
+ failure.response='Child response: '+exposed;
+ expect(inspect(failure)).toContain(exposed);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ expect(sanitize.redactFailure({redactor},failure)).toBe(failure);
+ expect(failure.response).toBe('Child response: [REDACTED]');
+ expect(inspect(failure)).not.toContain(exposed);
+});
+
+it.each(['frozen', 'getter'] as const)('fails closed on unsafe own Error field (%s)', kind => {
+ const secret='CONTEXT7_ERROR_OWN_UNSAFE_FIXTURE_159';
+ let getterCalls=0;
+ const failure=new Error('safe child failure');
+ Object.defineProperty(failure,'metadata',kind==='getter'
+  ?{get(){getterCalls++;return secret;},enumerable:true,configurable:true}
+  :{value:'Child echoed '+secret,writable:false,configurable:false,enumerable:true});
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected)).not.toContain(secret);
+ expect(getterCalls).toBe(0);
+});
