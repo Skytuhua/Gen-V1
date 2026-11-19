@@ -6,10 +6,10 @@ on:
   workflow_dispatch:
     inputs:
       channel:
-        description: Release channel (must match the package version)
+        description: Release channel (stable requires a non-prerelease version)
         type: choice
         options: [stable, prerelease]
-        default: stable
+        default: prerelease
         required: true
       ref:
         description: Optional source ref (defaults to the selected workflow ref)
@@ -61,10 +61,10 @@ jobs:
           $channel = $env:RELEASE_CHANNEL
           if ($env:RELEASE_EVENT -eq 'push') {
             if ($env:RELEASE_REF -cne $tag) { throw 'Tag must equal v + package.json version' }
-            $channel = if ($isPrerelease) { 'prerelease' } else { 'stable' }
+            $channel = 'prerelease'
           }
           if ($channel -notin @('stable', 'prerelease')) { throw 'Invalid release channel' }
-          if (($channel -eq 'prerelease') -ne $isPrerelease) { throw 'Prerelease channel requires a semver prerelease version; stable requires none' }
+          if ($channel -eq 'stable' -and $isPrerelease) { throw 'Stable channel requires a version without a semver prerelease' }
           $sha = git rev-parse HEAD
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           "tag=$tag" >> $env:GITHUB_OUTPUT

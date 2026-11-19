@@ -21,8 +21,16 @@ describe('draft desktop release workflow',()=>{
   expect(workflow).toContain('options: [stable, prerelease]');
   expect(workflow).toContain('semver.valid(process.env.RELEASE_VERSION) !== process.env.RELEASE_VERSION');
   expect(workflow).toContain("$env:RELEASE_REF -cne $tag");
-  expect(workflow).toContain("($channel -eq 'prerelease') -ne $isPrerelease");
+  expect(workflow).toContain("if ($channel -eq 'stable' -and $isPrerelease)");
   expect(workflow.indexOf('Validate release identity')).toBeLessThan(workflow.indexOf('pnpm desktop:package'));
+ });
+ it('defaults dispatch and tag pushes to prerelease regardless of the version suffix',()=>{
+  expect(workflow).toContain('default: prerelease');
+  const push=workflow.slice(workflow.indexOf("if ($env:RELEASE_EVENT -eq 'push')"),workflow.indexOf("if ($channel -notin"));
+  expect(push).toContain("$channel = 'prerelease'");
+  expect(push).not.toContain('$isPrerelease');
+  expect(workflow).not.toContain("($channel -eq 'prerelease') -ne $isPrerelease");
+  expect(workflow).not.toContain('Prerelease channel requires a semver prerelease version');
  });
  it('requires all four artifacts and refuses published, ambiguous or channel-mismatched releases',()=>{
   expect(workflow).toContain("($installer + '.blockmap'), $feed, 'build-manifest.json'");
