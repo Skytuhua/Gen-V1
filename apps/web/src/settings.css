@@ -3,7 +3,7 @@
 .settings-dialog>.ui-modal-header h2 { font-size:14px;font-weight:550; }
 .settings-layout { display:grid;grid-template-columns:232px minmax(0,1fr);flex:1;min-height:0;height:100%;font-size:14px;line-height:1.5; }
 .settings-navigation { display:flex;flex-direction:column;min-height:0;min-width:0;padding:12px 10px;background:var(--sidebar);border-right:1px solid var(--border); }
-.settings-search { display:flex;align-items:center;gap:8px;padding:0 8px;margin:0 4px 8px;border:1px solid var(--border);border-radius:var(--control-radius,6px);color:var(--muted);background:var(--surface); }
+.settings-search { display:flex;align-items:center;gap:8px;padding:0 8px;margin:0 4px 8px;border:1px solid var(--control-border);border-radius:var(--control-radius,6px);color:var(--muted);background:var(--surface); }
 .settings-search svg { flex:none; }
 .settings-search input { min-width:0;width:100%;padding:6px 0;border:0;background:transparent;font-size:14px;outline:none; }
 .settings-search:focus-within { outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px; }

@@ -8,7 +8,7 @@ const source = (path: string) => readFileSync(new URL('../' + path, import.meta.
 const styles = source('apps/web/src/styles.css'), shell = source('apps/web/src/shell.css'), appearance = source('apps/web/src/appearance.css'), sidebar = source('apps/web/src/sidebar-context.css');
 
 const REQUIRED = [
-  '--canvas', '--sidebar', '--surface', '--subtle', '--hover', '--text', '--muted', '--placeholder',
+  '--canvas', '--sidebar', '--surface', '--subtle', '--hover', '--text', '--muted', '--placeholder', '--control-border',
   '--selection-bg', '--selection-ink', '--accent', '--accent-solid', '--accent-fg', '--accent-bg', '--accent-text',
   '--danger', '--danger-soft', '--danger-fg', '--danger-bg', '--pending', '--success', '--success-fg', '--success-bg',
   '--warning-fg', '--warning-bg', '--category-fg', '--category-bg',
@@ -47,6 +47,9 @@ const text = (foreground: string, background: string, where: string): Pair => ({
 const nonText = (foreground: string, background: string, where: string): Pair => ({ foreground, background, minimum: WCAG.nonText, where });
 
 const PAIRS: readonly Pair[] = [
+  nonText('--control-border', '--canvas', 'control outlines against the workspace'),
+  nonText('--control-border', '--surface', 'input, select, action, composer, dock and search outlines'),
+  nonText('--control-border', '--hover', 'hovered control outlines'),
   text('--text', '--canvas', 'conversation, dock and decision copy on the workspace canvas'),
   text('--text', '--sidebar', 'thread titles and settings navigation labels'),
   text('--text', '--surface', 'composer, dock cards and settings content'),
@@ -124,8 +127,11 @@ describe('appearance theme contrast audit', () => {
   });
 
   it('fails the pairs it would catch if a token regressed', () => {
-    const broken = { ...contexts[0]!.tokens, '--muted': '#9a9a9a', '--danger': '#e0a0a8', '--accent-text': '#8a8a8a' };
+    const broken = { ...contexts[0]!.tokens, '--muted': '#9a9a9a', '--danger': '#e0a0a8', '--accent-text': '#8a8a8a', '--control-border': '#e5e5e5' };
     expect(failures(broken)).toEqual(expect.arrayContaining([
+      expect.stringContaining('--control-border on --canvas'),
+      expect.stringContaining('--control-border on --surface'),
+      expect.stringContaining('--control-border on --hover'),
       expect.stringContaining('--muted on --hover'),
       expect.stringContaining('--muted on --canvas'),
       expect.stringContaining('--danger on --subtle'),

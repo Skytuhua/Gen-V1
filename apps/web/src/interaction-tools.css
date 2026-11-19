@@ -46,7 +46,7 @@
 .interaction-field{display:flex;flex-direction:column;gap:8px}
 .interaction-field>span{display:flex;align-items:baseline;gap:8px;font-size:12px}
 .interaction-field small{font-size:10px;font-weight:400;color:var(--muted)}
-.interaction-tools :is(textarea,input[type=text],input[type=number],.ui-select-trigger){border:1px solid var(--border);background:var(--surface);color:var(--text);border-radius:7px;padding:8px 10px;min-height:34px;min-width:0;font-size:12px;line-height:1.5;box-shadow:none}
+.interaction-tools :is(textarea,input[type=text],input[type=number],.ui-select-trigger){border:1px solid var(--control-border);background:var(--surface);color:var(--text);border-radius:7px;padding:8px 10px;min-height:34px;min-width:0;font-size:12px;line-height:1.5;box-shadow:none}
 .interaction-tools textarea{resize:vertical;min-height:85px;max-height:240px;width:100%}
 .interaction-tools .review-comment textarea{min-height:54px;max-height:180px}
 .interaction-tools .review-comment{gap:6px}
