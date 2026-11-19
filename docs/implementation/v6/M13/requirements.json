@@ -1,0 +1,207 @@
+{
+  "requirements": [
+    {
+      "id": "M13-C01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/plugin-worker.ts", "packages/plugins/lifecycle.ts"],
+      "testIds": ["tests/plugin-worker-v3.test.ts::M13-C01 validates PluginManifestV2 strictly and rejects undeclared capability shapes", "tests/plugin-lifecycle-v3.test.ts::M13 isolated package admission > admits a pinned installed package carrying isolated.json and binds the verified digest"],
+      "reason": "PluginManifestV2: pluginId, version, packageDigest, protocolVersion, declaredCapabilities, toolSchemas, dataNamespace, executionProfileRef and lifecycle hooks as a strict contract. The package-side isolated.json omits host-owned identity; the host binds the verified inventory digest and protocolVersion=1. Trusted apiVersion-1 plug-ins stay explicitly trusted or disabled; nothing converts them implicitly."
+    },
+    {
+      "id": "M13-C02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/plugin-worker.ts", "packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-worker-v3.test.ts::M13-C02 validates PluginLeaseV1 states and bounded calls", "tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle"],
+      "reason": "PluginLeaseV1: pluginId, version, generation, ownerScopes, activeCalls, registrations and STARTING|ACTIVE|DRAINING|STOPPED|FAILED|UNKNOWN. Every frame carries generation and a bounded 32-bit request id; the lease revokes all registrations at once."
+    },
+    {
+      "id": "M13-C03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/contracts/plugin-worker.ts", "packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts"],
+      "testIds": ["tests/plugin-worker-v3.test.ts::M13-C03 validates WorkerFrameV1 kinds and rejects extras", "tests/plugin-worker-v3.test.ts::WorkerFrameV1 codec", "tests/plugin-protocol-decisions-v6.test.ts::M13-D01"],
+      "reason": "WorkerFrameV1: protocolVersion=1, requestId, generation, kind, payload over a 4-byte unsigned LE length prefix plus UTF-8 JSON on private host-created pipes. Kinds HELLO, READY, REQUEST, RESPONSE, CANCEL, SHUTDOWN, BYE, ERROR. Length >1 MiB rejected before allocation; 32 in-flight bound; 10 s handshake deadline; 5 s shutdown grace."
+    },
+    {
+      "id": "M13-S01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/host.ts", "packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "apps/server/host.ts"],
+      "testIds": ["tests/plugin-worker-v3.test.ts::real worker process over private pipes > launches the real worker entry, handshakes and serves a bounded request"],
+      "reason": "Trusted V1 host APIs inventoried and untouched; the worker activation context is frozen {dataDir, genVersion} only - no Store, credential manager, native runtime object or generic command client crosses the boundary. Frames are schema-checked JSON; a frame cannot carry a host capability. The real-entry test asserts the activated context key set."
+    },
+    {
+      "id": "M13-S02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/lifecycle.ts", "packages/plugins/installation.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 isolated package admission"],
+      "reason": "admitIsolatedPackage reuses the existing installer owner verifyPluginPackage for canonical paths, declared inventory and digest equality, then reads the optional isolated.json declaration bound to the verified manifest identity. Only an installed pinned package directory is admitted: no archive upload, install script, network download or unresolved dependency is created by this task."
+    },
+    {
+      "id": "M13-S03",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "apps/server/host.ts", "packages/core/execution-policy.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D05", "tests/plugin-lifecycle-v3.test.ts::M13 activation gate"],
+      "reason": "Launch through a proven M03 profile: the spawn launcher supplies only the private dataDir, declared capabilities and the processEnvironment allowlist over authenticated private pipes, but production confinement is the backend's ApprovedLaunch and this host has no installed approved backend with a current PASS proof. Activation fails closed with HOLD_BACKEND_SELECTION / HOLD_PLATFORM_PROOF; a working IPC channel is never reported as confinement."
+    },
+    {
+      "id": "M13-S04",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > activates STARTING->ACTIVE, registers declared tools and serves dispatch", "tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > rejects a worker claiming undeclared operations"],
+      "reason": "Tools/UI register as lease rows tied to the worker generation; READY operations not declared by the manifest are a protocol violation. dispatch() mediates every invocation through the active lease's tool registrations; a worker cannot self-grant or promote a hidden schema."
+    },
+    {
+      "id": "M13-S05",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > update drains the old generation before publishing the new one", "tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > leaves the previous package and namespace intact when the new generation fails"],
+      "reason": "Update = prepare (manifest parse + identity check), validate (migration plan when declared), drain (registrations revoked, bounded settlement, late replies rejected), swap, revoke. The new generation is published only after confirmed old-generation termination; on new-generation failure the previous manifest/package/data pointers are restored. Old package and data are preserved for explicit rollback."
+    },
+    {
+      "id": "M13-S06",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > unconfirmed termination reports UNKNOWN and never starts a replacement", "tests/plugin-protocol-decisions-v6.test.ts::M13-D04", "tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > disable drains, confirms teardown and reports STOPPED with retained data"],
+      "reason": "Disable revokes registrations before settling calls and reports STOPPED only after the exact owned process tree is confirmed gone. Unconfirmed termination yields UNKNOWN and blocks any replacement with an overlapping writable namespace."
+    },
+    {
+      "id": "M13-S07",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/lifecycle.ts", "packages/contracts/plugin-worker.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > blocks a migration-needing update without a complete approved plan"],
+      "reason": "PluginMigrationPlanV1 requires planId, immutable input/output versions matching the installed and next manifests, a backup digest, the exact migration executable digest and a post-validation receipt. A migration-needing update without the complete contract returns MIGRATION_PLAN_REQUIRED and leaves the old package/data untouched; no migration code is invented or run with host privileges."
+    },
+    {
+      "id": "M13-S08",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/server/plugin-routes.ts", "packages/plugins/isolated-host.ts", "apps/web/src/PluginFrame.tsx"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > catalog merges trusted and isolated rows with state, digest and block reason"],
+      "reason": "Extension views flow through the existing /api/plugins catalog contract; no worker contribution injects host-document scripts, arbitrary HTML/CSS or fabricated operation approvals. The trusted PluginFrame sandbox (opaque origin, CSP) is unchanged."
+    },
+    {
+      "id": "M13-S09",
+      "disposition": "PRESERVE_EXISTING",
+      "sourcePaths": ["packages/runtime-hermes/worker.py"],
+      "testIds": [],
+      "reason": "worker.py line 222 keeps config[\"plugins\"] = {\"enabled\": False}; the M13 bundle does not unlock ambient Hermes plugins. Verified by source inspection at the execution cut; the flag was not modified and no Hermes adapter was admitted."
+    },
+    {
+      "id": "M13-S10",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts", "tests/plugin-worker-v3.test.ts", "tests/plugin-lifecycle-v3.test.ts"],
+      "testIds": ["tests/plugin-worker-v3.test.ts::fails pending calls when the worker exits", "tests/plugin-lifecycle-v3.test.ts::drops late old-generation replies after update without publication", "tests/plugin-protocol-decisions-v6.test.ts::M13-D02"],
+      "reason": "Crash (worker exit rejects pending calls), flood (32-request in-flight bound), stale-generation and malformed-data fixtures run in the lifecycle and protocol suites. Isolation and lifecycle proof are recorded separately: a working IPC channel is not advertised as an OS security guarantee, and the data-access confinement fixture stays BLOCKED under M13-D05."
+    },
+    {
+      "id": "M13-U01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["apps/web/src/WorkspaceControls.tsx", "apps/web/src/PluginFrame.tsx", "apps/server/plugin-routes.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > catalog merges trusted and isolated rows with state, digest and block reason"],
+      "reason": "The existing extension surface gains an Extensions menu: each row identifies Trusted host extension versus Isolated extension, exact version, truncated digest, declared capabilities, private data scope and runtime state."
+    },
+    {
+      "id": "M13-U02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/lifecycle.ts", "apps/web/src/WorkspaceControls.tsx"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle > blocks a migration-needing update without a complete approved plan"],
+      "reason": "updatePreview identifies capability expansion and required data migration before any drain; blocked updates carry MIGRATION_PLAN_REQUIRED. The catalog row shows Draining during teardown, retained-data status and the update-block reason; the rollback decision stays host-owned and is surfaced as retained-data state rather than a fake control."
+    },
+    {
+      "id": "M13-U03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts", "packages/plugins/worker-entry.ts", "apps/server/plugin-routes.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 leased lifecycle"],
+      "reason": "Worker errors are sanitized bounded strings that never carry host paths, stack text or secrets; each failure is scoped to its plugin record and lease, so other healthy extensions keep running."
+    },
+    {
+      "id": "M13-T01",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/core/execution-policy.ts", "packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D05"],
+      "reason": "Protected DB/credential reads, out-of-root writes and network access must be attempted under the actual selected backend; this host supplies no installed approved backend with a current PASS proof, so the real-confinement cases stay BLOCKED rather than mocked."
+    },
+    {
+      "id": "M13-T02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D01", "tests/plugin-protocol-decisions-v6.test.ts::M13-D02", "tests/plugin-worker-v3.test.ts::WorkerFrameV1 codec"],
+      "reason": "Malformed and oversized frames, invalid UTF-8, unknown kinds, duplicate or unknown request ids and more than 32 concurrent calls are rejected or bounded before dispatch."
+    },
+    {
+      "id": "M13-T03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D03", "tests/plugin-lifecycle-v3.test.ts::drops late old-generation replies after update without publication"],
+      "reason": "Late old-generation replies after update cannot resolve a new-generation call, mutate host state or re-register tools; the catalog is byte-identical before and after the stale delivery."
+    },
+    {
+      "id": "M13-T04",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts", "packages/plugins/lifecycle.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::leaves the previous package and namespace intact when the new generation fails", "tests/plugin-lifecycle-v3.test.ts::blocks a migration-needing update without a complete approved plan"],
+      "reason": "Failed startup, migration-blocked update and new-generation failure leave the original manifest/package/data pointers intact and no partially active registry: registrations are revoked first and the FAILED/UNKNOWN lease admits no new writable generation."
+    },
+    {
+      "id": "M13-T05",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::revokes new calls while a busy plug-in unloads and confirms cleanup", "tests/plugin-lifecycle-v3.test.ts::unconfirmed termination reports UNKNOWN and never starts a replacement"],
+      "reason": "Unloading a busy plug-in revokes new calls (dispatch rejects while DRAINING), settles or rejects in-flight work through drain/shutdown, and confirms process cleanup before STOPPED; unconfirmed teardown yields UNKNOWN."
+    },
+    {
+      "id": "M13-G01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts", "packages/core/execution-policy.ts", "apps/server/host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 activation gate", "tests/plugin-protocol-decisions-v6.test.ts::M13-D05"],
+      "reason": "Untrusted activation requires exactly one installed approved backend id plus a current-platform PASS proof via selectBackend/hasCurrentPlatformProof; zero or ambiguous identities hold as HOLD_BACKEND_SELECTION/HOLD_PLATFORM_PROOF. Existing plug-ins stay explicitly trusted; nothing rebrands them."
+    },
+    {
+      "id": "M13-G02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/core/capability-flags.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::M13 activation gate > stays disabled while plugins.isolatedV1 is off"],
+      "reason": "plugins.isolatedV1 was added to the existing host-owned registry (M13_FLAG_KEYS plus CapabilityFlagKey union and hostDefinitions) without replacing any registered key; it defaults off, is host-configured only, and is absent from strict UI preferences. Each risky sub-capability keeps its own proof."
+    },
+    {
+      "id": "M13-G03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts::leaves the previous package and namespace intact when the new generation fails", "tests/plugin-protocol-decisions-v6.test.ts::M13-D04"],
+      "reason": "Rollback revokes new-generation registrations, stops owned workers and restores the last validated manifest/package/data pointers only after confirming no overlapping writer (unconfirmed drain yields UNKNOWN and blocks activation). Audit history is per-record and trust is never loosened to make a plug-in load."
+    },
+    {
+      "id": "M13-D01",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D01 framing bounds: 1 MiB is schema-checked; 1 MiB+1 announced is rejected before allocation"],
+      "reason": "A 1 MiB frame is fully read and schema-checked; a 1 MiB+1 announced length is rejected at the 4-byte header before payload allocation."
+    },
+    {
+      "id": "M13-D02",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D02 inflight cap: 32 outstanding; the 33rd is BUSY without dispatch; one settlement re-admits"],
+      "reason": "32 outstanding requests admitted; the 33rd raises PLUGIN_BUSY with no REQUEST frame dispatched; one settlement re-admits a new request."
+    },
+    {
+      "id": "M13-D03",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D03 stale reply: an old-generation response after update causes no host mutation or UI publication"],
+      "reason": "An old-generation RESPONSE/READY delivered after update cannot resolve a new-generation call or publish registrations; the catalog is unchanged."
+    },
+    {
+      "id": "M13-D04",
+      "disposition": "IMPLEMENT",
+      "sourcePaths": ["packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D04 drain failure: unconfirmed process termination yields UNKNOWN and no new writable worker starts"],
+      "reason": "When old process-tree termination cannot be confirmed the lease becomes UNKNOWN and activate() rejects any new writable worker for the namespace."
+    },
+    {
+      "id": "M13-D05",
+      "disposition": "BLOCKED",
+      "sourcePaths": ["packages/core/execution-policy.ts", "packages/plugins/isolated-host.ts"],
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts::M13-D05 real confinement is not satisfiable without a proven installed backend"],
+      "reason": "Protected DB/credential reads, out-of-root writes and network access must run under the actual approved backend. None exists on this host (M03 evidence already records BLOCKED), so the case is held: the lane fails closed with HOLD_BACKEND_SELECTION and the hold is asserted, never mocked as a pass."
+    }
+  ]
+}

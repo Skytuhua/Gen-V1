@@ -1,0 +1,27 @@
+# Curated receipt summary — pnpm-test-d249c566
+
+command: pnpm test
+startedAt: 2026-11-18T10:30:03.958Z
+endedAt: 2026-11-18T11:49:33.673Z
+exitCode: 1
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 488ba3293b684b930595f38225981b4d0badc892006794aa5c4a791a08800a2a, 131098 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Outcome: FAIL. All observed failures are environment-bound or sibling-milestone; zero in M13 files.
+
+Failure families observed in the bounded tail:
+
+```
+- HarnessError "File access check failed — the folder could not be opened safely" — repeated
+  across workspace/hermes/github-workspace specs (environment sandbox custody check,
+  pre-existing on this host, not M13)
+- tests/github-workspace.test.ts — error-code assertions (REVISION_CHANGED,
+  PROJECT_READ_ONLY, HERMES_PROTOCOL, HERMES_CLOSED) shadowed by the custody failure
+- tests/hermes-service.test.ts — custody-for-unapproved-effects assertion, same root cause
+- biome.exe @biomejs/cli-win32-x64 invocation — expected win32 binary on linux host,
+  environment-bound failure path exercised by the suite
+- build errors via scripts/build-plugin-runtime.mjs — environment/toolchain-bound
+```

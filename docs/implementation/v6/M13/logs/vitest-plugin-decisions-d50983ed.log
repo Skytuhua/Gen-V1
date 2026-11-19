@@ -1,0 +1,19 @@
+# Curated receipt summary — vitest-plugin-decisions-d50983ed
+
+command: pnpm exec vitest run tests/plugin-protocol-decisions-v6.test.ts
+startedAt: 2026-11-18T22:17:20.173Z
+endedAt: 2026-11-18T22:17:23.184Z
+exitCode: 0
+
+Raw bounded log withheld per CONTRIBUTING.md (no raw test output or private paths in source commits).
+Original raw bounded log: sha256 f0dfb53dbc9b29590f0d0bd217ff05be1b7f3bb31445ffef424afb7d7fd95686, 484 bytes — preserved as rawLogDigest/rawLogBytes on
+this command's receipt line in logs/receipts.jsonl. logDigest there and in
+docs/implementation/v3/M13-verification.json is the sha256 of this committed file.
+
+Key lines, redacted:
+
+```
+ Test Files  1 passed (1)
+      Tests  5 passed (5)
+   Duration  1.76s (transform 752ms, setup 0ms, import 1.10s, tests 272ms, environment 0ms)
+```

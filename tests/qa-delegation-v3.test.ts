@@ -1,6 +1,6 @@
+import {cleanTempDirs,tempDir} from './fixtures/temp-dir.ts';
 import {it,expect,afterEach} from 'vitest';
-import {mkdtempSync,rmSync} from 'node:fs';
-import {tmpdir} from 'node:os';
+
 import {join} from 'node:path';
 import {Store} from '../packages/storage/store';
 import {admitQaSpawn,createQaWorkerRole,BoundedRepairLoop,SecurityFindingLedger} from '../packages/core/verification-gate';
@@ -12,9 +12,7 @@ import type {ToolOwner} from '../packages/contracts/tool-effects';
 
 const stores:Store[]=[];
 function stateStore(){const store=new Store(join(tempDir('verify-state-'),'state'));stores.push(store);return store;}
-const dirs:string[]=[];
-function tempDir(prefix:string){const dir=mkdtempSync(join(tmpdir(),prefix));dirs.push(dir);return dir;}
-afterEach(()=>{for(const store of stores.splice(0))store.close();for(const dir of dirs.splice(0))rmSync(dir,{recursive:true,force:true});});
+afterEach(()=>{for(const store of stores.splice(0))store.close();cleanTempDirs();});
 const owner:ToolOwner={threadId:'t1',runId:'r1',epoch:1,projectId:null,workspaceId:null,accountBinding:null};
 const commitment=digest({kind:'qa.delegate',checklist:'cl-1'});
 const liveApproval={actionCommitment:commitment,remainingUses:1,expiresAt:new Date(Date.now()+900_000).toISOString()};

@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {mkdtempSync,rmSync} from 'node:fs';
 import {tmpdir} from 'node:os';
@@ -8,7 +9,6 @@ import type {Operation,RuntimeAdapter,RuntimeCallbacks,StartRun,Thread} from '..
 const cleanup:(()=>Promise<void>)[]=[];
 afterEach(async()=>{for(const close of cleanup.splice(0))await close();});
 const turn=()=>new Promise<void>(resolve=>setImmediate(resolve));
-function deferred(){let resolve!:()=>void;const promise=new Promise<void>(done=>{resolve=done;});return{promise,resolve};}
 function adapter(){
  let callbacks!:RuntimeCallbacks;const starts:StartRun[]=[];
  const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:async()=>[{id:'openai/test',provider:'openai',name:'Synthetic model'}],start:async input=>{starts.push(input);},followUp:async input=>{starts.push(input);},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}};

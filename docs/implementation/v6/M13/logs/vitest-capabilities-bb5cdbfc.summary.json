@@ -1,0 +1,30 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store — not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/capabilities.test.ts"
+ ],
+ "testedSha": "bb5cdbfcb1dc98965d6609ba7ed2784a50c78ce2",
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T23:34:41.239Z",
+ "endedAt": "2026-11-18T23:35:10.622Z",
+ "exitCode": 1,
+ "termination": "NONE",
+ "resultLines": [
+  "Test Files  1 failed (1)",
+  "Tests  13 failed | 11 passed (24)",
+  "All 13 failures: HarnessError \"File access check failed — the folder could not be opened safely\" from linux-path-guard custody on this host — environment-bound CAPABILITY_DENIED family, same census as d249c566 aggregates; zero merge-related"
+ ],
+ "rawArtifact": {
+  "file": "vitest-capabilities-bb5cdbfc.log",
+  "sha256": "9ed1ada6575aaeb6cee49c1fd8913e2294b15a7754452e892290ee4d2128bdee",
+  "bytes": 8648,
+  "retention": "agent-owned local evidence store (m13-custody/bb5cdbfc)",
+  "published": false
+ }
+}
