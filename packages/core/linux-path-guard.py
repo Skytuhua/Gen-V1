@@ -169,6 +169,10 @@ class DirectoryGuard:
         self.root, self.uid, self.groups, self.pins = root, uid, {}, {}
         self.readonly_pins: set = set()
         self.credentials, self.barriers = {}, {}
+        # Applied mounts whose cleanup unwind failed stay fenced outside the
+        # pin ledger; quarantining them stops acquisitions borrowing the
+        # anomalous mount while the state is unresolved.
+        self.quarantined: set = set()
 
     def credential_parent(self, auth):
         if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:manager-runtime/)?(?:(?!manager-|\.\.?(?=/|$))[^/]+/)*accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
@@ -345,7 +349,12 @@ class DirectoryGuard:
                     raise PermissionError('Credential restoration did not settle')
             except BaseException as error:
                 raise CustodyUncertain('Retain credential custody') from error
-        self.release_paths(barrier['held'])
+        unresolved = self.release_paths(barrier['held'])
+        if unresolved:
+            # Keep the barrier owning exactly the paths that stayed fenced —
+            # a refused cleanup must not claim the fence released.
+            barrier['held'] = unresolved
+            raise CustodyUncertain('Retain credential custody')
         del self.barriers[identifier]
 
     def components(self, path):
@@ -360,6 +369,8 @@ class DirectoryGuard:
         return result
 
     def pin(self, path):
+        if path in self.quarantined:
+            raise PermissionError('Path retains quarantined cleanup state')
         if path in self.pins:
             self.pins[path] += 1
             return
@@ -382,37 +393,43 @@ class DirectoryGuard:
             except BaseException:
                 if mounted:
                     try:
-                        LIBC.umount2(os.fsencode(path), 2)
-                    except Exception:
-                        pass  # An undetached mount stays fenced; the caller still sees denial.
+                        checked(LIBC.umount2(os.fsencode(path), 2))
+                    except BaseException:
+                        # The mount stays applied but unledgered; quarantine the
+                        # path so acquisitions cannot borrow the anomaly.
+                        self.quarantined.add(path)
                 raise
             self.pins[path] = 1
         finally:
             os.close(fd)
 
     def release_paths(self, paths):
-        # Each pin releases independently: a failed detach keeps its ledger
-        # entry and fence, and one failure must not skip the remaining release.
-        first_error = None
+        # Each pin releases independently; unresolved paths keep their ledger
+        # entry and fence. A still-held child's ancestors stay held — releasing
+        # them would strand the child mount under a detached parent — while
+        # independent paths release normally. Returns the paths that remain
+        # held so the caller can retain lease ownership for a retry.
+        unresolved = []
         for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
             if path not in self.pins:
                 continue  # Consumed by an owned remove/replace.
+            if any(held.startswith(path + "/") for held in unresolved):
+                unresolved.append(path)
+                continue
             if self.pins[path] == 1:
                 try:
                     if path != self.root:
                         # MNT_DETACH: release ends the lease like a handle close even
                         # while a child still maps or roots inside the mount.
                         checked(LIBC.umount2(os.fsencode(path), 2))
-                except BaseException as error:
-                    if first_error is None:
-                        first_error = error
+                except BaseException:
+                    unresolved.append(path)
                     continue
                 del self.pins[path]
                 self.readonly_pins.discard(path)
             else:
                 self.pins[path] -= 1
-        if first_error is not None:
-            raise first_error
+        return unresolved
 
     def drop_pin(self, path, writable_only=False):
         if path not in self.pins:
@@ -426,6 +443,8 @@ class DirectoryGuard:
         self.readonly_pins.discard(path)
 
     def pin_leaf(self, path, read_only, expected=None, empty=False):
+        if path in self.quarantined:
+            raise PermissionError('Path retains quarantined cleanup state')
         if path in self.pins:
             self.pins[path] += 1
             return
@@ -455,9 +474,11 @@ class DirectoryGuard:
                     raise PermissionError("File identity changed")
             except BaseException:
                 try:
-                    LIBC.umount2(os.fsencode(path), 2)
-                except Exception:
-                    pass  # An undetached mount stays fenced; the caller still sees denial.
+                    checked(LIBC.umount2(os.fsencode(path), 2))
+                except BaseException:
+                    # The mount stays applied but unledgered; quarantine the
+                    # path so acquisitions cannot borrow the anomaly.
+                    self.quarantined.add(path)
                 raise
             self.pins[path] = 1
             if read_only:
@@ -583,14 +604,26 @@ class DirectoryGuard:
             self.release_credential(request['leaseId'])
             return {'id': request['id']}
         if command == "release" and set(request) == {"command", "id"}:
-            self.release_paths(self.groups.pop(request["id"]))
+            if request["id"] not in self.groups:
+                raise PermissionError("Unknown guard group")
+            unresolved = self.release_paths(self.groups[request["id"]])
+            if unresolved:
+                # A cleanup refusal is not a release: the lease keeps
+                # ownership of exactly the paths that stayed fenced so a
+                # retry resumes without double-decrementing released ones.
+                self.groups[request["id"]] = unresolved
+                raise PermissionError("Guard cleanup did not settle")
+            del self.groups[request["id"]]
             if not self.groups and not self.barriers:
                 # Credential ancestry pins are scope-scoped: drop them once no
                 # guarded scope remains so fixture trees stay replaceable.
-                for prepared in self.credentials.values():
-                    os.close(prepared["fd"])
-                    self.release_paths(prepared["held"])
-                self.credentials.clear()
+                for parent, prepared in list(self.credentials.items()):
+                    unresolved = self.release_paths(prepared["held"])
+                    if unresolved:
+                        prepared["held"] = unresolved
+                    else:
+                        os.close(prepared["fd"])
+                        del self.credentials[parent]
             return {"id": request["id"], "entries": []}
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
             entries = request["paths"]

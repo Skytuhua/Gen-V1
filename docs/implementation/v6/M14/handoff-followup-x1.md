@@ -34,37 +34,57 @@ authorization, or matrix row weakened.
 
 ## Bounded fail-closed cleanup corrections — `packages/core/linux-path-guard.py`
 
-Static review found three mount-ledger gaps, all corrected
-fail-closed, no `.ts` changes needed, no shared files touched:
+Static review found three mount-ledger gaps; manager review found two
+further accounting faults in the first correction, all repaired
+fail-closed. No `.ts` changes, no shared files touched:
 
-1. **`pin()`** — a post-mount identity-check failure raised while the
-   bind mount was already applied but before `self.pins` recorded it:
-   permanent untracked mount (`release_paths` skips non-recorded
-   paths). Now the applied mount is detached best-effort on failure;
-   if detach itself fails the fence stays (denial preserved).
-2. **`pin_leaf()`** — same gap across both the `MOUNT_ATTR_RDONLY`
-   attribute call and the post-mount identity check. Same correction.
-3. **`acquire_credential()`** — the held-ancestor `pin()` loop ran
+1. **`pin()` / `pin_leaf()`** — a post-mount identity/attribute
+   failure raised while the bind mount was applied but before
+   `self.pins` recorded it: an untracked permanent mount. The unwind
+   now detaches with `checked()` (verifies the actual syscall
+   outcome); a failed detach records the path in
+   `self.quarantined` — applied but unledgered mounts stay fenced and
+   ordinary acquisitions cannot borrow them (`pin`/`pin_leaf` refuse
+   quarantined paths).
+2. **`acquire_credential()`** — the held-ancestor `pin()` loop ran
    before the barrier existed, so a mid-loop failure leaked recorded
    pins with no unwind. Now the pinned prefix is released on failure.
-4. **`release_paths()`** — one failed `umount2` aborted the loop,
-   skipping all remaining paths while the caller had already popped
-   the group (lost accounting). Now each pin releases independently; a
-   failed detach keeps its ledger entry and fence, remaining releases
-   still run, and the first error is re-raised afterward.
+3. **`release_paths()`** — now returns the unresolved subset instead
+   of aborting: each pin releases independently; a failed detach
+   keeps its ledger entry and fence; a still-held child's ancestors
+   stay held (releasing them would strand the child mount under a
+   detached parent); independent paths release normally.
+4. **`release` command** — no longer pops the group before release.
+   An unresolved cleanup stores the *unresolved-only* held list under
+   the lease (ownership and identity retained; a cleanup refusal does
+   not claim release — it raises) and a retry resumes exactly the
+   unresolved set, so released paths cannot be double-decremented.
+   Fully-settled groups are deleted as before.
+5. **Credential-scope cleanup** — `release_credential` retains the
+   barrier's held list on unresolved ancestry release and raises
+   `CustodyUncertain`; the scope-scoped credential-clear loop retains
+   each `prepared` entry whose `held` pins did not fully release
+   (fd kept open) instead of clearing unconditionally.
 
 Out of scope per instruction: no `.ts` client changes (the
 `withLinuxDirectoryGuard` release-error masking in `finally` was noted
 but is a behavioral question, not a bounded fix), no M12/M16
-`file-access.ts`, no ancestry/existing-writer redesign.
+`file-access.ts`, no ancestry/existing-writer redesign, no policy
+redesign.
 
 ## Verification performed (aarch64, this host)
 
 - `python3 -m py_compile` + `node --check`: both edited files parse.
-- Mocked-LIBC unit checks (no real mounts):
-  - `pin()` post-mount failure → mount detached, ledger clean. PASS
-  - `release_paths` failed detach → pin retained+fenced, remaining
-    paths still released, error re-raised. PASS
+- Mocked-LIBC unit checks (no real mounts, synthetic return codes):
+  - failed `pin()` unwind → `checked()` catches the `-1`, path
+    quarantined, subsequent acquisition denied. PASS
+  - `release_paths` → child detach failure keeps ancestors held,
+    independent paths still released. PASS
+  - `release` handler → group retains only the unresolved set on
+    refusal; retry resolves cleanly with no double decrement. PASS
+  - unknown group release → refused. PASS
+  - credential-scope ancestry → prepared entry retained on unresolved
+    release. PASS
   - refcount >1 pin → decremented without detach. PASS
 - `vitest run tests/linux-path-guard.test.ts tests/public-source.test.ts`:
   2 files, **41/41 PASS** (admitted/denied matrix + credential
