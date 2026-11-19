@@ -422,7 +422,27 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await page.setViewportSize({width:1600,height:1000});await pw.poll(()=>surface.boundingBox()).toEqual(original);await pw(draft).toHaveValue('Preserve the raw floating placement');expect(host.commands.filter(command=>command.type==='message.send')).toHaveLength(0);expect(host.errors).toEqual([]);
   }finally{await page.close();}
  },30000);
- for(const held of [false,true]) it('viewport shrink retains a visible moved float while '+(held?'held':'idle'),async()=>{
+ it('shrunken float clamps oversized dimensions while keeping its corner placement',async()=>{
+ const host=await fixture(),{page}=host;try{
+  const surface=page.locator('[data-split-view="thread:thread-a"]'),key='harness:conversation-placement:v1:'+host.layout.id;
+  await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');await pw.poll(()=>page.evaluate(key=>JSON.parse(localStorage.getItem(key)??'null')?.pending??null,key)).toBeNull();
+  // Park the float at the top-left corner so only its dimensions can exceed the shrunken bounds.
+  const grip=surface.locator('.split-float-grip'),gripBox=(await grip.boundingBox())!;
+  await page.mouse.move(gripBox.x+gripBox.width/2,gripBox.y+gripBox.height/2);await page.mouse.down();await page.mouse.move(30,30,{steps:6});await page.mouse.up();
+  const resize=surface.locator('.split-float-resize'),resizeBox=(await resize.boundingBox())!;
+  await page.mouse.move(resizeBox.x+resizeBox.width/2,resizeBox.y+resizeBox.height/2);await page.mouse.down();await page.mouse.move(resizeBox.x+resizeBox.width/2+500,resizeBox.y+resizeBox.height/2+300,{steps:4});await page.mouse.up();
+  const saved=await page.evaluate(key=>localStorage.getItem(key),key),original=(await surface.boundingBox())!;
+  await page.setViewportSize({width:700,height:700});
+  const root=(await page.locator('.split-root-workarea .split-workspace').boundingBox())!;
+  await pw.poll(async()=>(await surface.boundingBox())!.width).toBeLessThan(original.width);
+  const projected=(await surface.boundingBox())!,projectedResize=(await surface.locator('.split-float-resize').boundingBox())!;
+  expect(projected.width).toBeLessThanOrEqual(root.width-40);expect(projected.height).toBeLessThanOrEqual(root.height-40);
+  expect(projectedResize.x+projectedResize.width).toBeLessThanOrEqual(root.x+root.width);expect(projectedResize.y+projectedResize.height).toBeLessThanOrEqual(root.y+root.height);
+  await page.setViewportSize({width:1600,height:1000});await pw.poll(()=>surface.boundingBox()).toEqual(original);
+  expect(await page.evaluate(key=>localStorage.getItem(key),key)).toBe(saved);expect(host.errors).toEqual([]);
+ }finally{await page.close();}
+},30000);
+for(const held of [false,true]) it('viewport shrink retains a visible moved float while '+(held?'held':'idle'),async()=>{
   const host=await fixture(),{page}=host;try{
    const surface=page.locator('[data-split-view="thread:thread-a"]'),draft=surface.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the resized viewport draft');
    await page.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();await page.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();await pw(surface).toHaveAttribute('data-floating','true');
