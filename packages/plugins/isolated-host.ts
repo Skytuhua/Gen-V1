@@ -9,7 +9,6 @@ import {
  pluginLeaseV1Schema,pluginManifestV2Schema,
  type ExtensionViewV1,type PluginLeaseState,type PluginLeaseV1,type PluginManifestV2,type WorkerFrameV1,type WorkerReadyPayload,
 } from '../contracts/plugin-worker.ts';
-import {evaluateMigrationPlan} from './lifecycle.ts';
 import type {PluginManifest} from './contracts.ts';
 
 // M13 isolated extension lane. A worker is a separate owned process talking
@@ -302,6 +301,16 @@ export interface IsolatedExtensionRecord{
  blocked:string|null;
  retainedData:boolean;
  stopping:Promise<'stopped'|'unconfirmed'>|null;
+ /** Admitted STARTING generation, tracked from admission until its launch and
+  * handshake settle. Stop revokes it and fences replacement on its outcome. */
+ starting?:StartingGeneration|null;
+}
+
+export interface StartingGeneration{
+ lease:PluginLeaseV1;
+ /** Resolves (never rejects) once the launch/handshake path has finished and
+  * any late worker was cleaned up; carries whether exit was confirmed. */
+ settled:Promise<'stopped'|'unconfirmed'>;
 }
 
 export interface IsolatedHostOptions{
@@ -385,9 +394,17 @@ export class IsolatedExtensionHost{
   const generation=this.nextGeneration(pluginId);record.blocked=null;
   const lease:PluginLeaseV1=pluginLeaseV1Schema.parse({pluginId:record.manifest.pluginId,version:record.manifest.version,generation,ownerScopes:record.ownerScopes,activeCalls:[],registrations:[],state:'STARTING'});
   record.lease=lease;
+  let markSettled!:(outcome:'stopped'|'unconfirmed')=>void;
+  const starting:StartingGeneration={lease,settled:new Promise(resolve=>{markSettled=resolve;})};
+  record.starting=starting;
+  const revoked=()=>lease.state!=='STARTING';
   let transport:WorkerTransport|undefined;
+  let cleanup:'stopped'|'unconfirmed'='stopped';
   try{
    transport=await gate.launcher.launch({packageDir:record.packageDir,dataDir:record.dataDir,generation,env:processEnvironment()});
+   // Stop may have revoked this generation while the launch was in flight:
+   // the late worker is terminated and never connected or published.
+   if(revoked()){cleanup=(await transport.terminate().catch(()=>false))?'stopped':'unconfirmed';throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
    const {session,ready}=await IsolatedWorkerSession.connect(transport,{pluginId:record.manifest.pluginId,packageDigest:record.manifest.packageDigest,dataNamespace:record.manifest.dataNamespace,generation},this.handshakeDeadlineMs);
    // A worker claim is never permission: only operations the manifest
    // declared may register; anything else is a protocol violation.
@@ -395,16 +412,23 @@ export class IsolatedExtensionHost{
    for(const operation of ready.operations)if(!declared.has(operation))throw new HarnessError('PROTOCOL_VIOLATION','The isolated extension claimed an undeclared operation.');
    // A concurrent drain/disable may have revoked this lease while the
    // handshake was in-flight; never publish ACTIVE over a revoked lease.
-   if(lease.state!=='STARTING'){void session.shutdown(this.shutdownGraceMs).catch(()=>{});throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
+   if(revoked()){cleanup=await session.shutdown(this.shutdownGraceMs).catch(()=>'unconfirmed' as const);throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
    record.session=session;this.bind(record,session,lease);
    lease.state='ACTIVE';
    lease.registrations=[...record.manifest.toolSchemas.map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
    return structuredClone(lease);
   }catch(cause){
-   lease.state='FAILED';
-   void transport?.terminate().catch(()=>{});
-   record.blocked=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
+   // A revoked generation keeps the state Stop assigned (DRAINING, then
+   // STOPPED or UNKNOWN); only an unrevoked failure becomes FAILED.
+   if(revoked()&&transport&&cleanup==='stopped')cleanup=(await transport.terminate().catch(()=>false))?'stopped':'unconfirmed';
+   if(!revoked())lease.state='FAILED';
+   else if(cleanup==='unconfirmed')lease.state='UNKNOWN';
+   else void transport?.terminate().catch(()=>{});
+   if(!revoked()||cleanup==='unconfirmed')record.blocked=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
    throw cause;
+  }finally{
+   if(record.starting===starting)record.starting=null;
+   markSettled(cleanup);
   }
  }
 
@@ -422,12 +446,26 @@ export class IsolatedExtensionHost{
 
  private stop(record:IsolatedExtensionRecord):Promise<'stopped'|'unconfirmed'>{
   if(record.stopping)return record.stopping;
-  const lease=record.lease,session=record.session;
+  const lease=record.lease,session=record.session,starting=record.starting;
   if(!lease||lease.state==='STOPPED'||lease.state==='FAILED')return Promise.resolve('stopped');
+  // UNKNOWN with no session left to confirm: cleanup was never proven, so a
+  // repeated Stop must not report Stopped or unfence the namespace.
+  if(lease.state==='UNKNOWN'&&!session)return Promise.resolve('unconfirmed');
   record.stopping=(async()=>{
    // Registrations are revoked before calls are cancelled or settled.
    if(lease.state==='ACTIVE'||lease.state==='STARTING'||lease.state==='DRAINING')lease.state='DRAINING';
    lease.registrations=[];
+   if(starting&&starting.lease===lease){
+    // Admitted but not yet published: wait, bounded, for the in-flight launch
+    // and handshake to settle and clean up. Never report Stopped, and never
+    // let a replacement start, until the late worker's exit is confirmed.
+    const bound=this.handshakeDeadlineMs+this.shutdownGraceMs+this.drainSettleMs;
+    let timer:ReturnType<typeof setTimeout>|undefined;
+    const outcome=await Promise.race([starting.settled,new Promise<'unconfirmed'>(resolve=>{timer=setTimeout(()=>resolve('unconfirmed'),bound);})]);
+    if(timer)clearTimeout(timer);
+    if(outcome==='stopped'&&!record.session){lease.state='STOPPED';return'stopped';}
+    lease.state='UNKNOWN';record.session=null;return'unconfirmed';
+   }
    if(session)await session.drain(this.drainSettleMs);
    const shutdown=session?await session.shutdown(this.shutdownGraceMs):'stopped';
    if(shutdown==='stopped'){lease.state='STOPPED';record.session=null;return'stopped';}

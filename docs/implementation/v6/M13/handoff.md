@@ -609,10 +609,9 @@ tests only; no worker run beyond the existing suites, no flag, deployment or
 backend-binding change.
 
 Release-only holds (reviewed statically, not changed here):
-- HOLD-LIFECYCLE-START-STOP: `stop()` during STARTING has no session to
-  drain, so the lease can read STOPPED while a launch is still in flight; the
-  late transport is shut down on handshake, but a launch-in-flight tracker is
-  needed before release.
+- HOLD-LIFECYCLE-START-STOP: RESOLVED in the next commit on this draft: a STARTING generation is tracked through launch and handshake, Stop revokes registrations at once and waits (bounded) for the late worker, replacement stays fenced until exit is confirmed, otherwise the lease is retained UNKNOWN.
 - HOLD-ADVERTISED-OPS: registrations derive from the manifest, not the
   intersection with the worker's advertised `ready.operations`.
 - HOLD-BACKEND-LAUNCH-BINDING: unchanged (DEP-M13-BACKEND-01).
+
+Correction: the earlier statement that `tsc --noEmit` was clean on 671320d2 was not established (the run printed nothing and the unused `evaluateMigrationPlan` import in isolated-host.ts is a TS6133 error). Fixed in the follow-up commit; `tsc --noEmit` with an 8 GiB heap now exits 0.

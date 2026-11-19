@@ -235,3 +235,85 @@ describe('M13 leased lifecycle',()=>{
   expect(host.catalog(trusted)).toEqual([]);
  });
 });
+
+describe('M13 STARTING generation revocation',()=>{
+ const deferred=<T,>()=>{let resolve!:(value:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {promise,resolve};};
+ class HeldHelloTransport extends FakeTransport{
+  held:WorkerFrameV1|null=null;
+  override send(frame:WorkerFrameV1){if(frame.kind==='HELLO'&&!this.release){this.held=frame;this.sent.push(frame);return;}super.send(frame);}
+  release=false;
+  releaseHello(){this.release=true;const frame=this.held;this.held=null;if(frame){this.sent.pop();this.send(frame);}}
+ }
+ const build=(launcher:{launch:()=>Promise<WorkerTransport>},handshakeDeadlineMs=60)=>{
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher,drainSettleMs:20,shutdownGraceMs:20,handshakeDeadlineMs});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  return host;
+ };
+ it('Stop during a delayed launch revokes registration, fences replacement, and terminates the late worker',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();
+  const host=build({launch:()=>gate.promise});
+  const activation=host.activate('sample-ext');const outcome=activation.catch(error=>error);
+  await Promise.resolve();
+  expect(host.record('sample-ext')?.lease?.state).toBe('STARTING');
+  const stopping=host.disable('sample-ext');
+  await Promise.resolve();
+  const lease=host.record('sample-ext')!.lease!;
+  expect(lease.registrations).toEqual([]);
+  expect(lease.state).toBe('DRAINING');
+  // Ownership unresolved: no replacement activation, no dispatch.
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  await expect(host.dispatch('sample-ext','echo',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  gate.resolve(late);
+  expect(await stopping).toBe('STOPPED');
+  expect(await outcome).toMatchObject({code:'INVALID_STATE'});
+  expect(late.terminated).toBe(true);
+  expect(late.sent.some(frame=>frame.kind==='HELLO')).toBe(false);
+  expect(host.record('sample-ext')?.session).toBeNull();
+  // After confirmed cleanup a replacement may start.
+  const next=await host.activate('sample-ext').catch(error=>error);
+  expect(next).toBeDefined();
+  await host.close();
+ });
+ it('Stop during a delayed handshake never publishes ACTIVE and confirms the worker stopped',async()=>{
+  const transport=new HeldHelloTransport();
+  const host=build({launch:async()=>transport},1500);
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await new Promise(resolve=>setTimeout(resolve,5));
+  expect(transport.held).not.toBeNull();
+  const stopping=host.disable('sample-ext');
+  await new Promise(resolve=>setTimeout(resolve,5));
+  expect(host.record('sample-ext')?.lease?.registrations).toEqual([]);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  transport.releaseHello();
+  expect(await stopping).toBe('STOPPED');
+  expect(await outcome).toMatchObject({code:'INVALID_STATE'});
+  expect(transport.terminated).toBe(true);
+  expect(host.record('sample-ext')?.lease?.state).toBe('STOPPED');
+  expect(host.record('sample-ext')?.session).toBeNull();
+ });
+ it('keeps UNKNOWN and blocks replacement when the late worker exit cannot be confirmed',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();late.confirmTerminate=false;
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  const stopping=host.disable('sample-ext');
+  gate.resolve(late);
+  expect(await stopping).toBe('UNKNOWN');
+  await outcome;
+  expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  expect(await host.update('sample-ext',{manifest:manifest({version:'2.0.0'}),packageDir:'/p',dataDir:'/d'})).toMatchObject({status:'UNKNOWN'});
+ });
+ it('keeps UNKNOWN when the launch never settles inside the bounded cleanup',async()=>{
+  const gate=deferred<WorkerTransport>();
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  expect(await host.disable('sample-ext')).toBe('UNKNOWN');
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  const lateWorker=new FakeTransport();gate.resolve(lateWorker);
+  await outcome;
+  expect(lateWorker.terminated).toBe(true);
+  expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
+ });
+});
