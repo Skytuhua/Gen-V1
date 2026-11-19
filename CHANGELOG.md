@@ -10,7 +10,16 @@ host capabilities below remain separately gated; a source implementation does
 not enable them by default.
 
 Interim scope: items explicitly numbered below are unmerged and pending 0.6.5
-freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decision.
+freeze gates, not shipped changes. #584 is deferred.
+
+Providers: OpenAI — **Verified** (recorded live acceptance); Claude, Gemini,
+Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
+**Preview-unverified**. These labels describe live acceptance evidence, not
+availability or verification of every 0.6.5 build. See the
+[verification record](docs/verification/README.md).
+
+Generated apps are **Preview**. Code signing and promotion to the stable channel
+are owner decisions not yet made; stable-update support is not a release promise.
 
 ### Workspace and UI
 
@@ -69,8 +78,6 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
   inspectable provenance, advisory freshness checks and protected MCP output.
 - Add a separately gated isolated-extension worker lane with leased lifecycle and
   declared-tool registration; activation requires a proven confined backend.
-- Add default-off paired-device management and bounded read-only synchronization;
-  production transport and remote input remain held, not generally available.
 
 ### Git, worktrees and developer tools
 
@@ -124,8 +131,7 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
 - Preserve composer focus, drafts, IME Escape behavior, disabled-control semantics,
   editor identity and conversation ownership through switches, reloads and docking.
 - Fix stale plan/report writes, checkpoint diff/apply and Git status parsing,
-  split UTF-8 previews/terminal scrollback, scheduler cancellation/lease races and
-  superseded synchronization responses.
+  split UTF-8 previews/terminal scrollback and scheduler cancellation/lease races.
 
 ### Known issues
 
@@ -133,7 +139,7 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
   0.6.5 via the updater) is still open/unverified; source or candidate checks do
   not prove preservation of a real installed profile.
 - Independent live sign-in, model entitlement and task acceptance beyond the
-  evidenced OpenAI route, and the broader generated-application quality pilot,
+  evidenced OpenAI route, and the broader generated-application **Preview** quality pilot,
   remain open.
 - Physical multi-monitor/mixed-DPI placement, native popup focus/sound/privacy,
   DPAPI round-trip and browser occlusion still require target acceptance.
@@ -142,10 +148,8 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
 - New native canvas-panel detachment/free-floating desktop views are unavailable.
   Gemini/Cursor native compaction, the separate OpenCode agent runtime and
   Meta/Muse access remain unavailable; tested native session forks are unsupported.
-- Isolated-extension activation still has a backend-launch-binding hold;
-  consented browser/desktop control drivers remain blocked (#812, pending owner
-  decision). Paired-client
-  production TLS transport is not deployed and remote input/approval is denied.
+- Isolated-extension activation still has a backend-launch-binding hold.
+  Browser/desktop control and paired-client remote access are unavailable.
 - Advanced capabilities retain default-off and per-platform acceptance gates.
   Historical full-suite failures, skipped/opt-in checks and partial milestone
   evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
@@ -181,7 +185,7 @@ See [the prerelease notes](https://github.com/skytuhua-org/Gen-V1/releases/tag/v
 - Add optional next-message composer predictions with Tab acceptance, durable accepted drafts, bounded native execution and cancellation.
 - Add per-account readiness, owned native sign-in progress/cancel/retry and supported local signout.
 - Stage Cursor reconnect and verify its authenticated user identity; bind Claude metadata at native initialization.
-- Enable generated-app discovery and execution after actual-host checkpoint, recovery, startup-failure and responsiveness checks.
+- Enable generated-app **Preview** discovery and execution after actual-host checkpoint, recovery, startup-failure and responsiveness checks.
 - Preserve the original Hermes conversation/skill-learning implementation and pinned source custody.
 
 Verification included 1,040 passing application checks, 14 packaged native checks and genuine packaged OpenAI/Hermes task/restart acceptance. Other provider sign-ins, installer upgrade acceptance and physical multi-monitor checks remain open. See [the acceptance report](docs/2026-11-01-product-completion.md).

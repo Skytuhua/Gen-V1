@@ -19,7 +19,16 @@ preview. See the [grouped changelog](../../CHANGELOG.md#065--yyyy-mm-dd) and
 [visual workspace guide](../visual-workspace.md). Highlights include:
 
 Interim scope: items explicitly numbered below are unmerged and pending 0.6.5
-freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decision.
+freeze gates, not shipped changes. #584 is deferred.
+
+Providers: OpenAI — **Verified** (recorded live acceptance); Claude, Gemini,
+Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
+**Preview-unverified**. These labels describe live acceptance evidence, not
+availability or verification of every 0.6.5 build. See the
+[verification record](../verification/README.md).
+
+Generated apps are **Preview**. Code signing and promotion to the stable channel
+are owner decisions not yet made; stable-update support is not a release promise.
 
 - **Workspace and UI:** durable split layouts, retained editors, in-app floating
   conversations, parked-view recovery, undo/redo, named layouts, project colors
@@ -45,7 +54,7 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
 - **Integrations and MCP:** public plug-in API v1, independently versioned and
   integrity-checked packages, durable plug-in data and optional Personal Visuals.
   Approved Context7 operations expose reference/advisory provenance. Isolated
-  extension workers and paired-device read sync have separate activation holds.
+  extension workers have separate activation holds.
 - **Git and developer tools:** managed worktrees, selective commits, checkpoint
   history and diff review; gated restore, code intelligence, rename recovery,
   restricted debugging, build/browser verification and a source-aware workbench.
@@ -59,7 +68,7 @@ freeze gates, not shipped changes. #584 is deferred; #812 awaits an owner decisi
   references, single-use approvals and recoverable effect receipts; stronger MCP
   credential redaction, document permissions and custody checks. Paged reads,
   lazy panels and reduced rescanning accompany fixes to drafts/focus, stale plans,
-  checkpoints, terminal UTF-8, scheduling races and synchronization.
+  checkpoints, terminal UTF-8 and scheduling races.
 - **Pending security repair:** retain a known-bad integration denial when
   advisory refresh fails (#936), rather than losing the prior denial.
 
@@ -90,7 +99,7 @@ The 0.6.4 source preview passed its Windows CI run. Focused native candidate che
   0.6.5 via the updater) is still open/unverified. Source or candidate checks do
   not prove preservation of a real installed profile.
 - Independent live sign-in, model entitlement and task acceptance beyond the
-  evidenced OpenAI route, and the broader generated-application quality pilot,
+  evidenced OpenAI route, and the broader generated-application **Preview** quality pilot,
   remain open.
 - Physical multi-monitor/mixed-DPI placement, native popup focus/sound/privacy,
   DPAPI round-trip and browser occlusion still require target acceptance.
@@ -99,10 +108,8 @@ The 0.6.4 source preview passed its Windows CI run. Focused native candidate che
 - New native canvas-panel detachment/free-floating desktop views are unavailable.
   Gemini/Cursor native compaction, the separate OpenCode agent runtime and
   Meta/Muse access remain unavailable; tested native session forks are unsupported.
-- Isolated-extension activation still has a backend-launch-binding hold;
-  consented browser/desktop control drivers remain blocked (#812, pending owner
-  decision). Paired-client
-  production TLS transport is not deployed and remote input/approval is denied.
+- Isolated-extension activation still has a backend-launch-binding hold.
+  Browser/desktop control and paired-client remote access are unavailable.
 - Advanced capabilities retain default-off and per-platform acceptance gates.
   Historical full-suite failures, skipped/opt-in checks and partial milestone
   evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
@@ -112,10 +119,8 @@ The 0.6.4 source preview passed its Windows CI run. Focused native candidate che
   acceptance or a user-facing feature.
 
 The [visual-workspace verification report](../visual-workspace-verification.md),
-[extension handoff](../implementation/v6/M13/handoff.md),
-[session capability evidence](../implementation/v6/M14/handoff.md),
-[control handoff](../implementation/v6/M16/handoff.md) and
-[paired-client handoff](../implementation/v6/M17/handoff.md) record scoped checks
+[extension handoff](../implementation/v6/M13/handoff.md) and
+[session capability evidence](../implementation/v6/M14/handoff.md) record scoped checks
 and holds, not blanket release approval.
 
 A bounded review of 28 captured alerts from the older default branch found none applicable to the evaluated 0.6.4 source. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
