@@ -234,7 +234,10 @@ describe('M01 current dependency compatibility execution', () => {
     const value = fixture();
     mkdirSync(value.out);
     writeFileSync(join(value.out, 'compatibility.json'), 'immutable earlier evidence\n');
-    await expect(value.run()).rejects.toThrow();
+    await expect(value.run()).resolves.toMatchObject({
+      status: 'BLOCKED', source: null, commands: [],
+      issues: [{ code: 'COMPATIBILITY_SETUP_BLOCKED', message: expect.any(String) }],
+    });
     expect(readFileSync(join(value.out, 'compatibility.json'), 'utf8')).toBe('immutable earlier evidence\n');
   });
 });
