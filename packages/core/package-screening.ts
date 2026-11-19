@@ -34,7 +34,9 @@ export interface ScreenPackageOptions {
   exception?: OperatorException;
 }
 export interface ScreeningComputation {
+  /** Retained records keep their original checkedAt; cacheAgeMs reports the current age. */
   record: PackageScreeningV1;
+  /** True only when a cached result is reused without an advisory query. */
   cacheHit: boolean;
   staleCache: boolean;
   /** Present only when the operator recorded a documented exception. */
@@ -103,18 +105,23 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     throw new HarnessError('INVALID_INPUT', 'A clean advisory result requires an explicit, valid database snapshot time.');
   }
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
-  const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
+  const snapshotTime = Date.parse(asOf);
+  const snapshotAge = Date.parse(checkedAt) - snapshotTime;
   const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
     snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
-  // A failed or stale refresh cannot erase a previously verified match.
-  // Keep its original snapshot provenance for every subsequent recheck;
-  // only a fresh negative or another positive response can replace it.
-  if (previousKnownBad && result.status !== 'MATCH' &&
-      !(result.status === 'NO_MATCH' && freshSnapshot)) {
-    return {
-      record: { ...previousKnownBad, cacheAgeMs: previousCacheAgeMs },
-      cacheHit: true, staleCache: true,
-    };
+  if (previousKnownBad) {
+    const previousSnapshotTime = Date.parse(previousKnownBad.advisory.asOf);
+    // Only a fresh, strictly newer snapshot can clear a denial. An older
+    // match must not roll back the timestamp used for that comparison.
+    const supersedesKnownBad = result.status === 'MATCH'
+      ? snapshotTime >= previousSnapshotTime
+      : result.status === 'NO_MATCH' && freshSnapshot && snapshotTime > previousSnapshotTime;
+    if (!supersedesKnownBad) {
+      return {
+        record: { ...previousKnownBad, cacheAgeMs: previousCacheAgeMs },
+        cacheHit: false, staleCache: true,
+      };
+    }
   }
   let status: PackageScreeningV1['status'];
   let decision: PackageScreeningV1['decision'];

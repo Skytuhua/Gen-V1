@@ -246,7 +246,7 @@ describe('M03 cached package screening authority', () => {
         cache: stored, now: twoDaysLater, exception: exceptionInput,
       });
       expect(refreshed).toMatchObject({
-        cacheHit: true, staleCache: true,
+        cacheHit: false, staleCache: true,
         record: { status: 'KNOWN_BAD', decision: 'DENY', checkedAt },
       });
       expect(screeningGate(refreshed.record)).toBe('BLOCK');
@@ -271,6 +271,95 @@ describe('M03 cached package screening authority', () => {
     expect(cleared).toMatchObject({ cacheHit: false, staleCache: true });
     expect(cleared.record).toMatchObject({ status: 'NO_KNOWN_MATCH', decision: 'ALLOW' });
     expect(screeningGate(cleared.record)).toBe('NEUTRAL');
+  });
+
+  it.each([
+    ['older', '2026-11-16T22:00:00.000Z'],
+    ['equal', '2026-11-16T23:00:00.000Z'],
+  ])('retains a known-bad block after a fresh NO_MATCH from an %s snapshot', async (_order, asOf) => {
+    const prior = record({
+      status: 'KNOWN_BAD', decision: 'DENY',
+      advisory: { database: 'current-db', asOf: '2026-11-16T23:00:00.000Z' },
+    });
+    const stored = cache(prior);
+    const refreshTime = () => Date.parse('2026-11-17T02:00:00.000Z');
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({ status: 'NO_MATCH', asOf }),
+    };
+    const result = await screenPackage(identity, advisory, {
+      cache: stored, now: refreshTime, maxCacheAgeMs: 60 * 60 * 1000, exception,
+    });
+    expect(result).toMatchObject({
+      cacheHit: false, staleCache: true, record: { ...prior, cacheAgeMs: 2 * 60 * 60 * 1000 },
+    });
+    expect(screeningGate(result.record)).toBe('BLOCK');
+    expect(result.exception).toBeUndefined();
+
+    const next = await screenPackage(identity, unavailable, {
+      cache: stored, now: refreshTime, maxCacheAgeMs: 60 * 60 * 1000,
+    });
+    expect(next.record.screeningId).toBe(prior.screeningId);
+    expect(screeningGate(next.record)).toBe('BLOCK');
+  });
+
+  it('retains a known-bad block when the advisory query throws', async () => {
+    const prior = record({ status: 'KNOWN_BAD', decision: 'DENY' });
+    const advisory: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => { throw new Error('Advisory service unreachable'); },
+    };
+    const result = await screenPackage(identity, advisory, {
+      cache: cache(prior), now, maxCacheAgeMs: 0, exception,
+    });
+    expect(result).toMatchObject({
+      cacheHit: false, staleCache: true, record: { ...prior, cacheAgeMs: 1_000 },
+    });
+    expect(screeningGate(result.record)).toBe('BLOCK');
+    expect(result.exception).toBeUndefined();
+  });
+
+  it('updates a known-bad block with the latest matching advisory and query time', async () => {
+    const prior = record({ status: 'KNOWN_BAD', decision: 'DENY' });
+    const refreshAt = new Date(now()).toISOString();
+    const stored = cache(prior);
+    const olderMatch: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({
+        status: 'MATCH', asOf: '2026-11-16T23:00:00.000Z', advisoryIds: ['TEST-OLDER'],
+      }),
+    };
+    const retained = await screenPackage(identity, olderMatch, { cache: stored, now, maxCacheAgeMs: 0 });
+    expect(retained.record).toMatchObject({ screeningId: prior.screeningId, advisory: prior.advisory });
+    expect(screeningGate(retained.record)).toBe('BLOCK');
+
+    const newMatch: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({ status: 'MATCH', asOf: refreshAt, advisoryIds: ['TEST-NEW-MATCH'] }),
+    };
+    const updated = await screenPackage(identity, newMatch, { cache: stored, now, maxCacheAgeMs: 0 });
+    expect(updated.record).toMatchObject({
+      checkedAt: refreshAt, advisory: { database: 'current-db', asOf: refreshAt },
+      status: 'KNOWN_BAD', decision: 'DENY', reason: expect.stringContaining('TEST-NEW-MATCH'),
+    });
+    expect(screeningGate(updated.record)).toBe('BLOCK');
+
+    const reused = await screenPackage(identity, unavailable, { cache: stored, now });
+    expect(reused.cacheHit).toBe(true);
+    expect(reused.record.screeningId).toBe(updated.record.screeningId);
+  });
+
+  it('scopes retained known-bad blocks to the advisory database that recorded them', async () => {
+    const prior = record({
+      advisory: { database: 'previous-db', asOf: checkedAt },
+      status: 'KNOWN_BAD', decision: 'DENY',
+    });
+    const result = await screenPackage(identity, unavailable, { cache: cache(prior), now, exception });
+    expect(result).toMatchObject({
+      cacheHit: false, staleCache: true,
+      record: { status: 'UNAVAILABLE', decision: 'OPERATOR_EXCEPTION', advisory: { database: 'current-db' } },
+    });
+    expect(screeningGate(result.record)).toBe('EXCEPTION_RECORDED');
   });
 
   it('rechecks stale cache and retains unavailable as a distinct denial', async () => {
