@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { afterEach, expect, it, vi } from "vitest";
 import { mkdtempSync, mkdirSync, writeFileSync, rmSync, renameSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
@@ -12,7 +13,6 @@ import {UI_TOOLS} from '../packages/runtime-pi/tool-definitions.ts';
 
 const cleanup: (() => Promise<void>)[] = [];
 afterEach(async () => { vi.restoreAllMocks(); for (const fn of cleanup.splice(0).reverse()) await fn(); });
-function deferred() { let resolve!: () => void; const promise = new Promise<void>(r => { resolve = r; }); return { promise, resolve }; }
 async function setup() {
   const dir = mkdtempSync(join(tmpdir(), "harness-review-")), store = new Store(join(dir, "state"));
   let callbacks!: RuntimeCallbacks;

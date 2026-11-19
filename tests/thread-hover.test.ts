@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach, describe, expect, it, vi} from 'vitest';
 import {createThreadHoverCache, createThreadHoverDataController} from '../apps/web/src/thread-hover/data';
 import {createThreadHoverInteraction} from '../apps/web/src/thread-hover/interaction';
@@ -6,7 +7,6 @@ import type {ProjectContext} from '../packages/contracts/workspace';
 
 const scope = (patch: Partial<ThreadHoverScope> = {}): ThreadHoverScope => ({authority: {kind: 'local'}, threadId: 'thread-a', projectId: 'project', workingCopyId: 'C:/copies/a', revision: 'rev-1', ...patch});
 const facts = (owner = scope(), branch = 'branch-a'): ThreadHoverFacts => ({scope: owner, title: owner.threadId, branch});
-function deferred<T>() {let resolve!: (value: T) => void, reject!: (reason: Error) => void; const promise = new Promise<T>((yes, no) => {resolve = yes; reject = no;}); return {promise, resolve, reject};}
 const flush = async () => {await Promise.resolve(); await Promise.resolve();};
 
 describe('exact thread hover ownership', () => {

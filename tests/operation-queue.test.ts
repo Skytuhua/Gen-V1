@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -9,7 +10,6 @@ import * as domain from '../packages/capabilities/index.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => { for (const cleanup of cleanups.splice(0)) await cleanup(); vi.restoreAllMocks(); });
-const deferred = () => { let resolve!: () => void; const promise = new Promise<void>(done => { resolve = done; }); return { promise, resolve }; };
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'harness-operation-queue-')), store = new Store(join(root, 'state'));
   let callbacks!: RuntimeCallbacks; const starts: StartRun[] = [];

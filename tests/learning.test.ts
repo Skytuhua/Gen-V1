@@ -1,9 +1,9 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import type {RunContext,RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{await Promise.allSettled(cleanups.splice(0).map(close=>close()));vi.useRealTimers();});
-function deferred<T=void>(){let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return {promise,resolve};}
 class ReviewRuntime implements RuntimeAdapter {
  callbacks!:RuntimeCallbacks;inputs:StartRun[]=[];cancels:RunContext[]=[];disposed=0;startGate?:Promise<void>;disposeGate?:Promise<void>;
  configure(callbacks:RuntimeCallbacks){this.callbacks=callbacks;}
