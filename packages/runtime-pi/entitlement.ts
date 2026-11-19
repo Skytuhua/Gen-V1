@@ -38,3 +38,23 @@ export function entitlementFailure(error: unknown, signal: AbortSignal | undefin
   signal?.throwIfAborted();
   return error instanceof ProbeHttpError && rejected.includes(error.status) ? 'rejected' : 'unconfirmed';
 }
+
+const COPILOT_HEADERS = { 'User-Agent': 'GitHubCopilotChat/0.35.0', 'Editor-Version': 'vscode/1.107.0', 'Editor-Plugin-Version': 'copilot-chat/0.35.0', 'Copilot-Integration-Id': 'vscode-chat' };
+function copilotDomain(enterpriseUrl: unknown): string | undefined {
+  if (enterpriseUrl === undefined || enterpriseUrl === null || enterpriseUrl === '') return 'github.com';
+  if (typeof enterpriseUrl !== 'string') return undefined;
+  try {
+    const url = new URL(enterpriseUrl.includes('://') ? enterpriseUrl : `https://${enterpriseUrl}`);
+    return url.protocol === 'https:' && !url.port && !url.username && /^(?=.{4,253}$)[a-z\d-]+(\.[a-z\d-]+)+$/.test(url.hostname) ? url.hostname : undefined;
+  } catch { return undefined; }
+}
+/** The same Copilot token exchange the pinned SDK performs before every request; the issued token is validated and discarded, never stored. */
+export async function probeCopilotEntitlement(credential: { refresh?: unknown; enterpriseUrl?: unknown }, signal?: AbortSignal): Promise<EntitlementOutcome> {
+  const domain = copilotDomain(credential.enterpriseUrl);
+  if (typeof credential.refresh !== 'string' || !credential.refresh || !domain) return 'unconfirmed';
+  try {
+    const result = await fetchBoundedJson(`https://api.${domain}/copilot_internal/v2/token`, { Authorization: `Bearer ${credential.refresh}`, ...COPILOT_HEADERS }, 64 * 1024, signal);
+    if (!result || typeof result !== 'object' || typeof (result as { token?: unknown }).token !== 'string' || typeof (result as { expires_at?: unknown }).expires_at !== 'number') return 'unconfirmed';
+    return 'accepted';
+  } catch (error) { return entitlementFailure(error, signal); }
+}

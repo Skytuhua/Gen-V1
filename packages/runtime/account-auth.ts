@@ -7,7 +7,7 @@ import type { Store } from '../storage/store.ts';
 import { withAccountProfile } from './account-profile.ts';
 import { createLiteralCredentialStore, type LiteralCredentialStore } from '../runtime-pi/credentials.ts';
 import { probeKimiEntitlement } from '../runtime-pi/plan-keys.ts';
-import type { EntitlementOutcome } from '../runtime-pi/entitlement.ts';
+import { probeCopilotEntitlement, type EntitlementOutcome } from '../runtime-pi/entitlement.ts';
 import { taskPaths } from '../runtime-pi/session.ts';
 import { loadSdk } from '../runtime-pi/sdk.ts';
 import { cursorAccountStatus, cursorLocalSignout } from '../runtime-official/cursor.ts';
@@ -51,6 +51,7 @@ type StoredCredential = NonNullable<Awaited<ReturnType<LiteralCredentialStore['r
 /** Bounded authenticated probes where the provider offers one; other saved credentials stay "Saved, not verified". */
 async function entitlement(providerId: AccountAuthTarget['providerId'], credential: StoredCredential, signal?: AbortSignal): Promise<{ label: string; outcome: EntitlementOutcome } | undefined> {
   if (providerId === 'kimi-coding' && credential.type === 'api_key' && credential.key) return { label: 'Kimi Code', outcome: await probeKimiEntitlement(credential.key, signal) };
+  if (providerId === 'github-copilot' && credential.type === 'oauth') return { label: 'GitHub Copilot', outcome: await probeCopilotEntitlement(credential, signal) };
   return undefined;
 }
 const localSignout = (providerId: AccountAuthTarget['providerId']) => !isOfficialRuntimeProviderId(providerId) || providerId === 'cursor-sdk';
