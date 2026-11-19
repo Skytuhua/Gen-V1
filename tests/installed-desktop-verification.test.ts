@@ -446,40 +446,42 @@ describe('bounded installed startup output custody',()=>{
 
 describe('installed verifier integration seam',()=>{
  const manifestFile={files:[{path:'resources/host/packages/core/windows-control-bridge.node',bytes:1,sha256:'a'.repeat(64)},{path:'resources/host/package.json',bytes:2,sha256:'b'.repeat(64)}],bytes:3,sha256:'c'.repeat(64)};
- const provenanceInput=async(overrides:{manifest?:unknown;setupSha?:string;sourceSha?:unknown}={})=>{
+ const provenanceInput=async()=>{
   const root=await realpath(await mkdtemp(join(tmpdir(),'installed-seam-')));
-  const setup=join(root,'Gen-V1-Setup-0.6.5-win-x64.exe'),executable=join(root,'Gen V1.exe');
-  const setupBytes=Buffer.from('synthetic-setup'),setupSha256=createHash('sha256').update(setupBytes).digest('hex');
-  await writeFile(setup,setupBytes);await writeFile(executable,Buffer.from('synthetic-exe'));
-  const manifest='manifest' in overrides?overrides.manifest:{files:[{file:'desktop-release-0.6.5/Gen-V1-Setup-0.6.5-win-x64.exe',bytes:setupBytes.length,sha256:setupSha256}],sourceSha:'sourceSha' in overrides?overrides.sourceSha:'4110b56a3fc0b7cc81be0af7712bb90933f13428'};
-  if(manifest!==null)await writeFile(join(root,'build-manifest.json'),JSON.stringify(manifest));
-  return{root,cleanup:()=>rm(root,{recursive:true,force:true}),input:{setup,setupSha256,executable,expected:manifestFile,packageVersion:'0.6.5'}};
+  const executable=join(root,'Gen V1.exe');
+  await writeFile(executable,Buffer.from('synthetic-exe'));
+  const setupSha256=createHash('sha256').update('synthetic-setup').digest('hex');
+  return{root,cleanup:()=>rm(root,{recursive:true,force:true}),input:{setupSha256,executable,expected:manifestFile,packageVersion:'0.6.5'}};
  };
- it('binds provenance only through a build record that proves the invoked installer',async()=>{
+ const buildBinding=(installerSha256:string,overrides:Record<string,unknown>={})=>({reference:'ci-run/44418295418',sourceSha:'4110b56a3fc0b7cc81be0af7712bb90933f13428',installerSha256,payloadSha256:'c'.repeat(64),...overrides});
+ it('binds provenance only through a caller-supplied build binding matching both verified digests',async()=>{
   const {input,cleanup}=await provenanceInput();
   try{
-   const resolution=await installedVerification.resolveInstalledVerifierProvenance(input);
+   const resolution=await installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:buildBinding(input.setupSha256)});
    expect(resolution.status).toBe('bound');
    if(resolution.status!=='bound')throw Error('unreachable');
    expect(resolution.provenance).toEqual({sourceSha:'4110b56a3fc0b7cc81be0af7712bb90933f13428',packageVersion:'0.6.5',installerSha256:input.setupSha256,executableSha256:createHash('sha256').update('synthetic-exe').digest('hex'),payloadSha256:'c'.repeat(64)});
+   expect(resolution.buildReference).toBe('ci-run/44418295418');
   }finally{await cleanup();}
  });
- it('records the exact missing source-SHA binding and stays unbound rather than filling from filename or HEAD',async()=>{
-  const boundRecord={files:[{file:'x/Gen-V1-Setup-0.6.5-win-x64.exe',bytes:14,sha256:'unused'}]};
-  const {input,cleanup}=await provenanceInput({manifest:{files:[{file:'x/Gen-V1-Setup-0.6.5-win-x64.exe',bytes:14,sha256:createHash('sha256').update('synthetic-setup').digest('hex')}]}});
+ it('stays unbound without a caller-supplied binding — an adjacent record naming the installer and a sourceSha is consistency evidence only',async()=>{
+  const {root,input,cleanup}=await provenanceInput();
   try{
+   await writeFile(join(root,'build-manifest.json'),JSON.stringify({files:[{file:'desktop-release-0.6.5/Gen-V1-Setup-0.6.5-win-x64.exe',bytes:14,sha256:input.setupSha256}],sourceSha:'4110b56a3fc0b7cc81be0af7712bb90933f13428'}));
    const resolution=await installedVerification.resolveInstalledVerifierProvenance(input);
-   expect(resolution.status).toBe('unbound');expect(resolution.missing).toEqual([expect.stringContaining('no sourceSha field')]);
-   const {input:absent,cleanup:cleanup2}=await provenanceInput({manifest:null});
-   try{const resolution2=await installedVerification.resolveInstalledVerifierProvenance(absent);expect(resolution2.status).toBe('unbound');expect(resolution2.missing[0]).toMatch(/absent or unreadable/);}finally{await cleanup2();}
-   void boundRecord;
+   expect(resolution.status).toBe('unbound');
+   expect(resolution.missing).toEqual([expect.stringContaining('caller-supplied build binding')]);
   }finally{await cleanup();}
  });
- it('rejects a build record that does not prove the invoked installer digest and malformed checkout identities',async()=>{
-  const {input,cleanup}=await provenanceInput({manifest:{files:[{file:'x/Gen-V1-Setup-0.6.5-win-x64.exe',bytes:14,sha256:'d'.repeat(64)}]}});
-  try{await expect(installedVerification.resolveInstalledVerifierProvenance(input)).rejects.toThrow(/does not bind the invoked installer/);}finally{await cleanup();}
-  const {input:bad,cleanup:cleanup2}=await provenanceInput({sourceSha:'1234'});
-  try{await expect(installedVerification.resolveInstalledVerifierProvenance(bad)).rejects.toThrow(/sourceSha is malformed/);}finally{await cleanup2();}
+ it('refuses incomplete or mismatched bindings outright',async()=>{
+  const {input,cleanup}=await provenanceInput();
+  try{
+   await expect(installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:buildBinding('d'.repeat(64))})).rejects.toThrow(/installerSha256 does not match/);
+   await expect(installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:buildBinding(input.setupSha256,{payloadSha256:'e'.repeat(64)})})).rejects.toThrow(/payloadSha256 does not match/);
+   await expect(installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:buildBinding(input.setupSha256,{sourceSha:'1234'})})).rejects.toThrow(/sourceSha is malformed/);
+   await expect(installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:buildBinding(input.setupSha256,{reference:''})})).rejects.toThrow(/build\/run reference/);
+   await expect(installedVerification.resolveInstalledVerifierProvenance({...input,buildBinding:{installerSha256:input.setupSha256,payloadSha256:'c'.repeat(64)} as never})).rejects.toThrow(/build\/run reference/);
+  }finally{await cleanup();}
  });
  it('locates the installed control addon digest at its verified package-relative path only when the manifest lists it',()=>{
   expect(installedVerification.installedControlAddon(manifestFile)).toEqual({packageRelativePath:'resources/host/packages/core/windows-control-bridge.node',sha256:'a'.repeat(64)});
@@ -490,13 +492,13 @@ describe('installed verifier integration seam',()=>{
   const provenance={sourceSha:'4'.repeat(40),packageVersion:'0.6.5',installerSha256:'5'.repeat(64),executableSha256:'6'.repeat(64),payloadSha256:'7'.repeat(64)};
   const controlAddon={packageRelativePath:'resources/host/packages/core/windows-control-bridge.node',sha256:'8'.repeat(64)};
   const page={url:()=>'http://127.0.0.1:4100/'} as unknown as Parameters<typeof installedVerification.invokeInstalledVerifierIntegration>[0]['page'];
-  await installedVerification.invokeInstalledVerifierIntegration({offer:{callback:async context=>{seen.push(context);return{kind:'synthetic',ok:true};},provenance,controlAddon},page,directory:'C:\\owned-profile',origin:'http://127.0.0.1:4100',iteration:2,receipt});
-  expect(seen).toEqual([{page,directory:'C:\\owned-profile',origin:'http://127.0.0.1:4100',iteration:2,provenance,controlAddon}]);
+  await installedVerification.invokeInstalledVerifierIntegration({offer:{callback:async context=>{seen.push(context);return{kind:'synthetic',ok:true};},provenance,buildReference:'ci-run/44418295418',controlAddon},page,directory:'C:\\owned-profile',origin:'http://127.0.0.1:4100',iteration:2,receipt});
+  expect(seen).toEqual([{page,directory:'C:\\owned-profile',origin:'http://127.0.0.1:4100',iteration:2,provenance,buildReference:'ci-run/44418295418',controlAddon}]);
   expect(receipt.integrations).toEqual([{iteration:2,kind:'installed-verifier-integration',receipt:{kind:'synthetic',ok:true}}]);
  });
  it('lets callback refusals propagate so the launch fails closed before cleanup',async()=>{
   const provenance={sourceSha:'4'.repeat(40),packageVersion:'0.6.5',installerSha256:'5'.repeat(64),executableSha256:'6'.repeat(64),payloadSha256:'7'.repeat(64)};
   const page={url:()=>'http://127.0.0.1:4100/'} as unknown as Parameters<typeof installedVerification.invokeInstalledVerifierIntegration>[0]['page'];
-  await expect(installedVerification.invokeInstalledVerifierIntegration({offer:{callback:async()=>{throw Error('refused-input');},provenance,controlAddon:null},page,directory:'d',origin:'o',iteration:1,receipt:{}})).rejects.toThrow('refused-input');
+  await expect(installedVerification.invokeInstalledVerifierIntegration({offer:{callback:async()=>{throw Error('refused-input');},provenance,buildReference:'ci-run/44418295418',controlAddon:null},page,directory:'d',origin:'o',iteration:1,receipt:{}})).rejects.toThrow('refused-input');
  });
 });
