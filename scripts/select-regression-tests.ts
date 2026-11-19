@@ -58,6 +58,13 @@ export function discoverTestFiles(testDir: string): string[] {
     .filter(path => TEST_FILE.test(path) && path !== 'plugin-api-package.test.mjs');
 }
 
+// Only paths under the configured Vitest root are test inventory entries.
+function isSuiteTest(path: string): boolean {
+  const clean = normalizedRepoPath(path);
+  return clean !== null && clean.startsWith('tests/') && clean !== 'tests/plugin-api-package.test.mjs'
+    && TEST_FILE.test(clean);
+}
+
 export function selectRegressionTests(changes: readonly SourceChange[], existingTests: readonly string[], mapping: Record<string, string[]> = DEFAULT_SOURCE_TEST_MAP): SelectionResult {
   const existing = new Set(existingTests);
   for (const name of existingTests) if (!TEST_NAME.test(name)) throw new Error(`Unsafe test name in suite index: ${name}`);
@@ -88,7 +95,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     if (change.status === 'R' && change.previousPath !== undefined) {
       // A test renamed to another test is not a removal; other destinations
       // leave the old name deleted and are reported as such.
-      if (!(TEST_FILE.test(change.previousPath) && TEST_FILE.test(change.path)))
+      if (!(isSuiteTest(change.previousPath) && isSuiteTest(change.path)))
         expanded.push({ path: change.previousPath, status: 'D' });
       expanded.push({ path: change.path, status: 'A' });
     }
@@ -103,7 +110,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
       issues.push({ path: String(change.path), code: 'UNSAFE_NAME', message: 'Changed path is not a safe repository-relative name' });
       continue;
     }
-    const isTestFile = TEST_FILE.test(path);
+    const isTestFile = isSuiteTest(path);
     if (isTestFile) {
       if (change.status === 'D') issues.push({ path, code: 'REMOVED_TEST', message: `Test file was deleted: ${path}` });
       else if (existing.has(path)) selected.add(path);
