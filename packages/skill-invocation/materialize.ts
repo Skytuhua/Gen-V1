@@ -14,7 +14,7 @@ export function packagePath(value: string): boolean {
     /^[A-Za-z0-9_. -]+$/.test(part) && part !== '.' && part !== '..' && !/[. ]$/.test(part) &&
     !/^(?:con|prn|aux|nul|com[1-9]|lpt[1-9])(?:\.|$)/i.test(part));
 }
-export function checkFiles(files: readonly {path: string; bytes: number; digest: string}[]): void {
+function checkFiles(files: readonly {path: string; bytes: number; digest: string}[]): void {
   if (!files.length || files.length > SKILL_INVOCATION_LIMITS.files || !files.some(file => file.path === 'SKILL.md') ||
     new Set(files.map(file => file.path.toLowerCase())).size !== files.length) throw Error('Unsupported package');
   let total = 0;
