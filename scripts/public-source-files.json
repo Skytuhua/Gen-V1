@@ -3494,6 +3494,7 @@
     "tests/task-status.test.ts",
     "tests/task-table-controls.test.ts",
     "tests/terminal-excerpts.test.ts",
+    "tests/terminal-host-unit.test.ts",
     "tests/terminal-host.test.ts",
     "tests/terminal-opening-race.test.ts",
     "tests/theme-contrast.test.ts",
