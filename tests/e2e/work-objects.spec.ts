@@ -28,6 +28,22 @@ test('shared board move keyboard commits the exact proposal and a source change 
  expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);
 });
 
+test('lane dots classify moved cards as none, some or all per lane',async({page})=>{
+ await fixture(page,'WorkflowBoard',suppliedBoard);await page.goto('/');
+ const mark=(lane:string)=>page.getByRole('region',{name:lane,exact:true}).locator('.workflow-lane-mark');
+ await expect(mark('Ready')).toHaveClass(/mark-0/);await expect(mark('In review')).toHaveClass(/mark-0/);await expect(mark('Prepared')).toHaveClass(/mark-0/);
+ await page.getByRole('button',{name:'Keep retries ordered',exact:true}).click();
+ await page.getByRole('combobox',{name:'Move selected card',exact:true}).focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+ await expect(page.getByRole('region',{name:'In review',exact:true})).toContainText('Keep retries ordered');
+ await expect(mark('Ready')).toHaveClass(/mark-0/);
+ await expect(mark('In review')).toHaveClass(/mark-1/);
+ await page.getByRole('button',{name:'Prepare migration notes',exact:true}).click();
+ await page.getByRole('combobox',{name:'Move selected card',exact:true}).focus();await page.keyboard.press('ArrowDown');await page.keyboard.press('ArrowDown');await page.keyboard.press('Enter');
+ await expect(page.getByRole('region',{name:'Prepared',exact:true})).toContainText('Prepare migration notes');
+ await expect(mark('In review')).toHaveClass(/mark-2/);
+ await expect(mark('Prepared')).toHaveClass(/mark-2/);
+});
+
 test('shared trace choices retain numeric zoom and stale selection authority',async({page})=>{
  const {snapshot,host}=await fixture(page,'TraceWaterfall',suppliedTrace);snapshot.artifacts[0].placement='expanded';await page.goto('/');
  await page.getByRole('treeitem',{name:'Parse document',exact:true}).click();
