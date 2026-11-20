@@ -282,4 +282,41 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('split-secret-value');
     expect(log).toContain('[REDACTED]');
   });
+  it('redacts multiline PEM credentials split across child output chunks',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_");setTimeout(()=>process.stdout.write("CANARY_9281\n-----END RSA PRIVATE KEY-----\nafter\n"),30);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('after\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('SYNTHETIC_PEM_');
+    expect(log).not.toContain('CANARY_9281');
+    expect(log).not.toContain('-----BEGIN RSA PRIVATE KEY-----');
+    expect(log).not.toContain('-----END RSA PRIVATE KEY-----');
+  });
+
+  it('fails closed when a PEM begin marker has no matching end before child exit',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN PRIVATE KEY-----\nUNTERMINATED_PEM_CANARY_9282\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('UNTERMINATED_PEM_CANARY_9282');
+    expect(log).not.toContain('-----BEGIN PRIVATE KEY-----');
+  });
+
+  it('preserves text around a same-line PEM block without disclosing the key',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before -----BEGIN PRIVATE KEY-----INLINE_PEM_CANARY_9283-----END PRIVATE KEY----- after\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before [REDACTED PRIVATE KEY] after\n');
+    expect(log).not.toContain('INLINE_PEM_CANARY_9283');
+  });
+
 });
