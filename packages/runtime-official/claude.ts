@@ -104,8 +104,16 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
     try {
       for await (const message of query) {
         if (!context.current() || closed) continue;
-        const frame = message as any;
-        if(context.modelOnly&&Array.isArray(frame.message?.content)&&frame.message.content.some((block:any)=>block?.type==='tool_use'))throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The native model attempted to execute a tool.');
+        const frame = message as {
+          type?: string; subtype?: string; is_error?: boolean; isReplay?: boolean;
+          uuid?: unknown; session_id?: unknown; parent_tool_use_id?: unknown;
+          startup_failure_reason?: unknown; user_message_uuids?: unknown; user_message_uuid?: unknown;
+          queued_turn_count?: number; error?: unknown; result?: unknown;
+          message?: { content?: unknown };
+          event?: { type?: string; delta?: { type?: string; text?: unknown } };
+          usage?: { input_tokens?: unknown; output_tokens?: unknown };
+        };
+        if(context.modelOnly&&Array.isArray(frame.message?.content)&&frame.message.content.some((block: { type?: unknown })=>block?.type==='tool_use'))throw new HarnessError('MODEL_ONLY_TOOL_DENIED','The native model attempted to execute a tool.');
         if (frame.parent_tool_use_id) continue;
         if (frame.session_id && typeof frame.session_id === 'string') {
           const expected = context.manifest.value.sessionId;
@@ -141,9 +149,9 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
           // This optional snapshot cannot hold up terminal settlement.
           const usage = await bounded(Promise.resolve().then(() => query.getContextUsage({ detail: 'summary' })), 1000, 'Claude context usage was not available.').catch(() => undefined);
           if (closed || failed || !context.current()) continue;
-          context.event('usage', { usage: { contextTokens: finite(usage?.totalTokens), contextWindow: finite(usage?.maxTokens), inputTokens: finite(frame.usage?.input_tokens), outputTokens: finite(frame.usage?.output_tokens), cost: null, sessionPercent: null, weeklyPercent: null, activity: pending.size || frame.queued_turn_count > 0 ? 'running' : 'idle' } });
+          context.event('usage', { usage: { contextTokens: finite(usage?.totalTokens), contextWindow: finite(usage?.maxTokens), inputTokens: finite(frame.usage?.input_tokens), outputTokens: finite(frame.usage?.output_tokens), cost: null, sessionPercent: null, weeklyPercent: null, activity: pending.size || (frame.queued_turn_count ?? 0) > 0 ? 'running' : 'idle' } });
           messageId = randomUUID(); emittedText = false; turnIds = [];
-          if ((frame.queued_turn_count === 0 || frame.subtype !== 'success' || !pending.size) && !(frame.queued_turn_count > 0)) context.event('settled', { aborted: false });
+          if ((frame.queued_turn_count === 0 || frame.subtype !== 'success' || !pending.size) && !((frame.queued_turn_count ?? 0) > 0)) context.event('settled', { aborted: false });
         }
       }
       if (context.current() && !closed) throw new Error('Official Claude Code exited before a terminal result. Persisted history will determine input delivery.');

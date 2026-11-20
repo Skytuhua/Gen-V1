@@ -75,7 +75,7 @@ class ScriptedReader implements RuntimeAdapter{
   async dispose(){this.stopped=true;}
 }
 
-export class ExpandedReviewRuntime implements RuntimeAdapter{
+class ExpandedReviewRuntime implements RuntimeAdapter{
   private callbacks!:RuntimeCallbacks;service!:Service;planning!:PlanningCoordinator;
   readonly scenarios=new Map<string,ExpandedScenario>();readonly resources=new Map<string,{project?:string;before?:string;after?:string}>();
   private aliases=new Map<string,Map<string,string>>();private controllers=new Map<string,AbortController>();
