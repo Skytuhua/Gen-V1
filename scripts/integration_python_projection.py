@@ -130,10 +130,11 @@ def _diagnosis(expected: dict[str, dict], actual: dict[str, dict]) -> dict:
                 "actualBytes": actual[key]["bytes"], "expectedSha256": expected[key]["sha256"],
                 "actualSha256": actual[key]["sha256"]}
                for key in sorted(expected.keys() & actual.keys()) if expected[key] != actual[key]]
+    truncated = any(len(rows) > 100 for rows in (added, missing, changed))
     return {"expectedFiles": len(expected), "actualFiles": len(actual),
             "addedCount": len(added), "missingCount": len(missing), "changedCount": len(changed),
             "added": added[:100], "missing": missing[:100], "changed": changed[:100],
-            "truncated": any(len(rows) > 100 for rows in (added, missing, changed))}
+            "truncated": truncated}
 
 
 def _identity(metadata: bytes) -> tuple[str, str]:

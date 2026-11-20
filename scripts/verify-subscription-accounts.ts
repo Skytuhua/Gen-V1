@@ -23,13 +23,15 @@ const errors:string[]=[];
 const cleanupErrors:string[]=[];
 const commands:unknown[]=[];
 type BackendDiagnostic={pid:number;stderr:string;exitCode?:number|null;signal?:string|null};
+type DiagnosticsGlobal={__accountBackendDiagnostics?:unknown[]};
+type ChildProcessLike={pid?:number;spawnargs?:unknown;stderr?:{on(event:string,listener:(bytes:Buffer)=>void):unknown}|null;once(event:string,listener:(code:number|null,signal:string|null)=>void):unknown};
 let backendDiagnostics:BackendDiagnostic[]=[];
 let app:ElectronApplication|undefined,passed=false;
 const receipt=()=>({createdAt:new Date().toISOString(),executable:executable??'source desktop shell',sourceBackendNode:executable?undefined:env.HARNESS_DESKTOP_NODE_PATH,passed,scope:'Actual desktop bridge, HTTP commands and SQLite persistence for account Add/Rename/Use/Remove/Restore across the requested providers and full native restart.',requestedProviders:providers.map(provider=>provider.id),auth:false,inference:false,liveAccountAcceptance:false,checks,pageErrors:errors,cleanupErrors,commands,backendDiagnostics,ports:{hostPort,widgetPort}});
 const saveReceipt=()=>writeFile(join(directory,'verification.json'),JSON.stringify(receipt(),null,2));
 await saveReceipt();
 const snapshot=(page:Page)=>page.evaluate(async()=>{const response=await fetch('/api/snapshot',{credentials:'same-origin',cache:'no-store'});if(!response.ok)throw Error('Snapshot failed: '+response.status);return response.json();}) as Promise<Snapshot>;
-async function assertBackendAlive(){const diagnostics=await app!.evaluate(()=>(globalThis as any).__accountBackendDiagnostics??[]) as BackendDiagnostic[];backendDiagnostics.push(...diagnostics);expect(diagnostics).toHaveLength(1);expect(diagnostics[0].exitCode).toBeUndefined();}
+async function assertBackendAlive(){const diagnostics=await app!.evaluate(()=>(globalThis as DiagnosticsGlobal).__accountBackendDiagnostics??[]) as BackendDiagnostic[];backendDiagnostics.push(...diagnostics);expect(diagnostics).toHaveLength(1);expect(diagnostics[0].exitCode).toBeUndefined();}
 async function launch(){
  app=await _electron.launch({...(executable?{executablePath:executable,args:[]}:{args:[resolve('dist/desktop-app/main.mjs')]}),env,timeout:60000});
  await expect.poll(()=>app!.windows().some(page=>page.url().startsWith(`http://127.0.0.1:${hostPort}/`)),{timeout:30000}).toBe(true);
@@ -37,10 +39,10 @@ async function launch(){
  // Inspect only this fresh Electron owner's fixed backend child, retaining bounded
  // stderr/exit evidence so a dead sidecar cannot be misclassified as a UI timeout.
  await app.evaluate(()=>{
-  const diagnostics:unknown[]=[];(globalThis as any).__accountBackendDiagnostics=diagnostics;
-  const handles=(process as any)._getActiveHandles() as any[];
+  const diagnostics:unknown[]=[];(globalThis as DiagnosticsGlobal).__accountBackendDiagnostics=diagnostics;
+  const handles=(process as unknown as {_getActiveHandles():ChildProcessLike[]})._getActiveHandles();
   for(const child of handles){
-   if(!Number.isSafeInteger(child.pid)||!Array.isArray(child.spawnargs)||!child.spawnargs.some((arg:unknown)=>typeof arg==='string'&&arg.replaceAll('\\','/').endsWith('/apps/server/main.ts')))continue;
+   if(typeof child.pid!=='number'||!Number.isSafeInteger(child.pid)||!Array.isArray(child.spawnargs)||!child.spawnargs.some((arg:unknown)=>typeof arg==='string'&&arg.replaceAll('\\','/').endsWith('/apps/server/main.ts')))continue;
    const entry:{pid:number;stderr:string;exitCode?:number|null;signal?:string|null}={pid:child.pid,stderr:''};diagnostics.push(entry);
    child.stderr?.on('data',(bytes:Buffer)=>{entry.stderr=(entry.stderr+String(bytes)).slice(-24000);});
    child.once('exit',(code:number|null,signal:string|null)=>{entry.exitCode=code;entry.signal=signal;});
@@ -83,7 +85,7 @@ try{
  for(const check of checks){expect(restored.settings.selectedAccounts?.[check.provider as keyof NonNullable<Snapshot['settings']['selectedAccounts']>]).toBe(check.accountId);await page.getByRole('navigation',{name:'Subscription providers',exact:true}).getByRole('button',{name:providers.find(provider=>provider.id===check.provider)!.label,exact:true}).click();const row=page.locator(`.connection-row[data-provider="${check.provider}"]`);await expect(row.getByRole('radio',{name:`Verification A ${check.provider}`,exact:true})).toBeChecked();await expect(row.getByRole('radio',{name:`Verification renamed ${check.provider}`,exact:true})).toBeEnabled();}
  await assertBackendAlive();expect(errors).toEqual([]);await page.screenshot({path:join(directory,'accounts-after-restart.png')});
  await stop();passed=true;
-}catch(error){errors.push(error instanceof Error?error.message:String(error));backendDiagnostics=await app?.evaluate(()=>(globalThis as any).__accountBackendDiagnostics??[]).catch(()=>[]);const page=app?.windows().find(page=>!page.isClosed());if(page){await page.screenshot({path:join(directory,'failure.png')}).catch(()=>{});await writeFile(join(directory,'failure-snapshot.json'),JSON.stringify(await snapshot(page).catch(()=>null),null,2));await writeFile(join(directory,'failure-ui.txt'),await page.locator('body').innerText().catch(()=>''));}throw error;
+}catch(error){errors.push(error instanceof Error?error.message:String(error));backendDiagnostics=(await app?.evaluate(()=>(globalThis as DiagnosticsGlobal).__accountBackendDiagnostics??[]).catch(()=>[]))as BackendDiagnostic[];const page=app?.windows().find(page=>!page.isClosed());if(page){await page.screenshot({path:join(directory,'failure.png')}).catch(()=>{});await writeFile(join(directory,'failure-snapshot.json'),JSON.stringify(await snapshot(page).catch(()=>null),null,2));await writeFile(join(directory,'failure-ui.txt'),await page.locator('body').innerText().catch(()=>''));}throw error;
 }finally{
  let cleanupFailure:unknown;
  try{await stop();}catch(error){cleanupFailure=error;cleanupErrors.push(error instanceof Error?error.message:String(error));passed=false;}
