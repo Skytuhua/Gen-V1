@@ -66,3 +66,34 @@ it('bounds the actual serialized prediction context for JSON-heavy chat text',()
  expect(text.startsWith(parsed[0].content)).toBe(true);
  expect(parsed[0].content).not.toMatch(/[\uD800-\uDBFF]$/u);
 });
+
+it('times out a settled prediction while cleanup is still pending',async()=>{
+ vi.useFakeTimers();const x=fixture(),cleanup=deferred<void>();x.predictions.settled(x.current!);
+ let received:null|string|undefined;
+ const result=request(x).then(value=>{received=value.suggestion;return value;});
+ try {
+  await vi.advanceTimersByTimeAsync(0);
+  x.models[0].runtime.dispose=vi.fn(()=>cleanup.promise);
+  const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
+  x.models[0].settle();
+  await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
+  expect(received).toBeNull();
+  expect(await result).toMatchObject({suggestion:null,usage:{outputTokens:3}});
+  expect(x.predictions.busy).toBe(true);
+ } finally {cleanup.resolve();await result;}
+ await vi.advanceTimersByTimeAsync(0);
+ expect(x.predictions.busy).toBe(false);
+ expect(await request(x)).toMatchObject({suggestion:null});
+});
+
+it('times out an unsettled prediction without reporting partial usage',async()=>{
+ vi.useFakeTimers();const x=fixture();x.predictions.settled(x.current!);
+ const result=request(x);
+ await vi.advanceTimersByTimeAsync(0);
+ const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
+ await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
+ const value=await result;
+ expect(value).toMatchObject({suggestion:null});
+ expect(value).not.toHaveProperty('usage');
+ expect(x.models[0].runtime.cancel).toHaveBeenCalled();
+});

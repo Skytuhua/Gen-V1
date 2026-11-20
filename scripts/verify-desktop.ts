@@ -63,6 +63,7 @@ try{
  const composer=main.getByRole('textbox',{name:'Message',exact:true}),composerIdentity=await composer.elementHandle(),nativeCount=app.windows().length;
  await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
  await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
+ await main.getByRole('menuitem',{name:'Detach conversation',exact:true}).click();
  const float=main.locator('[data-split-view="thread:task-thread"][data-floating="true"]');await expect(float).toBeVisible();expect(app.windows().length).toBe(nativeCount);
  const before=(await float.boundingBox())!,handle=(await float.getByRole('button',{name:'Resize Source-bound task fixture',exact:true}).boundingBox())!;
  await main.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await main.mouse.down();

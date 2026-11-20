@@ -5,6 +5,13 @@ import { createServer } from 'node:http';
 import { describe, expect, it, vi } from 'vitest';
 import { runCursorWorker } from '../packages/runtime-official/cursor-worker.ts';
 import { assertCursorLoginUrl, cursorCredentialStore } from '../packages/runtime-official/cursor-credentials.ts';
+import { fakeSecretCodec } from './fixtures/secret-codec.ts';
+
+vi.mock('../packages/runtime-official/cursor-credentials.ts', async importOriginal => {
+  const original = await importOriginal<typeof import('../packages/runtime-official/cursor-credentials.ts')>();
+  return { ...original, cursorCredentialStore: (dataDir: string, browserLogin = false) => original.cursorCredentialStore(dataDir, browserLogin, testCodec) };
+});
+const testCodec = fakeSecretCodec();
 
 async function fixture() {
   const dataDir = await mkdtemp(join(tmpdir(), 'cursor-worker-'));
@@ -134,7 +141,8 @@ describe('Cursor private SDK worker', () => {
     const native = nativeSdk(); const events: any[] = [];
     native.sdk.Cursor.auth.login = async (options: any) => { options.onLoginUrl('https://cursor.com/loginDeepControl?challenge=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA&uuid=12345678-1234-1234-1234-123456789abc&mode=login&redirectTarget=sdk'); await options.store.save({ version: 1, backendUrl: options.backendUrl, apiKey: 'new-browser-secret', createdAtMs: Date.now(), apiKeyExpiresAtMs: Date.now() + 60_000 }); return { apiKey: 'new-browser-secret' }; };
     await runCursorWorker({ mode: 'login', ...f }, event => events.push(event), async () => native.sdk);
-    expect(JSON.stringify(events)).not.toContain('new-browser-secret'); expect(JSON.parse(await readFile(join(f.home, 'sdk-browser-login.json'), 'utf8')).provenance).toBe('cursor-sdk-official-browser');
+    expect(JSON.stringify(events)).not.toContain('new-browser-secret'); expect(await readFile(join(f.home, 'sdk-browser-login.json'), 'utf8')).not.toContain('new-browser-secret');
+    expect((await cursorCredentialStore(f.dataDir, false, testCodec).load())?.apiKey).toBe('new-browser-secret');
     expect(() => assertCursorLoginUrl('https://evil.invalid/loginDeepControl?challenge=x')).toThrow();
     expect(() => assertCursorLoginUrl('https://cursor.com@evil.invalid/loginDeepControl')).toThrow();
   });
