@@ -7,14 +7,20 @@ workspace presets and settings are application state, not separate URL routes.
 | --- | --- | --- |
 | Conversation and composer | `App.tsx` (composer state), `ComposerView.tsx` (view) | `shell`, `composer-commands` suites |
 | Workspace presets | `WorkspaceHost.tsx`, `WorkspaceCanvas.tsx` | `workspace-host` suite |
+| Split workspace and named layouts | `WorkspaceSplitLayout.tsx`, `split-workspace-api.ts`, `split-workspace-profiles.ts` | `tests/split-app-browser.test.ts` (opt-in: `GEN_SPLIT_APP_BROWSER=1`), `tests/split-workspace-renderer.test.ts` (not named browser suites) |
+| Inbox | `AgentInbox.tsx`, `InboxView.tsx`, `useAttention.ts` | `inbox-controls` suite |
+| Optional plug-in workspaces | `WorkspaceControls.tsx`, `PluginFrame.tsx`, `App.tsx` | `tests/plugin-workspace-navigation.test.ts`, `tests/plugin-workspaces.test.ts` (not named browser suites) |
 | Thread navigation and menus | `ShellSidebar.tsx`, `packages/ui-shell/ActionMenu.tsx` | `sidebar-shared-menu` suite |
 | Manual thread moves | `ShellSidebar.tsx`, `sidebar-thread-move.ts` | `thread-move` suite |
 | Thread previews | `thread-hover/ThreadHoverCard.tsx` | `thread-hover` suite |
 | Settings | `Settings.tsx` | `settings-leaf-selects` suite |
 | Local table controls | `TaskTable.tsx`, `TaskTableControls.tsx`, `task-table-model.ts` | `table-controls` suite |
-| Files and review | `files/FilesView.tsx`, `CodeReviewHost.tsx` | `files-reading`, `code-review-host` suites |
+| Files and review surfaces | `files/FilesView.tsx`, `WorkspaceSurfaceBody.tsx`, `WorkspacePanelBodies.tsx` | `files-reading`, `workspace-host` suites |
 
 UI owning files above are under `apps/web/src/` unless a package path is given.
+Test paths are repository-relative. The built-in choices are Workspace and All Agents;
+Code Review, Research and Custom are retired presets with retained saved records,
+not new workspace choices. Review now uses the shared linked-pull-requests surface.
 The complete fixture/state registry is [screen-map.ts](../scripts/capture-ui/screen-map.ts).
 The exact suite-to-config mapping is [browser-suites.ts](../scripts/browser-suites.ts).
 

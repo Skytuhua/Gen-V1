@@ -30,6 +30,8 @@ host/main.mjs
 
 IDs use lowercase letters, numbers and single hyphen separators, with an 80-character limit. Package paths are bounded relative paths. Frontend entrypoints are HTML under `frontend/`; host entrypoints are standalone ESM bundles under `host/`. Do not package credentials, account stores, browser profiles or mutable application state.
 
+Two optional fields extend the strict manifest. `workspaces` declares contributed workspaces and is described below. `skills` declares personal-scope skill metadata: at most 128 entries with unique IDs, each naming an `entry` path ending `/SKILL.md` and the complete unique set of package files under that entry's directory. Private catalogs require their own scoped provider; the field opts in to Personal metadata only.
+
 `plugin-files.json` declares every other package file using its exact byte length and SHA-256:
 
 ```json
@@ -106,6 +108,7 @@ interface PluginRegistration {
   conversation: ConversationAdapter;
   panels?: {id: string; title: string}[];
   windowBehavior?: {surfaceId: string; detachable: boolean}[];
+  workspaces?: PluginWorkspaceContribution[];
 }
 ```
 
@@ -158,7 +161,7 @@ interface PluginSurface {
 
 Validate the complete reference against current authority in `validateSurface`. Opening, recovery, ready and return paths must preserve native sender, exact origin and window ownership checks. A browser-supplied URL never chooses the native destination.
 
-The frame bridge provides bounded `window.capabilities`, `window.list`, `window.detach` and `window.reattach` operations. Availability comes from the actual native owner; browser builds do not fabricate native support. Lists are limited to the owning plug-in. Keep one editor for a given reference, flush before transfer, and yield the embedded task body while its native child owns that state.
+The frame bridge provides bounded `window.capabilities`, `window.list`, `window.detach`, `window.reattach` and `presentation.set` operations. `presentation.set` records only that plug-in's scoped UI preference (currently its intro-dismissed flag); the host answers these itself rather than dispatching over plug-in RPC. Availability comes from the actual native owner; browser builds do not fabricate native support. Lists are limited to the owning plug-in. Keep one editor for a given reference, flush before transfer, and yield the embedded task body while its native child owns that state.
 
 ## Optional workspaces in Gen 0.6.5
 

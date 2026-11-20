@@ -76,15 +76,20 @@ jobs:
             } else if (context.eventName !== 'push' || context.ref !== 'refs/heads/' + context.payload.repository.default_branch) return finish();
             // Pending events coalesce, so every admitted event sweeps the backlog.
             // Discover both pages before cancelling; cap each sweep at 100 candidates.
-            let ids = [];
+            const pages = [];
             for (const status of ['queued', 'in_progress']) {
               const {data} = await github.rest.actions.listWorkflowRuns({...api, workflow_id: 'ci.yml', event: 'pull_request', status, per_page: 100, page: 1});
-              ids.push(...data.workflow_runs.map(run => run.id));
+              pages.push(data.workflow_runs.map(run => run.id));
               summary.limited ||= data.total_count > data.workflow_runs.length;
             }
-            ids = [...new Set(ids.filter(validId))];
-            summary.limited ||= ids.length > 100;
-            for (const id of ids.slice(0, 100)) {
+            // Interleave both queues: a full queued page must not starve in-progress runs.
+            const ids = [];
+            for (let index = 0; index < Math.max(pages[0].length, pages[1].length); index++) {
+              for (const page of pages) if (index < page.length) ids.push(page[index]);
+            }
+            const candidates = [...new Set(ids.filter(validId))];
+            summary.limited ||= candidates.length > 100;
+            for (const id of candidates.slice(0, 100)) {
               summary.checked++;
               const run = await read(github.rest.actions.getWorkflowRun, {run_id: id});
               const associated = association(run, id);

@@ -24,7 +24,7 @@ const runtime = (): RuntimeAdapter => ({ configure() {}, models: async () => [],
   cancel: async () => {}, compact: async () => { throw Error('Purge host verification does not replace native compaction'); },
   history: async () => [], dispose: async () => {} });
 
-it('schedules bounded purge through the real host, keeps WAL-pinned bytes pending, and persists completion across restart', async () => {
+it.each([true, false])('schedules one bounded purge per host tick and preserves WAL/restart custody (memory enabled: %s)', async memoryEnabled => {
   // Only the settled source/item precondition and maintenance clock are
   // synthetic. Launch/profile lease, HTTP/CSRF, timer registration, deletion
   // fence, SQLite secure deletion and restart are the production paths.
@@ -35,7 +35,7 @@ it('schedules bounded purge through the real host, keeps WAL-pinned bytes pendin
   const hostPort = await freePort(); let widgetPort = await freePort(); while (widgetPort === hostPort) widgetPort = await freePort();
   let host: RunningHost | undefined, service!: Service, cookie = '', csrf = '';
   const start = async () => {
-    host = await launchHost({ dataDir, port: hostPort, widgetPort, dev: false, pluginDir: join(seed.root, 'plugins'), capabilityFlags: { 'memory.projectV1': true } }, {
+    host = await launchHost({ dataDir, port: hostPort, widgetPort, dev: false, pluginDir: join(seed.root, 'plugins'), capabilityFlags: { 'memory.projectV1': memoryEnabled } }, {
       createRuntime: runtime, createService: (store, adapter) => service = new Service(store, adapter),
     });
   };
@@ -50,7 +50,8 @@ it('schedules bounded purge through the real host, keeps WAL-pinned bytes pendin
   });
   const view = async () => { const response = await request('?threadId=thread'); expect(response.status).toBe(200); return projectMemoryViewSchema.parse(await response.json()); };
   await start(); await authenticate(); const before = await view();
-  expect(before).toMatchObject({ available: true, enabled: true }); expect(before.items[0]!.item.id).toBe(item.id);
+  expect(before).toMatchObject({ available: memoryEnabled, enabled: true }); expect(before.items[0]!.item.id).toBe(item.id);
+  const purge = vi.spyOn(service.projectMemory, 'purge');
 
   const reader = new DatabaseSync(join(dataDir, 'harness.sqlite'), { readOnly: true }); let held = true;
   reader.exec('BEGIN'); reader.prepare('SELECT COUNT(*) FROM entities').get();
@@ -59,6 +60,7 @@ it('schedules bounded purge through the real host, keeps WAL-pinned bytes pendin
     expect(forgotten.status).toBe(200);
     const deleted = await view(); expect(deleted.items).toEqual([]); expect(deleted.tombstones[0]!.purgeStatus).toBe('PENDING');
     vi.advanceTimersByTime(60_000);
+    expect(purge).toHaveBeenCalledTimes(1);
     expect((await view()).tombstones[0]!.purgeStatus).toBe('PENDING');
     expect(service.store.get('projectMemorySource', digest(seed.ref))).not.toBeNull();
 

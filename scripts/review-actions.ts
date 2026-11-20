@@ -25,7 +25,7 @@ export async function reviewPrivateToken(page:Page,scope:Locator){
   await expect(scope.getByText('No token saved',{exact:true})).toBeVisible();
 }
 async function hold(page: Page, milliseconds = 700) { await page.waitForTimeout(milliseconds); }
-export async function drawMark(page: Page) {
+async function drawMark(page: Page) {
   const target = page.locator('.signature-canvas'); await target.scrollIntoViewIfNeeded(); const box = await target.boundingBox(); if (!box) throw new Error('Signature drawing surface unavailable');
   for (const stroke of [[[.12,.72],[.2,.25],[.28,.73],[.17,.57],[.28,.57]], [[.34,.7],[.42,.48],[.45,.68],[.5,.45],[.55,.67],[.64,.5],[.71,.65],[.8,.4],[.85,.7]]]) {
     await page.mouse.move(box.x + stroke[0][0] * box.width, box.y + stroke[0][1] * box.height); await page.mouse.down();

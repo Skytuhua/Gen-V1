@@ -178,4 +178,3 @@ export function createConversationReader(options: {onState?: (state: Conversatio
     close() {stop(); selection = null; clear('closed');},
   };
 }
-export type ConversationReader = ReturnType<typeof createConversationReader>;
