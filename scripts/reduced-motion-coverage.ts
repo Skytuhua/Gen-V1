@@ -12,7 +12,7 @@
  * consumers load their own sheets without the app.
  */
 export type Declaration = [property: string, value: string];
-export interface Ruleset { file: string; context: string[]; selector: string; line: number; declarations: Declaration[] }
+interface Ruleset { file: string; context: string[]; selector: string; line: number; declarations: Declaration[] }
 export interface ParsedStyles { rulesets: Ruleset[]; keyframes: Record<string, Declaration[]> }
 
 /** Geometry a reduced-motion user should not watch travel. Paint and opacity are fades, not motion. */
@@ -207,7 +207,7 @@ const motionFamilies = (declarations: Declaration[], fades: Set<string>): Set<Ex
 
 export interface MotionGap { file: string; line: number; selector: string; declared: string }
 /** Stylesheets whose motion this check owns; vendored sheets and test fixtures are out of scope. */
-export const stylesheetRoots = ['apps/web/src', 'packages/ui-shell', 'plugins'] as const;
+const stylesheetRoots = ['apps/web/src', 'packages/ui-shell', 'plugins'] as const;
 export const isWorkspaceStylesheet = (path: string) => /\.css$/.test(path) && stylesheetRoots.some(root => path.startsWith(root + '/'));
 
 /**

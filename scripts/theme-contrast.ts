@@ -54,7 +54,7 @@ export function resolveTokens(overrides: Tokens, inherited: Tokens = {}): Tokens
   return resolved;
 }
 
-export function resolveVars(value: string, scope: Tokens): string | undefined {
+function resolveVars(value: string, scope: Tokens): string | undefined {
   const reference = /var\(\s*(--[a-z0-9-]+)\s*(?:,\s*([^()]*))?\)/i.exec(value);
   if (!reference) return value;
   const replacement = scope[reference[1]!] ?? reference[2];
@@ -83,7 +83,7 @@ export function contrast(foreground: string, background: string): number {
  * operand takes the remainder and a mixture with no weight is even. Shapes this cannot evaluate
  * return undefined so the caller reports an unmeasured pair instead of failing to load.
  */
-export function colorMix(value: string): string | undefined {
+function colorMix(value: string): string | undefined {
   const mixed = /^color-mix\(\s*in srgb\s*,\s*(#[0-9a-f]{3,6})\s*(?:([\d.]+)%)?\s*,\s*(#[0-9a-f]{3,6})\s*(?:([\d.]+)%)?\s*\)$/i.exec(value.trim());
   if (!mixed) return undefined;
   const [, firstColor, firstWeight, secondColor, secondWeight] = mixed;

@@ -5,7 +5,7 @@
 .planning-question form,.decision .planning-question form {display:block;margin:0;}
 .planning-options {display:flex;flex-direction:column;gap:10px;border:0;margin:0;padding:0;min-width:0;}
 .planning-option {border:1px solid var(--border);border-radius:12px;background:var(--surface);transition:border-color var(--ui-motion-hover) var(--ui-ease-enter),background-color var(--ui-motion-hover) var(--ui-ease-enter);min-width:0;}
-.planning-option.is-selected {border-color:var(--selection-border);background:var(--selection-bg);}
+.planning-option.is-selected {border-color:var(--text);background:var(--selection-bg);}
 .planning-option-choice {display:flex;gap:10px;align-items:flex-start;padding:14px 14px 9px;cursor:pointer;}
 .planning-option-choice input[type=radio] {appearance:none;width:14px;height:14px;border-radius:50%;padding:0;margin:2px 0 0;border:1px solid var(--muted);background:transparent;flex-shrink:0;}
 .planning-option-choice input[type=radio]:checked {border:4px solid var(--text);background:var(--surface);}

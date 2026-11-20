@@ -245,7 +245,7 @@ export const exclusions = [
   { pattern: '^apps/web/src/(native-chrome)\\.css$', reason: 'Native caption/display CSS belongs to the Electron owner, which is absent from the browser harness', attemptedRoute: 'Real app / and native-browser-bounds fixture; no native titlebar/caption owner exists' },
 ];
 export type FileClassification = { path: string; desktopOnly: boolean; screens: string[]; category: 'screen' | 'excludedWebUi' | 'desktopOnly' | 'nonUi' | 'unmappedWebUi'; reason?: string; attemptedRoute?: string };
-export function isRendererFile(path: string) {
+function isRendererFile(path: string) {
   return path.startsWith('apps/web/src/') || /^packages\/(ui-[^/]+|widgets|renderer[^/]*)\//.test(path) || /^plugins\/.*\.(tsx|jsx|css|html)$/.test(path);
 }
 export function mapFile(path: string): FileClassification {

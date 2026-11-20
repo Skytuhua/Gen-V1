@@ -9,7 +9,7 @@ import {ErrorState} from '../../../packages/ui-shell/Feedback';
 const ajv = new Ajv({ strict: false, allErrors: true });
 function themeTokens(mode: 'light' | 'dark') {
   const style = getComputedStyle(document.documentElement);
-  return { colorScheme: mode, '--background': style.getPropertyValue('--canvas').trim(), '--foreground': style.getPropertyValue('--text').trim(), '--card': style.getPropertyValue('--surface').trim(), '--border': style.getPropertyValue('--border').trim(), '--muted': style.getPropertyValue('--subtle').trim(), '--secondary': style.getPropertyValue('--subtle').trim(), '--muted-foreground': style.getPropertyValue('--muted').trim(), '--primary': style.getPropertyValue('--accent').trim(), '--primary-foreground':mode==='dark'?'#101011':'#fff', '--accent-surface':style.getPropertyValue('--accent-soft').trim() };
+  return { colorScheme: mode, '--background': style.getPropertyValue('--canvas').trim(), '--foreground': style.getPropertyValue('--text').trim(), '--card': style.getPropertyValue('--surface').trim(), '--border': style.getPropertyValue('--border').trim(), '--control-border': style.getPropertyValue('--control-border').trim(), '--muted': style.getPropertyValue('--subtle').trim(), '--secondary': style.getPropertyValue('--subtle').trim(), '--muted-foreground': style.getPropertyValue('--muted').trim(), '--primary': style.getPropertyValue('--accent').trim(), '--primary-foreground':mode==='dark'?'#101011':'#fff', '--accent-surface':style.getPropertyValue('--accent-soft').trim() };
 }
 interface Mount { url: string; token: string; mountId: string; revision: number }
 export type WidgetHandle = { releaseLease: () => Promise<void> };
@@ -104,9 +104,9 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
       if (message.type === 'ui.event' && leaseSuspended.current && !releasePending.current) void resumeLease().catch(error => reportError(error, 'The edit lease could not be resumed.'));
       handle(event.data);
     };
-    const handle = (message: Record<string, any>) => {
+    const handle = (message: Record<string, unknown>) => {
       if (!sameOwner() || !message || typeof message !== 'object' || message.channel !== 'harness-widget' || message.token !== mount.token || message.mountId !== mount.mountId || message.artifactId !== artifact.id) return;
-      const payload = message.payload;
+      const payload = message.payload as Record<string, unknown> | null | undefined;
       if (message.type === 'ready') { setReady(true); init(); return; }
       if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return;
       if (message.type === 'dirty' && typeof payload.dirty === 'boolean') { leaseDirty.current = payload.dirty; if (payload.dirty) editGeneration.current++; latest.current.onDirty(payload.dirty); if (payload.dirty && !leaseSuspended.current) void lease().catch(error => reportError(error, 'The edit lease could not be acquired.')); return; }

@@ -1,4 +1,5 @@
 import { test, expect, type Page, type Route } from "@playwright/test";
+declare global { interface Window { __filesUrls: { created: string[]; revoked: string[] } } }
 
 const fixtureRoot = encodeURI("/@fs/" + process.cwd().replaceAll("\\", "/"));
 const entry = (name: string, kind = "file") => ({
@@ -640,16 +641,16 @@ test("granted images revoke object URLs on refresh, selection and owner change",
 	await expect(page.getByRole("img", { name: "photo.png" })).toBeVisible();
 	await page.getByRole("button", { name: "Refresh granted files" }).click();
 	await expect
-		.poll(() => page.evaluate(() => (window as any).__filesUrls.revoked.length))
+		.poll(() => page.evaluate(() => window.__filesUrls.revoked.length))
 		.toBe(1);
 	await page.getByRole("button", { name: "empty.txt", exact: true }).click();
 	await expect
-		.poll(() => page.evaluate(() => (window as any).__filesUrls.revoked.length))
+		.poll(() => page.evaluate(() => window.__filesUrls.revoked.length))
 		.toBe(2);
 	await expect(page.getByRole("img", { name: "empty.txt" })).toBeVisible();
 	await page.getByRole("button", { name: "Switch thread" }).click();
 	await expect
-		.poll(() => page.evaluate(() => (window as any).__filesUrls.revoked.length))
+		.poll(() => page.evaluate(() => window.__filesUrls.revoked.length))
 		.toBe(3);
 });
 

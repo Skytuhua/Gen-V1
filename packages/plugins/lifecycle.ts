@@ -12,7 +12,7 @@ import {verifyPluginPackage,type VerifiedPackage} from './installation.ts';
 // by shipping a declared isolated.json; the host binds the verified inventory
 // digest and protocol version, never the declaration alone.
 
-export const ISOLATED_DECLARATION_PATH='isolated.json';
+const ISOLATED_DECLARATION_PATH='isolated.json';
 
 export interface AdmittedIsolatedPackage{manifest:PluginManifestV2;verified:VerifiedPackage}
 

@@ -8,11 +8,10 @@ import {logicalOwnerV1Schema,sameLogicalOwner,type LogicalOwnerV1} from '../../.
 import {parseSourceDraftMetadata,sourceDraftKey,type SourceDraftState} from './workbench-recovery';
 export {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES} from './draft-limits';
 const id=z.string().min(1).max(240),encoder=new TextEncoder();
-export const savedDraftOwnerSchema=z.object({profileId:id,accountId:id.nullable(),threadId:id,projectId:id.nullable(),workingCopyId:id.nullable()}).strict();
+const savedDraftOwnerSchema=z.object({profileId:id,accountId:id.nullable(),threadId:id,projectId:id.nullable(),workingCopyId:id.nullable()}).strict();
 export type SavedDraftOwner=z.infer<typeof savedDraftOwnerSchema>;
 const referenceId=z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_.-]+$/),binding=z.string().regex(/^[a-f0-9]{64}$/);
-export const draftResourceRefSchema=z.strictObject({resourceId:referenceId,binding});
-export type DraftResourceRef=z.infer<typeof draftResourceRefSchema>;
+const draftResourceRefSchema=z.strictObject({resourceId:referenceId,binding});
 // Legacy hints remain inspectable; only the distinct host-issued binding can enter validation.
 const resourceRefSchema=z.union([draftResourceRefSchema,z.strictObject({resourceId:id,identity:z.string().max(2048).optional()})]);
 export type SavedResourceRef=z.infer<typeof resourceRefSchema>;
@@ -22,7 +21,7 @@ const sourceContextSchema=z.unknown().transform((value,context)=>{
  try{return parseSourceDraftMetadata(value,logicalOwnerV1Schema.parse((value as {logicalOwner?:unknown}|null)?.logicalOwner));}
  catch{context.addIssue({code:'custom',message:'Saved source context is invalid or exceeds its bounds.'});return z.NEVER;}
 });
-export const savedDraftSchema=z.object({version:z.literal(1),id:z.string().uuid(),name:z.string().trim().min(1).max(120),owner:savedDraftOwnerSchema,updatedAt:z.string().datetime(),text:textSchema,resourceRefs:z.array(resourceRefSchema).max(100),skills:z.array(skillReferenceSchema).max(100),excerpts:z.array(terminalExcerptSchema).max(TERMINAL_EXCERPT_MAX_COUNT),sourceContext:sourceContextSchema.optional()}).strict().refine(draft=>!draft.sourceContext||sameLogicalOwner(draft.sourceContext.logicalOwner,logicalOwner(draft.owner)),'Saved sources belong to another conversation, project or working copy.');
+const savedDraftSchema=z.object({version:z.literal(1),id:z.string().uuid(),name:z.string().trim().min(1).max(120),owner:savedDraftOwnerSchema,updatedAt:z.string().datetime(),text:textSchema,resourceRefs:z.array(resourceRefSchema).max(100),skills:z.array(skillReferenceSchema).max(100),excerpts:z.array(terminalExcerptSchema).max(TERMINAL_EXCERPT_MAX_COUNT),sourceContext:sourceContextSchema.optional()}).strict().refine(draft=>!draft.sourceContext||sameLogicalOwner(draft.sourceContext.logicalOwner,logicalOwner(draft.owner)),'Saved sources belong to another conversation, project or working copy.');
 export type SavedDraft=z.infer<typeof savedDraftSchema>;
 export interface SavedDraftLibrary {version:1;owner:SavedDraftOwner;records:SavedDraft[]}
 export const savedDraftOwnerKey=(owner:SavedDraftOwner)=>{const o=savedDraftOwnerSchema.parse(owner);return JSON.stringify([o.profileId,o.accountId,o.threadId,o.projectId,o.workingCopyId]);};
@@ -45,16 +44,15 @@ export function insertDraftText(current:string,text:string,caret:number){
  return {text:current.slice(0,at)+text+current.slice(at),caret:at+text.length};
 }
 export interface ProjectOwner {projectId:string;threadId:string|null;workingCopyId:string|null;binding:string}
-export type ReferenceStatus='valid'|'missing'|'revoked'|'changed'|'unavailable';
+type ReferenceStatus='valid'|'missing'|'revoked'|'changed'|'unavailable';
 const unique=(values:readonly string[])=>new Set(values).size===values.length;
-export const bindResourceRequestSchema=z.strictObject({threadId:referenceId,projectId:referenceId.nullable(),resourceIds:z.array(referenceId).max(32).refine(unique,'Duplicate resource IDs.')});
+const bindResourceRequestSchema=z.strictObject({threadId:referenceId,projectId:referenceId.nullable(),resourceIds:z.array(referenceId).max(32).refine(unique,'Duplicate resource IDs.')});
 export type BindResourceRequest=z.infer<typeof bindResourceRequestSchema>;
-export interface BindResourceResponse {owner:ProjectOwner|null;threadId:string;resources:{resourceId:string;status:ReferenceStatus;binding:string|null}[]}
-export const validateReferencesRequestSchema=z.strictObject({threadId:referenceId,projectId:referenceId.nullable(),resources:z.array(draftResourceRefSchema).max(32).refine(refs=>unique(refs.map(ref=>ref.resourceId)),'Duplicate resource IDs.'),skills:z.array(skillReferenceSchema).max(8).refine(refs=>unique(refs.map(ref=>JSON.stringify(ref))),'Duplicate skill references.')});
+interface BindResourceResponse {owner:ProjectOwner|null;threadId:string;resources:{resourceId:string;status:ReferenceStatus;binding:string|null}[]}
+const validateReferencesRequestSchema=z.strictObject({threadId:referenceId,projectId:referenceId.nullable(),resources:z.array(draftResourceRefSchema).max(32).refine(refs=>unique(refs.map(ref=>ref.resourceId)),'Duplicate resource IDs.'),skills:z.array(skillReferenceSchema).max(8).refine(refs=>unique(refs.map(ref=>JSON.stringify(ref))),'Duplicate skill references.')});
 export type ValidateReferencesRequest=z.infer<typeof validateReferencesRequestSchema>;
-export interface ValidateReferencesResponse {owner:ProjectOwner|null;threadId:string;resources:{resourceId:string;status:ReferenceStatus}[];skills:{reference:SkillReference;status:ReferenceStatus}[]}
-export type DraftReferenceValidationRequest=ValidateReferencesRequest;
-export type DraftReferenceValidationResult<Response=ValidateReferencesResponse>={available:false;issues:string[]}|{available:true;response:Response};
+interface ValidateReferencesResponse {owner:ProjectOwner|null;threadId:string;resources:{resourceId:string;status:ReferenceStatus}[];skills:{reference:SkillReference;status:ReferenceStatus}[]}
+type DraftReferenceValidationResult<Response=ValidateReferencesResponse>={available:false;issues:string[]}|{available:true;response:Response};
 export interface DraftReferenceValidationAdapter {enabled:boolean;bind(input:BindResourceRequest):Promise<DraftReferenceValidationResult<BindResourceResponse>>;validate(input:ValidateReferencesRequest):Promise<DraftReferenceValidationResult>}
 /** Unavailable is a local capability result, never a simulated successful host response. */
 export const disabledReferenceValidation={enabled:false,

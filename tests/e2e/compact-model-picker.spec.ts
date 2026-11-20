@@ -63,7 +63,7 @@ test('hover and keyboard focus differ from the committed checkmark until Enter',
 
 for (const count of [1, 2]) test(`${count} model catalog exposes exact reasoning radios in the side panel`, async ({ page }) => {
   await expect(trigger(page)).toBeVisible();
-  await page.evaluate(count => (window as any).updateModelCatalog([
+  await page.evaluate(count => window.updateModelCatalog([
     { id: 'openai/alpha', name: 'Alpha', provider: 'openai', thinkingLevels: ['high', 'budget_16384'] },
     ...(count === 2 ? [{ id: 'openai/other', name: 'Other', provider: 'openai' }] : []),
   ]), count);
@@ -116,7 +116,7 @@ test('long duplicate names retain IDs, exact unsupported levels, and unavailable
   await expect(page.getByRole('option', { name: 'Same name', exact: true }).last()).toContainText('claude-code/beta');
   await page.getByRole('option', { name: 'Same name', exact: true }).last().click();
   await expect(page.getByRole('group', { name: 'Reasoning', exact: true })).toContainText('No reasoning settings');
-  await page.evaluate(() => (window as any).updateModelCatalog([]));
+  await page.evaluate(() => window.updateModelCatalog([]));
   await expect(trigger(page)).toBeDisabled(); await expect(trigger(page)).toContainText('claude-code/beta');
   await expect(page.getByLabel('Committed choice')).toHaveText('claude-code/beta|');
 });
@@ -139,7 +139,7 @@ for (const theme of ['dark', 'light']) test(`${theme} long catalog stays readabl
     await page.setViewportSize(viewport); await page.emulateMedia({ reducedMotion: 'reduce' });
     await page.goto('/compact-model-picker?large=1');
     await expect(trigger(page)).toBeVisible();
-    await page.evaluate(theme => { document.documentElement.dataset.theme = theme; (window as any).updateModelCatalog([
+    await page.evaluate(theme => { document.documentElement.dataset.theme = theme; window.updateModelCatalog([
       { id: 'openai/catalog-99', provider: 'openai', name: 'A very long catalog model name that must wrap and remain fully readable at narrow widths', thinkingLevels: ['low', 'high'] },
       ...Array.from({ length: 20 }, (_, i) => ({ id: `openai/${i}`, provider: 'openai', name: `Model ${i}` })),
     ]); }, theme);
