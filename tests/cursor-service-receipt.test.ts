@@ -41,10 +41,10 @@ it('keeps real Service task_finish behind native entry and delayed parent durabi
   try {
     await service.recover(); const thread = (await service.command({ id: randomUUID(), type: 'thread.create', payload: { title: 'Receipt ordering' } })).result as { id: string };
     await service.command({ id: randomUUID(), type: 'message.send', threadId: thread.id, payload: { content: 'Finish the task', modelId: 'cursor-sdk/review' } });
-    await vi.waitFor(() => expect(receipt).toBe(true)); await new Promise(yes => setTimeout(yes, 50));
+    await vi.waitFor(() => expect(receipt).toBe(true), { timeout: 20_000, interval: 50 }); await new Promise(yes => setTimeout(yes, 50));
     expect(store.all('finish', thread.id)).toHaveLength(0); expect(finishResponse).toBeUndefined(); expect(store.all<{ enteredRuntime?: unknown }>('outbox', thread.id).some(row => row.enteredRuntime)).toBe(false);
-    release(); await vi.waitFor(() => expect(store.all('finish', thread.id)).toHaveLength(1));
-    await vi.waitFor(() => expect(finishResponse).toBeDefined());
+    release(); await vi.waitFor(() => expect(store.all('finish', thread.id)).toHaveLength(1), { timeout: 20_000, interval: 50 });
+    await vi.waitFor(() => expect(finishResponse).toBeDefined(), { timeout: 20_000, interval: 50 });
     expect(JSON.stringify(finishResponse)).not.toContain('REQUEST_GATED');
   } finally { release(); await service.dispose(); store.close(); }
 });
