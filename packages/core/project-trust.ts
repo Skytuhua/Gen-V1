@@ -17,7 +17,7 @@ import type { Store } from '../storage/store.ts';
 
 export interface RootIdentity { canonicalPath: string; dev: string; ino: string }
 
-const MAX_DIGEST_FILE_BYTES = 64 * 1024 * 1024;
+export const MAX_DIGEST_FILE_BYTES = 64 * 1024 * 1024;
 
 export async function canonicalRootIdentity(path: string): Promise<RootIdentity> {
   const canonicalPath = await canonical(path);
