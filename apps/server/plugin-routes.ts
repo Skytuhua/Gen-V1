@@ -6,6 +6,8 @@ import {z} from 'zod';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
 import type {IsolatedExtensionHost} from '../../packages/plugins/isolated-host.ts';
 import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
+import {toApiErrorCode} from '../../packages/contracts/errors.ts';
+import {sendError} from './errors.ts';
 
 const requestSchema=z.strictObject({operation:z.string().regex(/^[a-z][a-zA-Z0-9_.-]{0,79}$/),input:z.unknown()});
 const unavailable='This plug-in is unavailable. Your saved work is retained.';
@@ -16,31 +18,31 @@ export function registerPluginRoutes(app:FastifyInstance,registry:PluginRegistry
   // Isolated-lane lifecycle actions. Holds surface as their recorded reason;
   // nothing here can enable the lane or bypass its admission gate.
   app.post<{Params:{id:string;action:string}}>('/api/plugins/:id/isolated/:action',{bodyLimit:64*1024},async(request,reply)=>{
-    if(!isolated||!admit())return reply.code(503).send({error:{code:'UNAVAILABLE',message:unavailable}});
+    if(!isolated||!admit())return sendError(reply,'UNAVAILABLE',unavailable);
     const {id,action}=request.params;
     try{
       if(action==='enable')return reply.send({lease:await isolated.activate(id)});
       if(action==='disable')return reply.send({state:await isolated.disable(id)});
-      return reply.code(400).send({error:{code:'INVALID_INPUT',message:unavailable}});
+      return sendError(reply,'INVALID_INPUT',unavailable);
     }catch(cause){
       const code=(cause as {code?:string}|null)?.code;
-      if(code==='NOT_FOUND')return reply.code(404).send({error:{code:'NOT_FOUND',message:unavailable}});
-      return reply.code(503).send({error:{code:typeof code==='string'?code:'UNAVAILABLE',message:unavailable}});
+      if(code==='NOT_FOUND')return sendError(reply,'NOT_FOUND',unavailable);
+      return sendError(reply,typeof code==='string'?toApiErrorCode(code):'UNAVAILABLE',unavailable,{status:503});
     }
   });
   app.post<{Params:{id:string}}>('/api/plugins/:id/rpc',{bodyLimit:256*1024},async(request,reply)=>{
-    const body=requestSchema.safeParse(request.body);if(!body.success)return reply.code(400).send({error:{code:'INVALID_INPUT',message:'Invalid plug-in request.'}});
-    if(!registry)return reply.code(404).send({error:{code:'NOT_FOUND',message:unavailable}});
-    if(!admit())return reply.code(503).send({error:{code:'HOST_CLOSING',message:'Gen is closing. Saved work is retained.'}});
+    const body=requestSchema.safeParse(request.body);if(!body.success)return sendError(reply,'INVALID_INPUT','Invalid plug-in request.');
+    if(!registry)return sendError(reply,'NOT_FOUND',unavailable);
+    if(!admit())return sendError(reply,'HOST_CLOSING','Gen is closing. Saved work is retained.');
     const controller=new AbortController(),abort=()=>controller.abort(),disconnected=()=>{if(!reply.raw.writableEnded)controller.abort();};request.raw.once('aborted',abort);reply.raw.once('close',disconnected);
     // Fastify treats returned strings as plain text. Preserve JSON primitives
     // so recovered text has the same wire type as objects, arrays and null.
     try{const result=await registry.dispatch(request.params.id,body.data.operation,body.data.input,controller.signal);return reply.type('application/json').send(JSON.stringify(result));}
     catch(cause){
      const detail=cause instanceof Error?cause.message:'';
-     if(detail==='The plug-in request is too large.')return reply.code(413).send({error:{code:'RESOURCE_LIMIT',message:unavailable}});
-     if(detail.startsWith('The plug-in request must contain')||detail==='This plug-in operation is unavailable.')return reply.code(400).send({error:{code:'INVALID_INPUT',message:unavailable}});
-     return reply.code(503).send({error:{code:'PLUGIN_UNAVAILABLE',message:unavailable}});
+     if(detail==='The plug-in request is too large.')return sendError(reply,'RESOURCE_LIMIT',unavailable);
+     if(detail.startsWith('The plug-in request must contain')||detail==='This plug-in operation is unavailable.')return sendError(reply,'INVALID_INPUT',unavailable);
+     return sendError(reply,'PLUGIN_UNAVAILABLE',unavailable);
     }
     finally{request.raw.removeListener('aborted',abort);reply.raw.removeListener('close',disconnected);}
   });

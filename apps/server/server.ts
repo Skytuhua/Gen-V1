@@ -13,6 +13,7 @@ import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
 import { WIDGET_WORKER_PATH, WIDGET_WORKER_CSP } from "../../packages/widgets/protocol.ts";
 import {SessionCredentials} from '../../packages/core/credential-slots.ts';
+import { sendError } from "./errors.ts";
 import { destroyEventStreams, registerEventStream } from './event-stream.ts';
 import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
@@ -74,21 +75,21 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const code = known ? error.code : malformed ? "INVALID_INPUT" : native === 413 ? "RESOURCE_LIMIT" : "HOST_ERROR";
     const status = code === "NOT_FOUND" ? 404 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
     const message = known ? error.message : error instanceof z.ZodError ? "Command envelope is invalid" : error instanceof URIError ? "The request path is invalid" : code === "RESOURCE_LIMIT" ? "The request exceeds its byte limit" : "The host could not complete this request";
-    reply.code(status).send({ error: { code, message, ...(known && error.details ? { details: error.details } : {}) } });
+    sendError(reply, code, message, { status, details: known && error.details ? error.details : undefined });
   });
   app.addHook("onRequest", async (request, reply) => {
     reply.header("X-Content-Type-Options", "nosniff").header("Referrer-Policy", "no-referrer");
     if(/^\/api\/artifacts\/[^/?]+\/credentials\//.test(request.url))reply.header('Cache-Control','no-store');
-    if (!hosts.has(String(request.headers.host))) return reply.code(403).send({ error: { code: "INVALID_HOST", message: "Host is not allowed" } });
+    if (!hosts.has(String(request.headers.host))) return sendError(reply, "INVALID_HOST", "Host is not allowed");
     const origin = request.headers.origin;
-    if (origin && !origins.has(String(origin))) return reply.code(403).send({ error: { code: "INVALID_ORIGIN", message: "Origin is not allowed" } });
+    if (origin && !origins.has(String(origin))) return sendError(reply, "INVALID_ORIGIN", "Origin is not allowed");
     if (!request.url.startsWith("/api/") || request.url.split("?")[0] === "/api/bootstrap") return;
     const cookie = /(?:^|;\s*)harness_session=([a-f0-9]+)/.exec(request.headers.cookie ?? "")?.[1];
     const session = cookie ? sessions.get(cookie) : undefined;
-    if (!session || session.expiresAt < Date.now()) return reply.code(401).send({ error: { code: "AUTH_REQUIRED", message: "Reconnect to the local host" } });
+    if (!session || session.expiresAt < Date.now()) return sendError(reply, "AUTH_REQUIRED", "Reconnect to the local host");
     if (request.method !== "GET" && request.method !== "HEAD") {
       const csrf = Buffer.from(String(request.headers["x-harness-csrf"] ?? "")), expected = Buffer.from(session.csrf);
-      if (csrf.length !== expected.length || !timingSafeEqual(csrf, expected)) return reply.code(403).send({ error: { code: "CSRF_REQUIRED", message: "Refresh the local session before sending commands" } });
+      if (csrf.length !== expected.length || !timingSafeEqual(csrf, expected)) return sendError(reply, "CSRF_REQUIRED", "Refresh the local session before sending commands", { status: 403 });
     }
   });
   app.get("/api/bootstrap", async (request, reply) => {
@@ -98,7 +99,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
       const presented = request.headers["x-harness-launch"];
       const expected = Buffer.from(options.launchToken);
       const supplied = typeof presented === "string" ? Buffer.from(presented) : Buffer.alloc(0);
-      if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return reply.code(403).send({ error: { code: "LAUNCH_TOKEN_REQUIRED", message: "Open Gen V1 from its desktop app to connect to this host." } });
+      if (supplied.length !== expected.length || !timingSafeEqual(supplied, expected)) return sendError(reply, "LAUNCH_TOKEN_REQUIRED", "Open Gen V1 from its desktop app to connect to this host.", { status: 403 });
     }
     const existing = /(?:^|;\s*)harness_session=([a-f0-9]+)/.exec(request.headers.cookie ?? "")?.[1];
     let token = existing, session = token ? sessions.get(token) : undefined;
@@ -282,7 +283,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (rawAfter !== undefined && (typeof rawAfter !== "string" || !rawAfter || /\D/.test(rawAfter))) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     const after = Number(rawAfter ?? 0);
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
-    if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
+    if (streams.size >= 32) return sendError(reply, "STREAM_LIMIT", "Too many event readers");
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
     registerEventStream(streams, reply.raw, service.store, after);
   });
@@ -371,11 +372,11 @@ export async function buildServer(service: Service, options: ServerOptions) {
 export async function buildWidgetServer(service: Service, mounts: MountRegistry, port = 4318) {
   const app = Fastify({ logger: false });
   app.get<{ Params: { id: string; revision: string }; Querystring: { ticket?: string } }>("/widget/:id/:revision", async (request, reply) => {
-    if (!["localhost:" + port, "127.0.0.1:" + port].includes(String(request.headers.host))) return reply.code(403).send("Invalid host");
+    if (!["localhost:" + port, "127.0.0.1:" + port].includes(String(request.headers.host))) return sendError(reply, "INVALID_HOST", "Invalid host");
     const ticket = request.query.ticket ?? "", mount = mounts.get(ticket); mounts.delete(ticket);
-    if (!mount || mount.expiresAt < Date.now() || mount.artifactId !== request.params.id || mount.revision !== Number(request.params.revision)) return reply.code(403).send("Mount ticket expired. Reopen the interface.");
+    if (!mount || mount.expiresAt < Date.now() || mount.artifactId !== request.params.id || mount.revision !== Number(request.params.revision)) return sendError(reply, "CAPABILITY_DENIED", "Mount ticket expired. Reopen the interface.");
     const artifact = service.store.get<ArtifactRecord>("artifactVersion", mount.artifactId + "@" + mount.revision);
-    if (!artifact?.widget) return reply.code(404).send("Widget unavailable");
+    if (!artifact?.widget) return sendError(reply, "NOT_FOUND", "Widget unavailable");
     return reply.header("Content-Security-Policy", WIDGET_SHELL_CSP).header("Referrer-Policy", "no-referrer").header("X-Content-Type-Options", "nosniff").header("Cache-Control", "no-store").type("text/html; charset=utf-8").send(widgetShellDocument(artifact.id));
   });
   return app;
