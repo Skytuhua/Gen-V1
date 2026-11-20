@@ -72,7 +72,7 @@ export function captureThreadHistory(store: Store, thread: Thread): SessionCaptu
   for (let index = all.length - 1; index >= 0 && selected.length < SESSION_CAPTURE_LIMITS.maxMessages; index--) {
     const message = all[index]!;
     const size = Buffer.byteLength(message.content ?? '', 'utf8');
-    if (selected.length && bytes + size > SESSION_CAPTURE_LIMITS.maxContentBytes) break;
+    if (bytes + size > SESSION_CAPTURE_LIMITS.maxContentBytes) break;
     bytes += size;
     selected.unshift(message);
   }
