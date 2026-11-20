@@ -31,4 +31,7 @@ export const COMPOSITION_EXAMPLES:CompositionExample[]=[
   email:node('Input',{label:'Notices email',stateKey:'email'}),date:node('Input',{label:'Signed date',stateKey:'signedDate'}),
   signature:node('SignaturePad',{stateKey:'signature',nameStateKey:'name',label:'Signature'}),
  }}},
+ {id:'document-edit',purpose:'Edit the supplied handoff text in place and keep its draft attached to the source.',components:['Document'],spec:{root:'handoff',elements:{handoff:node('Document',{dataBinding:'handoffText',editableStateKey:'handoffDraft',presentation:'window',title:'Handoff',linkLabel:'Edit handoff'})}}},
+ {id:'preferences-single',purpose:'Collect one delivery preference and note in the same decision, with one explicit submission.',components:['Form','Select','Input'],spec:{root:'prefs',elements:{prefs:node('Form',{actionId:'submitPreference',submitLabel:'Submit preference',payloadFromState:{method:'method',note:'note'}},['method','note']),method:node('Select',{stateKey:'method',label:'Delivery',options:[{label:'In conversation',value:'chat'},{label:'Download',value:'download'}]}),note:node('Input',{stateKey:'note',label:'Review note',inputType:'textarea'})}}},
+ {id:'image-feedback',purpose:'Attach feedback to points on the supplied image and keep each note with its source pin.',components:['ImageAnnotator'],spec:{root:'pins',elements:{pins:node('ImageAnnotator',{resourceId:'source-image-grant',alt:'Delivery screen',stateKey:'imageNotes',actionId:'sendFeedback',actionLabel:'Send feedback'})}}},
 ];

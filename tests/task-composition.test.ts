@@ -34,3 +34,46 @@ it('lets ordinary topics continue in the main conversation composer instead of a
  expect(guidance).not.toContain('durable new root question');
  expect(guidance).toContain('main conversation composer');
 });
+it('pairs document editing with the signing composition as distinct arrangements',()=>{
+ const examples=Object.fromEntries(COMPOSITION_EXAMPLES.map(example=>[example.id,example]));
+ const edit=examples['document-edit'],signing=examples['document-signing'];
+ expect(edit).toBeDefined();expect(signing).toBeDefined();
+ validateSurface(edit.spec);validateSurface(signing.spec);
+ expect(edit.spec.root).toBe('handoff');expect(signing.spec.root).toBe('signing');
+ const types=(spec:typeof edit.spec)=>Object.values(spec.elements).map(node=>node.type);
+ expect(types(edit.spec)).toEqual(['Document']);
+ expect(edit.spec.elements.handoff.props.editableStateKey).toBe('handoffDraft');
+ expect(types(signing.spec)).toContain('DocumentPreview');expect(types(signing.spec)).toContain('SignaturePad');
+});
+it('keeps a single preference form distinct from kit comparison',()=>{
+ const examples=Object.fromEntries(COMPOSITION_EXAMPLES.map(example=>[example.id,example]));
+ const prefs=examples['preferences-single'],kits=examples['kit-comparison'];
+ expect(prefs).toBeDefined();expect(kits).toBeDefined();
+ validateSurface(prefs.spec);validateSurface(kits.spec);
+ expect(prefs.spec.root).toBe('prefs');
+ const types=(spec:typeof prefs.spec)=>Object.values(spec.elements).map(node=>node.type);
+ expect(types(prefs.spec)).toEqual(['Form','Select','Input']);
+ expect(types(prefs.spec)).not.toContain('Grid');
+ expect(prefs.spec.elements.prefs.type).toBe('Form');expect(prefs.spec.elements.prefs.props.actionId).toBe('submitPreference');
+ expect(types(kits.spec)).toContain('Comparison');
+});
+it('pairs image annotation with the export composition as distinct arrangements',()=>{
+ const examples=Object.fromEntries(COMPOSITION_EXAMPLES.map(example=>[example.id,example]));
+ const feedback=examples['image-feedback'],exp=examples['image-export'];
+ expect(feedback).toBeDefined();expect(exp).toBeDefined();
+ validateSurface(feedback.spec);validateSurface(exp.spec);
+ expect(feedback.spec.root).toBe('pins');
+ const types=(spec:typeof feedback.spec)=>Object.values(spec.elements).map(node=>node.type);
+ expect(types(feedback.spec)).toEqual(['ImageAnnotator']);
+ expect(types(exp.spec)).toContain('Split');expect(types(exp.spec)).toContain('Image');expect(types(exp.spec)).toContain('ParameterControls');
+ const mechanics=new Set(CAPABILITIES.map(item=>item.name));
+ for(const id of ['document-edit','preferences-single','image-feedback'])for(const component of examples[id].components)expect(mechanics.has(component)).toBe(true);
+});
+it('returns the new examples within the two-entry discovery bound',async()=>{
+ for(const [query,id] of [['Document','document-edit'],['Select','preferences-single'],['ImageAnnotator','image-feedback']] as const){
+  const detail=await discoverCapabilities({query,details:true}) as unknown as {compositionExamples:typeof COMPOSITION_EXAMPLES};
+  expect(detail.compositionExamples.length).toBeLessThanOrEqual(2);
+  expect(detail.compositionExamples.some(example=>example.id===id)).toBe(true);
+ }
+ expect(await discoverCapabilities({query:'Document'})).not.toHaveProperty('compositionExamples');
+});
