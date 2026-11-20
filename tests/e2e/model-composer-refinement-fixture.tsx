@@ -4,6 +4,7 @@ import {ComposerToolbar} from '../../apps/web/src/ComposerToolbar';
 import {ModelPicker} from '../../apps/web/src/ModelPicker';
 import type {ModelInfo} from '../../packages/contracts';
 import '../../apps/web/src/styles.css';
+declare global { interface Window { modelComposerCalls: unknown[] } }
 const models:ModelInfo[]=[{id:'openai/sol',provider:'openai',name:'GPT-6.1 Sol',thinkingLevels:['low','high','ultra']},{id:'openai/terra',provider:'openai',name:'GPT-6.1 Terra',thinkingLevels:['medium','max']},{id:'claude-code/sonnet',provider:'claude-code',name:'Claude Sonnet'}];
 const calls:unknown[]=[];Object.assign(window,{modelComposerCalls:calls});
 function Fixture(){

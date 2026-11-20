@@ -27,6 +27,11 @@ export function textContent(value: unknown): string {
 }
 export const finite = (value: unknown): number | null => typeof value === 'number' && Number.isFinite(value) && value >= 0 ? value : null;
 export async function bounded<T>(promise: Promise<T>, milliseconds: number, message: string, signal?: AbortSignal): Promise<T> {
+  if (signal?.aborted) {
+    // Observe an already-started operation without letting its result win.
+    void promise.catch(() => {});
+    throw signal.reason;
+  }
   let timer: ReturnType<typeof setTimeout> | undefined;
   let abort: (() => void) | undefined;
   try {
