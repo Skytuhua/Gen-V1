@@ -2,7 +2,7 @@ import {useContext,useEffect,useId,useLayoutEffect,useRef,useState,type CSSPrope
 import {ChevronDown,ChevronUp,GripVertical,RotateCcw,X} from 'lucide-react';
 import {clampFloatingLayout,FLOATING_COLLAPSED_HEIGHT,readFloatingLayout,writeFloatingLayout,type FloatingAnchor,type FloatingLayout,type FloatingSize,type FloatingViewport} from './floating-layout';
 import {bringForward,layerFor,removeLayer,subscribeLayer} from './floating-order';
-import {animateTask,reducedMotion} from './task-motion';
+import {animateTask} from './task-motion';
 import {FloatingRailSlotContext} from './FloatingRail';
 import './floating-window.css';
 export interface FloatingWindowProps {id:string;title:string;children:ReactNode;open?:boolean;onClose?:()=>void;anchor?:FloatingAnchor;defaultSize?:FloatingSize;minSize?:FloatingSize;defaultCollapsed?:boolean;summary?:ReactNode;collapsedLabel?:string;minimizeLabel?:string;ariaLabel?:string;className?:string;escapeBehavior?:'close'|'collapse';resetPosition?:boolean;onDetach?:()=>void|Promise<void>;minimizeOnly?:boolean;sizing?:'manual'|'content';focusOnOpen?:boolean;expandRequest?:number;storage?:{read:typeof readFloatingLayout;write:typeof writeFloatingLayout}}
@@ -55,9 +55,11 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   },[id,open]);
   useLayoutEffect(()=>{
     const wasOpen=previousOpen.current;previousOpen.current=open;
+    const invokerOrigin=()=>{const rect=shell.current?.getBoundingClientRect(),invoker=opener.current?.isConnected?opener.current.getBoundingClientRect():null;return rect&&invoker?`${invoker.left+invoker.width/2-rect.left}px ${invoker.top+invoker.height/2-rect.top}px`:'center';};
     if(!open){
       entrance.current?.cancel();stopInteraction.current();if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
-      const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(4px) scale(.99)'}],120):undefined;
+      const origin=invokerOrigin();
+      const animation=wasOpen&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
       if(!animation){setRendered(false);return;}
       let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
       return()=>{active=false;animation.cancel();};
@@ -66,7 +68,8 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     update(current.current);
     if(wasOpen)return;
     if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});
+    const origin=invokerOrigin();
+    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:0,transform:'scale(.95)',transformOrigin:origin},{opacity:1,transform:'scale(1)',transformOrigin:origin}],180,{duration:'--ui-motion-popup-enter',easing:'--ui-ease-enter'});
     entrance.current=animation;
     if(wasOpen===false&&focusOnOpen)(minimizeOnly?(current.current.collapsed?summaryButton:minimizeButton):moveButton).current?.focus({preventScroll:true});
     return()=>animation?.cancel();

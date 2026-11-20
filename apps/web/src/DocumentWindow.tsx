@@ -46,7 +46,7 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  const sourceHash=fingerprint?.id===sourceId&&fingerprint.text===visibleSource?fingerprint.hash:undefined,changed=Boolean(draft&&sourceHash&&(draft.baseHash?draft.baseHash!==sourceHash:draft.baseText!==visibleSource));
  useEffect(()=>{if(visibleSource===undefined)return;let current=true;void crypto.subtle.digest('SHA-256',new TextEncoder().encode(visibleSource)).then(bytes=>{if(current)setFingerprint({id:sourceId,text:visibleSource,hash:Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('')});}).catch(()=>{if(current)setEditError('The document could not be prepared for editing. Reopen it to try again.');});return()=>{current=false;};},[visibleSource,sourceId]);
  const saveDraft=(nextText:string,adopt=false)=>{if(!sourceHash||foreignDraft)return;try{bounded(nextText);const next={text:nextText,baseHash:adopt?sourceHash:draft?.baseHash??(draft?.baseText!==undefined&&draft.baseText!==visibleSource?undefined:sourceHash),...(draft?.baseText!==undefined&&draft.baseText!==visibleSource&&!adopt?{baseText:draft.baseText}:{}),sourceId};const values={...(store.getSnapshot().values as Record<string,unknown>),[String(props.editableStateKey)]:next};if(JSON.stringify(values).length>131072)throw new Error('This edit exceeds the saved draft limit. Shorten it before continuing.');store.set(draftPath,next);setEditError('');}catch(cause){setEditError(cause instanceof Error?cause.message:'The draft could not be saved.');}};
- const windowRef=useRef<HTMLElement>(null),editor=useRef<HTMLTextAreaElement>(null),opener=useRef<HTMLButtonElement>(null),stopDrag=useRef<()=>void>(()=>{}),dragPointer=useRef<number|null>(null),focused=useRef(false),[position,setPosition]=useState<{x:number;y:number}|null>(null);
+ const windowRef=useRef<HTMLElement>(null),editor=useRef<HTMLTextAreaElement>(null),opener=useRef<HTMLButtonElement>(null),stopDrag=useRef<()=>void>(()=>{}),dragPointer=useRef<number|null>(null),focused=useRef(false),previousOpen=useRef<boolean|undefined>(undefined),[rendered,setRendered]=useState(open),[position,setPosition]=useState<{x:number;y:number}|null>(null);
  const [portalRoot,setPortalRoot]=useState<Element|null>(null);
  // The owning artifact is stable across expansion and workspace placement.
  // Keeping its window in that DOM branch preserves modal focus and editor identity.
@@ -65,7 +65,22 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  useLayoutEffect(()=>{if(!open)stopDrag.current();},[open]);
  useEffect(()=>{if(!open){focused.current=false;return;}if(visibleSource!==undefined&&!focused.current){const target=editor.current??windowRef.current?.querySelector<HTMLElement>('button');if(target){focused.current=true;target.focus({preventScroll:true});}}},[open,visibleSource,portalRoot]);
  useEffect(()=>()=>{stopDrag.current();workspace.closeDocument?.(id);},[id]);
- useLayoutEffect(()=>{if(!open||!portalRoot)return;const animation=animateTask(windowRef.current,[{opacity:.4,transform:'translateX(14px) scale(.99)'},{opacity:1,transform:'translateX(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});return()=>animation?.cancel();},[open,portalRoot]);
+ useLayoutEffect(()=>{
+  const wasOpen=previousOpen.current;previousOpen.current=open;
+  const invokerOrigin=()=>{const rect=windowRef.current?.getBoundingClientRect(),invoker=opener.current?.isConnected?opener.current.getBoundingClientRect():null;return rect&&invoker?`${invoker.left+invoker.width/2-rect.left}px ${invoker.top+invoker.height/2-rect.top}px`:'center';};
+  if(!open){
+    const origin=invokerOrigin();
+    const animation=wasOpen&&windowRef.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(windowRef.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
+    if(!animation){setRendered(false);return;}
+    let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
+    return()=>{active=false;animation.cancel();};
+  }
+  setRendered(true);
+  if(!portalRoot)return;
+  const origin=invokerOrigin();
+  const animation=animateTask(windowRef.current,[{opacity:0,transform:'scale(.95)',transformOrigin:origin},{opacity:1,transform:'scale(1)',transformOrigin:origin}],180,{duration:'--ui-motion-popup-enter',easing:'--ui-ease-enter'});
+  return()=>animation?.cancel();
+ },[open,portalRoot]);
  useEffect(()=>{if(!open)return;const resize=()=>setPosition(before=>before?{x:Math.max(8,Math.min(innerWidth-80,before.x)),y:Math.max(8,Math.min(innerHeight-80,before.y))}:before);window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);},[open]);
  const move=(event:PointerEvent<HTMLButtonElement>)=>{
   if(event.button!==0||dragPointer.current!==null)return;event.preventDefault();const box=windowRef.current!.getBoundingClientRect(),origin={x:event.clientX,y:event.clientY},pointerId=event.pointerId;dragPointer.current=pointerId;let started=false;
@@ -74,7 +89,7 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  };
  const style:CSSProperties=placement==='floating'&&position?{left:position.x,top:position.y,right:'auto',bottom:'auto'}:{};
  const unavailable=!allowed?'Access to this document is no longer available.':sourceError||error;
- return <section className="document document-window-launcher"><div className="document-heading"><FileText size={16}/>{title}</div><button ref={opener} className="secondary" type="button" onClick={()=>{setPosition(null);controlled?workspace.requestOpenDocument?.(id):setLocalOpen(true);}}>{typeof props.linkLabel==='string'?props.linkLabel:'Open document'}</button>{open&&portalRoot&&createPortal(<section ref={windowRef} role="region" aria-label={`${title} document window`} className="document-text-window" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} style={style} onScrollCapture={rememberView} onKeyDown={event=>{if(event.key==='Escape'&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229){event.stopPropagation();close();}}}>
+ return <section className="document document-window-launcher"><div className="document-heading"><FileText size={16}/>{title}</div><button ref={opener} className="secondary" type="button" onClick={()=>{setPosition(null);controlled?workspace.requestOpenDocument?.(id):setLocalOpen(true);}}>{typeof props.linkLabel==='string'?props.linkLabel:'Open document'}</button>{(open||rendered)&&portalRoot&&createPortal(<section ref={windowRef} role="region" aria-label={`${title} document window`} className="document-text-window" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} inert={!open} aria-hidden={!open} style={style} onScrollCapture={rememberView} onKeyDown={event=>{if(event.key==='Escape'&&!event.nativeEvent.isComposing&&event.nativeEvent.keyCode!==229){event.stopPropagation();close();}}}>
   <header><button className="document-window-move" aria-label={`Move ${title}`} onPointerDown={move} onKeyDown={event=>{if(!['ArrowLeft','ArrowRight','ArrowUp','ArrowDown'].includes(event.key))return;event.preventDefault();const box=windowRef.current!.getBoundingClientRect();place('floating');setPosition({x:Math.max(8,Math.min(innerWidth-80,box.left+(event.key==='ArrowRight'?12:event.key==='ArrowLeft'?-12:0))),y:Math.max(8,Math.min(innerHeight-80,box.top+(event.key==='ArrowDown'?12:event.key==='ArrowUp'?-12:0)))});}}><GripVertical size={14}/><strong>{title}</strong></button>
    
    <button className="icon-button" aria-label={placement==='docked'?'Float document':'Dock document'} onClick={()=>{setPosition(null);place(placement==='docked'?'floating':'docked');}}>{placement==='docked'?<PanelRightClose size={15}/>:<PanelRightOpen size={15}/>}</button><button className="icon-button document-window-close" aria-label="Close document" onClick={close}><X size={15}/></button></header>
