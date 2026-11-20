@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { execFileSync, spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { chmodSync, constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { chmodSync, constants, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, statSync, symlinkSync, utimesSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 import { HarnessError } from '../packages/contracts/index.ts';
@@ -15,6 +15,7 @@ import {
   CONTRACT_SOURCES, benchmarkReportHtml, resolveExecutable, resolvePackageManager, runRecordedCommand,
   runBaseline, statusFromObservation, verifySourceLock, writeCommandEvidence,
 } from '../scripts/research-baseline.ts';
+import { credentialLeaseCacheCurrent, recordCredentialLeaseBuild } from '../scripts/build-windows-credential-lease.ts';
 
 const dirs: string[] = [];
 const dir = (label: string) => {
@@ -522,4 +523,50 @@ it('validates an exact locked blob whose ordinary filename contains consecutive 
     publicContracts: [], acceptedDependencyCommits: [], approvedDrift: [],
   });
   expect(verifySourceLock(root, lock)).toEqual([]);
+});
+
+describe('native credential-lease build cache custody', () => {
+  const setup = () => {
+    const root = dir('lease-binary-cache'), source = join(root, 'lease.cc'), builder = join(root, 'builder.ts');
+    const artifact = join(root, 'windows-credential-lease.node'), cache = join(root, '.harness-windows-credential-build');
+    writeFileSync(source, 'source-v1'); writeFileSync(builder, 'builder-v1'); writeFileSync(artifact, 'native-binary-v1');
+    return { source, builder, artifact, cache };
+  };
+  const current = (item: ReturnType<typeof setup>) =>
+    credentialLeaseCacheCurrent(item.artifact, item.source, item.builder, item.cache);
+  const stamp = (item: ReturnType<typeof setup>) =>
+    recordCredentialLeaseBuild(item.artifact, item.source, item.builder, item.cache);
+
+  it('requires a recorded source and binary fingerprint before reuse', async () => {
+    const item = setup();
+    expect(await current(item)).toBe(false);
+    await stamp(item);
+    expect(await current(item)).toBe(true);
+    rmSync(item.cache, { recursive: true, force: true });
+    expect(await current(item)).toBe(false);
+  });
+
+  it('rejects changed native source even when artifact mtime is newer', async () => {
+    const item = setup();
+    await stamp(item);
+    writeFileSync(item.source, 'source-v2');
+    const old = new Date('2000-01-01T00:00:00.000Z');
+    utimesSync(item.source, old, old);
+    expect(statSync(item.artifact).mtimeMs).toBeGreaterThan(statSync(item.source).mtimeMs);
+    expect(await current(item)).toBe(false);
+  });
+
+  it('rejects an altered binary even when source and builder are unchanged', async () => {
+    const item = setup();
+    await stamp(item);
+    writeFileSync(item.artifact, 'native-binary-unexpected');
+    expect(await current(item)).toBe(false);
+  });
+
+  it('rejects changed build instructions with an unchanged source and binary', async () => {
+    const item = setup();
+    await stamp(item);
+    writeFileSync(item.builder, 'builder-v2');
+    expect(await current(item)).toBe(false);
+  });
 });

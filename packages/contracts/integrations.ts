@@ -1,10 +1,10 @@
 import {z} from 'zod';
 import type {RuntimeUsage} from './index.ts';
 
-export const INTEGRATION_IDS=['humanizer','emil','impeccable','graphify','promptfoo','biome','superpowers','spec-kit','context7','ponytail'] as const;
+const INTEGRATION_IDS=['humanizer','emil','impeccable','graphify','promptfoo','biome','superpowers','spec-kit','context7','ponytail'] as const;
 export type IntegrationId=typeof INTEGRATION_IDS[number];
 export const integrationIdSchema=z.enum(INTEGRATION_IDS);
-export const ponytailModeSchema=z.enum(['off','lite','full','ultra']);
+const ponytailModeSchema=z.enum(['off','lite','full','ultra']);
 export type PonytailMode=z.infer<typeof ponytailModeSchema>;
 export const integrationPreferenceSchema=z.strictObject({enabled:z.boolean(),mode:ponytailModeSchema.optional()});
 export type IntegrationPreference=z.infer<typeof integrationPreferenceSchema>;

@@ -31,6 +31,15 @@ test('image feedback supports immediate pins, keyboard movement and durable edit
  await expect.poll(()=>host.commands.filter(command=>command.type==='action.submit').length).toBe(1);const payload=host.commands.find(command=>command.type==='action.submit')!.payload.payload as { resourceId?: string; annotations: { text?: string }[] };expect(payload.resourceId).toBe('image-one');expect(payload.annotations[0].text).toBe('Make the selected action clearer.');expect(host.commands.some(command=>command.type.startsWith('operation.'))).toBe(false);
  await page.getByRole('button',{name:'Delete selected pin',exact:true}).click();await expect(pin).toHaveCount(0);
 });
+test('image surface adds centered pins with Enter and Space without nesting buttons',async({page})=>{
+ const {host}=await explorationFixture(page,'ImageAnnotator');await page.goto('/');const imageButton=page.getByRole('button',{name:'Add pin to image',exact:true});await expect(imageButton).toBeEnabled();
+ await imageButton.focus();await imageButton.press('Enter');await expect(page.getByRole('button',{name:'Pin 1',exact:true})).toBeFocused();
+ await imageButton.focus();await imageButton.press('Space');await expect(page.getByRole('button',{name:'Pin 2',exact:true})).toBeFocused();
+ await expect.poll(()=>(host.snapshot.userStates[0].values.view as any)?.annotations.length).toBe(2);const pins=(host.snapshot.userStates[0].values.view as any).annotations;expect(pins.every((pin:any)=>pin.x===.5&&pin.y===.5)).toBe(true);await expect(page.locator('.annotation-image button button')).toHaveCount(0);
+});
+test('image surface cannot add pins while its source is unavailable',async({page})=>{
+ await explorationFixture(page,'ImageAnnotator');await page.route('**/api/resources/image-one/content',route=>route.fulfill({status:404}));await page.goto('/');await expect(page.getByRole('button',{name:'Add pin to image',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:'Pin 1',exact:true})).toHaveCount(0);
+});
 test('image source revocation clears its pixels and replacement cannot inherit old feedback',async({page})=>{
  const sourceIdentity=createHash('sha256').update(JSON.stringify(['image-one','C:/fixture/screen.svg',null,null])).digest('hex');
  const {host,snapshot}=await explorationFixture(page,'ImageAnnotator',{}, {view:{resourceId:'image-one',sourceIdentity,selectedId:'old',annotations:[{id:'old',x:.3,y:.3,text:'Old source feedback'}]}});await page.goto('/');await expect(page.getByRole('textbox',{name:'Pin feedback',exact:true})).toHaveValue('Old source feedback');

@@ -113,14 +113,15 @@ export async function stageRepositoryMapParser(root:string,host:string){
 export function runtimeSourceAllowed(path:string){return publicRuntimeSourceAllowed(path);}
 
 export function validateNodeArchive(bytes:Uint8Array,expected=NODE_ARCHIVE_SHA256){if(createHash('sha256').update(bytes).digest('hex')!==expected)throw Error('Bundled Node archive checksum mismatch');}
-export function desktopBuilderConfig(dist:string){
+export function desktopBuilderConfig(dist:string,channel=process.env.HARNESS_RELEASE_CHANNEL){
+ if(channel!==undefined&&channel!=='stable'&&channel!=='prerelease')throw Error('HARNESS_RELEASE_CHANNEL must be stable or prerelease.');
  const root=dist.replaceAll('\\','/').replace(/\/$/,'');
  return {appId:'local.generativeharness.desktop',productName:'Gen V1',electronVersion:'45.2.0',asar:true,npmRebuild:false,forceCodeSigning:false,
-  publish:[{provider:'github' as const,owner:'Skytuhua',repo:'Gen-V1',releaseType:'release' as const,channel:'latest'}],
+  publish:[{provider:'github' as const,owner:'skytuhua-org',repo:'Gen-V1',releaseType:'release' as const,channel:channel==='prerelease'?'beta':'latest'}],
   directories:{app:root+'/desktop-app',output:root+'/desktop-release'},files:['main.mjs','preload.cjs','startup.html','package.json','!node_modules/**/*'],
   extraResources:[{from:root+'/desktop-host',to:'host'},{from:root+'/desktop-host/node_modules',to:'host/node_modules',filter:['**/*']},{from:root+'/desktop-host/.harness-hermes-python-deps',to:'host/.harness-hermes-python-deps',filter:['**/*']},{from:root+'/desktop-host/.harness-integrations-python-deps',to:'host/.harness-integrations-python-deps',filter:['**/*']},{from:root+'/desktop-host/.harness-tool-bundles',to:'host/.harness-tool-bundles',filter:['**/*']},{from:root+'/desktop-node',to:'node'}],
   // Use the supported 7z payload for large file counts. Its temporary-tree copy
   // occurs during installation; the installed application launches directly.
   win:{target:[{target:'nsis',arch:['x64']}],signAndEditExecutable:false},
-  nsis:{artifactName:'Gen-V1-Setup-${version}-win-x64.exe',oneClick:true,perMachine:false,allowElevation:false,packElevateHelper:false,useZip:false,differentialPackage:false,runAfterFinish:false,deleteAppDataOnUninstall:false,createDesktopShortcut:false,createStartMenuShortcut:true},compression:'normal' as const};
+  nsis:{artifactName:'Gen-V1-Setup-${version}-win-x64.exe',oneClick:true,perMachine:false,allowElevation:false,packElevateHelper:false,useZip:false,differentialPackage:channel!==undefined,runAfterFinish:false,deleteAppDataOnUninstall:false,createDesktopShortcut:false,createStartMenuShortcut:true},compression:'normal' as const};
 }
