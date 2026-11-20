@@ -133,19 +133,21 @@ test('page fit reveals the entire PDF and changes fit without remounting or down
   await preview.hover();
   const fits = () => preview.evaluate(element => {
     const page = element.querySelector('.document-preview-page')!.getBoundingClientRect(), viewport = element.querySelector('.document-preview-scroll')!.getBoundingClientRect();
-    return { top: page.top - viewport.top, bottom: viewport.bottom - page.bottom, left: page.left - viewport.left, right: viewport.right - page.right };
+    const toolbar = element.querySelector('.document-preview-toolbar')!.getBoundingClientRect();
+    return { top: page.top - viewport.top, bottom: viewport.bottom - page.bottom, left: page.left - viewport.left, right: viewport.right - page.right, toolbarClear: viewport.top - toolbar.bottom };
   });
-  expect((await fits()).top).toBeGreaterThanOrEqual(34);
-  expect((await fits()).bottom).toBeGreaterThanOrEqual(32);
-  expect((await fits()).left).toBeGreaterThanOrEqual(0);
-  expect((await fits()).right).toBeGreaterThanOrEqual(0);
+  expect((await fits()).top).toBeGreaterThanOrEqual(13);
+  expect((await fits()).bottom).toBeGreaterThanOrEqual(13);
+  expect((await fits()).left).toBeGreaterThanOrEqual(13);
+  expect((await fits()).right).toBeGreaterThanOrEqual(13);
+  expect((await fits()).toolbarClear).toBeGreaterThanOrEqual(0);
   await page.evaluate(() => Object.assign(window, { signingCanvas: document.querySelector('.document-preview canvas') }));
   fixture.snapshot.artifacts[0].spec!.elements.pdf.props.fit = 'width'; await fixture.publish();
   await expect(preview).toHaveAttribute('data-fit', 'width');
   await expect.poll(async () => (await fits()).bottom).toBeLessThan(0);
   fixture.snapshot.artifacts[0].spec!.elements.pdf.props.fit = 'page'; await fixture.publish();
   await expect(preview).toHaveAttribute('data-fit', 'page');
-  await expect.poll(async () => (await fits()).bottom).toBeGreaterThanOrEqual(32);
+  await expect.poll(async () => (await fits()).bottom).toBeGreaterThanOrEqual(13);
   expect(await page.evaluate(() => document.querySelector('.document-preview canvas') === (window as unknown as { signingCanvas: Element }).signingCanvas)).toBe(true);
   expect(fixture.downloads()).toBe(1);
 });

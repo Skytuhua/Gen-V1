@@ -15,7 +15,7 @@
 @container document-pair (width < 620px) {
   .artifact[data-artifact-inline=true] .surface-split:has(>.document-preview)>.task-steps { min-height:0; }
 }
-.artifact[data-artifact-inline=true] .document-preview-scroll { position:absolute; inset:0; height:auto; overflow:hidden; overscroll-behavior:auto; padding:48px 14px; scrollbar-width:none; }
+.artifact[data-artifact-inline=true] .document-preview-scroll { overflow:hidden; overscroll-behavior:auto; scrollbar-width:none; }
 .artifact[data-artifact-inline=true] .task-map-carousel { overflow:hidden; overscroll-behavior:auto; }
 .artifact[data-artifact-inline=true] .schedule-selection { padding:16px; border:0; border-radius:10px; background:var(--subtle); align-self:start; }
 .artifact[data-artifact-inline=true] .review-queue-layout { border:0; overflow:visible; gap:20px; }

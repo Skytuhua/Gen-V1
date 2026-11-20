@@ -138,6 +138,100 @@ test('focused Name and Email preserve their left prefix and actual canvas ink at
   }
 });
 
+test('explicit page, fit and focus navigation keeps the bound field inside the viewport', async ({ page }) => {
+  test.setTimeout(150_000);
+  await page.addInitScript(() => {
+    const original = Element.prototype.scrollTo;
+    Object.assign(window, { pdfPanCalls: 0 });
+    Element.prototype.scrollTo = function (this: Element, ...args: unknown[]) { if (this.classList.contains('document-preview-scroll')) (window as unknown as { pdfPanCalls: number }).pdfPanCalls++; return (original as (...values: unknown[]) => void).apply(this, args); } as typeof original;
+  });
+  const snapshot = workspace();
+  snapshot.userStates[0].values.name = 'Alex Morgan';
+  snapshot.userStates[0].values.activeField = 'Name';
+  await fixtureHost(page, await createSigningPdfFixture(), { snapshot });
+  const settleScroll = () => page.evaluate(() => new Promise<void>((resolve, reject) => {
+    const state = window as unknown as { pdfPanCalls: number };
+    const started = performance.now(); let previous = state.pdfPanCalls, stableSince = started;
+    const check = () => {
+      const now = performance.now();
+      if (state.pdfPanCalls !== previous) { previous = state.pdfPanCalls; stableSince = now; }
+      if (now - stableSince >= 300) { resolve(); return; }
+      if (now - started >= 6000) { reject(new Error('PDF navigation did not settle.')); return; }
+      requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
+  const measure = () => preview(page).evaluate(region => {
+    const rect = (node: Element | null) => node ? node.getBoundingClientRect().toJSON() : null;
+    const scroller = region.querySelector('.document-preview-scroll')!;
+    const field = region.querySelector('.document-active-field');
+    return {
+      canvas: rect(region.querySelector('canvas')), paper: rect(region.querySelector('.document-preview-page')),
+      viewport: rect(scroller), field: rect(field), toolbar: rect(region.querySelector('.document-preview-toolbar')),
+      scrollLeft: scroller.scrollLeft, scrollTop: scroller.scrollTop, scrollWidth: scroller.scrollWidth, scrollHeight: scroller.scrollHeight,
+      clientWidth: scroller.clientWidth, clientHeight: scroller.clientHeight,
+      active: field?.getAttribute('class') ?? '', fit: region.getAttribute('data-fit'),
+    };
+  });
+  for (const viewport of [{ width: 1440, height: 1000 }, { width: 390, height: 844 }]) {
+    for (const order of [['Next PDF page', 'Previous PDF page', 'Fit PDF page', 'Focus active PDF field'], ['Fit PDF page', 'Next PDF page', 'Previous PDF page', 'Focus active PDF field']]) {
+      await page.setViewportSize(viewport); await page.goto('/');
+      await expect(preview(page).getByRole('status')).toHaveText('Draft preview · Page 1 of 2', { timeout: 25_000 });
+      await expect(preview(page).locator('.document-active-field')).toBeVisible({ timeout: 25_000 });
+      await settleScroll();
+      const start = await measure();
+      const frames: Record<string, Awaited<ReturnType<typeof measure>>> = { start };
+      for (const name of order) {
+        await preview(page).getByRole('button', { name }).click();
+        if (name === 'Next PDF page') await expect(preview(page).getByRole('status')).toHaveText('Draft preview · Page 2 of 2');
+        if (name === 'Previous PDF page') await expect(preview(page).getByRole('status')).toHaveText('Draft preview · Page 1 of 2');
+        if (name === 'Fit PDF page') await expect(preview(page)).toHaveAttribute('data-fit', 'page');
+        if (name === 'Focus active PDF field') {
+          await expect(preview(page).locator('.document-active-field')).toBeVisible();
+          await expect(preview(page).getByRole('status')).toHaveText('Draft preview · Page 1 of 2');
+        }
+        await settleScroll();
+        frames[name] = await measure();
+      }
+      const final = frames['Focus active PDF field'];
+      const shot = (name: string) => page.screenshot({ path: test.info().outputPath(`ui01-${order[0].slice(0, 3)}-${viewport.width}-${name}.png`) });
+      await shot('final');
+      expect(final.fit).toBe('width');
+      expect(final.field, JSON.stringify({ start, final })).not.toBeNull();
+      const bounds = final.viewport!, field = final.field!;
+      const clearance = 14, tolerance = 1;
+      if (field.width <= final.clientWidth - 28 + tolerance && field.height <= final.clientHeight - 28 + tolerance) {
+        // A field that fits must show all four sides within the viewport minus the 14 px inset.
+        expect(field.left - bounds.left, JSON.stringify(final)).toBeGreaterThanOrEqual(clearance - tolerance);
+        expect(bounds.right - field.right, JSON.stringify(final)).toBeGreaterThanOrEqual(clearance - tolerance);
+        expect(field.top - bounds.top, JSON.stringify(final)).toBeGreaterThanOrEqual(clearance - tolerance);
+        expect(bounds.bottom - field.bottom, JSON.stringify(final)).toBeGreaterThanOrEqual(clearance - tolerance);
+      } else {
+        // Over-wide field: its left prefix and actual ink must remain visible with clearance.
+        expect(field.left - bounds.left, JSON.stringify(final)).toBeGreaterThanOrEqual(clearance - tolerance);
+        expect(final.scrollLeft).toBeGreaterThanOrEqual(0 - tolerance);
+        expect(final.scrollLeft).toBeLessThanOrEqual(final.scrollWidth - final.clientWidth + tolerance);
+        const ink = await preview(page).evaluate(region => {
+          const canvas = region.querySelector('canvas')!, context = canvas.getContext('2d')!;
+          const visible = canvas.getBoundingClientRect(), fieldBox = region.querySelector('.document-active-field')!.getBoundingClientRect();
+          const scale = canvas.width / visible.width;
+          const x0 = Math.max(0, Math.min(canvas.width - 1, Math.round((fieldBox.left - visible.left) * scale)));
+          const w = Math.min(canvas.width - x0, Math.round(33 / 612 * visible.width * scale));
+          if (w <= 0) return { dark: -1, w };
+          let dark = 0;
+          for (const y of [458, 374]) {
+            const y0 = Math.max(0, Math.round((792 - y - 27) / 792 * visible.height * scale));
+            const pixels = context.getImageData(x0, Math.min(canvas.height - 1, y0), w, Math.max(1, Math.min(25, canvas.height - y0))).data;
+            for (let index = 0; index < pixels.length; index += 4) if (pixels[index] < 100 && pixels[index + 1] < 100 && pixels[index + 2] < 100) dark++;
+          }
+          return { dark, w };
+        });
+        expect(ink.dark, JSON.stringify({ final, ink })).toBeGreaterThan(8);
+      }
+    }
+  }
+});
+
 test('cyclic Kids and parent chains receive a fast explicit page-tree denial', async ({ page }) => {
   await fixtureHost(page, await createSigningPdfFixture()); await page.goto('/');
   const results = await page.evaluate(async fixtures => {
