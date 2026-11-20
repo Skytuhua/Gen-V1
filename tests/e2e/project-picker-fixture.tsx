@@ -17,7 +17,7 @@ const initialProjects = [project('alpha', 'Alpha'), project('beta', 'Beta'), pro
 
 function Fixture() {
   const query = new URLSearchParams(location.search);
-  const [open, setOpen] = useState(false), [selected, setSelected] = useState(query.has('last') ? 'project-59' : 'alpha');
+  const [open, setOpen] = useState(false), [selected, setSelected] = useState(query.has('none') ? '' : query.has('last') ? 'project-59' : 'alpha');
   const [count, setCount] = useState(0), [adds, setAdds] = useState(0), [projects, setProjects] = useState(initialProjects);
   const [pulse, setPulse] = useState(0);
   const [preferences, setPreferences] = useState(() => mergePreferences(DEFAULT_PREFERENCES, { projectColors: JSON.parse(localStorage.getItem('synthetic-project-colors') ?? '{}') }));
@@ -29,7 +29,7 @@ function Fixture() {
     <ShellSidebar elementRef={sidebar} searchRef={search} mobile={false} open layout={readShellLayout()} preferences={preferences}
       matching={[{ id: 'synthetic-thread', title: 'Existing thread', projectId: 'alpha', projectName: 'Alpha', status: 'ready', epoch: 0, runId: null, createdAt: '2026-01-01T00:00:00.000Z', updatedAt: '2026-01-01T00:00:00.000Z' } as Thread]}
       loaded creating={false} search="" setSearch={() => {}} close={() => {}} toggleCollapsed={() => {}} setFolded={() => {}} select={() => {}} create={() => setOpen(true)} settings={() => {}} presentation={async () => true} rename={() => {}} archive={() => {}} />
-    <ProjectPicker open={open} authority={query.has('plugin') ? plugin : local} projects={projects} selectedProjectId={selected} recentProjectIds={query.has('recent') ? ['beta', 'alpha'] : []} colors={preferences.projectColors}
+    <ProjectPicker open={open} authority={query.has('plugin') ? plugin : local} title={query.get('title') ?? undefined} projects={projects} selectedProjectId={selected} recentProjectIds={query.has('recent') ? ['beta', 'alpha'] : []} colors={preferences.projectColors}
       onClose={() => setOpen(false)} onSelect={async (value: ProjectSummary | null) => {
         await new Promise(resolve => setTimeout(resolve, 100));
         if (query.has('fail')) throw Error('Synthetic creation failed');

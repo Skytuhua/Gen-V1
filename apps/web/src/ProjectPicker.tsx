@@ -18,6 +18,7 @@ export interface ProjectPickerProps {
   colors: Record<string, string>;
   busy?: boolean;
   error?: string;
+  title?: string;
   onClose: () => void;
   onSelect: (project: ProjectSummary | null) => void | Promise<void>;
   onAddProject: () => void | Promise<void>;
@@ -29,7 +30,7 @@ export function ProjectPicker(props: ProjectPickerProps) {
   return props.open ? <ProjectPickerDialog {...props} /> : null;
 }
 
-function ProjectPickerDialog({ authority, projects, selectedProjectId, recentProjectIds = [], colors, busy = false, error,
+function ProjectPickerDialog({ authority, projects, selectedProjectId, recentProjectIds = [], colors, busy = false, error, title = 'Select project',
   onClose, onSelect, onAddProject, onColorChange }: ProjectPickerProps) {
   const id = useId(), search = useRef<HTMLInputElement>(null), list = useRef<HTMLDivElement>(null);
   const colorAnchor = useRef<HTMLButtonElement>(null), colorInput = useRef<HTMLInputElement>(null);
@@ -77,7 +78,7 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
     void run(async () => { await onColorChange(editing, value); setColorKey(null); colorAnchor.current?.focus(); }, true);
   };
 
-  return <Modal open title="Select project" className="project-picker" onClose={() => { if (!busy && !pending.current) onClose(); }}>
+  return <Modal open title={title} className="project-picker" onClose={() => { if (!busy && !pending.current) onClose(); }}>
     <div className="project-picker-search"><Search size={16} aria-hidden="true" /><input ref={search} type="text" role="combobox" aria-label="Search projects"
       aria-autocomplete="list" aria-expanded="true" aria-controls={`${id}-list`} aria-activedescendant={choices.length ? optionId(activeIndex) : undefined}
       placeholder="Search projects" value={query} onChange={event => setQuery(event.target.value)} onKeyDown={event => {
@@ -96,10 +97,10 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
         return <button type="button" role="option" tabIndex={-1} key={key} id={optionId(index)} aria-label={project?.name ?? 'No project'}
           aria-selected={selected} data-active={index === activeIndex} disabled={locked} className="project-picker-option"
           onClick={() => { setActiveKey(key); void run(() => onSelect(project)); }}>
-          {project ? <span className="project-picker-dot" style={{ backgroundColor: projectColor(project.authority, project.id, colors) }} aria-hidden="true" /> : <Folder size={14} aria-hidden="true" />}
+          {project ? <span className="project-picker-dot" role="img" aria-label="connected" style={{ backgroundColor: projectColor(project.authority, project.id, colors) }} /> : <Folder size={14} aria-hidden="true" />}
           <span className="project-picker-label"><span>{project?.name ?? 'No project'}</span>{project && <small>{project.rootPath ?? project.repository}</small>}</span>
           {project && recentProjectIds.includes(project.id) && <small className="project-picker-recent">Recent</small>}
-          {selected && <Check size={14} aria-hidden="true" />}
+          {selected && <Check size={14} className="project-picker-check" aria-hidden="true" />}
         </button>;
       })}
     </div>

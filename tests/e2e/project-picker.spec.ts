@@ -49,6 +49,39 @@ test('hover does not select; arrows announce an active row and explicit selectio
   await expect(page.getByLabel('Created threads')).toHaveText('1');
 });
 
+test('selection mark is a single accent check, the dot is a labelled status and focus does not select', async ({ page }, info) => {
+  await page.getByRole('button', { name: 'Open project picker', exact: true }).click();
+  const dialog = page.getByRole('dialog', { name: 'Select project' });
+  const alpha = page.getByRole('option', { name: 'Alpha', exact: true }), beta = page.getByRole('option', { name: 'Beta', exact: true });
+  const none = page.getByRole('option', { name: 'No project', exact: true });
+  await expect(alpha).toHaveAttribute('aria-selected', 'true');
+  await expect(alpha.locator('svg.lucide-check')).toHaveCount(1);
+  await expect(alpha.locator('.project-picker-dot')).toHaveCount(1);
+  await expect(beta.locator('.project-picker-dot')).toHaveAttribute('aria-label', 'connected');
+  await expect(beta.locator('svg.lucide-check')).toHaveCount(0);
+  await expect(none.locator('svg.lucide-folder')).toHaveCount(1);
+  await expect(dialog.locator('svg.lucide-check')).toHaveCount(1);
+  const search = page.getByRole('combobox', { name: 'Search projects' });
+  await search.press('ArrowDown');
+  await expect(beta).toHaveAttribute('data-active', 'true');
+  await expect(beta).toHaveAttribute('aria-selected', 'false');
+  await expect(beta.locator('svg.lucide-check')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('project-picker-marks.png') });
+  await page.goto('/project-picker?none=1');
+  await page.getByRole('button', { name: 'Open project picker', exact: true }).click();
+  const noProject = page.getByRole('option', { name: 'No project', exact: true });
+  await expect(noProject).toHaveAttribute('aria-selected', 'true');
+  await expect(noProject.locator('svg.lucide-check')).toHaveCount(1);
+  await expect(noProject.locator('svg.lucide-folder')).toHaveCount(1);
+  await page.screenshot({ path: info.outputPath('project-picker-none-selected.png') });
+});
+
+test('dialog title follows the launching intent', async ({ page }) => {
+  await page.goto('/project-picker?title=New+thread');
+  await page.getByRole('button', { name: 'Open project picker', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'New thread' })).toBeVisible();
+});
+
 test('personal No project is explicit and foreign namespaces never enter the list', async ({ page }) => {
   await page.getByRole('button', { name: 'Open project picker', exact: true }).click();
   await expect(page.getByRole('option', { name: 'Foreign', exact: true })).toHaveCount(0);
