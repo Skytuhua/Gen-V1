@@ -27,7 +27,7 @@ export function readOfficialVersion(command:{file:string;args:string[]},cwd:stri
   child.once('close',code=>{
    if(settled)return;settled=true;clearTimeout(timer);
    if(code!==0){reject(Error('Official distribution version check failed.'));return;}
-   const version=Buffer.concat(stdout).toString('utf8').trim();
+   let version:string;try{version=new TextDecoder('utf-8',{fatal:true}).decode(Buffer.concat(stdout)).trim();}catch{reject(Error('Invalid UTF-8 CLI version output.'));return;}
    if(!version){reject(Error('Unexpected CLI version output.'));return;}
    done(version);
   });
