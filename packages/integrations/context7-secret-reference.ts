@@ -16,6 +16,7 @@ export interface ObservedContext7Executable { path: string; dev: string; ino: st
  * recheck the exact bytes and identity before resolving a reference. */
 export async function observeContext7Executable(path: string): Promise<ObservedContext7Executable> {
   if (!isAbsolute(path)) throw unavailable();
+  try {
   const canonical = await realpath(path), before = await lstat(canonical, { bigint: true });
   if (!before.isFile() || before.isSymbolicLink() || before.nlink !== 1n || before.size <= 0n || before.size > maximumExecutableBytes) throw unavailable();
   const handle = await open(canonical, 'r');
@@ -31,6 +32,7 @@ export async function observeContext7Executable(path: string): Promise<ObservedC
     if (bytes !== before.size || await realpath(path) !== canonical || !sameFile(before, await handle.stat({ bigint: true })) || !sameFile(before, await lstat(canonical, { bigint: true }))) throw unavailable();
     return { path: canonical, dev: String(before.dev), ino: String(before.ino), size: String(before.size), mtimeNs: String(before.mtimeNs), ctimeNs: String(before.ctimeNs), sha256: hash.digest('hex') };
   } finally { await handle.close(); }
+  } catch (error) { if (error instanceof HarnessError) throw error; throw unavailable(); }
 }
 
 /** Host-owned references. Configuration invalidates before child drain; the
