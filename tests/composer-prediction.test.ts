@@ -85,3 +85,15 @@ it('times out a settled prediction while cleanup is still pending',async()=>{
  expect(x.predictions.busy).toBe(false);
  expect(await request(x)).toMatchObject({suggestion:null});
 });
+
+it('times out an unsettled prediction without reporting partial usage',async()=>{
+ vi.useFakeTimers();const x=fixture();x.predictions.settled(x.current!);
+ const result=request(x);
+ await vi.advanceTimersByTimeAsync(0);
+ const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
+ await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
+ const value=await result;
+ expect(value).toMatchObject({suggestion:null});
+ expect(value).not.toHaveProperty('usage');
+ expect(x.models[0].runtime.cancel).toHaveBeenCalled();
+});
