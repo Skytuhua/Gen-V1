@@ -296,7 +296,7 @@ export interface ReadSyncTransport {
   advance(cursor: string): Promise<SyncPageV1>;
 }
 
-export const REMOTE_STALE_AFTER_MS = 30_000;
+const REMOTE_STALE_AFTER_MS = 30_000;
 
 export class ReadSyncClient {
   readonly tasks = new Map<string, SyncTaskDeltaV1>();

@@ -7,10 +7,12 @@ export interface PredictionRequest {threadId:string;replyId:string;modelId:strin
 export interface PredictionBasis extends PredictionRequest {accountId:string|null;epoch:number;context:string}
 export interface PredictionResult {suggestion:string|null;replyId:string;modelId:string;usage?:Partial<RuntimeUsage>}
 interface Slot {basis:PredictionBasis;fingerprint:string;expires:number;state:'eligible'|'pending'|'result'|'none';result?:PredictionResult}
-interface Owner {slot:Slot;context:RunContext;creating:Promise<RuntimeAdapter>;startup?:Promise<void>;closed:boolean;closing?:Promise<void>;callers:Set<symbol>;text:string;usage:Partial<RuntimeUsage>;result:Promise<PredictionResult>;resolve(value:PredictionResult):void;timer:ReturnType<typeof setTimeout>}
+interface Owner {slot:Slot;context:RunContext;creating:Promise<RuntimeAdapter>;startup?:Promise<void>;closed:boolean;timedOut:boolean;closing?:Promise<void>;callers:Set<symbol>;text:string;usage:Partial<RuntimeUsage>;result:Promise<PredictionResult>;resolve(value:PredictionResult):void;timer:ReturnType<typeof setTimeout>}
 const key=(input:PredictionRequest)=>JSON.stringify([input.threadId,input.replyId]);
 const fingerprint=(input:PredictionBasis)=>createHash('sha256').update(JSON.stringify(input)).digest('hex');
 const empty=(input:PredictionRequest):PredictionResult=>({suggestion:null,replyId:input.replyId,modelId:input.modelId});
+// Only a settled run is closing when its deadline fires; its reported usage still reaches the caller.
+const timedOut=(owner:Owner):PredictionResult=>({...empty(owner.slot.basis),...(owner.closing&&Object.keys(owner.usage).length?{usage:{...owner.usage}}:{})});
 const same=(left:RunContext,right:RunContext)=>left.threadId===right.threadId&&left.runId===right.runId&&left.epoch===right.epoch;
 
 /** Canonical chat text only: no attachments, tools, native history or profile data. */
@@ -86,7 +88,7 @@ export class ComposerPredictions {
   let resolve!:(value:PredictionResult)=>void;const result=new Promise<PredictionResult>(done=>{resolve=done;});
   const context={threadId:'prediction-'+randomUUID(),runId:randomUUID(),epoch:0};
   // Reserve synchronously, before factory or any provider/account await.
-  const owner:Owner={slot,context,creating:Promise.resolve().then(()=>this.hooks.factory()),closed:false,callers:new Set(),text:'',usage:{},result,resolve,timer:setTimeout(()=>{void this.close(owner,false).catch(()=>{});},PREDICTION_LIMITS.timeoutMs)};
+  const owner:Owner={slot,context,creating:Promise.resolve().then(()=>this.hooks.factory()),closed:false,timedOut:false,callers:new Set(),text:'',usage:{},result,resolve,timer:setTimeout(()=>{owner.timedOut=true;owner.resolve(timedOut(owner));void this.close(owner,false).catch(()=>{});},PREDICTION_LIMITS.timeoutMs)};
   owner.timer.unref?.();slot.state='pending';this.owner=owner;
   void this.run(owner);
  }
@@ -116,14 +118,16 @@ export class ComposerPredictions {
  }
  private close(owner:Owner,success:boolean):Promise<void> {
   if(owner.closing)return owner.closing;
-  owner.closed=true;clearTimeout(owner.timer);owner.slot.state='none';
-  if(!success)owner.resolve(empty(owner.slot.basis));
+  owner.closed=true;owner.slot.state='none';
+  if(!success){clearTimeout(owner.timer);owner.resolve(empty(owner.slot.basis));}
   owner.closing=Promise.resolve().then(async()=>{
    let cleanupFailed=false;
    try{const adapter=await owner.creating;if(!success)try{await adapter.cancel(owner.context);}catch{/* Disposal must still confirm teardown. */}try{await adapter.dispose();}catch{cleanupFailed=true;}}
    catch{success=false;}
    if(owner.startup){const [startup]=await Promise.allSettled([owner.startup]);if(startup.status==='rejected')success=false;}
-   const suggestion=success&&!cleanupFailed&&this.current(owner.slot)?parsePrediction(owner.text):null;
+   // The caller deadline covers settlement and teardown; it never releases the native slot.
+   clearTimeout(owner.timer);
+   const suggestion=success&&!owner.timedOut&&!cleanupFailed&&this.current(owner.slot)?parsePrediction(owner.text):null;
    const result:PredictionResult={...empty(owner.slot.basis),suggestion,...(Object.keys(owner.usage).length?{usage:{...owner.usage}}:{})};
    if(suggestion!==null){owner.slot.state='result';owner.slot.result=result;}
    owner.resolve(result);

@@ -72,7 +72,7 @@ it('streams scoped checkpoints and visible transcript invalidations through the 
     expect(updates).toHaveBeenCalledTimes(1);
     store.internal('runtime.assistant.delta', 'parent', () => store.put('message', 'answer', 'parent', { id: 'answer', threadId: 'parent', role: 'assistant', content: 'Visible', createdAt: '', runId: 'r' }));
     let chunk = '';
-    while (!chunk.includes('\n\n')) chunk += (await reader.next()).value;
+    while (!chunk.includes('\n\n')) { const part = await reader.next(); if (part.done) throw new Error('SSE stream ended before the event delimiter'); chunk += part.value; }
     const event = JSON.parse(chunk.split('data: ')[1].split('\n')[0]);
     expect(event).toMatchObject({ fromSequence: page.sequence, sequence: store.sequence, resync: false, transcripts: [{ agentId: 'thread:parent', sequence: store.sequence }] });
     expect(event.upserts).toEqual([]); expect(chunk).not.toContain('Visible');

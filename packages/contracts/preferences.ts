@@ -9,7 +9,7 @@ export function relativeLuminance(color: string): number {
   return linear[0]! * .2126 + linear[1]! * .7152 + linear[2]! * .0722;
 }
 /** The luminance where an accent solid crosses 4.5:1 with white, so its label flips to black. */
-export const ACCENT_INK_LUMINANCE = .179;
+const ACCENT_INK_LUMINANCE = .179;
 /** The label colour an accent solid carries. */
 export function accentInk(color: string): string {
   return relativeLuminance(color) > ACCENT_INK_LUMINANCE ? '#000000' : '#FFFFFF';

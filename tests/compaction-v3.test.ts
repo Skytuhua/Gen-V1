@@ -341,7 +341,65 @@ it('reports only eligible old tool-result savings once, without modifying the pr
   expect(observer.observe({ ...input, cutId: 'cut-2', inspectionBudgetBytes: 10 })).toEqual({ candidateIds: [], estimatedSavingsBytes: 0 });
 });
 
-it.each(['completed', 'failed'] as const)('ignores a %s shadow result from an expired cut while a newer cut is pending', async outcome => {
+it('isolates foreground metadata from attempted shadow observer changes', async () => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  const cut = { cutId: 'mutable', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [
+    { id: 'old', inputSequence: 1, bytes: 100, kind: 'tool-result', completed: true, protected: false },
+  ] };
+  const before = JSON.stringify(cut);
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: null, budgetCalls: 1 },
+    observe: async observed => {
+      Reflect.set(observed, 'retainedTailStart', 99);
+      Reflect.set(observed.segments[0]!, 'bytes', 999);
+      Reflect.set(observed.segments, '0', { ...observed.segments[0], id: 'replacement' });
+      return { candidateIds: [observed.segments[0]!.id], estimatedSavingsBytes: observed.segments[0]!.bytes };
+    },
+  });
+  expect(await phase.run(cut)).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['old'], estimatedSavingsBytes: 100 } });
+  expect(JSON.stringify(cut)).toBe(before);
+});
+
+it('keeps the admitted shadow cut unchanged when its caller edits the next request', async () => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  let resume!: () => void;
+  const ready = new Promise<void>(resolve => { resume = resolve; });
+  const cut = { cutId: 'captured', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [
+    { id: 'old', inputSequence: 1, bytes: 100, kind: 'tool-result', completed: true, protected: false },
+  ] };
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: null, budgetCalls: 1 },
+    observe: async observed => {
+      await ready;
+      return { candidateIds: [observed.segments[0]!.id], estimatedSavingsBytes: observed.segments[0]!.bytes };
+    },
+  });
+  const result = phase.run(cut);
+  cut.cutId = 'next-cut'; cut.segments[0]!.id = 'next-result'; cut.segments[0]!.bytes = 999;
+  resume();
+  expect(await result).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['old'], estimatedSavingsBytes: 100 } });
+  expect(cut.segments[0]).toMatchObject({ id: 'next-result', bytes: 999 });
+});
+
+it.each(['too many segments', 'an overlong source ID'] as const)('refuses a shadow cut with %s before dispatch or budget spend', async problem => {
+  const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
+  let calls = 0;
+  const segment = { id: 'old', inputSequence: 1, bytes: 100, kind: 'tool-result', completed: true, protected: false };
+  const cut = { cutId: 'bounded-cut', retainedTailStart: 5, inspectionBudgetBytes: 1000, segments: [segment] };
+  const phase = createShadowRelevancePhase({
+    approval: { modelId: 'aux-model', accountId: null, budgetCalls: 1 },
+    observe: async () => { calls++; return { candidateIds: ['old'], estimatedSavingsBytes: 100 }; },
+  });
+  const invalid = { ...cut, segments: problem === 'too many segments'
+    ? Array.from({ length: 4097 }, (_, index) => ({ ...segment, id: 'result:' + index }))
+    : [{ ...segment, id: 'x'.repeat(513) }] };
+  expect(await phase.run(invalid)).toEqual({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+  expect(calls).toBe(0);
+  expect(await phase.run(cut)).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['old'], estimatedSavingsBytes: 100 } });
+  expect(calls).toBe(1);
+});
+
+it.each(['completed', 'failed'] as const)('retains an expired shadow call until it has %s', async outcome => {
   const { createShadowRelevancePhase } = await import('../packages/core/context-relevance.ts');
   type Observation = { candidateIds: readonly string[]; estimatedSavingsBytes: number };
   const timers: Array<() => void> = [];
@@ -355,16 +413,21 @@ it.each(['completed', 'failed'] as const)('ignores a %s shadow result from an ex
   const expired = phase.run(cut);
   timers[0]!();
   expect(await expired).toEqual({ status: 'TIMED_OUT', observation: null });
-  const current = phase.run({ ...cut, cutId: 'current' });
-  let settled = false;
-  void current.then(() => { settled = true; });
+  const nextCut = { ...cut, cutId: 'current' };
+  const refused = phase.run(nextCut);
+  expect(completions).toHaveLength(1);
+  expect(await refused).toEqual({ status: 'OBSERVER_UNAVAILABLE', observation: null });
   if (outcome === 'completed') completions[0]!.resolve({ candidateIds: ['expired-only'], estimatedSavingsBytes: 900 });
   else completions[0]!.reject(new Error('Expired observer failed'));
   await Promise.resolve();
   await Promise.resolve();
-  expect(settled).toBe(false);
+  const current = phase.run(nextCut);
+  expect(completions).toHaveLength(2);
+  timers[0]!();
   completions[1]!.resolve({ candidateIds: ['current-only'], estimatedSavingsBytes: 40 });
   expect(await current).toEqual({ status: 'COMPLETED', observation: { candidateIds: ['current-only'], estimatedSavingsBytes: 40 } });
+  expect(await expired).toEqual({ status: 'TIMED_OUT', observation: null });
+  expect(await phase.run({ ...cut, cutId: 'after-budget' })).toEqual({ status: 'OBSERVER_UNAVAILABLE', observation: null });
 });
 
 it('ignores an old timeout callback after the next shadow cut starts', async () => {

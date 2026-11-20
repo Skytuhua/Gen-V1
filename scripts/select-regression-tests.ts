@@ -9,7 +9,7 @@ import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface SourceChange { path: string; status: 'A' | 'M' | 'D' | 'R' | 'C'; previousPath?: string }
-export interface SelectionIssue { path: string; code: 'UNMAPPED_SOURCE' | 'STALE_MAPPING' | 'REMOVED_TEST' | 'UNSAFE_NAME' | 'EMPTY_SELECTION'; message: string }
+interface SelectionIssue { path: string; code: 'UNMAPPED_SOURCE' | 'STALE_MAPPING' | 'REMOVED_TEST' | 'UNSAFE_NAME' | 'EMPTY_SELECTION'; message: string }
 export interface SelectionResult {
   tests: string[];
   coverage: 'FULL' | 'PARTIAL' | 'NONE';
@@ -24,7 +24,7 @@ const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.(?:[jt]sx?|[cm][jt]s)$/;
 const TEST_FILE = /\.test\.(?:[jt]sx?|[cm][jt]s)$/;
 const DOC_ONLY = /^(?:docs\/|.*\.md$|.*\.mdx$|CHANGELOG\.md$|LICENSE$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$)/i;
 
-export const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
+const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
   'packages/storage/store.ts': ['tests/store.test.ts'],
   'packages/capabilities/process.ts': ['tests/capabilities.test.ts', 'tests/browser-runner.test.ts'],
   'packages/capabilities/index.ts': ['tests/capabilities.test.ts'],
@@ -152,7 +152,7 @@ export function changedSources(root: string, baseRef: string): SourceChange[] {
   return changes;
 }
 
-export function selectionMain(args: string[]): number {
+function selectionMain(args: string[]): number {
   const root = fileURLToPath(new URL('../', import.meta.url));
   const baseIndex = args.indexOf('--base');
   const base = baseIndex >= 0 && args[baseIndex + 1] ? args[baseIndex + 1] : null;
