@@ -2,7 +2,7 @@
 .file-checkpoints-toolbar { display:flex; flex-wrap:wrap; align-items:center; gap:8px; min-height:42px; padding:8px 12px; border-bottom:1px solid var(--border); }
 .file-checkpoints-toolbar>strong { margin-right:auto; font-weight:550; }
 .file-checkpoints [role="tablist"] { display:flex; flex-wrap:wrap; gap:4px; }
-.file-checkpoints button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:32px; padding:6px 10px; border:1px solid var(--border); border-radius:var(--radius,6px); background:var(--selection-bg); color:var(--text); font:inherit; cursor:pointer; transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move); }
+.file-checkpoints button { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:32px; padding:6px 10px; border:1px solid var(--control-border); border-radius:var(--radius,6px); background:var(--selection-bg); color:var(--text); font:inherit; cursor:pointer; transition:background-color var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move); }
 .file-checkpoints [role="tab"] { padding:6px 8px; background:transparent; color:var(--muted); border-color:transparent; }
 .file-checkpoints [aria-selected="true"] { color:var(--text); background:var(--selection-bg); }
 .file-checkpoints button:disabled { color:var(--muted); cursor:not-allowed; }

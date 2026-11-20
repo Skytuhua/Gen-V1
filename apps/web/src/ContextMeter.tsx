@@ -8,7 +8,7 @@ const contextFormatter = new Intl.NumberFormat(undefined, { notation: 'compact',
 const detailFormatter = new Intl.NumberFormat();
 export const contextNumber = (tokens: number) => contextFormatter.format(tokens);
 export const contextTokenCount = (value: unknown): value is number => typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
-export interface ContextCategoryReport { label: string; tokens: number; subitems?: { label: string; tokens: number }[] }
+interface ContextCategoryReport { label: string; tokens: number; subitems?: { label: string; tokens: number }[] }
 export type ContextUsage = Omit<RuntimeUsage, 'contextBreakdown'> & { contextBreakdown?: ContextCategoryReport[] };
 const labels = ['System', 'Tools & MCP', 'Skills', 'Messages', 'Reserved', 'Free'] as const;
 function categoryLabel(label: string) {

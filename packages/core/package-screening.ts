@@ -44,7 +44,10 @@ export interface ScreeningComputation {
 }
 
 const DEFAULT_MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
-const cacheKey = (identity: PackageIdentity) => `${identity.name}@${identity.version}#${identity.digest}`;
+const cacheKey = (identity: PackageIdentity) => JSON.stringify([identity.name, identity.version, identity.digest]);
+// Historical records used a delimiter key. Read the exact old identity during
+// migration but write new records only under the collision-free key.
+const legacyCacheKey = (identity: PackageIdentity) => `${identity.name}@${identity.version}#${identity.digest}`;
 
 function validateIdentity(identity: PackageIdentity): PackageIdentity {
   if (!identity || typeof identity.name !== 'string' || !identity.name || identity.name.length > 214) {
@@ -68,7 +71,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     throw new HarnessError('INVALID_INPUT', 'Package screening cache lifetime must be a finite integer between 0 and 24 hours.');
   }
   const key = cacheKey(pkg);
-  const cached = options.cache?.get(key);
+  const cached = options.cache?.get(key) ?? options.cache?.get(legacyCacheKey(pkg));
   let staleCache = false;
   let previousCacheAgeMs = 0;
   let previousKnownBad: PackageScreeningV1 | undefined;

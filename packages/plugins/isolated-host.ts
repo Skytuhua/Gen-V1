@@ -80,7 +80,7 @@ export interface WorkerTransport{
  terminate():Promise<boolean>;
 }
 
-export interface WorkerLaunchSpec{
+interface WorkerLaunchSpec{
  packageDir:string;dataDir:string;generation:number;
  /** Child environment built from the host allowlist, never process.env. */
  env:Record<string,string|undefined>;
@@ -89,7 +89,7 @@ export interface WorkerLauncher{launch(spec:WorkerLaunchSpec):Promise<WorkerTran
 
 /** Real private-pipe transport over a spawned child process' stdio. The pipes
  * are created by the host for exactly this child; nothing is shared. */
-export class PipeWorkerTransport implements WorkerTransport{
+class PipeWorkerTransport implements WorkerTransport{
  private frameHandler:((frame:WorkerFrameV1)=>void)|undefined;
  private exitHandler:((exit:WorkerExit)=>void)|undefined;
  private exitInfo:WorkerExit|undefined;
@@ -317,7 +317,7 @@ export interface IsolatedExtensionRecord{
  starting?:StartingGeneration|null;
 }
 
-export interface StartingGeneration{
+interface StartingGeneration{
  lease:PluginLeaseV1;
  /** Resolves (never rejects) once the launch/handshake path has finished and
   * any late worker was cleaned up; carries whether exit was confirmed. */
