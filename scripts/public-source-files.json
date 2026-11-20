@@ -2836,6 +2836,7 @@
     "tests/baseline-package-manager-v3.test.ts",
     "tests/baseline-workloads-v3.test.ts",
     "tests/benchmark-report-availability-v3.test.ts",
+    "tests/binding-sql-validation.test.ts",
     "tests/browser-consent-v3.test.ts",
     "tests/browser-runner.test.ts",
     "tests/browser-verification-v3.test.ts",
