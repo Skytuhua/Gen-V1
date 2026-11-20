@@ -1,5 +1,5 @@
-export const THREAD_HOVER_DWELL = 350;
-export const THREAD_HOVER_TRANSFER = 120;
+const THREAD_HOVER_DWELL = 350;
+const THREAD_HOVER_TRANSFER = 120;
 
 export function createThreadHoverInteraction(onChange: (open: boolean) => void) {
   let open = false, blocked = false, focused = false, dismissed = false;

@@ -47,7 +47,7 @@ type Schedule = z.infer<typeof scheduleSchema>;
 type Step = z.infer<typeof stepSchema>;
 
 export interface OutputPage { output: string; cursor: number; exited: boolean; exitCode: number | null }
-export interface BackgroundWorkViewProps {
+interface BackgroundWorkViewProps {
   data: BackgroundViewData | null;
   loading: boolean;
   error: string;
@@ -65,7 +65,7 @@ export interface BackgroundWorkViewProps {
   loadOutput: (workId: string, threadId: string, cursor: number) => Promise<OutputPage>;
 }
 
-export function stateLabel(work: Work): string {
+function stateLabel(work: Work): string {
   switch (work.state) {
     case 'QUEUED': case 'WAITING_EVENT': return 'Waiting';
     case 'RUNNING': return 'Running';
@@ -75,7 +75,7 @@ export function stateLabel(work: Work): string {
     default: return 'Outcome unknown';
   }
 }
-export function outcomeLabel(outcome: string | null): string {
+function outcomeLabel(outcome: string | null): string {
   return outcome === 'SUCCEEDED' ? 'Succeeded' : outcome === 'FAILED' ? 'Failed' : outcome === 'CANCELLED' ? 'Cancelled' : '';
 }
 const when = (ms: number | null): string => ms === null ? '—' : new Date(ms).toLocaleString();
@@ -278,7 +278,7 @@ let state: BackgroundState = { data: null, loading: false, error: '', sequence: 
 const listeners = new Set<() => void>();
 let stop: (() => void) | undefined, flight: Promise<void> | undefined, timer: ReturnType<typeof setTimeout> | undefined;
 const publish = () => { for (const listener of listeners) listener(); };
-export function refreshBackgroundWork(): Promise<void> {
+function refreshBackgroundWork(): Promise<void> {
   return flight ??= (async () => {
     state = { ...state, loading: true }; publish();
     try {
@@ -304,7 +304,7 @@ function listen(listener: () => void) {
   }
   return () => { listeners.delete(listener); if (!listeners.size) { clearTimeout(timer); stop?.(); stop = undefined; } };
 }
-export function useBackgroundWork(enabled = true) {
+function useBackgroundWork(enabled = true) {
   const current = useSyncExternalStore(enabled ? listen : () => () => {}, () => state, () => state);
   useEffect(() => { if (enabled) void refreshBackgroundWork(); }, [enabled]);
   return current;

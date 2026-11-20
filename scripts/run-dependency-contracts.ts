@@ -136,9 +136,11 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
     return receipt;
   }
   // Exclusive ownership prevents adoption or replacement of old command receipts.
-  await mkdir(out);
-  if (realpathSync(out) !== out) {
-    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: 'Evidence output changed during directory creation.' });
+  try {
+    await mkdir(out);
+    requireValue(realpathSync(out) === out, 'Evidence output changed during directory creation.');
+  } catch (error) {
+    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: error instanceof Error ? error.message : String(error) });
     receipt.endedAt = new Date().toISOString();
     return receipt;
   }
@@ -214,7 +216,7 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
   return receipt;
 }
 
-export async function dependencyContractsMain(args: string[]): Promise<number> {
+async function dependencyContractsMain(args: string[]): Promise<number> {
   if (args.length !== 4 || args[0] !== '--source-lock' || args[2] !== '--out' || !args[1] || !args[3]) {
     console.error('Usage: tsx scripts/run-dependency-contracts.ts --source-lock <file> --out <NEW-directory>');
     return 2;

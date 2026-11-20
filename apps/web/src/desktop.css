@@ -18,7 +18,7 @@
 .desktop-browser-toolbar>header {height:44px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 12px;}
 .desktop-browser-toolbar>header strong {font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .desktop-browser-toolbar>form {height:52px;display:flex;align-items:center;gap:4px;padding:7px 9px;border-bottom:1px solid var(--border);}
-.desktop-browser-toolbar input {min-width:0;flex:1;font-size:12px;padding:7px 9px;background:var(--canvas);border:1px solid var(--border);border-radius:6px;}
+.desktop-browser-toolbar input {min-width:0;flex:1;font-size:12px;padding:7px 9px;background:var(--canvas);border:1px solid var(--control-border);border-radius:6px;}
 .desktop-browser-toolbar p {margin:0;padding:0 12px;font-size:11px;}
 .desktop-browser-toolbar .browser-close {flex-shrink:0;transition:color var(--ui-motion-hover) var(--ui-ease-enter);}
 .desktop-browser-toolbar .browser-close:hover,.desktop-browser-toolbar .browser-close:focus-visible {color:var(--danger);}

@@ -35,3 +35,12 @@ describe('protected environment settings',()=>{
   expect((await settings.read()).entries).toEqual([]);
  });
 });
+
+it('does not decrypt a device value shadowed by an exact project override',async()=>{
+ const root=await mkdtemp(join(tmpdir(),'gen-env-test-'));roots.push(root);
+ const settings=new EnvironmentSettings(root,{...codec,unprotect:async()=>{throw Error('device secret unavailable');}});
+ await settings.save({scope:'device',name:'EXAMPLE_API_KEY',value:'device-value',secret:true,baseRevision:0});
+ await settings.save({scope:'project:project-a',name:'EXAMPLE_API_KEY',value:'project-value',secret:false,baseRevision:1});
+ await expect(settings.resolve('project-a')).resolves.toEqual({EXAMPLE_API_KEY:'project-value'});
+ await expect(settings.resolve('project-b')).rejects.toThrow('device secret unavailable');
+});

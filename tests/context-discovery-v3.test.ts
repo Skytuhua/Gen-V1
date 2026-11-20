@@ -107,6 +107,7 @@ it('permits a described tool only after a fresh request snapshot and rechecks ad
   expect(session.canInvoke('deferred')).toBe(false);
 });
 
+
 it('does not spend deferred discovery slots on already-direct tools', async () => {
   const { createProgressiveToolSession } = await tools() as typeof import('../packages/core/context-tool-discovery.ts');
   const direct = Array.from({ length: 64 }, (_, index) => ({
@@ -122,3 +123,20 @@ it('does not spend deferred discovery slots on already-direct tools', async () =
   expect(session.capture().tools.map(tool => tool.name)).toContain('deferred');
   expect(session.canInvoke('deferred')).toBe(true);
 });
+
+
+it('records explicit TypeScript import-type edges without treating runtime expressions as declarations', async () => {
+  const { buildRepoMap } = await repoMap() as typeof import('../packages/workspace/repo-map.ts');
+  const source = [
+    "import type { Local } from './same';",
+    "export type Shape = { next: import('./type-only').Shape; local: import('./same').Local };",
+    "export type Factory = typeof import('./factory');",
+    "const deferred = () => import('./runtime');",
+  ].join('\n');
+  const result = buildRepoMap(['src/input.ts'], () => source);
+  expect(result.files[0]).toEqual({
+    path: 'src/input.ts', mode: 'PARSED', imports: ['./factory', './same', './type-only'],
+    exports: [{ name: 'Factory', line: 3 }, { name: 'Shape', line: 2 }],
+  });
+});
+

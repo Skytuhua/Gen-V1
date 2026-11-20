@@ -96,7 +96,7 @@ export const anchorsOf = source => {
     counters.set(base, count);
     found.add(candidate);
   }
-  for (const [, anchor] of [text, ...rawHtml].join('\n').matchAll(/<a\s[^>]*?\b(?:name|id)=["']([^"']+)["']/gi)) found.add(anchor.toLowerCase());
+  for (const [, anchor] of [text, ...rawHtml].join('\n').matchAll(/<a\s[^>]*?\b(?:name|id)=["']([^"']+)["']/gi)) found.add(anchor);
   return found;
 };
 // Every ](target) is read, so a linked image `[![alt](image)](page)` yields both targets.
@@ -180,7 +180,7 @@ function main() {
         try { cache.set(resolved, anchorsOf(readFileSync(resolved, 'utf8'))); }
         catch (error) { report(failures, file, line, target, 'cannot read anchors in ' + resolved + ': ' + error.message); continue; }
       }
-      if (!cache.get(resolved).has(decoded(fragment).toLowerCase())) report(failures, file, line, target, 'no heading or anchor "#' + fragment + '" in ' + resolved);
+      if (!cache.get(resolved).has(decoded(fragment))) report(failures, file, line, target, 'no heading or anchor "#' + fragment + '" in ' + resolved);
     }
   }
   const ignored = new Set();

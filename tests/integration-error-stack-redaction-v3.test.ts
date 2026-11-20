@@ -346,3 +346,97 @@ it.each(['raw', 'base64'] as const)('fails closed on credential-bearing child Er
  expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
  expect(inspect(rejected,{depth:5})).not.toContain(exposed);
 });
+
+it.each([
+ ['stack', false], ['message', false], ['name', false],
+ ['message', true], ['name', true], ['cause', true],
+] as const)('fails closed on an unsafe formatter accessor (%s, inherited=%s)', (key, inherited) => {
+ const secret='CONTEXT7_ERROR_ACCESSOR_SINK_FIXTURE_171';
+ const failure=new Error('safe child failure');
+ // Node's formatter evaluates these properties even when they live on a
+ // custom Error prototype. A setter can deliberately ignore redacted writes.
+ const target=inherited?Object.create(Error.prototype) as object:failure;
+ if(inherited){
+  Object.setPrototypeOf(failure,target);
+  Reflect.deleteProperty(failure,key);
+ }
+ let getterReads=0;
+ Object.defineProperty(target,key,{
+  get:()=>{getterReads++;return secret;},set:()=>{},enumerable:true,configurable:true,
+ });
+ // Node 24 does not always print inherited cause accessors in inspect(),
+ // but a caller reading Error.cause can still disclose the credential.
+ if(key==='cause'&&inherited)expect(failure.cause).toBe(secret);
+ else expect(inspect(failure,{depth:5})).toContain(secret);
+ const exposedReads=getterReads;
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:5})).not.toContain(secret);
+ expect(getterReads).toBe(exposedReads);
+});
+
+it('fails closed on an inherited custom Error inspection hook', () => {
+ const secret='CONTEXT7_ERROR_CUSTOM_INSPECT_FIXTURE_172';
+ const failure=new Error('safe child failure');
+ const prototype=Object.create(Error.prototype) as object;
+ Object.defineProperty(prototype,inspect.custom,{value:()=>secret,configurable:true});
+ Object.setPrototypeOf(failure,prototype);
+ // Node invokes inherited hooks even when message, stack and cause are clean.
+ expect(inspect(failure,{depth:5})).toContain(secret);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ let rejected:unknown;
+ try{sanitize.redactFailure({redactor},failure);}catch(error){rejected=error;}
+ expect(rejected).toBeInstanceOf(Error);
+ expect((rejected as Error).message).toBe('The integration error could not be safely redacted.');
+ expect(inspect(rejected,{depth:5})).not.toContain(secret);
+});
+it('preserves genuine Node stack accessors and safe diagnostics while redacting credentials', () => {
+ const secret='CONTEXT7_NATIVE_ERROR_STACK_FIXTURE_181';
+ const failure=new Error('Upstream request timed out after '+secret);
+ const original=Object.getOwnPropertyDescriptor(failure,'stack');
+ // Node 24 keeps native Error.stack as a getter even after it is read.
+ expect(typeof original?.get).toBe('function');
+ expect(failure.stack).toContain(secret);
+ expect(Object.getOwnPropertyDescriptor(failure,'stack')?.get).toBe(original?.get);
+ const manager=new IntegrationManager({
+  root:process.cwd(),dataRoot:process.cwd(),
+  getPreferences:async()=>({}),setPreference:async()=>{},
+  authorize:async()=>({profileId:'test-only'}),
+  hostComplete:async(_scope,prompt)=>({output:prompt}),
+  onDisable:async()=>{},
+ });
+ const redactor=createSecretRedactor([secret]);
+ const sanitize=manager as unknown as {
+  redactFailure(session:{redactor:typeof redactor},error:Error):Error;
+ };
+ const returned=sanitize.redactFailure({redactor},failure);
+ expect(returned).toBe(failure);
+ expect(returned.message).toContain('Upstream request timed out');
+ expect(returned.stack).toContain('Upstream request timed out');
+ expect(returned.message).toContain('[REDACTED]');
+ expect(returned.stack).toContain('[REDACTED]');
+ expect(inspect(returned,{depth:5})).not.toContain(secret);
+});

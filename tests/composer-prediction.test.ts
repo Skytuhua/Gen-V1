@@ -53,3 +53,47 @@ it('cancels delayed factory startup without starting a model and retains failed 
 it('evicts old slots and expires them without allowing historical regeneration',async()=>{
  vi.useFakeTimers();const x=fixture();for(let n=0;n<33;n++)x.predictions.settled(basis(String(n)));x.current=basis('0');expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});x.current=basis('32');await vi.advanceTimersByTimeAsync(10*60*1000);expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});expect(x.models).toEqual([]);
 });
+
+it('bounds the actual serialized prediction context for JSON-heavy chat text',()=>{
+ const text=('"'+String.fromCharCode(92)+String.fromCharCode(1)+'😀').repeat(4000);
+ const m=(id:string,role:Message['role'],content:string):Message=>({id,threadId:'thread',role,content,runId:null,createdAt:''});
+ const latest=m('reply','assistant','The file is ready.');
+ const context=predictionContext([m('previous','user',text),latest]);
+ const parsed=JSON.parse(context);
+ expect(Buffer.byteLength(context)).toBeLessThanOrEqual(PREDICTION_LIMITS.contextBytes);
+ expect(parsed.at(-1)).toEqual({role:'assistant',content:latest.content});
+ expect(parsed[0].content.length).toBeGreaterThan(1000);
+ expect(text.startsWith(parsed[0].content)).toBe(true);
+ expect(parsed[0].content).not.toMatch(/[\uD800-\uDBFF]$/u);
+});
+
+it('times out a settled prediction while cleanup is still pending',async()=>{
+ vi.useFakeTimers();const x=fixture(),cleanup=deferred<void>();x.predictions.settled(x.current!);
+ let received:null|string|undefined;
+ const result=request(x).then(value=>{received=value.suggestion;return value;});
+ try {
+  await vi.advanceTimersByTimeAsync(0);
+  x.models[0].runtime.dispose=vi.fn(()=>cleanup.promise);
+  const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
+  x.models[0].settle();
+  await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
+  expect(received).toBeNull();
+  expect(await result).toMatchObject({suggestion:null,usage:{outputTokens:3}});
+  expect(x.predictions.busy).toBe(true);
+ } finally {cleanup.resolve();await result;}
+ await vi.advanceTimersByTimeAsync(0);
+ expect(x.predictions.busy).toBe(false);
+ expect(await request(x)).toMatchObject({suggestion:null});
+});
+
+it('times out an unsettled prediction without reporting partial usage',async()=>{
+ vi.useFakeTimers();const x=fixture();x.predictions.settled(x.current!);
+ const result=request(x);
+ await vi.advanceTimersByTimeAsync(0);
+ const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
+ await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
+ const value=await result;
+ expect(value).toMatchObject({suggestion:null});
+ expect(value).not.toHaveProperty('usage');
+ expect(x.models[0].runtime.cancel).toHaveBeenCalled();
+});
