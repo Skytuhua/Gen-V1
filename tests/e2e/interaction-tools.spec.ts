@@ -45,9 +45,16 @@ test('editable records use compact typed columns with aligned draft and previous
  await expect(table.locator('.interaction-footer')).toContainText('0 cells changed');
  const hours=page.getByRole('spinbutton',{name:'Design \u00b7 Hours',exact:true}),task=page.getByRole('textbox',{name:'Design \u00b7 Task',exact:true});
  const before=await hours.boundingBox();const textBox=await task.boundingBox();expect(before!.width).toBeLessThan(textBox!.width*.75);expect(before!.height).toBe(32);
+ const rowBox=await table.locator('tbody tr').first().boundingBox();
  await hours.fill('0');const after=await hours.boundingBox();expect(after!.height).toBe(before!.height);await expect(table.locator('.interaction-footer')).toContainText('1 cell changed');
  const aligned=await table.locator('tbody tr').first().evaluate(row=>{const controls=[...row.querySelectorAll('input,button[role="combobox"]')].map(node=>node.getBoundingClientRect());return Math.max(...controls.map(box=>box.top))-Math.min(...controls.map(box=>box.top));});expect(aligned).toBeLessThan(1);
  await expect(hours.locator('..').locator('.editable-original')).toHaveText('Was 4');
+ // clean->dirty is the only animation event: the marker and row geometry stay put
+ await expect(table.locator('td[data-edited]')).toHaveCount(1);
+ const rowAfter=await table.locator('tbody tr').first().boundingBox();
+ expect(Math.abs(rowAfter!.height-rowBox!.height)).toBeLessThanOrEqual(1);expect(Math.abs(rowAfter!.y-rowBox!.y)).toBeLessThanOrEqual(1);
+ await hours.fill('7');await hours.fill('6');await expect(hours.locator('..').locator('.editable-original')).toHaveText('Was 4');await expect(table.locator('td[data-edited]')).toHaveCount(1);
+ await hours.fill('4');await expect(table.locator('td[data-edited]')).toHaveCount(0);await expect(hours.locator('..').locator('.editable-original')).toHaveCount(0);
 });
 
 
@@ -63,7 +70,40 @@ test('delivery fixture keeps every narrow typed field visible without an inner s
  const snapshot=taskFixture({root:'records',elements:{records:{type:'EditableTable',props:{dataBinding:'delivery',stateKey:'draft',actionId:'ask'}}}},{delivery});
  const host=await serveTaskFixture(page,snapshot);await page.goto('/');const table=page.locator('.editable-table');await expect(table).toBeVisible();
  const assertVisible=async()=>{const geometry=await table.evaluate(node=>{const artifact=node.getBoundingClientRect(),scroll=node.querySelector('.editable-table-scroll')!;return{overflow:scroll.scrollWidth>scroll.clientWidth+1||scroll.scrollHeight>scroll.clientHeight+1,fields:[...node.querySelectorAll('input,button[role="combobox"]')].map(control=>{const box=control.getBoundingClientRect();return{label:control.getAttribute('aria-label'),visible:box.width>20&&box.height>=30&&box.left>=artifact.left&&box.right<=artifact.right&&box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight};})};});expect(geometry.overflow).toBe(false);expect(geometry.fields).toHaveLength(6);expect(geometry.fields.filter(field=>!field.visible)).toEqual([]);};
- await expect(table.getByRole('columnheader')).toHaveCount(5);await assertVisible();const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');await chooseField(page,'Prints \u00b7 Ready','Yes');await assertVisible();await page.reload();await expect(quantity).toHaveValue('6');await assertVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'},{rowId:'prints',columnId:'ready',value:true}]});await page.setViewportSize({width:1440,height:1000});await table.evaluate(node=>(node as HTMLElement).style.width='320px');await assertVisible();
+ await expect(table.getByRole('columnheader')).toHaveCount(5);await assertVisible();const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');await chooseField(page,'Prints \u00b7 Ready','Yes');await assertVisible();
+ await expect(table.locator('td[data-edited]')).toHaveCount(3);await expect(page.getByText('Was 4',{exact:true})).toBeVisible();await expect(page.getByText('Was Normal',{exact:true})).toBeVisible();
+ await quantity.fill('4');await expect(table.locator('td[data-edited]')).toHaveCount(2);await expect(page.getByText('Was 4',{exact:true})).toHaveCount(0);await expect(page.getByText('Was Normal',{exact:true})).toBeVisible();await quantity.fill('6');
+ await page.reload();await expect(quantity).toHaveValue('6');await assertVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'},{rowId:'prints',columnId:'ready',value:true}]});await page.setViewportSize({width:1440,height:1000});await table.evaluate(node=>(node as HTMLElement).style.width='320px');await assertVisible();
+});
+
+test('a table acknowledgment belongs only to the submitted changes',async({page})=>{
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ const delivery=INTERACTION_REVIEW_DATA.EditableTable;
+ const snapshot=taskFixture({root:'records',elements:{records:{type:'EditableTable',props:{dataBinding:'delivery',stateKey:'draft',actionId:'ask'}}}},{delivery});
+ const host=await serveTaskFixture(page,snapshot,async()=>{await gate;return{};});await page.goto('/');const table=page.locator('.editable-table');await expect(table).toBeVisible();
+ const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});
+ await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');
+ const button=table.locator('button.btn-swap');const idle=await button.boundingBox();
+ await button.click();const busy=await page.getByRole('button',{name:'Sending…',exact:true}).boundingBox();
+ expect(Math.abs(busy!.width-idle!.width)).toBeLessThanOrEqual(1);
+ release();
+ await expect(page.getByRole('status').filter({hasText:'2 changes sent for review'})).toHaveCount(1);
+ const ack=await button.boundingBox();expect(Math.abs(ack!.width-idle!.width)).toBeLessThanOrEqual(1);
+ await expect(button).toBeDisabled();
+ await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'}]});
+ expect(host.commands.some(command=>command.type==='operation.approve')).toBe(false);
+ expect(host.snapshot.data[0].value).toEqual(delivery);
+ await host.publish();await expect(button).toBeDisabled();
+ // a newer edit before the response makes a late result stale: no receipt
+ let release2!:()=>void;const gate2=new Promise<void>(resolve=>{release2=resolve;});
+ await page.route('**/api/commands',async route=>{const body=route.request().postDataJSON();if(body.type==='action.submit'){await gate2;await route.fulfill({status:200,json:{ok:true}});return;}await route.fallback();});
+ await quantity.fill('7');await button.click();
+ await quantity.fill('8');release2();
+ await expect(page.getByRole('status').filter({hasText:'changes sent for review'})).toHaveCount(0);await expect(button).toBeEnabled();
+ // a rejected proposal stays retryable with the same drafts
+ await page.route('**/api/commands',async route=>{const body=route.request().postDataJSON();if(body.type==='action.submit')return route.fulfill({status:409,json:{error:{code:'STALE',message:'Rejected by host'}}});await route.fallback();});
+ await button.click();
+ await expect(page.getByRole('status').filter({hasText:'Rejected by host'})).toBeVisible();await expect(quantity).toHaveValue('8');await expect(button).toBeEnabled();
 });
 
 test('review navigation moves only the arriving material and leaves unchanged snapshots and comment focus quiet',async({page})=>{
