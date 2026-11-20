@@ -1,6 +1,6 @@
 import type {SettingsInventoryRow} from './settings-inventory';
 
-export type SettingPlatform = 'all' | 'desktop' | 'browser';
+type SettingPlatform = 'all' | 'desktop' | 'browser';
 /** A supported setting with the metadata needed to search it and navigate to a real target. */
 export interface SupportedSettingRow extends SettingsInventoryRow {
  group: string;

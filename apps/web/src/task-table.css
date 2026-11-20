@@ -17,7 +17,7 @@
 .task-table-sweep { position:absolute; left:0; width:100%; pointer-events:none; border-bottom:1px solid color-mix(in srgb,var(--success) 45%,transparent); background:linear-gradient(to bottom,transparent 70%,color-mix(in srgb,var(--success) 6%,transparent)); }
 .task-table-sweep[hidden] { display:none; }
 .task-table td[data-change="removed"] { color:var(--danger); text-decoration:line-through; }
-.task-table .task-table-follow { position:absolute; z-index:2; top:3px; right:4px; padding:4px 7px; font-size:10px; background:var(--surface); box-shadow:0 0 0 1px var(--border); }
+.task-table .task-table-follow { position:absolute; z-index:2; top:3px; right:4px; padding:4px 7px; font-size:10px; background:var(--surface); box-shadow:0 0 0 1px var(--control-border); }
 .task-table-source-error { display:block; margin-top:7px; font-size:11px; color:var(--muted); }
 @keyframes task-column-in { from { opacity:.2; } to { opacity:1; } }
 @media(prefers-reduced-motion:reduce) { .task-table th { animation:none; } }
@@ -43,7 +43,7 @@
 .task-table .task-table-select { width:40px; min-width:40px; max-width:40px; padding:8px 11px; }
 .task-table input[type=checkbox] { margin:0; vertical-align:middle; }
 .task-table-filter { margin-left:auto; display:flex; align-items:center; gap:6px; min-width:0; }
-.task-table-filter-field { display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--border); border-radius:6px; background:var(--surface); }
+.task-table-filter-field { display:flex; align-items:center; gap:6px; height:28px; padding:0 8px; border:1px solid var(--control-border); border-radius:6px; background:var(--surface); }
 .task-table-filter-field[data-active=true] { border-color:var(--accent-fg,var(--accent)); color:var(--accent-fg,var(--accent)); background:var(--accent-bg,color-mix(in srgb,var(--accent) 14%,var(--surface))); }
 .task-table .task-table-filter input { width:96px; min-width:0; padding:0; height:auto; border:0; border-radius:0; background:transparent; color:var(--text); font:inherit; }
 .task-table .task-table-clear { flex:none; border:0; padding:5px 4px; background:transparent; color:var(--text); font:inherit; text-decoration:underline; text-underline-offset:3px; cursor:pointer; }

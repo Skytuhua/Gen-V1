@@ -130,7 +130,7 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "9d4985ae5b70ca1eb3f18b9d589acb87f532867fbecbdba61317c807fb6cee1c",
+      "fingerprint": "0d68572744f094e57265ce87e68902349e2c637fa12ec7747122675086523f41",
       "reason": "Retained geometry: map point markers anchored to their map, not a popup.",
       "evidence": ".task-map-point { position:absolute; display:flex; align-items:center; justify-content:center; width:32px; height:32px; padding:6px; border-radius:50%; transform:translate(-50%,-50%); color:var(--text); background:var(--",
       "disposition": "retained-geometry"
@@ -218,9 +218,9 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "aed337d69bcca2756eafabc2d98a822d0bef96e572df00289982171b2172e6d2",
+      "fingerprint": "c7689ef6ef754181a502d2b9dd2f4a20d2f0052f23aa5fe7b593e24691dcdcb9",
       "reason": "Retained geometry: conversation jump-to-latest action, not a popup.",
-      "evidence": ".jump-latest { position:absolute; bottom:165px; left:50%; transform:translateX(-50%); border:1px solid var(--border); background:var(--surface); z-index:10; border-radius:20px; box-shadow:var(--elevation); }",
+      "evidence": ".jump-latest { position:absolute; bottom:165px; left:50%; transform:translateX(-50%); border:1px solid var(--control-border); background:var(--surface); z-index:10; border-radius:20px; box-shadow:var(--elevation); }",
       "disposition": "retained-geometry"
     },
     {
@@ -262,9 +262,9 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "df2d76de1a80991d71cbb7b5048a2a4c9aea41ca3f9bcd76e76c945f8aa64eca",
+      "fingerprint": "cbb6eb7415bf08087c49856b426f426f8279eb4cca219c4f2aa72cff5603a7ed",
       "reason": "Retained geometry: table-local follow action, not a popup.",
-      "evidence": ".task-table .task-table-follow { position:absolute; z-index:2; top:3px; right:4px; padding:4px 7px; font-size:10px; background:var(--surface); box-shadow:0 0 0 1px var(--border); }",
+      "evidence": ".task-table .task-table-follow { position:absolute; z-index:2; top:3px; right:4px; padding:4px 7px; font-size:10px; background:var(--surface); box-shadow:0 0 0 1px var(--control-border); }",
       "disposition": "retained-geometry"
     },
     {

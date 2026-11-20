@@ -12,7 +12,7 @@ test('agent families are contained by project and preserve edits through pin and
  await page.getByRole('button',{name:'Pin Main investigation',exact:true}).click();await expect(page.locator('[data-panel-id="live-thread:clarity:parent"]')).toHaveAttribute('data-pinned','true');
  const orders=await page.locator('.canvas-panel').evaluateAll(nodes=>nodes.map(node=>Number((node as HTMLElement).style.zIndex)));expect(orders[0]).toBeGreaterThan(orders[1]);
  await page.getByRole('button',{name:'Collapse Main investigation',exact:true}).click();await page.getByRole('button',{name:'Expand Main investigation',exact:true}).click();await expect(draft).toHaveValue('Keep this draft');
- expect(await page.evaluate(()=>(window as any).__canvasMounts['live-thread:clarity:parent'])).toBe(1);
+ expect(await page.evaluate(()=>window.__canvasMounts['live-thread:clarity:parent'])).toBe(1);
 });
 test('wheel zoom uses canvas chrome while transcript wheel input scrolls its content',async({page})=>{
  const canvas=page.locator('.workspace-canvas'),box=await canvas.boundingBox();if(!box)throw new Error('Canvas missing');
@@ -20,10 +20,10 @@ test('wheel zoom uses canvas chrome while transcript wheel input scrolls its con
  const zoom=await page.getByRole('button',{name:'Reset canvas zoom'}).textContent();const body=page.locator('[data-panel-id="live-thread:clarity:parent"] .canvas-panel-body');const bodyBox=await body.boundingBox();if(!bodyBox)throw new Error('Transcript missing');await body.hover({position:{x:bodyBox.width-80,y:160}});await page.mouse.wheel(0,240);await expect.poll(()=>body.evaluate(node=>node.scrollTop)).toBeGreaterThan(0);await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText(zoom!);
 });
 test('a delayed failed viewport write cannot roll back newer wheel input',async({page})=>{
- await page.evaluate(()=>(window as any).__delayFirstCanvasWrite=true);const box=await page.locator('.workspace-canvas').boundingBox();if(!box)throw new Error('Canvas missing');
- await page.mouse.move(box.x+box.width-20,box.y+100);await page.mouse.wheel(0,-80);await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.length??0)).toBe(1);
- await page.mouse.wheel(0,-120);const latest=await page.getByRole('button',{name:'Reset canvas zoom'}).textContent();await page.evaluate(()=>(window as any).__rejectCanvasWrite());
- await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.length??0)).toBe(2);await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText(latest!);
+ await page.evaluate(()=>window.__delayFirstCanvasWrite=true);const box=await page.locator('.workspace-canvas').boundingBox();if(!box)throw new Error('Canvas missing');
+ await page.mouse.move(box.x+box.width-20,box.y+100);await page.mouse.wheel(0,-80);await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.length??0)).toBe(1);
+ await page.mouse.wheel(0,-120);const latest=await page.getByRole('button',{name:'Reset canvas zoom'}).textContent();await page.evaluate(()=>window.__rejectCanvasWrite());
+ await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.length??0)).toBe(2);await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText(latest!);
 });
 test('Fit and Arrange keep editors mounted and pointer cancellation clears drag state',async({page})=>{
  const draft=page.getByRole('textbox',{name:'Draft parent'});await draft.fill('Persist across arrange');await page.getByRole('button',{name:'Arrange',exact:true}).click();await expect(page.getByRole('button',{name:'Arrange',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Fit',exact:true}).click();await expect(draft).toHaveValue('Persist across arrange');
@@ -39,7 +39,7 @@ test('losing panel pointer capture cancels the gesture without saving',async({pa
  await expect(page.locator('html')).not.toHaveClass(/workspace-canvas-interaction/);
  await page.mouse.move(box.x+120,box.y+60);await page.mouse.up();
  await expect.poll(async()=>Math.round((await panel.boundingBox())!.x)).toBe(Math.round(before.x));
- expect(await page.evaluate(()=>(window as any).__canvasPanelWrites??[])).toEqual([]);
+ expect(await page.evaluate(()=>window.__canvasPanelWrites??[])).toEqual([]);
 });
 test('another pointer cannot move or commit a canvas pan',async({page})=>{
  const canvas=page.locator('.workspace-canvas'),world=page.locator('.canvas-world'),box=(await canvas.boundingBox())!;
@@ -50,30 +50,30 @@ test('another pointer cannot move or commit a canvas pan',async({page})=>{
  expect(await world.evaluate(element=>(element as HTMLElement).style.transform)).toBe(start);
  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointerup',{pointerId:77})));
  await page.evaluate(()=>window.dispatchEvent(new PointerEvent('pointercancel',{pointerId:77})));
- expect(await page.evaluate(()=>(window as any).__canvasViewportWrites??[])).toEqual([]);
+ expect(await page.evaluate(()=>window.__canvasViewportWrites??[])).toEqual([]);
  await page.mouse.move(box.x+box.width-80,box.y+130);
  await expect.poll(()=>world.evaluate(element=>(element as HTMLElement).style.transform)).not.toBe(start);
- await page.mouse.up();await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.length??0)).toBe(1);
+ await page.mouse.up();await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.length??0)).toBe(1);
 });
 
 test('switching canvases before debounce saves both owning viewports',async({page})=>{
  await page.evaluate(()=>{
   const canvas=document.querySelector('.workspace-canvas')!,rect=canvas.getBoundingClientRect(),wheel=(deltaY:number)=>canvas.dispatchEvent(new WheelEvent('wheel',{deltaY,clientX:rect.right-20,clientY:rect.top+100,bubbles:true,cancelable:true}));
-  wheel(-80);(window as any).__switchCanvas('other');wheel(-160);
+  wheel(-80);window.__switchCanvas('other');wheel(-160);
  });
- await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.map((value:any)=>value.canvasId).sort()??[])).toEqual(['clarity','other']);
- const saved=await page.evaluate(()=>(window as any).__canvasFixture.saved);expect(saved.clarity.viewport.zoom).toBeCloseTo(Math.exp(.12));expect(saved.other.viewport.zoom).toBeCloseTo(Math.exp(.24));
+ await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.map((value)=>value.canvasId).sort()??[])).toEqual(['clarity','other']);
+ const saved=await page.evaluate(()=>window.__canvasFixture.saved);expect(saved.clarity.viewport.zoom).toBeCloseTo(Math.exp(.12));expect(saved.other.viewport.zoom).toBeCloseTo(Math.exp(.24));
  await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('127%');
- await page.evaluate(()=>(window as any).__switchCanvas('clarity'));await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('113%');
+ await page.evaluate(()=>window.__switchCanvas('clarity'));await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('113%');
 });
 
 test('an in-flight outgoing canvas save retains the second canvas viewport',async({page})=>{
- await page.evaluate(()=>(window as any).__delayFirstCanvasWrite=true);
+ await page.evaluate(()=>window.__delayFirstCanvasWrite=true);
  await page.evaluate(()=>{const canvas=document.querySelector('.workspace-canvas')!,rect=canvas.getBoundingClientRect();canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:-80,clientX:rect.right-20,clientY:rect.top+100,bubbles:true,cancelable:true}));});
- await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.length??0)).toBe(1);
- await page.evaluate(()=>{(window as any).__switchCanvas('other');const canvas=document.querySelector('.workspace-canvas')!,rect=canvas.getBoundingClientRect();canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:-160,clientX:rect.right-20,clientY:rect.top+100,bubbles:true,cancelable:true}));});
- await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('127%');await page.evaluate(()=>(window as any).__resolveCanvasWrite());
- await expect.poll(()=>page.evaluate(()=>(window as any).__canvasViewportWrites?.map((value:any)=>value.canvasId)??[])).toEqual(['clarity','other']);
+ await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.length??0)).toBe(1);
+ await page.evaluate(()=>{window.__switchCanvas('other');const canvas=document.querySelector('.workspace-canvas')!,rect=canvas.getBoundingClientRect();canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:-160,clientX:rect.right-20,clientY:rect.top+100,bubbles:true,cancelable:true}));});
+ await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('127%');await page.evaluate(()=>window.__resolveCanvasWrite());
+ await expect.poll(()=>page.evaluate(()=>window.__canvasViewportWrites?.map((value)=>value.canvasId)??[])).toEqual(['clarity','other']);
  await expect(page.getByRole('button',{name:'Reset canvas zoom'})).toHaveText('127%');
- const saved=await page.evaluate(()=>(window as any).__canvasFixture.saved);expect(saved.clarity.viewport.zoom).toBeCloseTo(Math.exp(.12));expect(saved.other.viewport.zoom).toBeCloseTo(Math.exp(.24));
+ const saved=await page.evaluate(()=>window.__canvasFixture.saved);expect(saved.clarity.viewport.zoom).toBeCloseTo(Math.exp(.12));expect(saved.other.viewport.zoom).toBeCloseTo(Math.exp(.24));
 });

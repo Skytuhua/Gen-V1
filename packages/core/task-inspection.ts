@@ -16,7 +16,17 @@ function sourcePage(store: Store, threadId: string, args: Record<string, unknown
   }
   const offset = args.offset ?? 0, limit = args.limit ?? (typeof value === 'string' ? 2000 : 30), maximum = typeof value === 'string' ? 4000 : 100;
   if (!Number.isSafeInteger(offset) || Number(offset) < 0 || !Number.isSafeInteger(limit) || Number(limit) < 1 || Number(limit) > maximum) throw new HarnessError('INVALID_INPUT', `Use a nonnegative offset and a limit of 1–${maximum}.`);
-  const meta = { id: data.id, revision: data.revision, provenance: data.provenance.slice(0, 1000), pointer };
+  const size = (entry: unknown) => Buffer.byteLength(JSON.stringify(entry));
+  const meta: { id: string; revision: number; provenance: string; pointer?: string } = { id: data.id, revision: data.revision, provenance: '', pointer };
+  // Reserve enough space for paging metadata and at least a short value.
+  // Large escaped pointer strings need not be echoed to page the same source.
+  if (size(meta) > 7000) delete meta.pointer;
+  let remainingMetaBytes = 7000 - size(meta);
+  for (const point of data.provenance) {
+    remainingMetaBytes -= size(point) - 2; // Exclude JSON's wrapping quotes.
+    if (remainingMetaBytes < 0 || meta.provenance.length + point.length > 1000) break;
+    meta.provenance += point;
+  }
   const result: Record<string, unknown> = { ...meta, value };
   if (Array.isArray(value)) {
     const page: unknown[] = []; result.value = page; result.offset = offset; result.total = value.length;
@@ -26,7 +36,7 @@ function sourcePage(store: Store, threadId: string, args: Record<string, unknown
       if (bytes + size > 8192) break; page.push(item); bytes += size;
     }
     if (Number(offset) + page.length < value.length) result.nextOffset = Number(offset) + page.length;
-    if (!page.length && Number(offset) < value.length) { delete result.nextOffset; result.detailQuery = `Select a narrower pointer such as ${pointer}/${offset}/field.`; result.tooLarge = true; }
+    if (!page.length && Number(offset) < value.length) { delete result.nextOffset; result.detailQuery = `Extend the selected pointer through array index ${offset} to a smaller field.`; result.tooLarge = true; }
   } else if (typeof value === 'string') {
     let length = Math.min(Number(limit), Math.max(0, value.length - Number(offset)));
     result.value = value.slice(Number(offset), Number(offset) + length); result.offset = offset; result.total = value.length; result.units = 'UTF-16 code units';
@@ -34,8 +44,14 @@ function sourcePage(store: Store, threadId: string, args: Record<string, unknown
     if (Number(offset) + length < value.length) result.nextOffset = Number(offset) + length;
   } else if (Buffer.byteLength(JSON.stringify(result)) > 8192) {
     delete result.value; result.tooLarge = true;
-    if (value && typeof value === 'object') result.keys = Object.keys(value).slice(0, 30).map(key => key.slice(0, 120));
     result.detailQuery = 'Choose a narrower pointer; full source data is retained.';
+    if (value && typeof value === 'object') {
+      const keys: string[] = []; result.keys = keys;
+      for (const key of Object.keys(value).slice(0, 30)) {
+        keys.push(key.slice(0, 120));
+        if (size(result) > 8192) { keys.pop(); break; }
+      }
+    }
   }
   return result;
 }
