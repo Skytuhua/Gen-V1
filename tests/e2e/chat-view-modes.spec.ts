@@ -1,5 +1,6 @@
 import {test,expect,type Page} from '@playwright/test';
 import {serveChatFixture} from './chat-view-modes-fixture';
+import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 
 // The retired full/drawer/pop-up ChatView geometry is replaced by the canonical split
 // plane (T02/T03). These tests preserve the original intent — one live conversation body
@@ -17,6 +18,31 @@ test('the conversation lives in the split plane with its messages, composer and 
  await expect(view(page).getByText('Help me keep this conversation close while I work.')).toBeVisible();
  await expect(page.getByRole('group',{name:'Attachments',exact:true})).toContainText('notes.txt');
  await expect(input(page)).toBeEnabled();
+});
+
+for(const presentation of ['floating','docked'] as const)test(`/model opens the picker in a ${presentation} secondary conversation`,async({page},info)=>{
+ const host=await serveChatFixture(page);
+ let owner='task-thread';
+ if(presentation==='docked'){
+  owner='secondary-thread';host.snapshot.threads.push({...host.snapshot.threads[0],id:owner,title:'Secondary conversation'});
+  let layout=createSplitWorkspaceLayout();
+  layout=applySplitWorkspaceCommand(layout,'view.open',{view:{id:'thread:task-thread',kind:'thread',binding:{authority:{kind:'local'},threadId:'task-thread'}}});
+  layout=applySplitWorkspaceCommand(layout,'pane.split',{paneId:'pane-main',newPaneId:'secondary',splitId:'columns',axis:'horizontal',view:{id:'thread:'+owner,kind:'thread',binding:{authority:{kind:'local'},threadId:owner}}});
+  await page.route('**/api/split-workspace?*',route=>route.fulfill({json:layout}));
+  await page.route('**/api/split-workspace/commands',route=>{const command=route.request().postDataJSON();layout=applySplitWorkspaceCommand(layout,command.type.replace(/^split-workspace\./,''),command.payload);return route.fulfill({json:{commandId:command.id,eventSeq:host.snapshot.seq,result:layout}});});
+ }
+ await page.goto('/');
+ const conversation=page.locator(`[data-split-view="thread:${owner}"]`),composer=conversation.getByRole('textbox',{name:'Message',exact:true});
+ await expect(composer).toBeEnabled({timeout:15000});
+ if(presentation==='floating'){
+  await page.getByRole('button',{name:'Move chat',exact:true}).click();await page.getByRole('menuitem',{name:'Float',exact:true}).click();
+  await expect(conversation).toHaveAttribute('data-floating','true');
+ }
+ await expect(conversation.locator('.composer-toolbar')).toHaveCount(0);
+ await composer.fill('/model');await expect(page.getByRole('option',{name:'/model Choose a model',exact:true})).toBeVisible();await composer.press('Enter');
+ const search=page.getByRole('searchbox',{name:'Search models',exact:true});await expect(search).toBeVisible();await expect(composer).toHaveValue('');
+ await page.screenshot({path:info.outputPath(`${presentation}-model-picker.png`)});
+ await search.press('Escape');await expect(search).toBeHidden();await expect(conversation.getByRole('combobox',{name:'Model',exact:true})).toBeFocused();
 });
 
 test('draft, selection and reading position survive the workspace panel opening',async({page})=>{

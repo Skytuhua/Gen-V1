@@ -71,7 +71,7 @@ import {WorkspaceControls,panelLabels} from './WorkspaceControls';
 import {WorkspaceHost,type ConversationHost} from './WorkspaceHost';
 import type {SharedAgentComposers, ComposerState, ConversationComposerTarget} from './agents-workspace/composer';
 import {ComposerCommands,ComposerSkillBindings,type ComposerCommandsHandle} from './ComposerCommands';
-import type {ModelPickerHandle} from './ModelPicker';
+import {ModelPicker,type ModelPickerHandle} from './ModelPicker';
 import {useComposerSkills,skillDraftKey,readSkillBindings,clearAcceptedSkills} from './composer-skill-drafts';
 import {useWorkspaceState} from './workspace-api';
 import {liveThreadPanels,delegatedThread,threadParent,threadProject,findCanvasPanelBounds} from './workspace-canvas-layout';
@@ -442,7 +442,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
         {prediction.candidate && <div ref={ghost} className="composer-prediction-text" aria-hidden="true">{prediction.candidate}</div>}
       </div>
       {!compact&&<ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>}
-      {compact&&<span className="composer-inline-actions">{preferences.showUsageFooter&&onShowUsage&&<button type="button" className="composer-tool composer-usage-launcher" aria-label={usageOpen?'Hide live usage':'Show live usage'} title={usageOpen?'Hide live usage':'Show live usage'} aria-pressed={usageOpen} onClick={onShowUsage}><Activity size={15}/></button>}{sendControls}</span>}
+      {compact&&<span className="composer-inline-actions"><ModelPicker ref={modelPicker} compact models={models} modelId={modelId} onChange={id=>{chooseThinking('');setModelId(id);}} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} scopeHint={thread?'New conversations only.':'Applies to new tasks.'} onNewTask={onNewTask} disabled={busy||!ready||working}/>{preferences.showUsageFooter&&onShowUsage&&<button type="button" className="composer-tool composer-usage-launcher" aria-label={usageOpen?'Hide live usage':'Show live usage'} title={usageOpen?'Hide live usage':'Show live usage'} aria-pressed={usageOpen} onClick={onShowUsage}><Activity size={15}/></button>}{sendControls}</span>}
       </div>
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
       {!compact&&<ComposerToolbar modelPickerRef={modelPicker} models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} modelScopeHint={thread?'New conversations only.':'Applies to new tasks.'} onModelNewTask={onNewTask} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
