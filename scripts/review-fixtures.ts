@@ -86,8 +86,9 @@ export function catalogSpec(pdfId: string, pngId: string, annotationId=pngId): S
   const spec: SurfaceSpec = { root: 'catalog', elements: {
     catalog: node('Tabs', { labels: ['Controls', 'Data & visuals', 'Documents', 'Content', 'Development','Everyday','Interactions','Explore','Work objects'], stateKey: 'catalogTab' }, ['controls', 'data', 'documents', 'content','development','everyday','interactions','exploration','workObjects']),
     ...explorationElements(annotationId),
-    controls: node('Grid', { columns: 2, gap: 'lg' }, ['controlPanel', 'stepPanel']),
-    controlPanel: node('Panel', { title: 'Delivery' }, ['choice', 'input', 'select', 'toggle', 'form']),
+    controls: node('Stack', { gap: 'sm' }, ['controlPanel', 'stepPanel']),
+    controlPanel: node('Panel', {}, ['choice', 'input', 'preferences', 'form']),
+    preferences: node('Grid', { columns: 2, gap: 'sm' }, ['select', 'toggle']),
     choice: node('ChoiceList', { stateKey: 'delivery', label: 'Delivery', options: [{ value: 'download', label: 'Download', detail: 'Local' }, { value: 'review', label: 'Review', detail: 'In conversation' }] }),
     input: node('Input', { stateKey: 'note', label: 'Review note', placeholder: 'Add a note' }),
     select: node('Select', { stateKey: 'density', label: 'Density', options: [{ value: 'comfortable', label: 'Comfortable' }, { value: 'compact', label: 'Compact' }] }),

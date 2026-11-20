@@ -8,7 +8,7 @@ export { ArtifactTitle } from './task-context';
 export { RelationshipGraph } from './RelationshipGraph';
 import { inputPath, statePath } from './task-context';
 import { StatusIcon, operationStatusKind, type StatusKind } from './task-status';
-import { animateTask, reducedMotion, TASK_MOTION } from './task-motion';
+import { animateTask, reducedMotion, TASK_MOTION, type TaskEffectCause } from './task-motion';
 import './task-motion.css';
 import './document-preview.css';
 import {createSpringValue} from './motion-spring';
@@ -19,12 +19,13 @@ export function ChoiceList({ element: { props } }: ComponentRenderProps) {
   const group = useId();
   const value = store.get(statePath(stateKey));
   const [choosingCustom, setChoosingCustom] = useState(false);
+  const [cause, setCause] = useState<TaskEffectCause>('restore');
   const customInput = useRef<HTMLInputElement>(null);
   const customSelected = Boolean(custom && (choosingCustom || typeof value === 'string' && !options.some(option => option.value === value)));
-  return <fieldset className="task-choices" disabled={disabled}>
+  return <fieldset className="task-choices" data-cause={cause} disabled={disabled}>
     <legend>{label}</legend>
     {options.map(option => <label key={option.value} className={`task-choice ${value === option.value ? 'is-selected' : ''}`}>
-      <input type="radio" name={group} value={option.value} checked={!customSelected && value === option.value} required={required} disabled={option.disabled} onChange={() => { setChoosingCustom(false); store.set(statePath(stateKey), option.value); }} />
+      <input type="radio" name={group} value={option.value} checked={!customSelected && value === option.value} required={required} disabled={option.disabled} onClick={event => setCause(event.detail > 0 ? 'pointer' : 'keyboard')} onChange={() => { setChoosingCustom(false); store.set(statePath(stateKey), option.value); }} />
       <span className="task-choice-copy"><span>{option.label}</span>{option.description && <small>{option.description}</small>}</span>
       {option.detail && <span className="task-choice-detail">{option.detail}</span>}
     </label>)}
@@ -48,41 +49,47 @@ export function Steps({ element: { props }, children }: ComponentRenderProps) {
   const panels = Children.toArray(children);
   const content = useRef<HTMLDivElement>(null), previous = useRef(current);
   const [leaving, setLeaving] = useState<number | null>(null);
-  const height = useRef<ReturnType<typeof createSpringValue> | undefined>(undefined), initialized = useRef(false), opacity = useRef(new Map<number,number>());
+  const height = useRef<ReturnType<typeof createSpringValue> | undefined>(undefined), initialized = useRef(false), visual = useRef(new Map<number,{opacity:number;x:number}>());
+  const navCause = useRef<TaskEffectCause>('restore'), navFocus = useRef<HTMLElement | null>(null);
   useLayoutEffect(() => {
     const from = previous.current; previous.current = current;
+    const cause = navCause.current; navCause.current = 'restore';
     const shell=content.current!,outgoing=shell.children[from] as HTMLElement,incoming=shell.children[current] as HTMLElement;
     if (!outgoing || !incoming) { setLeaving(null); return; }
     if(!height.current)height.current=createSpringValue(shell.getBoundingClientRect().height,value=>{shell.style.height=`${value}px`;},()=>{shell.dataset.heightPhase='settled';});
-    const measure=()=>{shell.dataset.heightPhase='moving';height.current!.to(incoming.getBoundingClientRect().height,!initialized.current||reducedMotion());initialized.current=true;};
+    const instant=cause!=='pointer'||reducedMotion();
+    const measure=()=>{shell.dataset.heightPhase='moving';height.current!.to(incoming.getBoundingClientRect().height,!initialized.current||instant||reducedMotion());initialized.current=true;};
     measure();const observer=new ResizeObserver(measure);observer.observe(incoming);
     const preference=matchMedia('(prefers-reduced-motion: reduce)');preference.addEventListener('change',measure);
     let active=true;const animations:Animation[]=[];
     if(from!==current){
-      const incomingOpacity=opacity.current.get(current)??0,outgoingOpacity=opacity.current.get(from)??1;opacity.current.clear();
+      const incomingVisual=visual.current.get(current)??{opacity:0,x:0},outgoingVisual=visual.current.get(from)??{opacity:1,x:0};visual.current.clear();
       incoming.style.opacity='1';outgoing.style.opacity='0';
-      if(reducedMotion())setLeaving(null);
+      if(instant)setLeaving(null);
       else{
         setLeaving(from);const direction=current>from?1:-1;
-        const enter=animateTask(incoming,[{opacity:incomingOpacity,transform:`translateX(${direction*6}px)`},{opacity:1,transform:'translateX(0)'}],240);
-        const exit=animateTask(outgoing,[{opacity:outgoingOpacity,transform:'translateX(0)'},{opacity:0,transform:`translateX(${-direction*3}px)`}],120);
+        const enter=animateTask(incoming,[{opacity:incomingVisual.opacity,transform:`translateX(${incomingVisual.x||direction*4}px)`},{opacity:1,transform:'translateX(0)'}],180,{duration:'--ui-motion-insert',easing:'--ui-ease-enter'});
+        const exit=animateTask(outgoing,[{opacity:outgoingVisual.opacity,transform:`translateX(${outgoingVisual.x||0}px)`},{opacity:0,transform:`translateX(${-direction*2}px)`}],100,{duration:'--ui-motion-hover',easing:'--ui-ease-enter'});
         if(enter)animations.push(enter);if(exit)animations.push(exit);
         void Promise.all(animations.map(animation=>animation.finished)).then(()=>{if(active)setLeaving(null);}).catch(()=>{});
       }
+      const gone=navFocus.current&&(!navFocus.current.isConnected||('disabled' in navFocus.current&&Boolean((navFocus.current as HTMLButtonElement).disabled)));
+      if(gone)shell.closest('.task-steps')?.querySelector<HTMLButtonElement>('.task-step-markers button[aria-current="step"]')?.focus();
+      navFocus.current=null;
     }
-    return()=>{active=false;opacity.current.set(current,Number(getComputedStyle(incoming).opacity));opacity.current.set(from,Number(getComputedStyle(outgoing).opacity));animations.forEach(animation=>animation.cancel());observer.disconnect();preference.removeEventListener('change',measure);};
+    return()=>{active=false;const capture=(node:HTMLElement,index:number)=>{const style=getComputedStyle(node);visual.current.set(index,{opacity:Number(style.opacity),x:new DOMMatrixReadOnly(style.transform).m41});};capture(incoming,current);capture(outgoing,from);animations.forEach(animation=>animation.cancel());observer.disconnect();preference.removeEventListener('change',measure);};
   }, [current]);
   useLayoutEffect(()=>()=>height.current?.dispose(),[]);
   const id = useId();
-  const go = (index: number) => store.set(statePath(stateKey), steps[index].key);
+  const go = (index: number, event: { detail: number; currentTarget: EventTarget | null }) => { navFocus.current = event.currentTarget instanceof HTMLElement ? event.currentTarget : null; navCause.current = event.detail > 0 ? 'pointer' : 'keyboard'; store.set(statePath(stateKey), steps[index].key); };
   return <section className="task-steps" aria-label="Current task step">
     <div className="task-step-label" id={`${id}-label`}>{steps[current].label}<span>{current + 1} of {steps.length}</span></div>
     {steps[current].description && <p className="task-step-description">{steps[current].description}</p>}
     <div className="task-step-content" ref={content}>{panels.map((panel, i) => <div key={steps[i]?.key ?? i} hidden={i !== current && i !== leaving} inert={i !== current} aria-hidden={i !== current || undefined} data-phase={i === current ? 'current' : i === leaving ? 'leaving' : 'inactive'} style={{ position:'absolute',left:0,top:0,width:'100%',minWidth:0 }} role="group" aria-label={steps[i]?.label}>{panel}</div>)}</div>
     <nav className="task-step-navigation" aria-label="Task steps">
-      <button type="button" className="quiet task-step-back" aria-label="Previous step" disabled={current === 0} onClick={() => go(current - 1)}><ArrowLeft size={13} />Back</button>
-      <div className="task-step-markers">{steps.map((step, index) => <button key={step.key} type="button" aria-label={`Go to ${step.label}`} aria-current={current === index ? 'step' : undefined} onClick={() => go(index)}><span /></button>)}</div>
-      {current < steps.length - 1 && <button type="button" className="quiet task-step-next" aria-label="Next step" onClick={() => go(current + 1)}>Next<ArrowRight size={13} /></button>}
+      <button type="button" className="quiet task-step-back" aria-label="Previous step" disabled={current === 0} onClick={event => go(current - 1, event)}><ArrowLeft size={13} />Back</button>
+      <div className="task-step-markers">{steps.map((step, index) => <button key={step.key} type="button" aria-label={`Go to ${step.label}`} aria-current={current === index ? 'step' : undefined} onClick={event => go(index, event)}><span /></button>)}</div>
+      {current < steps.length - 1 && <button type="button" className="quiet task-step-next" aria-label="Next step" onClick={event => go(current + 1, event)}>Next<ArrowRight size={13} /></button>}
     </nav>
   </section>;
 }

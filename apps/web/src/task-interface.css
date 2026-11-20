@@ -9,7 +9,7 @@
 .task-choice-copy { min-width:0; width:100%; overflow-wrap:anywhere; }
 .task-choice-copy small { display:block; margin-top:3px; font-size:12px; }
 .task-choice-detail { min-width:0; width:100%; overflow-wrap:anywhere; font-size:12px; color:var(--muted); }
-.task-steps { display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0; align-self:start; }
+.task-steps { display:flex; flex-direction:column; gap:10px; min-width:0; min-height:0; align-self:stretch; }
 .task-step-label { display:flex; justify-content:flex-start; flex-wrap:wrap; align-items:center; gap:8px; color:var(--muted); font-size:12px; line-height:1.5; }
 .task-step-label>span { font-size:10px; font-variant-numeric:tabular-nums; }
 .task-step-description { color:var(--muted); font-size:12px; }
@@ -66,3 +66,15 @@
 .surface-form:has(>.field:only-of-type)>button .form-submit-icon { display:block; }
 .surface-form:has(>.field:only-of-type)>.error-text { grid-column:1 / -1; }
 @media(max-width:700px) { .task-node { padding-left:64px; } .task-node-copy small { font-size:10px; } }
+/* Delivery panel composition: direct choice group flowed across the panel,
+   its two-peer settings grid, and the standalone preference form submit. */
+.surface-section:has(> .task-choices) { container-type:inline-size; }
+.surface-section:has(> .task-choices)>.task-choices { flex-direction:row; flex-wrap:wrap; gap:8px; }
+.surface-section:has(> .task-choices)>.task-choices .task-choice { flex:1 1 160px; transition:none; }
+.surface-section:has(> .task-choices)>.task-choices[data-cause="pointer"] .task-choice { transition:border-color var(--ui-motion-hover) var(--ui-ease-enter),color var(--ui-motion-hover) var(--ui-ease-enter); }
+@container (max-width:440px) {
+  .surface-section:has(> .task-choices)>.surface-layout[style*="grid-template-columns"] { grid-template-columns:1fr !important; }
+}
+.surface-section:has(> .task-choices)>.surface-form>button[type="submit"] { background:var(--subtle); border:1px solid var(--border); color:var(--text); width:max-content; min-width:32px; min-height:32px; }
+.surface-section:has(> .task-choices)>.surface-form>button[type="submit"]:hover:not(:disabled) { background:var(--hover); }
+@media(pointer:coarse) { .surface-section:has(> .task-choices)>.surface-form>button[type="submit"] { min-height:44px; } }

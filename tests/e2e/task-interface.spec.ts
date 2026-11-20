@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { branchGraphData, branchGraphSpec, growingQaSpec, linkedMapData, linkedMapSpec, migrationTableSpec, serveTaskFixture, taskFixture } from './task-interface-fixture';
 import { validateSurface } from '../../packages/ui-catalog';
+import { catalogSpec } from '../../scripts/review-fixtures';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 test('vertical history and horizontal lanes are distinct accessible source views', async ({ page }) => {
@@ -220,4 +221,56 @@ test('capture one batched desktop, narrow and theme inspection of reusable task 
     }
   }
   await writeFile(`${path}/manifest.json`, JSON.stringify({ provenance: 'Authored synthetic local renderer fixtures. No live model, GitHub, database, geographic provider, or external feedback delivery.', reducedMotion: true, references: ['merge-16.png', 'graph-14.png', 'migration-16.png', 'faq-24.png'], metrics }, null, 2));
+});
+
+test('delivery preferences fill the task width and retain field identity', async ({ page }) => {
+  const catalog = catalogSpec('agreement', 'before-image');
+  const reachable = new Set<string>(); const walk = (id: string) => { if (reachable.has(id)) return; reachable.add(id); for (const child of catalog.elements[id]?.children ?? []) walk(child); };
+  walk('controls');
+  const spec = { root: 'controls', elements: Object.fromEntries([...reachable].map(id => [id, catalog.elements[id]!])) } as NonNullable<import('../../packages/contracts').ArtifactRecord['spec']>;
+  const snapshot = taskFixture(spec, { unrelated: 0 }, { delivery: 'download', density: 'comfortable', enabled: false, catalogStep: 'one' });
+  snapshot.artifacts[0].actions.inspect = { kind: 'agent' };
+  const fixture = await serveTaskFixture(page, snapshot);
+  await page.goto('/');
+  const note = page.getByLabel('Review note');
+  await expect(note).toBeVisible({ timeout: 30000 });
+  await note.evaluate(node => Object.assign(window, { noteHandle: node }));
+  await page.getByRole('radio', { name: /Review/ }).check();
+  await note.fill('Keep source');
+  await page.getByRole('combobox', { name: 'Density' }).click();
+  await page.getByRole('option', { name: 'Compact' }).click();
+  await page.getByRole('checkbox', { name: 'Keep selection on reload' }).check();
+  // Outer stack spans its content width; note and step nav track it (allowing panel padding).
+  const stackBox = await page.locator('.surface-layout').first().boundingBox();
+  const panelPad = await page.locator('.surface-section').first().evaluate(node => { const style = getComputedStyle(node); return parseFloat(style.paddingLeft) + parseFloat(style.paddingRight); });
+  const noteBox = await note.boundingBox();
+  const navBox = await page.locator('.task-step-navigation').boundingBox();
+  expect(Math.abs(noteBox!.width - (stackBox!.width - panelPad))).toBeLessThanOrEqual(1);
+  expect(Math.abs(navBox!.width - stackBox!.width)).toBeLessThanOrEqual(1);
+  const peers = page.locator('.surface-section > .surface-layout > *');
+  expect(await peers.count()).toBe(2);
+  for (const index of [0, 1]) expect((await peers.nth(index).innerText()).trim().length).toBeGreaterThan(0);
+  await page.setViewportSize({ width: 390, height: 800 });
+  const rows = await peers.evaluateAll(nodes => nodes.map(node => Math.round(node.getBoundingClientRect().y)));
+  expect(rows[1]).toBeGreaterThan(rows[0]);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.getByRole('button', { name: 'Save choice' }).click();
+  await expect.poll(() => fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length).toBe(1);
+  expect(fixture.commands.find(command => command.type === 'action.submit' && command.payload.actionId === 'inspect')!.payload.payload).toEqual({ delivery: 'review', note: 'Keep source' });
+  // Pointer advance/reverse, then keyboard advance.
+  await page.getByRole('button', { name: 'Next step' }).dispatchEvent('click');
+  await page.getByRole('button', { name: 'Previous step' }).dispatchEvent('click');
+  const nonCurrent = page.locator('.task-step-content > [role="group"]:not([data-phase="current"])');
+  for (const node of await nonCurrent.elementHandles()) expect(await node.getAttribute('inert')).not.toBeNull();
+  await page.getByRole('button', { name: 'Next step' }).press('Enter');
+  await expect(page.locator('.task-step-content > [role="group"][data-phase="current"]')).toHaveCSS('transform', 'none');
+  const before = fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length;
+  await page.getByRole('button', { name: 'Continue review' }).click();
+  await expect.poll(() => fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length).toBe(before + 1);
+  await expect(note).toHaveValue('Keep source');
+  expect(await note.evaluate(node => node === (window as unknown as { noteHandle: Node }).noteHandle)).toBe(true);
+  await note.focus(); await note.press('End'); await note.pressSequentially('!');
+  fixture.setInput('unrelated', 1); await fixture.publish();
+  await expect(note).toBeFocused();
+  await expect(note).toHaveValue('Keep source!');
 });
