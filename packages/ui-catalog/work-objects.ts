@@ -36,7 +36,7 @@ export function boundedWorkObjectData(kind:Kind,raw:unknown):boolean{
 }
 const placement=z.strictObject({cardId:id,laneId:id});
 const boardCheckpoint=z.strictObject({sourceRevision:revision,selectedId:id.nullable(),placements:z.array(placement).max(100).refine(items=>new Set(items.map(item=>item.cardId)).size===items.length)});
-export const BOARD_DRAFT_SCHEMA=boardCheckpoint.extend({previous:boardCheckpoint.optional()});
+const BOARD_DRAFT_SCHEMA=boardCheckpoint.extend({previous:boardCheckpoint.optional()});
 export type BoardDraft=z.infer<typeof BOARD_DRAFT_SCHEMA>;
 export function boardDraftMatchesSource(saved:BoardDraft,data:WorkflowData):boolean{
  return saved.sourceRevision===data.revision&&saved.placements.length===data.cards.length&&saved.placements.every(row=>data.cards.some(card=>card.id===row.cardId)&&data.lanes.some(lane=>lane.id===row.laneId));
