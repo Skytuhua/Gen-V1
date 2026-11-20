@@ -5,7 +5,7 @@ import { z } from 'zod';
  * sessions or remote effects. ArchiveV1 is the only admitted import format;
  * imported content is inert historical data and grants no authority. */
 
-export const branchIntentSchema = z.enum(['INSPECT', 'START_NEW_WITH_QUOTE', 'FORK_CONVERSATION']);
+const branchIntentSchema = z.enum(['INSPECT', 'START_NEW_WITH_QUOTE', 'FORK_CONVERSATION']);
 export type BranchIntent = z.infer<typeof branchIntentSchema>;
 
 export const branchModelBindingV1Schema = z.strictObject({
@@ -24,20 +24,11 @@ export const sourceCutV1Schema = z.strictObject({
 });
 export type SourceCutV1 = z.infer<typeof sourceCutV1Schema>;
 
-export const branchRequestV1Schema = z.strictObject({
-  version: z.literal(1),
-  sourceThreadId: z.string().min(1).max(200),
-  sourceCut: sourceCutV1Schema,
-  nativeCheckpointRef: z.string().max(512).nullable(),
-  requestedModelBinding: branchModelBindingV1Schema.nullable(),
-  intent: branchIntentSchema,
-});
-export type BranchRequestV1 = z.infer<typeof branchRequestV1Schema>;
 
 /** A fork's native ability is SUPPORTED only with tested adapter runtime
  * proof. UNPROVEN means no evaluated evidence either way — it is never
  * inferred from the UI timeline. */
-export const forkCapabilitySchema = z.enum(['SUPPORTED', 'UNSUPPORTED', 'UNPROVEN']);
+const forkCapabilitySchema = z.enum(['SUPPORTED', 'UNSUPPORTED', 'UNPROVEN']);
 export type ForkCapability = z.infer<typeof forkCapabilitySchema>;
 
 /** Adapter capability matrix entry. `receiptHistory` is input-delivery
@@ -52,20 +43,6 @@ export const adapterCapabilityV1Schema = z.strictObject({
 });
 export type AdapterCapabilityV1 = z.infer<typeof adapterCapabilityV1Schema>;
 
-/** HistoricalCursorV1 — owner-bound snapshot pagination position. */
-export const historicalCursorV1Schema = z.strictObject({
-  version: z.literal(1),
-  owner: z.strictObject({
-    threadId: z.string().min(1).max(200),
-    projectId: z.string().max(200).nullable(),
-    accountId: z.string().max(200).nullable(),
-  }),
-  sourceSession: z.string().min(1).max(200),
-  snapshotUpperSequence: z.number().int().nonnegative(),
-  filters: z.strictObject({ roles: z.array(z.enum(['user', 'assistant', 'system', 'tool', 'activity'])).max(8) }).nullable(),
-  forkCapability: forkCapabilitySchema,
-});
-export type HistoricalCursorV1 = z.infer<typeof historicalCursorV1Schema>;
 
 /* ------------------------------------------------------------------ */
 /* ArchiveV1 — the single admitted inert import format.                */
@@ -82,10 +59,9 @@ export const ARCHIVE_V1_LIMITS = Object.freeze({
   maxProvenanceBytes: 64 * 1024,
 });
 
-export const archiveV1RoleSchema = z.enum(['user', 'assistant', 'system', 'tool']);
-export type ArchiveV1Role = z.infer<typeof archiveV1RoleSchema>;
+const archiveV1RoleSchema = z.enum(['user', 'assistant', 'system', 'tool']);
 
-export const archiveV1MessageSchema = z.strictObject({
+const archiveV1MessageSchema = z.strictObject({
   id: z.string().min(1).max(200),
   parentId: z.string().min(1).max(200).nullable(),
   role: archiveV1RoleSchema,
@@ -93,9 +69,8 @@ export const archiveV1MessageSchema = z.strictObject({
   sourceTimestamp: z.string().min(1).max(64),
   attachmentRefs: z.array(z.string().min(1).max(ARCHIVE_V1_LIMITS.maxAttachmentRefBytes)).max(ARCHIVE_V1_LIMITS.maxAttachmentRefsPerMessage),
 });
-export type ArchiveV1Message = z.infer<typeof archiveV1MessageSchema>;
 
-export const archiveV1ConversationSchema = z.strictObject({
+const archiveV1ConversationSchema = z.strictObject({
   externalId: z.string().min(1).max(200),
   messages: z.array(archiveV1MessageSchema),
 });
@@ -117,7 +92,7 @@ export type ArchiveV1Document = z.infer<typeof archiveV1DocumentSchema>;
 
 /** Historical text only. `system` and `tool` roles never become live policy,
  * pending tool calls, approvals or credentials. */
-export const importedMessageV1Schema = z.strictObject({
+const importedMessageV1Schema = z.strictObject({
   id: z.string().min(1).max(200),
   parentId: z.string().min(1).max(200).nullable(),
   role: archiveV1RoleSchema,
@@ -125,7 +100,6 @@ export const importedMessageV1Schema = z.strictObject({
   sourceTimestamp: z.string().min(1).max(64),
   attachmentRefs: z.array(z.string().min(1).max(ARCHIVE_V1_LIMITS.maxAttachmentRefBytes)).max(ARCHIVE_V1_LIMITS.maxAttachmentRefsPerMessage),
 });
-export type ImportedMessageV1 = z.infer<typeof importedMessageV1Schema>;
 
 export const importedConversationV1Schema = z.strictObject({
   version: z.literal(1),
@@ -191,7 +165,7 @@ export type ImportIndexV1 = z.infer<typeof importIndexV1Schema>;
 /* Session capture — the immutable Inspect point.                      */
 /* ------------------------------------------------------------------ */
 
-export const sessionCaptureMessageV1Schema = z.strictObject({
+const sessionCaptureMessageV1Schema = z.strictObject({
   id: z.string().min(1).max(200),
   role: z.enum(['user', 'assistant', 'activity']),
   createdAt: z.string().min(1).max(64),
@@ -257,13 +231,13 @@ export type SessionBranchV1 = z.infer<typeof sessionBranchV1Schema>;
 /* Import preview — reports, never dereferences.                       */
 /* ------------------------------------------------------------------ */
 
-export const importFieldReportV1Schema = z.strictObject({
+const importFieldReportV1Schema = z.strictObject({
   path: z.string().min(1).max(300),
   field: z.string().min(1).max(200),
 });
 export type ImportFieldReportV1 = z.infer<typeof importFieldReportV1Schema>;
 
-export const importAccessLinkV1Schema = z.strictObject({
+const importAccessLinkV1Schema = z.strictObject({
   path: z.string().min(1).max(300),
   kind: z.enum(['USERINFO', 'CREDENTIAL_PARAM']),
   host: z.string().max(200).nullable(),

@@ -19,7 +19,7 @@ export class TerminalHost{
   const projectId=identifier.parse(input.projectId),threadId=input.threadId===undefined?undefined:identifier.parse(input.threadId),terminalId=input.terminalId?identifier.parse(input.terminalId):randomUUID();
   const command=input.command?z.string().min(1).max(8000).parse(input.command):undefined;
   const binding=await this.projects.binding(projectId,threadId),existing=this.sessions.get(terminalId);
-  if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(existing.startupFailed)throw new HarnessError('TERMINAL_CANCEL_UNCONFIRMED','The failed terminal launch is still closing.');return this.result(existing,0);}
+  if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(existing.startupFailed)throw new HarnessError('TERMINAL_CANCEL_UNCONFIRMED','The failed terminal launch is still closing.');if(existing.exited)throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');return this.result(existing,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   const shell=process.platform==='win32'?(process.env.COMSPEC??'C:/Windows/System32/cmd.exe'):(process.env.SHELL??'/bin/sh'),args=process.platform==='win32'?['/D','/Q']:[];
@@ -29,7 +29,7 @@ export class TerminalHost{
   // Secret resolution yields. Recheck ownership/capacity synchronously after
   // the final await so concurrent opens cannot orphan an extra process.
   const opened=this.sessions.get(terminalId);
-  if(opened){if(opened.projectId!==projectId||opened.threadId!==threadId||opened.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(opened.startupFailed)throw new HarnessError('TERMINAL_CANCEL_UNCONFIRMED','The failed terminal launch is still closing.');return this.result(opened,0);}
+  if(opened){if(opened.projectId!==projectId||opened.threadId!==threadId||opened.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(opened.startupFailed)throw new HarnessError('TERMINAL_CANCEL_UNCONFIRMED','The failed terminal launch is still closing.');if(opened.exited)throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');return this.result(opened,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   // Trusted integration programs retain their explicitly pinned environments.
