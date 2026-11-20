@@ -100,11 +100,11 @@ async function isExecuting(pid: number): Promise<boolean> {
 
 function mockWorkers() {
   const children: (EventEmitter & {send:ReturnType<typeof vi.fn>})[] = [];
-  const commands: {requestId?:string;command?:string;input?:{runId?:string}}[] = [];
+  const commands: {requestId?:string;command?:string;providerId?:string;input?:{runId?:string}}[] = [];
   const spawnWorker = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       connected: true, exitCode: null, signalCode: null,
-      send: vi.fn((message: {requestId?:string;command?:string}, callback: (error: Error | null) => void) => {
+      send: vi.fn((message: {requestId?:string;command?:string;providerId?:string}, callback: (error: Error | null) => void) => {
         commands.push(message);
         queueMicrotask(() => {
           child.emit("message", { type: "response", requestId: message.requestId, value: null });
