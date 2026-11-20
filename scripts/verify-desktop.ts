@@ -64,8 +64,6 @@ try{
  await composer.evaluate(node=>(node as HTMLTextAreaElement).setSelectionRange(2,6));
  await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:'Move chat',exact:true}).click();
  await main.getByRole('menuitem',{name:'Float',exact:true}).click();
-||||||| 09616726
- await main.locator('[data-split-pane="pane-main"]').getByRole('button',{name:/Move or detach/}).click();
  const float=main.locator('[data-split-view="thread:task-thread"][data-floating="true"]');await expect(float).toBeVisible();expect(app.windows().length).toBe(nativeCount);
  const before=(await float.boundingBox())!,handle=(await float.getByRole('button',{name:'Resize Source-bound task fixture',exact:true}).boundingBox())!;
  await main.mouse.move(handle.x+handle.width/2,handle.y+handle.height/2);await main.mouse.down();
