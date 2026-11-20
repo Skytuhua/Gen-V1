@@ -82,7 +82,7 @@ export interface Migration {
 export const SCHEMA_VERSION = 1;
 
 export function currentVersion(db: DatabaseSync): number;
-export function applyMigrations(db: DatabaseSync, migrations: readonly Migration[]): void;
+export function applyMigrations(db: DatabaseSync, dataDir: string, migrations: readonly Migration[], targetVersion?: number): { backupPath: string | null };
 export function backupDatabaseSync(db: DatabaseSync, dataDir: string, toVersion: number): string;
 export function listBackups(dataDir: string): string[];
 export function restoreBackup(dataDir: string, backupFile: string): string;
@@ -91,10 +91,10 @@ export function restoreBackup(dataDir: string, backupFile: string): string;
 Semantics, exactly:
 
 - `currentVersion(db)` → `SELECT COALESCE(MAX(version), 0) AS v FROM migrations`; returns `0` on a DB whose `migrations` table was just created empty (impossible today — v1 is inserted at bootstrap — but kept for tests).
-- `applyMigrations(db, migrations)`:
-  1. Validate the registry once: versions are unique positive integers; reject gaps relative to `from = currentVersion(db)` — every `m.version` in `(from, SCHEMA_VERSION]` must be present exactly once; else throw `HarnessError('MIGRATION_FAILED', 'Migration registry is not contiguous')`.
-  2. `if (current > SCHEMA_VERSION) throw new HarnessError('STORAGE_DOWNGRADE_UNSUPPORTED', ...)` — before any write.
-  3. `if (pending.length && db is file-backed) backupDatabaseSync(db, dataDir, SCHEMA_VERSION)`.
+- `applyMigrations(db, dataDir, migrations, targetVersion = SCHEMA_VERSION)` returns `{ backupPath }` — `targetVersion` exists so tests can register and apply a v2 migration while the binary's `SCHEMA_VERSION` stays `1`:
+  1. Validate the registry once: versions are unique positive integers; reject gaps relative to `from = currentVersion(db)` — every `m.version` in `(from, targetVersion]` must be present exactly once; else throw `HarnessError('MIGRATION_FAILED', 'Migration registry is not contiguous')`.
+  2. `if (current > targetVersion) throw new HarnessError('STORAGE_DOWNGRADE_UNSUPPORTED', ...)` — before any write.
+  3. `if (pending.length && db is file-backed) backupDatabaseSync(db, dataDir, targetVersion)`.
   4. For each pending migration in ascending order: `db.exec("BEGIN IMMEDIATE")`; `m.up(db)`; `INSERT INTO migrations(version) VALUES (?)` with `m.version`; `db.exec("COMMIT")`. On any throw: `db.exec("ROLLBACK")` (guarded by its own try/catch), rethrow `HarnessError('MIGRATION_FAILED', `Migration ${m.version} (${m.name}) failed: ${msg}`, {cause})`.
 - `backupDatabaseSync(db, dataDir, toVersion)`:
   1. `mkdirSync(join(dataDir, "backups"), { recursive: true })`.
@@ -109,8 +109,8 @@ Semantics, exactly:
   - Documented operator flow: close all `Store` handles → `restoreBackup(dir, file)` → reopen. Restore never runs inside a live `Store`.
 - `Store` constructor change (minimal, backward compatible):
   - New optional second parameter: `constructor(dataDir: string, options?: { readonly migrations?: readonly Migration[] })`.
-  - After the existing pragma line, replace the inline DDL block with: keep `CREATE TABLE IF NOT EXISTS migrations` bootstrap plus the three baseline tables **unchanged** (baseline schema creation is not itself a migration — existing DBs must not re-run it), then `applyMigrations(this.db, options?.migrations ?? [])`.
-  - `applyMigrations` performs steps 2–4 above; `backupDatabaseSync` needs `dataDir` — pass `this.dataDir`. Concretely the runner signature gains the dir: implement `applyMigrations(db, dataDir, migrations)` (adjust the exported signature accordingly).
+  - After the existing pragma line, replace the inline DDL block with: keep `CREATE TABLE IF NOT EXISTS migrations` bootstrap plus the three baseline tables **unchanged** (baseline schema creation is not itself a migration — existing DBs must not re-run it), then `const { backupPath } = applyMigrations(this.db, this.dataDir, options?.migrations ?? [])` and assign `this.lastBackupPath = backupPath`.
+  - `applyMigrations` performs steps 2–4 above; `backupDatabaseSync` needs `dataDir` — the runner signature carries it (`applyMigrations(db, dataDir, migrations, targetVersion)`).
   - Store the last backup path on the instance for diagnostics: `readonly lastBackupPath: string | null` (set by the runner via an out-param or a small internal hook — simplest: `backupDatabaseSync` returns the path and the constructor assigns it before calling `applyMigrations`; to keep one call site, `applyMigrations` returns `{ backupPath: string | null }`).
 
 Error/cancel/retry: a failed migration rolls back its own transaction; the store stays at the last committed version and the next open retries the same migration. No partial `migrations` row is ever committed. Restore is destructive (overwrites `harness.sqlite`) and therefore only callable as a top-level function, never automatically.
@@ -119,16 +119,16 @@ Security boundary: backups and restore paths never leave `dataDir`; `restoreBack
 
 ### EXECUTION_DAG
 
-- **T01 — Migration registry + runner** (file: `packages/storage/migrations.ts`, new, ~120 lines). Implements `Migration`, `SCHEMA_VERSION`, `currentVersion`, `applyMigrations(db, dataDir, migrations)` returning `{ backupPath }`, `backupDatabaseSync`, `listBackups`, `restoreBackup` per DESIGN. Deps: none. Done when: module compiles (`pnpm typecheck`), exported surface matches exactly. Tests: T03.
+- **T01 — Migration registry + runner** (file: `packages/storage/migrations.ts`, new, ~120 lines). Implements `Migration`, `SCHEMA_VERSION`, `currentVersion`, `applyMigrations(db, dataDir, migrations, targetVersion = SCHEMA_VERSION)` returning `{ backupPath }`, `backupDatabaseSync`, `listBackups`, `restoreBackup` per DESIGN. Deps: none. Done when: module compiles (`pnpm typecheck`), exported surface matches exactly. Tests: T03.
 - **T02 — Wire into `Store`** (`packages/storage/store.ts`, ~15-line diff). Add optional `options.migrations` ctor param; keep baseline DDL; call `applyMigrations`; expose `lastBackupPath`. Deps: T01. Done when: `new Store(dir)` behaves identically on a v1 DB (no backup, no error); existing store tests still pass.
-- **T03 — Unit tests** (`tests/storage-migrations.test.ts`, new). Cases, each with a temp dir under `os.tmpdir()`:
-  1. Fresh DB: version 1, `lastBackupPath === null`, `listBackups` empty.
-  2. Pending migration runs: register a v2 test migration adding a column/table, open with `migrations: [v2]` → version 2, backup file exists matching the name pattern, backup DB opens at v1.
-  3. Crash mid-migration: v2 migration that `db.exec` a valid statement then `throw new Error("boom")` → `MIGRATION_FAILED`; reopen with no migrations → still v1, entities table readable; reopen with the fixed v2 → succeeds (idempotent).
-  4. Downgrade: hand-craft DB at version 3 (`INSERT INTO migrations VALUES (3)`), open with `SCHEMA_VERSION` 1 code → `STORAGE_DOWNGRADE_UNSUPPORTED`.
+- **T03 — Unit tests** (`tests/storage-migrations.test.ts`, new). Cases, each with a temp dir under `os.tmpdir()`. v2-migration cases call `applyMigrations(db, dir, [v2], 2)` directly — the `Store` ctor path always uses the default `targetVersion = SCHEMA_VERSION` (production DBs are at v1), so it is exercised only by the no-migration cases:
+  1. Fresh DB via `new Store(dir)`: version 1, `lastBackupPath === null`, `listBackups` empty.
+  2. Pending migration runs: `applyMigrations(db, dir, [v2], 2)` where v2 adds a column/table → version 2, backup file exists matching the name pattern, backup DB opens at v1.
+  3. Crash mid-migration: v2 migration that `db.exec` a valid statement then `throw new Error("boom")` → `MIGRATION_FAILED`; reopen with no migrations → still v1, entities table readable; `applyMigrations(db, dir, [v2fixed], 2)` → succeeds (idempotent).
+  4. Downgrade: hand-craft DB at version 3 (`INSERT INTO migrations VALUES (3)`), `applyMigrations(db, dir, [v2], 2)` → `STORAGE_DOWNGRADE_UNSUPPORTED` (a `new Store(dir)` on the same file throws it too, since the default `targetVersion` is 1).
   5. Restore: create data, migrate to v2 (backup taken), corrupt/delete rows, `close()`, `restoreBackup(dir, backupName)`, reopen → original v1 data present.
   6. `restoreBackup` rejects `../evil` and nonexistent names with `RESTORE_INVALID_BACKUP`.
-  7. Non-contiguous registry ([v2, v4] without v3) → `MIGRATION_FAILED` before any write.
+  7. Non-contiguous registry ([v2, v4] without v3) with `targetVersion` 4 → `MIGRATION_FAILED` before any write.
   Deps: T01, T02. Done when: `pnpm exec vitest run tests/storage-migrations.test.ts` green.
 - **T04 — PR** one PR (< 400 lines, one concern): the three files above. PR body contains the required short design note (options: async `node:sqlite` `backup()` vs sync checkpoint+copy — chose sync to keep ctor sync; per-migration transactions vs one big transaction — chose per-migration so a crash commits prior steps). Deps: T01–T03.
 
