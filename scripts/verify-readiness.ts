@@ -54,14 +54,38 @@ export function redactSecrets(text:string):string{
 
 // Line-buffered so a secret split across stream chunks is still redacted whole.
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
-  let carry='';
+  let carry='',insidePrivateKey=false;
+  // PEM material spans lines; a per-line regex would publish the entire key body.
+  const begin=/-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/;
+  const end=/-----END [A-Z0-9 ]*PRIVATE KEY-----/;
+  const scrubLine=(line:string):string=>{
+    let remaining=line,visible='';
+    while(remaining){
+      if(insidePrivateKey){
+        const match=end.exec(remaining);
+        if(!match)break;
+        remaining=remaining.slice(match.index+match[0].length);
+        insidePrivateKey=false;
+      }else{
+        const match=begin.exec(remaining);
+        if(!match){visible+=remaining;break;}
+        visible+=remaining.slice(0,match.index)+'[REDACTED PRIVATE KEY]';
+        remaining=remaining.slice(match.index+match[0].length);
+        insidePrivateKey=true;
+      }
+    }
+    return redactSecrets(visible);
+  };
   return {
     write(chunk:Buffer|string){
       carry+=String(chunk);
       const lines=carry.split('\n');carry=lines.pop()!;
-      for(const line of lines)stream.write(redactSecrets(line)+'\n');
+      for(const line of lines){
+        const safe=scrubLine(line);
+        if(safe||!insidePrivateKey)stream.write(safe+'\n');
+      }
     },
-    end(){if(carry)stream.write(redactSecrets(carry));stream.end();},
+    end(){if(carry){const safe=scrubLine(carry);if(safe)stream.write(safe);}stream.end();},
   };
 }
 
