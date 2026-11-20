@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Select/Connect project dialog clarity
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -22,6 +22,21 @@ Two problems in the same flow: (1) In "Select project", "No project" carries a �
 - `apps/web/src/ComposerToolbar.tsx` — composer project chip entry point.
 - Discovery: whether the same dialog is reused for connect vs select (likely), and where titles are set.
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**Selection vs status marks** (`.project-picker-option`, min-height 32px, `padding:6px 8px`, gap 8px, `border-radius:4px`)
+- ✓ check: only on the row with `aria-selected="true"` — lucide `Check` 14px, `color:var(--accent)`, right-aligned (`margin-left:auto`).
+- Status dot: 6×6px circle `background:var(--success)` for connected/active project, `aria-label="connected"` on the span — never read as selection. If a row is both selected and connected, show dot then ✓ in that order.
+- Focused (keyboard-active) row: `outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px` (`data-active=true` pattern) — no ✓, no background change; selected row background `var(--selection-bg)`; hover `var(--hover)`.
+- `No project` row follows identical rules (✓ only when actually selected).
+- `Recent` badge unchanged: 10px `var(--muted)`.
+
+**Dialog title by intent**
+- `ProjectPicker` gains optional `title` prop, default `Select project`.
+- Sidebar `Connect project` button opens it with `title="Connect project"` and primary hint text unchanged otherwise; composer chip and New thread keep `Select project`.
+- Dialog chrome: `.dialog` width 440px, `max-width:calc(100vw - 32px)`, padding 22px, `border:1px solid var(--border)`, `border-radius:16px`, `background:var(--surface)`, `box-shadow:var(--elevation)`; header 14px weight 500 `var(--text)`; close × `.icon-button` `lucide-x` `var(--danger)` on hover `var(--danger-soft)` bg.
+- Footer hint unchanged: `↑↓ navigate · Enter select · Esc cancel`, 10px `var(--muted)`.
+
 ## DESIGN
 Use the ✓ for current selection only; move connected/active status to a colored dot with aria-label "connected" that is not read as selection. If a row can be both, ✓ wins. Pass an optional `title`/`intent` prop from the launch button.
 
@@ -36,6 +51,7 @@ Use the ✓ for current selection only; move connected/active status to a colore
 - Keyboard: arrow navigation doesn't move the ✓.
 
 ## STATE
+- rev 2: full design spec added.
 - Researched: /tmp/audit/07-new-thread.png, /tmp/audit/08-connect-project.png. Implemented: nothing. Next: T01.
 
 ## REFERENCES

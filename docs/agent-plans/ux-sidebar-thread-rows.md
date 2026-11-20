@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Sidebar thread list UX cleanup
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app served by `scripts/review-host.ts` on :4317
@@ -22,6 +22,31 @@ Every row in the thread sidebar renders the project avatar ("UR") plus the full 
 - `apps/web/src/App.tsx` — passes thread/project data into the sidebar.
 - Discovery: CSS module/class names for rows; whether grouping helpers already exist.
 
+## DESIGN SPEC (exact values — no design choices left)
+
+All values reuse existing tokens/classes in `apps/web/src/styles.css`; do not invent new tokens.
+
+**Project group header** (replaces per-row project label; render when ≥1 threads share a project)
+- Reuse `.thread-group h2`: font-size 11px, font-weight 450, color `var(--muted)`, padding `7px 7px 8px`, gap 7px, letter-spacing 0.
+- Left: avatar 17×17px circle (`.workflow-avatar` pattern): background `var(--subtle)`, color `var(--text)`, font-size 8px, border-radius 50%, initials centered, `aria-hidden="true"`.
+- Text: project name, 11px `var(--muted)`, single line, `text-overflow:ellipsis`.
+
+**Thread row** (`.thread-item` — keep existing box)
+- Padding `10px 11px`, border-radius 8px, width 100%, margin-bottom 3px, `display:flex;flex-direction:column;gap:5px`.
+- Remove the `<span>{initials}{projectName}</span>` meta line entirely.
+- Line 1: title — `.thread-item-title` 12px, line-height 1.4, `var(--text)`, `white-space:nowrap;overflow:hidden;text-overflow:ellipsis`.
+- Line 2: `.thread-item-meta` — flex, space-between, `var(--muted)`, 10px: status dot 5×5px circle `var(--muted)` (`.local-status>span` pattern) + status text left, `<time>` right.
+- States: `:hover` → `background:var(--hover)`; `.active` → `background:var(--hover)`; `::focus-visible` → `outline:2px solid var(--ui-focus-ring,#808080); outline-offset:1px`; transition `background-color var(--ui-motion-hover) var(--ui-ease-move)` (hover=120ms default speed).
+- a11y: button `aria-label="{title}, {status}"`; remove title/status duplication inside label; initials `aria-hidden`.
+- Keep insert animation `ui-item-in var(--ui-motion-insert) var(--ui-ease-enter)` (180ms).
+
+**Active-filter chip** (when filter ≠ `all`, currently only a blue dot shows)
+- Render below the search row: pill — `background:var(--subtle)`, border-radius 18px, font-size 11px, padding `7px 10px`, min-height 30px, gap 5px, `color:var(--muted)`.
+- Text: `Showing {filter} threads` + trailing `×` clear button (`.icon-button`, 24px). Clicking Clear restores `all`.
+- Empty filtered list keeps `.sidebar-empty` (12px, `var(--muted)`, padding `12px 9px`, line-height 1.6).
+
+**Interaction:** click row = open thread (unchanged); drag-to-pin unchanged; hover shows existing hover actions; keyboard: Tab reaches rows, Enter opens, focus ring as above.
+
 ## DESIGN
 Group rows under a single project header (avatar + name) when consecutive threads share a project; inside a row show only status dot/label + title + time. Fix a11y: put the avatar initials in `aria-hidden` span and set `aria-label="{title}, {status}"` on the button. Filter indicator: when the "working" filter is active, show a persistent visible chip ("Filtering: working · clear") instead of only a small blue dot — currently the whole list empties with a nearly invisible state change.
 
@@ -37,6 +62,7 @@ Group rows under a single project header (avatar + name) when consecutive thread
 - Run existing web tests touching the sidebar if present (discovery: `rg ShellSidebar apps/web -g '*test*'`).
 
 ## STATE
+- rev 2: full design spec added (above). Implementer executes T01–T04 against the spec verbatim.
 - Researched: DOM + screenshots (see REFERENCES). Decided: grouping + a11y fix + filter chip. Implemented: nothing. Next step: T01.
 
 ## REFERENCES

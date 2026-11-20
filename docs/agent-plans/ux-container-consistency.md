@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Consistent containers for auxiliary surfaces
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -23,6 +23,21 @@ Auxiliary surfaces behave inconsistently: "Linked pull requests" opens as a dock
 - `apps/web/src/App.tsx` (1210 lines) — layout orchestration; aside `Conversation summaries` holds "Project overview window".
 - Discovery: layout manager and how surfaces register (drag targets, areas); viewport breakpoints.
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**Container-class mapping (fixed decision for this plan)**
+- `Linked pull requests` + `Project overview` → merge into ONE docked workspace area titled `Project`, with two tabs: `Pull requests` | `Overview`.
+  - Tab row: reuse area tab pattern — `aria-selected` buttons, font-size 12px, `color:var(--muted)` unselected / `var(--text)` selected, padding `6px 8px`, selected indicator = bottom border 2px `var(--accent)`; header keeps `Split this area` `◩`, `Area actions` `⋯`, `Minimize` `▴` chrome.
+  - `Project overview` body moves from the collapsed `Conversation summaries` strip into the `Overview` tab; the bottom-right collapsed strip is removed.
+- `Settings`, `Usage` → modal dialogs (unchanged class): `.dialog` width 440px, `max-width:calc(100vw - 32px)`, `max-height:calc(100dvh - 50px)`, padding 22px, `border:1px solid var(--border)`, `border-radius:16px`, `background:var(--surface)`, `box-shadow:var(--elevation)`; Esc + scrim click close; scrim `background:#0006` (`.sidebar-scrim` value), z-index `var(--ui-layer-scrim)`.
+- Pickers (`Select project`, model picker, task mode, menus) → popovers: `border-radius:8px`, `background:var(--surface)`, `border:1px solid var(--border)`, `box-shadow:var(--elevation)`; light-dismiss.
+
+**Responsive rule (fixed)**
+- Below 700px viewport width, docked secondary areas do NOT split: they auto-minimize to their header strip and open as overlay when summoned, using the existing drawer pattern: `position:fixed;inset:0`, scrim `#0006` `z-index:var(--ui-layer-scrim)`, panel slides `transform:translateX(0→0%)` `transition:transform var(--ui-motion-panel-enter) var(--ui-ease-enter)` (220ms), width `min(320px, 88vw)`.
+- At ≤700px the chat column keeps ≥ calc(100% - 24px) when panels are closed (existing `.composer-dock` margin pattern).
+
+**Interactions:** drag-detach/dock edge targets, `Move or detach` button, Layouts menu — unchanged after rehoming; tab switch keeps per-tab scroll position.
+
 ## DESIGN
 Step 1 is a decision record (in the PR): map every auxiliary surface to {docked area | dialog | popover} with rationale; only then migrate outliers. Recommended mapping to evaluate: PRs + Project overview merge into one "Project" docked area with tabs; pickers stay popovers; Settings/Usage stay dialogs. Add a `min-width` rule so docked areas auto-collapse under the breakpoint.
 
@@ -37,6 +52,7 @@ Step 1 is a decision record (in the PR): map every auxiliary surface to {docked 
 - Keyboard/Esc dismissal consistent per class.
 
 ## STATE
+- rev 2: full design spec added; container mapping is fixed (Project area w/ Pull requests + Overview tabs; dialogs for Settings/Usage; popovers for pickers; ≤700px drawer behavior).
 - Researched: ss_82c5efa7.png (All Agents), ss_ff37eacc.png, audit-05/09/10. Mapping proposed above, final mapping is PR-level decision. Implemented: nothing. Next: T01.
 
 ## REFERENCES

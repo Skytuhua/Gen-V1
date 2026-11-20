@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Chat header status line
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -20,6 +20,17 @@ The chat header prints "Local UI demo · no model inference · recording fixture
 - `apps/web/src/App.tsx` — supplies status/model labels.
 - Discovery: the exact element rendering the `·`-joined status (`rg "Ready" apps/web/src` + status builder).
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**Header layout** (unchanged structure: breadcrumb → status → actions)
+- Breadcrumb: `.breadcrumb` — `display:flex;align-items:center;gap:9px;font-size:12px;color:var(--muted)`; project segment stays, `strong` = thread title `var(--text)` weight 500, ellipsis.
+- Status string: single element after breadcrumb — `{envLabel} · {stateLabel}` at font-size 11px, `color:var(--muted)`, `white-space:nowrap;overflow:hidden;text-overflow:ellipsis`, `max-width:40%` of the header row.
+- `{envLabel}` = one badge only: `Local UI demo` for the fixture; in real builds it is the existing env/runtime label (do not add "no model inference" / "recording fixture" as separate `·`-segments — join them into the env badge's `title` tooltip instead).
+- `{stateLabel}` = existing state (`Ready`, `Working…`, etc.).
+- Project name is removed from the status string when it equals the breadcrumb project segment.
+- Find-in-conversation and History buttons keep `.icon-button` (var(--ui-row-compact)) and `.secondary` styling respectively; no visual change.
+- States/transitions unchanged: `connection-state` pending color `var(--pending)` 11px when not ready.
+
 ## DESIGN
 Status line becomes `{env badge} · {state}` (e.g. "Local UI demo · Ready"). Project moves solely to the breadcrumb. If multiple env flags exist, join them inside the single badge tooltip instead of the visible string.
 
@@ -33,6 +44,7 @@ Status line becomes `{env badge} · {state}` (e.g. "Local UI demo · Ready"). Pr
 - No test regressions.
 
 ## STATE
+- rev 2: full design spec added.
 - Researched: ss_76f7d0be.png, audit-01/02. Implemented: nothing. Next: T01.
 
 ## REFERENCES

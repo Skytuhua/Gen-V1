@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Model picker popover positioning
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -20,6 +20,16 @@ Opening the model picker renders a wide popover whose left edge extends past the
 - `apps/web/src/ModelPicker.tsx` — popover implementation (verified exists).
 - Discovery: shared popover/anchoring utility (`rg -l "popover|anchor" apps/web/src`).
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**Popover placement and box**
+- Anchor: right edge of the model-picker trigger button; `position:absolute; top:calc(100% + 6px); right:0` relative to `.model-picker` (already `position:relative`).
+- Width: `min(340px, max(240px, 100vw - sidebarRightEdge - 32px))`; practical rule: `width:340px; max-width:calc(100% - 16px)` of the chat column, and clamp `left` so `popoverRect.left >= chatColumnRect.left + 8` — implement as a collision check that shifts left edge when it would cross into the sidebar (flip is not acceptable: the composer is bottom-docked, open upward as today).
+- Box: `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--elevation)`, `max-height:320px`, `overflow-y:auto`, z-index above composer but below scrim layers (use existing popover layer token if present — discovery: `--ui-layer-*` in styles.css).
+- Option rows (match `.project-picker-option`): `display:flex;align-items:center;gap:8px;width:100%;min-height:32px;padding:6px 8px;border-radius:4px;font:inherit`.
+- States: `:hover` → `var(--hover)`; `aria-selected=true` → `background:var(--selection-bg)`; keyboard `[data-active=true]` → `outline:2px solid var(--ui-focus-ring);outline-offset:-2px`; Enter/exit animations `ui-popover-fade var(--ui-motion-press)` (80ms).
+- Verify at 1280px (sidebar open), 900px, 700px (drawer sidebar), 500px — popover never covers `.sidebar`.
+
 ## DESIGN
 Anchor the popover to the trigger button with collision-aware positioning (flip/shift) bounded to the chat column, or set `min()`-clamped width and right-align to trigger. If a shared popover primitive exists, fix collision padding there so all users benefit.
 
@@ -34,6 +44,7 @@ Anchor the popover to the trigger button with collision-aware positioning (flip/
 - Keyboard open (if supported) shows same placement.
 
 ## STATE
+- rev 2: full design spec added.
 - Researched: ss_e59042e2.png (overlap visible). Implemented: nothing. Next: T01.
 
 ## REFERENCES

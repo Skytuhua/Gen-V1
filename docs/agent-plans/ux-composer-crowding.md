@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Composer toolbar density/overflow
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -22,6 +22,22 @@ The composer packs ~12 controls (attachment chips, Saved drafts, +, project chip
 - `apps/web/src/App.tsx` — composer composition.
 - Discovery: existing overflow-menu primitive; current CSS breakpoints (`rg "composer" apps/web/src -g '*.css'` or styled).
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**Tier assignment (fixed)**
+- Tier 1 always visible: attachment chips, textarea, attach `+` (31px `.attach-button`), send (33px `.send-button`), model picker, project chip, `Local` env pill, task-mode toggle.
+- Tier 2 collapses into overflow: `Saved drafts`, `Changes`, `Create PR`, live-usage icon, context-meter icon, voice icon.
+- Breakpoint: when `.composer` width < 560px, Tier 2 buttons move into a single overflow `⋯` `.icon-button` (width/height `var(--ui-row-compact)`, radius 7px, `color:var(--muted)`, hover `var(--hover)`). At ≥560px the menu disappears and the buttons render inline.
+- Composer keeps `padding:11px 14px 10px`, `border:1px solid var(--control-border)`, `border-radius:15px`; never exceeds 2 control rows at ≥700px viewport.
+
+**Overflow menu** (reuse area-actions `⋯` menu pattern)
+- Anchored above the `⋯` trigger: `position:absolute;bottom:calc(100% + 6px);right:0`.
+- Box: `background:var(--surface)`, `border:1px solid var(--border)`, `border-radius:8px`, `box-shadow:var(--elevation)`, `min-width:180px`, `padding:4px`.
+- Items: `.project-picker-option` pattern — `display:flex;align-items:center;gap:8px;min-height:32px;padding:6px 8px;border-radius:4px;font-size:12px;color:var(--text)`; disabled items `opacity:.5` keep their explanation tooltips.
+- States: hover `var(--hover)`; keyboard `data-active` `outline:2px solid var(--ui-focus-ring);outline-offset:-2px`; Esc closes and returns focus to the `⋯` button; open/close animation `ui-popover-fade var(--ui-motion-press)` (80ms).
+
+**Labels:** menu items use the same aria-labels/tooltips as the inline buttons (`Inspect recorded changes`, `Ask the agent to prepare a pull request`, etc.) so behavior is identical in both modes.
+
 ## DESIGN
 Add an overflow group: when `composer` width < breakpoint, render Changes/Create PR/Saved drafts/etc. inside one dropdown menu button. Reuse the overflow/menu primitive used by area headers ("⋯" area actions) for consistent look.
 
@@ -36,6 +52,7 @@ Add an overflow group: when `composer` width < breakpoint, render Changes/Create
 - Tab order check; axe pass if a runner exists.
 
 ## STATE
+- rev 2: full design spec added.
 - Researched: ss_76f7d0be.png + narrow screenshots. Implemented: nothing. Next: T01.
 
 ## REFERENCES

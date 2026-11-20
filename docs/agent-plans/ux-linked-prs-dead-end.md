@@ -2,7 +2,7 @@
 
 ## META
 - Feature: Linked PRs panel empty/disconnected state UX
-- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
@@ -22,6 +22,25 @@ The panel shows "Connect this project to a local folder." in red error styling b
 - `apps/web/src/ProjectPicker.tsx` — Select project dialog opened by that flow.
 - Discovery: exact component file for the PR list body; whether a shared `ConnectProjectPrompt` exists.
 
+## DESIGN SPEC (exact values — no design choices left)
+
+**`ConnectFolderNotice` component** (used in Linked pull requests body and Project overview)
+- Container: full-width button, `background:var(--subtle)`, `border:1px solid transparent`, `border-radius:var(--control-radius)` (default 8px), `min-height:var(--settings-row-height)` (32 compact / 36 comfortable / 44 touch), padding `6px 10px`, `display:flex;align-items:center;gap:8px`.
+- Left icon: folder-plus/lucide `FolderPlus`, 14px, `color:var(--muted)`.
+- Text: `Connect this project to a local folder`, font-size 12px, `color:var(--text)`, `font:inherit`.
+- Trailing: `›` chevron 12px `var(--muted)`.
+- States: `:hover` → `background:var(--hover)` + text `var(--text)`; `:focus-visible` → `outline:2px solid var(--ui-focus-ring,#808080);outline-offset:1px`; transition `background-color var(--ui-motion-hover) var(--ui-ease-move)`.
+- The red `.error-text` (`color:var(--danger)`) is removed from this notice in BOTH places; `--danger`/`--danger-fg` is reserved for actual errors.
+- Click action: same handler the sidebar `Connect project` button calls (opens `ProjectPicker`/connect flow).
+
+**Disabled `New draft PR`**
+- Keep `.secondary` button, `min-height:var(--settings-row-height)`, `border-radius:var(--control-radius)`, font-size 12px.
+- `:disabled` → `opacity:.5;cursor:not-allowed` (existing button disabled style).
+- `title` + `aria-describedby` text: `Connect a local folder and sign in to GitHub to draft PRs` — mirrors the Saved-drafts explanation pattern.
+- If project IS connected but GitHub isn't: reason becomes `Sign in to GitHub to draft PRs`.
+
+**`Link` button** (by-number form): same disabled-reason tooltip when the form is inert.
+
 ## DESIGN
 Make the notice a `ConnectFolderNotice` component (message + primary "Connect folder" action + secondary "Learn more" if docs exist). Reuse it in Linked pull requests and Project overview. Change color token from error/danger to accent or neutral. New draft PR gets `title`/`aria-describedby` reason text consistent with the disabled Saved-drafts pattern already shipped.
 
@@ -36,6 +55,7 @@ Make the notice a `ConnectFolderNotice` component (message + primary "Connect fo
 - Keyboard: notice reachable by Tab, activates with Enter.
 
 ## STATE
+- rev 2: full design spec added. Implementer executes T01–T04 verbatim.
 - Researched: DOM + screenshots ss_ff37eacc.png, audit-05. Decided above. Implemented: nothing. Next: T01.
 
 ## REFERENCES
