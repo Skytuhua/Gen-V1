@@ -26,6 +26,23 @@ describe('reviewed public source allowlist',()=>{
       await expect(readFile(target)).rejects.toMatchObject({code:'ENOENT'});
     }finally{await rm(root,{recursive:true,force:true,maxRetries:5});}
   });
+  it('refuses an occupied evidence path before creating an export destination', async () => {
+    const root = await mkdtemp(join(tmpdir(), 'gen-public-existing-receipt-'));
+    const source = join(root, 'source'), target = join(root, 'public'), receipt = join(root, 'prior.json');
+    try {
+      await mkdir(source);
+      await writeFile(receipt, 'earlier export evidence');
+      const script = fileURLToPath(new URL('../scripts/export-public-source.ts', import.meta.url));
+      const loader = pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href;
+      expect(() => execFileSync(process.execPath, ['--import', loader, script, target, receipt], {cwd: source, stdio: ['ignore', 'pipe', 'pipe']}))
+        .toThrow(/Export receipt already exists/);
+      await expect(readFile(target)).rejects.toMatchObject({code:'ENOENT'});
+      await expect(readFile(receipt, 'utf8')).resolves.toBe('earlier export evidence');
+    } finally {
+      await rm(root, {recursive: true, force: true, maxRetries: 5});
+    }
+  });
+
   it('preserves pinned integration bytes when Windows enables automatic CRLF checkout',async()=>{
     const root=await mkdtemp(join(tmpdir(),'harness-public-byte-checkout-'));
     const env={...process.env,GIT_CONFIG_NOSYSTEM:'1',GIT_CONFIG_GLOBAL:process.platform==='win32'?'NUL':'/dev/null'};

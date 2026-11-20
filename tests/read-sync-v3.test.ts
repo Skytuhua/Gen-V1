@@ -1,3 +1,4 @@
+import { deferred } from './fixtures/deferred.ts';
 import { afterEach, expect, it, vi } from 'vitest';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
@@ -357,4 +358,45 @@ it('M17 pairing → sync end-to-end: only an approved device reads, and only its
   const { grant } = pairing.confirmChallenge(claimed.pairingId, { scopes: ['VIEW_TASKS'], projects: ['p1', 'personal'] }, 'host-session-1');
   const page = sync.snapshot(grant);
   expect(page.deltas.map(d => d.threadId).sort()).toEqual(['t1', 'tp']);
+});
+
+it('keeps a device cache cleared when an earlier snapshot completes later', async () => {
+  const {store, sync} = fixture();
+  const grant = seedGrant(store);
+  seedThread(store, 'before-clear', 'p1');
+  const pending = deferred<ReturnType<ReadSyncHost['snapshot']>>();
+  const client = new ReadSyncClient();
+  const inFlight = client.sync({
+    snapshot: () => pending.promise,
+    page: async cursor => sync.page(grant, cursor),
+    advance: async cursor => sync.advance(grant, cursor),
+  });
+  client.saveDraft('local', 'unsent note');
+  client.clearCache();
+  pending.resolve(sync.snapshot(grant));
+  await expect(inFlight).resolves.toBe('OFFLINE');
+  expect(client.tasks.size).toBe(0);
+  expect(client.sourceTimestamp).toBeNull();
+  expect(client.drafts.get('local')).toBe('unsent note');
+});
+
+it('keeps successful read sync status when an older refresh fails later', async () => {
+  const {store, sync} = fixture();
+  const grant = seedGrant(store);
+  seedThread(store, 'initial', 'p1');
+  const client = new ReadSyncClient();
+  const online = {
+    snapshot: async () => sync.snapshot(grant),
+    page: async (cursor: string) => sync.page(grant, cursor),
+    advance: async (cursor: string) => sync.advance(grant, cursor),
+  };
+  await client.sync(online);
+  const earlier = deferred<ReturnType<ReadSyncHost['advance']>>();
+  const inFlight = client.refresh({...online, advance: () => earlier.promise});
+  seedThread(store, 'later', 'p1');
+  await expect(client.refresh(online)).resolves.toBe('SYNCED');
+  earlier.reject(new Error('Earlier request disconnected'));
+  await expect(inFlight).resolves.toBe('SYNCED');
+  expect(client.tasks.has('later')).toBe(true);
+  expect(client.lastError).toBeNull();
 });

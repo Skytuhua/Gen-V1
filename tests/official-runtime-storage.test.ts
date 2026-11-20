@@ -1,10 +1,29 @@
 import {readOfficialVersion} from '../scripts/verify-official-distributions.ts';
-import { mkdtemp, mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
+import { mkdtemp, mkdir, readFile, readdir, rename, rm, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { describe, expect, it } from 'vitest';
+import { dirname, join } from 'node:path';
+import { describe, expect, it, vi } from 'vitest';
 import { officialRuntimeEnvironment, officialRuntimeHome, officialRuntimeCommand } from '../packages/runtime-official/environment.ts';
 import { openManifest, readManifest, saveManifest } from '../packages/runtime-official/manifest.ts';
+
+vi.mock('node:fs/promises', async original => {
+  const actual = await original<typeof import('node:fs/promises')>();
+  return { ...actual, rename: vi.fn(actual.rename) };
+});
+
+it('removes an uncommitted session draft when atomic replacement fails', async () => {
+  const dataDir = await mkdtemp(join(tmpdir(), 'official-replace-'));
+  try {
+    const state = await openManifest(dataDir, 'claude-code', 'thread-a', null);
+    state.value.sessionId = 'native-session';
+    vi.mocked(rename).mockRejectedValueOnce(new Error('fixture: file busy'));
+    await expect(saveManifest(state)).rejects.toThrow('fixture: file busy');
+    expect((await readManifest(dataDir, state.path)).value.sessionId).toBeNull();
+    expect(await readdir(dirname(state.path))).toEqual(['session.json']);
+    await saveManifest(state);
+    expect((await readManifest(dataDir, state.path)).value.sessionId).toBe('native-session');
+  } finally { await rm(dataDir, { recursive: true, force: true }); }
+});
 
 describe('official runtime storage and subprocess isolation', () => {
   it('uses published commands and isolated homes without inheriting provider or Node injection variables', () => {
@@ -90,6 +109,9 @@ describe('official distribution version verification',()=>{
  const probe=(source:string)=>readOfficialVersion({file:process.execPath,args:['-e',source,'--']},process.cwd(),{});
  it('rejects a successful process that did not report a version',async()=>{
   await expect(probe("process.stdout.write('  ')")).rejects.toThrow('Unexpected CLI version output.');
+ });
+ it('rejects an otherwise successful probe exceeding the combined output budget',async()=>{
+  await expect(probe("process.stdout.write('1.2.3\\n'); process.stderr.write('note: '.repeat(12000));")).rejects.toThrow('Official version output exceeded its bound.');
  });
  it('keeps a nonempty version from a successfully exited process',async()=>{
   await expect(probe("process.stdout.write('1.2.3\\n')")).resolves.toBe('1.2.3');

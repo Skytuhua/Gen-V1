@@ -8,17 +8,17 @@ import { createOfficialRuntime, type OfficialRuntimeDependencies } from '../pack
 
 function queue<T>() { const values: T[] = []; let wake = deferred<void>(); let stopped = false; return { push(value: T) { values.push(value); wake.resolve(); }, stop() { stopped = true; wake.resolve(); }, async *[Symbol.asyncIterator]() { while (!stopped) { if (!values.length) { await wake.promise; wake = deferred<void>(); } while (values.length) yield values.shift()!; } } }; }
 function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty', subscriptionType: 'Claude Max', apiKeySource: 'none' }) {
-  const events = queue<any>();
-  const accepted: any[] = [];
-  let options: any;
+  const events = queue<{type?:string;session_id?:string;subtype?:string;message?:unknown;user_message_uuids?:unknown[];queued_turn_count?:number;usage?:unknown;parent_tool_use_id?:unknown;user_message_uuid?:string;errors?:unknown}>();
+  const accepted: {uuid?:string;message?:{content?:unknown}}[] = [];
+  let options!: {sessionId?:string;systemPrompt?:string;allowedTools?:unknown;canUseTool?(name:string,input:Record<string,unknown>,context:unknown):Promise<{behavior?:string}>;[key:string]:unknown};
   let closeCount = 0;
   let hold: Promise<void> | undefined;
-  const flagSettings:any[]=[];
+  const flagSettings:unknown[]=[];
   const entered = deferred<void>();
-  const query = vi.fn(({ prompt, options: opts }: any) => {
-    options = opts;
+  const query = vi.fn(({ prompt, options: opts }: { prompt: AsyncIterable<unknown>; options?: Record<string, unknown> }) => {
+    options = opts!;
     entered.resolve();
-    void (async () => { for await (const input of prompt) accepted.push(input); })();
+    void (async () => { for await (const input of prompt) accepted.push(input as {uuid?:string;message?:{content?:unknown}}); })();
     return Object.assign(events[Symbol.asyncIterator](), {
       accountInfo: vi.fn(async () => { await hold; return account; }),
       supportedModels: vi.fn(async () => [{ value: 'advertised-model', displayName: 'Official model', description: '', supportedEffortLevels:['low','high'] }]),
@@ -29,7 +29,7 @@ function scripted(account: Record<string, unknown> = { apiProvider: 'firstParty'
       interrupt: vi.fn(async () => ({})), close() { closeCount++; events.stop(); },
     });
   });
-  const dependencies: OfficialRuntimeDependencies = { claudeSdk: { query } as any, claudeHistory: async () => [] };
+  const dependencies: OfficialRuntimeDependencies = { claudeSdk: { query } as never, claudeHistory: async () => [] };
   return { events, accepted, dependencies, query, flagSettings, entered, get options() { return options; }, get closeCount() { return closeCount; }, hold(value: Promise<void>) { hold = value; } };
 }
 const run = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'run-1', epoch: 1, modelId: 'claude-code/advertised-model', inputId: 'input-1', prompt: 'hello', resources: [], sessionPath: null, ...extra });
@@ -48,7 +48,7 @@ describe('official Claude SDK runtime', () => {
   it('uses a tool-free model-only SDK session and preserves Hermes tool text as assistant content',async()=>{
     const fake=scripted(),events:RuntimeEvent[]=[],onTool=vi.fn(async()=>null),runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-text-')),modelOnly:true},fake.dependencies);
     runtime.configure({onEvent:event=>events.push(event),onTool});
-    try{await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));expect(fake.options).toMatchObject({tools:[],mcpServers:{},skills:[],plugins:[],agents:{}});expect(fake.options.systemPrompt).toContain('text-model transport for Hermes');expect(fake.options.systemPrompt).not.toContain('ui_present');expect((await fake.options.canUseTool('mcp__host__skill_manage',{},{})).behavior).toBe('deny');
+    try{await runtime.start(run());await vi.waitFor(()=>expect(fake.accepted).toHaveLength(1));expect(fake.options).toMatchObject({tools:[],mcpServers:{},skills:[],plugins:[],agents:{}});expect(fake.options.systemPrompt).toContain('text-model transport for Hermes');expect(fake.options.systemPrompt).not.toContain('ui_present');expect((await fake.options.canUseTool!('mcp__host__skill_manage',{},{})).behavior).toBe('deny');
       const content='<tool_call>{"name":"skill_manage"}</tool_call>';fake.events.push({type:'assistant',session_id:fake.options.sessionId,message:{content:[{type:'text',text:content}]}});await vi.waitFor(()=>expect(events.some(event=>event.type==='assistant.message'&&event.content===content)).toBe(true));expect(onTool).not.toHaveBeenCalled();
     }finally{await runtime.dispose();}
   });
@@ -62,6 +62,49 @@ describe('official Claude SDK runtime', () => {
       await vi.waitFor(()=>expect(query.interrupt).toHaveBeenCalled());expect(events.some(event=>event.type==='settled')).toBe(false);
       barrier.resolve();await vi.waitFor(()=>expect(events.some(event=>event.type==='settled')).toBe(true));expect(fake.closeCount).toBe(1);
     }finally{barrier.resolve();await runtime.dispose();}
+  });
+  it('settles a completed turn when optional context usage never arrives', async () => {
+    const fake = scripted(), events: RuntimeEvent[] = [], lateUsage = deferred<{totalTokens: number; maxTokens: number}>();
+    const runtime = createOfficialRuntime({ dataDir: await mkdtemp(join(tmpdir(), 'official-usage-timeout-')) }, fake.dependencies);
+    runtime.configure({onEvent: event => events.push(event), onTool: async () => null});
+    try {
+      await runtime.start(run());
+      await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
+      fake.query.mock.results[0].value.getContextUsage.mockImplementation(() => lateUsage.promise);
+      fake.events.push({type: 'result', subtype: 'success', session_id: fake.options.sessionId, user_message_uuids: [fake.accepted[0].uuid], queued_turn_count: 0, usage: {input_tokens: 7}});
+      await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true), {timeout: 2400});
+      expect(events.find(event => event.type === 'usage')).toMatchObject({usage: {contextTokens: null, contextWindow: null, inputTokens: 7, activity: 'idle'}});
+      expect(fake.closeCount).toBe(1);
+    } finally {
+      lateUsage.resolve({totalTokens: 12, maxTokens: 100});
+      await runtime.dispose();
+    }
+  });
+  it('ignores a late context usage response after cancelling its owner', async () => {
+    const fake = scripted(), events: RuntimeEvent[] = [], lookup = deferred<void>();
+    const usage = deferred<{totalTokens: number; maxTokens: number}>();
+    const runtime = createOfficialRuntime({dataDir: await mkdtemp(join(tmpdir(), 'official-usage-cancel-'))}, fake.dependencies);
+    runtime.configure({onEvent: event => events.push(event), onTool: async () => null});
+    const input = run();
+    try {
+      await runtime.start(input);
+      await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
+      fake.query.mock.results[0].value.getContextUsage.mockImplementation(() => {
+        lookup.resolve();
+        return usage.promise;
+      });
+      fake.events.push({type: 'result', subtype: 'success', session_id: fake.options.sessionId, user_message_uuids: [fake.accepted[0].uuid], queued_turn_count: 0});
+      await lookup.promise;
+      await runtime.cancel(input);
+      usage.resolve({totalTokens: 12, maxTokens: 100});
+      await new Promise<void>(resolve => setImmediate(resolve));
+      expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      expect(events.some(event => event.type === 'usage')).toBe(false);
+      expect(fake.closeCount).toBe(1);
+    } finally {
+      usage.resolve({totalTokens: 12, maxTokens: 100});
+      await runtime.dispose();
+    }
   });
   it('never reports successful settlement when native close fails',async()=>{
     const fake=scripted(),events:RuntimeEvent[]=[],runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-teardown-failure-'))},fake.dependencies);
@@ -88,8 +131,8 @@ describe('official Claude SDK runtime', () => {
   });
   it('shares pending model discovery, returns copies and refreshes only explicitly',async()=>{
     const barrier=deferred<void>(),entered=deferred<void>();
-    const query=vi.fn((args:any)=>{const fake=scripted();fake.hold(barrier.promise);entered.resolve();return fake.query(args);});
-    const runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-discovery-'))},{claudeSdk:{query} as any});
+    const query=vi.fn((args:{prompt:AsyncIterable<unknown>;options?:Record<string,unknown>})=>{const fake=scripted();fake.hold(barrier.promise);entered.resolve();return fake.query(args);});
+    const runtime=createOfficialRuntime({dataDir:await mkdtemp(join(tmpdir(),'official-discovery-'))},{claudeSdk:{query} as never});
     runtime.configure({onEvent(){},onTool:async()=>null});
     const first=runtime.models(),second=runtime.models();
     const both=Promise.all([first,second]);
@@ -120,12 +163,12 @@ describe('official Claude SDK runtime', () => {
       expect(fake.accepted).toHaveLength(0);
       expect(fake.options).toMatchObject({ tools: [], settingSources: [], strictMcpConfig: true, skills: [], plugins: [], agents: {} });
       expect(fake.options.allowedTools).toBeUndefined();
-      const denied = await fake.options.canUseTool('Bash', { command: 'unsafe' }, {});
+      const denied = await fake.options.canUseTool!('Bash', { command: 'unsafe' }, {});
       expect(denied.behavior).toBe('deny');
       barrier.resolve(); await starting;
       await vi.waitFor(() => expect(fake.accepted).toHaveLength(1));
-      expect(fake.accepted[0].message.content).not.toContain('@');
-      expect(fake.accepted[0].message.content).toContain('\\u0040');
+      expect(fake.accepted[0].message!.content).not.toContain('@');
+      expect(fake.accepted[0].message!.content).toContain('\\u0040');
     } finally {
       barrier.resolve();
       await starting.catch(() => {});
@@ -192,7 +235,7 @@ describe('official Claude SDK runtime', () => {
     const sessionPath = String(events.find(event => event.type === 'session')?.sessionPath);
     expect(await runtime.history(sessionPath)).toEqual(['input-1']);
     const manifest = JSON.parse(await readFile(sessionPath, 'utf8'));
-    expect(Object.values(manifest.inputs).filter((input: any) => input.observed)).toHaveLength(1);
+    expect(((Object.values(manifest.inputs)) as {observed?:boolean}[]).filter((input) => input.observed)).toHaveLength(1);
     fake.events.push({ type: 'result', subtype: 'success', session_id: fake.options.sessionId, user_message_uuids: [first.uuid], queued_turn_count: 1 });
     await new Promise(resolve => setTimeout(resolve, 10));
     expect(events.some(event => event.type === 'settled')).toBe(false);
@@ -201,7 +244,7 @@ describe('official Claude SDK runtime', () => {
     await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
     expect(events.find(event => event.type === 'settled')).not.toHaveProperty('inputIds');
     expect(await runtime.history(sessionPath)).toEqual(['input-1', 'input-2']);
-    expect(events.filter(event => event.type === 'usage').every(event => (event.usage as any).cost === null)).toBe(true);
+    expect(events.filter(event => event.type === 'usage').every(event => (event.usage as {cost?:unknown}).cost === null)).toBe(true);
     await runtime.dispose();
   });
 

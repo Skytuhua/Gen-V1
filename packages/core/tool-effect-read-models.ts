@@ -13,12 +13,12 @@ import type { Store } from "../storage/store.ts";
 const target = z.strictObject({ threadId: z.string().min(1).max(200) });
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
 const scope = target.extend({ scopeKey: hash });
-export const invocationPageSchema = scope.extend({
+const invocationPageSchema = scope.extend({
   limit: z.number().int().min(1).max(50).default(25),
   cursor: z.string().max(2048).optional(),
   invocationId: z.string().max(400).optional(),
 });
-export const observationQuerySchema = scope.extend({ invocationId: z.string().min(1).max(400) });
+const observationQuerySchema = scope.extend({ invocationId: z.string().min(1).max(400) });
 
 /** Public ledger metadata is an explicit allowlist. Private commitments and
  * future host authentication fields stay outside every captured read DTO. */

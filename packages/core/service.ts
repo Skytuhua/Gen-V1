@@ -13,11 +13,11 @@ import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { lstatSync, realpathSync } from 'node:fs';
+import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
-import { assertNotStorage, canonical, inside, resolveGrant } from "./security.ts";
+import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
 import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
@@ -159,6 +159,7 @@ export class Service {
   private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
   private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
   private curatorTimer:ReturnType<typeof setInterval>;
+  private memoryPurgeFailure: string | null = null;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
   private predictionMutations=0;
@@ -310,6 +311,20 @@ export class Service {
         return {threadId:thread.id};
       }});
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
+  }
+  /** Retire eligible local copies even if memory injection was disabled after Forget. */
+  private purgeMemoryRetention():void {
+    if(this.closed||this.updateClosing||!this.store.db.isOpen||this.memoryHostInstance?.busy)return;
+    try {
+      const hasTombstones=Boolean(this.store.db.prepare("SELECT 1 FROM entities WHERE kind='projectMemoryTombstone' LIMIT 1").get());
+      if(!this.memoryHostInstance&&!hasTombstones&&!existsSync(projectMemoryDeletionLedgerPath(this.store.dataDir)))return;
+      (this.memoryHostInstance??this.memoryHost()).memory.purge(Date.now(),20);
+      this.memoryPurgeFailure=null;
+    } catch(error) {
+      // Leave the tombstone PENDING. Do not report a completed physical purge.
+      const code=error instanceof HarnessError?error.code:'MEMORY_PURGE_DEFERRED';
+      if(this.memoryPurgeFailure!==code){this.memoryPurgeFailure=code;console.warn('Project memory purge deferred:',code);}
+    }
   }
   private executionAdviceHostInstance?:OperationExecutionAdviceHost;
   get executionAdvice(): OperationExecutionAdviceHost {
@@ -1281,7 +1296,7 @@ export class Service {
       case 'background.human.decline': return sync(this.backgroundWork.declineHumanStep(command, { requestId: text(p, 'requestId', 200), revision: Number(p.revision) }));
       case 'background.idle.configure': return sync(this.backgroundWork.configureIdle(command, { projectId: text(p, 'projectId', 160), profileId: text(p, 'profileId', 160), enabled: p.enabled === true, intervalMs: Number(p.intervalMs) }));
       case 'background.pauseAll': return sync(this.backgroundWork.pauseAll(command));
-      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' ? { projectId: p.projectId } : {}) }));
+      case 'intake.configure': return sync(this.intake.configure(command, { repositoryId: Number(p.repositoryId), enabled: p.enabled === true, ...(typeof p.projectId === 'string' || p.projectId === null ? { projectId: p.projectId } : {}) }));
       case 'intake.poll': {
         const result = await this.intake.pollOnce();
         return this.store.command(command, () => result);
@@ -2323,6 +2338,7 @@ export class Service {
     // M09 recovery runs after the listeners bind (service.recover is called
     // post-listen in launchHost) so a failed launch never mutates saved work.
     this.agentWork.recover();
+    this.purgeMemoryRetention();
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);

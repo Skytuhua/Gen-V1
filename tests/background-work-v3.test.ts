@@ -10,7 +10,7 @@ import { DurableWakeupScheduler } from "../packages/core/durable-wakeups.ts";
 import { ModelCapacity } from "../packages/runtime/model-capacity.ts";
 import { __setCapabilityFlagForTests, registeredCapabilityFlags } from "../packages/core/capability-flags.ts";
 import type { RuntimeAdapter, Thread } from "../packages/contracts/index.ts";
-import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
+import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForEvent, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
 
 const cleanups: (() => void | Promise<void>)[] = [];
 afterEach(async () => {
@@ -420,6 +420,18 @@ describe("M10 review regressions", () => {
     expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
     expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === held[0]!.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
   });
+  it("settles a known unsubmitted firing when its blocked schedule is cancelled", () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver, revalidate: () => ({ ok: false, blockedReason: "WAITING_HUMAN" }) });
+    cleanups.push(() => scheduler.stop());
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "work" } });
+    scheduler.hostEvent("runtime.settled", "work", "event");
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "PENDING", dispatch: "NOT_DISPATCHED" }]);
+    scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "CANCELLED", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null }]);
+    expect(deliver).not.toHaveBeenCalled();
+  });
   it("a held firing stranded before resume redelivers through recover()", async () => {
     const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
     enable("jobs.backgroundV1");
@@ -699,6 +711,45 @@ describe("M10 v6 completeness regressions", () => {
     await scheduler.tick();
     await waitFor(() => f.store.all("backgroundAdmission").length === 60);
   });
+  it("does not spend the recovery batch on expired claims whose schedules are paused", async () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+    cleanups.push(() => scheduler.stop());
+    for (let index = 0; index <= 50; index++) {
+      const wakeupId = `recovery-${String(index).padStart(2, "0")}`;
+      scheduler.register(command("background.wakeup.register"), { wakeupId, taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: wakeupId } });
+      const key = occurrenceKeyForEvent(wakeupId, 1, "event");
+      const stamp = new Date(f.now()).toISOString();
+      f.store.internal("fixture.expired-claim", null, () => f.store.put("backgroundOccurrence", key, null, {
+        occurrenceKey: key, wakeupId, scheduleRevision: 1, scheduledDueAtMs: null, hostEventId: "event",
+        state: "CLAIMED", dispatch: "NOT_DISPATCHED", claimGeneration: 1, admissionId: null,
+        leaseExpiresAtMs: f.now() - 1, createdAt: stamp, updatedAt: stamp,
+      } satisfies BackgroundOccurrenceV1));
+      if (index < 50) scheduler.pause(command("background.wakeup.pause"), wakeupId);
+    }
+    expect((await scheduler.tick()).map(item => item.wakeup.wakeupId)).toEqual(["recovery-50"]);
+    expect(deliver).toHaveBeenCalledTimes(1);
+  });
+  it("records an older interval delivery without clearing a newer block", async () => {
+    const f = fixture();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async ({ occurrence }) =>
+      occurrence.scheduledDueAtMs === anchor ? { status: "UNCERTAIN", reason: "Receipt delayed" } : { status: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" } });
+    cleanups.push(() => scheduler.stop());
+    const anchor = f.now();
+    const { wakeupId } = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: 60_000 } });
+    await scheduler.tick();
+    const oldKey = occurrenceKeyForTime(wakeupId, 1, anchor);
+    expect(scheduler.occurrences(wakeupId)[0]?.state).toBe("UNKNOWN");
+    f.advance(60_000);
+    await scheduler.tick();
+    const blocked = scheduler.schedules().find(item => item.wakeupId === wakeupId)!;
+    expect(blocked).toMatchObject({ state: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" });
+    expect(scheduler.reconcile(command("background.occurrence.reconcile"), oldKey, { observed: "DELIVERED" }).state).toBe("DELIVERED");
+    expect(scheduler.schedules().find(item => item.wakeupId === wakeupId)).toMatchObject({
+      state: "BLOCKED", blockedReason: blocked.blockedReason, nextDueAtMs: blocked.nextDueAtMs, lastRunAtMs: f.now(),
+    });
+  });
   it("S11: every missed occurrence is persisted, not only a bounded sample", async () => {
     const f = fixture();
     const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async () => ({ status: "DELIVERED" as const }) });
@@ -765,5 +816,67 @@ describe("M10 v6 completeness regressions", () => {
       killOwnedProcess(started.processIdentity!.pid);
       await waitFor(() => f.coordinator.exitReceipt(work.workId) !== null);
     }
+  });
+  it("does not retry a transient read after its wakeup is cancelled during backoff", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const deliver = vi.fn(async () => ({ status: "FAILED" as const, error: "temporary read failure", transient: true }));
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      expect(deliver).toHaveBeenCalledTimes(1);
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.schedules()[0]!.state).toBe("CANCELLED");
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "CANCELLED", dispatch: "DISPATCHED_UNCONFIRMED", admissionId: admitted!.admissionId });
+      expect(f.store.get("backgroundAdmission", admitted!.occurrenceKey)).toMatchObject({ admissionId: admitted!.admissionId });
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("holds a paused backoff firing and resumes it with the original admission", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      let fail = true;
+      const deliver = vi.fn(async () => fail ? { status: "FAILED" as const, error: "temporary read failure", transient: true } : { status: "DELIVERED" as const });
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      cleanups.push(() => scheduler.stop());
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      expect(admitted).toMatchObject({ state: "CLAIMED", dispatch: "DISPATCHED_UNCONFIRMED", admissionId: expect.any(String) });
+      scheduler.pause(command("background.wakeup.pause"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", paused: true, occurrenceKey: null, leaseExpiresAtMs: null });
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "PENDING", dispatch: "NOT_DISPATCHED", admissionId: admitted!.admissionId });
+      fail = false;
+      scheduler.resume(command("background.wakeup.resume"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(deliver).toHaveBeenCalledTimes(2);
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", admissionId: admitted!.admissionId, claimGeneration: admitted!.claimGeneration + 1 });
+      expect(f.store.all("backgroundAdmission")).toHaveLength(1);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("does not retry an older claim generation after backoff", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const deliver = vi.fn(async () => ({ status: "FAILED" as const, error: "temporary read failure", transient: true }));
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      cleanups.push(() => scheduler.stop());
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      const newer = { ...admitted!, claimGeneration: admitted!.claimGeneration + 1 };
+      f.store.internal("fixture.newer-generation", null, () => f.store.put("backgroundOccurrence", newer.occurrenceKey, null, newer));
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toEqual(newer);
+    } finally { vi.useRealTimers(); }
   });
 });

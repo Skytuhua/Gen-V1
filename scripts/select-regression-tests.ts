@@ -9,7 +9,7 @@ import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export interface SourceChange { path: string; status: 'A' | 'M' | 'D' | 'R' | 'C'; previousPath?: string }
-export interface SelectionIssue { path: string; code: 'UNMAPPED_SOURCE' | 'STALE_MAPPING' | 'REMOVED_TEST' | 'UNSAFE_NAME' | 'EMPTY_SELECTION'; message: string }
+interface SelectionIssue { path: string; code: 'UNMAPPED_SOURCE' | 'STALE_MAPPING' | 'REMOVED_TEST' | 'UNSAFE_NAME' | 'EMPTY_SELECTION'; message: string }
 export interface SelectionResult {
   tests: string[];
   coverage: 'FULL' | 'PARTIAL' | 'NONE';
@@ -19,11 +19,12 @@ export interface SelectionResult {
 
 // Test file names must stay plain repository-relative data. Anything else is
 // rejected outright so a hostile name can never reach a command line.
-const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.[cm]?[jt]sx?$/;
-const TEST_FILE = /\.test\.[cm]?[jt]sx?$/;
+// Match the extensions explicitly admitted by vitest.config.ts.
+const TEST_NAME = /^[A-Za-z0-9_./-]+\.test\.(?:[jt]sx?|[cm][jt]s)$/;
+const TEST_FILE = /\.test\.(?:[jt]sx?|[cm][jt]s)$/;
 const DOC_ONLY = /^(?:docs\/|.*\.md$|.*\.mdx$|CHANGELOG\.md$|LICENSE$|SECURITY\.md$|THIRD_PARTY_NOTICES\.md$)/i;
 
-export const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
+const DEFAULT_SOURCE_TEST_MAP: Record<string, string[]> = {
   'packages/storage/store.ts': ['tests/store.test.ts'],
   'packages/capabilities/process.ts': ['tests/capabilities.test.ts', 'tests/browser-runner.test.ts'],
   'packages/capabilities/index.ts': ['tests/capabilities.test.ts'],
@@ -57,6 +58,13 @@ export function discoverTestFiles(testDir: string): string[] {
     .filter(path => TEST_FILE.test(path) && path !== 'plugin-api-package.test.mjs');
 }
 
+// Only paths under the configured Vitest root are test inventory entries.
+function isSuiteTest(path: string): boolean {
+  const clean = normalizedRepoPath(path);
+  return clean !== null && clean.startsWith('tests/') && clean !== 'tests/plugin-api-package.test.mjs'
+    && TEST_FILE.test(clean);
+}
+
 export function selectRegressionTests(changes: readonly SourceChange[], existingTests: readonly string[], mapping: Record<string, string[]> = DEFAULT_SOURCE_TEST_MAP): SelectionResult {
   const existing = new Set(existingTests);
   for (const name of existingTests) if (!TEST_NAME.test(name)) throw new Error(`Unsafe test name in suite index: ${name}`);
@@ -87,7 +95,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     if (change.status === 'R' && change.previousPath !== undefined) {
       // A test renamed to another test is not a removal; other destinations
       // leave the old name deleted and are reported as such.
-      if (!(TEST_FILE.test(change.previousPath) && TEST_FILE.test(change.path)))
+      if (!(isSuiteTest(change.previousPath) && isSuiteTest(change.path)))
         expanded.push({ path: change.previousPath, status: 'D' });
       expanded.push({ path: change.path, status: 'A' });
     }
@@ -102,7 +110,7 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
       issues.push({ path: String(change.path), code: 'UNSAFE_NAME', message: 'Changed path is not a safe repository-relative name' });
       continue;
     }
-    const isTestFile = TEST_FILE.test(path);
+    const isTestFile = isSuiteTest(path);
     if (isTestFile) {
       if (change.status === 'D') issues.push({ path, code: 'REMOVED_TEST', message: `Test file was deleted: ${path}` });
       else if (existing.has(path)) selected.add(path);
@@ -115,6 +123,10 @@ export function selectRegressionTests(changes: readonly SourceChange[], existing
     selectFor(path);
   }
   if (forcedFull) {
+    if (existing.size === 0) {
+      issues.push({ path: '', code: 'EMPTY_SELECTION', message: 'The full-suite fallback has no test files' });
+      return { tests: [], coverage: 'NONE', needsReview: true, issues };
+    }
     return { tests: [...existing].sort(), coverage: 'FULL', needsReview: true, issues };
   }
   const tests = [...selected].sort();
@@ -140,7 +152,7 @@ export function changedSources(root: string, baseRef: string): SourceChange[] {
   return changes;
 }
 
-export function selectionMain(args: string[]): number {
+function selectionMain(args: string[]): number {
   const root = fileURLToPath(new URL('../', import.meta.url));
   const baseIndex = args.indexOf('--base');
   const base = baseIndex >= 0 && args[baseIndex + 1] ? args[baseIndex + 1] : null;

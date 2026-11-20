@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess, type Serializable } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { lstat } from 'node:fs/promises';
 import { dirname } from 'node:path';
@@ -39,10 +39,10 @@ function startWorker(dataDir: string, cwd: string, spawnChild: typeof spawn, own
   own?.(child); // Must precede readiness, SDK initialization and every asynchronous wait.
   child.stdout?.resume(); child.stderr?.resume();
   child.once('exit', () => exited.resolve());
-  child.on('message', (frame: any) => { if (frame?.type === 'closed') closeAck.resolve(); });
+  child.on('message', (frame: { type?: string }) => { if (frame?.type === 'closed') closeAck.resolve(); });
   const send = (message: unknown) => new Promise<void>((resolve, reject) => {
     if (closed || child.exitCode !== null || child.signalCode !== null) { reject(aborted()); return; }
-    try { child.send(message as any, error => error ? reject(safeError(error)) : resolve()); } catch (error) { reject(safeError(error)); }
+    try { child.send(message as Serializable, error => error ? reject(safeError(error)) : resolve()); } catch (error) { reject(safeError(error)); }
   });
   return {
     child, exited: exited.promise, send,
@@ -62,13 +62,17 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   if (!context.current()) throw aborted();
   const worker = startWorker(context.dataDir, context.taskDir, spawnChild, child => context.own(child));
   const startup = deferred<void>(); let closed = false; let settled = false; let initialized = false;
+  let closeWork: Promise<void> | undefined;
   let failure: Error | undefined; let processing = Promise.resolve(); const submitted = new Map<string, WireInput>();
   const assert = () => { if (closed || settled || !context.current()) throw aborted(); if (failure) throw failure; };
   const driver: OfficialDriver = {
     models: [],
     async submit(wire) { assert(); if (!initialized || submitted.has(wire.uuid)) throw protocol(); submitted.set(wire.uuid, structuredClone(wire)); await worker.send({ type: 'submit', input: wire }); assert(); },
     async compact() { throw new HarnessError('OFFICIAL_COMPACTION_UNSUPPORTED', 'The pinned Cursor SDK does not advertise a verifiable native compaction operation.'); },
-    async close() { if (closed) return; closed = true; startup.reject(aborted()); await worker.close(); },
+    close() {
+      if (!closeWork) { closed = true; startup.reject(aborted()); closeWork = worker.close(); }
+      return closeWork;
+    },
   };
   context.ready(driver); // Startup cancellation owns the driver before the first await.
   const fail = (error: unknown) => {
@@ -111,8 +115,9 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    await worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
-    await bounded(startup.promise, 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
+    const initialize = worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    // Cancellation and the startup deadline also cover a pending IPC write.
+    await bounded(Promise.all([initialize, startup.promise]), 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }
 }
 

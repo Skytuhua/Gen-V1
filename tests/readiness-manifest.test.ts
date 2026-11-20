@@ -64,6 +64,14 @@ describe('runCheck child-process contract',()=>{
     expect(result.exitCode).toBeNull();
   });
 
+  it('records a synchronous spawn rejection as a failed check and closes its log', async () => {
+    const directory = temporaryDirectory();
+    const spec = specFor(directory, {command: ''});
+    await expect(runCheck(spec)).resolves.toMatchObject({status: 'FAIL', errorKind: 'spawn-error', exitCode: null});
+    expect(readFileSync(spec.logPath, 'utf8')).toBe('');
+    await expect(runCheck(specFor(directory))).resolves.toMatchObject({status: 'PASS'});
+  });
+
   it('timeout yields FAIL without hanging and kills the child',async()=>{
     const directory=temporaryDirectory();
     const started=Date.now();
@@ -109,6 +117,15 @@ describe('runCheck child-process contract',()=>{
     const pid=Number(readFileSync(join(directory,'child.pid'),'utf8'));
     expect(Number.isSafeInteger(pid)).toBe(true);
     await expect.poll(()=>existsSync('/proc/'+pid),{timeout:3000}).toBe(false);
+  });
+
+  it('preserves UTF-8 characters split across pipe chunks',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      args:['-e','const value=Buffer.from("測試 café 🚲");process.stdout.write(value.subarray(0,1));setTimeout(()=>process.stdout.write(Buffer.concat([value.subarray(1),Buffer.from("\\n")])),100)'],
+    }));
+    expect(result.status).toBe('PASS');
+    expect(readFileSync(result.artifact,'utf8')).toBe('測試 café 🚲\n');
   });
 
   it('child output is captured to the log artifact',async()=>{

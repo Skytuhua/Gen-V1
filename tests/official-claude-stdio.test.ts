@@ -21,13 +21,13 @@ it.each(['stdin','stdout','stderr','process'] as const)('contains a native Claud
  vi.mocked(spawn).mockReturnValue(child as unknown as ReturnType<typeof spawn>);
  let opened=false,closed=false,rejectAccount!:(error:Error)=>void,wake!:()=>void;
  const messages=new Promise<void>(done=>{wake=done;});
- const query=vi.fn(({options}:any)=>{
-  options.spawnClaudeCodeProcess({command:'synthetic-native',args:[],cwd:directory,env:{}});opened=true;
+ const query=vi.fn(({options}:{options?:import('@anthropic-ai/claude-agent-sdk').Options})=>{
+  options!.spawnClaudeCodeProcess!({command:'synthetic-native',args:[],cwd:directory,env:{}} as unknown as import('@anthropic-ai/claude-agent-sdk').SpawnOptions);opened=true;
   return {
    async *[Symbol.asyncIterator](){await messages;},
    accountInfo:()=>new Promise((_,reject)=>{rejectAccount=reject;}),supportedModels:async()=>[],
    interrupt:async()=>{},close(){closed=true;rejectAccount?.(Error('Synthetic native query closed'));wake();},
-  } as any;
+  } as never;
  });
  const runtime=createOfficialRuntime({dataDir:directory},{claudeSdk:{query}}),events:RuntimeEvent[]=[];
  runtime.configure({onEvent:event=>events.push(event),onTool:async()=>null});
@@ -48,7 +48,7 @@ it('preserves safe failure and settlement when the error notification observer t
  const messages=new Promise<void>(done=>{wake=done;});
  const event=vi.fn((type:string)=>{if(type==='error')throw Error('Synthetic observer failure');});
  const context:DriverContext={dataDir:directory,taskDir:directory,manifest:await openManifest(directory,'claude-code','thread',null),mcp:{names:[],url:'http://127.0.0.1/synthetic',headers:{}} as unknown as DriverContext['mcp'],current:()=>true,event,observed:async()=>[],inputIds:()=>[],own(){},ready(){}};
- const opening=openClaude(context,{query:({options}:any)=>{options.spawnClaudeCodeProcess!({command:'synthetic-native',args:[],cwd:directory,env:{}});opened=true;return {async *[Symbol.asyncIterator](){await messages;},accountInfo:()=>new Promise((_,reject)=>{rejectAccount=reject;}),supportedModels:async()=>[],interrupt:async()=>{},close(){rejectAccount?.(Error('Synthetic closed'));wake();}} as any;}});
+ const opening=openClaude(context,{query:({options}:{options?:import('@anthropic-ai/claude-agent-sdk').Options})=>{options!.spawnClaudeCodeProcess!({command:'synthetic-native',args:[],cwd:directory,env:{}} as unknown as import('@anthropic-ai/claude-agent-sdk').SpawnOptions);opened=true;return {async *[Symbol.asyncIterator](){await messages;},accountInfo:()=>new Promise((_,reject)=>{rejectAccount=reject;}),supportedModels:async()=>[],interrupt:async()=>{},close(){rejectAccount?.(Error('Synthetic closed'));wake();}} as never;}});
  try{
   await vi.waitFor(()=>expect(opened).toBe(true));
   expect(()=>child.stdout.emit('error',Error('Synthetic native error with private diagnostic'))).not.toThrow();

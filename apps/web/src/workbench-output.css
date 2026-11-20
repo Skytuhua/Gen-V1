@@ -2,7 +2,7 @@
 .workbench-output-actions,.workbench-output-actions form,.workbench-output-search-result{display:flex;flex-wrap:wrap;align-items:center;gap:6px;min-width:0}
 .workbench-output-actions,.workbench-output-search-result{padding:8px}
 .workbench-output-actions form{flex:1}
-.workbench-output-actions input{flex:1;min-width:100px;width:140px;max-width:100%;color:var(--text);background:var(--canvas);border:1px solid var(--border);border-radius:var(--control-radius,6px);padding:6px}
+.workbench-output-actions input{flex:1;min-width:100px;width:140px;max-width:100%;color:var(--text);background:var(--canvas);border:1px solid var(--control-border);border-radius:var(--control-radius,6px);padding:6px}
 .workbench-output-actions button,.workbench-output-search-result button{white-space:normal;min-height:32px}
 .workbench-output-state{margin:0;padding:6px 10px;font-size:12px;line-height:1.5;color:var(--muted);overflow-wrap:anywhere}
 .workbench-output-search-result{font-size:12px}

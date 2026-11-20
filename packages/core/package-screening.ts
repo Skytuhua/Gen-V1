@@ -34,7 +34,9 @@ export interface ScreenPackageOptions {
   exception?: OperatorException;
 }
 export interface ScreeningComputation {
+  /** Retained records keep their original checkedAt; cacheAgeMs reports the current age. */
   record: PackageScreeningV1;
+  /** True only when a cached result is reused without an advisory query. */
   cacheHit: boolean;
   staleCache: boolean;
   /** Present only when the operator recorded a documented exception. */
@@ -42,7 +44,10 @@ export interface ScreeningComputation {
 }
 
 const DEFAULT_MAX_CACHE_AGE_MS = 24 * 60 * 60 * 1000;
-const cacheKey = (identity: PackageIdentity) => `${identity.name}@${identity.version}#${identity.digest}`;
+const cacheKey = (identity: PackageIdentity) => JSON.stringify([identity.name, identity.version, identity.digest]);
+// Historical records used a delimiter key. Read the exact old identity during
+// migration but write new records only under the collision-free key.
+const legacyCacheKey = (identity: PackageIdentity) => `${identity.name}@${identity.version}#${identity.digest}`;
 
 function validateIdentity(identity: PackageIdentity): PackageIdentity {
   if (!identity || typeof identity.name !== 'string' || !identity.name || identity.name.length > 214) {
@@ -60,44 +65,80 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const pkg = validateIdentity(identity);
   const now = options.now ?? Date.now;
   const maxAge = options.maxCacheAgeMs ?? DEFAULT_MAX_CACHE_AGE_MS;
+  // A caller-supplied unbounded TTL must not keep a clean advisory result
+  // reusable indefinitely after the advisory database becomes unavailable.
+  if (!Number.isSafeInteger(maxAge) || maxAge < 0 || maxAge > DEFAULT_MAX_CACHE_AGE_MS) {
+    throw new HarnessError('INVALID_INPUT', 'Package screening cache lifetime must be a finite integer between 0 and 24 hours.');
+  }
   const key = cacheKey(pkg);
-  const cached = options.cache?.get(key);
+  const cached = options.cache?.get(key) ?? options.cache?.get(legacyCacheKey(pkg));
   let staleCache = false;
   let previousCacheAgeMs = 0;
+  let previousKnownBad: PackageScreeningV1 | undefined;
   if (cached) {
     const parsed = packageScreeningV1Schema.parse(cached);
     const age = now() - Date.parse(parsed.checkedAt);
     const validAge = Number.isSafeInteger(age) && age >= 0;
+    // Fresh query time is not proof that the advisory database snapshot is fresh.
+    const snapshotAge = now() - Date.parse(parsed.advisory.asOf);
+    const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
+      snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
     const sameIdentity = parsed.pkg.name === pkg.name && parsed.pkg.version === pkg.version &&
       parsed.pkg.digest === pkg.digest && parsed.advisory.database === advisory.database;
+    if (sameIdentity && parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY') previousKnownBad = parsed;
     // Cached screening facts cannot carry an operator's earlier authority.
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
       parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY';
-    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && age <= maxAge) {
+    if (sameIdentity && reusableDecision && parsed.cacheAgeMs !== null && validAge && freshSnapshot && maxAge > 0 && age <= maxAge) {
       return { record: { ...parsed, cacheAgeMs: age }, cacheHit: true, staleCache: false };
     }
     staleCache = true;
     if (validAge) previousCacheAgeMs = age;
   }
-  const checkedAt = new Date(now()).toISOString();
   let result: AdvisoryQueryResult;
   try { result = await advisory.query(Object.freeze({ ...pkg })); }
   catch { result = { status: 'UNAVAILABLE' }; }
+  // Capture the completed query time: its snapshot may advance while awaiting.
+  const checkedAt = new Date(now()).toISOString();
+  // A returned NO_MATCH without an attested database snapshot cannot
+  // borrow the local query timestamp as evidence of a fresh advisory DB.
+  if (result.status === 'NO_MATCH' &&
+      (typeof result.asOf !== 'string' || !Number.isFinite(Date.parse(result.asOf)))) {
+    throw new HarnessError('INVALID_INPUT', 'A clean advisory result requires an explicit, valid database snapshot time.');
+  }
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
+  const snapshotTime = Date.parse(asOf);
+  const snapshotAge = Date.parse(checkedAt) - snapshotTime;
+  const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
+    snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
+  if (previousKnownBad) {
+    const previousSnapshotTime = Date.parse(previousKnownBad.advisory.asOf);
+    // Only a fresh, strictly newer snapshot can clear a denial. An older
+    // match must not roll back the timestamp used for that comparison.
+    const supersedesKnownBad = result.status === 'MATCH'
+      ? snapshotTime >= previousSnapshotTime
+      : result.status === 'NO_MATCH' && freshSnapshot && snapshotTime > previousSnapshotTime;
+    if (!supersedesKnownBad) {
+      return {
+        record: { ...previousKnownBad, cacheAgeMs: previousCacheAgeMs },
+        cacheHit: false, staleCache: true,
+      };
+    }
+  }
   let status: PackageScreeningV1['status'];
   let decision: PackageScreeningV1['decision'];
   let reason: string;
   if (result.status === 'MATCH') {
     status = 'KNOWN_BAD'; decision = 'DENY';
     reason = `Exact advisory match on ${advisory.database}: ${(result.advisoryIds ?? []).join(', ') || 'unidentified'}.`;
-  } else if (result.status === 'NO_MATCH') {
+  } else if (result.status === 'NO_MATCH' && freshSnapshot) {
     status = 'NO_KNOWN_MATCH'; decision = 'ALLOW';
     reason = `No exact advisory match in ${advisory.database} as of ${asOf}. A clean lookup is not evidence of safety and does not grant trust.`;
   } else {
     status = 'UNAVAILABLE'; decision = options.exception ? 'OPERATOR_EXCEPTION' : 'DENY';
     reason = options.exception
-      ? `Advisory database ${advisory.database} was unavailable; the operator recorded a documented exception.`
+      ? `Advisory database ${advisory.database} was unavailable or stale; the operator recorded a documented exception.`
       : `Advisory database ${advisory.database} was unavailable or stale; untrusted activation stays blocked.`;
   }
   if (options.exception && status !== 'NO_KNOWN_MATCH') {
@@ -124,9 +165,12 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
  * separate trust decision — it can block or stay neutral, never authorize. */
 export function screeningGate(record: PackageScreeningV1): 'BLOCK' | 'NEUTRAL' | 'EXCEPTION_RECORDED' {
   const parsed = packageScreeningV1Schema.parse(record);
-  if (parsed.status === 'KNOWN_BAD' || (parsed.status === 'UNAVAILABLE' && parsed.decision === 'DENY')) return 'BLOCK';
-  if (parsed.decision === 'OPERATOR_EXCEPTION') return 'EXCEPTION_RECORDED';
-  return 'NEUTRAL'; // NO_KNOWN_MATCH: no objection, and no trust granted.
+  // Status and decision must agree: a forged or corrupted persisted record
+  // must not turn UNAVAILABLE into a neutral result or grant an exception.
+  if (parsed.status === 'KNOWN_BAD') return 'BLOCK';
+  if (parsed.status === 'UNAVAILABLE')
+    return parsed.decision === 'OPERATOR_EXCEPTION' ? 'EXCEPTION_RECORDED' : 'BLOCK';
+  return parsed.decision === 'ALLOW' ? 'NEUTRAL' : 'BLOCK';
 }
 
 export interface ScreeningAdvisory {

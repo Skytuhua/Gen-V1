@@ -58,3 +58,21 @@ it('reads Inbox and notification preferences without building full conversation 
     expect(snapshot).not.toHaveBeenCalled();
   } finally {snapshot.mockRestore();}
 });
+
+it('leaves fresh overflow pending rather than claiming items not returned to the desktop', () => {
+  const { store, attention, thread } = setup();
+  attention.read();
+  store.internal('fixture.batch', thread.id, () => {
+    for (let i = 0; i < 31; i++) {
+      const request = { ...question(thread.id), id: 'batched-' + i };
+      store.put('request', request.id, thread.id, request);
+    }
+  });
+  const first = attention.claimDelivery().items;
+  expect(first).toHaveLength(30);
+  const reopened = new AttentionRepository(store);
+  const next = reopened.claimDelivery().items;
+  expect(next).toHaveLength(1);
+  expect(new Set([...first, ...next].map(item => item.id)).size).toBe(31);
+  expect(reopened.claimDelivery().items).toEqual([]);
+});

@@ -112,6 +112,11 @@ describe('regression test selection', () => {
     expect(result.issues.map(i => i.code)).toContain('UNMAPPED_SOURCE');
   });
 
+  it('does not claim full coverage when an unmapped source has no available tests', () => {
+    const result = selectRegressionTests([{ path: 'packages/core/unknown.ts', status: 'M' }], [], map);
+    expect(result).toMatchObject({ tests: [], coverage: 'NONE', needsReview: true });
+    expect(result.issues.map(issue => issue.code)).toEqual(['UNMAPPED_SOURCE', 'EMPTY_SELECTION']);
+  });
   it('falls back to the full suite when every mapped test was removed', () => {
     const stale = { 'packages/core/thing.ts': ['tests/gone-1.test.ts', 'tests/gone-2.test.ts'] };
     const result = selectRegressionTests([{ path: 'packages/core/thing.ts', status: 'M' }], existing, stale);
@@ -159,6 +164,13 @@ describe('regression test selection', () => {
     expect(result.coverage).toBe('PARTIAL');
   });
 
+  it('does not mistake changed production files with a test suffix for indexed tests', () => {
+    const path = 'packages/core/example.test.ts';
+    const result = select([{ path, status: 'M' }]);
+    expect(result).toMatchObject({ coverage: 'FULL', needsReview: true });
+    expect(result.issues).toEqual([expect.objectContaining({ path, code: 'UNMAPPED_SOURCE' })]);
+  });
+
   it('indexes files, not folders whose names end with a test suffix', () => {
     const root = mkdtempSync(join(tmpdir(), 'gen-regression-discovery-'));
     try {
@@ -166,6 +178,18 @@ describe('regression test selection', () => {
       mkdirSync(nested);
       writeFileSync(join(nested, 'actual.test.ts'), '');
       expect(discoverTestFiles(root)).toEqual(['fixture.test.ts/actual.test.ts']);
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it('does not advertise extensions the configured Vitest suite does not run', () => {
+    const root = mkdtempSync(join(tmpdir(), 'gen-regression-extensions-'));
+    try {
+      for (const name of ['plain.test.ts', 'plain.test.mts', 'fixture.test.ctsx', 'fixture.test.mjsx']) {
+        writeFileSync(join(root, name), '');
+      }
+      expect(discoverTestFiles(root).sort()).toEqual(['plain.test.mts', 'plain.test.ts']);
     } finally {
       rmSync(root, { recursive: true, force: true });
     }

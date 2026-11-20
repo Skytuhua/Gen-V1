@@ -15,3 +15,15 @@ it('preserves receipt text when the native reader splits a UTF-8 character acros
  const manifest={path:'fixture/manifest.json',value:{threadId:'test-thread',sessionId:'fixture-session'}} as ManifestState;
  await expect(claudeHistory('fixture',manifest,start)).resolves.toEqual([receipt]);
 });
+
+it('rejects a completed receipt transcript beyond the byte limit',async()=>{
+ const stdout=new PassThrough(),child=new ChildProcess();
+ Object.defineProperty(child,'stdout',{value:stdout});
+ const lead=Buffer.from(JSON.stringify([{uuid:'fixture-session',inputIds:['follow-up']}]));
+ const padding=Buffer.alloc(4*1024*1024,0x20);
+ const start=(()=>{queueMicrotask(()=>{
+  stdout.write(lead);stdout.end(padding);child.emit('close',0);
+ });return child;}) as typeof spawn;
+ const manifest={path:'fixture/manifest.json',value:{threadId:'test-thread',sessionId:'fixture-session'}} as ManifestState;
+ await expect(claudeHistory('fixture',manifest,start)).rejects.toMatchObject({code:'OFFICIAL_HISTORY_LIMIT'});
+});

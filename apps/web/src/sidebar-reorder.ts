@@ -80,7 +80,7 @@ function listRows(container: HTMLElement, excludeId: string): { id: string; rect
 }
 
 /** Resolve a pointer position into a concrete insertion target inside the nav. */
-export function insertionAt(nav: HTMLElement, _x: number, y: number, excludeId: string): { target: DropTarget; top: number; gap: (index: number) => number } | null {
+function insertionAt(nav: HTMLElement, _x: number, y: number, excludeId: string): { target: DropTarget; top: number; gap: (index: number) => number } | null {
   const container = [...nav.querySelectorAll<HTMLElement>('[data-thread-list]')]
     .find(node => { const rect = node.getBoundingClientRect(); return y >= rect.top && y <= rect.bottom; });
   if (!container) return null;

@@ -32,7 +32,29 @@ it('records a stable request id and monotonic stage timings with owned binding',
   // The observation is emitted once at teardown and again when the response
   // actually commits with the final firstPublicDelta stamp.
   expect(observations).toHaveLength(2);
+  expect(observations[0]).toMatchObject({ timings: { firstPublicDelta: null } });
+  expect(observations[1]).toMatchObject({ timings: { firstPublicDelta: observation!.timings.firstPublicDelta } });
  }finally{await b.close();}
+});
+it('records dispatch before output emitted while the native start promise is pending',async()=>{
+ const n=native(),start=n.runtime.start,stages:string[]=[];
+ let acknowledge!:()=>void;
+ const pending=new Promise<void>(resolve=>{acknowledge=resolve;});
+ n.runtime.start=vi.fn(async value=>{await start(value);n.event('assistant.delta',{content:'early'});await pending;});
+ const b=await createHermesBroker({input,createRuntime:()=>n.runtime,onStage:stage=>stages.push(stage)});
+ try{
+  b.expect({sequence:1,inputIds:['input'],phase:'foreground'});
+  const response=post(b,{sessionId:'acp',modelId:input.modelId,prompt:'opaque'});
+  await vi.waitFor(()=>expect(n.input).toBeDefined());
+  acknowledge();
+  await vi.waitFor(()=>expect(stages).toContain('requestSent'));
+  n.event('assistant.message',{content:'early'});n.event('settled');
+  expect((await response).status).toBe(200);
+  const timings=b.observation(1)!.timings;
+  expect(timings.requestSent!).toBeLessThanOrEqual(timings.firstProviderDelta!);
+  expect(stages.filter(stage=>stage==='firstProviderDelta')).toHaveLength(1);
+  expect(stages.indexOf('requestSent')).toBeLessThan(stages.indexOf('firstProviderDelta'));
+ }finally{acknowledge();await b.close();}
 });
 it('marks no firstPublicDelta when buffered output never publishes, and keeps absent usage unknown',async()=>{
  const n=native(),b=await createHermesBroker({input,createRuntime:()=>n.runtime});try{

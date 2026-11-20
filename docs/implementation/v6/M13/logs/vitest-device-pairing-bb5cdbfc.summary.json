@@ -1,0 +1,30 @@
+{
+ "kind": "curated-evidence-summary",
+ "note": "Raw tool/test output removed from source per CONTRIBUTING.md (no raw test output in source commits; private paths stripped). Original preserved verbatim in agent-owned local evidence store — not published/uploaded.",
+ "command": [
+  "pnpm",
+  "exec",
+  "vitest",
+  "run",
+  "tests/device-pairing-v3.test.ts"
+ ],
+ "testedSha": "bb5cdbfcb1dc98965d6609ba7ed2784a50c78ce2",
+ "worktree": "agent-owned milestone worktree (absolute path withheld per policy)",
+ "tool": "pnpm 10.30.3 / Node.js v24.11.1",
+ "startedAt": "2026-11-18T23:33:50.884Z",
+ "endedAt": "2026-11-18T23:34:01.057Z",
+ "exitCode": 1,
+ "termination": "NONE",
+ "resultLines": [
+  "Test Files  1 failed (1)",
+  "Tests  no tests — suite load failure",
+  "Error: Failed to load native module pty.node (node-pty linux-arm64 prebuild absent on this host — environment-bound, zero tests ran, not a merge regression)"
+ ],
+ "rawArtifact": {
+  "file": "vitest-device-pairing-bb5cdbfc.log",
+  "sha256": "4592b746086f95c2dcaed227752635fa8d52e46fe750586860282c0cf349ecef",
+  "bytes": 1862,
+  "retention": "agent-owned local evidence store (m13-custody/bb5cdbfc)",
+  "published": false
+ }
+}
