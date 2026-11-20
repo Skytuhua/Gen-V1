@@ -1,0 +1,324 @@
+Bounded excerpt of `pnpm test` output: FAIL lines and the final summary only.
+ FAIL  tests/agents-workspace-grid.test.ts > agents workspace grid layout
+ FAIL  tests/artifact-settle.test.ts > artifact settle and deliberate collapse
+ FAIL  tests/chat-gesture-audit.test.ts > chat gesture lifecycle
+ FAIL  tests/content-motion.test.ts > content motion
+ FAIL  tests/credential-entry-ime.test.ts [ tests/credential-entry-ime.test.ts ]
+ FAIL  tests/feedback-primitives.test.ts > feedback primitives
+ FAIL  tests/files-read-commit-owner.test.ts > file read committed ownership
+ FAIL  tests/gesture-cleanup.test.ts > gesture cleanup
+ FAIL  tests/ime-artifact-dismissal.test.ts [ tests/ime-artifact-dismissal.test.ts ]
+ FAIL  tests/loading-state.test.ts > project leaf loading states
+ FAIL  tests/overlay-motion.test.ts > overlay entry motion
+ FAIL  tests/plugin-floating-owner-browser.test.ts [ tests/plugin-floating-owner-browser.test.ts ]
+ FAIL  tests/plugin-frame-custody.test.ts [ tests/plugin-frame-custody.test.ts ]
+ FAIL  tests/plugin-tools-dock.test.ts [ tests/plugin-tools-dock.test.ts ]
+ FAIL  tests/project-action-owner.test.ts > project action owner
+ FAIL  tests/project-context-committed-action.test.ts > project context committed action owner
+ FAIL  tests/saved-drafts-suspended-audit.test.ts > saved draft committed ownership
+ FAIL  tests/side-draft-owner.test.ts > side draft error ownership
+ FAIL  tests/startup-feedback.test.ts > static startup feedback
+ FAIL  tests/table-overflow.test.ts > useTableOverflow
+ FAIL  tests/view-loading-state.test.ts > structure-matched first-load feedback
+ FAIL  tests/widget-action-owner.test.ts > widget pending action ownership
+ FAIL  tests/widget-committed-owner.test.ts > widget committed render ownership
+ FAIL  tests/widget-isolation.test.ts > real browser worker isolation
+ FAIL  tests/account-login.test.ts > does not admit a successor sign-in when an expired lease still has a live owner
+ FAIL  tests/account-login.test.ts > reserves the exact named profile for sign-in and releases it after a failed native login
+ FAIL  tests/account-login.test.ts > retains a durable account hold when native login shutdown is unconfirmed
+ FAIL  tests/account-parity.test.ts > keeps openai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps openai-codex task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps github-copilot task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps xai task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps claude-code task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps gemini-cli task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps cursor-sdk task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps kimi-coding task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > keeps opencode-go task routing through compaction and history-aware recovery after its default changes
+ FAIL  tests/account-parity.test.ts > inherits the parent account for a new side conversation while defaults change before and during startup
+ FAIL  tests/account-parity.test.ts > delegates through Service using the parent account after future defaults change before asynchronous child creation
+ FAIL  tests/account-profile.test.ts > rejects an accounts junction and holds the acquired namespace against replacement
+ FAIL  tests/account-profile.test.ts > pins native directories while allowing legitimate atomic credential replacement
+ FAIL  tests/account-profile.test.ts > keeps each writable account directory nonempty with a pinned ordinary marker
+ FAIL  tests/account-profile.test.ts > keeps official home namespaces pinned while native credential files remain atomically replaceable
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > publishes resource sourced text with an exact content hash
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > prepares without writing and rejects absent approval and changed source bytes
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > executes approved replacement, publishes actual results and re-resolves write permissions
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > reconciles before/after replacement hashes read-only and leaves changed bytes unknown
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > runs the exact node-test recipe and reports actual success and failure exits
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > cancels the actual process tree and records cancellation instead of success
+ FAIL  tests/capabilities.test.ts > real selected SQLite > inspects real rows and applies exact prepared counts with integrity/version checks
+ FAIL  tests/capabilities.test.ts > real selected SQLite > bounds inspect rows by serialized bytes and reports truncation
+ FAIL  tests/capabilities.test.ts > real selected SQLite > rolls back wrong counts, denies attachment and rejects stale database versions
+ FAIL  tests/capabilities.test.ts > real selected SQLite > reports actual migration DML counts independently from schema statements
+ FAIL  tests/capabilities.test.ts > PDF local export > inspects fields, fills supported types and places typed/drawn marks in a new local export
+ FAIL  tests/capabilities.test.ts > disposable fixtures and held-out evaluations > creates fixtures only at an exclusive new destination including real git conflict
+ FAIL  tests/capabilities.test.ts > domain permission wrapper and file operations > rejects readonly grants at prepare and rejects cross-thread or non-running operation dispatch
+ FAIL  tests/checkpoint-restore-v3.test.ts > captures approved files and keeps excluded files visible as outside coverage
+ FAIL  tests/checkpoint-restore-v3.test.ts > reviews a checkpoint with bounded side-by-side diffs
+ FAIL  tests/checkpoint-restore-v3.test.ts > restores selected paths exactly with a recorded pre-restore checkpoint
+ FAIL  tests/checkpoint-restore-v3.test.ts > rolls written files back on a conflict and reports CONFLICT
+ FAIL  tests/checkpoint-restore-v3.test.ts > recreates a file the working copy deleted
+ FAIL  tests/checkpoint-restore-v3.test.ts > conflicts rather than overwrite content the recovery checkpoint cannot hold
+ FAIL  tests/checkpoint-restore-v3.test.ts > requires the exact approval for a restore plan
+ FAIL  tests/checkpoint-restore-v3.test.ts > refuses restore of a checkpoint whose blobs expired and reports MISSING blobs
+ FAIL  tests/checkpoint-restore-v3.test.ts > collects unreferenced blobs only
+ FAIL  tests/checkpoint-restore-v3.test.ts > provisions only manifest-pinned non-secret files
+ FAIL  tests/checkpoint-restore-v3.test.ts > stops on cancellation after the first write and reports PARTIAL_RECOVERY_REQUIRED
+ FAIL  tests/checkpoint-restore-v3.test.ts > preserves both versions and reports PARTIAL_RECOVERY_REQUIRED when a write is edited during rollback
+ FAIL  tests/checkpoint-restore-v3.test.ts > refuses to re-apply a plan left APPLYING by a killed process
+ FAIL  tests/code-review-comparisons.test.ts > reads index and worktree overlap separately and binds selected patches to the complete revision
+ FAIL  tests/code-review-comparisons.test.ts > reports clean, untracked text, binary and bounded large patches honestly
+ FAIL  tests/code-review-comparisons.test.ts > pins remote PR patches to exact three-dot identity without substituting local unstaged changes
+ FAIL  tests/code-review-comparisons.test.ts > returns explicit transport errors and never calls a local diff as fallback
+ FAIL  tests/code-review-comparisons.test.ts > reads staged deletions and renames by exact selected paths
+ FAIL  tests/code-review-comparisons.test.ts > keeps legacy reads tracked-only and can compare a remote PR without a managed checkout or matching HEAD
+ FAIL  tests/code-review-comparisons.test.ts > denies delegates, Company, cross-project and replaced-directory reads before remote transport
+ FAIL  tests/code-review-comparisons.test.ts > keeps snapshots isolated from returned mutable data and never accepts another owner
+ FAIL  tests/code-review-comparisons.test.ts > distinguishes omitted, binary and incomplete remote patches without fetching metadata URLs
+ FAIL  tests/code-review-comparisons.test.ts > never reads a hardlinked changed file into a patch
+ FAIL  tests/code-review-comparisons.test.ts > reads an already-attested remote origin without a source Git checkout or source file projection
+ FAIL  tests/code-review-comparisons.test.ts > rejects mismatched remote identities and reports empty and capped file inventories honestly
+ FAIL  tests/private-git-family.test.ts > imports once into protected private bare storage and creates three independent native worktrees
+ FAIL  tests/private-git-family.test.ts > does not consume original metadata after private import and ignores dependency bulk for managed status
+ FAIL  tests/private-git-family.test.ts > keeps original bindings in place, reports tracked-only coverage and rejects legacy mutations
+ FAIL  tests/private-git-family.test.ts > refuses stored identity substitution before managed Git starts
+ FAIL  tests/private-git-family.test.ts > refuses stored gitDirectoryIdentity substitution before managed Git starts
+ FAIL  tests/private-git-family.test.ts > refuses stored commonDirectoryIdentity substitution before managed Git starts
+ FAIL  tests/private-git-family.test.ts > imports safe author and GitHub origin scalars and drops arbitrary source configuration
+ FAIL  tests/private-git-family.test.ts > refuses a legacy scratch view inside a broad source grant
+ FAIL  tests/private-git-family.test.ts > keeps incremental legacy objects out of the authoritative managed family
+ FAIL  tests/private-git-family.test.ts > reports each admitted managed copy rather than the original repository root in hover context
+ FAIL  tests/private-git-family.test.ts > rejects a context read when the admitted model changes during its Git read
+ FAIL  tests/project-tools.test.ts > enrolls a local project and assigns new agents separate real branches and working copies
+ FAIL  tests/project-tools.test.ts > reports live managed untracked/staged changes and refuses an action against an old revision
+ FAIL  tests/project-tools.test.ts > keeps Git status inside the enrolled root even when repository config names another worktree
+ FAIL  tests/selective-commit-v3.test.ts > commits only the selected hunks and leaves the rest uncommitted
+ FAIL  tests/selective-commit-v3.test.ts > commits one hunk of a file and leaves the sibling hunk behind
+ FAIL  tests/selective-commit-v3.test.ts > refuses a stale expected head and records nothing
+ FAIL  tests/selective-commit-v3.test.ts > commits a brand-new untracked file as a single proven hunk
+ FAIL  tests/selective-commit-v3.test.ts > labels hunk attribution from the provenance journal and requires explicit selection for unproven edits
+ FAIL  tests/selective-commit-v3.test.ts > keeps a path unattributed when its live bytes no longer match the proven receipt
+ FAIL  tests/selective-commit-v3.test.ts > never offers an untracked non-UTF-8 file as a commit candidate
+ FAIL  tests/selective-commit-v3.test.ts > commits an untracked UTF-8 file without dropping its BOM
+ FAIL  tests/selective-commit-v3.test.ts > rejects a hunk whose digest no longer matches the live postimage
+ FAIL  tests/selective-commit-v3.test.ts > never uses blanket staging: an unselected file is absent from the commit
+ FAIL  tests/selective-commit-v3.test.ts > requires a managed working copy
+ FAIL  tests/selective-commit-v3.test.ts > records the commit and observed head when the branch update is uncertain
+ FAIL  tests/selective-commit-v3.test.ts > retains a dirty managed worktree when its operation is cancelled
+ FAIL  tests/workspace-action-outcome-routes.test.ts > admits one create-PR effect when the original command is repeated before acknowledgment
+ FAIL  tests/workspace-action-outcome-routes.test.ts > routes supported writes through durable identity and keeps inspection read-only
+ FAIL  tests/workspace-action-outcome-routes.test.ts > an exact local stale-head preflight is not-applied before entering a mutation
+ FAIL  tests/workspace-action-outcome-routes.test.ts > an exact local stale-worktree preflight is not-applied before entering a mutation
+ FAIL  tests/workspace-action-outcome-routes.test.ts > valid Unicode review text fits submission and exact read-only inspection
+ FAIL  tests/workspace-action-outcome-routes.test.ts > returns an unsuccessful response for an unconfirmed action so existing controls retain their draft
+ FAIL  tests/workspace-action-outcome-routes.test.ts > keeps credential-bearing before write failures outside HTTP results and durable events
+ FAIL  tests/workspace-action-outcome-routes.test.ts > keeps credential-bearing after write failures outside HTTP results and durable events
+ FAIL  tests/workspace-action-outcomes.test.ts > a create preflight refusal is not-applied and permits a fresh reviewed intent
+ FAIL  tests/workspace-action-outcomes.test.ts > retains an uncertain create command across restart without repeating its effect
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps a post-push create failure uncertain without pushing the original intent again
+ FAIL  tests/workspace-action-outcomes.test.ts > recovers an admitted legacy create receipt without a new effect or extra result fields
+ FAIL  tests/workspace-action-outcomes.test.ts > refuses a recovered PR request whose pinned repository changed
+ FAIL  tests/workspace-action-outcomes.test.ts > never publishes a created result for a different repository or reviewed revision
+ FAIL  tests/workspace-action-outcomes.test.ts > commits intent before local write and private result before event, then replays after Store restart
+ FAIL  tests/workspace-action-outcomes.test.ts > retains interrupted remote write as uncertain across restart without submitting it again
+ FAIL  tests/workspace-action-outcomes.test.ts > serializes same-ID attempts across separate Store connections without a double write
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed payload
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed type
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed threadId
+ FAIL  tests/workspace-action-outcomes.test.ts > denies reuse of an ID with a changed projectId
+ FAIL  tests/workspace-action-outcomes.test.ts > inspects original payload/revision without current diff, review reads, or any write
+ FAIL  tests/workspace-action-outcomes.test.ts > returns revoked after working copy or account access changes, including confirmed receipts
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps private intent, result, credentials and errors out of events, receipts and snapshots
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps missing and legacy records uncertain without adopting unbound receipts
+ FAIL  tests/workspace-action-outcomes.test.ts > records not-applied only after host rejection before starting and never restarts that ID
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps failures after started uncertain even when there is no receipt
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps completed external write uncertain if durable result commit fails
+ FAIL  tests/workspace-action-outcomes.test.ts > recovers a confirmed review when the remote branch name differs from the managed local branch
+ FAIL  tests/workspace-action-outcomes.test.ts > keeps an active prepared reservation uncertain until its owner durably proves no execution began
+ FAIL  tests/workspace-action-outcomes.test.ts > pins profile access while GitHubTools is awaiting remote validation
+ FAIL  tests/workspace-action-outcomes.test.ts > rejects a profile replaced between inspection identity capture and credential read
+ FAIL  tests/workspace-action-outcomes.test.ts > supports local unstage and commit through the original revision and replays a commit without a second write
+ FAIL  tests/code-review-reader.test.ts > bounds complete local hashing before reading an oversized sparse file
+ FAIL  tests/cursor-offline-executor.test.ts > loads the actual lazy local executor and native parser, then fails closed before account/inference transport
+ FAIL  tests/cursor-sdk-mcp-metadata.test.ts > observes actual SDK send metadata through production gate and HostMcp with no tool execution or auth transport
+ FAIL  tests/desktop-host.test.ts > launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token
+ FAIL  tests/desktop-host.test.ts > does not leave its backend running after the owning IPC channel disconnects
+ FAIL  tests/dev-plugin-runtime.test.ts > prepares widgets and shared runtime before dev children, serves the trusted frame, and closes owned children
+ FAIL  tests/expanded-review-fixtures.test.ts > explicit expanded recording fixtures > runs the named local test only after exact native approval and derives failure from exit status
+ FAIL  tests/git-metadata-guard.test.ts > pins a read-only Git config while allowing index creation in the same pinned metadata directory
+ FAIL  tests/github-workspace.test.ts > keeps device authorization tokens private and requires a Gen V1 credential before CLI use
+ FAIL  tests/github-workspace.test.ts > submits a writable exact-head review against its reviewed commit
+ FAIL  tests/github-workspace.test.ts > uses file-backed review JSON without changing newlines, Unicode or literal backslashes
+ FAIL  tests/github-workspace.test.ts > serializes polling per flow and treats cancellation of an older flow as harmless
+ FAIL  tests/github-workspace.test.ts > reports a completed sign-in when credential commit wins the cancellation race
+ FAIL  tests/github-workspace.test.ts > refuses to create a PR when the GitHub branch differs from the reviewed local commit
+ FAIL  tests/github-workspace.test.ts > returns a created PR only after its actual head matches the reviewed commit
+ FAIL  tests/github-workspace.test.ts > retains the created PR URL when its actual head differs from the reviewed commit
+ FAIL  tests/github-workspace.test.ts > retains the already-created PR URL after failed read without creating it again
+ FAIL  tests/github-workspace.test.ts > retains the already-created PR URL after malformed JSON without creating it again
+ FAIL  tests/github-workspace.test.ts > retains the already-created PR URL after missing head without creating it again
+ FAIL  tests/github-workspace.test.ts > rechecks writable authority after remote validation before draft creation
+ FAIL  tests/github-workspace.test.ts > writes long Unicode PR text exactly to a private file before push and removes it after success
+ FAIL  tests/github-workspace.test.ts > rejects changed capability while preparing a private review input
+ FAIL  tests/github-workspace.test.ts > rejects changed head while preparing a private review input
+ FAIL  tests/github-workspace.test.ts > rejects changed revision while preparing a private review input
+ FAIL  tests/github-workspace.test.ts > cleans private create input while preserving a remote failure
+ FAIL  tests/github-workspace.test.ts > cleans private review input while preserving a remote failure
+ FAIL  tests/github-workspace.test.ts > retains publication state after success even when exact directory cleanup is refused
+ FAIL  tests/github-workspace.test.ts > retains publication state after verification failure even when exact directory cleanup is refused
+ FAIL  tests/github-workspace.test.ts > fences cancel during private credential writing before rename and preserves the prior token
+ FAIL  tests/github-workspace.test.ts > fences replace during private credential writing before rename and preserves the prior token
+ FAIL  tests/github-workspace.test.ts > fences expire during private credential writing before rename and preserves the prior token
+ FAIL  tests/hermes-client.test.ts > preserves Unicode through chunked replies and resolves concurrent request IDs independently
+ FAIL  tests/hermes-client.test.ts > uses an isolated home and does not pass provider credentials to Python
+ FAIL  tests/hermes-client.test.ts > awaits owned host callbacks and returns their results over the private channel
+ FAIL  tests/hermes-client.test.ts > forwards source events without inventing entry or settlement events
+ FAIL  tests/hermes-host.test.ts > serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host
+ FAIL  tests/hermes-original-integration.test.ts > runs original Python and ACP through the native broker, persists a skill and finishes through the real Service
+ FAIL  tests/hermes-client.test.ts > fails pending requests safely on malformed worker output
+ FAIL  tests/hermes-client.test.ts > closes its worker and revokes unanswered requests when disposed
+ FAIL  tests/hermes-client.test.ts > drains owned host callbacks even when process cancellation fails
+ FAIL  tests/hermes-client.test.ts > treats a denied host callback as an ordinary tool result during teardown
+ FAIL  tests/hermes-multi-original.test.ts > runs two real original engines against one canonical library with isolated sessions and bounded scripted native calls
+ FAIL  tests/hermes-service.test.ts > carries an actual approved replacement privately to the next idle source turn, never prepare or steering
+ FAIL  tests/hermes-service.test.ts > bounds hook admission while preserving every successful write and ordinary receipt
+ FAIL  tests/hermes-service.test.ts > does not reauthorize an approved write hook after stop
+ FAIL  tests/hermes-service.test.ts > does not reauthorize an approved write hook after rebind
+ FAIL  tests/hermes-service.test.ts > does not reauthorize an approved write hook after revision
+ FAIL  tests/hermes-service.test.ts > does not reauthorize an approved write hook after recovery
+ FAIL  tests/hermes-service.test.ts > never supplies completed-write custody for unapproved or failed effects
+ FAIL  tests/hermes-service.test.ts > retains an unknown callback claim across stop/resume without replaying its write
+ FAIL  tests/hermes-service.test.ts > does not infer missing legacy write authority from current selection
+ FAIL  tests/hermes-service.test.ts > does not infer missing no_project write authority from current selection
+ FAIL  tests/inbox-presentation.test.ts > reconciles mutation invalidation after an older Inbox read without overlapping reads
+ FAIL  tests/inbox-presentation.test.ts > reconciles stream invalidation after an older Inbox read without overlapping reads
+ FAIL  tests/inbox-presentation.test.ts > reconciles reconnect invalidation after an older Inbox read without overlapping reads
+ FAIL  tests/inbox-presentation.test.ts > reconciles busy-stream invalidation after an older Inbox read without overlapping reads
+ FAIL  tests/integration-host.test.ts > keeps Biome write proposals and Spec Kit initialization unavailable in plan mode
+ FAIL  tests/integration-mcp.test.ts > builds a real Graphify code graph, queries its stdio server and exports GraphML without a model
+ FAIL  tests/integration-mcp.test.ts > initializes only project-local genuine Spec Kit assets and dispatches its original workflow through the host
+ FAIL  tests/integration-mcp.test.ts > executes the pinned native Biome and Impeccable engines
+ FAIL  tests/integration-mcp.test.ts > refuses linked Graphify graph input and linked export directories inside the owned fixture
+ FAIL  tests/integration-mcp.test.ts > routes Biome proposals through the registered granted-file approval flow
+ FAIL  tests/integrations.test.ts > admits exactly the ten bundled integrations without starting their MCP services
+ FAIL  tests/interactive-control-decisions-v6.test.ts > M16-D06 real-platform acceptance stays BLOCKED without an approved installed driver
+ FAIL  tests/managed-git-family.test.ts > requires host attestation for linked worktrees and retains ordinary repositories
+ FAIL  tests/managed-git-family.test.ts > snapshots the attested worktree HEAD, index and source, without other worktrees or hooks
+ FAIL  tests/managed-git-family.test.ts > passes only the host-resolved family for the granted domain repository root
+ FAIL  tests/packaged-providers.test.ts > packaged provider custody > imports the actual installed SDK with an explicit empty store and runs only the stock rg version helper
+ FAIL  tests/path-access.test.ts > serves approved ordinary bytes and holds every directory ancestor through final access
+ FAIL  tests/path-access.test.ts > allows ordinary child replacement while its parent directory is guarded
+ FAIL  tests/path-access.test.ts > rejects a substituted replacement source and preserves a nonowned cleanup inode
+ FAIL  tests/path-access.test.ts > denies an approved replacement after the resolved parent is swapped to protected storage
+ FAIL  tests/path-access.test.ts > keeps the original database parent and journal inode pinned through actual COMMIT
+ FAIL  tests/path-access.test.ts > performs approved ordinary replacement and PDF export under native guards
+ FAIL  tests/path-access.test.ts > retains a user save made after the final capability read but before replacement
+ FAIL  tests/path-access.test.ts > does not consume a protected temporary ignore file configured by a selected repository
+ FAIL  tests/path-access.test.ts > diffs the acquired deletion when a protected junction is inserted immediately before real Git launch
+ FAIL  tests/path-access.test.ts > ignores metadata paths inserted after acquisition immediately before real Git status
+ FAIL  tests/path-access.test.ts > does not let repository config redirect snapshot Git to a post-acquisition metadata file
+ FAIL  tests/personal-visuals-ui.test.ts > keeps JSON typing focused through autosave and renders source labels as text inside an opaque frame
+ FAIL  tests/personal-visuals-ui.test.ts > oversized formatted import retains every previous state owner
+ FAIL  tests/personal-visuals-ui.test.ts > accepted import survives replacement confirmation autosave handoff reload save and export
+ FAIL  tests/personal-visuals-ui.test.ts > rejected import preserves pending autosave and unconfirmed save identity
+ FAIL  tests/personal-visuals-ui.test.ts > explains the workspace purpose until dismissed and restores it from About Visuals
+ FAIL  tests/personal-visuals-ui.test.ts > persists intro dismissal through the host presentation bridge
+ FAIL  tests/personal-visuals-ui.test.ts > keeps a preexisting compact near-limit durable record and raw draft recoverable
+ FAIL  tests/plugin-validation-policy.test.ts > boots the actual presentation bundle in an opaque browser frame without Node globals or dynamic code
+ FAIL  tests/private-git-family.test.ts > streams metadata beyond the unchanged ordinary snapshot budget with a bounded buffer
+ FAIL  tests/project-memory-preparation-ui.test.ts > keeps visible prepared controls on their committed disabled during a suspended render
+ FAIL  tests/project-memory-preparation-ui.test.ts > keeps visible prepared controls on their committed input during a suspended render
+ FAIL  tests/project-search-host.test.ts > uses an acquired real Windows guard for ordinary reads; unsupported platforms fail closed
+ FAIL  tests/project-trust-v3.test.ts > reading an ordinary granted text file still works while execution approval stays distinct
+ FAIL  tests/rename-recovery-v3.test.ts > guarded apply writes a durable journal and backups before the first change
+ FAIL  tests/rename-recovery-v3.test.ts > post-crash reconcile restores only paths still matching the written postimage
+ FAIL  tests/rename-recovery-v3.test.ts > an external edit of a renamed file stops recovery with PARTIAL_RECOVERY_REQUIRED
+ FAIL  tests/rename-recovery-v3.test.ts > recovery refuses a journal that targets paths outside the granted roots
+ FAIL  tests/rename-recovery-v3.test.ts > a resolved journal with conflicts reports PARTIAL_RECOVERY_REQUIRED
+ FAIL  tests/rename-recovery-v3.test.ts > a crash between postimage journal and apply completion still recovers the write
+ FAIL  tests/resource-tree.test.ts > lists one granted directory lazily, omits unsafe leaves and denies traversal
+ FAIL  tests/review-host.test.ts > isolated actual-host recording fixtures > prepares and exports a real local PDF only after exact native operation approval
+ FAIL  tests/review-host.test.ts > isolated actual-host recording fixtures > shows actual before/after SQLite rows and valid row-change annotations
+ FAIL  tests/runtime-router.test.ts > lazily isolates account adapters, pins routing and denies cross-account sessions
+ FAIL  tests/runtime-router.test.ts > scopes named-account model discovery to its provider and blocks a profile being signed in
+ FAIL  tests/runtime-router.test.ts > rejects a resolver that changes the provider of an already acquired account profile
+ FAIL  tests/server.test.ts > serves a selected file under a directory grant and denies paths outside it
+ FAIL  tests/service.test.ts > thread and UI integrity > records a completed effect arriving after Stop without reviving its run
+ FAIL  tests/service.test.ts > thread and UI integrity > a generated operation button leads to native approval and cannot approve by its label
+ FAIL  tests/skill-catalog-apps.test.ts > discovers only declared installed metadata with verified package custody and never activates the host
+ FAIL  tests/skill-catalog-apps.test.ts > invalidates installed references after content tampering, registry revocation, or untracked additions
+ FAIL  tests/skill-catalog-http.test.ts > requires the existing host/session gate and returns metadata without bodies or file paths
+ FAIL  tests/skill-catalog.test.ts > enumerates every page, keeps colliding names distinct, and exposes metadata without source bytes
+ FAIL  tests/skill-catalog.test.ts > pins exact bytes and supporting-file custody, rejecting edits even when size and display name stay equal
+ FAIL  tests/skill-catalog.test.ts > binds authenticated cursors to inventory, search, page size and connection context
+ FAIL  tests/skill-catalog.test.ts > denies file/directory symlinks and hardlinks while retaining other safe packages
+ FAIL  tests/skill-catalog.test.ts > bounds file counts and bytes without truncating a package into an available reference
+ FAIL  tests/skill-catalog.test.ts > marks an exhausted root inventory unavailable instead of silently presenting a partial catalog
+ FAIL  tests/skill-catalog.test.ts > counts bytes consumed by rejected packages against the root budget
+ FAIL  tests/skill-catalog.test.ts > rejects namespace escalation and source substitution without resolving a display name
+ FAIL  tests/skill-catalog.test.ts > accepts bound references for the full declared source-identity length
+ FAIL  tests/skill-catalog.test.ts > includes nested installed skill entries beneath another skill package
+ FAIL  tests/skill-catalog.test.ts > keeps a root skill distinct from a child named after the root directory
+ FAIL  tests/skill-catalog.test.ts > detects replacement during capture and never returns mixed metadata/custody
+ FAIL  tests/skill-catalog.test.ts > uses canonical connected project/worktree bindings and separates unavailable project authority
+ FAIL  tests/skill-catalog.test.ts > discovers only the selected worktree and invalidates its references after rebinding or revocation
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated title updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated status updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated project metadata updates
+ FAIL  tests/skill-catalog.test.ts > preserves exact references and pagination after unrelated working-copy branch updates
+ FAIL  tests/skill-catalog.test.ts > reuses the real bundled integration inventory and covers all declared skills across pages
+ FAIL  tests/skill-invocation.test.ts > materializes exact entry bytes and captured support without changing prompt or resources
+ FAIL  tests/skill-invocation.test.ts > denies stale support, forged identity, cross-source and private-provider references
+ FAIL  tests/skill-invocation.test.ts > rejects every changed authority dimension before admission
+ FAIL  tests/skill-invocation.test.ts > fences authority changes during catalog awaits and again before commit/runtime/support reads
+ FAIL  tests/skill-invocation.test.ts > honors pre-abort and an abort that wins a catalog await without producing an admission
+ FAIL  tests/skill-invocation.test.ts > denies support-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies entry-bytes between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies file-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies directory-swap between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies hardlink between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies junction between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > denies extra-file between fresh catalog custody and materialization
+ FAIL  tests/skill-invocation.test.ts > revalidates the canonical source after capture rather than accepting its earlier index
+ FAIL  tests/skill-invocation.test.ts > restores authenticated exact bytes across host restart without rediscovering changed skills
+ FAIL  tests/skill-invocation.test.ts > rejects command-ID reuse with changed content, model, thinking, reference or authority
+ FAIL  tests/skill-invocation.test.ts > denies replay tampering and key loss instead of falling back to rediscovery
+ FAIL  tests/skill-invocation.test.ts > denies forged admissions, mismatched runtime owners and arbitrary support paths
+ FAIL  tests/skill-invocation.test.ts > reads the exact Harness version/document with no latest-name or ambient projection fallback
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding files instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding fileBytes instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > denies a package exceeding packageBytes instead of silently truncating it
+ FAIL  tests/skill-invocation.test.ts > rejects malformed payloads rather than accepting browser supplied text, paths or authority grants
+ FAIL  tests/skill-invocation.test.ts > selection preserves every reference field without a body read or admission capability, and bundles for browsers
+ FAIL  tests/skill-invocation.test.ts > denies a changed runtime thinking level even when the model is unchanged
+ FAIL  tests/skill-invocation.test.ts > preserves UTF-8 BOM and original line endings in admitted guidance
+ FAIL  tests/skill-invocation.test.ts > admits all selected references in order, never silently dropping a stale second selection
+ FAIL  tests/skill-invocation.test.ts > bounds Harness entry bytes before materializing an oversized saved document
+ FAIL  tests/skill-invocation.test.ts > captures only a verified installed App package, without activating its host, and rechecks registry revocation
+ FAIL  tests/skill-invocation.test.ts > uses the bundled manifest pin and denies an index replacement between custody and capture
+ FAIL  tests/skill-invocation.test.ts > resolves only the connected canonical project/worktree and denies its root identity changing
+ FAIL  tests/skill-invocation.test.ts > aborts after capture while the final source recheck is in flight
+ FAIL  tests/skill-invocation.test.ts > returns cancellation while an obsolete catalog read is still pending
+ FAIL  tests/skill-invocation.test.ts > replays the same command after an actual Store reopen without another message or current-source read
+ FAIL  tests/skill-invocation.test.ts > precommit authority revalidation leaves message/outbox/capture storage empty on a race
+ FAIL  tests/skill-invocation.test.ts > sanitizes authority-provider failures at precommit without leaking host paths
+ FAIL  tests/skill-invocation.test.ts > accepts the parent raw skills array while taking expected authority only from host options
+ FAIL  tests/skills-integration.test.ts > keeps openai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps openai-codex automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps github-copilot automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps xai automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps claude-code automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps gemini-cli automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps cursor-sdk automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps kimi-coding automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/skills-integration.test.ts > keeps opencode-go automatic skill review account-pinned through changed defaults, settlement and restart
+ FAIL  tests/source-workbench-host-v3.test.ts > admits file captures under the real Linux leaf guard
+ FAIL  tests/task-memory-recovery.test.ts > keeps artifacts, saved edits, accepted inputs and a completed effect authoritative after note recovery
+ FAIL  tests/wo8-color-pairing.test.ts > renders catalog Timeline status aliases with fixed theme semantics under custom accents
+ Test Files  75 failed | 440 passed | 6 skipped (521)
+      Tests  293 failed | 5586 passed | 318 skipped (6197)
+     Errors  4 errors
+   Start at  22:55:37
+   Duration  184.96s (transform 16.95s, setup 0ms, import 116.92s, tests 668.63s, environment 43ms)
+ ELIFECYCLE  Test failed. See above for more details.

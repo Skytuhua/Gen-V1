@@ -36,9 +36,9 @@ it('recovers active metadata and reports completed auth once after checking the 
   }finally{monitor.close();}
 });
 it('does not publish a completion after its application generation is disposed',async()=>{
-  vi.useFakeTimers();let release!:(value:any)=>void;
+  vi.useFakeTimers();let release!:(value:Awaited<ReturnType<typeof getAccountAuth>>)=>void;
   vi.mocked(getAccountAuth).mockImplementationOnce(()=>new Promise(resolve=>{release=resolve;}));
   const authenticated=vi.fn(async()=>{}),monitor=createAccountLoginMonitor({activeSignIn:async()=>flow('old'),signInStatus:async()=>flow('old','completed')} as unknown as DesktopBridge,vi.fn(),authenticated);
-  await monitor.recover();await vi.advanceTimersByTimeAsync(750);monitor.close();release({state:'configured'});await vi.advanceTimersByTimeAsync(0);
+  await monitor.recover();await vi.advanceTimersByTimeAsync(750);monitor.close();release({state:'configured'} as Awaited<ReturnType<typeof getAccountAuth>>);await vi.advanceTimersByTimeAsync(0);
   expect(authenticated).not.toHaveBeenCalled();
 });

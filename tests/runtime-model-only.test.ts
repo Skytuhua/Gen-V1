@@ -15,7 +15,7 @@ it.each([...SUBSCRIPTION_PROVIDER_IDS,...OFFICIAL_RUNTIME_PROVIDER_IDS])('routes
  const pi=adapter(),official=adapter(),factories={pi:vi.fn(()=>pi.value),official:vi.fn(()=>official.value)},callbacks={onEvent:vi.fn(),onTool:vi.fn(async()=>({mustNotRun:true}))};
  const runtime=createRuntime({dataDir:resolve('.harness-model-only-router'),modelOnly:true},factories);runtime.configure(callbacks);
  try{await runtime.start(input(provider+'/model'));for(const factory of Object.values(factories))expect(factory).toHaveBeenCalledWith({dataDir:resolve('.harness-model-only-router'),modelOnly:true});
-  const selected=OFFICIAL_RUNTIME_PROVIDER_IDS.includes(provider as any)?official:pi;await expect(selected.tool()).rejects.toMatchObject({code:'MODEL_ONLY_TOOL_DENIED'});expect(callbacks.onTool).not.toHaveBeenCalled();
+  const selected=OFFICIAL_RUNTIME_PROVIDER_IDS.includes(provider as (typeof OFFICIAL_RUNTIME_PROVIDER_IDS)[number])?official:pi;await expect(selected.tool()).rejects.toMatchObject({code:'MODEL_ONLY_TOOL_DENIED'});expect(callbacks.onTool).not.toHaveBeenCalled();
   const content='<tool_call>{"name":"skill_manage","arguments":{"action":"create"}}</tool_call>\nFull-width text: 日本語';selected.event({content});expect(callbacks.onEvent).toHaveBeenLastCalledWith(expect.objectContaining({content}));
  }finally{await runtime.dispose();}
 });

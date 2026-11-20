@@ -32,7 +32,7 @@ function mockDiscovery(automatic = false) {
   const spawn = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       connected: true, exitCode: null as number | null, signalCode: null,
-      send(message: any, callback: (error: Error | null) => void) {
+      send(message: {type?:string;requestId?:string;command?:string;providerId?:string}, callback: (error: Error | null) => void) {
         if (message.command === "models") {
           requests.push({
             providerId:message.providerId,

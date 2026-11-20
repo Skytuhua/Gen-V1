@@ -172,7 +172,7 @@
         "tests/compaction-v3.test.ts",
         "tests/context-contract-preservation-v6.test.ts"
       ],
-      "reason": "The report-only metadata observer exists and never mutates input. The opt-in shadow phase wrapper is implemented: one report per eligible immutable cut (duplicate or invalid cutIds are refused without a model call), fixed 6-second timeout, OBSERVER_UNAVAILABLE with no model call absent an approved model/account and auxiliary budget, and cancellation. Any live auxiliary model call remains BLOCKED: RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json."
+      "reason": "The report-only observer and opt-in 6-second shadow wrapper are implemented and tested with immutable metadata. Missing approval/budget yields OBSERVER_UNAVAILABLE without a model call. No source-bound live authorization, approved account or provider call receipt was established in this review. The retained aux-live-gpt-6-luna.json file is an unauthenticated summary, not live-model acceptance; its claimed authorization date, 2026-12-16, is future-dated relative to this 2026-11-18 audit. HOLD_AUXILIARY_MODEL remains for real-provider qualification."
     },
     {
       "id": "M04-S10",
@@ -198,7 +198,7 @@
         "tests/context-request-observation.test.ts",
         "tests/context-contract-preservation-v6.test.ts"
       ],
-      "reason": "Deterministic eligibility gate exists (exact-binding recheck, cancellation, tail bound, UNSUPPORTED_COMPACTION when no native CAS) and run.compact refuses loss-aware compaction without a verified native compare-and-swap. A host apply gate that never invokes nativeApply on a stale binding is added for D05. Actual native application is BLOCKED: HOLD_NATIVE_COMPACTION resolved by source inspection of the merged worker: packages/runtime-hermes/worker.py agent.compact (lines 1277-1292) performs unconditional _compress_context summary persistence with no exact-source-cut compare-and-swap precondition, no binding/generation verification and no rollback witness. It does not satisfy S11; UNSUPPORTED_COMPACTION remains correct and is additionally surfaced as a deterministic candidate verdict in the Compaction tab."
+      "reason": "An exact-source-cut compare-and-swap now exists in packages/runtime-hermes/worker.py agent.history/agent.compact (expectedHistorySha256), with protected original-history archive and host binding checks in Service.applyLossAwareCompaction. The prior claim that the native worker lacks a CAS operation is stale for the reviewed source cut. Offline worker and host tests cover refusal and application, but the required complete Windows native custody, installed acceptance, and real-provider measurement are not yet established on this exact reviewed revision. Keep the target-platform acceptance gate BLOCKED until its source-bound run succeeds; do not infer production activation."
     },
     {
       "id": "M04-S12",
@@ -210,7 +210,7 @@
       "testIds": [
         "tests/compaction-v3.test.ts"
       ],
-      "reason": "context.precomputeExperimentV1 is registered default-off, but the precompute coordinator is absent: prepare one summary from a fixed prefix while newer messages accumulate; reject changed start/instructions/model or oversized retained tail at use time; account every failed/discarded background call; never race a second compaction or mutate active context. Deterministic coordinator with injected summarizer is implementable; live summarization stays RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json."
+      "reason": "A default-off precompute coordinator exists in packages/core/context-compaction.ts and has deterministic tests for one in-flight attempt, invalidation, cancellation, retained-tail bounds and failed/discarded accounting. The coordinator has no approved production auxiliary-model route in this review. The retained metadata-only aux-live-gpt-6-luna.json summary cannot establish a provider call or valid authorization; its claimed 2026-12-16 approval is future-dated. Live precompute remains NOT_RUN and HOLD_AUXILIARY_MODEL, with flags disabled."
     },
     {
       "id": "M04-S13",
@@ -224,7 +224,7 @@
         "tests/context-results-v3.test.ts",
         "tests/compaction-v3.test.ts"
       ],
-      "reason": "Run the fixed paired deterministic fixtures and report every outcome; seeded unresolved constraints and complete tool pairs must survive. Live quality/cost measurements remain NOT_RUN: no authorized provider fixture exists, and this prompt never authorizes activating pruning or precompute. Live quality measurement remains NOT_RUN: RESOLVED \u2014 owner authorized gpt-6-luna/50 calls on 2026-12-16; live run completed (10 calls, $0.0004, all shadow runs COMPLETED, single-in-flight enforced). Log: docs/implementation/v6/M04/logs/aux-live-gpt-6-luna.json (no approved auxiliary model/account/budget)."
+      "reason": "Fixed deterministic paired fixtures cover seeded unresolved constraints and tool-call/result relationships. Live quality and cost comparison is NOT_RUN on this source-bound audit: no verifiable provider model/account approval, authenticated request receipts, or reliable usage/cost accounting accompany the retained aux-live-gpt-6-luna.json summary. The summary's 2026-12-16 approval claim postdates this 2026-11-18 audit and cannot qualify the requirement. Historical log is retained without treating its estimates as verified spend."
     },
     {
       "id": "M04-U01",
