@@ -61,5 +61,6 @@ describe('pdf text extraction', () => {
   it('recovers hex and array operands after an unterminated literal', async () => {
     expect(await inspectStream('(unterminated <6f6b> Tj')).toBe('ok');
     expect(await inspectStream('(unterminated [(ok)] TJ')).toBe('ok');
+    expect(await inspectStream('(unterminated \\( (ok) Tj')).toBe('ok');
   });
 });

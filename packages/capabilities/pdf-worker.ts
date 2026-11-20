@@ -32,11 +32,12 @@ function pdfText(bytes: Uint8Array): string {
   // Balanced parens nest inside literal strings, so each opener goes on a stack;
   // an operand commits only when a Tj/TJ/'/" operator follows its closing token.
   const openers: number[] = [];
-  let inArray = false; const items: string[] = [];
+  let inArray = false, recovering = false; const items: string[] = [];
   const scan = () => {
     while (position < source.length) {
       const c = source[position];
-      if (openers.length && c === "\\") { position += 2; continue; }
+      // The recovery tail was inside a literal, so escapes apply there too.
+      if ((openers.length || recovering) && c === "\\") { position += 2; continue; }
       if (!openers.length && c === "%") {
         while (position < source.length && source[position] !== "\n" && source[position] !== "\r") position++;
         continue;
@@ -73,7 +74,7 @@ function pdfText(bytes: Uint8Array): string {
   // A literal left open at EOF hid every later operand from the old tokeniser;
   // rescan its tail once so hex strings and arrays after it still surface.
   if (openers.length) {
-    position = openers[0] + 1; openers.length = 0; inArray = false; items.length = 0;
+    position = openers[0] + 1; openers.length = 0; inArray = false; items.length = 0; recovering = true;
     scan();
   }
   return parts.join(" ");
