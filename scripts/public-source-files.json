@@ -3448,6 +3448,7 @@
     "tests/project-tools.test.ts",
     "tests/project-trust-v3.test.ts",
     "tests/public-source.test.ts",
+    "tests/python-cell-envelope-v6.test.ts",
     "tests/python-kernel-v3.test.ts",
     "tests/python-m03-platform-projection-v6.test.ts",
     "tests/python-program-backend-v3.test.ts",

@@ -50,6 +50,30 @@ export interface ToolProgramResult {
   error: ProgramError | null;
   usage: { nestedCalls: number; elapsedMs: number; visibleBytes: number };
 }
+
+/** Measure the complete serialized envelope and bound it to the program's
+ * output cap. The count includes its own decimal representation, so reach its
+ * fixed point: usage is measured bytes, never an approximation. Failure
+ * envelopes also obey the cap; full references and the original error stay
+ * inspectable in the authenticated program view. */
+export function boundProgramResult<T extends ToolProgramResult>(result: T, maxOutputBytes: number, totalSourceRefs: number): T {
+  const measure = () => {
+    for (let pass = 0; pass < 8; pass++) {
+      const bytes = Buffer.byteLength(JSON.stringify(result));
+      if (bytes === result.usage.visibleBytes) return bytes;
+      result.usage.visibleBytes = bytes;
+    }
+    return result.usage.visibleBytes;
+  };
+  while (measure() > maxOutputBytes && result.sourceRefs.length) {
+    result.sourceRefs.pop(); result.sourceRefsOmitted = totalSourceRefs - result.sourceRefs.length;
+  }
+  while (measure() > maxOutputBytes && result.error?.message.length) {
+    result.error = { ...result.error, message: result.error.message.slice(0, -1) };
+  }
+  measure();
+  return result;
+}
 const activeStates = new Set(['PREPARED', 'RUNNING', 'WAITING_TOOL']);
 const forbiddenArguments = new Set(['accountId', 'accountBinding', 'workspaceId', 'projectId', 'threadId', 'runId', 'epoch', 'commandId', 'invocationId']);
 const cancelled = () => new HarnessError('PROGRAM_CANCELLED', 'Program cancelled; dispatched reads retain their receipts');
@@ -550,26 +574,15 @@ export class ToolPrograms {
     const result: ToolProgramResult = { programId: program.programId, state: program.state, resultRef: program.resultRef, sourceRefs: [...sourceRefs],
       ...(aggregate === undefined ? {} : { aggregate }), error: program.error,
       usage: { nestedCalls: program.nestedCallCount, elapsedMs: program.elapsedMs, visibleBytes: 0 } };
-    const measure = () => {
-      // The count includes its own decimal representation. Reach its fixed
-      // point so usage is measured bytes, never an approximation.
-      for (let pass = 0; pass < 8; pass++) {
-        const bytes = Buffer.byteLength(JSON.stringify(result));
-        if (bytes === result.usage.visibleBytes) return bytes;
-        result.usage.visibleBytes = bytes;
-      }
-      return result.usage.visibleBytes;
-    };
-    // Failure envelopes also obey the selected output cap. Full references and
-    // the original error remain inspectable in the authenticated program view.
-    while (measure() > program.limits.maxOutputBytes && result.sourceRefs.length) {
-      result.sourceRefs.pop(); result.sourceRefsOmitted = sourceRefs.length - result.sourceRefs.length;
-    }
-    while (measure() > program.limits.maxOutputBytes && result.error?.message.length) {
-      result.error = { ...result.error, message: result.error.message.slice(0, -1) };
-    }
-    measure();
-    return result;
+    return boundProgramResult(result, program.limits.maxOutputBytes, sourceRefs.length);
+  }
+  /** The final model-visible envelope after host metadata (for example a
+   * Python kernel id and generation) is attached. It is re-measured and bounded
+   * as one object, so usage.visibleBytes is the exact byte length returned. */
+  finalResponse<T extends Record<string, unknown>>(result: ToolProgramResult, owner: ToolOwner, metadata: T): ToolProgramResult & T {
+    const program = this.require(result.programId, owner);
+    const final = { ...structuredClone(result), ...structuredClone(metadata), usage: { ...result.usage } } as ToolProgramResult & T;
+    return boundProgramResult(final, program.limits.maxOutputBytes, result.sourceRefs.length + (result.sourceRefsOmitted ?? 0));
   }
   calls(programId: string, owner: ToolOwner): NestedCallV1[] {
     this.require(programId, owner);

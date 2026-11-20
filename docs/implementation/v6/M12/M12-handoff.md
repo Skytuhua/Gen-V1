@@ -101,7 +101,7 @@ Not run at this cut: `pnpm lint`, `pnpm test` (full), `pnpm build`, `pnpm test:b
 
 CONTRIBUTING.md prohibits raw tool/test output and private workstation paths in source commits. The branch previously carried 234 raw `.log` files across `docs/implementation/v3/m12-logs/` and `docs/implementation/v6/M12/logs/` plus private paths in receipts/artifacts. Remediation at this commit:
 
-- **Preserved, not deleted**: all raw artifacts were first copied to owned storage outside the repo (`/home/piadmin/m12-evidence-raw/`, 289 files). This is local custody only — **nothing was uploaded** and no artifact is claimed beyond this host.
+- **Preserved, not deleted**: all raw artifacts were first copied to owned storage outside the repo (`<host>/m12-evidence-raw/`, 289 files). This is local custody only — **nothing was uploaded** and no artifact is claimed beyond this host.
 - **Removed from source**: all raw `.log`/`.err` files added by the PR delta are removed. Pre-existing `docs/implementation/v3/logs/*.log` files from `main` are untouched (not this PR's delta).
 - **Curated excerpts**: `logs/**/*.bounded.log` files hold head/tail-bounded, redacted excerpts (`<worktree:m12-*>`, `<toolchain>`) sufficient to verify outcomes.
 - **Custody manifests**: `docs/implementation/v3/m12-logs/CUSTODY.json` and `docs/implementation/v6/M12/logs/CUSTODY.json` map each removed raw artifact to its SHA-256 digest and owned-storage location.

@@ -121,3 +121,27 @@ it('serves only authenticated bounded retained result pages and metadata, with c
     expect((await app.inject({ url, headers })).statusCode).not.toBe(200);
   } finally { await app.close(); }
 });
+
+it('reads the conversation\'s own uploaded attachment through an actual program text_import and keeps other grants denied', async () => {
+  // Synthetic upload into the test's own temporary profile; no real file is read.
+  const f = await fixture();
+  const upload = (await f.service.command({ id: 'upload-1', type: 'resource.upload', threadId: f.thread.id,
+    payload: { name: 'notes.txt', base64: Buffer.from('own synthetic attachment').toString('base64') } })).result as ResourceGrant;
+  expect(upload).toMatchObject({ id: 'upload-1', threadId: f.thread.id, kind: 'attachment' });
+  await f.service.tool({ name: 'tool_program_discover', args: { names: ['text_import'] } }, f.ctx);
+  const read = async (commandId: string, resourceId: string) => await f.service.tool({ name: 'tool_program', args: {
+    commandId, source: `const value = await tools.call('text_import', {resourceId: '${resourceId}'}); return {text: value.value.text};`,
+    allowedTools: ['text_import'], requestedAggregate: 'Return the attachment text',
+  } }, f.ctx) as ToolProgramResult;
+  const own = await read('read-own', 'upload-1');
+  expect(own.error).toBeNull();
+  expect(own).toMatchObject({ state: 'SUCCEEDED', aggregate: { text: 'own synthetic attachment' } });
+  // A grant owned by another conversation is not reachable from this program.
+  f.store.internal('fixture.foreign', 'other', () => {
+    f.store.put('thread', 'other', 'other', { ...f.thread, id: 'other' });
+    f.store.put('resource', 'foreign', 'other', { ...upload, id: 'foreign', threadId: 'other' });
+  });
+  const foreign = await read('read-foreign', 'foreign');
+  expect(foreign.state).toBe('FAILED');
+  expect(foreign.aggregate).toBeUndefined();
+});

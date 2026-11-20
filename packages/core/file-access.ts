@@ -164,7 +164,10 @@ export async function readResourceGrant(grant: ResourceGrant, dataDir: string, r
   const revalidate = async () => {
     active(signal);
     if (await resolveGrant(grant, relativePath, false, dataDir) !== path) throw denied();
-    assertNotStorage(path, dataDir);
+    // Same canonical grant root as resolveGrant and withResourceGrant, so a
+    // conversation's own uploaded attachment stays readable while every other
+    // protected-storage path still fails closed.
+    assertNotStorage(path, dataDir, await canonical(grant.path));
   };
   const bytes = await withLinuxBoundFileRead(path, signal, async descriptorPath => {
     await revalidate();

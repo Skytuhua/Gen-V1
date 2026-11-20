@@ -98,7 +98,7 @@ export class ToolProgramHost {
         const selectedId = 'kernelId' in args && typeof args.kernelId === 'string' ? args.kernelId : undefined;
         const kernel = selectedId ? this.kernels.get(selectedId, owner) : await this.kernels.create(configured.identity, configured.factory);
         if (kernel.key !== pythonKernelKey(configured.identity)) throw new HarnessError('KERNEL_IDENTITY_CHANGED', 'Interpreter, configuration, working directory or tool set changed; use a new kernel');
-        result = { ...await this.kernels.cell(kernel.kernelId, owner, input), kernelId: kernel.kernelId, generation: kernel.generation };
+        result = this.programs.finalResponse(await this.kernels.cell(kernel.kernelId, owner, input), owner, { kernelId: kernel.kernelId, generation: kernel.generation });
       } else {
         const program = await this.programs.prepare({ ...input, owner, language: 'JAVASCRIPT' }, this.options.javascript!);
         preparedProgramId = program.programId;

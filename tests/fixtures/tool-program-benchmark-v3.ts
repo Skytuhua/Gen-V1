@@ -392,9 +392,15 @@ function openDefinition() {
   return buildToolRegistry().find(definition => definition.id === 'repository_read')!;
 }
 
-export async function writeAggregationArtifact(report: AggregationBenchmark): Promise<string> {
-  const path = resolve(ROOT, 'docs/implementation/v3/m12-artifacts/aggregation-benchmark.json');
-  await mkdir(join(ROOT, 'docs/implementation/v3/m12-artifacts'), { recursive: true });
+/** The tracked historical receipt; its SHA-256 is recorded in
+ * docs/implementation/v3/m12-artifacts/artifact-integrity.json. */
+export const AGGREGATION_ARTIFACT_PATH = resolve(ROOT, 'docs/implementation/v3/m12-artifacts/aggregation-benchmark.json');
+
+/** Writes a report. Publishing or refreshing the tracked receipt is explicit:
+ * call with AGGREGATION_ARTIFACT_PATH (the default) from a deliberate evidence
+ * step. Tests pass an owned temporary path so a run never rewrites the receipt. */
+export async function writeAggregationArtifact(report: AggregationBenchmark, path: string = AGGREGATION_ARTIFACT_PATH): Promise<string> {
+  await mkdir(dirname(path), { recursive: true });
   await writeFile(path, JSON.stringify(report, null, 2) + '\n', 'utf8');
   return path;
 }

@@ -1,6 +1,11 @@
 import { expect, it } from 'vitest';
-import { readFile } from 'node:fs/promises';
-import { runAggregationBenchmark, writeAggregationArtifact } from './fixtures/tool-program-benchmark-v3.ts';
+import { createHash } from 'node:crypto';
+import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { AGGREGATION_ARTIFACT_PATH, runAggregationBenchmark, writeAggregationArtifact } from './fixtures/tool-program-benchmark-v3.ts';
+
+const sha256 = (bytes: Buffer) => createHash('sha256').update(bytes).digest('hex');
 
 it('measures exact aggregation, complete visible bytes, cold setup and retained failure overhead on the real JavaScript host', async () => {
   const report = await runAggregationBenchmark();
@@ -67,6 +72,17 @@ it('measures exact aggregation, complete visible bytes, cold setup and retained 
     }
   }
   expect(report.tokenization.evidence).toMatchObject({ package: 'js-tiktoken', version: '1.0.21', roundTripValidated: true });
-  const artifact = await writeAggregationArtifact(report);
-  expect(JSON.parse(await readFile(artifact, 'utf8'))).toEqual(report);
+  // The run writes only into its own temporary directory; the tracked
+  // historical receipt and its recorded digest are left exactly as they were.
+  const trackedBefore = await readFile(AGGREGATION_ARTIFACT_PATH);
+  const directory = await mkdtemp(join(tmpdir(), 'm12-benchmark-'));
+  try {
+    const artifact = await writeAggregationArtifact(report, join(directory, 'aggregation-benchmark.json'));
+    expect(artifact.startsWith(directory)).toBe(true);
+    expect(JSON.parse(await readFile(artifact, 'utf8'))).toEqual(report);
+  } finally { await rm(directory, { recursive: true, force: true }); }
+  const trackedAfter = await readFile(AGGREGATION_ARTIFACT_PATH);
+  expect(trackedAfter.equals(trackedBefore)).toBe(true);
+  const integrity = JSON.parse(await readFile(new URL('../docs/implementation/v3/m12-artifacts/artifact-integrity.json', import.meta.url), 'utf8')) as { artifacts: { path: string; sha256: string }[] };
+  expect(integrity.artifacts.find(entry => entry.path === 'docs/implementation/v3/m12-artifacts/aggregation-benchmark.json')?.sha256).toBe(sha256(trackedAfter));
 }, 60000);
