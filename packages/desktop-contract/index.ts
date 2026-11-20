@@ -1,6 +1,6 @@
 import {pluginSurfaceSchema,type PluginSurface} from '../plugins/contracts.ts';
-export type DesktopWorkspaceTab = 'launcher' | 'files' | 'diff' | 'output' | 'usage' | 'notes' | 'artifact' | 'context' | 'terminal' | 'pull-request' | 'linked-pull-requests';
-export type DesktopPluginSurface=PluginSurface;
+type DesktopWorkspaceTab = 'launcher' | 'files' | 'diff' | 'output' | 'usage' | 'notes' | 'artifact' | 'context' | 'terminal' | 'pull-request' | 'linked-pull-requests';
+type DesktopPluginSurface=PluginSurface;
 export type DesktopSurface =
   | {kind:'main'}
   | DesktopPluginSurface
@@ -16,7 +16,7 @@ export interface DesktopLayoutEntry {surface:DesktopSurface;bounds:DesktopBounds
 export interface DesktopLayout {version:1;windows:DesktopLayoutEntry[]}
 export type DesktopWindowControl={windowId:string;type:'visibility';visible:boolean}|{windowId:string;type:'always-on-top';enabled:boolean};
 export interface DesktopWindowInfo {id:string;surface:DesktopSurface;ready:boolean;minimized:boolean;visible?:boolean;alwaysOnTop?:boolean;bounds?:DesktopBounds;displayId?:string}
-export interface DesktopUpdateStatus {state:'unavailable'|'idle'|'checking'|'current'|'downloading'|'ready'|'deferred'|'failed'|'installing';message:string;version?:string;percent?:number}
+interface DesktopUpdateStatus {state:'unavailable'|'idle'|'checking'|'current'|'downloading'|'ready'|'deferred'|'failed'|'installing';message:string;version?:string;percent?:number}
 export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrowserState;dockedBrowser?:{browserId:string;state:DesktopBrowserState};focusSurface?:DesktopSurface;backendError?:string;layoutError?:string;closeCancelled?:boolean;update?:DesktopUpdateStatus;nativeTitleBar?:boolean}
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}

@@ -1,6 +1,7 @@
 import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
-import type {RunContext,RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
+import type {RunContext,RuntimeAdapter,RuntimeCallbacks,StartRun,ToolCall} from '../packages/contracts/index.ts';
+import type {LearningJob,LearningOutcome,LearningToolResult} from '../packages/core/learning.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{await Promise.allSettled(cleanups.splice(0).map(close=>close()));vi.useRealTimers();});
@@ -17,7 +18,7 @@ class ReviewRuntime implements RuntimeAdapter {
  event(type:string,value:Record<string,unknown>={}){this.callbacks.onEvent({...this.inputs[0],type,...value});}
 }
 const job=()=>({source:{threadId:'source-thread',runId:'source-run',epoch:4},modelId:'openai/model',accountId:'account-a',prompt:'Quoted successful conversation and evidence.'});
-async function setup(options:{runtime?:ReviewRuntime;factory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;tool?:(...args:any[])=>any;result?:(...args:any[])=>any}={}){
+async function setup(options:{runtime?:ReviewRuntime;factory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;tool?:(call:ToolCall,job:LearningJob,readVersions:Map<string,number>)=>LearningToolResult|Promise<LearningToolResult>;result?:(job:LearningJob,outcome:LearningOutcome)=>void|Promise<void>}={}){
  const {LearningCoordinator}=await import('../packages/core/learning.ts');
  const runtime=options.runtime??new ReviewRuntime(),factory=vi.fn(options.factory??(()=>runtime)),tool=vi.fn(options.tool??(()=>({value:{skills:[]}}))),result=vi.fn(options.result??(()=>{}));
  const coordinator=new LearningCoordinator({factory,tool,result});cleanups.push(()=>coordinator.dispose());

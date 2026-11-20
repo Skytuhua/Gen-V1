@@ -83,7 +83,7 @@ export function classifyShellCommand(_command: string): { effectful: true; effec
   return { effectful: true, effect: 'shell', reason: 'Arbitrary shell expressions are effectful commands requiring explicit approval and confinement.' };
 }
 
-const MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
+export const MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024;
 export async function digestFileSha256(path: string): Promise<string> {
   const hash = createHash('sha256');
   let bytes = 0;

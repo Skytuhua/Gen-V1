@@ -49,7 +49,7 @@ function catalogModels(rows: ModelListItem[]): ModelInfo[] {
 /** Canonical checkpoint history is distinct from a streamed input echo. */
 function canonicalUserText(row: AgentMessage, sessionId: string): string | undefined {
   if (row.type !== 'user' || row.agent_id !== sessionId || !row.message || typeof row.message !== 'object') return;
-  const message = row.message as any;
+  const message = row.message as { type?: string; turn?: { case?: string; value?: { userMessage?: { text?: unknown } }; userMessage?: { text?: unknown } }; agentConversationTurn?: { userMessage?: { text?: unknown } } };
   const turn = message.type === 'agentConversationTurn' ? message.turn : message.turn?.case === 'agentConversationTurn' ? message.turn.value : message.agentConversationTurn;
   return turn && typeof turn.userMessage?.text === 'string' ? turn.userMessage.text : undefined;
 }
@@ -229,7 +229,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const emit = (event: CursorWorkerEvent) => { if (process.connected && (!closing || event.type === 'closed')) process.send?.(event); };
   const close = async () => { if (closing) return; closing = true; await controller?.close(); emit({ type: 'closed' }); };
   process.on('disconnect', () => { void close(); });
-  process.on('message', (message: any) => {
+  process.on('message', (message: { type?: string; init?: unknown; input: WireInput; uuid: string; sessionId: string }) => {
     if (message?.type === 'close') { void close(); return; }
     if (!initialized && message?.type === 'initialize') {
       initialized = true;

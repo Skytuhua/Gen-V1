@@ -13,7 +13,7 @@ import {MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type M
 import {ModelRequestDetails} from './UsageDialog';
 
 /** Only the owner of a real host-prepared request may supply this adapter. */
-export interface MemoryRequestExclusionAdapter {
+interface MemoryRequestExclusionAdapter {
   requestId: string; contextGeneration: number; phase: 'PREPARING' | 'CAPTURED';
   disabled?: boolean;
   exclude: (revision: MemoryRevisionRef) => Promise<void>;
@@ -37,7 +37,7 @@ export function ownedMemoryRecall(thread: Thread | undefined, value: ContextMemo
 }
 
 /** Only a host-accepted compaction event for this exact run/session may produce this receipt. */
-export interface AcceptedCompactionReceipt {
+interface AcceptedCompactionReceipt {
   id: string; threadId: string; sessionPath: string; runId: string; epoch: number;
   beforeTokens?: number; afterTokens?: number; contextWindow?: number;
 }
