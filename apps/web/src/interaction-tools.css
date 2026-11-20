@@ -142,3 +142,9 @@
  .editable-table-scroll td.is-edited :is(input,.ui-select-trigger){background:var(--subtle)}
  .editable-table-scroll .editable-original{margin-top:2px;white-space:normal}
 }
+.parameter-count{display:block;min-height:16px;line-height:16px}
+.parameter-preview-pair{container:parameter-preview/inline-size;width:100%;min-width:0}
+.parameter-preview-columns{gap:16px;align-items:start}
+.parameter-source-figure{margin:0;width:100%;min-width:0;align-self:start}
+.parameter-source-figure>.surface-image{display:block;width:100%;height:auto;max-width:100%;object-fit:contain}
+@container parameter-preview (max-width:599px){.parameter-preview-columns.parameter-preview-columns{grid-template-columns:1fr!important}.parameter-preview-columns>.parameter-source-figure{order:-1}}

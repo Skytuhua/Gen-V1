@@ -85,9 +85,18 @@ function Layout({ element, children }: ComponentRenderProps) {
 function Split({ element, children }: ComponentRenderProps) {
   const elements = useContext(ArtifactElements), types = childTypes(element, elements, children);
   const ratio = Math.max(.1, Math.min(.9, Number(element.props.ratio) || .5)), columns = `${ratio}fr ${1 - ratio}fr`;
-  return types.length === 2 && types.filter(type => type === 'DocumentPreview').length === 1
-    ? <DocumentPair columns={columns} split>{children}</DocumentPair>
-    : <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
+  if (types.length === 2) {
+    if (types.filter(type => type === 'DocumentPreview').length === 1)
+      return <DocumentPair columns={columns} split>{children}</DocumentPair>;
+    const imageIndex = types.indexOf('Image'), controlsIndex = types.indexOf('ParameterControls');
+    if (imageIndex !== -1 && controlsIndex !== -1) {
+      const sourceFr = imageIndex === 0 ? ratio : 1 - ratio, tracks = imageIndex === 0
+        ? `minmax(0,${sourceFr}fr) minmax(280px,${1 - sourceFr}fr)`
+        : `minmax(280px,${1 - sourceFr}fr) minmax(0,${sourceFr}fr)`;
+      return <div className="parameter-preview-pair"><div className="surface-split parameter-preview-columns" style={{ gridTemplateColumns: tracks }}>{Children.toArray(children).map((node, index) => index === imageIndex ? <figure key={element.children?.[index] ?? index} className="parameter-source-figure">{node}</figure> : node)}</div></div>;
+    }
+  }
+  return <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
 }
 function SignatureLoading({ label = 'Your signature' }: SignaturePadProps) {
   // Reuse the control's shell geometry while its independently lazy logic loads.
