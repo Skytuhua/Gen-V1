@@ -1,0 +1,40 @@
+# Plan: Anchor model-picker popover within the composer instead of overlapping the sidebar
+
+## META
+- Feature: Model picker popover positioning
+- Repo: skytuhua-org/Gen-V1 — plan rev 1, 2026-11-20
+- Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Status: planning complete, implementation NOT started
+- Source: manual UX audit of built app on :4317
+
+## OBJECTIVE
+Opening the model picker renders a wide popover whose left edge extends past the chat column and floats over the sidebar thread list, visually attaching to unrelated UI. Success: the popover is clamped to the chat/composer bounds (or right-anchored to its trigger) so it never covers navigation.
+
+## REQUIREMENTS
+- Popover must not paint over the sidebar at any supported viewport (check ~900px and ~1280px widths).
+- Keep full option list readable; don't shrink content to fix it — reposition.
+- Same fix should apply to sibling popovers opened from the composer row if they share positioning logic.
+
+## REPO_MAP
+- `apps/web/src/ComposerToolbar.tsx` — mounts `<ModelPicker>` inside `composer-runtime-controls` (line ~82).
+- `apps/web/src/ModelPicker.tsx` — popover implementation (verified exists).
+- Discovery: shared popover/anchoring utility (`rg -l "popover|anchor" apps/web/src`).
+
+## DESIGN
+Anchor the popover to the trigger button with collision-aware positioning (flip/shift) bounded to the chat column, or set `min()`-clamped width and right-align to trigger. If a shared popover primitive exists, fix collision padding there so all users benefit.
+
+## EXECUTION_DAG
+- T01: Find popover positioning code in ModelPicker/shared primitive. done-when: root positioning logic identified.
+- T02: Add boundary clamp or right-anchored placement. done-when: popover left edge ≥ sidebar right edge at 900/1280px.
+- T03: Verify no regression in narrow layout (700px, 500px) and when sidebar is collapsed.
+- T04: Screenshots before/after.
+
+## VALIDATION
+- Fixture: open model picker at 1280px and 900px viewport; left edge must not cross the sidebar boundary.
+- Keyboard open (if supported) shows same placement.
+
+## STATE
+- Researched: ss_e59042e2.png (overlap visible). Implemented: nothing. Next: T01.
+
+## REFERENCES
+- Audit screenshot: ss_e59042e2.png.
