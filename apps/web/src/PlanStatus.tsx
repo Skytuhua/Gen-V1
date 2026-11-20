@@ -275,6 +275,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
         aria-label={`Task plan: ${record.value.title}`}
         aria-busy={loading || undefined}
       >
+        <p className="surface-purpose">Live status of the running plan. Expand a step or agent to see its work.</p>
         <header className="plan-status-header">
           <div className="plan-context-toolbar" aria-label="Plan progress and actions">
             <span className="plan-completion" title={`Plan revision ${timeline.revision}`}>
@@ -282,9 +283,9 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
             </span>
             <div className="plan-toolbar-actions">
               {current && (
-                <button type="button" className="quiet plan-jump" aria-label="Jump to current" onClick={jump}>
+                <button type="button" className="quiet plan-jump" aria-label="Scroll to the step currently running" onClick={jump}>
                   <ArrowDownToLine size={14} aria-hidden="true" />
-                  <span>Jump to current</span>
+                  <span>Jump to running step</span>
                 </button>
               )}
               {timeline.steps.length > 0 && (

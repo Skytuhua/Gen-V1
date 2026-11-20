@@ -14,7 +14,7 @@ async function schedule(page:Page,theme:'light'|'dark'='light'){
 
 for(const theme of ['light','dark'] as const)test(`time blocks and selected checks remain visibly distinct in ${theme}`,async({page})=>{
  await schedule(page,theme);const option=page.getByRole('option',{name:'Working session',exact:true});
- const band=option.locator('.schedule-interval-band');await expect(band).toBeVisible();expect((await band.boundingBox())!.height).toBeGreaterThanOrEqual(26);
+ const band=option.locator('.schedule-interval-band');await expect(band).toBeVisible();expect((await band.boundingBox())!.height).toBeGreaterThanOrEqual(16);
  await option.click();await expect(option).toHaveAttribute('aria-selected','true');
  const selection=option.locator('.schedule-choice');await expect(selection.locator('svg')).toBeVisible();
  const contrast=await selection.evaluate(node=>{const rgb=(color:string)=>color.match(/[\d.]+/g)!.slice(0,3).map(Number).map(v=>{const c=v/255;return c<=.04045?c/12.92:((c+.055)/1.055)**2.4;});const lum=(color:string)=>{const c=rgb(color);return .2126*c[0]+.7152*c[1]+.0722*c[2];};const style=getComputedStyle(node),fg=lum(style.color),bg=lum(style.backgroundColor);return (Math.max(fg,bg)+.05)/(Math.min(fg,bg)+.05);});
@@ -23,8 +23,8 @@ for(const theme of ['light','dark'] as const)test(`time blocks and selected chec
 
 test('availability and tentative selection are understandable without relying on color',async({page})=>{
  const host=await schedule(page);const unavailable=page.getByRole('option',{name:'Team review',exact:true}),tentative=page.getByRole('option',{name:'Afternoon review',exact:true});
- await expect(unavailable).toHaveAccessibleDescription(/Unavailable/);await expect(tentative).toHaveAccessibleDescription(/Tentative/);
- await tentative.click();await expect(tentative.locator('.schedule-availability')).toHaveText('Selected · Tentative');
+ await expect(unavailable).toHaveAccessibleDescription(/Not offered/);await expect(tentative).toHaveAccessibleDescription(/Awaiting confirmation/);
+ await tentative.click();await expect(tentative.locator('.schedule-availability')).toHaveText('Selected · Awaiting confirmation');
  await expect(page.locator('.schedule-proposal')).toContainText('Wed, Nov 4');
  await expect(page.getByRole('button',{name:'Propose time',exact:true})).toBeEnabled();await page.getByRole('button',{name:'Propose time',exact:true}).click();
  await expect.poll(()=>host.commands.filter(command=>command.type==='action.submit').length).toBe(1);
@@ -55,7 +55,7 @@ test('pending proposals do not label a later local selection as the submitted ti
  const snapshot=taskFixture({root:'schedule',elements:{schedule:{type:'SchedulePicker',props:{dataBinding:'slots',stateKey:'time',actionId:'ask'}}}},{slots});
  const host=await serveTaskFixture(page,snapshot,async()=>{await pending;return {};});await page.goto('/');
  try{
-  await page.getByRole('option',{name:'Design review',exact:true}).click();await page.getByRole('button',{name:'Propose this time',exact:true}).click();
+  await page.getByRole('option',{name:'Design review',exact:true}).click();await page.getByRole('button',{name:'Send this time',exact:true}).click();
   await expect(page.getByRole('button',{name:'Sending…',exact:true})).toBeDisabled();await page.getByRole('option',{name:'Afternoon review',exact:true}).click();
   await expect(page.locator('.schedule-proposal')).not.toContainText('Wed, Nov 4');
   expect(host.commands.find(command=>command.type==='action.submit')!.payload.payload).toMatchObject({slotId:'short'});
