@@ -1,4 +1,4 @@
-.floating-window {position:fixed;display:grid;grid-template-rows:auto auto 1fr;overflow:hidden;min-width:0;background:var(--surface);color:var(--text);border-radius:13px;box-shadow:0 10px 40px #10121a24,0 0 0 1px var(--border);font-size:12px;transition:left var(--ui-motion-panel-enter) var(--ui-ease-move),top var(--ui-motion-panel-enter) var(--ui-ease-move),width var(--ui-motion-panel-enter) var(--ui-ease-move),height var(--ui-motion-panel-enter) var(--ui-ease-move),grid-template-rows var(--ui-motion-panel-exit) var(--ui-ease-move);}
+.floating-window {position:fixed;display:grid;grid-template-rows:auto auto 1fr;overflow:hidden;min-width:0;background:var(--surface);color:var(--text);border-radius:13px;box-shadow:0 10px 40px #10121a24,0 0 0 1px var(--border);font-size:12px;transition:grid-template-rows var(--ui-motion-panel-exit) var(--ui-ease-move);}
 .floating-window[data-collapsed=true] {grid-template-rows:auto auto 0fr;}
 .floating-window-notice {grid-row:2;}
 .floating-window[hidden] {display:none;}
