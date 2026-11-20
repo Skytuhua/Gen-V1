@@ -311,11 +311,11 @@ describe('aggregate and manifest',()=>{
 
   it('does not resume logging after a mismatched private-key end delimiter',async()=>{
     const directory=temporaryDirectory();
-    const script=String.raw`process.stdout.write("before\\n-----BEGIN RSA PRIVATE KEY-----\\nSYNTHETIC_PEM_CANARY_9284\\n-----END PRIVATE KEY-----\\nDO_NOT_LEAK_AFTER_MISMATCH\\n");`;
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_CANARY_9284\n-----END PRIVATE KEY-----\nDO_NOT_LEAK_AFTER_MISMATCH\n");`;
     const result=await runCheck(specFor(directory,{args:['-e',script]}));
     expect(result.status).toBe('PASS');
     const log=readFileSync(result.artifact,'utf8');
-    expect(log).toContain('before\\n');
+    expect(log).toContain('before\n');
     expect(log).toContain('[REDACTED PRIVATE KEY]');
     expect(log).not.toContain('SYNTHETIC_PEM_CANARY_9284');
     expect(log).not.toContain('DO_NOT_LEAK_AFTER_MISMATCH');
