@@ -88,6 +88,11 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     const ended = new Promise<number | null>((resolve, reject) => { child.once('error', reject); child.once('close', resolve); child.stdin?.once('error', reject); });
     child.stdin?.end(text);
     const code = await bounded(ended, 180_000, 'Official Gemini headless turn did not terminate.');
+    // A clean process close ends its last JSONL record even without a newline.
+    if (!failure && code === 0 && buffer.trim()) {
+      try { accept(JSON.parse(buffer)); }
+      catch (error) { failure = error instanceof Error ? error : new Error('Invalid official Gemini event.'); }
+    }
     await writes; assert();
     if (failure) throw failure;
     if (code !== 0 || !terminal || status !== 'success') throw new HarnessError('OFFICIAL_TURN_FAILED', 'Official Gemini did not confirm a successful terminal turn. Native history will determine input delivery.');
