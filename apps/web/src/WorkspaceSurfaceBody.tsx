@@ -4,6 +4,7 @@ import type {PanelBinding,WorkspacePanelKind} from '../../../packages/contracts/
 import {workspaceActionEnvelopeSchema,workspaceActionPayloadSchemas,createdPullRequestResultSchema} from '../../../packages/contracts/workspace-action-outcomes';
 import type {GitStatus} from '../../../packages/workspace/tools.ts';
 import {ApiError,authenticated,csrfToken,read} from './api.ts';
+import {errorText} from './error-recovery.ts';
 import {UsageSummary,WorkspaceLauncher,GrantedFiles,RecordedDiffPanel,OutputPanel} from './WorkspacePanelBodies.tsx';
 import {getPreferences,type UiPreferences} from '../../../packages/contracts/preferences.ts';
 import type {TimeFormat} from './time-format';
@@ -25,7 +26,7 @@ import {panelLabels} from './WorkspaceControls';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
 const post=<T,>(url:string,body:unknown,isCurrent?:()=>boolean)=>authenticated(()=>{if(isCurrent&&!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});}).then(read<T>);
-const message=(error:unknown)=>error instanceof Error?error.message:'The project tool could not complete this request.';
+const message=(error:unknown)=>errorText(error,'The project tool could not complete this request.');
 function useProjectRequest<T>(url:string,active:boolean){
  const[value,setValue]=useState<T|null>(null),[error,setError]=useState(''),[errorCode,setErrorCode]=useState(''),generation=useRef(0),pending=useRef<AbortController|null>(null),activeLoad=useRef<(()=>Promise<void>)|null>(null);
  const load=useCallback(async():Promise<void>=>{if(activeLoad.current!==load)return;const captured=++generation.current;pending.current?.abort();const controller=new AbortController();pending.current=controller;setError('');setErrorCode('');try{const next=await get<T>(url,controller.signal);if(captured===generation.current)setValue(next);}catch(error){if(captured===generation.current&&!controller.signal.aborted){setError(message(error));setErrorCode(error instanceof ApiError?error.code:'');}}finally{if(pending.current===controller)pending.current=null;}},[url]);

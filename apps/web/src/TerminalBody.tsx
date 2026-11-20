@@ -2,12 +2,13 @@ import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
+import {errorText} from './error-recovery.ts';
 import './terminal-excerpts.css';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
 
 interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
 type Phase='starting'|'running'|'read-interrupted'|'ended'|'unconfirmed';
-const message=(error:unknown)=>error instanceof Error?error.message:'The project tool could not complete this request.';
+const message=(error:unknown)=>errorText(error,'The project tool could not complete this request.');
 const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()=>{
  if(!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');
  return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});
