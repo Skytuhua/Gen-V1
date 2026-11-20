@@ -127,7 +127,7 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .activity li+li { margin-top:6px; }
 .activity .markdown { font-size:14px; }
 .composer-dock { flex:0 0 auto; width:calc(100% - 64px); max-width:760px; margin:0 auto; padding:0 0 18px; position:relative; }
-.composer { border:1px solid var(--control-border); border-radius:15px; background:var(--surface); padding:11px 14px 10px; }
+.composer { border:1px solid var(--control-border); border-radius:15px; background:var(--surface); padding:11px 14px 10px; container:composer-footer/inline-size; }
 .composer:focus-within { border-color:var(--ui-focus-ring,#808080); }
 .composer.dragging { border-color:var(--ui-focus-ring,#808080); background:var(--hover); }
 .composer-input { position:relative; min-width:0; overflow:hidden; }
