@@ -37,6 +37,9 @@ const hash=(value:string)=>createHash('sha256').update(value).digest('hex').slic
 const promptfooTools=new Set(['run_evaluation','list_evaluations','get_evaluation_details']);
 const graphTools=new Set(['query_graph','get_node','get_neighbors','get_community','god_nodes','graph_stats','shortest_path']);
 const deterministicAssertions=new Set(['equals','contains','icontains','not-contains','not-icontains','starts-with','regex','not-regex','is-json','contains-json','rouge-n','levenshtein','latency','cost','is-xml','contains-xml']);
+// V8's native Error.stack accessor remains an accessor after materialization.
+// Match its descriptor by identity, never by function name or source text.
+const nativeStackAccessors=Object.getOwnPropertyDescriptor(new Error('native stack probe'),'stack');
 function object(value:unknown):Record<string,unknown>{if(!value||typeof value!=='object'||Array.isArray(value))throw Error('Integration arguments must be an object');return value as Record<string,unknown>;}
 function inside(root:string,path:string){const target=resolve(root,path),part=relative(resolve(root),target);if(part==='..'||part.startsWith('..'+(process.platform==='win32'?'\\':'/'))||isAbsolute(part))throw Error('Integration path leaves the authorized project');return target;}
 async function scopedTarget(root:string,path:string,mustExist=false){const target=inside(root,path);let cursor=target;while(true){try{const info=await lstat(cursor);if(info.isSymbolicLink()||info.isFile()&&info.nlink!==1)throw Error('Integration project paths cannot traverse links');}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT'||mustExist&&cursor===target)throw error;}if(cursor===resolve(root))break;const parent=dirname(cursor);if(parent===cursor)throw Error('Integration path leaves its project');cursor=parent;}return target;}
@@ -189,9 +192,50 @@ export class IntegrationManager {
     const failure=pending.pop()!;
     if(seen.has(failure))continue;
     seen.add(failure);
-    const stack=failure.stack;
-    failure.message=redactor.redact(failure.message).text;
-    if(typeof stack==='string')failure.stack=redactor.redact(stack).text;
+    // Node's formatter invokes inherited util.inspect.custom hooks independently
+    // of Error fields. Reject them before returning the original child Error.
+    for(let proto:object|null=Object.getPrototypeOf(failure);proto;proto=Object.getPrototypeOf(proto)){
+     if(Object.getOwnPropertyDescriptor(proto,Symbol.for('nodejs.util.inspect.custom')))
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+    }
+    // Node's Error formatter reads name, message, stack and cause through
+    // both own and inherited descriptors. Accessors can ignore redaction writes
+    // or expose a token while the failure is formatted; never invoke them.
+    for(const key of ['name','message','stack','cause'] as const){
+     let holder:object|null=failure;
+     let field:PropertyDescriptor|undefined;
+     while(holder){
+      field=Object.getOwnPropertyDescriptor(holder,key);
+      if(field)break;
+      holder=Object.getPrototypeOf(holder);
+     }
+     if(!field)continue;
+     if(!('value' in field)){
+      // The intrinsic Error.stack getter is safe to read. Child-defined or
+      // inherited accessors are not. Replace the native descriptor with a
+      // redacted data property before the Error reaches any formatter.
+      if(key==='stack'&&holder===failure&&field.configurable&&
+       nativeStackAccessors?.get&&nativeStackAccessors.set&&
+       field.get===nativeStackAccessors.get&&field.set===nativeStackAccessors.set){
+       const stack=failure.stack;
+       if(typeof stack!=='string')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,'stack',{value:redactor.redact(stack).text,writable:true,configurable:true,enumerable:field.enumerable});
+       continue;
+      }
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+     if(key==='cause'){
+      // An inherited cause is not owned and cannot be scrubbed in place.
+      if(holder!==failure&&field.value!==null&&field.value!==undefined)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      continue;
+     }
+     if(typeof field.value!=='string')throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const redacted=redactor.redact(field.value).text;
+     if(redacted!==field.value){
+      if(holder!==failure||(!field.writable&&!field.configurable))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+      Object.defineProperty(failure,key,{...field,value:redacted});
+     }
+    }
     const cause=Object.getOwnPropertyDescriptor(failure,'cause');
     if(cause&&'value' in cause){
      if(typeof cause.value==='string'){
@@ -204,10 +248,31 @@ export class IntegrationManager {
        else throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
       }
      }else if(cause.value instanceof Error)pending.push(cause.value);
-     else if(cause.value!==null&&(typeof cause.value==='object'||typeof cause.value==='function')){
-      // Node prints arbitrary structured causes, including nested credential
-      // fields and custom inspect hooks. Never inspect or traverse untrusted
-      // metadata with getters just to guess whether it holds a secret.
+     else if(cause.value!==null&&cause.value!==undefined){
+      // Node prints number, bigint, Symbol and structured Error causes.
+      // Do not surface unclassified causes or invoke untrusted getters.
+      throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     }
+    }
+    // Node's error formatter also prints own metadata, not just the stack and cause.
+    // Structured fields and accessors can contain credentials or custom inspect
+    // hooks. Refuse them without evaluating their content or invoking getters.
+    for(const key of Reflect.ownKeys(failure)){
+     if(key==='message'||key==='stack'||key==='cause')continue;
+     // Node also prints property NAMES; known raw or encoded secrets in keys
+      // must not reach the formatter, even when the property value is harmless.
+      if(typeof key==='symbol'||redactor.redact(key).text!==key)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const field=Object.getOwnPropertyDescriptor(failure,key);
+     if(!field)continue;
+     if(!('value' in field))throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+     const value=field.value;
+     if(typeof value==='string'){
+      const redacted=redactor.redact(value).text;
+      if(redacted!==value){
+       if(!field.writable&&!field.configurable)throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
+       Object.defineProperty(failure,key,{...field,value:redacted});
+      }
+     }else if(typeof value==='symbol'||value!==null&&(typeof value==='object'||typeof value==='function')){
       throw new HarnessError('INTEGRATION_UNAVAILABLE','The integration error could not be safely redacted.');
      }
     }

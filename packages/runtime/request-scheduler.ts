@@ -211,6 +211,8 @@ export class StatelessTransportPool {
   }
 
   private async expire(id: string): Promise<void> {
+    const timer = this.timers.get(id);
+    if (timer !== undefined) clearTimeout(timer);
     this.timers.delete(id);
     const entry = this.idle.get(id);
     this.idle.delete(id);

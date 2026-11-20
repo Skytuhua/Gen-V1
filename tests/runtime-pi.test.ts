@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { RunContext, StartRun } from "../packages/contracts/index.ts";
 import { encodeInput, extractInputIds } from "../packages/runtime-pi/input-envelope.ts";
-import { openTaskSession, taskPaths } from "../packages/runtime-pi/session.ts";
+import { openTaskSession, taskPaths, validateSessionPath } from "../packages/runtime-pi/session.ts";
 import { EventNormalizer } from "../packages/runtime-pi/events.ts";
 import { ToolBridge, routeToolCall } from "../packages/runtime-pi/ipc.ts";
 import { createHostTools, createHostResourceLoader } from "../packages/runtime-pi/tool-definitions.ts";
@@ -40,6 +40,27 @@ it("clears the Windows cancellation grace timer when the worker exits", async ()
     await cancelled;
     expect(vi.getTimerCount()).toBe(0);
     expect(child.kill).not.toHaveBeenCalled();
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    vi.useRealTimers();
+  }
+});
+
+it("removes the exit listener when worker cancellation cannot be confirmed", async () => {
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform")!;
+  vi.useFakeTimers();
+  Object.defineProperty(process, "platform", { ...descriptor, value: "win32" });
+  try {
+    const child = Object.assign(new EventEmitter(), { pid: 101, exitCode: null, signalCode: null, kill: vi.fn() });
+    vi.spyOn(childProcess, "execFile").mockImplementation(((...args: unknown[]) => {
+      (args.at(-1) as (error: Error | null) => void)(null);
+    }) as typeof childProcess.execFile);
+    const cancelled = terminateProcessTree(child as unknown as childProcess.ChildProcess);
+    const rejected = expect(cancelled).rejects.toMatchObject({ code: "PI_CANCEL_UNCONFIRMED" });
+    await vi.advanceTimersByTimeAsync(5_000);
+    await rejected;
+    expect(child.listenerCount("exit")).toBe(0);
+    expect(vi.getTimerCount()).toBe(0);
   } finally {
     Object.defineProperty(process, "platform", descriptor);
     vi.useRealTimers();
@@ -595,4 +616,42 @@ describe("subscription login storage", () => {
     expect(await getOrCreateDeviceId(dir)).toBe(ids[0]);
     expect(await readFile(join(dir, "pi", "device-id"), "utf8")).toBe(ids[0]);
   });
+});
+
+it("validates only the Pi session header without loading the transcript body", async () => {
+  const root = await mkdtemp(join(tmpdir(), "pi-header-bound-"));
+  const sessions = taskPaths(root, "thread").sessionsDir;
+  const path = join(sessions, "saved.jsonl");
+  try {
+    await mkdir(sessions, {recursive: true});
+    const header = JSON.stringify({type: "session", id: "test", version: 3, cwd: "/日本語"});
+    await writeFile(path, header + "\r\n" + "historical content\n".repeat(100_000));
+    const fullRead = vi.spyOn(fileSystem, "readFile");
+    try {
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+      expect(fullRead).not.toHaveBeenCalled();
+      await writeFile(path, header);
+      await expect(validateSessionPath(root, path, "thread")).resolves.toBe(await fileSystem.realpath(path));
+    } finally { fullRead.mockRestore(); }
+    await writeFile(path, JSON.stringify({type: "session", id: "test", version: 3, extra: "x".repeat(64 * 1024)}));
+    await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({code: "PI_SESSION_INVALID"});
+  } finally { await rm(root, {recursive: true, force: true}); }
+});
+
+it.each(["throw", "callback"] as const)("clears the Pi acknowledgment timer when an IPC follow-up fails via %s", async mode => {
+  const workers = mockWorkers(), runtime = createPiRuntime({dataDir: await temp()});
+  runtime.configure({onTool: async () => null, onEvent: () => {}});
+  try {
+    await runtime.start(input);
+    vi.useFakeTimers({toFake: ["setTimeout", "clearTimeout"]});
+    const count = vi.getTimerCount(), failure = new Error("Synthetic IPC send failure");
+    workers.children[0].send.mockImplementationOnce((_message: unknown, callback: (error: Error) => void) => {
+      if (mode === "throw") throw failure;
+      queueMicrotask(() => callback(failure));
+      return false;
+    });
+    await expect(runtime.followUp({...input, inputId: "send-failed"})).rejects.toThrow(failure);
+    expect(vi.getTimerCount()).toBe(count);
+    await expect(runtime.followUp({...input, inputId: "send-retry"})).resolves.toBeUndefined();
+  } finally { vi.useRealTimers(); await runtime.dispose(); }
 });

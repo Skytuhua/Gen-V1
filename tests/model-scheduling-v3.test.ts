@@ -89,6 +89,25 @@ it('preserves the reset and close failures in order without returning the idle t
  expect(close).toHaveBeenCalledOnce();
  expect(await pool.take(key())).toBeNull();
 });
+it('does not expire a replacement on the invalidated transport’s old timer',async()=>{
+ vi.useFakeTimers();
+ const pool=new StatelessTransportPool();
+ try {
+  const first=transport(),replacement=transport(),half=STATELESS_IDLE_EXPIRY_MS/2;
+  expect(pool.offer(key(),first)).toBe(true);
+  await vi.advanceTimersByTimeAsync(half);
+  await pool.invalidate(key());
+  expect(first.closed).toBe(true);
+  expect(pool.offer(key(),replacement)).toBe(true);
+  await vi.advanceTimersByTimeAsync(half);
+  expect(replacement.closed).toBe(false);
+  await vi.advanceTimersByTimeAsync(half);
+  expect(replacement.closed).toBe(true);
+ } finally {
+  await pool.close();
+  vi.useRealTimers();
+ }
+});
 it('two accounts on two threads never observe each other\'s transport inputs',async()=>{
  const pool=new StatelessTransportPool();
  const requests=(label:string)=>{const inputs:string[]=[];return{transport:{...transport(),reset(){this.resetCount++;},send(input:string){inputs.push(label+':'+input);}},inputs};};

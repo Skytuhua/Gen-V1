@@ -112,6 +112,11 @@ describe('regression test selection', () => {
     expect(result.issues.map(i => i.code)).toContain('UNMAPPED_SOURCE');
   });
 
+  it('does not claim full coverage when an unmapped source has no available tests', () => {
+    const result = selectRegressionTests([{ path: 'packages/core/unknown.ts', status: 'M' }], [], map);
+    expect(result).toMatchObject({ tests: [], coverage: 'NONE', needsReview: true });
+    expect(result.issues.map(issue => issue.code)).toEqual(['UNMAPPED_SOURCE', 'EMPTY_SELECTION']);
+  });
   it('falls back to the full suite when every mapped test was removed', () => {
     const stale = { 'packages/core/thing.ts': ['tests/gone-1.test.ts', 'tests/gone-2.test.ts'] };
     const result = selectRegressionTests([{ path: 'packages/core/thing.ts', status: 'M' }], existing, stale);
@@ -157,6 +162,13 @@ describe('regression test selection', () => {
     const result = select([{ path: 'tests/store.test.ts', status: 'M' }]);
     expect(result.tests).toEqual(['tests/store.test.ts']);
     expect(result.coverage).toBe('PARTIAL');
+  });
+
+  it('does not mistake changed production files with a test suffix for indexed tests', () => {
+    const path = 'packages/core/example.test.ts';
+    const result = select([{ path, status: 'M' }]);
+    expect(result).toMatchObject({ coverage: 'FULL', needsReview: true });
+    expect(result.issues).toEqual([expect.objectContaining({ path, code: 'UNMAPPED_SOURCE' })]);
   });
 
   it('indexes files, not folders whose names end with a test suffix', () => {

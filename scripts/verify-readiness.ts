@@ -111,8 +111,9 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
       if(!settled){settled=true;clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);killProcessTree(child);}
       resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
     });
-    child.stdout?.on('data',chunk=>{if(!settled)sink.write(chunk);});
-    child.stderr?.on('data',chunk=>{if(!settled)sink.write(chunk);});
+    // Decode each byte stream incrementally before merging and redacting lines.
+    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}

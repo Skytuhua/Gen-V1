@@ -119,9 +119,16 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
     nodeVersion: process.version, packageManagerVersion: null, vitestVersion: null,
     source: null, commands: [], tests: [], contracts: [], report: null, issues: [],
   };
-  const root = realpathSync(repoRoot);
-  const outputPath = resolve(outputDirectory);
-  const out = join(realpathSync(dirname(outputPath)), basename(outputPath));
+  let root: string, out: string;
+  try {
+    root = realpathSync(repoRoot);
+    const outputPath = resolve(outputDirectory);
+    out = join(realpathSync(dirname(outputPath)), basename(outputPath));
+  } catch (error) {
+    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: error instanceof Error ? error.message : String(error) });
+    receipt.endedAt = new Date().toISOString();
+    return receipt;
+  }
   const outputRelative = relative(root, out);
   if (outputRelative !== '..' && !outputRelative.startsWith('..' + sep) && !isAbsolute(outputRelative)) {
     receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: 'Evidence output must be outside the source checkout.' });
@@ -129,9 +136,11 @@ export async function runDependencyContracts(sourceLockPath: string, outputDirec
     return receipt;
   }
   // Exclusive ownership prevents adoption or replacement of old command receipts.
-  await mkdir(out);
-  if (realpathSync(out) !== out) {
-    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: 'Evidence output changed during directory creation.' });
+  try {
+    await mkdir(out);
+    requireValue(realpathSync(out) === out, 'Evidence output changed during directory creation.');
+  } catch (error) {
+    receipt.issues.push({ code: 'COMPATIBILITY_SETUP_BLOCKED', message: error instanceof Error ? error.message : String(error) });
     receipt.endedAt = new Date().toISOString();
     return receipt;
   }

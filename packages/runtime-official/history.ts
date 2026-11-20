@@ -13,16 +13,26 @@ export async function claudeHistory(dataDir: string, manifest: ManifestState, sp
   const child = spawnProcess(process.execPath, ['--import', pathToFileURL(createRequire(import.meta.url).resolve('tsx')).href, fileURLToPath(new URL('./history-command.ts', import.meta.url)), manifest.value.sessionId!, dirname(manifest.path), manifest.value.threadId], {
     cwd: dirname(manifest.path), env: officialRuntimeEnvironment(dataDir, 'claude-code'), stdio: ['ignore', 'pipe', 'ignore'], detached: process.platform !== 'win32', windowsHide: true,
   });
-  let output = '';
-  child.stdout?.setEncoding('utf8');
+  const maximum = 4 * 1024 * 1024;
+  const output: Buffer[] = [];
+  let bytes = 0, exceeded = false;
   const finished = new Promise<void>((resolve, reject) => {
     const failed = () => reject(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Claude history connection closed unexpectedly. Input delivery remains unresolved.'));
     child.on('error', failed); child.stdout?.on('error', failed);
-    child.stdout?.on('data', (chunk: string) => { output += chunk; if (output.length > 4 * 1024 * 1024) void terminateProcessTree(child); });
+    child.stdout?.on('data', (chunk: Buffer) => {
+      if (exceeded) return;
+      bytes += chunk.length;
+      if (bytes > maximum) {
+        exceeded = true;
+        reject(new HarnessError('OFFICIAL_HISTORY_LIMIT', 'Official Claude history exceeds the bounded reader limit. Input delivery remains unresolved.'));
+        return;
+      }
+      output.push(chunk);
+    });
     child.once('close', code => code === 0 ? resolve() : reject(new Error('Official Claude Code history could not be read. Inputs with uncertain delivery remain unresolved.')));
   });
   try {
     await bounded(finished, 15_000, 'Official history reader timed out.');
-    return JSON.parse(output) as HistoryReceipt[];
+    return JSON.parse(Buffer.concat(output, bytes).toString('utf8')) as HistoryReceipt[];
   } finally { await terminateProcessTree(child); }
 }

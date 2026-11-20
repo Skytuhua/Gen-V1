@@ -1,0 +1,55 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "4805af4680094d2af48ecf666688e750797e9dda",
+  "executionBaseSha": "c77d4716d94f72008be04562cbb596f1bb445512",
+  "inspectedPaths": [
+    { "path": "package.json", "blobSha": "f781878a516cde818abe86e263bfc7df9fa51873" },
+    { "path": "pnpm-lock.yaml", "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf" },
+    { "path": "docs/architecture.md", "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c" },
+    { "path": "packages/contracts/implementation-evidence.ts", "blobSha": "6851e571feeaf0fdade155011a4604f499383564" },
+    { "path": "packages/contracts/tool-effects.ts", "blobSha": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0" },
+    { "path": "packages/contracts/request-context.ts", "blobSha": "90485ab315299e97f96b7b2dc370f0851f7f620f" },
+    { "path": "packages/core/capability-flags.ts", "blobSha": "d44ec3919c28099f57cbc5b1b2fe8ffa1f397240" },
+    { "path": "packages/core/execution-policy.ts", "blobSha": "aff18633d4f341fb8ac0cb4dd5a98adfff89594a" },
+    { "path": "packages/contracts/execution-profile.ts", "blobSha": "031a20ee2c4d0fa88e707441644225505e0358e4" },
+    { "path": "packages/plugins/host.ts", "blobSha": "75d1645e4131741f7c355fdfbba3358d47736185" },
+    { "path": "packages/plugins/contracts.ts", "blobSha": "ecfce223f2f20b71310de6dd8b6c38dc14596c23" },
+    { "path": "packages/plugins/installation.ts", "blobSha": "76994947eeb2c508dacd6021359c459c129d5123" },
+    { "path": "packages/plugins/frame-protocol.ts", "blobSha": "3837d30f6fbe8100a9307a37b06eadd2f6ae5dd0" },
+    { "path": "apps/server/plugin-routes.ts", "blobSha": "37379a67074aa5329b6702cfd2e85854a5376716" },
+    { "path": "apps/server/host.ts", "blobSha": "a0943b48974e220184eee9a7efad081b1fc3ab25" },
+    { "path": "apps/server/server.ts", "blobSha": "cc4378a202862e508820d3abd92081b0390db72f" },
+    { "path": "packages/runtime-hermes/worker.py", "blobSha": "142ca4301644276eeecd2f51ec655c69980a0f17" },
+    { "path": "apps/web/src/PluginFrame.tsx", "blobSha": "cf44b28c91a32390e6effb961e06eebea1e4aa22" },
+    { "path": "apps/web/src/WorkspaceControls.tsx", "blobSha": "d39f09bc295dbf51f91e8172920543bc5814e0f0" }
+  ],
+  "publicContracts": [
+    {
+      "name": "packages/core/execution-policy.ts",
+      "version": "aff18633d4f341fb8ac0cb4dd5a98adfff89594a",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts", "tests/plugin-protocol-decisions-v6.test.ts"]
+    },
+    {
+      "name": "packages/plugins/installation.ts",
+      "version": "76994947eeb2c508dacd6021359c459c129d5123",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/plugins/contracts.ts",
+      "version": "ecfce223f2f20b71310de6dd8b6c38dc14596c23",
+      "testIds": ["tests/plugin-worker-v3.test.ts", "tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "d44ec3919c28099f57cbc5b1b2fe8ffa1f397240",
+      "testIds": ["tests/plugin-lifecycle-v3.test.ts"]
+    },
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
+      "testIds": ["tests/plugin-protocol-decisions-v6.test.ts"]
+    }
+  ],
+  "acceptedDependencyCommits": ["c77d4716d94f72008be04562cbb596f1bb445512"],
+  "approvedDrift": []
+}
