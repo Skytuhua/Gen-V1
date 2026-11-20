@@ -67,6 +67,28 @@ it('stateless pooling requires exact keys, clears owner state, expires idle tran
  const invalidated=transport();expect(pool.offer(key(),invalidated)).toBe(true);
  await pool.invalidate(key());expect(invalidated.closed).toBe(true);
 });
+it('closes an idle transport when resetting it for reuse fails', async () => {
+ const pool = new StatelessTransportPool();
+ const failure = new Error('reset failed');
+ const item = {...transport(), reset: () => Promise.reject(failure)};
+ expect(pool.offer(key(), item)).toBe(true);
+ await expect(pool.take(key())).rejects.toBe(failure);
+ expect(item.closed).toBe(true);
+ expect(await pool.take(key())).toBeNull();
+});
+it('preserves the reset and close failures in order without returning the idle transport', async () => {
+ const pool = new StatelessTransportPool();
+ const resetFailure = new Error('reset failed');
+ const closeFailure = new Error('close failed');
+ const close = vi.fn(async () => { throw closeFailure; });
+ const item = {...transport(), reset: async () => { throw resetFailure; }, close};
+ expect(pool.offer(key(), item)).toBe(true);
+ const error = await pool.take(key()).catch((failure: unknown) => failure);
+ expect(error).toBeInstanceOf(AggregateError);
+ expect(error).toMatchObject({errors: [resetFailure, closeFailure]});
+ expect(close).toHaveBeenCalledOnce();
+ expect(await pool.take(key())).toBeNull();
+});
 it('does not expire a replacement on the invalidated transport’s old timer',async()=>{
  vi.useFakeTimers();
  const pool=new StatelessTransportPool();
@@ -143,4 +165,18 @@ it('measures production queue time independently of wall-clock adjustments',asyn
   const request=await queued;request.release();
   expect(request.queuedMs).toBe(37);
  }finally{wall.mockRestore();monotonic.mockRestore();}
+});
+
+
+it('attempts every idle transport close before reporting a pool shutdown failure',async()=>{
+ const pool=new StatelessTransportPool(),failure=new Error('Synthetic failed close');
+ const a={...transport(),close:vi.fn(async()=>{throw failure;})},b=transport();
+ pool.offer(key(),a);pool.offer(key({accountId:'different'}),b);
+ try{
+  const result=await pool.close().catch(error=>error);
+  expect(b.closed).toBe(true);
+  expect(a.close).toHaveBeenCalledOnce();
+  expect(result).toMatchObject({errors:[failure]});
+  await expect(pool.take(key({accountId:'different'}))).resolves.toBeNull();
+ }finally{await pool.close();}
 });

@@ -23,7 +23,7 @@ export const quiescent = async (page: Page, ms: number, probe: () => unknown | P
 // is the tolerance for rounding in a pass; on the step fixture a real late drop is
 // ~320px, so the two cases separate cleanly. A slow host renders fewer frames, but
 // never fabricates a plateau followed by a jump.
-export const DISCONTINUOUS_TRAVEL_PX = 4;
+const DISCONTINUOUS_TRAVEL_PX = 4;
 export const plateauThenJump = (samples: readonly { h: number }[]) => {
   const heights = samples.map(sample => sample.h), travel = Math.max(...heights) - Math.min(...heights);
   let plateau = 0, jump = 0;

@@ -5,7 +5,7 @@ import {fileURLToPath} from 'node:url';
 const sha=(data:Buffer)=>createHash('sha256').update(data).digest('hex');
 interface File{path:string;bytes:number;sha256:string}
 const manifest='third-party/git-tools/manifest.json';
-export async function lockGitTools(root:string){
+async function lockGitTools(root:string){
  const files:File[]=[];let bytes=0;async function walk(part:string){for(const entry of await readdir(join(root,part),{withFileTypes:true})){const path=part+'/'+entry.name,info=await lstat(join(root,path));if(info.isSymbolicLink())throw Error('Git tools cannot contain links.');if(entry.isDirectory())await walk(path);else{if(!info.isFile()||info.nlink!==1||info.size>64*1024*1024)throw Error('Git tool payload is not an ordinary bounded file.');const data=await readFile(join(root,path));bytes+=data.length;if(bytes>256*1024*1024||files.length>=10000)throw Error('Git tool payload exceeds its budget.');files.push({path,bytes:data.length,sha256:sha(data)});}}}
  for(const tool of ['git','gh'])await walk('.harness-tool-bundles/'+tool);
  files.sort((a,b)=>a.path.localeCompare(b.path));const value={version:1,git:{version:'2.53.0.windows.1',url:'https://github.com/git-for-windows/git/releases/download/v2.53.0.windows.1/MinGit-2.53.0-64-bit.zip',archiveSha256:'82b562c918ec87b2ef5316ed79bb199e3a25719bb871a0f10294acf21ebd08cd'},github:{version:'2.87.3',url:'https://github.com/cli/cli/releases/download/v2.87.3/gh_2.87.3_windows_amd64.zip',archiveSha256:'c590bcb488f80a85c8febd5cde27edd68fdd481bd004aaf9adc50dcf1b21c09c'},bytes,files};await mkdir(join(root,dirname(manifest)),{recursive:true});await writeFile(join(root,manifest),JSON.stringify(value,null,2)+'\n');return{files:files.length,bytes};

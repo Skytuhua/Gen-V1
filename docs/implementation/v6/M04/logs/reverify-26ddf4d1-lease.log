@@ -1,0 +1,4 @@
+
+> gen-v1@0.6.5 build:credential-lease /home/ubuntu/repos/Gen-V1
+> node --import tsx scripts/build-windows-credential-lease.ts
+

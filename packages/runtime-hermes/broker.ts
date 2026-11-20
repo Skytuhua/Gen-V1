@@ -73,7 +73,7 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
    owner=active={ctx:nativeInput,controller:new AbortController(),cancelled:false,completion,operation:Promise.resolve()};
    const owned=owner;
    owned.operation=(async()=>{
-    let release:(()=>void)|undefined,dispatched=false,firstDeltaAt:number|undefined;
+    let release:(()=>void)|undefined,dispatched=false,failed=false,firstDeltaAt:number|undefined;
     const firstDelta=()=>{
      if(firstDeltaAt!==undefined)return;
      firstDeltaAt=performance.now();
@@ -109,12 +109,12 @@ export async function createHermesBroker(options:HermesBrokerOptions):Promise<He
      if(firstDeltaAt!==undefined)stage('firstProviderDelta',firstDeltaAt);
      await completion.promise;stage('settled');await writes;if(owned.cancelled||failure)throw failure??invalid();return{content,usage:usage??{...EMPTY_USAGE}};
     }catch(error){
-     if(failure===undefined)failure=error;
+     failed=true;
      throw error;
     }finally{
      if(owned.runtime){const actual=usage??{...EMPTY_USAGE};usages.set(metadata.sequence,actual);if(usages.size>256)usages.delete(usages.keys().next().value!);try{options.onUsage?.(actual,metadata);}catch{/* Usage projection cannot prevent native teardown. */}}
-     try{await owned.runtime?.dispose();release?.();if(owned.runtime)stage('teardownConfirmed');}catch(error){cleanupError=error;if(failure===undefined)failure=error;throw error;}finally{
-      const outcome=owned.cancelled?'cancelled':failure?'failed':'completed';
+     try{await owned.runtime?.dispose();release?.();if(owned.runtime)stage('teardownConfirmed');}catch(error){cleanupError=error;failed=true;throw error;}finally{
+      const outcome=owned.cancelled?'cancelled':failed?'failed':'completed';
       if(contextBudget){contextBudget.record(metadata,id,usage,outcome);try{options.onBudgetAnchor?.(contextBudget.anchor());}catch{/* Future measurement reuse cannot prevent teardown. */}}
       // Adapter errors can contain source text or credentials. This telemetry
       // lives outside memory Forget custody, so publish only a fixed diagnosis.

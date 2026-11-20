@@ -28,7 +28,9 @@ env:
 jobs:
   links:
     name: Markdown links
-    runs-on: windows-latest
+    # Pure Node link checking (pwsh is preinstalled on ubuntu-latest), so this
+    # stays off the smaller Windows hosted-runner pool the repo's CI jobs share.
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     defaults:
       run:
