@@ -32,42 +32,65 @@ describe('draft desktop release workflow',()=>{
   expect(workflow).not.toContain("($channel -eq 'prerelease') -ne $isPrerelease");
   expect(workflow).not.toContain('Prerelease channel requires a semver prerelease version');
  });
- it('requires all four artifacts and refuses published, ambiguous or channel-mismatched releases',()=>{
+ it('gates the read-only build before repo code and isolates write permission in publish',()=>{
+  const build=workflow.slice(workflow.indexOf('  build:'),workflow.indexOf('  publish:'));
+  const publish=workflow.slice(workflow.indexOf('  publish:'));
+  expect(build).toContain("if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}");
+  expect(workflow).not.toContain('inputs.ref');
+  expect(workflow).not.toMatch(/^      ref:$/m);
+  expect(build).toContain('ref: ${{ github.sha }}');
+  expect(build).toContain('    permissions:\n      contents: read');
+  expect(build).not.toContain('contents: write');
+  expect(workflow.match(/contents: write/g)).toHaveLength(1);
+  expect(publish).toContain('needs: build');
+  expect(publish).not.toMatch(/checkout|\.github\/actions\/setup|pnpm|node |git /);
+  expect(publish).toContain('gh api @Arguments');
+  expect(publish).not.toContain('gh release');
+ });
+ it('transfers only assets and metadata through SHA-pinned artifact actions and cross-checks identity',()=>{
+  expect(workflow).toContain('actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02');
+  expect(workflow).toContain('actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093');
   expect(workflow).toContain("($installer + '.blockmap'), $feed, 'build-manifest.json'");
-  expect(workflow).toContain('Missing release artifact:');
-  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing releases' }");
-  expect(workflow).toContain("if ($existing.Count -gt 1) { throw 'Ambiguous existing release' }");
-  expect(workflow).toContain("if (-not $existing[0].draft) { throw 'Refusing to modify a published release' }");
-  expect(workflow).toContain("throw 'Existing draft channel mismatch'");
-  expect(workflow.indexOf('Refusing to modify a published release')).toBeLessThan(workflow.indexOf('gh release upload'));
-  expect(workflow).toContain('gh release upload $env:RELEASE_TAG @assets --clobber --repo $repo');
-  expect(workflow).toContain("'--draft', '--repo', $repo, '--target', $env:RELEASE_SHA");
-  expect(workflow).toContain("$createArgs += '--prerelease'");
-  expect(workflow).toContain("$repo = 'skytuhua-org/Gen-V1'");
-  expect(workflow).toContain('GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}');
-  expect(workflow).not.toMatch(/git (?:tag|push)|gh release (?:edit|delete)/);
+  expect(workflow).toContain('release-metadata.json');
+  for(const field of ['tag','sha','channel','version']){
+   expect(workflow).toContain('steps.release.outputs.'+field);
+   expect(workflow).toContain('needs.build.outputs.'+field);
+   expect(workflow).toContain('$metadata.'+field+' -cne $env:RELEASE_'+field.toUpperCase());
+  }
+  expect(workflow).toContain('Release metadata does not match build outputs');
+  expect(workflow).toContain('Invalid release asset name');
+  expect(workflow.indexOf('Invalid release asset name')).toBeLessThan(workflow.indexOf('https://uploads.github.com/'));
+  expect(workflow).toContain('[Uri]::EscapeDataString($name)');
+ });
+ it('checks existing lightweight and annotated tags and resolves draft commitish before uploads',()=>{
+  expect(workflow).toContain('git/matching-refs/tags/$encodedTag');
+  expect(workflow).toContain('Where-Object { $_.ref -ceq $tagRef }');
+  expect(workflow).toContain("while ($object.type -eq 'tag')");
+  expect(workflow).toContain('git/tags/$($object.sha)');
+  expect(workflow).toContain("$object.type -ne 'commit' -or $object.sha -cne $env:RELEASE_SHA");
+  expect(workflow).toContain("if (-not $draft.draft) { throw 'Refusing to modify a published release' }");
+  expect(workflow).toContain('[Uri]::EscapeDataString($draft.target_commitish)');
+  expect(workflow).toContain('repos/$repo/commits/$targetRef');
+  expect(workflow).toContain('if ($target.sha -cne $env:RELEASE_SHA)');
+  for(const error of ['Existing release tag does not point to RELEASE_SHA','Existing draft target_commitish does not resolve to RELEASE_SHA']){
+   expect(workflow.indexOf(error)).toBeGreaterThan(-1);
+   expect(workflow.indexOf(error)).toBeLessThan(workflow.indexOf('https://uploads.github.com/'));
+  }
+ });
+ it('fails closed on API errors or nonempty drafts and never overwrites or retargets',()=>{
+  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'GitHub API request failed; refusing to continue' }");
+  expect(workflow).toContain("if ($assets.Count -ne 0) { throw 'Existing draft has assets; delete the draft before retrying.");
+  expect(workflow).toContain('target_commitish=$env:RELEASE_SHA; draft=$true; prerelease=');
+  expect(workflow).toContain("Invoke-GitHubJson -Arguments @('-X', 'POST', \"repos/$repo/releases\", '--input', $body)");
+  expect(workflow).toContain('https://uploads.github.com/repos/$repo/releases/$releaseId/assets?name=$encodedName');
+  expect(workflow).toContain("'Content-Type: application/octet-stream', '--input', $file");
+  expect(workflow).not.toMatch(/--clobber|gh release|git (?:tag|push|update-ref)|['"](?:DELETE|PATCH)['"]/);
   expect(readFileSync(new URL('../scripts/package-desktop.ts',import.meta.url),'utf8')).toContain("publish:'never' as const");
  });
- it('checks lightweight and peeled annotated tags before either release upload or creation',()=>{
-  expect(workflow).toContain('git ls-remote --tags "https://github.com/$repo.git" $tagRef ($tagRef + \'^{}\')');
-  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing release tag' }");
-  expect(workflow).toContain('if ($tagRefs.Count -gt 0)');
-  expect(workflow).toContain("-ceq ($tagRef + '^{}')");
-  expect(workflow).toContain('if ($tagCommit.Count -eq 0)');
-  expect(workflow).toContain("-ceq $tagRef");
-  expect(workflow).toContain("$tagCommit.Count -ne 1 -or ($tagCommit[0] -split '\\s+')[0] -cne $env:RELEASE_SHA");
-  const guard=workflow.indexOf('Existing release tag does not point to RELEASE_SHA');
-  expect(guard).toBeGreaterThan(-1);
-  expect(guard).toBeLessThan(workflow.indexOf('gh release upload'));
-  expect(guard).toBeLessThan(workflow.indexOf("$createArgs ="));
- });
- it('resolves an existing draft target as a commit and fails closed without retargeting',()=>{
-  expect(workflow).toContain('[string]::IsNullOrWhiteSpace($existing[0].target_commitish)');
-  expect(workflow).toContain('[Uri]::EscapeDataString($existing[0].target_commitish)');
-  expect(workflow).toContain('gh api "repos/$repo/commits/$targetRef" --jq \'.sha\'');
-  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve existing draft target_commitish' }");
-  expect(workflow).toContain('if ($targetSha -cne $env:RELEASE_SHA)');
-  expect(workflow.indexOf('Existing draft target_commitish does not resolve to RELEASE_SHA')).toBeLessThan(workflow.indexOf('gh release upload'));
-  expect(workflow).not.toMatch(/gh release edit|git update-ref|git push/);
+ it('re-checks draft state before each upload and after the last upload',()=>{
+  expect(workflow).toContain('$state = Invoke-GitHubJson -Arguments @("repos/$repo/releases/$releaseId")');
+  expect(workflow).toContain("if ($state.draft -ne $true) { throw 'Release is no longer a draft; refusing further uploads' }");
+  expect(workflow).toContain('foreach ($name in $names) {\n            Assert-Draft');
+  expect(workflow.trimEnd()).toMatch(/}\n          Assert-Draft$/);
  });
 });

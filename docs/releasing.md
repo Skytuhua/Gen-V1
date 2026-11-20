@@ -9,10 +9,13 @@ artifacts before publishing; signing is not yet configured.
 ## Trigger and channel
 
 - Push a tag matching `v<package.json version>`. Tag pushes always use the
-  prerelease channel, including plain versions such as `v0.6.5`.
+  prerelease channel, including plain versions such as `v0.6.5`. Protect `v*`
+  tags with a GitHub tag ruleset restricting creation and updates to trusted
+  release maintainers.
 - Or run **Draft desktop release** manually (default channel: `prerelease`),
-  choose `stable` or `prerelease`,
-  and optionally supply a source ref. The tag is derived from that ref's
+  on `main` only, choosing `stable` or `prerelease`. There is no source-ref
+  override: checkout uses the event's immutable `github.sha`. The job-level
+  ref gate runs before any repository code. The tag is derived from the
   package version. Prerelease accepts any valid semver, including `0.6.5`.
   Stable requires a version without a semver prerelease (so `0.7.0-beta.1`
   is rejected). Build metadata does not count as a prerelease.
@@ -36,12 +39,27 @@ blockmap when differential packaging is enabled.
 
 ## Permissions and artifacts
 
-The job uses the built-in `GITHUB_TOKEN` as `GH_TOKEN`, with `contents: write`
-only for the release job. No personal token is needed. The release contains
-the installer, its blockmap, the channel feed, and `build-manifest.json`.
-An existing draft is updated with clobber semantics only when its channel
-matches. A published release is never intentionally changed; reruns fail.
-Do not publish a draft while its release workflow is running.
+The `build` job has only `contents: read`. It uploads the installer, blockmap,
+channel feed, `build-manifest.json`, and identity metadata as a workflow artifact.
+The separate `publish` job alone has `contents: write` and uses the built-in
+`GITHUB_TOKEN` as `GH_TOKEN`. It has no checkout, setup action, or repository
+code execution: inline PowerShell uses only `gh api` for release operations.
+It cross-checks metadata against build job outputs; metadata itself is not a
+release asset. No personal token is needed.
+
+An existing tag (including an annotated tag) must resolve to the build commit.
+An existing draft must match the channel, its `target_commitish` must resolve
+to that commit, and it must have **zero assets**. Tags and drafts are never
+retargeted. Otherwise, a new draft is created targeting the build commit.
+Uploads use the release ID, never overwrite or delete assets, and check that
+the release remains a draft before each upload and after all uploads.
+These checks are not a server-side transaction: do not publish a draft while
+its workflow is running. A publication between API calls is detected by a
+subsequent check, but an already completed upload cannot be rolled back.
+
+If an upload fails after some assets have arrived, reruns fail closed.
+Inspect the failure, delete the incomplete draft manually, and rerun; the
+workflow will not remove assets or modify a published release.
 
 ## Signing hook
 
