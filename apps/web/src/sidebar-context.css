@@ -44,7 +44,6 @@
 .app-shell .sidebar .search-field:focus-within,
 .sidebar .search-field:focus-within {
   border-color: var(--ui-focus-ring, #808080);
-  outline: none;
 }
 
 .sidebar .search-field kbd {

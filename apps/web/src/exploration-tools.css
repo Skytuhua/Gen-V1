@@ -1,4 +1,5 @@
 .exploration-tools{min-width:0;color:var(--text);font-size:13px;line-height:1.5;container-type:inline-size;container-name:exploration}
+.annotation-image-button{display:block;max-width:100%;padding:0;border:0;background:none;line-height:0;cursor:crosshair;transform:none;transition:none}.annotation-image-button:disabled{opacity:1}.annotation-image-button:focus-visible{outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px}
 .exploration-heading{display:flex;align-items:baseline;justify-content:space-between;gap:16px;margin-bottom:16px}
 .exploration-heading h3{font-size:14px;font-weight:600;line-height:1.5;margin:0}
 .exploration-heading>span,.exploration-hint,.exploration-footer>span,.annotation-toolbar>span{font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums}
