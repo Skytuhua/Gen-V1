@@ -106,7 +106,7 @@
 .software-flow-arrow { color:var(--muted); align-self:center; }
 .software-response-tabs { display:flex; flex-wrap:wrap; gap:4px; margin:0; }
 .software-response-tabs button { display:inline-flex; align-items:center; flex-wrap:wrap; gap:5px; min-height:28px; padding:4px 8px; border:1px solid transparent; font:11px/1.5 var(--code-font,ui-monospace,Consolas,monospace); color:var(--muted); border-radius:5px; }
-.software-response-tabs button[aria-selected=true] { color:var(--text); background:var(--selection-bg); border-color:var(--selection-border); }
+.software-response-tabs button[aria-selected=true] { color:var(--text); background:var(--selection-bg); border-color:var(--text); }
 .software-response-label { font-family:var(--font-family,inherit); }
 .software-response header { flex-wrap:wrap; }
 .software-response-tabs button:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }

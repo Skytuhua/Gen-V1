@@ -40,7 +40,7 @@
 .review-decision-choice input{position:static;opacity:1;width:15px;height:15px;margin:0;padding:0;accent-color:var(--text);flex-shrink:0;cursor:pointer}
 .review-decision-choice:has(input:focus-visible){outline:2px solid var(--ui-focus-ring,#808080);outline-offset:3px}
 .review-decision-choice:hover{background:var(--subtle)}
-.review-decision-choice[data-selected=true]{color:var(--selection-ink);border-color:var(--selection-border);background:var(--selection-bg)}
+.review-decision-choice[data-selected=true]{color:var(--selection-ink);border-color:var(--text);background:var(--selection-bg)}
 .review-decision-choice.decision-approve[data-selected=true] svg{color:var(--success)}
 .review-decision-choice.decision-revise[data-selected=true] svg{color:var(--pending)}
 .interaction-field{display:flex;flex-direction:column;gap:8px}

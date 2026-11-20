@@ -172,12 +172,20 @@ describe('appearance theme contrast audit', () => {
     for (const [path, selectors] of Object.entries({
       'apps/web/src/everyday-data.css': ['.everyday-comparison-table th.is-selected .everyday-option-selector'],
       'apps/web/src/work-objects.css': ['.workflow-card[data-selected=true]', '.architecture-node[aria-pressed=true]'],
+      'apps/web/src/interaction-tools.css': ['.review-decision-choice[data-selected=true]'],
+      'apps/web/src/task-interface.css': ['.task-choice.is-selected'],
+      'apps/web/src/settings.css': ['.settings-navigation nav button.selected'],
+      'apps/web/src/exploration-tools.css': ['.schedule-interval[aria-selected=true]'],
+      'apps/web/src/software-development.css': ['.software-response-tabs button[aria-selected=true]'],
+      'apps/web/src/planning-question.css': ['.planning-option.is-selected'],
+      'apps/web/src/connections.css': ['.connection-providers button[aria-pressed="true"]', '.connection-account-row[data-chosen="true"]'],
     })) {
       const rules = [...source(path).matchAll(/([^{}]+)\{([^{}]*)\}/g)];
       for (const selector of selectors) {
         const rule = rules.find(rule => rule[1]!.trim() === selector);
-        expect(rule?.[2], selector).toContain('border-color:var(--text)');
+        expect(rule?.[2], selector).toMatch(/(?:border-color|box-shadow):[^;]*var\(--text\)(?:;|$)/);
         expect(rule?.[2], selector).not.toContain('border-color:var(--control-border)');
+        expect(rule?.[2], selector).not.toContain('var(--selection-border');
       }
     }
     const review = source('apps/web/src/interaction-tools.css');
