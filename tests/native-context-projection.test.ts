@@ -53,12 +53,12 @@ it('rebuilds a rewind or native compaction generation and does not call old tool
 
 it.each(['digest', 'prefix', 'sequence', 'bytes', 'rawContent'] as const)('refuses a malformed native %s cut without damaging the last valid projection', async change => {
   const compiler = await fixture(), initial = cut([source(0)]); compiler.accept(binding, initial);
-  const next = cut([source(0), source(1)], initial) as any;
+  const next = cut([source(0), source(1)], initial) as ReturnType<typeof cut>;
   if (change === 'digest') next.revisionDigest = '0'.repeat(64);
   if (change === 'prefix') next.previousDigest = '0'.repeat(64);
   if (change === 'sequence') next.sources[0].sequence = 7;
   if (change === 'bytes') next.sourceBytes = 0;
-  if (change === 'rawContent') next.sources[0].content = 'PRIVATE_TRANSCRIPT';
+  if (change === 'rawContent') (next.sources[0] as {content?:string}).content = 'PRIVATE_TRANSCRIPT';
   expect(() => compiler.accept(binding, next)).toThrow();
   expect(compiler.accept(binding, cut([source(0), source(1)], initial)).projection).toMatchObject({ compiledSources: 1 });
 });

@@ -1,6 +1,6 @@
 import {HarnessError,type RunContext,type RuntimeAdapter,type RuntimeCallbacks,type StartRun} from '../contracts/index.ts';
 
-interface Owner {context:RunContext;adapter?:RuntimeAdapter;closed:boolean;release():void;closing?:Promise<void>}
+interface Owner {context:RunContext;adapter?:RuntimeAdapter;closed:boolean;release(cancelled:boolean):void;closing?:Promise<void>}
 const same=(left:RunContext,right:RunContext)=>left.threadId===right.threadId&&left.runId===right.runId&&left.epoch===right.epoch;
 
 /** Two independent read-only sessions; cancellation ownership precedes async startup. */
@@ -16,7 +16,7 @@ export class SideRuntime {
   if(this.closed)throw new HarnessError('RUNTIME_DISPOSED','Side conversations have closed.');
   if(this.owners.has(input.threadId))throw new HarnessError('RUN_BUSY','Wait for this side response to finish.');
   if(this.owners.size>=2)throw new HarnessError('SIDE_CHAT_LIMIT','At most two side conversations may work at once.');
-  let release!:()=>void;const stopped=new Promise<void>(done=>{release=done;});
+  let release!:(cancelled:boolean)=>void;const stopped=new Promise<boolean>(done=>{release=done;});
   const owner:Owner={context:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},closed:false,release};
   this.owners.set(input.threadId,owner);
   const assert=()=>{if(owner.closed||this.owners.get(input.threadId)!==owner)throw new HarnessError('CANCELLED_RUN','This side response no longer has authority.');};
@@ -35,7 +35,7 @@ export class SideRuntime {
   this.starting.add(creating);void creating.then(()=>this.starting.delete(creating),()=>this.starting.delete(creating));
   try{
    const adapter=await Promise.race([creating,stopped.then(()=>{throw new HarnessError('CANCELLED_RUN','Side startup was cancelled.');})]);
-   assert();await Promise.race([adapter.start(input),stopped.then(()=>{throw new HarnessError('CANCELLED_RUN','Side startup was cancelled.');})]);
+   assert();await Promise.race([adapter.start(input),stopped.then(cancelled=>{if(cancelled)throw new HarnessError('CANCELLED_RUN','Side startup was cancelled.');})]);
   }catch(error){await this.close(owner,true);throw error;}
  }
  private track(result:Promise<void>):Promise<void>{
@@ -43,7 +43,7 @@ export class SideRuntime {
  }
  private close(owner:Owner,cancel:boolean):Promise<void>{
   if(owner.closed)return owner.closing??Promise.resolve();
-  owner.closed=true;owner.release();if(this.owners.get(owner.context.threadId)===owner)this.owners.delete(owner.context.threadId);
+  owner.closed=true;owner.release(cancel);if(this.owners.get(owner.context.threadId)===owner)this.owners.delete(owner.context.threadId);
   const adapter=owner.adapter;if(!adapter)return Promise.resolve();
   // Cancel the exact original context before disposing even if start failed.
   const finish=async()=>{try{if(cancel)await adapter.cancel(owner.context);}finally{await adapter.dispose();}};

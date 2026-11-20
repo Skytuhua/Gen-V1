@@ -34,13 +34,13 @@ async function workerFixture(onSession?: (session: AgentSession) => void) {
   const model = runtime.getModels("openai")[0]!;
   const input: StartRun = { ...ctx, inputId: "input-a", prompt: "A", modelId: `${model.provider}/${model.id}`, sessionPath: null, resources: [] };
   const ipc = new EventEmitter(), outgoing = new EventEmitter();
-  const messages: any[] = [], requests: any[] = [], held: any[] = [];
+  const messages: {type?:string;requestId?:string;command?:string;event?:{type?:string}}[] = [], requests: {type?:string;requestId?:string;command?:string}[] = [], held: {type?:string;requestId?:string;command?:string}[] = [];
   const sessions: AgentSession[] = [];
   const entered = [barrier(), barrier(), barrier()], replies = [barrier(), barrier(), barrier()];
   let providerCalls = 0, requestId = 0, holdFollowUps = false;
   const child = Object.assign(new EventEmitter(), {
     connected: true, exitCode: null, signalCode: null,
-    send(message: any, callback: (error: Error | null) => void) {
+    send(message: {type?:string;requestId?:string;command?:string}, callback: (error: Error | null) => void) {
       requests.push(message);
       if (holdFollowUps && message.command === "followUp") held.push(message);
       else ipc.emit("message", message);
@@ -85,7 +85,7 @@ async function workerFixture(onSession?: (session: AgentSession) => void) {
     get(target, property) {
       if (property === "connected") return true;
       if (property === "on") return ipc.on.bind(ipc);
-      if (property === "send") return (message: any) => {
+      if (property === "send") return (message: {type?:string;requestId?:string;command?:string}) => {
         messages.push(message);
         child.emit("message", message);
         outgoing.emit("message", message);
@@ -100,9 +100,9 @@ async function workerFixture(onSession?: (session: AgentSession) => void) {
     expect(network).not.toHaveBeenCalled();
   });
   await import("../packages/runtime-pi/worker.ts");
-  function response(id: string): Promise<any> {
+  function response(id: string): Promise<{type?:string;requestId?:string}> {
     return new Promise(resolve => {
-      const receive = (message: any) => {
+      const receive = (message: {type?:string;requestId?:string}) => {
         if (message.type === "response" && message.requestId === id) { outgoing.off("message", receive); resolve(message); }
       };
       outgoing.on("message", receive);
@@ -144,7 +144,7 @@ describe("worker settlement authority", () => {
     expect(fixture.requests.some(request => request.command === "abort")).toBe(false);
     fixture.deliverHeld();
     expect(await outcome).toMatchObject({ code: "PI_STALE_RUN" });
-    expect(fixture.messages.find(message => message.type === "response" && message.requestId === fixture.requests.find(request => request.command === "followUp").requestId)).toMatchObject({ error: expect.any(String), code: "PI_STALE_RUN" });
+    expect(fixture.messages.find(message => message.type === "response" && message.requestId === fixture.requests.find(request => request.command === "followUp")!.requestId)).toMatchObject({ error: expect.any(String), code: "PI_STALE_RUN" });
     expect(fixture.providerCalls()).toBe(1);
     expect(fixture.events().filter(event => event.type === "input.processing").map(event => event.inputIds)).toEqual([["input-a"]]);
     await expect(parent.followUp({ ...fixture.input, inputId: "retry-b" })).rejects.toMatchObject({ code: "PI_STALE_RUN" });
@@ -245,7 +245,7 @@ describe("worker settlement authority", () => {
     session.subscribe(event => { if (event.type === "queue_update" && event.followUp.length) queueMicrotask(() => gate.release()); });
     const response = await fixture.command("followUp", { ...fixture.input, inputId: "input-b" });
     await session.waitForIdle();
-    expect(fixture.messages.findIndex(message => message.type === "event" && message.event.type === "settled")).toBeLessThan(fixture.messages.indexOf(response));
+    expect(fixture.messages.findIndex(message => message.type === "event" && message.event!.type === "settled")).toBeLessThan(fixture.messages.indexOf(response));
     expect(response).toMatchObject({ error: expect.any(String), code: "PI_STALE_RUN" });
     expect(fixture.providerCalls()).toBe(1);
     expect(session.pendingMessageCount).toBe(0);
