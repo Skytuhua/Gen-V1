@@ -85,19 +85,33 @@ class CleanupOwnership(unittest.TestCase):
         self.assertNotIn("G", guard.groups)
         self.assertEqual(guard.pins, {"/r/a": 1})  # /r/a kept for its other lease — never decremented twice
 
-    def test_pending_credential_cleanup_is_explicitly_uncertain(self):
+    def test_uncertain_ancillary_cleanup_keeps_a_cleanup_only_owner(self):
+        # The ordinary release drains; a refused ancillary detach raises
+        # CustodyUncertain while the group id stays owned for a legal retry.
         guard = _new_guard()
         guard.pins = {"/r/b": 1, "/r/accounts/x/pi": 1}
         guard.groups["G"] = ["/r/b"]
         guard.credentials = {"/r/accounts/x/pi": {"fd": 99, "held": ["/r/accounts/x/pi"]}}
+        detached, closed = [], []
         with patch.object(_guard, "LIBC") as libc, \
              patch.object(_guard, "checked", _checked), \
-             patch("os.close"):
-            libc.umount2.side_effect = lambda target, flags: -1 if target == b"/r/accounts/x/pi" else 0
+             patch("os.close", side_effect=lambda fd: closed.append(fd)):
+            libc.umount2.side_effect = lambda target, flags: detached.append(target) or (-1 if target == b"/r/accounts/x/pi" else 0)
             with self.assertRaises(_guard.CustodyUncertain):
                 guard.request({"command": "release", "id": "G"})
-        self.assertNotIn("G", guard.groups)  # the settled group release still completed
-        self.assertEqual(guard.credentials["/r/accounts/x/pi"]["held"], ["/r/accounts/x/pi"])
+            self.assertEqual(guard.groups["G"], [])  # cleanup-only owner — not a usable lease
+            self.assertEqual(guard.credentials["/r/accounts/x/pi"]["held"], ["/r/accounts/x/pi"])
+            # The retained id still cannot be re-acquired as an ordinary lease.
+            with self.assertRaises(PermissionError):
+                guard.request({"command": "acquire", "id": "G", "paths": [{"path": "/r/b", "leaf": False}]})
+            libc.umount2.side_effect = lambda target, flags: detached.append(target) or 0
+            self.assertEqual(guard.request({"command": "release", "id": "G"})["entries"], [])
+        self.assertNotIn("G", guard.groups)
+        self.assertNotIn("/r/accounts/x/pi", guard.credentials)
+        self.assertEqual(guard.pins, {})
+        # The settled group path is never re-detached; the prepared fd closes once.
+        self.assertEqual(detached, [b"/r/b", b"/r/accounts/x/pi", b"/r/accounts/x/pi"])
+        self.assertEqual(closed, [99])
 
     def test_drop_pin_refuses_ancestry_of_a_quarantined_child(self):
         guard = _new_guard()
@@ -106,6 +120,105 @@ class CleanupOwnership(unittest.TestCase):
         with self.assertRaises(PermissionError):
             guard.drop_pin("/r/a")
         self.assertEqual(guard.pins, {"/r/a": 1})
+
+
+def _file(mode=0o600, uid=None, nlink=1, size=0, dev=1, ino=2):
+    return type("I", (), {"st_mode": stat.S_IFREG | mode, "st_dev": dev, "st_ino": ino, "st_uid": os.getuid() if uid is None else uid, "st_nlink": nlink, "st_size": size})()
+
+
+class PinFaultInjection(unittest.TestCase):
+    def test_pin_refuses_unsuitable_targets_before_mounting(self):
+        cases = (
+            _stat(stat.S_IFREG | 0o600),                       # not a directory
+            _stat(stat.S_IFDIR | 0o777),                       # writable by others
+            _stat(stat.S_IFDIR | 0o700, uid=os.getuid() + 1),  # foreign owned
+        )
+        for info in cases:
+            guard = _new_guard()
+            with patch("os.open", return_value=42), \
+                 patch("os.fstat", return_value=info), \
+                 patch("os.close"), \
+                 patch.object(_guard, "LIBC") as libc:
+                with self.assertRaisesRegex(PermissionError, "Private ordinary directory required"):
+                    guard.pin("/r/a")
+                libc.mount.assert_not_called()
+            self.assertEqual((guard.pins, guard.quarantined), ({}, set()))
+
+    def test_pin_post_mount_identity_change_unwinds_or_quarantines(self):
+        info, after = _stat(stat.S_IFDIR | 0o700), _stat(stat.S_IFDIR | 0o700)
+        after.st_dev, after.st_ino = 9, 9
+        for detach in (0, -1):
+            guard = _new_guard()
+            with patch("os.open", return_value=42), \
+                 patch("os.fstat", return_value=info), \
+                 patch("os.stat", return_value=after), \
+                 patch("os.close"), \
+                 patch.object(_guard, "LIBC") as libc, \
+                 patch.object(_guard, "checked", _checked):
+                libc.mount.side_effect = lambda *args: 0
+                libc.umount2.side_effect = lambda target, flags: detach
+                with self.assertRaisesRegex(PermissionError, "Directory identity changed"):
+                    guard.pin("/r/a")
+            self.assertEqual(guard.pins, {})
+            if detach == 0:
+                self.assertEqual(guard.quarantined, set())  # applied mount unwound cleanly
+                continue
+            self.assertEqual(guard.quarantined, {"/r/a"})  # unledgered mount stays fenced
+            with self.assertRaisesRegex(PermissionError, "quarantined"):
+                guard.pin("/r/a")  # later acquisitions are refused before any syscall
+            with patch("os.open", return_value=42), \
+                 patch("os.fstat", return_value=info), \
+                 patch("os.stat", return_value=info), \
+                 patch("os.path.isdir", return_value=True), \
+                 patch("os.close"), \
+                 patch.object(_guard, "LIBC") as libc, \
+                 patch.object(_guard, "checked", _checked):
+                libc.mount.side_effect = lambda *args: 0
+                libc.umount2.side_effect = lambda *args: 0
+                with self.assertRaises(PermissionError):
+                    guard.request({"command": "acquire", "id": "A", "paths": [{"path": "/r/a", "leaf": False}]})
+            self.assertNotIn("A", guard.groups)
+
+    def test_pin_leaf_refuses_unsuitable_files_before_mounting(self):
+        cases = (
+            (_stat(stat.S_IFDIR | 0o700), False, None, "Private ordinary file required"),
+            (_file(nlink=2), False, None, "Private ordinary file required"),
+            (_file(uid=os.getuid() + 1), False, None, "Private ordinary file required"),
+            (_file(size=5), True, None, "Guarded file is not empty"),
+            (_file(), True, ("9", "9"), "Directory identity mismatch"),
+        )
+        for info, empty, expected, message in cases:
+            guard = _new_guard()
+            with patch("os.open", return_value=42), \
+                 patch("os.fstat", return_value=info), \
+                 patch("os.close"), \
+                 patch.object(_guard, "LIBC") as libc:
+                with self.assertRaisesRegex(PermissionError, message):
+                    guard.pin_leaf("/r/f", False, expected, empty)
+                libc.mount.assert_not_called()
+            self.assertEqual((guard.pins, guard.readonly_pins, guard.quarantined), ({}, set(), set()))
+
+    def test_pin_leaf_post_mount_identity_change_unwinds_or_quarantines(self):
+        info, after = _file(), _file(dev=9, ino=9)
+        for detach in (0, -1):
+            guard = _new_guard()
+            with patch("os.open", return_value=42), \
+                 patch("os.fstat", return_value=info), \
+                 patch("os.stat", return_value=after), \
+                 patch("os.close"), \
+                 patch.object(_guard, "LIBC") as libc, \
+                 patch.object(_guard, "checked", _checked):
+                libc.mount.side_effect = lambda *args: 0
+                libc.umount2.side_effect = lambda target, flags: detach
+                with self.assertRaisesRegex(PermissionError, "File identity changed"):
+                    guard.pin_leaf("/r/f", False)
+            self.assertEqual((guard.pins, guard.readonly_pins), ({}, set()))
+            if detach == 0:
+                self.assertEqual(guard.quarantined, set())
+            else:
+                self.assertEqual(guard.quarantined, {"/r/f"})
+                with self.assertRaisesRegex(PermissionError, "quarantined"):
+                    guard.pin_leaf("/r/f", False)  # refused before any syscall
 
 
 PARENT = "/r/accounts/pa/pi"
@@ -234,6 +347,60 @@ class CredentialMountAdmission(unittest.TestCase):
             with self.assertRaises(_guard.CustodyUncertain):
                 guard.release_credential("L2")
         self.assertTrue(guard.barriers["L2"]["fenced"])  # custody retained, not claimed released
+
+
+class CredentialLifecycleRollback(unittest.TestCase):
+    def test_acquire_rolls_back_the_pinned_prefix_on_failure(self):
+        # A mid-acquire pin failure unwinds the prefix it already pinned; what
+        # could not detach stays ledgered under the failed parent, never a lease.
+        parent = "/r/accounts/provider-auth-" + "a" * 64 + "/pi"
+        tasks = parent + "/tasks"
+        for detach in (0, -1):
+            guard = _new_guard()
+            guard.credentials[parent] = {"path": parent, "fd": 99, "mount": "7", "identity": _stat(stat.S_IFDIR | 0o700), "held": []}
+            records = [_record("7", parent, parent, ["rw"]), _record("10", tasks, tasks, ["rw"])]
+
+            def pin(path):
+                if path == tasks:
+                    raise PermissionError("synthetic pin refusal")
+                guard.pins[path] = 1
+
+            with patch.object(guard, "credential_mounts", return_value={"7", "10"}), \
+                 patch.object(guard, "credential_processes"), \
+                 patch.object(guard, "pin", side_effect=pin), \
+                 patch.object(_guard, "mount_records", return_value=records), \
+                 patch.object(_guard, "LIBC") as libc, \
+                 patch.object(_guard, "checked", _checked):
+                libc.umount2.side_effect = lambda target, flags: detach
+                with self.assertRaisesRegex(PermissionError, "synthetic"):
+                    guard.acquire_credential(parent + "/auth.json", 1000)
+            self.assertEqual(guard.barriers, {})
+            if detach == 0:
+                self.assertEqual((guard.pins, guard.unresolved), ({}, {}))  # prefix fully unwound
+            else:
+                self.assertEqual(guard.pins, {parent: 1})  # leftover stays fenced and ledgered
+                self.assertEqual(guard.unresolved, {parent: [parent]})
+
+    def test_release_keeps_unresolved_held_paths_for_retry(self):
+        guard = _new_guard()
+        parent, tasks = "/r/accounts/x/pi", "/r/accounts/x/pi/tasks"
+        guard.pins = {parent: 1, tasks: 1}
+        guard.barriers["L"] = {"parent": parent, "mounts": {"7"}, "held": [parent, tasks], "expires": 0, "fenced": False}
+        detached = []
+        with patch.object(_guard, "LIBC") as libc, patch.object(_guard, "checked", _checked):
+            libc.umount2.side_effect = lambda target, flags: detached.append(target) or (-1 if target == os.fsencode(tasks) else 0)
+            with self.assertRaises(_guard.CustodyUncertain):
+                guard.release_credential("L")
+            # The still-fenced child keeps its ancestor held: detaching the
+            # parent would strand the child mount under a detached parent.
+            self.assertEqual(guard.barriers["L"]["held"], [tasks, parent])
+            self.assertEqual(guard.pins, {parent: 1, tasks: 1})
+            self.assertEqual(detached, [os.fsencode(tasks)])
+            libc.umount2.side_effect = lambda target, flags: detached.append(target) or 0
+            guard.release_credential("L")
+        self.assertNotIn("L", guard.barriers)
+        self.assertEqual(guard.pins, {})
+        self.assertEqual(detached, [os.fsencode(tasks)] * 2 + [os.fsencode(parent)])
 
 
 if __name__ == "__main__":

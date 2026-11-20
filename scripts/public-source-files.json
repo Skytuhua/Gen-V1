@@ -3246,6 +3246,7 @@
     "tests/keyboard-bindings.test.ts",
     "tests/learning-service.test.ts",
     "tests/learning.test.ts",
+    "tests/linux-path-guard-cleanup.test.ts",
     "tests/linux-path-guard.test.ts",
     "tests/linux_path_guard_cleanup.py",
     "tests/lsp-revisions-v3.test.ts",

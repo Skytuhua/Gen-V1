@@ -638,9 +638,13 @@ class DirectoryGuard:
                 # retry resumes without double-decrementing released ones.
                 self.groups[request["id"]] = unresolved
                 raise PermissionError("Guard cleanup did not settle")
-            del self.groups[request["id"]]
+            # Keep the id as a cleanup-only owner until ancillary credential
+            # cleanup settles: a retry must resume the ancillary stage instead
+            # of failing on an unknown group, and the empty ledger can neither
+            # re-drop settled paths nor act as an ordinary acquisition.
+            self.groups[request["id"]] = []
             pending = False
-            if not self.groups and not self.barriers:
+            if all(not held for held in self.groups.values()) and not self.barriers:
                 # Credential ancestry pins are scope-scoped: drop them once no
                 # guarded scope remains so fixture trees stay replaceable.
                 for parent, prepared in list(self.credentials.items()):
@@ -655,6 +659,7 @@ class DirectoryGuard:
                 # Ancillary credential cleanup is explicitly uncertain — the
                 # stage is not complete and the prepared entries keep custody.
                 raise CustodyUncertain('Ancillary credential cleanup did not settle')
+            del self.groups[request["id"]]
             return {"id": request["id"], "entries": []}
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
             entries = request["paths"]
