@@ -46,7 +46,13 @@ export class TerminalHost{
     session.output=session.output.slice(remove);session.offset+=remove;
    }
   });
-  pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);this.evictExited();finish();});
+  pty.onExit(event=>{
+   session.exited=true;session.exitCode=event.exitCode;
+   // Native exit is definitive even if the separate durable update fails.
+   finish();
+   try{this.persist(session);}catch{process.stderr.write('Gen V1 could not persist terminal exit state.\n');}
+   this.evictExited();
+  });
   if(command!==undefined)pty.write(command+'\r');
   return this.result(session,0);
  }
