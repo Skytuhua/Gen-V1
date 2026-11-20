@@ -33,32 +33,48 @@ function pdfText(bytes: Uint8Array): string {
   // an operand commits only when a Tj/TJ/'/" operator follows its closing token.
   const openers: number[] = [];
   let inArray = false; const items: string[] = [];
-  while (position < source.length) {
-    const c = source[position];
-    if (openers.length && c === "\\") { position += 2; continue; }
-    if (c === "(") { openers.push(position); position++; continue; }
-    if (c === ")") {
-      if (openers.length) {
-        const raw = source.slice(openers.pop()! + 1, position++);
-        if (inArray ? !openers.length : isTextOperator()) (inArray ? items : parts).push(decode(raw));
-      } else position++;
-      continue;
+  const scan = () => {
+    while (position < source.length) {
+      const c = source[position];
+      if (openers.length && c === "\\") { position += 2; continue; }
+      if (!openers.length && c === "%") {
+        while (position < source.length && source[position] !== "\n" && source[position] !== "\r") position++;
+        continue;
+      }
+      if (c === "(") { openers.push(position); position++; continue; }
+      if (c === ")") {
+        if (openers.length) {
+          const raw = source.slice(openers.pop()! + 1, position++);
+          if (!openers.length) {
+            if (inArray) items.push(decode(raw));
+            else if (isTextOperator()) parts.push(decode(raw));
+          }
+        } else position++;
+        continue;
+      }
+      if (openers.length) { position++; continue; }
+      if (c === "<" && source[position + 1] !== "<") {
+        const value = hexString();
+        if (value === null) { position++; continue; }
+        if (inArray) items.push(value);
+        else if (isTextOperator()) parts.push(value);
+        continue;
+      }
+      if (c === "[") { inArray = true; items.length = 0; position++; continue; }
+      if (c === "]" && inArray) {
+        inArray = false; position++;
+        if (isTextOperator()) parts.push(...items);
+        continue;
+      }
+      position++;
     }
-    if (openers.length) { position++; continue; }
-    if (c === "<" && source[position + 1] !== "<") {
-      const value = hexString();
-      if (value === null) { position++; continue; }
-      if (inArray) items.push(value);
-      else if (isTextOperator()) parts.push(value);
-      continue;
-    }
-    if (c === "[") { inArray = true; items.length = 0; position++; continue; }
-    if (c === "]" && inArray) {
-      inArray = false; position++;
-      if (isTextOperator()) parts.push(...items);
-      continue;
-    }
-    position++;
+  };
+  scan();
+  // A literal left open at EOF hid every later operand from the old tokeniser;
+  // rescan its tail once so hex strings and arrays after it still surface.
+  if (openers.length) {
+    position = openers[0] + 1; openers.length = 0; inArray = false; items.length = 0;
+    scan();
   }
   return parts.join(" ");
 }

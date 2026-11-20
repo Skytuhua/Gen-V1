@@ -48,4 +48,18 @@ describe('pdf text extraction', () => {
     expect(await inspectStream('(unterminated (ok) Tj')).toBe('ok');
     expect(await inspectStream('<zz> (still) Tj')).toBe('still');
   });
+
+  it('ignores percent comments outside strings', async () => {
+    expect(await inspectStream('% [ annotation\nBT (Hello) Tj ET')).toBe('Hello');
+    expect(await inspectStream('% (junk\n<6f6b> Tj')).toBe('ok');
+  });
+
+  it('does not emit a nested string before its outer literal closes', async () => {
+    expect(await inspectStream('(a(b) Tj c) Tj')).toBe('a(b) Tj c');
+  });
+
+  it('recovers hex and array operands after an unterminated literal', async () => {
+    expect(await inspectStream('(unterminated <6f6b> Tj')).toBe('ok');
+    expect(await inspectStream('(unterminated [(ok)] TJ')).toBe('ok');
+  });
 });
