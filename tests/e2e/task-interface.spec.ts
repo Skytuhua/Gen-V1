@@ -77,6 +77,39 @@ test('progressive Q&A keeps branches, edit identity and focus while deduplicatin
   await expect(page.getByRole('button', { name: 'Could the package wait until Friday?' })).toBeVisible();
   await expect(page.getByText('Choose Friday while reviewing the destination, before confirming.')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveValue('Keep the labels separate');
+  // a pending follow-up branch resolves into exactly one new interactive row
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: true }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="pending"]')).toBeVisible();
+  const grown = structuredClone(snapshot.artifacts[0].spec!);
+  grown.elements.delivery.children!.push('insurance');
+  grown.elements.insurance = { type: 'Disclosure', props: { title: 'Is insurance included?', stateKey: 'insuranceOpen', text: 'Insurance is listed per destination.' } };
+  snapshot.artifacts[0].spec = grown; snapshot.artifacts[0].revision++;
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  const newBranch = page.getByRole('button', { name: 'Is insurance included?', exact: true });
+  await expect(newBranch).toBeVisible(); await expect(newBranch).toBeEnabled();
+  await expect.poll(() => page.locator('.disclosure-followups-pending').count()).toBe(0);
+  expect(fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'ask')).toHaveLength(1);
+  await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveAttribute('data-identity', identity!);
+  await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveValue('Keep the labels separate');
+  // a repeat publication of the same data never replays the child
+  const anims = () => newBranch.evaluate(node => node.closest('.disclosure-node')!.getAnimations({ subtree: true }).length);
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  expect(await anims()).toBe(0);
+  // close while a placeholder exits, reopen with keyboard, and tab into the real answer
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: true }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="pending"]')).toBeVisible();
+  const trigger = page.getByRole('button', { name: 'Can delivery be split?', exact: true });
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="resolving"]')).toHaveCount(1);
+  await trigger.dispatchEvent('click');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.focus(); await page.keyboard.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Tab');
+  const tabbed = await page.evaluate(() => { const el = document.activeElement as HTMLElement; return { tag: el.tagName, visible: el.offsetParent !== null, inert: el.closest('[inert]') !== null }; });
+  expect(tabbed.inert).toBe(false); expect(tabbed.visible).toBe(true);
+  await expect.poll(() => page.locator('.disclosure-followups-pending').count()).toBe(0);
+  await expect(page.locator('[role="status"]').filter({ hasText: 'Preparing related questions' })).toHaveCount(0);
 });
 
 test('a pending question cannot duplicate or erase a newer draft and source errors can retry', async ({ page }) => {

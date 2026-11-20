@@ -45,6 +45,12 @@
 .disclosure-question-title {min-width:0;overflow-wrap:anywhere;text-align:left;}
 .task-history { max-height:420px; overflow:auto; overscroll-behavior:contain; scrollbar-width:thin; padding:2px 4px 2px 2px; }
 .task-history[data-scrolled="true"] { mask-image:linear-gradient(to bottom,transparent,#000 22px,#000); }
+.disclosure-children { display:flex; flex-direction:column; gap:8px; margin:8px 0 0; padding-left:12px; border-left:1px solid var(--border); }
+.disclosure-children:empty { display:none; height:0; border-left:none; }
+.disclosure-children>.disclosure-node>.disclosure { border:none; background:none; border-radius:0; }
+.disclosure-children>.disclosure-node>.disclosure:before { left:-13px; }
+.disclosure-children .disclosure-trigger { min-height:36px; }
+@media(pointer:coarse) { .disclosure-children .disclosure-trigger { min-height:44px; } }
 .disclosure-children .field { padding:5px 0; font-size:12px; }
 .disclosure-trigger:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 @keyframes task-pending-dot { from { opacity:.35; } to { opacity:1; } }
