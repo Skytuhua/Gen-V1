@@ -28,6 +28,15 @@ function transport(onInit?: (child: any, init: any) => void) {
 }
 const wire = { uuid: 'wire-uuid', text: '[harness-input:v1] {"inputId":"input-1","inputIds":["input-1"],"threadId":"thread","runId":"run-host","epoch":3}\n{"prompt":"hello","resources":[]}', inputIds: ['input-1'] };
 
+it('honors cancellation before accepting an already-settled official worker result', async () => {
+  const { bounded } = await import('../packages/runtime-official/internal.ts');
+  const controller = new AbortController();
+  const reason = new Error('Cancelled worker result');
+  controller.abort(reason);
+
+  await expect(bounded(Promise.resolve('old result'), 1000, 'worker timeout', controller.signal)).rejects.toBe(reason);
+  await expect(bounded(Promise.reject(new Error('old failure')), 1000, 'worker timeout', controller.signal)).rejects.toBe(reason);
+});
 describe('Cursor official worker facade', () => {
   it.each(['stdout','stderr'] as const)('contains Cursor %s errors and settles even when the error observer throws',async stream=>{
     const {openCursor}=await import('../packages/runtime-official/cursor.ts');
