@@ -277,8 +277,9 @@ export async function buildServer(service: Service, options: ServerOptions) {
     return credentials.remove({artifactId:request.params.id,threadId:args.threadId,revision:args.artifactRevision},request.params.slotKey,args.version);
   });
   app.get("/api/events", async (request, reply) => {
-    const query = request.query as { after?: string };
-    const after = Number(query.after ?? 0);
+    const { after: rawAfter } = request.query as { after?: unknown };
+    if (rawAfter !== undefined && (typeof rawAfter !== "string" || !rawAfter || /\D/.test(rawAfter))) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
+    const after = Number(rawAfter ?? 0);
     if (!Number.isSafeInteger(after) || after < 0) throw new HarnessError("INVALID_INPUT", "Event cursor is invalid");
     if (streams.size >= 32) return reply.code(429).send({ error: { code: "STREAM_LIMIT", message: "Too many event readers" } });
     reply.hijack(); reply.raw.writeHead(200, { "Content-Type": "text/event-stream", "Cache-Control": "no-cache, no-transform", Connection: "keep-alive", "X-Accel-Buffering": "no" });
