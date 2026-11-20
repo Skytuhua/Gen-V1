@@ -103,3 +103,20 @@ it('rejects a changed Cursor model on active authority and rejects unsupported c
   await runtime.start(input());expect(fake.submit).toHaveBeenCalledOnce();await expect(runtime.followUp(input({modelId:'cursor-sdk/other',inputId:'other'}))).rejects.toMatchObject({code:'OFFICIAL_MODEL_MISMATCH'});expect(fake.submit).toHaveBeenCalledOnce();
  }finally{await runtime.dispose();}
 });
+
+it('rediscovers an invalidated scoped official catalog without probing unaffected providers', async () => {
+  row().status = 'available';
+  const dataDir = await data(); await marker(dataDir);
+  const runtime = createOfficialRuntime({dataDir}); runtime.configure(callbacks);
+  try {
+    expect((await runtime.models()).map(model => model.provider)).toContain('cursor-sdk');
+    await runtime.invalidateModels!({providerId: 'cursor-sdk'});
+    expect((await runtime.models()).map(model => model.provider)).not.toContain('cursor-sdk');
+    expect(fake.discoverCursor).toHaveBeenCalledTimes(1);
+    expect((await runtime.models({providerId: 'claude-code'})).map(model => model.provider)).toEqual(['claude-code']);
+    expect(fake.mcp).toHaveBeenCalledTimes(2);
+    expect((await runtime.models({providerId: 'cursor-sdk'})).map(model => model.provider)).toEqual(['cursor-sdk']);
+    expect(fake.discoverCursor).toHaveBeenCalledTimes(2);
+    expect(fake.mcp).toHaveBeenCalledTimes(2);
+  } finally { await runtime.dispose(); }
+});
