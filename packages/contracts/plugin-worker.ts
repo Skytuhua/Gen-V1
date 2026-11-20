@@ -28,11 +28,11 @@ const isoTimestamp = z.string().datetime();
 
 // Same bounded identity grammar as the trusted lane's pluginId; redeclared here
 // so this contract module stays inside the contracts layer.
-export const workerPluginIdSchema = z.string().min(1).max(80).regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).refine(value => !['data', 'host', 'frontend', 'constructor', 'prototype'].includes(value));
-export const workerPluginVersionSchema = z.string().max(100).regex(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
-export const workerOperationNameSchema = z.string().regex(/^[a-z][a-zA-Z0-9_.-]{0,79}$/).refine(value => !['constructor', 'prototype'].includes(value));
-export const workerRequestIdSchema = z.number().int().min(0).max(0xffffffff);
-export const workerGenerationSchema = z.number().int().min(0).max(0xffffffff);
+const workerPluginIdSchema = z.string().min(1).max(80).regex(/^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/).refine(value => !['data', 'host', 'frontend', 'constructor', 'prototype'].includes(value));
+const workerPluginVersionSchema = z.string().max(100).regex(/^(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)\.(?:0|[1-9]\d*)(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
+const workerOperationNameSchema = z.string().regex(/^[a-z][a-zA-Z0-9_.-]{0,79}$/).refine(value => !['constructor', 'prototype'].includes(value));
+const workerRequestIdSchema = z.number().int().min(0).max(0xffffffff);
+const workerGenerationSchema = z.number().int().min(0).max(0xffffffff);
 
 /* ------------------------------------------------------------------ */
 /* WorkerFrameV1 — one frame on the private host-created pipe pair.    */
@@ -41,8 +41,7 @@ export const workerGenerationSchema = z.number().int().min(0).max(0xffffffff);
 /* by the session, not by the schema.                                   */
 /* ------------------------------------------------------------------ */
 
-export const workerFrameKindSchema = z.enum(['HELLO', 'READY', 'REQUEST', 'RESPONSE', 'CANCEL', 'SHUTDOWN', 'BYE', 'ERROR']);
-export type WorkerFrameKind = z.infer<typeof workerFrameKindSchema>;
+const workerFrameKindSchema = z.enum(['HELLO', 'READY', 'REQUEST', 'RESPONSE', 'CANCEL', 'SHUTDOWN', 'BYE', 'ERROR']);
 
 export const workerFrameV1Schema = z.strictObject({
   protocolVersion: z.literal(WORKER_PROTOCOL_VERSION),
@@ -61,7 +60,6 @@ export const workerHelloPayloadSchema = z.strictObject({
   packageDigest: sha256HexSchema,
   dataNamespace: boundedText(80),
 });
-export type WorkerHelloPayload = z.infer<typeof workerHelloPayloadSchema>;
 
 /** Worker -> host handshake reply. Identity must match the HELLO generation,
  * plugin and package digest; anything else is a protocol violation. */
@@ -78,7 +76,6 @@ export const workerRequestPayloadSchema = z.strictObject({
   operation: workerOperationNameSchema,
   input: z.unknown(),
 });
-export type WorkerRequestPayload = z.infer<typeof workerRequestPayloadSchema>;
 
 /** Sanitized outcome only — a worker error never carries host paths, stack
  * text or secrets back into the host. */
@@ -87,11 +84,9 @@ export const workerResponsePayloadSchema = z.strictObject({
   value: z.unknown(),
   error: boundedText(300).optional(),
 });
-export type WorkerResponsePayload = z.infer<typeof workerResponsePayloadSchema>;
 
 export const workerCancelPayloadSchema = z.strictObject({ requestId: workerRequestIdSchema });
 export const workerErrorPayloadSchema = z.strictObject({ code: boundedText(80), message: boundedText(300) });
-export const workerByePayloadSchema = z.strictObject({ reason: z.enum(['shutdown', 'error', 'exit']) });
 
 /* ------------------------------------------------------------------ */
 /* PluginManifestV2 — the declared isolated-lane manifest.               */
@@ -99,28 +94,25 @@ export const workerByePayloadSchema = z.strictObject({ reason: z.enum(['shutdown
 
 /** Finite declared capability set. Generic store/shell/credential/host-command
  * capabilities do not exist and therefore cannot be declared or smuggled. */
-export const PLUGIN_DECLARED_CAPABILITIES = ['tools.invoke', 'ui.contribute', 'data.read', 'data.write', 'net.allowlist'] as const;
-export const pluginDeclaredCapabilitySchema = z.enum(PLUGIN_DECLARED_CAPABILITIES);
-export type PluginDeclaredCapability = z.infer<typeof pluginDeclaredCapabilitySchema>;
+const PLUGIN_DECLARED_CAPABILITIES = ['tools.invoke', 'ui.contribute', 'data.read', 'data.write', 'net.allowlist'] as const;
+const pluginDeclaredCapabilitySchema = z.enum(PLUGIN_DECLARED_CAPABILITIES);
 
 /** Bounded JSON-schema object for a declared tool; validated structurally and
  * by serialized size at admission. Hidden schemas cannot be promoted to direct
  * tool exposure by the worker. */
-export const pluginToolSchemaV1Schema = z.strictObject({
+const pluginToolSchemaV1Schema = z.strictObject({
   name: workerOperationNameSchema,
   title: boundedText(100).optional(),
   description: boundedText(500).optional(),
   parameters: z.record(z.string(), z.unknown()),
 });
-export type PluginToolSchemaV1 = z.infer<typeof pluginToolSchemaV1Schema>;
 
 /** Lifecycle hook operation names the worker may invoke on transitions. */
-export const pluginLifecycleHooksSchema = z.strictObject({
+const pluginLifecycleHooksSchema = z.strictObject({
   onEnable: workerOperationNameSchema.optional(),
   onDisable: workerOperationNameSchema.optional(),
   onUpdate: workerOperationNameSchema.optional(),
 });
-export type PluginLifecycleHooks = z.infer<typeof pluginLifecycleHooksSchema>;
 
 export const pluginManifestV2Schema = z.strictObject({
   manifestVersion: z.literal(2),
@@ -146,21 +138,19 @@ export type IsolatedDeclaration = z.infer<typeof isolatedDeclarationSchema>;
 /* PluginLeaseV1 — host-owned registration lease bound to a generation.  */
 /* ------------------------------------------------------------------ */
 
-export const pluginLeaseStateSchema = z.enum(['STARTING', 'ACTIVE', 'DRAINING', 'STOPPED', 'FAILED', 'UNKNOWN']);
+const pluginLeaseStateSchema = z.enum(['STARTING', 'ACTIVE', 'DRAINING', 'STOPPED', 'FAILED', 'UNKNOWN']);
 export type PluginLeaseState = z.infer<typeof pluginLeaseStateSchema>;
 
-export const pluginLeaseRegistrationSchema = z.strictObject({
+const pluginLeaseRegistrationSchema = z.strictObject({
   kind: z.enum(['tool', 'ui']),
   id: boundedText(200),
 });
-export type PluginLeaseRegistration = z.infer<typeof pluginLeaseRegistrationSchema>;
 
-export const pluginActiveCallSchema = z.strictObject({
+const pluginActiveCallSchema = z.strictObject({
   requestId: workerRequestIdSchema,
   operation: workerOperationNameSchema,
   startedAt: isoTimestamp,
 });
-export type PluginActiveCall = z.infer<typeof pluginActiveCallSchema>;
 
 export const pluginLeaseV1Schema = z.strictObject({
   pluginId: workerPluginIdSchema,
@@ -193,14 +183,13 @@ export const pluginMigrationPlanV1Schema = z.strictObject({
    * admitted back into the namespace. */
   validationReceipt: boundedText(500),
 });
-export type PluginMigrationPlanV1 = z.infer<typeof pluginMigrationPlanV1Schema>;
 
 /* ------------------------------------------------------------------ */
 /* Extension catalog view — the read model the existing manager shows.   */
 /* ------------------------------------------------------------------ */
 
-export const extensionHostKindSchema = z.enum(['trusted', 'isolated']);
-export const extensionViewV1Schema = z.strictObject({
+const extensionHostKindSchema = z.enum(['trusted', 'isolated']);
+const extensionViewV1Schema = z.strictObject({
   pluginId: workerPluginIdSchema,
   name: boundedText(100),
   version: workerPluginVersionSchema,

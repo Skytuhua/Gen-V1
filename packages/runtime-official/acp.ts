@@ -13,15 +13,24 @@ export class AcpConnection {
     for (const stream of [process.stdin, process.stdout, process.stderr]) stream?.on('error', failed);
     process.stdout?.setEncoding('utf8');
     process.stdout?.on('data', chunk => {
-      this.buffer += chunk;
-      if (Buffer.byteLength(this.buffer) > this.maxFrameBytes) { this.close(new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official ACP frame exceeded the bounded transport limit.')); return; }
-      let newline: number;
-      while ((newline = this.buffer.indexOf('\n')) !== -1) {
-        const line = this.buffer.slice(0, newline); this.buffer = this.buffer.slice(newline + 1);
+      if (this.closed) return;
+      const input = this.buffer + chunk;
+      this.buffer = '';
+      const tooLarge = () => this.close(new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official ACP frame exceeded the bounded transport limit.'));
+      let offset = 0, newline: number;
+      while (!this.closed && (newline = input.indexOf('\n', offset)) !== -1) {
+        const line = input.slice(offset, newline);
+        offset = newline + 1;
+        // Match the write-side byte limit, including the frame delimiter.
+        if (Buffer.byteLength(line) + 1 > this.maxFrameBytes) { tooLarge(); return; }
         if (!line.trim()) continue;
         try { this.accept(JSON.parse(line)); }
         catch { this.close(new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official ACP emitted an invalid JSON-RPC frame.')); }
       }
+      if (this.closed) return;
+      const tail = input.slice(offset);
+      if (Buffer.byteLength(tail) > this.maxFrameBytes) { tooLarge(); return; }
+      this.buffer = tail;
     });
     process.once('exit', () => this.close(new HarnessError('OFFICIAL_PROCESS_EXITED', 'Official Gemini CLI exited. Persisted history will determine input delivery.')));
   }
@@ -61,6 +70,7 @@ export class AcpConnection {
   close(error: Error = new HarnessError('OFFICIAL_RUN_ABORTED', 'Official ACP connection closed.')): void {
     if (this.closed) return;
     this.closed = true;
+    this.buffer = '';
     for (const pending of this.pending.values()) { clearTimeout(pending.timer); pending.reject(error); }
     this.pending.clear();
   }
