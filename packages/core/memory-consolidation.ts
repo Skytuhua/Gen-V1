@@ -65,7 +65,7 @@ export interface MemoryAuxiliaryRecord {
   finishedAt: string | null;
   usage: MemoryAuxiliaryUsage;
 }
-export interface MemoryConsolidationInput {
+interface MemoryConsolidationInput {
   access: MemoryAccess;
   inputDigest: string;
   watermark: number;
@@ -73,7 +73,7 @@ export interface MemoryConsolidationInput {
   changedItems: MemoryItemV1[];
   authority: 'QUOTED_EVIDENCE_ONLY';
 }
-export interface MemoryConsolidationProvider {
+interface MemoryConsolidationProvider {
   id: string;
   run(input: MemoryConsolidationInput, signal: AbortSignal): Promise<{ refs: MemoryRevisionRef[]; usage?: z.infer<typeof tokenUsageSchema> }>;
 }
@@ -338,7 +338,7 @@ export function validateMemoryExtraction(rawCut: MemoryExtractionCut, candidates
   return result;
 }
 
-export interface MemoryCheckpointCapability { adapterId: string; apiVersion: number; hostOwned: boolean }
+interface MemoryCheckpointCapability { adapterId: string; apiVersion: number; hostOwned: boolean }
 export interface MemoryCheckpointV1 {
   version: 1;
   id: string;
