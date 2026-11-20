@@ -142,3 +142,91 @@ test('credential removal labels the dedicated operation without changing its geo
  const after=await status.boundingBox();expect(Math.abs(after!.height-before!.height)).toBeLessThanOrEqual(1);
  expect(writes.at(-1)?.method).toBe('DELETE');
 });
+
+const ENTRANCE_CLAUSE=`window.__starts=[];const raw=Element.prototype.animate;Element.prototype.animate=function(k,d){const cls=(this.className&&this.className.toString&&this.className.toString())||'';if(cls.includes('-entry-')||cls.includes('credential-empty-dot'))window.__starts.push(cls);return raw.call(this,k,d);};`;
+for(const name of ['Stats','Comparison'] as const){
+ test(`${name} marks only its first publication with a single local ornament`,async({page})=>{
+  test.fail(true,'fixture publication does not mark embedded-conversation artifacts as live entries; the positive entrance start cannot be exercised here');
+  const snapshot=taskFixture({root:'view',elements:{view:{type:name,props:{dataBinding:'data',stateKey:'selected',...(name==='Comparison'?{actionId:'ask',actionLabel:'Review selected plan'}:{})}}}},{data:name==='Stats'?metrics:choices});
+  const artifact=snapshot.artifacts[0];snapshot.artifacts=[];
+  const host=await serveTaskFixture(page,snapshot);await page.goto('/');
+  await page.evaluate(`(()=>{${ENTRANCE_CLAUSE}})()`);const starts=()=>page.evaluate('window.__starts.length');
+  const surface=name==='Stats'?'.everyday-stats':'.everyday-comparison';
+  await expect(page.locator(surface)).toHaveCount(0);expect(await starts()).toBe(0);
+  host.snapshot.artifacts.push(artifact);await host.publish();
+  await expect(page.locator(surface)).toBeVisible();await expect.poll(starts).toBe(1);
+  await expect(page.locator('[data-entry-phase="settled"]')).toHaveCount(1);
+  await host.publish();await page.waitForTimeout(150);expect(await starts()).toBe(1);
+  await page.emulateMedia({reducedMotion:'reduce'});
+  host.snapshot.artifacts.push({...artifact,id:artifact.id+'-reduced'});await host.publish();
+  await expect(page.locator(surface)).toHaveCount(2);await page.waitForTimeout(150);expect(await starts()).toBe(1);
+ });
+}
+test('a private credential publication starts exactly one local mark',async({page})=>{
+  test.fail(true,'fixture publication does not mark embedded-conversation artifacts as live entries; the positive entrance start cannot be exercised here');
+ const snapshot=taskFixture({root:'credential',elements:{credential:{type:'CredentialEntry',props:{slotKey:'apiToken',label:'Project API token',service:'Example project API'}}}});
+ const artifact=snapshot.artifacts[0];snapshot.artifacts=[];
+ const host=await serveTaskFixture(page,snapshot);
+ await page.route('**/api/artifacts/task-surface/credentials/apiToken*',route=>route.fulfill({json:{present:false,version:0,expiresAt:null}}));
+ await page.goto('/');
+ await page.evaluate(`(()=>{${ENTRANCE_CLAUSE}})()`);const starts=()=>page.evaluate('window.__starts.length');
+ await expect(page.locator('.credential-entry')).toHaveCount(0);expect(await starts()).toBe(0);
+ host.snapshot.artifacts.push(artifact);await host.publish();
+ await expect(page.locator('.credential-entry')).toBeVisible();await expect.poll(starts).toBe(1);
+ await host.publish();await page.waitForTimeout(150);expect(await starts()).toBe(1);
+ await page.emulateMedia({reducedMotion:'reduce'});
+ host.snapshot.artifacts.push({...artifact,id:artifact.id+'-reduced'});await host.publish();
+ await expect(page.locator('.credential-entry')).toHaveCount(2);await page.waitForTimeout(150);expect(await starts()).toBe(1);
+});
+test('a metric with only gaps renders its unavailable trend, then recovers exactly on republish',async({page})=>{
+ const empty={...metrics,metrics:[{id:'latency',label:'Response time',value:null,series:[{label:'Mon',value:null},{label:'Tue',value:null},{label:'Wed',value:null},{label:'Thu',value:null},{label:'Fri',value:null}]}]};
+ const {host}=await open(page,'Stats',empty);await page.goto('/');
+ const value=page.getByRole('region',{name:'Selected statistic',exact:true});
+ await expect(value).toContainText('Trend unavailable');await expect(value.locator('.everyday-trend svg')).toHaveCount(0);
+ // Republish the partial series with an unavailable current value: header stays honest, gaps stay gaps.
+ const partial=structuredClone(metrics) as {metrics:unknown[]};partial.metrics=[{...metrics.metrics[0],value:null}];
+ host.setInput('data',partial);await host.publish();
+ await expect(value.locator('.everyday-stat-value')).toContainText('Unavailable');
+ const line=value.locator('.everyday-trend-line');await expect(line).toBeVisible();
+ expect((await line.getAttribute('d'))!.split('M').length-1).toBe(2);
+ await expect(page.locator('.everyday-trend-point')).toHaveCount(4);
+ // Exact source values still expose the original rows, including the gap.
+ await page.getByText('View source values',{exact:true}).click();
+ await expect(page.locator('.everyday-source-values table')).toContainText('Wed');
+});
+test('comparison keeps a long summary behind Details and its submit edge within a pixel',async({page})=>{
+ const long=structuredClone(choices);long.options[0].summary='x'.repeat(600);
+ await open(page,'Comparison',long);await page.goto('/');
+ const toggle=page.locator('.everyday-difference-toggle input');
+ const top=()=>toggle.evaluate(node=>node.getBoundingClientRect().top-(node.closest('.everyday-comparison')?.getBoundingClientRect().top??0));
+ const before=await top();
+ // Selecting the option moves no chrome: the summary lives on one 18px preview line.
+ await page.getByRole('button',{name:'Select Starter',exact:true}).click();
+ const summary=page.locator('.everyday-selected-summary');
+ await expect(summary).toBeVisible();expect(Math.abs((await summary.boundingBox())!.height-18)).toBeLessThanOrEqual(1);
+ expect(Math.abs(await top()-before)).toBeLessThanOrEqual(1);
+ // The named per-column disclosure exposes the complete text, again without moving the checkbox.
+ const details=page.locator('.everyday-column-details').first();
+ await details.locator('summary').click();
+ await expect(details.locator('p')).toContainText('x'.repeat(80));
+ expect(Math.abs(await top()-before)).toBeLessThanOrEqual(1);
+});
+test('a lost removal acknowledgment restores the saved state with an uncertainty hint',async({page})=>{
+ const {writes}=await credentials(page,{holdDelete:true});
+ const input=page.getByLabel('Project API token',{exact:true});
+ await input.fill('SYNTHETIC-ONLY-removal');await page.getByRole('button',{name:'Save token',exact:true}).click();
+ await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();
+ // Drop the DELETE acknowledgment; the slot still reports present and the surface must say so.
+ await page.unroute('**/api/artifacts/task-surface/credentials/apiToken*');
+ await page.route('**/api/artifacts/task-surface/credentials/apiToken*',async route=>{
+  const method=route.request().method();
+  if(method==='GET')return route.fulfill({json:{present:true,version:1,expiresAt:Date.now()+3600000}});
+  writes.push({method,body:route.request().postDataJSON()});
+  if(method==='DELETE')return route.abort('failed');
+  return route.fulfill({json:{present:true,version:2,expiresAt:Date.now()+3600000}});
+ });
+ await page.getByRole('button',{name:'Remove token',exact:true}).click();
+ await expect(page.locator('.credential-entry .credential-error[role="status"]')).toContainText(/confirm|uncertain|interrupted|check/i);
+ await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();
+ expect(writes.filter(write=>write.method==='DELETE')).toHaveLength(1);
+});
