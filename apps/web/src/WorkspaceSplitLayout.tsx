@@ -49,7 +49,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  const[floatRects,setFloatRects]=useState<Record<string,ChatRect>>({});
  const[floatMenu,setFloatMenu]=useState<string|null>(null),[dockedPreview,setDockedPreview]=useState<string|null>(null);
  // Views already placed at mount are restored content — only later arrivals animate (E4).
- const seenViews=useRef<Set<string>|null>(null),[leaving,setLeaving]=useState<Record<string,{view:SurfaceRef;style:CSSProperties}>>({}),prevActive=useRef<Record<string,{view:SurfaceRef;style:CSSProperties}>>({});
+ const seenViews=useRef<Set<string>|null>(null),[arrivals,setArrivals]=useState<Set<string>>(new Set()),[leaving,setLeaving]=useState<Record<string,{view:SurfaceRef;style:CSSProperties;paneId?:string;floatRect?:ChatRect}>>({}),prevActive=useRef<Record<string,{view:SurfaceRef;style:CSSProperties;paneId?:string;floatRect?:ChatRect}>>({});
  useEffect(()=>{seenViews.current=new Set(Object.keys(layout.views));},[layout.id]);
  const floatDragged=useRef(false);
  const floatGripAnchor=useRef<HTMLElement|null>(null),floatMenuContent=useRef<HTMLDivElement|null>(null),floatMenuItem=useRef<HTMLButtonElement|null>(null);
@@ -171,8 +171,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  const viewPlacements=Object.values(layout.views).map(view=>{
   const paneId=dockedPreview===view.id?undefined:visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,floatRect=!paneId&&(dockedPreview===view.id||layout.parkedViewIds.includes(view.id))?floatRectOf(view.id):undefined,active=Boolean(slot&&slot.width>0&&slot.height>0)||Boolean(floatRect);
   const style:CSSProperties=floatRect?{left:floatRect.x,top:floatRect.y,width:floatRect.width,height:floatRect.height}:active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'};
-  const arrival=seenViews.current!==null&&!seenViews.current.has(view.id);if(arrival)seenViews.current!.add(view.id);
-  return{view,paneId,floatRect,active,style,arrival};
+  return{view,paneId,floatRect,active,style};
  });
  const activeViewKey=JSON.stringify(viewPlacements.filter(placement=>placement.active).map(placement=>placement.view.id).sort());
  useLayoutEffect(()=>{
@@ -182,8 +181,24 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
  },[layout.id,activeViewKey,onActiveViewsChange]);
  // E4: a pane that loses its slot keeps a ghost for the exit animation.
  useLayoutEffect(()=>{
-  const now:Record<string,{view:SurfaceRef;style:CSSProperties}>={};
-  for(const placement of viewPlacements)if(placement.active)now[placement.view.id]={view:placement.view,style:placement.style};
+  const fresh=new Set<string>();
+  for(const placement of viewPlacements)if(placement.active&&seenViews.current!==null&&!seenViews.current.has(placement.view.id))fresh.add(placement.view.id);
+  if(!fresh.size)return;
+  for(const id of fresh)seenViews.current!.add(id);
+  setArrivals(current=>{const next=new Set(current);for(const id of fresh)next.add(id);return next;});
+ });
+ useLayoutEffect(()=>{
+  if(!arrivals.size)return;
+  const done=()=>setArrivals(new Set());
+  const running=[...root.current?.querySelectorAll('.split-surface[data-arrival]')??[]].flatMap(element=>element.getAnimations?.()??[]);
+  if(!running.length){done();return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)done();});
+  return()=>{cancelled=true;};
+ },[arrivals]);
+ useLayoutEffect(()=>{
+  const now:Record<string,{view:SurfaceRef;style:CSSProperties;paneId?:string;floatRect?:ChatRect}>={};
+  for(const placement of viewPlacements)if(placement.active)now[placement.view.id]={view:placement.view,style:placement.style,paneId:placement.paneId,floatRect:placement.floatRect};
   const dropped:{view:SurfaceRef;style:CSSProperties}[]=[];
   for(const[id,prev]of Object.entries(prevActive.current))if(!now[id])dropped.push(prev);
   prevActive.current=now;
@@ -199,11 +214,18 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
   return()=>{cancelled=true;};
  },[leaving]);
  const overlay=drop?rects[drop.paneId]:undefined;
+ // Ghosts clone the surface's DOM snapshot so exit animations replay the old look
+ // without unmounting or re-mounting the real view subtree (drafts, editors, iframes).
+ const cloneGhost=(element:HTMLDivElement|null,viewId:string)=>{
+  if(!element||element.firstChild)return;
+  const source=[...root.current?.querySelectorAll<HTMLElement>('.split-surface')??[]].find(node=>node.dataset.splitView===viewId&&!node.hasAttribute('data-leaving'));
+  if(source)element.appendChild(source.cloneNode(true));
+ };
  return <div ref={root} className={`split-workspace${narrow?' is-narrow':''} ${className}`} data-workspace-id={layout.id} aria-busy={busy} onPointerDownCapture={event=>{const paneId=(event.target as HTMLElement).closest<HTMLElement>('[data-split-view]')?.dataset.paneId;if(paneId&&paneId!==layout.focusedPaneId&&!busy)void send('pane.focus',{paneId},false);}} onDragOver={dragOver} onDragLeave={event=>{if(!event.currentTarget.contains(event.relatedTarget as Node|null))setDrop(null);}} onDrop={dropView}>
   {narrow&&<div className="split-workspace-tools"><label>Area<Select aria-label="Active workspace area" value={layout.focusedPaneId} disabled={busy} onValueChange={paneId=>{void send('pane.focus',{paneId},false);}} options={splitPaneIds(layout.root).map(paneId=>{const viewId=layout.panes[paneId]!.activeViewId;return{value:paneId,label:viewId?title(layout.views[viewId]!):'Empty area'};})}/></label></div>}
   {error&&<p role="alert" className="split-layout-error">{error}<button onClick={()=>setError('')}>Dismiss</button></p>}
   <div className="split-tree">{narrow?renderPane(layout.focusedPaneId):renderNode(layout.root)}</div>
-  <div className="split-surface-plane">{viewPlacements.map(({view,paneId,floatRect,active,style,arrival})=><div key={view.id} className={`split-surface${floatRect?' split-surface-float':''}`} data-split-view={view.id} data-pane-id={paneId} data-floating={floatRect?true:undefined} data-arrival={arrival||undefined} style={style} inert={!active} aria-hidden={!active}>{renderView(view,active)}{floatRect&&<div className="split-float-header"><strong ref={node=>{if(floatMenu===view.id)floatGripAnchor.current=node;}} className="split-float-grip" role="button" tabIndex={0} aria-label={`Placement and move for ${title(view)}`} aria-haspopup="menu" aria-expanded={floatMenu===view.id} onPointerDown={event=>beginFloat(event,view.id,'move')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onLostPointerCapture={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onClick={()=>{if(floatDragged.current)return;setFloatMenu(current=>current===view.id?null:view.id);}} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setFloatMenu(current=>current===view.id?null:view.id);}else keyFloat(event,view.id);}}>{title(view)}</strong></div>}{floatRect&&<button type="button" className="split-float-resize" aria-label={`Resize ${title(view)}`} onPointerDown={event=>beginFloat(event,view.id,'resize')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onLostPointerCapture={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}}/>}</div>)}{Object.values(leaving).map(({view,style})=><div key={'leaving-'+view.id} className="split-surface" data-leaving data-split-view={view.id} style={style} inert aria-hidden>{renderView(view,false)}</div>)}</div>
+  <div className="split-surface-plane">{viewPlacements.map(({view,paneId,floatRect,active,style})=><div key={view.id} className={`split-surface${floatRect?' split-surface-float':''}`} data-split-view={view.id} data-pane-id={paneId} data-floating={floatRect?true:undefined} data-arrival={arrivals.has(view.id)||undefined} style={style} inert={!active} aria-hidden={!active}>{renderView(view,active)}{floatRect&&<div className="split-float-header"><strong ref={node=>{if(floatMenu===view.id)floatGripAnchor.current=node;}} className="split-float-grip" role="button" tabIndex={0} aria-label={`Placement and move for ${title(view)}`} aria-haspopup="menu" aria-expanded={floatMenu===view.id} onPointerDown={event=>beginFloat(event,view.id,'move')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onLostPointerCapture={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onClick={()=>{if(floatDragged.current)return;setFloatMenu(current=>current===view.id?null:view.id);}} onKeyDown={event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();setFloatMenu(current=>current===view.id?null:view.id);}else keyFloat(event,view.id);}}>{title(view)}</strong></div>}{floatRect&&<button type="button" className="split-float-resize" aria-label={`Resize ${title(view)}`} onPointerDown={event=>beginFloat(event,view.id,'resize')} onPointerMove={moveFloat} onPointerUp={endFloat} onPointerCancel={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}} onLostPointerCapture={event=>{if(floatGesture.current?.pointerId===event.pointerId)cancelFloat();}}/>}</div>)}{Object.values(leaving).map(ghost=><div key={'leaving-'+ghost.view.id} className={`split-surface${ghost.floatRect?' split-surface-float':''}`} data-leaving data-split-view={ghost.view.id} data-pane-id={ghost.paneId} data-floating={ghost.floatRect?true:undefined} style={ghost.style} inert aria-hidden ref={element=>cloneGhost(element,ghost.view.id)}/>)}</div>
   {drop&&overlay&&<div className={`split-drop-preview edge-${drop.edge}`} style={drop.outer?{left:0,top:topBar,width:size.width,height:size.height-topBar}:{left:overlay.left,top:overlay.top,width:overlay.width,height:overlay.height}}><span>{drop.joinFrom?'Join into this area':edgeLabel[drop.edge]}</span></div>}
   {floatMenu&&layout.views[floatMenu]&&(layout.parkedViewIds.includes(floatMenu)?onReturnFloat:onDetachView)&&<Popover anchor={floatGripAnchor} contentRef={floatMenuContent} initialFocus={floatMenuItem} open width={220} height={46} preferredSide="below" align="start" role="menu" aria-label={`Placement for ${title(layout.views[floatMenu]!)}`} className="ui-control-popup" onDismiss={()=>setFloatMenu(null)}><button ref={floatMenuItem} type="button" role="menuitem" className="ui-control-option" onClick={()=>{const view=layout.views[floatMenu];setFloatMenu(null);if(view){if(layout.parkedViewIds.includes(view.id))onReturnFloat?.(view);else void run(()=>Promise.resolve(onDetachView?.(view)),false);}}}>{layout.parkedViewIds.includes(floatMenu)?'Return to main':'Detach conversation'}</button></Popover>}
  </div>;
