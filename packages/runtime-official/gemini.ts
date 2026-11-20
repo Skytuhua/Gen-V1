@@ -116,9 +116,9 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   const assert = () => { if (!context.current() || closed) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   async function prompt(text: string) {
     assert();
-    const result = await rpc.request<AcpPromptResult>('session/prompt', { sessionId, prompt: [{ type: 'text', text }] }, 180_000);
+    const result = await rpc.request<AcpPromptResult | null>('session/prompt', { sessionId, prompt: [{ type: 'text', text }] }, 180_000);
     assert();
-    if (typeof result.stopReason !== 'string' || !['end_turn', 'max_tokens', 'max_turn_requests', 'refusal', 'cancelled'].includes(result.stopReason)) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Gemini CLI returned no recognized ACP v1 terminal stop reason. Input delivery remains uncertain.');
+    if (typeof result?.stopReason !== 'string' || !['end_turn', 'max_tokens', 'max_turn_requests', 'refusal', 'cancelled'].includes(result.stopReason)) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Gemini CLI returned no recognized ACP v1 terminal stop reason. Input delivery remains uncertain.');
     return result;
   }
   async function drain() {
