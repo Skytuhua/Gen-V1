@@ -49,18 +49,20 @@ export function WorkspaceNotifications({store}:{store:WorkspaceNotificationStore
  useEffect(()=>{if(!entries.length){setExpanded(false);setOpen(true);}},[entries.length]);
  // Retain exiting cards while minimized too, so their timers always finish.
  const visible=visibleNotifications(entries,expanded);
+ const cards=visible.map(entry=><Notification key={entry.id} entry={entry} store={store} motion={motion} dismiss={dismiss}/>);
  if(!entries.length)return null;
  return <section className="workspace-notifications" aria-label="Workspace notifications" data-motion={motion}>
   <div className="workspace-notifications-toolbar"><button ref={trigger} type="button" aria-controls={panelId} aria-expanded={open} onClick={()=>setOpen(value=>!value)}>{open?'Hide':'Show'} notifications ({count}){open?<ChevronUp size={12}/>:<ChevronDown size={12}/>}</button></div>
   {!open&&<span className="sr-only" role="status" aria-live="polite">{active[0]?.message}</span>}
-  <Popover anchor={trigger} id={panelId} className="workspace-notifications-panel" role="region" aria-label="Workspace errors" data-motion={motion} open={open} present width={336} height={height} preferredSide="below" align="end" onDismiss={()=>{}} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setOpen(false);trigger.current?.focus();}}}>
+  <Popover anchor={trigger} id={panelId} className="workspace-notifications-panel" role="region" aria-label="Workspace errors" data-motion={motion} open={open} present={open} width={336} height={height} preferredSide="below" align="end" onDismiss={()=>{}} onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();event.stopPropagation();setOpen(false);trigger.current?.focus();}}}>
    <div ref={setBody}>
    <div id={listId} className="workspace-notifications-list" tabIndex={expanded?0:undefined} aria-label={expanded?'All workspace notifications':undefined}>
-    {visible.map(entry=><Notification key={entry.id} entry={entry} store={store} motion={motion} dismiss={dismiss}/>)}
+    {cards}
    </div>
    {entries.length>3&&<button className="workspace-notifications-overflow" type="button" aria-expanded={expanded} aria-controls={listId} onClick={()=>setExpanded(value=>!value)}>{expanded?'Show fewer':`+${hidden} more`}{expanded?<ChevronUp size={12}/>:<ChevronDown size={12}/>}</button>}
    </div>
   </Popover>
+  {!open&&<div hidden>{cards}</div>}
   {!expanded&&entries.slice(3).map(entry=><div hidden key={entry.id}><Notification entry={entry} store={store} motion={motion} dismiss={dismiss}/></div>)}
  </section>;
 }
