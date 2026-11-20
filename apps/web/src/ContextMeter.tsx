@@ -88,7 +88,7 @@ export function ContextMeter({ usage, busy = false, accepted = false }: { usage?
     setFocusedId(current => current === key ? null : current);
     if (openId === key) setOpenId(hoveredId);
   };
-  const dismiss = (key: string) => { suppressed.current = key; cancel(); setOpenId(null); };
+  const dismiss = (key: string) => { suppressed.current = key; cancel(); setOpenId(current => current === key ? null : current); };
   if (!shown) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Not reported</p></div>;
   return <div className={`context-meter${accepted ? ' context-measurement-accepted' : ''}`} role="group" aria-label="Reported context breakdown" aria-busy={busy}>
     <progress className="sr-only" aria-label="Context used" value={shown.ratio} max={100} />

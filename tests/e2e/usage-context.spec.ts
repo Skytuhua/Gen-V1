@@ -368,7 +368,8 @@ test('reported categories open immediately on focus and after dwell on first poi
   await context(page).getByRole('button', { name: /^Skills/ }).hover();
   await expect(page.getByRole('tooltip')).toContainText('Skills'); await expect(page.getByRole('tooltip')).toContainText('500 tokens');
   await context(page).hover({ position: { x: 8, y: 8 } });
-  await tools.focus();
+  await tools.focus(); await expect(page.getByRole('tooltip')).toContainText('Tools & MCP');
+  await context(page).getByRole('button', { name: /^Skills/ }).focus(); await expect(page.getByRole('tooltip')).toContainText('Skills');
   await tools.dispatchEvent('keydown', { key: 'Escape', isComposing: true }); await expect(page.getByRole('tooltip')).toBeVisible();
   await page.keyboard.press('Escape'); await expect(page.getByRole('tooltip')).toHaveCount(0); await expect(context(page)).toBeVisible();
   await page.keyboard.press('Escape'); await expect(context(page)).toHaveCount(0); await expect(page.getByRole('button', { name: 'Inspect context', exact: true })).toBeFocused();
