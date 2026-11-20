@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from 'node:crypto';
-import { mkdir, readFile, realpath, rename, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, realpath, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
 import { isOfficialRuntimeProviderId } from '../contracts/connections.ts';
@@ -82,8 +82,13 @@ export function saveManifest(state: ManifestState): Promise<void> {
       }
     } catch (error) { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }
     const temporary = join(dirname(state.path), `.session-${randomUUID()}.tmp`);
-    await writeFile(temporary, JSON.stringify(snapshot), { mode: 0o600, flag: 'wx' });
-    await rename(temporary, state.path);
+    try {
+      await writeFile(temporary, JSON.stringify(snapshot), { mode: 0o600, flag: 'wx' });
+      await rename(temporary, state.path);
+    } catch (error) {
+      await rm(temporary, { force: true }).catch(() => {});
+      throw error;
+    }
   });
   state.write = next;
   writes.set(state.path, next);
