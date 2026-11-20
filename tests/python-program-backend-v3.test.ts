@@ -1,13 +1,14 @@
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
-import { mkdir, mkdtemp, readFile, rename, rm } from 'node:fs/promises';
+import { mkdir, mkdtemp, readdir, readFile, rename, rm, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import {
-  createPythonProgramWorker, inspectPythonRuntime, pythonExecutionBackend, pythonProgramArguments,
+  createPythonProgramWorker, inspectPythonRuntime, pythonExecutionBackend, pythonProgramArguments, pythonRuntimeFingerprint,
   type PythonRuntimeConfiguration, type PythonProgramWorkerOptions,
 } from '../packages/runtime/python-program-worker.ts';
 import { DEFAULT_PROGRAM_LIMITS, type ProgramExecutionRequest, type ProgramExecutor } from '../packages/contracts/tool-program.ts';
 import type { ApprovedLaunch, PlatformProof } from '../packages/core/execution-policy.ts';
+import { pythonQualificationProfile } from './fixtures/python-qualification-profile.ts';
 
 // Observe actual filesystem reads without replacing their results. Holding one
 // completed read makes deadline/cancellation traversal behavior deterministic.
@@ -26,6 +27,8 @@ vi.mock('node:fs/promises', async importOriginal => {
 });
 
 const native = process.platform === 'linux' && process.arch === 'x64';
+// Historical host paths unless the test-only qualification manifest is explicitly selected.
+const qualification = pythonQualificationProfile();
 const workers: ProgramExecutor[] = [], directories: string[] = [];
 let runtime: PythonRuntimeConfiguration;
 const proof: PlatformProof = {
@@ -64,21 +67,15 @@ async function fixture(over: Partial<PythonProgramWorkerOptions> = {}) {
 
 describe.runIf(native)('actual Linux Python program confinement with explicit test approval', () => {
   beforeAll(async () => {
-    runtime = await inspectPythonRuntime({
-      backendId: 'm12-linux-bwrap-python-v1', bwrapPath: '/usr/bin/bwrap',
-      interpreterPath: '/usr/bin/python3.13', stdlibPath: '/usr/lib/python3.13',
-      libraries: [
-        { path: '/lib/x86_64-linux-gnu/libc.so.6', mountPath: '/lib/x86_64-linux-gnu/libc.so.6' },
-        { path: '/lib/x86_64-linux-gnu/libm.so.6', mountPath: '/lib/x86_64-linux-gnu/libm.so.6' },
-        { path: '/lib/x86_64-linux-gnu/libz.so.1', mountPath: '/lib/x86_64-linux-gnu/libz.so.1' },
-        { path: '/lib/x86_64-linux-gnu/libexpat.so.1', mountPath: '/lib/x86_64-linux-gnu/libexpat.so.1' },
-        { path: '/lib/x86_64-linux-gnu/libffi.so.8', mountPath: '/lib/x86_64-linux-gnu/libffi.so.8' },
-        { path: '/lib64/ld-linux-x86-64.so.2', mountPath: '/lib64/ld-linux-x86-64.so.2' },
-      ],
-    });
+    runtime = await inspectPythonRuntime(qualification.inspection);
     // This matrix is for these installed executables, never for arbitrary PATH resolution.
     expect(runtime.interpreter.sha256).toBe('889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9');
     expect(runtime.bwrap.sha256).toBe('573236e5328ac2ebb08f59ae3a9805b4f8d12bdef14be8af4450d5463294985f');
+    if (qualification.expected) {
+      // Opt-in staged profile: every pinned byte and the fingerprint must equal the hash-verified manifest.
+      expect(runtime).toEqual(qualification.expected.runtime);
+      expect(pythonRuntimeFingerprint(runtime)).toBe(qualification.expected.runtimeFingerprint);
+    }
   });
 
   it('requires explicit operator approval and a matching real-platform proof before execution', async () => {
@@ -107,15 +104,18 @@ describe.runIf(native)('actual Linux Python program confinement with explicit te
     await expect(worker.execute(request('n += 1\nresult = n'))).rejects.toMatchObject({ code: 'PYTHON_PROFILE_DENIED' });
   });
 
-  it.each(['entry count', 'depth'] as const)('bounds a prior cell filesystem %s before dispatching the next cell', async limit => {
+  it.each(['entry count', 'depth'] as const)('bounds a cell filesystem %s before accepting its result or dispatching the next cell', async limit => {
     const { worker, directory } = await fixture();
     const source = limit === 'entry count'
       ? "for i in range(4096):\n open('/work/entry-' + str(i), 'w').close()\nresult = 4096"
       : "import os\np = '/work'\nfor i in range(33):\n p += '/level'\n os.mkdir(p)\nresult = 33";
-    expect(await worker.execute(request(source))).toBe(limit === 'entry count' ? 4096 : 33);
-    await expect(worker.execute(request("open('/work/dispatched', 'w').close()\nresult = 1"))).rejects.toMatchObject({ code: 'PYTHON_DIRECTORY_LIMIT' });
+    // M12-D06: the same structural walk runs after the stopped-state proof, so
+    // the over-bound cell itself fails instead of only the next cell.
+    await expect(worker.execute(request(source))).rejects.toMatchObject({ code: 'PYTHON_DIRECTORY_LIMIT' });
+    if (limit === 'entry count') expect(await readdir(directory)).toHaveLength(4096);
+    else expect((await stat(join(directory, ...Array.from({ length: 33 }, () => 'level')))).isDirectory()).toBe(true);
+    await expect(worker.execute(request("open('/work/dispatched', 'w').close()\nresult = 1"))).rejects.toMatchObject({ code: 'KERNEL_RESET_REQUIRED' });
     await expect(readFile(join(directory, 'dispatched'))).rejects.toMatchObject({ code: 'ENOENT' });
-    await expect(worker.execute(request('result = 1'))).rejects.toMatchObject({ code: 'KERNEL_RESET_REQUIRED' });
   });
 
   it.each(['deadline', 'cancellation'] as const)('stops preflight traversal after %s even when a filesystem read settles late', async mode => {

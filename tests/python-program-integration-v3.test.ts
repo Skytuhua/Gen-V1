@@ -7,15 +7,18 @@ import { Store, digest } from '../packages/storage/store.ts';
 import { createProjectTrust } from '../packages/core/project-trust.ts';
 import { hostFlagEnvName } from '../packages/core/host-flags.ts';
 import { createPythonProgramProvider, type PythonHostConfiguration } from '../packages/core/python-program-provider.ts';
-import { inspectPythonRuntime, pythonProgramArguments, type PythonRuntimeConfiguration } from '../packages/runtime/python-program-worker.ts';
+import { inspectPythonRuntime, pythonProgramArguments, pythonRuntimeFingerprint, type PythonRuntimeConfiguration } from '../packages/runtime/python-program-worker.ts';
 import { DEFAULT_PROGRAM_LIMITS, type ProgramExecutionRequest, type ProgramExecutor, type ProgramJournalV1, type PythonKernelV1 } from '../packages/contracts/tool-program.ts';
 import type { PlatformProof } from '../packages/core/execution-policy.ts';
 import type { ResourceGrant, RuntimeAdapter, Thread } from '../packages/contracts/index.ts';
 import type { ToolOwner, ToolEffectRecord } from '../packages/contracts/tool-effects.ts';
 import type { ToolProgramResult } from '../packages/core/tool-programs.ts';
 import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
+import { pythonQualificationProfile } from './fixtures/python-qualification-profile.ts';
 
 const native = process.platform === 'linux' && process.arch === 'x64';
+// Historical host paths unless the test-only qualification manifest is explicitly selected.
+const qualification = pythonQualificationProfile();
 const cleanups: (() => Promise<void>)[] = [], executors: ProgramExecutor[] = [];
 let runtime: PythonRuntimeConfiguration;
 const proof: PlatformProof = {
@@ -87,16 +90,13 @@ async function waitForFile(path: string): Promise<void> {
 
 describe.runIf(native)('M03 Python provider through actual Service and M02 integration', () => {
   beforeAll(async () => {
-    runtime = await inspectPythonRuntime({ backendId: 'm12-linux-bwrap-python-v1', bwrapPath: '/usr/bin/bwrap',
-      interpreterPath: '/usr/bin/python3.13', stdlibPath: '/usr/lib/python3.13', libraries: [
-        { path: '/lib/x86_64-linux-gnu/libc.so.6', mountPath: '/lib/x86_64-linux-gnu/libc.so.6' },
-        { path: '/lib/x86_64-linux-gnu/libm.so.6', mountPath: '/lib/x86_64-linux-gnu/libm.so.6' },
-        { path: '/lib/x86_64-linux-gnu/libz.so.1', mountPath: '/lib/x86_64-linux-gnu/libz.so.1' },
-        { path: '/lib/x86_64-linux-gnu/libexpat.so.1', mountPath: '/lib/x86_64-linux-gnu/libexpat.so.1' },
-        { path: '/lib/x86_64-linux-gnu/libffi.so.8', mountPath: '/lib/x86_64-linux-gnu/libffi.so.8' },
-        { path: '/lib64/ld-linux-x86-64.so.2', mountPath: '/lib64/ld-linux-x86-64.so.2' },
-      ] });
+    runtime = await inspectPythonRuntime(qualification.inspection);
     expect(runtime.interpreter.sha256).toBe('889c603f0d17cb54060951bcf4c4f9b8c9ebd9e52b392c70209bbb9755d797d9');
+    if (qualification.expected) {
+      // Opt-in staged profile: every pinned byte and the fingerprint must equal the hash-verified manifest.
+      expect(runtime).toEqual(qualification.expected.runtime);
+      expect(pythonRuntimeFingerprint(runtime)).toBe(qualification.expected.runtimeFingerprint);
+    }
   });
 
   it.each([
