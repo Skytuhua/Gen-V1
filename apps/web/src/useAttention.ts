@@ -5,7 +5,7 @@ import {authenticated,csrfToken,read,subscribe} from './api';
 let state:AttentionEnvelope&{error:string}={items:[],unread:0,sequence:0,error:''};
 const listeners=new Set<()=>void>();let stop:(()=>void)|undefined,flight:Promise<void>|undefined,trailing:Promise<void>|undefined,timer:ReturnType<typeof setTimeout>|undefined;
 const publish=()=>{for(const listener of listeners)listener();};
-export function refreshAttention():Promise<void>{
+function refreshAttention():Promise<void>{
  if(flight)return trailing??=flight.then(()=>{trailing=undefined;return refreshAttention();});
  return flight=Promise.resolve().then(async()=>{
   try{const value=await authenticated(()=>fetch('/api/attention',{credentials:'same-origin',cache:'no-store',redirect:'error'})).then(read<AttentionEnvelope>);if(!Array.isArray(value.items)||value.items.length>1000||!Number.isSafeInteger(value.sequence))throw Error('The Inbox response is invalid.');state={...value,items:value.items.map(item=>attentionItemSchema.parse(item)),error:''};publish();}

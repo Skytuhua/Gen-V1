@@ -9,7 +9,7 @@
 .project-memory-heading>div {min-width:0;}
 .project-memory-heading p,.project-memory-caption,.project-memory-row>header>span {color:var(--muted);font-size:12px;}
 .project-memory-actions {display:flex;flex-wrap:wrap;gap:6px;align-items:center;}
-.project-memory-body button {min-height:32px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font:inherit;color:var(--text);background:var(--surface);}
+.project-memory-body button {min-height:32px;padding:6px 10px;border:1px solid var(--control-border);border-radius:6px;font:inherit;color:var(--text);background:var(--surface);}
 .project-memory-body button:hover:not(:disabled) {background:var(--hover);}
 .project-memory-body button:disabled {opacity:.55;cursor:default;}
 .project-memory-body :is(button,input,textarea,summary):focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px;}
@@ -32,7 +32,7 @@
 .project-memory-empty {padding:18px 0;color:var(--muted);}
 .project-memory-detail {margin:16px 0 0;padding:14px;border:1px solid var(--border);border-radius:8px;background:var(--subtle);}
 .project-memory-detail>label,.project-memory-conflict>label {display:grid;gap:5px;margin:10px 0;}
-.project-memory-body :is(textarea,input[type="datetime-local"]) {box-sizing:border-box;width:100%;min-width:0;padding:9px;border:1px solid var(--border);border-radius:6px;background:var(--input-bg,var(--surface));color:var(--text);font:inherit;}
+.project-memory-body :is(textarea,input[type="datetime-local"]) {box-sizing:border-box;width:100%;min-width:0;padding:9px;border:1px solid var(--control-border);border-radius:6px;background:var(--input-bg,var(--surface));color:var(--text);font:inherit;}
 .project-memory-body textarea {resize:vertical;}
 .project-memory-detail pre {white-space:pre-wrap;overflow-wrap:anywhere;font-size:12px;max-height:320px;overflow:auto;}
 .project-memory-digest {font-size:11px;color:var(--muted);overflow-wrap:anywhere;}

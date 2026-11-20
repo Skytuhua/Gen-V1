@@ -1,5 +1,5 @@
 import type {SplitWorkspaceLayout,SplitWorkspaceNode} from '../../../packages/contracts/split-workspace';
-export interface LayoutProfileSummary {id:string;name:string;updatedAt?:string}
+interface LayoutProfileSummary {id:string;name:string;updatedAt?:string}
 export interface SplitProfileResult {id:string;layout:SplitWorkspaceLayout;updatedAt?:string}
 interface ProfilePort {prepare:()=>Promise<void>;save:(name:string,id?:string)=>Promise<SplitProfileResult>;send:(type:string,payload:Record<string,unknown>)=>Promise<SplitWorkspaceLayout>;refresh:()=>Promise<readonly LayoutProfileSummary[]>}
 /** Presentation comparison only: ownership stays in the host's immutable view bindings. */

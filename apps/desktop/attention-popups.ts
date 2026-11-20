@@ -1,6 +1,6 @@
 import type {AttentionDelivery,AttentionItem} from '../../packages/contracts/attention.ts';
 
-export interface AttentionPopupCard {eventId:string;title:string;body:string;state:AttentionItem['state'];count:number}
+interface AttentionPopupCard {eventId:string;title:string;body:string;state:AttentionItem['state'];count:number}
 export interface AttentionPopupAction {type:'open'|'dismiss'|'pause'|'resume';eventId:string}
 export interface AttentionPopupWindow {render(value:{cards:AttentionPopupCard[];sound:number}):void;showInactive():void;hide():void;destroy():void;setBounds(bounds:{x:number;y:number;width:number;height:number}):void;onAction(callback:(action:AttentionPopupAction)=>void|Promise<void>):void}
 interface Options {read():Promise<AttentionDelivery>;open(eventId:string):Promise<void>;dismiss(eventId:string):Promise<void>;createWindow():Promise<AttentionPopupWindow>;workArea():{x:number;y:number;width:number;height:number};focused():boolean;now?:()=>Date}

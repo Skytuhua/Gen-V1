@@ -144,3 +144,30 @@ it('recovery evidence failure leaves interrupted execution durable', async () =>
   expect(x.store.get('operation', operation.id)).toEqual({ ...operation, status: 'unknown', error: 'Execution was interrupted before its outcome was recorded' });
   expect(x.service.data(x.threadId, operation.id)).toMatchObject({ revision: 3, value: { status: 'unknown' } }); expect(x.adapter.runs).toEqual([]);
 });
+it('bounds the selected source page even when its metadata is multibyte', async () => {
+  const x = await setup(), key = '項'.repeat(1800);
+  const data: DataRecord = { id: 'source-page', threadId: x.threadId, revision: 1, provenance: '出'.repeat(1000), value: { [key]: 'saved text' }, createdAt: '' };
+  x.store.internal('fixture.source', x.threadId, () => x.store.put('data', data.id, x.threadId, data));
+  const page = await x.service.tool({ name: 'ui_inspect', args: { dataId: data.id, pointer: '/' + key } }, x.ctx());
+  expect(Buffer.byteLength(JSON.stringify(page))).toBeLessThanOrEqual(8192);
+  expect(page).toMatchObject({ id: data.id, revision: 1, pointer: '/' + key, value: 'saved text' });
+});
+
+it('keeps oversized source pointers and key hints from overflowing the response', async () => {
+  const x = await setup(), pointerKey = '項'.repeat(1799), hugePointerKey = '\u0001'.repeat(1600);
+  const massive = Object.fromEntries(Array.from({ length: 30 }, (_, i) => ['列'.repeat(100) + i, 'data']));
+  const data: DataRecord = { id: 'source-hints', threadId: x.threadId, revision: 1, provenance: '出'.repeat(1000), value: { [pointerKey]: massive, [hugePointerKey]: ['first', 'second'] }, createdAt: '' };
+  x.store.internal('fixture.source', x.threadId, () => {
+    x.store.put('data', data.id, x.threadId, data);
+    x.store.put('dataVersion', data.id + '@1', x.threadId, data);
+  });
+  const request = (pointer: string, args = {}) => x.service.tool({ name: 'ui_inspect', args: { dataId: data.id, pointer, ...args } }, x.ctx());
+  const hint = await request('/' + pointerKey);
+  expect(Buffer.byteLength(JSON.stringify(hint))).toBeLessThanOrEqual(8192);
+  expect(hint).toMatchObject({ id: data.id, revision: 1, tooLarge: true, keys: expect.arrayContaining(['列'.repeat(100) + '0']) });
+  const first = await request('/' + hugePointerKey, { revision: 1, limit: 1 });
+  const second = await request('/' + hugePointerKey, { revision: 1, limit: 1, offset: 1 });
+  expect(Buffer.byteLength(JSON.stringify(first))).toBeLessThanOrEqual(8192);
+  expect(first).toMatchObject({ id: data.id, revision: 1, nextOffset: 1, value: ['first'] });
+  expect(second).toMatchObject({ id: data.id, revision: 1, offset: 1, value: ['second'] });
+});
