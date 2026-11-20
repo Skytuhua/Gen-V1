@@ -69,10 +69,10 @@ it('does not recover durable task authority when the host port cannot bind',asyn
 });
 
 it('gates both actual listeners until recovery settles and only then reports readiness',async()=>{
- const hostPort=await freePort();let widgetPort=await freePort();while(widgetPort===hostPort)widgetPort=await freePort();
+ let hostPort=0,widgetPort=0;const repick=async()=>{hostPort=await freePort();widgetPort=await freePort();while(widgetPort===hostPort)widgetPort=await freePort();};await repick();
  const m=mocks();let release!:()=>void;m.service.recover.mockImplementationOnce(()=>new Promise<void>(accept=>{release=accept;}));
- const app=Fastify(),widgets=Fastify();app.get('/probe',async()=>({ready:true}));widgets.get('/probe',async()=>({ready:true}));
- const pending=launchHost({...options,port:hostPort,widgetPort},{...m.factories,buildServer:async()=>app,buildWidgetServer:async()=>widgets});
+ // A probe port released by freePort() can be stolen before the listener binds; rebuild the probe servers and retry on EADDRINUSE.
+ const pending=(async()=>{for(let attempt=0;;attempt++){const app=Fastify(),widgets=Fastify();app.get('/probe',async()=>({ready:true}));widgets.get('/probe',async()=>({ready:true}));try{return await launchHost({...options,port:hostPort,widgetPort},{...m.factories,buildServer:async()=>app,buildWidgetServer:async()=>widgets});}catch(error){if(attempt>=3||!addressInUse(error))throw error;await repick();}}})();
  let ready=false;void pending.then(()=>{ready=true;});
  try{
   await vi.waitFor(()=>expect(m.service.recover).toHaveBeenCalledOnce());expect(ready).toBe(false);
@@ -117,6 +117,17 @@ it('validates launch options before creating a store or binding any listener',as
 });
 
 async function freePort(){const server=createServer();await new Promise<void>((resolve,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',()=>resolve());});const port=(server.address() as {port:number}).port;await new Promise<void>((resolve,reject)=>server.close(error=>error?reject(error):resolve()));return port;}
+async function pickPorts(){const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();return{port,widgetPort};}
+const addressInUse=(error:unknown)=>error instanceof Error&&((error as NodeJS.ErrnoException).code==='EADDRINUSE'||/EADDRINUSE|address already in use/i.test(error.message));
+// freePort() closes its probe before the host binds the port, so a parallel worker can steal it in the gap; retry stolen ports instead of failing.
+async function launchReady(prepare?:(directory:string)=>void){
+ for(let attempt=0;;attempt++){
+  const{port,widgetPort}=await pickPorts();
+  const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)},prepare);
+  try{const ready=await nextMessage(fixture.child,'harness.ready');return{fixture,ready,port};}
+  catch(error){if(attempt>=3||!addressInUse(fixture.output()))throw error;}
+ }
+}
 async function launched(env:NodeJS.ProcessEnv,prepare?:(directory:string)=>void){
  const dir=await mkdtemp(join(tmpdir(),'harness-desktop-host-')),token=randomBytes(32).toString('hex');let output='';
  prepare?.(dir);
@@ -127,8 +138,7 @@ async function launched(env:NodeJS.ProcessEnv,prepare?:(directory:string)=>void)
  return {child,token,dir,exited,output:()=>output};
 }
 it('launches an actual isolated sidecar, authenticates HTTP and shuts down only for its launch token',async()=>{
- const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
- const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)}),ready=await nextMessage(fixture.child,'harness.ready');
+ const{fixture,ready,port}=await launchReady();
  expect(ready).toEqual({type:'harness.ready',token:fixture.token,origin:`http://127.0.0.1:${port}`,pid:fixture.child.pid});
  const origin=String(ready.origin),boot=await fetch(origin+'/api/bootstrap',{headers:{'x-harness-launch':fixture.token}}),session=await boot.json() as {csrfToken:string};expect(boot.status).toBe(200);expect(session.csrfToken).toBeTypeOf('string');
  const denied=await fetch(origin+'/api/commands',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:'denied',type:'thread.create',payload:{}})});expect(denied.status).toBe(401);
@@ -146,7 +156,6 @@ it('reports a real startup collision without adopting an unrelated HTTP service'
 });
 
 it('does not leave its backend running after the owning IPC channel disconnects',async()=>{
- const port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
- const fixture=await launched({HARNESS_PORT:String(port),HARNESS_WIDGET_PORT:String(widgetPort)});await nextMessage(fixture.child,'harness.ready');fixture.child.disconnect();expect((await fixture.exited).code).toBe(0);
+ const{fixture,port}=await launchReady();fixture.child.disconnect();expect((await fixture.exited).code).toBe(0);
  await expect(fetch(`http://127.0.0.1:${port}/health`)).rejects.toThrow();
 },35000);

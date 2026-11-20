@@ -34,8 +34,8 @@ export const checkpointPathSchema = z
     "Expected an exact, safe project-relative path.",
   );
 
-export const workspaceFileIdentitySchema = z.strictObject({ dev: z.string().regex(/^\d+$/), ino: z.string().regex(/^\d+$/) });
-export type WorkspaceFileIdentity = z.infer<typeof workspaceFileIdentitySchema>;
+const workspaceFileIdentitySchema = z.strictObject({ dev: z.string().regex(/^\d+$/), ino: z.string().regex(/^\d+$/) });
+
 
 // The owner scope matches the existing read-only checkpoint adapter: project +
 // owning conversation + working-copy binding digest.
@@ -47,16 +47,16 @@ export const checkpointScopeSchema = z.strictObject({
 });
 export type CheckpointScope = z.infer<typeof checkpointScopeSchema>;
 
-export const EDIT_RECEIPT_ATTRIBUTION = ["STRUCTURED_EDIT_PROVED", "PROCESS_WINDOW_ONLY", "UNATTRIBUTED"] as const;
-export const editAttributionSchema = z.enum(EDIT_RECEIPT_ATTRIBUTION);
-export type EditAttribution = z.infer<typeof editAttributionSchema>;
+const EDIT_RECEIPT_ATTRIBUTION = ["STRUCTURED_EDIT_PROVED", "PROCESS_WINDOW_ONLY", "UNATTRIBUTED"] as const;
+const editAttributionSchema = z.enum(EDIT_RECEIPT_ATTRIBUTION);
 
-export const boundedBlobRefSchema = z.strictObject({
+
+const boundedBlobRefSchema = z.strictObject({
   ref: sha256,
   bytes: z.number().int().nonnegative(),
   retention: z.enum(["AVAILABLE", "EXPIRED", "MISSING"]),
 });
-export type BoundedBlobRef = z.infer<typeof boundedBlobRefSchema>;
+
 
 export const editReceiptV1Schema = z.strictObject({
   version: z.literal(1),
@@ -81,19 +81,19 @@ export const CHECKPOINT_V1_LIMITS = {
   exclusions: 2000,
 } as const;
 
-export const checkpointFileV1Schema = z.strictObject({
+const checkpointFileV1Schema = z.strictObject({
   path: checkpointPathSchema,
   identity: workspaceFileIdentitySchema.nullable(),
   digest: sha256,
   blobRef: sha256,
 });
-export type CheckpointFileV1 = z.infer<typeof checkpointFileV1Schema>;
 
-export const checkpointExclusionV1Schema = z.strictObject({
+
+const checkpointExclusionV1Schema = z.strictObject({
   path: z.string().min(1).max(1024),
   reason: z.enum(["secret", "binary", "too_large", "unsupported"]),
 });
-export type CheckpointExclusionV1 = z.infer<typeof checkpointExclusionV1Schema>;
+
 
 export const checkpointV1Schema = z.strictObject({
   version: z.literal(1),
@@ -124,7 +124,7 @@ export type RestorePlanV1 = z.infer<typeof restorePlanV1Schema>;
 
 // A commit object created but not attached to the expected branch is recorded
 // with observedCommit null or the observed state, never published as success.
-export const selectiveCommitHunkSchema = z.strictObject({
+const selectiveCommitHunkSchema = z.strictObject({
   path: checkpointPathSchema,
   // Index into the candidate hunk list of the proven pre/post image pair.
   index: z.number().int().nonnegative(),
@@ -148,7 +148,7 @@ export type SelectiveCommitV1 = z.infer<typeof selectiveCommitV1Schema>;
 // Provisioning: a reviewed manifest copies only allowlisted non-secret files
 // with exact path/size/digest pinning. Secret material is injected as scoped
 // SecretRefs at execution instead of being copied.
-export const provisionManifestEntrySchema = z.strictObject({
+const provisionManifestEntrySchema = z.strictObject({
   path: checkpointPathSchema,
   digest: sha256,
   bytes: z.number().int().positive().max(1024 * 1024),
@@ -159,7 +159,7 @@ export const provisionManifestV1Schema = z.strictObject({
   entries: z.array(provisionManifestEntrySchema).min(1).max(200),
   approvedBy: id,
 });
-export type ProvisionManifestEntry = z.infer<typeof provisionManifestEntrySchema>;
+
 export type ProvisionManifestV1 = z.infer<typeof provisionManifestV1Schema>;
 
 // A multi-repository project is a group of independent repository/worktree

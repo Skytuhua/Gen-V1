@@ -52,12 +52,12 @@ export interface LspDiagnostic {
   source?: string;
 }
 
-export interface LspLocation {
+interface LspLocation {
   uri: string;
   range: CodeRange;
 }
 
-export interface LspTextEdit extends TextEdit {}
+interface LspTextEdit extends TextEdit {}
 
 /** WorkspaceEdit restricted to text edits. Resource operations
  * (create/rename/delete file, notebook edits) are rejected upstream. */
@@ -164,7 +164,7 @@ export function applyTextEdit(content: string, range: CodeRange, newText: string
 }
 
 /** Apply ordered edits back-to-front so earlier ranges stay valid. */
-export function applyTextEdits(content: string, edits: readonly TextEdit[], encoding: RangeEncoding): string {
+function applyTextEdits(content: string, edits: readonly TextEdit[], encoding: RangeEncoding): string {
   const ordered = [...edits].sort((a, b) =>
     b.range.start.line - a.range.start.line || b.range.start.character - a.range.start.character);
   let out = content;

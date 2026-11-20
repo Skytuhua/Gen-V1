@@ -26,8 +26,8 @@ export interface AgentWorkChild {
   dispose(): Promise<void>;
 }
 
-export interface CodeWorktreeProof { worktreeId: string; path: string; profileDigest: string }
-export interface QaProof { verifierId: string }
+interface CodeWorktreeProof { worktreeId: string; path: string; profileDigest: string }
+interface QaProof { verifierId: string }
 
 export interface AgentWorkHooks {
   store: Store;

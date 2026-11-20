@@ -56,6 +56,14 @@ async function select(page:Page){
  await expect(page.getByRole('toolbar',{name:'Selected source'})).toBeVisible();
 }
 async function attach(page:Page){await select(page);await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(page.getByRole('article',{name:'Selected source Assistant message'})).toBeVisible();}
+test('real keyboard selection reaches source actions in the app',async({page})=>{
+ await fixture(page);const source=page.locator('[data-message-id="reply"] .source-selection-text'),toolbar=page.getByRole('toolbar',{name:'Selected source'});
+ await source.focus();for(let i=0;i<7;i++)await page.keyboard.press('Shift+ArrowRight');
+ await expect(toolbar).toBeVisible();await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible');
+ await page.keyboard.press('Tab');await expect(toolbar.getByRole('button',{name:'Ask about this',exact:true})).toBeFocused();
+ await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(source).toBeFocused();
+ await page.keyboard.press('Control+a');await expect(toolbar).toBeVisible();await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible exact source sentence for the workbench.');
+});
 test('default-off App retains its ordinary composer and hides source actions',async({page})=>{
  const optionalRequests:string[]=[];
  page.on('request',request=>{if(/\/Workbench(?:PanelContent|Panels|InputsPanel|Output|Activity)\.tsx(?:\?|$)/.test(new URL(request.url()).pathname))optionalRequests.push(request.url());});
