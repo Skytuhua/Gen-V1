@@ -45,3 +45,23 @@ it('keeps the retained output and its cursor on a complete UTF-16 character boun
  expect(result.output).toBe('x'.repeat(cap-1));
  expect((await host.read(opened.id,opened.projectId,undefined,result.cursor)).output).toBe('');
 });
+
+it('retains newly exited scrollback by exit order, not by when the terminal opened',async()=>{
+ const {host}=fixture();
+ const projectId='project-a';
+ const finish=(index:number,output:string)=>{
+  const pty=mocks.spawn.mock.results[index]!.value;
+  const onData=pty.onData.mock.calls[0]![0] as (data:string)=>void;
+  const onExit=pty.onExit.mock.calls[0]![0] as (event:{exitCode:number})=>void;
+  onData(output);onExit({exitCode:0});
+ };
+ const oldest=await host.open({projectId,terminalId:'long-lived'});
+ for(let index=1;index<=48;index++){
+  await host.open({projectId,terminalId:'short-'+index});
+  finish(index,'short '+index);
+ }
+ finish(0,'most recently finished');
+ await expect(host.read(oldest.id,projectId)).resolves.toMatchObject({output:'most recently finished',exited:true});
+ await expect(host.read('short-1',projectId)).rejects.toMatchObject({code:'TERMINAL_ENDED'});
+ await expect(host.read('short-2',projectId)).resolves.toMatchObject({output:'short 2',exited:true});
+});
