@@ -1,0 +1,578 @@
+[
+  {
+    "filename": "05-diagnostics.mp4",
+    "scene": "diagnostics",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "852b95f2094aa8b6a7a67db9a38ec46d0e561e1a68cb490a2dc9ee03fe68ade1",
+    "bytes": 192150,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.7,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Review the check results",
+        "startSeconds": 2.859084504999999,
+        "frame": "diagnostics-recording-chapter-1.png",
+        "visibleComponents": [
+          "Diagnostics"
+        ]
+      },
+      {
+        "title": "Select a passing check",
+        "startSeconds": 4.840729228,
+        "frame": "diagnostics-recording-chapter-2.png",
+        "visibleComponents": [
+          "Diagnostics"
+        ]
+      },
+      {
+        "title": "Return to the failure",
+        "startSeconds": 6.857112849999999,
+        "frame": "diagnostics-recording-chapter-3.png",
+        "visibleComponents": [
+          "Diagnostics"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.496051292,
+        "frame": "diagnostics-recording-chapter-4.png",
+        "visibleComponents": [
+          "Diagnostics"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "Diagnostics",
+        "scene": "diagnostics",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Review the check results",
+        "frame": "diagnostics-recording-chapter-1.png",
+        "selector": ".software-diagnostics"
+      },
+      {
+        "component": "Diagnostics",
+        "scene": "diagnostics",
+        "variant": "recording",
+        "chapter": "Select a passing check",
+        "frame": "diagnostics-recording-chapter-2.png",
+        "selector": ".software-diagnostics",
+        "interaction": "Selection moves across the check inventory."
+      },
+      {
+        "component": "Diagnostics",
+        "scene": "diagnostics",
+        "variant": "recording",
+        "chapter": "Return to the failure",
+        "frame": "diagnostics-recording-chapter-3.png",
+        "selector": ".software-diagnostics",
+        "interaction": "Selection moves across the check inventory."
+      },
+      {
+        "component": "Diagnostics",
+        "scene": "diagnostics",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "diagnostics-recording-chapter-4.png",
+        "selector": ".software-diagnostics",
+        "interaction": "Selection moves across the check inventory."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "06-change-set.mp4",
+    "scene": "change-set",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "63691dacbc1d50b2107addf056432ba712f6152e7a3b993d87bbd01a04f97329",
+    "bytes": 184577,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.367,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Review the proposed patch",
+        "startSeconds": 2.7241965369999996,
+        "frame": "change-set-recording-chapter-1.png",
+        "visibleComponents": [
+          "ChangeSet"
+        ]
+      },
+      {
+        "title": "Second changed file",
+        "startSeconds": 4.596632207999999,
+        "frame": "change-set-recording-chapter-2.png",
+        "visibleComponents": [
+          "ChangeSet"
+        ]
+      },
+      {
+        "title": "First file again",
+        "startSeconds": 6.498074930999999,
+        "frame": "change-set-recording-chapter-3.png",
+        "visibleComponents": [
+          "ChangeSet"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.176918939999999,
+        "frame": "change-set-recording-chapter-4.png",
+        "visibleComponents": [
+          "ChangeSet"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "ChangeSet",
+        "scene": "change-set",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Review the proposed patch",
+        "frame": "change-set-recording-chapter-1.png",
+        "selector": ".software-changes"
+      },
+      {
+        "component": "ChangeSet",
+        "scene": "change-set",
+        "variant": "recording",
+        "chapter": "Second changed file",
+        "frame": "change-set-recording-chapter-2.png",
+        "selector": ".software-changes"
+      },
+      {
+        "component": "ChangeSet",
+        "scene": "change-set",
+        "variant": "recording",
+        "chapter": "First file again",
+        "frame": "change-set-recording-chapter-3.png",
+        "selector": ".software-changes"
+      },
+      {
+        "component": "ChangeSet",
+        "scene": "change-set",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "change-set-recording-chapter-4.png",
+        "selector": ".software-changes",
+        "interaction": "File strip switches the visible patch."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "07-api-explorer.mp4",
+    "scene": "api-explorer",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "c401107931e7aeb7299ed5a7370d22a512aa70eaafbdf3e800ad5303284db288",
+    "bytes": 175538,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.4,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Inspect the order API",
+        "startSeconds": 2.7591697679999996,
+        "frame": "api-explorer-recording-chapter-1.png",
+        "visibleComponents": [
+          "ApiExplorer"
+        ]
+      },
+      {
+        "title": "Select the conflict response",
+        "startSeconds": 4.670625256999999,
+        "frame": "api-explorer-recording-chapter-2.png",
+        "visibleComponents": [
+          "ApiExplorer"
+        ]
+      },
+      {
+        "title": "Read endpoint",
+        "startSeconds": 6.590640634999996,
+        "frame": "api-explorer-recording-chapter-3.png",
+        "visibleComponents": [
+          "ApiExplorer"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.225770786000001,
+        "frame": "api-explorer-recording-chapter-4.png",
+        "visibleComponents": [
+          "ApiExplorer"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "ApiExplorer",
+        "scene": "api-explorer",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Inspect the order API",
+        "frame": "api-explorer-recording-chapter-1.png",
+        "selector": ".software-api"
+      },
+      {
+        "component": "ApiExplorer",
+        "scene": "api-explorer",
+        "variant": "recording",
+        "chapter": "Select the conflict response",
+        "frame": "api-explorer-recording-chapter-2.png",
+        "selector": ".software-api"
+      },
+      {
+        "component": "ApiExplorer",
+        "scene": "api-explorer",
+        "variant": "recording",
+        "chapter": "Read endpoint",
+        "frame": "api-explorer-recording-chapter-3.png",
+        "selector": ".software-api"
+      },
+      {
+        "component": "ApiExplorer",
+        "scene": "api-explorer",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "api-explorer-recording-chapter-4.png",
+        "selector": ".software-api",
+        "interaction": "Local response selection and endpoint switching."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "08-pipeline.mp4",
+    "scene": "pipeline",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "c77cd4c51b9d0dde5170daafee4bf734c0cfa6dd125e12ff0b931012f97a6b32",
+    "bytes": 201021,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.634,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Review the release checks",
+        "startSeconds": 2.7415176160000048,
+        "frame": "pipeline-recording-chapter-1.png",
+        "visibleComponents": [
+          "Pipeline"
+        ]
+      },
+      {
+        "title": "Blocked stage detail",
+        "startSeconds": 4.769259385000005,
+        "frame": "pipeline-recording-chapter-2.png",
+        "visibleComponents": [
+          "Pipeline"
+        ]
+      },
+      {
+        "title": "Failed stage detail",
+        "startSeconds": 6.761416975,
+        "frame": "pipeline-recording-chapter-3.png",
+        "visibleComponents": [
+          "Pipeline"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.458351020000002,
+        "frame": "pipeline-recording-chapter-4.png",
+        "visibleComponents": [
+          "Pipeline"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "Pipeline",
+        "scene": "pipeline",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Review the release checks",
+        "frame": "pipeline-recording-chapter-1.png",
+        "selector": ".software-pipeline"
+      },
+      {
+        "component": "Pipeline",
+        "scene": "pipeline",
+        "variant": "recording",
+        "chapter": "Blocked stage detail",
+        "frame": "pipeline-recording-chapter-2.png",
+        "selector": ".software-pipeline"
+      },
+      {
+        "component": "Pipeline",
+        "scene": "pipeline",
+        "variant": "recording",
+        "chapter": "Failed stage detail",
+        "frame": "pipeline-recording-chapter-3.png",
+        "selector": ".software-pipeline"
+      },
+      {
+        "component": "Pipeline",
+        "scene": "pipeline",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "pipeline-recording-chapter-4.png",
+        "selector": ".software-pipeline",
+        "interaction": "Stage selection and dependency detail."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "10-stats.mp4",
+    "scene": "stats",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "d96106202ff93ca5aadbc74aa0e05152e6870a8777d60c741e4aa657fb89f0a8",
+    "bytes": 151751,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.634,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Review site measurements",
+        "startSeconds": 2.8272265570000017,
+        "frame": "stats-recording-chapter-1.png",
+        "visibleComponents": [
+          "Stats"
+        ]
+      },
+      {
+        "title": "Unavailable metric",
+        "startSeconds": 4.926205247000006,
+        "frame": "stats-recording-chapter-2.png",
+        "visibleComponents": [
+          "Stats"
+        ]
+      },
+      {
+        "title": "Trend switch",
+        "startSeconds": 6.811113048999999,
+        "frame": "stats-recording-chapter-3.png",
+        "visibleComponents": [
+          "Stats"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.434678063,
+        "frame": "stats-recording-chapter-4.png",
+        "visibleComponents": [
+          "Stats"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "Stats",
+        "scene": "stats",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Review site measurements",
+        "frame": "stats-recording-chapter-1.png",
+        "selector": ".everyday-stats"
+      },
+      {
+        "component": "Stats",
+        "scene": "stats",
+        "variant": "recording",
+        "chapter": "Unavailable metric",
+        "frame": "stats-recording-chapter-2.png",
+        "selector": ".everyday-stats"
+      },
+      {
+        "component": "Stats",
+        "scene": "stats",
+        "variant": "recording",
+        "chapter": "Trend switch",
+        "frame": "stats-recording-chapter-3.png",
+        "selector": ".everyday-stats"
+      },
+      {
+        "component": "Stats",
+        "scene": "stats",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "stats-recording-chapter-4.png",
+        "selector": ".everyday-stats",
+        "interaction": "Metric selection and trend transitions."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "11-comparison.mp4",
+    "scene": "comparison",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "0c890582118efbb3e107cb9282ec12d64f4e3379576174c2a67470d0bae66fe0",
+    "bytes": 155535,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.6,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Choose a project plan",
+        "startSeconds": 2.831797056999996,
+        "frame": "comparison-recording-chapter-1.png",
+        "visibleComponents": [
+          "Comparison"
+        ]
+      },
+      {
+        "title": "Select an option",
+        "startSeconds": 4.860719063999997,
+        "frame": "comparison-recording-chapter-2.png",
+        "visibleComponents": [
+          "Comparison"
+        ]
+      },
+      {
+        "title": "Preference submitted",
+        "startSeconds": 6.793928174,
+        "frame": "comparison-recording-chapter-3.png",
+        "visibleComponents": [
+          "Comparison"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.413180666999994,
+        "frame": "comparison-recording-chapter-4.png",
+        "visibleComponents": [
+          "Comparison"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "Comparison",
+        "scene": "comparison",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Choose a project plan",
+        "frame": "comparison-recording-chapter-1.png",
+        "selector": ".everyday-comparison"
+      },
+      {
+        "component": "Comparison",
+        "scene": "comparison",
+        "variant": "recording",
+        "chapter": "Select an option",
+        "frame": "comparison-recording-chapter-2.png",
+        "selector": ".everyday-comparison"
+      },
+      {
+        "component": "Comparison",
+        "scene": "comparison",
+        "variant": "recording",
+        "chapter": "Preference submitted",
+        "frame": "comparison-recording-chapter-3.png",
+        "selector": ".everyday-comparison"
+      },
+      {
+        "component": "Comparison",
+        "scene": "comparison",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "comparison-recording-chapter-4.png",
+        "selector": ".everyday-comparison",
+        "interaction": "Option selection and preference submission."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  },
+  {
+    "filename": "12-credential-entry.mp4",
+    "scene": "credential-entry",
+    "source_sha": "5c8b18eeed718cfd5ab2c696e0b668b14fe81a20",
+    "sha256": "d326ca1818fd440f10a8c392c3d60574ce1e2f005415f8a28b01313d9fa58141",
+    "bytes": 128982,
+    "codec": "h264",
+    "width": 1920,
+    "height": 1080,
+    "fps": 30,
+    "duration_s": 8.467,
+    "chapters": [
+      {
+        "title": "Opening \u00b7 Project API credential",
+        "startSeconds": 2.775298020000002,
+        "frame": "credential-entry-recording-chapter-1.png",
+        "visibleComponents": [
+          "CredentialEntry"
+        ]
+      },
+      {
+        "title": "Synthetic token saved",
+        "startSeconds": 4.777655689000007,
+        "frame": "credential-entry-recording-chapter-2.png",
+        "visibleComponents": [
+          "CredentialEntry"
+        ]
+      },
+      {
+        "title": "Token removed",
+        "startSeconds": 6.673611924000012,
+        "frame": "credential-entry-recording-chapter-3.png",
+        "visibleComponents": [
+          "CredentialEntry"
+        ]
+      },
+      {
+        "title": "Settled \u00b7 same artifact and saved choices",
+        "startSeconds": 7.289303230000005,
+        "frame": "credential-entry-recording-chapter-4.png",
+        "visibleComponents": [
+          "CredentialEntry"
+        ]
+      }
+    ],
+    "observations": [
+      {
+        "component": "CredentialEntry",
+        "scene": "credential-entry",
+        "variant": "recording",
+        "chapter": "Opening \u00b7 Project API credential",
+        "frame": "credential-entry-recording-chapter-1.png",
+        "selector": ".credential-entry"
+      },
+      {
+        "component": "CredentialEntry",
+        "scene": "credential-entry",
+        "variant": "recording",
+        "chapter": "Synthetic token saved",
+        "frame": "credential-entry-recording-chapter-2.png",
+        "selector": ".credential-entry"
+      },
+      {
+        "component": "CredentialEntry",
+        "scene": "credential-entry",
+        "variant": "recording",
+        "chapter": "Token removed",
+        "frame": "credential-entry-recording-chapter-3.png",
+        "selector": ".credential-entry"
+      },
+      {
+        "component": "CredentialEntry",
+        "scene": "credential-entry",
+        "variant": "recording",
+        "chapter": "Settled \u00b7 same artifact and saved choices",
+        "frame": "credential-entry-recording-chapter-4.png",
+        "selector": ".credential-entry",
+        "interaction": "Private save and removal through the fixture endpoint."
+      }
+    ],
+    "fixture": "Real renderer with authored input and simulated host updates"
+  }
+]
