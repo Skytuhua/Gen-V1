@@ -29,12 +29,12 @@ import { sha256hex } from "./edit-journal.ts";
 // rolls back only bytes that still equal the written image; anything else is
 // PARTIAL_RECOVERY_REQUIRED. No restore path ever touches Git refs or remotes.
 
-export const CHECKPOINT_KIND = "workspaceCheckpoint" as const;
-export const RESTORE_PLAN_KIND = "workspaceRestorePlan" as const;
-export const REPOSITORY_RECIPE_KIND = "workspaceRepositoryRecipe" as const;
+const CHECKPOINT_KIND = "workspaceCheckpoint" as const;
+const RESTORE_PLAN_KIND = "workspaceRestorePlan" as const;
+const REPOSITORY_RECIPE_KIND = "workspaceRepositoryRecipe" as const;
 
 // Adapter-visible cap: the frozen web contract lists at most 100 files.
-export const ADAPTER_FILE_CAP = 100;
+const ADAPTER_FILE_CAP = 100;
 const REVIEW_DIFF_LIMIT = 128 * 1024;
 const REVIEW_TTL_MS = 10 * 60 * 1000;
 
