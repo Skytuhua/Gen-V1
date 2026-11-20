@@ -11,8 +11,8 @@ export function thinkingForModel(model:{thinkingLevelMap?:Record<string,unknown>
   return level as CreateAgentSessionOptions['thinkingLevel'];
 }
 
-export const SUBSCRIPTION_PROVIDERS = SUBSCRIPTION_PROVIDER_IDS;
-export const AUTH_HELP = "Subscription authentication is unavailable. Run pnpm agent:login using the same data directory and choose an available OAuth or dedicated plan-key connection, then refresh models. No app-side API billing fallback; provider Extra Usage still applies.";
+const SUBSCRIPTION_PROVIDERS = SUBSCRIPTION_PROVIDER_IDS;
+const AUTH_HELP = "Subscription authentication is unavailable. Run pnpm agent:login using the same data directory and choose an available OAuth or dedicated plan-key connection, then refresh models. No app-side API billing fallback; provider Extra Usage still applies.";
 
 export async function createSubscriptionRuntime(authPath: string, options: { provider?: SubscriptionProviderId; tolerateUnavailable?: boolean } = {}) {
   const sdk = await loadSdk();

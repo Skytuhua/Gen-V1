@@ -65,8 +65,3 @@ export interface PersonalAgentInventory {
   subscribe(listener: () => void): () => void;
   dispose(): void;
 }
-/** A private adapter must explicitly authorize its own store/account/resources. Never mounted on /api/agents. */
-export interface CompanyAgentInventoryCapability {
-  readonly authority: 'company'; readonly scopeId: string;
-  readonly capabilities: { inventory: boolean; transcript: boolean; delegatedTranscriptReadOnly: true };
-}

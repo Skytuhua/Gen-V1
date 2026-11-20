@@ -17,7 +17,7 @@ export interface IntakeRecord extends IntakeV1 {
   decision: { commandId: string; at: string; threadId: string | null } | null;
 }
 export interface IntakeConfig { repositoryId: number; enabled: boolean; projectId: string | null; sourceInstallation: string | null; updatedAt: string }
-export interface IntakeTaskRequest { intakeId: string; title: string; sourceUrl: string; projectId: string | null; modelId: string; content: string }
+interface IntakeTaskRequest { intakeId: string; title: string; sourceUrl: string; projectId: string | null; modelId: string; content: string }
 
 export interface ExternalIntakeOptions {
   store: Store;
