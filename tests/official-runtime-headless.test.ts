@@ -77,7 +77,7 @@ describe('Gemini official headless native continuation', () => {
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
   });
 
-  it.each(['before-exit','after-exit','during-cancel','cancel-timeout'])('handles native resume stream lifecycle %s', async phase => {
+  it.each(['before-exit','after-exit','during-cancel','cancel-timeout','without-final-newline','malformed-clean-close','malformed-failed-close'])('handles native resume stream lifecycle %s', async phase => {
     const { dataDir, manifest } = await fixture();
     const children: any[] = []; const calls: any[] = []; const inputs: string[] = [];
     const spawn = vi.fn((file: string, args: string[], settings: any) => {
@@ -149,9 +149,26 @@ describe('Gemini official headless native continuation', () => {
       return;
     }
     if(phase==='after-exit'){child.exitCode=0;child.emit('exit',0,null);await new Promise(done=>setImmediate(done));}
+    if (phase === 'malformed-clean-close' || phase === 'malformed-failed-close') {
+      try {
+        child.stdout.write('{"type":"result"');
+        const exit = phase === 'malformed-clean-close' ? 0 : 2;
+        child.exitCode = exit;
+        child.emit('exit', exit, null);
+        child.stdout.end();
+        child.emit('close', exit, null);
+        await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
+        const error = events.find(event => event.type === 'error');
+        if (exit === 0) expect(error?.message).toMatch(/JSON|Unexpected/i);
+        else expect(error?.message).toContain('did not confirm a successful terminal turn');
+        expect(events.some(event => event.type === 'assistant.message' || event.type === 'input.processing' || event.type === 'usage')).toBe(false);
+      } finally { await runtime.dispose(); }
+      return;
+    }
     child.emitFrame({ type: 'message', role: 'assistant', content: 'current response', delta: true });
-    child.emitFrame({ type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } });
-    if(phase==='before-exit'){child.exitCode = 0; child.emit('exit', 0, null);}
+    const terminal = { type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } };
+    if (phase === 'without-final-newline') child.stdout.write(JSON.stringify(terminal)); else child.emitFrame(terminal);
+    if(phase==='before-exit'||phase==='without-final-newline'){child.exitCode = 0; child.emit('exit', 0, null);}
     child.stdout.end();child.emit('close',0,null);
     await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
     expect(events.find(event => event.type === 'assistant.message')).toMatchObject({ content: 'current response', inputIds: ['input-new'] });

@@ -25,7 +25,7 @@ export const automaticCompactionRefusalSchema = z.strictObject({
   }),
 });
 
-export const nativeCompactionOwnerSchema = z.strictObject({
+const nativeCompactionOwnerSchema = z.strictObject({
   threadId: boundedText(1024), runId: boundedText(1024), epoch: count,
   workspaceId: boundedText(1024), modelId: boundedText(1024), accountId: boundedText(1024).nullable(),
   generation: count, instructionDigest: digest, toolRegistryDigest: digest,
@@ -70,7 +70,7 @@ export type NativeCompactionOwnerV1 = z.infer<typeof nativeCompactionOwnerSchema
 export type NativeCompactionReferenceV1 = z.infer<typeof nativeCompactionReferenceSchema>;
 export type NativeCompactionPlanV1 = z.infer<typeof nativeCompactionPlanSchema>;
 export type NativeCompactionEnvelopeV1 = z.infer<typeof nativeCompactionEnvelopeSchema>;
-export type NativeCompactionCommitV1 = z.infer<typeof nativeCompactionCommitSchema>;
+type NativeCompactionCommitV1 = z.infer<typeof nativeCompactionCommitSchema>;
 export type NativeCompactionAckV1 = z.infer<typeof nativeCompactionAckSchema>;
 export type NativeCompactionReceiptV1 = z.infer<typeof nativeCompactionReceiptSchema>;
 
