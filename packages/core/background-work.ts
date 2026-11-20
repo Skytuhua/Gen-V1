@@ -39,8 +39,8 @@ export interface BackgroundWorkRecord extends BackgroundWorkV1 {
 
 export interface OwnedCommandSpec { executable: string; argv: string[]; cwd: string; environment?: Record<string, string> }
 export interface ExitReceipt { pid: number; creationToken: string | null; exitCode: number | null; signal: string | null; observedAt: string }
-export interface IdleExecutionResult { outcome: BackgroundOutcome; teardownConfirmed: boolean; advisory?: unknown; error?: string }
-export type ExecutionGateDecision = { allowed: true } | { allowed: false; reason: string };
+interface IdleExecutionResult { outcome: BackgroundOutcome; teardownConfirmed: boolean; advisory?: unknown; error?: string }
+type ExecutionGateDecision = { allowed: true } | { allowed: false; reason: string };
 
 export interface BackgroundWorkOptions {
   store: Store;

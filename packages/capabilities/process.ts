@@ -21,6 +21,8 @@ export async function runProcess(command: string, args: string[], cwd: string, s
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, { cwd, env: {...processEnvironment(),...environment}, shell: false, windowsHide: true, detached: process.platform !== "win32", stdio: ["ignore", "pipe", "pipe"] });
     let truncated = false, cancelled = false, timedOut = false, settled = false;
+    // Observability cannot interrupt process cleanup or replace its outcome.
+    const report = (message: string) => { try { progress(message); } catch { /* Progress is best-effort. */ } };
     const capture = (stream: NodeJS.ReadableStream) => {
       let text = '', bytes = 0, full = false;
       stream.setEncoding('utf8');
@@ -36,7 +38,7 @@ export async function runProcess(command: string, args: string[], cwd: string, s
     let treeKill: Promise<void> | undefined;
     function stop() {
       if (!child.pid || settled || treeKill) return;
-      progress("Terminating process tree");
+      report("Terminating process tree");
       if (process.platform === "win32") {
         const executable = join(process.env.SystemRoot ?? "C:\\Windows", "System32", "taskkill.exe");
         treeKill = new Promise(done => {
@@ -49,8 +51,8 @@ export async function runProcess(command: string, args: string[], cwd: string, s
     signal.addEventListener("abort", onAbort, { once: true });
     const timer = setTimeout(() => { timedOut = true; stop(); }, timeoutMs); timer.unref();
     const cleanup = () => { clearTimeout(timer); signal.removeEventListener("abort", onAbort); };
-    child.once("spawn", () => { progress(`Started ${command === process.execPath ? "node --test" : "git"} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
+    child.once("spawn", () => { report(`Started ${command === process.execPath ? "node --test" : "git"} (PID ${child.pid})`); if (signal.aborted) onAbort(); });
     child.once("error", error => { settled = true; cleanup(); reject(error); });
-    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; progress(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated, pid: child.pid }); });
+    child.once("close", async (exitCode, terminationSignal) => { cleanup(); await treeKill; settled = true; report(`Process exited: ${exitCode ?? terminationSignal ?? "unknown"}`); resolve({ status: cancelled ? "cancelled" : !timedOut && exitCode === 0 ? "succeeded" : "failed", exitCode, signal: terminationSignal, cancelled, timedOut, stdout: stdout(), stderr: stderr(), truncated, pid: child.pid }); });
   });
 }
