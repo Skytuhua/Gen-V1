@@ -381,3 +381,21 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .surface-progress>div>span,.task-step-label>span { white-space:nowrap; }
 
 .working-status>span { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }
+.chart-row { display:flex; gap:8px; align-items:stretch; }
+.chart-y-scale { position:relative; flex:0 0 64px; text-align:center; font-size:10px; color:var(--muted); line-height:1.3; }
+.chart-y-scale>.chart-y-name { display:block; }
+.chart-y-scale>span:not(.chart-y-name) { position:absolute; left:0; right:0; transform:translateY(-50%); }
+.chart-plot { flex:1; min-width:0; max-width:576px; max-height:240px; }
+.chart-plot>svg { display:block; width:100%; height:100%; }
+.chart-x-legend { text-align:center; font-size:10px; color:var(--muted); margin-left:72px; }
+.chart-controls { display:flex; align-items:center; gap:8px; margin-top:6px; flex-wrap:wrap; }
+.chart-readout { font-size:12px; color:var(--muted); }
+.chart-data-scroll { max-height:320px; overflow:auto; }
+.chart-data-table { width:100%; border-collapse:collapse; font-size:12px; text-align:left; }
+.chart-data-table th,.chart-data-table td { padding:6px 10px; border-bottom:1px solid var(--border); overflow-wrap:anywhere; }
+.chart-data-table thead th { height:32px; vertical-align:bottom; }
+.chart-data-table tbody th,.chart-data-table tbody td { height:30px; font-weight:400; }
+.chart-data-table tbody th { font-weight:500; }
+.chart-raw { margin-top:8px; font-size:12px; }
+.chart-raw pre { max-height:280px; overflow:auto; user-select:text; font-size:11px; }
+.chart [data-changed="true"] { fill:var(--success); stroke:var(--success); }

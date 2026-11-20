@@ -45,7 +45,7 @@ const schemas = {
   Progress: z.strictObject({ value: z.number().finite().min(0).optional(), max: z.number().positive().optional(), label: optionalText, dataBinding: binding }),
   Timeline: z.strictObject({ rowsBinding: key }),
   Table: z.strictObject({ rowsBinding: key, columns: z.array(column).min(1).max(40), caption: optionalText, stateKey: key.optional(), rowKey: key.optional(), changesBinding: binding }),
-  Chart: z.strictObject({ rowsBinding: key, kind: z.enum(["bar", "line", "scatter"]), xKey: key, yKey: key, title: optionalText }),
+  Chart: z.strictObject({ rowsBinding: key, kind: z.enum(["bar", "line", "scatter"]), xKey: key, yKey: key, title: optionalText, xLabel: z.string().min(1).max(80).optional(), yLabel: z.string().min(1).max(80).optional(), yUnit: z.string().min(1).max(32).optional() }),
   Tree: z.strictObject({ rowsBinding: key }),
   Form: z.strictObject({ title: optionalText, actionId: key, submitLabel: z.string().max(200).optional(), payload: z.record(key, z.unknown()).optional(), payloadFromState, clearOnSuccess: z.array(key).max(40).optional() }),
   Input: z.strictObject({ stateKey: key, label: text, inputType: z.enum(["text", "number", "email", "date", "textarea"]).optional(), placeholder: optionalText, required: z.boolean().optional() }),

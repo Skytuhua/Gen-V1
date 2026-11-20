@@ -13,7 +13,7 @@
 .btn-swap>span{grid-area:1/1;white-space:nowrap}
 .btn-swap .action-label-size{visibility:hidden}
 @keyframes ack-in{from{opacity:.65}to{opacity:1}}
-.btn-swap .action-label-live[data-receipt]{animation:ack-in 120ms ease-out}
+.btn-swap .action-label-live[data-receipt]{animation:ack-in var(--ui-motion-hover) var(--ui-ease-enter)}
 .btn-swap .action-label-live[data-receipt] svg{animation:ack-in 90ms ease-out}
 .interaction-tools>.error-text{font-size:12px;margin-top:11px}
 .review-queue-layout{display:flex;flex-direction:column;gap:16px;min-width:0}
@@ -76,7 +76,7 @@
 .editable-table tbody tr:last-child :is(th,td){border-bottom:0}
 .editable-table td{min-width:130px;transition:background-color var(--ui-motion-hover) var(--ui-ease-enter);height:64px}
 .editable-table td :is(input,.ui-select-trigger){transition:background-color 100ms ease-out,border-color 100ms ease-out}
-.editable-table td[data-edited] :is(input,.ui-select-trigger){transition-duration:120ms;background:var(--subtle);border-color:var(--muted)}
+.editable-table td[data-edited] :is(input,.ui-select-trigger){transition-duration:var(--ui-motion-hover);background:var(--subtle);border-color:var(--muted)}
 .editable-table :is(th,td)[data-field-type=text]{min-width:184px}
 .editable-table :is(th,td)[data-field-type=number],.editable-table :is(th,td)[data-field-type=range]{min-width:86px;width:100px}
 .editable-table :is(th,td)[data-field-type=boolean]{min-width:90px;width:100px}
