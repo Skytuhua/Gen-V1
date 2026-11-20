@@ -75,3 +75,12 @@
 .artifact[data-artifact-inline=true] .artifact-content .task-table:has(table[data-numeric]) .task-table-scroll { max-height:none; overflow:auto; }
 .artifact[data-artifact-inline=true] .artifact-content .task-table table[data-numeric] { width:100%; min-width:650px; table-layout:auto; }
 .artifact[data-artifact-inline=true] .artifact-content .task-table table[data-numeric] :is(th,td).number { white-space:nowrap; overflow-wrap:normal; }
+
+/* G2: table rows arrive staggered and leave as ghosts; restored datasets
+   never replay (no data-arrival on mount). */
+.task-table tbody tr[data-arrival] { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; animation-delay: var(--row-delay, 0ms); }
+.task-table tbody tr[data-leaving] { pointer-events: none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+@media (prefers-reduced-motion: reduce) {
+  .task-table tbody tr[data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); animation-delay: 0ms; }
+  .task-table tbody tr[data-leaving] { animation-name: ui-popover-fade; animation-direction: reverse; animation-duration: var(--ui-motion-press); }
+}

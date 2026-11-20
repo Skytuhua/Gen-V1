@@ -37,3 +37,12 @@
 .background-intake-row > div:first-child { display: flex; flex-direction: column; gap: 2px; font-size: 12px; line-height: 16px; min-width: 0; }
 .background-intake-row strong { overflow-wrap: anywhere; }
 .background-model { min-width: 160px; max-width: 240px; }
+
+/* G3: background work cards, schedule rows and intake rows share the same
+   insert/remove contract as the other list surfaces. */
+.background-work :is(.background-card, .background-schedule, .background-intake-row)[data-arrival] { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; animation-delay: var(--row-delay, 0ms); }
+.background-work :is(.background-card, .background-schedule, .background-intake-row)[data-leaving] { pointer-events: none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+@media (prefers-reduced-motion: reduce) {
+  .background-work :is(.background-card, .background-schedule, .background-intake-row)[data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); animation-delay: 0ms; }
+  .background-work :is(.background-card, .background-schedule, .background-intake-row)[data-leaving] { animation-name: ui-popover-fade; animation-direction: reverse; animation-duration: var(--ui-motion-press); }
+}

@@ -61,3 +61,9 @@
 
 .connection-flow-message[data-flow-state="failed"] { color:var(--danger-fg); }
 .connection-flow-message[data-flow-state="blocked"] { color:var(--warning-fg); }
+
+/* M4: connection rows enter like every other list surface. */
+.connections .connection-account-row[data-arrival], .connections [data-arrival].connection-state { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; animation-delay: var(--row-delay, 0ms); }
+@media (prefers-reduced-motion: reduce) {
+  .connections .connection-account-row[data-arrival], .connections [data-arrival].connection-state { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); animation-delay: 0ms; }
+}

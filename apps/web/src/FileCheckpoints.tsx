@@ -6,6 +6,7 @@ import {displayFilePath} from './files/FilesView';
 import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,readRestorePlan,readRestoreResult,type CheckpointOwner,type CheckpointRestorePlan,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {useRowMotion} from './list-motion';
 
 const sources=['Current','Recorded','History'] as const;
 type Source=typeof sources[number];
@@ -45,6 +46,8 @@ function CheckpointDiff({diff}:{diff:string}){
 function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;preferences:UiPreferences}&{adapter:FileCheckpointAdapter}){
   const [items,setItems]=useState<FileCheckpoint[]>([]),[nextCursor,setNextCursor]=useState<string>(),[error,setError]=useState(''),[loading,setLoading]=useState(true),[attempt,setAttempt]=useState(0),[cursor,setCursor]=useState<string>(),[checkpoint,setCheckpoint]=useState<FileCheckpoint>();
   const opener=useRef<HTMLButtonElement|null>(null);
+  // G4: checkpoint entries fade in on insert only — no stagger, no exit.
+  const motion=useRowMotion(items,item=>item.id);
   useEffect(()=>{
     const controller=new AbortController();setLoading(true);setError('');if(!cursor)setItems([]);
     void adapter.list(owner,{cursor,signal:controller.signal}).then(value=>{
@@ -62,7 +65,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       {loading&&items.length>0&&<p role="status" className="file-checkpoints-note">Loading more checkpoints…</p>}
       {error&&<ErrorState message={error} onRetry={adapter.available?()=>setAttempt(value=>value+1):undefined}/>}
       {!loading&&!error&&items.length===0&&!nextCursor&&<p className="file-checkpoints-empty"><span>No file checkpoints available.</span> One is saved automatically before files are edited.</p>}
-      {items.length>0&&<ul className="file-checkpoints-list file-checkpoints-entries">{items.map(item=><li key={item.id}>
+      {items.length>0&&<ul className="file-checkpoints-list file-checkpoints-entries">{items.map(item=><li key={item.id} data-arrival={motion.arrivals.has(item.id)||undefined}>
         <button type="button" className="file-checkpoints-entry" aria-label={`Review ${item.label}`} title={`Operation ${item.provenance.operationId}`} onClick={event=>{opener.current=event.currentTarget;setCheckpoint(item);}}>
           <Clock3 size={14} aria-hidden="true"/>
           <span><strong>{item.label}</strong><small><time dateTime={item.createdAt}>{formatTime(item.createdAt,preferences)}</time> · {plural(item.fileCount,'file')}{item.provenance.kind==='restore_backup'?' · Saved before a restore':''}</small></span>

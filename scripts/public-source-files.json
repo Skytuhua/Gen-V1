@@ -250,6 +250,7 @@
     "apps/web/src/journal.ts",
     "apps/web/src/keyboard-bindings.ts",
     "apps/web/src/layout-profile.ts",
+    "apps/web/src/list-motion.ts",
     "apps/web/src/loading-state.css",
     "apps/web/src/main.tsx",
     "apps/web/src/map-view.css",

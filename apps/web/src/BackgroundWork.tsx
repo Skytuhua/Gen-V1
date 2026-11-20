@@ -1,10 +1,11 @@
-import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
 import { z } from 'zod';
 import type { ModelInfo } from '../../../packages/contracts';
 import { authenticated, command, getModels, read, subscribe } from './api';
 import { SchemaFields, schemaDefaults } from './registry';
 import { Select } from '../../../packages/ui-shell/Select';
 import './background-work.css';
+import { useRowMotion } from './list-motion';
 
 /** M10 task-owned background drawer. The presentational view is fixture-
  * testable; the container binds the real host read/command paths. Dismissing
@@ -125,7 +126,9 @@ function HumanStepCard({ step, work, onRespond, onDecline, onSettled }: { step: 
   </section>;
 }
 
-function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; props: BackgroundWorkViewProps }) {
+const arrivalStyle = (arrival?: number) => arrival !== undefined ? { '--row-delay': `${Math.min(arrival, 5) * 30}ms` } as CSSProperties : undefined;
+
+function WorkCard({ work, step, props, arrival, leaving, onLeavingEnd }: { work: Work; step: Step | undefined; props: BackgroundWorkViewProps; arrival?: number; leaving?: boolean; onLeavingEnd?: () => void }) {
   const [output, setOutput] = useState<OutputPage | null>(null);
   const [outputError, setOutputError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -140,7 +143,7 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
     setBusy(true); setActionError('');
     try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(cause instanceof Error ? cause.message : 'The work could not be cancelled.'); } finally { setBusy(false); restore(); }
   };
-  return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId}>
+  return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId} data-arrival={arrival !== undefined ? true : undefined} data-leaving={leaving || undefined} aria-hidden={leaving || undefined} inert={leaving || undefined} style={arrivalStyle(arrival)} onAnimationEnd={leaving ? event => { if (event.target === event.currentTarget) onLeavingEnd?.(); } : undefined}>
     <header>
       <span className="background-state" data-state={work.state.toLowerCase()}>{stateLabel(work)}</span>
       {work.state === 'SETTLED' && <span className="background-outcome">{outcomeLabel(work.outcome)}</span>}
@@ -173,7 +176,7 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
   </article>;
 }
 
-function ScheduleRow({ schedule, props }: { schedule: Schedule; props: BackgroundWorkViewProps }) {
+function ScheduleRow({ schedule, props, arrival, leaving, onLeavingEnd }: { schedule: Schedule; props: BackgroundWorkViewProps; arrival?: number; leaving?: boolean; onLeavingEnd?: () => void }) {
   const [busy, setBusy] = useState(false);
   const [rowError, setRowError] = useState('');
   const row = useRef<HTMLLIElement>(null);
@@ -181,7 +184,7 @@ function ScheduleRow({ schedule, props }: { schedule: Schedule; props: Backgroun
     setBusy(true); setRowError('');
     try { schedule.paused ? await props.onResume(schedule.wakeupId) : await props.onPause(schedule.wakeupId); } catch (cause) { setRowError(cause instanceof Error ? cause.message : 'The schedule could not change.'); } finally { setBusy(false); restoreFocus(() => row.current); }
   };
-  return <li ref={row} tabIndex={-1} className="background-schedule" data-wakeup-id={schedule.wakeupId}>
+  return <li ref={row} tabIndex={-1} className="background-schedule" data-wakeup-id={schedule.wakeupId} data-arrival={arrival !== undefined ? true : undefined} data-leaving={leaving || undefined} aria-hidden={leaving || undefined} inert={leaving || undefined} style={arrivalStyle(arrival)} onAnimationEnd={leaving ? event => { if (event.target === event.currentTarget) onLeavingEnd?.(); } : undefined}>
     <div>
       <strong>{triggerLabel(schedule)}</strong>
       <span className="background-muted">next {when(schedule.nextDueAtMs)} · timezone {schedule.scheduleTimezone ?? 'UTC'} (display only) · last run {when(schedule.lastRunAtMs)} · skipped {String(schedule.skippedTotal)}</span>
@@ -200,6 +203,9 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
   const [intakeError, setIntakeError] = useState('');
   const proposed = intake.records.filter(record => record.disposition === 'PROPOSED');
   const approved = intake.records.filter(record => record.disposition === 'APPROVED');
+  // G3: intake rows share the same insert/remove contract.
+  const proposedMotion = useRowMotion(proposed, record => record.intakeId);
+  const approvedMotion = useRowMotion(approved, record => record.intakeId);
   const rejected = intake.records.filter(record => record.disposition === 'REJECTED');
   const section = useRef<HTMLElement>(null);
   const act = async (intakeId: string, action: () => Promise<void>) => {
@@ -218,7 +224,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     <h4>Proposed</h4>
     {proposed.length === 0 && <p className="background-muted">No proposed external work.</p>}
     <ul data-intake-list="proposed">
-      {proposed.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
+      {proposed.map(record => { const arrival = proposedMotion.arrivals.get(record.intakeId); return <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId} data-arrival={arrival !== undefined ? true : undefined} style={arrivalStyle(arrival)}>
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
         <div className="background-actions">
           <div className="background-model">
@@ -228,15 +234,21 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
           <button type="button" className="quiet" disabled={busyId === record.intakeId} onClick={() => void act(record.intakeId, () => props.onReject(record.intakeId))}>Reject</button>
           <button type="button" className="primary" disabled={busyId === record.intakeId || !modelId} onClick={() => void act(record.intakeId, () => props.onApprove(record.intakeId, modelId))}>Approve</button>
         </div>
-      </li>)}
+      </li>; })}
+      {[...proposedMotion.leaving].map(id => { const record = proposedMotion.cached(id); if (!record) return null; return <li key={`leaving-${id}`} tabIndex={-1} className="background-intake-row" data-leaving aria-hidden="true" inert onAnimationEnd={event => { if (event.target === event.currentTarget) proposedMotion.finishLeaving(id); }}>
+        <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
+      </li>; })}
     </ul>
     <h4>Approved</h4>
     {approved.length === 0 && <p className="background-muted">No approved external work.</p>}
     <ul data-intake-list="approved">
-      {approved.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
+      {approved.map(record => { const arrival = approvedMotion.arrivals.get(record.intakeId); return <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId} data-arrival={arrival !== undefined ? true : undefined} style={arrivalStyle(arrival)}>
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
         {record.decision?.threadId && <button type="button" className="quiet" onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
-      </li>)}
+      </li>; })}
+      {[...approvedMotion.leaving].map(id => { const record = approvedMotion.cached(id); if (!record) return null; return <li key={`leaving-${id}`} tabIndex={-1} className="background-intake-row" data-leaving aria-hidden="true" inert onAnimationEnd={event => { if (event.target === event.currentTarget) approvedMotion.finishLeaving(id); }}>
+        <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
+      </li>; })}
     </ul>
     {rejected.length > 0 && <p className="background-muted">Rejected or duplicate deliveries: {String(rejected.length)}{rejected[0]?.rejectionReason ? ` (${rejected[0].rejectionReason})` : ''}</p>}
   </section>;
@@ -244,6 +256,9 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
 
 export function BackgroundWorkView(props: BackgroundWorkViewProps) {
   const { data, loading, error } = props;
+  // G3: work cards and schedule rows share the insert/remove contract.
+  const workMotion = useRowMotion(data?.works ?? [], work => work.workId);
+  const scheduleMotion = useRowMotion(data?.schedules ?? [], schedule => schedule.wakeupId);
   return <div className="background-work">
     <header className="background-toolbar">
       <h2>Background work</h2>
@@ -260,11 +275,15 @@ export function BackgroundWorkView(props: BackgroundWorkViewProps) {
     {data && data.works.length === 0 && data.schedules.length === 0 && data.intake.records.length === 0 && <p className="background-empty">No background work yet. Owned jobs, schedules and external proposals appear here.</p>}
     {data && <div className="background-body">
       <section aria-label="Owned background work">
-        {data.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId && step.deliveryState === 'PENDING') ?? data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} />)}
+        {data.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId && step.deliveryState === 'PENDING') ?? data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} arrival={workMotion.arrivals.get(work.workId)} />)}
+        {[...workMotion.leaving].map(id => { const work = workMotion.cached(id); return work ? <WorkCard key={`leaving-${id}`} work={work} step={undefined} props={props} leaving onLeavingEnd={() => workMotion.finishLeaving(id)} /> : null; })}
       </section>
       <section className="background-schedules" aria-label="Schedules">
         <h3>Schedules</h3>
-        {data.schedules.length === 0 ? <p className="background-muted">No schedules.</p> : <ul>{data.schedules.map(schedule => <ScheduleRow key={schedule.wakeupId} schedule={schedule} props={props} />)}</ul>}
+        {data.schedules.length === 0 ? <p className="background-muted">No schedules.</p> : <ul>
+          {data.schedules.map(schedule => <ScheduleRow key={schedule.wakeupId} schedule={schedule} props={props} arrival={scheduleMotion.arrivals.get(schedule.wakeupId)} />)}
+          {[...scheduleMotion.leaving].map(id => { const schedule = scheduleMotion.cached(id); return schedule ? <ScheduleRow key={`leaving-${id}`} schedule={schedule} props={props} leaving onLeavingEnd={() => scheduleMotion.finishLeaving(id)} /> : null; })}
+        </ul>}
       </section>
       <IntakeSection intake={data.intake} models={props.models} defaultModelId={props.defaultModelId} props={props} />
     </div>}

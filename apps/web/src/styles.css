@@ -355,6 +355,10 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 :where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where([role="tabpanel"], [role="tabpanel"] > *) { animation: ui-item-in var(--ui-motion-tab) var(--ui-ease-enter); }
 @keyframes ui-item-out { to { opacity:0; transform:translateY(3px); } }
+/* Shared "yes" marks: a confirmed check pops in with the spring ease, and a
+   verified success transition rings the mark once. */
+@keyframes ui-check-in { from { opacity:.2; transform:scale(.8); } }
+@keyframes ui-status-pulse { 0% { box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent); transform:scale(1); } 50% { transform:scale(1.05); } 100% { box-shadow:0 0 0 12px transparent; transform:scale(1); } }
 :where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
 

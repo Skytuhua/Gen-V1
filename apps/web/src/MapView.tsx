@@ -5,12 +5,15 @@ import { mapData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactTitle, inputPath, mapActionPayload, statePath, useTaskAction } from './task-context';
 import { reducedMotion } from './task-motion';
 import './map-view.css';
+import { useRowMotion } from './list-motion';
 
 export function MapView({ element: { props } }: ComponentRenderProps) {
   const store = useStateStore(), title = useContext(ArtifactTitle), action = useTaskAction();
   const raw = typeof props.dataBinding === 'string' ? store.get(inputPath(props.dataBinding)) : undefined;
   const parsed = useMemo(() => mapData.safeParse(raw), [raw]);
   const points = parsed.success ? parsed.data.points : [];
+  // M8: pins added while mounted pop in with the check spring.
+  const motion = useRowMotion(points, point => point.id);
   const saved = store.get(statePath(props.stateKey));
   const index = Math.max(0, points.findIndex(point => point.id === saved));
   const selected = points[index], hasCarousel = Boolean(selected);
@@ -56,7 +59,7 @@ export function MapView({ element: { props } }: ComponentRenderProps) {
         <g className="map-streets"><path d="M0 145 L720 145 L1000 190 M0 310 L710 310 M225 0 L225 520 M435 0 L435 520 M675 0 L675 520 M0 385 L670 385" /><path d="M-20 20 L680 500 M-20 485 L700 40" /></g>
         {parsed.data.routes?.map(route => <polyline key={route.id} className="task-map-route" pathLength={1} points={route.pointIds.map(id => { const point = points.find(point => point.id === id)!; return `${point.x * 10},${point.y * 5.2}`; }).join(' ')}><title>{route.label ?? 'Route'}</title></polyline>)}
       </svg>
-      <div className="task-map-points" role="group" aria-label="Map points">{points.map((point, pointIndex) => <button type="button" key={point.id} className={`task-map-point ${selected.id === point.id ? 'is-selected' : ''}`} aria-label={`Select ${point.label}`} aria-pressed={selected.id === point.id} style={{ left: `${point.x}%`, top: `${point.y}%` }} onClick={() => choose(pointIndex)}><MapPin size={18} fill="currentColor" /><span className="task-map-point-label">{point.label}</span></button>)}</div>
+      <div className="task-map-points" role="group" aria-label="Map points">{points.map((point, pointIndex) => <button type="button" key={point.id} className={`task-map-point ${selected.id === point.id ? 'is-selected' : ''}`} data-arrival={motion.arrivals.has(point.id) || undefined} aria-label={`Select ${point.label}`} aria-pressed={selected.id === point.id} style={{ left: `${point.x}%`, top: `${point.y}%` }} onClick={() => choose(pointIndex)}><MapPin size={18} fill="currentColor" /><span className="task-map-point-label">{point.label}</span></button>)}</div>
     </div>
     <div className="task-map-carousel" ref={carousel} tabIndex={0} aria-label="Place carousel" onPointerDown={() => { userScrolling.current = true; }} onKeyDown={event=>{if(['ArrowLeft','ArrowRight','Home','End','PageUp','PageDown',' '].includes(event.key))userScrolling.current=true;}} onWheel={() => { userScrolling.current = true; }} onScrollEnd={() => { if (userScrolling.current) finishScroll(); }} onScroll={event => { if (!userScrolling.current || !event.currentTarget.clientWidth) return; const next = Math.round(event.currentTarget.scrollLeft / event.currentTarget.clientWidth); if (points[next] && next !== index) store.set(statePath(props.stateKey), points[next].id); }}>
       {points.map((point, pointIndex) => <div key={point.id} className="task-map-place" role={pointIndex === index ? 'region' : undefined} aria-label={pointIndex === index ? 'Selected place' : undefined} aria-hidden={pointIndex !== index} inert={pointIndex !== index}><span className="task-map-category">{point.category ?? 'Place'}<span>{pointIndex + 1} / {points.length}</span></span><h4>{point.label}</h4>{(point.address || point.detail) && <details className="task-map-place-details"><summary>Place details</summary>{point.address && <small>{point.address}</small>}{point.detail && <p>{point.detail}</p>}</details>}</div>)}

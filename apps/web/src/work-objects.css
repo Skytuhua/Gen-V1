@@ -17,3 +17,24 @@
 
 .work-selection-halo{position:absolute;inset:-2px;border:1px solid transparent;border-radius:inherit;pointer-events:none;user-select:none}
 @media(prefers-reduced-motion:reduce){.work-selection-halo{display:none}}
+
+/* G7: status marks transition colors at the status timing; a verified-success
+   flip rings the shared pulse once. */
+:is(.trace-status, .connection-state, .workflow-lane-mark, .settings-save-state) { transition: background-color var(--ui-motion-status) var(--ui-ease-enter), border-color var(--ui-motion-status) var(--ui-ease-enter), color var(--ui-motion-status) var(--ui-ease-enter); }
+:is(.trace-status.is-ok, .workflow-lane-mark.mark-2, .connection-state[data-state="connected"], .settings-save-state[data-state="saved"]) { animation: ui-status-pulse var(--ui-motion-success) var(--ui-ease-enter) 1; }
+
+/* G8: focused architecture edges stroke to the accent at the status timing. */
+.architecture-edge { transition: stroke var(--ui-motion-status) var(--ui-ease-enter), stroke-width var(--ui-motion-status) var(--ui-ease-enter); }
+
+/* G9: trace children rows reveal/collapse at the panel timings — the tree is
+   flattened so the details-content pattern maps to row insert/remove ghosts. */
+.trace-row[data-arrival] { animation: ui-item-in var(--ui-motion-panel-enter) var(--ui-ease-enter) both; }
+.trace-row[data-leaving] { pointer-events: none; animation: ui-item-out var(--ui-motion-panel-exit) var(--ui-ease-move) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.trace-status, .connection-state, .workflow-lane-mark, .settings-save-state) { transition-duration: var(--ui-motion-press); }
+  :is(.trace-status.is-ok, .workflow-lane-mark.mark-2, .connection-state[data-state="connected"], .settings-save-state[data-state="saved"]) { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  .architecture-edge { transition: none; }
+  .trace-row[data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  .trace-row[data-leaving] { animation-name: ui-popover-fade; animation-direction: reverse; animation-duration: var(--ui-motion-press); }
+}
