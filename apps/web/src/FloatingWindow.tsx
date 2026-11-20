@@ -87,14 +87,19 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     // move with the rail's own layout.
     if(rail&&!floating.current)return;
     if(element.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'||reducedMotion())return;
+    // Enter/exit WAAPI animations distort the rect; they are not landings.
+    if(element.getAnimations().some(animation=>animation.playState==='running'))return;
     const rect=element.getBoundingClientRect(),dx=rect.left-target.x,dy=rect.top-target.y,dw=rect.width-target.width,dh=rect.height-target.height;
     if(Math.abs(dx)<.5&&Math.abs(dy)<.5&&Math.abs(dw)<.5&&Math.abs(dh)<.5)return;
+    // Restoring committed pixel values is required: clearing width/height
+    // would drop React's inline style and re-size the window to its contents.
+    const restore=()=>{element.style.transform='';element.style.width=`${current.current.width}px`;element.style.height=`${current.current.collapsed?FLOATING_COLLAPSED_HEIGHT:current.current.height}px`;};
     const spring=createSpringValue(1,progress=>{
       element.style.transform=dx||dy?`translate(${dx*progress}px,${dy*progress}px)`:'';
       if(dw||dh){element.style.width=`${target.width+dw*progress}px`;element.style.height=`${target.height+dh*progress}px`;}
-    },()=>{element.style.transform='';element.style.width='';element.style.height='';});
+    },restore);
     spring.to(0);
-    return()=>spring.dispose();
+    return()=>{spring.dispose();restore();};
   },[layout,open,rendered,interacting,adjusting]);
   useLayoutEffect(()=>{
     const before=previousCollapsed.current;previousCollapsed.current=layout.collapsed;
