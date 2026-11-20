@@ -74,14 +74,18 @@
 @container document-pair (width < 620px) { .surface-split:has(>.document-preview):has(>.task-steps)>.document-preview { min-height:380px; } .surface-split:has(>.document-preview)>.task-steps { min-height:0; } }
 @media (prefers-reduced-motion:reduce) { .document-preview-page { transition:none; } }
 
-.document-preview[data-focus-entry=pointer] .document-active-field { animation:document-focus-arrival 120ms var(--ui-ease-enter); }
+.document-preview[data-focus-entry=pointer] .document-active-field { animation:document-focus-arrival var(--ui-motion-hover) var(--ui-ease-enter); }
 .document-preview-scroll:focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:-3px; }
 @keyframes document-focus-arrival { from { opacity:.65; } to { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .document-active-field { animation-duration:var(--ui-motion-press); } }
 
 .document-preview-paging { display:flex; align-items:center; gap:2px; flex-shrink:0; }
 .document-preview-fraction { position:relative; min-width:44px; text-align:center; font-size:11px; color:var(--muted,#717177); font-variant-numeric:tabular-nums; }
-.document-preview-fraction::after { content:""; position:absolute; left:50%; margin-left:-7px; bottom:-1px; width:14px; height:2px; border-radius:1px; background:var(--accent,#4765d6); transform-origin:left center; animation:document-fraction-underline 120ms var(--ui-ease-enter) both; }
+.document-preview-fraction::after { content:""; position:absolute; left:50%; margin-left:-7px; bottom:-1px; width:14px; height:2px; border-radius:1px; background:var(--accent,#4765d6); transform-origin:left center; animation:document-fraction-underline var(--ui-motion-hover) var(--ui-ease-enter) both; }
 @keyframes document-fraction-underline { from { transform:scaleX(0); } to { transform:scaleX(1); } }
 @media (prefers-reduced-motion:reduce) { .document-preview-fraction::after { animation:none; } }
 .document-preview-field-name { max-width:110px; overflow:hidden; white-space:nowrap; text-overflow:ellipsis; font-size:11px; color:var(--muted,#717177); }
+
+.signature-modes button[aria-pressed="true"][data-entry="pointer"] { animation:signature-mode-entry var(--ui-motion-tab) linear; }
+@keyframes signature-mode-entry { from { opacity:.6; } to { opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .signature-modes button[aria-pressed="true"][data-entry="pointer"] { animation:none; } }

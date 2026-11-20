@@ -4,6 +4,7 @@ import { Eraser, PenLine, Type, Upload, Undo2 } from 'lucide-react';
 import type { SignaturePadProps } from '../../../packages/ui-catalog/documents';
 import { MAX_SIGNATURE_POINTS, readVisualSignature, signatureStrokes, validateSignaturePng, type SignaturePoint, type VisualSignature } from '../../../packages/ui-catalog/signature-data';
 import { pngDataUrl, useDocumentAssets } from './signature-assets';
+import { readMotionPolicy, observeMotionPolicy, type MotionPolicy } from './motion-policy';
 import {useSecureArtifact} from './secure-artifact-context';
 import '@fontsource/caveat/400.css';
 import '@fontsource/dancing-script/400.css';
@@ -15,6 +16,7 @@ const clamp = (value: number) => Math.round(Math.min(1, Math.max(0, value)) * 10
 const fromDataUrl = (url: string) => Uint8Array.from(atob(url.split(',')[1]), character => character.charCodeAt(0));
 const styles = [{ label: 'Handwritten', font: 'Caveat' }, { label: 'Flowing', font: 'Dancing Script' }];
 function canonicalCanvas() { const canvas = document.createElement('canvas'); canvas.width = 960; canvas.height = 320; return canvas; }
+type GenerateReason = 'initial' | 'name-edit' | 'style-pointer' | 'style-keyboard';
 
 export function SignaturePad({ stateKey, label = 'Your signature', initialMode = 'generate', nameStateKey }: SignaturePadProps) {
   const editable = useSecureArtifact()?.editable !== false;
@@ -31,8 +33,14 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   const paint = useRef<(() => void) | null>(null), ink = useRef(signature); ink.current = signature;
   const lastSave = useRef(0), nameTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined), namePreparation = useRef<(() => void) | undefined>(undefined);
   const generatedInitial = useRef(false);
-  const reveal = useRef<HTMLDivElement>(null), revealAnimation = useRef<Animation | null>(null), revealRequest = useRef(0), revealed = useRef(0);
-  const inkBounds = useRef({ left: 0, right: 1 });
+  const reveal = useRef<HTMLDivElement>(null), revealAnimation = useRef<Animation | null>(null);
+  // Generation serial + reveal intent: only a pointer-initiated style swap earns
+  // the detached-decode handoff and the single 240 ms ink reveal.
+  const generationSerial = useRef(0), revealIntent = useRef<{ serial: number; name: string; owner: string } | null>(null), armedReveal = useRef(0);
+  const [committed, setCommitted] = useState<{ url: string; name: string; owner: string; serial: number } | null>(null);
+  const [candidate, setCandidate] = useState<{ serial: number; url: string } | null>(null);
+  const inkBounds = useRef({ left: 0, right: 1 }), motionPolicy = useRef<MotionPolicy>('full'), lastShown = useRef('');
+  const [modeEntry, setModeEntry] = useState(false);
   useEffect(() => () => { uploadGeneration.current++; cancelQueuedGenerate(); revealAnimation.current?.cancel(); }, []);
   const section = useRef<HTMLElement>(null), [visible, setVisible] = useState(false);
   const serialized = JSON.stringify(signature), pendingUrl = assets?.preview(stateKey);
@@ -46,13 +54,15 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
   const flushOnUnmount = useRef<() => void>(() => {});
   useLayoutEffect(() => { flushOnUnmount.current = () => { if (drawing.current) { saveStrokes(); drawing.current = null; } }; });
   useEffect(() => () => flushOnUnmount.current(), []);
-  const clear = () => { generatedInitial.current = true; uploadGeneration.current++; cancelQueuedGenerate(); drawing.current = null; keyboard.current = false; setError(''); write(null); paint.current?.(); };
+  const clear = () => { generatedInitial.current = true; uploadGeneration.current++; generationSerial.current++; cancelQueuedGenerate(); revealIntent.current = null; armedReveal.current = 0; revealAnimation.current?.cancel(); setCommitted(null); setCandidate(null); drawing.current = null; keyboard.current = false; setError(''); write(null); paint.current?.(); };
   // A queued name generation is real pending work: submissions and draft transfers
   // must see it until generate() hands the mark to the signature journal.
   const cancelQueuedGenerate = () => { clearTimeout(nameTimer.current); nameTimer.current = undefined; namePreparation.current?.(); namePreparation.current = undefined; };
-  const queueGenerate = (text: string) => { generatedInitial.current = true; setName(text); clearTimeout(nameTimer.current); namePreparation.current ??= assets?.beginPreparation(); nameTimer.current = setTimeout(() => { nameTimer.current = undefined; try { generate(text); } finally { namePreparation.current?.(); namePreparation.current = undefined; } }, 250); };
-  const generate = (text: string, choice = style) => {
-    generatedInitial.current = true; setError(''); setName(text); setStyle(choice); uploadGeneration.current++; revealRequest.current++;
+  const queueGenerate = (text: string) => { generatedInitial.current = true; setName(text); clearTimeout(nameTimer.current); namePreparation.current ??= assets?.beginPreparation(); nameTimer.current = setTimeout(() => { nameTimer.current = undefined; try { generate(text, style, 'name-edit'); } finally { namePreparation.current?.(); namePreparation.current = undefined; } }, 250); };
+  const generate = (text: string, choice = style, reason: GenerateReason = 'initial') => {
+    const serial = ++generationSerial.current;
+    generatedInitial.current = true; setError(''); setName(text); setStyle(choice); uploadGeneration.current++;
+    revealIntent.current = null; armedReveal.current = 0; revealAnimation.current?.cancel();
     if (!text.trim()) { write(null); return; }
     if (!assets) { setError('Signature resources are unavailable in this document.'); return; }
     try {
@@ -65,10 +75,11 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
       for (let y = 0; y < target.height; y++) for (let x = 0; x < target.width; x++) if (pixels[(y * target.width + x) * 4 + 3] > 8) { left = Math.min(left, x); right = Math.max(right, x + 1); }
       inkBounds.current = { left: Math.max(0, left - 2) / target.width, right: Math.min(target.width, right + 2) / target.width };
       assets.save(stateKey, fromDataUrl(target.toDataURL('image/png')));
+      if (reason === 'style-pointer') revealIntent.current = { serial, name: text.trim(), owner: stateKey };
     } catch (cause) { setError((cause as Error).message); }
   };
   useEffect(() => {
-    if (editable && visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name);
+    if (editable && visible && mode === 'generate' && ready && !signature && !pendingUrl && name.trim() && !generatedInitial.current) generate(nameStateKey && !editingName ? sourceName : name, style, 'initial');
   }, [visible, mode, ready, serialized, pendingUrl, name, sourceName, nameStateKey, editingName, editable]);
   const upload = async (file: File | undefined) => {
     if (!file) return; const generation = ++uploadGeneration.current; setError('');
@@ -121,24 +132,54 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     paint.current?.();
   };
   const preview = pendingUrl || imageUrl;
+  // Decode style-pointer replacements detached: the last authorized mark stays
+  // visible until the candidate's pixels are proven and its generation is fresh.
+  // The journal-backed pending URL may resolve away while decoding, so the
+  // captured candidate URL — not the live preview — feeds the detached probe.
+  useEffect(() => {
+    const intent = revealIntent.current;
+    if (intent && pendingUrl && intent.owner === stateKey) setCandidate({ serial: intent.serial, url: pendingUrl });
+  }, [pendingUrl, stateKey, name, mode]);
+  useEffect(() => {
+    if (!candidate) return;
+    let alive = true;
+    const probe = new Image();
+    probe.onload = () => {
+      const intent = revealIntent.current;
+      if (!alive || intent?.serial !== candidate.serial || mode !== 'generate' || name.trim() !== intent.name) return;
+      revealIntent.current = null; setCandidate(null);
+      setCommitted({ url: candidate.url, name: intent.name, owner: intent.owner, serial: intent.serial });
+      if (motionPolicy.current === 'full' && committed?.url !== candidate.url) armedReveal.current = intent.serial;
+    };
+    probe.src = candidate.url;
+    return () => { alive = false; };
+  }, [candidate, mode, name]);
+  useEffect(() => {
+    motionPolicy.current = readMotionPolicy();
+    return observeMotionPolicy(policy => { motionPolicy.current = policy; if (policy !== 'full') { revealAnimation.current?.cancel(); armedReveal.current = 0; } });
+  }, []);
+  useEffect(() => { revealIntent.current = null; armedReveal.current = 0; setCommitted(null); setCandidate(null); revealAnimation.current?.cancel(); }, [stateKey]);
+  const authorizedUrl = committed && signature !== null && signature?.kind !== 'drawn' && committed.owner === stateKey && committed.name === name.trim() ? committed.url : '';
+  const genPreview = revealIntent.current ? authorizedUrl || lastShown.current || imageUrl : (committed && committed.serial === generationSerial.current ? authorizedUrl : '') || preview;
+  if (!revealIntent.current && genPreview) lastShown.current = genPreview;
   const revealGenerated = (image: HTMLImageElement) => {
-    if (mode !== 'generate' || revealRequest.current === revealed.current) return;
-    revealed.current = revealRequest.current; revealAnimation.current?.cancel();
-    if (!matchMedia('(prefers-reduced-motion: reduce)').matches && reveal.current) {
-      const outer = reveal.current.getBoundingClientRect(), box = image.getBoundingClientRect();
-      const scale = Math.min(box.width / image.naturalWidth, box.height / image.naturalHeight), renderedWidth = image.naturalWidth * scale;
-      const start = box.left - outer.left + (box.width - renderedWidth) / 2;
-      const inset = (fraction: number) => `inset(0 ${Math.max(0, 100 * (1 - (start + renderedWidth * fraction) / outer.width))}% 0 0)`;
-      revealAnimation.current = reveal.current.animate([{ clipPath: inset(inkBounds.current.left), opacity: .65 }, { clipPath: inset(inkBounds.current.right), opacity: 1, offset: .9 }, { clipPath: inset(inkBounds.current.right), opacity: 1 }], { duration: 550, easing: 'linear' });
-    }
+    if (mode !== 'generate' || !committed || armedReveal.current !== committed.serial || image.src !== committed.url) return;
+    armedReveal.current = 0; revealAnimation.current?.cancel();
+    if (readMotionPolicy() !== 'full' || !reveal.current) return;
+    const outer = reveal.current.getBoundingClientRect(), box = image.getBoundingClientRect();
+    const scale = Math.min(box.width / image.naturalWidth, box.height / image.naturalHeight), renderedWidth = image.naturalWidth * scale;
+    const start = box.left - outer.left + (box.width - renderedWidth) / 2;
+    const inset = (fraction: number) => `inset(0 ${Math.max(0, 100 * (1 - (start + renderedWidth * fraction) / outer.width))}% 0 0)`;
+    revealAnimation.current = reveal.current.animate([{ clipPath: inset(inkBounds.current.left), opacity: .85 }, { clipPath: inset(inkBounds.current.right), opacity: 1 }], { duration: 240, easing: 'linear' });
   };
-  const imagePreview = preview ? <img src={preview} alt="Selected visual signature" onLoad={event => revealGenerated(event.currentTarget)} /> : signature?.kind === 'drawn' ? <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="Selected drawn signature" role="img">{signatureStrokes(signature).map((stroke, index) => <polyline key={index} points={stroke.map(point => `${point.x * 1000},${point.y * 1000}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}</svg> : <span className="signature-generated-name" style={{ fontFamily: `"${styles[style].font}"` }}>{signature?.kind === 'typed' ? signature.text : ''}</span>;
+  const imagePreview = (src: string) => <img src={src} alt="Selected visual signature" onLoad={event => revealGenerated(event.currentTarget)} />;
+  const generatePreview = genPreview ? imagePreview(genPreview) : signature?.kind === 'drawn' ? <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" aria-label="Selected drawn signature" role="img">{signatureStrokes(signature).map((stroke, index) => <polyline key={index} points={stroke.map(point => `${point.x * 1000},${point.y * 1000}`).join(' ')} fill="none" stroke="currentColor" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" />)}</svg> : <span className="signature-generated-name" style={{ fontFamily: `"${styles[style].font}"` }}>{signature?.kind === 'typed' ? signature.text : ''}</span>;
   return <section ref={section} className="signature-pad" aria-labelledby={`${id}-label`}>
     <div className="signature-heading"><span id={`${id}-label`}>{label}</span></div>
-    <div className="signature-modes" role="group" aria-label="Signature input method">{(['generate', 'draw', 'upload'] as const).map(item => <button key={item} type="button" aria-pressed={mode === item} onClick={() => { uploadGeneration.current++; cancelQueuedGenerate(); drawing.current = null; setMode(item); }}>{item === 'generate' ? <Type size={13} /> : item === 'draw' ? <PenLine size={13} /> : <Upload size={13} />}{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
+    <div className="signature-modes" role="group" aria-label="Signature input method">{(['generate', 'draw', 'upload'] as const).map(item => <button key={item} type="button" aria-pressed={mode === item} data-entry={mode === item && modeEntry ? 'pointer' : undefined} onAnimationEnd={() => setModeEntry(false)} onClick={event => { if (event.detail > 0) setModeEntry(true); uploadGeneration.current++; generationSerial.current++; cancelQueuedGenerate(); revealIntent.current = null; armedReveal.current = 0; revealAnimation.current?.cancel(); drawing.current = null; setMode(item); }}>{item === 'generate' ? <Type size={13} /> : item === 'draw' ? <PenLine size={13} /> : <Upload size={13} />}{item[0].toUpperCase() + item.slice(1)}</button>)}</div>
     <div className="signature-well" data-mode={mode}>
-      {mode === 'draw' ? <canvas ref={canvas} className="signature-canvas" tabIndex={0} role="application" aria-label="Draw visual signature" aria-describedby={`${id}-help`} onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish} onKeyDown={keyDown} /> : mode === 'generate' ? <div ref={reveal} className="signature-image-preview">{imagePreview}</div> : <label className={`signature-upload ${preview ? 'has-signature' : ''}`}>{preview ? imagePreview : <><Upload size={20} /><strong>Upload your signature</strong><span>PNG up to 2 MiB</span></>}<input type="file" accept="image/png" aria-label="Upload PNG signature" onChange={event => { void upload(event.target.files?.[0]); event.target.value = ''; }} /></label>}
-      <div className="signature-well-tools">{mode === 'generate' ? <button type="button" disabled={!ready || !name.trim()} onClick={() => generate(name, (style + 1) % styles.length)}>Another style</button> : <>{mode === 'draw' && <button type="button" aria-label="Undo last signature stroke" disabled={signature?.kind !== 'drawn'} onClick={undo}><Undo2 size={12} />Undo</button>}<button type="button" onClick={clear}><Eraser size={12} />Clear</button></>}</div>
+      {mode === 'draw' ? <canvas ref={canvas} className="signature-canvas" tabIndex={0} role="application" aria-label="Draw visual signature" aria-describedby={`${id}-help`} onPointerDown={start} onPointerMove={move} onPointerUp={finish} onPointerCancel={finish} onLostPointerCapture={finish} onKeyDown={keyDown} /> : mode === 'generate' ? <div ref={reveal} className="signature-image-preview">{generatePreview}</div> : <label className={`signature-upload ${preview ? 'has-signature' : ''}`}>{preview ? imagePreview(preview) : <><Upload size={20} /><strong>Upload your signature</strong><span>PNG up to 2 MiB</span></>}<input type="file" accept="image/png" aria-label="Upload PNG signature" onChange={event => { void upload(event.target.files?.[0]); event.target.value = ''; }} /></label>}
+      <div className="signature-well-tools">{mode === 'generate' ? <button type="button" disabled={!ready || !name.trim()} onClick={event => generate(name, (style + 1) % styles.length, event.detail > 0 ? 'style-pointer' : 'style-keyboard')}>Another style</button> : <>{mode === 'draw' && <button type="button" aria-label="Undo last signature stroke" disabled={signature?.kind !== 'drawn'} onClick={undo}><Undo2 size={12} />Undo</button>}<button type="button" onClick={clear}><Eraser size={12} />Clear</button></>}</div>
     </div>
     <div className="signature-controls">{pendingUrl && <span role="status">Saving signature…</span>}{mode === 'generate' && <button type="button" aria-expanded={editingName} aria-controls={`${id}-name-editor`} onClick={() => setEditingName(value => !value)}>Edit name</button>}</div>
     {mode === 'generate' && editingName && <div id={`${id}-name-editor`} className="signature-name-editor"><label htmlFor={`${id}-name`}>Type your name</label><input id={`${id}-name`} className="signature-name-input" maxLength={200} value={name} placeholder="Your full name" autoComplete="name" disabled={!ready} onChange={event => queueGenerate(event.target.value)} /></div>}

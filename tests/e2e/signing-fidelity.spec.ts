@@ -202,6 +202,50 @@ test('signature modes share one well; style variation saves a different PNG with
   await expect(signature.getByRole('img', { name: 'Selected visual signature' })).toHaveCount(1);
 });
 
+test('UI-02 explicit style replaces one ready ink asset', async ({ page }) => {
+  await page.addInitScript(() => {
+    const win = window as unknown as { __animates: { cls: string; duration?: number }[]; __gates: HTMLImageElement[]; __releaseGates: () => void };
+    win.__animates = []; win.__gates = [];
+    const nativeAnimate = Element.prototype.animate;
+    Element.prototype.animate = function (this: Element, ...args: Parameters<Element['animate']>) { win.__animates.push({ cls: String((this as HTMLElement).className || this.tagName), duration: typeof args[1] === 'number' ? args[1] : (args[1] as KeyframeAnimationOptions | undefined)?.duration as number | undefined }); return nativeAnimate.apply(this, args); };
+    const descriptor = Object.getOwnPropertyDescriptor(HTMLImageElement.prototype, 'src')!;
+    class GatedImage extends Image { set src(value: string) { (this as unknown as { __held: string }).__held = value; win.__gates.push(this); } get src() { return (this as unknown as { __held?: string }).__held ?? ''; } }
+    window.Image = GatedImage as unknown as typeof Image;
+    win.__releaseGates = () => { for (const image of win.__gates.splice(0)) descriptor.set!.call(image, (image as unknown as { __held?: string }).__held ?? ''); };
+  });
+  const fixture = await signingFixture(page, undefined, { step: 'signature', name: 'Alex Morgan' });
+  await page.goto('/');
+  const signature = page.getByRole('region', { name: 'Add your signature', exact: true });
+  const mark = signature.locator('.signature-image-preview img');
+  await expect(mark).toBeVisible({ timeout: 15_000 });
+  await expect.poll(() => fixture.images.size).toBe(1);
+  const first = [...fixture.images.values()][0], firstSrc = await mark.getAttribute('src');
+  // Gate the detached candidate: the previous authorized mark must stay visible.
+  await signature.getByRole('button', { name: 'Another style', exact: true }).click();
+  await expect.poll(() => fixture.images.size).toBe(2);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __gates: unknown[] }).__gates.length)).toBeGreaterThan(0);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  expect(await signature.locator('.signature-image-preview img').count()).toBe(1);
+  expect(await mark.getAttribute('src')).toBe(firstSrc);
+  await page.evaluate(() => (window as unknown as { __releaseGates: () => void }).__releaseGates());
+  await expect(mark).not.toHaveAttribute('src', firstSrc!);
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __animates: { cls: string }[] }).__animates.filter(item => item.cls === 'signature-image-preview').length)).toBe(1);
+  const animation = (await page.evaluate(() => (window as unknown as { __animates: { duration?: number }[] }).__animates)).at(-1)!;
+  expect(animation.duration).toBe(240);
+  expect([...fixture.images.values()][1].equals(first)).toBe(false);
+  const frames = await page.evaluate(() => new Promise<number[]>(resolve => { const widths: number[] = [], img = document.querySelector<HTMLImageElement>('.signature-image-preview img')!; const sample = (count: number) => { widths.push(img.naturalWidth); count < 4 ? requestAnimationFrame(() => sample(count + 1)) : resolve(widths); }; sample(0); }));
+  expect(new Set(frames).size).toBe(1); expect(frames[0]).toBe(960);
+  // A Draw switch abandons a still-gated stale decode; no old image may appear.
+  await signature.getByRole('button', { name: 'Another style', exact: true }).click();
+  await expect.poll(() => fixture.images.size).toBe(3);
+  await signature.getByRole('button', { name: 'Draw', exact: true }).click();
+  await page.evaluate(() => (window as unknown as { __releaseGates: () => void }).__releaseGates());
+  await expect(signature.locator('.signature-canvas')).toBeVisible();
+  await expect(signature.locator('.signature-image-preview img')).toHaveCount(0);
+  await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
+  expect((await page.evaluate(() => (window as unknown as { __animates: { cls: string }[] }).__animates.filter(item => item.cls === 'signature-image-preview').length))).toBe(1);
+});
+
 test('step transition keeps both panels mounted, outgoing controls inert and saved edits intact', async ({ page }) => {
   const fixture = await signingFixture(page); await page.goto('/');
   await page.getByRole('radio', { name: 'Work', exact: true }).check();
