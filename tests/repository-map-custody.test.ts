@@ -27,7 +27,7 @@ function fixture() {
 it.skipIf(process.platform !== 'win32')('retains all actual native file guards through map publication', async () => {
   const f = fixture();
   await f.reader.read(f.access, { resourceId: 'project', paths: ['one.ts', 'two.ts'] }, async value => {
-    expect((value as any).files.map((file: any) => file.exports[0].name)).toEqual(['one', 'two']);
+    expect((value as {files:{exports:{name:string}[]}[]}).files.map(file => file.exports[0].name)).toEqual(['one', 'two']);
     await expect(writeFile(join(f.root, 'one.ts'), 'Changed during publication')).rejects.toBeDefined();
     await expect(writeFile(join(f.root, 'two.ts'), 'Changed during publication')).rejects.toBeDefined();
   });
@@ -35,7 +35,7 @@ it.skipIf(process.platform !== 'win32')('retains all actual native file guards t
 });
 
 it.skipIf(process.platform !== 'win32')('binds a fresh read to changed source bytes instead of returning the old parsed entry', async () => {
-  const f = fixture(), read = () => f.reader.read(f.access, { resourceId: 'project', paths: ['one.ts'] }, value => value as any);
+  const f = fixture(), read = () => f.reader.read(f.access, { resourceId: 'project', paths: ['one.ts'] }, value => value as {files:{exports:{name:string}[];sha256?:string}[];readBytes:number;exclusions:{path:string;reason:string}[]});
   const before = await read(); await writeFile(join(f.root, 'one.ts'), 'export const changed = 3;'); const after = await read();
   expect(before.files[0].sha256).not.toBe(after.files[0].sha256); expect(after.files[0].exports).toEqual([{ name: 'changed', line: 1 }]);
 });
@@ -44,13 +44,13 @@ it.skipIf(process.platform !== 'win32')('denies a private native-history target 
   const f = fixture(); mkdirSync(join(f.root, '.hermes'));
   writeFileSync(join(f.root, '.hermes', 'entry.ts'), "export { history } from 'PRIVATE_HISTORY_ID';\n");
   symlinkSync(join(f.root, '.hermes'), join(f.root, 'visible'), 'junction');
-  const value = await f.reader.read(f.access, { resourceId: 'project', paths: ['visible/entry.ts'] }, value => value as any);
+  const value = await f.reader.read(f.access, { resourceId: 'project', paths: ['visible/entry.ts'] }, value => value as {files:{exports:{name:string}[];sha256?:string}[];readBytes:number;exclusions:{path:string;reason:string}[]});
   expect(value).toMatchObject({ files: [], readBytes: 0, exclusions: [{ path: 'visible/entry.ts', reason: 'DENIED_SOURCE' }] });
   expect(JSON.stringify(value)).not.toContain('PRIVATE_HISTORY_ID');
 });
 
 it.skipIf(process.platform === 'win32')('reports actual unavailable native custody without parsing source bytes through a fallback reader', async () => {
-  const f = fixture(), value = await f.reader.read(f.access, { resourceId: 'project', paths: ['one.ts'] }, value => value as any);
+  const f = fixture(), value = await f.reader.read(f.access, { resourceId: 'project', paths: ['one.ts'] }, value => value as {files:{exports:{name:string}[];sha256?:string}[];readBytes:number;exclusions:{path:string;reason:string}[]});
   expect(value.files).toEqual([]); expect(value.readBytes).toBe(0);
   expect(value.exclusions).toEqual([{ path: 'one.ts', reason: 'UNAVAILABLE_CUSTODY' }]);
 });

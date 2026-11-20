@@ -47,14 +47,14 @@ it('aborts a disconnected readiness response while leaving normally completed re
   let observed:AbortSignal|undefined,release!:(value:any)=>void;
   const inspect=vi.spyOn(accountAuth,'readAccountAuth').mockImplementation(async(_store,target,_inspect,signal)=>{
     observed=signal;
-    return new Promise(resolve=>{release=resolve;signal?.addEventListener('abort',()=>resolve({...target,state:'unavailable'} as any),{once:true});});
+    return new Promise(resolve=>{release=resolve;signal?.addEventListener('abort',()=>resolve({...target,state:'unavailable'} as never),{once:true});});
   });
   const origin=await app.listen({port:0,host:'127.0.0.1'});
   const request=httpRequest(origin+'/api/account-auth?providerId=openai&accountId=',{headers});request.on('error',()=>{});request.end();
   try{
     await vi.waitFor(()=>expect(inspect).toHaveBeenCalledOnce());request.destroy();
     await vi.waitFor(()=>expect(observed?.aborted).toBe(true));
-    inspect.mockImplementation(async(_store,target,_inspect,signal)=>{observed=signal;return {...target,state:'unknown'} as any;});
+    inspect.mockImplementation(async(_store,target,_inspect,signal)=>{observed=signal;return {...target,state:'unknown'} as never;});
     const status=await new Promise<number|undefined>((resolve,reject)=>{const done=httpRequest(origin+'/api/account-auth?providerId=gemini-cli&accountId=',{headers},response=>{response.resume();response.on('end',()=>resolve(response.statusCode));});done.on('error',reject);done.end();});
     expect(status).toBe(200);expect(observed).toBeInstanceOf(AbortSignal);expect(observed!.aborted).toBe(false);
   }finally{request.destroy();release?.({state:'unavailable'});inspect.mockRestore();}

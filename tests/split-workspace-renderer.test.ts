@@ -31,15 +31,15 @@ async function issue(page:Page,type:string,payload:Record<string,unknown>){await
 
 it('uses the shared area menu for keyboard editor selection, Escape and outside dismissal',async()=>{
  const tab=await page();try{
-  await tab.evaluate(()=>(window as any).deferEditorChoice=true);
+  await tab.evaluate(()=>window.deferEditorChoice=true);
   const trigger=tab.locator('[data-split-pane="right"]').getByLabel('Area actions',{exact:true});await trigger.click();
   expect(await tab.getByRole('menu',{name:'Area actions',exact:true}).count()).toBe(1);
   expect((await trigger.boundingBox())!.width).toBeLessThanOrEqual(34);
   const choice=tab.getByRole('menuitem',{name:'Editor: Diff',exact:true});await choice.focus();await choice.press('Enter');
-  await tab.waitForFunction(()=>(window as any).editorChoices.length===1);
-  expect(await tab.evaluate(()=>(window as any).editorChoices)).toEqual([{kind:'diff',paneId:'right'}]);
+  await tab.waitForFunction(()=>window.editorChoices.length===1);
+  expect(await tab.evaluate(()=>window.editorChoices)).toEqual([{kind:'diff',paneId:'right'}]);
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.isDisabled()).toBe(true);
-  await tab.evaluate(()=>(window as any).finishEditorChoice());
+  await tab.evaluate(()=>window.finishEditorChoice());
   await expect.poll(()=>trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.press('ArrowDown');await tab.getByRole('menu').waitFor();await tab.keyboard.press('Escape');
@@ -51,7 +51,7 @@ it('uses the shared area menu for keyboard editor selection, Escape and outside 
 
 it('mounts a tool view opened in the empty main pane',async()=>{
  const tab=await page();try{
-  await tab.evaluate(()=>(window as any).emptyMain=true);
+  await tab.evaluate(()=>window.emptyMain=true);
   await issue(tab,'view.open',{paneId:'pane-main',view:{id:'tool:files',kind:'files',binding:{authority:{kind:'local'},projectId:'p1'}}});
   await tab.locator('[data-split-view="tool:files"] span',{hasText:'visible'}).waitFor();
   expect(await tab.locator('[data-split-view="tool:files"]').evaluate(node=>getComputedStyle(node).display)).not.toBe('none');
@@ -64,12 +64,12 @@ it('mounts a tool view opened in the empty main pane',async()=>{
 
 it('keeps editor focus when a pending area action completes',async()=>{
  const tab=await page();try{
-  await tab.evaluate(()=>(window as any).deferEditorChoice=true);
+  await tab.evaluate(()=>window.deferEditorChoice=true);
   const trigger=tab.locator('[data-split-pane="right"]').getByLabel('Area actions',{exact:true});await trigger.click();
   await tab.getByRole('menuitem',{name:'Editor: Diff',exact:true}).click();
-  await tab.waitForFunction(()=>typeof (window as any).finishEditorChoice==='function');expect(await trigger.isDisabled()).toBe(true);
+  await tab.waitForFunction(()=>typeof window.finishEditorChoice==='function');expect(await trigger.isDisabled()).toBe(true);
   const draft=tab.getByRole('textbox',{name:'Draft two'});await draft.fill('Keep typing during the pending action');
-  await tab.evaluate(()=>(window as any).finishEditorChoice());await expect.poll(()=>trigger.isDisabled()).toBe(false);
+  await tab.evaluate(()=>window.finishEditorChoice());await expect.poll(()=>trigger.isDisabled()).toBe(false);
   expect(await draft.evaluate(node=>node===document.activeElement)).toBe(true);expect(await draft.inputValue()).toBe('Keep typing during the pending action');
  }finally{await tab.close();}
 });
@@ -82,7 +82,7 @@ it('uses a shared narrow-area chooser without remounting either editor',async()=
   expect(await tab.getByRole('listbox',{name:'Active workspace area',exact:true}).count()).toBe(1);
   await tab.getByRole('option',{name:'one',exact:true}).click();await tab.getByRole('textbox',{name:'Draft one'}).waitFor({state:'visible'});
   expect(await tab.getByRole('textbox',{name:'Draft one'}).inputValue()).toBe('Retained narrow draft');
-  expect(await tab.evaluate(()=>(window as any).mounts)).toEqual({one:1,two:1});
+  expect(await tab.evaluate(()=>window.mounts)).toEqual({one:1,two:1});
  }finally{await tab.close();}
 });
 
@@ -154,7 +154,7 @@ it('keeps editor and recovery controls reachable inside a short pane',async()=>{
   await issue(tab,'pane.join',{paneId:'right'});await tab.setViewportSize({width:900,height:270});await tab.locator('[data-split-pane="pane-main"]').getByLabel('Area actions',{exact:true}).click();
   const bounds=await tab.getByRole('menu',{name:'Area actions',exact:true}).boundingBox(),pane=await tab.locator('[data-split-pane="pane-main"]').boundingBox();
   expect(bounds).not.toBeNull();expect(pane).not.toBeNull();expect(bounds!.y).toBeGreaterThanOrEqual(0);expect(bounds!.y+bounds!.height).toBeLessThanOrEqual(270);
-  const recovery=tab.getByRole('menuitem',{name:'Recover: two',exact:true});await recovery.focus();await recovery.scrollIntoViewIfNeeded();expect(await recovery.isVisible()).toBe(true);await recovery.press('Enter');await tab.getByRole('textbox',{name:'Draft two'}).waitFor({state:'visible'});expect(await tab.evaluate(()=>(window as any).mounts)).toEqual({one:1,two:1});
+  const recovery=tab.getByRole('menuitem',{name:'Recover: two',exact:true});await recovery.focus();await recovery.scrollIntoViewIfNeeded();expect(await recovery.isVisible()).toBe(true);await recovery.press('Enter');await tab.getByRole('textbox',{name:'Draft two'}).waitFor({state:'visible'});expect(await tab.evaluate(()=>window.mounts)).toEqual({one:1,two:1});
  }finally{await tab.close();}
 });
 

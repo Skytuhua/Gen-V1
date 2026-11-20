@@ -23,11 +23,11 @@ describe('project action owner',()=>{
   const page=await browser.newPage();try{
    await page.setContent('<div id="root"></div>');await page.addScriptTag({content:script});
    await page.getByRole('button',{name:'main',exact:true}).click();await page.getByLabel('New branch').fill('branch-a');await page.getByRole('button',{name:'Create branch'}).click();
-   await page.evaluate(()=>{(window as any).oldAccept=(window as any).accept;(window as any).oldReject=(window as any).reject;(window as any).selectProject('b');});
+   await page.evaluate(()=>{window.oldAccept=window.accept;window.oldReject=window.reject;window.selectProject('b');});
    await expect.poll(()=>page.getByRole('button',{name:'main',exact:true}).isEnabled()).toBe(true);
-   if(backToA){await page.evaluate(()=>(window as any).selectProject('a'));await expect.poll(()=>page.getByRole('button',{name:'main',exact:true}).isEnabled()).toBe(true);}
+   if(backToA){await page.evaluate(()=>window.selectProject('a'));await expect.poll(()=>page.getByRole('button',{name:'main',exact:true}).isEnabled()).toBe(true);}
    await page.getByRole('button',{name:'main',exact:true}).click();await page.getByLabel('New branch').fill('branch-b');
-   await page.evaluate(outcome=>outcome==='success'?(window as any).oldAccept():(window as any).oldReject(),outcome);
+   await page.evaluate(outcome=>outcome==='success'?window.oldAccept():window.oldReject(),outcome);
    await expect.poll(()=>page.getByLabel('New branch').inputValue()).toBe('branch-b');expect(await page.getByRole('alert').count()).toBe(0);
   }finally{await page.close();}
  });

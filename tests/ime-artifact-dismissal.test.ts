@@ -30,22 +30,22 @@ beforeAll(async()=>{
 });
 afterAll(async()=>{await browser?.close();if(server)await new Promise<void>(resolve=>server.close(()=>resolve()));});
 async function mount(page:Page,kind:string,mode='close'){
- await page.goto(`${origin}/?kind=${kind}&mode=${mode}`);await page.locator('#prior').focus();await page.evaluate(()=>(window as any).mount());
+ await page.goto(`${origin}/?kind=${kind}&mode=${mode}`);await page.locator('#prior').focus();await page.evaluate(()=>window.mount());
 }
 async function documentEditor(page:Page){
  await page.getByRole('button',{name:'Open document',exact:true}).click();const editor=page.getByRole('textbox',{name:'Document text',exact:true});
  await browserExpect(editor).toBeEditable();await editor.fill('Retained draft');
- expect(await page.evaluate(()=>(window as any).store.get('/values/draft'))).toMatchObject({text:'Retained draft',sourceId:'binding:text'});return editor;
+ expect(await page.evaluate(()=>window.store.get('/values/draft'))).toMatchObject({text:'Retained draft',sourceId:'binding:text'});return editor;
 }
 async function retain(page:Page,editor:Locator,event:typeof composing[number]){
- await editor.focus();const before=await page.evaluate(()=>({values:(window as any).store.getSnapshot(),updates:(window as any).updates}));
- await editor.evaluate((element,event)=>{(window as any).retainedEditor=element;element.dispatchEvent(new KeyboardEvent('keydown',{...event,bubbles:true,cancelable:true}));},event);
+ await editor.focus();const before=await page.evaluate(()=>({values:window.store.getSnapshot(),updates:window.updates}));
+ await editor.evaluate((element,event)=>{window.retainedEditor=element;element.dispatchEvent(new KeyboardEvent('keydown',{...event,bubbles:true,cancelable:true}));},event);
  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>resolve())));
- expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(0);
- expect(await page.evaluate(()=>(window as any).documentClosed)).toBe(0);
+ expect(await page.evaluate(()=>window.regionCloses)).toBe(0);
+ expect(await page.evaluate(()=>window.documentClosed)).toBe(0);
  await browserExpect(editor).toBeVisible();await browserExpect(editor).toHaveValue('Retained draft');
- expect(await editor.evaluate(element=>element===(window as any).retainedEditor&&element===document.activeElement)).toBe(true);
- expect(await page.evaluate(()=>({values:(window as any).store.getSnapshot(),updates:(window as any).updates}))).toEqual(before);
+ expect(await editor.evaluate(element=>element===window.retainedEditor&&element===document.activeElement)).toBe(true);
+ expect(await page.evaluate(()=>({values:window.store.getSnapshot(),updates:window.updates}))).toEqual(before);
 }
 it('a foreign pointer cannot end a document window move',async()=>{
  const page=await browser.newPage();try{
@@ -64,35 +64,35 @@ it('external dismissal cancels a pending document move',async()=>{
   await mount(page,'document');await documentEditor(page);
   const handle=page.getByRole('button',{name:'Move IME notes'}),box=(await handle.boundingBox())!;
   await page.mouse.move(box.x+5,box.y+5);await page.mouse.down();
-  await page.evaluate(()=>(window as any).hideDocument());
+  await page.evaluate(()=>window.hideDocument());
   await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toHaveCount(0);
   await page.mouse.move(box.x+65,box.y+25);await page.mouse.up();
   await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toHaveCount(0);
-  expect(await page.evaluate(()=>(window as any).placeCalls??0)).toBe(0);
+  expect(await page.evaluate(()=>window.placeCalls??0)).toBe(0);
  }finally{await page.close();}
 });
 for(const event of composing){
  it(`modal capture preserves composing Escape (${event.name})`,async()=>{
-  const page=await browser.newPage();try{await mount(page,'modal');const editor=page.getByRole('textbox',{name:'Outer editor'});await retain(page,editor,event);await browserExpect(page.locator('#region')).toBeVisible();await editor.press('Escape');expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(1);}finally{await page.close();}
+  const page=await browser.newPage();try{await mount(page,'modal');const editor=page.getByRole('textbox',{name:'Outer editor'});await retain(page,editor,event);await browserExpect(page.locator('#region')).toBeVisible();await editor.press('Escape');expect(await page.evaluate(()=>window.regionCloses)).toBe(1);}finally{await page.close();}
  });
  for(const mode of ['close','collapse','minimize'])it(`floating owners preserve composing Escape (${event.name}, ${mode})`,async()=>{
   const page=await browser.newPage();try{
    await mount(page,'floating',mode);const editor=page.getByRole('textbox',{name:'Floating editor'});await retain(page,editor,event);
    const owner=page.locator('[data-floating-id="ime-floating"]');await browserExpect(owner).toHaveAttribute('data-collapsed','false');await editor.press('Escape');
-   if(mode==='close'){expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(1);await browserExpect(owner).toBeHidden();}else{
-    await browserExpect(owner).toHaveAttribute('data-collapsed','true');expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(0);
-    await page.keyboard.press('Escape');expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(mode==='collapse'?1:0);
+   if(mode==='close'){expect(await page.evaluate(()=>window.regionCloses)).toBe(1);await browserExpect(owner).toBeHidden();}else{
+    await browserExpect(owner).toHaveAttribute('data-collapsed','true');expect(await page.evaluate(()=>window.regionCloses)).toBe(0);
+    await page.keyboard.press('Escape');expect(await page.evaluate(()=>window.regionCloses)).toBe(mode==='collapse'?1:0);
    }
   }finally{await page.close();}
  });
  it(`document window preserves composing Escape (${event.name})`,async()=>{
-  const page=await browser.newPage();try{await mount(page,'document');const editor=await documentEditor(page);await retain(page,editor,event);await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toBeVisible();await editor.press('Escape');expect(await page.evaluate(()=>(window as any).documentClosed)).toBe(1);await browserExpect(editor).toHaveCount(0);}finally{await page.close();}
+  const page=await browser.newPage();try{await mount(page,'document');const editor=await documentEditor(page);await retain(page,editor,event);await browserExpect(page.getByRole('region',{name:'IME notes document window'})).toBeVisible();await editor.press('Escape');expect(await page.evaluate(()=>window.documentClosed)).toBe(1);await browserExpect(editor).toHaveCount(0);}finally{await page.close();}
  });
  it(`ordinary Escape dismisses child before region (${event.name})`,async()=>{
   const page=await browser.newPage();try{
    await mount(page,'nested');const editor=await documentEditor(page);await retain(page,editor,event);await editor.press('Escape');
-   expect(await page.evaluate(()=>(window as any).documentClosed)).toBe(1);expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(0);await browserExpect(page.locator('#region')).toBeVisible();
-   await page.getByRole('textbox',{name:'Outer editor'}).press('Escape');expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(1);await browserExpect(page.locator('#prior')).toBeFocused();
+   expect(await page.evaluate(()=>window.documentClosed)).toBe(1);expect(await page.evaluate(()=>window.regionCloses)).toBe(0);await browserExpect(page.locator('#region')).toBeVisible();
+   await page.getByRole('textbox',{name:'Outer editor'}).press('Escape');expect(await page.evaluate(()=>window.regionCloses)).toBe(1);await browserExpect(page.locator('#prior')).toBeFocused();
   }finally{await page.close();}
  });
 }
@@ -100,10 +100,10 @@ it('hierarchy fixture delegates nested scope and restores focus/inert on region 
  const page=await browser.newPage();try{
   await mount(page,'hierarchy');await browserExpect(page.locator('#region')).toBeVisible();
   expect(await page.locator('#prior').evaluate(element=>(element as HTMLElement).inert)).toBe(true);
-  await page.getByRole('textbox',{name:'Popup editor'}).press('Escape');expect(await page.evaluate(()=>(window as any).popupClosed)).toBe(1);expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(0);
-  await page.evaluate(()=>(window as any).dispose());await browserExpect(page.locator('#prior')).toBeFocused();
+  await page.getByRole('textbox',{name:'Popup editor'}).press('Escape');expect(await page.evaluate(()=>window.popupClosed)).toBe(1);expect(await page.evaluate(()=>window.regionCloses)).toBe(0);
+  await page.evaluate(()=>window.dispose());await browserExpect(page.locator('#prior')).toBeFocused();
   expect(await page.locator('#prior').evaluate(element=>(element as HTMLElement).inert)).toBe(false);expect(await page.locator('#already-inert').evaluate(element=>(element as HTMLElement).inert)).toBe(true);
   await page.evaluate(()=>{const replacement=document.createElement('textarea');replacement.id='replacement';replacement.value='Retained draft';document.getElementById('root')!.append(replacement);replacement.focus();});await page.locator('#replacement').press('Escape');
-  expect(await page.evaluate(()=>(window as any).regionCloses)).toBe(0);await browserExpect(page.locator('#replacement')).toBeFocused();await browserExpect(page.locator('#replacement')).toHaveValue('Retained draft');
+  expect(await page.evaluate(()=>window.regionCloses)).toBe(0);await browserExpect(page.locator('#replacement')).toBeFocused();await browserExpect(page.locator('#replacement')).toHaveValue('Retained draft');
  }finally{await page.close();}
 });

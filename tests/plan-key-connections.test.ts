@@ -86,10 +86,10 @@ describe('dedicated stored plan-key connections', () => {
     const ctx = { env: vi.fn(async () => key), fileExists: vi.fn(async () => true) }, signal = new AbortController().signal;
     const auth = runtime.getProvider('opencode-go')!.auth.apiKey!;
     await expect(auth.resolve({ ctx, signal })).resolves.toBeUndefined();
-    await expect(auth.resolve({ ctx, signal, credential: { ...credential('opencode-go'), key: 'other-fixture-key' } as any })).resolves.toBeUndefined();
-    await expect(auth.resolve({ ctx, signal, credential: credential('opencode-go') as any })).resolves.toMatchObject({ auth: { apiKey: key } });
+    await expect(auth.resolve({ ctx, signal, credential: { ...credential('opencode-go'), key: 'other-fixture-key' } as never })).resolves.toBeUndefined();
+    await expect(auth.resolve({ ctx, signal, credential: credential('opencode-go') as never })).resolves.toMatchObject({ auth: { apiKey: key } });
     await writeFile(authPath, JSON.stringify({ 'opencode-go': { type: 'api_key', key } }));
-    await expect(auth.resolve({ ctx, signal, credential: credential('opencode-go') as any })).resolves.toBeUndefined();
+    await expect(auth.resolve({ ctx, signal, credential: credential('opencode-go') as never })).resolves.toBeUndefined();
     expect(ctx.env).not.toHaveBeenCalled(); expect(requests).toHaveLength(0);
   });
 
@@ -200,7 +200,7 @@ describe('dedicated stored plan-key connections', () => {
   it.each(['kimi-coding', 'opencode-go'] as const)('logs in %s only through hidden secret input and explicit plan confirmation', async provider => {
     const catalog = await installed('kimi-coding'); respond = () => Response.json({ data: [{ id: catalog[0].id }] });
     const { dataDir, authPath } = await storage();
-    const prompt = vi.fn(async (input: any) => input.type === 'select' ? 'confirm' : key), notify = vi.fn();
+    const prompt = vi.fn(async (input: {type?:string}) => input.type === 'select' ? 'confirm' : key), notify = vi.fn();
     await loginSubscription({ dataDir, provider, interaction: { prompt, notify } });
     expect(prompt.mock.calls[0][0]).toMatchObject({ type: 'select' });
     expect(prompt.mock.calls[1][0]).toMatchObject({ type: 'secret' });
@@ -216,7 +216,7 @@ describe('dedicated stored plan-key connections', () => {
   });
 
   it.each(['', 'with whitespace', 'with\nnewline', '非ASCII', 'a'.repeat(4097), '!synthetic-probe', '${HARNESS_SYNTHETIC_SECRET}'])('rejects unsafe plan secret input without saving it', async secret => {
-    const { dataDir, authPath } = await storage(), prompt = vi.fn(async (input: any) => input.type === 'select' ? 'confirm' : secret);
+    const { dataDir, authPath } = await storage(), prompt = vi.fn(async (input: {type?:string}) => input.type === 'select' ? 'confirm' : secret);
     await expect(loginSubscription({ dataDir, provider: 'opencode-go', interaction: { prompt, notify: vi.fn() } })).rejects.toThrow(/key|ASCII/i);
     expect(JSON.parse(await readFile(authPath, 'utf8'))).toEqual({}); expect(requests).toHaveLength(0); expect(execProbe).not.toHaveBeenCalled(); expect(spawnProbe).not.toHaveBeenCalled();
   });
