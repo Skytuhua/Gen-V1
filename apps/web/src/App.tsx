@@ -712,9 +712,10 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   }, [loaded, models, snapshot.settings.modelId]);
   useEffect(() => {
     let active = true;
+    const key = 'workspace-startup:'+notificationOwner;
     const open = async () => { await bootstrap(); await refresh(); if (active) setLoaded(true); };
-    void open().catch(cause => { if (active) notifications.report(messageOf(cause), {key:'workspace-startup:'+notificationOwner,title:'Couldn’t open workspace',retry:open}); });
-    return () => { active = false; };
+    void open().catch(cause => { if (active) notifications.report(messageOf(cause), {key,title:'Couldn’t open workspace',retry:open}); });
+    return () => { active = false; for(const entry of notifications.getSnapshot())if(entry.key===key)notifications.remove(entry.id); };
   }, [refresh, notifications, notificationOwner]);
   useLayoutEffect(() => {
     if (!loaded) return;
@@ -724,7 +725,13 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     void loadModels();
     return () => { modelRequest.current++;modelRead.current?.abort();modelRead.current=null; };
   }, [loaded, modelOwner, modelContext, loadModels]);
-  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));const patched=applyRuntimeEvent(snapshotRef.current,event);if(patched)apply(patched);else void notifications.run(() => refresh(), {key:'workspace-sync:'+notificationOwner,title:'Couldn’t update workspace'}); }, setOnline, refresh); }, [loaded, refresh, apply, notifications, notificationOwner]);
+  useEffect(() => {
+    if (!loaded) return;
+    let active = true;
+    const key = 'workspace-sync:'+notificationOwner;
+    const stop = subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));const patched=applyRuntimeEvent(snapshotRef.current,event);if(patched)apply(patched);else void refresh().catch(cause => {if(active)notifications.report(messageOf(cause),{key,title:'Couldn’t update workspace',retry:refresh});}); }, setOnline, refresh);
+    return () => { active = false; stop(); for(const entry of notifications.getSnapshot())if(entry.key===key)notifications.remove(entry.id); };
+  }, [loaded, refresh, apply, notifications, notificationOwner]);
   useEffect(() => { const query = matchMedia('(prefers-color-scheme: dark)'); const change = () => setSystemDark(query.matches); query.addEventListener('change', change); return () => query.removeEventListener('change', change); }, []);
   const theme = snapshot.settings.theme === 'system' ? systemDark ? 'dark' : 'light' : snapshot.settings.theme;
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);

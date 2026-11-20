@@ -3,11 +3,11 @@ import {fileURLToPath} from 'node:url';
 import type {WorkspaceNotificationStore} from '../../apps/web/src/workspace-notifications';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 
-interface Fixture {store:WorkspaceNotificationStore;calls:number[];resolve:()=>void}
+interface Fixture {store:WorkspaceNotificationStore;calls:number[];resolve:()=>void;setSecondConversation:(shown:boolean)=>void}
 async function mount(page:Page,split=false){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Synthetic notifications'}}}});
  if(split)snapshot.threads.push({...snapshot.threads[0],id:'other-thread'});
- await serveTaskFixture(page,snapshot);
+ const fixture=await serveTaskFixture(page,snapshot);
  await page.goto('/');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  const main=await(await page.request.get('/src/main.tsx')).text(),component=await(await page.request.get('/src/WorkspaceNotifications.tsx')).text();
  const reactPath=component.match(/from ["']([^"']+\/react\.js\?[^"']*)["']/)?.[1],domPath=main.match(/from ["']([^"']+\/react-dom_client\.js\?[^"']*)["']/)?.[1];
@@ -20,12 +20,13 @@ async function mount(page:Page,split=false){
   let resolve=()=>{};
   if(!split)for(let i=1;i<=5;i++)store.report(`Synthetic failure ${i}`,{title:`Operation ${i}`,retry:async()=>{calls.push(i);if(i===5)await new Promise<void>(done=>{resolve=done;});}});
   const appPath='/src/App.tsx',App=split?(await import(appPath)).App:null;
-  const conversations=App?React.createElement(WorkspaceNotificationContext.Provider,{value:store},React.createElement(App,{embeddedThreadId:'task-thread'}),React.createElement(App,{embeddedThreadId:'other-thread'})):null;
+  const conversations=(second:boolean)=>App?React.createElement(WorkspaceNotificationContext.Provider,{value:store},React.createElement(App,{embeddedThreadId:'task-thread'}),second&&React.createElement(App,{embeddedThreadId:'other-thread'})):null;
   const host=document.createElement('div');document.body.replaceChildren(host);
-  DOM.createRoot(host).render(React.createElement(React.Fragment,null,React.createElement(WorkspaceNotifications,{store}),React.createElement('button',{type:'button'},'Underlying content'),conversations));
-  Object.assign(window,{notificationFixture:{store,calls,resolve:()=>resolve()}});
+  const root=DOM.createRoot(host),render=(second=true)=>root.render(React.createElement(React.Fragment,null,React.createElement(WorkspaceNotifications,{store}),React.createElement('button',{type:'button'},'Underlying content'),conversations(second)));
+  render();Object.assign(window,{notificationFixture:{store,calls,resolve:()=>resolve(),setSecondConversation:render}});
  },{reactPath,domPath,split});
  if(!split)await expect(page.getByRole('button',{name:'Hide notifications (5)',exact:true})).toBeVisible();
+ return fixture;
 }
 
 test('split conversations retain independent startup retries in their shared stack',async({page})=>{
@@ -34,6 +35,22 @@ test('split conversations retain independent startup retries in their shared sta
  await retries.first().click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(1);
  await expect(retries).toHaveCount(1);await retries.click();
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(2);
+});
+
+test('closing a conversation releases only its startup and sync retries before reopening',async({page})=>{
+ const fixture=await mount(page,true),retries=page.getByRole('button',{name:'Retry Couldn’t open workspace',exact:true});
+ await expect(retries).toHaveCount(2);
+ await page.evaluate(()=>(window as unknown as {notificationFixture:Fixture}).notificationFixture.setSecondConversation(false));
+ await expect(retries).toHaveCount(1);
+ await page.evaluate(()=>(window as unknown as {notificationFixture:Fixture}).notificationFixture.setSecondConversation(true));
+ await expect(retries).toHaveCount(2);await page.unroute('**/api/snapshot');
+ await retries.first().click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(1);
+ await expect(retries).toHaveCount(1);await retries.click();
+ await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(2);await expect(retries).toHaveCount(0);
+ await page.route('**/api/snapshot',route=>route.fulfill({status:503,json:{error:{message:'Split sync unavailable'}}}));await fixture.publish();
+ const sync=page.getByRole('button',{name:'Retry Couldn’t update workspace',exact:true});await expect(sync).toHaveCount(2);
+ await page.evaluate(()=>(window as unknown as {notificationFixture:Fixture}).notificationFixture.setSecondConversation(false));
+ await expect(sync).toHaveCount(1);
 });
 
 test('hidden notifications release the docked browser and finish receipt and exit timers',async({page})=>{
