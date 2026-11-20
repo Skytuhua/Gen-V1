@@ -576,16 +576,39 @@ export function createPythonProgramWorker(options: PythonProgramWorkerOptions): 
 
 export interface PythonExecutionBackend extends ExecutionBackend {
   executor(handleId: string): ProgramExecutor;
+  /** The Python backend's own platform and the original supplied proof, kept
+   * unchanged for the worker, provider and recorded metadata. */
+  readonly pythonPlatform: typeof PLATFORM;
+  readonly pythonPlatformProof: PlatformProof;
+}
+
+const nonempty = (value: unknown): value is string => typeof value === 'string' && value.trim().length > 0;
+
+/** M03's shared check compares a backend platform with Node's process.platform.
+ * The Python proof is architecture-specific (linux-x64), so this adapter
+ * exposes a 'linux' host projection to M03 only when the actual host is Linux
+ * x64 AND the supplied proof is the exact linux-x64 PASS with a nonempty
+ * reference and evidence. Any other host or proof exposes no current proof,
+ * which keeps M03 denial. The supplied proof is never mutated. */
+export function pythonM03PlatformProjection(proof: PlatformProof | null | undefined,
+  host: { readonly platform: string; readonly arch: string } = { platform: process.platform, arch: process.arch }): { platform: string; proof: PlatformProof | null } {
+  const exact = host.platform === 'linux' && host.arch === 'x64' && !!proof && proof.status === 'PASS' && proof.platform === PLATFORM &&
+    nonempty(proof.platformProofRef) && nonempty(proof.evidenceRef) && typeof proof.recordedAt === 'string';
+  if (!exact) return { platform: PLATFORM, proof: null };
+  return { platform: 'linux', proof: Object.freeze({ platformProofRef: proof.platformProofRef, platform: 'linux', status: 'PASS',
+    recordedAt: proof.recordedAt, evidenceRef: proof.evidenceRef }) };
 }
 
 /** M03 launch admission owns one lazy executor. Calling executor() does not
  * spawn a second process; the first cell starts it inside that cell's budget. */
 export function pythonExecutionBackend(options: Omit<PythonProgramWorkerOptions, 'launch'>): PythonExecutionBackend {
   const executors = new Map<string, ProgramExecutor>();
+  const m03 = pythonM03PlatformProjection(options.platformProof);
   return {
-    backendId: options.runtime.backendId, platform: PLATFORM,
+    backendId: options.runtime.backendId, platform: m03.platform,
     installed: process.platform === 'linux' && process.arch === 'x64' && [options.runtime.bwrap.path, options.runtime.interpreter.path, options.runtime.stdlib.path, WORKER_PATH, CONFINEMENT_PATH, SUPERVISOR_PATH].every(existsSync),
-    approved: options.approved, proof: options.platformProof,
+    approved: options.approved, proof: m03.proof,
+    pythonPlatform: PLATFORM, pythonPlatformProof: options.platformProof,
     async launch(launch) {
       if (executors.size) throw failure('KERNEL_BUSY', 'This Python backend admission already owns a kernel');
       const executor = createPythonProgramWorker({ ...options, launch }), id = randomUUID(); executors.set(id, executor);
