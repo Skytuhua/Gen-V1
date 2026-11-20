@@ -245,9 +245,10 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .schema-fields,.surface-form { display:flex; flex-direction:column; gap:14px; }
 .surface-action { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
 .surface-spacer { height:12px; }
-.surface-tabs { display:flex; gap:3px; border-bottom:1px solid var(--border); margin-bottom:10px; overflow:auto; }
+.surface-tabs { position:relative; display:flex; gap:3px; border-bottom:1px solid var(--border); margin-bottom:10px; overflow:auto; }
 .surface-tabs button { padding:7px 10px; font-size:11px; color:var(--muted); border-bottom:2px solid transparent; white-space:nowrap; }
-.surface-tabs button[aria-selected="true"] { color:var(--text); border-bottom-color:var(--accent); }
+.surface-tabs button[aria-selected="true"] { color:var(--text); }
+.task-tab-indicator { position:absolute; display:block; width:0; height:2px; background:currentColor; pointer-events:none; transform-origin:left center; }
 .disclosure-node { min-width:0; }
 .disclosure { border:1px solid var(--border); border-radius:12px; background:var(--surface); position:relative; }
 .disclosure-trigger { display:flex; width:100%; align-items:center; justify-content:space-between; gap:12px; text-align:left; padding:10px 13px; font-size:13px; line-height:1.4; border-radius:11px; }

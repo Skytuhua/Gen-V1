@@ -1,10 +1,12 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, createContext, lazy, Suspense, useContext, useId, useRef, useState, type ReactNode } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
 import { ArtifactTitle, ChoiceList, RelationshipGraph, Status, Steps } from './task-interface';
+import { animateTask, useTaskEffectCause } from './task-motion';
+import { readMotionPolicy } from './motion-policy';
 export { ArtifactTitle } from './task-interface';
 import type { DocumentPreviewProps, SignaturePadProps } from '../../../packages/ui-catalog/documents';
 
@@ -169,13 +171,80 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
+  const tablist = useRef<HTMLDivElement>(null), indicator = useRef<HTMLSpanElement>(null);
+  const intent = useTaskEffectCause(), pending = useRef<unknown>(undefined), travel = useRef<Animation | undefined>(undefined);
+  const geometry = useRef({ labels, active });
+  geometry.current = { labels, active };
+  const select = (label: unknown, cause: 'pointer' | 'keyboard') => {
+    if (label === active) { pending.current = undefined; return; }
+    intent.mark(cause);
+    pending.current = label;
+    setValue(label);
+  };
+  const buttonAt = (index: number) => tablist.current?.querySelectorAll<HTMLElement>('[role="tab"]')[index];
+  // The indicator's measured rect lives in the tablist's scroll box: the bottom
+  // edge of the active tab, compensated for horizontal scrolling.
+  const measure = () => {
+    const list = tablist.current, mark = indicator.current;
+    if (!list || !mark) return;
+    const button = buttonAt(geometry.current.labels.indexOf(geometry.current.active));
+    if (!button) { mark.hidden = true; return; }
+    const listBox = list.getBoundingClientRect(), box = button.getBoundingClientRect();
+    return { mark, list, left: box.left - listBox.left + list.scrollLeft, top: box.bottom - listBox.top + list.scrollTop - 2, width: box.width, color: getComputedStyle(button).color };
+  };
+  const paint = (target: NonNullable<ReturnType<typeof measure>>) => {
+    target.mark.hidden = false;
+    target.mark.style.left = `${target.left}px`; target.mark.style.top = `${target.top}px`; target.mark.style.width = `${target.width}px`; target.mark.style.color = target.color;
+  };
+  const settle = () => { const target = measure(); if (target) { travel.current?.cancel(); paint(target); } };
+  useLayoutEffect(() => {
+    const target = measure();
+    if (!target) return;
+    const committed = pending.current;
+    pending.current = undefined;
+    const cause = intent.take(), intentional = committed !== undefined && committed === active;
+    if (!intentional) {
+      // Unrelated commits keep an in-flight travel; only a mismatched pending
+      // target or an already settled effect repaints the static position.
+      if (committed !== undefined || !travel.current || travel.current.playState === 'finished' || travel.current.playState === 'idle') {
+        travel.current?.cancel();
+        travel.current = undefined;
+        paint(target);
+      }
+      return;
+    }
+    const { mark, list } = target;
+    const listBox = list.getBoundingClientRect(), painted = mark.getBoundingClientRect();
+    const from = { left: painted.left - listBox.left + list.scrollLeft, top: painted.bottom - listBox.top + list.scrollTop - 2, width: painted.width, height: painted.height };
+    travel.current?.cancel(); // sampled `painted` above already includes an in-flight transform
+    travel.current = undefined;
+    paint(target);
+    const wrapped = Math.abs(from.top - target.top) > .5;
+    if (intentional && cause === 'pointer' && !wrapped && from.width > .5 && from.height > .5 && target.width > .5 && readMotionPolicy() === 'full') {
+      const dx = from.left - target.left, sx = from.width / target.width;
+      if (Math.abs(dx) > .5 || Math.abs(sx - 1) > .01) travel.current = animateTask(mark, [{ transform: `translate(${dx}px, ${from.top - target.top}px) scaleX(${sx})` }, { transform: 'translate(0px, 0px) scaleX(1)' }], 140, { duration: '--ui-motion-tab', easing: '--ui-ease-move' });
+    }
+  });
+  useLayoutEffect(() => {
+    const list = tablist.current;
+    if (!list) return;
+    // observe() reports once synchronously; a selection commit must not let that
+    // first notification cancel the FLIP it just started.
+    let initial = true;
+    const observer = new ResizeObserver(() => { if (initial) { initial = false; return; } settle(); });
+    observer.observe(list);
+    const button = buttonAt(geometry.current.labels.indexOf(geometry.current.active));
+    if (button) observer.observe(button);
+    list.addEventListener('scroll', settle, { passive: true });
+    return () => { observer.disconnect(); list.removeEventListener('scroll', settle); };
+  }, [active]);
   if (new Set(labels).size !== labels.length) return <p role="alert">This saved tab view is invalid because its labels are not unique.</p>;
   return <div className={source ? 'task-tabs-operation' : undefined}>
     {source && (source.title || source.detail || source.status) && <header className="task-tabs-operation-header"><div>{source.title && source.title !== artifactTitle && <strong>{source.title}</strong>}{source.detail && <span>{source.detail}</span>}</div>{source.status && <StatusIcon status={source.status} />}</header>}
-    <div className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
+    <div ref={tablist} className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
       const status = source?.items.find(item => item.label === label)?.status;
-      return <button type="button" key={i} role="tab" tabIndex={active === label ? 0 : -1} aria-selected={active === label} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? labels.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + labels.length) % labels.length; setValue(labels[index]); (event.currentTarget.parentElement?.children[index] as HTMLElement | undefined)?.focus(); } }} onClick={() => setValue(label)}>{source && <span className={`task-tab-status-slot status-${status??'neutral'}`} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flex:'0 0 14px'}} aria-hidden="true">{status && status !== 'neutral' && <StatusIcon status={status} />}</span>}<span className="task-tab-label">{display(label)}</span></button>;
-    })}</div>
+      return <button type="button" key={i} role="tab" tabIndex={active === label ? 0 : -1} aria-selected={active === label} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? labels.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + labels.length) % labels.length; select(labels[index], 'keyboard'); buttonAt(index)?.focus(); } }} onClick={event => select(label, event.detail > 0 ? 'pointer' : 'keyboard')}>{source && <span className={`task-tab-status-slot status-${status??'neutral'}`} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flex:'0 0 14px'}} aria-hidden="true">{status && status !== 'neutral' && <StatusIcon status={status} />}</span>}<span className="task-tab-label">{display(label)}</span></button>;
+    })}<span ref={indicator} className="task-tab-indicator" aria-hidden="true" hidden /></div>
     {Children.toArray(children).map((child, i) => {
       const label = labels[i];
       return active === label || visited.has(label) ? <div role="tabpanel" className="task-tab-panel" key={i} hidden={active !== label}>{child}</div> : null;

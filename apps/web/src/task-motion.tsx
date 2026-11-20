@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from 'react';
 import { Markdown } from './Markdown';
 import './task-motion.css';
 import {createSpringValue} from './motion-spring';
@@ -16,7 +16,6 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
   if (tokenDuration) duration = Number.parseFloat(tokenDuration) * (tokenDuration.endsWith('ms') ? 1 : 1000);
   const easing = tokens && style?.getPropertyValue(tokens.easing).trim() || 'cubic-bezier(.22,1,.36,1)';
   duration /= Number(document.documentElement.style.getPropertyValue('--motion-speed')) || 1;
-  const travelling = frames.some(frame => Object.keys(frame).some(key => !['opacity','offset','easing','composite'].includes(key)));
   if (policy === 'reduced') {
     if (!frames.some(frame => frame.opacity !== undefined)) return;
     frames = frames.map(frame => ({ ...(frame.opacity !== undefined ? { opacity: frame.opacity } : {}), ...(frame.offset !== undefined ? { offset: frame.offset } : {}) }));
@@ -24,7 +23,7 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
   }
   const animation = element.animate(frames, { duration, easing: policy === 'reduced' ? 'ease-out' : easing });
   const stopObservingMotion = observeMotionPolicy(next => {
-    if (next === 'off' || next === 'reduced' && policy === 'full' && travelling) {
+    if (next === 'off' || next === 'reduced' && policy === 'full') {
       cleanup();
       // Finish the existing handoff so callers can remove their temporary shells.
       // Default fill:none releases the effect while preserving promise/event completion.
@@ -37,6 +36,26 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
   };
   animation.addEventListener('finish',cleanup);animation.addEventListener('cancel',cleanup);
   return animation;
+}
+
+export type TaskEffectCause =
+  | 'publication' | 'source-update' | 'pointer' | 'keyboard' | 'restore';
+
+export function useTaskEffectCause(): {
+  mark(cause: TaskEffectCause): void;
+  take(): TaskEffectCause;
+} {
+  const nextCause = useRef<TaskEffectCause>('restore');
+  return useMemo(() => ({
+    mark(cause: TaskEffectCause) {
+      nextCause.current = cause;
+    },
+    take(): TaskEffectCause {
+      const cause = nextCause.current;
+      nextCause.current = 'restore';
+      return cause;
+    },
+  }), []);
 }
 
 /** The host decides whether publication is new. Restoration and ordinary

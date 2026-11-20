@@ -3014,6 +3014,7 @@
     "tests/e2e/generated-selects.playwright.config.ts",
     "tests/e2e/generated-selects.spec.ts",
     "tests/e2e/generated-selects.vite.config.ts",
+    "tests/e2e/generative-refinement.spec.ts",
     "tests/e2e/graph-fidelity.spec.ts",
     "tests/e2e/graph-popovers.playwright.config.ts",
     "tests/e2e/graph-popovers.spec.ts",
