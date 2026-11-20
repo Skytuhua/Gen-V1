@@ -40,3 +40,13 @@
 @media(max-width:760px){.skill-row>header{flex-direction:column;gap:10px}.skill-library-heading{align-items:center}.skill-editor input,.skill-editor textarea{font-size:16px}.skill-row>header>.secondary{align-self:flex-start}.skill-actions{gap:8px 14px}}
 @media(max-width:600px){.settings-layout.settings-skills{grid-template-columns:minmax(0,1fr);grid-template-rows:112px minmax(0,1fr)}.settings-skills .settings-navigation{border-right:0;border-bottom:1px solid var(--border)}.settings-skills .settings-search{margin-bottom:7px}.settings-skills .settings-navigation nav{display:flex;flex-direction:row;gap:4px;align-items:flex-start;overflow:auto;scrollbar-width:thin}.settings-skills .settings-navigation nav button{width:auto;min-height:40px;flex-shrink:0;white-space:nowrap}.settings-skills .settings-navigation nav button.settings-group-start{margin-top:0}.skill-library>.settings-row{flex-direction:row;align-items:center}.skill-library>.settings-row>input[type=number]{font-size:16px;flex-shrink:0}.settings-skills .skill-row>header{flex-direction:row}.skill-toggle{align-self:flex-start}}
 @media(pointer:coarse){.skill-library button{min-height:44px}}
+
+.skill-row { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+.skill-row:nth-child(2) { animation-delay:calc(1*var(--ui-motion-stagger)); }
+.skill-row:nth-child(3) { animation-delay:calc(2*var(--ui-motion-stagger)); }
+.skill-row:nth-child(4) { animation-delay:calc(3*var(--ui-motion-stagger)); }
+.skill-row:nth-child(5) { animation-delay:calc(4*var(--ui-motion-stagger)); }
+.skill-row:nth-child(n+6) { animation-delay:calc(5*var(--ui-motion-stagger)); }
+@media (prefers-reduced-motion: reduce) {
+  .skill-row { animation-name: ui-popover-fade; animation-delay: 0s; animation-duration: var(--ui-motion-press); }
+}

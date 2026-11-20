@@ -78,3 +78,13 @@
  .file-checkpoints button.file-checkpoints-primary:enabled:hover { background:var(--accent-hover); } }
 @media(prefers-reduced-motion:reduce) { .file-checkpoints button { transition:none; } }
 @media(forced-colors:active) { .file-checkpoints [aria-selected="true"],.file-checkpoints-file[data-selected] { outline:1px solid Highlight; } }
+
+.file-checkpoints-entries > li { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+.file-checkpoints-entries > li:nth-child(2) { animation-delay:calc(1*var(--ui-motion-stagger)); }
+.file-checkpoints-entries > li:nth-child(3) { animation-delay:calc(2*var(--ui-motion-stagger)); }
+.file-checkpoints-entries > li:nth-child(4) { animation-delay:calc(3*var(--ui-motion-stagger)); }
+.file-checkpoints-entries > li:nth-child(5) { animation-delay:calc(4*var(--ui-motion-stagger)); }
+.file-checkpoints-entries > li:nth-child(n+6) { animation-delay:calc(5*var(--ui-motion-stagger)); }
+@media (prefers-reduced-motion: reduce) {
+  .file-checkpoints-entries > li { animation-name: ui-popover-fade; animation-delay: 0s; animation-duration: var(--ui-motion-press); }
+}

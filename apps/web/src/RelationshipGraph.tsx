@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { relationshipData, type RelationshipData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
 import { animateTask, MotionRegion, reducedMotion, TASK_MOTION } from './task-motion';
+import { readMotionPolicy } from './motion-policy';
 import { StatusIcon } from './task-status';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {createThreadHoverInteraction} from './thread-hover/interaction';
@@ -170,6 +171,24 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
   const summaryKey = parsed.success && parsed.data.summary ? `${parsed.data.summary.label}:${parsed.data.summary.status}` : '';
   const data = parsed.success ? parsed.data : undefined, nodes = data?.nodes ?? [], edges = data?.edges ?? [];
   const edgeKeys = JSON.stringify(edges.map(edge => [edge.from, edge.to]));
+  const nodeDomCache = useRef(new Map<string, HTMLElement>());
+  const nodeIdsKey = JSON.stringify(nodes.map(node => node.id));
+  // Removed nodes leave the tree before a CSS exit can run: clone the last
+  // DOM snapshot back as an inert [data-leaving] ghost until ui-item-out ends.
+  useLayoutEffect(() => {
+    const list = surface.current?.querySelector<HTMLOListElement>('ol'); if (!list) return;
+    const seen = new Map<string, HTMLElement>();
+    for (const row of list.querySelectorAll<HTMLElement>(':scope > li[data-node-id]:not([data-leaving])')) seen.set(row.dataset.nodeId!, row);
+    if (readMotionPolicy() !== 'off') for (const [id, row] of nodeDomCache.current) {
+      if (seen.has(id)) continue;
+      const ghost = row.cloneNode(true) as HTMLElement;
+      ghost.dataset.leaving = 'true'; ghost.setAttribute('aria-hidden', 'true');
+      list.appendChild(ghost);
+      const drop = () => ghost.remove();
+      ghost.addEventListener('animationend', drop, { once: true }); setTimeout(drop, 500);
+    }
+    nodeDomCache.current = seen;
+  }, [nodeIdsKey]);
   // Mounts are snapshots (including expanded copies). Only later connections
   // reveal; remember removed edges too so restoring them cannot replay a draw.
   const revealedEdges = useRef(new Set(edges.map(edge => JSON.stringify([edge.from, edge.to]))));

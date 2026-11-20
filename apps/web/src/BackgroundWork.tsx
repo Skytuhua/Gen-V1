@@ -4,6 +4,7 @@ import type { ModelInfo } from '../../../packages/contracts';
 import { authenticated, command, getModels, read, subscribe } from './api';
 import { SchemaFields, schemaDefaults } from './registry';
 import { Select } from '../../../packages/ui-shell/Select';
+import { useRowGhosts } from './task-motion';
 import './background-work.css';
 
 /** M10 task-owned background drawer. The presentational view is fixture-
@@ -125,7 +126,7 @@ function HumanStepCard({ step, work, onRespond, onDecline, onSettled }: { step: 
   </section>;
 }
 
-function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; props: BackgroundWorkViewProps }) {
+function WorkCard({ work, step, props, leaving, onLeaveEnd }: { work: Work; step: Step | undefined; props: BackgroundWorkViewProps; leaving?: boolean; onLeaveEnd?: () => void }) {
   const [output, setOutput] = useState<OutputPage | null>(null);
   const [outputError, setOutputError] = useState('');
   const [busy, setBusy] = useState(false);
@@ -140,7 +141,7 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
     setBusy(true); setActionError('');
     try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(cause instanceof Error ? cause.message : 'The work could not be cancelled.'); } finally { setBusy(false); restore(); }
   };
-  return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId}>
+  return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId} data-leaving={leaving||undefined} aria-hidden={leaving||undefined} onAnimationEnd={leaving?onLeaveEnd:undefined}>
     <header>
       <span className="background-state" data-state={work.state.toLowerCase()}>{stateLabel(work)}</span>
       {work.state === 'SETTLED' && <span className="background-outcome">{outcomeLabel(work.outcome)}</span>}
@@ -200,6 +201,22 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
   const [intakeError, setIntakeError] = useState('');
   const proposed = intake.records.filter(record => record.disposition === 'PROPOSED');
   const approved = intake.records.filter(record => record.disposition === 'APPROVED');
+  const proposedEls = proposed.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
+                <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
+        <div className="background-actions">
+          <div className="background-model">
+            <Select aria-label="Approval model" value={modelId} onValueChange={setModelId} disabled={models.length === 0}
+              options={[{ value: '', label: 'Choose a model' }, ...models.map(model => ({ value: model.id, label: model.name }))]} />
+          </div>
+          <button type="button" className="quiet" disabled={busyId === record.intakeId} onClick={() => void act(record.intakeId, () => props.onReject(record.intakeId))}>Reject</button>
+          <button type="button" className="primary" disabled={busyId === record.intakeId || !modelId} onClick={() => void act(record.intakeId, () => props.onApprove(record.intakeId, modelId))}>Approve</button>
+        </div>
+      </li>);
+  const approvedEls = approved.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
+        <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
+        {record.decision?.threadId && <button type="button" className="quiet" onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
+      </li>);
+  const proposedGhosts = useRowGhosts(proposedEls), approvedGhosts = useRowGhosts(approvedEls);
   const rejected = intake.records.filter(record => record.disposition === 'REJECTED');
   const section = useRef<HTMLElement>(null);
   const act = async (intakeId: string, action: () => Promise<void>) => {
@@ -218,25 +235,14 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     <h4>Proposed</h4>
     {proposed.length === 0 && <p className="background-muted">No proposed external work.</p>}
     <ul data-intake-list="proposed">
-      {proposed.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
-        <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
-        <div className="background-actions">
-          <div className="background-model">
-            <Select aria-label="Approval model" value={modelId} onValueChange={setModelId} disabled={models.length === 0}
-              options={[{ value: '', label: 'Choose a model' }, ...models.map(model => ({ value: model.id, label: model.name }))]} />
-          </div>
-          <button type="button" className="quiet" disabled={busyId === record.intakeId} onClick={() => void act(record.intakeId, () => props.onReject(record.intakeId))}>Reject</button>
-          <button type="button" className="primary" disabled={busyId === record.intakeId || !modelId} onClick={() => void act(record.intakeId, () => props.onApprove(record.intakeId, modelId))}>Approve</button>
-        </div>
-      </li>)}
+      {proposedEls}{proposedGhosts}
+
     </ul>
     <h4>Approved</h4>
     {approved.length === 0 && <p className="background-muted">No approved external work.</p>}
     <ul data-intake-list="approved">
-      {approved.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
-        <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
-        {record.decision?.threadId && <button type="button" className="quiet" onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
-      </li>)}
+      {approvedEls}{approvedGhosts}
+
     </ul>
     {rejected.length > 0 && <p className="background-muted">Rejected or duplicate deliveries: {String(rejected.length)}{rejected[0]?.rejectionReason ? ` (${rejected[0].rejectionReason})` : ''}</p>}
   </section>;
@@ -244,6 +250,8 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
 
 export function BackgroundWorkView(props: BackgroundWorkViewProps) {
   const { data, loading, error } = props;
+  const workEls = data?.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId && step.deliveryState === 'PENDING') ?? data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} />) ?? [];
+  const workGhosts = useRowGhosts(workEls, (el, end) => ({ leaving: true, onLeaveEnd: () => end(String(el.key)) }));
   return <div className="background-work">
     <header className="background-toolbar">
       <h2>Background work</h2>
@@ -260,7 +268,7 @@ export function BackgroundWorkView(props: BackgroundWorkViewProps) {
     {data && data.works.length === 0 && data.schedules.length === 0 && data.intake.records.length === 0 && <p className="background-empty">No background work yet. Owned jobs, schedules and external proposals appear here.</p>}
     {data && <div className="background-body">
       <section aria-label="Owned background work">
-        {data.works.map(work => <WorkCard key={work.workId} work={work} step={data.humanSteps.find(step => step.resumeBinding.workId === work.workId && step.deliveryState === 'PENDING') ?? data.humanSteps.find(step => step.resumeBinding.workId === work.workId)} props={props} />)}
+        {workEls}{workGhosts}
       </section>
       <section className="background-schedules" aria-label="Schedules">
         <h3>Schedules</h3>

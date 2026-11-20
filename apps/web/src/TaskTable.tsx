@@ -2,7 +2,7 @@ import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useStateStore, type ComponentRenderProps } from '@json-render/react';
 import { tableChangesData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
-import { animateTask, reducedMotion } from './task-motion';
+import { animateTask, reducedMotion, useRowGhosts } from './task-motion';
 import { useTableControls } from './TaskTableControls';
 import { tableCellText as cellText, tableIdentity, tableObject as object, tableText as text } from './task-table-model';
 import './task-table.css';
@@ -61,6 +61,11 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const previousValues = useRef(new Map<string, string>()), previousColumns = useRef(new Map<string, { x: number; width: number }>());
   const activeAnimations = useRef(new Map<HTMLElement, { animations: Animation[]; overlay?: HTMLElement }>());
   const columnAnimations = useRef<Animation[]>([]), sweepAnimation = useRef<Animation | undefined>(undefined);
+  const rowEls = renderedRows.map(({ id, change, cells, index }) => <tr key={id} data-row-id={id} data-change={change?.status} data-active={activeRow === id}>
+    {Boolean(props.stateKey) && <td className="task-table-select"><input aria-label={`Select row ${index + 1}`} type="checkbox" checked={selected.includes(id)} onChange={event => store.set(selectionPath, event.target.checked ? [...selected, id] : selected.filter(key => key !== id))} /></td>}
+    {cells}
+  </tr>);
+  const rowGhosts = useRowGhosts(rowEls);
   const columnKey = JSON.stringify(columns.map(column => column.key));
   const rowOrderKey = identity.rowOrderKey;
   const viewOrderKey = JSON.stringify(controls.view.map(row => identity.ids[row.index]));
@@ -197,12 +202,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
       <table data-numeric={columns.some(column => column.type === 'number') || undefined} style={columns.length ? { width: controls.widths.reduce((total, value) => total + value, Boolean(props.stateKey) ? 40 : 0) } : undefined}><caption className={artifactTitle === String(props.title ?? props.caption ?? '') ? 'sr-only' : undefined}>{String(props.title ?? props.caption ?? '')}</caption>
         {columns.length > 0 && <colgroup>{Boolean(props.stateKey) && <col style={{ width: 40 }} />}{columns.map((column, index) => <col key={column.key} style={{ width: controls.widths[index] }} />)}</colgroup>}
         <thead><tr>{Boolean(props.stateKey) && <th scope="col" className="task-table-select"><span className="sr-only">Selected</span></th>}{controls.headers}</tr></thead>
-        <tbody>{renderedRows.map(({ id, change, cells, index }) => {
-          return <tr key={id} data-row-id={id} data-change={change?.status} data-active={activeRow === id}>
-            {Boolean(props.stateKey) && <td className="task-table-select"><input aria-label={`Select row ${index + 1}`} type="checkbox" checked={selected.includes(id)} onChange={event => store.set(selectionPath, event.target.checked ? [...selected, id] : selected.filter(key => key !== id))} /></td>}
-            {cells}
-          </tr>;
-        })}</tbody>
+        <tbody>{rowEls}{rowGhosts}</tbody>
       </table>
       {controls.decorations}
       <i ref={sweep} className="task-table-sweep" aria-hidden="true" hidden={!activeRow} />

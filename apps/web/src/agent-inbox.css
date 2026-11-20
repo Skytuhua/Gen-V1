@@ -64,3 +64,15 @@
 @media(hover:hover){.agent-inbox .ui-list-row:has(>button.ui-list-row-main):hover:not([data-current=true]){background:var(--hover)}}
 @media(prefers-reduced-motion:reduce){.agent-inbox .ui-list-row{transition:none}}
 @container(max-width:420px){.agent-inbox .ui-toolbar{padding:8px 12px}.agent-inbox .inbox-search{padding-inline:12px}.agent-inbox .inbox-tasks-body{padding-inline:8px}.agent-inbox .inbox-board{padding:20px 16px}.agent-inbox .inbox-subject-title{font-size:20px}.agent-inbox .inbox-item-crumb{max-width:140px}}
+
+.agent-inbox .ui-list-row { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+.agent-inbox .ui-list-row:nth-child(2) { animation-delay:calc(1*var(--ui-motion-stagger)); }
+.agent-inbox .ui-list-row:nth-child(3) { animation-delay:calc(2*var(--ui-motion-stagger)); }
+.agent-inbox .ui-list-row:nth-child(4) { animation-delay:calc(3*var(--ui-motion-stagger)); }
+.agent-inbox .ui-list-row:nth-child(5) { animation-delay:calc(4*var(--ui-motion-stagger)); }
+.agent-inbox .ui-list-row:nth-child(n+6) { animation-delay:calc(5*var(--ui-motion-stagger)); }
+.agent-inbox .ui-list-row[data-leaving] { animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; animation-delay: 0s; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .agent-inbox .ui-list-row { animation-name: ui-popover-fade; animation-delay: 0s; animation-duration: var(--ui-motion-press); }
+  .agent-inbox .ui-list-row[data-leaving] { animation-name: ui-fade-out; }
+}

@@ -358,6 +358,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 /* Shared success pulse (spec G7/S3): one accent ring fade + scale pop per verified-success transition. */
 @keyframes ui-status-pulse { 0% { transform:scale(1); box-shadow:0 0 0 0 color-mix(in srgb,var(--accent) 45%,transparent); } 55% { transform:scale(1.05); } 100% { transform:scale(1); box-shadow:0 0 0 12px transparent; } }
 @keyframes ui-status-pulse-fade { from { opacity:.35; } }
+@keyframes ui-fade-out { to { opacity:0; } }
 :where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
 

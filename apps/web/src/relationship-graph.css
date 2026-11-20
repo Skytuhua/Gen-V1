@@ -119,3 +119,11 @@
 @keyframes graph-tip-in { from { transform:translateY(var(--graph-tip-offset)) scale(.95); } to { transform:none; } }
 @keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
 @media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }
+
+.task-node { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+li[data-leaving] > .task-node { animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+li[data-leaving] { pointer-events: none; }
+@media (prefers-reduced-motion: reduce) {
+  .task-node { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  li[data-leaving] > .task-node { animation-name: ui-fade-out; }
+}

@@ -1,4 +1,4 @@
-import { useLayoutEffect, useRef, type ReactNode, type RefObject } from 'react';
+import { cloneElement, useLayoutEffect, useRef, useState, type ReactElement, type ReactNode, type RefObject } from 'react';
 import { Markdown } from './Markdown';
 import './task-motion.css';
 import {createSpringValue} from './motion-spring';
@@ -37,6 +37,22 @@ export function animateTask(element: Element | null, frames: Keyframe[], duratio
   };
   animation.addEventListener('finish',cleanup);animation.addEventListener('cancel',cleanup);
   return animation;
+}
+
+/** Keep a removed row mounted with `data-leaving` until its exit animation
+ * ends, then drop it. `ghostProps` overrides the default host-element props
+ * when the row is a component that forwards `leaving`/`onLeaveEnd` instead. */
+export function useRowGhosts<T extends ReactElement>(elements: readonly T[], ghostProps?: (el: T, end: (id: string) => void) => object): ReactElement[] {
+  const cache = useRef(new Map<string, T>()), spent = useRef(new Set<string>());
+  const [leaving, setLeaving] = useState<ReadonlySet<string>>(() => new Set());
+  const end = useRef((id: string) => { spent.current.add(id); setLeaving(prev => { if (!prev.has(id)) return prev; const next = new Set(prev); next.delete(id); return next; }); });
+  const live = new Set<string>();
+  for (const el of elements) { const id = String(el.key); live.add(id); cache.current.set(id, el); spent.current.delete(id); }
+  useLayoutEffect(() => {
+    if (readMotionPolicy() === 'off') return;
+    for (const id of cache.current.keys()) if (!live.has(id) && !leaving.has(id) && !spent.current.has(id)) { setLeaving(prev => prev.has(id) ? prev : new Set(prev).add(id)); setTimeout(() => end.current(id), 500); }
+  });
+  return [...leaving].map(id => cache.current.get(id)).filter((el): el is T => Boolean(el) && !live.has(String(el!.key))).map(el => cloneElement(el as ReactElement<Record<string, unknown>>, { key: `ghost-${el.key}`, ...(ghostProps ? ghostProps(el, end.current) : { 'data-leaving': true, 'aria-hidden': true, onAnimationEnd: () => end.current(String(el.key)) }) }));
 }
 
 /** The host decides whether publication is new. Restoration and ordinary
