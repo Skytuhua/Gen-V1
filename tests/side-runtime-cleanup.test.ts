@@ -32,3 +32,20 @@ it.each([false,true])('waits for its sole unresolved factory and reports late cl
  try{await new Promise(done=>setTimeout(done,10));expect(completed).toBe(false);}finally{resolveFactory(adapter);await vi.waitFor(()=>expect(adapter.dispose).toHaveBeenCalledOnce());releaseCleanup();}
  const result=await closing;await starting;if(fails)expect(result).toMatchObject({errors:[failure]});else expect(result).toBeNull();
 });
+
+it('acknowledges normal side settlement even when native start is still resolving',async()=>{
+ let callbacks!:RuntimeCallbacks,release!:()=>void;
+ const gate=new Promise<void>(resolve=>{release=resolve;});
+ const adapter:RuntimeAdapter={configure:value=>{callbacks=value;},models:async()=>[],start:vi.fn(async()=>gate),followUp:async()=>{},cancel:vi.fn(async()=>{}),compact:async()=>{},history:async()=>[],dispose:vi.fn(async()=>{})};
+ const event=vi.fn(),side=new SideRuntime(()=>adapter,{onEvent:event,onTool:async()=>({})});
+ const input={threadId:'fast-side',runId:'run',epoch:1,modelId:'fixture/side',prompt:'Fixture',inputId:'input',sessionPath:null,resources:[]} satisfies StartRun;
+ const start=side.start(input);
+ try{
+  await vi.waitFor(()=>expect(adapter.start).toHaveBeenCalledOnce());
+  callbacks.onEvent({...input,type:'settled'});
+  await expect(start).resolves.toBeUndefined();
+  expect(event).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({type:'settled'}));
+  expect(adapter.cancel).not.toHaveBeenCalled();
+  expect(adapter.dispose).toHaveBeenCalledOnce();
+ }finally{release();await side.dispose();}
+});

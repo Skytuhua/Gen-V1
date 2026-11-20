@@ -121,3 +121,13 @@ it('keeps archived threads out of deep message search like every other thread re
  const found=await app.inject({url:'/api/threads/search?q=needle&threads=live,archived',headers});
  expect(found.statusCode).toBe(200);expect(found.json().threadIds).toEqual(['live']);
 });
+it('rejects a malformed message limit instead of returning a smaller page', async () => {
+ const {app,store}=await setup(),host='127.0.0.1:4317',boot=await app.inject({url:'/api/bootstrap',headers:{host}}),headers={host,cookie:String(boot.headers['set-cookie']).split(';')[0]};
+ store.internal('fixture.thread','paging',()=>store.put('thread','paging','paging',{id:'paging',kind:'chat',title:'Paging'}));
+ const endpoint='/api/threads/paging/messages';
+ for(const limit of ['2.5','2oops','2e1']){
+  const response=await app.inject({url:endpoint+'?limit='+limit,headers});
+  expect(response.statusCode).toBe(400);expect(response.json().error.code).toBe('INVALID_INPUT');
+ }
+ for(const suffix of ['', '?limit=02'])expect((await app.inject({url:endpoint+suffix,headers})).statusCode).toBe(200);
+});
