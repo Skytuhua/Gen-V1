@@ -64,6 +64,14 @@ describe('runCheck child-process contract',()=>{
     expect(result.exitCode).toBeNull();
   });
 
+  it('records a synchronous spawn rejection as a failed check and closes its log', async () => {
+    const directory = temporaryDirectory();
+    const spec = specFor(directory, {command: ''});
+    await expect(runCheck(spec)).resolves.toMatchObject({status: 'FAIL', errorKind: 'spawn-error', exitCode: null});
+    expect(readFileSync(spec.logPath, 'utf8')).toBe('');
+    await expect(runCheck(specFor(directory))).resolves.toMatchObject({status: 'PASS'});
+  });
+
   it('timeout yields FAIL without hanging and kills the child',async()=>{
     const directory=temporaryDirectory();
     const started=Date.now();
