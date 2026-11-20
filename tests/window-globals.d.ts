@@ -1,19 +1,8 @@
-
 // Ambient declarations for the probe globals the browser tests install on
 // `window` (widget-runtime harness, playback fixtures, instrumentation).
 // Ambient script file — `interface Window` merges with lib.dom.
-interface Window {	// Widget-runtime harness counters and state.
-	accepted?: string[];
-	actionOwner?: string;
-	actions?: string[];
-	commitC(): void;
-	completeCheckpoint(): void;
-	failCheckpoint(): void;
-	holdAction: boolean;
-	rejectLease(): void;
-	releaseAction(): void;
-	startB(): void;
-	switchBack(): void;
+interface Window {
+	// Widget-runtime harness counters and state.
 	runtimeCount: number;
 	runtimeArtifact: string;
 	runtimeReady: boolean;
@@ -69,6 +58,7 @@ interface Window {	// Widget-runtime harness counters and state.
 	updates: unknown;
 	saved: unknown;
 	store: { get(...args: string[]): unknown; getSnapshot(): unknown };
+
 	// Instrumentation and counters.
 	regionCloses: number;
 	documentClosed: number;
@@ -91,12 +81,14 @@ interface Window {	// Widget-runtime harness counters and state.
 	compositionKeys: { isTrusted?: boolean; key?: string; isComposing?: boolean; keyCode?: number }[];
 	__readyOwners: unknown[];
 	fixtureJournal: { reads: number; rejects: number; resolves: number };
+
 	// Personal-visuals harness.
 	__PV_READY: unknown;
 	__PV_PRESENTATION: unknown;
 	__PV_REGISTRATION: { manifest: { workspaces: unknown } };
 	__PV_STATE: { attempts: { requestId?: string }[]; calls: unknown[]; document?: { title?: string }; draft?: unknown; receipts?: Record<string, unknown>; revision?: unknown };
 	__PV_FLUSH(): void;
+
 	// Plugin-frame custody probes.
 	__hide(): void;
 	__reveal(): void;
@@ -112,6 +104,7 @@ interface Window {	// Widget-runtime harness counters and state.
 		pluginRequest(method: string, payload?: unknown): Promise<{ private?: unknown }>;
 	};
 	GenPluginUI: { pluginFlush(): Promise<unknown> };
+
 	// Editor and misc.
 	retainedEditor: Element;
 	__originalFrame: Element;
@@ -121,9 +114,4 @@ interface Window {	// Widget-runtime harness counters and state.
 	setToolsExpandRequest(value: number): void;
 	widgetHtmlOverride?: string;
 	visualReady: boolean;
-	// Widget-runtime harness counters and state.
-	// Instrumentation and counters.
-	// Personal-visuals harness.
-	// Plugin-frame custody probes.
-	// Editor and misc.
 }
