@@ -9,6 +9,6 @@ export const IMAGE_COMPARE_EXAMPLES = {
   ImageCompare: { beforeResourceId: 'before-image', afterResourceId: 'after-image', stateKey: 'imageComparison', beforeLabel: 'Before', afterLabel: 'After' },
 };
 export const IMAGE_COMPARE_DESCRIPTIONS = {
-  ImageCompare: 'Compare two granted source images with immediate pointer/keyboard reveal and an optional side-by-side view. stateKey saves {percent:0..100,mode:"overlay"|"split"}; defaults to 50% overlay. Use the same stateKey through revisions. Both resource IDs must belong to this thread; URLs are not allowed. This is a visual comparison only and never rewrites either image.',
+  ImageCompare: 'Compare two granted source images with immediate pointer/keyboard reveal and an optional side-by-side view. stateKey saves {percent:0..100,mode:"overlay"|"split",pairKey?:sha256hex}; pairKey binds the record to the granted pair (digest of [id,threadId,path,identity] tuples; no raw path, no media access); a missing or mismatched pairKey falls back to 50% overlay. Use the same stateKey through revisions. Both resource IDs must belong to this thread; URLs are not allowed. This is a visual comparison only and never rewrites either image.',
 };
 export type ImageCompareProps = z.infer<typeof IMAGE_COMPARE_SCHEMAS.ImageCompare>;

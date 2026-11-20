@@ -3,7 +3,8 @@
 .image-compare-modes { display:flex; width:fit-content; gap:2px; padding:3px; margin:0 0 10px; border-radius:8px; background:var(--subtle); }
 .image-compare-modes button { min-height:30px; padding:5px 11px; border:0; border-radius:5px; color:var(--muted); background:transparent; font-size:12px; }
 .image-compare-modes button[aria-pressed="true"] { color:var(--text); background:var(--surface); box-shadow:0 1px 3px -1px #10101535; }
-.image-compare-stage { position:relative; width:100%; min-height:200px; aspect-ratio:1.6; max-height:540px; overflow:hidden; isolation:isolate; border-radius:9px; background:var(--subtle); contain:layout paint; --image-compare-width:100%; --image-compare-after-left:0%; --image-compare-clip:50%; --image-compare-divider-opacity:1; }
+.image-compare-stage { position:relative; width:100%; min-height:200px; overflow:hidden; isolation:isolate; border-radius:9px; background:var(--subtle); contain:layout paint; --image-compare-width:100%; --image-compare-after-left:0%; --image-compare-clip:50%; --image-compare-divider-opacity:1; }
+.image-compare-stage[data-ready="true"] { min-height:0; }
 .image-compare-stage[data-ready="true"][data-mode="overlay"] { cursor:ew-resize; touch-action:pan-y; }
 .image-compare-images { position:absolute; inset:0; user-select:none; }
 .image-compare-before,.image-compare-after { position:absolute; top:0; bottom:0; width:var(--image-compare-width); overflow:hidden; background:var(--subtle); }
@@ -25,4 +26,4 @@
 .image-compare-message button { padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); }
 .image-compare-size-note { margin:2px 0 0; color:var(--muted); font-size:11px; }
 .image-compare :is(button,input):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
-@media(max-width:520px) { .image-compare-modes { max-width:100%; } .image-compare-modes button { padding-inline:8px; font-size:11px; white-space:nowrap; } .image-compare-stage { min-height:200px; } .image-compare-label { top:8px; max-width:calc(50% - 17px); font-size:10px; } .image-compare-label-before { left:8px; } .image-compare-label-after { right:8px; } }
+@media(max-width:520px) { .image-compare-modes { max-width:100%; } .image-compare-modes button { padding-inline:8px; font-size:11px; white-space:nowrap; } .image-compare-label { top:8px; max-width:calc(50% - 17px); font-size:10px; } .image-compare-label-before { left:8px; } .image-compare-label-after { right:8px; } }
