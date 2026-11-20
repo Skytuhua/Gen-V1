@@ -25,12 +25,16 @@ async function readSessionHeader(path: string): Promise<string> {
   const file = await open(path, "r");
   try {
     const header = Buffer.alloc(SESSION_HEADER_BYTES + 1);
+    const decode = (end: number) => {
+      try { return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(header.subarray(0, end)); }
+      catch { throw invalidHeader(); }
+    };
     let length = 0;
     while (length < header.length) {
       const {bytesRead} = await file.read(header, length, Math.min(4096, header.length - length), length);
-      if (!bytesRead) return header.toString("utf8", 0, length);
+      if (!bytesRead) return decode(length);
       const newline = header.subarray(length, length + bytesRead).indexOf(10);
-      if (newline !== -1) return header.toString("utf8", 0, length + newline);
+      if (newline !== -1) return decode(length + newline);
       length += bytesRead;
     }
     throw invalidHeader();

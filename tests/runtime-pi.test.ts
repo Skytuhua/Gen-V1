@@ -655,3 +655,17 @@ it.each(["throw", "callback"] as const)("clears the Pi acknowledgment timer when
     await expect(runtime.followUp({...input, inputId: "send-retry"})).resolves.toBeUndefined();
   } finally { vi.useRealTimers(); await runtime.dispose(); }
 });
+
+it("rejects a malformed UTF-8 Pi header instead of substituting characters", async () => {
+  const fileSystem = await import("node:fs/promises");
+  const root = await fileSystem.mkdtemp(join(tmpdir(), "pi-invalid-utf8-"));
+  try {
+    const { sessionsDir } = taskPaths(root, "thread");
+    await fileSystem.mkdir(sessionsDir, { recursive: true });
+    const path = join(sessionsDir, "session.jsonl");
+    await fileSystem.writeFile(path, Buffer.concat([
+      Buffer.from('{"type":"session","id":"'), Buffer.from([0xc2]), Buffer.from('","version":3}\n'),
+    ]));
+    await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({ code: "PI_SESSION_INVALID" });
+  } finally { await fileSystem.rm(root, { recursive: true, force: true }); }
+});
