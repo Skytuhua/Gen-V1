@@ -184,10 +184,25 @@ test('unrelated committed events and snapshot acknowledgements preserve source g
   const eventWork = await page.evaluate(() => ({ ...(window as unknown as BrowserProbe).work }));
   // A same-value settings command produces a real HTTP acknowledgement and SSE snapshot.
   const expectedAckSequence = host.snapshot().seq + 1;
-  const acknowledgedSnapshot = page.waitForResponse(async response => response.url().endsWith('/api/snapshot') && response.status() === 200 && (await response.json()).seq >= expectedAckSequence);
+  // Snapshot refetches are frequent here, and a body read inside a waitForResponse predicate can
+  // race the download, so collect every /api/snapshot response continuously and read them as they land.
+  const acknowledgedSnapshot = new Promise<{ seq?: number }>((resolvePromise, rejectPromise) => {
+    const timer = setTimeout(() => rejectPromise(new Error(`No acknowledged snapshot with seq >= ${expectedAckSequence} within 30s`)), 30000);
+    const onResponse = (response: import('@playwright/test').Response) => {
+      if (!response.url().endsWith('/api/snapshot') || response.status() !== 200) return;
+      void response.json().then(body => {
+        if (body && typeof (body as { seq?: number }).seq === 'number' && (body as { seq: number }).seq >= expectedAckSequence) {
+          clearTimeout(timer);
+          page.off('response', onResponse);
+          resolvePromise(body as { seq: number });
+        }
+      }, () => undefined);
+    };
+    page.on('response', onResponse);
+  });
   const receipt = await browserCommand(page, 'settings.update', { theme: host.snapshot().settings.theme });
   expect(receipt.status).toBe(200);
-  const appliedAckSequence = (await (await acknowledgedSnapshot).json()).seq as number;
+  const appliedAckSequence = (await acknowledgedSnapshot).seq as number;
   expect(appliedAckSequence).toBeGreaterThanOrEqual((receipt.body as { eventSeq: number }).eventSeq);
   await settle(page);
   const totalWork = await page.evaluate(() => ({ ...(window as unknown as BrowserProbe).work }));
