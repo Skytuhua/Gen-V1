@@ -220,9 +220,10 @@ export class SessionBranchReadModels {
     return payload + '.' + createHmac('sha256', this.secret).update(payload).digest('base64url');
   }
   private decode(token: string, identity: string): number {
-    const parts = token.split('.');
-    if (parts.length !== 3) throw invalidCursor();
-    const [position, id, signature] = parts;
+    // Imported identities preserve the source ID, which can contain periods.
+    const first = token.indexOf('.'), last = token.lastIndexOf('.');
+    if (first < 1 || first === last) throw invalidCursor();
+    const position = token.slice(0, first), id = token.slice(first + 1, last), signature = token.slice(last + 1);
     if (id !== identity || !/^\d+$/.test(position ?? '')) throw invalidCursor();
     const supplied = Buffer.from(signature ?? '', 'base64url');
     const expected = createHmac('sha256', this.secret).update(`${position}.${id}`).digest();
