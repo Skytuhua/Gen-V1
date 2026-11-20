@@ -3248,6 +3248,7 @@
     "tests/execution-boundary-v3.test.ts",
     "tests/expanded-review-fixtures.test.ts",
     "tests/exploration-catalog.test.ts",
+    "tests/export-research-evidence.test.ts",
     "tests/external-intake-v3.test.ts",
     "tests/file-access-startup.test.ts",
     "tests/file-checkpoints.test.ts",
