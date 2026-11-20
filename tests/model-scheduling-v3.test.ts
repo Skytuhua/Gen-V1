@@ -166,3 +166,17 @@ it('measures production queue time independently of wall-clock adjustments',asyn
   expect(request.queuedMs).toBe(37);
  }finally{wall.mockRestore();monotonic.mockRestore();}
 });
+
+
+it('attempts every idle transport close before reporting a pool shutdown failure',async()=>{
+ const pool=new StatelessTransportPool(),failure=new Error('Synthetic failed close');
+ const a={...transport(),close:vi.fn(async()=>{throw failure;})},b=transport();
+ pool.offer(key(),a);pool.offer(key({accountId:'different'}),b);
+ try{
+  const result=await pool.close().catch(error=>error);
+  expect(b.closed).toBe(true);
+  expect(a.close).toHaveBeenCalledOnce();
+  expect(result).toMatchObject({errors:[failure]});
+  await expect(pool.take(key({accountId:'different'}))).resolves.toBeNull();
+ }finally{await pool.close();}
+});

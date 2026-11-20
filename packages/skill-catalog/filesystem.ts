@@ -35,7 +35,7 @@ export function parseSkillMetadata(document:string):{name:string;description:str
  for(let i=1;i<end;i++){
   const match=/^(name|description):\s*(.*)$/.exec(lines[i]);if(!match)continue;
   const [,key,raw]=match;if(values.has(key))throw invalid();let value=raw;
-  if(/^[|>][+-]?$/.test(raw.trim())||!raw.trim()){
+  if(/^[|>][+-]?(?:[ \t]+#.*)?$/.test(raw.trim())||!raw.trim()){
    const chunks:string[]=[];while(i+1<end&&(/^[ \t]+\S/.test(lines[i+1])||!lines[i+1].trim()))chunks.push(lines[++i].trim());
    if(raw.trim()&&!chunks.length)throw invalid();value=chunks.join(' ');
   }else {
