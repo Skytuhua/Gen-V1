@@ -348,3 +348,10 @@ describe("M10-S10 approved external tasks use the manual task gates", () => {
     expect(store.all("approval")).toHaveLength(0);
   });
 });
+
+it("keeps valid intake records when the upstream list also contains a null item", async () => {
+  const f = fixture({fetchImpl: async () => jsonResponse([null, issue()])});
+  await expect(f.intake.pollOnce()).resolves.toMatchObject({status:"OK",proposals:1,rejected:1});
+  expect(f.intake.records().map(r=>r.eventId)).toEqual(["I_issue1"]);
+  expect(f.executorCalls).toHaveLength(0);
+});

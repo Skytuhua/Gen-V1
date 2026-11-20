@@ -164,6 +164,13 @@ describe('regression test selection', () => {
     expect(result.coverage).toBe('PARTIAL');
   });
 
+  it('does not mistake changed production files with a test suffix for indexed tests', () => {
+    const path = 'packages/core/example.test.ts';
+    const result = select([{ path, status: 'M' }]);
+    expect(result).toMatchObject({ coverage: 'FULL', needsReview: true });
+    expect(result.issues).toEqual([expect.objectContaining({ path, code: 'UNMAPPED_SOURCE' })]);
+  });
+
   it('indexes files, not folders whose names end with a test suffix', () => {
     const root = mkdtempSync(join(tmpdir(), 'gen-regression-discovery-'));
     try {

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import * as fs from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { PassThrough, Writable } from 'node:stream';
@@ -10,6 +11,10 @@ import { createOfficialRuntime, officialRuntimeHome } from '../packages/runtime-
 import { encodeInput } from '../packages/runtime-pi/input-envelope.ts';
 import { openManifest, saveManifest } from '../packages/runtime-official/manifest.ts';
 import { readGeminiNativeHistory } from '../packages/runtime-official/gemini-native-history.ts';
+import { geminiHistory } from '../packages/runtime-official/gemini.ts';
+
+vi.mock('node:fs/promises', async importOriginal => ({...await importOriginal<typeof import('node:fs/promises')>()}));
+
 
 const input = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'r-new', epoch: 2, modelId: 'gemini-cli/model-from-runtime', inputId: 'input-new', prompt: 'Read no ambient @C:/private/file.txt', resources: [], sessionPath: null, ...extra });
 async function fixture() {
@@ -31,11 +36,39 @@ async function fixture() {
 }
 
 describe('Gemini official headless native continuation', () => {
+  it('reconciles receipts from the same native transcript read that established session identity', async () => {
+    const {dataDir, manifest, nativeFile, header} = await fixture();
+    const transcriptPath = await fs.realpath(nativeFile);
+    const original = fs.readFile;
+    let transcriptReads = 0;
+    const read = vi.spyOn(fs, 'readFile').mockImplementation(((...args: Parameters<typeof fs.readFile>) => {
+      if (args[0] === transcriptPath && ++transcriptReads > 1) return Promise.resolve(JSON.stringify(header) + '\n');
+      return original(...args);
+    }) as typeof fs.readFile);
+    const spawn = vi.fn(() => { throw new Error('Native transcript must not require ACP replay.'); });
+    try {
+      await expect(geminiHistory(dataDir, manifest, spawn)).resolves.toEqual([{uuid: 'old-client-uuid', inputIds: ['old-input']}]);
+      expect(transcriptReads).toBe(1);
+      read.mockRestore();
+      await writeFile(nativeFile, JSON.stringify(header) + '\n');
+      await expect(geminiHistory(dataDir, manifest, spawn)).resolves.toEqual([]);
+      expect(spawn).not.toHaveBeenCalled();
+    } finally { read.mockRestore(); await rm(dataDir, {recursive: true, force: true}); }
+  });
+
   it('reconciles bounded native JSONL only after exact project and session identity checks', async () => {
     const { dataDir, manifest, nativeFile, header } = await fixture();
     expect(await readGeminiNativeHistory(dataDir, manifest)).toEqual([{ uuid: 'old-client-uuid', inputIds: ['old-input'] }]);
     await writeFile(nativeFile, JSON.stringify({ ...header, projectHash: 'foreign-project' }) + '\n' + JSON.stringify({ type: 'user', content: encodeInput(input({ runId: 'r-old', epoch: 1, inputId: 'old-input' })) }));
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
+  });
+
+  it('keeps history unresolved when a registered project has no chats directory', async () => {
+    const { dataDir, manifest, nativeFile } = await fixture();
+    try {
+      await rm(dirname(nativeFile), { recursive: true });
+      await expect(readGeminiNativeHistory(dataDir, manifest)).resolves.toBeNull();
+    } finally { await rm(dataDir, { recursive: true, force: true }); }
   });
 
   it('classifies a damaged native history header instead of throwing a raw parsing exception', async () => {
@@ -44,7 +77,7 @@ describe('Gemini official headless native continuation', () => {
     await expect(readGeminiNativeHistory(dataDir, manifest)).rejects.toMatchObject({ code: 'OFFICIAL_SESSION_MISMATCH' });
   });
 
-  it.each(['before-exit','after-exit'])('runs native resume and accepts current-turn stdout arriving %s', async phase => {
+  it.each(['before-exit','after-exit','during-cancel','cancel-timeout','without-final-newline','malformed-clean-close','malformed-failed-close'])('handles native resume stream lifecycle %s', async phase => {
     const { dataDir, manifest } = await fixture();
     const children: any[] = []; const calls: any[] = []; const inputs: string[] = [];
     const spawn = vi.fn((file: string, args: string[], settings: any) => {
@@ -80,10 +113,62 @@ describe('Gemini official headless native continuation', () => {
     expect(inputs[0]).not.toContain('@'); expect(inputs[0]).toContain('\\u0040');
     expect(events.some(event => event.type === 'input.processing')).toBe(false);
     const child = children[1];
+    if (phase === 'cancel-timeout') {
+      child.kill = vi.fn(() => true);
+      const authorityListeners = child.listenerCount('exit');
+      try {
+        await runtime.cancel(input());
+        expect(child.kill).toHaveBeenCalledWith('SIGINT');
+        expect(child.listenerCount('exit')).toBe(authorityListeners);
+        expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      } finally {
+        child.exitCode = 0;
+        child.emit('exit', 0, null);
+        child.stdout.end();
+        child.emit('close', 0, null);
+        await runtime.dispose();
+      }
+      return;
+    }
+    if (phase === 'during-cancel') {
+      // The fixture delivers exit synchronously from kill, as with an already
+      // completed child. A listener attached afterwards cannot observe it.
+      child.kill = vi.fn(() => {
+        child.exitCode = 0;
+        child.emit('exit', 0, null);
+        child.stdout.end();
+        child.emit('close', 0, null);
+        return true;
+      });
+      try {
+        await runtime.cancel(input());
+        expect(child.kill).toHaveBeenCalledWith('SIGINT');
+        expect(child.listenerCount('exit')).toBe(0);
+        expect(events.filter(event => event.type === 'settled')).toEqual([expect.objectContaining({aborted: true})]);
+      } finally { await runtime.dispose(); }
+      return;
+    }
     if(phase==='after-exit'){child.exitCode=0;child.emit('exit',0,null);await new Promise(done=>setImmediate(done));}
+    if (phase === 'malformed-clean-close' || phase === 'malformed-failed-close') {
+      try {
+        child.stdout.write('{"type":"result"');
+        const exit = phase === 'malformed-clean-close' ? 0 : 2;
+        child.exitCode = exit;
+        child.emit('exit', exit, null);
+        child.stdout.end();
+        child.emit('close', exit, null);
+        await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
+        const error = events.find(event => event.type === 'error');
+        if (exit === 0) expect(error?.message).toMatch(/JSON|Unexpected/i);
+        else expect(error?.message).toContain('did not confirm a successful terminal turn');
+        expect(events.some(event => event.type === 'assistant.message' || event.type === 'input.processing' || event.type === 'usage')).toBe(false);
+      } finally { await runtime.dispose(); }
+      return;
+    }
     child.emitFrame({ type: 'message', role: 'assistant', content: 'current response', delta: true });
-    child.emitFrame({ type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } });
-    if(phase==='before-exit'){child.exitCode = 0; child.emit('exit', 0, null);}
+    const terminal = { type: 'result', status: 'success', stats: { input_tokens: 4, output_tokens: 2 } };
+    if (phase === 'without-final-newline') child.stdout.write(JSON.stringify(terminal)); else child.emitFrame(terminal);
+    if(phase==='before-exit'||phase==='without-final-newline'){child.exitCode = 0; child.emit('exit', 0, null);}
     child.stdout.end();child.emit('close',0,null);
     await vi.waitFor(() => expect(events.some(event => event.type === 'settled')).toBe(true));
     expect(events.find(event => event.type === 'assistant.message')).toMatchObject({ content: 'current response', inputIds: ['input-new'] });

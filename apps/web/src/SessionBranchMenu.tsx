@@ -39,16 +39,17 @@ function HistoricalMessage({ role, text, note }: { role: string; text: string; n
 }
 
 /** Read-only frozen capture view. No replay, restore or approval actions. */
-function CaptureViewer({ captureId, onClose }: { captureId: string; onClose: () => void }) {
+export function CaptureViewer({ captureId, onClose }: { captureId: string; onClose: () => void }) {
   const [page, setPage] = useState<CapturePage | null>(null), [error, setError] = useState<string | null>(null), [older, setOlder] = useState<readonly CapturePage['messages'][number][]>([]);
   useEffect(() => { getCaptureMessages(captureId).then(setPage).catch(cause => setError(messageOf(cause))); }, [captureId]);
   const loadOlder = () => { if (page?.nextCursor) void getCaptureMessages(captureId, page.nextCursor).then(next => { setOlder(value => [...next.messages, ...value]); setPage({ ...next, messages: page.messages, nextCursor: next.nextCursor }); }).catch(cause => setError(messageOf(cause))); };
+  const newestExceedsBudget = !!page && !older.length && !page.messages.length && page.truncated > 0;
   return <Modal open title="Inspect point — fixed history cut" onClose={onClose} className="dialog session-branch-dialog">
     {error && <p role="alert" className="error-text">{error}</p>}
     {page && <>
-      <p className="muted">Captured from <strong>{page.sourceThreadId.slice(0, 8)}</strong> at event {page.sourceCut.sequence} · {page.sourceCut.messageCount} message(s){page.coverage === 'TRUNCATED' ? ` · ${page.truncated} earlier message(s) not captured` : ''}.</p>
+      <p className="muted">Captured from <strong>{page.sourceThreadId.slice(0, 8)}</strong> at event {page.sourceCut.sequence} · {page.sourceCut.messageCount} message(s){page.coverage === 'TRUNCATED' ? newestExceedsBudget ? ` · ${page.truncated} message(s) not captured` : ` · ${page.truncated} earlier message(s) not captured` : ''}.</p>
       <p className="muted">This is a frozen view — new activity never changes it, and historical tool effects cannot be replayed. It is a host transcript copy, not a native engine checkpoint. File restore is a separate approved action.</p>
-      {page.incompleteSource.includes('TRUNCATED_HISTORY') && <p className="notice" role="status">Incomplete coverage: the oldest messages were outside the capture bound.</p>}
+      {page.incompleteSource.includes('TRUNCATED_HISTORY') && <p className="notice" role="status">{newestExceedsBudget ? 'Incomplete coverage: the newest message exceeded the Inspect content budget.' : 'Incomplete coverage: the oldest messages were outside the capture bound.'}</p>}
       {page.incompleteSource.includes('ATTACHMENTS_NOT_CAPTURED') && <p className="muted">Archived or missing attachment content is not part of this view.</p>}
       <div className="session-branch-transcript">
         {page.nextCursor && <button type="button" className="ui-action-trigger" onClick={loadOlder}>Load earlier captured messages</button>}

@@ -5,7 +5,7 @@
 .summary-layout>.workspace { min-width:0; min-height:0; }
 .summary-layout>.workspace>.workspace-header { width:100%; padding-inline:20px; }
 .summary-dock { display:flex; flex-direction:column; gap:12px; min-width:0; min-height:0; padding:12px 8px 12px 0; overflow:auto; }
-.docked-summary { display:flex; flex-direction:column; flex:0 1 auto; min-width:0; min-height:38px; max-height:100%; overflow:hidden; border:1px solid var(--border); border-radius:12px; background:var(--surface); }
+.docked-summary { display:flex; flex-direction:column; flex:0 1 auto; min-width:0; min-height:38px; max-height:100%; overflow:hidden; border:1px solid var(--control-border); border-radius:12px; background:var(--surface); }
 .docked-summary[data-collapsed=true] { flex-shrink:0; }
 .docked-summary[hidden],.docked-summary-content[hidden] { display:none; }
 .docked-summary-header { flex:none; min-width:0; }

@@ -67,7 +67,7 @@ Only the OpenAI route has recorded live task acceptance. Other routes still need
 - Use the composer’s project control to select a local project, and the model picker to choose a model and its available reasoning effort.
 - Interactive task cards appear in the conversation. Their controls depend on the task; review consequential actions before accepting them.
 - A validated task plan opens automatically. Project context and usage tools minimize within the workspace.
-- Open **Settings → Skills & learning** to inspect saved procedures and revisions.
+- Open **Settings → Skills & Integrations → Skills & learning** to inspect saved procedures and revisions.
 - In the current Windows desktop source, open a conversation’s sidebar menu and choose **Detach thread** to open it in a pinned window. The main workspace stays available for other conversations. Canvas panels do not detach.
 - Use `/btw` or `/side` for side conversations.
 

@@ -55,3 +55,14 @@ it('retains revision identity across forgetting and recreating a note key', asyn
   await expect(x.command('memory.save', { key: 'decision', content: 'Stale editor overwrites', baseRevision: 1 }, x.threadId)).rejects.toMatchObject({ code: 'STALE_MEMORY' });
   expect(x.store.snapshot().memory?.[0].content).toBe('A new decision');
 });
+
+it('counts the normalized note against the total serialized memory budget', async () => {
+  const x = await fixture();
+  for (let i = 0; i < 5; i++) {
+    await x.command('memory.save', { key: 'existing-' + i, content: 'a'.repeat(750), baseRevision: 0 }, x.threadId);
+  }
+  const result = await x.command('memory.save', { key: 'last', content: ' '.repeat(540) + 'short note', baseRevision: 0 }, x.threadId);
+  expect(result.result).toMatchObject({ key: 'last', content: 'short note' });
+  await expect(x.command('memory.save', { key: 'overflow', content: 'x'.repeat(250), baseRevision: 0 }, x.threadId))
+    .rejects.toMatchObject({ code: 'MEMORY_FULL' });
+});

@@ -291,3 +291,43 @@ describe("M10-D05 polling intake", () => {
     expect(f.store.all("approval")).toHaveLength(0);
   });
 });
+
+it("reclaims an expired undelivered interval without taking over a newer active firing", async () => {
+  const f = storeFixture("m10-expired-interval-");
+  const anchor = f.now(), interval = 60_000;
+  let finish!: () => void;
+  const pending = new Promise<void>(resolve => { finish = resolve; });
+  const deliveries: string[] = [];
+  const scheduler = new DurableWakeupScheduler({store: f.store, now: f.now, deliver: async ({occurrence}) => {
+    deliveries.push(occurrence.occurrenceKey);
+    await pending;
+    return {status: "DELIVERED"};
+  }});
+  cleanups.push(async () => { finish(); await scheduler.drain(); });
+  const wakeup = scheduler.register(command("background.wakeup.register"), {taskId: "task-reclaim", trigger: {kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: interval}});
+  const olderKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor);
+  const newerKey = occurrenceKeyForTime(wakeup.wakeupId, 1, anchor + interval);
+  const stamp = new Date(anchor).toISOString();
+  // Persist the interrupted state between claim and dispatch.
+  f.store.internal("fixture.claim-interrupted", null, () => {
+    f.store.put("backgroundOccurrence", olderKey, null, {
+      occurrenceKey: olderKey, wakeupId: wakeup.wakeupId, scheduleRevision: 1, state: "CLAIMED", dispatch: "NOT_DISPATCHED",
+      admissionId: null, scheduledDueAtMs: anchor, hostEventId: null, claimGeneration: 1, leaseExpiresAtMs: anchor + 1,
+      createdAt: stamp, updatedAt: stamp,
+    } satisfies BackgroundOccurrenceV1);
+    f.store.put("backgroundWakeup", wakeup.wakeupId, null, {...wakeup, state: "CLAIMED", occurrenceKey: olderKey,
+      nextDueAtMs: anchor + interval, lastProcessedDueAtMs: anchor, leaseExpiresAtMs: anchor + 1, claimGeneration: 1});
+  });
+  f.advance(interval);
+  await scheduler.tick();
+  expect(deliveries).toEqual([newerKey, olderKey]);
+  expect(f.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", olderKey)?.claimGeneration).toBe(2);
+  expect(scheduler.schedules()[0]).toMatchObject({
+    occurrenceKey: newerKey, nextDueAtMs: anchor + 2 * interval, lastProcessedDueAtMs: anchor + interval, claimGeneration: 2,
+  });
+  finish();
+  await vi.waitFor(() => {
+    expect(scheduler.schedules()[0]).toMatchObject({state: "PENDING", nextDueAtMs: anchor + 2 * interval});
+    for (const key of [olderKey, newerKey]) expect(f.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key)?.state).toBe("DELIVERED");
+  });
+});

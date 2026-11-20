@@ -2,6 +2,7 @@ import type {FastifyInstance} from 'fastify';
 import {z} from 'zod';
 import {HarnessError, type DataRecord, type Thread} from '../../packages/contracts/index.ts';
 import type {AgentWorkRole, AgentWorkV1} from '../../packages/contracts/agent-work.ts';
+import {PLANNING_PROVENANCE} from '../../packages/contracts/planning.ts';
 import type {Service} from '../../packages/core/service.ts';
 
 const id = z.string().min(1).max(200).regex(/^[\w:.-]+$/);
@@ -89,7 +90,9 @@ export function registerAgentWorkRoutes(app: FastifyInstance, service: Service) 
     const extension = service.planExtensions.get(planId);
     if (!extension) return {extension: false, planId};
     const record = store.get<DataRecord>('data', planId);
-    const body = (record?.value ?? {}) as {steps?: {id: string; status: string}[]; agents?: {id: string; status: string}[]};
+    if (!record || record.provenance !== PLANNING_PROVENANCE || record.revision !== extension.canonicalRevision)
+      return {extension: false, planId};
+    const body = (record.value ?? {}) as {steps?: {id: string; status: string}[]; agents?: {id: string; status: string}[]};
     const statuses = Object.fromEntries([...(body.steps ?? []), ...(body.agents ?? [])]
       .map(node => [node.id, node.status === 'completed' ? 'completed' : node.status === 'unknown' ? 'unknown' : 'pending'] as const));
     return {extension: true, planId, weights: extension.weights, parentRelationships: extension.parentRelationships,

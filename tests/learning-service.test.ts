@@ -116,3 +116,11 @@ it('reports blocked ownership when review cleanup cannot be confirmed',async()=>
  expect(x.service.learning.busy).toBe(true);expect(x.store.snapshot().learning).toMatchObject({status:'blocked',lastReview:{cleanupConfirmed:false}});
  await expect(x.send('message.send',{content:'Continue',modelId:run.modelId},run.threadId)).rejects.toMatchObject({code:'LEARNING_CLEANUP_FAILED'});
 });
+
+it('centers session recall on a padded query in a long result',async()=>{
+ const x=await fixture(),first=await x.start(),term='packaging receipt';
+ x.settle(first,`Build overview. ${'Unrelated preamble. '.repeat(80)}(${term}) confirms the release.`);
+ const second=await x.start();
+ const recall=await x.service.tool({name:'session_search',args:{query:` \t${term} \n`,limit:2}},second);
+ expect(recall).toMatchObject({matches:[{threadId:first.threadId,content:expect.stringContaining(term)}]});
+});
