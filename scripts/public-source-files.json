@@ -3401,6 +3401,7 @@
     "tests/redundant-ui.test.ts",
     "tests/remote-transport-v3.test.ts",
     "tests/rename-recovery-v3.test.ts",
+    "tests/repo-map.test.ts",
     "tests/repository-map-custody.test.ts",
     "tests/repository-map-host.test.ts",
     "tests/repository-map-packaging.test.ts",
