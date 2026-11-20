@@ -431,6 +431,39 @@
       "reason": "TOOLS: migrate expanded artifact to shared Modal, retaining artifact identity.",
       "evidence": "<section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'ar",
       "disposition": "staged-migration"
+    },
+    {
+      "file": "apps/web/src/shell.css",
+      "line": 225,
+      "column": 395,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "d7704a132f96e85ce0311a1bf5dc1c5c42c6984e359a41de61f9dfd863cfe653",
+      "reason": "Existing narrow-viewport right-panel drawer made explicit: bounded width and drawer-layer z-index added to the pre-existing position:fixed override; still reuses the documented drawer pattern, not a new overlay system.",
+      "evidence": ".workspace-right { position:fixed; right:0; top:0; bottom:0; width:min(320px,88vw); flex-basis:auto; z-index:var(--ui-layer-drawer); transform:translateX(0); box-shadow:var(--elevation); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/shell.css",
+      "line": 225,
+      "column": 584,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "b069ec28acf5ff481dddfa161b5fb78a0c675f8218eea608177d4169d36db74a",
+      "reason": "Stacked-layout variant of the same narrow-viewport drawer: overrides the docked-tools in-flow positioning with the documented fixed drawer pattern so the panel clears the container's stacking context alongside its scrim.",
+      "evidence": ".app-shell .shell-workarea[data-tool-layout]>.workspace-tools>.workspace-right { position:fixed; top:0; right:0; bottom:0; left:auto; width:min(320px,88vw); max-width:none; flex:none; z-index:var(--ui-layer-drawer); box-shadow:var(--elevation); }",
+      "disposition": "retained-geometry"
+    },
+    {
+      "file": "apps/web/src/shell.css",
+      "line": 225,
+      "column": 584,
+      "rule": "ad-hoc-overlay",
+      "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
+      "fingerprint": "81083cd09179cca32337f0c644f5d6546e39a17e71be229f5055ef760a0889d2",
+      "reason": "Drawer scrim reuses the documented sidebar-scrim pattern (fixed inset, #0006, scrim layer) for the narrow-viewport right-panel overlay; light dismissal required by the container-consistency plan.",
+      "evidence": ".workspace-panel-scrim { display:block; position:fixed; inset:0; z-index:var(--ui-layer-scrim); background:#0006; border:0; padding:0; }",
+      "disposition": "retained-geometry"
     }
   ]
 }

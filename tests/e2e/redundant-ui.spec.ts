@@ -43,9 +43,10 @@ async function ownerApp(page:Page,mode:'chat'|'split'|'desktop'|'loading'='chat'
  });
  await page.goto('/actual-app');
  if(mode==='loading')await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeDisabled();else await expect(page.getByRole('button',{name:'Inspect changes',exact:true})).toBeEnabled();
- const overview=page.locator('.summary-overview:visible').first();
- await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();
- await expect(overview.locator('.project-context-card')).toContainText('Audit project');
+ if(await page.locator('.workspace-right').count()===0)await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ if(await page.getByRole('tab',{name:'Project',exact:true}).count()===0){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();}
+ await page.getByRole('tab',{name:'Overview',exact:true}).click();const overview=page.locator('.project-context-card');
+ await expect(overview).toContainText('Audit project');
  return {overview,fallback:overview.getByRole('button',{name:/^Changes/}),releaseSend};
 }
 test('actual detached composer restores overview Changes until its owner docks again',async({page},info)=>{
@@ -97,7 +98,9 @@ test('production App hides the equivalent overview route and opens same-owner Ch
  });
  await serveTaskSplitLayout(page,snapshot);
  await page.goto('/actual-app');
- await page.getByRole('button',{name:'Expand Project overview',exact:true}).click();
+ if(await page.locator('.workspace-right').count()===0)await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ if(await page.getByRole('tab',{name:'Project',exact:true}).count()===0){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();}
+ await page.getByRole('tab',{name:'Overview',exact:true}).click();
  await expect(page.locator('.project-context-card')).toContainText('Audit project');
  await expect(page.locator('.project-context-card').getByRole('button',{name:/^Changes/})).toHaveCount(0);
  await page.getByRole('button',{name:'Inspect changes',exact:true}).click();

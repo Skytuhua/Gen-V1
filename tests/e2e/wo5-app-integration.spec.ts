@@ -82,7 +82,7 @@ test('actual terminal selection reaches the same unsent composer and is serializ
 test('production overview and compact usage retain their exact destinations under reduced motion and light zoom',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});const h=await host(page);
  await page.evaluate(()=>{document.documentElement.dataset.theme='light';document.documentElement.dataset.motion='off';document.documentElement.style.zoom='1.5';});
- await page.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(page.locator('.project-context-card')).toContainText('Audit project');
+ await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Project',exact:true}).click();await page.getByRole('tab',{name:'Overview',exact:true}).click();await expect(page.locator('.project-context-card')).toContainText('Audit project');
  await expect(page.locator('.project-context-card').getByRole('button',{name:/^Changes/})).toHaveCount(0);
  await page.getByRole('button',{name:'Show live usage',exact:true}).click();
  await page.getByRole('button',{name:'Inspect live usage',exact:true}).click();await expect(page.locator('.floating-usage-details dl')).toHaveCount(0);

@@ -14,8 +14,10 @@ async function writeDraft(page: Page, prompt: string) {
   await expect(composer(page)).toHaveValue(prompt);
 }
 async function openReview(page: Page) {
-  const expand = page.getByRole('button', { name: 'Expand Project overview', exact: true });
-  if (await expand.isVisible()) await expand.click();
+  if (await page.locator('.workspace-right').count() === 0) await page.getByRole('button', { name: 'Open workspace panel', exact: true }).click();
+  if (await page.getByRole('tab', { name: 'Project', exact: true }).count() === 0) { await page.getByRole('button', { name: 'Add surface', exact: true }).click(); await page.getByRole('menuitem', { name: 'Project', exact: true }).click(); }
+  const tab = page.getByRole('tab', { name: 'Overview', exact: true });
+  if (await tab.getAttribute('aria-selected') !== 'true') await tab.click();
   await page.getByRole('button', { name: 'Project memory', exact: true }).click();
   await expect(review(page).getByRole('tab', { name: 'Accepted', exact: true })).toBeVisible();
 }
