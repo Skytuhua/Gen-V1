@@ -78,7 +78,7 @@
 .software-patch-key b { font-size:14px; font-weight:600; }
 .software-patch-key>span:first-child b { color:var(--danger); }
 .software-patch-key>span:last-child b { color:var(--success); }
-.software-file-review .software-patch { max-width:100%; overflow-x:auto; white-space:pre; overflow-wrap:normal; }
+.software-file-review .software-patch,.artifact[data-artifact-inline=true] .artifact-content .software-file-review .software-patch { max-width:100%; overflow-x:auto; white-space:pre; overflow-wrap:normal; }
 .software-patch { padding:8px 0; font:12px/18px var(--code-font,ui-monospace,SFMono-Regular,Consolas,monospace); }
 .software-patch>code { display:block; width:max-content; min-width:100%; font:inherit; }
 .software-patch>code>span { display:grid; grid-template-columns:var(--patch-old,44px) var(--patch-new,44px) 20px minmax(max-content,1fr); padding-right:10px; min-height:18px; white-space:pre; overflow-wrap:normal; word-break:normal; }

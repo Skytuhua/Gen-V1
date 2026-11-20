@@ -81,19 +81,23 @@ const clickCause=(event:{detail:number}):SoftwareSelectionCause=>event.detail>0?
 /** One decorative entrance treatment per surface, gated on the host's own
  * first-publication marker and the full effective motion policy. */
 export function usePublicationEntrance(run:(node:HTMLElement)=>Animation[]){
-  const ref=useRef<HTMLElement|null>(null),handles=useRef<Animation[]>([]);
+  const ref=useRef<HTMLElement|null>(null);
   useLayoutEffect(()=>{
     const node=ref.current;if(!node)return;
+    let handles:Animation[]=[],artifact:Element|null=null,stopObserving:()=>void=()=>{},disposed=false;
+    const dispose=()=>{if(disposed)return;disposed=true;stopObserving();stopObserving=()=>{};artifact?.removeEventListener('pointerdown',stop,true);artifact?.removeEventListener('focusin',stop);artifact=null;handles.forEach(handle=>handle.cancel());handles=[];};
+    const stop=()=>dispose();
     queueMicrotask(()=>{
-      if(!node.isConnected||readMotionPolicy()!=='full'||!node.closest('[data-entry-phase="entering"]'))return;
-      handles.current=run(node);
-      const artifact=node.closest('[data-entry-phase]'),stop=()=>{handles.current.forEach(handle=>handle.cancel());handles.current=[];};
-      artifact?.addEventListener('pointerdown',stop,{once:true,capture:true});
-      artifact?.addEventListener('focusin',stop,{once:true});
-      const stopObserving=observeMotionPolicy(stop);
-      handles.current[0]?.addEventListener('finish',()=>stopObserving());
+      if(disposed||!node.isConnected||readMotionPolicy()!=='full'||!node.closest('[data-entry-phase="entering"]'))return;
+      handles=run(node);
+      if(!handles.length)return;
+      artifact=node.closest('[data-entry-phase]');
+      artifact?.addEventListener('pointerdown',stop,{capture:true});
+      artifact?.addEventListener('focusin',stop);
+      stopObserving=observeMotionPolicy(stop);
+      handles[0]?.addEventListener('finish',stop,{once:true});
     });
-    return()=>{handles.current.forEach(handle=>handle.cancel());handles.current=[];};
+    return()=>dispose();
   },[]);
   return ref;
 }
@@ -187,7 +191,7 @@ export function ChangeSet({element:{props}}:ComponentRenderProps){
     const previous=previousSelection.current;previousSelection.current=selected?.id;
     if(previous!==selected?.id){
       const node=patchRef.current,saved=selected&&scrolls.current.get(selected.id);
-      if(node&&saved){node.scrollTop=Math.min(saved.top,node.scrollHeight-node.clientHeight);node.scrollLeft=Math.min(saved.left,node.scrollWidth-node.clientWidth);}
+      if(node){node.scrollTop=Math.min(saved?.top??0,Math.max(0,node.scrollHeight-node.clientHeight));node.scrollLeft=Math.min(saved?.left??0,Math.max(0,node.scrollWidth-node.clientWidth));}
       const cause=listCause.current;listCause.current=undefined;
       if(cause==='pointer'&&selected){
         const root=surface.current,next=root?.querySelector<HTMLElement>('.software-file-review .software-list [role="tab"][aria-selected="true"]'),unselected=root?.querySelector<HTMLElement>('.software-file-review .software-list [role="tab"][aria-selected="false"]');

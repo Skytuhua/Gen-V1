@@ -119,9 +119,10 @@ export function Comparison({element:{props}}:ComponentRenderProps){
       if(!cell)continue;
       cell.style.setProperty('--everyday-cell-duration','120ms');
       const animation=animateTask(cell,[{backgroundColor:getComputedStyle(cell).backgroundColor},{backgroundColor:strong,offset:.5},{backgroundColor:getComputedStyle(cell).backgroundColor}],120,{duration:'--everyday-cell-duration',easing:'--ui-ease-enter'});
-      if(animation)cellAnimations.current.push(animation);
+      if(animation){cellAnimations.current.push(animation);const drop=()=>{const index=cellAnimations.current.indexOf(animation);if(index>=0)cellAnimations.current.splice(index,1);};animation.addEventListener('finish',drop,{once:true});animation.addEventListener('cancel',drop,{once:true});}
     }
   });
+  useLayoutEffect(()=>()=>{for(const animation of cellAnimations.current)animation.cancel();cellAnimations.current=[];},[]);
   useLayoutEffect(()=>{
     const previous=prevSelected.current,next=selected?.id;prevSelected.current=next;
     const cause=selectCause.current;selectCause.current=undefined;
