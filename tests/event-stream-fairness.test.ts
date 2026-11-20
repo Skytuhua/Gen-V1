@@ -87,3 +87,18 @@ it('does not consume stream slots when a response was already closed before regi
   expect(store.subscribe).not.toHaveBeenCalled();
   expect(store.eventsAfter).not.toHaveBeenCalled();
 });
+
+it('releases a failed replay before registering the stream even if destroy emits no close', () => {
+  const streams = new Map<ServerResponse, () => void>(), unsubscribe = vi.fn(), destroy = vi.fn();
+  const response = Object.assign(new EventEmitter(), { destroy }) as unknown as ServerResponse;
+  const store: Parameters<typeof streamEvents>[1] = {
+    eventsAfter() { throw Error('Ledger unavailable'); },
+    subscribe() { return unsubscribe; },
+  };
+  try {
+    registerEventStream(streams, response, store, 0);
+    expect(destroy).toHaveBeenCalledOnce();
+    expect(unsubscribe).toHaveBeenCalledOnce();
+    expect(streams.size).toBe(0);
+  } finally { destroyEventStreams(streams); }
+});

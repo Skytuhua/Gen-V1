@@ -1,0 +1,70 @@
+test_all_native_call_shapes_refuse_without_replacing_or_mutating_the_live_list (__main__.AutomaticContainmentFixture.test_all_native_call_shapes_refuse_without_replacing_or_mutating_the_live_list) ... ok
+test_cancellation_and_exception_restore_every_original_instance_override (__main__.AutomaticContainmentFixture.test_cancellation_and_exception_restore_every_original_instance_override) ... ok
+test_flag_off_leaves_native_and_manual_calls_unchanged (__main__.AutomaticContainmentFixture.test_flag_off_leaves_native_and_manual_calls_unchanged) ... ok
+test_m05_checkpoint_remains_outermost_and_failure_never_reaches_compaction (__main__.AutomaticContainmentFixture.test_m05_checkpoint_remains_outermost_and_failure_never_reaches_compaction) ... ok
+test_missing_capability_or_invalid_required_policy_cannot_fall_back (__main__.AutomaticContainmentFixture.test_missing_capability_or_invalid_required_policy_cannot_fall_back) ... ok
+test_append_reports_only_new_tool_metadata_and_exact_unicode_bytes (__main__.ContextCaptureFixture.test_append_reports_only_new_tool_metadata_and_exact_unicode_bytes) ... ok
+test_deep_or_cyclic_native_content_is_unavailable_without_escaping_the_observer (__main__.ContextCaptureFixture.test_deep_or_cyclic_native_content_is_unavailable_without_escaping_the_observer) ... ok
+test_in_place_native_mutation_rebuilds_instead_of_reusing_object_identity (__main__.ContextCaptureFixture.test_in_place_native_mutation_rebuilds_instead_of_reusing_object_identity) ... ok
+test_rewind_binding_and_native_schema_changes_retire_the_prefix (__main__.ContextCaptureFixture.test_rewind_binding_and_native_schema_changes_retire_the_prefix) ... ok
+test_source_limits_and_unsupported_shapes_retire_metadata_without_returning_content (__main__.ContextCaptureFixture.test_source_limits_and_unsupported_shapes_retire_metadata_without_returning_content) ... ok
+test_actual_source_steering_ticket_reaches_a_model_request (__main__.WorkerFixture.test_actual_source_steering_ticket_reaches_a_model_request) ... ok
+test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies (__main__.WorkerFixture.test_bulk_snapshot_keeps_disabled_metadata_without_full_bodies) ... ok
+test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate (__main__.WorkerFixture.test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate) ... FAIL
+test_current_host_protection_applies_to_an_ordinary_declared_name_alias (__main__.WorkerFixture.test_current_host_protection_applies_to_an_ordinary_declared_name_alias) ... ok
+test_expected_source_state_refuses_stale_user_write (__main__.WorkerFixture.test_expected_source_state_refuses_stale_user_write) ... ok
+test_explicit_user_save_applies_when_model_write_approval_is_enabled (__main__.WorkerFixture.test_explicit_user_save_applies_when_model_write_approval_is_enabled) ... ok
+test_host_controls_pin_original_curator_and_preserve_existing_pin (__main__.WorkerFixture.test_host_controls_pin_original_curator_and_preserve_existing_pin) ... ok
+test_linked_skill_node_is_rejected_before_source_writes (__main__.WorkerFixture.test_linked_skill_node_is_rejected_before_source_writes) ... ok
+test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent (__main__.WorkerFixture.test_m04_admitted_system_instructions_reach_original_acp_and_changed_prefix_rebuilds_the_agent) ... ok
+test_m04_archive_unavailable_refuses_before_summary_and_preserves_native_history (__main__.WorkerFixture.test_m04_archive_unavailable_refuses_before_summary_and_preserves_native_history) ... ok
+test_m04_archive_unavailable_refuses_when_native_summary_fallback_is_enabled (__main__.WorkerFixture.test_m04_archive_unavailable_refuses_when_native_summary_fallback_is_enabled) ... ok
+test_m04_original_request_cut_reuses_only_an_unchanged_native_prefix (__main__.WorkerFixture.test_m04_original_request_cut_reuses_only_an_unchanged_native_prefix) ... ok
+test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary (__main__.WorkerFixture.test_m04_progressive_hook_filters_host_schemas_at_the_original_acp_boundary) ... ok
+test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive (__main__.WorkerFixture.test_m04_protected_compaction_retains_exact_records_and_a_separate_original_archive) ... ok
+test_m04_protection_cannot_replace_the_retained_source_context (__main__.WorkerFixture.test_m04_protection_cannot_replace_the_retained_source_context) ... ok
+test_m04_protection_overflow_never_starts_summary_or_native_mutation (__main__.WorkerFixture.test_m04_protection_overflow_never_starts_summary_or_native_mutation) ... ok
+test_m04_protection_refuses_changed_archive_after_host_commit_wait (__main__.WorkerFixture.test_m04_protection_refuses_changed_archive_after_host_commit_wait) ... ok
+test_m04_protection_refuses_opaque_revisions_for_pending_approvals (__main__.WorkerFixture.test_m04_protection_refuses_opaque_revisions_for_pending_approvals) ... ok
+test_m04_protection_refuses_when_native_normalization_makes_the_old_prose_part_of_a_required_tool_group (__main__.WorkerFixture.test_m04_protection_refuses_when_native_normalization_makes_the_old_prose_part_of_a_required_tool_group) ... ok
+test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary (__main__.WorkerFixture.test_m04_protection_rejects_wrong_maintenance_run_and_epoch_before_summary) ... ok
+test_m04_protection_requires_an_explicit_same_thread_maintenance_context (__main__.WorkerFixture.test_m04_protection_requires_an_explicit_same_thread_maintenance_context) ... ok
+test_m04_required_automatic_protection_preserves_original_user_and_tool_history (__main__.WorkerFixture.test_m04_required_automatic_protection_preserves_original_user_and_tool_history) ... ok
+test_m04_required_checkpoint_failure_blocks_protected_summary_and_archive (__main__.WorkerFixture.test_m04_required_checkpoint_failure_blocks_protected_summary_and_archive) ... ok
+test_m04_required_protection_contains_configured_native_post_turn_micro_compaction (__main__.WorkerFixture.test_m04_required_protection_contains_configured_native_post_turn_micro_compaction) ... ok
+test_m04_required_protection_contains_configured_native_proactive_pruning (__main__.WorkerFixture.test_m04_required_protection_contains_configured_native_proactive_pruning) ... ok
+test_m04_revoked_commit_retains_the_archive_but_never_changes_active_native_history (__main__.WorkerFixture.test_m04_revoked_commit_retains_the_archive_but_never_changes_active_native_history) ... ok
+test_original_approval_store_replays_only_after_user_decides (__main__.WorkerFixture.test_original_approval_store_replays_only_after_user_decides) ... ok
+test_original_atomic_batch_fuzzy_patch_and_ledger_rollback (__main__.WorkerFixture.test_original_atomic_batch_fuzzy_patch_and_ledger_rollback) ... ok
+test_original_curator_consolidation_reads_then_patches_an_eligible_skill (__main__.WorkerFixture.test_original_curator_consolidation_reads_then_patches_an_eligible_skill) ... ok
+test_original_summary_compaction_executes_with_the_retained_dependency_subset (__main__.WorkerFixture.test_original_summary_compaction_executes_with_the_retained_dependency_subset) ... ok
+test_parent_instance_and_source_iteration_counter_survive_turns (__main__.WorkerFixture.test_parent_instance_and_source_iteration_counter_survive_turns) ... ok
+test_real_engine_creates_skill_with_full_frontmatter (__main__.WorkerFixture.test_real_engine_creates_skill_with_full_frontmatter) ... ok
+test_source_cancel_waits_for_actual_turn_settlement (__main__.WorkerFixture.test_source_cancel_waits_for_actual_turn_settlement) ... ok
+test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (__main__.WorkerFixture.test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest) ... ok
+test_ten_plain_iterations_launch_the_original_review_fork (__main__.WorkerFixture.test_ten_plain_iterations_launch_the_original_review_fork) ... ok
+
+======================================================================
+FAIL: test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate (__main__.WorkerFixture.test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/ubuntu/repos/Gen-V1/tests/hermes_source_worker.py", line 783, in test_completed_approved_write_reaches_original_post_edit_and_automatic_stop_gate
+    self.assertEqual([row["status"] for row in diagnostics], ["applied"], events)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: ['failed'] != ['applied']
+
+First differing element 0:
+'failed'
+'applied'
+
+- ['failed']
+?   -  -
+
++ ['applied']
+?    +++
+ : [{'event': 'started', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'engineClass': 'run_agent.AIAgent', 'agentInstance': '9e7db01d3f124b18bc3e4843ff411b4b', 'itersSinceSkill': 0, 'tools': []}}, {'event': 'write_hook', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'diagnostic': {'operationId': 'approved', 'revision': 1, 'inputId': 'operation-result:approved', 'status': 'failed', 'message': 'The original callback did not confirm a successful native hook.'}}}, {'event': 'model_request', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'inputIds': ['operation-result:approved'], 'sequence': 2}}, {'event': 'foreground_settled', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'engineClass': 'run_agent.AIAgent', 'result': {'final_response': 'A plain source reply.', 'last_reasoning': None, 'messages': [{'role': 'user', 'content': 'PLAIN_REPLY_ONLY', 'timestamp': 1795128912.7371237}, {'role': 'assistant', 'content': 'A plain source reply.', 'reasoning': None, 'finish_reason': 'stop', 'timestamp': 1795128913.7316036}, {'role': 'user', 'content': 'PLAIN_REPLY_ONLY', 'timestamp': 1795128913.7545114}, {'role': 'assistant', 'content': 'A plain source reply.', 'reasoning': None, 'finish_reason': 'stop', 'timestamp': 1795128913.846415}], 'api_calls': 1, 'completed': True, 'turn_exit_reason': 'text_response(finish_reason=stop)', 'failed': False, 'partial': False, 'interrupted': False, 'response_transformed': False, 'pre_transform_response': None, 'response_previewed': False, 'response_reused': False, 'model': 'fixture-model', 'requested_model': 'fixture-model', 'served_model': None, 'provider': 'harness', 'base_url': 'acp://harness', 'input_tokens': 0, 'output_tokens': 0, 'cache_read_tokens': 0, 'cache_write_tokens': 0, 'reasoning_tokens': 0, 'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0, 'last_prompt_tokens': 0, 'estimated_cost_usd': 0.0, 'cost_status': 'unknown', 'cost_source': 'none', 'service_tier': None, 'session_id': 'approved-write', 'turn_id': 'approved-write:receipt:21b10615', 'current_turn_user_idx': 2, 'user_intervened': False}, 'text': 'A plain source reply.', 'sessionPath': '/tmp/hermes-original-wljc86t7/sessions/7e226fcaa0231e66109c85c99412d66f6ff8e622b754c3a747f5df9fddc6cfc5.json', 'usage': [{'sequence': 2, 'phase': 'foreground', 'usage': None, 'observation': None}], 'agentInstance': '9e7db01d3f124b18bc3e4843ff411b4b', 'itersSinceSkill': 0}}, {'event': 'library', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'reason': 'settled'}}, {'event': 'settled', 'ctx': {'threadId': 'approved-write', 'runId': 'receipt', 'epoch': 2, 'phase': 'foreground'}, 'data': {'engineClass': 'run_agent.AIAgent', 'result': {'final_response': 'A plain source reply.', 'last_reasoning': None, 'messages': [{'role': 'user', 'content': 'PLAIN_REPLY_ONLY', 'timestamp': 1795128912.7371237}, {'role': 'assistant', 'content': 'A plain source reply.', 'reasoning': None, 'finish_reason': 'stop', 'timestamp': 1795128913.7316036}, {'role': 'user', 'content': 'PLAIN_REPLY_ONLY', 'timestamp': 1795128913.7545114}, {'role': 'assistant', 'content': 'A plain source reply.', 'reasoning': None, 'finish_reason': 'stop', 'timestamp': 1795128913.846415}], 'api_calls': 1, 'completed': True, 'turn_exit_reason': 'text_response(finish_reason=stop)', 'failed': False, 'partial': False, 'interrupted': False, 'response_transformed': False, 'pre_transform_response': None, 'response_previewed': False, 'response_reused': False, 'model': 'fixture-model', 'requested_model': 'fixture-model', 'served_model': None, 'provider': 'harness', 'base_url': 'acp://harness', 'input_tokens': 0, 'output_tokens': 0, 'cache_read_tokens': 0, 'cache_write_tokens': 0, 'reasoning_tokens': 0, 'prompt_tokens': 0, 'completion_tokens': 0, 'total_tokens': 0, 'last_prompt_tokens': 0, 'estimated_cost_usd': 0.0, 'cost_status': 'unknown', 'cost_source': 'none', 'service_tier': None, 'session_id': 'approved-write', 'turn_id': 'approved-write:receipt:21b10615', 'current_turn_user_idx': 2, 'user_intervened': False}, 'text': 'A plain source reply.', 'sessionPath': '/tmp/hermes-original-wljc86t7/sessions/7e226fcaa0231e66109c85c99412d66f6ff8e622b754c3a747f5df9fddc6cfc5.json', 'usage': [{'sequence': 2, 'phase': 'foreground', 'usage': None, 'observation': None}], 'agentInstance': '9e7db01d3f124b18bc3e4843ff411b4b', 'itersSinceSkill': 0, 'unconsumedInputIds': []}}]
+
+----------------------------------------------------------------------
+Ran 45 tests in 131.291s
+
+FAILED (failures=1)

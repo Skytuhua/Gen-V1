@@ -12,7 +12,7 @@ import {HarnessError,type HostCommand,type CommandReceipt,type RuntimeAdapter,ty
 import {verificationPorts} from './portable-verification.ts';
 
 const SOURCE_NAME='checkout-trace.json';
-export const SYNTHETIC_TRACE={
+const SYNTHETIC_TRACE={
  source:'Synthetic captured local checkout test supplied for investigation, not production telemetry',revision:'capture-1',requestId:'checkout-17',endToEndBudgetMs:1200,result:'HTTP 503',retryAfterMs:2000,policy:{maxRetries:1,fixedDelayMs:200},
  spans:[
   {id:'checkout',name:'Checkout',startMs:0,durationMs:620,status:'error'},
@@ -89,7 +89,7 @@ async function boundedJson(path:string,value:unknown){const bytes=JSON.stringify
 function ownSnapshot(snapshot:Snapshot,threadId:string){return {seq:snapshot.seq,thread:snapshot.threads.find(thread=>thread.id===threadId),messages:snapshot.messages.filter(message=>message.threadId===threadId),artifacts:snapshot.artifacts.filter(artifact=>artifact.threadId===threadId),userStates:snapshot.userStates.filter(state=>state.threadId===threadId),data:snapshot.data.filter(data=>data.threadId===threadId),requests:snapshot.requests.filter(request=>request.threadId===threadId),operations:snapshot.operations.filter(operation=>operation.threadId===threadId),resources:snapshot.resources.filter(resource=>resource.threadId===threadId),usage:snapshot.usage[threadId]};}
 async function stopRequested(path:string){try{const info=await lstat(path);return info.isFile()&&!info.isSymbolicLink();}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return false;throw error;}}
 
-export async function verifyCurrentPiUi(options:ReturnType<typeof parseCurrentPiArguments>){
+async function verifyCurrentPiUi(options:ReturnType<typeof parseCurrentPiArguments>){
  const runtimeProfile=await realpath(options.runtimeProfile),pi=await lstat(join(runtimeProfile,'pi'));if(!pi.isDirectory()||pi.isSymbolicLink())throw Error('The explicit existing runtime profile must contain an ordinary Pi directory.');
  const workspace=await realpath(resolve('.')),root=join(workspace,'.harness-current-pi-ui');await mkdir(root,{recursive:true});if(await realpath(root)!==root)throw Error('Verification evidence directory is redirected.');
  const directory=await mkdtemp(join(root,'run-')),dataDir=join(directory,'host'),stopPath=join(directory,'stop'),started=Date.now(),expiresAt=started+15*60*1000;

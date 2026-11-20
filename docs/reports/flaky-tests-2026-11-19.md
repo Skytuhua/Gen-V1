@@ -1,123 +1,119 @@
 # Flaky test report — 2026-11-19
 
-Scope: `main` (26ddf4d1). Method: full `npx vitest run` (529 files, ~6 500
-assertions) executed 3 times with the JSON reporter; per-assertion failure sets
-diffed across runs. Timing- and process-sensitive files then rerun in
-isolation 50 times each. No source or test file was changed.
+Scope: root-cause read of the known Browser tests flake tracked in
+[issue #993](https://github.com/skytuhua-org/Gen-V1/issues/993). No code or
+tests were changed.
 
-## Suite-level result
+## Results
 
-All 293 failing assertions were **identical in every run** — zero cross-run
-variance. Every failure is a deterministic environment limitation of this
-Linux VM (unavailable linux-path-guard broker → `CAPABILITY_DENIED`, missing
-Playwright `headless_shell` binary, no hermes worker runtime, no desktop
-host), which fails the same way on a clean `main`. Isolation reruns:
+| Test | Failure rate | Likely cause |
+| --- | --- | --- |
+| `tests/e2e/tool-effects-host.spec.ts:12` — "approved file replacement exposes its durable ledger receipt through the actual host" | 8 of the last 11 red main runs (≈8/38 ≈ 21% of completed main CI runs, Nov 18–19) | `HostFixture.close()` never settles; two candidate waits identified inside it (below) |
 
-| Test file | Isolated reruns | Observed failures |
-|---|---|---|
-| tests/agent-work-v3.test.ts | 50 | 0 |
-| tests/background-contract-decisions-v6.test.ts | 50 | 0 |
-| tests/background-work-v3.test.ts | 50 | 0 |
+## Failure signature
 
-No test is nondeterministically flaky *on this VM*. The entries below are
-flake-prone defects found by reading the tests and the code they touch, plus
-two flakes already observed in CI. Sorted by likelihood of intermittent
-failure under CI load.
+CI run [44613472925](https://github.com/skytuhua-org/Gen-V1/actions/runs/44613472925)
+(also 44598154959, 44587001582, 44560112666):
 
-## Findings
-
-### 1. `freePort()` bind-release-reuse race (port reuse / process timing)
-
-Files and lines:
-
-- `tests/desktop-host.test.ts:119` — helper; ports picked at lines 129, 150
-- `tests/hermes-host.test.ts:11` — helper; ports picked at line 14
-- `tests/project-memory-maintenance-host.test.ts:16-19` — helper; line 35
-
-Each helper does `listen(0)` → reads the port → `close()` → hands the number
-to a child/host that binds it seconds later. In that window any parallel
-worker or process can take the port; the launch then reports `harness.error`
-instead of `harness.ready` and the test fails with "Desktop host reported a
-startup error before harness.ready" (`tests/desktop-host-ipc.ts:13`). The
-`while (widgetPort === port)` dedup guards only within one test, not across
-workers.
-
-Reproduction evidence (standalone script, same pattern): stealing the
-released port yields `EADDRINUSE`; 2 000 rapid `freePort()` calls re-issued a
-previously returned port 262 times (≈13%) — the kernel readily re-hands
-released ephemeral ports, so the race window is real on busy CI hosts. CI
-history corroborates: `cadad555` — "retrigger CI (flaky hermes-service 60s
-timeout, widget-isolation spawn failure)".
-
-### 2. `hermes-service` 60 s timeout (CI-observed flake)
-
-File: `tests/hermes-service.test.ts` — worker/service startup path.
-
-Commit `cadad555` ("M01: retrigger CI") names this exact test file's 60 s
-timeout as a known CI flake. The suite spawns a real hermes worker; under
-load the startup/ready handshake can outlast the test's 60 s budget. On this
-VM the file fails deterministically for unrelated environment reasons
-(`CAPABILITY_DENIED` from linux-path-guard), so the timeout could not be
-reproduced or measured here.
-
-### 3. `widget-isolation` spawn failure (CI-observed flake)
-
-File: `tests/widget-isolation.test.ts` — trusted-receiver spawn tests.
-
-Named alongside the hermes timeout in `cadad555`. The spawn-based tests
-launch the production `tsx` loader and browser frame — a multi-process
-startup susceptible to the same startup-budget flake. 16 of 22 tests are
-skipped on this VM (no Playwright binary), so the failure could not be
-reproduced locally.
-
-### 4. Unbounded spin-wait (test-order / load hang)
-
-File: `tests/agent-work-v3.test.ts:360`
-
-```ts
-while (!f.coordinator.inspect(spec.workId)) await new Promise(resolve => setTimeout(resolve, 5));
+```
+Test timeout of 60000ms exceeded.
+Tearing down "host" exceeded the test timeout of 60000ms.
+page.goto: Target page, context or browser has been closed
+    at openHost (tests/host-fixture.ts:221) via tests/e2e/tool-effects-host.spec.ts:72
 ```
 
-The poll has no timeout of its own; if `admit()` stalls under CPU
-contention, the loop spins until the vitest test timeout kills the test —
-indistinguishable from a real hang. 50/50 isolated runs passed; risk is
-load-dependent, not deterministic.
+## Verified hang location
 
-### 5. Fixed-name tmpdir fixtures (shared state across workers)
+The test reaches `page.goto('about:blank')` at spec line 67 (done at ~7.1s in
+the trace), then calls `host.restart()` at line 68, which awaits
+`HostFixture.close()` (`tests/host-fixture.ts:196-199` → `185-195`).
 
-Files and lines:
+- The run's `host-observations.json` records exactly **one** runtime generation
+  (`runtimeDeliveries` = 2: `start` + `followUp`, both `succeeded`), so the
+  restart never reached `start()` — the stall is inside `close()`.
+- The fixture teardown also exceeds its timeout because `close()` returns the
+  same shared `this.closing` promise (`tests/host-fixture.ts:189`), confirming
+  the first `close()` call is the one that never settles.
 
-- `tests/official-runtime-storage.test.ts:12` — `join(tmpdir(), 'official-profile-fixture')`
-- `tests/verification-executor.test.ts:25` — `join(tmpdir(), 'backend-owned-test-profile')`
-- `tests/credential-store.test.ts:34` — `join(tmpdir(), 'never-opened-credential.json')`
+## Close-step analysis (`tests/host-fixture.ts:189-194`)
 
-Unlike the `mkdtemp` convention used elsewhere, these fixed paths collide if
-two workers or leftover state from a killed run touch them — stale files can
-leak between runs. Currently each is used by a single file, so the collision
-risk is low but nonzero.
+`close()` awaits four steps in order: `host.close()` → `widgets.close()` →
+`service.dispose()` → `store.close()`. Assessment of each:
 
-### 6. Tight real-timer sleeps (timing margins)
+1. **`store.close()`** — `packages/storage/store.ts:266` is a synchronous
+   `db.close()`. **Eliminated**; it cannot hang.
 
-Files and lines:
+2. **`widgets.close()`** — `apps/server/server.ts:369-` (`buildWidgetServer`)
+   is a plain Fastify server with no hijacked or streaming routes, and this
+   spec never mounts a widget iframe. Would only stall on a stray live socket.
+   **Low likelihood.**
 
-- `tests/background-work-v3.test.ts:45` (20 ms), `:217` (50 ms), `:474`/`:496` (300 ms)
-- `tests/background-contract-decisions-v6.test.ts:40` (10 ms), `:48` (40 ms), `:208` (20 ms)
+3. **`host.close()`** — plausible. `apps/server/server.ts`:
+   - Both SSE routes are hijacked: `/api/events` (`server.ts:279-286`) and
+     `/api/agents/events` (`agent-inventory-routes.ts:40-78`).
+   - Each is released in a `preClose` hook: `destroyEventStreams`
+     (`server.ts:362-366`, `event-stream.ts:9-13`) and
+     `agent-inventory-routes.ts:79`. All `onClose` hooks are trivial.
+   - **Residual race:** `preClose` runs while the HTTP server is still
+     accepting connections. A request that reaches `registerEventStream`
+     (`event-stream.ts:18-30`) *after* `destroyEventStreams` has cleared the
+     `streams` map registers a stream that is never destroyed — its socket
+     stays open and `server.close()` waits on it indefinitely. There is no
+     "registry closed" guard; `registerEventStream` only checks whether the
+     response itself is already closed.
 
-These assert ordering/state after fixed `setTimeout` delays on the real
-clock; a loaded CI machine can delay the timer past the asserted boundary.
-All passed 50/50 isolated on this (idle) VM, so the margins hold locally but
-remain the standard flake vector for this suite.
+4. **`service.dispose()`** — plausible. `packages/core/service.ts:2343-2350`:
+   - `backgroundWork.drain` is bounded to 5 s
+     (`contracts/background-work.ts:22`); `intake.drain` is a bounded loop
+     (`external-intake.ts:347-352`); `predictions.dispose` cannot block here
+     because no slot forms for the non-connection `fixture/*` model
+     (`composer-prediction.ts:56-57`); `planning`, `agentWork`, `sideRuntime`,
+     `learning` only await live owners/batches — none exist in this spec.
+   - **`await Promise.allSettled([...this.pending])` (`service.ts:2348`) is
+     the only genuinely unbounded await in the close path.** `this.pending`
+     collects every `background()` task: `deliverOutbox` chains
+     (`service.ts:1576` → `1603` → `admit`), compaction tails
+     (`service.ts:569`), memory/library commands, and `cancelRun` chains
+     (`service.ts:1748`). `deliverInputs` itself can recurse after
+     `cancelComposerPredictions()` (`service.ts:1614`) and after
+     request-context settlement (`service.ts:1727`). If any such task is
+     in-flight and unbounded when `dispose()` snapshots `this.pending`,
+     `dispose()` waits on it forever — and a late `deliverOutbox` enqueue
+     (`queueMicrotask` at `service.ts:300`) can repopulate `this.pending`
+     between the snapshot and settle.
 
-## Summary
+## Ranked likely causes
 
-| Rank | Issue | Type | Observed local rate | Evidence |
-|---|---|---|---|---|
-| 1 | `freePort()` TOCTOU port race | port reuse | 0 (repro via script: EADDRINUSE) | tests/desktop-host.test.ts:119, hermes-host.test.ts:11, project-memory-maintenance-host.test.ts:16; `cadad555` |
-| 2 | hermes-service 60 s timeout | startup budget | n/a (env-limited) | `cadad555` |
-| 3 | widget-isolation spawn failure | process spawn | n/a (env-limited) | `cadad555` |
-| 4 | unbounded 5 ms poll | test-order/load | 0/50 | agent-work-v3.test.ts:360 |
-| 5 | fixed tmpdir fixture names | shared state | 0 | official-runtime-storage.test.ts:12 et al. |
-| 6 | real-timer sleep assertions | timing margin | 0/150 | background-work-v3.test.ts:45 et al. |
+1. **`service.dispose()` waiting on `this.pending`** — an in-flight
+   `background()` delivery/compaction/cancel chain with no bound
+   (`packages/core/service.ts:2348`, enqueued at `300`, `569`, `1236`,
+   `1574`, `1748`). Best fit for a hang that outlasts both the 60 s test
+   timeout and the 60 s teardown timeout while all bounded drains complete.
+2. **`host.close()` waiting on a re-registered SSE socket** — the
+   `preClose` → `server.close()` window lets a late `/api/events` request add
+   a stream after `destroyEventStreams` ran
+   (`apps/server/server.ts:362-366` + `apps/server/event-stream.ts:18-30`).
+3. **`widgets.close()` waiting on a stray socket** — same mechanism class,
+   far less surface (`apps/server/server.ts:369`).
 
-Deterministic environment failures (293 assertions) are tracked separately
-from flakiness: they fail on every run and are out of scope here.
+## Reproduction notes
+
+- Platform: the flake appears only on the `windows-latest` **Browser tests**
+  job. Local Linux reruns cannot reach the restart path — they fail earlier
+  at `CAPABILITY_DENIED` from the Linux path guard (a known, separate
+  Linux-only failure also seen on PR #950's verification run).
+- The merged diagnostics in `tests/host-fixture.ts` (PR #950) record
+  `HOST_FIXTURE_CLOSE_PENDING` after 10 s per close step and write
+  `closeStages` into `host-observations.json`; the next Windows failure
+  names the exact step and (for `host.close`) the open-socket count.
+  Issue #993's completion criteria depend on that evidence.
+
+## Recommended next steps
+
+1. Read `closeStages`/`HOST_FIXTURE_CLOSE_PENDING` from the first post-#950
+   Windows failure to pick between `host.close` and `service.dispose`.
+2. If `service.dispose`: add a bound or a close-time cancel for `this.pending`
+   tasks (e.g. abort before awaiting, or bound `deliverInputs` recursion).
+3. If `host.close`: mark the `streams` registry closed during `preClose` and
+   reject `registerEventStream` callers that arrive after it, so late SSE
+   registrations cannot survive the map clear.

@@ -24,9 +24,11 @@ export const context7OperationArgsSchema = z.strictObject({
 const changed = () => new HarnessError('PRECONDITION_FAILED', 'Context7 launch binding changed; prepare and approve this action again.');
 function active(signal: AbortSignal) { if (signal.aborted) throw new HarnessError('CANCELLED', 'The approved Context7 action was cancelled.'); }
 async function directory(value: string) {
-  const canonical = await realpath(value), info = await lstat(canonical, { bigint: true });
-  if (!info.isDirectory() || info.isSymbolicLink()) throw changed();
-  return { path: canonical, dev: String(info.dev), ino: String(info.ino) };
+  try {
+    const canonical = await realpath(value), info = await lstat(canonical, { bigint: true });
+    if (!info.isDirectory() || info.isSymbolicLink()) throw changed();
+    return { path: canonical, dev: String(info.dev), ino: String(info.ino) };
+  } catch (error) { if (error instanceof HarnessError) throw error; throw changed(); }
 }
 /** Preparation observes actual installed files. It neither resolves a secret
  * nor establishes a native lease. The dispatch path below must repeat it. */
@@ -51,7 +53,9 @@ export async function withContext7Binding<T>(launch: Context7LaunchDescriptor, e
     ...[approved.executable, approved.entry, approved.manifest, approved.packageManifest].map(value => ({ path: value.path, dev: value.dev, ino: value.ino, leaf: true, readOnly: true })),
     { ...approved.cwd, leaf: true },
   ], guarded, async () => {
-    const current = await captureContext7Binding(launch);
+    let current;
+    try { current = await captureContext7Binding(launch); }
+    catch (error) { if (error instanceof HarnessError && error.code === 'SECRET_REF_UNAVAILABLE') throw changed(); throw error; }
     if (JSON.stringify(current) !== JSON.stringify(approved)) throw changed();
     active(guarded); return action(current, guarded);
   }, () => loss.abort());

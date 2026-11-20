@@ -10,6 +10,7 @@ import {
   M14_ADAPTER_CAPABILITIES, SessionBranchReadModels, adapterForkCapability,
 } from '../packages/core/session-branches.ts';
 import type { SessionBranchV1 } from '../packages/contracts/session-branch.ts';
+import { SESSION_CAPTURE_LIMITS } from '../packages/contracts/session-branch.ts';
 
 const cleanups: (() => Promise<void>)[] = [];
 afterEach(async () => {
@@ -60,6 +61,22 @@ describe('adapter capability matrix', () => {
 });
 
 describe('Inspect point — immutable fixed cut', () => {
+  it('does not exceed the Inspect content budget when the newest message alone is over it', async () => {
+    __setCapabilityFlagForTests('sessions.branchV1', true);
+    const f = await fixture();
+    f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2 + 1));
+    const inspect = async () => ((await f.send('session.branch', {intent:'INSPECT'}, f.thread.id)).result as {capture:{captureId:string}}).capture;
+    const overflow = f.reads.captureMessages((await inspect()).captureId);
+    expect(overflow.coverage).toBe('TRUNCATED');
+    expect(overflow.truncated).toBe(1);
+    expect(overflow.messages).toHaveLength(0);
+    expect(overflow.incompleteSource).toContain('TRUNCATED_HISTORY');
+    // Replace the oversized source message with one exactly at the byte budget.
+    f.message('large','é'.repeat(SESSION_CAPTURE_LIMITS.maxContentBytes / 2));
+    const exact = f.reads.captureMessages((await inspect()).captureId);
+    expect(exact).toMatchObject({coverage:'COMPLETE',truncated:0});
+    expect(Buffer.byteLength(exact.messages[0]!.content)).toBe(SESSION_CAPTURE_LIMITS.maxContentBytes);
+  });
   it('captures an owner-bound frozen view that new events never move', async () => {
     __setCapabilityFlagForTests('sessions.branchV1', true);
     const f = await fixture();
@@ -78,6 +95,23 @@ describe('Inspect point — immutable fixed cut', () => {
     expect(f.reads.captureMessages(result.capture.captureId, { limit: 10 }).messages.map(item => item.id)).toEqual(['m1', 'm2']);
     // No cross-thread records: the foreign message never enters the capture.
     expect(f.reads.captureMessages(result.capture.captureId).messages.some(item => item.content === 'other thread content')).toBe(false);
+  });
+  it('does not exceed the byte budget when the newest whole message alone is oversized', async () => {
+    __setCapabilityFlagForTests('sessions.branchV1', true);
+    const f = await fixture();
+    f.message('oversized', 'é'.repeat(256 * 1024 + 1));
+    const inspect = async () => (await f.send('session.branch', { intent: 'INSPECT' }, f.thread.id)).result as
+      { capture: { captureId: string; coverage: string; truncated: number; incompleteSource: string[] } };
+    const { capture } = await inspect();
+    expect(capture).toMatchObject({ coverage: 'TRUNCATED', truncated: 1, incompleteSource: expect.arrayContaining(['TRUNCATED_HISTORY']) });
+    expect(f.reads.captureMessages(capture.captureId).messages).toEqual([]);
+
+    f.message('fits-exactly', 'é'.repeat(256 * 1024));
+    const next = (await inspect()).capture;
+    const messages = f.reads.captureMessages(next.captureId).messages;
+    expect(next).toMatchObject({ coverage: 'TRUNCATED', truncated: 1 });
+    expect(messages.map(row => row.id)).toEqual(['fits-exactly']);
+    expect(Buffer.byteLength(messages[0]!.content)).toBe(512 * 1024);
   });
   it('records explicit incomplete coverage for a truncated capture', async () => {
     __setCapabilityFlagForTests('sessions.branchV1', true);
