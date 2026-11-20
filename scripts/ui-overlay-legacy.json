@@ -82,11 +82,11 @@
   },
   {
    "file": "apps/web/src/DocumentWindow.tsx",
-   "line": 76,
-   "column": 385,
+   "line": 109,
+   "column": 448,
    "rule": "ad-hoc-overlay",
    "message": "React portal: use packages/ui-shell primitives; legacy occurrences require an individually reviewed migration entry.",
-   "fingerprint": "7933b79e35a474d3f164f8c09e104f98289c57172ba09aa8e003982efea1688f",
+   "fingerprint": "46709ca0f5167c1e491697dcfdbae8c1f715a95d40eb78f612b89ba0c97160ba",
    "reason": "TOOLS: migrate document portal ownership with shared primitives after document recovery acceptance; portal content migrated to shared ErrorState.",
    "evidence": "createPortal(<section ref={windowRef} role=\"region\" aria-label={`${title} document window`} className=\"document-text-window\" data-escape-scope data-placement={placement} data-native-owner={nativeOwner} style={style} onSc",
    "disposition": "staged-migration"

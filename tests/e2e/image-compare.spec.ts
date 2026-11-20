@@ -116,7 +116,7 @@ test('System follows a live OS reduction without replaying image geometry',async
 
 test('split height follows the shared formula and hides overlay-only controls', async ({ page }) => {
   await page.setViewportSize({ width: 780, height: 900 });
-  const host = await fixture(page); await page.goto('/'); await ready(page);
+  await fixture(page); await page.goto('/'); await ready(page);
   const stage = page.locator('.image-compare-stage');
   const measured = await stage.evaluate(node => {
     const r = node.getBoundingClientRect();
