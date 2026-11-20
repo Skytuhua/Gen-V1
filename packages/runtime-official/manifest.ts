@@ -5,7 +5,7 @@ import { HarnessError } from '../contracts/index.ts';
 import { isOfficialRuntimeProviderId } from '../contracts/connections.ts';
 import type { OfficialProvider } from './environment.ts';
 
-export interface InputReceipt { inputIds: string[]; runId: string; epoch: number; observed: boolean }
+interface InputReceipt { inputIds: string[]; runId: string; epoch: number; observed: boolean }
 export interface Manifest { version: 1; provider: OfficialProvider; threadId: string; sessionId: string | null; inputs: Record<string, InputReceipt> }
 export interface ManifestState { path: string; value: Manifest; dataDir: string; write?: Promise<void> }
 const mismatch = () => new HarnessError('OFFICIAL_SESSION_MISMATCH', 'Official session does not belong to this provider and task storage.');

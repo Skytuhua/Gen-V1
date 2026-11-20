@@ -1,7 +1,7 @@
 import { HarnessError, type TaskMemory } from '../contracts/index.ts';
 import type { Store } from '../storage/store.ts';
 
-export const MEMORY_LIMITS = { entries: 12, entryBytes: 768, totalBytes: 4096 } as const;
+const MEMORY_LIMITS = { entries: 12, entryBytes: 768, totalBytes: 4096 } as const;
 const idFor = (threadId: string, key: string) => `${threadId}:${key}`;
 export function taskMemories(store: Store, threadId: string): TaskMemory[] {
   return store.all<TaskMemory>('taskMemory', threadId).sort((a, b) => a.key.localeCompare(b.key));
