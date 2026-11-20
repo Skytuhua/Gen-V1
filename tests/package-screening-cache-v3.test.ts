@@ -94,6 +94,52 @@ describe('M03 cached package screening authority', () => {
     });
   }
 
+  it('keeps delimiter-colliding package identities in separate advisory cache entries', async () => {
+    const first: PackageIdentity = { ...identity, name: 'alpha@beta', version: 'gamma' };
+    const second: PackageIdentity = { ...identity, name: 'alpha', version: 'beta@gamma' };
+    // Both identities produced alpha@beta@gamma#<digest> under the old key.
+    const entries = new Map<string, PackageScreeningV1>();
+    const stored: ScreeningRecordCache = {
+      get: key => entries.get(key),
+      put: (key, next) => { entries.set(key, next); },
+    };
+    const blocked = await screenPackage(first, knownBad, { cache: stored, now });
+    expect(screeningGate(blocked.record)).toBe('BLOCK');
+    const clean: AdvisoryDatabase = {
+      database: 'current-db',
+      query: async () => ({ status: 'NO_MATCH', asOf: checkedAt }),
+    };
+    const other = await screenPackage(second, clean, { cache: stored, now });
+    expect(other.record).toMatchObject({ status: 'NO_KNOWN_MATCH', decision: 'ALLOW', pkg: second });
+    expect(entries.size).toBe(2);
+    const replay = await screenPackage(first, unavailable, { cache: stored, now });
+    expect(replay).toMatchObject({
+      cacheHit: true, record: { screeningId: blocked.record.screeningId, status: 'KNOWN_BAD', decision: 'DENY' },
+    });
+    expect(screeningGate(replay.record)).toBe('BLOCK');
+  });
+
+  it('retains a matching legacy-key known-bad denial during the cache-key migration', async () => {
+    const legacyKey = `${identity.name}@${identity.version}#${identity.digest}`;
+    const prior = record({ status: 'KNOWN_BAD', decision: 'DENY' });
+    const entries = new Map<string, PackageScreeningV1>([[legacyKey, prior]]);
+    const stored: ScreeningRecordCache = {
+      get: key => entries.get(key),
+      put: (key, next) => { entries.set(key, next); },
+    };
+    const twoDaysLater = () => Date.parse(checkedAt) + 2 * 24 * 60 * 60 * 1000;
+    const result = await screenPackage(identity, unavailable, {
+      cache: stored, now: twoDaysLater, maxCacheAgeMs: 0, exception,
+    });
+    expect(result).toMatchObject({
+      cacheHit: false, staleCache: true,
+      record: { screeningId: prior.screeningId, status: 'KNOWN_BAD', decision: 'DENY' },
+    });
+    expect(screeningGate(result.record)).toBe('BLOCK');
+    expect(result.exception).toBeUndefined();
+    expect(entries.get(legacyKey)).toEqual(prior);
+  });
+
   it('rechecks a cache timestamp in the future', async () => {
     const stored = cache(record({ checkedAt: '2026-11-18T00:00:00.000Z' }));
     const next = await screenPackage(identity, knownBad, { cache: stored, now });
