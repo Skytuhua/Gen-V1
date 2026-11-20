@@ -3405,6 +3405,7 @@
     "tests/repository-map-host.test.ts",
     "tests/repository-map-packaging.test.ts",
     "tests/repository-screenshots-cleanup.test.ts",
+    "tests/repository-test-binding-check.test.ts",
     "tests/request-preparation-service-v3.test.ts",
     "tests/research-fixture.ts",
     "tests/resource-tree.test.ts",
