@@ -1,5 +1,5 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
+import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,statSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {reserveDesktopRelease} from '../scripts/desktop-assets.ts';
@@ -83,6 +83,18 @@ describe('runCheck child-process contract',()=>{
     expect(Date.now()-started).toBeLessThan(10_000);
     expect(result.durationMs).toBeLessThan(10_000);
   },15_000);
+
+  it.each([
+    ['newline-free output',"process.stdout.write('x'.repeat(2*1024*1024));setTimeout(()=>{},30000)"],
+    ['interleaved stdout/stderr output',"process.stdout.write(('out\\n').repeat(160000));process.stderr.write(('err\\n').repeat(160000))"],
+    ['multibyte output',"process.stdout.write('界'.repeat(400000))"],
+    ['expanded redaction output',"process.stdout.write('password: a\\n'.repeat(60000))"],
+  ])('fails closed and bounds the log for %s',async(_label,script)=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result).toMatchObject({status:'FAIL',errorKind:'output-limit'});
+    expect(statSync(result.artifact).size).toBeLessThanOrEqual(1024*1024);
+  },20_000);
 
   it('bad cwd yields FAIL without spawning',async()=>{
     const directory=temporaryDirectory();
