@@ -3,7 +3,7 @@ import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } fr
 import './tokens.css';
 import './feedback.css';
 
-export type ToastTone = 'info' | 'success' | 'error';
+type ToastTone = 'info' | 'success' | 'error';
 export interface ToastOptions { tone?: ToastTone; action?: { label: string; onClick: () => void }; durationMs?: number }
 interface ToastEntry extends ToastOptions { id: number; message: string; leaving: boolean }
 
