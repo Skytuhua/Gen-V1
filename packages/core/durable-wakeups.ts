@@ -161,8 +161,11 @@ export class DurableWakeupScheduler {
     // expiry after an uncertain dispatch never authorizes a second submit.
     // S01: at most 50 due records inspected per tick, shared across new due
     // wakeups and expired claims needing reconciliation.
+    const recoverable = new Set(this.store.all<WakeupRecord>("backgroundWakeup")
+      .filter(wakeup => !wakeup.paused && wakeup.state !== "CANCELLED" && wakeup.state !== "DELIVERED" && wakeup.state !== "BLOCKED")
+      .map(wakeup => wakeup.wakeupId));
     const expired = this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence")
-      .filter(item => item.state === "CLAIMED" && item.leaseExpiresAtMs !== null && item.leaseExpiresAtMs <= stamp)
+      .filter(item => item.state === "CLAIMED" && item.leaseExpiresAtMs !== null && item.leaseExpiresAtMs <= stamp && recoverable.has(item.wakeupId))
       .slice(0, Math.max(0, this.limits.dueBatchLimit - due.length));
     for (const occurrence of expired) {
       const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", occurrence.wakeupId);
@@ -218,6 +221,12 @@ export class DurableWakeupScheduler {
           state: "CLAIMED", dispatch: "NOT_DISPATCHED", claimGeneration: 1, admissionId: null,
           leaseExpiresAtMs: stamp + this.limits.leaseMs, createdAt: iso(stamp), updatedAt: iso(stamp),
         });
+      }
+      // Lease recovery may reclaim an earlier firing after a newer interval
+      // has already advanced the cadence. Reclaim only the old occurrence.
+      if (input.intervalAnchor && input.scheduledDueAtMs !== null && wakeup.lastProcessedDueAtMs !== null && input.scheduledDueAtMs < wakeup.lastProcessedDueAtMs) {
+        this.store.put("backgroundOccurrence", key, null, occurrence);
+        return { wakeup, occurrence };
       }
       let nextDueAtMs = wakeup.nextDueAtMs, skippedTotal = wakeup.skippedTotal, lastProcessedDueAtMs = wakeup.lastProcessedDueAtMs;
       if (input.intervalAnchor && input.scheduledDueAtMs !== null) {
@@ -355,7 +364,25 @@ export class DurableWakeupScheduler {
       await new Promise(resolve => setTimeout(resolve, delay));
       if (this.draining) return;
       const still = this.store.get<BackgroundOccurrenceV1>("backgroundOccurrence", key);
-      if (!still || still.state !== "CLAIMED") return;
+      if (!still || still.state !== "CLAIMED" || still.claimGeneration !== admitted.claimGeneration) return;
+      const wakeup = this.store.get<WakeupRecord>("backgroundWakeup", admitted.wakeupId);
+      if (!wakeup || wakeup.state === "CANCELLED") {
+        // The preceding failure was a known transient read failure, so no
+        // unsettled write is being discarded by cancelling this retry.
+        this.store.internal("background.occurrence.cancelled", null, () =>
+          this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null }));
+        return;
+      }
+      if (wakeup.paused) {
+        // A known transient read failure has no unresolved effect. Hold the
+        // firing for explicit resume, preserving its occurrence/admission IDs.
+        this.store.internal("background.occurrence.held", null, () => {
+          this.setOccurrence(key, { state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null });
+          if (wakeup.state === "CLAIMED" && wakeup.occurrenceKey === key)
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+        });
+        return;
+      }
     }
   }
 
@@ -415,8 +442,8 @@ export class DurableWakeupScheduler {
       if (wakeup && !cancelled) {
         const lastRunAtMs = receipt.observed === "DELIVERED" ? Math.max(wakeup.lastRunAtMs ?? stamp, stamp) : wakeup.lastRunAtMs;
         const anotherClaim = wakeup.state === "CLAIMED" && wakeup.occurrenceKey !== occurrenceKey;
-        if (anotherClaim) {
-          // Reconciling an older occurrence may update history, not the live lease.
+        if (anotherClaim || wakeup.state === "BLOCKED") {
+          // An older receipt may update history, not the live lease or a newer block.
           if (wakeup.trigger.kind === "INTERVAL_UTC" && lastRunAtMs !== wakeup.lastRunAtMs)
             this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, lastRunAtMs, updatedAt: iso(stamp) });
         } else {
@@ -503,7 +530,7 @@ export class DurableWakeupScheduler {
     const wakeup = this.requireWakeup(wakeupId);
     const stamp = this.now();
     for (const occurrence of this.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(item => item.wakeupId === wakeupId)) {
-      if (occurrence.state === "CLAIMED" && occurrence.dispatch === "NOT_DISPATCHED")
+      if ((occurrence.state === "CLAIMED" || occurrence.state === "PENDING") && occurrence.dispatch === "NOT_DISPATCHED")
         this.store.put("backgroundOccurrence", occurrence.occurrenceKey, null, { ...occurrence, state: "CANCELLED", leaseExpiresAtMs: null, updatedAt: iso(stamp) });
     }
     const next: WakeupRecord = { ...wakeup, state: "CANCELLED", paused: true, nextDueAtMs: null, leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(stamp) };

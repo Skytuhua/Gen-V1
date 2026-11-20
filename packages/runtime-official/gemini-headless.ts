@@ -88,6 +88,11 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     const ended = new Promise<number | null>((resolve, reject) => { child.once('error', reject); child.once('close', resolve); child.stdin?.once('error', reject); });
     child.stdin?.end(text);
     const code = await bounded(ended, 180_000, 'Official Gemini headless turn did not terminate.');
+    // A clean process close ends its last JSONL record even without a newline.
+    if (!failure && code === 0 && buffer.trim()) {
+      try { accept(JSON.parse(buffer)); }
+      catch (error) { failure = error instanceof Error ? error : new Error('Invalid official Gemini event.'); }
+    }
     await writes; assert();
     if (failure) throw failure;
     if (code !== 0 || !terminal || status !== 'success') throw new HarnessError('OFFICIAL_TURN_FAILED', 'Official Gemini did not confirm a successful terminal turn. Native history will determine input delivery.');
@@ -108,7 +113,19 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     models,
     async submit(wire) { assert(); queue.push(wire); void drain(); },
     async compact() { throw new HarnessError('OFFICIAL_COMPACTION_UNSUPPORTED', 'This pinned native headless Gemini session does not advertise a verifiable /compress command result.'); },
-    async close() { if (closed) return; closed = true; queue.length = 0; if (active && active.exitCode === null && active.signalCode === null) { active.kill('SIGINT'); await bounded(new Promise<void>(resolve => active!.once('exit', () => resolve())), 500, 'Official Gemini cancellation grace elapsed.').catch(() => {}); } },
+    async close() {
+      if (closed) return;
+      closed = true; queue.length = 0;
+      const child = active;
+      if (!child || child.exitCode !== null || child.signalCode !== null) return;
+      let onExit!: () => void;
+      const exited = new Promise<void>(resolve => { onExit = resolve; });
+      child.once('exit', onExit);
+      try {
+        child.kill('SIGINT');
+        await bounded(exited, 500, 'Official Gemini cancellation grace elapsed.').catch(() => {});
+      } finally { child.removeListener('exit', onExit); }
+    },
   };
   context.ready(driver);
   return driver;

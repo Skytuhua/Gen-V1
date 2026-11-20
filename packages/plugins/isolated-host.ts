@@ -9,7 +9,6 @@ import {
  pluginLeaseV1Schema,pluginManifestV2Schema,
  type ExtensionViewV1,type PluginLeaseState,type PluginLeaseV1,type PluginManifestV2,type WorkerFrameV1,type WorkerReadyPayload,
 } from '../contracts/plugin-worker.ts';
-import {evaluateMigrationPlan} from './lifecycle.ts';
 import type {PluginManifest} from './contracts.ts';
 
 // M13 isolated extension lane. A worker is a separate owned process talking
@@ -81,7 +80,7 @@ export interface WorkerTransport{
  terminate():Promise<boolean>;
 }
 
-export interface WorkerLaunchSpec{
+interface WorkerLaunchSpec{
  packageDir:string;dataDir:string;generation:number;
  /** Child environment built from the host allowlist, never process.env. */
  env:Record<string,string|undefined>;
@@ -90,7 +89,7 @@ export interface WorkerLauncher{launch(spec:WorkerLaunchSpec):Promise<WorkerTran
 
 /** Real private-pipe transport over a spawned child process' stdio. The pipes
  * are created by the host for exactly this child; nothing is shared. */
-export class PipeWorkerTransport implements WorkerTransport{
+class PipeWorkerTransport implements WorkerTransport{
  private frameHandler:((frame:WorkerFrameV1)=>void)|undefined;
  private exitHandler:((exit:WorkerExit)=>void)|undefined;
  private exitInfo:WorkerExit|undefined;
@@ -154,6 +153,17 @@ export function createSpawnWorkerLauncher(options:SpawnWorkerOptions):WorkerLaun
 interface PendingCall{operation:string;startedAt:string;signal?:AbortSignal;abort?:()=>void;resolve:(value:unknown)=>void;reject:(error:unknown)=>void}
 const GENERATION_ZERO=0;
 
+/** One termination per owned transport: every layer (handshake failure,
+ * protocol violation, shutdown, activation cleanup) shares the same attempt
+ * and its confirmed/unconfirmed result, so cleanup is never duplicated and a
+ * confirmed exit is never overwritten by a second attempt. */
+const terminations=new WeakMap<WorkerTransport,Promise<boolean>>();
+function terminateOnce(transport:WorkerTransport):Promise<boolean>{
+ let attempt=terminations.get(transport);
+ if(!attempt){attempt=Promise.resolve().then(()=>transport.terminate()).catch(()=>false);terminations.set(transport,attempt);}
+ return attempt;
+}
+
 export class IsolatedWorkerSession{
  private readonly pending=new Map<number,PendingCall>();
  private nextRequestId=1;
@@ -186,7 +196,7 @@ export class IsolatedWorkerSession{
    });
    const payload=workerHelloPayloadSchema.parse({nonce,pluginId:hello.pluginId,packageDigest:hello.packageDigest,dataNamespace:hello.dataNamespace});
    try{transport.send({protocolVersion:WORKER_PROTOCOL_VERSION,requestId:GENERATION_ZERO,generation:hello.generation,kind:'HELLO',payload});}catch(cause){finish(()=>reject(cause));}
-  }).catch(cause=>{void transport.terminate().catch(()=>{});throw cause;});
+  }).catch(cause=>{void terminateOnce(transport);throw cause;});
   session.handshakeDone=true;
   session.bind();
   return {session,ready};
@@ -227,7 +237,7 @@ export class IsolatedWorkerSession{
  private violate(error:unknown):void{
   if(!this.open)return;this.open=false;
   for(const call of this.pending.values()){this.settleCall(call);call.reject(error);}this.pending.clear();
-  void this.transport.terminate().catch(()=>{});this.onClosed?.('violation');
+  void terminateOnce(this.transport);this.onClosed?.('violation');
  }
  private closedByWorker():void{
   if(!this.open)return;this.open=false;
@@ -282,7 +292,7 @@ export class IsolatedWorkerSession{
    if(this.exited){clearTimeout(timer);resolve(true);}
   });
   if(exited){this.exited??={code:0,signal:null};this.closedByWorker();return'stopped';}
-  const confirmed=await this.transport.terminate().catch(()=>false);
+  const confirmed=await terminateOnce(this.transport);
   this.closedByWorker();
   return confirmed?'stopped':'unconfirmed';
  }
@@ -302,6 +312,16 @@ export interface IsolatedExtensionRecord{
  blocked:string|null;
  retainedData:boolean;
  stopping:Promise<'stopped'|'unconfirmed'>|null;
+ /** Admitted STARTING generation, tracked from admission until its launch and
+  * handshake settle. Stop revokes it and fences replacement on its outcome. */
+ starting?:StartingGeneration|null;
+}
+
+interface StartingGeneration{
+ lease:PluginLeaseV1;
+ /** Resolves (never rejects) once the launch/handshake path has finished and
+  * any late worker was cleaned up; carries whether exit was confirmed. */
+ settled:Promise<'stopped'|'unconfirmed'>;
 }
 
 export interface IsolatedHostOptions{
@@ -385,26 +405,54 @@ export class IsolatedExtensionHost{
   const generation=this.nextGeneration(pluginId);record.blocked=null;
   const lease:PluginLeaseV1=pluginLeaseV1Schema.parse({pluginId:record.manifest.pluginId,version:record.manifest.version,generation,ownerScopes:record.ownerScopes,activeCalls:[],registrations:[],state:'STARTING'});
   record.lease=lease;
+  let markSettled!:(outcome:'stopped'|'unconfirmed')=>void;
+  const starting:StartingGeneration={lease,settled:new Promise(resolve=>{markSettled=resolve;})};
+  record.starting=starting;
+  const revoked=()=>lease.state!=='STARTING';
   let transport:WorkerTransport|undefined;
+  let owned:IsolatedWorkerSession|undefined;
+  let cleanup:'stopped'|'unconfirmed'='stopped';
   try{
    transport=await gate.launcher.launch({packageDir:record.packageDir,dataDir:record.dataDir,generation,env:processEnvironment()});
+   // Stop may have revoked this generation while the launch was in flight:
+   // the late worker is cleaned up by the single owner below and never
+   // connected or published.
+   if(revoked())throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');
    const {session,ready}=await IsolatedWorkerSession.connect(transport,{pluginId:record.manifest.pluginId,packageDigest:record.manifest.packageDigest,dataNamespace:record.manifest.dataNamespace,generation},this.handshakeDeadlineMs);
+   owned=session;
    // A worker claim is never permission: only operations the manifest
    // declared may register; anything else is a protocol violation.
    const declared=declaredOperations(record.manifest);
    for(const operation of ready.operations)if(!declared.has(operation))throw new HarnessError('PROTOCOL_VIOLATION','The isolated extension claimed an undeclared operation.');
    // A concurrent drain/disable may have revoked this lease while the
    // handshake was in-flight; never publish ACTIVE over a revoked lease.
-   if(lease.state!=='STARTING'){void session.shutdown(this.shutdownGraceMs).catch(()=>{});throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');}
+   if(revoked())throw new HarnessError('INVALID_STATE','The isolated extension lease was revoked during activation.');
    record.session=session;this.bind(record,session,lease);
    lease.state='ACTIVE';
-   lease.registrations=[...record.manifest.toolSchemas.map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
+   // Callable tools are the intersection of the manifest's declared tools and
+   // the operations the worker validly advertised in READY. A declared tool the
+   // worker did not advertise is never callable; UI semantics stay manifest-bound.
+   const advertised=new Set(ready.operations);
+   lease.registrations=[...record.manifest.toolSchemas.filter(tool=>advertised.has(tool.name)).map(tool=>({kind:'tool' as const,id:tool.name})),...(record.manifest.declaredCapabilities.includes('ui.contribute')?[{kind:'ui' as const,id:'catalog-frame'}]:[])];
    return structuredClone(lease);
   }catch(cause){
-   lease.state='FAILED';
-   void transport?.terminate().catch(()=>{});
-   record.blocked=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
+   const code=cause instanceof HarnessError?cause.code:'ACTIVATION_FAILED';
+   // Diagnostics are recorded before any state mutation. A revoked startup
+   // is Stop's outcome, not a failure, so it records a diagnostic only when
+   // its cleanup is unconfirmed.
+   if(!revoked())record.blocked=code;
+   // Exactly one cleanup outcome per admitted startup. Lower layers share the
+   // same termination attempt (terminateOnce), so nothing is repeated.
+   if(transport)cleanup=owned?await owned.shutdown(this.shutdownGraceMs).catch(()=>'unconfirmed' as const):(await terminateOnce(transport))?'stopped':'unconfirmed';
+   if(cleanup==='unconfirmed'){
+    // Never report Stopped or free the writable namespace for a worker whose
+    // exit was not proven.
+    record.blocked=code;record.session=null;lease.state='UNKNOWN';
+   }else if(lease.state==='STARTING')lease.state='FAILED';
    throw cause;
+  }finally{
+   if(record.starting===starting)record.starting=null;
+   markSettled(cleanup);
   }
  }
 
@@ -422,12 +470,26 @@ export class IsolatedExtensionHost{
 
  private stop(record:IsolatedExtensionRecord):Promise<'stopped'|'unconfirmed'>{
   if(record.stopping)return record.stopping;
-  const lease=record.lease,session=record.session;
+  const lease=record.lease,session=record.session,starting=record.starting;
   if(!lease||lease.state==='STOPPED'||lease.state==='FAILED')return Promise.resolve('stopped');
+  // UNKNOWN with no session left to confirm: cleanup was never proven, so a
+  // repeated Stop must not report Stopped or unfence the namespace.
+  if(lease.state==='UNKNOWN'&&!session)return Promise.resolve('unconfirmed');
   record.stopping=(async()=>{
    // Registrations are revoked before calls are cancelled or settled.
    if(lease.state==='ACTIVE'||lease.state==='STARTING'||lease.state==='DRAINING')lease.state='DRAINING';
    lease.registrations=[];
+   if(starting&&starting.lease===lease){
+    // Admitted but not yet published: wait, bounded, for the in-flight launch
+    // and handshake to settle and clean up. Never report Stopped, and never
+    // let a replacement start, until the late worker's exit is confirmed.
+    const bound=this.handshakeDeadlineMs+this.shutdownGraceMs+this.drainSettleMs;
+    let timer:ReturnType<typeof setTimeout>|undefined;
+    const outcome=await Promise.race([starting.settled,new Promise<'unconfirmed'>(resolve=>{timer=setTimeout(()=>resolve('unconfirmed'),bound);})]);
+    if(timer)clearTimeout(timer);
+    if(outcome==='stopped'&&!record.session){lease.state='STOPPED';return'stopped';}
+    lease.state='UNKNOWN';record.session=null;return'unconfirmed';
+   }
    if(session)await session.drain(this.drainSettleMs);
    const shutdown=session?await session.shutdown(this.shutdownGraceMs):'stopped';
    if(shutdown==='stopped'){lease.state='STOPPED';record.session=null;return'stopped';}
@@ -449,10 +511,11 @@ export class IsolatedExtensionHost{
   const manifest=pluginManifestV2Schema.parse(next.manifest);
   if(manifest.pluginId!==record.manifest.pluginId)throw new HarnessError('INVALID_INPUT','The updated manifest does not match the installed plug-in.');
   if(next.requiresMigration){
-   // An update needing migration without the complete pre-existing approved
-   // contract is a blocked update: old package and data stay untouched.
-   const decision=evaluateMigrationPlan(record.manifest,manifest,next.migrationPlan);
-   if(decision.status!=='READY')return{status:'MIGRATION_PLAN_REQUIRED'};
+   // Fail closed: no verified migration execution/validation path exists on
+   // this host, so a migration-needing update stays blocked even when the
+   // supplied contract is complete. Old package and data stay untouched; the
+   // contract is only ever validated here, never executed.
+   return{status:'MIGRATION_PLAN_REQUIRED'};
   }
   const gate=this.admission();if(!gate.ok){record.blocked=gate.hold;return{status:'BLOCKED',reason:gate.hold};}
   const stopped=await this.stop(record);
@@ -467,6 +530,8 @@ export class IsolatedExtensionHost{
  get droppedStaleReplies():number{let count=0;for(const record of this.records.values())count+=record.session?.staleReplies??0;return count;}
 
  catalog(trusted:readonly PluginManifest[]=[]):ExtensionViewV1[]{
+  // Flag off: the Extensions surface contributes nothing, trusted rows included.
+  if(!this.options.enabled())return[];
   const rows:ExtensionViewV1[]=trusted.map(manifest=>({pluginId:manifest.id,name:manifest.name,version:manifest.version,hostKind:'trusted' as const,state:'ACTIVE' as const}));
   for(const record of this.records.values()){
    rows.push({pluginId:record.manifest.pluginId,name:record.manifest.pluginId,version:record.manifest.version,hostKind:'isolated',state:record.lease?.state??'STOPPED',packageDigest:record.manifest.packageDigest,...(record.lease?{generation:record.lease.generation}:{}),declaredCapabilities:[...record.manifest.declaredCapabilities],dataScope:record.manifest.dataNamespace,...(record.blocked?{updateBlocked:record.blocked}:{}),retainedData:record.retainedData});

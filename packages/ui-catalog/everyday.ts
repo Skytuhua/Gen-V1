@@ -23,6 +23,4 @@ export function boundedEverydayData(kind:'Stats'|'Comparison',raw:unknown):boole
   if(kind==='Stats')return Array.isArray(record.metrics)&&record.metrics.length>0&&record.metrics.length<=12&&record.metrics.every(item=>Boolean(item&&typeof item==='object'&&(!('series'in item)||Array.isArray(item.series)&&item.series.length<=120)));
   return Array.isArray(record.options)&&record.options.length>=2&&record.options.length<=6&&Array.isArray(record.criteria)&&record.criteria.length>0&&record.criteria.length<=16&&record.options.every(item=>Boolean(item&&typeof item==='object'&&'values'in item&&item.values&&typeof item.values==='object'&&!Array.isArray(item.values)&&Object.keys(item.values).length<=16));
 }
-export type StatsProps=z.infer<typeof EVERYDAY_SCHEMAS.Stats>;
-export type ComparisonProps=z.infer<typeof EVERYDAY_SCHEMAS.Comparison>;
 export type CredentialEntryProps=z.infer<typeof EVERYDAY_SCHEMAS.CredentialEntry>;

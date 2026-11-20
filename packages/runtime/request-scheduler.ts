@@ -186,7 +186,15 @@ export class StatelessTransportPool {
       return null;
     }
     // Owner state is cleared between uses before the transport is handed out.
-    await entry.transport.reset();
+    try {
+      await entry.transport.reset();
+    } catch (resetFailure) {
+      try { await entry.transport.close(); }
+      catch (closeFailure) {
+        throw new AggregateError([resetFailure, closeFailure], 'Could not reset or close the idle transport.');
+      }
+      throw resetFailure;
+    }
     return entry.transport;
   }
 
@@ -203,6 +211,8 @@ export class StatelessTransportPool {
   }
 
   private async expire(id: string): Promise<void> {
+    const timer = this.timers.get(id);
+    if (timer !== undefined) clearTimeout(timer);
     this.timers.delete(id);
     const entry = this.idle.get(id);
     this.idle.delete(id);
@@ -215,7 +225,9 @@ export class StatelessTransportPool {
   }
 
   async close(): Promise<void> {
-    for (const id of [...this.idle.keys()]) await this.expire(id);
+    const outcomes = await Promise.allSettled([...this.idle.keys()].map(id => this.expire(id)));
+    const failures = outcomes.flatMap(result => result.status === 'rejected' ? [result.reason] : []);
+    if (failures.length) throw new AggregateError(failures, 'Could not close all idle transports.');
   }
 }
 

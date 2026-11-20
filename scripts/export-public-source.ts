@@ -16,6 +16,13 @@ async function intendedPath(path:string):Promise<string>{
 }
 const receiptInExport=relative(await intendedPath(target),join(await intendedPath(dirname(receipt)),basename(receipt)));
 if(!isAbsolute(receiptInExport)&&receiptInExport!=='..'&&!receiptInExport.startsWith('..'+sep))throw Error('Private export receipt must be outside the public destination.');
+// Reject a known occupied receipt before creating or copying any export files.
+try {
+  await lstat(receipt);
+  throw Error('Export receipt already exists; choose a new path.');
+} catch (error) {
+  if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error;
+}
 await mkdir(target,{recursive:true});const existing=await readdir(target);if(existing.some(name=>name!=='.git'))throw Error('The source destination is not empty. Existing checkouts are retained.');
 assertPublicPackageFiles(publicSourceFiles,'source');
 const files:{path:string;bytes:number;sha256:string}[]=[];

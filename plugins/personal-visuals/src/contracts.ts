@@ -20,7 +20,7 @@ export const visualIdSchema = z
 const label = z.string().trim().min(1).max(200),
 	detail = z.string().max(4000),
 	refs = z.array(visualIdSchema).max(16).default([]);
-export const diagramNodeSchema = z.strictObject({
+const diagramNodeSchema = z.strictObject({
 	id: visualIdSchema,
 	label,
 	kind: z.enum(["component", "service", "data", "actor", "step", "event"]),
@@ -29,7 +29,7 @@ export const diagramNodeSchema = z.strictObject({
 	start: z.number().finite().min(-1e12).max(1e12).optional(),
 	end: z.number().finite().min(-1e12).max(1e12).optional(),
 });
-export const diagramEdgeSchema = z.strictObject({
+const diagramEdgeSchema = z.strictObject({
 	id: visualIdSchema,
 	from: visualIdSchema,
 	to: visualIdSchema,
@@ -105,8 +105,6 @@ export const diagramDocumentSchema = z
 			});
 	});
 export type DiagramDocument = z.infer<typeof diagramDocumentSchema>;
-export type DiagramNode = z.infer<typeof diagramNodeSchema>;
-export type DiagramEdge = z.infer<typeof diagramEdgeSchema>;
 export function parseDiagramJson(value: string): DiagramDocument {
 	if (new TextEncoder().encode(value).length > VISUAL_LIMITS.documentBytes)
 		throw Error("The diagram exceeds the 96 KiB import limit.");

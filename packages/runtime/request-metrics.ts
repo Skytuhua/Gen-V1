@@ -5,7 +5,7 @@ import type {
   ModelRequestUsageV1,
 } from '../contracts/model-request.ts';
 
-export const MODEL_REQUEST_STAGES = [
+const MODEL_REQUEST_STAGES = [
   'acquired',
   'runtimeReady',
   'requestSent',
@@ -62,7 +62,10 @@ export class RequestMetrics {
       if (stage !== 'firstPublicDelta') return null;
       if (this.timings.firstPublicDelta === null) {
         this.timings.firstPublicDelta = this.elapsed(observedAt);
-        if (this.snapshot) this.snapshot.timings.firstPublicDelta = this.timings.firstPublicDelta;
+        if (this.snapshot) this.snapshot = {
+          ...this.snapshot,
+          timings: { ...this.snapshot.timings, firstPublicDelta: this.timings.firstPublicDelta },
+        };
       }
       return this.timings.firstPublicDelta;
     }

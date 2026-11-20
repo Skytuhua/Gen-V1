@@ -35,6 +35,8 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
   let modelCache: ModelInfo[] | undefined;
   let modelDiscovery: Promise<ModelInfo[]> | undefined;
   let modelCacheEpoch=0,modelDiscoveryEpoch=0,modelDiscoveryProvider:string|undefined;
+  // An empty provider can be a fresh result or an invalidated cache slot.
+  const invalidatedProviders=new Set<string>();
   function serial<T>(key: string, action: () => Promise<T>): Promise<T> {
     const previous = locks.get(key) ?? Promise.resolve();
     const next = previous.catch(() => {}).then(action);
@@ -110,12 +112,18 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
         );
       }
     });
+    // A lifecycle observer cannot veto worker cleanup or the next notification.
+    const notifyExit = (notify: () => void) => { try { notify(); } catch { /* The native worker still needs to be released. */ } };
+    let didEnd = false;
     const ended = () => {
+      if (didEnd) return;
+      didEnd = true;
       for (const pending of worker.pending.values()) { clearTimeout(pending.timer); pending.reject(new HarnessError("PI_WORKER_EXITED", "Pi worker exited before completing the request. Run pnpm install if the SDK cannot load; retry or sign in with pnpm agent:login.")); }
       worker.pending.clear();
       if (worker.active && !worker.stopping) {
-        emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered.");
-        if (worker.ctx && current(worker)) callbacks?.onEvent({ ...worker.ctx, type: "settled", aborted: true });
+        notifyExit(() => emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered."));
+        const ctx = worker.ctx;
+        if (ctx && current(worker)) notifyExit(() => callbacks?.onEvent({ ...ctx, type: "settled", aborted: true }));
       }
       worker.active = false;
       if (worker.authority) { worker.authority.settled = true; worker.authority.revoked = true; }
@@ -127,7 +135,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       didExit();
     };
     child.once("exit", ended);
-    child.once("error", error => { emit(worker, "error", safeError(error)); ended(); });
+    child.once("error", error => { if (!didEnd) notifyExit(() => emit(worker, "error", safeError(error))); ended(); });
     return worker;
   }
   function request(worker: Worker, command: string, args: Record<string, unknown> = {}, timeoutMs = 30_000): Promise<unknown> {
@@ -136,11 +144,16 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { worker.pending.delete(requestId); reject(new Error(`Pi ${command} did not acknowledge within ${timeoutMs / 1000} seconds.`)); }, timeoutMs);
       worker.pending.set(requestId, { resolve, reject, timer });
-      worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...(purpose?{purpose}:{}), ...args }, error => {
-        if (!error) return;
-        const pending = worker.pending.get(requestId);
-        if (pending) { clearTimeout(timer); worker.pending.delete(requestId); reject(error); }
-      });
+      const fail = (error: unknown) => {
+        if (!worker.pending.delete(requestId)) return;
+        clearTimeout(timer);
+        reject(error);
+      };
+      try {
+        worker.process.send({ type: "command", requestId, command, dataDir: storage, ...(modelOnly?{modelOnly:true}:{}), ...(purpose?{purpose}:{}), ...args }, error => {
+          if (error) fail(error);
+        });
+      } catch (error) { fail(error); }
     });
   }
   async function terminate(worker: Worker) {
@@ -198,7 +211,8 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       assertAuthority();
       if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if (!modelDiscovery) {
-        if (modelCache && !options?.refresh) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        if(modelCache&&!options?.refresh&&(!options?.providerId||!invalidatedProviders.has(options.providerId))) return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+        if(modelCache&&options?.providerId)invalidatedProviders.add(options.providerId);
         modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
         const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
         modelDiscovery = (async () => {
@@ -208,14 +222,19 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
           finally { await terminate(worker); }
           assertAuthority();
           if(options?.providerId)models=models.filter(model=>model.provider===options.providerId);
-          if(epoch===modelCacheEpoch)modelCache = options?.providerId?(modelCache?[...modelCache,...models]:undefined):models;
+          if(epoch===modelCacheEpoch){
+           modelCache = options?.providerId?(modelCache?[...modelCache,...models]:undefined):models;
+           if(options?.providerId)invalidatedProviders.delete(options.providerId);else invalidatedProviders.clear();
+          }
           return models;
         })().finally(() => { modelDiscovery = undefined; });
       }
       return structuredClone(await modelDiscovery);
     },
     async invalidateModels(options) {
-      modelCacheEpoch++;modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
+      modelCacheEpoch++;
+      if(options?.providerId&&modelCache)invalidatedProviders.add(options.providerId);else invalidatedProviders.clear();
+      modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
     },
     start(input) { return queueRun(input, "start"); },
     followUp(input) { if(purpose==='memory-extraction')return Promise.reject(new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED','Memory extraction cannot continue a conversation.'));if(purpose==='prediction')return Promise.reject(new HarnessError('PREDICTION_SESSION_UNSUPPORTED','Predictions cannot continue a conversation.'));return serial(input.threadId, async () => {

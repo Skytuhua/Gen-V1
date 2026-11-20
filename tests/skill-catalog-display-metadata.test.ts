@@ -18,3 +18,8 @@ it('keeps multiline quoted metadata and does not mistake its comment for display
 it.each(['"quoted" trailing junk', "'quoted' trailing junk", "'bad'quote'"])('rejects malformed quoted display metadata: %s', value => {
   expect(() => parseSkillMetadata(`---\nname: Review\ndescription: ${value}\n---`)).toThrow();
 });
+
+it.each(['>', '|-'])('reads the supported block header %s followed by a YAML comment', indicator => {
+  expect(parseSkillMetadata('---\nname: Notes\ndescription: ' + indicator + ' # author comment\n  First line\n  second line\n---'))
+    .toEqual({name: 'Notes', description: 'First line second line'});
+});

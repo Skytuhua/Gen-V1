@@ -17,7 +17,7 @@ export interface IntakeRecord extends IntakeV1 {
   decision: { commandId: string; at: string; threadId: string | null } | null;
 }
 export interface IntakeConfig { repositoryId: number; enabled: boolean; projectId: string | null; sourceInstallation: string | null; updatedAt: string }
-export interface IntakeTaskRequest { intakeId: string; title: string; sourceUrl: string; projectId: string | null; modelId: string; content: string }
+interface IntakeTaskRequest { intakeId: string; title: string; sourceUrl: string; projectId: string | null; modelId: string; content: string }
 
 export interface ExternalIntakeOptions {
   store: Store;
@@ -239,6 +239,7 @@ export class ExternalIntakeCoordinator {
     const result = this.store.internal("intake.polled", null, () => {
       let proposals = 0, duplicates = 0, rejected = 0;
       for (const entry of records) {
+        if (entry === null || typeof entry !== "object" || Array.isArray(entry)) { rejected++; continue; }
         const record = entry as { node_id?: unknown; number?: unknown; title?: unknown; html_url?: unknown; updated_at?: unknown; repository_url?: unknown; pull_request?: unknown };
         if (typeof record.node_id !== "string" || typeof record.number !== "number" || typeof record.title !== "string" || typeof record.html_url !== "string" || typeof record.updated_at !== "string" || typeof record.repository_url !== "string") {
           rejected++;
