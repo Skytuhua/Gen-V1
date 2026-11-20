@@ -38,9 +38,9 @@ it('rejects publication when its source changes, a new input waits, or the origi
   f.store.internal('fixture-new-input', 'thread', () => f.store.put('outbox', 'next', 'thread', {id: 'next', threadId: 'thread', content: 'New task', status: 'persisted', runId: null}));
   expect(() => f.memory.publishExtraction(cut, candidates, 'test-model')).toThrow();
   f.store.internal('fixture-remove-input', 'thread', () => f.store.remove('outbox', 'next'));
-  f.store.internal('fixture-edit-source', 'thread', () => f.store.put('message', 'answer', 'thread', {...f.store.get<any>('message', 'answer'), content: 'Correction: use PostgreSQL.'}));
+  f.store.internal('fixture-edit-source', 'thread', () => f.store.put('message', 'answer', 'thread', {...f.store.get<Record<string, unknown>>('message', 'answer')!, content: 'Correction: use PostgreSQL.'}));
   expect(() => f.memory.publishExtraction(cut, candidates, 'test-model')).toThrow();
-  f.store.internal('fixture-new-run', 'thread', () => f.store.put('thread', 'thread', 'thread', {...f.store.get<any>('thread', 'thread'), epoch: 2, runId: 'new-run', status: 'working'}));
+  f.store.internal('fixture-new-run', 'thread', () => f.store.put('thread', 'thread', 'thread', {...f.store.get<Record<string, unknown>>('thread', 'thread')!, epoch: 2, runId: 'new-run', status: 'working'}));
   expect(() => f.memory.extractionCut(f.access, source)).toThrow();
   expect(f.memory.read(await f.memory.access('project', 'thread')).items).toHaveLength(0);
 });
@@ -61,10 +61,10 @@ it('registers durable compaction checkpoints for immediate Forget invalidation a
   const outcome = await checkpointBeforeCompaction({access: f.access, snapshot: access => f.memory.consolidationSnapshot(access), capability: {adapterId: 'pi', apiVersion: 2, hostOwned: true}, required: true, persist: checkpoint => f.memory.persistCheckpoint(f.access, checkpoint), compact: () => 'compacted'});
   expect(outcome.result).toBe('compacted');
   const id = outcome.checkpoint!.id;
-  expect(f.store.get<any>('projectMemoryDerived', id)).toMatchObject({valid: true, refs: [{itemId: item.id, revision: item.revision}]});
+  expect(f.store.get<{valid?:boolean;refs?:unknown[]}>('projectMemoryDerived', id)).toMatchObject({valid: true, refs: [{itemId: item.id, revision: item.revision}]});
   expect(f.memory.forgetPreview(f.access, item.id, item.revision).affectedDerivedArtifacts).toContain(id);
   f.act({action: 'forget', itemId: item.id, baseRevision: item.revision});
-  expect(f.store.get<any>('projectMemoryDerived', id).valid).toBe(false);
+  expect(f.store.get<{valid?:boolean}>('projectMemoryDerived', id)!.valid).toBe(false);
   f.memory.purge(Date.now() + 8 * 86400000);
   expect(f.store.get('projectMemoryDerived', id)).toBeNull();
 });
@@ -76,7 +76,7 @@ it('records use only for exact dispatched revisions, without extending expiry or
   expect(f.memory.read(f.access).items[0].lastUsedAt).toBeTruthy();
   f.act({action: 'edit', itemId: item.id, baseRevision: item.revision, text: 'Use PostgreSQL instead.'});
   f.memory.markUsed(f.access, result.recall);
-  expect(f.store.get<any>('projectMemoryUsage', item.id).revision).toBe(item.revision);
+  expect(f.store.get<{revision?:number}>('projectMemoryUsage', item.id)!.revision).toBe(item.revision);
   f.act({action: 'forget', itemId: item.id, baseRevision: item.revision + 1});
   f.memory.markUsed(f.access, result.recall);
   expect(f.memory.accepted(f.access)).toEqual([]);
@@ -84,7 +84,7 @@ it('records use only for exact dispatched revisions, without extending expiry or
 
 it('requires a distinct authenticated project-only confirmation for reusable preferences and retains concurrent corrections', async () => {
   const f = await fixture(), item = f.propose('Prefer concise comments for this task.');
-  expect(() => f.act({action: 'confirm-preference', itemId: item.id, baseRevision: item.revision, text: 'Prefer concise project comments.'} as any)).toThrow();
+  expect(() => f.act({action: 'confirm-preference', itemId: item.id, baseRevision: item.revision, text: 'Prefer concise project comments.'} as never)).toThrow();
   f.act({action: 'confirm-preference', itemId: item.id, baseRevision: item.revision, text: 'Prefer concise project comments.', confirmation: 'PROJECT_ONLY'});
   const accepted = f.memory.accepted(f.access)[0].item;
   expect(accepted).toMatchObject({kind: 'PREFERENCE', scope: 'PROJECT', state: 'ACCEPTED', assertedBy: {kind: 'USER', id: 'local-user'}});
