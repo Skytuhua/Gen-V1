@@ -8,7 +8,7 @@ import { windowsSecretCodec, type SecretCodec } from './environment-settings.ts'
 import { readBoundFile, withOwnedPathGuard, withPathGuard } from './file-access.ts';
 
 const domains = ['arguments', 'action', 'grant', 'operation-definition'] as const;
-export type EffectAuthenticationDomain = typeof domains[number];
+type EffectAuthenticationDomain = typeof domains[number];
 export interface EffectAuthenticator {
   readonly keyId: string;
   commit(domain: EffectAuthenticationDomain, value: unknown): string;

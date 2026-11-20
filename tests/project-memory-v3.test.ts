@@ -30,7 +30,7 @@ it('keeps proposals out of accepted memory and records exact user acceptance wit
 
 it('binds identity to physical enrollment and survives only a display rename', async () => {
   const f = await fixture(); f.accept();
-  f.store.internal('rename', null, () => f.store.put('workspaceProject', 'project', null, { ...f.store.get<any>('workspaceProject', 'project'), name: 'Renamed' }));
+  f.store.internal('rename', null, () => f.store.put('workspaceProject', 'project', null, { ...f.store.get<Record<string, unknown>>('workspaceProject', 'project')!, name: 'Renamed' }));
   const renamed = await f.memory.access('project', 'thread');
   expect(renamed.projectIdentity).toBe(f.access.projectIdentity); expect(f.memory.read(renamed).projectName).toBe('Renamed');
   renameSync(f.path, f.path + '-old'); mkdirSync(f.path);
@@ -52,9 +52,9 @@ it('rejects another account, unapproved source thread, fabricated source and ove
 
 it('captures exact settled source revisions and refuses an actively changing task', async () => {
   const f = await fixture(), item = f.accept();
-  f.store.internal('change-source', 'thread', () => f.store.put('message', 'source', 'thread', { ...f.store.get<any>('message', 'source'), content: 'Changed API' }));
+  f.store.internal('change-source', 'thread', () => f.store.put('message', 'source', 'thread', { ...f.store.get<Record<string, unknown>>('message', 'source')!, content: 'Changed API' }));
   expect(f.memory.source(f.access, item.id, item.revision, f.ref.digest).content).toBe('Use SQLite for project persistence.');
-  f.store.internal('start', 'thread', () => f.store.put('thread', 'thread', 'thread', { ...f.store.get<any>('thread', 'thread'), runId: 'active', status: 'working' }));
+  f.store.internal('start', 'thread', () => f.store.put('thread', 'thread', 'thread', { ...f.store.get<Record<string, unknown>>('thread', 'thread')!, runId: 'active', status: 'working' }));
   const active = await f.memory.access('project', 'thread');
   expect(() => f.memory.captureMessage(active, 'source')).toThrow(/settled/i);
 });
@@ -89,7 +89,7 @@ it('connects host revisions to local recall and a reference index without revivi
   const initial = await consolidator.consolidate(f.access); expect(initial.status).toBe('UPDATED'); expect(initial.index?.refs).toEqual([{itemId: item.id, revision: item.revision}]);
   expect((await consolidator.consolidate(f.access)).status).toBe('UNCHANGED');
   f.act({ action: 'edit', itemId: item.id, baseRevision: item.revision, text: 'Use Postgres for project persistence.' });
-  expect(f.store.get<any>('projectMemoryDerived', initial.index!.id).valid).toBe(false);
+  expect(f.store.get<{valid?:boolean}>('projectMemoryDerived', initial.index!.id)!.valid).toBe(false);
   const recall = () => lexicalRecall({ access: f.access, requestId: 'fixture-request', contextGeneration: 1, query: 'project persistence', candidates: f.memory.accepted(f.access), tombstones: f.memory.tombstones(f.access), sourceAvailable: ref => f.memory.sourceAvailable(f.access, ref) });
   expect(recall().injection).toContain('Postgres'); expect(recall().injection).not.toContain('Use SQLite');
   expect((await consolidator.consolidate(f.access)).index?.refs).toEqual([{itemId: item.id, revision: item.revision + 1}]);
@@ -99,7 +99,7 @@ it('connects host revisions to local recall and a reference index without revivi
 
 it('opens the exact reference when identical source bytes came from distinct messages', async () => {
   const f = await fixture();
-  f.store.internal('fixture-source', 'thread', () => f.store.put('message', 'second-source', 'thread', { ...f.store.get<any>('message', 'source'), id: 'second-source' }));
+  f.store.internal('fixture-source', 'thread', () => f.store.put('message', 'second-source', 'thread', { ...f.store.get<Record<string, unknown>>('message', 'source')!, id: 'second-source' }));
   const second = f.memory.captureMessage(f.access, 'second-source'), item = f.propose('Use the recorded decision.', [f.ref, second]);
   expect(second.digest).toBe(f.ref.digest);
   expect(() => f.memory.source(f.access, item.id, 1, second.digest)).toThrow();

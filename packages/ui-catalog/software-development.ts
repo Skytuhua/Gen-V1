@@ -4,7 +4,7 @@ const key=z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_-]{0,127}$/).refine(value=>!['_
 const id=z.string().min(1).max(200).regex(/^[^\s\u0000-\u001f]+$/).refine(value=>!['__proto__','constructor','prototype'].includes(value));
 const title=z.string().min(1).max(300),detail=z.string().max(2000).optional(),code=z.string().max(40000);
 const source=z.string().max(2000).optional();
-export const softwareCheckStatus=z.enum(['not-run','running','passed','failed','skipped','blocked','unknown']);
+const softwareCheckStatus=z.enum(['not-run','running','passed','failed','skipped','blocked','unknown']);
 const props={dataBinding:key,stateKey:key,actionId:key.optional(),actionLabel:z.string().min(1).max(200).optional()};
 export const SOFTWARE_SCHEMAS={Diagnostics:z.strictObject(props),ChangeSet:z.strictObject(props),ApiExplorer:z.strictObject(props),Pipeline:z.strictObject(props)};
 export const SOFTWARE_EXAMPLES={
@@ -20,11 +20,7 @@ export const SOFTWARE_DATA_SCHEMAS={
   ApiExplorer:z.strictObject({title:title.optional(),source,endpoints:z.array(z.strictObject({id,method:z.enum(['GET','POST','PUT','PATCH','DELETE','HEAD','OPTIONS']),path:z.string().min(1).max(1000).regex(/^\//),summary:z.string().max(1000).optional(),parameters:z.array(z.strictObject({name:title,location:z.enum(['path','query','header','body']),type:z.string().min(1).max(200),required:z.boolean().optional(),description:detail})).max(40).optional(),request:code.optional(),responses:z.array(z.strictObject({status:z.number().int().min(100).max(599),body:code,description:detail})).max(8).optional()})).max(80).refine(unique,'Endpoint identities must be unique')}),
   Pipeline:z.strictObject({title:title.optional(),source,stages:z.array(z.strictObject({id,name:title,status:softwareCheckStatus,command:z.string().max(2000).optional(),durationMs:z.number().finite().min(0).max(86400000).optional(),dependsOn:z.array(id).max(20).optional(),log:code.optional(),detail})).max(40).refine(unique,'Stage identities must be unique')}).superRefine((data,context)=>{const ids=new Set(data.stages.map(stage=>stage.id));if(data.stages.some(stage=>stage.dependsOn?.some(dependency=>dependency===stage.id||!ids.has(dependency))))context.addIssue({code:'custom',message:'Stage dependencies must reference another listed stage'});}),
 };
-export type SoftwareComponentName=keyof typeof SOFTWARE_SCHEMAS;
 export type SoftwareProps=z.infer<typeof SOFTWARE_SCHEMAS.Diagnostics>;
-export type DiagnosticData=z.infer<typeof SOFTWARE_DATA_SCHEMAS.Diagnostics>;
-export type ChangeSetData=z.infer<typeof SOFTWARE_DATA_SCHEMAS.ChangeSet>;
-export type ApiData=z.infer<typeof SOFTWARE_DATA_SCHEMAS.ApiExplorer>;
 export type PipelineData=z.infer<typeof SOFTWARE_DATA_SCHEMAS.Pipeline>;
 export const SOFTWARE_DESCRIPTIONS={
   Diagnostics:'A source-bound test/diagnostic inspector. Bind {items:[{id,title,status,file?,line?,column?,message?,code?,expected?,actual?,durationMs?}],source?}; status is not-run|running|passed|failed|skipped|blocked|unknown. Up to100 unique items. Local selection preserves a stable diagnostic ID and reveals its actual error, source line and expected/actual values. Optional actionId routes the selected diagnostic through the existing durable broker; use native approval for test execution. No result is inferred from a click.',
