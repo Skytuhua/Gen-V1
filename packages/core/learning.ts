@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {HarnessError,type RunContext,type RuntimeAdapter,type RuntimeEvent,type RuntimeUsage,type ToolCall} from '../contracts/index.ts';
 
-export const LEARNING_LIMITS={toolCalls:16,inputBytes:64*1024,timeoutMs:60_000} as const;
+const LEARNING_LIMITS={toolCalls:16,inputBytes:64*1024,timeoutMs:60_000} as const;
 export interface LearningJob {source:RunContext;modelId:string;accountId:string|null;prompt:string;thinkingLevel?:string|null;enabled?:boolean}
 export interface LearningToolResult {value:unknown;appliedChanges?:number}
 export interface LearningOutcome {status:'completed'|'cancelled'|'failed'|'limit'|'timeout';toolCalls:number;inputBytes:number;appliedChanges:number;usage?:Partial<RuntimeUsage>;error?:string;cleanupConfirmed?:boolean}

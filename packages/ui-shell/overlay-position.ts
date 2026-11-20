@@ -1,4 +1,4 @@
-export interface OverlayViewport { left: number; top: number; width: number; height: number }
+interface OverlayViewport { left: number; top: number; width: number; height: number }
 export interface OverlayAnchor { left: number; right: number; top: number; bottom: number }
 export type OverlaySide = 'above' | 'below' | 'left' | 'right';
 export interface PopoverPlacement { left: number; top: number; width: number; height: number; side: OverlaySide }

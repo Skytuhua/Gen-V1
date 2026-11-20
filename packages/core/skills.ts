@@ -4,7 +4,7 @@ import {HarnessError} from '../contracts/index.ts';
 import type {SkillActor,SkillChangeResult,SkillDetail,SkillOperation,SkillPage,SkillPolicy,SkillProposal,SkillProposalSummary,SkillSummary,SkillVersionSummary} from '../contracts/skills.ts';
 import {digest,type Store} from '../storage/store.ts';
 
-export const SKILL_LIMITS={records:128,bodyBytes:64*1024,fileBytes:64*1024,packageBytes:128*1024,files:32,operations:32,pending:20,page:20,responseBytes:8192} as const;
+const SKILL_LIMITS={records:128,bodyBytes:64*1024,fileBytes:64*1024,packageBytes:128*1024,files:32,operations:32,pending:20,page:20,responseBytes:8192} as const;
 interface SkillRecord extends SkillSummary {content:string;files:Record<string,string>}
 interface SkillVersion extends SkillVersionSummary {skill:SkillRecord}
 interface SkillUsage {count:number;lastUsedAt:string}
