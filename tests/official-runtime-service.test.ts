@@ -17,17 +17,17 @@ function stream<T>() {
 
 it('continues a durable host decision in the same official session through real Service callbacks and authenticated MCP', async () => {
   const dataDir = await mkdtemp(join(tmpdir(), 'official-service-'));
-  const queries: Array<{ options: any; inputs: any[]; events: ReturnType<typeof stream<any>> }> = [];
+  const queries: Array<{ options: {mcpServers:{host:{url:string;headers:Record<string,string>}};sessionId?:string;resume?:string}; inputs: {uuid?:string;message?:{content:string}}[]; events: ReturnType<typeof stream<unknown>> }> = [];
   const runtime = createOfficialRuntime({ dataDir }, {
-    claudeSdk: { query({ prompt, options }: any) {
-      const events = stream<any>(); const state = { options, events, inputs: [] as any[] }; queries.push(state);
-      void (async () => { for await (const input of prompt) state.inputs.push(input); })();
+    claudeSdk: { query({ prompt, options }: { prompt: AsyncIterable<unknown>; options: {mcpServers:{host:{url:string;headers:Record<string,string>}};sessionId?:string;resume?:string} }) {
+      const events = stream<unknown>(); const state = { options, events, inputs: [] as {uuid?:string;message?:{content:string}}[] }; queries.push(state);
+      void (async () => { for await (const input of prompt) state.inputs.push(input as {uuid?:string;message?:{content:string}}); })();
       return Object.assign(events[Symbol.asyncIterator](), {
         accountInfo: async () => ({ apiProvider: 'firstParty', subscriptionType: 'Claude Max', apiKeySource: 'none' }),
         supportedModels: async () => [{ value: 'official-fixture', displayName: 'Scripted official runtime fixture', description: '' }],
         setModel: async () => {}, getContextUsage: async () => ({ totalTokens: 10, maxTokens: 100 }), interrupt: async () => undefined, close: () => events.close(),
       });
-    } } as any,
+    } } as never,
     claudeHistory: async (_dir, manifest) => Object.entries(manifest.value.inputs).filter(([, receipt]) => receipt.observed).map(([uuid, receipt]) => ({ uuid, inputIds: receipt.inputIds })),
   });
   // Model metadata fixture avoids discovery-only queries; starts use the real adapter preflight.
@@ -41,7 +41,7 @@ it('continues a durable host decision in the same official session through real 
     await client.connect(new StreamableHTTPClientTransport(new URL(config.url), { requestInit: { headers: config.headers } }));
     const result = await client.callTool({ name, arguments: args });
     if (result.isError) throw new Error(JSON.stringify(result));
-    return JSON.parse((result.content as any)[0].text);
+    return JSON.parse((result.content as {text?:string}[])[0].text!);
   };
   try {
     await service.recover();
@@ -53,11 +53,11 @@ it('continues a durable host decision in the same official session through real 
     first.events.push({ type: 'assistant', session_id: first.options.sessionId, user_message_uuids: [first.inputs[0].uuid], message: { id: 'first-answer', content: [{ type: 'text', text: 'Please choose a direction.' }] } });
     first.events.push({ type: 'result', subtype: 'success', session_id: first.options.sessionId, user_message_uuids: [first.inputs[0].uuid], queued_turn_count: 0 });
     await vi.waitFor(() => expect(store.get<Thread>('thread', thread.id)).toMatchObject({ status: 'awaiting_input', runId: null }));
-    expect(store.all<any>('outbox', thread.id).every(input => input.status === 'handled')).toBe(true);
+    expect(store.all<{status?:string}>('outbox', thread.id).every(input => input.status === 'handled')).toBe(true);
     await send('request.respond', { requestId: created.requestId, revision: 1, response: 'Keep' }, thread.id);
     await vi.waitFor(() => expect(queries[1]?.inputs).toHaveLength(1));
     expect(queries[1].options.resume).toBe(first.options.sessionId);
-    expect(JSON.parse(queries[1].inputs[0].message.content.split('\n').slice(1).join('\n')).prompt).toContain('"response":"Keep"');
+    expect(JSON.parse(queries[1].inputs[0].message!.content.split('\n').slice(1).join('\n')).prompt).toContain('"response":"Keep"');
     const presented = await tool(1, 'ui_present', { title: 'Kept decision', spec: { root: 'text', elements: { text: { type: 'Text', props: { text: 'Scripted host integration evidence; no live inference.' } } } } });
     const second = queries[1];
     second.events.push({ type: 'assistant', session_id: second.options.resume, user_message_uuids: [second.inputs[0].uuid], message: { id: 'second-answer', content: [{ type: 'text', text: 'Decision preserved.' }] } });
@@ -65,6 +65,6 @@ it('continues a durable host decision in the same official session through real 
     await vi.waitFor(() => expect(store.get<Thread>('thread', thread.id)?.runId).toBeNull());
     expect(store.get<InputRequest>('request', created.requestId)?.status).toBe('accepted');
     expect(store.get<ArtifactRecord>('artifact', presented.artifactId)?.title).toBe('Kept decision');
-    expect(store.all<any>('outbox', thread.id).every(input => input.status === 'handled')).toBe(true);
+    expect(store.all<{status?:string}>('outbox', thread.id).every(input => input.status === 'handled')).toBe(true);
   } finally { await Promise.all(clients.map(client => client.close())); await service.dispose(); store.close(); }
 });

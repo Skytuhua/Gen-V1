@@ -24,7 +24,7 @@
 .saved-layout-error {color:var(--danger);overflow-wrap:anywhere;}
 .saved-layout-dialog {width:min(380px,calc(100vw - 16px));}
 .saved-layout-dialog form,.saved-layout-dialog label {display:flex;flex-direction:column;gap:12px;}
-.saved-layout-dialog input {width:100%;box-sizing:border-box;min-height:32px;padding:6px 8px;color:var(--text);background:var(--canvas);border:1px solid var(--border);border-radius:4px;font:inherit;}
+.saved-layout-dialog input {width:100%;box-sizing:border-box;min-height:32px;padding:6px 8px;color:var(--text);background:var(--canvas);border:1px solid var(--control-border);border-radius:4px;font:inherit;}
 .saved-layout-dialog p {margin:0;overflow-wrap:anywhere;}
 .saved-layout-dialog-actions {display:flex;justify-content:flex-end;gap:8px;}
 .saved-layout-dialog-actions button {min-height:32px;padding:6px 12px;}
