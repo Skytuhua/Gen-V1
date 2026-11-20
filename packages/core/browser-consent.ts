@@ -24,7 +24,7 @@ import type { Store } from '../storage/store.ts';
  * answer is DRIVER_UNAVAILABLE — before any OS or browser call (D01/D02).
  * Existing sessions never inherit access from a visible screenshot (S01). */
 
-export const CONTROL_UNAVAILABLE_REASON = 'DRIVER_UNAVAILABLE';
+const CONTROL_UNAVAILABLE_REASON = 'DRIVER_UNAVAILABLE';
 
 /** Approved driver registry (D02). Registration is host composition, never
  * tool-callable; zero or more-than-one matching drivers both produce
