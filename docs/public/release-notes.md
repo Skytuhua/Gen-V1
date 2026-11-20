@@ -10,9 +10,95 @@ The [v0.6.1 prerelease](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6
 
 The 0.6.4 and 0.6.5 source previews are not published stable installers. Use the source setup instructions to try changes made after the v0.6.1 prerelease. Release availability can change; check the [release list](https://github.com/skytuhua-org/Gen-V1/releases) before choosing an installer.
 
-## Unreleased 0.6.5 source
+<a id="unreleased-065-source"></a>
 
-For the latest source changes, see the [unreleased changelog](../../CHANGELOG.md#unreleased--065-visual-workspace-preview) and [visual workspace guide](../visual-workspace.md).
+## 0.6.5 — YYYY-MM-DD
+
+This source preview covers all changes since v0.6.1, including the 0.6.4 source
+preview. See the [grouped changelog](../../CHANGELOG.md#065--yyyy-mm-dd) and
+[visual workspace guide](../visual-workspace.md). Highlights include:
+
+Interim scope: see [Pending 0.6.5 freeze gates (not yet merged)](#pending-065-freeze-gates-not-yet-merged)
+for unmerged scope, not shipped changes. #584 is deferred.
+
+Providers: OpenAI — **Verified** (recorded live acceptance); Claude, Gemini,
+Cursor, Pi, OpenAI-Codex, GitHub Copilot, xAI, Kimi, OpenCode and Meta/Muse —
+**Preview-unverified**. These labels describe live acceptance evidence, not
+availability or verification of every 0.6.5 build. See the
+[verification record](../verification/README.md).
+
+Generated apps are **Preview**. 0.6.5 ships as an **unsigned prerelease (preview)**,
+not a stable-channel promotion.
+
+**Upgrading from v0.6.1:** download and run the 0.6.5 installer over the existing
+install; the in-app updater is not available in v0.6.1. There is no rollback to
+v0.6.1. Close the app fully and back up your profile/data first: the default
+backend data is in `%LOCALAPPDATA%\GenerativeHarness` and the desktop window/session
+profile is in `%APPDATA%\GenerativeHarnessDesktop`
+([documented locations](getting-started.md#keep-your-data-recoverable)).
+In-app stable-update checks apply only to later upgrades from 0.6.5.
+Expect Windows SmartScreen to show a
+"Windows protected your PC" warning when installing it.
+
+- **Workspace and UI:** durable split layouts, retained editors, in-app floating
+  conversations, parked-view recovery, undo/redo, named layouts, project colors
+  and a unified overview/plan timeline. Legacy canvas records survive retirement
+  of the built-in Code Review, Research, Custom and Visuals presets.
+- **Conversations and agents:** loaded-message search, saved local prompts,
+  command/skill selection, terminal excerpts and paged Personal/agent reads.
+  Separately gated work adds typed delegation, budgeted multi-agent tasks,
+  background scheduling, human handoffs, proposed GitHub intake, fixed-cut
+  inspection, quoted-context new tasks and inert history imports.
+- **Context, memory and Hermes:** inspectable request budgets, usage/timing and
+  compaction costs; gated source-bound context preparation, repository maps,
+  loss-aware compaction and opt-in source-linked project memory with review,
+  exclusions and recovery. Shared model scheduling improves runtime accounting;
+  warm reuse remains experimental.
+- **Integrations and MCP:** public plug-in API v1, independently versioned and
+  integrity-checked packages, durable plug-in data and optional Personal Visuals.
+  Approved Context7 operations expose reference/advisory provenance. Isolated
+  extension workers have separate activation holds.
+- **Git and developer tools:** managed worktrees, selective commits, checkpoint
+  history and diff review; gated restore, code intelligence, rename recovery,
+  restricted debugging, build/browser verification and a source-aware workbench.
+- **Settings and attention:** searchable supported settings, reversible appearance
+  previews, protected environment values, a shared shortcut reference, durable
+  Inbox/custom attention and improved profile-scoped GitHub sign-in.
+- **Desktop and updater:** guarded stable-update checks, deferred/retry handling,
+  restored conversation detachment/docking, closed-window recovery, stable bounds,
+  compact startup feedback and stronger packaging/export checks.
+- **Security:** separately gated project trust, secret
+  references, single-use approvals and recoverable effect receipts; stronger MCP
+  credential redaction at MCP output, document permissions and custody checks.
+
+### Performance and fixes
+
+- Paged reads, lazy panels and reduced rescanning accompany fixes to drafts/focus
+  and checkpoints.
+
+### Runtime reliability and safety
+
+- Preserve schedule pauses, cancellations, newer leases and blocked states during recovery and late delivery reconciliation.
+- Reject plan progress and report writes based on stale revisions; advance report cursors only through the events actually consumed.
+- Bound package advisory cache reuse to 24 hours, require fresh snapshot provenance for clean results, and block inconsistent screening decisions.
+- Validate initial terminal commands before spawning; retain complete characters when trimming scrollback and keep transcript cursors in bounds.
+- Measure thread-note budgets against the stored text, keeping memory bounded for continuity rather than treating it as source evidence or approval.
+- Redact integration error metadata and reject causes, property names or formatter accessors that cannot be safely scrubbed of credentials.
+- Avoid host restart hangs when event-stream clients disconnect during shutdown, without waiting for duplicate close events.
+- Keep the isolated extension lifecycle off by default and its catalog hidden while disabled; keep migration updates blocked and prevent worker replacement until prior shutdown is confirmed.
+- Bound provider history and session-header reads, reject malformed history, and tighten startup deadlines, cancellation cleanup and optional usage waits.
+- Keep Inbox notifications beyond a 30-item delivery batch pending for the next
+  delivery instead of marking them delivered unseen. (#915)
+- Resolve project environment overrides before decrypting, so a shadowed device
+  secret is never unprotected. (#917)
+- Skip null or malformed entries in external issue intake without dropping the
+  valid issues in the same batch. (#920)
+- Bound optional composer prediction context by its serialized size, including
+  escaped characters, so JSON-heavy chats stay within the limit. (#933)
+
+Advanced host capabilities are separately gated and generally default off;
+listing source work here does not grant execution authority, prove provider
+entitlement or establish installed-release acceptance.
 
 ## 0.6.4 source preview
 
@@ -31,12 +117,46 @@ The [screenshots and videos](media/README.md) show the actual public browser int
 
 The 0.6.4 source preview passed its Windows CI run. Focused native candidate checks covered workspace cleanup and normal close/reopen recovery. For later revisions, check [GitHub Actions](https://github.com/skytuhua-org/Gen-V1/actions) for the exact commit; source CI does not verify an installed upgrade. Earlier genuine OpenAI/Hermes task verification is documented in [the acceptance report](../2026-11-01-product-completion.md); it does not prove every later build or connection.
 
-The following remain open:
+### Pending 0.6.5 freeze gates (not yet merged)
 
-- Installed stable upgrade/updater acceptance on a suitable isolated Windows target.
-- Independent live sign-in, model entitlement and task acceptance for providers beyond the evidenced OpenAI route.
-- The broader generated-application quality pilot.
-- Physical multi-monitor and mixed-DPI acceptance.
+These items are in 0.6.5 scope but not merged and ship only if they pass freeze gates.
+
+- Keyboard-created source selections so Ask/Attach/Open do not require a pointer
+  (#788), control boundaries meeting 3:1 non-text contrast in both themes (#789),
+  and layout-resilience verification at UI zoom and OS text scaling (#589).
+- UI acceptance repairs (#896): preserve main selection when detaching a non-main
+  conversation, improve dock previews and keyboard float resizing, and refine
+  compact composer, plan and workspace-surface behavior.
+- Retain a known-bad integration denial when advisory refresh fails (#936),
+  rather than losing the prior denial during a failed refresh.
+- Independent installed-Windows memory retention and opt-in qualification (#782):
+  draft CI-only work, not completed acceptance or a user-facing feature.
+
+### Known issues
+
+- Acceptance of installing 0.6.5 over an existing v0.6.1 install with profile/data
+  preserved is still open/unverified; source or candidate checks do not prove it.
+- Independent live sign-in, model entitlement and task acceptance beyond the
+  evidenced OpenAI route, and the broader generated-application **Preview** quality pilot,
+  remain open.
+- Physical multi-monitor/mixed-DPI placement, native popup focus/sound/privacy,
+  DPAPI round-trip and browser occlusion still require target acceptance.
+  Desktop acceptance across mixed-DPI and multi-monitor setups (#584) is deferred
+  from 0.6.5.
+- New native canvas-panel detachment/free-floating desktop views are unavailable.
+  Gemini/Cursor native compaction, the separate OpenCode agent runtime and
+  Meta/Muse access remain unavailable; tested native session forks are unsupported.
+- Isolated-extension activation still has a backend-launch-binding hold.
+  Browser/desktop control and paired-client remote access are unavailable.
+- Advanced capabilities retain default-off and per-platform acceptance gates.
+  Historical full-suite failures, skipped/opt-in checks and partial milestone
+  evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
+  warnings and visual-fidelity/user acceptance remain unresolved.
+
+The [visual-workspace verification report](../visual-workspace-verification.md),
+[extension handoff](../implementation/v6/M13/handoff.md) and
+[session capability evidence](../implementation/v6/M14/handoff.md) record scoped checks
+and holds, not blanket release approval.
 
 A bounded review of 28 captured alerts from the older default branch found none applicable to the evaluated 0.6.4 source. It did not cover newly disclosed advisories outside that set or every opaque bundled binary, and is not a vulnerability-free claim.
 
