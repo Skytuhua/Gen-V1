@@ -10,6 +10,12 @@ export const sourceCheck = z.strictObject({ label, status: workflowStatus, detai
 const sourceSummary = z.strictObject({ label, status: workflowStatus, detail });
 // Source-bound records are validated again at render time; their status is never inferred
 // from a label, an action click, or elapsed time.
+export const relationshipProgress = z.discriminatedUnion('mode', [
+  z.strictObject({ mode: z.literal('indeterminate'), label: z.string().min(1).max(200) }),
+  z.strictObject({ mode: z.literal('determinate'), label: z.string().min(1).max(200), completed: z.number().int().nonnegative(), total: z.number().int().positive() }),
+]).superRefine((progress, ctx) => {
+  if (progress.mode === 'determinate' && progress.completed > progress.total) ctx.addIssue({ code: 'custom', message: 'Progress cannot exceed its total' });
+});
 export const relationshipData = z.strictObject({
   nodes: z.array(z.strictObject({
     id: nodeId, label, detail, status: workflowStatus.optional(), lane: z.number().int().min(0).max(7).optional(),
@@ -17,7 +23,7 @@ export const relationshipData = z.strictObject({
     hash: z.string().max(80).optional(), author: z.string().max(120).optional(), time: z.string().max(100).optional(), branch: z.string().max(160).optional(),
     dimmed: z.boolean().optional(), conflictCount: z.number().int().min(0).max(10_000).optional(),
     excerpts: z.array(z.strictObject({ label, text: z.string().max(2_000) })).max(4).optional(),
-    checks: z.array(sourceCheck).max(8).optional(),
+    checks: z.array(sourceCheck).max(8).optional(), progress: relationshipProgress.optional(),
   })).min(1).max(80),
   edges: z.array(z.strictObject({ from: nodeId, to: nodeId, label: detail, status: workflowStatus.optional(), prospective: z.boolean().optional() })).max(160),
   branchLabels: z.array(z.strictObject({ label, lane: z.number().int().min(0).max(7), column: z.number().int().min(0).max(20), tone: z.enum(['neutral', 'blue', 'teal', 'purple']).optional() })).max(16).optional(), tone: z.enum(['neutral', 'merged']).optional(),

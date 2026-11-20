@@ -5,6 +5,7 @@ import { ArrowRight } from 'lucide-react';
 import { relationshipData, type RelationshipData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
 import { animateTask, MotionRegion, reducedMotion, TASK_MOTION } from './task-motion';
+import { readMotionPolicy, observeMotionPolicy } from './motion-policy';
 import { StatusIcon } from './task-status';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {createThreadHoverInteraction} from './thread-hover/interaction';
@@ -51,15 +52,15 @@ function useGraphGeometry(target: Geometry, key: string, surface: RefObject<HTML
       if (element.querySelector('[data-graph-tooltip-active]')) element.dispatchEvent(new Event('task-graph-layout'));
     };
     let frame = 0, finished = false, last = performance.now(); const started = last;
+    let stopPolicy: () => void = () => {};
     const finish = () => {
-      if (finished) return; finished = true; cancelAnimationFrame(frame); current.current = target;
+      if (finished) return; finished = true; cancelAnimationFrame(frame); stopPolicy(); current.current = target;
       velocity.current = { positions: new Map(), labels: new Map(), width: 0, height: 0, opacity: new Map() };
       paint(target); commitGeometry(target);
     };
-    const preference = matchMedia('(prefers-reduced-motion: reduce)');
-    const changedPreference = () => { if (preference.matches) finish(); }; preference.addEventListener('change', changedPreference);
     paint(current.current);
-    if (preference.matches || !current.current.positions.size) { finish(); return () => preference.removeEventListener('change', changedPreference); }
+    if (readMotionPolicy() !== 'full' || !current.current.positions.size) { finish(); return () => {}; }
+    stopPolicy = observeMotionPolicy(policy => { if (policy !== 'full') finish(); });
     const advance = (now: number) => {
       if (finished) return;
       if (now - started > 900 || document.visibilityState === 'hidden') { finish(); return; }
@@ -85,7 +86,7 @@ function useGraphGeometry(target: Geometry, key: string, surface: RefObject<HTML
       if (moving) frame = requestAnimationFrame(advance); else finish();
     };
     frame = requestAnimationFrame(advance);
-    return () => { finished = true; cancelAnimationFrame(frame); preference.removeEventListener('change', changedPreference); };
+    return () => { finished = true; cancelAnimationFrame(frame); stopPolicy(); };
   }, [key]);
   return current.current;
 }
@@ -153,7 +154,16 @@ function NodeDetailContent({ node, related }: { node: SourceNode; related: strin
   return <><strong>{node.label}</strong>{(node.hash || node.author || node.time) && <span className="task-node-context-meta">{node.hash && <code>{node.hash}</code>}{node.author}{node.time}</span>}<Excerpts node={node} />
     {node.conflictCount !== undefined && <span>{node.conflictCount} source conflicts</span>}
     {node.checks?.map((check, index) => <span key={index} className={`task-node-check status-${check.status}`}><StatusIcon status={check.status} /><span>{check.label}{check.detail && <small>{check.detail}</small>}</span></span>)}
+    {node.progress && <NodeProgress progress={node.progress} />}
     {related.length > 0 && <small className="task-node-context-detail">{related.join(' · ')}</small>}</>;
+}
+function NodeProgress({ progress }: { progress: NonNullable<SourceNode['progress']> }) {
+  const determinate = progress.mode === 'determinate';
+  return <span className={`task-node-progress progress-${progress.mode}`} role="progressbar" aria-label={determinate ? `${progress.label}: ${progress.completed} of ${progress.total}` : progress.label}
+    {...(determinate ? { 'aria-valuemin': 0, 'aria-valuemax': progress.total, 'aria-valuenow': progress.completed, 'aria-valuetext': `${progress.completed}/${progress.total}` } : {})}>
+    <span className="task-node-progress-text">{determinate ? `${progress.label} · ${progress.completed}/${progress.total}` : progress.label}</span>
+    <span className="task-node-progress-track" aria-hidden="true"><span className="task-node-progress-fill" style={determinate ? { width: `${progress.completed / progress.total * 100}%` } : undefined} /></span>
+  </span>;
 }
 function NodeContext({ node, related, id, selectable }: { node: SourceNode; related: string[]; id: string; selectable?: boolean }) {
   return <GraphTooltip id={id} dismissOnSelect={selectable}><NodeDetailContent node={node} related={related} /></GraphTooltip>;
@@ -194,8 +204,49 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
     : { x: HORIZONTAL_INSET + column * step, y: 34 + lane * LANE_HEIGHT };
   const targetPositions = new Map(nodes.map((node, index) => [node.id, horizontal ? position(node.column ?? index, node.lane ?? 0) : { x: 16 + (node.lane ?? 0) * 18, y: index * ROW_HEIGHT + ROW_HEIGHT / 2 }]));
   const targetLabels = new Map((data?.branchLabels ?? []).map((branch, index) => { const point = position(branch.column, branch.lane); return [`${branch.label}-${index}`, { x: point.x, y: point.y + (branch.lane === 0 ? -24 : 13) }]; }));
-  const target = { positions: targetPositions, labels: targetLabels, width: horizontal ? horizontalWidth : rail, height: horizontal ? inline ? (Math.floor(maxColumn / capacity) + 1) * bandHeight : lanes * LANE_HEIGHT + (schematic ? 42 : 78) : nodes.length * ROW_HEIGHT };
+  // Outward row/branch extents are measured once per layout change (below), so
+  // the schematic height springs to real content rows rather than a lane guess.
+  const extents = useRef(new Map<string, number>());
+  const [extentsVersion, setExtentsVersion] = useState(0);
+  const compactNode = (node: SourceNode) => node.kind === 'point' || node.kind === 'endpoint';
+  const schematicBottom = schematic ? Math.max(
+    ...nodes.map(node => targetPositions.get(node.id)!.y + (extents.current.get(node.id) ?? (compactNode(node) ? 12 : 72))),
+    ...(data?.branchLabels ?? []).map((branch, index) => targetLabels.get(`${branch.label}-${index}`)!.y + (branch.lane === 0 ? 0 : extents.current.get(`b:${branch.label}-${index}`) ?? 13)),
+  ) + 24 : 0;
+  const target = { positions: targetPositions, labels: targetLabels, width: horizontal ? horizontalWidth : rail, height: horizontal ? (schematic ? schematicBottom : inline ? (Math.floor(maxColumn / capacity) + 1) * bandHeight : lanes * LANE_HEIGHT + 78) : nodes.length * ROW_HEIGHT };
+  const nodeIdsKey = JSON.stringify(nodes.map(node => node.id));
+  useLayoutEffect(() => {
+    if (!horizontal || !schematic || !surface.current) return;
+    let changed = false;
+    for (const row of surface.current.querySelectorAll<HTMLElement>('[data-node-id]')) {
+      const inner = row.firstElementChild as HTMLElement | null; if (!inner) continue;
+      const extent = inner.offsetHeight + (Number.parseFloat(getComputedStyle(inner).marginTop) || 0);
+      if (extents.current.get(row.dataset.nodeId!) !== extent) { extents.current.set(row.dataset.nodeId!, extent); changed = true; }
+    }
+    for (const branch of surface.current.querySelectorAll<HTMLElement>('[data-branch-id]')) {
+      const key = `b:${branch.dataset.branchId}`;
+      if (extents.current.get(key) !== branch.offsetHeight) { extents.current.set(key, branch.offsetHeight); changed = true; }
+    }
+    if (changed) setExtentsVersion(version => version + 1);
+  }, [geometryKey, horizontalWidth, edgeKeys, extentsVersion, schematic, horizontal]);
   const geometry = useGraphGeometry(target, `${inline}:${props.orientation}:${geometryKey}:${horizontal ? horizontalWidth : rail}:${JSON.stringify(data?.branchLabels)}:${JSON.stringify(edges.map(edge => [edge.from, edge.to]))}`, surface, horizontal);
+  // Seen identities are cumulative: first publication, restoration and removed
+  // IDs never earn a second inner title entrance.
+  const seenNodes = useRef<Set<string> | null>(null);
+  useLayoutEffect(() => {
+    if (seenNodes.current === null) { seenNodes.current = new Set(nodes.map(node => node.id)); return; }
+    const seen = seenNodes.current;
+    for (const node of nodes) {
+      const fresh = !seen.has(node.id); seen.add(node.id);
+      if (!fresh || !node.label.trim()) continue;
+      const title = surface.current?.querySelector<HTMLElement>(`[data-node-id="${CSS.escape(node.id)}"] .task-node-title`);
+      if (!title) continue;
+      title.dataset.titleReveal = 'true';
+      const done = () => { delete title.dataset.titleReveal; };
+      void Promise.allSettled(title.getAnimations().map(animation => animation.finished)).then(done);
+      setTimeout(done, 600);
+    }
+  }, [nodeIdsKey]);
   const acceptedChecks = data?.checks ?? [], checksKey = JSON.stringify(acceptedChecks);
   const [checkView, setCheckView] = useState({ items: acceptedChecks, leaving: false });
   useLayoutEffect(() => {
@@ -206,13 +257,62 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
     const timer = setTimeout(() => setCheckView({ items: [], leaving: false }), TASK_MOTION.status);
     return () => clearTimeout(timer);
   }, [checksKey]);
-  const [mergePulse, setMergePulse] = useState(false), previousTone = useRef(data?.tone);
+  // Check identity is label + occurrence ordinal. New items get a bounded
+  // 0/30/70/100ms stagger; an ambiguous duplicate-label reorder commits at once.
+  const seenChecks = useRef<Set<string> | null>(null);
   useLayoutEffect(() => {
-    const entering = previousTone.current !== 'merged' && data?.tone === 'merged'; previousTone.current = data?.tone;
-    if (!entering || reducedMotion()) return;
-    setMergePulse(true); const timer = setTimeout(() => setMergePulse(false), 760);
+    const ordinals = new Map<string, number>();
+    const identities = acceptedChecks.map(check => { const ordinal = ordinals.get(check.label) ?? 0; ordinals.set(check.label, ordinal + 1); return `${check.label}#${ordinal}`; });
+    if (seenChecks.current === null) { seenChecks.current = new Set(identities); return; }
+    const seen = seenChecks.current;
+    const fresh = identities.map((identity, index) => seen.has(identity) ? -1 : index).filter(index => index >= 0);
+    let ambiguous = false;
+    for (const [label, count] of ordinals) {
+      if (count > 1 && identities.slice(0, count - 1).some((_, ordinal) => !seen.has(`${label}#${ordinal}`) && seen.has(`${label}#${ordinal + 1}`))) ambiguous = true;
+    }
+    if (!fresh.length) return;
+    // The check row commits after this layout pass (checkView); unseen IDs wait
+    // for their elements instead of being baselined before they can animate.
+    const elements = surface.current?.querySelectorAll<HTMLElement>('.task-graph-check') ?? [];
+    if (!fresh.every(index => index < elements.length)) return;
+    identities.forEach(identity => seen.add(identity));
+    if (ambiguous) return;
+    const delays = [0, 30, 70, 100];
+    fresh.forEach((checkIndex, order) => {
+      const element = elements[checkIndex]; if (!element) return;
+      element.dataset.checkNew = 'true'; element.style.animationDelay = `${delays[Math.min(order, delays.length - 1)]}ms`;
+      element.addEventListener('animationend', () => { delete element.dataset.checkNew; element.style.animationDelay = ''; }, { once: true });
+    });
+  }, [checksKey, checkView.items]);
+
+  // A merged publication pulses the real status transition backwards along the
+  // connected feature lane — never a blanket tone or branch-name match.
+  const previousStatus = useRef<Map<string, string> | null>(null), previousTone = useRef(data?.tone);
+  const [pulse, setPulse] = useState<{ nodes: Map<string, number>; edges: Map<string, number> } | null>(null);
+  const statusesKey = JSON.stringify(nodes.map(node => [node.id, node.status ?? 'neutral']));
+  useLayoutEffect(() => {
+    const statuses = new Map(nodes.map(node => [node.id, node.status ?? 'neutral']));
+    const previous = previousStatus.current, lastTone = previousTone.current;
+    previousStatus.current = statuses; previousTone.current = data?.tone;
+    if (!previous || lastTone === 'merged' || data?.tone !== 'merged' || readMotionPolicy() !== 'full') return;
+    const seeds = nodes.filter(node => node.status === 'merged' && previous.get(node.id) !== 'merged').map(node => node.id);
+    if (!seeds.length) return;
+    const byId = new Map(nodes.map(node => [node.id, node])), branchTone = new Map((data?.branchLabels ?? []).map(branch => [branch.lane, branch.tone ?? 'neutral']));
+    const featurePredecessor = (id: string) => { const node = byId.get(id); const lane = node?.lane ?? 0; return node?.tone === 'blue' || node?.tone === 'purple' || branchTone.get(lane) === 'blue' || branchTone.get(lane) === 'purple'; };
+    const pulseNodes = new Map<string, number>(), pulseEdges = new Map<string, number>(), visited = new Set<string>();
+    const walk = (id: string, distance: number) => {
+      if (visited.has(id)) return; visited.add(id);
+      if ((pulseNodes.get(id) ?? Infinity) > distance) pulseNodes.set(id, distance);
+      const candidates = edges.filter(edge => edge.to === id && !edge.prospective && featurePredecessor(edge.from));
+      if (new Set(candidates.map(edge => byId.get(edge.from)?.lane ?? -1)).size > 1) return;
+      for (const edge of candidates) { pulseEdges.set(`${edge.from}->${edge.to}`, distance + 1); walk(edge.from, distance + 1); }
+    };
+    for (const seed of seeds) walk(seed, 0);
+    setPulse({ nodes: pulseNodes, edges: pulseEdges });
+    const timer = setTimeout(() => setPulse(null), 340);
     return () => clearTimeout(timer);
-  }, [data?.tone]);
+  }, [statusesKey, data?.tone]);
+  const pulseDelay = (distance: number | undefined) => distance === undefined ? undefined : `${Math.min(distance * 20, 60)}ms`;
   useLayoutEffect(() => {
     const area = viewport.current; if (!area) return;
     const measure = () => { if (area.clientWidth) setAvailableWidth(area.clientWidth); };
@@ -220,7 +320,7 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
     return () => observer.disconnect();
   }, [parsed.success]);
   useLayoutEffect(() => {
-    if (summaryKey && previousSummary.current && summaryKey !== previousSummary.current) animateTask(summaryElement.current, reducedMotion() ? [{ opacity: .5 }, { opacity: 1 }] : [{ opacity: .5, transform: 'translateY(3px)' }, { opacity: 1, transform: 'translateY(0)' }], TASK_MOTION.status);
+    if (summaryKey && previousSummary.current && summaryKey !== previousSummary.current) animateTask(summaryElement.current, [{ opacity: .5 }, { opacity: 1 }], 160, { duration: '--ui-motion-status', easing: '--ui-ease-move' });
     previousSummary.current = summaryKey;
   }, [summaryKey]);
   if (!parsed.success) return <p className="task-unavailable">Relationship data is unavailable. Connect nodes and edges from a source to inspect them.</p>;
@@ -243,7 +343,8 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
       <div className="task-graph-body" style={{ ...(horizontal ? { width } : {}), height }}>
         <svg className="task-graph-lines" width={width} height={height} aria-hidden="true">{edges.map((edge, index) => {
           const a = positions.get(edge.from)!, b = positions.get(edge.to)!, destination = nodes.find(node => node.id === edge.to)!;
-          return <path key={`${edge.from}-${edge.to}-${index}`} d={graphPath(a, b, horizontal)} pathLength={1} data-from={edge.from} data-to={edge.to} data-prospective={edge.prospective || undefined} className={`graph-edge status-${edge.status ?? 'neutral'} tone-${nodeTone(destination)}`} />;
+          const edgePulse = pulse?.edges.get(`${edge.from}->${edge.to}`);
+          return <path key={`${edge.from}-${edge.to}-${index}`} d={graphPath(a, b, horizontal)} pathLength={1} data-from={edge.from} data-to={edge.to} data-prospective={edge.prospective || undefined} data-pulse={edgePulse !== undefined ? '' : undefined} style={{ animationDelay: pulseDelay(edgePulse) }} className={`graph-edge status-${edge.status ?? 'neutral'} tone-${nodeTone(destination)}`} />;
         })}</svg>
         {horizontal && branchLabels?.map((branch, index) => { const branchId = `${branch.label}-${index}`, point = geometry.labels.get(branchId) ?? targetLabels.get(branchId)!; return <span key={branchId} data-branch-id={branchId} className={`task-graph-branch-label tone-${tone === 'merged' && branch.tone === 'blue' ? 'purple' : branch.tone ?? 'neutral'}`} style={{ left: point.x, top: point.y }}>{branch.label}</span>; })}
         <ol>{nodes.map(node => {
@@ -252,21 +353,21 @@ export function RelationshipGraph({ element: { props }, children }: ComponentRen
           const tip = `${id}-${encodeURIComponent(node.id)}`, visualTone = nodeTone(node);
           const content = <>
             <span className={`task-graph-dot status-${status} tone-${visualTone}`} style={horizontal ? undefined : { left: position.x }} />
-            <span className="task-node-copy"><span className="task-node-label"><span className="task-node-title">{node.label}</span>{node.branch && <span className={`task-node-branch tone-${visualTone}`}>{node.branch}</span>}{node.conflictCount !== undefined && node.conflictCount > 0 && <span className="task-node-conflicts">{node.conflictCount}<span className="sr-only"> conflicts</span></span>}<span className={`task-node-status status-${status}`}><StatusIcon status={status} /><span className="sr-only">{status}</span></span></span>{node.detail && <small>{node.detail}</small>}</span>
+            <span className="task-node-copy"><span className="task-node-label"><span className="task-node-title">{node.label}</span>{node.progress && <NodeProgress progress={node.progress} />}{node.branch && <span className={`task-node-branch tone-${visualTone}`}>{node.branch}</span>}{node.conflictCount !== undefined && node.conflictCount > 0 && <span className="task-node-conflicts">{node.conflictCount}<span className="sr-only"> conflicts</span></span>}<span className={`task-node-status status-${status}`}><StatusIcon status={status} /><span className="sr-only">{status}</span></span></span>{node.detail && <small>{node.detail}</small>}</span>
             {(node.hash || node.author || node.time) && <span className="task-node-meta">{node.hash && <code className="task-node-hash">{node.hash}</code>}{node.author && <span className="task-node-author">{node.author}</span>}{node.time && <span className="task-node-time">{node.time}</span>}</span>}
             {horizontal && node.kind === 'endpoint' && <span className={`task-node-endpoint-label status-${status}`}>{node.label}</span>}
             <NodeContext node={node} related={related} id={tip} selectable={typeof props.stateKey === 'string'} />
           </>;
-          const className = `task-node ${horizontal ? 'task-node-horizontal' : ''} ${compact ? 'task-node-point' : ''} ${node.dimmed ? 'task-node-dimmed' : ''} ${mergePulse && (visualTone === 'purple' || status === 'merged') ? 'task-node-merge-pulse' : ''}`;
-          return <li key={node.id} data-node-id={node.id} data-kind={node.kind ?? 'commit'} className={compact ? 'task-point-position' : undefined} style={{ transform: horizontal ? `translate3d(${position.x}px,${position.y}px,0) translateX(-50%)` : `translate3d(0,${position.y - ROW_HEIGHT / 2}px,0)`, opacity: Math.min(1, Math.max(0, geometry.opacity?.get(node.id) ?? (geometry.positions.has(node.id) ? 1 : 0))) }}>{typeof props.stateKey === 'string' ? <button type="button" className={className} aria-label={node.label} aria-describedby={tip} aria-pressed={selected === node.id} onClick={() => store.set(statePath(props.stateKey), node.id)}>{content}</button> : <div className={className} tabIndex={0} aria-label={node.label} aria-describedby={tip}>{content}</div>}</li>;
+          const className = `task-node ${horizontal ? 'task-node-horizontal' : ''} ${compact ? 'task-node-point' : ''} ${node.dimmed ? 'task-node-dimmed' : ''}`;
+          return <li key={node.id} data-node-id={node.id} data-kind={node.kind ?? 'commit'} className={compact ? 'task-point-position' : undefined} style={{ transform: horizontal ? `translate3d(${position.x}px,${position.y}px,0) translateX(-50%)` : `translate3d(0,${position.y - ROW_HEIGHT / 2}px,0)`, opacity: Math.min(1, Math.max(0, geometry.opacity?.get(node.id) ?? (geometry.positions.has(node.id) ? 1 : 0))) }}>{typeof props.stateKey === 'string' ? <button type="button" className={className} data-pulse={pulse?.nodes.has(node.id) ? '' : undefined} style={{ animationDelay: pulseDelay(pulse?.nodes.get(node.id)) }} aria-label={node.label} aria-describedby={tip} aria-pressed={selected === node.id} onClick={() => store.set(statePath(props.stateKey), node.id)}>{content}</button> : <div className={className} data-pulse={pulse?.nodes.has(node.id) ? '' : undefined} style={{ animationDelay: pulseDelay(pulse?.nodes.get(node.id)) }} tabIndex={0} aria-label={node.label} aria-describedby={tip}>{content}</div>}</li>;
         })}</ol>
       </div>
     </div>
     {selectedNode && <div className="task-graph-selection" role="region" aria-label={`${selectedNode.label} details`}><div className="task-node-details"><NodeDetailContent node={selectedNode} related={relatedFor(selectedNode)} /></div></div>}
     <MotionRegion open={Boolean(checkView.items.length || summary || conflictCount || hasActions)} duration={TASK_MOTION.status} className="task-graph-footer">
-      {checkView.items.length ? <div className={`task-graph-checks${checkView.leaving ? ' is-leaving' : ''}`} aria-label="Source check summaries" aria-hidden={checkView.leaving || undefined} inert={checkView.leaving}>{checkView.items.map((check, index) => <span key={check.label} className={`task-graph-check status-${check.status}`} tabIndex={0} style={{ animationDelay: `${index * TASK_MOTION.check}ms` }} aria-describedby={`${id}-check-${index}`}><StatusIcon status={check.status} /><span>{check.label}</span>{check.detail && <GraphTooltip id={`${id}-check-${index}`} compact>{check.detail}</GraphTooltip>}</span>)}</div> : null}
+      {checkView.items.length ? <div className={`task-graph-checks${checkView.leaving ? ' is-leaving' : ''}`} aria-label="Source check summaries" aria-hidden={checkView.leaving || undefined} inert={checkView.leaving}>{checkView.items.map((check, index) => <span key={check.label} className={`task-graph-check status-${check.status}`} tabIndex={0} aria-describedby={`${id}-check-${index}`}><StatusIcon status={check.status} /><span>{check.label}</span>{check.detail && <GraphTooltip id={`${id}-check-${index}`} compact>{check.detail}</GraphTooltip>}</span>)}</div> : null}
       <div className="task-graph-footer-row">
-        {(summary || conflictCount > 0) && <div ref={summaryElement} className={`task-graph-summary status-${summary?.status ?? 'pending'}`} role="status"><StatusIcon status={summary?.status ?? 'pending'} /><span>{conflictCount > 0 ? <button type="button" className="task-graph-conflict-summary" aria-label={`Inspect ${conflictCount} conflicts`} aria-describedby={conflictTip}>{summary?.label ?? `${conflictCount} conflicts`}<GraphTooltip id={conflictTip} wide><strong>{conflictCount} conflicts in the supplied source</strong>{conflicts.slice(0, 4).map(node => <span key={node.id} className="task-conflict-group"><strong>{node.label}</strong><Excerpts node={node} /></span>)}{conflicts.length > 4 && <small>Inspect source for {conflicts.length - 4} more comparisons.</small>}</GraphTooltip></button> : summary?.label}{summary?.detail && <small>{summary.detail}</small>}</span></div>}
+        {(summary || conflictCount > 0) && <div ref={summaryElement} data-pulse={pulse && summary?.status === 'merged' ? '' : undefined} className={`task-graph-summary status-${summary?.status ?? 'pending'}`} role="status"><StatusIcon status={summary?.status ?? 'pending'} /><span>{conflictCount > 0 ? <button type="button" className="task-graph-conflict-summary" aria-label={`Inspect ${conflictCount} conflicts`} aria-describedby={conflictTip}>{summary?.label ?? `${conflictCount} conflicts`}<GraphTooltip id={conflictTip} wide><strong>{conflictCount} conflicts in the supplied source</strong>{conflicts.slice(0, 4).map(node => <span key={node.id} className="task-conflict-group"><strong>{node.label}</strong><Excerpts node={node} /></span>)}{conflicts.length > 4 && <small>Inspect source for {conflicts.length - 4} more comparisons.</small>}</GraphTooltip></button> : summary?.label}{summary?.detail && <small>{summary.detail}</small>}</span></div>}
         {hasActions && <div className="task-graph-footer-actions">{children}</div>}
       </div>
     </MotionRegion>

@@ -81,8 +81,18 @@
 .task-graph-selection { margin-top:8px; padding:11px 14px; border:1px solid var(--border); border-radius:8px; background:var(--subtle); font-size:13px; }
 .task-graph-checks { display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:10px 0 7px; }
 .task-graph-checks.is-leaving { animation:task-checks-out var(--ui-motion-panel-exit) var(--ui-ease-move) both; pointer-events:none; }
-.task-node.task-node-merge-pulse { animation:task-merge-pulse 700ms var(--ui-ease-enter) both; }
-.task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:14px; font-size:12px; line-height:1.4; animation:task-check-in var(--ui-motion-insert) var(--ui-ease-enter) both; cursor:default; }
+.task-node[data-pulse] .task-graph-dot,.task-node[data-pulse] .task-node-endpoint-label { animation:graph-pulse-color var(--ui-motion-success) var(--ui-ease-move) both; animation-delay:inherit; }
+.graph-edge[data-pulse] { animation:graph-pulse-edge var(--ui-motion-success) var(--ui-ease-move) both; animation-delay:inherit; }
+.task-graph-summary[data-pulse] { animation:graph-pulse-color var(--ui-motion-success) var(--ui-ease-move) both; }
+@keyframes graph-pulse-color { 0% { filter:drop-shadow(0 0 4px var(--graph-purple)) brightness(1.25); } 100% { filter:none; } }
+@keyframes graph-pulse-edge { 0% { stroke:var(--graph-purple); stroke-width:2.6; filter:drop-shadow(0 0 4px var(--graph-purple)); } 100% { stroke-width:1.6; filter:none; } }
+.task-node-progress { display:inline-flex; flex-direction:column; justify-content:center; flex-shrink:0; min-width:44px; max-width:110px; color:var(--muted); font-size:10px; line-height:1.3; font-variant-numeric:tabular-nums; }
+.task-node-progress-text { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.task-node-progress-track { display:block; height:2px; margin-top:1px; border-radius:1px; background:color-mix(in srgb,currentColor 18%,transparent); overflow:hidden; }
+.task-node-progress-fill { display:block; height:100%; border-radius:1px; background:currentColor; }
+.task-node-progress.progress-indeterminate .task-node-progress-fill { width:38%; }
+.task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:14px; font-size:12px; line-height:1.4; cursor:default; }
+.task-graph-check[data-check-new] { animation:task-check-in var(--ui-motion-tab) linear both; }
 .task-graph-check>span:first-of-type { color:var(--text); }
 .task-graph-footer-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:42px; }
 .task-graph-summary { display:flex; align-items:center; gap:8px; min-width:0; padding:6px 0; font-size:14px; line-height:1.5; transition:color var(--ui-motion-status) var(--ui-ease-move); }
@@ -106,11 +116,12 @@
 .task-graph .graph-edge.tone-purple { stroke:var(--graph-purple); }
 @keyframes task-path-in { from { stroke-dashoffset:1; } to { stroke-dashoffset:0; } }
 @keyframes task-future-in { from { opacity:0; } to { opacity:.75; } }
-@keyframes task-check-in { from { opacity:0; transform:translateY(3px); } to { opacity:1; transform:translateY(0); } }
+@keyframes task-check-in { from { opacity:.75; } to { opacity:1; } }
+.task-node-title[data-title-reveal] { animation:task-title-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+@keyframes task-title-in { from { opacity:.75; filter:blur(2px); } to { opacity:1; filter:blur(0); } }
 @keyframes task-checks-out { from { opacity:1; } to { opacity:0; } }
-@keyframes task-merge-pulse { 0%,25% { background:color-mix(in srgb,var(--graph-purple) 17%,transparent); } 100% { background:transparent; } }
 @media(max-width:600px) { .task-node-author,.task-node-time { display:none; } .task-node-meta { gap:6px; } .task-node-hash { font-size:10px; } .task-graph-footer-row { gap:8px; } .task-graph-summary { font-size:12px; } .task-graph-summary small { max-width:36ch; } .task-graph-footer-actions button { padding:5px 9px; } }
-@media(prefers-reduced-motion:reduce) { .task-graph .graph-edge[data-reveal],.task-graph .graph-edge[data-prospective][data-reveal],.task-graph-check,.task-node-popover,.task-graph-checks.is-leaving,.task-node.task-node-merge-pulse { animation:none; } .task-graph * { transition:none!important; } }
+@media(prefers-reduced-motion:reduce) { .task-graph .graph-edge[data-reveal],.task-graph .graph-edge[data-prospective][data-reveal],.task-graph-check[data-check-new],.task-node-title[data-title-reveal],.task-node[data-pulse],.task-node[data-pulse] .task-graph-dot,.task-node[data-pulse] .task-node-endpoint-label,.graph-edge[data-pulse],.task-graph-summary[data-pulse],.task-node-popover,.task-graph-checks.is-leaving { animation:none; } .task-graph * { transition:none!important; } }
 
 .task-node-popover[data-side="below"] { --graph-tip-offset:-3px; transform-origin:top left; }
 .task-node-popover[data-side="above"] { --graph-tip-offset:3px; transform-origin:bottom left; }

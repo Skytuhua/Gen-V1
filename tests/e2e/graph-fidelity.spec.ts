@@ -104,3 +104,93 @@ test('narrow inline graphs fit the chat width and reduced motion avoids travelli
   const node=page.locator('.task-graph-body').getByRole('button').first();await node.focus();
   await expect(node).toBeFocused();
 });
+
+test('a resolving publication reveals only the new node title and reports determinate progress', async ({ page }) => {
+  const host = await fixture(page);
+  const summary = page.locator('.task-graph-summary');
+  await expect(summary).toContainText('Three comparisons need review');
+  const retained = graphNode(page, 'Shared collection');
+  await retained.evaluate(node => node.setAttribute('data-retained', 'yes'));
+  const insertResolution = (completed: number, extra: boolean): RelationshipData => {
+    const updated = network();
+    const nodes = [...updated.nodes];
+    nodes.splice(4, 0, { id: 'resolution', label: 'Resolve overlaps', lane: 1, column: 3, tone: 'blue', status: 'running', progress: { mode: 'determinate', label: 'Tests', completed, total: 42 } });
+    if (extra) nodes.splice(3, 0, { id: 'parked', label: 'Archive prints', lane: 2, column: 3, kind: 'point', tone: 'neutral' });
+    return { ...updated, nodes, edges: [...updated.edges.filter(edge => edge.to !== 'end'), { from: 'next', to: 'resolution', status: 'running' }, { from: 'topic', to: 'resolution', status: 'running' }, { from: 'resolution', to: 'end', prospective: true, status: 'pending' }] };
+  };
+  host.setInput('network', insertResolution(1, false)); await host.publish();
+  const bar = page.locator('.task-graph [role="progressbar"]');
+  await expect(bar).toBeVisible(); await expect(bar).toHaveCount(1);
+  await expect(bar).toHaveAttribute('aria-valuemin', '0'); await expect(bar).toHaveAttribute('aria-valuemax', '42'); await expect(bar).toHaveAttribute('aria-valuenow', '1');
+  await expect(bar).toContainText('Tests · 1/42');
+  await expect(retained).toHaveAttribute('data-retained', 'yes');
+  await expect(summary).toContainText('Three comparisons need review');
+  const revealing = () => page.locator('.task-node-title[data-title-reveal]').evaluateAll(elements => elements.map(element => element.textContent));
+  await expect.poll(revealing).toEqual(['Resolve overlaps']);
+  await expect.poll(revealing, { timeout: 4_000 }).toEqual([]);
+  host.setInput('network', insertResolution(42, true)); await host.publish();
+  await expect(bar).toHaveAttribute('aria-valuenow', '42'); await expect(bar).toContainText('Tests · 42/42');
+  await expect.poll(revealing).toEqual(['Archive prints']);
+  await expect.poll(revealing, { timeout: 4_000 }).toEqual([]);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  host.setInput('network', insertResolution(42, false)); await host.publish();
+  await expect.poll(() => page.locator('.task-graph').evaluate(element => element.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
+  const edgeEnds = await page.locator('.graph-edge[data-to="resolution"]').evaluateAll(elements => elements.map(path => { const parts = (path.getAttribute('d') ?? '').split(/[ ,C]+/); return { x: Number(parts.at(-2)), y: Number(parts.at(-1)) }; }));
+  const target = await dot(page, 'Resolve overlaps').boundingBox();
+  const center = { x: target!.x + target!.width / 2, y: target!.y + target!.height / 2 };
+  const viewportBox = await page.locator('.task-graph-viewport').boundingBox();
+  for (const end of edgeEnds) {
+    expect(Math.abs(end.x - (center.x - viewportBox!.x))).toBeLessThanOrEqual(1);
+    expect(Math.abs(end.y - (center.y - viewportBox!.y))).toBeLessThanOrEqual(1);
+  }
+});
+
+test('checks stagger under 240ms while controls stay usable and the merge pulse follows the feature lane', async ({ page }) => {
+  const host = await fixture(page);
+  const checked = network();
+  checked.checks = [{ label: 'Tests', status: 'success' }, { label: 'Lint', status: 'success' }, { label: 'Types', status: 'success' }, { label: 'Preview', status: 'success' }];
+  host.setInput('network', checked); await host.publish();
+  const checks = page.locator('.task-graph-check');
+  await expect(checks).toHaveCount(4);
+  const delays = await checks.evaluateAll(elements => elements.map(element => Number.parseFloat(getComputedStyle(element).animationDelay) * 1000));
+  expect(delays.slice().sort((a, b) => a - b)).toEqual([0, 30, 70, 100]);
+  const action = page.getByRole('button', { name: 'Continue review', exact: true });
+  await action.click(); await expect.poll(() => host.commands.filter(command => command.type === 'action.submit').length).toBe(1);
+  await expect.poll(() => checks.evaluateAll(elements => elements.filter(element => element.getAnimations().some(animation => animation.playState === 'running')).length), { timeout: 4_000 }).toBe(0);
+  host.setInput('network', checked); await host.publish();
+  await expect.poll(() => page.locator('.task-graph').evaluate(element => element.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length), { timeout: 4_000 }).toBe(0);
+  const merged = network(); merged.tone = 'merged';
+  merged.summary = { label: 'Merged', status: 'merged' };
+  merged.nodes.find(node => node.id === 'end')!.status = 'merged';
+  merged.nodes.find(node => node.id === 'topic')!.status = 'merged';
+  merged.edges.forEach(edge => { edge.prospective = false; });
+  merged.nodes.push({ id: 'side', label: 'Collector notes', lane: 2, column: 2, kind: 'point', tone: 'purple' });
+  merged.edges.push({ from: 'base', to: 'side' });
+  host.setInput('network', merged); await host.publish();
+  const endpoint = graphNode(page, 'Ready to combine');
+  await expect(endpoint).toHaveAttribute('data-pulse', '');
+  await expect(page.locator('.graph-edge[data-to="end"][data-from="topic"]')).toHaveAttribute('data-pulse', '');
+  await expect(graphNode(page, 'Review ceramics')).toHaveAttribute('data-pulse', '');
+  await expect(graphNode(page, 'Collector notes')).not.toHaveAttribute('data-pulse', '');
+  await expect(page.locator('.graph-edge[data-to="side"]')).not.toHaveAttribute('data-pulse', '');
+  await expect.poll(() => graphNode(page, 'Collector notes').evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
+  await expect.poll(() => endpoint.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length), { timeout: 4_000 }).toBe(0);
+  host.setInput('network', merged); await host.publish();
+  await expect.poll(() => page.locator('.task-graph').evaluate(element => element.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length), { timeout: 3_000 }).toBe(0);
+  await expect(graphNode(page, 'Ready to combine')).not.toHaveAttribute('data-pulse', '');
+});
+
+test('two independent progress reports and an indeterminate mark stay source-bound', async ({ page }) => {
+  const host = await fixture(page, 'vertical');
+  const updated = network();
+  updated.nodes.find(node => node.id === 'topic')!.progress = { mode: 'determinate', label: 'Review', completed: 3, total: 12 };
+  updated.nodes.find(node => node.id === 'next')!.progress = { mode: 'indeterminate', label: 'Gathering' };
+  host.setInput('network', updated); await host.publish();
+  const bars = page.locator('.task-graph [role="progressbar"]');
+  await expect(bars).toHaveCount(2);
+  await expect(bars.nth(0)).toHaveAttribute('aria-valuenow', '3'); await expect(bars.nth(0)).toHaveAttribute('aria-valuemax', '12'); await expect(bars.nth(0)).toContainText('Review · 3/12');
+  await expect(bars.nth(1)).not.toHaveAttribute('aria-valuenow', /.*/); await expect(bars.nth(1)).toContainText('Gathering');
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const compact = network(); compact.nodes.find(node => node.id === 'main')!.progress = { mode: 'determinate', label: 'Prints', completed: 2, total: 5 };
+  host.setInput('network', compact); await host.publish();
+});

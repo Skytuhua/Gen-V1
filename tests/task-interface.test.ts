@@ -44,6 +44,26 @@ describe('reusable source-bound task surfaces', () => {
     expect(relationshipData.safeParse({ nodes: [{ id: 'a', label: 'A', excerpts: Array.from({ length: 5 }, () => ({ label: 'x', text: 'x' })) }], edges: [] }).success).toBe(false);
     expect(() => validateSurface(surface('RelationshipGraph', { dataBinding: 'history', orientation: 'diagonal' }))).toThrow();
   });
+  it('admits strict node progress unions and rejects partial or invalid reports', () => {
+    const node = (progress?: unknown) => ({ nodes: [{ id: 'run', label: 'Resolve', ...(progress === undefined ? {} : { progress }) }], edges: [] });
+    expect(relationshipData.safeParse(node({ mode: 'determinate', label: 'Tests', completed: 1, total: 42 })).success).toBe(true);
+    expect(relationshipData.safeParse(node({ mode: 'indeterminate', label: 'Resolving conflicts' })).success).toBe(true);
+    expect(relationshipData.safeParse(node()).success).toBe(true);
+    for (const progress of [
+      { mode: 'determinate', label: 'Tests', completed: 43, total: 42 },
+      { mode: 'determinate', label: 'Tests', completed: 1 },
+      { mode: 'determinate', label: 'Tests', completed: 1.5, total: 42 },
+      { mode: 'determinate', label: 'Tests', completed: -1, total: 42 },
+      { mode: 'determinate', label: 'Tests', completed: 1, total: 0 },
+      { mode: 'determinate', label: '', completed: 1, total: 42 },
+      { mode: 'determinate', label: 'x'.repeat(201), completed: 1, total: 42 },
+      { mode: 'indeterminate', label: 'Resolving', total: 42 },
+      { mode: 'paused', label: 'Tests' },
+      { mode: 'determinate', label: 'Tests', completed: 1, total: 42, extra: true },
+    ]) expect(relationshipData.safeParse(node(progress)).success).toBe(false);
+    const two = relationshipData.safeParse({ nodes: [{ id: 'a', label: 'A', progress: { mode: 'determinate', label: 'Tests', completed: 1, total: 42 } }, { id: 'b', label: 'B', progress: { mode: 'indeterminate', label: 'Waiting' } }], edges: [] });
+    expect(two.success).toBe(true);
+  });
   it('keeps disclosure loading and table changes source-bound', () => {
     expect(() => validateSurface(surface('Disclosure', { title: 'Can delivery be split?', stateKey: 'deliveryOpen', dataBinding: 'answer', onOpenActionId: 'expand', payload: { topic: 'delivery' } }))).not.toThrow();
     expect(disclosureData.safeParse({ status: 'ready', answer: 'Yes, choose destinations before confirming.' }).success).toBe(true);
