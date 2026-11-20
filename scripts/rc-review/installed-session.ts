@@ -15,6 +15,8 @@ $script:found=[IntPtr]::Zero;[RcWindow]::EnumWindows({param($w,$l) [uint32]$owne
  return JSON.parse(await run('powershell.exe',['-NoProfile','-NonInteractive','-EncodedCommand',Buffer.from(script,'utf16le').toString('base64')],{capture:true,env:{...process.env,RC_PID:String(pid),RC_BOUNDS:bounds?JSON.stringify(bounds):''}})) as {left:number;top:number;width:number;height:number};
 }
 
+export async function cleanupInstalledSession(closeBrowser:(()=>Promise<void>)|undefined,stopChild:()=>Promise<void>){try{await closeBrowser?.();}catch(error){try{await stopChild();}catch(cleanupError){throw new AggregateError([error,cleanupError],'Installed RC session cleanup failed.');}throw error;}await stopChild();}
+
 export async function installedSession(executable:string,action:(page:Page,pid:number)=>Promise<void>){
  if(Object.keys(process.env).some(key=>/^HARNESS_/i.test(key)))throw Error('Remove all HARNESS_* overrides before a real-profile installed launch.');
  const server=createServer();await new Promise<void>((accept,reject)=>{server.once('error',reject);server.listen(0,'127.0.0.1',accept);});const address=server.address();if(!address||typeof address==='string')throw Error('No CDP port.');const port=address.port;await new Promise<void>(accept=>server.close(()=>accept()));
@@ -26,5 +28,5 @@ export async function installedSession(executable:string,action:(page:Page,pid:n
   await expect.poll(()=>browser!.contexts().flatMap(context=>context.pages()).some(page=>/^http:\/\/127\.0\.0\.1:4317\//.test(page.url())),{timeout:90000}).toBe(true);
   const page=browser.contexts().flatMap(context=>context.pages()).find(page=>/^http:\/\/127\.0\.0\.1:4317\//.test(page.url()))!;await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:60000});await action(page,child.pid!);
   await page.evaluate(()=>window.close()).catch(error=>{if(!page.isClosed())throw error;});await expect.poll(()=>child.exitCode,{timeout:30000}).toBe(0);
- }finally{if(owned)await browser?.close();if(child.exitCode===null&&child.signalCode===null)await terminateProcessTree(child);}
+ }finally{await cleanupInstalledSession(owned&&browser?()=>browser!.close():undefined,async()=>{if(child.exitCode===null&&child.signalCode===null)await terminateProcessTree(child);});}
 }
