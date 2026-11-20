@@ -176,7 +176,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
         statusBaseline.current.set(step.id, step.status);
         if (before && !["accepted", "completed"].includes(before) && ["accepted", "completed"].includes(step.status)) {
           accepted = true;
-          const node = sectionRef.current?.querySelector<HTMLElement>(`#${prefix}-step-${step.id} .plan-step-node`);
+          const node = sectionRef.current?.querySelector<HTMLElement>(`#${CSS.escape(`${prefix}-step-${step.id}`)} .plan-step-node`);
           animateTask(node ?? null, [{ opacity: 0.6 }, { opacity: 1 }], 120, { duration: "--ui-motion-none", easing: "--ui-ease-enter" });
         }
       }
