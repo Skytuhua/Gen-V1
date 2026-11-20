@@ -67,6 +67,28 @@ it('stateless pooling requires exact keys, clears owner state, expires idle tran
  const invalidated=transport();expect(pool.offer(key(),invalidated)).toBe(true);
  await pool.invalidate(key());expect(invalidated.closed).toBe(true);
 });
+it('closes an idle transport when resetting it for reuse fails', async () => {
+ const pool = new StatelessTransportPool();
+ const failure = new Error('reset failed');
+ const item = {...transport(), reset: () => Promise.reject(failure)};
+ expect(pool.offer(key(), item)).toBe(true);
+ await expect(pool.take(key())).rejects.toBe(failure);
+ expect(item.closed).toBe(true);
+ expect(await pool.take(key())).toBeNull();
+});
+it('preserves the reset and close failures in order without returning the idle transport', async () => {
+ const pool = new StatelessTransportPool();
+ const resetFailure = new Error('reset failed');
+ const closeFailure = new Error('close failed');
+ const close = vi.fn(async () => { throw closeFailure; });
+ const item = {...transport(), reset: async () => { throw resetFailure; }, close};
+ expect(pool.offer(key(), item)).toBe(true);
+ const error = await pool.take(key()).catch((failure: unknown) => failure);
+ expect(error).toBeInstanceOf(AggregateError);
+ expect(error).toMatchObject({errors: [resetFailure, closeFailure]});
+ expect(close).toHaveBeenCalledOnce();
+ expect(await pool.take(key())).toBeNull();
+});
 it('does not expire a replacement on the invalidated transport’s old timer',async()=>{
  vi.useFakeTimers();
  const pool=new StatelessTransportPool();

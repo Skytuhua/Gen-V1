@@ -102,7 +102,7 @@
 .ui-error .ui-error-retry {
   min-height: 28px;
   padding: 4px 10px;
-  border: 1px solid var(--border, #333);
+  border: 1px solid var(--control-border, #707070);
   border-radius: 6px;
   background: transparent;
   color: var(--text, #f4f4f4);

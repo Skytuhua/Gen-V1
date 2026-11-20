@@ -6,7 +6,7 @@ import {createSplitLayoutProfileActions} from './layout-profile';
 
 const profilesSchema=z.array(z.strictObject({id:splitWorkspaceIdSchema,name:z.string().min(1).max(100),updatedAt:z.string().datetime()})).max(50);
 export type SplitWorkspaceProfileSummary=z.infer<typeof profilesSchema>[number];
-export const getSplitWorkspaceProfiles=(workspaceId='workspace')=>authenticated(()=>fetch('/api/split-workspace/profiles?'+new URLSearchParams({workspaceId}),{credentials:'same-origin',cache:'no-store'})).then(read<unknown>).then(value=>profilesSchema.parse(value));
+const getSplitWorkspaceProfiles=(workspaceId='workspace')=>authenticated(()=>fetch('/api/split-workspace/profiles?'+new URLSearchParams({workspaceId}),{credentials:'same-origin',cache:'no-store'})).then(read<unknown>).then(value=>profilesSchema.parse(value));
 
 /** Lists only saved-layout metadata; apply/save use the revision-checked split command path. */
 export function useSplitWorkspaceProfiles(enabled=true,workspaceId='workspace'){

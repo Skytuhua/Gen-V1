@@ -9,7 +9,7 @@ export class ApiError extends Error {
 // A same-origin endpoint bug or hostile response must not grow renderer memory
 // without bound; legitimate snapshot/message pages stay far below this cap.
 const MAX_JSON_BYTES = 64 * 1024 * 1024;
-async function readJson(response: Response): Promise<any> {
+async function readJson(response: Response): Promise<unknown> {
   const body = response.body;
   if (!body) return await response.json();
   const reader = body.getReader();
@@ -36,7 +36,8 @@ export async function read<T>(response: Response): Promise<T> {
     if (cause instanceof SyntaxError) return null;
     throw cause;
   });
-  throw new ApiError(body?.error?.code ?? 'HTTP_ERROR', body?.error?.message ?? `Request failed (${response.status})`, body?.error?.details);
+  const failure = body as { error?: { code?: string; message?: string; details?: unknown } } | null;
+  throw new ApiError(failure?.error?.code ?? 'HTTP_ERROR', failure?.error?.message ?? `Request failed (${response.status})`, failure?.error?.details);
 }
 
 const invalidResponse = () => new ApiError('INVALID_RESPONSE', 'The host returned an unexpected response.');
@@ -103,8 +104,8 @@ export async function authenticated(send: () => Promise<Response>) {
   await bootstrap();
   const session = bootstrapPromise;
   let response = await send();
-  const error = !response.ok ? await readJson(response.clone()).catch(() => null) : null;
-  if (response.status === 401 || error?.error?.code === 'AUTH_REQUIRED' || error?.error?.code === 'CSRF_REQUIRED') {
+  const errorBody = (!response.ok ? await readJson(response.clone()).catch(() => null) : null) as { error?: { code?: string } } | null;
+  if (response.status === 401 || errorBody?.error?.code === 'AUTH_REQUIRED' || errorBody?.error?.code === 'CSRF_REQUIRED') {
     await renewSession(session);
     response = await send();
   }
