@@ -237,3 +237,39 @@ for (const theme of ["dark", "light"])
     await expect(page.locator('[data-step-id="build"] [data-agent-id="available"]')).toHaveCount(0);
     await page.screenshot({ path: test.info().outputPath(`${theme}-branches.png`) });
   });
+
+test("progress fill interpolates genuine accepted transitions and lands immediately on corrections", async ({
+  page,
+}) => {
+  const fill = page.locator(".plan-overall-fill");
+  await expect(page.locator(".plan-overall-bar")).toHaveAttribute("aria-valuenow", "25");
+  const scale = async () =>
+    fill.evaluate((el) => {
+      const m = getComputedStyle(el).transform.match(/^matrix\(([^,)]+)/);
+      return m ? parseFloat(m[1]) : -1;
+    });
+  expect(await scale()).toBeCloseTo(0.25, 3);
+  const next = timelineSnapshot("thread-a", 2);
+  const nextPlan = next.data[0].value as ReturnType<typeof import("./plan-timeline-fixture").timelinePlan>;
+  nextPlan.steps[1].state = "completed";
+  for (const job of nextPlan.agents)
+    if (job.stepId === "build" && job.status !== "completed") job.status = "completed";
+  await page.evaluate((snapshot) => window.planFixture.update(snapshot), next);
+  await expect(page.locator(".plan-overall-bar")).toHaveAttribute("aria-valuenow", "50");
+  expect(await fill.evaluate((el) => el.getAnimations().length)).toBeGreaterThan(0);
+  expect(
+    await page
+      .locator('[data-step-id="build"] .plan-step-node')
+      .evaluate((el) => el.getAnimations().length),
+  ).toBeGreaterThan(0);
+  await page.waitForTimeout(400);
+  expect(await scale()).toBeCloseTo(0.5, 3);
+  const back = timelineSnapshot("thread-a", 3);
+  const backPlan = back.data[0].value as ReturnType<typeof import("./plan-timeline-fixture").timelinePlan>;
+  backPlan.steps[1].state = "running";
+  for (const job of backPlan.agents) if (job.stepId === "build" && job.id === "ui") job.status = "working";
+  await page.evaluate((snapshot) => window.planFixture.update(snapshot), back);
+  await expect(page.locator(".plan-overall-bar")).toHaveAttribute("aria-valuenow", "25");
+  expect(await fill.evaluate((el) => el.getAnimations().length)).toBe(0);
+  expect(await scale()).toBeCloseTo(0.25, 3);
+});

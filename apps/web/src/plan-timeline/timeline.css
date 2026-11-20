@@ -13,7 +13,7 @@
 .plan-status button {border-radius:var(--control-radius,6px);}
 .plan-status button:focus-visible,.plan-status a:focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px;}
 .plan-overall-bar {height:3px;background:var(--border);overflow:hidden;border-radius:2px;}
-.plan-overall-fill {display:block;height:100%;background:var(--muted);transition:width var(--ui-motion-status) var(--ui-ease-enter);}
+.plan-overall-fill {display:block;height:100%;width:100%;background:var(--muted);transform-origin:left;transform:scaleX(0);}
 .plan-boundary {display:flex;gap:10px;align-items:center;font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 14px;}
 .plan-boundary span {margin-left:auto;}
 .plan-end {margin:14px 0 0;}
@@ -51,7 +51,7 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-requirements [data-check-state=verified_failed] small,.plan-requirements [data-check-state=reported_failed] small {color:var(--danger);}
 .plan-blockers {padding:8px 12px;background:var(--subtle);border:1px solid var(--border);border-radius:var(--control-radius,6px);}
 .plan-branches {margin:10px 0;position:relative;}
-.plan-branches>.plan-agents {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px;padding:8px 0;border-block:1px solid var(--border);}
+.plan-branches>.plan-agents {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px;padding:8px 0;border-block:1px solid var(--border);align-items:start;}
 .plan-agent {min-width:0;padding:10px;background:var(--subtle);border:1px solid var(--border);border-radius:var(--control-radius,6px);}
 .plan-agent-top {display:flex;gap:8px;align-items:start;flex-wrap:wrap;}
 .plan-agent-summary {display:grid;grid-template-columns:16px minmax(0,1fr) 14px;gap:8px;min-height:32px;flex:1 1 120px;min-width:0;text-align:left;padding:0;align-items:start;}
@@ -81,6 +81,8 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-update-error {color:var(--danger);}
 @container (max-width:520px) {
   .plan-context-toolbar {gap:8px;}
+  .plan-fact {margin:0 0 8px;}
+  .plan-steps {gap:14px;}
   .plan-jump span {display:none;}
   .plan-status .plan-jump {width:32px;padding:0;}
   .plan-branches>.plan-agents {grid-template-columns:minmax(0,1fr);}
