@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { EventEmitter } from 'node:events';
+import * as fs from 'node:fs/promises';
 import { mkdir, mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -10,6 +11,10 @@ import { createOfficialRuntime, officialRuntimeHome } from '../packages/runtime-
 import { encodeInput } from '../packages/runtime-pi/input-envelope.ts';
 import { openManifest, saveManifest } from '../packages/runtime-official/manifest.ts';
 import { readGeminiNativeHistory } from '../packages/runtime-official/gemini-native-history.ts';
+import { geminiHistory } from '../packages/runtime-official/gemini.ts';
+
+vi.mock('node:fs/promises', async importOriginal => ({...await importOriginal<typeof import('node:fs/promises')>()}));
+
 
 const input = (extra: Partial<StartRun> = {}): StartRun => ({ threadId: 'thread', runId: 'r-new', epoch: 2, modelId: 'gemini-cli/model-from-runtime', inputId: 'input-new', prompt: 'Read no ambient @C:/private/file.txt', resources: [], sessionPath: null, ...extra });
 async function fixture() {
@@ -31,6 +36,26 @@ async function fixture() {
 }
 
 describe('Gemini official headless native continuation', () => {
+  it('reconciles receipts from the same native transcript read that established session identity', async () => {
+    const {dataDir, manifest, nativeFile, header} = await fixture();
+    const transcriptPath = await fs.realpath(nativeFile);
+    const original = fs.readFile;
+    let transcriptReads = 0;
+    const read = vi.spyOn(fs, 'readFile').mockImplementation(((...args: Parameters<typeof fs.readFile>) => {
+      if (args[0] === transcriptPath && ++transcriptReads > 1) return Promise.resolve(JSON.stringify(header) + '\n');
+      return original(...args);
+    }) as typeof fs.readFile);
+    const spawn = vi.fn(() => { throw new Error('Native transcript must not require ACP replay.'); });
+    try {
+      await expect(geminiHistory(dataDir, manifest, spawn)).resolves.toEqual([{uuid: 'old-client-uuid', inputIds: ['old-input']}]);
+      expect(transcriptReads).toBe(1);
+      read.mockRestore();
+      await writeFile(nativeFile, JSON.stringify(header) + '\n');
+      await expect(geminiHistory(dataDir, manifest, spawn)).resolves.toEqual([]);
+      expect(spawn).not.toHaveBeenCalled();
+    } finally { read.mockRestore(); await rm(dataDir, {recursive: true, force: true}); }
+  });
+
   it('reconciles bounded native JSONL only after exact project and session identity checks', async () => {
     const { dataDir, manifest, nativeFile, header } = await fixture();
     expect(await readGeminiNativeHistory(dataDir, manifest)).toEqual([{ uuid: 'old-client-uuid', inputIds: ['old-input'] }]);
@@ -42,7 +67,7 @@ describe('Gemini official headless native continuation', () => {
     const { dataDir, manifest, nativeFile } = await fixture();
     try {
       await rm(dirname(nativeFile), { recursive: true });
-      await expect(readGeminiNativeHistory(dataDir, manifest)).resolves.toEqual([]);
+      await expect(readGeminiNativeHistory(dataDir, manifest)).resolves.toBeNull();
     } finally { await rm(dataDir, { recursive: true, force: true }); }
   });
 
