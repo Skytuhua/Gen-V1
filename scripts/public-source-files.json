@@ -3368,6 +3368,7 @@
     "tests/operation-queue.test.ts",
     "tests/packaged-providers.test.ts",
     "tests/path-access.test.ts",
+    "tests/pdf-structure.test.ts",
     "tests/personal-visuals-ui.test.ts",
     "tests/personal-visuals.test.ts",
     "tests/plan-extension-v3.test.ts",
