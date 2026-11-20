@@ -43,13 +43,18 @@ test('vertical row dots and existing SVG endpoints remain attached throughout hi
 });
 
 test('accepted cell values reveal with the change highlight and sweep follows declared rows without replay', async ({ page }) => {
-  const initial = taskFixture(migrationTableSpec, { rows: [{ id: 'one', name: 'Ada', workspace_id: null }, { id: 'two', name: 'Lin', workspace_id: null }], projects: [], changes: { rows: [] } });
+  const spec = structuredClone(migrationTableSpec);
+  spec.elements.people.props = { ...spec.elements.people.props, stateKey: 'picked' };
+  const initial = taskFixture(spec, { rows: [{ id: 'one', name: 'Ada', workspace_id: null }, { id: 'two', name: 'Lin', workspace_id: null }], projects: [], changes: { rows: [] } });
   const fixture = await serveTaskFixture(page, initial); await page.goto('/');
-  await expect(page.locator('tr[data-row-id=one] td[data-column-key=workspace_id]')).toHaveText('NULL');
+  const cell = page.locator('tr[data-row-id=one] td[data-column-key=workspace_id]'); await expect(cell).toContainText('NULL');
   fixture.setInput('rows', [{ id: 'one', name: 'Ada', workspace_id: 'studio' }, { id: 'two', name: 'Lin', workspace_id: null }]);
   fixture.setInput('changes', { revision: 1, activeRowId: 'one', rows: [{ id: 'one', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }] }); await fixture.publish();
-  const cell = page.locator('tr[data-row-id=one] td[data-column-key=workspace_id]'); await expect(cell).toContainText('studio');
-  await expect.poll(() => cell.evaluate(node => node.querySelector('.task-table-value')?.getAnimations().length ?? 0)).toBeGreaterThan(0);
+  await expect(cell).toContainText('studio');
+  const running = () => cell.evaluate(node => Array.from(node.getAnimations({ subtree: true })).filter(animation => animation.playState === 'running').flatMap(animation => animation.effect instanceof KeyframeEffect ? animation.effect.getKeyframes().flatMap(keyframe => Object.keys(keyframe)) : []));
+  // the value is committed at its final position; only the cell background animates
+  const frame = await running();
+  expect(frame.length).toBeGreaterThan(0); expect(frame.filter(property => !['backgroundColor', 'offset', 'computedOffset', 'composite', 'easing'].includes(property))).toHaveLength(0);
   const sweep = page.getByLabel('Source records', { exact: true }).locator('.task-table-sweep');
   await expect(sweep).toBeVisible();
   const firstTop = await sweep.evaluate(node => node.getBoundingClientRect().top);
@@ -58,6 +63,24 @@ test('accepted cell values reveal with the change highlight and sweep follows de
   await expect.poll(() => cell.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running' ).length)).toBe(0); await fixture.publish();
   await flushFrames(page);
   expect(await cell.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
+  // identical change metadata accepted while the panel is hidden is observed: no delayed accent
+  await page.getByRole('tab', { name: 'Projects' }).click();
+  fixture.setInput('changes', { revision: 3, activeRowId: 'two', rows: [{ id: 'one', cells: [{ key: 'workspace_id', status: 'updated', before: null }] }] }); await fixture.publish();
+  await page.getByRole('tab', { name: 'Projects' }).press('ArrowLeft');
+  await expect(page.getByRole('tab', { name: 'People' })).toHaveAttribute('aria-selected', 'true');
+  await flushFrames(page);
+  expect(await cell.evaluate(node => node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').length)).toBe(0);
+  // keyboard reorder, pointer resize and selection keep the same header/input mounted
+  const nameHeader = page.getByRole('columnheader', { name: 'name' }), headerHandle = await nameHeader.elementHandle();
+  const filter = page.getByRole('textbox', { name: 'Filter rows' }), filterHandle = await filter.elementHandle();
+  await page.getByRole('button', { name: 'Move name column' }).press('Alt+ArrowRight');
+  await expect(nameHeader).toBeVisible();
+  const resizer = page.locator('.task-table-resizer[aria-label="Resize Name column"]'), handle = (await resizer.boundingBox())!;
+  await page.mouse.move(handle.x + 2, handle.y + 2); await page.mouse.down(); await page.mouse.move(handle.x + 42, handle.y + 2, { steps: 4 }); await page.mouse.up();
+  await page.getByRole('checkbox', { name: 'Select row 1' }).check();
+  await expect(page.getByRole('checkbox', { name: 'Select row 1' })).toBeChecked();
+  expect(await nameHeader.evaluate((node, old) => node === old, headerHandle)).toBe(true);
+  expect(await filter.evaluate((node, old) => node === old, filterHandle)).toBe(true);
 });
 
 test('column geometry arrives continuously while the existing header stays mounted', async ({ page }) => {
