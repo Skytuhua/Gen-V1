@@ -34,7 +34,9 @@ export interface ScreenPackageOptions {
   exception?: OperatorException;
 }
 export interface ScreeningComputation {
+  /** Retained records keep their original checkedAt; cacheAgeMs reports the current age. */
   record: PackageScreeningV1;
+  /** True only when a cached result is reused without an advisory query. */
   cacheHit: boolean;
   staleCache: boolean;
   /** Present only when the operator recorded a documented exception. */
@@ -69,6 +71,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
   const cached = options.cache?.get(key);
   let staleCache = false;
   let previousCacheAgeMs = 0;
+  let previousKnownBad: PackageScreeningV1 | undefined;
   if (cached) {
     const parsed = packageScreeningV1Schema.parse(cached);
     const age = now() - Date.parse(parsed.checkedAt);
@@ -79,6 +82,7 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
       snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
     const sameIdentity = parsed.pkg.name === pkg.name && parsed.pkg.version === pkg.version &&
       parsed.pkg.digest === pkg.digest && parsed.advisory.database === advisory.database;
+    if (sameIdentity && parsed.status === 'KNOWN_BAD' && parsed.decision === 'DENY') previousKnownBad = parsed;
     // Cached screening facts cannot carry an operator's earlier authority.
     // Unavailable results are rechecked and use only this request's exception.
     const reusableDecision = parsed.status === 'NO_KNOWN_MATCH' && parsed.decision === 'ALLOW' ||
@@ -101,9 +105,24 @@ export async function screenPackage(identity: PackageIdentity, advisory: Advisor
     throw new HarnessError('INVALID_INPUT', 'A clean advisory result requires an explicit, valid database snapshot time.');
   }
   const asOf = typeof result.asOf === 'string' ? result.asOf : checkedAt;
-  const snapshotAge = Date.parse(checkedAt) - Date.parse(asOf);
+  const snapshotTime = Date.parse(asOf);
+  const snapshotAge = Date.parse(checkedAt) - snapshotTime;
   const freshSnapshot = Number.isSafeInteger(snapshotAge) && snapshotAge >= 0 &&
     snapshotAge <= DEFAULT_MAX_CACHE_AGE_MS;
+  if (previousKnownBad) {
+    const previousSnapshotTime = Date.parse(previousKnownBad.advisory.asOf);
+    // Only a fresh, strictly newer snapshot can clear a denial. An older
+    // match must not roll back the timestamp used for that comparison.
+    const supersedesKnownBad = result.status === 'MATCH'
+      ? snapshotTime >= previousSnapshotTime
+      : result.status === 'NO_MATCH' && freshSnapshot && snapshotTime > previousSnapshotTime;
+    if (!supersedesKnownBad) {
+      return {
+        record: { ...previousKnownBad, cacheAgeMs: previousCacheAgeMs },
+        cacheHit: false, staleCache: true,
+      };
+    }
+  }
   let status: PackageScreeningV1['status'];
   let decision: PackageScreeningV1['decision'];
   let reason: string;
