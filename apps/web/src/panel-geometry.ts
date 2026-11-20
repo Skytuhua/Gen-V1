@@ -1,7 +1,7 @@
-export const CHAT_MIN_WIDTH = 420;
-export const PANEL_MIN_WIDTH = 280;
-export const PANEL_MAX_WIDTH = 720;
-export const PANEL_GAP = 6;
+const CHAT_MIN_WIDTH = 420;
+const PANEL_MIN_WIDTH = 280;
+const PANEL_MAX_WIDTH = 720;
+const PANEL_GAP = 6;
 
 export function workspacePanelBounds(ownerWidth: number, preferred: number) {
   const owner = Math.max(0, Number.isFinite(ownerWidth) ? ownerWidth : 0);
