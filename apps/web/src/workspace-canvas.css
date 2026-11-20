@@ -10,8 +10,9 @@
 @keyframes canvas-panel-out{to{opacity:0;transform:scale(.96)}}
 /* E6: panels assemble staggered on preset apply — --panel-enter-delay set inline per panel. */
 .canvas-panel{transform-origin:center top;animation:canvas-panel-in var(--ui-motion-panel-enter) var(--ui-ease-enter) backwards}
-/* Height tweens only during a collapse/expand lifecycle, not on every resize. */
-.canvas-panel[data-collapsing]{transition:height var(--ui-motion-popup-enter) var(--ui-ease-move)}
+/* Height tweens run as a measured WAAPI FLIP during collapse/expand only —
+   a blanket CSS transition would animate every resize, and attribute gating
+   cannot be ordered against the React commit that writes the height. */
 .workspace-canvas-interaction .canvas-panel{transition:none}
 .canvas-panel[data-leaving]{pointer-events:none;animation:canvas-panel-out var(--ui-motion-panel-exit) var(--ui-ease-move) both}
 /* E7: the collapsed body row tweens 1fr→0fr while fading. */

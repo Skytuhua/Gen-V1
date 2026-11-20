@@ -31,9 +31,11 @@ describe('workspace chrome motion contract',()=>{
   // Split panes only tween while an add/remove is in flight.
   expect(split).toMatch(/\.split-surface-plane:has\(>\.split-surface\[data-arrival\],>\.split-surface\[data-leaving\]\) \.split-surface\{transition:left/);
   expect(split).not.toMatch(/\.split-surface\{position:absolute[^}]*transition:[^}]*\}/);
-  // Canvas panels only tween height during a collapse lifecycle.
-  expect(canvas).toMatch(/\.canvas-panel\[data-collapsing\]\{transition:height var\(--ui-motion-popup-enter\)/);
+  // Canvas panels tween height only during collapse/expand, as a measured
+  // WAAPI FLIP on the collapse-flag flip — never a blanket CSS transition.
   expect(canvas).not.toMatch(/\.canvas-panel\{[^}]*transition:height/);
+  expect(canvas).not.toMatch(/transition:height/);
+  expect(canvasTsx).toMatch(/animateTask\(element,\[\{height:previousHeight\+'px'\},\{height:next\+'px'\}\],180,\{duration:'--ui-motion-popup-enter',easing:'--ui-ease-move'\}\)/);
  });
  it('assembles canvas panels with a capped stagger when a canvas or preset applies (M19)',()=>{
   expect(canvas).toMatch(/animation:canvas-panel-in var\(--ui-motion-panel-enter\) var\(--ui-ease-enter\) backwards/);
