@@ -18,7 +18,7 @@ import {ComparisonSnapshots,PullComparisonSchema,RemoteComparisonSchema,comparis
 const repository=z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),number=z.number().int().positive();
 const bodyText=z.string().max(64000).refine(value=>Buffer.from(value,'utf8').toString('utf8')===value,'Pull request text must be valid Unicode.');
 const quote=(path:string)=>"'"+path.replaceAll('\\','/').replaceAll("'","'\\''")+"'";
-export const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
+const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
 interface PullRequest{number:number;title:string;url:string;state:string;headRefOid:string;headRefName:string;isDraft:boolean}
 /** Bundled GitHub CLI with a private sign-in profile and exact reviewed revisions. */
 export class GitHubTools{
@@ -86,7 +86,9 @@ export class GitHubTools{
   const selected=number.parse(pullNumber),{path,repo,owner}=await this.comparisonRepository(projectId,threadId);
   try{
    const item=PullComparisonSchema.parse(this.parseOutput(await this.run(path,['pr','view',String(selected),'--repo',repo,'--json','id,number,title,url,baseRefOid,headRefOid,baseRefName,headRefName,statusCheckRollup'])));
-   if(item.number!==selected||item.url!==`https://github.com/${repo}/pull/${selected}`)throw new HarnessError('COMPARISON_IDENTITY_CHANGED','The pull request identity did not match.');
+   const link=/^https:\/\/github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\/pull\/([1-9][0-9]*)$/.exec(item.url);
+   // GitHub repository and account names are case-insensitive; the rest of the URL stays exact.
+   if(item.number!==selected||!link||link[0]!==item.url||link[1].toLowerCase()!==repo.toLowerCase()||link[2]!==String(selected))throw new HarnessError('COMPARISON_IDENTITY_CHANGED','The pull request identity did not match.');
    // GitHub PRs use three-dot semantics. Both tips are immutable, not branch names.
    const data=RemoteComparisonSchema.parse(this.parseOutput(await this.run(path,['api',`repos/${repo}/compare/${item.baseRefOid}...${item.headRefOid}?per_page=1`])));
    if(data.base_commit.sha!==item.baseRefOid)throw new HarnessError('COMPARISON_IDENTITY_CHANGED','The compared base did not match.');

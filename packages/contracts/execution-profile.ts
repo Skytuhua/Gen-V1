@@ -21,7 +21,7 @@ export const rootRelativePathSchema = z.string().min(1).max(1024).refine(value =
 /* record, model context or public journals.                           */
 /* ------------------------------------------------------------------ */
 
-export const secretDestinationV1Schema = z.discriminatedUnion('kind', [
+const secretDestinationV1Schema = z.discriminatedUnion('kind', [
   z.strictObject({
     kind: z.literal('process-env'),
     /** SHA-256 of the one approved executable allowed to receive this secret. */
@@ -91,21 +91,21 @@ export type ProjectTrustV1 = z.infer<typeof projectTrustV1Schema>;
 /* unrestricted and is never an automatic fallback.                    */
 /* ------------------------------------------------------------------ */
 
-export const EXECUTION_CAPABILITIES = ['process.execute', 'fs.read', 'fs.write', 'net.connect', 'secret.inject'] as const;
-export type ExecutionCapability = (typeof EXECUTION_CAPABILITIES)[number];
+const EXECUTION_CAPABILITIES = ['process.execute', 'fs.read', 'fs.write', 'net.connect', 'secret.inject'] as const;
 
-export const networkPolicyV1Schema = z.discriminatedUnion('mode', [
+
+const networkPolicyV1Schema = z.discriminatedUnion('mode', [
   z.strictObject({ mode: z.literal('none') }),
   z.strictObject({ mode: z.literal('allowlist'), origins: z.array(boundedText(2048)).min(1).max(256) }),
 ]);
-export type NetworkPolicyV1 = z.infer<typeof networkPolicyV1Schema>;
 
-export const executableAllowlistEntryV1Schema = z.strictObject({
+
+const executableAllowlistEntryV1Schema = z.strictObject({
   executableSha256: sha256HexSchema,
   /** Exact approved argument vector (excluding the executable itself). */
   argv: z.array(z.string().max(4096)).max(64),
 });
-export type ExecutableAllowlistEntryV1 = z.infer<typeof executableAllowlistEntryV1Schema>;
+
 
 export const executionProfileV1Schema = z.strictObject({
   profileId: boundedText(100),
@@ -164,14 +164,14 @@ export type PackageScreeningV1 = z.infer<typeof packageScreeningV1Schema>;
 /* to docs/implementation/v3/<bundle>-verification.json.                */
 /* ------------------------------------------------------------------ */
 
-export const evidenceCommandV3Schema = z.strictObject({
+const evidenceCommandV3Schema = z.strictObject({
   command: boundedText(500),
   cwd: boundedText(1000),
   exitCode: z.number().int().nullable(),
   result: z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN']),
   logArtifact: boundedText(500).nullable(),
 });
-export const evidenceStageResultV3Schema = z.strictObject({
+const evidenceStageResultV3Schema = z.strictObject({
   stage: boundedText(200),
   result: z.enum(['PASS', 'FAIL', 'BLOCKED', 'PARTIAL', 'NOT_RUN']),
   detail: boundedText(2000).optional(),

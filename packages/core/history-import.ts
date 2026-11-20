@@ -31,7 +31,7 @@ const formatError = (reason: string, detail: string) =>
   error('IMPORT_FORMAT_ERROR', `ArchiveV1 import rejected: ${detail}`, { reason });
 
 export interface ImportOwner { threadId: string; projectId: string | null }
-export const importOwnerKey = (owner: ImportOwner): string => owner.projectId ?? `thread:${owner.threadId}`;
+const importOwnerKey = (owner: ImportOwner): string => owner.projectId ?? `thread:${owner.threadId}`;
 const receiptIdFor = (ownerKey: string, contentDigest: string) => `${ownerKey}:${contentDigest}`;
 
 /* ------------------------------------------------------------------ */
@@ -71,7 +71,7 @@ const attachmentShape = (ref: string): boolean =>
 
 /** Iterative checks over the whole document. Nothing is published until the
  * entire import validates. */
-export function validateArchiveSemantics(doc: ArchiveV1Document): void {
+function validateArchiveSemantics(doc: ArchiveV1Document): void {
   if (doc.conversations.length > ARCHIVE_V1_LIMITS.maxConversations)
     throw formatError('LIMIT_CONVERSATIONS', `At most ${ARCHIVE_V1_LIMITS.maxConversations} conversations are admitted.`);
   let total = 0;
@@ -138,7 +138,7 @@ function validateConversationGraph(doc: ArchiveV1Document, conversation: Archive
 }
 
 /** Deterministic dedup digest: normalized JSON of the whole document. */
-export function archiveContentDigest(doc: ArchiveV1Document): string { return digest(doc); }
+function archiveContentDigest(doc: ArchiveV1Document): string { return digest(doc); }
 
 /* ------------------------------------------------------------------ */
 /* Safety inspection — report only, never dereference.                 */
@@ -166,14 +166,14 @@ const linkKind = (raw: string): { kind: ImportAccessLinkV1['kind']; host: string
   return null;
 };
 
-export interface ImportSafetyReport {
+interface ImportSafetyReport {
   secretFields: ImportFieldReportV1[];
   accessLinks: ImportAccessLinkV1[];
 }
 
 /** Bounded heuristic scan of declared fields and text. It never opens an
  * attachment path, fetches a URL or resolves a reference. */
-export function inspectArchiveSafety(doc: ArchiveV1Document): ImportSafetyReport {
+function inspectArchiveSafety(doc: ArchiveV1Document): ImportSafetyReport {
   const secretFields: ImportFieldReportV1[] = [];
   const accessLinks: ImportAccessLinkV1[] = [];
   const push = <T>(list: T[], item: T) => { if (list.length < 256) list.push(item); };

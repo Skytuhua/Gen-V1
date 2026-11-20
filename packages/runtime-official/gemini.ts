@@ -202,7 +202,8 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
 
 export async function geminiHistory(dataDir: string, manifest: ManifestState, spawnProcess: typeof spawn, owner?: Pick<DriverContext, 'current' | 'ready'>): Promise<HistoryReceipt[]> {
   const native = await import('./gemini-native-history.ts');
-  if (await native.findGeminiNativeSession(dataDir, manifest)) return native.readGeminiNativeHistory(dataDir, manifest);
+  const receipts = await native.readGeminiNativeHistory(dataDir, manifest);
+  if (receipts !== null) return receipts;
   let current = true;
   const active = () => current && (owner?.current() ?? true);
   const children = new Set<ChildProcess>();

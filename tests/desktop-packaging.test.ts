@@ -1,4 +1,4 @@
-import {describe,it,expect} from 'vitest';
+import {describe,it,expect,vi} from 'vitest';
 import {NODE_ARCHIVE_EXTRACT_COMMAND,reserveDesktopStage,runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,REQUIRED_RUNTIME_FILES} from '../scripts/desktop-assets.ts';
 import {spawnSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
@@ -72,7 +72,24 @@ describe('desktop distribution custody',()=>{
  });
  it('pins the updater and stable GitHub release feed without changing builder family',()=>{
   const pkg=JSON.parse(readFileSync('package.json','utf8'));expect(pkg.dependencies['electron-updater']).toBe('6.8.11');expect(pkg.devDependencies['electron-builder']).toBe('26.18.0');
-  expect(desktopBuilderConfig('C:/build').publish).toEqual([{provider:'github',owner:'Skytuhua',repo:'Gen-V1',releaseType:'release',channel:'latest'}]);
+  expect(desktopBuilderConfig('C:/build').publish).toEqual([{provider:'github',owner:'skytuhua-org',repo:'Gen-V1',releaseType:'release',channel:'latest'}]);
+ });
+ it.each([['stable','latest'],['prerelease','beta']])('selects the %s release feed and emits differential artifacts', (channel,feed)=>{
+  const config=desktopBuilderConfig('C:/build',channel);
+  expect(config.publish[0].channel).toBe(feed);
+  expect(config.nsis.differentialPackage).toBe(true);
+ });
+ it.each(['','beta','latest','Stable'])('rejects invalid release channel %j',channel=>{
+  expect(()=>desktopBuilderConfig('C:/build',channel)).toThrow('HARNESS_RELEASE_CHANNEL must be stable or prerelease.');
+ });
+ it('reads the release channel from the packaging environment',()=>{
+  try{
+   vi.stubEnv('HARNESS_RELEASE_CHANNEL','prerelease');
+   expect(desktopBuilderConfig('C:/build').publish[0].channel).toBe('beta');
+   vi.stubEnv('HARNESS_RELEASE_CHANNEL',undefined);
+   expect(desktopBuilderConfig('C:/build').publish[0].channel).toBe('latest');
+   expect(desktopBuilderConfig('C:/build').nsis.differentialPackage).toBe(false);
+  }finally{vi.unstubAllEnvs();}
  });
  it('requires the pinned official Node archive hash before extraction',()=>{
   const bytes=Buffer.from('fixture archive'),hash=createHash('sha256').update(bytes).digest('hex');
