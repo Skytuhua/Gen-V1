@@ -79,6 +79,23 @@ describe('Inspect point — immutable fixed cut', () => {
     // No cross-thread records: the foreign message never enters the capture.
     expect(f.reads.captureMessages(result.capture.captureId).messages.some(item => item.content === 'other thread content')).toBe(false);
   });
+  it('does not exceed the byte budget when the newest whole message alone is oversized', async () => {
+    __setCapabilityFlagForTests('sessions.branchV1', true);
+    const f = await fixture();
+    f.message('oversized', 'é'.repeat(256 * 1024 + 1));
+    const inspect = async () => (await f.send('session.branch', { intent: 'INSPECT' }, f.thread.id)).result as
+      { capture: { captureId: string; coverage: string; truncated: number; incompleteSource: string[] } };
+    const { capture } = await inspect();
+    expect(capture).toMatchObject({ coverage: 'TRUNCATED', truncated: 1, incompleteSource: expect.arrayContaining(['TRUNCATED_HISTORY']) });
+    expect(f.reads.captureMessages(capture.captureId).messages).toEqual([]);
+
+    f.message('fits-exactly', 'é'.repeat(256 * 1024));
+    const next = (await inspect()).capture;
+    const messages = f.reads.captureMessages(next.captureId).messages;
+    expect(next).toMatchObject({ coverage: 'TRUNCATED', truncated: 1 });
+    expect(messages.map(row => row.id)).toEqual(['fits-exactly']);
+    expect(Buffer.byteLength(messages[0]!.content)).toBe(512 * 1024);
+  });
   it('records explicit incomplete coverage for a truncated capture', async () => {
     __setCapabilityFlagForTests('sessions.branchV1', true);
     const f = await fixture();
