@@ -77,3 +77,32 @@ describe('side placements for anchored panels beside their trigger', () => {
     expect(placePopover({ anchor: row, viewport, width: 320, height: 240, preferredSide: 'right' })).toMatchObject({ top: 50, height: 240, side: 'right' });
   });
 });
+
+describe('column bounds keep composer popovers inside their dock', () => {
+  // A 248px sidebar leaves the workarea starting at 248; the composer dock is a
+  // centered column inside it. Bounds = the dock rect.
+  const viewport = { left: 0, top: 0, width: 900, height: 700 };
+  const dock = { left: 268, right: 880, top: 300, bottom: 660 };
+  const anchor = { left: 780, right: 872, top: 620, bottom: 652 };
+
+  it('keeps a wide end-aligned popup from sliding left over the sidebar', () => {
+    const result = placePopover({ anchor, viewport, width: 720, height: 440, bounds: dock });
+    expect(result.left).toBeGreaterThanOrEqual(dock.left);
+    expect(result.left + result.width).toBeLessThanOrEqual(dock.right);
+    expect(result.width).toBe(612);
+  });
+
+  it('does not move a popup that already fits inside its column', () => {
+    const narrow = { left: 700, right: 792, top: 620, bottom: 652 };
+    const result = placePopover({ anchor: narrow, viewport, width: 320, height: 300, bounds: dock });
+    expect(result).toEqual({ left: 472, top: 312, width: 320, height: 300, side: 'above' });
+    expect(placePopover({ anchor: narrow, viewport, width: 320, height: 300 })).toEqual(result);
+  });
+
+  it('ignores bounds that have no usable overlap with the viewport', () => {
+    const offscreen = { left: -600, right: -500, top: 0, bottom: 100 };
+    const result = placePopover({ anchor, viewport, width: 400, height: 300, bounds: offscreen });
+    expect(result.left).toBe(472);
+    expect(result.width).toBe(400);
+  });
+});

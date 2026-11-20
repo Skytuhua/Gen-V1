@@ -9,9 +9,11 @@ export interface PopoverPositionOptions {
   height: number;
   preferredSide?: OverlaySide;
   align?: 'start' | 'end';
+  /** Containing column (for example the composer dock) the popup should stay inside horizontally. */
+  bounds?: OverlayAnchor | null;
 }
 
-export function placePopover({ anchor, viewport, width, height, preferredSide = 'above', align = 'end' }: PopoverPositionOptions): PopoverPlacement {
+export function placePopover({ anchor, viewport, width, height, preferredSide = 'above', align = 'end', bounds }: PopoverPositionOptions): PopoverPlacement {
   const size = (value: number) => Number.isFinite(value) ? Math.max(0, value) : 0;
   const origin = (value: number) => Number.isFinite(value) ? value : 0;
   const viewportWidth = size(viewport.width), viewportHeight = size(viewport.height);
@@ -19,15 +21,23 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
   const leftEdge = origin(viewport.left) + horizontalInset, topEdge = origin(viewport.top) + verticalInset;
   const availableWidth = viewportWidth - horizontalInset * 2, availableHeight = viewportHeight - verticalInset * 2;
   const bottomEdge = topEdge + availableHeight, rightEdge = leftEdge + availableWidth;
+  // A containing column narrows the horizontal range so a wide popup cannot
+  // slide left over neighboring navigation. Bounds with no usable viewport
+  // overlap are ignored.
+  const columnLeft = bounds ? Math.max(leftEdge, origin(bounds.left)) : leftEdge;
+  const columnRight = bounds ? Math.min(rightEdge, origin(bounds.right)) : rightEdge;
+  const boundLeft = columnRight - columnLeft > 0 ? columnLeft : leftEdge;
+  const boundRight = columnRight - columnLeft > 0 ? columnRight : rightEdge;
+  const boundWidth = Math.max(0, boundRight - boundLeft);
   const above = Math.max(0, origin(anchor.top) - 8 - topEdge);
   const below = Math.max(0, bottomEdge - origin(anchor.bottom) - 8);
   const desiredHeight = Math.min(size(height), availableHeight);
-  const popupWidth = Math.min(size(width), availableWidth);
+  const popupWidth = Math.min(size(width), boundWidth);
   const clamp = (value: number, minimum: number, maximum: number) => Math.max(minimum, Math.min(value, maximum));
   if (preferredSide === 'left' || preferredSide === 'right') {
-    const right = Math.max(0, rightEdge - origin(anchor.right) - 8);
-    const left = Math.max(0, origin(anchor.left) - 8 - leftEdge);
-    const desiredWidth = Math.min(size(width), availableWidth);
+    const right = Math.max(0, boundRight - origin(anchor.right) - 8);
+    const left = Math.max(0, origin(anchor.left) - 8 - boundLeft);
+    const desiredWidth = Math.min(size(width), boundWidth);
     const side: OverlaySide = (preferredSide === 'right' ? right : left) >= desiredWidth
       ? preferredSide
       : right >= left ? 'right' : 'left';
@@ -38,7 +48,7 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
       const popupHeight = Math.min(desiredHeight, availableHeight);
       const popupWidth = Math.min(desiredWidth, side === 'left' ? left : right);
       return {
-        left: clamp(side === 'right' ? origin(anchor.right) + 8 : origin(anchor.left) - 8 - popupWidth, leftEdge, rightEdge - popupWidth),
+        left: clamp(side === 'right' ? origin(anchor.right) + 8 : origin(anchor.left) - 8 - popupWidth, boundLeft, boundRight - popupWidth),
         top: clamp(align === 'end' ? origin(anchor.bottom) - popupHeight : origin(anchor.top), topEdge, bottomEdge - popupHeight),
         width: popupWidth, height: popupHeight, side,
       };
@@ -52,7 +62,7 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
     : fitsPreferred ? preferredSide : above >= below ? 'above' : 'below';
   const popupHeight = Math.min(desiredHeight, side === 'above' ? above : below);
   return {
-    left: clamp(align === 'end' ? origin(anchor.right) - popupWidth : origin(anchor.left), leftEdge, leftEdge + availableWidth - popupWidth),
+    left: clamp(align === 'end' ? origin(anchor.right) - popupWidth : origin(anchor.left), boundLeft, boundRight - popupWidth),
     top: clamp(side === 'above' ? origin(anchor.top) - 8 - popupHeight : origin(anchor.bottom) + 8, topEdge, bottomEdge - popupHeight),
     width: popupWidth, height: popupHeight, side,
   };
