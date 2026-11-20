@@ -39,8 +39,8 @@ it('discovery keeps comparison totals and fit reasons with one selection mechani
   const spec = await discover('Comparison', 'kit-comparison');
   const html = render(spec, KIT_INPUTS);
   expect(html).toContain('Choose Field kit');
-  expect(html.indexOf('Choose Field kit')).toBeLessThan(html.indexOf('<table'));
-  expect(html.match(/aria-label="Select /g)).toHaveLength(3);
+  expect(html.indexOf('Choose Field kit')).toBeLessThan(html.indexOf('role="table"'));
+  expect(html.match(/role="radio"/g)).toHaveLength(3);
   expect(html).not.toContain('type="radio"');
   for (const fact of ['USD 220', '>270<', '>160<', 'Observers', 'Weight', 'Setup', '>4<', '>2<', '>8<', '>7<', '>5<', '>12<', '>10<', '20 over budget', 'Two observers short', 'tax, shipping and stock', 'does not place an order']) expect(html).toContain(fact);
   expect(Object.values(spec.elements).filter(node => node.type === 'Disclosure')).toHaveLength(0);
