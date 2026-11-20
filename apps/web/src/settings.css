@@ -15,7 +15,7 @@
 .settings-content { min-width:0;overflow-y:auto;padding:18px 20px 24px;scrollbar-width:thin;scrollbar-color:var(--border) transparent; }
 .settings-page-heading { display:flex;align-items:flex-start;gap:10px;min-height:32px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border); }
 .settings-page-heading h1 { font-size:21px;line-height:1.3;font-weight:600; }
-.settings-save-state { display:flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap; }
+.settings-save-state { display:flex;align-items:center;gap:4px;margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap;transition:color var(--ui-motion-status) var(--ui-ease-enter),background-color var(--ui-motion-status) var(--ui-ease-enter),border-color var(--ui-motion-status) var(--ui-ease-enter); }
 .settings-row { display:flex;align-items:center;justify-content:space-between;gap:16px;padding:10px 0;min-height:56px;border-bottom:1px solid var(--border); }
 .settings-row-copy { min-width:0; }
 .settings-row-copy h2 { font-size:14px;line-height:1.5;font-weight:600;color:var(--text); }
@@ -66,7 +66,7 @@
 .settings-navigation nav button span { min-width:0; }
 .settings-nav-group+.settings-nav-group { margin-top:0; }
 .settings-heading-icon { display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:8px;color:var(--text);background:var(--hover); }
-.settings-save-state[data-state="saved"] { color:var(--success-fg); }
+.settings-save-state[data-state="saved"] { color:var(--success-fg); animation:ui-status-pulse var(--ui-motion-success) var(--ui-ease-enter); }
 .settings-save-state[data-state="saving"] { color:var(--muted); }
 .settings-content .secondary { font-size:13px;min-height:34px; }
 .settings-runtime-details { margin-top:16px;padding-top:12px;border-top:1px solid var(--border); }
@@ -95,7 +95,7 @@
   .settings-search input { font-size:13px; }
   .settings-save-state { white-space:normal; }
 }
-@media(prefers-reduced-motion:reduce) { .settings-switch>span { transition:none; } }
+@media(prefers-reduced-motion:reduce) { .settings-switch>span { transition:none; } .settings-save-state[data-state="saved"] { animation:ui-status-pulse-fade var(--ui-motion-press) var(--ui-ease-enter); } }
 
 .settings-card-row output { color:var(--text); font-weight:400; white-space:nowrap; font-variant-numeric:tabular-nums; }
 

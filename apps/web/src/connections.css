@@ -41,11 +41,12 @@
 .composer-account { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 11px; color: var(--muted); }
 @media(max-width:600px) { .connection-account-line { align-items: flex-start; flex-wrap: wrap; gap: 5px; }.connection-account-actions { margin-left: 0; flex-wrap: wrap; min-width: 0; }.connection-account-connect { margin-left: 0; } }
 @keyframes connection-default-in { from { opacity: .25; } to { opacity: 1; } }
-@media(prefers-reduced-motion:reduce) { .connection-account-row { transition: background var(--ui-motion-press); }.connection-account-badge,.connection-account-form { animation-duration: var(--ui-motion-press); } }
+@media(prefers-reduced-motion:reduce) { .connection-account-row { transition: background var(--ui-motion-press); }.connection-account-badge,.connection-account-form { animation-duration: var(--ui-motion-press); }.connection-account-auth[data-state="authenticated"] .connection-auth-summary strong::before { animation:ui-status-pulse-fade var(--ui-motion-press) var(--ui-ease-enter); } }
 
 .connection-auth-summary { display:grid;justify-items:start;gap:6px; }
 .connection-auth-summary strong { display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:550;color:var(--text); }
-.connection-auth-summary strong::before { content:"";width:6px;height:6px;border-radius:50%;background:var(--connection-status-color,var(--muted)); }
+.connection-auth-summary strong::before { content:"";width:6px;height:6px;border-radius:50%;background:var(--connection-status-color,var(--muted));transition:background-color var(--ui-motion-status) var(--ui-ease-enter); }
+.connection-account-auth[data-state="authenticated"] .connection-auth-summary strong::before { animation:ui-status-pulse var(--ui-motion-success) var(--ui-ease-enter); }
 .connection-account-auth[data-state="authenticated"] .connection-auth-summary strong { --connection-status-color:var(--success-fg); }
 .connection-account-auth:is([data-state="configured"],[data-state="blocked"]) .connection-auth-summary strong { --connection-status-color:var(--warning-fg); }
 .connection-account-auth[data-state="error"] .connection-auth-summary strong { --connection-status-color:var(--danger-fg); }
