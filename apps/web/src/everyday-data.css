@@ -73,7 +73,7 @@
 .everyday-comparison-footer p>span {color:var(--muted);}
 .everyday-comparison-footer p>strong {font-weight:550;}
 .everyday-comparison-footer .primary {font-size:11px;}
-@media(max-width:700px) {.everyday-heading{align-items:flex-start;gap:10px;}.everyday-heading>span{font-size:10px;}.everyday-metric-nav button{flex-basis:120px;padding:10px 12px;}.everyday-stat-value{font-size:28px;}.everyday-option-grid{grid-template-columns:minmax(0,1fr);}.everyday-comparison-footer .primary{margin-left:auto;}}
+@media(max-width:700px) {.everyday-heading{align-items:flex-start;gap:10px;}.everyday-heading>span{font-size:10px;}.everyday-metric-nav button{flex-basis:120px;padding:10px 12px;}.everyday-stat-value{font-size:28px;}.everyday-option-grid{grid-template-columns:minmax(0,1fr);}.everyday-diff .number{white-space:normal;overflow-wrap:anywhere;}.everyday-comparison-footer .primary{margin-left:auto;}}
 
 .everyday-source-values table { width:max-content; }
 .everyday-source-values :is(th,td) { padding:6px 12px 6px 0; }
