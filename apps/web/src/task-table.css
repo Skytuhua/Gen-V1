@@ -2,7 +2,7 @@
 .task-table-summary { display:flex; align-items:center; gap:14px; padding:2px 1px 10px; font-size:11px; line-height:1.5; color:var(--muted); font-variant-numeric:tabular-nums; }
 .task-table-summary [data-change=added],.task-table-summary [data-change=updated] { color:var(--success); }
 .task-table-summary [data-change=removed] { color:var(--danger); }
-.task-table .task-table-scroll { position:relative; max-height:300px; overflow:auto; overscroll-behavior:contain; overflow-anchor:none; margin:0; border:1px solid var(--control-border); border-radius:8px; scrollbar-width:thin; }
+.task-table .task-table-scroll { position:relative; max-height:300px; overflow:auto; overscroll-behavior:contain; overflow-anchor:none; margin:0; border:1px solid var(--border); border-radius:8px; scrollbar-width:thin; }
 .task-table table { width:100%; min-width:360px; margin:0; border-collapse:separate; border-spacing:0; font-size:11px; font-variant-numeric:tabular-nums; }
 .task-table caption { text-align:left; padding:10px 12px; height:40px; margin:0; font-size:10px; color:var(--muted); background:var(--subtle); }
 .task-table th { position:sticky; top:0; z-index:1; height:34px; padding:8px 12px; font-family:var(--font-mono,monospace); font-size:10px; font-weight:500; color:var(--muted); background:var(--subtle); border-bottom:1px solid var(--border); border-right:1px solid var(--border); text-align:left; white-space:nowrap; }

@@ -8,19 +8,33 @@ import { PROJECT_ACCENT_INK, PROJECT_PALETTE, accentInk, type ProjectAccent } fr
 // Every ratio below is derived from the stylesheets, so editing a token moves the audit.
 const source = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
 
-function controlClasses(): Set<string> {
+function controlClasses(sources = globSync(['apps/web/src/**/*.tsx', 'packages/**/*.tsx'], { exclude: ['**/node_modules/**', '**/dist/**'] }).map(source)): Set<string> {
   const classes = new Set<string>();
-  for (const path of globSync(['apps/web/src/**/*.tsx', 'packages/**/*.tsx'], { exclude: ['**/node_modules/**', '**/dist/**'] })) {
-    const file = ts.createSourceFile(path, source(path), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+  for (const code of sources) {
+    const file = ts.createSourceFile('controls.tsx', code, ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
     const visit = (node: ts.Node) => {
       if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
         const attributes = node.attributes.properties.filter(ts.isJsxAttribute);
         const attribute = (name: string) => attributes.find(item => item.name.getText(file) === name)?.initializer;
         const role = attribute('role')?.getText(file) ?? '';
         const focus = attribute('tabIndex')?.getText(file) ?? '';
-        if (['input', 'textarea', 'select', 'button', 'summary'].includes(node.tagName.getText(file))
-          || node.tagName.getText(file) === 'a' && attribute('href')
-          || /["'](?:button|tab|switch|checkbox|radio)["']/.test(role) || /(?:^|[^\d-])0(?:[^\d]|$)/.test(focus)) {
+        const tag = node.tagName.getText(file);
+        const actionable = attributes.some(item => /^(?:onClick|onDoubleClick|onChange|onInput|onSubmit|contentEditable)$/.test(item.name.getText(file)));
+        const container = !actionable && (['div', 'section'].includes(tag) || /["'](?:log|region)["']/.test(role));
+        const toggleChild = (child: ts.Node): boolean => {
+          if (ts.isJsxElement(child)) return toggleChild(child.openingElement);
+          if (ts.isJsxOpeningElement(child) || ts.isJsxSelfClosingElement(child)) {
+            return child.tagName.getText(file) === 'button'
+              && child.attributes.properties.some(item => ts.isJsxAttribute(item) && /^(?:aria-pressed|aria-selected)$/.test(item.name.getText(file)));
+          }
+          return ts.forEachChild(child, toggleChild) ?? false;
+        };
+        const toggleGroup = /["']group["']/.test(role) && ts.isJsxOpeningElement(node)
+          && ts.isJsxElement(node.parent) && node.parent.children.some(toggleChild);
+        if (['input', 'textarea', 'select', 'button', 'summary'].includes(tag)
+          || tag === 'a' && attribute('href') || toggleGroup
+          || /["'](?:button|tab|switch|checkbox|radio)["']/.test(role)
+          || /(?:^|[^\d-])0(?:[^\d]|$)/.test(focus) && !container) {
           const collect = (part: ts.Node) => {
             if (ts.isStringLiteralLike(part) || ts.isTemplateHead(part) || ts.isTemplateMiddle(part) || ts.isTemplateTail(part)) {
               for (const name of part.text.split(/\s+/)) if (/^[a-z][\w-]*$/i.test(name)) classes.add(name);
@@ -182,6 +196,61 @@ describe('appearance theme contrast audit', () => {
     expect(dividerControlOutlines('.card { border:1px solid var(--border); } .composer { border-top:1px solid var(--border); } .ui-modal { border:1px solid var(--border); } input { border:1px solid var(--control-border); }', classes)).toEqual([]);
   });
 
+  it('distinguishes scroll and landmark access from interactive controls without selector exemptions', () => {
+    const classes = controlClasses([`<>
+      <div className="reader" role="log" tabIndex={0} onScroll={() => {}} />
+      <section className="landmark" tabIndex={0} />
+      <div className="scroller" tabIndex={overflowing ? 0 : undefined} onKeyDown={() => {}} onPointerDown={() => {}} />
+      <div className="action" tabIndex={0} onClick={() => {}} />
+      <section className="switch" role="switch" tabIndex={0} />
+      <span className="focus-target" tabIndex={0} />
+      <button className="native" role="region" tabIndex={0} />
+      <div className="segments" role="group">{items.map(item => <button aria-pressed={item.selected} />)}</div>
+    </>`]);
+    expect(controlClasses([])).toEqual(new Set());
+    expect([...classes].sort()).toEqual(['action', 'focus-target', 'native', 'segments', 'switch']);
+    expect(dividerControlOutlines('.reader,.landmark,.scroller { border:1px solid var(--border); }', classes)).toEqual([]);
+    expect(dividerControlOutlines('.action,.switch,.focus-target,.native,.segments { border:1px solid var(--border); }', classes)).toHaveLength(5);
+  });
+
+  it('still rejects all thirteen reviewer boundaries when the divider token is reintroduced', () => {
+    const classes = controlClasses();
+    for (const [path, selector] of [
+      ['agents-workspace/agents-workspace.css', '.agents-new-output'],
+      ['agents-workspace/agents-workspace.css', '.agents-workspace .agents-composer.composer'],
+      ['agents-workspace/agents-workspace.css', '.agents-virtual-reveal'],
+      ['agents-workspace/agents-workspace.css', '.agents-work-send input'],
+      ['agents-workspace/agents-workspace.css', '.agents-board-post select'],
+      ['files/files.css', '.files-filter input'],
+      ['files/files.css', '.files-error button'],
+      ['files/files.css', '.project-search-more'],
+      ['model-picker.css', '.model-picker-search'],
+      ['map-view.css', '.task-map-themes'],
+      ['context-inspector.css', '.context-request-tabs>button[aria-selected="true"]'],
+      ['sidebar-context.css', '.sidebar .sidebar-action-btn.selected'],
+      ['relationship-graph.css', '.task-graph-check'],
+    ]) {
+      const rule = [...source('apps/web/src/' + path).matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .find(rule => rule[1]!.split(',').some(name => name.trim() === selector));
+      expect(rule, selector).toBeDefined();
+      const reintroduced = rule![0].replace(/var\(--(?:control-border|text)\)/g, 'var(--border)');
+      expect(dividerControlOutlines(reintroduced, classes).some(item => item.startsWith(selector + ': ')), selector).toBe(true);
+    }
+  });
+
+  it('keeps scroll containers and landmarks subtle', () => {
+    for (const [path, selector] of [
+      ['agents-workspace/agents-workspace.css', '.agents-transcript'],
+      ['interaction-tools.css', '.editable-table-scroll'],
+      ['task-table.css', '.task-table .task-table-scroll'],
+      ['shell.css', '.verification-panel'],
+    ]) {
+      const rule = [...source('apps/web/src/' + path).matchAll(/([^{}]+)\{([^{}]*)\}/g)]
+        .find(rule => rule[1]!.trim() === selector);
+      expect(rule?.[2], selector).toMatch(/border:\s*1px solid var\(--border\)/);
+    }
+  });
+
   it('measures every audited token in every shell', () => {
     const unmeasured = contexts.flatMap(({ name, tokens }) => [...new Set(PAIRS.flatMap(pair => [pair.foreground, pair.background]))]
       .filter(token => !evaluateColor(tokens[token]!, tokens))
@@ -211,11 +280,11 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/project-memory.css': ['.project-memory-body button'],
       'apps/web/src/settings.css': ['.settings-result', '.settings-switch'],
       'apps/web/src/sidebar-context.css': ['.sidebar .search-field'],
-      'apps/web/src/interaction-tools.css': ['.review-item-nav[aria-current=step]', '.review-decision-choice', '.editable-table-scroll'],
+      'apps/web/src/interaction-tools.css': ['.review-item-nav[aria-current=step]', '.review-decision-choice'],
       'apps/web/src/connections.css': ['.connection-providers button'],
       'apps/web/src/software-development.css': ['.software-list button', '.software-blocking-checks button'],
       'apps/web/src/model-picker.css': ['.model-picker-new-task', '.model-picker-search'],
-      'apps/web/src/task-table.css': ['.task-table .task-table-follow', '.task-table-filter-field', '.task-table .task-table-scroll'],
+      'apps/web/src/task-table.css': ['.task-table .task-table-follow', '.task-table-filter-field'],
       'apps/web/src/composer-toolbar.css': ['.composer-context-chip'],
       'apps/web/src/side-chat.css': ['.side-chat-composer'],
       'apps/web/src/workspace-canvas.css': ['.canvas-side-composer textarea'],
@@ -225,10 +294,9 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/appearance-settings.css': ['.appearance-settings .color-swatch'],
       'apps/web/src/terminal-excerpts.css': ['.terminal-excerpt-chip'],
       'apps/web/src/map-view.css': ['.task-map-point', '.task-map-themes'],
-      'apps/web/src/agents-workspace/agents-workspace.css': ['.agents-new-output', '.agents-workspace .agents-composer.composer', '.agents-virtual-reveal', '.agents-work-send input', '.agents-board-post select', '.agents-board-post input', '.agents-transcript'],
+      'apps/web/src/agents-workspace/agents-workspace.css': ['.agents-new-output', '.agents-workspace .agents-composer.composer', '.agents-virtual-reveal', '.agents-work-send input', '.agents-board-post select', '.agents-board-post input'],
       'apps/web/src/files/files.css': ['.files-filter input', '.files-error button', '.project-search-more'],
       'apps/web/src/relationship-graph.css': ['.task-graph-check'],
-      'apps/web/src/shell.css': ['.verification-panel'],
       'apps/web/src/loading-state.css': ['.loading-composer'],
       'apps/web/src/styles.css': ['.jump-latest'],
     };
