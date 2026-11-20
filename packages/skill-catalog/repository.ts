@@ -32,7 +32,7 @@ export class SkillCatalogRepository {
   const revision=catalogHash({sources:all.sources,entries:all.items.map(i=>i.entry)});return{...all,revision};
  }
  async list(input:SkillCatalogQuery={}):Promise<SkillCatalogPage>{
-  const query=skillCatalogQuerySchema.parse(input),{cursor,...options}=query,limit=query.limit??50,context=catalogHash({scope:this.scope,...options,limit});let offset=0,expected:string|undefined;
+  const query=skillCatalogQuerySchema.parse(input),{cursor}=query,limit=query.limit??50,context=catalogHash({scope:this.scope,query:query.query,threadId:query.threadId,projectId:query.projectId,limit});let offset=0,expected:string|undefined;
   if(cursor){
    const parts=cursor.split('.');if(parts.length!==2)fail('INVALID_CURSOR','Choose a current catalog page.');
    const mac=createHmac('sha256',this.secret).update(parts[0]).digest('base64url'),actual=Buffer.from(parts[1]),wanted=Buffer.from(mac);
