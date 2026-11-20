@@ -11,6 +11,7 @@ import {terminateProcessTree} from '../../packages/runtime-pi/process-tree.ts';
 
 const phases=['build','clean','native','flags','dpapi','physical','upgrade','failed-setup'];
 export function assertCleanLifecycle(receipt:{passed?:boolean;setupSha256?:string;memoryRetentionRequested?:boolean;cleanup?:{status?:string}},sha256:string,continueAfterFailure=false){if(receipt.setupSha256!==sha256||!receipt.memoryRetentionRequested||receipt.cleanup?.status!=='uninstalled-owned-installation')throw Error('Need a candidate-bound clean lifecycle receipt with completed owned uninstall.');if(!receipt.passed&&!continueAfterFailure)throw Error('Clean lifecycle failed; explicit --continue-after-clean-failure is required to continue a dry run.');}
+export function parseInterruptDelay(value:string){const milliseconds=Number(value);if(!Number.isInteger(milliseconds)||milliseconds<1||milliseconds>2_147_483_647)throw Error('Invalid --interrupt-ms.');return milliseconds;}
 main(import.meta.url,async()=>{
  windows();const {options}=args(),phase=required(options,'phase'),out=output(options);if(!phases.includes(phase))throw Error('Phases: '+phases.join(', '));await mkdir(out,{recursive:true});
  const capture=async(argv:string[],name:string)=>{try{const log=await pnpm(argv,true);await writeFile(join(out,name+'.log'),log+'\n');return log;}catch(error){await writeFile(join(out,name+'.log'),((error as {stdout?:string}).stdout??'')+'\n'+String(error)+'\n');throw error;}};
@@ -39,7 +40,7 @@ main(import.meta.url,async()=>{
   await script('upgrade-check',['--seed',join(out,'seed.json'),'--exe',exe,'--out',out]);if(!difference.passed)throw Error('Upgrade has profile losses/changes requiring review; see profile-compare.json.');
  }
  if(phase==='failed-setup'){
-  authorize();if(await installedVersion()!=='0.6.1')throw Error('Restore a separate VM checkpoint with installed and seeded 0.6.1 before interrupted setup.');const milliseconds=Number(required(options,'interrupt-ms'));if(!Number.isInteger(milliseconds)||milliseconds<1)throw Error('Invalid --interrupt-ms.');let passed=false,error:string|undefined;
+  authorize();if(await installedVersion()!=='0.6.1')throw Error('Restore a separate VM checkpoint with installed and seeded 0.6.1 before interrupted setup.');const milliseconds=parseInterruptDelay(required(options,'interrupt-ms'));let passed=false,error:string|undefined;
   try{await setup(build.setup.path,milliseconds);if(await installedVersion()!=='0.6.1')throw Error('Interrupted setup did not retain 0.6.1. No rollback is promised.');await installedSession(exe,async page=>{await page.screenshot({path:join(out,'failed-setup-v061-launch.png')});});passed=true;}catch(cause){error=String(cause);}await json(join(out,'failed-setup.json'),{passed,error,interruptMs:milliseconds,scope:'One interrupted setup timing only; not proof of atomic installation or rollback.'});if(!passed)throw Error(error);
  }
  await json(join(out,phase+'-phase.json'),{phase,passed:true,timestamp:new Date().toISOString(),candidate:build.commit,receiptPath});console.log('Completed phase: '+phase);
