@@ -11,6 +11,8 @@ interface Owner {slot:Slot;context:RunContext;creating:Promise<RuntimeAdapter>;s
 const key=(input:PredictionRequest)=>JSON.stringify([input.threadId,input.replyId]);
 const fingerprint=(input:PredictionBasis)=>createHash('sha256').update(JSON.stringify(input)).digest('hex');
 const empty=(input:PredictionRequest):PredictionResult=>({suggestion:null,replyId:input.replyId,modelId:input.modelId});
+// Only a settled run is closing when its deadline fires; its reported usage still reaches the caller.
+const timedOut=(owner:Owner):PredictionResult=>({...empty(owner.slot.basis),...(owner.closing&&Object.keys(owner.usage).length?{usage:{...owner.usage}}:{})});
 const same=(left:RunContext,right:RunContext)=>left.threadId===right.threadId&&left.runId===right.runId&&left.epoch===right.epoch;
 
 /** Canonical chat text only: no attachments, tools, native history or profile data. */
@@ -86,7 +88,7 @@ export class ComposerPredictions {
   let resolve!:(value:PredictionResult)=>void;const result=new Promise<PredictionResult>(done=>{resolve=done;});
   const context={threadId:'prediction-'+randomUUID(),runId:randomUUID(),epoch:0};
   // Reserve synchronously, before factory or any provider/account await.
-  const owner:Owner={slot,context,creating:Promise.resolve().then(()=>this.hooks.factory()),closed:false,timedOut:false,callers:new Set(),text:'',usage:{},result,resolve,timer:setTimeout(()=>{owner.timedOut=true;owner.resolve(empty(owner.slot.basis));void this.close(owner,false).catch(()=>{});},PREDICTION_LIMITS.timeoutMs)};
+  const owner:Owner={slot,context,creating:Promise.resolve().then(()=>this.hooks.factory()),closed:false,timedOut:false,callers:new Set(),text:'',usage:{},result,resolve,timer:setTimeout(()=>{owner.timedOut=true;owner.resolve(timedOut(owner));void this.close(owner,false).catch(()=>{});},PREDICTION_LIMITS.timeoutMs)};
   owner.timer.unref?.();slot.state='pending';this.owner=owner;
   void this.run(owner);
  }

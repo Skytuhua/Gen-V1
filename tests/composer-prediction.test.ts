@@ -74,9 +74,11 @@ it('times out a settled prediction while cleanup is still pending',async()=>{
  try {
   await vi.advanceTimersByTimeAsync(0);
   x.models[0].runtime.dispose=vi.fn(()=>cleanup.promise);
+  const run=x.models[0].starts[0];x.models[0].callbacks.onEvent({...run,type:'usage',usage:{outputTokens:3}});
   x.models[0].settle();
   await vi.advanceTimersByTimeAsync(PREDICTION_LIMITS.timeoutMs);
   expect(received).toBeNull();
+  expect(await result).toMatchObject({suggestion:null,usage:{outputTokens:3}});
   expect(x.predictions.busy).toBe(true);
  } finally {cleanup.resolve();await result;}
  await vi.advanceTimersByTimeAsync(0);
