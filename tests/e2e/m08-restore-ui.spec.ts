@@ -29,7 +29,7 @@ test('plan shows confirmation with planned paths; cancel resets; confirm applies
  await expect(confirm.getByRole('button',{name:'Restore 2 files',exact:true})).toBeFocused();
  await expect(page.getByRole('checkbox',{name:'Restore notes.txt',exact:true})).toBeDisabled();
  await expect(page.locator('.__restoreCalls')).toHaveCount(0);
- expect(await page.evaluate(()=>(window as any).__restoreCalls.map((c:{kind:string})=>c.kind))).toEqual(['plan']);
+ expect(await page.evaluate(()=>window.__restoreCalls.map((c:{kind:string})=>c.kind))).toEqual(['plan']);
  // Cancel resets back to the review with selection kept.
  await confirm.getByRole('button',{name:'Cancel',exact:true}).click();
  await expect(page.getByRole('region',{name:'Confirm file restore'})).toHaveCount(0);
@@ -40,7 +40,7 @@ test('plan shows confirmation with planned paths; cancel resets; confirm applies
  await expect(page.getByRole('heading',{name:'Restored 2 files',exact:true})).toBeVisible();
  await expect(page.getByRole('region',{name:'Checkpoint restore result'})).toContainText('saved as a new checkpoint in History');
  await expect(page.locator('.file-checkpoints-outcomes li[data-outcome="restored"]')).toHaveCount(2);
- const calls=await page.evaluate(()=>(window as any).__restoreCalls);
+ const calls=await page.evaluate(()=>window.__restoreCalls);
  expect(calls.map((c:{kind:string})=>c.kind)).toEqual(['plan','plan','apply']);
  expect(calls[2].planId).toBe('rst-fixture-1');
  expect(calls[2].approvalId).toBe(calls[1].approvalId);

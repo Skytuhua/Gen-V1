@@ -6,75 +6,8 @@
     "repository": "https://github.com/Skytuhua/Gen-V1",
     "commit": "496f78cf3bf0c81994df5b0b1012027afd26b28e",
     "tree": "64df6fe5644bb93a87ec14cf294f63c4f982e507",
-    "frontend": "dist/web/index.html and its locally served assets from the sealed build",
-    "buildReceipt": {
-      "file": "final-build-checkpoint.json",
-      "sha256": "620169d3619063d54722f5524004b2373eec8a5796a49d7088d08dba8b7ebd4b",
-      "fileManifest": "observed-candidate06-file-manifest.json",
-      "fileManifestSha256": "16b77ebbd1603d4ad9be981a27943ca806fbf40b94f029de8e5d369c22f87d69"
-    },
-    "servedInputs": [
-      {
-        "path": "resources/host/dist/web/index.html",
-        "bytes": 554,
-        "sha256": "306076768704c509a69394d021819723dd1aab0726eb7785d507d18b068dcc50"
-      },
-      {
-        "path": "resources/host/dist/web/assets/index-BzbEcqmJ.js",
-        "bytes": 194760,
-        "sha256": "ed0c183551d521bcc0fb56dcf41c0c6180a0d88c58a42a60fafacb2b62038f34"
-      },
-      {
-        "path": "resources/host/dist/web/assets/index-BRvFHBWV.css",
-        "bytes": 38217,
-        "sha256": "0266d252d8fb19c94eb49007dabe785550b8d917b1c7d341d21107b1ef53cdbe"
-      },
-      {
-        "path": "resources/host/dist/web/assets/DesktopEntry-BdIwEy7_.js",
-        "bytes": 687544,
-        "sha256": "63df831f6265caf8253834533e00e6bf8ad2255a852157daaaca1257260adaed"
-      },
-      {
-        "path": "resources/host/dist/web/assets/DesktopEntry-BGg9nWN9.css",
-        "bytes": 133639,
-        "sha256": "48902dc3afae0575e33541b5971667900a602fc1cb9b954c97a331053c008249"
-      },
-      {
-        "path": "resources/host/dist/web/assets/inter-latin-wght-normal-Dx4kXJAl.woff2",
-        "bytes": 48256,
-        "sha256": "3100e775e8616cd2611beecfa23a4263d7037586789b43f035236a2e6fbd4c62"
-      },
-      {
-        "path": "resources/host/dist/web/assets/InteractionTools-CwZiVNMK.js",
-        "bytes": 21531,
-        "sha256": "c232f04cff5586606ba808fd6e0062203cf7d42b1080c5dbd0eee526e0c6a676"
-      },
-      {
-        "path": "resources/host/dist/web/assets/chevron-left-DYQrMH-X.js",
-        "bytes": 133,
-        "sha256": "6c0c7974b45f400e04518421b86fae270d48c17622c048c5f53ae0788bafd023"
-      },
-      {
-        "path": "resources/host/dist/web/assets/InteractionTools-B-mVqxP0.css",
-        "bytes": 13262,
-        "sha256": "818e63b4b556d1d0ec3eaee1c0a469cf48c759ab5b6a292bb499a8dda8166582"
-      },
-      {
-        "path": "resources/host/dist/web/assets/WorkObjects-BtY_cq4z.js",
-        "bytes": 27405,
-        "sha256": "6879f906592e251d440fdaa8f8c369cfd6b72f5e11b49f684f59b8d334a958d5"
-      },
-      {
-        "path": "resources/host/dist/web/assets/focus-DBfF0rWw.js",
-        "bytes": 342,
-        "sha256": "531fb1b2fd4c72b3cce6308e61ab7e8243054c7c948abccae01ccbe0a7a6a4ce"
-      },
-      {
-        "path": "resources/host/dist/web/assets/WorkObjects-cyIFw-Y4.css",
-        "bytes": 14623,
-        "sha256": "9a2742e1dc35cdcfe7c467c739d5e0da0fba87ab3c08c339352fcb34084baf8d"
-      }
-    ],
+    "frontend": "dist/web/index.html and its locally served assets from the sealed 0.6.4 candidate build",
+    "buildArtifacts": "The sealed build receipt, file manifest and served dist/web asset files were build outputs of that commit and are not stored in this repository; the commit and tree above pin the source the build was made from.",
     "planSchema": {
       "path": "packages/contracts/planning.ts",
       "sha256": "993240c96c701b06f226eaa0489d86509b8125730da0053c591c6dde1178c419",
