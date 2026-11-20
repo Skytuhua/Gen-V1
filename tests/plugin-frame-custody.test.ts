@@ -118,12 +118,12 @@ it('keeps ready callbacks and visibility with the committed render during a susp
  const page=await browser.newPage();try{
   await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
   const child=page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))!;
-  await page.evaluate(()=>{(window as any).__readyOwners=[];(window as any).__speculate();});
-  await expect.poll(()=>page.evaluate(()=>(window as any).__blockedMode)).toBe(1);
+  await page.evaluate(()=>{window.__readyOwners=[];window.__speculate();});
+  await expect.poll(()=>page.evaluate(()=>window.__blockedMode)).toBe(1);
   await expect.poll(()=>page.locator('iframe').isVisible()).toBe(true);expect(await page.locator('#suspended').count()).toBe(0);
-  await child.evaluate(()=>(window as any).client.pluginReady());
-  await expect.poll(()=>page.evaluate(()=>(window as any).__readyOwners)).toEqual(['committed']);
-  await expect.poll(()=>child.evaluate(()=>(window as any).client.isPluginActive())).toBe(true);
+  await child.evaluate(()=>window.client.pluginReady());
+  await expect.poll(()=>page.evaluate(()=>window.__readyOwners)).toEqual(['committed']);
+  await expect.poll(()=>child.evaluate(()=>window.client.isPluginActive())).toBe(true);
  }finally{await page.close();}
 });
 
@@ -131,20 +131,20 @@ it('keeps the same document bridge usable after urgent Suspense hide and reveal'
  const page=await browser.newPage();try{
   await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
   const child=page.frames().find(frame=>frame.url().includes('/plugins/sample-plugin/frame'))!;
-  await page.locator('iframe').evaluate(element=>{(window as any).__originalFrame=element;});
-  await child.evaluate(()=>{(window as any).__duringHide='pending';void (window as any).client.pluginRequest('state.read',{key:'slow-hidden'}).then((value:any)=>{(window as any).__duringHide=value.private;});});
+  await page.locator('iframe').evaluate(element=>{window.__originalFrame=element;});
+  await child.evaluate(()=>{window.__duringHide='pending';void window.client.pluginRequest('state.read',{key:'slow-hidden'}).then((value)=>{window.__duringHide=value.private;});});
   await expect.poll(()=>slow.has('slow-hidden')).toBe(true);
-  await page.evaluate(()=>(window as any).__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);await expect.poll(()=>page.locator('iframe').isHidden()).toBe(true);
+  await page.evaluate(()=>window.__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);await expect.poll(()=>page.locator('iframe').isHidden()).toBe(true);
   slow.get('slow-hidden')!({private:'held-owner-only'});
-  await expect.poll(()=>child.evaluate(()=>(window as any).__duringHide)).toBe('held-owner-only');
-  await page.evaluate(()=>(window as any).__reveal());await expect.poll(()=>page.locator('iframe').isVisible()).toBe(true);
-  expect(await page.locator('iframe').evaluate(element=>element===(window as any).__originalFrame)).toBe(true);
-  await child.evaluate(()=>{(window as any).__afterReveal='pending';void (window as any).client.pluginRequest('state.read',{key:'after-reveal'}).then((value:any)=>{(window as any).__afterReveal=value.private;},()=>{(window as any).__afterReveal='failed';});});
-  await expect.poll(()=>child.evaluate(()=>(window as any).__afterReveal)).toBe('owner-only');
+  await expect.poll(()=>child.evaluate(()=>window.__duringHide)).toBe('held-owner-only');
+  await page.evaluate(()=>window.__reveal());await expect.poll(()=>page.locator('iframe').isVisible()).toBe(true);
+  expect(await page.locator('iframe').evaluate(element=>element===window.__originalFrame)).toBe(true);
+  await child.evaluate(()=>{window.__afterReveal='pending';void window.client.pluginRequest('state.read',{key:'after-reveal'}).then((value)=>{window.__afterReveal=value.private;},()=>{window.__afterReveal='failed';});});
+  await expect.poll(()=>child.evaluate(()=>window.__afterReveal)).toBe('owner-only');
   await page.locator('#flush').click();await expect.poll(()=>page.locator('#saved').textContent()).toBe('saved');
-  const closed=await page.evaluate(()=>(window as any).__portCloses);
-  await page.evaluate(()=>(window as any).__unmount());
-  await expect.poll(()=>page.evaluate(()=>(window as any).__portCloses)).toBe(closed+1);
+  const closed=await page.evaluate(()=>window.__portCloses);
+  await page.evaluate(()=>window.__unmount());
+  await expect.poll(()=>page.evaluate(()=>window.__portCloses)).toBe(closed+1);
   expect(await page.locator('iframe').count()).toBe(0);
  }finally{await page.close();}
 });
@@ -152,12 +152,12 @@ it('keeps the same document bridge usable after urgent Suspense hide and reveal'
 it('closes the document port when an already-hidden Suspense tree is unmounted',async()=>{
  const page=await browser.newPage();try{
   await page.goto(`${origin}/${documentName}`);await page.locator('body[data-ready="true"]').waitFor();
-  const closed=await page.evaluate(()=>(window as any).__portCloses);
-  await page.evaluate(()=>(window as any).__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);
-  await expect.poll(()=>page.evaluate(()=>(window as any).__committedMode)).toBe(2);
-  await page.evaluate(()=>(window as any).__unmount());
+  const closed=await page.evaluate(()=>window.__portCloses);
+  await page.evaluate(()=>window.__hide());await expect.poll(()=>page.locator('#suspended').isVisible()).toBe(true);
+  await expect.poll(()=>page.evaluate(()=>window.__committedMode)).toBe(2);
+  await page.evaluate(()=>window.__unmount());
   expect(await page.locator('iframe').count()).toBe(0);
-  await expect.poll(()=>page.evaluate(()=>(window as any).__portCloses)).toBe(closed+1);
+  await expect.poll(()=>page.evaluate(()=>window.__portCloses)).toBe(closed+1);
  }finally{await page.close();}
 });
 
