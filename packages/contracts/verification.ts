@@ -17,11 +17,11 @@ const sha1 = z.string().regex(/^[a-f0-9]{40}$/);
 /* fragments. Registration and changes require M02 exact approval.      */
 /* ------------------------------------------------------------------ */
 
-export const VERIFICATION_PHASE_NAMES = ['BOOTSTRAP', 'BUILD', 'TEST', 'START', 'READINESS', 'BROWSER', 'TEARDOWN'] as const;
-export type VerificationPhaseName = (typeof VERIFICATION_PHASE_NAMES)[number];
-export const verificationPhaseNameSchema = z.enum(VERIFICATION_PHASE_NAMES);
+const VERIFICATION_PHASE_NAMES = ['BOOTSTRAP', 'BUILD', 'TEST', 'START', 'READINESS', 'BROWSER', 'TEARDOWN'] as const;
 
-export const recipePhaseSchema = z.strictObject({
+const verificationPhaseNameSchema = z.enum(VERIFICATION_PHASE_NAMES);
+
+const recipePhaseSchema = z.strictObject({
   name: verificationPhaseNameSchema,
   /** Identity of the executable the approved profile resolves (e.g. 'pnpm',
    * 'node'). It is never a shell fragment and never a path inside the project. */
@@ -37,19 +37,19 @@ export const recipePhaseSchema = z.strictObject({
 });
 export type RecipePhase = z.infer<typeof recipePhaseSchema>;
 
-export const workspaceIdentityV1Schema = z.strictObject({
+const workspaceIdentityV1Schema = z.strictObject({
   canonicalPath: boundedText(4096),
   dev: boundedText(40),
   ino: boundedText(40),
 });
-export type WorkspaceIdentityV1 = z.infer<typeof workspaceIdentityV1Schema>;
 
-export const recipeEnvironmentV1Schema = z.strictObject({
+
+const recipeEnvironmentV1Schema = z.strictObject({
   platform: boundedText(40),
   nodeVersion: boundedText(40),
   packageManager: boundedText(100).nullable(),
 });
-export type RecipeEnvironmentV1 = z.infer<typeof recipeEnvironmentV1Schema>;
+
 
 export const verificationRecipeV1Schema = z.strictObject({
   version: z.literal(1),
@@ -76,11 +76,11 @@ export type VerificationRecipeV1 = z.infer<typeof verificationRecipeV1Schema>;
 /* Freshness is derived from the current source, never rewritten.       */
 /* ------------------------------------------------------------------ */
 
-export const checkOutcomeSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'CANCELLED', 'UNKNOWN']);
-export type CheckOutcome = z.infer<typeof checkOutcomeSchema>;
+const checkOutcomeSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'CANCELLED', 'UNKNOWN']);
 
-export const observationKindSchema = z.enum(['process', 'readiness', 'browser', 'visual', 'cleanup', 'review-advisory']);
-export type ObservationKind = z.infer<typeof observationKindSchema>;
+
+const observationKindSchema = z.enum(['process', 'readiness', 'browser', 'visual', 'cleanup', 'review-advisory']);
+
 
 export const checkObservationV1Schema = z.strictObject({
   version: z.literal(1),
@@ -135,10 +135,10 @@ export type VisualObservationV1 = z.infer<typeof visualObservationV1Schema>;
 /* carry fresh trusted evidence for the current source/environment.     */
 /* ------------------------------------------------------------------ */
 
-export const requirementAssessmentSchema = z.enum(['VERIFIED', 'FAILED', 'UNVERIFIED', 'BLOCKED']);
-export type RequirementAssessment = z.infer<typeof requirementAssessmentSchema>;
+const requirementAssessmentSchema = z.enum(['VERIFIED', 'FAILED', 'UNVERIFIED', 'BLOCKED']);
 
-export const completionLabelSchema = z.enum(['VERIFIED', 'COMPLETED_UNVERIFIED', 'FAILED', 'BLOCKED']);
+
+const completionLabelSchema = z.enum(['VERIFIED', 'COMPLETED_UNVERIFIED', 'FAILED', 'BLOCKED']);
 export type CompletionLabel = z.infer<typeof completionLabelSchema>;
 
 export const sourceCutV1Schema = z.strictObject({
@@ -150,7 +150,7 @@ export const sourceCutV1Schema = z.strictObject({
 });
 export type SourceCutV1 = z.infer<typeof sourceCutV1Schema>;
 
-export const assessedRequirementSchema = z.strictObject({
+const assessedRequirementSchema = z.strictObject({
   id: boundedText(200),
   checkRefs: z.array(boundedText(200)).max(64),
   assessment: requirementAssessmentSchema,
@@ -179,11 +179,11 @@ export type DeliverableAssessmentV1 = z.infer<typeof deliverableAssessmentV1Sche
 /* inputs a thread declared for its completion projection.              */
 /* ------------------------------------------------------------------ */
 
-export const declaredRequirementSchema = z.strictObject({
+const declaredRequirementSchema = z.strictObject({
   id: boundedText(200),
   checkRefs: z.array(boundedText(200)).max(64),
 });
-export type DeclaredRequirement = z.infer<typeof declaredRequirementSchema>;
+
 
 export const verificationDeclarationV1Schema = z.strictObject({
   version: z.literal(1),
@@ -201,8 +201,8 @@ export type VerificationDeclarationV1 = z.infer<typeof verificationDeclarationV1
 /* reproduction. Deduped by source + finding identity.                  */
 /* ------------------------------------------------------------------ */
 
-export const securityFindingStatusSchema = z.enum(['OPEN', 'MITIGATED', 'ACCEPTED', 'FALSE_POSITIVE']);
-export type SecurityFindingStatus = z.infer<typeof securityFindingStatusSchema>;
+const securityFindingStatusSchema = z.enum(['OPEN', 'MITIGATED', 'ACCEPTED', 'FALSE_POSITIVE']);
+
 
 export const securityFindingV1Schema = z.strictObject({
   version: z.literal(1),
@@ -232,7 +232,7 @@ export const BROWSER_STEP_LIMIT = 24;
 export const BROWSER_STEP_TIMEOUT_MS = 15_000;
 export const BROWSER_RUN_DEADLINE_MS = 5 * 60_000;
 
-export const browserStepSchema = z.discriminatedUnion('kind', [
+const browserStepSchema = z.discriminatedUnion('kind', [
   z.strictObject({ kind: z.literal('NAVIGATE'), url: boundedText(2048) }),
   z.strictObject({ kind: z.literal('CLICK'), selector: boundedText(500) }),
   z.strictObject({ kind: z.literal('TYPE'), selector: boundedText(500), text: boundedText(2000) }),
