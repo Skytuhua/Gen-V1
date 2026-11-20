@@ -9,13 +9,56 @@ import {validatePdfStructure} from './pdf-structure.ts';
 function pdfText(bytes: Uint8Array): string {
   if(bytes.byteLength>PDF_LIMITS.decodedStreamBytes)throw new HarnessError('PDF_LIMIT','A decoded PDF content stream exceeds the 16 MiB processing limit.');
   const source = Buffer.from(bytes).toString("latin1"), parts: string[] = [];
-  const token = /\((?:\\[\s\S]|[^\\()])*\)|<[0-9a-fA-F\s]+>/g;
-  for (const operator of source.matchAll(/(\((?:\\[\s\S]|[^\\()])*\)|<[0-9a-fA-F\s]+>|\[[\s\S]*?\])\s*(?:Tj|TJ|'|")/g)) {
-    for (const match of operator[1].matchAll(token)) {
-      const value = match[0];
-      if (value[0] === "<") parts.push(Buffer.from(value.slice(1, -1).replace(/\s/g, ""), "hex").toString("latin1"));
-      else parts.push(value.slice(1, -1).replace(/\\([0-7]{1,3}|[\s\S])/g, (_, escaped: string) => /^[0-7]+$/.test(escaped) ? String.fromCharCode(parseInt(escaped, 8)) : ({ n: "\n", r: "\r", t: "\t", b: "\b", f: "\f" }[escaped] ?? escaped)));
+  let position = 0;
+  const skipSpace = () => { while (position < source.length && /\s/.test(source[position])) position++; };
+  const decode = (raw: string) => raw.replace(/\\([0-7]{1,3}|\r\n|.)/gs, (_, escaped: string) =>
+    /^[0-7]+$/.test(escaped) ? String.fromCharCode(parseInt(escaped, 8))
+      : escaped === "\r" || escaped === "\n" || escaped === "\r\n" ? ""
+      : ({n: "\n", r: "\r", t: "\t", b: "\b", f: "\f"}[escaped] ?? escaped));
+  const isTextOperator = () => {
+    const saved = position; skipSpace();
+    const op = source[position], ok = op === "'" || op === '"' || (op === "T" && (source[position + 1] === "j" || source[position + 1] === "J"));
+    position = saved;
+    return ok;
+  };
+  const hexString = () => {
+    const end = source.indexOf(">", position + 1);
+    if (end === -1) return null;
+    const digits = source.slice(position + 1, end).replace(/\s/g, "");
+    if (!/^[0-9a-fA-F]*$/.test(digits)) return null;
+    position = end + 1;
+    return Buffer.from(digits.length % 2 ? digits + "0" : digits, "hex").toString("latin1");
+  };
+  // Balanced parens nest inside literal strings, so each opener goes on a stack;
+  // an operand commits only when a Tj/TJ/'/" operator follows its closing token.
+  const openers: number[] = [];
+  let inArray = false; const items: string[] = [];
+  while (position < source.length) {
+    const c = source[position];
+    if (openers.length && c === "\\") { position += 2; continue; }
+    if (c === "(") { openers.push(position); position++; continue; }
+    if (c === ")") {
+      if (openers.length) {
+        const raw = source.slice(openers.pop()! + 1, position++);
+        if (inArray ? !openers.length : isTextOperator()) (inArray ? items : parts).push(decode(raw));
+      } else position++;
+      continue;
     }
+    if (openers.length) { position++; continue; }
+    if (c === "<" && source[position + 1] !== "<") {
+      const value = hexString();
+      if (value === null) { position++; continue; }
+      if (inArray) items.push(value);
+      else if (isTextOperator()) parts.push(value);
+      continue;
+    }
+    if (c === "[") { inArray = true; items.length = 0; position++; continue; }
+    if (c === "]" && inArray) {
+      inArray = false; position++;
+      if (isTextOperator()) parts.push(...items);
+      continue;
+    }
+    position++;
   }
   return parts.join(" ");
 }
