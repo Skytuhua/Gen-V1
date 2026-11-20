@@ -17,3 +17,8 @@
 .pr-checks-stale{max-width:64ch;margin:0;padding:8px 10px;border:1px solid var(--border);border-radius:8px;background:var(--warning-bg);color:var(--text);font-size:12px;line-height:1.5}
 .pr-checks .pr-check-list{max-width:480px;margin:0;gap:0;border:1px solid var(--border);border-radius:8px}.pr-checks .pr-check-list li{padding:6px 10px;font-size:13px}.pr-checks .pr-check-list li+li{border-top:1px solid var(--border)}
 .pr-check-list li[data-state=pass]::before{background:var(--success-fg)}.pr-check-list li[data-state=fail]::before{background:var(--danger-fg)}.pr-check-list li[data-state=pending]::before{background:var(--warning-fg)}.pr-check-list li[data-state=pass] small{color:var(--success-fg)}.pr-check-list li[data-state=fail] small{color:var(--danger-fg)}.pr-check-list li[data-state=pending] small{color:var(--warning-fg)}
+
+.connect-folder-notice{display:flex;align-items:center;gap:8px;width:100%;box-sizing:border-box;padding:6px 10px;min-height:var(--settings-row-height,32px);border:1px solid transparent;border-radius:var(--control-radius,8px);font:inherit;font-size:12px;color:var(--text);text-align:left}
+.connect-folder-notice>svg{flex:none;color:var(--muted)}
+.connect-folder-notice>span{flex:1;min-width:0}
+.connect-folder-notice:hover:not(:disabled) span{color:var(--text)}
