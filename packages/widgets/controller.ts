@@ -53,7 +53,7 @@ export function createWidgetRuntime(options: WidgetRuntimeOptions) {
     if (performance.now() - lastPong > 2000) { fail('Generated app exceeded its execution limit. Its worker was terminated.'); return; }
     if (workerReady && !pendingPing) { pendingPing = crypto.randomUUID(); postWorker({ type: 'ping', nonce: pendingPing }); }
   }, 250);
-  function receiveWorker(data: any) {
+  function receiveWorker(data: { type?: string; nonce?: string; event?: string; payload?: unknown }) {
     if (disposed) return;
     const now = performance.now(); if (now - windowStart >= 1000) { windowStart = now; messages = 0; }
     if (++messages > 80) { fail('Generated app exceeded its update limit.'); return; }
@@ -62,7 +62,7 @@ export function createWidgetRuntime(options: WidgetRuntimeOptions) {
     if (data.type === 'ready') { if (workerReady) { fail('Generated app sent a duplicate startup message.'); return; } workerReady = true; postWorker({ type: 'start', html, stateSchemaVersion }); for (const message of pendingMessages.splice(0)) postWorker(message); return; }
     if (data.type === 'fatal') { fail('Generated app exceeded a runtime limit or used an unsupported capability.'); return; }
     if (data.type === 'render') { if (!validateRender(data.payload)) { fail('Generated app sent an invalid DOM update.'); return; } lastRender = data.payload; return; }
-    if (data.type === 'bridge' && ['action', 'dirty', 'checkpoint'].includes(data.event)) {
+    if (data.type === 'bridge' && ['action', 'dirty', 'checkpoint'].includes(data.event ?? '')) {
       if (!validateBridgePayload(data.payload)) { fail('Generated app exceeded its bridge limit.'); return; }
       options.onBridge({ channel: 'harness-widget', ...identity, type: data.event, payload: data.payload });
     }

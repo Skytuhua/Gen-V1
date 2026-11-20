@@ -5,6 +5,15 @@ import type {ThreadNavigationRow} from '../../packages/contracts/shell-read-mode
 import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../packages/core/split-workspace-layout';
 import type {SplitWorkspaceLayout} from '../../packages/contracts/split-workspace';
 import {serveTaskFixture, taskFixture} from './task-interface-fixture';
+import type {DesktopState, DesktopWindowInfo} from '../../packages/desktop-contract/index.ts';
+
+declare global { interface Window {
+  publishOwner: (owned?: boolean, threadId?: string) => void;
+  focusedOwner?: string;
+  ownerCallbackSawEnabled?: boolean;
+  failSettingsWrites?: boolean;
+  releaseSettingsGuard?: () => void;
+} }
 
 async function fixture(page: Page, {native = false, delayed = false, unavailable = false, invalidOwner = false, working = true, pinned = false, archiveConfirmation = true, emptyAgents = false, retiredActive = '', retiredSelectionFailsOnce = false, plugins = {} as {fail?: boolean; manifests?: unknown[]}} = {}) {
   const snapshot = taskFixture({root: 'text', elements: {text: {type: 'Text', props: {text: 'Synthetic host fixture'}}}});
@@ -51,7 +60,7 @@ async function fixture(page: Page, {native = false, delayed = false, unavailable
     envelope.state.revision++; return route.fulfill({json: {commandId: input.id, seq: 1, result: envelope}});
   });
   const dockReads={failMetadata:false};
-  const dockLayouts=new Map<string,SplitWorkspaceLayout>(),dockCommands:any[]=[],profiles=new Map<string,{id:string;name:string;updatedAt:string;layout:SplitWorkspaceLayout}>();
+  const dockLayouts=new Map<string,SplitWorkspaceLayout>(),dockCommands:unknown[]=[],profiles=new Map<string,{id:string;name:string;updatedAt:string;layout:SplitWorkspaceLayout}>();
   const dock=(id:string)=>{if(!dockLayouts.has(id))dockLayouts.set(id,createSplitWorkspaceLayout(id));return dockLayouts.get(id)!;};
   await page.route('**/api/split-workspace?*',route=>route.fulfill({json:dock(new URL(route.request().url()).searchParams.get('workspaceId')!)}));
   await page.route('**/api/split-workspace/profiles?*',route=>{if(dockReads.failMetadata)return route.fulfill({status:503,json:{error:{code:'UNAVAILABLE',message:'Synthetic layout metadata unavailable'}}});const id=new URL(route.request().url()).searchParams.get('workspaceId');return route.fulfill({json:[...profiles.values()].filter(p=>p.layout.id===id).map(({layout,...p})=>p)});});
@@ -500,12 +509,12 @@ test('review: restored archived conversation becomes available in monitor naviga
 });
 test('review: restored native thread owner keeps the monitor composer inert', async ({page})=>{
  const originalInit=page.addInitScript.bind(page);
- page.addInitScript=async (fn:any,arg:any)=>{
-  await originalInit(fn,arg);
-  if(arg?.native)await originalInit(()=>{
-   const bridge=(window as any).harnessDesktop, original=bridge.getContext;
-   bridge.focus=async(id:string)=>{(window as any).focusedOwner=id;};
-   bridge.getContext=async()=>({...await original(),windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]});
+ page.addInitScript=async (fn: Parameters<typeof originalInit>[0], arg: unknown)=>{
+  await originalInit(fn,arg as never);
+  if((arg as {native?:boolean}|undefined)?.native)await originalInit(()=>{
+   const bridge=window.harnessDesktop!, original=bridge.getContext;
+   bridge.focus=async(id:string)=>{window.focusedOwner=id;};
+   bridge.getContext=async()=>({...await original(),windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'} as unknown as DesktopWindowInfo]});
   });
  };
  const {commands} = await fixture(page,{native:true,working:true});
@@ -514,18 +523,18 @@ test('review: restored native thread owner keeps the monitor composer inert', as
  expect(await input.evaluate(node=>Boolean(node.closest('[inert]'))||node.hasAttribute('disabled'))).toBe(true);
  await expect(page.getByRole('button', {name:'Stop Project investigation', exact:true})).toBeDisabled();
  await page.getByRole('button', {name:'Focus existing window', exact:true}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).focusedOwner)).toBe('existing-child');
+ await expect.poll(()=>page.evaluate(()=>window.focusedOwner)).toBe('existing-child');
  expect(commands.filter(command=>['message.send','run.stop'].includes(command.type))).toEqual([]);
 });
 
 test('desktop ownership updates hold monitor send and Stop then preserve the draft on return', async ({page}) => {
  const originalInit = page.addInitScript.bind(page);
- page.addInitScript = async (fn: any, arg: any) => {
-  await originalInit(fn, arg);
-  if (arg?.native) await originalInit(() => {
-   const bridge = (window as any).harnessDesktop;
-   bridge.onState = (notify: (state: unknown) => void) => {
-    (window as any).publishOwner = (owned: boolean) => notify({windows: owned ? [{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}] : []});
+ page.addInitScript = async (fn: Parameters<typeof originalInit>[0], arg: unknown) => {
+  await originalInit(fn, arg as never);
+  if ((arg as {native?:boolean}|undefined)?.native) await originalInit(() => {
+   const bridge = window.harnessDesktop!;
+   bridge.onState = (notify) => {
+    window.publishOwner = (owned?: boolean) => notify({windows: owned ? [{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}] : []} as unknown as DesktopState);
     return () => {};
    };
    bridge.focus = async () => {};
@@ -536,12 +545,12 @@ test('desktop ownership updates hold monitor send and Stop then preserve the dra
  await page.route('**/api/skill-catalog?*',route=>route.fulfill({json:{scope:{kind:'personal'},sources:[],skills:[],inventoryRevision:'a'.repeat(64),nextCursor:null}}));
  await composer.fill('Keep across native ownership /model');
  await expect(page.getByRole('listbox', {name:'Commands and skills'})).toBeVisible();
- await page.evaluate(() => (window as any).publishOwner(true));
+ await page.evaluate(() => window.publishOwner(true));
  await expect(composer).toBeDisabled();
  await expect(page.getByRole('listbox', {name:'Commands and skills'})).toHaveCount(0);
  await expect(page.getByRole('button', {name:'Stop Project investigation',exact:true})).toBeDisabled();
  expect(h.commands.filter(command=>['message.send','run.stop'].includes(command.type))).toEqual([]);
- await page.evaluate(() => (window as any).publishOwner(false));
+ await page.evaluate(() => window.publishOwner(false));
  await expect(composer).toBeEnabled(); await expect(composer).toHaveValue('Keep across native ownership /model');
  await composer.fill('Keep across native ownership');
  await page.getByRole('button', {name:'Send to Project investigation',exact:true}).click();
@@ -552,11 +561,11 @@ test('desktop ownership updates hold monitor send and Stop then preserve the dra
 
 test('desktop ownership change prevents a slash mode retry after authentication renewal', async ({page}) => {
  const originalInit=page.addInitScript.bind(page);
- page.addInitScript=async(fn:any,arg:any)=>{
-  await originalInit(fn,arg);
-  if(arg?.native)await originalInit(()=>{
-   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
-    (window as any).publishOwner=()=>notify({windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'}]});
+ page.addInitScript=async(fn: Parameters<typeof originalInit>[0], arg: unknown)=>{
+  await originalInit(fn,arg as never);
+  if((arg as {native?:boolean}|undefined)?.native)await originalInit(()=>{
+   window.harnessDesktop!.onState=(notify)=>{
+    window.publishOwner=()=>notify({windows:[{id:'existing-child',surface:{kind:'thread',threadId:'parent-a'},title:'Restored thread'} as unknown as DesktopWindowInfo]} as unknown as DesktopState);
     return()=>{};
    };
   });
@@ -569,7 +578,7 @@ test('desktop ownership change prevents a slash mode retry after authentication 
   if(command.type!=='thread.mode')return route.fallback();
   attempts++;
   if(attempts===1){
-   await page.evaluate(()=>(window as any).publishOwner());
+   await page.evaluate(()=>window.publishOwner());
    await expect(input).toBeDisabled();
    return route.fulfill({status:401,json:{error:{code:'AUTH_REQUIRED',message:'Session renewed'}}});
   }
@@ -584,11 +593,11 @@ test('desktop ownership change prevents a slash mode retry after authentication 
 
 async function installOwnerPublisher(page: Page) {
  const originalInit=page.addInitScript.bind(page);
- page.addInitScript=async(fn:any,arg:any)=>{
-  await originalInit(fn,arg);
-  if(arg?.native)await originalInit(()=>{
-   (window as any).harnessDesktop.onState=(notify:(state:unknown)=>void)=>{
-    (window as any).publishOwner=(away:boolean,threadId='parent-a')=>notify({windows:away?[{id:'existing-child',surface:{kind:'thread',threadId},ready:true,minimized:false}]:[]});
+ page.addInitScript=async(fn: Parameters<typeof originalInit>[0], arg: unknown)=>{
+  await originalInit(fn,arg as never);
+  if((arg as {native?:boolean}|undefined)?.native)await originalInit(()=>{
+   window.harnessDesktop!.onState=(notify)=>{
+    window.publishOwner=(away?:boolean,threadId='parent-a')=>notify({windows:away?[{id:'existing-child',surface:{kind:'thread',threadId},ready:true,minimized:false}]:[]} as DesktopState);
     return()=>{};
    };
   });
@@ -606,8 +615,8 @@ test('a native owner roundtrip before auth retry still rejects the stale mode',a
  });
  await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
  await expect.poll(()=>attempts).toBe(1);
- await page.evaluate(()=>(window as any).publishOwner(true));await expect(input).toBeDisabled();
- await page.evaluate(()=>(window as any).publishOwner(false));await expect(input).toBeEnabled();release();
+ await page.evaluate(()=>window.publishOwner(true));await expect(input).toBeDisabled();
+ await page.evaluate(()=>window.publishOwner(false));await expect(input).toBeEnabled();release();
  await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();expect(attempts).toBe(1);
 });
 
@@ -624,7 +633,7 @@ test('unmounting the monitor before native takeover rejects a stale mode retry',
  await expect.poll(()=>attempts).toBe(1);
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(input).toHaveCount(0);
- await page.evaluate(()=>(window as any).publishOwner(true));
+ await page.evaluate(()=>window.publishOwner(true));
  await expect(page.getByText('Conversation open in another window.',{exact:false})).toBeVisible();release();
  await expect.poll(()=>attempts,{timeout:1500}).toBe(1);
  console.log(JSON.stringify({scenario:'unmount-then-native-takeover',attempts,sent}));
@@ -644,7 +653,7 @@ test('synchronous native owner roundtrip fences the pending mode retry and permi
  await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
  await expect.poll(()=>sent.length).toBe(1);
  // Both trusted callbacks run in one task: there is no DOM wait or React render between them.
- await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});
+ await page.evaluate(()=>{window.publishOwner(true);window.publishOwner(false);});
  release();
  await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
  expect(sent).toHaveLength(1);expect(sent[0]).toMatchObject({type:'thread.mode',threadId:'parent-a',payload:{mode:'plan'}});
@@ -665,14 +674,14 @@ test('native takeover immediately before the mode callback prevents its initial 
   const frame=window.requestAnimationFrame.bind(window);
   window.requestAnimationFrame=callback=>frame(time=>{
    window.requestAnimationFrame=frame;
-   (window as any).publishOwner(true);
-   (window as any).ownerCallbackSawEnabled=!document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Message to Project investigation"]')!.disabled;
+   window.publishOwner(true);
+   window.ownerCallbackSawEnabled=!document.querySelector<HTMLTextAreaElement>('textarea[aria-label="Message to Project investigation"]')!.disabled;
    callback(time);
   });
  });
  await input.press('Enter');
  await expect(page.getByRole('status').filter({hasText:'The command owner changed'})).toBeVisible();
- expect(await page.evaluate(()=>(window as any).ownerCallbackSawEnabled)).toBe(true);
+ expect(await page.evaluate(()=>window.ownerCallbackSawEnabled)).toBe(true);
  expect(h.commands.filter(command=>command.type==='thread.mode')).toHaveLength(0);
  await expect(input).toBeDisabled();
 });
@@ -688,7 +697,7 @@ test('unrelated native owner roundtrip preserves a pending mode retry and its co
  });
  await input.fill('/plan');await expect(page.getByRole('option',{name:'/plan Switch to Plan'})).toBeVisible();await input.press('Enter');
  await expect.poll(()=>sent.length).toBe(1);
- await page.evaluate(()=>{(window as any).publishOwner(true,'empty-draft');(window as any).publishOwner(false,'empty-draft');});release();
+ await page.evaluate(()=>{window.publishOwner(true,'empty-draft');window.publishOwner(false,'empty-draft');});release();
  await expect.poll(()=>sent.length).toBe(2);expect(sent[1]).toEqual(sent[0]);
  await expect(input).toBeEnabled();
 });
@@ -706,7 +715,7 @@ for(const type of ['message.send','run.stop'] as const)test(`synchronous native 
  if(type==='message.send')await input.fill('Keep the pending owner message');
  await page.getByRole('button',{name:`${type==='message.send'?'Send to':'Stop'} Project investigation`,exact:true}).click();
  await expect.poll(()=>sent.length).toBe(1);
- await page.evaluate(()=>{(window as any).publishOwner(true);(window as any).publishOwner(false);});release();
+ await page.evaluate(()=>{window.publishOwner(true);window.publishOwner(false);});release();
  await expect(page.getByRole('alert').filter({hasText:'The command owner changed'})).toBeVisible();expect(sent).toHaveLength(1);
  if(type==='message.send'){
   await expect(input).toHaveValue('Keep the pending owner message');
@@ -774,20 +783,20 @@ test('monitor Settings code loads only on open and remains reusable after closin
 for(const blocker of ['assets','journal','handoff'] as const)test(`monitor Settings chunk recovery retains ${blocker} before reloading`,async({page})=>{
  if(blocker==='journal')await page.addInitScript(()=>{
   const transaction=IDBDatabase.prototype.transaction,setItem=Storage.prototype.setItem;
-  IDBDatabase.prototype.transaction=function(...args:Parameters<IDBDatabase['transaction']>){if((window as any).failSettingsWrites&&args[1]==='readwrite')throw Error('Synthetic journal unavailable');return transaction.apply(this,args);};
-  Storage.prototype.setItem=function(key,value){if((window as any).failSettingsWrites&&key.startsWith('harness:journal-pending:'))throw Error('Synthetic staging unavailable');return setItem.call(this,key,value);};
+  IDBDatabase.prototype.transaction=function(...args:Parameters<IDBDatabase['transaction']>){if(window.failSettingsWrites&&args[1]==='readwrite')throw Error('Synthetic journal unavailable');return transaction.apply(this,args);};
+  Storage.prototype.setItem=function(key,value){if(window.failSettingsWrites&&key.startsWith('harness:journal-pending:'))throw Error('Synthetic staging unavailable');return setItem.call(this,key,value);};
  });
  await page.route('**/src/CompactSettings.tsx*',route=>route.abort('failed'));
  const h=await fixture(page);await expect(page.getByRole('region',{name:'Agent workspace',exact:true})).toBeVisible();
  await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Settings',exact:true});await expect(dialog.getByRole('alert')).toContainText('Settings could not load');
  if(blocker==='assets')await page.evaluate(()=>localStorage.setItem('harness:signature-assets:v1:unmounted-owner:state',JSON.stringify([{id:'pending',stateKey:'signature',base64:'YQ=='}])));
- if(blocker==='handoff')await page.evaluate(async()=>{const path='/src/editor-handoff.ts';(window as any).releaseSettingsGuard=(await import(path)).registerEditorHandoff('settings-reload',async()=>{throw Error('Synthetic handoff refused');});});
- if(blocker==='journal')expect(await page.evaluate(async()=>{(window as any).failSettingsWrites=true;const path='/src/journal.ts';return (await import(path)).journalWrite('settings-reload-test',{draft:'Retain memory draft'}).then(()=>false,()=>true);})).toBe(true);
+ if(blocker==='handoff')await page.evaluate(async()=>{const path='/src/editor-handoff.ts';window.releaseSettingsGuard=(await import(path)).registerEditorHandoff('settings-reload',async()=>{throw Error('Synthetic handoff refused');});});
+ if(blocker==='journal')expect(await page.evaluate(async()=>{window.failSettingsWrites=true;const path='/src/journal.ts';return (await import(path)).journalWrite('settings-reload-test',{draft:'Retain memory draft'}).then(()=>false,()=>true);})).toBe(true);
  let navigations=0;page.on('framenavigated',frame=>{if(frame===page.mainFrame())navigations++;});
  await dialog.getByRole('button',{name:'Reload to retry',exact:true}).click();
  await expect(dialog.getByRole('alert')).toContainText(blocker==='assets'?'signature mark':'Drafts could not be saved');expect(navigations).toBe(0);expect(h.requests.some(path=>path.startsWith('/api/snapshot'))).toBe(false);
  if(blocker==='journal')expect(await page.evaluate(async()=>{const path='/src/journal.ts';return (await import(path)).journalRead('settings-reload-test');})).toEqual({draft:'Retain memory draft'});
- await page.evaluate(()=>{localStorage.removeItem('harness:signature-assets:v1:unmounted-owner:state');(window as any).failSettingsWrites=false;(window as any).releaseSettingsGuard?.();});
+ await page.evaluate(()=>{localStorage.removeItem('harness:signature-assets:v1:unmounted-owner:state');window.failSettingsWrites=false;window.releaseSettingsGuard?.();});
  await dialog.getByRole('button',{name:'Close dialog',exact:true}).click();await expect(dialog).toHaveCount(0);
 });
 

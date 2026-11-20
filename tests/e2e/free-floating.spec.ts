@@ -1,4 +1,5 @@
 import {test,expect,type Page} from '@playwright/test';
+declare global { interface Window { __exitAnimations: Promise<unknown>[]; __exitCount: number } }
 
 const flushFrames=(page:Page)=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
 import {resolve} from 'node:path';
@@ -11,23 +12,23 @@ test.beforeEach(async({page})=>{
 });
 test('closing a tool animates safely and an immediate reopen stays open',async({page})=>{
  await page.emulateMedia({reducedMotion:'no-preference'});
- await page.addInitScript(()=>{const original=Element.prototype.animate;(window as any).__exitAnimations=[];Element.prototype.animate=function(frames,options){const animation=original.call(this,frames,options);if((this as HTMLElement).dataset.floatingId==='free-test'&&Array.isArray(frames)&&frames.at(-1)?.opacity===0)(window as any).__exitAnimations.push(animation.finished.catch(()=>{}));return animation;};});
+ await page.addInitScript(()=>{const original=Element.prototype.animate;window.__exitAnimations=[];Element.prototype.animate=function(frames,options){const animation=original.call(this,frames,options);if((this as HTMLElement).dataset.floatingId==='free-test'&&Array.isArray(frames)&&frames.at(-1)?.opacity===0)window.__exitAnimations.push(animation.finished.catch(()=>{}));return animation;};});
  await page.goto('/free-floating-check');
  const panel=page.locator('[data-floating-id="free-test"]');
  await panel.getByRole('button',{name:'Close Test tool',exact:true}).click();
- await expect.poll(()=>page.evaluate(()=>(window as any).__exitAnimations.length)).toBe(1);
+ await expect.poll(()=>page.evaluate(()=>window.__exitAnimations.length)).toBe(1);
  await expect(panel).toHaveAttribute('inert','');
  await page.getByRole('button',{name:'Open test tool',exact:true}).click();
- await page.evaluate(async()=>{await Promise.allSettled((window as any).__exitAnimations);});
+ await page.evaluate(async()=>{await Promise.allSettled(window.__exitAnimations);});
  await expect(panel).toBeVisible();await expect(panel).not.toHaveAttribute('inert','');
  await expect(panel.getByRole('textbox',{name:'Tool draft'})).toHaveValue('Keep my draft');
 });
 test('reduced motion closes immediately and returns focus to the opener',async({page})=>{
- await page.addInitScript(()=>{const original=Element.prototype.animate;(window as any).__exitCount=0;Element.prototype.animate=function(frames,options){if((this as HTMLElement).dataset.floatingId==='free-test'&&Array.isArray(frames)&&frames.at(-1)?.opacity===0)(window as any).__exitCount++;return original.call(this,frames,options);};});
+ await page.addInitScript(()=>{const original=Element.prototype.animate;window.__exitCount=0;Element.prototype.animate=function(frames,options){if((this as HTMLElement).dataset.floatingId==='free-test'&&Array.isArray(frames)&&frames.at(-1)?.opacity===0)window.__exitCount++;return original.call(this,frames,options);};});
  await page.goto('/free-floating-check');const panel=page.locator('[data-floating-id="free-test"]'),opener=page.getByRole('button',{name:'Open test tool',exact:true});
  await panel.getByRole('button',{name:'Close Test tool',exact:true}).click();await expect(panel).toBeHidden();
  await opener.click();await panel.getByRole('textbox',{name:'Tool draft'}).focus();await page.keyboard.press('Escape');
- await expect(panel).toBeHidden();await expect(opener).toBeFocused();expect(await page.evaluate(()=>(window as any).__exitCount)).toBe(0);
+ await expect(panel).toBeHidden();await expect(opener).toBeFocused();expect(await page.evaluate(()=>window.__exitCount)).toBe(0);
 });
 test('keyboard movement releases the rail in both axes and manual sizing preserves the draft',async({page})=>{
  await page.goto('/free-floating-check');

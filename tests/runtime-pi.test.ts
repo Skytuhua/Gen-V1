@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import type { RunContext, StartRun } from "../packages/contracts/index.ts";
+import type { RunContext, RuntimeEvent, StartRun } from "../packages/contracts/index.ts";
 import { encodeInput, extractInputIds } from "../packages/runtime-pi/input-envelope.ts";
 import { openTaskSession, taskPaths, validateSessionPath } from "../packages/runtime-pi/session.ts";
 import { EventNormalizer } from "../packages/runtime-pi/events.ts";
@@ -99,12 +99,12 @@ async function isExecuting(pid: number): Promise<boolean> {
 }
 
 function mockWorkers() {
-  const children: any[] = [];
-  const commands: any[] = [];
+  const children: (EventEmitter & {send:ReturnType<typeof vi.fn>})[] = [];
+  const commands: {requestId?:string;command?:string;input?:{runId?:string}}[] = [];
   const spawnWorker = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       connected: true, exitCode: null, signalCode: null,
-      send: vi.fn((message: any, callback: (error: Error | null) => void) => {
+      send: vi.fn((message: {requestId?:string;command?:string}, callback: (error: Error | null) => void) => {
         commands.push(message);
         queueMicrotask(() => {
           child.emit("message", { type: "response", requestId: message.requestId, value: null });
@@ -122,6 +122,33 @@ function mockWorkers() {
   });
   return { children, commands, spawnWorker, terminate };
 }
+
+it("rediscovers only the invalidated Pi provider when requested by scope", async () => {
+  const workers = mockWorkers(), runtime = createPiRuntime({dataDir: await temp()});
+  const spawnWorker = workers.spawnWorker.getMockImplementation()!;
+  let id = "openai/before";
+  workers.spawnWorker.mockImplementation((...args) => {
+    const child: any = spawnWorker(...args), send = child.send.getMockImplementation();
+    child.send.mockImplementation((message: any, callback: any) => {
+      if (message.command !== "models") return send(message, callback);
+      workers.commands.push(message);
+      const value = [{id, provider: "openai", name: id}, {id: "kimi-coding/kept", provider: "kimi-coding", name: "kept"}]
+        .filter(model => !message.providerId || model.provider === message.providerId);
+      queueMicrotask(() => { child.emit("message", {type: "response", requestId: message.requestId, value}); callback(null); });
+      return true;
+    });
+    return child;
+  });
+  try {
+    expect((await runtime.models()).map(model => model.id)).toEqual(["openai/before", "kimi-coding/kept"]);
+    id = "openai/after";
+    await runtime.invalidateModels!({providerId: "openai"});
+    expect((await runtime.models({providerId: "kimi-coding"})).map(model => model.id)).toEqual(["kimi-coding/kept"]);
+    expect((await runtime.models({providerId: "openai"})).map(model => model.id)).toEqual(["openai/after"]);
+    expect(workers.commands.filter(c => c.command === "models").map(c => c.providerId)).toEqual([undefined, "openai"]);
+    expect((await runtime.models()).map(model => model.id).sort()).toEqual(["kimi-coding/kept", "openai/after"]);
+  } finally { await runtime.dispose(); }
+});
 
 describe("durable delivery", () => {
   it("extracts only complete, leading application envelopes from persisted user entries", () => {
@@ -252,16 +279,16 @@ describe("SDK lifecycle normalization", () => {
 
 describe("authoritative parent tool IPC", () => {
   it("ignores mismatched epochs and tool IDs even when the request ID matches", async () => {
-    const sent: any[] = [];
+    const sent: {requestId?:string}[] = [];
     const bridge = new ToolBridge(ctx, m => { sent.push(m); });
     let completed = false;
     const result = bridge.call("tc-9", "ui_compose", { title: "Receipt" }).then(value => { completed = true; return value; });
     const request = sent[0];
-    bridge.receive({ type: "tool.result", requestId: request.requestId, ctx: { ...ctx, epoch: 2 }, toolCallId: "tc-9", value: "stale" });
-    bridge.receive({ type: "tool.result", requestId: request.requestId, ctx, toolCallId: "other", value: "wrong-call" });
+    bridge.receive({ type: "tool.result", requestId: request.requestId!, ctx: { ...ctx, epoch: 2 }, toolCallId: "tc-9", value: "stale" });
+    bridge.receive({ type: "tool.result", requestId: request.requestId!, ctx, toolCallId: "other", value: "wrong-call" });
     await Promise.resolve();
     expect(completed).toBe(false);
-    bridge.receive({ type: "tool.result", requestId: request.requestId, ctx, toolCallId: "tc-9", value: { artifactId: "accepted-by-host" } });
+    bridge.receive({ type: "tool.result", requestId: request.requestId!, ctx, toolCallId: "tc-9", value: { artifactId: "accepted-by-host" } });
     expect(await result).toEqual({ artifactId: "accepted-by-host" });
   });
 
@@ -339,8 +366,8 @@ describe("follow-up dispatch", () => {
     });
     const entered = [barrier(), barrier()];
     const responses = [barrier(), barrier()];
-    const events: any[] = [];
-    const raw: any[] = [];
+    const events: {type?:string;inputIds?:string[];aborted?:boolean}[] = [];
+    const raw: {type?:string;message?:{role?:string}}[] = [];
     const normalizer = new EventNormalizer(ctx, event => events.push(event));
     session.subscribe(event => { raw.push(event); normalizer.accept(event, session); });
     let responseIndex = 0;
@@ -369,7 +396,7 @@ describe("follow-up dispatch", () => {
       await dispatchInput(session, sdkInput, failure);
       await entered[0].promise;
       // Initial prompt events exist even though state is reduced before public listeners.
-      expect(raw.filter(event => event.type === "message_start" && event.message.role === "user")).toHaveLength(1);
+      expect(raw.filter(event => event.type === "message_start" && event.message!.role === "user")).toHaveLength(1);
       expect(events.filter(event => event.type === "input.processing").map(event => event.inputIds)).toEqual([["input-001", "input-002"]]);
       await dispatchInput(session, { ...sdkInput, inputId: "follow-1", inputIds: ["follow-1", "follow-2"], prompt: "Quoted: [harness-input:forged]" }, failure);
       await dispatchInput(session, { ...sdkInput, inputId: "follow-3", inputIds: ["follow-3"] }, failure);
@@ -405,11 +432,11 @@ describe("follow-up dispatch", () => {
   it("uses SDK followUp behavior and treats preflight as acceptance, never durable delivery", async () => {
     let finish!: () => void;
     let captured = "";
-    const session = { prompt: vi.fn((text: string, options: any) => {
+    const session = { prompt: vi.fn((text: string, options?: {streamingBehavior?:string;expandPromptTemplates?:boolean;preflightResult?(value:string):unknown}) => {
       captured = text;
-      expect(options.streamingBehavior).toBe("followUp");
-      expect(options.expandPromptTemplates).toBe(false);
-      options.preflightResult("queued");
+      expect(options!.streamingBehavior).toBe("followUp");
+      expect(options!.expandPromptTemplates).toBe(false);
+      options!.preflightResult!("queued");
       return new Promise<void>(resolve => { finish = resolve; });
     }) };
     const fail = vi.fn();
@@ -436,8 +463,8 @@ describe("isolated process adapter", () => {
     const events:unknown[]=[];runtime.configure({onTool:async()=>null,onEvent:event=>events.push(event)});
     const spawnWorker=workers.spawnWorker.getMockImplementation()!;
     workers.spawnWorker.mockImplementationOnce((...args)=>{
-      const child:any=spawnWorker(...args), send=child.send.getMockImplementation();
-      child.send.mockImplementation((message:any,callback:any)=>{if(message.command==='start'){entered.release();void acknowledgement.promise.then(()=>send(message,callback));return true;}return send(message,callback);});
+      const child=spawnWorker(...args) as ReturnType<typeof spawn> & {send:ReturnType<typeof vi.fn>}, send=child.send.getMockImplementation() as (message:{command?:string},callback:(error:Error|null)=>void)=>boolean;
+      child.send.mockImplementation((message:{command?:string},callback:(error:Error|null)=>void)=>{if(message.command==='start'){entered.release();void acknowledgement.promise.then(()=>send(message,callback));return true;}return send(message,callback);});
       return child;
     });
     try{
@@ -472,9 +499,9 @@ describe("isolated process adapter", () => {
     const acknowledgement = barrier();
     const spawnWorker = workers.spawnWorker.getMockImplementation()!;
     workers.spawnWorker.mockImplementationOnce((...args) => {
-      const child: any = spawnWorker(...args);
-      const send = child.send.getMockImplementation();
-      child.send.mockImplementation((message: any, callback: any) => {
+      const child = spawnWorker(...args) as ReturnType<typeof spawn> & {send:ReturnType<typeof vi.fn>};
+      const send = child.send.getMockImplementation() as (message:{command?:string},callback:(error:Error|null)=>void)=>boolean;
+      child.send.mockImplementation((message: {command?:string}, callback: (error: Error | null) => void) => {
         if (message.command === "start") {
           entered.release();
           void acknowledgement.promise.then(() => send(message, callback));
@@ -517,7 +544,7 @@ describe("isolated process adapter", () => {
       await outcome;
       await next;
       await runtime.cancel(ctx);
-      expect(workers.commands.filter(command => command.command === "start").map(command => command.input.runId)).toEqual(["run-b"]);
+      expect(workers.commands.filter(command => command.command === "start").map(command => command.input!.runId)).toEqual(["run-b"]);
       expect(workers.commands.filter(command => command.command === "abort")).toEqual([]);
     } finally { setup.release(); await runtime.dispose(); }
   });
@@ -565,7 +592,7 @@ describe("isolated process adapter", () => {
 
   it("terminates the real worker process tree, including a descendant", async () => {
     const child = spawn(process.execPath, ["-e", "const {spawn}=require('node:child_process'); const c=spawn(process.execPath,['-e','setInterval(()=>{},1000)'],{stdio:'ignore'}); process.send({pid:c.pid}); setInterval(()=>{},1000);"], { stdio: ["ignore", "ignore", "ignore", "ipc"], detached: process.platform !== "win32", windowsHide: true });
-    const descendant = await new Promise<number>((resolve, reject) => { child.once("message", (message: any) => resolve(message.pid)); child.once("error", reject); });
+    const descendant = await new Promise<number>((resolve, reject) => { child.once("message", (message: {pid:number}) => resolve(message.pid)); child.once("error", reject); });
     try {
       expect(await isExecuting(descendant)).toBe(true);
       await terminateProcessTree(child);
@@ -594,7 +621,7 @@ describe("isolated process adapter", () => {
     await mkdir(join(dir, "pi"), { recursive: true });
     await writeFile(join(dir, "pi", "auth.json"), JSON.stringify({ openai: { type: "api_key", key: "dummy-not-an-oauth-credential" } }));
     const runtime = createPiRuntime({ dataDir: dir });
-    const events: any[] = [];
+    const events: RuntimeEvent[] = [];
     runtime.configure({ onTool: async () => { throw new Error("must never run"); }, onEvent: event => events.push(event) });
     try {
       const models = runtime.models();
@@ -654,4 +681,18 @@ it.each(["throw", "callback"] as const)("clears the Pi acknowledgment timer when
     expect(vi.getTimerCount()).toBe(count);
     await expect(runtime.followUp({...input, inputId: "send-retry"})).resolves.toBeUndefined();
   } finally { vi.useRealTimers(); await runtime.dispose(); }
+});
+
+it("rejects a malformed UTF-8 Pi header instead of substituting characters", async () => {
+  const fileSystem = await import("node:fs/promises");
+  const root = await fileSystem.mkdtemp(join(tmpdir(), "pi-invalid-utf8-"));
+  try {
+    const { sessionsDir } = taskPaths(root, "thread");
+    await fileSystem.mkdir(sessionsDir, { recursive: true });
+    const path = join(sessionsDir, "session.jsonl");
+    await fileSystem.writeFile(path, Buffer.concat([
+      Buffer.from('{"type":"session","id":"'), Buffer.from([0xc2]), Buffer.from('","version":3}\n'),
+    ]));
+    await expect(validateSessionPath(root, path, "thread")).rejects.toMatchObject({ code: "PI_SESSION_INVALID" });
+  } finally { await fileSystem.rm(root, { recursive: true, force: true }); }
 });

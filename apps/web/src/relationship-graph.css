@@ -82,7 +82,7 @@
 .task-graph-checks { display:flex; align-items:center; flex-wrap:wrap; gap:6px; padding:10px 0 7px; }
 .task-graph-checks.is-leaving { animation:task-checks-out var(--ui-motion-panel-exit) var(--ui-ease-move) both; pointer-events:none; }
 .task-node.task-node-merge-pulse { animation:task-merge-pulse 700ms var(--ui-ease-enter) both; }
-.task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--border); border-radius:14px; font-size:12px; line-height:1.4; animation:task-check-in var(--ui-motion-insert) var(--ui-ease-enter) both; cursor:default; }
+.task-graph-check { position:relative; display:flex; align-items:center; gap:5px; padding:3px 8px; border:1px solid var(--control-border); border-radius:14px; font-size:12px; line-height:1.4; animation:task-check-in var(--ui-motion-insert) var(--ui-ease-enter) both; cursor:default; }
 .task-graph-check>span:first-of-type { color:var(--text); }
 .task-graph-footer-row { display:flex; align-items:center; justify-content:space-between; gap:16px; min-height:42px; }
 .task-graph-summary { display:flex; align-items:center; gap:8px; min-width:0; padding:6px 0; font-size:14px; line-height:1.5; transition:color var(--ui-motion-status) var(--ui-ease-move); }
