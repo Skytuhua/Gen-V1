@@ -104,7 +104,7 @@
     .task-node-check,
     .saved-drafts-popover > ul > li,
     .project-picker-swatches > button
-  ) { animation-name: ui-popover-fade; animation-delay: 0ms; animation-duration: var(--ui-motion-press); }
+  ):nth-child(n) { animation-name: ui-popover-fade; animation-delay: 0ms; animation-duration: var(--ui-motion-press); }
   /* A4 RM: opacity only. */
   :where(.ui-popover[data-popover-motion]) :is(
     .ui-control-option,
