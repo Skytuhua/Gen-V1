@@ -70,6 +70,8 @@ describe('draft desktop release workflow',()=>{
   expect(workflow).toContain("$object.type -ne 'commit' -or $object.sha -cne $env:RELEASE_SHA");
   expect(workflow).toContain("if (-not $draft.draft) { throw 'Refusing to modify a published release' }");
   expect(workflow).toContain('[Uri]::EscapeDataString($draft.target_commitish)');
+  expect(workflow).toContain("if ($refs.Count -eq 0 -and $draft.target_commitish -cne $env:RELEASE_SHA)");
+  expect(workflow).toContain('Existing draft without a tag must target the full RELEASE_SHA exactly');
   expect(workflow).toContain('repos/$repo/commits/$targetRef');
   expect(workflow).toContain('if ($target.sha -cne $env:RELEASE_SHA)');
   for(const error of ['Existing release tag does not point to RELEASE_SHA','Existing draft target_commitish does not resolve to RELEASE_SHA']){

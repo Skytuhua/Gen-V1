@@ -231,6 +231,7 @@ jobs:
             if (-not $draft.draft) { throw 'Refusing to modify a published release' }
             if ([bool]$draft.prerelease -ne ($env:RELEASE_CHANNEL -eq 'prerelease')) { throw 'Existing draft channel mismatch' }
             if ([string]::IsNullOrWhiteSpace($draft.target_commitish)) { throw 'Existing draft has no target_commitish' }
+            if ($refs.Count -eq 0 -and $draft.target_commitish -cne $env:RELEASE_SHA) { throw 'Existing draft without a tag must target the full RELEASE_SHA exactly; branch targets are not safe to publish' }
             $targetRef = [Uri]::EscapeDataString($draft.target_commitish)
             $target = Invoke-GitHubJson -Arguments @("repos/$repo/commits/$targetRef")
             if ($target.sha -cne $env:RELEASE_SHA) { throw 'Existing draft target_commitish does not resolve to RELEASE_SHA; refusing to upload or retarget' }
