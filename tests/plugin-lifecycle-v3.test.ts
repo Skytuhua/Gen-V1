@@ -15,7 +15,7 @@ const plan=(over:Record<string,unknown>={})=>({planId:'migration-1',inputVersion
 const backend=(over:Partial<ExecutionBackend>={}):ExecutionBackend=>({backendId:'test-backend',platform:process.platform,installed:true,approved:true,proof:{platformProofRef:'proof-1',platform:process.platform,status:'PASS',recordedAt:new Date().toISOString()},launch:async()=>({id:'x',terminate:async()=>{}}),...over});
 
 class FakeTransport implements WorkerTransport{
- sent:WorkerFrameV1[]=[];terminated=false;confirmTerminate=true;operations=['echo','secretProbe'];settleRequests=true;
+ sent:WorkerFrameV1[]=[];terminated=false;terminateCalls=0;confirmTerminate=true;operations=['echo','secretProbe'];settleRequests=true;
  private frameHandler?:((frame:WorkerFrameV1)=>void);private exitHandler?:((exit:WorkerExit)=>void);private exitInfo?:WorkerExit;
  send(frame:WorkerFrameV1){
   this.sent.push(frame);
@@ -24,7 +24,7 @@ class FakeTransport implements WorkerTransport{
  }
  onFrame(handler:(frame:WorkerFrameV1)=>void){this.frameHandler=handler;}
  onExit(handler:(exit:WorkerExit)=>void){this.exitHandler=handler;if(this.exitInfo)handler(this.exitInfo);}
- async terminate(){this.terminated=true;if(this.confirmTerminate)this.exit({code:0,signal:'SIGKILL'});return this.confirmTerminate;}
+ async terminate(){this.terminateCalls++;this.terminated=true;if(this.confirmTerminate)this.exit({code:0,signal:'SIGKILL'});return this.confirmTerminate;}
  emit(frame:WorkerFrameV1){this.frameHandler?.(frame);}
  exit(info:WorkerExit){this.exitInfo??=info;this.exitHandler?.(this.exitInfo);}
 }
@@ -156,7 +156,7 @@ describe('M13 leased lifecycle',()=>{
   await host.close();
  });
  it('blocks a migration-needing update without a complete approved plan',async()=>{
-  const {host,manifest:current}=fixture();
+  const {host,transports,manifest:current}=fixture();
   await host.activate('sample-ext');
   const next=manifest({version:'2.0.0'});
   expect(await host.update('sample-ext',{manifest:next,packageDir:'/p',dataDir:'/d',requiresMigration:true})).toEqual({status:'MIGRATION_PLAN_REQUIRED'});
@@ -167,7 +167,13 @@ describe('M13 leased lifecycle',()=>{
   expect(host.record('sample-ext')?.lease?.state).toBe('ACTIVE');
   const preview=updatePreview(current,next,true);
   expect(preview.blocked).toBe('MIGRATION_PLAN_REQUIRED');
-  expect(updatePreview(current,next,true,plan()).blocked).toBeNull();
+  // A complete, matching contract is still blocked: no verified migration
+  // execution/validation path exists, so nothing may proceed or drain.
+  expect(updatePreview(current,next,true,plan()).blocked).toBe('MIGRATION_PLAN_REQUIRED');
+  expect(await host.update('sample-ext',{manifest:next,packageDir:'/p',dataDir:'/d',requiresMigration:true,migrationPlan:plan()})).toEqual({status:'MIGRATION_PLAN_REQUIRED'});
+  expect(host.record('sample-ext')?.lease?.state).toBe('ACTIVE');
+  expect(host.record('sample-ext')?.manifest.version).toBe('1.0.0');
+  expect(transports).toHaveLength(1);
   await host.close();
  });
  it('leaves the previous package and namespace intact when the new generation fails',async()=>{
@@ -213,13 +219,177 @@ describe('M13 leased lifecycle',()=>{
   await pending;
  });
  it('catalog merges trusted and isolated rows with state, digest and block reason',async()=>{
-  const {host}=fixture({enabled:false});
+  const {host}=fixture({backendId:null});
   await host.activate('sample-ext').catch(()=>{});
   const trusted=[{id:'trusted-ext',name:'Trusted',version:'1.0.0',apiVersion:1 as const,compatibleGenVersions:'>=0.6.0',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'}];
   const rows=host.catalog(trusted);
   expect(rows).toEqual(expect.arrayContaining([
    expect.objectContaining({pluginId:'trusted-ext',hostKind:'trusted',state:'ACTIVE'}),
-   expect.objectContaining({pluginId:'sample-ext',hostKind:'isolated',state:'STOPPED',updateBlocked:'ACTIVATION_DISABLED',retainedData:true,packageDigest:hash('package')}),
+   expect.objectContaining({pluginId:'sample-ext',hostKind:'isolated',state:'STOPPED',updateBlocked:'HOLD_BACKEND_SELECTION',retainedData:true,packageDigest:hash('package')}),
   ]));
+ });
+ it('contributes no rows, trusted included, while the isolated flag is off',async()=>{
+  const {host}=fixture({enabled:false});
+  await host.activate('sample-ext').catch(()=>{});
+  const trusted=[{id:'trusted-ext',name:'Trusted',version:'1.0.0',apiVersion:1 as const,compatibleGenVersions:'>=0.6.0',frontendEntry:'frontend/index.html',hostEntry:'host/main.mjs'}];
+  expect(host.catalog(trusted)).toEqual([]);
+ });
+});
+
+describe('M13 STARTING generation revocation',()=>{
+ const deferred=<T,>()=>{let resolve!:(value:T)=>void;const promise=new Promise<T>(r=>{resolve=r;});return {promise,resolve};};
+ class HeldHelloTransport extends FakeTransport{
+  held:WorkerFrameV1|null=null;
+  override send(frame:WorkerFrameV1){if(frame.kind==='HELLO'&&!this.release){this.held=frame;this.sent.push(frame);return;}super.send(frame);}
+  release=false;
+  releaseHello(){this.release=true;const frame=this.held;this.held=null;if(frame){this.sent.pop();this.send(frame);}}
+ }
+ const build=(launcher:{launch:()=>Promise<WorkerTransport>},handshakeDeadlineMs=60)=>{
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher,drainSettleMs:20,shutdownGraceMs:20,handshakeDeadlineMs});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  return host;
+ };
+ it('Stop during a delayed launch revokes registration, fences replacement, and terminates the late worker',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();
+  const host=build({launch:()=>gate.promise});
+  const activation=host.activate('sample-ext');const outcome=activation.catch(error=>error);
+  await Promise.resolve();
+  expect(host.record('sample-ext')?.lease?.state).toBe('STARTING');
+  const stopping=host.disable('sample-ext');
+  await Promise.resolve();
+  const lease=host.record('sample-ext')!.lease!;
+  expect(lease.registrations).toEqual([]);
+  expect(lease.state).toBe('DRAINING');
+  // Ownership unresolved: no replacement activation, no dispatch.
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  await expect(host.dispatch('sample-ext','echo',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  gate.resolve(late);
+  expect(await stopping).toBe('STOPPED');
+  expect(await outcome).toMatchObject({code:'INVALID_STATE'});
+  expect(late.terminated).toBe(true);
+  expect(late.terminateCalls).toBe(1);
+  expect(late.sent.some(frame=>frame.kind==='HELLO')).toBe(false);
+  expect(host.record('sample-ext')?.session).toBeNull();
+  // After confirmed cleanup a replacement may start.
+  const next=await host.activate('sample-ext').catch(error=>error);
+  expect(next).toBeDefined();
+  await host.close();
+ });
+ it('Stop during a delayed handshake never publishes ACTIVE and confirms the worker stopped',async()=>{
+  const transport=new HeldHelloTransport();
+  const host=build({launch:async()=>transport},1500);
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await new Promise(resolve=>setTimeout(resolve,5));
+  expect(transport.held).not.toBeNull();
+  const stopping=host.disable('sample-ext');
+  await new Promise(resolve=>setTimeout(resolve,5));
+  expect(host.record('sample-ext')?.lease?.registrations).toEqual([]);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  transport.releaseHello();
+  expect(await stopping).toBe('STOPPED');
+  expect(await outcome).toMatchObject({code:'INVALID_STATE'});
+  expect(transport.terminated).toBe(true);
+  expect(transport.terminateCalls).toBe(1);
+  expect(host.record('sample-ext')?.lease?.state).toBe('STOPPED');
+  expect(host.record('sample-ext')?.session).toBeNull();
+ });
+ it('keeps UNKNOWN and blocks replacement when the late worker exit cannot be confirmed',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();late.confirmTerminate=false;
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  const stopping=host.disable('sample-ext');
+  gate.resolve(late);
+  expect(await stopping).toBe('UNKNOWN');
+  await outcome;
+  expect(late.terminateCalls).toBe(1);
+  expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  expect(await host.update('sample-ext',{manifest:manifest({version:'2.0.0'}),packageDir:'/p',dataDir:'/d'})).toMatchObject({status:'UNKNOWN'});
+ });
+ it('keeps UNKNOWN when the launch never settles inside the bounded cleanup',async()=>{
+  const gate=deferred<WorkerTransport>();
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  expect(await host.disable('sample-ext')).toBe('UNKNOWN');
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+  const lateWorker=new FakeTransport();gate.resolve(lateWorker);
+  await outcome;
+  expect(lateWorker.terminated).toBe(true);
+  expect(host.record('sample-ext')?.lease?.state).toBe('UNKNOWN');
+ });
+
+ it('terminates a revoked late worker exactly once and keeps the confirmed exit',async()=>{
+  const gate=deferred<WorkerTransport>();const late=new FakeTransport();
+  const host=build({launch:()=>gate.promise});
+  const outcome=host.activate('sample-ext').catch(error=>error);
+  await Promise.resolve();
+  const stopping=host.disable('sample-ext');
+  gate.resolve(late);
+  expect(await stopping).toBe('STOPPED');
+  await outcome;
+  expect(late.terminateCalls).toBe(1);
+  expect(host.record('sample-ext')?.lease?.state).toBe('STOPPED');
+  expect(host.record('sample-ext')?.blocked).toBeNull();
+ });
+ it('keeps the diagnostic and one safe cleanup for an ordinary failed activation',async()=>{
+  const transport=new FakeTransport();transport.operations=['undeclaredOperation'];
+  const host=build({launch:async()=>transport});
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  const record=host.record('sample-ext')!;
+  expect(record.blocked).toBe('PROTOCOL_VIOLATION');
+  expect(record.lease?.state).toBe('FAILED');
+  expect(record.session).toBeNull();
+  expect(transport.terminateCalls).toBe(1);
+  expect(host.catalog([])).toEqual(expect.arrayContaining([expect.objectContaining({pluginId:'sample-ext',state:'FAILED',updateBlocked:'PROTOCOL_VIOLATION'})]));
+ });
+ it('retains UNKNOWN with its diagnostic when an ordinary failed activation cannot confirm exit',async()=>{
+  const transport=new FakeTransport();transport.operations=['undeclaredOperation'];transport.confirmTerminate=false;
+  const host=build({launch:async()=>transport});
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  const record=host.record('sample-ext')!;
+  expect(record.blocked).toBe('PROTOCOL_VIOLATION');
+  expect(record.lease?.state).toBe('UNKNOWN');
+  expect(transport.terminateCalls).toBe(1);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'INVALID_STATE'}));
+ });
+});
+
+describe('M13 advertised-operation registration',()=>{
+ const start=async(operations:string[])=>{
+  const transport=new FakeTransport();transport.operations=operations;
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher:{async launch(){return transport;}},drainSettleMs:40,shutdownGraceMs:40,handshakeDeadlineMs:200});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  const lease=await host.activate('sample-ext');
+  return {host,transport,lease};
+ };
+ it('registers only the declared tools the worker advertised and refuses an omitted declared tool',async()=>{
+  const {host,transport,lease}=await start(['echo']);
+  expect(lease.registrations.filter(item=>item.kind==='tool').map(item=>item.id)).toEqual(['echo']);
+  expect(await host.dispatch('sample-ext','echo',{a:1})).toEqual({a:1});
+  await expect(host.dispatch('sample-ext','secretProbe',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  expect(transport.sent.some(frame=>frame.kind==='REQUEST'&&(frame.payload as {operation?:string}).operation==='secretProbe')).toBe(false);
+  await host.close();
+ });
+ it('an empty READY registers no tools and dispatches nothing',async()=>{
+  const {host,transport,lease}=await start([]);
+  expect(lease.registrations.filter(item=>item.kind==='tool')).toEqual([]);
+  await expect(host.dispatch('sample-ext','echo',{})).rejects.toThrowError(expect.objectContaining({code:'UNAVAILABLE'}));
+  expect(transport.sent.some(frame=>frame.kind==='REQUEST')).toBe(false);
+  await host.close();
+ });
+ it('keeps full registration and dispatch when every declared tool is advertised',async()=>{
+  const {host,lease}=await start(['echo','secretProbe']);
+  expect(lease.registrations.filter(item=>item.kind==='tool').map(item=>item.id).sort()).toEqual(['echo','secretProbe']);
+  expect(await host.dispatch('sample-ext','secretProbe',{b:2})).toEqual({b:2});
+  await host.close();
+ });
+ it('still rejects an undeclared claim even when declared tools are advertised',async()=>{
+  const transport=new FakeTransport();transport.operations=['echo','rmrf'];
+  const host=new IsolatedExtensionHost({enabled:()=>true,approvedBackendId:()=>'test-backend',backends:()=>[backend()],launcher:{async launch(){return transport;}},drainSettleMs:40,shutdownGraceMs:40,handshakeDeadlineMs:200});
+  host.register(manifest(),{packageDir:'/pkg/sample-ext',dataDir:'/data/sample-ext'},['test-scope']);
+  await expect(host.activate('sample-ext')).rejects.toThrowError(expect.objectContaining({code:'PROTOCOL_VIOLATION'}));
+  expect(host.record('sample-ext')?.lease?.registrations).toEqual([]);
  });
 });

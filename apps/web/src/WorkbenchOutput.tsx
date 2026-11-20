@@ -5,7 +5,7 @@ import {
 } from './workbench-window';
 import './workbench-output.css';
 
-export type WorkbenchOutputState = 'ready' | 'loading' | 'empty' | 'denied' | 'offline' | 'stale' | 'partial' | 'unsupported';
+type WorkbenchOutputState = 'ready' | 'loading' | 'empty' | 'denied' | 'offline' | 'stale' | 'partial' | 'unsupported';
 export interface WorkbenchOutputProps {
   identity: WorkbenchOutputIdentity;
   rows: readonly WorkbenchOutputRow[];

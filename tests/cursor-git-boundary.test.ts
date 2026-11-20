@@ -8,6 +8,7 @@ import { expect, it, vi } from 'vitest';
 import { officialRuntimeCommand, officialRuntimeEnvironment, officialRuntimeHome } from '../packages/runtime-official/environment.ts';
 import { terminateProcessTree } from '../packages/runtime-pi/process-tree.ts';
 import { openCursor } from '../packages/runtime-official/cursor.ts';
+import type { DriverContext } from '../packages/runtime-official/internal.ts';
 
 const execute = promisify(execFile);
 const sdkGitFlags = ['-c', 'core.fsmonitor=false', '-c', `core.hooksPath=${process.platform === 'win32' ? 'NUL' : '/dev/null'}`, '-c', `core.attributesFile=${process.platform === 'win32' ? 'NUL' : '/dev/null'}`, '-c', 'safe.bareRepository=explicit'];
@@ -61,7 +62,7 @@ it('rejects a path-list separator in Cursor storage before spawning the SDK', as
     expect.soft(() => officialRuntimeEnvironment(dataDir, 'cursor-sdk', taskDir)).toThrow(/storage.*folder/i);
     const spawnChild = vi.fn(() => { throw new Error('Unexpected SDK spawn.'); });
     // Only pre-spawn fields are needed; no native runtime is permitted here.
-    await expect(openCursor({ dataDir, taskDir, current: () => true, own: vi.fn() } as any, spawnChild as any, 'fixture')).rejects.toMatchObject({ code: 'OFFICIAL_WORKSPACE_UNSUPPORTED', message: expect.stringMatching(/storage.*folder/i) });
+    await expect(openCursor({ dataDir, taskDir, current: () => true, own: vi.fn() } as unknown as DriverContext, spawnChild as unknown as typeof spawn, 'fixture')).rejects.toMatchObject({ code: 'OFFICIAL_WORKSPACE_UNSUPPORTED', message: expect.stringMatching(/storage.*folder/i) });
     expect(spawnChild).not.toHaveBeenCalled();
   } finally { await cleanup(directory); }
 });
@@ -76,7 +77,7 @@ it('reestablishes the actual worker cwd boundary before importing the SDK', asyn
     const evidence = new Promise<Record<string, unknown>>((accept, reject) => {
       timer = setTimeout(() => reject(new Error('Owned worker did not reach guarded SDK import.')), 5000);
       child!.once('error', reject); child!.once('exit', () => reject(new Error('Owned worker exited before evidence.')));
-      child!.on('message', (value: any) => { if (value?.type === 'fixture.environment') accept(value); });
+      child!.on('message', (value: {type?:string}) => { if (value?.type === 'fixture.environment') accept(value as Record<string, unknown>); });
     });
     child.send({ type: 'initialize', init: { mode: 'history', dataDir: f.dataDir, taskDir: f.taskDir, sessionId: 'agent-fixture' } });
     expect(await evidence).toMatchObject({ cwd: f.taskDir, ceiling: dirname(f.taskDir), noSystem: '1', global: process.platform === 'win32' ? 'NUL' : '/dev/null', system: process.platform === 'win32' ? 'NUL' : '/dev/null' });

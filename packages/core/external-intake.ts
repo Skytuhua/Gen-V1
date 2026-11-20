@@ -239,6 +239,7 @@ export class ExternalIntakeCoordinator {
     const result = this.store.internal("intake.polled", null, () => {
       let proposals = 0, duplicates = 0, rejected = 0;
       for (const entry of records) {
+        if (entry === null || typeof entry !== "object" || Array.isArray(entry)) { rejected++; continue; }
         const record = entry as { node_id?: unknown; number?: unknown; title?: unknown; html_url?: unknown; updated_at?: unknown; repository_url?: unknown; pull_request?: unknown };
         if (typeof record.node_id !== "string" || typeof record.number !== "number" || typeof record.title !== "string" || typeof record.html_url !== "string" || typeof record.updated_at !== "string" || typeof record.repository_url !== "string") {
           rejected++;

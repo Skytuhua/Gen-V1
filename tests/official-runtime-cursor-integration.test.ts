@@ -9,15 +9,16 @@ import { SUBSCRIPTION_CONNECTIONS } from '../packages/contracts/connections.ts';
 import { createOfficialRuntime } from '../packages/runtime-official/index.ts';
 import { officialRuntimeHome } from '../packages/runtime-official/environment.ts';
 import { openManifest, readManifest, saveManifest } from '../packages/runtime-official/manifest.ts';
+import type { DriverContext } from '../packages/runtime-official/internal.ts';
 
 const fake=vi.hoisted(()=>({active:0,peak:0,nativeHold:undefined as Promise<void>|undefined,cursorHold:undefined as Promise<void>|undefined,cursorError:undefined as Error|undefined,spawnCursor:false,openCursor:vi.fn(),discoverCursor:vi.fn(),cursorHistory:vi.fn(),mcp:vi.fn(),submit:vi.fn(),terminate:vi.fn()}));
 vi.mock('../packages/runtime-official/mcp.ts',()=>({createHostMcp:fake.mcp}));
 vi.mock('../packages/runtime-pi/process-tree.ts',()=>({terminateProcessTree:fake.terminate}));
-vi.mock('../packages/runtime-official/claude.ts',()=>({openClaude:async(ctx:any)=>native(ctx,'claude-code')}));
-vi.mock('../packages/runtime-official/gemini.ts',()=>({openGemini:async(ctx:any)=>native(ctx,'gemini-cli'),geminiHistory:vi.fn(async()=>{throw Error('Cursor history was routed to Gemini');})}));
+vi.mock('../packages/runtime-official/claude.ts',()=>({openClaude:async(ctx:DriverContext)=>native(ctx,'claude-code')}));
+vi.mock('../packages/runtime-official/gemini.ts',()=>({openGemini:async(ctx:DriverContext)=>native(ctx,'gemini-cli'),geminiHistory:vi.fn(async()=>{throw Error('Cursor history was routed to Gemini');})}));
 vi.mock('../packages/runtime-official/cursor.ts',()=>({openCursor:fake.openCursor,discoverCursor:fake.discoverCursor,cursorHistory:fake.cursorHistory}));
 
-async function native(ctx:any,provider:string){
+async function native(ctx:DriverContext,provider:string){
  fake.active++;fake.peak=Math.max(fake.peak,fake.active);
  const driver={models:[{id:provider+'/model',provider,name:provider}],submit:fake.submit,compact:vi.fn(),close:vi.fn(async()=>{fake.active--;})};
  ctx.ready(driver);await fake.nativeHold;return driver;
@@ -32,8 +33,8 @@ const callbacks={onEvent:vi.fn(),onTool:vi.fn(async()=>null)};
 beforeEach(()=>{
  vi.clearAllMocks();fake.active=0;fake.peak=0;fake.nativeHold=undefined;fake.cursorHold=undefined;fake.cursorError=undefined;fake.spawnCursor=false;
  fake.mcp.mockResolvedValue({url:'http://fixture.invalid',token:'fixture',close:vi.fn(async()=>{})});
- fake.openCursor.mockImplementation(async(ctx:any)=>{if(fake.cursorError)throw fake.cursorError;return native(ctx,'cursor-sdk');});
- fake.discoverCursor.mockImplementation(async(_dataDir:string,spawn:any)=>{fake.active++;fake.peak=Math.max(fake.peak,fake.active);if(fake.spawnCursor)spawn('fixture-worker');try{await fake.cursorHold;return [{id:'cursor-sdk/model',provider:'cursor-sdk',name:'Cursor model'}];}finally{fake.active--;}});
+ fake.openCursor.mockImplementation(async(ctx:DriverContext)=>{if(fake.cursorError)throw fake.cursorError;return native(ctx,'cursor-sdk');});
+ fake.discoverCursor.mockImplementation(async(_dataDir:string,spawn:typeof import('node:child_process').spawn)=>{fake.active++;fake.peak=Math.max(fake.peak,fake.active);if(fake.spawnCursor)spawn('fixture-worker');try{await fake.cursorHold;return [{id:'cursor-sdk/model',provider:'cursor-sdk',name:'Cursor model'}];}finally{fake.active--;}});
  fake.cursorHistory.mockResolvedValue([]);fake.terminate.mockImplementation(async(child:ChildProcess)=>{child.emit('exit',0,null);});
 });
 afterEach(()=>{if(row())row().status=initialCursorStatus;});
@@ -53,7 +54,7 @@ it('does not probe a pending Cursor connection even if private login state exist
 });
 
 it('skips an admitted but absent private Cursor login without spawning a discovery worker',async()=>{
- row().status='available';const spawn=vi.fn(),runtime=createOfficialRuntime({dataDir:await data()},{spawn:spawn as any});runtime.configure(callbacks);
+ row().status='available';const spawn=vi.fn(),runtime=createOfficialRuntime({dataDir:await data()},{spawn:spawn as unknown as typeof import('node:child_process').spawn});runtime.configure(callbacks);
  try{await runtime.models();expect(fake.discoverCursor).not.toHaveBeenCalled();expect(spawn).not.toHaveBeenCalled();}
  finally{await runtime.dispose();}
 });
@@ -77,7 +78,7 @@ it('owns discovery children before awaiting SDK results and waits for their canc
  row().status='available';const dataDir=await data();await marker(dataDir);fake.spawnCursor=true;
  const child=new EventEmitter() as ChildProcess,spawn=vi.fn(()=>child);let release!:()=>void;fake.cursorHold=new Promise<void>(done=>{release=done;});
  fake.terminate.mockImplementation(async(value:ChildProcess)=>{expect(value).toBe(child);value.emit('exit',0,null);release();});
- const runtime=createOfficialRuntime({dataDir},{spawn:spawn as any});runtime.configure(callbacks);
+ const runtime=createOfficialRuntime({dataDir},{spawn:spawn as unknown as typeof import('node:child_process').spawn});runtime.configure(callbacks);
  const discovery=runtime.models().catch(error=>error);await vi.waitFor(()=>expect(spawn).toHaveBeenCalledOnce());await runtime.dispose();
  expect(fake.terminate).toHaveBeenCalledWith(child);expect(await discovery).toMatchObject({code:'OFFICIAL_DISPOSED'});expect(fake.active).toBe(0);
 });
@@ -102,4 +103,21 @@ it('rejects a changed Cursor model on active authority and rejects unsupported c
  try{await expect(runtime.compact(input(),join(dataDir,'official','cursor-sdk','tasks','thread','session.json'),'cursor-sdk/model')).rejects.toMatchObject({code:'OFFICIAL_COMPACTION_UNSUPPORTED'});expect(fake.mcp).not.toHaveBeenCalled();expect(fake.openCursor).not.toHaveBeenCalled();
   await runtime.start(input());expect(fake.submit).toHaveBeenCalledOnce();await expect(runtime.followUp(input({modelId:'cursor-sdk/other',inputId:'other'}))).rejects.toMatchObject({code:'OFFICIAL_MODEL_MISMATCH'});expect(fake.submit).toHaveBeenCalledOnce();
  }finally{await runtime.dispose();}
+});
+
+it('rediscovers an invalidated scoped official catalog without probing unaffected providers', async () => {
+  row().status = 'available';
+  const dataDir = await data(); await marker(dataDir);
+  const runtime = createOfficialRuntime({dataDir}); runtime.configure(callbacks);
+  try {
+    expect((await runtime.models()).map(model => model.provider)).toContain('cursor-sdk');
+    await runtime.invalidateModels!({providerId: 'cursor-sdk'});
+    expect((await runtime.models()).map(model => model.provider)).not.toContain('cursor-sdk');
+    expect(fake.discoverCursor).toHaveBeenCalledTimes(1);
+    expect((await runtime.models({providerId: 'claude-code'})).map(model => model.provider)).toEqual(['claude-code']);
+    expect(fake.mcp).toHaveBeenCalledTimes(2);
+    expect((await runtime.models({providerId: 'cursor-sdk'})).map(model => model.provider)).toEqual(['cursor-sdk']);
+    expect(fake.discoverCursor).toHaveBeenCalledTimes(2);
+    expect(fake.mcp).toHaveBeenCalledTimes(2);
+  } finally { await runtime.dispose(); }
 });

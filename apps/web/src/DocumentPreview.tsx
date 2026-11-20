@@ -36,7 +36,7 @@ export function resourceContentUrl(resourceId: string, resourcePath?: string) {
 }
 
 /** Read incrementally: an absent or dishonest Content-Length cannot bypass the byte limit. */
-export async function fetchPdfBytes(url: string, signal: AbortSignal): Promise<Uint8Array> {
+async function fetchPdfBytes(url: string, signal: AbortSignal): Promise<Uint8Array> {
   if (!/^\/api\/resources\/[^/?#]+\/content(?:\?path=[^#]*)?$/.test(url)) throw new Error('Choose a PDF attachment or granted local PDF.');
   await bootstrap(); signal.throwIfAborted();
   const parsed = new URL(url, window.location.origin);
