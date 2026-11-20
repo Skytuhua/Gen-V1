@@ -458,6 +458,22 @@ describe("follow-up dispatch", () => {
 });
 
 describe("isolated process adapter", () => {
+  it.each(["exit", "error"] as const)("settles and releases an exited worker when an observer throws (%s)", async eventType => {
+    const workers = mockWorkers(), runtime = createPiRuntime({ dataDir: await temp() });
+    const events: string[] = [];
+    runtime.configure({ onTool: async () => null, onEvent: event => { events.push(event.type); throw new Error("synthetic observer failure"); } });
+    await runtime.start(input);
+    const child = workers.children[0];
+    Object.assign(child, { connected: false, exitCode: 1 });
+    const notify = () => eventType === "exit" ? child.emit("exit", 1, null) : child.emit("error", new Error("worker transport failed"));
+    expect(notify).not.toThrow();
+    expect(events).toContain("settled");
+    await expect(runtime.followUp(input)).rejects.toMatchObject({ code: "PI_STALE_RUN" });
+    await runtime.start({ ...input, runId: "successor" });
+    await runtime.dispose();
+    expect(workers.terminate).toHaveBeenCalledTimes(1);
+  });
+
   it("rejects a follow-up queued behind startup when that run already settled", async () => {
     const workers = mockWorkers(), runtime = createPiRuntime({dataDir:await temp()}), acknowledgement=barrier(), entered=barrier();
     const events:unknown[]=[];runtime.configure({onTool:async()=>null,onEvent:event=>events.push(event)});

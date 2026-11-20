@@ -6,6 +6,7 @@
 import {spawn,spawnSync,type ChildProcess} from 'node:child_process';
 import {randomUUID} from 'node:crypto';
 import {once} from 'node:events';
+import {finished} from 'node:stream/promises';
 import {createWriteStream,existsSync,mkdirSync,readdirSync,readFileSync,statSync,writeFileSync} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
@@ -91,8 +92,17 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
   const logStream=createWriteStream(spec.logPath);
   try{await once(logStream,'open');}catch{return finish({status:'FAIL',errorKind:'log-error'});}
   const sink=redactedLogSink(logStream);
-  const child=spawn(spec.command,spec.args,{shell:false,cwd:spec.cwd,env:childEnvironment(spec.env),
-    stdio:['ignore','pipe','pipe'],windowsHide:true,detached:process.platform!=='win32'});
+  let child:ChildProcess;
+  try{
+    child=spawn(spec.command,spec.args,{shell:false,cwd:spec.cwd,env:childEnvironment(spec.env),
+      stdio:['ignore','pipe','pipe'],windowsHide:true,detached:process.platform!=='win32'});
+  }catch{
+    // Argument validation can throw before a child exists or emits 'error'.
+    const drained=finished(logStream,{cleanup:true});
+    sink.end();
+    try{await drained;}catch{return finish({status:'FAIL',errorKind:'log-error'});}
+    return finish({status:'FAIL',errorKind:'spawn-error'});
+  }
   return await new Promise<CheckResult>(resolvePromise=>{
     let settled=false,timedOut=false;
     let killTimer:ReturnType<typeof setTimeout>|undefined;
