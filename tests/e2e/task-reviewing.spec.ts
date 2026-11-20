@@ -21,13 +21,30 @@ async function open(page:Page,type:'ReviewQueue'|'ParameterControls',action?:Par
 }
 
 test('review puts the supplied material before its compact navigation and decisions',async({page})=>{
-  await open(page,'ReviewQueue');
+  const host=await open(page,'ReviewQueue');
   const material=page.getByText(review.items[0].evidence[0].value,{exact:true});await expect(material).toBeVisible();
-  const geometry=await page.locator('.review-queue-layout').evaluate(node=>{
-    const material=node.querySelector('.review-item-material')!.getBoundingClientRect(),decisions=node.querySelector('.review-decisions')!.getBoundingClientRect(),nav=node.querySelector('nav')!.getBoundingClientRect();
-    return {materialBottom:material.bottom,decisionsTop:decisions.top,navTop:nav.top,bodyTop:material.top};
+  const measure=()=>page.locator('.review-queue-layout').evaluate(node=>{
+    const origin=node.getBoundingClientRect(),detail=node.querySelector('.review-item-detail')!.getBoundingClientRect(),material=node.querySelector('.review-item-material')!.getBoundingClientRect(),decisions=node.querySelector('.review-decisions')!.getBoundingClientRect(),nav=node.querySelector('nav')!.getBoundingClientRect();
+    const [prev,next]=[...node.querySelectorAll<HTMLElement>('.review-item-pagination button')].map(button=>{const box=button.getBoundingClientRect();return{x:box.x-origin.x,y:box.y-origin.y};});
+    return {detailTop:detail.top-origin.top,detailRight:detail.right-origin.left,materialBottom:material.bottom-origin.top,decisionsTop:decisions.top-origin.top,navTop:nav.top-origin.top,navLeft:nav.left-origin.left,prev,next};
   });
-  expect(geometry.decisionsTop).toBeGreaterThanOrEqual(geometry.materialBottom-1);expect(geometry.navTop).toBeGreaterThan(geometry.decisionsTop);
+  const tools=page.locator('.interaction-tools');
+  // Rail layout: nav becomes the right-side column once the inner width clears 720px.
+  await tools.evaluate(node=>(node as HTMLElement).style.width='720px');
+  const wide=await measure();
+  expect(wide.detailRight).toBeLessThanOrEqual(wide.navLeft+1);
+  expect(Math.abs(wide.detailTop-wide.navTop)).toBeLessThanOrEqual(1);
+  // Previous/Next stay put while the evidence column grows.
+  const longEvidence=Array.from({length:40},(_,index)=>`Paragraph ${index+1} of supplied evidence.`).join('\n\n');
+  host.setInput('data',{...review,items:[{...review.items[0],evidence:[{label:'Proposed note',value:longEvidence}]},review.items[1]]});await host.publish();
+  const grown=await measure();
+  await page.getByRole('button',{name:'Next item',exact:true}).click();const onward=await measure();
+  await page.getByRole('button',{name:'Previous item',exact:true}).click();const back=await measure();
+  for(const sample of [grown,onward,back]){expect(Math.abs(sample.prev.x-wide.prev.x)).toBeLessThanOrEqual(1);expect(Math.abs(sample.prev.y-wide.prev.y)).toBeLessThanOrEqual(1);expect(Math.abs(sample.next.x-wide.next.x)).toBeLessThanOrEqual(1);expect(Math.abs(sample.next.y-wide.next.y)).toBeLessThanOrEqual(1);}
+  // Narrow layout: strip stays after the work region and decisions sit beneath material.
+  await tools.evaluate(node=>(node as HTMLElement).style.width='600px');
+  const narrow=await measure();
+  expect(narrow.decisionsTop).toBeGreaterThanOrEqual(narrow.materialBottom-1);expect(narrow.navTop).toBeGreaterThanOrEqual(narrow.decisionsTop);
   expect((await page.getByRole('textbox',{name:'Review comment',exact:true}).boundingBox())!.height).toBeLessThan(75);
 });
 
@@ -70,7 +87,7 @@ test('a pending review keeps its clicked action and material mounted through sna
   const button=page.getByRole('button',{name:'Send review',exact:true});const original=await button.elementHandle();
   await button.click();await expect(page.getByRole('button',{name:'Sending…',exact:true})).toBeDisabled();await host.publish();
   expect(await page.getByRole('button',{name:'Sending…',exact:true}).evaluate((node,old)=>node===old,original)).toBe(true);await expect(page.getByText(review.items[1].evidence[0].value,{exact:true})).toBeVisible();
-  release();await expect(button).toBeEnabled();expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);
+  release();await expect(page.getByRole('status').filter({hasText:'Review submitted'})).toHaveCount(1);await expect(button).toBeDisabled();expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);
 });
 
 test('a rejected adjustment visibly preserves its exact draft and supports an explicit retry',async({page})=>{

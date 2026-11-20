@@ -3,7 +3,8 @@ import {useStateStore,type ComponentRegistry,type ComponentRenderProps} from '@j
 import {ArrowRight,Check,ChevronLeft,ChevronRight,Circle,MessageSquare,Pause,RotateCcw} from 'lucide-react';
 import {INTERACTION_SCHEMAS,INTERACTION_DATA_SCHEMAS,boundedInteractionData,typedInteractionValue,type InteractionField,type InteractionScalar,type ReviewQueueData,type ParameterControlsData} from '../../../packages/ui-catalog/interactions';
 import {ArtifactTitle,inputPath,statePath,useTaskAction} from './task-context';
-import {animateTask,MotionRegion,reducedMotion} from './task-motion';
+import {animateTask,MotionRegion,useTaskEffectCause,type TaskEffectCause} from './task-motion';
+import {readMotionPolicy} from './motion-policy';
 import {Select} from '../../../packages/ui-shell/Select';
 import './interaction-tools.css';
 
@@ -18,17 +19,19 @@ type Review={decision:ReviewDecision;comment:string};
 const decision=(raw:unknown):ReviewDecision=>typeof raw==='string'&&['approve','revise','defer'].includes(raw)?raw as Exclude<ReviewDecision,null>:null;
 function reviewValue(raw:unknown):Review{const record=object(raw);return {decision:decision(record.decision),comment:typeof record.comment==='string'?record.comment:''};}
 const decisionName=(value:ReviewDecision)=>value==='approve'?'Accepted':value==='revise'?'Changes requested':value==='defer'?'Deferred':'Not reviewed';
-function ReviewMaterial({item,index,count}:{item:ReviewQueueData['items'][number];index:number;count:number}){
+function ReviewMaterial({item,index,count,intent}:{item:ReviewQueueData['items'][number];index:number;count:number;intent:ReturnType<typeof useTaskEffectCause>}){
  const element=useRef<HTMLElement>(null),previous=useRef({id:item.id,index}),motion=useRef<Animation|undefined>(undefined);
  useLayoutEffect(()=>{
   const before=previous.current;previous.current={id:item.id,index};
   if(before.id===item.id)return;
-  if(reducedMotion()||document.visibilityState==='hidden'){motion.current?.cancel();return;}
-  const material=element.current!,direction=index>=before.index?1:-1;
+  const cause=intent.take(),material=element.current!;
+  if(cause!=='pointer'||readMotionPolicy()!=='full'||document.visibilityState==='hidden'){motion.current?.cancel();motion.current=undefined;return;}
   const style=getComputedStyle(material),continuing=motion.current?.playState==='running'||motion.current?.playState==='paused';
-  const opacity=continuing?Number(style.opacity):.62,transform=continuing?style.transform:`translateX(${direction*8}px)`;motion.current?.cancel();
-  const animation=animateTask(material,[{opacity,transform},{opacity:1,transform:`translateX(${-direction*.4}px)`,offset:.86},{opacity:1,transform:'translateX(0)'}],230);motion.current=animation;
-  if(animation)void animation.finished.then(()=>{if(motion.current===animation)animation.cancel();}).catch(()=>{});
+  const parts=/matrix\(([^)]+)\)/.exec(style.transform)?.[1].split(',').map(Number),offset=parts&&parts.length>=6?parts[4]:0;
+  const direction=index>=before.index?1:-1,startX=Math.abs(offset)>.5?offset:direction*8,startOpacity=continuing?Number(style.opacity):.62;
+  motion.current?.cancel();
+  const animation=animateTask(material,[{opacity:startOpacity,transform:`translateX(${startX}px)`},{opacity:1,transform:'translateX(0px)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});motion.current=animation;
+  if(animation)void animation.finished.then(()=>{if(motion.current===animation){animation.cancel();motion.current=undefined;}}).catch(()=>{});
  },[item.id,index]);
  useLayoutEffect(()=>{
   const material=element.current!,preference=matchMedia('(prefers-reduced-motion: reduce)'),settle=()=>motion.current?.cancel();
@@ -43,24 +46,25 @@ function ReviewMaterial({item,index,count}:{item:ReviewQueueData['items'][number
 export function ReviewQueue({element:{props}}:ComponentRenderProps){
  const p=INTERACTION_SCHEMAS.ReviewQueue.parse(props),store=useStateStore(),action=useTaskAction(),group=useId(),raw=store.get(inputPath(p.dataBinding));
  const parsed=useMemo(()=>boundedInteractionData('ReviewQueue',raw)?INTERACTION_DATA_SCHEMAS.ReviewQueue.safeParse(raw):null,[raw]);
- const [error,setError]=useState('');
+ const [error,setError]=useState(''),[ack,setAck]=useState<string|null>(null),intent=useTaskEffectCause(),evidenceKey=useMemo(()=>JSON.stringify(raw),[raw]);
+ useLayoutEffect(()=>{setAck(null)},[evidenceKey]);
  if(!parsed?.success)return <p className="interaction-unavailable" role="status">Review items are unavailable from the connected source.</p>;
  const data=parsed.data,saved=object(store.get(statePath(p.stateKey))),reviews=object(saved.items),selected=data.items.find(item=>item.id===saved.selectedId)??data.items[0],index=data.items.indexOf(selected),current=reviewValue(reviews[selected.id]),completed=data.items.filter(item=>decision(object(reviews[item.id]).decision)!==null).length;
  const remaining=data.items.length-completed,needsComment=data.items.some(item=>{const value=reviewValue(reviews[item.id]);return value.decision==='revise'&&!value.comment.trim();});
+ const entriesKey=JSON.stringify(data.items.map(item=>{const value=reviewValue(reviews[item.id]);return[item.id,value.decision,value.comment];})),acknowledged=ack!==null&&ack===entriesKey;
  const update=(patch:Partial<Review>,selectedId=selected.id)=>{const latest=object(store.get(statePath(p.stateKey))),items=object(latest.items);store.set(statePath(p.stateKey),{...latest,selectedId,items:{...items,[selectedId]:{...reviewValue(items[selectedId]),...patch}}});setError('');};
- const select=(id:string)=>{const latest=object(store.get(statePath(p.stateKey)));store.set(statePath(p.stateKey),{...latest,selectedId:id});setError('');};
- const submit=async()=>{const latest=object(object(store.get(statePath(p.stateKey))).items),entries=data.items.map(item=>({itemId:item.id,...reviewValue(latest[item.id])}));if(entries.some(item=>item.decision===null)){setError('Choose a decision for every item before sending the review.');return;}const incomplete=entries.find(item=>item.decision==='revise'&&!item.comment.trim());if(incomplete){select(incomplete.itemId);setError('Add a comment explaining the requested changes.');return;}if(entries.some(item=>item.comment.length>2000)){setError('Keep each comment within 2,000 characters.');return;}setError('');if(p.actionId)await action.run(p.actionId,{reviews:entries});};
+ const select=(id:string,cause:TaskEffectCause='restore')=>{const latest=object(store.get(statePath(p.stateKey)));if(latest.selectedId!==id)intent.mark(cause);store.set(statePath(p.stateKey),{...latest,selectedId:id});setError('');};
+ const submit=async()=>{const latest=object(object(store.get(statePath(p.stateKey))).items),entries=data.items.map(item=>({itemId:item.id,...reviewValue(latest[item.id])}));if(entries.some(item=>item.decision===null)){setError('Choose a decision for every item before sending the review.');return;}const incomplete=entries.find(item=>item.decision==='revise'&&!item.comment.trim());if(incomplete){select(incomplete.itemId);setError('Add a comment explaining the requested changes.');return;}if(entries.some(item=>item.comment.length>2000)){setError('Keep each comment within 2,000 characters.');return;}setError('');if(p.actionId){const accepted=await action.run(p.actionId,{reviews:entries});if(accepted)setAck(JSON.stringify(entries.map(entry=>[entry.itemId,entry.decision,entry.comment])));}};
  return <section className="interaction-tools interaction-review review-queue" aria-label={data.title??'Review queue'}>
   <Heading title={data.title} detail={`${completed} of ${data.items.length} reviewed`}/>
   <div className="review-queue-layout">
-   <div className="review-item-detail"><ReviewMaterial item={selected} index={index} count={data.items.length}/>
+   <div className="review-item-detail"><div className="review-item-pagination"><button type="button" className="quiet" aria-label="Previous item" disabled={index===0} onClick={event=>select(data.items[index-1].id,event.detail>0?'pointer':'keyboard')}><ChevronLeft size={14}/>Previous</button><button type="button" className="quiet" aria-label="Next item" disabled={index===data.items.length-1} onClick={event=>select(data.items[index+1].id,event.detail>0?'pointer':'keyboard')}>Next<ChevronRight size={14}/></button></div><ReviewMaterial item={selected} index={index} count={data.items.length} intent={intent}/>
     <fieldset className="review-decisions"><legend>Your decision</legend>{([{value:'approve',label:'Accept'},{value:'revise',label:'Request changes'},{value:'defer',label:'Defer'}] as const).map(({value,label})=><label key={value} className={`review-decision-choice decision-${value}`} data-selected={current.decision===value}><input type="radio" name={group} value={value} checked={current.decision===value} onChange={()=>update({decision:value})}/><span>{label}</span></label>)}</fieldset>
     <label className="interaction-field review-comment"><span>Review comment{current.decision==='revise'?<small>Required</small>:<small>Optional</small>}</span><textarea aria-label="Review comment" value={current.comment} maxLength={2000} rows={2} placeholder={current.decision==='revise'?'What should change?':'Add a comment'} onChange={event=>update({comment:event.target.value})}/></label>
-    <div className="review-item-pagination"><button type="button" className="quiet" aria-label="Previous item" disabled={index===0} onClick={()=>select(data.items[index-1].id)}><ChevronLeft size={14}/>Previous</button><button type="button" className="quiet" aria-label="Next item" disabled={index===data.items.length-1} onClick={()=>select(data.items[index+1].id)}>Next<ChevronRight size={14}/></button></div>
    </div>
-   <nav aria-label="Review items"><ol>{data.items.map((item,itemIndex)=>{const value=reviewValue(reviews[item.id]);return <li key={item.id}><button type="button" className={`review-item-nav decision-${value.decision??'none'}`} aria-current={item.id===selected.id?'step':undefined} onClick={()=>select(item.id)}><span className="review-item-marker" aria-hidden="true">{value.decision==='approve'?<Check size={14}/>:value.decision==='revise'?<MessageSquare size={13}/>:value.decision==='defer'?<Pause size={13}/>:<Circle size={13}/>}</span><span><strong>{item.label}</strong><small>{decisionName(value.decision)}</small></span><span className="sr-only">Item {itemIndex+1}</span></button></li>;})}</ol></nav>
+   <nav aria-label="Review items"><ol>{data.items.map((item,itemIndex)=>{const value=reviewValue(reviews[item.id]);return <li key={item.id}><button type="button" className={`review-item-nav decision-${value.decision??'none'}`} aria-current={item.id===selected.id?'step':undefined} onClick={event=>select(item.id,event.detail>0?'pointer':'keyboard')}><span className="review-item-marker" aria-hidden="true">{value.decision==='approve'?<Check size={14}/>:value.decision==='revise'?<MessageSquare size={13}/>:value.decision==='defer'?<Pause size={13}/>:<Circle size={13}/>}</span><span><strong>{item.label}</strong><small>{decisionName(value.decision)}</small></span><span className="sr-only">Item {itemIndex+1}</span></button></li>;})}</ol></nav>
   </div>
-  {p.actionId&&<div className="interaction-footer"><span id={`${group}-requirements`} className="interaction-note review-readiness">{remaining?`Decide on ${remaining} more ${remaining===1?'item':'items'}.`:needsComment?'Explain the requested changes before sending.':`Ready to send ${data.items.length} ${data.items.length===1?'decision':'decisions'}.`}</span><button type="button" className="primary" aria-describedby={`${group}-requirements`} disabled={action.busy} onClick={()=>void submit()}>{action.busy?'Sending…':p.actionLabel??'Send review'}</button></div>}
+  {p.actionId&&<div className="interaction-footer"><span id={`${group}-requirements`} className="interaction-note review-readiness" role="status" aria-live="polite">{acknowledged?'Review submitted':remaining?`Decide on ${remaining} more ${remaining===1?'item':'items'}.`:needsComment?'Explain the requested changes before sending.':`Ready to send ${data.items.length} ${data.items.length===1?'decision':'decisions'}.`}</span><button type="button" className="primary review-submit" aria-describedby={`${group}-requirements`} disabled={action.busy||acknowledged} onClick={()=>void submit()}><span className="action-label-size" aria-hidden="true">{p.actionLabel??'Send review'}</span><span className="action-label-size" aria-hidden="true">Sending…</span><span className="action-label-live">{action.busy?'Sending…':p.actionLabel??'Send review'}</span></button></div>}
   {(error||action.error)&&<p className="error-text" role="status">{error||action.error}</p>}<Source text={data.source}/>
  </section>;
 }

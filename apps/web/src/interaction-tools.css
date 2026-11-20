@@ -9,11 +9,20 @@
 .interaction-unavailable{padding:14px 0}
 .interaction-footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:18px}
 .interaction-footer .primary{font-size:12px;min-height:32px}
+.review-submit{display:grid;place-items:center}
+.review-submit>span{grid-area:1/1;white-space:nowrap}
+.review-submit .action-label-size{visibility:hidden}
 .interaction-tools>.error-text{font-size:12px;margin-top:11px}
 .review-queue-layout{display:flex;flex-direction:column;gap:16px;min-width:0}
 .review-queue-layout nav{padding:6px;border-top:1px solid var(--border);background:var(--subtle)}
 .review-queue-layout ol{list-style:none;padding:0;margin:0;display:flex;flex-direction:row;flex-wrap:wrap;gap:4px}
 .review-queue-layout li{flex:1 1 150px;min-width:0}
+@container interaction-tools (min-width:720px){
+ .review-queue-layout{display:grid;grid-template-columns:minmax(0,1fr) 240px;align-items:start}
+ .review-queue-layout nav{border-top:0;border-inline-start:1px solid var(--border)}
+ .review-queue-layout ol{flex-direction:column;flex-wrap:nowrap}
+ .review-queue-layout li{flex:none}
+}
 .review-item-nav{display:grid;grid-template-columns:16px minmax(0,1fr);gap:7px;width:100%;padding:8px 9px;text-align:left;border:1px solid transparent;border-radius:6px;align-items:start}
 .review-item-nav:hover{background:var(--subtle)}
 .review-item-nav[aria-current=step]{background:var(--surface);border-color:var(--border)}
@@ -52,7 +61,7 @@
 .interaction-tools .review-comment{gap:6px}
 .interaction-tools :is(input,.ui-select-trigger,textarea):focus-visible{outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px}
 .interaction-tools :is(input,.ui-select-trigger,textarea)[aria-invalid=true]{border-color:var(--danger)}
-.review-item-pagination{display:flex;justify-content:space-between;gap:14px;margin-top:12px}
+.review-item-pagination{display:flex;justify-content:space-between;gap:14px;margin-bottom:12px}
 .review-item-pagination .quiet{font-size:11px;padding:4px 0}
 .editable-table-title{font-size:13px;font-weight:550;margin:0 0 12px}
 .editable-table-scroll{width:100%;overflow:auto;max-height:480px;overscroll-behavior:contain;scrollbar-width:thin;border:1px solid var(--border);border-radius:8px}

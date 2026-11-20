@@ -12,7 +12,7 @@ test('an unfinished numeric draft survives navigation and reload until it become
 test('typed edits keep stable row identity through source reorder and do not copy read-only drafts into actions',async({page})=>{const {host}=await open(page,'EditableTable');await page.goto('/');const hours=page.getByRole('spinbutton',{name:'Design · Hours',exact:true});await hours.fill('9');await hours.evaluate(node=>Object.assign(window,{editedCell:node}));await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({edits:{design:{hours:'9'}}});host.setInput('data',{...records,rows:[records.rows[1],{...records.rows[0],values:{...records.rows[0].values,reference:'TASK-14b'}}]});await host.publish();await expect(hours).toHaveValue('9');expect(await hours.evaluate(node=>node===(window as unknown as {editedCell:Node}).editedCell)).toBe(true);await expect(page.getByRole('cell',{name:'TASK-14b',exact:true})).toBeVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'design',columnId:'hours',value:9}]});});
 test('invalid parameter drafts survive reload until repaired and do not overwrite the supplied value',async({page})=>{const {host}=await open(page,'ParameterControls');await page.goto('/');const width=page.getByRole('spinbutton',{name:'Width',exact:true});await width.fill('100');await page.getByRole('button',{name:'Apply settings',exact:true}).click();await expect(page.locator('.interaction-tools .error-text')).toContainText('Minimum 320');await page.reload();await expect(width).toHaveValue('100');expect(host.commands.some(command=>command.type==='action.submit')).toBe(false);expect(host.snapshot.data[0].value).toEqual(parameters);await width.fill('1920');await page.getByRole('button',{name:'Apply settings',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toMatchObject({values:{width:1920}});});
 test('review layout responds to available artifact width rather than viewport width',async({page})=>{await page.setViewportSize({width:1440,height:1000});await open(page,'ReviewQueue');await page.goto('/');await page.locator('.review-queue').evaluate(node=>(node as HTMLElement).style.width='380px');const geometry=await page.locator('.review-queue-layout').evaluate(node=>{const nav=node.querySelector('nav')!.getBoundingClientRect(),detail=node.querySelector('.review-item-detail')!.getBoundingClientRect();return{stacked:nav.top>=detail.bottom-1,width:node.getBoundingClientRect().width,scroll:node.scrollWidth};});expect(geometry.stacked).toBe(true);expect(geometry.scroll).toBeLessThanOrEqual(geometry.width+1);});
-async function open(page:Page,name:keyof typeof data){const snapshot=taskFixture({root:'view',elements:{view:{type:name,props:{dataBinding:'data',stateKey:'draft',actionId:'ask',actionLabel:name==='ReviewQueue'?'Send review':name==='EditableTable'?'Review changes':'Apply settings'}}}},{data:data[name]});const host=await serveTaskFixture(page,snapshot);return{snapshot,host};}
+async function open(page:Page,name:keyof typeof data,action?:Parameters<typeof serveTaskFixture>[2]){const snapshot=taskFixture({root:'view',elements:{view:{type:name,props:{dataBinding:'data',stateKey:'draft',actionId:'ask',actionLabel:name==='ReviewQueue'?'Send review':name==='EditableTable'?'Review changes':'Apply settings'}}}},{data:data[name]});const host=await serveTaskFixture(page,snapshot,action);return{snapshot,host};}
 
 test('shared parameter choices retain false and null, restore focus and submit the original typed owner payload',async({page})=>{
  const {host}=await open(page,'ParameterControls');await page.goto('/');const metadata=page.getByRole('combobox',{name:'Include metadata',exact:true}),format=page.getByRole('combobox',{name:'Format',exact:true});
@@ -75,18 +75,47 @@ test('review navigation moves only the arriving material and leaves unchanged sn
  const {host}=await open(page,'ReviewQueue');await page.goto('/');
  const comment=page.getByRole('textbox',{name:'Review comment',exact:true});await comment.fill('Keep the existing callers compatible.');
  await comment.evaluate(node=>Object.assign(window,{reviewCommentNode:node}));
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(0);
+ const count=()=>page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount);
+ expect(await count()).toBe(0);
  await page.getByRole('button',{name:'Next item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
  await expect(page.getByRole('article',{name:'Cover empty input',exact:true})).toBeVisible();
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
+ expect(await count()).toBe(0);
  await expect(comment).toBeFocused();expect(await comment.evaluate(node=>node===(window as unknown as {reviewCommentNode:Node}).reviewCommentNode)).toBe(true);
+ await page.getByRole('button',{name:'Previous item',exact:true}).click();
+ await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();
+ expect(await count()).toBe(1);
  await host.publish();await page.evaluate(()=>document.documentElement.dataset.theme='light');
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
+ expect(await count()).toBe(1);
  await page.emulateMedia({reducedMotion:'reduce'});await expect.poll(()=>page.locator('.review-item-material').evaluate(node=>node.getAnimations().length)).toBe(0);
+ await page.getByRole('button',{name:'Next item',exact:true}).click();
+ await expect(page.getByRole('article',{name:'Cover empty input',exact:true})).toBeVisible();
+ expect(await count()).toBe(1);
  await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
  await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();await expect(comment).toHaveValue('Keep the existing callers compatible.');
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
- await page.reload();await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(0);
+ expect(await count()).toBe(1);
+ await page.reload();await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();expect(await count()).toBe(0);
+});
+
+test('a submitted review acknowledges exactly once, disables repeats and clears on changed evidence',async({page})=>{
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ const {host}=await open(page,'ReviewQueue',async()=>{await gate;return{};});await page.goto('/');
+ await page.getByRole('radio',{name:'Request changes',exact:true}).check();await page.getByRole('textbox',{name:'Review comment',exact:true}).fill('Keep both overloads for compatibility.');
+ await page.getByRole('button',{name:'Next item',exact:true}).click();await page.getByRole('radio',{name:'Accept',exact:true}).check();
+ await page.getByRole('button',{name:'Previous item',exact:true}).click();await expect(page.getByRole('textbox',{name:'Review comment',exact:true})).toHaveValue('Keep both overloads for compatibility.');
+ host.setInput('data',{...review,items:[review.items[1],review.items[0]]});await host.publish();
+ await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({items:{publicApi:{decision:'revise',comment:'Keep both overloads for compatibility.'},coverage:{decision:'approve'}}});
+ host.setInput('data',review);await host.publish();
+ const button=page.getByRole('button',{name:'Send review',exact:true});const idle=await button.boundingBox();
+ await button.click();const busy=await page.getByRole('button',{name:'Sending…',exact:true}).boundingBox();
+ expect(Math.abs(busy!.width-idle!.width)).toBeLessThanOrEqual(1);
+ release();
+ await expect(page.getByRole('status').filter({hasText:'Review submitted'})).toHaveCount(1);await expect(button).toBeDisabled();
+ expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);
+ expect(host.commands.some(command=>command.type==='operation.approve')).toBe(false);
+ await host.publish();await expect(button).toBeDisabled();
+ host.setInput('data',{...review,items:[review.items[1],review.items[0]]});await host.publish();
+ await expect(button).toBeEnabled();await expect(page.getByText('Review submitted')).toHaveCount(0);
+ await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({items:{publicApi:{decision:'revise',comment:'Keep both overloads for compatibility.'},coverage:{decision:'approve'}}});
 });
 
 test('resetting the final parameter returns focus to its control while the proposal collapses inertly',async({page})=>{
@@ -110,9 +139,12 @@ test('rapid review reversal continues from the displayed frame instead of restar
  await page.getByRole('button',{name:'Next item',exact:true}).click();
  const material=page.locator('.review-item-material');await expect(material).toHaveAttribute('aria-label','Cover empty input');
  const before=await material.evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();animation.currentTime=70;const style=getComputedStyle(node);return {opacity:style.opacity,transform:style.transform};});
- await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
+ await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>node.dispatchEvent(new MouseEvent('click',{bubbles:true,detail:1})));
  await expect(material).toHaveAttribute('aria-label','Keep the public API');
- const start=await material.evaluate(node=>(node.getAnimations()[0].effect as KeyframeEffect).getKeyframes()[0]);
- expect(Number(start.opacity)).toBeCloseTo(Number(before.opacity),4);expect(start.transform).toBe(before.transform);
+ const frames=await material.evaluate(node=>(node.getAnimations()[0].effect as KeyframeEffect).getKeyframes());
+ const tx=(transform?:string)=>{if(!transform||transform==='none')return 0;const matrix=/matrix\(([^)]+)\)/.exec(transform);if(matrix)return Number(matrix[1].split(',')[4]);const slide=/translateX?\((-?[\d.]+)px/.exec(transform);return slide?Number(slide[1]):0;};
+ expect(Number(frames[0].opacity)).toBeCloseTo(Number(before.opacity),4);
+ expect(Math.abs(tx(String(frames[0].transform))-tx(before.transform))).toBeLessThanOrEqual(1);
+ expect(tx(String(frames[frames.length-1].transform))).toBe(0);
  await expect.poll(()=>material.evaluate(node=>node.getAnimations().length)).toBe(0);
 });
