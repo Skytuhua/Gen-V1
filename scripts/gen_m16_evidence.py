@@ -2,7 +2,7 @@
 """Regenerate docs/implementation/v3/M16-verification.json for the M16
 follow-up candidate: swap in fresh command records (new timestamps, exit codes
 and log digests), recompute changedFiles, keep phases/cases/locks verbatim.
-Usage: python gen_m16_evidence.py records.json"""
+Usage: python scripts/gen_m16_evidence.py scripts/m16_records.json"""
 import json, hashlib, subprocess, os, sys
 
 ROOT = 'C:/Users/Administrator/repos/Gen-V1-m16-v6'
