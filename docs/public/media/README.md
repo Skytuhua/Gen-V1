@@ -1,6 +1,6 @@
 # A look around Gen
 
-These screenshots and recordings show the actual public Gen interface, rendered in Chromium from source commit `cb504d0e392fde9e70883b7b7c2e808e13488b7c` (0.6.4 source). The conversations, project labels, model catalog, trace, checklist and skills are **authored sample data**.
+These screenshots and recordings show the actual public Gen interface, rendered in Chromium. The gallery screenshots come from source commit `26ddf4d16c2fc1196b520d8a46c5441d64d01463` (0.6.5 source); the demos and animated preview come from `cb504d0e392fde9e70883b7b7c2e808e13488b7c` (0.6.4 source) and show its earlier workspace presets and settings sidebar. The conversations, project labels, model catalog, trace, checklist and skills are **authored sample data**.
 
 No personal conversation, account, credential or application profile was used. The examples make no live model requests and execute no external changes. Model entries demonstrate the picker; they do not establish account entitlement or provider availability. The browser captures do not establish native installation or updater acceptance.
 
@@ -37,19 +37,19 @@ If GitHub opens a file page rather than playing the clip, choose **View raw** or
 
 | View | What it shows |
 | --- | --- |
-| [Dark workspace](workspace-dark.png) | Project/thread navigation, conversation, trace and comparison |
+| [Dark workspace](workspace-dark.png) | Thread navigation, Workspace and All Agents views, conversation, trace and comparison |
 | [Light workspace](workspace-light.png) | The same task in the light theme |
 | [Model picker](models.png) | Searchable illustrative model catalog and reasoning controls |
-| [Skills](skills.png) | Instructions, supporting files and revision history for a sample skill |
-| [Plan and context](plan-context.png) | A validated sample checklist and compact project context |
+| [Skills](skills.png) | Skills & Integrations settings with instructions, supporting files and revision history for a sample skill |
+| [Plan and context](plan-context.png) | A validated sample task plan beside the conversation, with the project overview open |
 | [Project selection](projects.png) | Local sample project choices from the composer |
-| [Narrow window](narrow.png) | A 390 × 844 browser window with navigation closed and project context expanded |
+| [Narrow window](narrow.png) | A 390 × 844 browser window with navigation closed and the project overview collapsed |
 
 Desktop images are 1440 × 1200; the narrow image is 390 × 844. Screenshots are unedited application captures. Videos record a 1440 × 1000 viewport; editing adds a caption band outside the recorded interface and encodes web-friendly copies. Posters are extracted from the captured UI; no application interface was generated or redrawn.
 
 ## How the samples were made
 
-The capture uses the public application’s original `DesktopEntry`/`App` frontend and synthetic API fixtures, following the repository’s `scripts/capture-repository-screenshots.ts` and actual-App browser tests. A separate loopback server serves only the public frontend and the authored fixture. It never launches the native app, application backend, login console or model runtime. External browser requests are blocked.
+The capture uses the public application’s original `DesktopEntry`/`App` frontend and synthetic API fixtures, following the repository’s actual-App browser tests. The gallery screenshots are recaptured with `scripts/capture-public-media.ts`. A separate loopback server serves only the public frontend and the authored fixture. It never launches the native app, application backend, login console or model runtime. External browser requests are blocked.
 
 The demonstration has no music, voice-over, stock media or generated UI. It uses the application’s own appearance and bundled assets. Gen and retained third-party material remain subject to [LICENSE](../../../LICENSE) and [third-party notices](../../../THIRD_PARTY_NOTICES.md).
 
