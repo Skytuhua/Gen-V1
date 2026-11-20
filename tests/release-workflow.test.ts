@@ -48,4 +48,26 @@ describe('draft desktop release workflow',()=>{
   expect(workflow).not.toMatch(/git (?:tag|push)|gh release (?:edit|delete)/);
   expect(readFileSync(new URL('../scripts/package-desktop.ts',import.meta.url),'utf8')).toContain("publish:'never' as const");
  });
+ it('checks lightweight and peeled annotated tags before either release upload or creation',()=>{
+  expect(workflow).toContain('git ls-remote --tags "https://github.com/$repo.git" $tagRef ($tagRef + \'^{}\')');
+  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing release tag' }");
+  expect(workflow).toContain('if ($tagRefs.Count -gt 0)');
+  expect(workflow).toContain("-ceq ($tagRef + '^{}')");
+  expect(workflow).toContain('if ($tagCommit.Count -eq 0)');
+  expect(workflow).toContain("-ceq $tagRef");
+  expect(workflow).toContain("$tagCommit.Count -ne 1 -or ($tagCommit[0] -split '\\s+')[0] -cne $env:RELEASE_SHA");
+  const guard=workflow.indexOf('Existing release tag does not point to RELEASE_SHA');
+  expect(guard).toBeGreaterThan(-1);
+  expect(guard).toBeLessThan(workflow.indexOf('gh release upload'));
+  expect(guard).toBeLessThan(workflow.indexOf("$createArgs ="));
+ });
+ it('resolves an existing draft target as a commit and fails closed without retargeting',()=>{
+  expect(workflow).toContain('[string]::IsNullOrWhiteSpace($existing[0].target_commitish)');
+  expect(workflow).toContain('[Uri]::EscapeDataString($existing[0].target_commitish)');
+  expect(workflow).toContain('gh api "repos/$repo/commits/$targetRef" --jq \'.sha\'');
+  expect(workflow).toContain("if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve existing draft target_commitish' }");
+  expect(workflow).toContain('if ($targetSha -cne $env:RELEASE_SHA)');
+  expect(workflow.indexOf('Existing draft target_commitish does not resolve to RELEASE_SHA')).toBeLessThan(workflow.indexOf('gh release upload'));
+  expect(workflow).not.toMatch(/gh release edit|git update-ref|git push/);
+ });
 });

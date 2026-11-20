@@ -145,6 +145,16 @@ jobs:
         run: |
           $ErrorActionPreference = 'Stop'
           $repo = 'skytuhua-org/Gen-V1'
+          $tagRef = 'refs/tags/' + $env:RELEASE_TAG
+          $tagRefs = @(git ls-remote --tags "https://github.com/$repo.git" $tagRef ($tagRef + '^{}'))
+          if ($LASTEXITCODE -ne 0) { throw 'Cannot inspect existing release tag' }
+          if ($tagRefs.Count -gt 0) {
+            $tagCommit = @($tagRefs | Where-Object { ($_ -split '\s+')[1] -ceq ($tagRef + '^{}') })
+            if ($tagCommit.Count -eq 0) {
+              $tagCommit = @($tagRefs | Where-Object { ($_ -split '\s+')[1] -ceq $tagRef })
+            }
+            if ($tagCommit.Count -ne 1 -or ($tagCommit[0] -split '\s+')[0] -cne $env:RELEASE_SHA) { throw 'Existing release tag does not point to RELEASE_SHA; refusing to upload or retarget' }
+          }
           $release = Join-Path $PWD ('.harness-release-package/desktop-release-' + $env:RELEASE_VERSION)
           $installer = 'Gen-V1-Setup-' + $env:RELEASE_VERSION + '-win-x64.exe'
           $feed = if ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease') { 'beta.yml' } else { 'latest.yml' }
@@ -161,6 +171,11 @@ jobs:
           if ($existing.Count -eq 1) {
             if (-not $existing[0].draft) { throw 'Refusing to modify a published release' }
             if ([bool]$existing[0].prerelease -ne ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease')) { throw 'Existing draft channel mismatch' }
+            if ([string]::IsNullOrWhiteSpace($existing[0].target_commitish)) { throw 'Existing draft has no target_commitish' }
+            $targetRef = [Uri]::EscapeDataString($existing[0].target_commitish)
+            $targetSha = gh api "repos/$repo/commits/$targetRef" --jq '.sha'
+            if ($LASTEXITCODE -ne 0) { throw 'Cannot resolve existing draft target_commitish' }
+            if ($targetSha -cne $env:RELEASE_SHA) { throw 'Existing draft target_commitish does not resolve to RELEASE_SHA; refusing to upload or retarget' }
             gh release upload $env:RELEASE_TAG @assets --clobber --repo $repo
           } else {
             $createArgs = @('release', 'create', $env:RELEASE_TAG, '--draft', '--repo', $repo, '--target', $env:RELEASE_SHA, '--title', ('Gen V1 ' + $env:RELEASE_TAG))
