@@ -52,6 +52,7 @@ const PAIRS: readonly Pair[] = [
   nonText('--control-border', '--hover', 'hovered control outlines'),
   nonText('--control-border', '--subtle', 'control outlines inside task surfaces'),
   nonText('--control-border', '--selection-bg', 'selected controls and checkpoint actions'),
+  nonText('--text', '--control-border', 'selected outlines remain distinct from resting outlines'),
   text('--text', '--canvas', 'conversation, dock and decision copy on the workspace canvas'),
   text('--text', '--sidebar', 'thread titles and settings navigation labels'),
   text('--text', '--surface', 'composer, dock cards and settings content'),
@@ -133,7 +134,7 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/agent-inbox.css': ['.agent-inbox .inbox-search>label'],
       'apps/web/src/exploration-tools.css': ['.exploration-field textarea', '.log-search'],
       'apps/web/src/conversation-find.css': ['.conversation-find'],
-      'apps/web/src/everyday-data.css': ['.everyday-option-selector', '.everyday-comparison-table th.is-selected .everyday-option-selector'],
+      'apps/web/src/everyday-data.css': ['.everyday-option-selector'],
       'apps/web/src/file-checkpoints.css': ['.file-checkpoints button'],
       'apps/web/src/document-preview.css': ['.document-preview-failure button'],
       'apps/web/src/image-compare.css': ['.image-compare-message button'],
@@ -149,7 +150,7 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/composer-toolbar.css': ['.composer-context-chip'],
       'apps/web/src/side-chat.css': ['.side-chat-composer'],
       'apps/web/src/workspace-canvas.css': ['.canvas-side-composer textarea'],
-      'apps/web/src/work-objects.css': ['.trace-filter', '.architecture-node', '.architecture-node[aria-pressed=true]', '.workflow-card', '.workflow-card[data-selected=true]'],
+      'apps/web/src/work-objects.css': ['.trace-filter', '.architecture-node', '.workflow-card'],
       'apps/web/src/frontend-fidelity.css': ['.document-download>a'],
       'packages/ui-shell/feedback.css': ['.ui-error .ui-error-retry'],
       'apps/web/src/appearance-settings.css': ['.appearance-settings .color-swatch'],
@@ -165,6 +166,23 @@ describe('appearance theme contrast audit', () => {
         expect(bodies, path + ': ' + selector).not.toContain('var(--border');
       }
     }
+  });
+
+  it('distinguishes selected controls and current review items from resting controls', () => {
+    for (const [path, selectors] of Object.entries({
+      'apps/web/src/everyday-data.css': ['.everyday-comparison-table th.is-selected .everyday-option-selector'],
+      'apps/web/src/work-objects.css': ['.workflow-card[data-selected=true]', '.architecture-node[aria-pressed=true]'],
+    })) {
+      const rules = [...source(path).matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+      for (const selector of selectors) {
+        const rule = rules.find(rule => rule[1]!.trim() === selector);
+        expect(rule?.[2], selector).toContain('border-color:var(--text)');
+        expect(rule?.[2], selector).not.toContain('border-color:var(--control-border)');
+      }
+    }
+    const review = source('apps/web/src/interaction-tools.css');
+    expect(review).toMatch(/\.review-item-nav\{[^}]*border:1px solid transparent/);
+    expect(review).toMatch(/\.review-item-nav\[aria-current=step\]\{[^}]*border-color:var\(--control-border\)/);
   });
 
   it('fails the pairs it would catch if a token regressed', () => {

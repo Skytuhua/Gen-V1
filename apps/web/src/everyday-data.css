@@ -56,7 +56,7 @@
 .everyday-comparison-table thead th button strong {font-weight:550;}
 .everyday-comparison-table thead th p {font-size:11px;color:var(--muted);margin-top:8px;overflow-wrap:anywhere;}
 .everyday-option-selector {display:flex;align-items:center;justify-content:center;height:15px;width:15px;flex:0 0 15px;border:1px solid var(--control-border);border-radius:50%;background:var(--surface);color:var(--text);}
-.everyday-comparison-table th.is-selected .everyday-option-selector {border-color:var(--control-border);}
+.everyday-comparison-table th.is-selected .everyday-option-selector {border-color:var(--text);}
 .everyday-comparison-table :is(tbody th,td) {padding:14px 15px;border-bottom:1px solid var(--border);vertical-align:top;overflow-wrap:anywhere;}
 .everyday-comparison-table td {white-space:normal;overflow:visible;text-overflow:clip;max-width:none;}
 .everyday-comparison-table tbody th {color:var(--muted);font-size:11px;}
