@@ -133,7 +133,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const { id } = request.params, { beforeId, limit } = request.query;
     if ((beforeId !== undefined && typeof beforeId !== 'string') || (limit !== undefined && typeof limit !== 'string')) throw new HarnessError('INVALID_INPUT', 'Message paging parameters must be single values');
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
-    const parsed = limit === undefined ? 200 : Number.parseInt(limit, 10);
+    if (limit !== undefined && (!limit || /\D/.test(limit.replace(/^[+-]/, '')))) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
+    const parsed = limit === undefined ? 200 : Number(limit);
     if (!Number.isSafeInteger(parsed)) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
     return service.store.messagesFor(id, beforeId, parsed);
   });
