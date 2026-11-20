@@ -63,6 +63,8 @@ export function createShadowRelevancePhase(options: {
   };
   const seen = new Set<string>();
   let cancelled = false;
+  // A public timeout revokes the result, not the still-running observer call.
+  let inFlight = false;
   type Pending = { resolve: (result: ShadowResult) => void; timer: unknown };
   let pending: Pending | null = null;
   const settle = (current: Pending, status: ShadowStatus, observation: ShadowObservation | null) => {
@@ -73,21 +75,33 @@ export function createShadowRelevancePhase(options: {
   };
   return {
     run(cut: ShadowCut): Promise<ShadowResult> {
-      if (!approved() || cancelled || pending || !cut.cutId || cut.cutId.length > 256 || seen.has(cut.cutId))
+      if (!approved() || cancelled || inFlight || !cut.cutId || cut.cutId.length > 256 || seen.has(cut.cutId))
         return Promise.resolve({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+      if (!Array.isArray(cut.segments) || cut.segments.length > 4096 ||
+        cut.segments.some(segment => typeof segment?.id !== 'string' || !segment.id || segment.id.length > 512))
+        return Promise.resolve({ status: 'OBSERVER_UNAVAILABLE', observation: null });
+      const captured = Object.freeze({
+        cutId: cut.cutId, retainedTailStart: cut.retainedTailStart, inspectionBudgetBytes: cut.inspectionBudgetBytes,
+        segments: Object.freeze(cut.segments.map(segment => Object.freeze({
+          id: segment.id, inputSequence: segment.inputSequence, bytes: segment.bytes,
+          kind: segment.kind, completed: segment.completed, protected: segment.protected,
+        }))),
+      });
       seen.add(cut.cutId);
       budget--;
+      inFlight = true;
       return new Promise(resolve => {
         const current: Pending = { resolve, timer: undefined };
         pending = current;
         current.timer = schedule(() => settle(current, 'TIMED_OUT', null), SHADOW_OBSERVER_TIMEOUT_MS);
         let observation: Promise<ShadowObservation>;
-        try { observation = options.observe(cut); } catch { settle(current, 'FAILED', null); return; }
+        try { observation = options.observe(captured); } catch { inFlight = false; settle(current, 'FAILED', null); return; }
         void observation.then(result => {
+          inFlight = false;
           if (result && Array.isArray(result.candidateIds) && Number.isSafeInteger(result.estimatedSavingsBytes))
             settle(current, 'COMPLETED', Object.freeze({ candidateIds: Object.freeze([...result.candidateIds]), estimatedSavingsBytes: result.estimatedSavingsBytes }));
           else settle(current, 'FAILED', null);
-        }, () => settle(current, 'FAILED', null));
+        }, () => { inFlight = false; settle(current, 'FAILED', null); });
       });
     },
     cancel() { cancelled = true; if (pending) settle(pending, 'CANCELLED', null); },
