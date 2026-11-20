@@ -7,6 +7,33 @@ import {cpus,platform,release,totalmem} from 'node:os';
 test.use({trace:'off'});
 async function select(page:Page,selector='#source-text',start=8,end=21){await page.locator(selector).evaluate((element,{start,end})=>{const node=element.firstChild!,range=document.createRange();range.setStart(node,start);range.setEnd(node,end);const selection=window.getSelection()!;selection.removeAllRanges();selection.addRange(range);element.dispatchEvent(new MouseEvent('pointerup',{bubbles:true}));document.dispatchEvent(new Event('selectionchange'));},{start,end});}
 test('M15 selected visible text exposes explicit actions',async({page})=>{await page.goto('/fixture');await select(page);await expect(page.getByRole('button',{name:'Attach to prompt',exact:true})).toBeVisible();await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();await expect(page.locator('output')).toHaveText('attach:selected text');});
+for(const [index,action] of ['ask','attach','open'].entries())test(`keyboard source selection activates ${action}`,async({page})=>{
+ await page.goto('/fixture');const source=page.locator('.source-selection-text').first(),toolbar=page.getByRole('toolbar',{name:'Selected source'});
+ await source.focus();for(let i=0;i<7;i++)await page.keyboard.press('Shift+ArrowRight');
+ await expect(toolbar).toBeVisible();await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible');
+ await page.keyboard.press('Tab');await expect(toolbar.getByRole('button',{name:'Ask about this',exact:true})).toBeFocused();
+ await page.keyboard.press('Shift+Tab');await expect(source).toBeFocused();await page.keyboard.press('Tab');
+ for(let i=0;i<index;i++)await page.keyboard.press('Tab');
+ await expect(toolbar.getByRole('button').nth(index)).toBeFocused();await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible');
+ await page.keyboard.press('Enter');await expect(page.locator('output')).toHaveText(`${action}:Visible`);
+});
+test('keyboard source select-all and Escape preserve selection until it changes',async({page})=>{
+ await page.goto('/fixture');const source=page.locator('.source-selection-text').first(),toolbar=page.getByRole('toolbar',{name:'Selected source'});
+ await source.focus();await page.keyboard.press('Control+a');await expect(toolbar).toBeVisible();
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible selected text from an assistant.');
+ await page.keyboard.press('Tab');await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(source).toBeFocused();
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible selected text from an assistant.');
+ await page.keyboard.press('Shift+ArrowLeft');await expect(toolbar).toBeVisible();
+ await page.keyboard.press('Escape');await expect(toolbar).toHaveCount(0);await expect(source).toBeFocused();
+});
+test('keyboard source selection supports backward and line boundaries without escaping the source',async({page})=>{
+ await page.goto('/fixture');const source=page.locator('.source-selection-text').first(),toolbar=page.getByRole('toolbar',{name:'Selected source'});
+ await source.focus();await page.keyboard.press('Shift+ArrowLeft');await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('.');await expect(toolbar).toBeVisible();
+ await page.keyboard.press('Shift+Home');await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('Visible selected text from an assistant.');
+ await page.keyboard.press('Shift+ArrowUp');await expect.poll(()=>source.evaluate(el=>{const selection=getSelection()!;return el.contains(selection.anchorNode)&&el.contains(selection.focusNode);})).toBe(true);
+ await page.keyboard.press('Shift+End');await page.keyboard.press('Shift+ArrowDown');
+ await expect.poll(()=>source.evaluate(el=>{const selection=getSelection()!;return el.contains(selection.anchorNode)&&el.contains(selection.focusNode);})).toBe(true);
+});
 test.describe('M15 selection action completion',()=>{
  for(const newerForeignSelection of [false,true])test(`M15 completed selection action ${newerForeignSelection?'preserves a newer foreign range':'clears its unchanged own range'}`,async({page})=>{
   await page.goto('/fixture?fixture=selection-held');await select(page);
@@ -63,6 +90,19 @@ test.describe('M15 selection action completion',()=>{
 });
 test('M15 forged DOM attributes cannot register a selection',async({page})=>{await page.goto('/fixture');await select(page,'[data-source-id="forged"]',0,6);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
 test('M15 hidden and clipped source text is refused',async({page})=>{await page.goto('/fixture');await page.locator('#source-text').evaluate(el=>{el.style.opacity='0';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await page.locator('#source-text').evaluate(el=>{el.style.opacity='1';el.style.width='2px';el.style.overflow='hidden';el.style.whiteSpace='nowrap';});await select(page);await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);});
+for(const tag of ['iframe','input','textarea','select','button','a','object','embed','contenteditable'])test(`M15 refuses a selection crossing a text-empty ${tag}`,async({page})=>{
+ await page.goto('/fixture');await page.locator('#source-text').evaluate((element,tag)=>{
+  const embedded=document.createElement(tag==='contenteditable'?'span':tag);
+  if(tag==='contenteditable')embedded.setAttribute('contenteditable','true');
+  Object.assign(embedded.style,{display:'inline-block',width:'16px',height:'16px'});
+  element.replaceChildren(document.createTextNode('Visible selected '),embedded,document.createTextNode('text from an assistant.'));
+  const range=document.createRange();range.setStart(element.firstChild!,8);range.setEnd(element.lastChild!,4);
+  getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));
+ },tag);
+ await expect.poll(()=>page.evaluate(()=>getSelection()?.toString())).toBe('selected text');
+ await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+ await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');
+});
 test('M15 refuses a clipped interior span even when both selection endpoints are visible',async({page})=>{
  await page.goto('/fixture');await page.locator('#source-text').evaluate(element=>{element.replaceChildren(document.createTextNode('Visible '),Object.assign(document.createElement('span'),{textContent:'selected text'}),document.createTextNode(' from an assistant.'));const span=element.querySelector('span')!;Object.assign(span.style,{display:'inline-block',width:'2px',overflow:'hidden',whiteSpace:'nowrap'});const range=document.createRange();range.setStart(element.firstChild!,0);range.setEnd(element.lastChild!,5);getSelection()!.removeAllRanges();getSelection()!.addRange(range);document.dispatchEvent(new Event('selectionchange'));});
  await page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));await expect(page.getByRole('toolbar',{name:'Selected source'})).toHaveCount(0);await expect(page.locator('output')).toHaveText('');
