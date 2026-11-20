@@ -1,6 +1,6 @@
 import {randomBytes} from 'node:crypto';
 import {spawn,spawnSync,type ChildProcess} from 'node:child_process';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import {hasCurrentPlatformProof,selectBackend,type ExecutionBackend} from '../core/execution-policy.ts';
 import {processEnvironment} from '../capabilities/process.ts';
 import {
@@ -26,7 +26,7 @@ const cloneJson=(value:unknown,maxBytes:number):unknown=>{
  if(text===undefined||Buffer.byteLength(text)>maxBytes)throw new HarnessError('INVALID_INPUT','The plug-in request is too large.');
  return JSON.parse(text);
 };
-const sessionError=(code:string,message:string)=>new HarnessError(code,message);
+const sessionError=(code:string,message:string)=>new HarnessError(toApiErrorCode(code),message);
 
 /* ------------------------------------------------------------------ */
 /* WorkerFrameV1 codec: 4-byte unsigned little-endian byte-length       */
@@ -401,7 +401,7 @@ export class IsolatedExtensionHost{
   const record=this.records.get(pluginId);if(!record)throw new HarnessError('NOT_FOUND','The isolated extension is not registered.');
   if(record.lease&&['STARTING','ACTIVE','DRAINING','UNKNOWN'].includes(record.lease.state))throw new HarnessError('INVALID_STATE','The isolated extension already has a writable generation.');
   const gate=this.admission();
-  if(!gate.ok){record.blocked=gate.hold;throw new HarnessError(gate.hold,gate.reason);}
+  if(!gate.ok){record.blocked=gate.hold;throw new HarnessError(toApiErrorCode(gate.hold),gate.reason);}
   const generation=this.nextGeneration(pluginId);record.blocked=null;
   const lease:PluginLeaseV1=pluginLeaseV1Schema.parse({pluginId:record.manifest.pluginId,version:record.manifest.version,generation,ownerScopes:record.ownerScopes,activeCalls:[],registrations:[],state:'STARTING'});
   record.lease=lease;

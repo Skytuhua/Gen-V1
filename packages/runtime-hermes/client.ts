@@ -3,7 +3,7 @@ import {existsSync} from 'node:fs';
 import {randomUUID} from 'node:crypto';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import {terminateProcessTree} from '../runtime-pi/process-tree.ts';
 import {assertHermesTree,withHermesHome} from './home.ts';
 
@@ -75,7 +75,7 @@ export class HermesClient {
    if(!record(value)){this.fail('HERMES_PROTOCOL');return;}
    if(typeof value.id==='string'){
     const pending=this.pending.get(value.id);if(!pending)continue;clearTimeout(pending.timer);this.pending.delete(value.id);
-    if(record(value.error)){const code=typeof value.error.code==='string'&&/^[A-Z0-9_]{1,100}$/.test(value.error.code)?value.error.code:'HERMES_SOURCE_ERROR';pending.reject(new HarnessError(code,'The Hermes source worker could not complete this request.'));}
+    if(record(value.error)){const code=typeof value.error.code==='string'&&/^[A-Z0-9_]{1,100}$/.test(value.error.code)?value.error.code:'HERMES_SOURCE_ERROR';pending.reject(new HarnessError(toApiErrorCode(code),'The Hermes source worker could not complete this request.'));}
     else if(Object.hasOwn(value,'result'))pending.resolve(value.result);else pending.reject(new HarnessError('HERMES_PROTOCOL','The Hermes source worker returned an invalid reply.'));
     continue;
    }
@@ -100,7 +100,7 @@ export class HermesClient {
   });
  }
  private fail(code:string):void {
-  if(this.closed)return;const error=new HarnessError(code,'The Hermes source worker stopped before completing its request.');
+  if(this.closed)return;const error=new HarnessError(toApiErrorCode(code),'The Hermes source worker stopped before completing its request.');
   this.closed=true;for(const pending of this.pending.values()){clearTimeout(pending.timer);pending.reject(error);}this.pending.clear();
   try{this.options.onFailure?.(error);}catch{/* An observer cannot prevent owned teardown. */}
   this.stopping??=this.stop();void this.stopping.catch(()=>{});

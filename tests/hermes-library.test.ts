@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import {Store} from '../packages/storage/store.ts';
 import {applySkillOperations} from '../packages/core/skills.ts';
 import {HermesSourceLibrary,type HermesLibrarySource} from '../packages/runtime-hermes/library.ts';
-import {HarnessError} from '../packages/contracts/index.ts';
+import {HarnessError, type ApiErrorCode} from '../packages/contracts/index.ts';
 import {harnessCatalog} from '../packages/skill-catalog/adapters.ts';
 import {SkillCatalogRepository} from '../packages/skill-catalog/repository.ts';
 
@@ -99,7 +99,7 @@ it.each([
 
 it.each(['HERMES_SOURCE_BUSY','HERMES_CONFIG_BUSY'])('clears a definite pre-dispatch refusal: %s',async(code)=>{
  const x=await fixture();await x.library.initialize();const original=x.source.request.bind(x.source);
- x.source.request=async<T>(method:string,p?:Record<string,unknown>)=>{if(method==='skills.manage')throw new HarnessError(code,'Source admission refused');return original<T>(method,p);};
+ x.source.request=async<T>(method:string,p?:Record<string,unknown>)=>{if(method==='skills.manage')throw new HarnessError(code as ApiErrorCode,'Source admission refused');return original<T>(method,p);};
  await expect(x.library.command(command)).rejects.toMatchObject({code});expect(x.store.get('hermesIntent',command.id)).toBeNull();
 });
 
@@ -204,13 +204,13 @@ it.each(['revision','support'])('refuses retired %s before rollback dispatch whi
  await expect(x.library.command({...rollback,id:'older-command'})).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(x.store.get('hermesIntent','older-command')).toEqual(pending);
 });
 it.each(['HERMES_SOURCE_BUSY','PermissionError','HERMES_PROTOCOL','INVALID_SKILL','NOT_FOUND'])('preserves historical read failures without inferring retirement: %s',async(code)=>{
- const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code,'Original read failure');
+ const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code as ApiErrorCode,'Original read failure');
  x.source.request=async<T>(method:string,p:Record<string,unknown>={})=>{if(method==='skills.inspect'&&p.revisionId)throw error;return original<T>(method,p);};
  await expect(x.library.view('procedure',{revision:1})).rejects.toBe(error);expect(projectionRows(x.store)).toEqual(before);
 });
 it.each(['PermissionError','OSError','UnicodeDecodeError'])('keeps unverified ledger history retryable while current content remains readable: %s',async(code)=>{
  const x=await captureFixture();await x.library.refresh();x.set('B');await x.library.refresh();
- const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code,'Canonical ledger read failed');
+ const before=projectionRows(x.store),original=x.source.request.bind(x.source),error=new HarnessError(code as ApiErrorCode,'Canonical ledger read failed');
  x.source.request=async<T>(method:string,p:Record<string,unknown>={})=>{
   if(method==='skills.inspect'&&p.revisionId)throw error;
   const result=await original<Record<string,unknown>>(method,p);
@@ -273,7 +273,7 @@ it('retains captured immutable text for a genuinely ledger-less package',async()
 
 it.each(['STALE_SKILL','FileNotFoundError','ValueError','PermissionError','HERMES_PROTOCOL'])('translates capture refusal %s without retry or Store writes',async(code)=>{
  const x=await captureFixture();await x.library.refresh();const before=projectionRows(x.store),original=x.source.request.bind(x.source);let attempts=0;x.set('later');
- x.source.request=async<T>(method:string,params?:Record<string,unknown>)=>{if(method==='skills.capture'){attempts++;throw new HarnessError(code,'Capture refused');}return original<T>(method,params);};
+ x.source.request=async<T>(method:string,params?:Record<string,unknown>)=>{if(method==='skills.capture'){attempts++;throw new HarnessError(code as ApiErrorCode,'Capture refused');}return original<T>(method,params);};
  await expect(x.library.refresh()).rejects.toMatchObject({code:'HERMES_RECONCILIATION_REQUIRED'});expect(attempts).toBe(1);expect(projectionRows(x.store)).toEqual(before);
 });
 

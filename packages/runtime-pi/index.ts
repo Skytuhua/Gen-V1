@@ -4,7 +4,7 @@ import { mkdir, readFile } from "node:fs/promises";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { HarnessError, type ModelInfo, type RunContext, type RuntimeAdapter, type RuntimeCallbacks, type StartRun } from "../contracts/index.ts";
+import { HarnessError, toApiErrorCode, type ModelInfo, type RunContext, type RuntimeAdapter, type RuntimeCallbacks, type StartRun } from "../contracts/index.ts";
 import { extractInputIds } from "./input-envelope.ts";
 import { routeToolCall, sameContext, type ToolRequest } from "./ipc.ts";
 import { safeError } from "./sdk.ts";
@@ -86,7 +86,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
         const pending = worker.pending.get(message.requestId);
         if (!pending) return;
         worker.pending.delete(message.requestId); clearTimeout(pending.timer);
-        if (typeof message.error === "string") pending.reject(new HarnessError(typeof message.code === "string" ? message.code : "PI_WORKER_ERROR", message.error)); else pending.resolve(message.value);
+        if (typeof message.error === "string") pending.reject(new HarnessError(toApiErrorCode(typeof message.code === "string" ? message.code : "PI_WORKER_ERROR"), message.error)); else pending.resolve(message.value);
       } else if (message.type === "ready" && worker.ctx && sameContext(message.ctx, worker.ctx) && current(worker)) {
         worker.allowed = new Set(modelOnly?[]:message.tools);
       } else if (message.type === "event" && worker.ctx && sameContext(message.ctx, worker.ctx) && sameContext(message.event, worker.ctx) && current(worker)) {

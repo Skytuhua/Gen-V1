@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HarnessError, type Thread } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type Thread } from '../contracts/index.ts';
 import type { ToolOwner } from '../contracts/tool-effects.ts';
 import {
   BROWSER_RUN_DEADLINE_MS, BROWSER_STEP_LIMIT, BROWSER_STEP_TIMEOUT_MS,
@@ -86,7 +86,7 @@ async function bounded<T>(action: () => Promise<T>, timeoutMs: number, code: str
   try {
     if (signal?.aborted) throw new HarnessError('CANCELLED_RUN', 'Browser verification was cancelled');
     const cancelled = new Promise<never>((_, reject) => {aborted = () => reject(new HarnessError('CANCELLED_RUN', 'Browser verification was cancelled')); signal?.addEventListener('abort', aborted, {once: true});});
-    const timeout = new Promise<never>((_, reject) => {timer = setTimeout(() => reject(new HarnessError(code, 'Browser verification exceeded its deadline')), timeoutMs);});
+    const timeout = new Promise<never>((_, reject) => {timer = setTimeout(() => reject(new HarnessError(toApiErrorCode(code), 'Browser verification exceeded its deadline')), timeoutMs);});
     return await Promise.race([action(), timeout, cancelled]);
   } finally {clearTimeout(timer); signal?.removeEventListener('abort', aborted);}
 }

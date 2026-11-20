@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import { secretRefV1Schema, type SecretDestinationV1, type SecretRefV1 } from '../contracts/execution-profile.ts';
 
 /** SecretRefV1 custody. A reference exposes only its opaque id, purpose, owner
@@ -41,7 +41,7 @@ function sameDestination(a: SecretDestinationV1, b: SecretDestinationV1): boolea
   if (a.kind === 'http-header' && b.kind === 'http-header') return a.origin === b.origin && a.header === b.header;
   return false;
 }
-const denied = (code: string, message: string) => new HarnessError(code, message);
+const denied = (code: string, message: string) => new HarnessError(toApiErrorCode(code), message);
 
 export class SecretReferenceLedger {
   private readonly entries = new Map<string, Entry>();

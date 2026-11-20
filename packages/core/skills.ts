@@ -1,6 +1,6 @@
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
-import {HarnessError} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode} from '../contracts/index.ts';
 import type {SkillActor,SkillChangeResult,SkillDetail,SkillOperation,SkillPage,SkillPolicy,SkillProposal,SkillProposalSummary,SkillSummary,SkillVersionSummary} from '../contracts/skills.ts';
 import {digest,type Store} from '../storage/store.ts';
 
@@ -19,7 +19,7 @@ const operationSchema=z.discriminatedUnion('action',[
 ]);
 const identity=z.string().min(1).max(200).regex(/^[^\u0000-\u001f\u007f-\u009f]+$/);
 const actorSchema=z.strictObject({kind:z.enum(['user','agent','curator']),threadId:identity.optional(),runId:identity.optional(),evidence:z.array(identity).max(8).optional()});
-const fail=(message:string,code='INVALID_SKILL'):never=>{throw new HarnessError(code,message);};
+const fail=(message:string,code='INVALID_SKILL'):never=>{throw new HarnessError(toApiErrorCode(code),message);};
 const at=(value?:string)=>{const date=value??new Date().toISOString();if(!Number.isFinite(Date.parse(date)))fail('Choose a valid skill timestamp.');return date;};
 function nameOf(value:string){if(!/^[a-z0-9][a-z0-9-]{0,63}$/.test(value)||unsafeKeys.has(value))fail('Choose a lowercase skill name of at most 64 letters, digits or dashes.');return value;}
 function text(value:unknown,label:string,max:number,empty=false){if(typeof value!=='string'||(!empty&&!value.trim())||Buffer.byteLength(value)>max||/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f-\u009f]/.test(value)||secret.test(value))fail(`Keep ${label} within its size limit and omit credentials or control characters.`);return value as string;}

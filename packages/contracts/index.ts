@@ -1,3 +1,5 @@
+import type { ApiErrorCode } from './errors.ts';
+
 export type TaskStatus = "ready" | "working" | "awaiting_input" | "stopped" | "interrupted" | "completed" | "failed";
 export interface ModelInfo { id: string; provider: string; name: string; thinkingLevels?: string[] }
 export interface Thread { id: string; title: string; projectName: string | null; createdAt: string; updatedAt: string; status: TaskStatus; epoch: number; runId: string | null; modelId: string | null; sessionPath: string | null; accountId?: string | null; mode?: 'plan' | 'build'; kind?:'main'|'side'|'delegate'; parentThreadId?:string;jobId?:string;projectId?:string;workspaceId?:string;sideParentId?:string; thinkingLevel?:string|null; error?: string | null; presentation?: { pinned?: boolean; unread?: boolean; settled?: boolean; order?: number } }
@@ -50,6 +52,7 @@ export interface RuntimeAdapter {
 }
 export interface Capability { name: string; category: string; description: string; props: Record<string, unknown>; example?: unknown }
 export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
-export class HarnessError extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
+export class HarnessError extends Error { constructor(public code: ApiErrorCode, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
+export * from "./errors.ts";
 export * from "./tool-effects.ts";
 export type * from "./request-context.ts";

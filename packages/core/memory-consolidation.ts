@@ -1,6 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import {
   PROJECT_MEMORY_LIMITS, memoryItemV1Schema, memoryRevisionRefSchema, memoryScopeSchema, memorySourceRefV1Schema, memoryTextSchema, memoryTombstoneV1Schema,
   type MemoryAccess, type MemoryItemV1, type MemoryRevisionRef, type MemorySourceRefV1, type MemorySourceSnapshot, type MemoryTombstoneV1,
@@ -13,7 +13,7 @@ const accessSchema = z.strictObject({ profileId: identity, ...memoryScopeSchema.
 const sourceLimit = PROJECT_MEMORY_LIMITS.sourceBytes;
 const tokenUsageSchema = z.strictObject({ inputTokens: z.number().int().nonnegative().nullable().optional(), outputTokens: z.number().int().nonnegative().nullable().optional(), cost: z.number().nonnegative().finite().nullable().optional() });
 const providerOutputSchema = z.strictObject({ refs: z.array(memoryRevisionRefSchema).max(PROJECT_MEMORY_LIMITS.items), usage: tokenUsageSchema.optional() });
-const fail = (message: string, code = 'INVALID_MEMORY_CONSOLIDATION'): never => { throw new HarnessError(code, message); };
+const fail = (message: string, code = 'INVALID_MEMORY_CONSOLIDATION'): never => { throw new HarnessError(toApiErrorCode(code), message); };
 const order = (a: string, b: string) => a < b ? -1 : a > b ? 1 : 0;
 const refOrder = (a: MemoryRevisionRef, b: MemoryRevisionRef) => order(a.itemId, b.itemId) || a.revision - b.revision;
 const bytes = (value: unknown) => Buffer.byteLength(JSON.stringify(value), 'utf8');

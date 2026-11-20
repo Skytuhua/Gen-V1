@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { HarnessError, type Operation, type Thread, type ToolCall } from "../contracts/index.ts";
+import { HarnessError, toApiErrorCode, type Operation, type Thread, type ToolCall } from "../contracts/index.ts";
 import {
   toolEffectSchema,
   authenticatedApprovalSchema,
@@ -351,7 +351,7 @@ export class ToolEffectLedger {
           throw new HarnessError("APPROVAL_REQUIRED", "This effect requires explicit user approval before dispatch", { effectId: prior.effectId });
         if (prior.state === "SUCCEEDED") return prior.outcome?.value;
         if (prior.state === "FAILED" || prior.state === "DENIED" || prior.state === "CANCELLED")
-          throw new HarnessError("EFFECT_" + prior.state, prior.outcome?.error ?? "This invocation already settled: " + prior.state);
+          throw new HarnessError(toApiErrorCode("EFFECT_" + prior.state), prior.outcome?.error ?? "This invocation already settled: " + prior.state);
         if (prior.state === "UNKNOWN_EXTERNAL_OUTCOME")
           throw new HarnessError("OPERATION_OUTCOME_UNKNOWN", "The previous identical invocation settled as uncertain; inspect it before retrying");
         throw new HarnessError("INVOCATION_IN_FLIGHT", "An identical invocation is already dispatched");
@@ -386,7 +386,7 @@ export class ToolEffectLedger {
   private settledOutcome(effect: ToolEffectRecord): unknown {
     if (effect.state === "SUCCEEDED") return effect.outcome?.value;
     if (effect.state === "DISPATCHED" || effect.state === "PREPARED") throw new HarnessError("INVOCATION_IN_FLIGHT", "An identical invocation is already dispatched");
-    throw new HarnessError("EFFECT_" + effect.state, effect.outcome?.error ?? "This invocation already settled: " + effect.state);
+    throw new HarnessError(toApiErrorCode("EFFECT_" + effect.state), effect.outcome?.error ?? "This invocation already settled: " + effect.state);
   }
 
   private recordTerminal(call: ToolCall, owner: ToolOwner, definition: RegistryEntry, state: EffectState, note: string): ToolEffectRecord {

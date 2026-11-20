@@ -4,7 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { createHash } from "node:crypto";
 import { readBoundFile, removeOwnedFile, withPathGuard } from "../core/file-access.ts";
-import { HarnessError } from "../contracts/index.ts";
+import { HarnessError, toApiErrorCode } from "../contracts/index.ts";
 import type { DomainContext } from "./index.ts";
 import type { DatabaseArgs } from "./schemas.ts";
 export function validateStatements(args: DatabaseArgs): void {
@@ -65,12 +65,12 @@ async function runWorker(job: Record<string, unknown>, ctx: DomainContext): Prom
       // Wait for termination so no SQLite work remains when the host records the outcome.
       void worker.terminate().then(() => error ? reject(error) : resolve(value!));
     };
-    const abort = () => finish(new HarnessError(job.mode === "execute" ? "OPERATION_OUTCOME_UNKNOWN" : "CANCELLED", "Database worker cancelled; committed outcome must be checked if cancellation raced COMMIT"));
-    const timer = setTimeout(() => finish(new HarnessError(job.mode === "execute" ? "OPERATION_OUTCOME_UNKNOWN" : "DATABASE_TIMEOUT", "Database worker exceeded 30 seconds; inspect the resource before retrying")), 30_000); timer.unref();
+    const abort = () => finish(new HarnessError(toApiErrorCode(job.mode === "execute" ? "OPERATION_OUTCOME_UNKNOWN" : "CANCELLED"), "Database worker cancelled; committed outcome must be checked if cancellation raced COMMIT"));
+    const timer = setTimeout(() => finish(new HarnessError(toApiErrorCode(job.mode === "execute" ? "OPERATION_OUTCOME_UNKNOWN" : "DATABASE_TIMEOUT"), "Database worker exceeded 30 seconds; inspect the resource before retrying")), 30_000); timer.unref();
     ctx.signal.addEventListener("abort", abort, { once: true });
     worker.on("message", message => {
       if (message.progress) ctx.progress(message.progress, message.counts);
-      else if (message.error) finish(new HarnessError(message.outcomeUnknown ? "OPERATION_OUTCOME_UNKNOWN" : "DATABASE_ERROR", message.error));
+      else if (message.error) finish(new HarnessError(toApiErrorCode(message.outcomeUnknown ? "OPERATION_OUTCOME_UNKNOWN" : "DATABASE_ERROR"), message.error));
       else if (message.result) finish(undefined, message.result);
     });
     worker.once("error", error => finish(error));

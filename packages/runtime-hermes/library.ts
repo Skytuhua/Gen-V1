@@ -1,4 +1,4 @@
-import {HarnessError,type CommandReceipt,type HostCommand} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode,type CommandReceipt,type HostCommand} from '../contracts/index.ts';
 import type {SkillActor,SkillChangeResult,SkillDetail,SkillOperation,SkillProposal,SkillSummary,SkillVersionSummary} from '../contracts/skills.ts';
 import {digest,type Store} from '../storage/store.ts';
 
@@ -13,7 +13,7 @@ interface Version {revision:number;at:string;actor:SkillActor;action:string;skil
 interface Expected {documentHash:string|null;fileHashes:Record<string,string>;enabled:boolean;protected:boolean;state:string;tip:string|null}
 interface Projection {name:string;fingerprint:string;sourceId?:string;expected:Expected}
 interface Intent {hash:string;state:'prepared'|'uncertain';method:string;params:Record<string,unknown>;at:string}
-const failure=(message:string,code='INVALID_SKILL'):never=>{throw new HarnessError(code,message);};
+const failure=(message:string,code='INVALID_SKILL'):never=>{throw new HarnessError(toApiErrorCode(code),message);};
 const checked=(value:unknown):Record<string,unknown>=>{
  if(!value||typeof value!=='object'||Array.isArray(value))return failure('Original Hermes returned an invalid write result.','HERMES_PROTOCOL');
  const result=value as Record<string,unknown>;

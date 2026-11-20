@@ -3,7 +3,7 @@ import {createHash, randomUUID} from 'node:crypto';
 import {closeSync, constants, fstatSync, lstatSync, openSync, readSync, realpathSync} from 'node:fs';
 import {readdir, stat} from 'node:fs/promises';
 import {join, resolve} from 'node:path';
-import {HarnessError, type ArtifactRecord, type CommandReceipt, type DataRecord, type HostCommand, type Message, type ResourceGrant, type Thread} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode, type ArtifactRecord, type CommandReceipt, type DataRecord, type HostCommand, type Message, type ResourceGrant, type Thread} from '../contracts/index.ts';
 import {WORKBENCH_LIMITS, logicalOwnerV1Schema, sameLogicalOwner, selectedSourceV1Schema, sourceCaptureRequestV1Schema, sourceDescribeRequestV1Schema, sourceOpenRequestV1Schema, sourceRefreshRequestV1Schema, sourceRefsV1Schema, outputReadRequestV1Schema, workbenchInputRecoveryRequestV1Schema, type CapturedSourceV1, type LogicalOwnerV1, type SelectedSourceV1, type SourceCandidateV1, type SourceCapabilityV1, type SourceDescriptorV1, type SourceLocatorV1, type SourceOpenV1, type SourceRefV1, type WorkbenchEvidenceItemV1, type WorkbenchModuleV1, type WorkbenchOutputReadV1, type WorkbenchInputsV1, type WorkbenchInputV1} from '../contracts/source-selection.ts';
 import {checkObservationV1Schema, visualObservationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1} from '../contracts/verification.ts';
 import type {RequestContextV1, RequestPreparationV1} from '../contracts/request-context.ts';
@@ -398,7 +398,7 @@ export class SourceWorkbench {
         return receipt;
       } catch (error) {
         const receipt = this.store.receipt(command); if (receipt) return receipt;
-        if (error instanceof HarnessError) throw new HarnessError(error.code, error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), recoveryAccepted: false});
+        if (error instanceof HarnessError) throw new HarnessError(toApiErrorCode(error.code), error.message, {...(error.details && typeof error.details === 'object' ? error.details : {}), recoveryAccepted: false});
         throw error;
       }
     });

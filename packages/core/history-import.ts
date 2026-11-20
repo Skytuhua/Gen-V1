@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import {
   ARCHIVE_V1_LIMITS,
   IMPORT_PREVIEW_HEURISTIC_NOTE,
@@ -26,7 +26,7 @@ import { digest, type Store } from '../storage/store.ts';
  * historical data only — it never dispatches tools, approvals, memory or
  * file effects. */
 
-const error = (code: string, message: string, details?: unknown) => new HarnessError(code, message, details);
+const error = (code: string, message: string, details?: unknown) => new HarnessError(toApiErrorCode(code), message, details);
 const formatError = (reason: string, detail: string) =>
   error('IMPORT_FORMAT_ERROR', `ArchiveV1 import rejected: ${detail}`, { reason });
 

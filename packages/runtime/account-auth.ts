@@ -1,4 +1,4 @@
-import { HarnessError } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode } from '../contracts/index.ts';
 import { isConnectionProviderId, isOfficialRuntimeProviderId } from '../contracts/connections.ts';
 import { isAccountId } from '../contracts/accounts.ts';
 import { unavailableIdentity, type AccountAuthStatus, type AccountAuthTarget } from '../contracts/authentication.ts';
@@ -73,7 +73,7 @@ export async function signOutAccount(store: Store, target: AccountAuthTarget, re
   if (!localSignout(target.providerId)) throw new HarnessError('ACCOUNT_SIGNOUT_UNSUPPORTED', 'This native provider does not expose a supported local sign-out operation. Use its official account controls.');
   const lease = beginAccountLogin(store, target.providerId, target.accountId);
   try { await withAccountProfile(store.dataDir, account, root => remove(root, target)); }
-  catch (error) { if (unconfirmed(error)) holdAccountLogin(store, lease); throw new HarnessError(unconfirmed(error) ? 'RUNTIME_TEARDOWN_FAILED' : 'ACCOUNT_SIGNOUT_FAILED', unconfirmed(error) ? 'Local sign-out shutdown could not be confirmed. This account remains blocked.' : 'The provider could not complete local sign-out. Retry after native work has stopped.'); }
+  catch (error) { if (unconfirmed(error)) holdAccountLogin(store, lease); throw new HarnessError(toApiErrorCode(unconfirmed(error) ? 'RUNTIME_TEARDOWN_FAILED' : 'ACCOUNT_SIGNOUT_FAILED'), unconfirmed(error) ? 'Local sign-out shutdown could not be confirmed. This account remains blocked.' : 'The provider could not complete local sign-out. Retry after native work has stopped.'); }
   finally { endAccountLogin(store, lease); }
   return { ...target, state: 'signed-out', identity: unavailableIdentity(), localSignout: true, lastCheckedAt: new Date().toISOString(), message: 'Local credentials removed. Remote sessions and provider grants were not revoked.' };
 }

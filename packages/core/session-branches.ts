@@ -1,5 +1,5 @@
 import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
-import { HarnessError, type Message, type Thread } from '../contracts/index.ts';
+import { HarnessError, toApiErrorCode, type Message, type Thread } from '../contracts/index.ts';
 import {
   SESSION_CAPTURE_LIMITS,
   adapterCapabilityV1Schema,
@@ -24,7 +24,7 @@ import type { ImportedConversationV1 } from '../contracts/session-branch.ts';
  * proves a tested native fork API. None of these paths replays tool calls,
  * restores approvals or changes files. */
 
-const error = (code: string, message: string, details?: unknown) => new HarnessError(code, message, details);
+const error = (code: string, message: string, details?: unknown) => new HarnessError(toApiErrorCode(code), message, details);
 
 /* ------------------------------------------------------------------ */
 /* Adapter capability matrix (M14-S01), tested against the actual       */

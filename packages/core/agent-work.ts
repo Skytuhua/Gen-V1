@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import Ajv from 'ajv';
 import {Store, digest} from '../storage/store.ts';
-import {HarnessError, type DataRecord, type ResourceGrant, type RunContext, type Thread, type ToolCall} from '../contracts/index.ts';
+import {HarnessError, toApiErrorCode, type DataRecord, type ResourceGrant, type RunContext, type Thread, type ToolCall} from '../contracts/index.ts';
 import type {CapabilityFlagKey} from './capability-flags.ts';
 import {AgentInbox} from './agent-inbox.ts';
 import {
@@ -131,7 +131,7 @@ export class AgentWorkCoordinator {
     const parentGrants = this.hooks.store.all<ResourceGrant>('resource', ctx.threadId);
     const selected = spec.grantSubset.map(id => {
       const grant = parentGrants.find(item => item.id === id);
-      if (!grant) throw new HarnessError(denyCode, `Grant ${id} is not a parent-thread resource`);
+      if (!grant) throw new HarnessError(toApiErrorCode(denyCode), `Grant ${id} is not a parent-thread resource`);
       return grant;
     });
     const readOnly = spec.role === 'PLAN_READ' || spec.role === 'RESEARCH_READ';
