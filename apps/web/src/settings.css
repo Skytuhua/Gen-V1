@@ -3,14 +3,14 @@
 .settings-dialog>.ui-modal-header h2 { font-size:14px;font-weight:550; }
 .settings-layout { display:grid;grid-template-columns:232px minmax(0,1fr);flex:1;min-height:0;height:100%;font-size:14px;line-height:1.5; }
 .settings-navigation { display:flex;flex-direction:column;min-height:0;min-width:0;padding:12px 10px;background:var(--sidebar);border-right:1px solid var(--border); }
-.settings-search { display:flex;align-items:center;gap:8px;padding:0 8px;margin:0 4px 8px;border:1px solid var(--border);border-radius:var(--control-radius,6px);color:var(--muted);background:var(--surface); }
+.settings-search { display:flex;align-items:center;gap:8px;padding:0 8px;margin:0 4px 8px;border:1px solid var(--control-border);border-radius:var(--control-radius,6px);color:var(--muted);background:var(--surface); }
 .settings-search svg { flex:none; }
 .settings-search input { min-width:0;width:100%;padding:6px 0;border:0;background:transparent;font-size:14px;outline:none; }
 .settings-search:focus-within { outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px; }
 .settings-navigation nav { display:flex;flex-direction:column;gap:4px;flex:1;min-height:0;overflow-y:auto;padding:4px;scrollbar-width:thin;scrollbar-color:var(--border) transparent; }
 .settings-navigation nav button { flex:none;min-height:36px;width:100%;padding:6px 10px;gap:9px;border-radius:var(--control-radius,6px);text-align:left;justify-content:flex-start;font-size:14px;line-height:1.4;color:var(--muted);overflow-wrap:anywhere; }
 .settings-navigation nav button:hover { color:var(--text);background:var(--hover); }
-.settings-navigation nav button.selected { color:var(--selection-ink);background:var(--selection-bg);box-shadow:inset 0 0 0 1px var(--selection-border);font-weight:600; }
+.settings-navigation nav button.selected { color:var(--selection-ink);background:var(--selection-bg);box-shadow:inset 0 0 0 1px var(--text);font-weight:600; }
 .settings-navigation nav button:focus-visible { outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px; }
 .settings-content { min-width:0;overflow-y:auto;padding:18px 20px 24px;scrollbar-width:thin;scrollbar-color:var(--border) transparent; }
 .settings-page-heading { display:flex;align-items:flex-start;gap:10px;min-height:32px;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--border); }
@@ -31,11 +31,11 @@
 .settings-nav-group h2 { margin:6px 10px 4px;font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--muted); }
 .settings-nav-group:first-child h2 { margin-top:0; }
 .settings-results { display:flex;flex-direction:column;gap:4px;padding:8px 0; }
-.settings-result { display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:10px 12px;border-radius:var(--control-radius,6px);text-align:left;background:var(--surface);border:1px solid var(--border); }
+.settings-result { display:flex;flex-direction:column;align-items:flex-start;gap:2px;width:100%;padding:10px 12px;border-radius:var(--control-radius,6px);text-align:left;background:var(--surface);border:1px solid var(--control-border); }
 .settings-result:hover { background:var(--hover); }
 .settings-result:focus-visible { outline:2px solid var(--ui-focus-ring,#808080);outline-offset:-2px; }
 .settings-result strong { font-size:13px;font-weight:550;color:var(--text); }
-.settings-switch { display:inline-flex;align-items:center;justify-content:flex-start;width:36px;min-height:24px;padding:3px;background:var(--hover);border:1px solid var(--border);border-radius:20px; }
+.settings-switch { display:inline-flex;align-items:center;justify-content:flex-start;width:36px;min-height:24px;padding:3px;background:var(--hover);border:1px solid var(--control-border);border-radius:20px; }
 .settings-switch>span { width:16px;height:16px;flex:none;border-radius:50%;background:var(--muted);transition:transform var(--ui-motion-hover) var(--ui-ease-enter); }
 .settings-switch[aria-checked=true] { background:var(--accent-solid,var(--accent));border-color:var(--accent-solid,var(--accent)); }
 .settings-switch[aria-checked=true]>span { background:var(--accent-ink,#fff);transform:translateX(12px); }

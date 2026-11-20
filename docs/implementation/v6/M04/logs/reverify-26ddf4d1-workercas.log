@@ -1,0 +1,6 @@
+test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest (__main__.WorkerFixture.test_source_cut_cas_rejects_stale_compact_and_applies_matching_digest) ... ok
+
+----------------------------------------------------------------------
+Ran 1 test in 3.293s
+
+OK
