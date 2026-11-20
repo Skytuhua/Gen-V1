@@ -1,4 +1,4 @@
-import {useEffect,useId,useRef,useState} from 'react';
+import {useEffect,useId,useRef,useState,type Ref} from 'react';
 import {ArrowUp,Check,ChevronDown,Image,LoaderCircle,MessageSquareMore,Plus,X} from 'lucide-react';
 import type {ResourceGrant} from '../../../packages/contracts';
 import {PlanningQuestionSchema,type PlanningQuestionDefinition} from '../../../packages/contracts/planning-question';
@@ -8,6 +8,15 @@ import './planning-question.css';
 export type PlanningDetailKind='explain'|'examples';
 export type PlanningPending={optionId?:string;kind:PlanningDetailKind|'more-options'};
 export type PlanningQuestionProps=PlanningQuestionDefinition&{id:string;revision:number;title:string;prompt?:string;value:string;onChange:(value:string)=>void;resources:ResourceGrant[];onExplain?:(optionId:string,kind:PlanningDetailKind)=>Promise<void>;onMoreOptions?:()=>Promise<void>;onSubmit:()=>Promise<void>;busy?:boolean;error?:string;pending?:PlanningPending};
+export function PlanningAnswerReceipt({title,prompt,answer,state,transition=false,headingRef}:{title:string;prompt?:string;answer:string|null;state:'submitted'|'accepted';transition?:boolean;headingRef?:Ref<HTMLHeadingElement>}){
+  const selfRef=useRef<HTMLHeadingElement>(null),merged=(node:HTMLHeadingElement|null)=>{selfRef.current=node;if(typeof headingRef==='function')headingRef(node);else if(headingRef)headingRef.current=node;};
+  useEffect(()=>{if(transition)selfRef.current?.setAttribute('data-enter','true');},[transition]);
+  return <section className="planning-receipt" data-state={state} aria-label={title}>
+    <header className="planning-receipt-header"><Check className="planning-receipt-mark" size={14} aria-hidden="true"/><h3 ref={merged} tabIndex={-1}>{title}</h3><span className="planning-receipt-state" role="status">{state==='accepted'?'Answer accepted':'Submitted'}</span></header>
+    {prompt&&prompt.trim()&&prompt.trim()!==title.trim()&&<Markdown text={prompt}/>}
+    <p className="planning-receipt-answer">{answer&&answer.trim()?answer:'Response unavailable'}</p>
+  </section>;
+}
 export function PlanningQuestion({id,revision,title,prompt,options,allowCustom,value,onChange,resources,onExplain,onMoreOptions,onSubmit,busy=false,error,pending}:PlanningQuestionProps){
   const group=useId(),customInput=useRef<HTMLInputElement>(null),composing=useRef(false),operation=useRef(false),submitting=useRef(false);
   const [expanded,setExpanded]=useState<Record<string,PlanningDetailKind|undefined>>({}),[custom,setCustom]=useState(false),[localPending,setLocalPending]=useState<PlanningPending|undefined>(undefined),[localError,setLocalError]=useState('');

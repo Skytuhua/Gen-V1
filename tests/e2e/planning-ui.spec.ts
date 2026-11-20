@@ -39,6 +39,27 @@ test('planning option explanations request Pi once and retain selection through 
   await request.getByRole('button',{name:'Continue',exact:true}).click();await expect.poll(()=>host.commands.filter(command=>command.type==='request.respond').length).toBe(1);expect(host.commands.find(command=>command.type==='request.respond')?.payload.response).toBe('focused');
 });
 
+test('an accepted planning request leaves a receipt bound to the original request',async({page})=>{
+  const snapshot=fixture();question(snapshot);
+  const host=await serveTaskFixture(page,snapshot);await page.goto('/');
+  await page.getByRole('radio',{name:'Focused repair',exact:true}).check();
+  await page.getByRole('button',{name:'Continue',exact:true}).click();
+  // Command acknowledged while the published snapshot still shows pending: the
+  // receipt shows the exact submitted choice and no duplicate submit is offered.
+  await expect(page.getByText('Submitted',{exact:true})).toBeVisible();
+  await expect(page.getByText('Focused repair',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Continue',exact:true})).toHaveCount(0);
+  const request=snapshot.requests[0];request.status='accepted';request.revision++;request.response='focused';await host.publish();
+  await expect(page.getByText('Answer accepted',{exact:true})).toBeVisible();
+  await expect(page.getByText('Focused repair',{exact:true})).toBeVisible();
+  await expect(page.getByRole('button',{name:'Continue',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('button',{name:'Withdraw',exact:true})).toHaveCount(0);
+  expect(host.commands.filter(command=>command.type==='request.respond')).toHaveLength(1);
+  // The authoritative receipt survives a reload and stays in its own thread.
+  await page.reload();
+  await expect(page.getByText('Answer accepted',{exact:true})).toBeVisible();
+});
+
 test('existing explanations and examples open locally while More options is a durable request',async({page})=>{
   const snapshot=fixture();question(snapshot);const host=await serveTaskFixture(page,snapshot);await page.goto('/');const request=page.getByRole('region',{name:'Which repair should we explore?',exact:true});
   await request.getByRole('button',{name:'Explain Broader cleanup',exact:true}).click();await expect(request.getByText('This includes the validation path and its shared tests.',{exact:true})).toBeVisible();

@@ -42,3 +42,14 @@
 @keyframes planning-pending-turn {to {transform:rotate(360deg);}}
 @media(max-width:520px) {.planning-option-choice {padding:12px 11px 8px;gap:8px;}.planning-option-tools {padding:0 11px 10px 33px;gap:14px;}.planning-option-detail>.task-motion-inner {padding:0 11px 12px 33px;}.planning-question-header h3 {font-size:15px;}.planning-question-actions {gap:8px;}}
 @media(prefers-reduced-motion:reduce) {.planning-choice-check {transform:none;transition-property:opacity;transition-duration:70ms;}.planning-option-tools button>svg:last-child {transition:none;}.planning-question-pending>svg,.planning-pending-icon {animation:none;}}
+.planning-receipt{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--ui-border,rgba(128,128,128,.28));border-radius:10px;font:inherit}
+.planning-receipt-header{display:flex;align-items:center;gap:8px}
+.planning-receipt-header h3{margin:0;font-size:inherit;font-weight:600;outline:none}
+.planning-receipt-mark{width:14px;height:14px;flex:none;color:var(--ui-accent,#4a8)}
+.planning-receipt-state{margin-left:auto;font-size:.82em;color:var(--ui-fg-muted,rgba(128,128,128,.9));white-space:nowrap}
+.planning-receipt p{margin:0}
+.planning-receipt .planning-receipt-answer{white-space:pre-wrap;overflow-wrap:anywhere}
+.planning-receipt[data-state="accepted"] .planning-receipt-answer{font-weight:450}
+@media(prefers-reduced-motion:no-preference){.planning-receipt[data-enter] .planning-receipt-mark{animation:planning-receipt-check var(--ui-motion-hover) var(--ui-ease-enter,ease-out)}.planning-receipt[data-enter] .planning-receipt-state{animation:planning-receipt-state var(--ui-motion-status) var(--ui-ease-enter,ease-out)}}
+@keyframes planning-receipt-check{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:none}}
+@keyframes planning-receipt-state{from{opacity:0}to{opacity:1}}

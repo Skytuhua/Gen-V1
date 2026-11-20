@@ -35,7 +35,7 @@ import './shell.css';
 import './connections.css';
 import { ContextInspector } from './ContextInspector';
 import {useProjectMemoryPreparation} from './useProjectMemoryPreparation';
-import {PlanningQuestion} from './PlanningQuestion';
+import {PlanningQuestion,PlanningAnswerReceipt} from './PlanningQuestion';
 import {UsageFooter} from './UsageFooter';
 import {UsageDialog} from './UsageDialog';
 import {runtimeUsageReport} from './usage-presentation';
@@ -145,7 +145,12 @@ const AssistantProse = memo(function AssistantProse({message,arrivals,active}:{m
   const initial=useRef(arrivals.has(message.id));useEffect(()=>{arrivals.delete(message.id);},[message.id,arrivals]);
   return <Markdown text={message.content} animate={active||initial.current} initialReveal={initial.current}/>;
 }, (previous, next) => previous.message === next.message && previous.arrivals === next.arrivals && previous.active === next.active);
+const visibleInputRequest = (item: InputRequest, threadId: string | undefined) => item.threadId === threadId && (item.status === 'pending' || (item.status === 'accepted' && Boolean(item.presentation)));
 function InputDecision({ request, refresh, snapshot }: { request: InputRequest; refresh: () => Promise<void>; snapshot:Snapshot }) {
+  const [submitted, setSubmitted] = useState<{ threadId: string; id: string; revision: number; response: unknown } | null>(null);
+  const [ackRefreshError, setAckRefreshError] = useState(false);
+  const generation = useRef(0), root = useRef<HTMLDivElement>(null), receiptHeading = useRef<HTMLHeadingElement>(null), wasPending = useRef(false);
+  useEffect(() => () => { generation.current += 1; }, []);
   const defaults = schemaDefaults(request.responseSchema);
   const [values, setValues] = useState<Record<string, unknown>>(() => defaults && typeof defaults === 'object' ? defaults as Record<string, unknown> : {});
   const [text, setText] = useState<unknown>(() => defaults ?? '');
@@ -173,11 +178,41 @@ function InputDecision({ request, refresh, snapshot }: { request: InputRequest; 
     try {
       const response = objectSchema ? values : text;
       if (!withdraw && !validateSchema(request.responseSchema, response, false)) throw new Error('The response does not match the requested schema. Check the required fields and values.');
-      await command(withdraw ? 'request.withdraw' : 'request.respond', { requestId: request.id, revision: request.revision, ...(!withdraw ? { response } : {}) }, request.threadId); await journalCompareAndSwap(key, version, null); await refresh();
+      const result = await command(withdraw ? 'request.withdraw' : 'request.respond', { requestId: request.id, revision: request.revision, ...(!withdraw ? { response } : {}) }, request.threadId);
+      // Command acknowledged — the pending body is now inert. Record the exact
+      // submitted value before any follow-up so a failed refresh cannot erase it.
+      const submission = { generation: generation.current };
+      if (!withdraw && generation.current === submission.generation) {
+        const ack = (result?.result as { request?: InputRequest } | undefined)?.request;
+        if (!ack || (ack.id === request.id && ack.threadId === request.threadId)) setSubmitted({ threadId: request.threadId, id: request.id, revision: ack?.revision ?? request.revision + 1, response });
+        setAckRefreshError(false);
+      }
+      await journalCompareAndSwap(key, version, null);
+      try { await refresh(); } catch { if (!withdraw && generation.current === submission.generation) setAckRefreshError(true); }
     } catch (error) { setError(messageOf(error)); } finally { setBusy(false); }
   };
   const detail=async(kind:'explain'|'examples'|'more-options',optionId?:string)=>{setError('');try{await command('request.detail',{requestId:request.id,revision:request.revision,kind,...(optionId?{optionId}:{})},request.threadId);await refresh();}catch(cause){setError(messageOf(cause));throw cause;}};
-  if(request.presentation)return <div className="decision"><PlanningQuestion id={request.id} revision={request.revision} title={request.title} prompt={request.prompt} {...request.presentation} value={typeof text==='string'?text:''} onChange={update} resources={snapshot.resources.filter(item=>item.threadId===request.threadId)} onExplain={(optionId,kind)=>detail(kind,optionId)} onMoreOptions={()=>detail('more-options')} onSubmit={()=>respond()} busy={busy||!ready} error={error||request.detailRequests?.find(detail=>detail.status==="failed")?.error} pending={request.detailRequests?.find(item=>item.status==='pending')} /><button className="quiet" disabled={busy||!ready} onClick={()=>void respond(true)}>Withdraw</button></div>;
+  const receiptShown = Boolean(request.presentation) && (request.status === 'accepted' || Boolean(submitted));
+  useLayoutEffect(() => {
+    const pending = Boolean(request.presentation) && request.status === 'pending' && !submitted;
+    if (pending) wasPending.current = true;
+    if (receiptShown && wasPending.current && root.current?.contains(document.activeElement)) receiptHeading.current?.focus({ preventScroll: true });
+  }, [receiptShown, submitted, request.status, request.presentation]);
+  if(request.presentation){
+    const answerFor = (response: unknown) => {
+      if (typeof response !== 'string' || !response) return null;
+      const option = (request.presentation?.options ?? []).find(option => option.id === response);
+      return option ? option.label : response;
+    };
+    if (request.status === 'accepted') {
+      const answer = answerFor(request.response);
+      return <div ref={root} className="decision"><PlanningAnswerReceipt title={request.title} prompt={request.prompt} answer={answer || null} state="accepted" transition={wasPending.current} headingRef={receiptHeading} /></div>;
+    }
+    if (submitted && submitted.threadId === request.threadId && submitted.id === request.id) {
+      return <div ref={root} className="decision"><PlanningAnswerReceipt title={request.title} prompt={request.prompt} answer={answerFor(submitted.response)} state="submitted" transition headingRef={receiptHeading} />{ackRefreshError && <button className="quiet" type="button" onClick={() => { setAckRefreshError(false); void refresh().catch(() => setAckRefreshError(true)); }}>Refresh status</button>}</div>;
+    }
+    return <div ref={root} className="decision"><PlanningQuestion key={JSON.stringify(request.responseSchema)} id={request.id} revision={request.revision} title={request.title} prompt={request.prompt} {...request.presentation} value={typeof text==='string'?text:''} onChange={update} resources={snapshot.resources.filter(item=>item.threadId===request.threadId)} onExplain={(optionId,kind)=>detail(kind,optionId)} onMoreOptions={()=>detail('more-options')} onSubmit={()=>respond()} busy={busy||!ready} error={error||request.detailRequests?.find(detail=>detail.status==="failed")?.error} pending={request.detailRequests?.find(item=>item.status==='pending')} /><button className="quiet" disabled={busy||!ready} onClick={()=>void respond(true)}>Withdraw</button></div>;
+  }
   return <section className="decision" aria-label={request.title}><header><span className="pending-dot" />{request.title}<span className="badge">Your input</span></header><Markdown text={request.prompt} /><form onSubmit={event => { event.preventDefault(); void respond(); }}><fieldset disabled={busy || !ready}>{objectSchema ? <SchemaFields schema={request.responseSchema} value={values} onChange={update} /> : <SchemaFields schema={{ type: 'object', properties: { response: { ...request.responseSchema, title: 'Response' } }, required: ['response'] }} value={{ response: text }} onChange={value => update(value.response)} />}</fieldset>{error && <p role="status" className="error-text">{error}</p>}<div className="decision-actions"><button type="button" className="quiet" disabled={busy || !ready} onClick={() => void respond(true)}>Withdraw</button><button className="primary" disabled={busy || !ready}>{busy ? 'Submitting…' : 'Continue'}<ArrowUp size={14} /></button></div></form></section>;
 }
 /** M02 action details drawer: ledger view of one invocation. Uncertain states
@@ -806,7 +841,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const activeHistoryStart=historyStarts.current.get(activeHistoryId)??Math.max(0,activeOlder.length+messages.length-100);
   const activeHistoryControl=useRef<HTMLButtonElement>(null);
   const canLoadActiveHistory=Boolean(thread&&canLoadConversationHistory(activeHistoryStart,snapshot.messagesTruncated?.[activeHistoryId]??0,activeOlder.length));
-  const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
+  const requests = snapshot.requests.filter(item => visibleInputRequest(item, thread?.id));
   useLayoutEffect(() => {
     const element = conversation.current;
     if (!element || !loaded) return;
@@ -1158,7 +1193,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         const thread = panelThread;
         const messages = snapshot.messages.filter(item => item.threadId === thread?.id);
         const artifacts = snapshot.artifacts.filter(item => item.threadId === thread?.id && item.lifecycle === 'active');
-        const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
+        const requests = snapshot.requests.filter(item => visibleInputRequest(item, thread?.id));
         const operations = snapshot.operations.filter(item => item.threadId === thread?.id);
         const historyId = thread?.id ?? 'new';
         const present = new Set(messages.map(message => message.id));
@@ -1177,7 +1212,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         {canLoadHistory && <button ref={historyId===activeHistoryId?activeHistoryControl:undefined} className="load-history quiet" onClick={() => { if (historyStart > 0) { captureHistoryAnchor(historyId); historyStarts.current.set(historyId, Math.max(0, historyStart - 100)); setHistoryCounts(previous => ({ ...previous, [historyId]: (previous[historyId] ?? 0) + 1 })); } else if (thread?.id) { const topId = allMessages[historyStart]?.id; const stored = olderMessages.current.get(historyId) ?? [], head = messages[0]?.id; const anchor = stored.length && lastWindowHeads.current.get(historyId) === head ? stored[0].id : head; lastWindowHeads.current.set(historyId, head); void getThreadMessages(thread.id, anchor).then(page => { const known = new Set(stored.map(item => item.id)), fresh = page.messages.filter(item => !known.has(item.id)); const merged = [...stored, ...fresh].sort((a, b) => a.createdAt.localeCompare(b.createdAt)); olderMessages.current.set(historyId, merged); while (olderMessages.current.size > 8) { const stale = [...olderMessages.current.keys()].find(key => key !== historyId); if (stale === undefined) break; olderMessages.current.delete(stale); lastWindowHeads.current.delete(stale); historyStarts.current.delete(stale); readingPositions.current.delete(stale); } const topIndex = merged.findIndex(item => item.id === topId); historyStarts.current.set(historyId, Math.max(0, (topIndex === -1 ? merged.length : topIndex) - 100)); captureHistoryAnchor(historyId); setOlderPageTick(value => value + 1); }).catch(cause => setError(messageOf(cause))); } }}>Load earlier messages</button>}
         {messageRows.map(({ message, updates }) => <div key={message.id} data-message-id={message.id} data-arrival={liveMessages.current.has(message.id)?'true':undefined} className={`message message-${message.role}`}><span className="sr-only">{message.role === 'user' ? 'You' : message.role === 'assistant' ? 'Assistant' : 'Tool'}</span><div className="message-content">{updates ? <WorkActivity updates={updates} /> : message.role==='assistant'?<SourceMessage id={message.id} threadId={message.threadId} text={message.content}><AssistantProse message={message} arrivals={liveMessages.current} active={Boolean(thread?.runId&&thread.runId===message.runId)} /></SourceMessage>:<Markdown text={message.content} />}{!updates&&<CopyButton text={message.content} label="Copy message"/>}</div>{artifacts.filter(artifact => artifact.messageId === message.id).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}</div>)}
         {artifacts.filter(artifact => !messages.some(message => message.id === artifact.messageId)).map(artifact => <Artifact key={artifact.id} artifact={artifact} snapshot={snapshot} theme={theme} refresh={refresh} onDirtyWidget={onDirtyWidget} suspended={threadHeld} active={thread?.id===resolvedMainId} animateEntry={liveEntries.current.has(artifact.id)} />)}
-        {requests.map(request => <InputDecision key={request.presentation?`${request.id}:${JSON.stringify(request.responseSchema)}`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} owner={thread} />)}
+        {requests.map(request => <InputDecision key={request.presentation?`${request.threadId}:${request.id}:planning`:`${request.id}:${request.revision}`} request={request} snapshot={snapshot} refresh={refresh} />)}{operations.map(operation => <OperationDecision key={`${operation.id}:${operation.revision}`} operation={operation} refresh={refresh} owner={thread} />)}
         {thread?.error && <p className="notice" role="status">{thread.error}</p>}
         {thread && (thread.runId || thread.status === 'working') && <div className="working-status" role="status"><LoaderCircle size={13} className="spinning" /><span>{({queued:'Queued for account…',starting:'Starting runtime…',generating:'Generating…',tool:'Running tool…',cleanup:'Cleaning up…',compacting:'Compacting context…'} as Record<string,string>)[snapshot.usage[thread.id]?.activity ?? ''] ?? 'Working…'}</span><button className="quiet" onClick={() => void stopConversation(thread, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error)))}>Stop</button></div>}
       </div></div>; })}</div></div>
