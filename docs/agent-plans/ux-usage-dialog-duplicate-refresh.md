@@ -4,6 +4,8 @@
 - Feature: Usage dialog empty state
 - Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Issue: https://github.com/skytuhua-org/Gen-V1/issues/1137
+- Parent audit issue: https://github.com/skytuhua-org/Gen-V1/issues/1140
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
 
@@ -29,11 +31,14 @@ The Usage dialog renders a "Refresh" button in its header and a second identical
 - Dialog chrome unchanged: `.dialog` width 440px, `max-width:calc(100vw - 32px)`, padding 22px, `border:1px solid var(--border)`, `border-radius:16px`, `background:var(--surface)`, `box-shadow:var(--elevation)`.
 
 ## DESIGN
-When usage data is empty, hide the header Refresh (or render only the centered empty-state action). One-line conditional; no new components unless an EmptyState helper already exists — then use it.
+Implement exactly the DESIGN SPEC decision: header Refresh is the single control in every state; the empty state shows icon + message + hint only. One-line conditional on the empty-state body; no new components unless an EmptyState helper already exists — then use it.
 
 ## EXECUTION_DAG
 - T01: Conditional-render so only one Refresh shows in empty state. done-when: DOM contains one button named Refresh in empty state and one in populated state.
 - T02: Screenshot empty + populated states.
+
+
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
 
 ## VALIDATION
 - Fixture: open Usage from sidebar; confirm one Refresh in empty state.
@@ -44,4 +49,5 @@ When usage data is empty, hide the header Refresh (or render only the centered e
 - Researched: ss_a0a27405.png. Implemented: nothing. Next: T01.
 
 ## REFERENCES
+- Canonical issue: https://github.com/skytuhua-org/Gen-V1/issues/1137 ; audit evidence (screenshots, DOM dumps) is recorded in the audit session https://app.devin.ai/sessions/fdeae51a36244c48af3f43ff6dc04059 and summarized in parent issue #1140.
 - Audit screenshot: ss_a0a27405.png (Usage dialog with two Refresh buttons).

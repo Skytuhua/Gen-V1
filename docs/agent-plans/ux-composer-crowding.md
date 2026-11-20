@@ -4,6 +4,8 @@
 - Feature: Composer toolbar density/overflow
 - Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Issue: https://github.com/skytuhua-org/Gen-V1/issues/1132
+- Parent audit issue: https://github.com/skytuhua-org/Gen-V1/issues/1140
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
 
@@ -47,6 +49,9 @@ Add an overflow group: when `composer` width < breakpoint, render Changes/Create
 - T03: Keyboard/focus pass — opening menu, arrowing items, Esc returns focus.
 - T04: Screenshots at 1280/900/700/500px before/after.
 
+
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
+
 ## VALIDATION
 - Fixture at 4 viewport widths; count visible rows; verify menu items still work.
 - Tab order check; axe pass if a runner exists.
@@ -56,4 +61,5 @@ Add an overflow group: when `composer` width < breakpoint, render Changes/Create
 - Researched: ss_76f7d0be.png + narrow screenshots. Implemented: nothing. Next: T01.
 
 ## REFERENCES
+- Canonical issue: https://github.com/skytuhua-org/Gen-V1/issues/1132 ; audit evidence (screenshots, DOM dumps) is recorded in the audit session https://app.devin.ai/sessions/fdeae51a36244c48af3f43ff6dc04059 and summarized in parent issue #1140.
 - Audit screenshots: ss_76f7d0be.png, /tmp/audit/09-narrow-700.png, /tmp/audit/10-narrow-500.png.

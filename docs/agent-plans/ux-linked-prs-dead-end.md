@@ -4,6 +4,8 @@
 - Feature: Linked PRs panel empty/disconnected state UX
 - Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Issue: https://github.com/skytuhua-org/Gen-V1/issues/1131
+- Parent audit issue: https://github.com/skytuhua-org/Gen-V1/issues/1140
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
 
@@ -50,6 +52,9 @@ Make the notice a `ConnectFolderNotice` component (message + primary "Connect fo
 - T03: Disabled-reason tooltip on New draft PR (+ Link button if it needs a folder too). done-when: hover/focus reveals why.
 - T04: Screenshots before/after on :4317 fixture; run related tests.
 
+
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
+
 ## VALIDATION
 - Fixture: open Linked pull requests and Project overview; click the notice → connect flow opens; New draft PR explains itself; no red styling remains.
 - Keyboard: notice reachable by Tab, activates with Enter.
@@ -59,4 +64,5 @@ Make the notice a `ConnectFolderNotice` component (message + primary "Connect fo
 - Researched: DOM + screenshots ss_ff37eacc.png, audit-05. Decided above. Implemented: nothing. Next: T01.
 
 ## REFERENCES
+- Canonical issue: https://github.com/skytuhua-org/Gen-V1/issues/1131 ; audit evidence (screenshots, DOM dumps) is recorded in the audit session https://app.devin.ai/sessions/fdeae51a36244c48af3f43ff6dc04059 and summarized in parent issue #1140.
 - Audit screenshots: ss_ff37eacc.png (PRs panel), /tmp/audit/05-project-overview.png (duplicate red text).

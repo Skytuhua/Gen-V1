@@ -4,6 +4,8 @@
 - Feature: Appearance — Light theme application
 - Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Issue: https://github.com/skytuhua-org/Gen-V1/issues/1134
+- Parent audit issue: https://github.com/skytuhua-org/Gen-V1/issues/1140
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317 (review-host fixture)
 
@@ -45,6 +47,9 @@ Root cause first (discovery task): either (a) the select writes state but nothin
 - T03: Check contrast on the light set (text, red "connect folder" text, accents) — adjust tokens that fail.
 - T04: Screenshots light + dark; regression check that Dark still works.
 
+
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
+
 ## VALIDATION
 - Fixture: switch theme to Light → UI lightens; reload keeps it; System follows emulated `prefers-color-scheme` (Playwright `emulateMedia`).
 - Existing appearance tests updated/added if present.
@@ -54,4 +59,5 @@ Root cause first (discovery task): either (a) the select writes state but nothin
 - Researched: /tmp/audit/13-light-theme-settings.png + 14-light-theme-app.png (Theme=Light, UI still dark). Implemented: nothing. Next: T01.
 
 ## REFERENCES
+- Canonical issue: https://github.com/skytuhua-org/Gen-V1/issues/1134 ; audit evidence (screenshots, DOM dumps) is recorded in the audit session https://app.devin.ai/sessions/fdeae51a36244c48af3f43ff6dc04059 and summarized in parent issue #1140.
 - Audit screenshots 13/14; AppearanceSettings.tsx.

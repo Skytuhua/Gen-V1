@@ -4,6 +4,8 @@
 - Feature: Model picker popover positioning
 - Repo: skytuhua-org/Gen-V1 — plan rev 2, 2026-11-20 (design fully specified — implementer makes no design choices)
 - Baseline: main @ f8e9a8314fea0dc7bb1ab5d59bfe741f7083273e
+- Issue: https://github.com/skytuhua-org/Gen-V1/issues/1135
+- Parent audit issue: https://github.com/skytuhua-org/Gen-V1/issues/1140
 - Status: planning complete, implementation NOT started
 - Source: manual UX audit of built app on :4317
 
@@ -31,13 +33,16 @@ Opening the model picker renders a wide popover whose left edge extends past the
 - Verify at 1280px (sidebar open), 900px, 700px (drawer sidebar), 500px — popover never covers `.sidebar`.
 
 ## DESIGN
-Anchor the popover to the trigger button with collision-aware positioning (flip/shift) bounded to the chat column, or set `min()`-clamped width and right-align to trigger. If a shared popover primitive exists, fix collision padding there so all users benefit.
+Implement exactly the DESIGN SPEC: right-anchor to the trigger, open upward, clamp left edge to the chat column (no flip). If a shared popover primitive exists, implement the collision clamp there so all users benefit; otherwise apply it in ModelPicker.
 
 ## EXECUTION_DAG
 - T01: Find popover positioning code in ModelPicker/shared primitive. done-when: root positioning logic identified.
 - T02: Add boundary clamp or right-anchored placement. done-when: popover left edge ≥ sidebar right edge at 900/1280px.
 - T03: Verify no regression in narrow layout (700px, 500px) and when sidebar is collapsed.
 - T04: Screenshots before/after.
+
+
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
 
 ## VALIDATION
 - Fixture: open model picker at 1280px and 900px viewport; left edge must not cross the sidebar boundary.
@@ -48,4 +53,5 @@ Anchor the popover to the trigger button with collision-aware positioning (flip/
 - Researched: ss_e59042e2.png (overlap visible). Implemented: nothing. Next: T01.
 
 ## REFERENCES
+- Canonical issue: https://github.com/skytuhua-org/Gen-V1/issues/1135 ; audit evidence (screenshots, DOM dumps) is recorded in the audit session https://app.devin.ai/sessions/fdeae51a36244c48af3f43ff6dc04059 and summarized in parent issue #1140.
 - Audit screenshot: ss_e59042e2.png.
