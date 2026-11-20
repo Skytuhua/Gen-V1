@@ -3,11 +3,11 @@ import { z } from "zod";
 /** M02 execution-ledger contracts: one authority, a recoverable ToolEffect
  * ledger and single-use approvals. Append-only transitions are retained on the
  * record; the store's own event log is the durability boundary. */
-export const toolRiskSchema = z.enum(["READ", "WORKSPACE_WRITE", "HOST_EXECUTE", "NETWORK_WRITE"]);
+const toolRiskSchema = z.enum(["READ", "WORKSPACE_WRITE", "HOST_EXECUTE", "NETWORK_WRITE"]);
 export type ToolRisk = z.infer<typeof toolRiskSchema>;
-export const replayClassSchema = z.enum(["READ_RETRYABLE", "PROVIDER_IDEMPOTENT", "PROCESS_BOUND", "NONREPLAYABLE"]);
+const replayClassSchema = z.enum(["READ_RETRYABLE", "PROVIDER_IDEMPOTENT", "PROCESS_BOUND", "NONREPLAYABLE"]);
 export type ReplayClass = z.infer<typeof replayClassSchema>;
-export const effectStateSchema = z.enum(["PREPARED", "DISPATCHED", "SUCCEEDED", "FAILED", "CANCELLED", "DENIED", "UNKNOWN_EXTERNAL_OUTCOME"]);
+const effectStateSchema = z.enum(["PREPARED", "DISPATCHED", "SUCCEEDED", "FAILED", "CANCELLED", "DENIED", "UNKNOWN_EXTERNAL_OUTCOME"]);
 export type EffectState = z.infer<typeof effectStateSchema>;
 export const actorRoleSchema = z.enum(["user", "run", "planning_child", "learning", "side"]);
 export type ActorRole = z.infer<typeof actorRoleSchema>;
@@ -52,9 +52,9 @@ export const toolEffectSchema = z.strictObject({
   createdAt: z.string(),
   updatedAt: z.string(),
 });
-export type ToolEffectV1 = z.infer<typeof toolEffectSchema>;
+type ToolEffectV1 = z.infer<typeof toolEffectSchema>;
 
-export const hostApprovalAuthenticatorSchema = z.strictObject({
+const hostApprovalAuthenticatorSchema = z.strictObject({
   version: z.literal(1),
   keyId: z.string().uuid(),
   tag: z.string().regex(/^v1:[a-f0-9-]{36}:[a-f0-9]{64}$/),

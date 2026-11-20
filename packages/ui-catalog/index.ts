@@ -59,7 +59,7 @@ const schemas = {
     try { const url = new URL(s); return ["http:", "https:"].includes(url.protocol) && !url.username && !url.password && !/[\u0000-\u0020\\]/.test(s); } catch { return false; }
   }, "Only safe HTTP(S) image URLs are allowed").optional(), resourceId: opaqueId.optional(), alt: text }),
 } satisfies Record<string, z.ZodType>;
-export type ComponentName = keyof typeof schemas;
+type ComponentName = keyof typeof schemas;
 const examples: Record<ComponentName, Record<string, unknown>> = {
   ...WORKFLOW_EXAMPLES,
   ...DOCUMENT_EXAMPLES,

@@ -817,4 +817,66 @@ describe("M10 v6 completeness regressions", () => {
       await waitFor(() => f.coordinator.exitReceipt(work.workId) !== null);
     }
   });
+  it("does not retry a transient read after its wakeup is cancelled during backoff", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const deliver = vi.fn(async () => ({ status: "FAILED" as const, error: "temporary read failure", transient: true }));
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      expect(deliver).toHaveBeenCalledTimes(1);
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.schedules()[0]!.state).toBe("CANCELLED");
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "CANCELLED", dispatch: "DISPATCHED_UNCONFIRMED", admissionId: admitted!.admissionId });
+      expect(f.store.get("backgroundAdmission", admitted!.occurrenceKey)).toMatchObject({ admissionId: admitted!.admissionId });
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("holds a paused backoff firing and resumes it with the original admission", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      let fail = true;
+      const deliver = vi.fn(async () => fail ? { status: "FAILED" as const, error: "temporary read failure", transient: true } : { status: "DELIVERED" as const });
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      cleanups.push(() => scheduler.stop());
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      expect(admitted).toMatchObject({ state: "CLAIMED", dispatch: "DISPATCHED_UNCONFIRMED", admissionId: expect.any(String) });
+      scheduler.pause(command("background.wakeup.pause"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.schedules()[0]).toMatchObject({ state: "PENDING", paused: true, occurrenceKey: null, leaseExpiresAtMs: null });
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "PENDING", dispatch: "NOT_DISPATCHED", admissionId: admitted!.admissionId });
+      fail = false;
+      scheduler.resume(command("background.wakeup.resume"), wakeup.wakeupId);
+      await vi.advanceTimersByTimeAsync(1);
+      expect(deliver).toHaveBeenCalledTimes(2);
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toMatchObject({ state: "DELIVERED", dispatch: "RECEIPT_CONFIRMED", admissionId: admitted!.admissionId, claimGeneration: admitted!.claimGeneration + 1 });
+      expect(f.store.all("backgroundAdmission")).toHaveLength(1);
+    } finally { vi.useRealTimers(); }
+  });
+
+  it("does not retry an older claim generation after backoff", async () => {
+    const f = fixture();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout"] });
+    try {
+      const deliver = vi.fn(async () => ({ status: "FAILED" as const, error: "temporary read failure", transient: true }));
+      const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+      cleanups.push(() => scheduler.stop());
+      const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "t", trigger: { kind: "AT_UTC", dueAtMs: f.now() } });
+      await scheduler.tick();
+      const [admitted] = scheduler.occurrences(wakeup.wakeupId);
+      const newer = { ...admitted!, claimGeneration: admitted!.claimGeneration + 1 };
+      f.store.internal("fixture.newer-generation", null, () => f.store.put("backgroundOccurrence", newer.occurrenceKey, null, newer));
+      await vi.advanceTimersByTimeAsync(2_100);
+      expect(deliver).toHaveBeenCalledTimes(1);
+      expect(scheduler.occurrences(wakeup.wakeupId)[0]).toEqual(newer);
+    } finally { vi.useRealTimers(); }
+  });
 });
