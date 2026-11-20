@@ -20,6 +20,16 @@ it.each(['success','unavailable'] as const)('reads legacy GitHub credentials and
 it.each(['tampered','empty'] as const)('rejects %s GitHub ciphertext',async(protectedValue)=>{
  const{root}=await authFixture(),path=join(root,'github','credentials.json');await mkdir(dirname(path));await writeFile(path,JSON.stringify({version:2,protected:protectedValue==='empty'?'':protectedValue}));await expect(new GitHubAuth(root,fetch,codec).token()).rejects.toThrow();
 });
+it.each(['clear','sign-in'] as const)('does not undo %s while a legacy GitHub migration temp write is in flight',async(action)=>{
+ const{root,auth,advance}=await authFixture(),path=join(root,'github','credentials.json');await mkdir(dirname(path));await writeFile(path,JSON.stringify({version:1,token:'legacy-profile-token',login:'legacy-user'}));
+ const entered=deferred<void>(),release=deferred<void>(),disk=(await import('node:fs/promises')).default,original=disk.writeFile;let gated=false;
+ vi.spyOn(disk,'writeFile').mockImplementation(async(...args:Parameters<typeof writeFile>)=>{await original(...args);if(!gated&&String(args[0]).endsWith('.tmp')){gated=true;entered.resolve();await release.promise;}});syncBuiltinESMExports();
+ const loading=new GitHubAuth(root,fetch,codec).token();await entered.promise;
+ try{if(action==='clear')await rm(path);else{const flow=await auth.start();advance(1001);expect(await auth.poll(flow.id)).toEqual({status:'authenticated',login:'fixture-user'});}}finally{release.resolve();}
+ expect(await loading).toBe('legacy-profile-token');
+ if(action==='clear')await expect(readFile(path)).rejects.toMatchObject({code:'ENOENT'});else{expect(await auth.token()).toBe('new-profile-token');expect(await readFile(path,'utf8')).not.toContain('legacy-profile-token');}
+ expect((await readdir(dirname(path))).filter(name=>name.endsWith('.tmp'))).toEqual([]);
+});
 it('keeps device authorization tokens private and requires a Gen V1 credential before CLI use',async()=>{
  const root=await mkdtemp(join(tmpdir(),'gen-gh-auth-'));cleanup.push(()=>rm(root,{recursive:true,force:true,maxRetries:5}));let now=Date.now();vi.spyOn(Date,'now').mockImplementation(()=>now);
  const request=vi.fn(async(url:unknown)=>new Response(JSON.stringify(String(url).endsWith('/device/code')?{device_code:'private-device-code',user_code:'ABCD-EFGH',verification_uri:'https://github.com/login/device',expires_in:900,interval:5}:String(url).endsWith('/access_token')?{access_token:'private-profile-token'}:{login:'fixture-user'}),{status:200,headers:{'Content-Type':'application/json'}}));

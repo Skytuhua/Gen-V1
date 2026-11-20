@@ -1,4 +1,5 @@
-import { lstat, readFile, realpath, rename, unlink, writeFile } from 'node:fs/promises';
+import { lstat, readFile, realpath, unlink, writeFile } from 'node:fs/promises';
+import { lstatSync, readFileSync, realpathSync, renameSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { randomUUID } from 'node:crypto';
 import type { SdkCredentialStore, StoredSdkCredentials } from '@cursor/sdk';
@@ -11,6 +12,15 @@ export const CURSOR_LOGIN_BACKEND = 'https://api2.cursor.sh';
 export const CURSOR_LOGIN_WEBSITE = 'https://cursor.com';
 export const cursorAuthPath = (dataDir: string): string => join(officialRuntimeHome(dataDir, 'cursor-sdk'), 'sdk-browser-login.json');
 export const cursorAuthRequired = () => new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'Sign in through the private official Cursor browser login before using this connection. Paid tier and remaining allowance are not reported by this SDK.');
+const credentialMutations = new Map<string, Promise<unknown>>();
+function mutateCredential<T>(path: string, action: () => T | Promise<T>): Promise<T> {
+  const key = resolve(path), previous = credentialMutations.get(key) ?? Promise.resolve();
+  const next = previous.catch(() => {}).then(action);
+  credentialMutations.set(key, next);
+  const release = () => { if (credentialMutations.get(key) === next) credentialMutations.delete(key); };
+  void next.then(release, release);
+  return next;
+}
 
 /** Only this store's explicit browser-login save path can establish provenance. */
 export function cursorCredentialStore(dataDir: string, browserLogin = false, codec?: SecretCodec): SdkCredentialStore {
@@ -27,9 +37,16 @@ export function cursorCredentialStore(dataDir: string, browserLogin = false, cod
     await secureDirectory(dataDir, dirname(path));
     const temporary = join(dirname(path), `.browser-login-${randomUUID()}.tmp`);
     try {
-      if (previous !== undefined && await readFile(path, 'utf8') !== previous) return;
       await writeFile(temporary, serialized, { mode: 0o600, flag: 'wx' });
-      await rename(temporary, path);
+      const commit = () => {
+        if (previous !== undefined) {
+          const info = lstatSync(path);
+          if (!info.isFile() || info.isSymbolicLink() || info.size > 32_768 || !within(realpathSync(resolve(dataDir)), realpathSync(path)) || readFileSync(path, 'utf8') !== previous) return;
+        }
+        renameSync(temporary, path);
+      };
+      if (previous === undefined) commit();
+      else await mutateCredential(path, commit);
     } finally { await unlink(temporary).catch(() => {}); }
   };
   return {
@@ -47,9 +64,9 @@ export function cursorCredentialStore(dataDir: string, browserLogin = false, cod
     },
     async save(credentials) {
       if (!browserLogin || !valid(credentials)) throw cursorAuthRequired();
-      await persist(credentials);
+      await mutateCredential(path, () => persist(credentials));
     },
-    async clear() { if (!browserLogin) throw cursorAuthRequired(); await unlink(path).catch(error => { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; }); },
+    async clear() { if (!browserLogin) throw cursorAuthRequired(); await mutateCredential(path, () => unlink(path).catch(error => { if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error; })); },
   };
 }
 
