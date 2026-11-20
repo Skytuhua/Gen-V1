@@ -53,7 +53,7 @@ Make the notice a `ConnectFolderNotice` component (message + primary "Connect fo
 - T04: Screenshots before/after on :4317 fixture; run related tests.
 
 
-**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off the META baseline, open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
+**Task contract (applies to every task above):** OWNER = one implementing agent claims this issue end-to-end. PREREQ = read this plan plus files in REPO_MAP; a task also depends on the earlier task it edits the same files as (sequential by ID). HANDOFF = implement on a `devin/*` branch off current main (pull latest main before branching), open a PR linking this issue, attach before/after screenshots and the VALIDATION results; post an AGENTS.md checkpoint on this issue at each milestone.
 
 ## VALIDATION
 - Fixture: open Linked pull requests and Project overview; click the notice → connect flow opens; New draft PR explains itself; no red styling remains.
