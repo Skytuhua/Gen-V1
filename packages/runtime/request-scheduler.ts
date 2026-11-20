@@ -225,7 +225,9 @@ export class StatelessTransportPool {
   }
 
   async close(): Promise<void> {
-    for (const id of [...this.idle.keys()]) await this.expire(id);
+    const outcomes = await Promise.allSettled([...this.idle.keys()].map(id => this.expire(id)));
+    const failures = outcomes.flatMap(result => result.status === 'rejected' ? [result.reason] : []);
+    if (failures.length) throw new AggregateError(failures, 'Could not close all idle transports.');
   }
 }
 

@@ -6,7 +6,7 @@ if (!sessionId || !dir || !threadId) process.exit(1);
 const messages = await getSessionMessages(sessionId, { dir });
 const receipts = messages.filter(message => message.type === 'user').flatMap(message => {
   const inputIds = messageInputIds(message.message as { role?: unknown; content?: unknown });
-  const content = (message.message as any)?.content;
+  const content = (message.message as { content?: string | { text?: unknown }[] } | undefined)?.content;
   const text = typeof content === 'string' ? content : content?.[0]?.text;
   if (!inputIds.length || typeof text !== 'string') return [];
   try { const marker = JSON.parse(text.slice('[harness-input:v1] '.length, text.indexOf('\n'))); return marker.threadId === threadId ? [{ uuid: message.uuid, inputIds }] : []; }
