@@ -71,7 +71,7 @@ export function ActionMenu({ label, icon, iconOnly, open, onOpenChange, disabled
         }
       }}>{icon}{!iconOnly && <>{label}<ChevronDown size={12} aria-hidden="true" /></>}</button>
     <Popover anchor={anchor} contentRef={content} open={open && !effectivelyDisabled} width={280} height={Math.min(420, items.length * 36 + 26)} preferredSide="below"
-      id={id} role="menu" aria-label={label} tabIndex={-1} className="ui-control-popup"
+      id={id} role="menu" aria-label={label} tabIndex={-1} className="ui-control-popup" data-popover-motion
       onDismiss={() => onOpenChange(false)} onKeyDown={navigation.onKeyDown}
       onReady={() => { content.current?.focus(); navigation.focus(navigation.edge(start.current)); }}>
       {items.map((item, index) => <button key={item.id} ref={node => { navigation.rows.current[index] = node; }}

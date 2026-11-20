@@ -88,7 +88,7 @@ export function Select({ value, onValueChange, options, 'aria-label': label, 'ar
     </select>
     {showInvalid && <span id={errorId}>Choose an option.</span>}
     <Popover anchor={anchor} contentRef={content} open={open && !effectivelyDisabled} width={popupWidth} height={Math.min(420, options.length * 36 + 26)} preferredSide="below" align="start"
-      id={listId} role="listbox" aria-label={label} tabIndex={-1} className="ui-control-popup"
+      id={listId} role="listbox" aria-label={label} tabIndex={-1} className="ui-control-popup" data-popover-motion
       onDismiss={() => setOpen(false)} onKeyDown={navigation.onKeyDown} onReady={() => {
         content.current?.focus();
         navigation.focus(start.current === 'last' ? navigation.edge(true) : selected >= 0 && !options[selected].disabled ? selected : navigation.edge());

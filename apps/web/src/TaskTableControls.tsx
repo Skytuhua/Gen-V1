@@ -10,7 +10,7 @@ function SortLabel({ label, direction, sort }: { label: string; direction?: 'asc
   const [open, setOpen] = useState(false);
   const show = () => setOpen(Boolean(text.current && text.current.scrollWidth > text.current.clientWidth));
   return <><button ref={anchor} type="button" className="task-table-sort" aria-label={`Sort ${label}`} aria-describedby={open ? id : undefined} onFocus={show} onBlur={() => setOpen(false)} onMouseEnter={show} onMouseLeave={() => { if (document.activeElement !== anchor.current) setOpen(false); }} onClick={sort}><span ref={text}>{label}</span>{direction && <span className="task-table-sort-arrow" aria-hidden="true">{direction === 'ascending' ? '↑' : '↓'}</span>}</button>
-    <Popover anchor={anchor} open={open} width={Math.min(420, label.length * 7 + 24)} height={Math.min(180, Math.ceil(label.length / 48) * 16 + 16)} onDismiss={() => setOpen(false)} role="tooltip" id={id} className="task-table-label-help">{label}</Popover></>;
+    <Popover anchor={anchor} open={open} width={Math.min(420, label.length * 7 + 24)} height={Math.min(180, Math.ceil(label.length / 48) * 16 + 16)} onDismiss={() => setOpen(false)} role="tooltip" id={id} className="task-table-label-help" data-popover-motion>{label}</Popover></>;
 }
 
 export function useTableControls(sourceColumns: TableColumn[], rows: unknown[], scroll: RefObject<HTMLDivElement | null>, takeOver: () => void, selectable: boolean) {

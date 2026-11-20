@@ -1,0 +1,116 @@
+/* Shared popover/menu motion contract (spec A1-A4). A Popover consumer opts in by
+   setting data-popover-motion; every rule uses :where() so a consumer's own
+   motion always wins. Keyframes are defined once here — consumers never redeclare
+   them. */
+.ui-popover { z-index: var(--ui-popup-layer); }
+:where(.ui-popover[data-popover-motion][data-state="open"]) { animation: ui-popover-in var(--ui-motion-popup-enter) var(--ui-ease-enter) both; }
+:where(.ui-popover[data-popover-motion][data-state="closed"]) { pointer-events: none; animation: ui-popover-out var(--ui-motion-popup-exit) var(--ui-ease-move) both; }
+:where(.ui-popover[data-side="above"]) { --popover-travel: 4px; transform-origin: bottom; }
+:where(.ui-popover[data-side="below"]) { --popover-travel: -4px; transform-origin: top; }
+:where(.ui-popover[data-side="left"]) { transform-origin: right; }
+:where(.ui-popover[data-side="right"]) { transform-origin: left; }
+@keyframes ui-popover-in { from { opacity: 0; transform: translateY(var(--popover-travel, 0px)) scale(.98); } }
+@keyframes ui-popover-out { to { opacity: 0; transform: translateY(var(--popover-travel, 0px)) scale(.98); } }
+@keyframes ui-check-in { from { opacity: .2; transform: scale(.8); } }
+@keyframes ui-popover-row-in { from { opacity: 0; transform: translateY(2px); } }
+@keyframes ui-popover-fade { from { opacity: 0; } }
+
+/* A3: option rows stagger in on open only. Delay = nth-child * --ui-motion-stagger,
+   capped at 150ms; scrolling or keyboard navigation never replays it because the
+   rule only matches while the popover is open and mounted once. */
+:where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  .saved-layout-row,
+  .context-subitem,
+  .task-node-check,
+  .saved-drafts-popover > ul > li,
+  .project-picker-swatches > button
+) { animation: ui-popover-row-in var(--ui-motion-popup-exit) var(--ui-ease-enter) both; animation-delay: var(--ui-motion-stagger); }
+:where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  .saved-layout-row,
+  .context-subitem,
+  .task-node-check,
+  .saved-drafts-popover > ul > li,
+  .project-picker-swatches > button
+):nth-child(2) { animation-delay: calc(var(--ui-motion-stagger) * 2); }
+:where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  .saved-layout-row,
+  .context-subitem,
+  .task-node-check,
+  .saved-drafts-popover > ul > li,
+  .project-picker-swatches > button
+):nth-child(3) { animation-delay: calc(var(--ui-motion-stagger) * 3); }
+:where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  .saved-layout-row,
+  .context-subitem,
+  .task-node-check,
+  .saved-drafts-popover > ul > li,
+  .project-picker-swatches > button
+):nth-child(4) { animation-delay: calc(var(--ui-motion-stagger) * 4); }
+:where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"],
+  .saved-layout-row,
+  .context-subitem,
+  .task-node-check,
+  .saved-drafts-popover > ul > li,
+  .project-picker-swatches > button
+):nth-child(n + 5) { animation-delay: calc(var(--ui-motion-stagger) * 5); }
+
+/* A4: a check or selected mark that flips to true pops in from faded + small. */
+:where(.ui-popover[data-popover-motion]) :is(
+  .ui-control-option,
+  [role="option"],
+  [role="menuitem"],
+  [role="menuitemcheckbox"],
+  [role="menuitemradio"]
+):is([aria-selected="true"], [aria-checked="true"]) > svg:last-child { animation: ui-check-in var(--ui-motion-popup-exit) var(--ui-ease-enter); }
+
+@media (prefers-reduced-motion: reduce) {
+  /* A1/A2 RM: opacity only — enter fades over <= --ui-motion-press, exit 60ms. */
+  :where(.ui-popover[data-popover-motion][data-state]) { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  :where(.ui-popover[data-popover-motion][data-state="closed"]) { animation-direction: reverse; animation-duration: 60ms; }
+  /* A3 RM: every row at once, opacity only. */
+  :where(.ui-popover[data-popover-motion][data-state="open"]) :is(
+    .ui-control-option,
+    [role="option"],
+    [role="menuitem"],
+    [role="menuitemcheckbox"],
+    [role="menuitemradio"],
+    .saved-layout-row,
+    .context-subitem,
+    .task-node-check,
+    .saved-drafts-popover > ul > li,
+    .project-picker-swatches > button
+  ) { animation-name: ui-popover-fade; animation-delay: 0ms; animation-duration: var(--ui-motion-press); }
+  /* A4 RM: opacity only. */
+  :where(.ui-popover[data-popover-motion]) :is(
+    .ui-control-option,
+    [role="option"],
+    [role="menuitem"],
+    [role="menuitemcheckbox"],
+    [role="menuitemradio"]
+  ):is([aria-selected="true"], [aria-checked="true"]) > svg:last-child { animation-name: ui-popover-fade; }
+}

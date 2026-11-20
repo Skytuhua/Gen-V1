@@ -114,7 +114,7 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
     </footer>
     <p className="project-picker-hint">↑↓ navigate · Enter select · Esc cancel</p>
     <Popover anchor={colorAnchor} open={Boolean(editing)} width={280} height={230} initialFocus={colorInput} onDismiss={closeColor}
-      role="group" aria-label="Project color" className="ui-control-popup project-picker-colors" onKeyDown={event => {
+      role="group" aria-label="Project color" className="ui-control-popup project-picker-colors" data-popover-motion onKeyDown={event => {
         if (isComposing(event) && event.key === 'Escape') { event.preventDefault(); return; }
         if (event.key === 'Escape' && locked) { event.preventDefault(); event.stopPropagation(); }
       }}>
