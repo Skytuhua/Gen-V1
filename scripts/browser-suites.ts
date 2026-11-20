@@ -43,7 +43,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('terminal-read'),
   suite('thread-hover'),
   suite('thread-move', ['thread-move.spec.ts']),
-  suite('usage-app-integration', ['mobile-navigation.spec.ts', 'shell-error-ownership.spec.ts', 'usage-app-integration.spec.ts']),
+  suite('usage-app-integration', ['mobile-navigation.spec.ts', 'shell-error-ownership.spec.ts', 'workspace-notifications.spec.ts', 'usage-app-integration.spec.ts']),
   suite('workspace-host'),
   suite('memory-recovery-app', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'app'}}),
   suite('memory-recovery-journal', undefined, {config:'tests/e2e/memory-recovery.playwright.config.ts', env:{GEN_MEMORY_MODE:'journal'}}),
