@@ -17,6 +17,16 @@ async function bridge(page:Page,surface:Record<string,unknown>={kind:'main'}){
    focus:async(id:string)=>{w.__desktopCalls.push(['focus',id]);},browser:async(command:unknown)=>{w.__desktopCalls.push(['browser',command]);if(w.__desktopFail)throw Error('Native browser action failed');}};
  },surface);
 }
+test('a detached initial Files tab survives adding and selecting another surface',async({page},info)=>{
+ await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'files'});
+ await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({openTabs:[]})));
+ await serveTaskFixture(page,fixture());await page.goto('/');
+ const tabs=page.getByRole('tablist',{name:'Workspace views',exact:true});await expect(tabs.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Diff',exact:true}).click();
+ await expect(tabs.getByRole('tab')).toHaveText(['Files','Diff']);await tabs.getByRole('tab',{name:'Files',exact:true}).click();await expect(tabs.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.screenshot({path:info.outputPath('detached-files-and-diff.png')});
+});
+
 test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{
  await bridge(page);
  await serveTaskFixture(page,fixture());
