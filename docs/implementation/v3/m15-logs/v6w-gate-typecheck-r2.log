@@ -1,0 +1,11 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","C:\\hostedtoolcache\\node\\24.22.2\\x64\\node_modules\\corepack\\dist\\pnpm.js","typecheck"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6
+exitCode: 2
+termination: NONE
+
+> gen-v1@0.6.5 typecheck C:\Users\Administrator\repos\Gen-V1-m15-v6
+> tsc --noEmit
+
+apps/web/src/App.tsx(1130,1159): error TS2322: Type '(id: string, paneId: string, edge: SplitDropEdge, outer: boolean | undefined) => void' is not assignable to type '(threadId: string, paneId: string, edge: SplitDropEdge, outer?: boolean | undefined) => Promise<void>'.
+  Type 'void' is not assignable to type 'Promise<void>'.
+ ELIFECYCLE  Command failed with exit code 2.

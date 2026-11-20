@@ -1,0 +1,75 @@
+argv: ["C:\\hostedtoolcache\\node\\24.22.2\\x64\\node.exe","node_modules/@playwright/test/cli.js","test","--config","playwright.config.ts","tests/e2e/host-loop.spec.ts","tests/e2e/shell-micro-motion.spec.ts","--reporter=list"]
+cwd: C:\Users\Administrator\repos\Gen-V1-m15-v6-baseline
+exitCode: 1
+termination: NONE
+
+Running 17 tests using 1 worker
+
+  ok  1 tests\e2e\host-loop.spec.ts:46:1 › actual create/send, cookies/CSRF/SSE and structured host autosave survive reload (2.4s)
+  ok  2 tests\e2e\host-loop.spec.ts:140:1 › durable decision validation and acceptance continue the same owning runtime once (2.6s)
+  x   3 tests\e2e\host-loop.spec.ts:256:1 › generated operation button requires native approval; restart restores without repeating effects (1.0m)
+  ok  4 tests\e2e\host-loop.spec.ts:348:1 › stale structured action shows rejection and retains its local review UI (1.4s)
+  ok  5 tests\e2e\host-loop.spec.ts:377:1 › generated app validates mount tickets, source/channel/current nonce/state; acknowledges checkpoint and preserves same iframe (3.5s)
+  ok  6 tests\e2e\host-loop.spec.ts:628:1 › cross-site infinite-loop widget leaves Settings, Stop and host navigation responsive (4.9s)
+  ok  7 tests\e2e\host-loop.spec.ts:738:1 › generated program startup failure preserves host controls and durable artifact state (2.0s)
+  -   8 tests\e2e\host-loop.spec.ts:793:1 › the real host rejects generated apps while preserving its trusted interface
+  ok  9 tests\e2e\shell-micro-motion.spec.ts:21:1 › the empty composer is compact, grows for multiline work and keeps its draft (4.4s)
+  ok 10 tests\e2e\shell-micro-motion.spec.ts:43:1 › desktop navigation becomes inert immediately on collapse and restores on reopen (1.4s)
+  ok 11 tests\e2e\shell-micro-motion.spec.ts:67:1 › a published plan flags the collapsed overview once without replaying on snapshot or theme updates (1.6s)
+  ok 12 tests\e2e\shell-micro-motion.spec.ts:129:1 › settings opens with bounded motion and reduced motion removes travel (1.6s)
+  ok 13 tests\e2e\shell-micro-motion.spec.ts:157:1 › navigation shows actual recency without repeating idle status but retains accessible task state (1.2s)
+  ok 14 tests\e2e\shell-micro-motion.spec.ts:173:1 › completed operation receipts are compact, truthful and retain full evidence on inspection (1.8s)
+  ok 15 tests\e2e\shell-micro-motion.spec.ts:231:1 › failed and cancelled receipts do not claim success and prepared approval retains exact authority (2.1s)
+  ok 16 tests\e2e\shell-micro-motion.spec.ts:305:1 › shell notice enters, pauses on hover, auto-expires and exits before unmount (14.7s)
+  ok 17 tests\e2e\shell-micro-motion.spec.ts:355:1 › shell notice stays visible when the pointer leaves but keyboard focus remains (1.1s)
+
+
+  1) tests\e2e\host-loop.spec.ts:256:1 › generated operation button requires native approval; restart restores without repeating effects 
+
+    [31mTest timeout of 60000ms exceeded.[39m
+
+    Error: locator.click: Test timeout of 60000ms exceeded.
+    Call log:
+    [2m  - waiting for getByRole('button', { name: 'Send message', exact: true })[22m
+    [2m    - locator resolved to <button disabled class="send-button" aria-label="Send message" title="Send message (Enter)">…</button>[22m
+    [2m  - attempting click action[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m    - waiting 20ms[22m
+    [2m    2 × waiting for element to be visible, enabled and stable[22m
+    [2m      - element is not enabled[22m
+    [2m    - retrying click action[22m
+    [2m      - waiting 100ms[22m
+    [2m    111 × waiting for element to be visible, enabled and stable[22m
+    [2m        - element is not enabled[22m
+    [2m      - retrying click action[22m
+    [2m        - waiting 500ms[22m
+
+
+       at ..\host-fixture.ts:189
+
+      187 | export async function sendFixture(page: Page, mode: string, operationHost?: HostFixture) {
+      188 |   await page.getByRole('textbox', { name: 'Message', exact: true }).fill(`[fixture:${mode}] Verify the local host contract.`);
+    > 189 |   await page.getByRole('button', { name: 'Send message', exact: true }).click();
+          |                                                                         ^
+      190 |   const artifact = page.locator('[data-artifact-id]').first();
+      191 |   if (mode === 'operation' && operationHost) {
+      192 |     // This fixture awaits two real file tools before publication. Its functional
+        at sendFixture (C:\Users\Administrator\repos\Gen-V1-m15-v6-baseline\tests\host-fixture.ts:189:73)
+        at C:\Users\Administrator\repos\Gen-V1-m15-v6-baseline\tests\e2e\host-loop.spec.ts:119:39
+
+    Error Context: test-results\host-loop-generated-operat-44f07-s-without-repeating-effects\error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    test-results\host-loop-generated-operat-44f07-s-without-repeating-effects\trace.zip
+    Usage:
+
+        npx playwright show-trace test-results\host-loop-generated-operat-44f07-s-without-repeating-effects\trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    tests\e2e\host-loop.spec.ts:256:1 › generated operation button requires native approval; restart restores without repeating effects 
+  1 skipped
+  15 passed (1.9m)

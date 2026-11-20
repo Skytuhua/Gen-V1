@@ -1,4 +1,4 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
 import { z } from 'zod';
 import type { ModelInfo } from '../../../packages/contracts';
 import { authenticated, command, getModels, read, subscribe } from './api';
@@ -90,14 +90,23 @@ const triggerLabel = (schedule: Schedule): string => {
   if (schedule.trigger.kind === 'INTERVAL_UTC') return `Every ${String(Math.round(schedule.trigger.intervalMs / 1000))}s (UTC interval)`;
   return `Host event ${schedule.trigger.eventKind}`;
 };
+/** A pressed control disables while its action is in flight and its row can
+ * unmount when the action settles; either drops focus to <body>. Return the
+ * keyboard position to the acted-on unit once the update has committed.
+ * Deliberately conservative: only a focus that already fell to <body> is
+ * restored, so a deliberate move elsewhere is never stolen, and a hidden tab
+ * (where animation frames do not run) loses the restore rather than guessing. */
+const restoreFocus = (anchor: () => HTMLElement | null) => requestAnimationFrame(() => {
+  if (document.activeElement === document.body) anchor()?.focus();
+});
 
-function HumanStepCard({ step, work, onRespond, onDecline }: { step: Step; work: Work; onRespond: BackgroundWorkViewProps['onRespond']; onDecline: BackgroundWorkViewProps['onDecline'] }) {
+function HumanStepCard({ step, work, onRespond, onDecline, onSettled }: { step: Step; work: Work; onRespond: BackgroundWorkViewProps['onRespond']; onDecline: BackgroundWorkViewProps['onDecline']; onSettled: () => void }) {
   const [values, setValues] = useState<Record<string, unknown>>(() => (schemaDefaults(step.responseSchema) ?? {}) as Record<string, unknown>);
   const [busy, setBusy] = useState(false);
   const [cardError, setCardError] = useState('');
   const run = async (action: () => Promise<void>) => {
     setBusy(true); setCardError('');
-    try { await action(); } catch (cause) { setCardError(cause instanceof Error ? cause.message : 'The response could not be delivered.'); } finally { setBusy(false); }
+    try { await action(); } catch (cause) { setCardError(cause instanceof Error ? cause.message : 'The response could not be delivered.'); } finally { setBusy(false); onSettled(); }
   };
   return <section className="background-human" aria-label={`Human step for ${work.title}`}>
     <header><span className="background-state" data-state="waiting-human">Waiting for you</span><strong>{step.requestId}</strong><span className="background-muted">revision {String(step.questionRevision)}</span></header>
@@ -121,15 +130,17 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
   const [outputError, setOutputError] = useState('');
   const [busy, setBusy] = useState(false);
   const [actionError, setActionError] = useState('');
+  const card = useRef<HTMLElement>(null), outputId = useId();
+  const restore = () => restoreFocus(() => card.current);
   const load = async (cursor: number) => {
     setOutputError('');
     try { setOutput(await props.loadOutput(work.workId, work.owner.threadId, cursor)); } catch (cause) { setOutputError(cause instanceof Error ? cause.message : 'Output could not load.'); }
   };
   const cancel = async () => {
     setBusy(true); setActionError('');
-    try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(cause instanceof Error ? cause.message : 'The work could not be cancelled.'); } finally { setBusy(false); }
+    try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(cause instanceof Error ? cause.message : 'The work could not be cancelled.'); } finally { setBusy(false); restore(); }
   };
-  return <article className="background-card" aria-label={work.title} data-work-id={work.workId}>
+  return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId}>
     <header>
       <span className="background-state" data-state={work.state.toLowerCase()}>{stateLabel(work)}</span>
       {work.state === 'SETTLED' && <span className="background-outcome">{outcomeLabel(work.outcome)}</span>}
@@ -147,10 +158,10 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
     {actionError && <p role="status" className="error-text">{actionError}</p>}
     <div className="background-actions">
       <button type="button" className="quiet" onClick={() => props.onOpenThread(work.owner.threadId)}>Open child task</button>
-      <button type="button" className="quiet" aria-expanded={output !== null} onClick={() => output === null ? void load(0) : setOutput(null)}>Output</button>
+      <button type="button" className="quiet" aria-expanded={output !== null} aria-controls={output !== null ? outputId : undefined} onClick={() => output === null ? void load(0) : setOutput(null)}>Output</button>
       {['QUEUED', 'RUNNING', 'WAITING_EVENT', 'WAITING_HUMAN'].includes(work.state) && <button type="button" className="quiet" disabled={busy} onClick={() => void cancel()}>Cancel</button>}
     </div>
-    {output && <div className="background-output">
+    {output && <div className="background-output" id={outputId} role="region" aria-label={`Output for ${work.title}`}>
       <pre>{output.output || '(no output yet)'}</pre>
       <div className="background-actions">
         <span className="background-muted">cursor {String(output.cursor)} · {output.exited ? `exited ${String(output.exitCode ?? 'unknown')}` : 'running'}</span>
@@ -158,18 +169,19 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
       </div>
     </div>}
     {outputError && <p role="status" className="error-text">{outputError}</p>}
-    {step && step.deliveryState === 'PENDING' && work.state === 'WAITING_HUMAN' && <HumanStepCard step={step} work={work} onRespond={props.onRespond} onDecline={props.onDecline} />}
+    {step && step.deliveryState === 'PENDING' && work.state === 'WAITING_HUMAN' && <HumanStepCard step={step} work={work} onRespond={props.onRespond} onDecline={props.onDecline} onSettled={restore} />}
   </article>;
 }
 
 function ScheduleRow({ schedule, props }: { schedule: Schedule; props: BackgroundWorkViewProps }) {
   const [busy, setBusy] = useState(false);
   const [rowError, setRowError] = useState('');
+  const row = useRef<HTMLLIElement>(null);
   const toggle = async () => {
     setBusy(true); setRowError('');
-    try { schedule.paused ? await props.onResume(schedule.wakeupId) : await props.onPause(schedule.wakeupId); } catch (cause) { setRowError(cause instanceof Error ? cause.message : 'The schedule could not change.'); } finally { setBusy(false); }
+    try { schedule.paused ? await props.onResume(schedule.wakeupId) : await props.onPause(schedule.wakeupId); } catch (cause) { setRowError(cause instanceof Error ? cause.message : 'The schedule could not change.'); } finally { setBusy(false); restoreFocus(() => row.current); }
   };
-  return <li className="background-schedule" data-wakeup-id={schedule.wakeupId}>
+  return <li ref={row} tabIndex={-1} className="background-schedule" data-wakeup-id={schedule.wakeupId}>
     <div>
       <strong>{triggerLabel(schedule)}</strong>
       <span className="background-muted">next {when(schedule.nextDueAtMs)} · timezone {schedule.scheduleTimezone ?? 'UTC'} (display only) · last run {when(schedule.lastRunAtMs)} · skipped {String(schedule.skippedTotal)}</span>
@@ -189,11 +201,15 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
   const proposed = intake.records.filter(record => record.disposition === 'PROPOSED');
   const approved = intake.records.filter(record => record.disposition === 'APPROVED');
   const rejected = intake.records.filter(record => record.disposition === 'REJECTED');
+  const section = useRef<HTMLElement>(null);
   const act = async (intakeId: string, action: () => Promise<void>) => {
     setBusyId(intakeId); setIntakeError('');
-    try { await action(); } catch (cause) { setIntakeError(cause instanceof Error ? cause.message : 'The decision could not be recorded.'); } finally { setBusyId(''); }
+    try { await action(); } catch (cause) { setIntakeError(cause instanceof Error ? cause.message : 'The decision could not be recorded.'); } finally {
+      setBusyId('');
+      restoreFocus(() => Array.from(section.current?.querySelectorAll<HTMLElement>('[data-intake-id]') ?? []).find(row => row.dataset.intakeId === intakeId) ?? section.current ?? null);
+    }
   };
-  return <section className="background-intake" aria-label="External task inbox">
+  return <section ref={section} tabIndex={-1} className="background-intake" aria-label="External task inbox">
     <h3>External tasks</h3>
     {!intake.status.available && <p className="background-note">Intake is unavailable: connect the authenticated GitHub connection and enable polling. No webhook listener exists.</p>}
     {intake.status.available && !intake.status.enabled && <p className="background-note">Polling is paused by configuration.</p>}
@@ -202,7 +218,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     <h4>Proposed</h4>
     {proposed.length === 0 && <p className="background-muted">No proposed external work.</p>}
     <ul data-intake-list="proposed">
-      {proposed.map(record => <li key={record.intakeId} className="background-intake-row" data-intake-id={record.intakeId}>
+      {proposed.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">issue {String(record.proposedTask.issueNumber)} · {record.sourceInstallation} · {record.receivedAt}</span></div>
         <div className="background-actions">
           <div className="background-model">
@@ -217,7 +233,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
     <h4>Approved</h4>
     {approved.length === 0 && <p className="background-muted">No approved external work.</p>}
     <ul data-intake-list="approved">
-      {approved.map(record => <li key={record.intakeId} className="background-intake-row" data-intake-id={record.intakeId}>
+      {approved.map(record => <li key={record.intakeId} tabIndex={-1} className="background-intake-row" data-intake-id={record.intakeId}>
         <div><strong>{record.proposedTask.title}</strong><span className="background-muted">approved · {record.sourceInstallation}</span></div>
         {record.decision?.threadId && <button type="button" className="quiet" onClick={() => props.onOpenThread(record.decision!.threadId!)}>Open child task</button>}
       </li>)}

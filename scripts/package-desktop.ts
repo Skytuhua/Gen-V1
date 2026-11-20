@@ -3,14 +3,14 @@ import {resolve,join,relative,dirname,isAbsolute} from 'node:path';
 import {spawn} from 'node:child_process';
 import {createHash} from 'node:crypto';
 import {build,type Configuration} from 'electron-builder';
-import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,stageRepositoryMapParser,readDesktopOutputRoot,reserveDesktopRelease,REQUIRED_RUNTIME_FILES,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
+import {runtimeSourceAllowed,validateNodeArchive,desktopBuilderConfig,packageManagerInvocation,runtimeInstallArguments,stageRuntimeInstall,stageRepositoryMapParser,readDesktopOutputRoot,reserveDesktopRelease,reserveDesktopStage,REQUIRED_RUNTIME_FILES,NODE_ARCHIVE_EXTRACT_COMMAND,NODE_VERSION,NODE_ARCHIVE_SHA256} from './desktop-assets.ts';
 import {collectHermesPayload,discoverHermesPython,stageHermesPayload,verifyHermesPayload,verifyRelocatedHermesPython} from './hermes-assets.ts';
 import {collectIntegrationPayload,stageIntegrationPayload,verifyIntegrationPayload,verifyRelocatedIntegrations} from './integration-assets.ts';
 import {collectGitTools,stageGitTools} from './git-assets.ts';
 import {buildWindowsCredentialLease} from './build-windows-credential-lease.ts';
 
 if(process.platform!=='win32'||process.arch!=='x64')throw Error('This package target requires Windows x64');
-const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=resolve(dist,'desktop-stage-'+Date.now()),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
+const root=resolve('.'),dist=readDesktopOutputRoot(process.argv.slice(2)),pkg=JSON.parse(await readFile('package.json','utf8')),release=await reserveDesktopRelease(dist,pkg.version),stage=await reserveDesktopStage(dist),host=resolve(stage,'desktop-host'),cache=resolve('.harness-desktop-cache');
 const python=await discoverHermesPython(),hermes=await collectHermesPayload(root,python);
 const wheelDirectory=process.env.HARNESS_INTEGRATION_WHEELS;
 if(wheelDirectory!==undefined&&(!wheelDirectory||!isAbsolute(wheelDirectory)))throw Error('HARNESS_INTEGRATION_WHEELS must name an explicit absolute archive directory');
@@ -36,8 +36,8 @@ await stageIntegrationPayload(host,integrations);
 const archive=resolve(cache,`node-v${NODE_VERSION}-win-x64.zip`);let bytes:Buffer;
 try{bytes=await readFile(archive);validateNodeArchive(bytes);}catch{const response=await fetch(`https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-win-x64.zip`);if(!response.ok)throw Error('Node distribution unavailable');bytes=Buffer.from(await response.arrayBuffer());validateNodeArchive(bytes);await writeFile(archive,bytes);}
 const extractionRoot=resolve(cache,'extract-'+Date.now());await mkdir(extractionRoot);const extracted=resolve(extractionRoot,`node-v${NODE_VERSION}-win-x64`);
-await run('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-Command','Expand-Archive -LiteralPath $env:HARNESS_NODE_ZIP -DestinationPath $env:HARNESS_NODE_EXTRACT'],cache,{HARNESS_NODE_ZIP:archive,HARNESS_NODE_EXTRACT:extractionRoot});
-// Expand-Archive uses fixed environment paths; never interpolate shell text.
+await run('C:/Windows/System32/WindowsPowerShell/v1.0/powershell.exe',['-NoLogo','-NoProfile','-NonInteractive','-Command',NODE_ARCHIVE_EXTRACT_COMMAND],cache,{HARNESS_NODE_ZIP:archive,HARNESS_NODE_EXTRACT:extractionRoot});
+// Extract the verified ZIP via the inbox framework; paths remain literal environment data.
 const nodeTarget=resolve(stage,'desktop-node');await mkdir(nodeTarget,{recursive:true});await copyFile(resolve(extracted,'node.exe'),resolve(nodeTarget,'node.exe'));await copyFile(resolve(extracted,'LICENSE'),resolve(nodeTarget,'LICENSE'));
 const config=desktopBuilderConfig(stage);config.directories.output=release;
 const options={publish:'never' as const,projectDir:resolve(stage,'desktop-app'),config:{...config,afterPack:async(context:import('electron-builder').AfterPackContext)=>{for(const file of REQUIRED_RUNTIME_FILES){const path=resolve(context.appOutDir,'resources',file);if(!(await lstat(path)).isFile())throw Error('Packaged runtime is incomplete: '+file);}const packagedHost=resolve(context.appOutDir,'resources/host');await verifyHermesPayload(packagedHost,hermes);await verifyRelocatedHermesPython(packagedHost);await verifyIntegrationPayload(packagedHost,integrations);await verifyRelocatedIntegrations(packagedHost);await collectGitTools(packagedHost);}} as Configuration};

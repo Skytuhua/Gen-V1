@@ -4,14 +4,30 @@ import {resolve,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {z} from 'zod';
 import type {PluginRegistry} from '../../packages/plugins/host.ts';
+import type {IsolatedExtensionHost} from '../../packages/plugins/isolated-host.ts';
 import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
 
 const requestSchema=z.strictObject({operation:z.string().regex(/^[a-z][a-zA-Z0-9_.-]{0,79}$/),input:z.unknown()});
 const unavailable='This plug-in is unavailable. Your saved work is retained.';
 // The verified runtime resolves beside this module, never beside process.cwd().
 const assets=fileURLToPath(new URL('../..',import.meta.url));
-export function registerPluginRoutes(app:FastifyInstance,registry:PluginRegistry|undefined,origin:string,theme?:()=>string,error?:string,admit:()=>boolean=()=>true) {
-  app.get('/api/plugins',async(_request,reply)=>reply.header('Cache-Control','no-store').send({plugins:registry?.list()??[],...(theme?{theme:theme()}:{}),...(error?{error}:{})}));
+export function registerPluginRoutes(app:FastifyInstance,registry:PluginRegistry|undefined,origin:string,theme?:()=>string,error?:string,admit:()=>boolean=()=>true,isolated?:IsolatedExtensionHost) {
+  app.get('/api/plugins',async(_request,reply)=>{const extensions=isolated?.catalog(registry?.list()??[])??[];return reply.header('Cache-Control','no-store').send({plugins:registry?.list()??[],...(extensions.length?{extensions}:{}),...(theme?{theme:theme()}:{}),...(error?{error}:{})});});
+  // Isolated-lane lifecycle actions. Holds surface as their recorded reason;
+  // nothing here can enable the lane or bypass its admission gate.
+  app.post<{Params:{id:string;action:string}}>('/api/plugins/:id/isolated/:action',{bodyLimit:64*1024},async(request,reply)=>{
+    if(!isolated||!admit())return reply.code(503).send({error:{code:'UNAVAILABLE',message:unavailable}});
+    const {id,action}=request.params;
+    try{
+      if(action==='enable')return reply.send({lease:await isolated.activate(id)});
+      if(action==='disable')return reply.send({state:await isolated.disable(id)});
+      return reply.code(400).send({error:{code:'INVALID_INPUT',message:unavailable}});
+    }catch(cause){
+      const code=(cause as {code?:string}|null)?.code;
+      if(code==='NOT_FOUND')return reply.code(404).send({error:{code:'NOT_FOUND',message:unavailable}});
+      return reply.code(503).send({error:{code:typeof code==='string'?code:'UNAVAILABLE',message:unavailable}});
+    }
+  });
   app.post<{Params:{id:string}}>('/api/plugins/:id/rpc',{bodyLimit:256*1024},async(request,reply)=>{
     const body=requestSchema.safeParse(request.body);if(!body.success)return reply.code(400).send({error:{code:'INVALID_INPUT',message:'Invalid plug-in request.'}});
     if(!registry)return reply.code(404).send({error:{code:'NOT_FOUND',message:unavailable}});

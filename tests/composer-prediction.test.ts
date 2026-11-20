@@ -1,10 +1,10 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach,expect,it,vi} from 'vitest';
 import {ComposerPredictions,predictionContext,parsePrediction,PREDICTION_LIMITS,type PredictionBasis} from '../packages/core/composer-prediction.ts';
 import type {Message,RuntimeAdapter,RuntimeCallbacks,StartRun} from '../packages/contracts/index.ts';
 
 const cleanups:(()=>Promise<void>)[]=[];
 afterEach(async()=>{vi.useRealTimers();for(const close of cleanups.splice(0).reverse())await close();});
-const deferred=<T,>()=>{let resolve!:(value:T)=>void;const promise=new Promise<T>(done=>{resolve=done;});return{promise,resolve};};
 function adapter(){let callbacks!:RuntimeCallbacks;const starts:StartRun[]=[];const runtime:RuntimeAdapter={configure:value=>{callbacks=value;},models:vi.fn(async()=>[]),start:vi.fn(async value=>{starts.push(value);}),followUp:vi.fn(async()=>{}),cancel:vi.fn(async()=>{}),compact:vi.fn(async()=>{}),history:vi.fn(async()=>[]),dispose:vi.fn(async()=>{})};return{runtime,starts,get callbacks(){return callbacks;},settle(text='{"suggestion":"What should I check next?"}'){const run=starts[0];callbacks.onEvent({...run,type:'assistant.message',messageId:'prediction-output',content:text});callbacks.onEvent({...run,type:'settled'});}};}
 const basis=(threadId='thread'):PredictionBasis=>({threadId,replyId:'reply',modelId:'openai/model',accountId:null,epoch:2,context:'[{"role":"user","content":"Please check."},{"role":"assistant","content":"Checked."}]'});
 function fixture(){let current:PredictionBasis|null=basis();const models:ReturnType<typeof adapter>[]=[];const predictions=new ComposerPredictions({factory:()=>{const next=adapter();models.push(next);return next.runtime;},current:id=>current?.threadId===id?current:null});cleanups.push(()=>predictions.dispose());return{predictions,models,get current(){return current;},set current(value:PredictionBasis|null){current=value;}};}
@@ -52,4 +52,17 @@ it('cancels delayed factory startup without starting a model and retains failed 
 });
 it('evicts old slots and expires them without allowing historical regeneration',async()=>{
  vi.useFakeTimers();const x=fixture();for(let n=0;n<33;n++)x.predictions.settled(basis(String(n)));x.current=basis('0');expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});x.current=basis('32');await vi.advanceTimersByTimeAsync(10*60*1000);expect(await x.predictions.request(x.current)).toMatchObject({suggestion:null});expect(x.models).toEqual([]);
+});
+
+it('bounds the actual serialized prediction context for JSON-heavy chat text',()=>{
+ const text=('"'+String.fromCharCode(92)+String.fromCharCode(1)+'😀').repeat(4000);
+ const m=(id:string,role:Message['role'],content:string):Message=>({id,threadId:'thread',role,content,runId:null,createdAt:''});
+ const latest=m('reply','assistant','The file is ready.');
+ const context=predictionContext([m('previous','user',text),latest]);
+ const parsed=JSON.parse(context);
+ expect(Buffer.byteLength(context)).toBeLessThanOrEqual(PREDICTION_LIMITS.contextBytes);
+ expect(parsed.at(-1)).toEqual({role:'assistant',content:latest.content});
+ expect(parsed[0].content.length).toBeGreaterThan(1000);
+ expect(text.startsWith(parsed[0].content)).toBe(true);
+ expect(parsed[0].content).not.toMatch(/[\uD800-\uDBFF]$/u);
 });

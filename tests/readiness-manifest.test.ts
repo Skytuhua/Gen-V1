@@ -1,10 +1,11 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
-import {existsSync,mkdtempSync,readFileSync,rmSync} from 'node:fs';
+import {existsSync,mkdirSync,mkdtempSync,readFileSync,rmSync,writeFileSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
+import {reserveDesktopRelease} from '../scripts/desktop-assets.ts';
 import {
   aggregateStatus,blockedResult,buildManifest,childEnvironment,detectBrowserPrerequisite,
-  redactSecrets,runCheck,windowsVerificationPlan,type CheckResult,type CheckSpec,
+  redactSecrets,runCheck,readinessPackageChecks,windowsVerificationPlan,type CheckResult,type CheckSpec,
 } from '../scripts/verify-readiness.ts';
 
 // Negative-case contract for scripts/verify-readiness.ts (WO-F01 spec step 5).
@@ -85,11 +86,63 @@ describe('runCheck child-process contract',()=>{
     expect(existsSync(result.artifact)).toBe(false);
   });
 
+  it('returns a failed check when the log parent cannot be created',async()=>{
+    const directory=temporaryDirectory(),file=join(directory,'not-a-directory');
+    writeFileSync(file,'occupied');
+    await expect(runCheck(specFor(directory,{logPath:join(file,'probe.log')}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
+  });
+
+  it('returns a failed check when opening the log fails before the child exits',async()=>{
+    const directory=temporaryDirectory();
+    await expect(runCheck(specFor(directory,{logPath:directory,args:['-e','setTimeout(()=>{},15_000)']}))).resolves.toMatchObject({status:'FAIL',errorKind:'log-error'});
+  });
+
+  it.skipIf(process.platform!=='linux'||!existsSync('/dev/full'))('kills a running child when a log write fails after opening',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      logPath:'/dev/full',
+      args:['-e','require("node:fs").writeFileSync("child.pid",String(process.pid));console.log("post-open write");setTimeout(()=>{},10_000);'],
+      timeoutMs:10_000,
+    }));
+    // The child writes the marker only after startup, which follows successful log opening.
+    expect(result).toMatchObject({status:'FAIL',errorKind:'log-error'});
+    const pid=Number(readFileSync(join(directory,'child.pid'),'utf8'));
+    expect(Number.isSafeInteger(pid)).toBe(true);
+    await expect.poll(()=>existsSync('/proc/'+pid),{timeout:3000}).toBe(false);
+  });
+
+  it('preserves UTF-8 characters split across pipe chunks',async()=>{
+    const directory=temporaryDirectory();
+    const result=await runCheck(specFor(directory,{
+      args:['-e','const value=Buffer.from("測試 café 🚲");process.stdout.write(value.subarray(0,1));setTimeout(()=>process.stdout.write(Buffer.concat([value.subarray(1),Buffer.from("\\n")])),100)'],
+    }));
+    expect(result.status).toBe('PASS');
+    expect(readFileSync(result.artifact,'utf8')).toBe('測試 café 🚲\n');
+  });
+
   it('child output is captured to the log artifact',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{args:['-e','console.log("f01-log-marker")']}));
     expect(result.status).toBe('PASS');
     expect(readFileSync(result.artifact,'utf8')).toContain('f01-log-marker');
+  });
+});
+
+describe('readiness package-manager launch',()=>{
+  it('runs through the JavaScript pnpm entry when PATH has only a Windows shim',async()=>{
+    const directory=temporaryDirectory(),installed=join(directory,'node_modules','pnpm');
+    mkdirSync(join(installed,'bin'),{recursive:true});
+    writeFileSync(join(directory,'package.json'),JSON.stringify({packageManager:'pnpm@10.30.3'}));
+    writeFileSync(join(directory,'pnpm.cmd'),'@exit /b 9');
+    writeFileSync(join(installed,'package.json'),JSON.stringify({name:'pnpm',version:'10.30.3'}));
+    writeFileSync(join(installed,'bin','pnpm.cjs'),'console.log(JSON.stringify(process.argv.slice(2)))');
+    vi.stubEnv('PATH',directory);
+    const run=readinessPackageChecks(directory);
+    const result=await run(specFor(directory,{command:'pnpm',args:['test:browser','--suite','root']}));
+    expect(result).toMatchObject({status:'PASS',command:process.execPath,
+      args:[join(installed,'bin','pnpm.cjs'),'test:browser','--suite','root']});
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('["test:browser","--suite","root"]');
   });
 });
 
@@ -114,7 +167,7 @@ describe('prerequisite gating',()=>{
   });
 
   it('packaged Windows verification is BLOCKED off Windows and records the exact Windows commands',()=>{
-    const plan=windowsVerificationPlan('linux','0.6.5');
+    const plan=windowsVerificationPlan('linux','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(true);
     expect(plan.errorKind).toBe('platform-unavailable');
     const serialized=JSON.stringify(plan.commands);
@@ -127,8 +180,26 @@ describe('prerequisite gating',()=>{
     expect(result.status).toBe('BLOCKED');
   });
 
+  it('gives each readiness run its own immutable Windows release destination',async()=>{
+    const runA=join(temporaryDirectory(),'release output');
+    const runB=join(temporaryDirectory(),'release output');
+    for(const outputRoot of [runA,runB]){
+      const plan=windowsVerificationPlan('win32','0.6.5',outputRoot,'x64');
+      expect(plan.commands[0]?.args).toEqual(['desktop:package','--output-root',outputRoot]);
+      const release=await reserveDesktopRelease(plan.commands[0]!.args[2]!,'0.6.5');
+      expect(plan.commands[1]?.args.slice(-2)).toEqual([
+        join(release,'Gen-V1-Setup-0.6.5-win-x64.exe'),join(release,'win-unpacked'),
+      ]);
+    }
+  });
+
+  it.each(['arm64','ia32'])('blocks unsupported Windows %s before packaging',arch=>{
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),arch);
+    expect(plan).toMatchObject({blocked:true,errorKind:'platform-unavailable'});
+    expect(plan.commands).toHaveLength(2);
+  });
   it('packaged Windows verification is runnable on Windows x64',()=>{
-    const plan=windowsVerificationPlan('win32','0.6.5');
+    const plan=windowsVerificationPlan('win32','0.6.5',temporaryDirectory(),'x64');
     expect(plan.blocked).toBe(false);
     expect(plan.errorKind).toBeNull();
     expect(plan.commands.length).toBe(2);

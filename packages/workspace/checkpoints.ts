@@ -31,7 +31,6 @@ import { sha256hex } from "./edit-journal.ts";
 
 export const CHECKPOINT_KIND = "workspaceCheckpoint" as const;
 export const RESTORE_PLAN_KIND = "workspaceRestorePlan" as const;
-export const REPOSITORY_GROUP_KIND = "workspaceRepositoryGroup" as const;
 export const REPOSITORY_RECIPE_KIND = "workspaceRepositoryRecipe" as const;
 
 // Adapter-visible cap: the frozen web contract lists at most 100 files.
@@ -70,6 +69,7 @@ const exclusionReason = (path: string, data: Buffer | null, statBytes?: number):
 // Bounded unified diff (context 3) between two utf-8 texts; truncates to the
 // adapter's 128 KiB response limit and reports truncation.
 export function unifiedDiff(path: string, before: Buffer | null, after: Buffer | null): { diff: string | null; truncated: boolean } {
+  if (before !== null && after !== null && before.equals(after)) return { diff: null, truncated: false };
   // Split without the phantom empty line a trailing newline produces. A last
   // line that lacks one is a different line from the same text that ends with
   // one, so it carries a sentinel: the sentinel is compared, never printed.
@@ -125,7 +125,12 @@ export function unifiedDiff(path: string, before: Buffer | null, after: Buffer |
   const header = `--- a/${path}\n+++ b/${path}\n`;
   let diff = header + (hunks.length ? hunks.join("\n") + "\n" : "");
   const truncated = Buffer.byteLength(diff, "utf8") > REVIEW_DIFF_LIMIT;
-  if (truncated) diff = Buffer.from(diff, "utf8").subarray(0, REVIEW_DIFF_LIMIT).toString("utf8");
+  if (truncated) {
+    const bytes = Buffer.from(diff, "utf8");
+    let end = REVIEW_DIFF_LIMIT;
+    while ((bytes[end]! & 0xc0) === 0x80) end--;
+    diff = bytes.subarray(0, end).toString("utf8");
+  }
   return { diff: diff === header ? null : diff, truncated };
 }
 

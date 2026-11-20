@@ -1,3 +1,4 @@
+import {deferred} from './fixtures/deferred.ts';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 import {createConversationReader} from '../apps/web/src/conversation-workspace/reader';
 import {scopedContext as context, scopedSelection as selection, scopedEnvelope as envelope, scopedMessage as message} from './scoped-conversation-fixture';
@@ -20,7 +21,6 @@ afterEach(() => {readers.forEach(reader => reader.close()); readers.length = 0; 
 function reader(onState?: NonNullable<Parameters<typeof createConversationReader>[0]>['onState']) {
   const value = createConversationReader({onState}); readers.push(value); return value;
 }
-function deferred<T>() {let resolve!: (value: T) => void; const promise = new Promise<T>(done => {resolve = done;}); return {promise, resolve};}
 
 describe('scoped Personal reader', () => {
   it('acquires only the admitted exact real owner and publishes its actual context', async () => {

@@ -1,0 +1,124 @@
+Lockfile is up to date, resolution step is skipped
+Progress: resolved 1, reused 0, downloaded 0, added 0
+Packages: +1000
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+Progress: resolved 1000, reused 334, downloaded 0, added 336
+Progress: resolved 1000, reused 334, downloaded 1, added 336
+Progress: resolved 1000, reused 334, downloaded 24, added 361
+Progress: resolved 1000, reused 334, downloaded 25, added 361
+Progress: resolved 1000, reused 334, downloaded 48, added 385
+Progress: resolved 1000, reused 334, downloaded 49, added 385
+Progress: resolved 1000, reused 334, downloaded 72, added 409
+Progress: resolved 1000, reused 334, downloaded 73, added 409
+Progress: resolved 1000, reused 334, downloaded 96, added 433
+Progress: resolved 1000, reused 334, downloaded 97, added 433
+Progress: resolved 1000, reused 334, downloaded 120, added 457
+Progress: resolved 1000, reused 334, downloaded 121, added 457
+Progress: resolved 1000, reused 334, downloaded 144, added 481
+Progress: resolved 1000, reused 334, downloaded 145, added 481
+Progress: resolved 1000, reused 334, downloaded 168, added 505
+Progress: resolved 1000, reused 334, downloaded 169, added 505
+Progress: resolved 1000, reused 334, downloaded 192, added 529
+Progress: resolved 1000, reused 334, downloaded 193, added 529
+Progress: resolved 1000, reused 334, downloaded 216, added 553
+Progress: resolved 1000, reused 334, downloaded 217, added 553
+Progress: resolved 1000, reused 334, downloaded 240, added 577
+Progress: resolved 1000, reused 334, downloaded 241, added 577
+Progress: resolved 1000, reused 334, downloaded 264, added 601
+Progress: resolved 1000, reused 334, downloaded 265, added 601
+Progress: resolved 1000, reused 334, downloaded 288, added 625
+Progress: resolved 1000, reused 334, downloaded 289, added 625
+Progress: resolved 1000, reused 334, downloaded 312, added 649
+Progress: resolved 1000, reused 334, downloaded 313, added 649
+Progress: resolved 1000, reused 334, downloaded 336, added 673
+Progress: resolved 1000, reused 334, downloaded 337, added 673
+Progress: resolved 1000, reused 334, downloaded 356, added 693
+Progress: resolved 1000, reused 334, downloaded 359, added 696
+Progress: resolved 1000, reused 334, downloaded 360, added 697
+Progress: resolved 1000, reused 334, downloaded 380, added 717
+Progress: resolved 1000, reused 334, downloaded 384, added 721
+Progress: resolved 1000, reused 334, downloaded 385, added 721
+Progress: resolved 1000, reused 334, downloaded 408, added 745
+Progress: resolved 1000, reused 334, downloaded 409, added 745
+Progress: resolved 1000, reused 334, downloaded 432, added 769
+Progress: resolved 1000, reused 334, downloaded 433, added 769
+Progress: resolved 1000, reused 334, downloaded 456, added 793
+Progress: resolved 1000, reused 334, downloaded 457, added 793
+Progress: resolved 1000, reused 334, downloaded 480, added 817
+Progress: resolved 1000, reused 334, downloaded 481, added 817
+Progress: resolved 1000, reused 334, downloaded 504, added 841
+Progress: resolved 1000, reused 334, downloaded 505, added 841
+Progress: resolved 1000, reused 334, downloaded 528, added 865
+Progress: resolved 1000, reused 334, downloaded 529, added 865
+Progress: resolved 1000, reused 334, downloaded 552, added 889
+Progress: resolved 1000, reused 334, downloaded 553, added 889
+Progress: resolved 1000, reused 334, downloaded 576, added 913
+Progress: resolved 1000, reused 334, downloaded 577, added 913
+Progress: resolved 1000, reused 334, downloaded 600, added 937
+Progress: resolved 1000, reused 334, downloaded 601, added 937
+Progress: resolved 1000, reused 334, downloaded 624, added 961
+Progress: resolved 1000, reused 334, downloaded 625, added 961
+Progress: resolved 1000, reused 334, downloaded 648, added 985
+Progress: resolved 1000, reused 334, downloaded 649, added 985
+Progress: resolved 1000, reused 334, downloaded 663, added 1000, done
+.../esbuild@0.28.2/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.25.12/node_modules/esbuild postinstall$ node install.js
+.../esbuild@0.28.2/node_modules/esbuild postinstall: Done
+.../esbuild@0.25.12/node_modules/esbuild postinstall: Done
+
+dependencies:
++ @anthropic-ai/claude-agent-sdk 0.3.316
++ @biomejs/biome 2.6.4
++ @biomejs/cli-win32-x64 2.6.4
++ @cursor/sdk 1.0.38
++ @earendil-works/pi-coding-agent 1.4.0
++ @fontsource-variable/inter 5.3.0
++ @fontsource/caveat 5.3.0
++ @fontsource/dancing-script 5.3.0
++ @google/gemini-cli 0.66.0
++ @json-render/core 0.21.3
++ @json-render/react 0.21.3
++ @modelcontextprotocol/sdk 1.32.2
++ @remote-dom/polyfill 1.6.0
++ @sinclair/typebox 0.34.41
++ @upstash/context7-mcp 4.4.4
++ @xterm/addon-fit 0.11.0
++ @xterm/xterm 6.0.0
++ ajv 8.18.0
++ ajv-formats 3.0.1
++ electron-updater 6.8.11
++ fastify 5.12.7
++ lucide-react 0.468.0
++ node-pty 1.1.0
++ pdf-lib 1.17.1
++ pdfjs-dist 6.4.299
++ promptfoo 0.125.1
++ react 19.2.3
++ react-dom 19.2.3
++ semver 7.8.5
++ tsx 4.20.6
++ zod 4.6.6
+
+devDependencies:
++ @playwright/test 1.56.1
++ @types/node 24.10.0
++ @types/react 19.2.2
++ @types/react-dom 19.2.2
++ @vitejs/plugin-react 5.1.1
++ electron 45.2.0
++ electron-builder 26.18.0
++ esbuild 0.25.12
++ typescript 5.9.3
++ vite 7.3.7
++ vitest 4.1.12
+
+╭ Warning ─────────────────────────────────────────────────────────────────────╮
+│                                                                              │
+│   Ignored build scripts: @github/keytar@7.10.6, @google/genai@2.21.0,        │
+│   electron-winstaller@5.4.0, node-pty@1.0.0, node-pty@1.1.0,                 │
+│   protobufjs@7.6.6.                                                          │
+│   Run "pnpm approve-builds" to pick which dependencies should be allowed     │
+│   to run scripts.                                                            │
+│                                                                              │
+╰──────────────────────────────────────────────────────────────────────────────╯
+Done in 1m 44.5s using pnpm v10.30.3

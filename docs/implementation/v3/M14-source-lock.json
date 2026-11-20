@@ -1,0 +1,261 @@
+{
+  "schemaVersion": 3,
+  "auditAncestorSha": "a7fc0bc7db6ba3e9922b83932aa0aa8490a6fb54",
+  "executionBaseSha": "fcaa52f7fcdc9f39420118a79f9a8250ba83c563",
+  "inspectedPaths": [
+    {
+      "path": "package.json",
+      "blobSha": "fa399f6542a4886e6d8cbf7d6eecfe498e2967c0"
+    },
+    {
+      "path": "pnpm-lock.yaml",
+      "blobSha": "e6b064fc166611e518f4cf1297d9b00493d9eaaf"
+    },
+    {
+      "path": "pnpm-workspace.yaml",
+      "blobSha": "35b5ea4a631be874735c19a4d8c8eead3f13e524"
+    },
+    {
+      "path": "docs/architecture.md",
+      "blobSha": "b1317bfadb1c6b3b2e7f3c6324890e55ff2f5b7c"
+    },
+    {
+      "path": "packages/contracts/index.ts",
+      "blobSha": "09517becaf0c35f5f63bd758878659ea0de5f57b"
+    },
+    {
+      "path": "packages/contracts/preferences.ts",
+      "blobSha": "5cd7a562f3e331c06ffc82454f06075013080131"
+    },
+    {
+      "path": "packages/contracts/conversation-read-models.ts",
+      "blobSha": "43e24e36741bc714e561de277db7a1e99dfee283"
+    },
+    {
+      "path": "packages/contracts/implementation-evidence.ts",
+      "blobSha": "559b720ccead1d29c9a1bd4db528af52534105c3"
+    },
+    {
+      "path": "packages/contracts/tool-effects.ts",
+      "blobSha": "41b6fff1364825122c33761c0bfaac66da03bca0"
+    },
+    {
+      "path": "packages/core/capability-flags.ts",
+      "blobSha": "39e18abb43f7fa63cb2534ea3356ebb1be121161"
+    },
+    {
+      "path": "packages/core/host-flags.ts",
+      "blobSha": "bc42845181317c61018f2725ee1d62f9dd625cac"
+    },
+    {
+      "path": "packages/core/tool-authority.ts",
+      "blobSha": "1d654522d9842838276d162a33dac6141f731c26"
+    },
+    {
+      "path": "packages/core/tool-effects.ts",
+      "blobSha": "aa65f1d9b52d6a117b716a38feb8dd6c6d46b13a"
+    },
+    {
+      "path": "packages/core/accounts.ts",
+      "blobSha": "612ce5793ace7a661e7a87ff50bf68a6779a4f51"
+    },
+    {
+      "path": "packages/core/service.ts",
+      "blobSha": "2b3fb63acef915b052a468e104c6e4f00a4b82e4"
+    },
+    {
+      "path": "packages/core/conversation-read-models.ts",
+      "blobSha": "93d6f9a26685c936444e272fc6dd26f25211ea75"
+    },
+    {
+      "path": "packages/storage/store.ts",
+      "blobSha": "ebab3cba8d56e074d0377623bffd2054790f622b"
+    },
+    {
+      "path": "packages/runtime/index.ts",
+      "blobSha": "c944011f863d8e54cefb027ccde24e4445a4738b"
+    },
+    {
+      "path": "packages/runtime-hermes/index.ts",
+      "blobSha": "ca15682cd2ad86f296247e71a7b18a190c0968f4"
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "blobSha": "e28c6272f9aab28f76b9462a87768fe4226361c1"
+    },
+    {
+      "path": "packages/runtime-official/index.ts",
+      "blobSha": "b8e4b1a5892d60525e51ac86ae28b54c68c16ac0"
+    },
+    {
+      "path": "packages/runtime-official/history.ts",
+      "blobSha": "fc36a267358ebdd4bffa378b9755b8684b73a4b6"
+    },
+    {
+      "path": "packages/runtime-official/history-command.ts",
+      "blobSha": "fed1400daf3f6701590d55e96bbf58b8eb05e7c2"
+    },
+    {
+      "path": "packages/runtime-official/manifest.ts",
+      "blobSha": "c94557e8709b2ed231ce95e411e6d6fb7f43b0bf"
+    },
+    {
+      "path": "packages/runtime-official/gemini.ts",
+      "blobSha": "a568f05fa89abf1e16d1bae5adede8b4a4eb2951"
+    },
+    {
+      "path": "packages/runtime-official/cursor.ts",
+      "blobSha": "5307cb3cdd1db97e6bf05098933a143317b5b514"
+    },
+    {
+      "path": "packages/runtime-pi/index.ts",
+      "blobSha": "2653ae5b36eb6f99b3fc8bab770f38943102118a"
+    },
+    {
+      "path": "packages/runtime-pi/session.ts",
+      "blobSha": "1446dd0312e021a4010f2454ba248441b8b2c579"
+    },
+    {
+      "path": "packages/runtime-pi/worker.ts",
+      "blobSha": "36bc8abb120c9e228635ba427544919c96ead4e9"
+    },
+    {
+      "path": "apps/web/src/conversation-workspace/reader.ts",
+      "blobSha": "fcf2d5c3f0a13801e99e1786a69de54ac40fc8c6"
+    },
+    {
+      "path": "packages/contracts/workspace-checkpoints.ts",
+      "blobSha": "297a63373303e262bacbc7c44494a4c68bf8a5d1"
+    },
+    {
+      "path": "packages/workspace/checkpoints.ts",
+      "blobSha": "c20eef2419328701e25d1a1ddb786136748e655d"
+    },
+    {
+      "path": "apps/server/workspace-routes.ts",
+      "blobSha": "761ce65063cadd164c3dceb87c8cfe3cb360d092"
+    },
+    {
+      "path": "scripts/research-baseline.ts",
+      "blobSha": "52c93dd316f69a601da41116723044a21d54b26c"
+    },
+    {
+      "path": "scripts/browser-suites.ts",
+      "blobSha": "04d387152c17aad4eb3b6fbdd9f410178a51a5eb"
+    },
+    {
+      "path": "scripts/test-browser.ts",
+      "blobSha": "311a6c612e72fb3e444fff365698318e3b2f81a6"
+    },
+    {
+      "path": "scripts/build-windows-credential-lease.ts",
+      "blobSha": "0fd7da812762aa280d4ca7ec14647eaca22ad603"
+    },
+    {
+      "path": "playwright.config.ts",
+      "blobSha": "a8d56a38594131fddf6e6f31b2de938debb49fd2"
+    },
+    {
+      "path": "docs/implementation/v3/M01-verification.json",
+      "blobSha": "465bbb9d5d11adf0f7a1f2cf6c07dc8668e6491d"
+    },
+    {
+      "path": "docs/implementation/v3/M02-verification.json",
+      "blobSha": "41f7fc679f4e9bcbc48ac089e179cec34bb8fe8b"
+    },
+    {
+      "path": "docs/implementation/v3/M08-verification.json",
+      "blobSha": "b2956514c904681fa8cea8e1ccfc46d68cb7f7cc"
+    },
+    {
+      "path": "tests/research-baseline.test.ts",
+      "blobSha": "a44a20573b4feee888f4709011658a6d50635893"
+    },
+    {
+      "path": "tests/m01-m02-compatibility.test.ts",
+      "blobSha": "044b8b51fc0086ddfec6c47616e186c816cdad26"
+    },
+    {
+      "path": "tests/tool-authority-v3.test.ts",
+      "blobSha": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05"
+    },
+    {
+      "path": "tests/tool-effects-v3.test.ts",
+      "blobSha": "8d4ac426134d7e9f77a1d9dcfe9d00d7c5897b35"
+    },
+    {
+      "path": "tests/effect-recovery-v3.test.ts",
+      "blobSha": "991b54d4c96820a382a28c4fc625719b3a6a79b8"
+    },
+    {
+      "path": "tests/store.test.ts",
+      "blobSha": "bb8dca6f2f4d209d9bb2d2412cbf87e56a5cf777"
+    },
+    {
+      "path": "tests/accounts.test.ts",
+      "blobSha": "6f53713e7847808f137e46674b16f17e40521993"
+    },
+    {
+      "path": "tests/conversation-read-models.test.ts",
+      "blobSha": "3fdd4cdb2654413393c73c0e2412578a2b2e200c"
+    },
+    {
+      "path": "tests/scoped-conversation-reader.test.ts",
+      "blobSha": "86a845c08f827507dd706199db80d2af4cf4c429"
+    },
+    {
+      "path": "tests/official-history-ownership.test.ts",
+      "blobSha": "908d56f2f74b7ba3b1cc405da3dcf3ec7c0f42b3"
+    },
+    {
+      "path": "tests/official-claude-history-encoding.test.ts",
+      "blobSha": "7ede26b3c56c2c230049de4325c60009bc10b610"
+    },
+    {
+      "path": "tests/hermes-runtime.test.ts",
+      "blobSha": "fef5ffa4b7acdc9933914d7e11778708700404f8"
+    },
+    {
+      "path": "tests/runtime-pi.test.ts",
+      "blobSha": "e5d86f8866870eedf50b461094494970d57dd850"
+    }
+  ],
+  "publicContracts": [
+    {
+      "name": "runtime-adapter",
+      "version": "09517becaf0c35f5f63bd758878659ea0de5f57b",
+      "testIds": [
+        "tests/runtime-pi.test.ts",
+        "tests/hermes-runtime.test.ts",
+        "tests/official-history-ownership.test.ts"
+      ]
+    },
+    {
+      "name": "store-command",
+      "version": "ebab3cba8d56e074d0377623bffd2054790f622b",
+      "testIds": [
+        "tests/store.test.ts",
+        "tests/conversation-read-models.test.ts"
+      ]
+    }
+  ],
+  "acceptedDependencyCommits": [
+    "5f0958f4cb5b40bc10c1eea0e1cd517b57aaa1b9",
+    "f331cf16b268282da888a41da42fc776ea7befd5",
+    "e871257aa82beb06ab4b8f3989cbe436cb9a6a8c"
+  ],
+  "approvedDrift": [
+    {
+      "path": "packages/runtime-official/history.ts",
+      "fromBlob": "f3f435b209ab761a7cfb3987333fce7b626ffc7e",
+      "toBlob": "fc36a267358ebdd4bffa378b9755b8684b73a4b6",
+      "note": "Reviewed at the accepted main base: split UTF-8 decoding fix; claudeHistory signature and receipt behavior preserved."
+    },
+    {
+      "path": "packages/runtime-hermes/worker.py",
+      "fromBlob": "a1fe7014a0ad6b570e88e8db4d867bf9d8c6ee0b",
+      "toBlob": "e28c6272f9aab28f76b9462a87768fe4226361c1",
+      "note": "Reviewed at the accepted main base: explicit native tool coverage-gap declaration; no history/maintenance API change."
+    }
+  ]
+}

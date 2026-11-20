@@ -10,7 +10,7 @@ import { DurableWakeupScheduler } from "../packages/core/durable-wakeups.ts";
 import { ModelCapacity } from "../packages/runtime/model-capacity.ts";
 import { __setCapabilityFlagForTests, registeredCapabilityFlags } from "../packages/core/capability-flags.ts";
 import type { RuntimeAdapter, Thread } from "../packages/contracts/index.ts";
-import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
+import { BACKGROUND_HOLD_REASONS, backgroundWorkV1Schema, humanStepV1Schema, intakeV1Schema, occurrenceKeyForEvent, occurrenceKeyForTime, wakeupV1Schema, type BackgroundOccurrenceV1 } from "../packages/contracts/background-work.ts";
 
 const cleanups: (() => void | Promise<void>)[] = [];
 afterEach(async () => {
@@ -420,6 +420,18 @@ describe("M10 review regressions", () => {
     expect(f.coordinator.work(work.workId).outcome).toBe("SUCCEEDED");
     expect(f.store.all<BackgroundOccurrenceV1>("backgroundOccurrence").filter(o => o.wakeupId === held[0]!.wakeupId && o.state === "DELIVERED")).toHaveLength(1);
   });
+  it("settles a known unsubmitted firing when its blocked schedule is cancelled", () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver, revalidate: () => ({ ok: false, blockedReason: "WAITING_HUMAN" }) });
+    cleanups.push(() => scheduler.stop());
+    const wakeup = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: "work" } });
+    scheduler.hostEvent("runtime.settled", "work", "event");
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "PENDING", dispatch: "NOT_DISPATCHED" }]);
+    scheduler.cancel(command("background.wakeup.cancel"), wakeup.wakeupId);
+    expect(scheduler.occurrences(wakeup.wakeupId)).toMatchObject([{ state: "CANCELLED", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null }]);
+    expect(deliver).not.toHaveBeenCalled();
+  });
   it("a held firing stranded before resume redelivers through recover()", async () => {
     const f = fixture({ executionGate: async () => ({ allowed: true }), enqueueFollowUp: input => { f.store.put("outbox", input.id, input.threadId, { id: input.id, threadId: input.threadId, content: input.content, status: "persisted", runId: null }); } });
     enable("jobs.backgroundV1");
@@ -546,6 +558,18 @@ describe("M10 review regressions", () => {
 });
 
 describe("M10-S12/T06 shutdown and clock movement", () => {
+  it("clears unused timeout handles after idle shutdown", async () => {
+    const f = fixture();
+    vi.useFakeTimers();
+    try {
+      const baseline = vi.getTimerCount();
+      await f.coordinator.drain();
+      expect(vi.getTimerCount()).toBe(baseline);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it("drain prevents new admission, cancels eligible work and records uncertainty", async () => {
     const f = fixture();
     enable("jobs.backgroundV1");
@@ -686,6 +710,45 @@ describe("M10 v6 completeness regressions", () => {
     expect(f.store.all("backgroundAdmission")).toHaveLength(50);
     await scheduler.tick();
     await waitFor(() => f.store.all("backgroundAdmission").length === 60);
+  });
+  it("does not spend the recovery batch on expired claims whose schedules are paused", async () => {
+    const f = fixture();
+    const deliver = vi.fn(async () => ({ status: "DELIVERED" as const }));
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver });
+    cleanups.push(() => scheduler.stop());
+    for (let index = 0; index <= 50; index++) {
+      const wakeupId = `recovery-${String(index).padStart(2, "0")}`;
+      scheduler.register(command("background.wakeup.register"), { wakeupId, taskId: "work", trigger: { kind: "HOST_EVENT", eventKind: "runtime.settled", correlationKey: wakeupId } });
+      const key = occurrenceKeyForEvent(wakeupId, 1, "event");
+      const stamp = new Date(f.now()).toISOString();
+      f.store.internal("fixture.expired-claim", null, () => f.store.put("backgroundOccurrence", key, null, {
+        occurrenceKey: key, wakeupId, scheduleRevision: 1, scheduledDueAtMs: null, hostEventId: "event",
+        state: "CLAIMED", dispatch: "NOT_DISPATCHED", claimGeneration: 1, admissionId: null,
+        leaseExpiresAtMs: f.now() - 1, createdAt: stamp, updatedAt: stamp,
+      } satisfies BackgroundOccurrenceV1));
+      if (index < 50) scheduler.pause(command("background.wakeup.pause"), wakeupId);
+    }
+    expect((await scheduler.tick()).map(item => item.wakeup.wakeupId)).toEqual(["recovery-50"]);
+    expect(deliver).toHaveBeenCalledTimes(1);
+  });
+  it("records an older interval delivery without clearing a newer block", async () => {
+    const f = fixture();
+    const scheduler = new DurableWakeupScheduler({ store: f.store, now: f.now, deliver: async ({ occurrence }) =>
+      occurrence.scheduledDueAtMs === anchor ? { status: "UNCERTAIN", reason: "Receipt delayed" } : { status: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" } });
+    cleanups.push(() => scheduler.stop());
+    const anchor = f.now();
+    const { wakeupId } = scheduler.register(command("background.wakeup.register"), { taskId: "work", trigger: { kind: "INTERVAL_UTC", anchorMs: anchor, intervalMs: 60_000 } });
+    await scheduler.tick();
+    const oldKey = occurrenceKeyForTime(wakeupId, 1, anchor);
+    expect(scheduler.occurrences(wakeupId)[0]?.state).toBe("UNKNOWN");
+    f.advance(60_000);
+    await scheduler.tick();
+    const blocked = scheduler.schedules().find(item => item.wakeupId === wakeupId)!;
+    expect(blocked).toMatchObject({ state: "BLOCKED", blockedReason: "TEMPORARILY_UNAVAILABLE" });
+    expect(scheduler.reconcile(command("background.occurrence.reconcile"), oldKey, { observed: "DELIVERED" }).state).toBe("DELIVERED");
+    expect(scheduler.schedules().find(item => item.wakeupId === wakeupId)).toMatchObject({
+      state: "BLOCKED", blockedReason: blocked.blockedReason, nextDueAtMs: blocked.nextDueAtMs, lastRunAtMs: f.now(),
+    });
   });
   it("S11: every missed occurrence is persisted, not only a bounded sample", async () => {
     const f = fixture();

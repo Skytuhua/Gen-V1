@@ -328,7 +328,11 @@ describe("M10-S10 approved external tasks use the manual task gates", () => {
     const service = new Service(store, runtime, { background: { intakeAuth: { token: async () => "gh-token", login: "octocat" }, intakeFetch: async () => jsonResponse([issue()]) } });
     cleanups.push(async () => { await service.dispose().catch(() => {}); store.close(); rmSync(root, { recursive: true, force: true, maxRetries: 8, retryDelay: 150 }); });
     __setCapabilityFlagForTests("integrations.intakeV1", true);
+    await service.command(command("intake.configure", { repositoryId: REPO, enabled: true, projectId: "old-default" }));
     await service.command(command("intake.configure", { repositoryId: REPO, enabled: true }));
+    expect(service.intake.config()?.projectId).toBe("old-default");
+    await service.command(command("intake.configure", { repositoryId: REPO, enabled: true, projectId: null }));
+    expect(service.intake.config()?.projectId).toBeNull();
     const polled = await service.command(command("intake.poll", {}));
     expect((polled.result as { proposals: number }).proposals).toBe(1);
     expect(starts).toHaveLength(0);
@@ -343,4 +347,11 @@ describe("M10-S10 approved external tasks use the manual task gates", () => {
     expect(starts[0]!.prompt).toContain("untrusted");
     expect(store.all("approval")).toHaveLength(0);
   });
+});
+
+it("keeps valid intake records when the upstream list also contains a null item", async () => {
+  const f = fixture({fetchImpl: async () => jsonResponse([null, issue()])});
+  await expect(f.intake.pollOnce()).resolves.toMatchObject({status:"OK",proposals:1,rejected:1});
+  expect(f.intake.records().map(r=>r.eventId)).toEqual(["I_issue1"]);
+  expect(f.executorCalls).toHaveLength(0);
 });

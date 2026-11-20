@@ -374,10 +374,12 @@ it('blocks dispatch if a source mutates during the M04 finalize boundary', async
   expect(f.starts).toEqual([]); expect(f.store.get('outbox', 'finalize-send')).toMatchObject({sourceRefs: [captured.ref], enteredRuntime: false});
 });
 
-it.runIf(process.platform === 'linux')('keeps file captures unavailable under the real unsupported Linux leaf guard', async () => {
+it.runIf(process.platform === 'linux')('admits file captures under the real Linux leaf guard', async () => {
   const f = fixture(), workbench = f.workbench(), path = join(f.root, 'guarded.txt'); writeFileSync(path, 'retained source');
   f.store.internal('fixture.grant', f.thread.id, () => f.store.put('resource', 'grant-linux', f.thread.id, {id: 'grant-linux', threadId: f.thread.id, kind: 'file', path, label: 'guarded.txt', writable: false, createdAt: f.thread.createdAt}));
-  await expect(workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}})).rejects.toMatchObject({code: 'CAPABILITY_DENIED'});
+  const descriptor = await workbench.describe({logicalOwner: f.owner, locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}});
+  expect(descriptor).toMatchObject({label: 'guarded.txt', locator: {kind: 'FILE_RANGE', sourceId: 'grant-linux'}});
+  expect(descriptor.contentDigest).toMatch(/^[a-f0-9]{64}$/);
   expect(f.store.all('sourceCapture', f.thread.id)).toEqual([]);
 });
 
