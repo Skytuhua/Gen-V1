@@ -163,7 +163,9 @@ button:has(>svg.lucide-x):hover:not(:disabled),button:has(>svg.lucide-circle-x):
 .composer-error,.workspace-error { display:flex; align-items:center; gap:8px; justify-content:space-between; padding:10px 13px; color:var(--danger); background:var(--subtle); border-radius:9px; font-size:12px; line-height:1.5; overflow-wrap:anywhere; }
 .composer-error { margin-bottom:8px; }
 .composer-hint { font-size:11px; color:var(--muted); margin:0 0 8px; padding:0 3px; line-height:1.4; }
-.workspace-error { margin:0 26px 8px; }
+.workspace-error { margin:0 26px 8px; animation:ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
+.workspace-error[data-leaving] { pointer-events:none; animation:ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
+.app-shell[data-panel-animations=false] .workspace-error { animation:none!important; }
 .retained-widget-notice { color:var(--muted); }
 .artifact { border:1px solid var(--border); border-radius:14px; background:var(--surface); overflow:hidden; margin:16px auto 22px; width:100%; min-width:0; }
 .artifact-width-compact { max-width:760px; }
@@ -366,7 +368,8 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(.message[data-arrival="true"], .resource-chip, .thread-item, [role="tabpanel"], [role="tabpanel"] > *) { animation-name: ui-popover-fade; animation-duration:var(--ui-motion-press); }
+  :where(.message[data-arrival="true"], .resource-chip, .thread-item, .workspace-error, [role="tabpanel"], [role="tabpanel"] > *) { animation-name: ui-popover-fade; animation-duration:var(--ui-motion-press); }
+  :where(.workspace-error[data-leaving]) { animation-direction:reverse; }
   :where(details)::details-content { transition:none; content-visibility:visible; block-size:auto; }
   :where(details:not([open]))::details-content { display:none; }
 }

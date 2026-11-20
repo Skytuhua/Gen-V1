@@ -20,8 +20,18 @@
 .composer-select select:disabled{cursor:default}
 .composer-toolbar .composer-voice{width:28px;padding:5px;border-radius:50%}
 .composer-toolbar .composer-voice.is-listening{background:var(--accent-soft);color:var(--accent)}
-.composer-toolbar .send-button{width:30px;height:30px;margin-left:2px}
-.composer-toolbar .send-button>svg{width:18px;height:18px}
+.composer-toolbar .send-button{width:30px;height:30px;margin-left:2px;display:grid;place-items:center;transition:opacity var(--ui-motion-hover) var(--ui-ease-move),color var(--ui-motion-hover) var(--ui-ease-move)}
+.composer-toolbar .send-button .send-swap-icon{grid-area:1/1;display:grid;place-items:center;animation:ui-send-in var(--ui-motion-press) var(--ui-ease-enter)}
+.composer-toolbar .send-button .send-swap-icon[data-leaving]{pointer-events:none;animation:ui-send-out var(--ui-motion-press) var(--ui-ease-move) both}
+.composer-toolbar .send-button svg{width:18px;height:18px}
+@keyframes ui-send-in{from{opacity:0;transform:scale(.9)}}
+@keyframes ui-send-out{to{opacity:0;transform:scale(.9)}}
+/* Reduced motion: the send/stop swap fades at press speed with no scale. */
+:root:is([data-motion=reduced]) .composer-toolbar .send-button .send-swap-icon{animation-name:ui-send-fade}
+:root:is([data-motion=reduced]) .composer-toolbar .send-button .send-swap-icon[data-leaving]{animation-name:ui-send-fade;animation-direction:reverse}
+@media (prefers-reduced-motion:reduce){.composer-toolbar .send-button .send-swap-icon{animation-name:ui-send-fade}.composer-toolbar .send-button .send-swap-icon[data-leaving]{animation-name:ui-send-fade;animation-direction:reverse}}
+@keyframes ui-send-fade{from{opacity:0}}
+:root:is([data-motion=off]) .composer-toolbar .send-button .send-swap-icon,.app-shell[data-panel-animations=false] .composer-toolbar .send-button .send-swap-icon{animation:none!important}
 .composer-secondary-actions{display:flex;justify-content:flex-end;align-items:center;flex-wrap:wrap;gap:6px;min-width:0;margin:0;color:var(--muted)}
 .composer-context-chip{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--control-border);border-radius:15px;min-height:25px;padding:3px 8px;background:var(--surface);color:var(--muted);font-size:10px;line-height:1.2;white-space:nowrap;transform:none;transition:transform 0s var(--ui-ease-move)}
 .composer-context-chip>svg{width:12px;height:12px;flex:none}
