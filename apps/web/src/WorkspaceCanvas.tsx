@@ -58,6 +58,25 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
  const zoom=(direction:-1|0|1)=>{const current=viewportRef.current;saveViewport(canvasZoomAt(current,canvasZoom(current.zoom,direction),{x:size.width/2,y:size.height/2}));};
  const visiblePanels=panels.filter(panel=>panel.visible&&panel.placement==='canvas'&&!disabledKinds.includes(panel.kind));
  const displayed=visiblePanels.map(panel=>({...panel,bounds:drafts[panel.id]??panel.bounds}));
+ // E6: a panel leaving the canvas keeps a ghost for the exit animation.
+ const[leaving,setLeaving]=useState<Record<string,PanelPlacement>>({}),prevDisplayed=useRef<Record<string,PanelPlacement>>({});
+ useLayoutEffect(()=>{
+  const now:Record<string,PanelPlacement>={};
+  for(const panel of displayed)now[panel.id]=panel;
+  const dropped:PanelPlacement[]=[];
+  for(const[id,prev]of Object.entries(prevDisplayed.current))if(!now[id])dropped.push(prev);
+  prevDisplayed.current=now;
+  if(dropped.length)setLeaving(current=>{const next={...current};for(const panel of dropped)next[panel.id]=panel;return next;});
+ });
+ useLayoutEffect(()=>{
+  if(!Object.keys(leaving).length)return;
+  const done=()=>setLeaving({});
+  const running=[...root.current?.querySelectorAll('.canvas-panel[data-leaving]')??[]].flatMap(element=>element.getAnimations?.()??[]);
+  if(!running.length){done();return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)done();});
+  return()=>{cancelled=true;};
+ },[leaving]);
  const projectGroups=canvas.preset==='all-agents'?groupCanvasPanels(displayed,threads):[];
  const panelDomId=(id:string)=>`canvas-panel-${canvas.id}-${id}`;
  const fit=(values=displayed)=>saveViewport(fitCanvasViewport(values,size,canvas.preset==='all-agents'?88:24));
@@ -112,10 +131,14 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
        <button className="icon-button" aria-label={`${panel.collapsed?'Expand':'Collapse'} ${title(panel)}`} onClick={()=>run(()=>updatePanel(panel,{collapsed:!panel.collapsed}))}>{panel.collapsed?<ChevronRight size={13}/>:<ChevronDown size={13}/>}</button><button className="icon-button" aria-label={`Hide ${title(panel)}`} title="Hide panel" onClick={()=>run(()=>updatePanel(panel,{visible:false}))}><EyeOff size={13}/></button>
       </header>
       {!panel.collapsed&&parentTitle&&<div className="canvas-parent-label">{thread?.kind==='delegate'?'Subagent':'Side chat'} <span>· {parentTitle}</span></div>}
-      {(keep||!panel.collapsed)&&(visible||keep)&&<div className="canvas-panel-body" inert={!visible||panel.collapsed} style={!visible||panel.collapsed?{visibility:'hidden'}:undefined}>{renderBody(panel,visible&&!panel.collapsed)}</div>}
+      {(visible||keep)&&<div className="canvas-panel-collapse" data-collapsed={panel.collapsed}><div className="canvas-panel-body" inert={!visible||panel.collapsed} style={!visible||panel.collapsed?{visibility:'hidden'}:undefined}>{renderBody(panel,visible&&!panel.collapsed)}</div></div>}
       {!panel.collapsed&&<button className="canvas-panel-resize" aria-label={`Resize ${title(panel)}`} disabled={arranging} title="Drag to resize; Shift + arrow keys on the move handle also resize" onPointerDown={event=>move(event,panel,true)}><Maximize2 size={11}/></button>}
      </section>;
     })}
+    {Object.values(leaving).map(panel=>{const bounds=panel.bounds;return <section key={'leaving-'+panel.id} className={`canvas-panel canvas-panel-${panel.kind}`} data-leaving data-panel-id={panel.id} data-collapsed={panel.collapsed} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0)}} aria-hidden inert>
+      <header className="canvas-panel-header"><button className="canvas-panel-move" disabled><GripHorizontal size={13}/><strong>{title(panel)}</strong></button></header>
+      {!panel.collapsed&&<div className="canvas-panel-collapse"><div className="canvas-panel-body">{renderBody(panel,false)}</div></div>}
+     </section>;})}
    </div>
    {!embedded&&!visiblePanels.length&&<div className="canvas-empty"><strong>{canvas.preset==='all-agents'?'No active conversations':'Arrange your workspace'}</strong><p>{canvas.preset==='all-agents'?'Active and pinned chats appear here, grouped by project. Choose All history to see earlier work.':'Add a panel from Panels to begin.'}</p></div>}
   </div>

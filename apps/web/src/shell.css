@@ -276,6 +276,13 @@
 
 
 .workspace-tools[hidden] { display:none!important; }
+
+/* E3: tool-dock panes slide in/out; share changes tween; pointer resize stays 1:1. */
+.shell-workarea[data-tool-layout]>.workspace-tools>* { transition:flex-basis var(--ui-motion-panel-enter) var(--ui-ease-move),width var(--ui-motion-panel-enter) var(--ui-ease-move); }
+.resizing-panel .workspace-tools>* { transition:none; }
+.shell-workarea[data-tool-layout]>.workspace-tools>.desktop-browser-dock { animation:ui-item-in var(--ui-motion-panel-enter) var(--ui-ease-enter); }
+.shell-workarea[data-tool-layout]>.workspace-tools>.desktop-browser-dock[data-state="closed"] { pointer-events:none; animation:ui-item-out var(--ui-motion-panel-exit) var(--ui-ease-move) both; }
+@media(prefers-reduced-motion:reduce) { .shell-workarea[data-tool-layout]>.workspace-tools>* { transition-property:opacity,color,background-color,border-color; } .shell-workarea[data-tool-layout]>.workspace-tools>.desktop-browser-dock { animation-name:ui-popover-fade; animation-duration:var(--ui-motion-press); } }
 .shell-notice { position:fixed; bottom:64px; left:50%; transform:translateX(-50%); display:flex; align-items:center; gap:14px; max-width:calc(100vw - 28px); border:1px solid var(--border); background:var(--surface); box-shadow:var(--elevation); border-radius:10px; padding:10px 12px 10px 16px; font-size:12px; z-index:55; animation:shell-notice-in var(--ui-motion-toast-enter) var(--ui-ease-enter) both; }
 .shell-notice[data-leaving] { animation:shell-notice-out var(--ui-motion-toast-exit) var(--ui-ease-move) both; }
 @keyframes shell-notice-in { from { opacity:0; transform:translate(-50%,8px); } }

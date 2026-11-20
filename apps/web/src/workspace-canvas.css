@@ -5,7 +5,17 @@
 
 .workspace-switcher{display:flex;align-items:center;gap:2px;padding:5px 10px;border-bottom:1px solid var(--border);flex-wrap:wrap;min-height:38px}.workspace-switcher>button,.workspace-switcher>select,.workspace-control-wrap>button{padding:5px 8px;font-size:12px;border-radius:6px;color:var(--muted)}.workspace-switcher>button[aria-pressed=true],.workspace-switcher>button:hover,.workspace-control-wrap>button:hover{background:var(--selection-bg);color:var(--text)}.workspace-switcher-spacer{flex:1}.workspace-control-wrap{position:relative}.workspace-controls-error{font-size:12px;margin:4px 12px}.workspace-plugin-notice{display:flex;align-items:center;gap:8px;justify-content:space-between;padding:6px 12px;font-size:12px;line-height:1.4;color:var(--muted);background:var(--subtle);border-bottom:1px solid var(--border);overflow-wrap:anywhere}.workspace-plugin-notice>button{flex:0 0 auto}.workspace-layout-workarea{display:flex;flex-direction:column;min-width:0;min-height:0;flex:1}.workspace-layout-workarea>.shell-workarea{flex:1}
 @media(max-width:700px){.canvas-filter{order:3;width:100%}.workspace-switcher{gap:1px;padding:4px}.workspace-switcher>button,.workspace-control-wrap>button{padding:5px}.workspace-switcher-spacer{display:none}.workspace-switcher .workspace-control-wrap{margin-left:auto}.workspace-switcher .workspace-control-wrap+.workspace-control-wrap{margin-left:0}.canvas-panel-header{padding:0 4px}.canvas-binding{display:none}}
-@media(prefers-reduced-motion:reduce){.workspace-canvas-shell *{scroll-behavior:auto}}
+/* E6: canvas panels fade in scaling from .96 and fade back out. */
+@keyframes canvas-panel-in{from{opacity:0;transform:scale(.96)}}
+@keyframes canvas-panel-out{to{opacity:0;transform:scale(.96)}}
+.canvas-panel{transform-origin:center top;animation:canvas-panel-in var(--ui-motion-panel-enter) var(--ui-ease-enter);transition:height var(--ui-motion-popup-enter) var(--ui-ease-move)}
+.workspace-canvas-interaction .canvas-panel{transition:none}
+.canvas-panel[data-leaving]{pointer-events:none;animation:canvas-panel-out var(--ui-motion-panel-exit) var(--ui-ease-move) both}
+/* E7: the collapsed body row tweens 1fr→0fr while fading. */
+.canvas-panel-collapse{display:grid;grid-template-rows:minmax(0,1fr);flex:1;min-width:0;min-height:0;transition:grid-template-rows var(--ui-motion-popup-enter) var(--ui-ease-move),opacity var(--ui-motion-popup-enter) var(--ui-ease-move)}
+.canvas-panel-collapse[data-collapsed=true]{grid-template-rows:0fr;opacity:0;transition-duration:var(--ui-motion-popup-exit),var(--ui-motion-popup-exit)}
+.canvas-panel-collapse>.canvas-panel-body{min-height:0;overflow:hidden}
+@media(prefers-reduced-motion:reduce){.workspace-canvas-shell *{scroll-behavior:auto}.canvas-panel{animation-name:ui-popover-fade;animation-duration:var(--ui-motion-press);transition:none}.canvas-panel-collapse{transition:none}}
 .canvas-side-composer{padding:10px;border-top:1px solid var(--border)}.canvas-side-composer textarea{width:100%;min-height:72px;max-height:150px;resize:vertical;border:1px solid var(--control-border);border-radius:8px;padding:9px;background:var(--canvas);color:var(--text);font:inherit;font-size:13px}.canvas-side-composer>div{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}.canvas-side-composer small{font-size:10px;color:var(--muted)}.canvas-side-composer p{font-size:11px}
 .canvas-panel-browser .desktop-browser-native{margin-bottom:28px}
 
