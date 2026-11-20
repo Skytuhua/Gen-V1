@@ -55,9 +55,10 @@ export async function findGeminiNativeSession(dataDir: string, manifest: Manifes
   return null;
 }
 
-export async function readGeminiNativeHistory(dataDir: string, manifest: ManifestState): Promise<HistoryReceipt[]> {
+/** Null means no native snapshot matched; an empty array means the matched snapshot has no receipts. */
+export async function readGeminiNativeHistory(dataDir: string, manifest: ManifestState): Promise<HistoryReceipt[] | null> {
   const session = await findGeminiNativeSession(dataDir, manifest);
-  if (!session) return [];
+  if (!session) return null;
   const receipts = new Map<string, HistoryReceipt>();
   for (const line of session.text.split(/\r?\n/).slice(1)) {
     let entry: any;
