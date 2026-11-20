@@ -307,16 +307,18 @@ jobs:
       # The declared installed lane is also valid without memory options: the
       # verifier launches the exact installed executable with ambient feature
       # activation suppressed, so a flag-less run is the default-off installed
-      # acceptance. It reuses this job's already pinned and packaged artifacts —
-      # packaging is not duplicated, and no production flag is changed.
-      - name: Verify installed default-off acceptance
+      # acceptance. The M16 wrapper reuses this job's already pinned and
+      # packaged artifacts, binds the checked-out source to the actual setup and
+      # payload digests, and adds one direct module-load smoke. Packaging is not
+      # duplicated, and no production flag, live driver or control action is used.
+      - name: Verify installed default-off identity and direct module load
         run: |
           $ErrorActionPreference = 'Stop'
           $version = (Get-Content -Raw -LiteralPath package.json | ConvertFrom-Json).version
           $release = Join-Path $PWD ('.harness-installed-package/desktop-release-' + $version)
           $setup = (Resolve-Path -LiteralPath (Join-Path $release ('Gen-V1-Setup-' + $version + '-win-x64.exe'))).Path
           $unpacked = (Resolve-Path -LiteralPath (Join-Path $release 'win-unpacked')).Path
-          $verifyArgs = @('exec', 'tsx', 'scripts/verify-installed-desktop.ts', $setup, $unpacked)
+          $verifyArgs = @('exec', 'tsx', 'scripts/m16-installed-identity.ts', $setup, $unpacked)
           Write-Output ('HARNESS_INSTALLED_VERIFY_ARGV=' + (@{executable='pnpm'; args=$verifyArgs} | ConvertTo-Json -Compress))
           & pnpm @verifyArgs
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
@@ -334,6 +336,7 @@ jobs:
             .harness-installed-package/desktop-stage-*/desktop-host/third-party/integrations/PYTHON_INSTALLATION_V2.json
             .harness-desktop-installed/run-*/owner.json
             .harness-desktop-installed/run-*/verification.json
+            .harness-desktop-installed/run-*/m16-identity-receipt.json
             .harness-desktop-installed/run-*/*.png
             .harness-desktop-installed/run-*/installed-memory-redacted-export.json
             .harness-desktop-installed/run-*/enabled-memory/*.png
