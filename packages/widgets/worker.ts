@@ -8,11 +8,14 @@ const scope = globalThis as unknown as { postMessage: (data: unknown) => void; a
 const post = scope.postMessage.bind(globalThis), listen = scope.addEventListener.bind(globalThis);
 const timer = setInterval, later = setTimeout;
 const remote = new Window();
+type PolyfillNode = InstanceType<typeof remote.Node>;
+type PolyfillElement = InstanceType<typeof remote.Element>;
+type PolyfillHTMLElement = InstanceType<typeof remote.HTMLElement>;
 const doc = remote.document;
 const callbacks = new Set<(value: unknown) => void>();
 const pending = new Map<string, { resolve: (value: unknown) => void; reject: (error: Error) => void; timeout: ReturnType<typeof setTimeout> }>();
 let started = false, initialized = false, serial = 0, css = '', lastRender = '', lastSnapshotAt = -Infinity;
-const ids = new WeakMap<object, number>(), elements = new Map<number, any>();
+const ids = new WeakMap<object, number>(), elements = new Map<number, PolyfillElement>();
 const idFor = (node: object) => { let id = ids.get(node); if (!id) { id = ++serial; ids.set(node, id); } return id; };
 const bridge = (type: string, payload: unknown) => post({ type: 'bridge', event: type, payload });
 const harness = {
@@ -42,25 +45,25 @@ for (const key of ['fetch', 'XMLHttpRequest', 'WebSocket', 'WebTransport', 'Even
 // properties and style declarations without introducing a second DOM engine.
 const prototype = remote.HTMLElement.prototype;
 for (const property of ['value', 'type', 'name', 'placeholder']) Object.defineProperty(prototype, property, {
-  get(this: any) {
+  get(this: PolyfillHTMLElement) {
     if (property === 'value' && this.localName === 'select') { const options = this.querySelectorAll('option'); const selected = options[this.selectedIndex]; return selected?.value ?? ''; }
     return this.getAttribute(property) ?? (property === 'value' && ['textarea', 'option'].includes(this.localName) ? this.textContent : '');
   },
-  set(this: any, value: unknown) {
-    if (property === 'value' && this.localName === 'select') { const options = Array.from(this.querySelectorAll('option')) as any[]; this.selectedIndex = options.findIndex(option => option.value === String(value)); return; }
+  set(this: PolyfillHTMLElement, value: unknown) {
+    if (property === 'value' && this.localName === 'select') { const options = Array.from(this.querySelectorAll('option')); this.selectedIndex = options.findIndex(option => option.value === String(value)); return; }
     this.setAttribute(property, String(value));
   },
 });
 Object.defineProperty(prototype, 'selectedIndex', {
-  get(this: any) { const options = Array.from(this.querySelectorAll('option')) as any[]; const selected = options.findIndex(option => option.selected); return selected >= 0 ? selected : options.length ? 0 : -1; },
-  set(this: any, value: number) { const options = Array.from(this.querySelectorAll('option')) as any[]; options.forEach((option, index) => { option.selected = index === value; }); },
+  get(this: PolyfillHTMLElement) { const options = Array.from(this.querySelectorAll('option')); const selected = options.findIndex(option => option.selected); return selected >= 0 ? selected : options.length ? 0 : -1; },
+  set(this: PolyfillHTMLElement, value: number) { const options = Array.from(this.querySelectorAll('option')); options.forEach((option, index) => { option.selected = index === value; }); },
 });
 for (const property of ['checked', 'disabled', 'selected', 'multiple', 'required', 'readOnly']) Object.defineProperty(prototype, property, {
-  get(this: any) { return this.hasAttribute(property.toLowerCase()); },
-  set(this: any, value: unknown) { if (value) this.setAttribute(property.toLowerCase(), ''); else this.removeAttribute(property.toLowerCase()); },
+  get(this: PolyfillHTMLElement) { return this.hasAttribute(property.toLowerCase()); },
+  set(this: PolyfillHTMLElement, value: unknown) { if (value) this.setAttribute(property.toLowerCase(), ''); else this.removeAttribute(property.toLowerCase()); },
 });
 Object.defineProperty(prototype, 'style', {
-  get(this: any) {
+  get(this: PolyfillHTMLElement) {
     const element = this;
     return new Proxy({ setProperty(name: string, value: string) { const key = name.replace(/[A-Z]/g, c => '-' + c.toLowerCase()); const declarations = element.getAttribute('style') ?? ''; element.setAttribute('style', safeDeclarations(`${declarations};${key}:${value}`)); } }, {
       set(target, key, value) { if (key === 'cssText') element.setAttribute('style', safeDeclarations(String(value))); else target.setProperty(String(key), String(value)); return true; },
@@ -70,24 +73,25 @@ Object.defineProperty(prototype, 'style', {
 
 function snapshot() {
   const now = performance.now(); if (now - lastSnapshotAt < 50) return; lastSnapshotAt = now;
-  let count = 0; const attached = new Map<number, any>();
-  function visit(node: any, depth: number): RenderNode[] {
+  let count = 0; const attached = new Map<number, PolyfillElement>();
+  function visit(node: PolyfillNode, depth: number): RenderNode[] {
     if (depth > 24 || ++count > 800) throw new Error('DOM limit exceeded');
     const id = idFor(node);
     if (node.nodeType === 3) return [{ id, tag: '#text', text: node.textContent ?? '', attrs: {}, children: [] }];
     if (node.nodeType !== 1) return [];
-    const tag: string = node.localName;
+    const element = node as PolyfillElement;
+    const tag: string = element.localName;
     if (!validateRender({ tree: [{ id, tag, attrs: {}, children: [] }], css: '' })) return [];
     const attrs: Record<string, string> = {};
-    for (const attr of Array.from(node.attributes) as { name: string; value: string }[]) {
+    for (const attr of Array.from(element.attributes) as { name: string; value: string }[]) {
       if (attr.name === 'style') { attrs.style = safeDeclarations(attr.value); continue; }
       if (validateRender({ tree: [{ id, tag, attrs: { [attr.name]: attr.value }, children: [] }], css: '' })) attrs[attr.name] = attr.value;
     }
-    const result: RenderNode = { id, tag, attrs, children: Array.from(node.childNodes).flatMap(child => visit(child, depth + 1)) };
-    if (['input', 'textarea', 'select', 'option'].includes(tag)) result.value = String(node.value ?? '');
-    if (tag === 'input') result.checked = !!node.checked;
-    if (tag === 'select' && Number.isSafeInteger(node.selectedIndex)) result.selectedIndex = node.selectedIndex;
-    attached.set(id, node); return [result];
+    const result: RenderNode = { id, tag, attrs, children: Array.from(element.childNodes).flatMap(child => visit(child, depth + 1)) };
+    if (['input', 'textarea', 'select', 'option'].includes(tag)) result.value = String(element.value ?? '');
+    if (tag === 'input') result.checked = !!element.checked;
+    if (tag === 'select' && Number.isSafeInteger(element.selectedIndex)) result.selectedIndex = element.selectedIndex;
+    attached.set(id, element); return [result];
   }
   const tree = Array.from(doc.body.childNodes).flatMap(node => visit(node, 0));
   const data = { tree, css };
@@ -172,7 +176,7 @@ listen('message', event => {
       if (input.key) Object.assign(domEvent, { key: input.key });
       element.dispatchEvent(domEvent);
       // Generic HTMLElement does not implement native on* IDL properties.
-      let target = element; while (target) { const handler = target['on' + input.event]; if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
+      let target: PolyfillNode | null = element; while (target) { const handler = (target as PolyfillNode & Record<string, unknown>)['on' + input.event]; if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
     }
     snapshot();
   } catch (error) { post({ type: 'fatal', message: error instanceof Error ? error.message.slice(0, 200) : 'Generated program failed' }); }
