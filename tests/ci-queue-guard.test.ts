@@ -127,10 +127,11 @@ it('exposes a permission failure instead of claiming the queue was cleared',asyn
 });
 it.each(['push','requested','in_progress'])('bounds the %s sweep to two discovery pages and 100 distinct candidates',async event=>{
   const queued=Array.from({length:101},(_,index)=>({...makeRun(),id:501+index}));
-  const running=[queued[0],{...makeRun(),id:1000}];
+  const running=[queued[0],{...makeRun(),id:1000,status:'in_progress'}];
   const result=await execute({...(event==='push'?{eventName:event}:{action:event}),queued,running});
   expect(result.requests.slice(0,2)).toEqual([{method:'list',status:'queued',page:1,per_page:100},{method:'list',status:'in_progress',page:1,per_page:100}]);
   expect(result.requests.filter(request=>request.method==='list')).toHaveLength(2);
+  expect(result.cancelled).toContain(1000);
   expect(result.cancelled).toHaveLength(100);expect(new Set(result.cancelled).size).toBe(100);expect(result.result.checked).toBe(100);expect(result.result.limited).toBe(true);
 });
 it('does not sweep on pushes outside the default branch or unsupported events',async()=>{
