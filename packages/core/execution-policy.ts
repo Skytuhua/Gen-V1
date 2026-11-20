@@ -27,7 +27,7 @@ export interface PlatformProof {
   evidenceRef?: string;
 }
 
-interface ExecutionHandle { id: string; terminate(): Promise<void> }
+export interface ExecutionHandle { id: string; terminate(): Promise<void> }
 export interface ApprovedLaunch {
   profileId: string; profileVersion: number;
   executable: string; executableSha256: string; argv: string[]; cwd: string;
