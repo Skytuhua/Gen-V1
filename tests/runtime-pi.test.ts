@@ -251,6 +251,15 @@ describe("SDK lifecycle normalization", () => {
 });
 
 describe("authoritative parent tool IPC", () => {
+  it("rejects a present tool error even when its diagnostic is empty", async () => {
+    const sent: {requestId: string}[] = [];
+    const bridge = new ToolBridge(ctx, message => sent.push(message));
+    const outcome = bridge.call("tc-failure", "read_fixture", {});
+    const error = expect(outcome).rejects.toThrow("Pi host tool failed.");
+    bridge.receive({ type: "tool.result", requestId: sent[0].requestId, ctx, toolCallId: "tc-failure", error: "" });
+    await error;
+  });
+
   it("ignores mismatched epochs and tool IDs even when the request ID matches", async () => {
     const sent: any[] = [];
     const bridge = new ToolBridge(ctx, m => { sent.push(m); });
