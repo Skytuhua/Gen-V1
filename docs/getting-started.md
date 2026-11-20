@@ -247,6 +247,25 @@ deadlines. Install the browser required by each configuration before running it.
 The suite list in `scripts/browser-suites.ts` is checked against every spec file;
 adding a spec requires assigning its fixture configuration there.
 
+### Agents grid UI evidence
+
+The populated-grid evidence spec
+`tests/e2e/agents-workspace-evidence.spec.ts` runs inside the `agents-workspace`
+browser suite on Microsoft Edge. It writes metrics JSON and screenshots to the
+directory named by `AGENTSUI_EVIDENCE_DIR` (default
+`test-results/agents-workspace-evidence`), labelled by
+`AGENTSUI_EVIDENCE_LABEL` (default `after`). Capture it manually with:
+
+```powershell
+$env:AGENTSUI_EVIDENCE_DIR = 'test-results/evidence'
+$env:AGENTSUI_EVIDENCE_LABEL = 'after'
+pnpm exec playwright test --config tests/e2e/agents-workspace.playwright.config.ts tests/e2e/agents-workspace-evidence.spec.ts --reporter=list
+```
+
+For a before/after comparison, run it once per checkout with matching
+`AGENTSUI_EVIDENCE_LABEL` values and compare the emitted files. The spec uses
+synthetic API fixtures only.
+
 ## Common startup issues
 
 | Symptom | What to check |
