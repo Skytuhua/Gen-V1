@@ -21,7 +21,7 @@ export const EXPLORATION_DATA_SCHEMAS={
 };
 const annotation=z.strictObject({id,x:z.number().finite().min(0).max(1),y:z.number().finite().min(0).max(1),text:z.string().max(800)});
 const annotationCheckpoint=z.strictObject({resourceId,sourceIdentity:z.string().regex(/^[a-f0-9]{64}$/).optional(),selectedId:z.string().max(160).nullable(),annotations:z.array(annotation).max(32).refine(unique)});
-export const ANNOTATION_STATE_SCHEMA=annotationCheckpoint.extend({previous:annotationCheckpoint.optional()});
+const ANNOTATION_STATE_SCHEMA=annotationCheckpoint.extend({previous:annotationCheckpoint.optional()});
 export type AnnotationState=z.infer<typeof ANNOTATION_STATE_SCHEMA>;
 const record=(value:unknown):value is Record<string,unknown>=>Boolean(value&&typeof value==='object'&&!Array.isArray(value));
 const dense=(value:unknown,maximum:number):value is unknown[]=>Array.isArray(value)&&value.length<=maximum&&Array.from({length:value.length},(_,index)=>Object.hasOwn(value,index)).every(Boolean);
@@ -46,4 +46,4 @@ export const EXPLORATION_DESCRIPTIONS={
 };
 export const EXPLORATION_PACK={version:'1.0.0',description:'Source-bound image feedback, scheduling proposals and log inspection. All local edits are drafts; actions never imply external execution.',dataSchemas:Object.fromEntries(Object.entries(EXPLORATION_DATA_SCHEMAS).map(([name,schema])=>[name,z.toJSONSchema(schema)]))};
 export type ScheduleData=z.infer<typeof EXPLORATION_DATA_SCHEMAS.SchedulePicker>;
-export type LogData=z.infer<typeof EXPLORATION_DATA_SCHEMAS.LogExplorer>;
+
