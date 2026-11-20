@@ -14,7 +14,7 @@ export const memorySourceRefV1Schema = z.strictObject({
 export type MemorySourceRefV1 = z.infer<typeof memorySourceRefV1Schema>;
 export const memoryRevisionRefSchema = z.strictObject({ itemId: id, revision });
 export type MemoryRevisionRef = z.infer<typeof memoryRevisionRefSchema>;
-export const memoryReviewDecisionSchema = z.strictObject({ action: z.enum(['ACCEPT', 'EDIT_ACCEPT', 'REJECT', 'EXPIRE', 'RESOLVE', 'FORGET']), userId: id, at: time, note: z.string().max(1000).optional() });
+const memoryReviewDecisionSchema = z.strictObject({ action: z.enum(['ACCEPT', 'EDIT_ACCEPT', 'REJECT', 'EXPIRE', 'RESOLVE', 'FORGET']), userId: id, at: time, note: z.string().max(1000).optional() });
 export const memoryItemV1Schema = z.strictObject({
   id, projectIdentity: hash, scope: z.enum(['PROJECT', 'USER_APPROVED']), kind: z.enum(['DECISION', 'CONSTRAINT', 'PROCEDURE', 'FACT', 'PREFERENCE']),
   text: memoryTextSchema, revision, state: z.enum(['PROPOSED', 'ACCEPTED', 'CONFLICT', 'EXPIRED', 'DELETED']),
@@ -42,7 +42,7 @@ export interface MemorySourceSnapshot { ref: MemorySourceRefV1; projectIdentity:
 export interface MemoryRecallResult { recall: MemoryRecallV1; items: MemoryItemV1[]; injection: string }
 export const memoryScopeSchema = z.strictObject({ projectId: id, projectIdentity: hash, threadId: id, accountId: id.nullable(), bindingDigest: hash });
 export type MemoryScope = z.infer<typeof memoryScopeSchema>;
-export const memoryRowSchema = z.strictObject({ item: memoryItemV1Schema, lastUsedAt: time.nullable(), conflictRevisions: z.array(memoryItemV1Schema).max(32) });
+const memoryRowSchema = z.strictObject({ item: memoryItemV1Schema, lastUsedAt: time.nullable(), conflictRevisions: z.array(memoryItemV1Schema).max(32) });
 export const projectMemoryViewSchema = z.strictObject({
   scope: memoryScopeSchema, projectName: z.string().max(100), available: z.boolean(), disabledReason: z.string().max(1000).nullable(),
   enabled: z.boolean(), configRevision: z.number().int().nonnegative(), sourceThreadIds: z.array(id).max(200),

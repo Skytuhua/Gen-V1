@@ -15,3 +15,30 @@ it.each(['stdin', 'stdout', 'stderr', 'process'] as const)('contains ACP %s fail
     expect(() => target.emit('error', Error('Late private diagnostic'))).not.toThrow();
   } finally { rpc.close(); await result; }
 });
+
+it('accepts complete ACP frames independently of stdout chunk boundaries', async () => {
+  const child = Object.assign(new EventEmitter(), {stdin: new PassThrough(), stdout: new PassThrough(), stderr: new PassThrough()});
+  const notifications: string[] = [];
+  const rpc = new AcpConnection(child as unknown as ChildProcess, method => notifications.push(method), 90);
+  const result = rpc.request('initialize', {});
+  try {
+    const notification = JSON.stringify({jsonrpc: '2.0', method: 'session/update', params: '猫'.repeat(7)}) + '\n';
+    const response = JSON.stringify({jsonrpc: '2.0', id: 1, result: {ok: true}}) + '\n';
+    child.stdout.write(notification.slice(0, 12));
+    child.stdout.write(notification.slice(12) + response);
+    await expect(result).resolves.toEqual({ok: true});
+    expect(notifications).toEqual(['session/update']);
+  } finally { rpc.close(); await result.catch(() => {}); }
+});
+
+it.each([false, true])('retains the ACP byte limit with newline present: %s', async newline => {
+  const child = Object.assign(new EventEmitter(), {stdin: new PassThrough(), stdout: new PassThrough(), stderr: new PassThrough()});
+  const notifications: string[] = [];
+  const rpc = new AcpConnection(child as unknown as ChildProcess, method => notifications.push(method), 90);
+  const result = rpc.request('initialize', {});
+  try {
+    child.stdout.write(JSON.stringify({jsonrpc: '2.0', method: 'session/update', params: '猫'.repeat(20)}) + (newline ? '\n' : ''));
+    await expect(result).rejects.toMatchObject({code: 'OFFICIAL_PROTOCOL_INVALID'});
+    expect(notifications).toEqual([]);
+  } finally { rpc.close(); await result.catch(() => {}); }
+});

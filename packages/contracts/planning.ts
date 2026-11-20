@@ -7,15 +7,15 @@ const brief = z.string().max(1024).refine(value => new TextEncoder().encode(valu
 const requirement = z.object({ id, label }).strict();
 const uniqueIds = <T extends { id: string }>(items: T[]) => new Set(items.map(item => item.id)).size === items.length;
 export const PLAN_LIMITS = { steps: 24, jobs: 24, edges: 96, agentDepth: 8 } as const;
-export const PlanStateSchema = z.enum(['proposed', 'running', 'blocked', 'review_required', 'completed', 'accepted', 'failed', 'cancelled', 'interrupted']);
+const PlanStateSchema = z.enum(['proposed', 'running', 'blocked', 'review_required', 'completed', 'accepted', 'failed', 'cancelled', 'interrupted']);
 export const PlanRunSchema = z.object({ runId: id, epoch: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER) }).strict();
 const ref = z.object({ id: z.string().min(1).max(200), revision: z.number().int().positive().max(Number.MAX_SAFE_INTEGER) }).strict();
-export const PlanCheckSchema = z.object({
+const PlanCheckSchema = z.object({
   id, label, status: z.enum(['pending', 'reported_passed', 'reported_failed', 'verified_passed', 'verified_failed']),
   details: brief.optional(), evidence: z.array(ref).max(8).optional(),
 }).strict();
-export const PlanRequirementSchema = requirement.extend({ completed: z.boolean() }).strict();
-export const PlanStepSchema = z.object({
+const PlanRequirementSchema = requirement.extend({ completed: z.boolean() }).strict();
+const PlanStepSchema = z.object({
   id, title: label, status: z.enum(['pending', 'working', 'completed', 'blocked']),
   // status remains the legacy presentation projection; state carries the precise timeline meaning.
   state: PlanStateSchema.optional(), objective: z.string().trim().min(1).max(1000).optional(),
@@ -28,7 +28,7 @@ export const PlanStepSchema = z.object({
   agentIds: z.array(id).max(24).refine(items => new Set(items).size === items.length, 'Agent IDs must be unique').optional(),
 }).strict();
 /** Bounded DFS validates both stored plans and model proposals before a transaction can publish them. */
-export function validPlanGraph(steps: { id: string; dependsOn?: string[] }[]): boolean {
+function validPlanGraph(steps: { id: string; dependsOn?: string[] }[]): boolean {
   const nodes = new Map(steps.map(step => [step.id, step]));
   if (steps.reduce((n, step) => n + (step.dependsOn?.length ?? 0), 0) > PLAN_LIMITS.edges) return false;
   const visiting = new Set<string>(), visited = new Set<string>();
@@ -89,9 +89,7 @@ export const AgentProgressSchema = z.object({
 export type PlanRecord = z.infer<typeof PlanRecordSchema>;
 export type PlanStep = z.infer<typeof PlanStepSchema>;
 export type AgentJob = z.infer<typeof AgentJobSchema>;
-export type PlanUpdate = z.infer<typeof PlanUpdateSchema>;
 export type DelegateArgs = z.infer<typeof DelegateSchema>;
-export type AgentProgress = z.infer<typeof AgentProgressSchema>;
 export type AgentUsage = z.infer<typeof AgentUsageSchema>;
 
 /** A checklist takes precedence over a self-reported estimate. Unknown is never zero. */
