@@ -23,7 +23,7 @@ export function privateFamilyForBinding(store:Store,binding:ManagedGitFamily&{fa
  return{...binding,privateFamily:family,privateStorageRoot};
 }
 const nullFile=process.platform==='win32'?'NUL':'/dev/null';
-export const bareConfig='[core]\nrepositoryformatversion = 0\nbare = true\nfilemode = false\nsymlinks = false\n[gc]\nauto = 0\n[maintenance]\nauto = false\n';
+const bareConfig='[core]\nrepositoryformatversion = 0\nbare = true\nfilemode = false\nsymlinks = false\n[gc]\nauto = 0\n[maintenance]\nauto = false\n';
 const viewConfig=bareConfig.replace('bare = true','bare = false');
 export async function nativeGit(executable:string,metadata:string,worktree:string|undefined,args:string[],signal:AbortSignal,environment:NodeJS.ProcessEnv={}){
  const prefix=['--no-pager','--no-replace-objects','--git-dir='+metadata,...(worktree?['--work-tree='+worktree]:[]),'-c','core.hooksPath='+nullFile,'-c','core.fsmonitor=false','-c','core.untrackedCache=false','-c','submodule.recurse=false','-c','diff.external=','-c','core.attributesFile=','-c','core.excludesFile=','-c','credential.helper=','-c','gc.auto=0','-c','maintenance.auto=false'];
