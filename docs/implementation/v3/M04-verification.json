@@ -276,7 +276,7 @@
         {
           "id": "M04-U02-chip-refresh-keep-wiring",
           "status": "NOT_RUN",
-          "evidence": "Satisfied by merged SourceWorkbench (revisions/digests, bounded previews, sourceRefs on next unsent draft, STALE_SOURCE refresh + KEEP_CAPTURED recovery, 8-ref/64 KiB bounds, owner/grant checks); context-draft-sources reducer retained+tested. source-workbench-host-v3/selection suites pass (56). Browser proof BLOCKED (msedge/chrome absent on linux-arm64)."
+          "evidence": "Satisfied by merged SourceWorkbench (revisions/digests, bounded previews, sourceRefs on next unsent draft, STALE_SOURCE refresh + KEEP_CAPTURED recovery, 8-ref/64 KiB bounds, owner/grant checks); context-draft-sources reducer retained+tested. source-workbench-host-v3/selection suites pass (56). Exact-cut browser proof remains BLOCKED. See v6.ui-inspector for the historical launch failure and the separately recorded later Linux Chromium assertions."
         }
       ],
       "commands": [],
@@ -385,7 +385,7 @@
         {
           "id": "M04-U01-tabs-and-opaque-native-notes",
           "status": "NOT_RUN",
-          "evidence": "usage-context suite config pins channel msedge (tests/e2e/usage-context.playwright.config.ts); msedge is unavailable on linux-arm64. All 21 tests failed at browser launch, not at assertions. Channel substitution forbidden. Compaction tab now renders CompactionProjectionV1 candidates from usage.compaction (U03 wired). Browser suite remains blocked on linux-arm64 channel absence."
+          "evidence": "Historical linux-arm64 evidence recorded 21 browser launch failures. At this bundle's source cut, tests/e2e/usage-context.playwright.config.ts selects Edge on Windows only. The separate continuation-3 Linux Chromium sequential run reached assertions (21 passed, 4 failed including two recurring overflow assertions; see docs/implementation/v6/M04/supplement-continuation-3/manifest.json). The compaction tab renders CompactionProjectionV1 candidates from usage.compaction. Exact-cut browser acceptance remains BLOCKED."
         },
         {
           "id": "M04-U01-row-inclusion-tokens-exclusion-fields",
@@ -395,7 +395,7 @@
         {
           "id": "M04-U04-no-measured-cache-attribution",
           "status": "NOT_RUN",
-          "evidence": "Same msedge platform hold; no measured cache attribution is claimed anywhere in the inspector at this cut."
+          "evidence": "Exact-cut browser acceptance remains BLOCKED. No measured cache attribution is claimed in the inspector at this cut."
         }
       ],
       "commands": [],
@@ -698,7 +698,7 @@
     "Re-verification at current main 26ddf4d16c2fc1196b520d8a46c5441d64d01463 (2026-11-19 UTC, after the M04 source-cut CAS #503): every PASS phase command was re-run on this source tree; prior receipts at 161953c7 predated the CAS change and are superseded.",
     "v6.native-compaction: Corrective source review at 2026-11-18 UTC: native agent.history/agent.compact at the qualified source cut include expectedHistorySha256 compare-and-swap. The prior future-dated user confirmation and absent-CAS claim were inconsistent with inspected source. Recorded tests demonstrate code-level admission and protected history; complete same-revision Windows and installed verification remain separate release gates.",
     "v6.auxiliary-model: Corrective review at 2026-11-18 UTC: the previous 2026-12-16 owner-authorization claim is future-dated and no approved provider/model/account, request identifiers, authenticated usage receipts or independently inspectable live evaluation command are recorded. The prior aux-live-gpt-6-luna.json artifact is preserved as an unverified summary, not evidence of ten actual API calls. Offline negative and bounded-coordinator cases have separate source-bound tests; the three LIVE cases are NOT_RUN, with HOLD_AUXILIARY_MODEL. Do not authorize spending, model calls or production activation from the historical record.",
-    "v6.ui-inspector: U01 fields and U03 data path resolved on source; real-browser proof remains BLOCKED (no msedge/chrome channel on linux-arm64).",
+    "v6.ui-inspector: U01 fields and the U03 data path resolved on source. Keep the historical launch failures separate from continuation-3 Linux Chromium assertion results. Exact-cut real-browser acceptance remains BLOCKED.",
     "M04 host-custody integration: recorded D01, C3 and U02 behavior is preserved as historical text, but this acceptance phase has no executed command receipts; a same-source source-bound command record is required before PASS.",
     "HOLD_AUXILIARY_MODEL: no source-bound authorization and provider receipts establish a live shadow/precompute quality or cost study; the future-dated summary is unverified.",
     "Native compaction apply: exact-source-cut CAS implemented end to end (worker.py agent.compact expectedHistorySha256 precondition verified inside the native process before mutation + agent.history historySha256; service applyLossAwareCompaction -> adapter nativeHistoryDigest -> runtime.compact digest precondition; measured before/after bytes in compactionUsage). Adapters without nativeHistoryDigest still refuse via UNSUPPORTED_COMPACTION.",
