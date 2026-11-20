@@ -15,11 +15,9 @@
   overflow-wrap: anywhere;
   scrollbar-width: thin;
   scrollbar-color: var(--border) transparent;
-  animation: thread-hover-enter var(--ui-motion-tooltip-enter) var(--ui-ease-enter);
-  transition: opacity var(--ui-motion-tooltip-exit) ease-in-out;
+  animation: thread-hover-enter var(--ui-motion-tooltip-enter) var(--ui-ease-enter) both;
 }
-.thread-hover-card[data-state="open"] { transition: none; }
-.thread-hover-card[data-state="closed"] { opacity: 0; pointer-events: none; animation: none; }
+.thread-hover-card[data-state="closed"] { pointer-events: none; animation: thread-hover-exit var(--ui-motion-tooltip-exit) var(--ui-ease-move) both; }
 .thread-hover-body { display: flex; flex-direction: column; gap: var(--ui-space-2); min-width: 0; }
 .thread-hover-title { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.4; white-space: pre-wrap; }
 .thread-hover-project { display: flex; align-items: baseline; gap: var(--ui-space-2); min-width: 0; }
@@ -46,7 +44,11 @@ button.thread-hover-pr:hover { background: var(--hover); }
 .thread-hover-error { display: flex; flex-wrap: wrap; align-items: center; gap: var(--ui-space-2); }
 .thread-hover-error button { min-height: var(--ui-row-compact); padding: var(--ui-control-inset); border-radius: 6px; font: inherit; }
 [data-density="touch"] .thread-hover-card button { min-height: var(--ui-row-touch); }
-/* Keep the surface opaque, including when an exit is interrupted by focus. */
-@keyframes thread-hover-enter { from, to { opacity: 1; } }
-@media (prefers-reduced-motion: reduce) { .thread-hover-card { animation: none; transition: none; } }
+/* Tooltip motion contract: opacity plus a 4px settle toward the trigger. */
+@keyframes thread-hover-enter { from { opacity: 0; transform: translateY(4px); } }
+@keyframes thread-hover-exit { to { opacity: 0; transform: translateY(4px); } }
+@media (prefers-reduced-motion: reduce) {
+  .thread-hover-card[data-state] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  .thread-hover-card[data-state="closed"] { animation-direction: reverse; }
+}
 @media (forced-colors: active) { .thread-hover-card { border-color: CanvasText; background: Canvas; color: CanvasText; } }

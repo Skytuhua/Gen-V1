@@ -189,6 +189,49 @@ export function ShellSidebar({
   const settledFolded = layout.folded['settled'] ?? false;
   const visibleSettled = showAllSettled ? settled : settled.slice(0, 6);
   const locked = search.trim().length > 0 || filter !== 'all';
+
+  // Removed rows keep a data-leaving ghost mounted at their old slot until
+  // ui-item-out finishes — the same cache/ghost contract as resource-chip.
+  type RowSection = 'pinned' | 'working' | 'flat' | 'settled';
+  const renderedRows = useRef(new Map<string, { row: Thread; section: RowSection; index: number }>());
+  const [leavingRows, setLeavingRows] = useState<ReadonlySet<string>>(() => new Set());
+  const finishLeaving = (id: string) => {
+    renderedRows.current.delete(id);
+    setLeavingRows(previous => {
+      if (!previous.has(id)) return previous;
+      const next = new Set(previous);
+      next.delete(id);
+      return next;
+    });
+  };
+  const rowCache = renderedRows.current;
+  pinned.forEach((item, index) => rowCache.set(item.id, { row: item, section: 'pinned', index }));
+  working.forEach((item, index) => rowCache.set(item.id, { row: item, section: 'working', index }));
+  orderedRemaining.forEach((item, index) => rowCache.set(item.id, { row: item, section: 'flat', index }));
+  visibleSettled.forEach((item, index) => rowCache.set(item.id, { row: item, section: 'settled', index }));
+  const present = new Set(matching.map(item => item.id));
+  const gone = [...rowCache.keys()].filter(id => !present.has(id) && !leavingRows.has(id));
+  const restored = [...leavingRows].filter(id => present.has(id));
+  if (gone.length || restored.length) {
+    // A wholesale list swap (project switch, snapshot restore) is not a row
+    // removal — drop the cache silently instead of replaying mass exits.
+    const swap = gone.length === rowCache.size && gone.length > 4;
+    if (swap) for (const id of gone) rowCache.delete(id);
+    setLeavingRows(previous => {
+      const next = new Set(previous);
+      if (!swap) for (const id of gone) next.add(id);
+      for (const id of restored) next.delete(id);
+      return next;
+    });
+  }
+  useEffect(() => {
+    if (!leavingRows.size) return;
+    // Ghost rows clear on animationend; this only covers motion-disabled runs
+    // where no animation event ever fires.
+    const timers = [...leavingRows].map(id => window.setTimeout(() => finishLeaving(id), 400));
+    return () => timers.forEach(timer => clearTimeout(timer));
+  }, [leavingRows]);
+
   const reorder = useThreadReorder(navRef, {
     // Ordering needs every settled row; only rendering stops at six.
     lists: () => ({ pinned, working, flat: orderedRemaining, settled }),
@@ -222,7 +265,7 @@ export function ShellSidebar({
     </span>
   );
 
-  const row = (item: Thread, compactSettled = false) => {
+  const row = (item: Thread, compactSettled = false, leavingGhost = false) => {
     const branch = details[item.id]?.branch;
     const isWorking = Boolean(item.runId) || item.status === 'working';
     const showStatus = Boolean(item.runId) || item.status !== 'ready';
@@ -232,8 +275,12 @@ export function ShellSidebar({
 
     return (
       <div
-        key={item.id}
+        key={leavingGhost ? `leaving-${item.id}` : item.id}
         data-thread-id={item.id}
+        data-leaving={leavingGhost || undefined}
+        aria-hidden={leavingGhost || undefined}
+        inert={leavingGhost || undefined}
+        onAnimationEnd={leavingGhost ? event => { if (event.target === event.currentTarget) finishLeaving(item.id); } : undefined}
         className={`sidebar-thread-row ${compactSettled ? 'sidebar-settled-row' : ''} ${item.id === selectedId ? 'active' : ''} ${item.kind === 'delegate' ? 'sidebar-delegate' : ''} ${reorder.dragging?.id === item.id ? 'sidebar-drag-source' : ''}`}
       >
         <ThreadHoverCard facts={{scope,title:item.title,project:item.projectName?{name:item.projectName,monogram:projectMonogram(item.projectName)}:undefined,model:item.modelId??undefined,reasoning:item.thinkingLevel??undefined,activity:threadStatus(item),lastActivity:{label:threadAge(item.updatedAt),at:item.updatedAt},parent:item.parentThreadId?{threadId:item.parentThreadId,title:matching.find(parent=>parent.id===item.parentThreadId)?.title}:undefined}}
@@ -334,8 +381,21 @@ export function ShellSidebar({
     );
   };
 
-  const group = (key: string, label: string, items: Thread[], opts: { list?: SidebarSection; keepVisible?: boolean; empty?: ReactNode } = {}) => {
-    if (!items.length && !opts.keepVisible) return null;
+  // Real rows plus leaving ghosts spliced back near their rendered index.
+  const mergedRows = (items: Thread[], section: RowSection, compact = false) => {
+    const children: ReactNode[] = items.map(item => row(item, compact));
+    for (const id of leavingRows) {
+      const entry = renderedRows.current.get(id);
+      if (entry && entry.section === section && !present.has(id)) {
+        children.splice(Math.min(entry.index, children.length), 0, row(entry.row, compact, true));
+      }
+    }
+    return children;
+  };
+
+  const group = (key: RowSection, label: string, items: Thread[], opts: { list?: SidebarSection; keepVisible?: boolean; empty?: ReactNode } = {}) => {
+    const children = mergedRows(items, key);
+    if (!items.length && !children.length && !opts.keepVisible) return null;
     const folded = layout.folded[key] ?? false;
     return (
       <section key={key} className={`thread-group thread-group-${key}`} data-thread-list={opts.list}>
@@ -354,12 +414,15 @@ export function ShellSidebar({
           </button>
         </h2>
         <MotionRegion open={!folded} animate={preferences.panelAnimations && preferences.motionDuration > 0} className="thread-group-content">
-          {items.map(item => row(item, false))}
-          {!items.length ? opts.empty ?? null : null}
+          {children}
+          {!items.length && !children.length ? opts.empty ?? null : null}
         </MotionRegion>
       </section>
     );
   };
+
+  const flatRows = mergedRows(orderedRemaining, 'flat');
+  const settledRows = mergedRows(visibleSettled, 'settled', true);
 
   return (
     <aside
@@ -433,9 +496,9 @@ export function ShellSidebar({
           empty: <div className="sidebar-pinned-empty">Drag a thread here to pin it.</div>,
         })}
         {group('working', 'Working', working, { list: 'working' })}
-        {orderedRemaining.length > 0 && <div className="thread-flat-list" data-thread-list="flat">{orderedRemaining.map(item => row(item, false))}</div>}
+        {flatRows.length > 0 && <div className="thread-flat-list" data-thread-list="flat">{flatRows}</div>}
         {reorder.indicatorTop != null && <div className="sidebar-drop-indicator" style={{ top: reorder.indicatorTop }} aria-hidden="true" />}
-        {settled.length > 0 && (
+        {(settled.length > 0 || settledRows.length > 0) && (
           <section className="thread-group thread-group-settled" data-thread-list="settled">
             <h2>
               <button
@@ -456,7 +519,7 @@ export function ShellSidebar({
               animate={preferences.panelAnimations && preferences.motionDuration > 0}
               className="thread-group-content"
             >
-              {visibleSettled.map(item => row(item, true))}
+              {settledRows}
               {settled.length > 6 && (
                 <button
                   type="button"
