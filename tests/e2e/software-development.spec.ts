@@ -45,8 +45,9 @@ test('API response transitions retain panel identity and keyboard focus with bou
   await conflict.focus();await page.keyboard.press('Enter');
   await expect(conflict).toBeFocused();await expect(response).toContainText('idempotency_conflict');
   const calls=()=>page.evaluate(()=>(window as unknown as {softwareMotion:{target:string}[]}).softwareMotion.filter(row=>row.target.includes('software-response-content')).length);
-  await expect.poll(calls).toBe(1);expect(await response.evaluate((node,previous)=>node===previous,identity)).toBe(true);
-  await created.click();await conflict.click();await created.click();
+  expect(await calls()).toBe(0);expect(await response.evaluate((node,previous)=>node===previous,identity)).toBe(true);
+  await created.click();await expect.poll(calls).toBe(1);
+  await conflict.click();await created.click();
   await expect(response).toContainText('ord_123');expect(await response.evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBeLessThanOrEqual(1);
   await page.getByRole('tab',{name:'GET /orders/{id}',exact:true}).click();
   expect(await response.evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);

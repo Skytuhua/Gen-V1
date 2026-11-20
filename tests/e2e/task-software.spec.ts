@@ -1,6 +1,7 @@
 import {test,expect,type Page} from '@playwright/test';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import {SOFTWARE_FIXTURE_DATA,softwareDevelopmentSpec,type SoftwareFixtureName} from '../../scripts/software-development-fixtures';
+import {SOFTWARE_DATA_SCHEMAS} from '../../packages/ui-catalog/software-development';
 
 async function open(page:Page,name:SoftwareFixtureName,input:unknown=structuredClone(SOFTWARE_FIXTURE_DATA[name])){
   const snapshot=taskFixture(softwareDevelopmentSpec(name,'inspect'),{software:input});
@@ -10,14 +11,27 @@ async function open(page:Page,name:SoftwareFixtureName,input:unknown=structuredC
   await expect(page.locator('.software-surface')).toBeVisible();return host;
 }
 
-test('the assertion and source lead an investigation, with other checks below the working evidence',async({page})=>{
+test('diagnostic selection stays anchored when passing evidence replaces a failure',async({page})=>{
   const host=await open(page,'Diagnostics');
-  const comparison=page.getByRole('region',{name:'Assertion comparison',exact:true});
-  const checks=page.getByRole('tablist',{name:'Diagnostics',exact:true});
-  const assertionBox=await comparison.boundingBox(),checksBox=await checks.boundingBox();
-  expect(assertionBox!.y+assertionBox!.height).toBeLessThan(checksBox!.y);
-  await expect(page.locator('.software-investigation')).toContainText('assert.equal');
-  await page.getByRole('tab',{name:'rounds the final total',exact:true}).click();
+  const inventory=page.getByRole('tablist',{name:'Diagnostics',exact:true});
+  const detail=page.locator('.software-detail');
+  for(const width of [700,600]){
+    await page.setViewportSize({width,height:1000});
+    const surface=await page.locator('.software-surface').evaluate(node=>node.clientWidth);
+    const list=await inventory.boundingBox(),panel=await detail.boundingBox();
+    if(surface>=640)expect(list!.x+list!.width).toBeLessThanOrEqual(panel!.x+1);
+    else expect(list!.y+list!.height).toBeLessThanOrEqual(panel!.y+1);
+  }
+  await page.setViewportSize({width:1440,height:1000});
+  const before=await inventory.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>Math.round(node.getBoundingClientRect().top*10)));
+  const data=SOFTWARE_DATA_SCHEMAS.Diagnostics.parse(structuredClone(SOFTWARE_FIXTURE_DATA.Diagnostics));data.items[0]={...data.items[0],status:'passed'};
+  host.setInput('software',data);await host.publish();await expect(page.locator('.software-check-state').first()).toHaveText('Passed');
+  const after=await inventory.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>Math.round(node.getBoundingClientRect().top*10)));
+  expect(after).toEqual(before);
+  const target=inventory.getByRole('tab',{name:'rounds the final total',exact:true}),box=await target.boundingBox();
+  const hit=await page.evaluate(({x,y})=>document.elementFromPoint(x,y)?.closest('[role="tab"]')?.getAttribute('aria-label')??null,{x:box!.x+box!.width/2,y:box!.y+box!.height/2});
+  expect(hit).toBe('rounds the final total');
+  await target.click();
   await expect(page.getByRole('tabpanel',{name:'rounds the final total',exact:true})).toContainText('Not run');
   await expect.poll(()=>host.snapshot.userStates[0].values.selection).toBe('rounding');
   await page.reload();await expect(page.getByRole('tab',{name:'rounds the final total',exact:true})).toHaveAttribute('aria-selected','true');
@@ -75,6 +89,58 @@ test('pipeline geometry follows actual dependencies and leaves execution evidenc
   await expect(page.getByRole('tabpanel',{name:'Lint',exact:true})).toContainText('Unexpected unused import');
   expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(0);
   expect(host.snapshot.data[0].value).toEqual(stages);
+});
+
+test('same-file patch refresh preserves selection scroll and emits one revision marker',async({page})=>{
+  const host=await open(page,'ChangeSet');
+  await expect(page.locator('.software-patch-updated')).toHaveCount(0);
+  const data=SOFTWARE_DATA_SCHEMAS.ChangeSet.parse(structuredClone(SOFTWARE_FIXTURE_DATA.ChangeSet));
+  data.files[0]={...data.files[0],patch:`${data.files[0].patch}\n+// later revision`};
+  host.setInput('software',data);await host.publish();
+  await expect(page.locator('.software-patch-updated')).toHaveText('Patch updated');
+  host.setInput('software',structuredClone(data));await host.publish();
+  await expect(page.locator('.software-patch-updated')).toHaveText('Patch updated');
+  const patch=page.getByLabel('Selected patch',{exact:true});
+  await page.getByRole('tab',{name:'tests/total.test.ts',exact:true}).click();
+  const scrolled=await patch.evaluate(node=>{const x=Math.max(0,node.scrollWidth-node.clientWidth),y=Math.max(0,node.scrollHeight-node.clientHeight);node.scrollLeft=Math.min(40,x);node.scrollTop=Math.min(40,y);return {x:node.scrollLeft,y:node.scrollTop};});
+  const next=structuredClone(data);next.files.find(file=>file.id==='test')!.patch+='\n+// second revision';
+  host.setInput('software',next);await host.publish();
+  await expect(page.getByRole('tabpanel',{name:'tests/total.test.ts',exact:true}).locator('.software-patch-updated')).toHaveText('Patch updated');
+  expect(await patch.evaluate(node=>({x:node.scrollLeft,y:node.scrollTop}))).toEqual(scrolled);
+});
+
+test('a four-stage linear rail responds to its content width',async({page})=>{
+  const chain={title:'Linear',stages:[
+    {id:'d',name:'Build',status:'not-run' as const,dependsOn:['c']},
+    {id:'a',name:'Lint',status:'passed' as const},
+    {id:'c',name:'Tests',status:'running' as const,dependsOn:['b']},
+    {id:'b',name:'Types',status:'passed' as const,dependsOn:['a']},
+  ]};
+  const host=await open(page,'Pipeline',chain);
+  const rail=page.getByRole('tablist',{name:'Pipeline stages',exact:true});
+  expect(await rail.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>node.getAttribute('aria-label')))).toEqual(['Lint','Types','Tests','Build']);
+  await page.evaluate(()=>{document.querySelector<HTMLElement>('.software-stage-graph')!.style.width='615px';});
+  await expect(rail).toHaveAttribute('aria-orientation','vertical');
+  expect(new Set(await rail.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>Math.round(node.getBoundingClientRect().top)))).size).toBe(4);
+  await page.evaluate(()=>{document.querySelector<HTMLElement>('.software-stage-graph')!.style.width='616px';});
+  await expect(rail).toHaveAttribute('aria-orientation','horizontal');
+  expect(new Set(await rail.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>Math.round(node.getBoundingClientRect().top)))).size).toBe(1);
+  const edge=await page.evaluate(()=>{
+    const graph=document.querySelector('.software-stage-graph')!,rect=graph.getBoundingClientRect();
+    const button=document.querySelector('[data-stage-id="c"]')!.getBoundingClientRect();
+    const path=graph.querySelector<SVGPathElement>('path[data-to="c"]')!;
+    const end=path.getPointAtLength(path.getTotalLength());
+    return {x:end.x,y:end.y,cx:button.left-rect.left+button.width/2,cy:button.top-rect.top+button.height/2};
+  });
+  expect(Math.abs(edge.x-edge.cx)).toBeLessThanOrEqual(1);expect(Math.abs(edge.y-edge.cy)).toBeLessThanOrEqual(1);
+  host.setInput('software',structuredClone(chain));await host.publish();
+  const edgeAfter=await page.evaluate(()=>{const path=document.querySelector<SVGPathElement>('path[data-to="c"]')!;const end=path.getPointAtLength(path.getTotalLength());return {x:end.x,y:end.y};});
+  expect(Math.abs(edgeAfter.x-edge.cx)).toBeLessThanOrEqual(1);expect(Math.abs(edgeAfter.y-edge.cy)).toBeLessThanOrEqual(1);
+  await open(page,'Pipeline',{title:'Fan',stages:[{id:'a',name:'A',status:'passed' as const},{id:'b',name:'B',status:'passed' as const},{id:'c',name:'C',status:'blocked' as const,dependsOn:['a','b']},{id:'d',name:'D',status:'not-run' as const,dependsOn:['c']}]});
+  const dag=page.locator('.software-stage-graph');await dag.getByRole('tab').first().waitFor();
+  await expect(dag).not.toHaveAttribute('data-chain');
+  // A fan-in DAG keeps per-level rows and depth columns instead of a single line.
+  expect(await dag.getByRole('tab').evaluateAll(nodes=>nodes.map(node=>(node as HTMLElement).style.gridColumn+'/'+node.style.gridRow).join(','))).toBe('1/1,1/2,2/1,3/1');
 });
 
 for(const name of ['Diagnostics','ChangeSet','ApiExplorer','Pipeline'] as const)test(`${name} keeps neutral selection, keyboard access and chat-only scrolling on narrow screens`,async({page})=>{

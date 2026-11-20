@@ -34,7 +34,8 @@ test('API examples read as request and response with local response selection an
 
 test('the release view opens at its actual blocker and makes ordered prerequisites inspectable',async({page})=>{
  await open(page,'Pipeline');await expect(page.getByRole('tab',{name:'Typecheck',exact:true})).toHaveAttribute('aria-selected','true');
- const rail=page.getByRole('tablist',{name:'Pipeline stages',exact:true});await expect(rail).toHaveAttribute('aria-orientation','vertical');await expect(rail).toHaveClass(/software-stage-rail/);
+ const rail=page.getByRole('tablist',{name:'Pipeline stages',exact:true});await expect(rail).toHaveAttribute('aria-orientation','horizontal');await expect(rail).toHaveClass(/software-stage-rail/);
+ await page.setViewportSize({width:390,height:900});await expect(rail).toHaveAttribute('aria-orientation','vertical');await page.setViewportSize({width:1440,height:1000});await expect(rail).toHaveAttribute('aria-orientation','horizontal');
  const panel=page.getByRole('tabpanel',{name:'Typecheck',exact:true});await expect(panel).toContainText('Failed');await expect(panel).toContainText('Requires Tests');await expect(panel.getByText('src/orders.ts:42: Type number is not assignable to type string.',{exact:true})).toBeVisible();
 });
 
