@@ -373,6 +373,16 @@ export class DurableWakeupScheduler {
           this.setOccurrence(key, { state: "CANCELLED", leaseExpiresAtMs: null }));
         return;
       }
+      if (wakeup.paused) {
+        // A known transient read failure has no unresolved effect. Hold the
+        // firing for explicit resume, preserving its occurrence/admission IDs.
+        this.store.internal("background.occurrence.held", null, () => {
+          this.setOccurrence(key, { state: "PENDING", dispatch: "NOT_DISPATCHED", leaseExpiresAtMs: null });
+          if (wakeup.state === "CLAIMED" && wakeup.occurrenceKey === key)
+            this.store.put("backgroundWakeup", wakeup.wakeupId, null, { ...wakeup, state: "PENDING", leaseExpiresAtMs: null, occurrenceKey: null, updatedAt: iso(this.now()) });
+        });
+        return;
+      }
     }
   }
 
