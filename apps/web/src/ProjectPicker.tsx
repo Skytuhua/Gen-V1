@@ -118,7 +118,7 @@ function ProjectPickerDialog({ authority, projects, selectedProjectId, recentPro
         if (isComposing(event) && event.key === 'Escape') { event.preventDefault(); return; }
         if (event.key === 'Escape' && locked) { event.preventDefault(); event.stopPropagation(); }
       }}>
-      <div className="project-picker-swatches">{Object.entries(PROJECT_PALETTE).map(([name, value]) => <button type="button" key={name} disabled={locked} aria-label={name}
+      <div className="project-picker-swatches">{Object.entries(PROJECT_PALETTE).map(([name, value]) => <button type="button" key={name} data-popover-row disabled={locked} aria-label={name}
         aria-pressed={Boolean(editing && colors[projectColorKey(editing.authority, editing.id)]?.toLowerCase() === value.toLowerCase())} onClick={() => saveColor(value)}>
         <span style={{ backgroundColor: value }} aria-hidden="true" /></button>)}</div>
       <form onSubmit={event => { event.preventDefault(); saveColor(custom); }}><label>Custom color<input ref={colorInput} aria-label="Custom color" value={custom} maxLength={80} disabled={locked}

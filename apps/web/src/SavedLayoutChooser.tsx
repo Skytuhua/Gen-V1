@@ -40,7 +40,7 @@ export function SavedLayoutChooser({rows,arrangement,loading=false,error='',disa
  const items=[...rows.map(row=>({label:row.name,disabled:blocked})),{label:'Save current layout',disabled:blocked||!onSave}];
  const showEntry=(value:Entry)=>{setFailure('');setOverflow(null);setName(value.type==='rename'?value.row.name:'');setEntry(value);};
  const navigation=useListNavigation(items,index=>index<rows.length?apply(rows[index]):showEntry({type:'save'}),close);
- const row=(item:SavedLayoutRow,index:number):ReactNode=><div key={keyOf(item)} className="saved-layout-row" data-layout-key={keyOf(item)} data-selected={selection?.key===keyOf(item)}>
+ const row=(item:SavedLayoutRow,index:number):ReactNode=><div key={keyOf(item)} className="saved-layout-row" data-layout-key={keyOf(item)} data-selected={selection?.key===keyOf(item)} data-popover-row>
   <button type="button" className="saved-layout-apply" ref={node=>{navigation.rows.current[index]=node;}} disabled={blocked} aria-label={`${item.source!=='split'?'Recover':'Apply'} ${item.name}`} aria-current={current(item)?'true':undefined} onFocus={()=>navigation.onFocus(index)} onClick={()=>apply(item)}>
    <span>{item.name}</span>{observed(item)&&arrangement!==null&&<small>{current(item)?'Current':'Modified'}</small>}
   </button>
@@ -62,7 +62,7 @@ export function SavedLayoutChooser({rows,arrangement,loading=false,error='',disa
     {modern.map(item=>row(item,rows.indexOf(item)))}
     {recovery.length>0&&<h3>Recovery layouts</h3>}{recovery.map(item=>row(item,rows.indexOf(item)))}
    </div>
-   <button type="button" ref={node=>{navigation.rows.current[rows.length]=node;}} className="saved-layout-save" disabled={blocked||!onSave} onFocus={()=>navigation.onFocus(rows.length)} onClick={()=>showEntry({type:'save'})}>Save current layout…</button>
+   <button type="button" ref={node=>{navigation.rows.current[rows.length]=node;}} className="saved-layout-save" data-popover-row disabled={blocked||!onSave} onFocus={()=>navigation.onFocus(rows.length)} onClick={()=>showEntry({type:'save'})}>Save current layout…</button>
    {busy&&<p role="status" aria-label="Layout status">Updating layout…</p>}
   </Popover>
   <Modal open={entry!==null} title={entry?.type==='save'?'Save current layout':entry?.type==='rename'?'Rename layout':'Delete layout'} className="saved-layout-dialog" onClose={()=>{if(!pending.current){setEntry(null);setFailure('');}}}>

@@ -15,7 +15,7 @@
 .context-category-row>strong { flex:none; font-weight:600; white-space:nowrap; color:var(--text); font-variant-numeric:tabular-nums; }
 .context-category-row:hover { background:var(--subtle); color:var(--text); }
 .context-inspector :is(button):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:-2px; }
-.context-category-detail.ui-popover { display:grid; align-content:start; gap:6px; box-sizing:border-box; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--muted); box-shadow:var(--elevation); font-size:12px; line-height:1.5; z-index:var(--ui-overlay-z,1000); overflow:auto; scrollbar-width:thin; pointer-events:none; animation:context-detail-in var(--ui-motion-popup-exit) var(--ui-ease-enter); }
+.context-category-detail.ui-popover { display:grid; align-content:start; gap:6px; box-sizing:border-box; padding:12px; background:var(--surface); border:1px solid var(--border); border-radius:10px; color:var(--muted); box-shadow:var(--elevation); font-size:12px; line-height:1.5; z-index:var(--ui-overlay-z,1000); overflow:auto; scrollbar-width:thin; pointer-events:none; }
 .context-category-detail strong { color:var(--text); font-weight:500; }
 .context-category-detail :is(span,strong) { overflow-wrap:anywhere; }
 .context-subitems { display:grid; grid-template-columns:minmax(0,max-content) max-content; gap:6px 8px; }
@@ -36,7 +36,7 @@
 .context-memory-recall article>p:not(:first-child) {color:var(--muted);}
 .context-memory-recall button {min-height:32px;margin-top:4px;padding:5px 7px;font:inherit;}
 .context-receipt-pulse { animation:context-accepted-pulse var(--ui-motion-success) var(--ui-ease-enter); }
-@keyframes context-detail-in { from { opacity:.35; } to { opacity:1; } }
+
 @keyframes context-shell-enter { from { opacity:.35; transform:translateY(4px) scale(.95); } to { opacity:1; transform:translateY(0) scale(1); } }
 @keyframes context-busy-sweep { from { background-position:180% 0; } to { background-position:-180% 0; } }
 @keyframes context-accepted-pulse { 50% { color:var(--text); } }

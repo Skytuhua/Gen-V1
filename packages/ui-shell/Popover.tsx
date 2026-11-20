@@ -114,7 +114,7 @@ export function Popover({ anchor, getAnchorRect, contentRef, initialFocus, open,
   if (!(present ?? (open || leaving)) || !root || !placement) return null;
   const { side, ...geometry } = placement;
   return createPortal(<div {...attributes} ref={content} className={`ui-popover ${className}`} data-side={side} data-escape-scope
-    data-state={open ? 'open' : 'closed'} aria-hidden={!open} inert={!open}
+    data-popover-motion="" data-state={open ? 'open' : 'closed'} aria-hidden={!open} inert={!open}
     style={{ ...style, ...geometry, position: 'fixed' }} onKeyDown={event => {
       onKeyDown?.(event);
       if (event.key === 'Escape' && !event.defaultPrevented && !event.nativeEvent.isComposing && event.keyCode !== 229) {
