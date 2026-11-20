@@ -1,4 +1,4 @@
-import { memo, useContext, useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
+import { memo, useContext, useCallback, useEffect, useId, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
 import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, getToolEffectObservation, searchThreadMessages, subscribe, type ToolEffectObservation } from './api';
@@ -504,6 +504,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const [online, setOnline] = useState(true);
   const parentNotifications = useContext(WorkspaceNotificationContext);
   const [notifications] = useState(() => parentNotifications ?? createWorkspaceNotifications());
+  const notificationOwner = useId();
   const error = useSyncExternalStore(notifications.subscribe, () => notifications.getSnapshot().find(entry => !entry.leaving && entry.status !== 'success')?.message ?? '');
   const reportError = useCallback((message:string) => { notifications.report(message); }, [notifications]);
   useEffect(() => () => { if (!parentNotifications) notifications.clear(); }, [notifications, parentNotifications]);
@@ -712,9 +713,9 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   useEffect(() => {
     let active = true;
     const open = async () => { await bootstrap(); await refresh(); if (active) setLoaded(true); };
-    void open().catch(cause => { if (active) notifications.report(messageOf(cause), {key:'workspace-startup',title:'Couldn’t open workspace',retry:open}); });
+    void open().catch(cause => { if (active) notifications.report(messageOf(cause), {key:'workspace-startup:'+notificationOwner,title:'Couldn’t open workspace',retry:open}); });
     return () => { active = false; };
-  }, [refresh, notifications]);
+  }, [refresh, notifications, notificationOwner]);
   useLayoutEffect(() => {
     if (!loaded) return;
     setModels([]); setModelError('');
@@ -723,7 +724,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     void loadModels();
     return () => { modelRequest.current++;modelRead.current?.abort();modelRead.current=null; };
   }, [loaded, modelOwner, modelContext, loadModels]);
-  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));const patched=applyRuntimeEvent(snapshotRef.current,event);if(patched)apply(patched);else void notifications.run(() => refresh(), {key:'workspace-sync',title:'Couldn’t update workspace'}); }, setOnline, refresh); }, [loaded, refresh, apply, notifications]);
+  useEffect(() => { if (!loaded) return; return subscribe(snapshotRef.current.seq, event => {if(event.type.startsWith('workspace.')||event.type.startsWith('project.')||event.type.startsWith('split-workspace.'))window.dispatchEvent(new Event('harness:workspace-changed'));const patched=applyRuntimeEvent(snapshotRef.current,event);if(patched)apply(patched);else void notifications.run(() => refresh(), {key:'workspace-sync:'+notificationOwner,title:'Couldn’t update workspace'}); }, setOnline, refresh); }, [loaded, refresh, apply, notifications, notificationOwner]);
   useEffect(() => { const query = matchMedia('(prefers-color-scheme: dark)'); const change = () => setSystemDark(query.matches); query.addEventListener('change', change); return () => query.removeEventListener('change', change); }, []);
   const theme = snapshot.settings.theme === 'system' ? systemDark ? 'dark' : 'light' : snapshot.settings.theme;
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
