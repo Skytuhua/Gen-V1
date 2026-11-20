@@ -8,28 +8,28 @@ import { z } from "zod";
 const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
 const nonEmpty = z.string().min(1).max(4096);
 
-export const rangeEncodingSchema = z.enum(["UTF8", "UTF16", "UTF32"]);
+const rangeEncodingSchema = z.enum(["UTF8", "UTF16", "UTF32"]);
 export type RangeEncoding = z.infer<typeof rangeEncodingSchema>;
 
 /** Positions are line/character pairs in `rangeEncoding` units. The negotiated
  * encoding is recorded so consumers never assume byte offsets equal UTF-16
  * positions. */
-export const codePositionSchema = z.strictObject({
+const codePositionSchema = z.strictObject({
   line: z.number().int().nonnegative(),
   character: z.number().int().nonnegative(),
 });
 export type CodePosition = z.infer<typeof codePositionSchema>;
 
-export const codeRangeSchema = z.strictObject({
+const codeRangeSchema = z.strictObject({
   start: codePositionSchema,
   end: codePositionSchema,
 });
 export type CodeRange = z.infer<typeof codeRangeSchema>;
 
-export const diagnosticSeveritySchema = z.enum(["error", "warning", "information", "hint"]);
+const diagnosticSeveritySchema = z.enum(["error", "warning", "information", "hint"]);
 export type DiagnosticSeverity = z.infer<typeof diagnosticSeveritySchema>;
 
-export const codeDiagnosticSchema = z.strictObject({
+const codeDiagnosticSchema = z.strictObject({
   path: nonEmpty,
   range: codeRangeSchema,
   severity: diagnosticSeveritySchema,
@@ -39,11 +39,11 @@ export const codeDiagnosticSchema = z.strictObject({
 });
 export type CodeDiagnostic = z.infer<typeof codeDiagnosticSchema>;
 
-export const baselineStatusSchema = z.enum(["AVAILABLE", "UNAVAILABLE"]);
-export type BaselineStatus = z.infer<typeof baselineStatusSchema>;
+const baselineStatusSchema = z.enum(["AVAILABLE", "UNAVAILABLE"]);
 
-export const observationStateSchema = z.enum(["CURRENT", "STALE", "UNAVAILABLE"]);
-export type ObservationState = z.infer<typeof observationStateSchema>;
+
+const observationStateSchema = z.enum(["CURRENT", "STALE", "UNAVAILABLE"]);
+
 
 export const diagnosticObservationV1Schema = z.strictObject({
   version: z.literal(1),
@@ -62,7 +62,7 @@ export const diagnosticObservationV1Schema = z.strictObject({
 });
 export type DiagnosticObservationV1 = z.infer<typeof diagnosticObservationV1Schema>;
 
-export const editPreviewFileSchema = z.strictObject({
+const editPreviewFileSchema = z.strictObject({
   path: nonEmpty,
   identity: z.string().max(512).nullable(),
   beforeDigest: sha256.nullable(),
@@ -70,14 +70,14 @@ export const editPreviewFileSchema = z.strictObject({
 });
 export type EditPreviewFile = z.infer<typeof editPreviewFileSchema>;
 
-export const editPreviewStateSchema = z.enum([
+const editPreviewStateSchema = z.enum([
   "STREAMING_UNAPPLIED",
   "READY_UNAPPLIED",
   "INVALID",
   "APPLIED",
   "CONFLICT",
 ]);
-export type EditPreviewState = z.infer<typeof editPreviewStateSchema>;
+
 
 export const editPreviewV1Schema = z.strictObject({
   version: z.literal(1),
@@ -90,7 +90,7 @@ export const editPreviewV1Schema = z.strictObject({
 });
 export type EditPreviewV1 = z.infer<typeof editPreviewV1Schema>;
 
-export const textEditSchema = z.strictObject({
+const textEditSchema = z.strictObject({
   range: codeRangeSchema,
   newText: z.string().max(4 * 1024 * 1024),
 });
@@ -117,10 +117,10 @@ export const renamePlanV1Schema = z.strictObject({
 });
 export type RenamePlanV1 = z.infer<typeof renamePlanV1Schema>;
 
-export const renameDispositionSchema = z.enum(["Applied", "Restored", "Unchanged", "Conflict"]);
+const renameDispositionSchema = z.enum(["Applied", "Restored", "Unchanged", "Conflict"]);
 export type RenameDisposition = z.infer<typeof renameDispositionSchema>;
 
-export const renameRecoveryEntrySchema = z.strictObject({
+const renameRecoveryEntrySchema = z.strictObject({
   path: nonEmpty,
   disposition: renameDispositionSchema,
   detail: z.string().max(1024).optional(),
@@ -134,8 +134,8 @@ export const renameRecoveryResultSchema = z.strictObject({
 });
 export type RenameRecoveryResult = z.infer<typeof renameRecoveryResultSchema>;
 
-export const debugSessionStateSchema = z.enum(["STARTING", "PAUSED", "RUNNING", "STOPPED", "UNKNOWN"]);
-export type DebugSessionState = z.infer<typeof debugSessionStateSchema>;
+const debugSessionStateSchema = z.enum(["STARTING", "PAUSED", "RUNNING", "STOPPED", "UNKNOWN"]);
+
 
 export const debugSessionV1Schema = z.strictObject({
   version: z.literal(1),
@@ -153,8 +153,8 @@ export type DebugSessionV1 = z.infer<typeof debugSessionV1Schema>;
  * step and evaluate can execute code and require authorized effect handling. */
 export const DEBUG_INSPECT_COMMANDS = ["threads", "stackTrace", "scopes", "variables"] as const;
 export const DEBUG_EFFECT_COMMANDS = ["launch", "continue", "next", "stepIn", "stepOut", "pause", "evaluate", "setBreakpoints", "terminate"] as const;
-export type DebugInspectCommand = (typeof DEBUG_INSPECT_COMMANDS)[number];
-export type DebugEffectCommand = (typeof DEBUG_EFFECT_COMMANDS)[number];
+
+
 
 export const CODE_INTELLIGENCE_LIMITS = Object.freeze({
   navigationResults: 100,
