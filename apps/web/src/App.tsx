@@ -733,8 +733,8 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   },[customDock,convSplitState.layout,thread?.id]);
   const savedLayoutActions=useSplitLayoutProfileActions({prepare:()=>prepareWorkspace(),save:layoutSplitState.saveProfile,send:layoutSplitState.send,refresh:splitProfiles.refresh},splitWorkspaceId);
   const [projectConnectOpen,setProjectConnectOpen]=useState(false),[projectName,setProjectName]=useState(''),[projectPath,setProjectPath]=useState(''),[projectConnectError,setProjectConnectError]=useState('');
-  const [projectPicker,setProjectPicker]=useState<{threadId?:string;opener:HTMLElement|null;prepare?:PrepareThread}|null>(null),[projectPicking,setProjectPicking]=useState(false),[projectPickerError,setProjectPickerError]=useState('');
-  const openProjectSelection=(threadId?:string,opener:HTMLElement|null=document.activeElement as HTMLElement|null,prepare?:PrepareThread)=>{setProjectPickerError('');setProjectPicker({threadId,opener,prepare});};
+  const [projectPicker,setProjectPicker]=useState<{threadId?:string;opener:HTMLElement|null;prepare?:PrepareThread;title?:string}|null>(null),[projectPicking,setProjectPicking]=useState(false),[projectPickerError,setProjectPickerError]=useState('');
+  const openProjectSelection=(threadId?:string,opener:HTMLElement|null=document.activeElement as HTMLElement|null,prepare?:PrepareThread,title?:string)=>{setProjectPickerError('');setProjectPicker({threadId,opener,prepare,title});};
   const closeProjectSelection=()=>{const opener=projectPicker?.opener;setProjectPicker(null);requestAnimationFrame(()=>{if(opener?.isConnected)opener.focus({preventScroll:true});});};
   const projectConnectPicker=useRef<typeof projectPicker>(null);
   const projectConnectTarget=useRef<{threadId?:string;projectId?:string;opener:HTMLElement|null}|null>(null);
@@ -783,7 +783,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     if (!thread) return createThread(prepare);
     await prepare(thread.id); return thread.id;
   };
-  const newThreadRef = useRef<() => Promise<void>>(async()=>{}); newThreadRef.current = async()=>{if(composerPending.current||creationPending.current)return;await prepareWorkspace();openProjectSelection();};
+  const newThreadRef = useRef<() => Promise<void>>(async()=>{}); newThreadRef.current = async()=>{if(composerPending.current||creationPending.current)return;await prepareWorkspace();openProjectSelection(undefined,document.activeElement as HTMLElement|null,undefined,'New thread');};
   useEffect(() => { if(embeddedThreadId)return;const key = (event: KeyboardEvent) => {
     if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
     if (matchesShortcut(event, preferences.keybindings.search)) { event.preventDefault(); setSidebarOpen(true); setLayout(value => ({ ...value, sidebarCollapsed: false })); requestAnimationFrame(() => searchRef.current?.focus()); }
@@ -1198,7 +1198,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     {archiveThread && <Dialog title="Uncheckpointed widget edits" close={() => setArchiveThread(null)}><p>Checkpoint your widget edits before archiving this thread, or explicitly discard them.</p>{error&&<p role="status" className="error-text">{error}</p>}<footer className="dialog-actions"><button className="secondary" onClick={() => { select(archiveThread); setArchiveThread(null); }}>Return to checkpoint</button><button className="quiet" onClick={() => void archive(archiveThread, true)}>Discard edits and archive</button></footer></Dialog>}
     {resourcePicker && <ResourcePicker key={resourcePicker.session} threadId={resourcePicker.threadId} opener={resourcePicker.opener}
       close={() => setResourcePicker(current => current === resourcePicker ? null : current)} refresh={refresh} />}
-    {projectPicker&&<ProjectPicker open authority={{kind:'local'}} projects={workspaceEnvelope?.projects??[]} selectedProjectId={snapshot.threads.find(value=>value.id===projectPicker.threadId)?.projectId}
+    {projectPicker&&<ProjectPicker open authority={{kind:'local'}} title={projectPicker.title} projects={workspaceEnvelope?.projects??[]} selectedProjectId={snapshot.threads.find(value=>value.id===projectPicker.threadId)?.projectId}
       recentProjectIds={[...new Set([...snapshot.threads].sort((a,b)=>b.updatedAt.localeCompare(a.updatedAt)).flatMap(value=>value.projectId?[value.projectId]:[]))]}
       colors={preferences.projectColors} busy={projectPicking} error={projectPickerError} onClose={closeProjectSelection} onSelect={pickProject} onColorChange={saveProjectColor}
       onAddProject={()=>{projectConnectPicker.current=projectPicker;setProjectPicker(null);openProjectConnect({});}}/>}
