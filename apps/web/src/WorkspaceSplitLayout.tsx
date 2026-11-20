@@ -171,13 +171,14 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
   if(node.kind==='pane')return renderPane(node.paneId);const ratio=previewRatio?.id===node.id?previewRatio.ratio:node.ratio,firstCollapsed=splitPaneIds(node.first).every(id=>layout.panes[id]!.collapsed),secondCollapsed=splitPaneIds(node.second).every(id=>layout.panes[id]!.collapsed),style={'--split-ratio':ratio,...(firstCollapsed!==secondCollapsed?{[node.axis==='horizontal'?'gridTemplateColumns':'gridTemplateRows']:firstCollapsed?'36px 6px minmax(0,1fr)':'minmax(0,1fr) 6px 36px'}:{})} as CSSProperties;
   return <div key={node.id} className={`split-node split-${node.axis}`} style={style}>{renderNode(node.first)}<div role="separator" tabIndex={0} aria-label={`Resize ${node.axis==='horizontal'?'columns':'rows'}`} aria-orientation={node.axis==='horizontal'?'vertical':'horizontal'} aria-valuenow={Math.round(ratio*100)} aria-valuemin={5} aria-valuemax={95} className={`split-divider${previewRatio?.id===node.id?' is-dragging':''}`} onPointerDown={event=>beginResize(event,node)} onPointerMove={moveResize} onPointerUp={endResize} onPointerCancel={event=>{if(resize.current?.pointerId===event.pointerId)cancel();}} onLostPointerCapture={event=>{if(resize.current?.pointerId===event.pointerId)cancel();}} onContextMenu={event=>{event.preventDefault();cancel();}} onKeyDown={event=>keyResize(event,node)}>{previewRatio?.id===node.id&&<span>{Math.round(ratio*100)}% {node.axis==='horizontal'?'width':'height'}</span>}</div>{renderNode(node.second)}</div>;
  };
- const visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes)){const active=pane.activeViewId?layout.views[pane.activeViewId]:undefined;if(!pane.collapsed&&active&&(pane.id!==emptyMainPaneId||active.kind!=='thread')&&(!narrow||pane.id===layout.focusedPaneId))visibleOwner.set(active.id,pane.id);}
+ const liveOwner=new Map<string,string>(),visibleOwner=new Map<string,string>();for(const pane of Object.values(layout.panes)){const active=pane.activeViewId?layout.views[pane.activeViewId]:undefined;if(!pane.collapsed&&active&&(pane.id!==emptyMainPaneId||active.kind!=='thread')){liveOwner.set(active.id,pane.id);if(!narrow||pane.id===layout.focusedPaneId)visibleOwner.set(active.id,pane.id);}}
  const viewPlacements=Object.values(layout.views).map(view=>{
   const paneId=dockedPreview===view.id?undefined:visibleOwner.get(view.id),slot=paneId?rects[paneId]:undefined,floatRect=!paneId&&(dockedPreview===view.id||layout.parkedViewIds.includes(view.id))?floatRectOf(view.id):undefined,active=Boolean(slot&&slot.width>0&&slot.height>0)||Boolean(floatRect);
+  const live=Boolean(liveOwner.get(view.id))||Boolean(floatRect);
   const style:CSSProperties=floatRect?{left:floatRect.x,top:floatRect.y,width:floatRect.width,height:floatRect.height}:active?{left:slot!.left,top:slot!.top,width:slot!.width,height:slot!.height}:{display:'none'};
-  return{view,paneId,floatRect,active,style};
+  return{view,paneId,floatRect,active,live,style};
  });
- const activeViewKey=JSON.stringify(viewPlacements.filter(placement=>placement.active).map(placement=>placement.view.id).sort());
+ const activeViewKey=JSON.stringify(viewPlacements.filter(placement=>placement.live).map(placement=>placement.view.id).sort());
  useLayoutEffect(()=>{
   if(!onActiveViewsChange)return;
   onActiveViewsChange(layout.id,JSON.parse(activeViewKey));
