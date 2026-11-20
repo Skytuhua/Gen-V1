@@ -230,3 +230,39 @@ test('a lost removal acknowledgment restores the saved state with an uncertainty
  await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();
  expect(writes.filter(write=>write.method==='DELETE')).toHaveLength(1);
 });
+
+test('stats keyboard endpoints keep focus on the selector without a traveling animation',async({page})=>{
+ const {host}=await open(page,'Stats',metrics);await page.goto('/');
+ const nav=page.getByRole('tablist',{name:'Statistics',exact:true});
+ await nav.getByRole('tab',{name:'Response time',exact:true}).focus();await page.keyboard.press('End');
+ await expect(nav.getByRole('tab',{name:'Error budget',exact:true})).toBeFocused();
+ await page.keyboard.press('Home');await expect(nav.getByRole('tab',{name:'Response time',exact:true})).toBeFocused();
+ await page.keyboard.press('Enter');await expect.poll(()=>host.snapshot.userStates[0].values.selected).toBe('latency');
+ await expect(nav.getByRole('tab',{name:'Response time',exact:true})).toBeFocused();
+ expect(await page.locator('.everyday-stats').evaluate(node=>node.getAnimations().length)).toBe(0);
+});
+test('stats at 390 keep the selector scroll local and end on the final metric after mixed input',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const {host}=await open(page,'Stats',metrics);await page.goto('/');
+ const nav=page.getByRole('tablist',{name:'Statistics',exact:true});
+ // Alternating pointer and keyboard input ends on the last-moved metric only.
+ await nav.getByRole('tab',{name:'Requests',exact:true}).click();
+ await nav.getByRole('tab',{name:'Response time',exact:true}).focus();
+ await page.keyboard.press('ArrowRight');await page.keyboard.press('ArrowRight');
+ const value=page.getByRole('region',{name:'Selected statistic',exact:true});
+ await expect.poll(()=>host.snapshot.userStates[0].values.selected).toBe('missing');
+ await expect(value).toContainText('Unavailable');await expect(value.locator('.everyday-stat-value')).not.toContainText('184');
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
+test('a held removal keeps the credential field masked, disabled and empty',async({page})=>{
+ const {writes}=await credentials(page,{holdDelete:true});
+ const input=page.getByLabel('Project API token',{exact:true});
+ await input.fill('SYNTHETIC-ONLY-held');await page.getByRole('button',{name:'Save token',exact:true}).click();
+ await expect(page.getByText('Saved for this host session',{exact:true})).toBeVisible();
+ const endpoints=await page.locator('.credential-endpoints, .credential-status').count();
+ await page.getByRole('button',{name:'Remove token',exact:true}).click();
+ // While the acknowledgment is outstanding the field stays masked and empty and nothing else changes.
+ await expect(input).toHaveAttribute('type','password');await expect(input).toHaveValue('');await expect(input).toBeDisabled();
+ expect(await page.locator('.credential-endpoints, .credential-status').count()).toBe(endpoints);
+ expect(writes.filter(write=>write.method==='DELETE')).toHaveLength(1);
+});

@@ -209,3 +209,51 @@ test('pipeline keeps connector geometry exact while topology changes mid-flight'
  for(const p of await sampleEnds()){expect(p.dx).toBeLessThanOrEqual(1);expect(p.dy).toBeLessThanOrEqual(1);}
  await page.evaluate(()=>{delete document.documentElement.dataset.motion;});
 });
+
+test('Diagnostics at 390 renames the panel for the focused check and drops assertion content',async({page})=>{
+ await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});
+ const host=await open(page,'Diagnostics');
+ const tabs=page.locator('.software-list [role=tab]');
+ await tabs.first().focus();await page.keyboard.press('ArrowDown');
+ // The passed check owns focus, the region takes its accessible name, and expected/actual is absent.
+ await expect(tabs.nth(1)).toBeFocused();await expect(tabs.nth(1)).toHaveAttribute('aria-selected','true');
+ await expect(page.locator('.software-detail')).toHaveAttribute('aria-label','empty basket returns zero');
+ await expect(page.locator('.software-assertion')).toHaveCount(0);
+ expect(await page.locator('.software-detail').evaluate(node=>node.getAnimations().length)).toBe(0);
+ // Reapply the failing source and restore the failing check with its comparison.
+ host.setInput('software',structuredClone(SOFTWARE_FIXTURE_DATA.Diagnostics));await host.publish();
+ await tabs.first().click();
+ await expect(page.locator('.software-detail')).toHaveAttribute('aria-label','includes item quantity');
+ await expect(page.locator('.software-assertion')).toBeVisible();
+});
+test('ChangeSet at 390 keeps the patch internally scrollable without page overflow',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ const data=structuredClone(SOFTWARE_FIXTURE_DATA.ChangeSet);
+ data.files[0].path='src/deeply/nested/'+('long-'.repeat(8))+'path/total.ts';
+ data.files[0].patch+='\n+'+'x'.repeat(300);
+ await open(page,'ChangeSet',data);
+ const patch=page.getByLabel('Selected patch',{exact:true});
+ await expect(patch).toBeVisible();
+ // The overlong line scrolls inside the patch; the page never scrolls horizontally.
+ expect(await patch.evaluate(node=>node.scrollWidth>node.clientWidth)).toBe(true);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+ // Old/new coordinates and the wrapping long path stay available.
+ await expect(page.locator('.software-patch-heading')).toContainText('Old');await expect(page.locator('.software-patch-heading')).toContainText('New');
+ await expect(page.locator('.software-detail-heading code')).toContainText('long-path');
+ await expect(patch.locator('[data-line-kind=removed]').first()).toBeVisible();
+});
+test('ApiExplorer at 390 stacks both examples and ArrowLeft returns to the previous response',async({page})=>{
+ await page.setViewportSize({width:390,height:844});
+ await open(page,'ApiExplorer');
+ const flow=page.locator('.software-api-flow');
+ await expect(flow).toHaveAttribute('data-has-request','true');
+ // Request then response stack at ≤540px.
+ const request=await flow.locator('.software-request').boundingBox(),response=await flow.locator('.software-response').boundingBox();
+ expect(request!.y+request!.height).toBeLessThanOrEqual(response!.y+1);
+ // ArrowLeft selects the previous response.
+ const tabs=page.locator('.software-response-tabs [role=tab]');
+ await tabs.nth(1).click();await expect(tabs.nth(1)).toHaveAttribute('aria-selected','true');
+ await tabs.nth(1).focus();await page.keyboard.press('ArrowLeft');
+ await expect(tabs.nth(0)).toHaveAttribute('aria-selected','true');await expect(tabs.nth(0)).toBeFocused();
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+});
