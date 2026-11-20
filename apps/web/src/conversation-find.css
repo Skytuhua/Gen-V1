@@ -1,5 +1,5 @@
 .conversation-find-owner {display:flex;justify-content:flex-end;flex:0 0 auto;min-width:0;padding:var(--ui-space-2) var(--ui-content-inset);}
-.conversation-find {width:min(100%,380px);background:var(--surface);border:1px solid var(--border);border-radius:var(--control-radius,8px);padding:var(--ui-space-1);color:var(--text);}
+.conversation-find {width:min(100%,380px);background:var(--surface);border:1px solid var(--control-border);border-radius:var(--control-radius,8px);padding:var(--ui-space-1);color:var(--text);}
 .conversation-find-row {display:flex;align-items:center;gap:var(--ui-space-1);padding-inline-start:var(--ui-space-1);}
 .conversation-find input {flex:1;min-width:0;width:0;border:0;background:transparent;padding:var(--ui-space-1);font:inherit;}
 .conversation-find .quiet,.conversation-find-trigger {display:inline-flex;align-items:center;justify-content:center;min-width:var(--ui-row-compact);min-height:var(--ui-row-compact);padding:var(--ui-space-1);}

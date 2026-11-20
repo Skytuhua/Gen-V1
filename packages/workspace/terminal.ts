@@ -19,7 +19,7 @@ export class TerminalHost{
   const projectId=identifier.parse(input.projectId),threadId=input.threadId===undefined?undefined:identifier.parse(input.threadId),terminalId=input.terminalId?identifier.parse(input.terminalId):randomUUID();
   const command=input.command?z.string().min(1).max(8000).parse(input.command):undefined;
   const binding=await this.projects.binding(projectId,threadId),existing=this.sessions.get(terminalId);
-  if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');return this.result(existing,0);}
+  if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(existing.exited)throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');return this.result(existing,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   const shell=process.platform==='win32'?(process.env.COMSPEC??'C:/Windows/System32/cmd.exe'):(process.env.SHELL??'/bin/sh'),args=process.platform==='win32'?['/D','/Q']:[];
@@ -29,7 +29,7 @@ export class TerminalHost{
   // Secret resolution yields. Recheck ownership/capacity synchronously after
   // the final await so concurrent opens cannot orphan an extra process.
   const opened=this.sessions.get(terminalId);
-  if(opened){if(opened.projectId!==projectId||opened.threadId!==threadId||opened.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');return this.result(opened,0);}
+  if(opened){if(opened.projectId!==projectId||opened.threadId!==threadId||opened.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(opened.exited)throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');return this.result(opened,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   // Trusted integration programs retain their explicitly pinned environments.
@@ -46,13 +46,25 @@ export class TerminalHost{
     session.output=session.output.slice(remove);session.offset+=remove;
    }
   });
-  pty.onExit(event=>{session.exited=true;session.exitCode=event.exitCode;this.persist(session);this.evictExited();finish();});
+  pty.onExit(event=>{
+   session.exited=true;session.exitCode=event.exitCode;
+   // Native exit is definitive even if the separate durable update fails.
+   finish();
+   try{this.persist(session);}catch{process.stderr.write('Gen V1 could not persist terminal exit state.\n');}
+   this.evictExited(session);
+  });
+
   if(command!==undefined)pty.write(command+'\r');
   return this.result(session,0);
  }
  private persist(session:Session){this.projects.store.internal('terminal.changed',session.threadId??null,()=>this.projects.store.put('terminalSession',session.id,session.threadId??null,{id:session.id,projectId:session.projectId,threadId:session.threadId,exited:session.exited,exitCode:session.exitCode}));}
  /** Exited sessions keep up to 512 KiB of scrollback each; retain only the newest few so the map stays bounded. Reads of evicted ids still resolve TERMINAL_ENDED through the durable record. */
- private evictExited(){const dead=[...this.sessions.entries()].filter(([,session])=>session.exited);for(const [id]of dead.slice(0,Math.max(0,dead.length-48)))this.sessions.delete(id);}
+ private evictExited(session:Session){
+  // Active terminals may outlive many later starts. Record recency when they exit.
+  this.sessions.delete(session.id);this.sessions.set(session.id,session);
+  const dead=[...this.sessions.entries()].filter(([,session])=>session.exited);
+  for(const [id]of dead.slice(0,Math.max(0,dead.length-48)))this.sessions.delete(id);
+ }
  private result(session:Session,cursor:number){const end=session.offset+session.output.length,start=Math.min(end,Math.max(session.offset,cursor));return{id:session.id,projectId:session.projectId,threadId:session.threadId,output:session.output.slice(start-session.offset),start,cursor:end,exited:session.exited,exitCode:session.exitCode};}
  private async owned(id:string,projectId:string,threadId?:string,stopping=false){const session=this.sessions.get(identifier.parse(id));if(!session){const old=this.projects.store.get<{projectId:string;threadId?:string}>('terminalSession',id);if(old&&old.projectId===projectId&&old.threadId===threadId)throw new HarnessError('TERMINAL_ENDED','The host restarted or this terminal ended. Open a new terminal.');throw new HarnessError('NOT_FOUND','Terminal is unavailable.');}if(session.projectId!==projectId||session.threadId!==threadId)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(!stopping){const binding=await this.projects.binding(projectId,threadId);if(session.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');}return session;}
  async read(id:string,projectId:string,threadId?:string,cursor=0){return this.result(await this.owned(id,projectId,threadId),z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).parse(cursor));}

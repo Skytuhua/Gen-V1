@@ -87,12 +87,12 @@ describe('real browser worker isolation', () => {
     try {
       await page.goto(origin);
       await page.evaluate(({ port }) => {
-        (window as any).productionReady = false;
+        window.productionReady = false;
         const iframe = document.createElement('iframe'); iframe.sandbox.add('allow-scripts');
-        addEventListener('message', event => { if (event.source === iframe.contentWindow && event.data?.type === 'ready') (window as any).productionReady = true; });
+        addEventListener('message', event => { if (event.source === iframe.contentWindow && event.data?.type === 'ready') window.productionReady = true; });
         iframe.src = `http://localhost:${port}/production-widget#token=t&mountId=m`; document.body.append(iframe);
       }, { port });
-      await browserExpect.poll(() => page.evaluate(() => (window as any).productionReady), { timeout: 2000 }).toBe(true);
+      await browserExpect.poll(() => page.evaluate(() => window.productionReady), { timeout: 2000 }).toBe(true);
     } finally { await page.close(); }
   });
 
@@ -118,7 +118,7 @@ describe('real browser worker isolation', () => {
         try{const nav=nativeGetter(globalThis,'navigator');await nativeGetter(nav,'storage').estimate();report.storage='accessible'}catch(error){report.storage=error.name}
         window.harness.emit('storage-probe',report);
       });</script>`);
-      await browserExpect.poll(() => page.evaluate(() => (window as any).bridge.find((entry:any)=>entry.payload?.actionId==='storage-probe')?.payload.payload), { timeout: 5000 }).toEqual({ origin: 'null', idbRead: 'SecurityError', idbMutation: 'SecurityError', caches: 'SecurityError', storage: 'TypeError' });
+      await browserExpect.poll(() => page.evaluate(() => window.bridge.find((entry)=>entry.payload?.actionId==='storage-probe')?.payload?.payload), { timeout: 5000 }).toEqual({ origin: 'null', idbRead: 'SecurityError', idbMutation: 'SecurityError', caches: 'SecurityError', storage: 'TypeError' });
       expect(await page.evaluate(async () => new Promise((resolve,reject)=>{ const open=indexedDB.open('generative-harness-journal');open.onerror=()=>reject(open.error);open.onsuccess=()=>{const db=open.result,read=db.transaction('drafts').objectStore('drafts').get('secret');read.onsuccess=()=>{db.close();resolve(read.result)};read.onerror=()=>reject(read.error)} }))).toBe('host-private-draft');
     } finally { await page.close(); }
   });
@@ -126,8 +126,8 @@ describe('real browser worker isolation', () => {
     const page = await browser.newPage();
     try {
       await mount(page, `<p data-note="a <!-- b">ok</p><!-- <script>window.harness.emit('leaked-comment',{})</` + `script> --><template><script>window.harness.emit('leaked-template',{})</` + `script></template><textarea><script>window.harness.emit('leaked-raw',{})</` + `script></textarea><script>window.harness.emit('visible',{})</` + `script>`);
-      await browserExpect.poll(() => page.evaluate(() => (window as any).bridge.map((entry: any) => entry.payload?.actionId)), { timeout: 5000 }).toContain('visible');
-      const actions = await page.evaluate(() => (window as any).bridge.map((entry: any) => entry.payload?.actionId));
+      await browserExpect.poll(() => page.evaluate(() => window.bridge.map((entry) => entry.payload?.actionId)), { timeout: 5000 }).toContain('visible');
+      const actions = await page.evaluate(() => window.bridge.map((entry) => entry.payload?.actionId));
       for (const leaked of ['leaked-comment', 'leaked-template', 'leaked-raw']) expect(actions).not.toContain(leaked);
     } finally { await page.close(); }
   });
@@ -135,10 +135,10 @@ describe('real browser worker isolation', () => {
   async function mount(page: Page, html: string, path = '/widget') {
     await page.goto(origin);
     await page.evaluate(({ html, port, path }) => {
-      const api = window as unknown as { WidgetRuntime: { createWidgetRuntime: (options: any) => any }; runtime: any; bridge: any[]; failures: string[]; mountedFrame: HTMLIFrameElement };
+      const api = window as unknown as { WidgetRuntime: { createWidgetRuntime: (options: { iframe: HTMLIFrameElement; identity: unknown; html: string; stateSchemaVersion: number; onFailure(message: string): unknown; onBridge(message: { payload: { requestId?: unknown }; type?: string }): void }) => { post(message: unknown): void } }; runtime: { post(message: unknown): void }; bridge: { payload?: { actionId?: unknown; payload?: unknown; requestId?: unknown }; type?: string }[]; failures: string[]; mountedFrame: HTMLIFrameElement };
       const iframe = document.createElement('iframe'); iframe.sandbox.add('allow-scripts'); iframe.title = 'Novel app';
       const identity = { token: 't', mountId: 'm', artifactId: 'a' }; api.bridge = []; api.failures = []; api.mountedFrame = iframe;
-      api.runtime = api.WidgetRuntime.createWidgetRuntime({ iframe, identity, html, stateSchemaVersion: 1, onFailure: (message: string) => api.failures.push(message), onBridge: (message: any) => {
+      api.runtime = api.WidgetRuntime.createWidgetRuntime({ iframe, identity, html, stateSchemaVersion: 1, onFailure: (message: string) => api.failures.push(message), onBridge: (message: { type?: string; payload: { requestId?: unknown } }) => {
         api.bridge.push(message);
         if (message.type === 'checkpoint') api.runtime.post({ channel: 'harness-widget', ...identity, type: 'checkpoint.ack', payload: { requestId: message.payload.requestId, stateRevision: 7 } });
       } });
@@ -148,7 +148,7 @@ describe('real browser worker isolation', () => {
     return page.frameLocator('iframe');
   }
 
-  async function mountComponent(page: Page, commands: any[], failEnd: () => boolean = () => false, html?: string) {
+  async function mountComponent(page: Page, commands: { id?: string; type?: string; payload?: { clientId?: unknown } }[], failEnd: () => boolean = () => false, html?: string) {
     await page.route('**/api/**', async route => {
       const url = new URL(route.request().url());
       if (url.pathname === '/api/bootstrap') return route.fulfill({ json: { csrfToken: 'fixture', widgetOrigin: `http://localhost:${port}` } });
@@ -161,34 +161,34 @@ describe('real browser worker isolation', () => {
       return route.fulfill({ status: 404, json: {} });
     });
     await page.goto(origin);
-    await page.evaluate(html => { const root = document.createElement('div'); root.id = 'widget-test'; document.body.append(root); (window as any).widgetHtmlOverride = html; (window as any).__genWidgetLeaseHeartbeatMs = 60000; }, html);
+    await page.evaluate(html => { const root = document.createElement('div'); root.id = 'widget-test'; document.body.append(root); window.widgetHtmlOverride = html; window.__genWidgetLeaseHeartbeatMs = 60000; }, html);
     await page.addScriptTag({ url: `${origin}/widget-harness.js` });
     return page.frameLocator('iframe');
   }
 
   it('releases a widget lease only after host acceptance, preserves drafts on failure, and resumes under the same action identity', async () => {
-    const page = await browser.newPage(); const commands: any[] = []; let failEnd = true;
+    const page = await browser.newPage(); const commands: { id?: string; type?: string; payload?: { clientId?: unknown } }[] = []; let failEnd = true;
     try {
       const frame = await mountComponent(page, commands, () => failEnd);
       const draft = frame.getByRole('textbox', { name: 'Draft' });
       await browserExpect(draft).toHaveValue('Saved');
       await draft.fill('Unsynced retained draft');
       await browserExpect.poll(() => commands.filter(command => command.type === 'edit.begin').length).toBe(1);
-      expect(await page.evaluate(async () => { try { await (window as any).widgetHandle.current.releaseLease(); return 'released'; } catch (error) { return (error as Error).message; } })).toBe('Release blocked');
+      expect(await page.evaluate(async () => { try { await window.widgetHandle.current.releaseLease(); return 'released'; } catch (error) { return (error as Error).message; } })).toBe('Release blocked');
       await browserExpect(draft).toHaveValue('Unsynced retained draft');
-      expect(await page.evaluate(() => (window as any).widgetDirty)).toBe(true);
+      expect(await page.evaluate(() => window.widgetDirty)).toBe(true);
       failEnd = false;
-      await page.evaluate(() => (window as any).widgetHandle.current.releaseLease());
+      await page.evaluate(() => window.widgetHandle.current.releaseLease());
       // Cross a real heartbeat tick (the harness reschedules with the injected
       // interval): a failed archive can retry without an automatic edit.begin
       // undoing the successful explicit lease release.
-      await page.evaluate(() => { (window as any).__genWidgetLeaseHeartbeatMs = 100; });
+      await page.evaluate(() => { window.__genWidgetLeaseHeartbeatMs = 100; });
       await page.waitForTimeout(500);
       expect(commands.filter(command => command.type === 'edit.begin')).toHaveLength(1);
       await frame.getByRole('button', { name: 'Continue', exact: true }).click();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).widgetActions)).toEqual([['continue', { note: 'Unsynced retained draft' }, 'widget:a:m']]);
+      await browserExpect.poll(() => page.evaluate(() => window.widgetActions)).toEqual([['continue', { note: 'Unsynced retained draft' }, 'widget:a:m']]);
       await browserExpect.poll(() => commands.filter(command => command.type === 'edit.begin').length).toBe(2);
-      expect(commands.filter(command => command.type === 'edit.begin' || command.type === 'edit.end').every(command => command.payload.clientId === 'widget:a:m')).toBe(true);
+      expect(commands.filter(command => command.type === 'edit.begin' || command.type === 'edit.end').every(command => command.payload?.clientId === 'widget:a:m')).toBe(true);
       await browserExpect(draft).toHaveValue('Unsynced retained draft');
     } finally { await page.close(); }
   }, 30_000);
@@ -200,7 +200,7 @@ describe('real browser worker isolation', () => {
       const draft = frame.getByRole('textbox', { name: 'Draft' });
       await browserExpect(draft).toBeVisible();
       await browserExpect(page.getByRole('alert')).toContainText('invalid DOM');
-      expect(await page.evaluate(() => (window as any).escaped)).toBe(0);
+      expect(await page.evaluate(() => window.escaped)).toBe(0);
       await page.evaluate(() => window.postMessage({ channel: 'harness-widget', artifactId: 'a', token: 't', mountId: 'm', type: 'shell.escape', payload: { key: 'Escape' } }, '*'));
       await draft.evaluate(element => {
         // Browser automation deliberately injects forgeries from the correct
@@ -209,7 +209,7 @@ describe('real browser worker isolation', () => {
         element.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
       });
       await draft.press('Escape');
-      await browserExpect.poll(() => page.evaluate(() => (window as any).escaped)).toBe(1);
+      await browserExpect.poll(() => page.evaluate(() => window.escaped)).toBe(1);
     } finally { await page.close(); }
   });
 
@@ -222,10 +222,10 @@ describe('real browser worker isolation', () => {
       await browserExpect(draft).toHaveValue('Retained draft');
       await draft.focus();
       await draft.evaluate(element => {
-        (window as any).compositionKeys = [];
-        (window as any).retainedEditor = element;
+        window.compositionKeys = [];
+        window.retainedEditor = element;
         // Observe native fields before the receiver's document capture handler.
-        window.addEventListener('keydown', event => (window as any).compositionKeys.push({
+        window.addEventListener('keydown', event => window.compositionKeys.push({
           isTrusted: event.isTrusted, key: event.key, keyCode: event.keyCode, isComposing: event.isComposing,
         }), true);
       });
@@ -236,24 +236,24 @@ describe('real browser worker isolation', () => {
         const frameURL = await page.locator('iframe').getAttribute('src');
         await session.send('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: variant === 'legacy' ? 229 : 27, nativeVirtualKeyCode: variant === 'legacy' ? 229 : 27 });
         await session.send('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Escape', code: 'Escape', windowsVirtualKeyCode: 27 });
-        const observed = await draft.evaluate(() => (window as any).compositionKeys[0]);
+        const observed = await draft.evaluate(() => window.compositionKeys[0]);
         console.info('Trusted composing Escape observation', variant, JSON.stringify(observed));
         expect(observed).toMatchObject({ isTrusted: true, key: 'Escape' });
         const supported = variant === 'native' ? observed.isComposing === true : observed.keyCode === 229;
         // Let messages posted by the receiver cross to the host before inspection.
         await page.waitForTimeout(100);
         if (supported) {
-          expect(await page.evaluate(() => (window as any).escaped)).toBe(0);
+          expect(await page.evaluate(() => window.escaped)).toBe(0);
           await browserExpect(draft).toHaveValue(retained);
           await browserExpect(draft).toBeVisible();
-          expect(await draft.evaluate(element => element === (window as any).retainedEditor && element === document.activeElement)).toBe(true);
+          expect(await draft.evaluate(element => element === window.retainedEditor && element === document.activeElement)).toBe(true);
           expect(await page.locator('iframe').getAttribute('src')).toBe(frameURL);
         }
         if (variant === 'native') await session.send('Input.imeSetComposition', { text: '', selectionStart: 0, selectionEnd: 0 });
         // Even an unsupported native-IME probe must retain the ordinary trusted control.
-        const before = await page.evaluate(() => (window as any).escaped);
+        const before = await page.evaluate(() => window.escaped);
         await draft.press('Escape');
-        await browserExpect.poll(() => page.evaluate(() => (window as any).escaped)).toBe(before + 1);
+        await browserExpect.poll(() => page.evaluate(() => window.escaped)).toBe(before + 1);
         if (supported) expect(before).toBe(0);
         else context.skip(`Pending supported/native IME run: Chromium CDP emitted ${JSON.stringify(observed)} for ${variant} composition`);
       } finally { await session.detach(); }
@@ -261,22 +261,22 @@ describe('real browser worker isolation', () => {
   });
 
   it('reuses a resumed dirty lease when iframe focus acquisition completes before the generated action', async () => {
-    const page = await browser.newPage(); const commands: any[] = [];
+    const page = await browser.newPage(); const commands: { id?: string; type?: string; payload?: { clientId?: unknown } }[] = [];
     try {
       const frame = await mountComponent(page, commands);
       const draft = frame.getByRole('textbox', { name: 'Draft' });
       await draft.fill('Resumed draft');
       await browserExpect.poll(() => commands.filter(command => command.type === 'edit.begin').length).toBe(1);
       await page.getByRole('button', { name: 'Settings', exact: true }).focus();
-      await page.evaluate(() => (window as any).widgetHandle.current.releaseLease());
+      await page.evaluate(() => window.widgetHandle.current.releaseLease());
       const resumed = page.waitForResponse(response => response.url().endsWith('/api/commands') && response.request().postDataJSON().type === 'edit.begin');
       await draft.focus();
       await resumed;
       await page.evaluate(() => new Promise(resolve => setTimeout(resolve, 0)));
       await frame.getByRole('button', { name: 'Continue', exact: true }).click();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).widgetActions.length)).toBe(1);
+      await browserExpect.poll(() => page.evaluate(() => window.widgetActions.length)).toBe(1);
       expect(commands.filter(command => command.type === 'edit.begin')).toHaveLength(2);
-      expect(commands.filter(command => command.type === 'edit.begin').every(command => command.payload.clientId === 'widget:a:m')).toBe(true);
+      expect(commands.filter(command => command.type === 'edit.begin').every(command => command.payload?.clientId === 'widget:a:m')).toBe(true);
     } finally { await page.close(); }
   });
 
@@ -285,7 +285,7 @@ describe('real browser worker isolation', () => {
     try {
       const frame = await mount(page, '<p id="startup">Waiting</p><script>window.harness.onUpdate(()=>document.querySelector("#startup").textContent="Production worker ready")</script>', '/production-widget');
       await browserExpect(frame.locator('#startup')).toHaveText('Production worker ready');
-      expect(await page.evaluate(() => (window as any).failures)).toEqual([]);
+      expect(await page.evaluate(() => window.failures)).toEqual([]);
     } finally { await page.close(); }
   });
 
@@ -297,7 +297,7 @@ describe('real browser worker isolation', () => {
     try {
       const frame = await mount(page, `<button id="attack">Send invalid tree</button><p>Draft remains</p><script>document.querySelector('#attack').onclick=()=>postMessage({type:'render',payload:${payload}})</script>`);
       await frame.getByRole('button', { name: 'Send invalid tree' }).click();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).failures), { timeout: 1000 }).toEqual([expect.stringContaining('invalid DOM')]);
+      await browserExpect.poll(() => page.evaluate(() => window.failures), { timeout: 1000 }).toEqual([expect.stringContaining('invalid DOM')]);
       await page.getByRole('button', { name: 'Settings', exact: true }).click({ timeout: 500 });
       await browserExpect(page.getByRole('dialog')).toBeVisible({ timeout: 500 });
       await browserExpect(frame.getByRole('alert')).toContainText('Generated app stopped');
@@ -310,8 +310,8 @@ describe('real browser worker isolation', () => {
     try {
       const frame = await mount(page, `<button id="attack">Send invalid checkpoint</button><script>document.querySelector('#attack').onclick=()=>postMessage({type:'bridge',event:'checkpoint',payload:{requestId:'sparse',values:{notes:new Array(100000000)}}})</script>`);
       await frame.getByRole('button', { name: 'Send invalid checkpoint' }).click();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).failures), { timeout: 1000 }).toEqual([expect.stringContaining('bridge limit')]);
-      expect(await page.evaluate(() => (window as any).bridge)).toEqual([]);
+      await browserExpect.poll(() => page.evaluate(() => window.failures), { timeout: 1000 }).toEqual([expect.stringContaining('bridge limit')]);
+      expect(await page.evaluate(() => window.bridge)).toEqual([]);
       await page.getByRole('button', { name: 'Settings', exact: true }).click({ timeout: 500 });
       await browserExpect(page.getByRole('dialog')).toBeVisible({ timeout: 500 });
     } finally { await page.close(); }
@@ -327,16 +327,16 @@ describe('real browser worker isolation', () => {
       await frame.getByRole('button', { name: 'Checkpoint', exact: true }).click();
       await browserExpect(frame.locator('#status')).toHaveText('Saved revision 7');
       await frame.getByRole('button', { name: 'Continue' }).click();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).bridge.some((message: any) => message.type === 'action'))).toBe(true);
-      const bridge = await page.evaluate(() => (window as any).bridge);
+      await browserExpect.poll(() => page.evaluate(() => window.bridge.some((message) => message.type === 'action'))).toBe(true);
+      const bridge = await page.evaluate(() => window.bridge);
       expect(bridge).toContainEqual(expect.objectContaining({ type: 'dirty', payload: { dirty: true } }));
       expect(bridge).toContainEqual(expect.objectContaining({ type: 'checkpoint', payload: expect.objectContaining({ values: { note: 'Novel local app draft' } }) }));
       expect(bridge).toContainEqual(expect.objectContaining({ type: 'action', payload: { actionId: 'continue', payload: { note: 'Novel local app draft' } } }));
       expect(await frame.locator('article').evaluate(element => getComputedStyle(element).display)).toBe('grid');
-      await page.evaluate(() => (window as any).runtime.post({ channel: 'harness-widget', token: 't', mountId: 'm', artifactId: 'a', type: 'init', inputs: {}, state: { note: 'Novel local app draft' }, stateRevision: 7, theme: { colorScheme: 'dark', '--foreground': 'rgb(240, 241, 242)', '--card': '#111' } }));
+      await page.evaluate(() => window.runtime.post({ channel: 'harness-widget', token: 't', mountId: 'm', artifactId: 'a', type: 'init', inputs: {}, state: { note: 'Novel local app draft' }, stateRevision: 7, theme: { colorScheme: 'dark', '--foreground': 'rgb(240, 241, 242)', '--card': '#111' } }));
       await browserExpect(frame.getByRole('textbox', { name: 'Note' })).toHaveCSS('color', 'rgb(240, 241, 242)');
-      expect(await page.evaluate(() => document.querySelector('iframe') === (window as any).mountedFrame)).toBe(true);
-      expect(await page.evaluate(() => (window as any).failures)).toEqual([]);
+      expect(await page.evaluate(() => document.querySelector('iframe') === window.mountedFrame)).toBe(true);
+      expect(await page.evaluate(() => window.failures)).toEqual([]);
     } finally { await page.close(); }
   });
 
@@ -351,10 +351,10 @@ describe('real browser worker isolation', () => {
       await frame.getByRole('button', { name: 'Submit local' }).click();
       await page.waitForTimeout(300);
       expect(attempts.filter(url => url.includes('exfil'))).toEqual([]);
-      expect(await page.evaluate(() => (window as any).bridge.find((message:any)=>message.payload?.actionId==='native-network-probe')?.payload.payload)).toEqual({ fetchType: 'function', importScriptsType: 'function' });
+      expect(await page.evaluate(() => window.bridge.find((message)=>message.payload?.actionId==='native-network-probe')?.payload?.payload)).toEqual({ fetchType: 'function', importScriptsType: 'function' });
       expect(page.frames().find(value => value.url().includes('/widget#'))?.url()).toContain(`http://localhost:${port}/widget#`);
       expect(await frame.locator('#harness-root img,#harness-root a,#harness-root meta,#harness-root script,#harness-root iframe').count()).toBe(0);
-      expect(await page.evaluate(() => (window as any).failures)).toEqual([]);
+      expect(await page.evaluate(() => window.failures)).toEqual([]);
     } finally { await page.close(); }
   });
 
@@ -368,7 +368,7 @@ describe('real browser worker isolation', () => {
       expect(await page.evaluate(() => 6 * 7)).toBe(42);
       await page.getByRole('button', { name: 'Settings', exact: true }).click({ timeout: 1000 });
       await browserExpect(page.getByRole('dialog')).toBeVisible({ timeout: 1000 });
-      await browserExpect.poll(() => page.evaluate(() => (window as any).failures), { timeout: 5000 }).toEqual([expect.stringContaining('execution limit')]);
+      await browserExpect.poll(() => page.evaluate(() => window.failures), { timeout: 5000 }).toEqual([expect.stringContaining('execution limit')]);
       await browserExpect(frame.getByRole('alert')).toContainText('Generated app stopped');
       expect(await page.evaluate(() => 1 + 1)).toBe(2);
     } finally { await page.close(); }
@@ -379,7 +379,7 @@ describe('real browser worker isolation', () => {
     try {
       const frame = await mount(page, `<p>Safe draft remains</p><script>setTimeout(()=>postMessage({type:'render',payload:{tree:[{id:300,tag:'iframe',attrs:{src:'${origin}/exfil'},children:[]}],css:''}}),150)</script>`);
       await browserExpect(frame.getByText('Safe draft remains')).toBeVisible();
-      await browserExpect.poll(() => page.evaluate(() => (window as any).failures)).toEqual([expect.stringContaining('invalid DOM')]);
+      await browserExpect.poll(() => page.evaluate(() => window.failures)).toEqual([expect.stringContaining('invalid DOM')]);
       expect(await frame.locator('#harness-root iframe').count()).toBe(0);
       await page.getByRole('button', { name: 'Settings', exact: true }).click();
       await browserExpect(page.getByRole('dialog')).toBeVisible();

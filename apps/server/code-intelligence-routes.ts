@@ -46,7 +46,7 @@ function installedExecutable(name: string): string | null {
   } catch { return null; }
 }
 
-export function languageServerDescriptor(language: string): LanguageServerDescriptor {
+function languageServerDescriptor(language: string): LanguageServerDescriptor {
   const approved = APPROVED_SERVERS[language];
   if (!approved) throw new HarnessError('UNSUPPORTED', `No approved language server exists for "${language}".`);
   const executable = installedExecutable(approved.executable);

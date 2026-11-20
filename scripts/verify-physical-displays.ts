@@ -13,7 +13,7 @@ const root=resolve('.');
 const executable=resolve(process.argv[2]??join(root,'dist/desktop-release-0.3.0/win-unpacked/Generative Harness.exe'));
 const evidenceRoot=resolve(process.argv[3]??join(root,'docs/evidence/t3-centered-workspace-20261031/physical-displays'));
 const packageManifest=JSON.parse(await readFile(join(dirname(executable),'resources/host/package.json'),'utf8'));
-if(packageManifest.name!=='generative-harness'||typeof packageManifest.version!=='string'||!/^\d+\.\d+\.\d+(?:[-+][a-zA-Z0-9.-]+)?$/.test(packageManifest.version))throw Error('Select an existing Generative Harness package with versioned host metadata.');
+if(!['generative-harness','gen-v1'].includes(packageManifest.name)||typeof packageManifest.version!=='string'||!/^\d+\.\d+\.\d+(?:[-+][a-zA-Z0-9.-]+)?$/.test(packageManifest.version))throw Error('Select an existing Generative Harness package with versioned host metadata.');
 const packageVersion=packageManifest.version as string;
 await mkdir(evidenceRoot,{recursive:true});
 const directory=join(evidenceRoot,'run-'+new Date().toISOString().replace(/[:.]/g,'-'));
@@ -103,7 +103,8 @@ async function launch(){
  expect(resolve(inventory.sessionData)).toBe(resolve(dataDirectory,'desktop-profile/session'));
  if(startedProcessCount===1){displays=inventory.displays;expect(displays.length).toBeGreaterThan(0);}
  else expect(inventory.displays).toEqual(displays);
- const page=await app.firstWindow();
+ await expect.poll(()=>app!.windows().some(page=>page.url().startsWith('http://127.0.0.1:'+ports.host+'/')),{timeout:45000}).toBe(true);
+ const page=app.windows().find(page=>page.url().startsWith('http://127.0.0.1:'+ports.host+'/'))!;
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:30000});
  return page;
 }

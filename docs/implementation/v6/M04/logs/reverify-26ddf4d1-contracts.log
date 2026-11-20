@@ -1,0 +1,13 @@
+
+ RUN  v4.1.12 /home/ubuntu/repos/Gen-V1
+
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+fatal: Not a valid commit name bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+fatal: path 'packages/capabilities/process.ts' exists on disk, but not in 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb'
+
+ Test Files  10 passed (10)
+      Tests  201 passed (201)
+   Start at  23:05:27
+   Duration  6.03s (transform 3.61s, setup 0ms, import 4.61s, tests 9.34s, environment 1ms)
+
