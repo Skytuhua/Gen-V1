@@ -16,23 +16,25 @@ import { leadingReceipts } from './receipts.ts';
 const BUILTIN_TOOLS = ['list_directory', 'read_file', 'read_many_files', 'glob', 'grep_search', 'run_shell_command', 'write_file', 'replace', 'web_fetch', 'google_web_search', 'write_todos', 'activate_skill', 'ask_user', 'get_internal_docs', 'invoke_agent', 'enter_plan_mode', 'exit_plan_mode', 'update_topic', 'complete_task', 'read_mcp_resource', 'list_mcp_resources', 'list_background_processes', 'read_background_output', 'tracker_create_task', 'tracker_update_task', 'tracker_get_task', 'tracker_list_tasks', 'tracker_add_dependency', 'tracker_visualize', 'take_snapshot'];
 
 async function assertGoogleLogin(dataDir: string): Promise<void> {
-  let settings: any;
+  let settings: { security?: { auth?: { selectedType?: unknown } } } | undefined;
   try { settings = JSON.parse(await readFile(join(officialRuntimeHome(dataDir, 'gemini-cli'), '.gemini', 'settings.json'), 'utf8')); }
   catch { /* Authentication metadata only; never read oauth_creds.json. */ }
   if (settings?.security?.auth?.selectedType !== 'oauth-personal') throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'This connection requires your own Google account signed in directly through the official Gemini CLI. API-key, Vertex, gateway, and unknown authentication contexts are not accepted here.');
 }
 
-function advertisedModels(response: any): { models: ModelInfo[]; configId?: string } {
+type GeminiConfigOption = { category?: unknown; type?: unknown; id?: unknown; options?: unknown; value?: unknown; name?: unknown; currentValue?: unknown };
+type GeminiLegacyModel = { modelId?: unknown; name?: unknown };
+function advertisedModels(response: { configOptions?: unknown; models?: { availableModels?: unknown } }): { models: ModelInfo[]; configId?: string } {
   if (Array.isArray(response.configOptions)) {
-    const model = response.configOptions.find((option: any) => option?.category === 'model' && option.type === 'select' && typeof option.id === 'string');
+    const model = (response.configOptions as GeminiConfigOption[]).find(option => option?.category === 'model' && option.type === 'select' && typeof option.id === 'string');
     if (!model) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The official Gemini session did not advertise a selectable model.');
-    const choices = (model.options ?? []).flatMap((option: any) => Array.isArray(option.options) ? option.options : [option]);
-    return { configId: model.id, models: choices.filter((option: any) => typeof option.value === 'string' && option.value && !/[\s\u0000]/.test(option.value)).map((option: any) => ({ id: `gemini-cli/${option.value}`, provider: 'gemini-cli', name: typeof option.name === 'string' ? option.name : option.value })) };
+    const choices = ((model.options ?? []) as GeminiConfigOption[]).flatMap(option => Array.isArray(option.options) ? option.options as GeminiConfigOption[] : [option]);
+    return { configId: model.id as string, models: choices.filter(option => typeof option.value === 'string' && option.value && !/[\s\u0000]/.test(option.value)).map(option => ({ id: `gemini-cli/${option.value as string}`, provider: 'gemini-cli', name: typeof option.name === 'string' ? option.name : option.value as string })) };
   }
   // ACP v1 published 0.66.0 returns the documented legacy models field.
   const choices = response.models?.availableModels;
   if (!Array.isArray(choices)) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The official Gemini session did not advertise models.');
-  return { models: choices.filter((model: any) => typeof model.modelId === 'string' && model.modelId && !/[\s\u0000]/.test(model.modelId)).map((model: any) => ({ id: `gemini-cli/${model.modelId}`, provider: 'gemini-cli', name: typeof model.name === 'string' ? model.name : model.modelId })) };
+  return { models: (choices as GeminiLegacyModel[]).filter(model => typeof model.modelId === 'string' && model.modelId && !/[\s\u0000]/.test(model.modelId)).map(model => ({ id: `gemini-cli/${model.modelId as string}`, provider: 'gemini-cli', name: typeof model.name === 'string' ? model.name : model.modelId as string })) };
 }
 
 /** Published ACP v1 is supported explicitly. V2 has a different acceptance/state lifecycle. */
@@ -88,7 +90,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     const update = params.update;
     if (!update || typeof update.sessionUpdate !== 'string') return;
     if (update.sessionUpdate === 'available_commands_update') {
-      commands = new Set((update.availableCommands ?? []).filter((command: any) => typeof command.name === 'string').map((command: any) => command.name));
+      commands = new Set(((update.availableCommands ?? []) as { name?: unknown }[]).filter((command): command is { name: string } => typeof command.name === 'string').map(command => command.name));
       commandsSeen = true; commandsReady();
       return;
     }
@@ -166,7 +168,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     assert();
     if (initialization.protocolVersion !== 1) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'This pinned Gemini CLI connection requires negotiated ACP v1. ACP v2 uses a different prompt acceptance and state lifecycle and is not enabled.');
     if (!context.modelOnly&&initialization.agentCapabilities?.mcpCapabilities?.http !== true) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'The official Gemini CLI did not advertise HTTP MCP support.');
-    if (!initialization.authMethods?.some((method: any) => method.id === 'oauth-personal')) throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'The official Gemini CLI did not advertise Google account login.');
+    if (!(initialization.authMethods as { id?: unknown }[] | undefined)?.some(method => method.id === 'oauth-personal')) throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'The official Gemini CLI did not advertise Google account login.');
     await rpc.request('authenticate', { methodId: 'oauth-personal' }); assert();
     if (sessionId && initialization.agentCapabilities?.loadSession !== true) throw new HarnessError('OFFICIAL_RESUME_UNSUPPORTED', 'The official Gemini CLI did not advertise session loading.');
     const response = await rpc.request(sessionId ? 'session/load' : 'session/new', {
@@ -182,7 +184,7 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
       if (!driver.models.some(model => model.id === `gemini-cli/${modelId}`)) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The selected Gemini model is not advertised by this authenticated official session. Refresh models and select an available model.');
       if (advertised.configId) {
         const selected = await rpc.request('session/set_config_option', { sessionId, configId: advertised.configId, value: modelId });
-        const option = selected.configOptions?.find((option: any) => option.id === advertised.configId);
+        const option = (selected.configOptions as GeminiConfigOption[] | undefined)?.find(option => option.id === advertised.configId);
         if (option?.currentValue !== modelId) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The official Gemini CLI did not confirm the selected model configuration.');
       } else await rpc.request('session/set_model', { sessionId, modelId });
       assert();
