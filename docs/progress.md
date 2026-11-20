@@ -2,7 +2,7 @@
 
 ## Current 0.6.5
 
-The root `package.json` is version `0.6.5`; [CHANGELOG.md](../CHANGELOG.md#unreleased--065-visual-workspace-preview) identifies it as an unreleased visual workspace preview, not a published stable installer. Current source includes durable split layouts, named layouts, Inbox attention and optional plug-in workspaces. Workspace and All Agents are the built-in choices; retired Code Review, Research and Custom records remain available for compatible recovery rather than new preset creation.
+The root `package.json` is version `0.6.5`; [CHANGELOG.md](../CHANGELOG.md#065--yyyy-mm-dd) identifies it as an unreleased visual workspace preview, not a published stable installer. Current source includes durable split layouts, named layouts, Inbox attention and optional plug-in workspaces. Workspace and All Agents are the built-in choices; retired Code Review, Research and Custom records remain available for compatible recovery rather than new preset creation.
 
 The active `SETTINGS_SECTIONS` registry in `apps/web/src/Settings.tsx` contains **12 sections**, not the historical 21-section inventory. Chat width defaults to Wide (760px), with Comfortable (680px) and Full available width also selectable. Inline signing pairs stack below 620px available width.
 
