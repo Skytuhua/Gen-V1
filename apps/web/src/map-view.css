@@ -3,7 +3,7 @@
 .task-map[data-map-theme="night"] { --map-land:#252d36; --map-park:#253e37; --map-water:#243e56; --map-block:#303a43; --map-street:#46505b; --map-ink:#8f9d9f; --map-route:#bcc8b5; }
 .task-map-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
 .task-map-heading h4,.task-map-heading>span { margin:0; font-size:13px; font-weight:550; }
-.task-map-themes { display:flex; gap:2px; padding:3px; background:var(--subtle); border:1px solid var(--border); border-radius:8px; }
+.task-map-themes { display:flex; gap:2px; padding:3px; background:var(--subtle); border:1px solid var(--control-border); border-radius:8px; }
 .task-map-themes button { padding:5px 8px; font-size:10px; border-radius:5px; color:var(--muted); }
 .task-map-themes button[aria-pressed="true"] { background:var(--surface); color:var(--text); box-shadow:0 1px 3px #0001; }
 .task-map-plan { position:relative; height:300px; overflow:hidden; border:1px solid var(--border); border-radius:10px; isolation:isolate; }

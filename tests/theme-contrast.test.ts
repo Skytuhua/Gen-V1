@@ -1,10 +1,64 @@
 import { describe, expect, it } from 'vitest';
-import { readFileSync } from 'node:fs';
+import { globSync, readFileSync } from 'node:fs';
+import ts from 'typescript';
+import { WIDGET_BASE_CSS } from '../packages/widgets/theme.ts';
 import { WCAG, contrast, evaluateColor, requireTokens, resolveTokens, themeTokens, type Tokens } from '../scripts/theme-contrast.ts';
 import { PROJECT_ACCENT_INK, PROJECT_PALETTE, accentInk, type ProjectAccent } from '../packages/contracts/preferences.ts';
 
 // Every ratio below is derived from the stylesheets, so editing a token moves the audit.
 const source = (path: string) => readFileSync(new URL('../' + path, import.meta.url), 'utf8');
+
+function controlClasses(): Set<string> {
+  const classes = new Set<string>();
+  for (const path of globSync(['apps/web/src/**/*.tsx', 'packages/**/*.tsx'], { exclude: ['**/node_modules/**', '**/dist/**'] })) {
+    const file = ts.createSourceFile(path, source(path), ts.ScriptTarget.Latest, true, ts.ScriptKind.TSX);
+    const visit = (node: ts.Node) => {
+      if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) {
+        const attributes = node.attributes.properties.filter(ts.isJsxAttribute);
+        const attribute = (name: string) => attributes.find(item => item.name.getText(file) === name)?.initializer;
+        const role = attribute('role')?.getText(file) ?? '';
+        const focus = attribute('tabIndex')?.getText(file) ?? '';
+        if (['input', 'textarea', 'select', 'button', 'summary'].includes(node.tagName.getText(file))
+          || node.tagName.getText(file) === 'a' && attribute('href')
+          || /["'](?:button|tab|switch|checkbox|radio)["']/.test(role) || /(?:^|[^\d-])0(?:[^\d]|$)/.test(focus)) {
+          const collect = (part: ts.Node) => {
+            if (ts.isStringLiteralLike(part) || ts.isTemplateHead(part) || ts.isTemplateMiddle(part) || ts.isTemplateTail(part)) {
+              for (const name of part.text.split(/\s+/)) if (/^[a-z][\w-]*$/i.test(name)) classes.add(name);
+            }
+            ts.forEachChild(part, collect);
+          };
+          const names = attribute('className');
+          if (names) collect(names);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(file);
+  }
+  return classes;
+}
+
+function dividerControlOutlines(css: string, classes: Set<string>): string[] {
+  const violations: string[] = [];
+  for (const rule of css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+    for (const selector of rule[1]!.split(',').map(value => value.trim())) {
+      if (selector.includes('::')) continue;
+      const leaf = selector.replace(/\[[^\]]*\]/g, value => value.replace(/\s/g, '')).split(/[\s>+~]+/).at(-1)!;
+      const native = /(?:^|[(:])(?:input|textarea|select|button)(?=[.#[:)]|$)/.test(leaf)
+        || /\[role=["']?(?:button|tab|switch|checkbox|radio)\b/.test(leaf);
+      const control = native || [...leaf.matchAll(/\.([\w-]+)/g)].some(match => classes.has(match[1]!));
+      const frame = /\.[\w-]*(?:search|filter|composer)(?:-(?:field|frame))?(?=[.#[:]|$)/.test(leaf);
+      for (const declaration of rule[2]!.split(';')) {
+        const colon = declaration.indexOf(':'), property = declaration.slice(0, colon).trim(), value = declaration.slice(colon + 1);
+        if (!/var\(\s*--border\s*[,)]/.test(value)) continue;
+        const boundary = /^(?:border(?:-.+)?|outline(?:-.+)?|box-shadow)$/.test(property);
+        const perimeter = /^(?:border|border-color|outline(?:-.+)?|box-shadow)$/.test(property);
+        if (boundary && native || perimeter && control || frame && (perimeter || /search|filter/.test(leaf) && boundary)) violations.push(selector + ': ' + declaration.trim());
+      }
+    }
+  }
+  return violations;
+}
 const styles = source('apps/web/src/styles.css'), shell = source('apps/web/src/shell.css'), appearance = source('apps/web/src/appearance.css'), sidebar = source('apps/web/src/sidebar-context.css');
 
 const REQUIRED = [
@@ -113,6 +167,21 @@ const contexts = (Object.keys(shells) as (keyof typeof shells)[]).flatMap(name =
 const SURFACES = ['--canvas', '--surface', '--subtle', '--hover', '--selection-bg'] as const;
 
 describe('appearance theme contrast audit', () => {
+  it('rejects divider tokens on controls recursively, including search/filter/composer frames', () => {
+    const classes = controlClasses();
+    const violations = globSync(['apps/web/src/**/*.css', 'packages/**/*.css'], { exclude: ['**/node_modules/**', '**/dist/**'] })
+      .flatMap(path => dividerControlOutlines(source(path), classes).map(rule => path + ': ' + rule));
+    violations.push(...dividerControlOutlines(WIDGET_BASE_CSS, classes).map(rule => 'packages/widgets/theme.ts: ' + rule));
+    expect(violations).toEqual([]);
+  });
+
+  it('enforces control boundaries without treating dividers or shells as controls', () => {
+    const classes = new Set(['retry']);
+    expect(dividerControlOutlines('', classes)).toEqual([]);
+    expect(dividerControlOutlines('input { border:1px solid var(--border); } .retry { border-color:var(--border); } .search { border-bottom:1px solid var(--border); } .composer { border:1px solid var(--border); }', classes)).toHaveLength(4);
+    expect(dividerControlOutlines('.card { border:1px solid var(--border); } .composer { border-top:1px solid var(--border); } .ui-modal { border:1px solid var(--border); } input { border:1px solid var(--control-border); }', classes)).toEqual([]);
+  });
+
   it('measures every audited token in every shell', () => {
     const unmeasured = contexts.flatMap(({ name, tokens }) => [...new Set(PAIRS.flatMap(pair => [pair.foreground, pair.background]))]
       .filter(token => !evaluateColor(tokens[token]!, tokens))
@@ -142,11 +211,11 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/project-memory.css': ['.project-memory-body button'],
       'apps/web/src/settings.css': ['.settings-result', '.settings-switch'],
       'apps/web/src/sidebar-context.css': ['.sidebar .search-field'],
-      'apps/web/src/interaction-tools.css': ['.review-item-nav[aria-current=step]', '.review-decision-choice'],
+      'apps/web/src/interaction-tools.css': ['.review-item-nav[aria-current=step]', '.review-decision-choice', '.editable-table-scroll'],
       'apps/web/src/connections.css': ['.connection-providers button'],
       'apps/web/src/software-development.css': ['.software-list button', '.software-blocking-checks button'],
-      'apps/web/src/model-picker.css': ['.model-picker-new-task'],
-      'apps/web/src/task-table.css': ['.task-table .task-table-follow', '.task-table-filter-field'],
+      'apps/web/src/model-picker.css': ['.model-picker-new-task', '.model-picker-search'],
+      'apps/web/src/task-table.css': ['.task-table .task-table-follow', '.task-table-filter-field', '.task-table .task-table-scroll'],
       'apps/web/src/composer-toolbar.css': ['.composer-context-chip'],
       'apps/web/src/side-chat.css': ['.side-chat-composer'],
       'apps/web/src/workspace-canvas.css': ['.canvas-side-composer textarea'],
@@ -155,7 +224,12 @@ describe('appearance theme contrast audit', () => {
       'packages/ui-shell/feedback.css': ['.ui-error .ui-error-retry'],
       'apps/web/src/appearance-settings.css': ['.appearance-settings .color-swatch'],
       'apps/web/src/terminal-excerpts.css': ['.terminal-excerpt-chip'],
-      'apps/web/src/map-view.css': ['.task-map-point'],
+      'apps/web/src/map-view.css': ['.task-map-point', '.task-map-themes'],
+      'apps/web/src/agents-workspace/agents-workspace.css': ['.agents-new-output', '.agents-workspace .agents-composer.composer', '.agents-virtual-reveal', '.agents-work-send input', '.agents-board-post select', '.agents-board-post input', '.agents-transcript'],
+      'apps/web/src/files/files.css': ['.files-filter input', '.files-error button', '.project-search-more'],
+      'apps/web/src/relationship-graph.css': ['.task-graph-check'],
+      'apps/web/src/shell.css': ['.verification-panel'],
+      'apps/web/src/loading-state.css': ['.loading-composer'],
       'apps/web/src/styles.css': ['.jump-latest'],
     };
     for (const [path, selectors] of Object.entries(boundaries)) {
@@ -166,6 +240,8 @@ describe('appearance theme contrast audit', () => {
         expect(bodies, path + ': ' + selector).not.toContain('var(--border');
       }
     }
+    expect(WIDGET_BASE_CSS).toMatch(/input,textarea,select\{[^}]*border:1px solid var\(--control-border,#878787\)/);
+    expect(source('apps/web/src/Widget.tsx')).toContain("'--control-border': style.getPropertyValue('--control-border').trim()");
   });
 
   it('distinguishes selected controls and current review items from resting controls', () => {
@@ -179,10 +255,13 @@ describe('appearance theme contrast audit', () => {
       'apps/web/src/software-development.css': ['.software-response-tabs button[aria-selected=true]'],
       'apps/web/src/planning-question.css': ['.planning-option.is-selected'],
       'apps/web/src/connections.css': ['.connection-providers button[aria-pressed="true"]', '.connection-account-row[data-chosen="true"]'],
+      'apps/web/src/context-inspector.css': ['.context-request-tabs>button[aria-selected="true"]'],
+      'apps/web/src/sidebar-context.css': ['.app-shell .sidebar .sidebar-action-btn.selected', '.sidebar .sidebar-action-btn.selected', '.app-shell .sidebar .sidebar-thread-row.active', '.sidebar .sidebar-thread-row.active'],
+      'apps/web/src/shell.css': ['.sidebar-thread-row.active'],
     })) {
       const rules = [...source(path).matchAll(/([^{}]+)\{([^{}]*)\}/g)];
       for (const selector of selectors) {
-        const rule = rules.find(rule => rule[1]!.trim() === selector);
+        const rule = rules.find(rule => rule[1]!.split(',').some(name => name.trim() === selector));
         expect(rule?.[2], selector).toMatch(/(?:border-color|box-shadow):[^;]*var\(--text\)(?:;|$)/);
         expect(rule?.[2], selector).not.toContain('border-color:var(--control-border)');
         expect(rule?.[2], selector).not.toContain('var(--selection-border');

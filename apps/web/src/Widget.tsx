@@ -9,7 +9,7 @@ import {ErrorState} from '../../../packages/ui-shell/Feedback';
 const ajv = new Ajv({ strict: false, allErrors: true });
 function themeTokens(mode: 'light' | 'dark') {
   const style = getComputedStyle(document.documentElement);
-  return { colorScheme: mode, '--background': style.getPropertyValue('--canvas').trim(), '--foreground': style.getPropertyValue('--text').trim(), '--card': style.getPropertyValue('--surface').trim(), '--border': style.getPropertyValue('--border').trim(), '--muted': style.getPropertyValue('--subtle').trim(), '--secondary': style.getPropertyValue('--subtle').trim(), '--muted-foreground': style.getPropertyValue('--muted').trim(), '--primary': style.getPropertyValue('--accent').trim(), '--primary-foreground':mode==='dark'?'#101011':'#fff', '--accent-surface':style.getPropertyValue('--accent-soft').trim() };
+  return { colorScheme: mode, '--background': style.getPropertyValue('--canvas').trim(), '--foreground': style.getPropertyValue('--text').trim(), '--card': style.getPropertyValue('--surface').trim(), '--border': style.getPropertyValue('--border').trim(), '--control-border': style.getPropertyValue('--control-border').trim(), '--muted': style.getPropertyValue('--subtle').trim(), '--secondary': style.getPropertyValue('--subtle').trim(), '--muted-foreground': style.getPropertyValue('--muted').trim(), '--primary': style.getPropertyValue('--accent').trim(), '--primary-foreground':mode==='dark'?'#101011':'#fff', '--accent-surface':style.getPropertyValue('--accent-soft').trim() };
 }
 interface Mount { url: string; token: string; mountId: string; revision: number }
 export type WidgetHandle = { releaseLease: () => Promise<void> };

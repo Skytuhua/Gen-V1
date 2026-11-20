@@ -86,7 +86,7 @@
 .app-shell .sidebar .sidebar-action-btn.selected,
 .sidebar .sidebar-action-btn.selected {
   background: var(--selection-bg);
-  border-color: var(--border);
+  border-color: var(--text);
   color: var(--accent);
 }
 
@@ -179,7 +179,7 @@
 .app-shell .sidebar .sidebar-thread-row.active,
 .sidebar .sidebar-thread-row.active {
   background: var(--selection-bg);
-  border-color: color-mix(in srgb, var(--border) 80%, transparent);
+  border-color: var(--text);
 }
 
 .app-shell .sidebar .sidebar-thread-row .thread-item,
