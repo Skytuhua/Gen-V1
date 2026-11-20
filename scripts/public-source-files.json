@@ -2432,6 +2432,7 @@
     "packages/contracts/code-review.ts",
     "packages/contracts/connections.ts",
     "packages/contracts/conversation-read-models.ts",
+    "packages/contracts/errors.ts",
     "packages/contracts/execution-profile.ts",
     "packages/contracts/implementation-evidence.ts",
     "packages/contracts/index.ts",
