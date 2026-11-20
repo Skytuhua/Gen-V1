@@ -12,7 +12,10 @@ const doc = remote.document;
 const callbacks = new Set<(value: unknown) => void>();
 const pending = new Map<string, { resolve: (value: unknown) => void; reject: (error: Error) => void; timeout: ReturnType<typeof setTimeout> }>();
 let started = false, initialized = false, serial = 0, css = '', lastRender = '', lastSnapshotAt = -Infinity;
-const ids = new WeakMap<object, number>(), elements = new Map<number, any>();
+const ids = new WeakMap<object, number>(), elements = new Map<number, Element>();
+type Node = InstanceType<typeof remote.Node>;
+type Element = InstanceType<typeof remote.Element>;
+type HTMLElement = InstanceType<typeof remote.HTMLElement>;
 const idFor = (node: object) => { let id = ids.get(node); if (!id) { id = ++serial; ids.set(node, id); } return id; };
 const bridge = (type: string, payload: unknown) => post({ type: 'bridge', event: type, payload });
 const harness = {
@@ -42,25 +45,25 @@ for (const key of ['fetch', 'XMLHttpRequest', 'WebSocket', 'WebTransport', 'Even
 // properties and style declarations without introducing a second DOM engine.
 const prototype = remote.HTMLElement.prototype;
 for (const property of ['value', 'type', 'name', 'placeholder']) Object.defineProperty(prototype, property, {
-  get(this: any) {
+  get(this: HTMLElement) {
     if (property === 'value' && this.localName === 'select') { const options = this.querySelectorAll('option'); const selected = options[this.selectedIndex]; return selected?.value ?? ''; }
     return this.getAttribute(property) ?? (property === 'value' && ['textarea', 'option'].includes(this.localName) ? this.textContent : '');
   },
-  set(this: any, value: unknown) {
-    if (property === 'value' && this.localName === 'select') { const options = Array.from(this.querySelectorAll('option')) as any[]; this.selectedIndex = options.findIndex(option => option.value === String(value)); return; }
+  set(this: HTMLElement, value: unknown) {
+    if (property === 'value' && this.localName === 'select') { const options = Array.from(this.querySelectorAll('option')); this.selectedIndex = options.findIndex(option => option.value === String(value)); return; }
     this.setAttribute(property, String(value));
   },
 });
 Object.defineProperty(prototype, 'selectedIndex', {
-  get(this: any) { const options = Array.from(this.querySelectorAll('option')) as any[]; const selected = options.findIndex(option => option.selected); return selected >= 0 ? selected : options.length ? 0 : -1; },
-  set(this: any, value: number) { const options = Array.from(this.querySelectorAll('option')) as any[]; options.forEach((option, index) => { option.selected = index === value; }); },
+  get(this: HTMLElement) { const options = Array.from(this.querySelectorAll('option')); const selected = options.findIndex(option => option.selected); return selected >= 0 ? selected : options.length ? 0 : -1; },
+  set(this: HTMLElement, value: number) { const options = Array.from(this.querySelectorAll('option')); options.forEach((option, index) => { option.selected = index === value; }); },
 });
 for (const property of ['checked', 'disabled', 'selected', 'multiple', 'required', 'readOnly']) Object.defineProperty(prototype, property, {
-  get(this: any) { return this.hasAttribute(property.toLowerCase()); },
-  set(this: any, value: unknown) { if (value) this.setAttribute(property.toLowerCase(), ''); else this.removeAttribute(property.toLowerCase()); },
+  get(this: HTMLElement) { return this.hasAttribute(property.toLowerCase()); },
+  set(this: HTMLElement, value: unknown) { if (value) this.setAttribute(property.toLowerCase(), ''); else this.removeAttribute(property.toLowerCase()); },
 });
 Object.defineProperty(prototype, 'style', {
-  get(this: any) {
+  get(this: HTMLElement) {
     const element = this;
     return new Proxy({ setProperty(name: string, value: string) { const key = name.replace(/[A-Z]/g, c => '-' + c.toLowerCase()); const declarations = element.getAttribute('style') ?? ''; element.setAttribute('style', safeDeclarations(`${declarations};${key}:${value}`)); } }, {
       set(target, key, value) { if (key === 'cssText') element.setAttribute('style', safeDeclarations(String(value))); else target.setProperty(String(key), String(value)); return true; },
@@ -70,12 +73,12 @@ Object.defineProperty(prototype, 'style', {
 
 function snapshot() {
   const now = performance.now(); if (now - lastSnapshotAt < 50) return; lastSnapshotAt = now;
-  let count = 0; const attached = new Map<number, any>();
-  function visit(node: any, depth: number): RenderNode[] {
+  let count = 0; const attached = new Map<number, Element>();
+  function visit(node: Node, depth: number): RenderNode[] {
     if (depth > 24 || ++count > 800) throw new Error('DOM limit exceeded');
     const id = idFor(node);
     if (node.nodeType === 3) return [{ id, tag: '#text', text: node.textContent ?? '', attrs: {}, children: [] }];
-    if (node.nodeType !== 1) return [];
+    if (!(node instanceof remote.Element)) return [];
     const tag: string = node.localName;
     if (!validateRender({ tree: [{ id, tag, attrs: {}, children: [] }], css: '' })) return [];
     const attrs: Record<string, string> = {};
@@ -172,7 +175,7 @@ listen('message', event => {
       if (input.key) Object.assign(domEvent, { key: input.key });
       element.dispatchEvent(domEvent);
       // Generic HTMLElement does not implement native on* IDL properties.
-      let target = element; while (target) { const handler = target['on' + input.event]; if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
+      let target: Node | null = element; while (target) { const handler = Reflect.get(target, 'on' + input.event); if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
     }
     snapshot();
   } catch (error) { post({ type: 'fatal', message: error instanceof Error ? error.message.slice(0, 200) : 'Generated program failed' }); }
