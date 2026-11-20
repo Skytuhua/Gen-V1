@@ -175,7 +175,7 @@ listen('message', event => {
       if (input.key) Object.assign(domEvent, { key: input.key });
       element.dispatchEvent(domEvent);
       // Generic HTMLElement does not implement native on* IDL properties.
-      let target: Node | null = element; while (target instanceof remote.Element) { const handler = target['on' + input.event]; if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
+      let target: Node | null = element; while (target) { const handler = Reflect.get(target, 'on' + input.event); if (typeof handler === 'function') handler.call(target, domEvent); target = target.parentNode; }
     }
     snapshot();
   } catch (error) { post({ type: 'fatal', message: error instanceof Error ? error.message.slice(0, 200) : 'Generated program failed' }); }
