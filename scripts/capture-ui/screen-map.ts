@@ -122,9 +122,9 @@ export const screens: Screen[] = [
     error: {api: 'error', steps: [{selector: '.trace-span', action: 'click'}, {selector: 'button:has-text("Ask about span")', action: 'click'}], waitFor: '.trace-waterfall [role="alert"]'},
     loading: {api: 'loading', hold: '^/api/commands$', steps: [{selector: '.trace-span', action: 'click'}, {selector: 'button:has-text("Ask about span")', action: 'click'}], waitFor: '.trace-waterfall button:has-text("Sending")'},
   }) },
-  { id: 'task-everyday', fixture: '', entry: '/scripts/capture-ui/task-surfaces.tsx', ready: '.everyday-comparison-table', states: surfaceStates({query: 'surface=everyday'}, '.everyday-comparison th button', {selector: '.everyday-source > summary', action: 'click', waitFor: '.everyday-source[open]'}, {
+  { id: 'task-everyday', fixture: '', entry: '/scripts/capture-ui/task-surfaces.tsx', ready: '.everyday-diff', states: surfaceStates({query: 'surface=everyday'}, '.everyday-option-card', {selector: '.everyday-source > summary', action: 'click', waitFor: '.everyday-source[open]'}, {
     empty: {query: 'variant=empty', api: 'empty', waitFor: '.everyday-empty'},
-    error: {api: 'error', steps: [{selector: 'button:has-text("Save selected plan")', action: 'click'}], waitFor: '.everyday-comparison [role="alert"]'},
+    error: {api: 'error', steps: [{selector: 'button:has-text("Save selected plan")', action: 'click'}], waitFor: '.everyday-comparison .error-text'},
     loading: {api: 'loading', hold: '^/api/commands$', steps: [{selector: 'button:has-text("Save selected plan")', action: 'click'}], waitFor: '.everyday-comparison button:has-text("Submitting")'},
   }) },
   { id: 'task-exploration', fixture: '', entry: '/scripts/capture-ui/task-surfaces.tsx', ready: '.image-annotator img', states: surfaceStates({query: 'surface=exploration'}, '[aria-label="Search logs"]', {selector: '.exploration-source > summary', action: 'click', waitFor: '.exploration-source[open]'}, {
