@@ -11,9 +11,6 @@ export function isSubscriptionProviderId(value: unknown): value is SubscriptionP
 export function isSubscriptionOAuthProviderId(value: unknown): value is SubscriptionOAuthProviderId {
   return typeof value === 'string' && SUBSCRIPTION_OAUTH_PROVIDER_IDS.some(id => id === value);
 }
-export function isSubscriptionPlanProviderId(value: unknown): value is SubscriptionPlanProviderId {
-  return typeof value === 'string' && SUBSCRIPTION_PLAN_PROVIDER_IDS.some(id => id === value);
-}
 export const OFFICIAL_RUNTIME_PROVIDER_IDS = ['claude-code', 'gemini-cli', 'cursor-sdk'] as const;
 export type OfficialRuntimeProviderId = typeof OFFICIAL_RUNTIME_PROVIDER_IDS[number];
 export function isOfficialRuntimeProviderId(value: unknown): value is OfficialRuntimeProviderId {

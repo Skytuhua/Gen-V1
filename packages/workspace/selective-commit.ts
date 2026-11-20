@@ -24,7 +24,7 @@ import type { ProjectTools, WorkspaceBinding } from "./tools.ts";
 
 export type HunkAttribution = "proven" | "process-window" | "unattributed";
 
-export interface SelectiveCandidate {
+interface SelectiveCandidate {
   path: string;
   index: number;
   digest: string;

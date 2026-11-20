@@ -25,21 +25,18 @@ export const BACKGROUND_SCHEDULER_LIMITS = {
 /** Allowlisted host events only. A correlation key matches an exact durable
  * identity; the event payload itself is never an authority grant. */
 export const BACKGROUND_HOST_EVENTS = ["runtime.settled", "humanStep.answered"] as const;
-export type BackgroundHostEventKind = (typeof BACKGROUND_HOST_EVENTS)[number];
 
-export const backgroundWorkKindSchema = z.enum(["COMMAND", "REVIEW", "MAINTENANCE", "EXTERNAL_TASK"]);
+const backgroundWorkKindSchema = z.enum(["COMMAND", "REVIEW", "MAINTENANCE", "EXTERNAL_TASK"]);
 export type BackgroundWorkKind = z.infer<typeof backgroundWorkKindSchema>;
-export const backgroundLifetimeSchema = z.enum(["RUN", "APPROVED_SERVICE"]);
-export type BackgroundLifetime = z.infer<typeof backgroundLifetimeSchema>;
-export const backgroundWorkStateSchema = z.enum(["QUEUED", "RUNNING", "WAITING_HUMAN", "WAITING_EVENT", "BLOCKED", "SETTLED", "UNKNOWN"]);
-export type BackgroundWorkState = z.infer<typeof backgroundWorkStateSchema>;
-export const backgroundOutcomeSchema = z.enum(["SUCCEEDED", "FAILED", "CANCELLED"]);
+const backgroundLifetimeSchema = z.enum(["RUN", "APPROVED_SERVICE"]);
+const backgroundWorkStateSchema = z.enum(["QUEUED", "RUNNING", "WAITING_HUMAN", "WAITING_EVENT", "BLOCKED", "SETTLED", "UNKNOWN"]);
+const backgroundOutcomeSchema = z.enum(["SUCCEEDED", "FAILED", "CANCELLED"]);
 export type BackgroundOutcome = z.infer<typeof backgroundOutcomeSchema>;
 
 /** Exact owned-process identity: PID alone is never sufficient. The creation
  * token binds the observed process instance (Linux /proc starttime); a null
  * token means identity is unproven and reads/stops must return UNKNOWN. */
-export const processIdentityV1Schema = z.strictObject({
+const processIdentityV1Schema = z.strictObject({
   pid: z.number().int().positive(),
   creationToken: z.string().min(1).max(200).nullable(),
   platform: z.string().min(1).max(40),
@@ -72,8 +69,7 @@ export const wakeupTriggerSchema = z.discriminatedUnion("kind", [
 ]);
 export type WakeupTriggerV1 = z.infer<typeof wakeupTriggerSchema>;
 
-export const wakeupStateSchema = z.enum(["PENDING", "CLAIMED", "DELIVERED", "CANCELLED", "BLOCKED"]);
-export type WakeupState = z.infer<typeof wakeupStateSchema>;
+const wakeupStateSchema = z.enum(["PENDING", "CLAIMED", "DELIVERED", "CANCELLED", "BLOCKED"]);
 
 export const wakeupV1Schema = z.strictObject({
   wakeupId: z.string().min(1).max(200),
@@ -95,10 +91,8 @@ export const occurrenceKeyForTime = (wakeupId: string, scheduleRevision: number,
 export const occurrenceKeyForEvent = (wakeupId: string, scheduleRevision: number, hostEventId: string): string =>
   JSON.stringify([wakeupId, scheduleRevision, hostEventId]);
 
-export const occurrenceStateSchema = z.enum(["PENDING", "CLAIMED", "DELIVERED", "SKIPPED", "CANCELLED", "UNKNOWN"]);
-export type OccurrenceState = z.infer<typeof occurrenceStateSchema>;
-export const occurrenceDispatchSchema = z.enum(["NOT_DISPATCHED", "DISPATCHED_UNCONFIRMED", "RECEIPT_CONFIRMED"]);
-export type OccurrenceDispatch = z.infer<typeof occurrenceDispatchSchema>;
+const occurrenceStateSchema = z.enum(["PENDING", "CLAIMED", "DELIVERED", "SKIPPED", "CANCELLED", "UNKNOWN"]);
+const occurrenceDispatchSchema = z.enum(["NOT_DISPATCHED", "DISPATCHED_UNCONFIRMED", "RECEIPT_CONFIRMED"]);
 
 /** Durable per-occurrence receipt. One successful admission per key; a skipped
  * occurrence is persisted, never burst-replayed. */
@@ -118,10 +112,8 @@ export const backgroundOccurrenceV1Schema = z.strictObject({
 });
 export type BackgroundOccurrenceV1 = z.infer<typeof backgroundOccurrenceV1Schema>;
 
-export const humanStepDeliverySchema = z.enum(["PENDING", "ANSWERED", "DECLINED", "SUPERSEDED", "UNKNOWN"]);
-export type HumanStepDelivery = z.infer<typeof humanStepDeliverySchema>;
-export const humanRequiredActionSchema = z.enum(["answer", "approval", "credential"]);
-export type HumanRequiredAction = z.infer<typeof humanRequiredActionSchema>;
+const humanStepDeliverySchema = z.enum(["PENDING", "ANSWERED", "DECLINED", "SUPERSEDED", "UNKNOWN"]);
+const humanRequiredActionSchema = z.enum(["answer", "approval", "credential"]);
 
 export const humanStepV1Schema = z.strictObject({
   requestId: z.string().min(1).max(200),
@@ -134,8 +126,7 @@ export const humanStepV1Schema = z.strictObject({
 });
 export type HumanStepV1 = z.infer<typeof humanStepV1Schema>;
 
-export const intakeDispositionSchema = z.enum(["REJECTED", "PROPOSED", "APPROVED"]);
-export type IntakeDisposition = z.infer<typeof intakeDispositionSchema>;
+const intakeDispositionSchema = z.enum(["REJECTED", "PROPOSED", "APPROVED"]);
 
 export const intakeV1Schema = z.strictObject({
   intakeId: z.string().min(1).max(200),

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 /** Observed request metadata. A content reference is not a grant or the native transcript. */
 export type ContextCategory = 'SYSTEM' | 'INSTRUCTION' | 'MEMORY' | 'USER' | 'TOOL' | 'REFERENCE';
-export type ContextMeasurement = 'PROVIDER' | 'TOKENIZER' | 'BYTE_ONLY';
+type ContextMeasurement = 'PROVIDER' | 'TOKENIZER' | 'BYTE_ONLY';
 export interface RequestContextSegmentV1 {
   readonly category: ContextCategory;
   readonly sourceId: string;
