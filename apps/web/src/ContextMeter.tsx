@@ -1,4 +1,4 @@
-import { useId, useRef, useState, useEffect, type CSSProperties } from 'react';
+import { useEffect, useId, useRef, useState, type CSSProperties } from 'react';
 import type { RuntimeUsage } from '../../../packages/contracts';
 import { Popover } from '../../../packages/ui-shell/Popover';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
@@ -37,25 +37,23 @@ function categoryColor(label: string) {
   return `var(--context-${label === 'Tools & MCP' ? 'tools' : label.toLowerCase()})`;
 }
 
-function Category({ item, total, id }: { item: ContextCategoryReport & { width: number }; total: number; id: string }) {
+function Category({ item, total, id, open, animated, enter, leave, focus, blur, dismiss }: {
+  item: ContextCategoryReport & { width: number }; total: number; id: string; open: boolean; animated: boolean;
+  enter: () => void; leave: () => void; focus: () => void; blur: () => void; dismiss: () => void;
+}) {
   const anchor = useRef<HTMLButtonElement>(null), detail = useRef<HTMLDivElement>(null);
-  const [hovered, setHovered] = useState(false), [focused, setFocused] = useState(false), [open, setOpen] = useState(false);
-  useEffect(() => {
-    if (!hovered && !focused) { setOpen(false); return; }
-    const timer = setTimeout(() => setOpen(true), 120); return () => clearTimeout(timer);
-  }, [hovered, focused]);
   return <div className="context-category-entry">
     <button ref={anchor} className="context-category-row" type="button" aria-describedby={open ? id : undefined}
-      onPointerEnter={() => setHovered(true)} onPointerLeave={() => setHovered(false)} onFocus={() => setFocused(true)} onBlur={() => setFocused(false)}
+      onPointerEnter={enter} onPointerLeave={leave} onFocus={focus} onBlur={blur}
       onKeyDown={event => {
         if (isComposing(event)) return;
-        if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); setOpen(false); }
+        if (event.key === 'Escape' && open) { event.preventDefault(); event.stopPropagation(); dismiss(); }
         if (open && (event.key === 'PageDown' || event.key === 'PageUp')) { event.preventDefault(); detail.current?.scrollBy({ top: event.key === 'PageDown' ? 100 : -100 }); }
       }}>
       <i aria-hidden="true" style={{ '--context-color': categoryColor(item.label) } as CSSProperties} /><span>{item.label}</span><strong>{contextNumber(item.tokens)}</strong>
     </button>
     <Popover anchor={anchor} contentRef={detail} open={open} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
-      role="tooltip" id={id} className="context-category-detail" onDismiss={() => setOpen(false)}>
+      role="tooltip" id={id} className="context-category-detail" data-entrance={animated ? 'pointer' : 'focus'} onDismiss={dismiss}>
       <strong>{item.label}</strong><span>{detailFormatter.format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
       <div className="context-subitems">{item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{detailFormatter.format(child.tokens)}</span></div>)}</div>
       {item.label === 'Reserved' && !item.subitems?.length && <span>Capacity reserved by the runtime.</span>}
@@ -65,12 +63,43 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
 
 export function ContextMeter({ usage, busy = false, accepted = false }: { usage?: ContextUsage; busy?: boolean; accepted?: boolean }) {
   const value = contextSegments(usage), id = useId();
-  if (!value) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Not reported</p></div>;
+  // During compaction the last valid report stays displayed until fresh valid
+  // source data arrives; ownership change remounts this component.
+  const lastValid = useRef(value);
+  if (value) lastValid.current = value;
+  const shown = value ?? (busy ? lastValid.current : null);
+  const [hoveredId, setHoveredId] = useState<string | null>(null), [focusedId, setFocusedId] = useState<string | null>(null);
+  const [openId, setOpenId] = useState<string | null>(null), [pointerOpen, setPointerOpen] = useState(false);
+  const dwell = useRef<ReturnType<typeof setTimeout> | null>(null), suppressed = useRef<string | null>(null);
+  const cancel = () => { if (dwell.current) { clearTimeout(dwell.current); dwell.current = null; } };
+  useEffect(() => cancel, []);
+  const show = (key: string, pointer: boolean) => { setOpenId(key); setPointerOpen(pointer); };
+  const enter = (key: string) => {
+    suppressed.current = null; // a fresh pointer entry lifts Escape suppression
+    setHoveredId(key);
+    if (focusedId) return; // keyboard focus keeps priority until blur
+    if (openId) { cancel(); if (openId !== key) show(key, true); return; }
+    cancel(); dwell.current = setTimeout(() => { dwell.current = null; show(key, true); }, 200);
+  };
+  const leave = (key: string) => setHoveredId(current => current === key ? null : current);
+  const gridLeave = () => { cancel(); setHoveredId(null); if (!focusedId) setOpenId(null); };
+  const focus = (key: string) => { setFocusedId(key); suppressed.current = null; cancel(); show(key, false); };
+  const blur = (key: string) => {
+    setFocusedId(current => current === key ? null : current);
+    if (openId === key) setOpenId(hoveredId);
+  };
+  const dismiss = (key: string) => { suppressed.current = key; cancel(); setOpenId(null); };
+  if (!shown) return <div className="context-meter"><div className="context-meter-unknown" aria-label="Context measurement not reported" /><p className="context-categories-note">Not reported</p></div>;
   return <div className={`context-meter${accepted ? ' context-measurement-accepted' : ''}`} role="group" aria-label="Reported context breakdown" aria-busy={busy}>
-    <progress className="sr-only" aria-label="Context used" value={value.ratio} max={100} />
-    <div className="context-segment-bar" aria-hidden="true">{value.categories.map(item => <i key={item.label} style={{ width: `${item.width}%`, '--context-color': categoryColor(item.label) } as CSSProperties} className="context-segment" />)}{busy && <span className="context-compaction-shimmer" />}</div>
-    <div className="context-category-grid">{value.categories.map((item, index) => <Category key={item.label} item={item} total={value.total} id={`${id}-${index}`} />)}</div>
-    {!value.categorized && <p className="context-categories-note">Category breakdown not reported</p>}
-    {value.categorized && !value.complete && <p className="context-categories-note">Partial category breakdown</p>}
+    <progress className="sr-only" aria-label="Context used" value={shown.ratio} max={100} />
+    <div className="context-segment-bar" aria-hidden="true">{shown.categories.map(item => <i key={item.label} style={{ width: `${item.width}%`, '--context-color': categoryColor(item.label) } as CSSProperties} className="context-segment" />)}{busy && <span className="context-compaction-shimmer" />}</div>
+    <div className="context-category-grid" onPointerLeave={gridLeave}>{shown.categories.map((item, index) => {
+      const key = item.label;
+      return <Category key={key} item={item} total={shown.total} id={`${id}-${index}`}
+        open={openId === key && suppressed.current !== key} animated={pointerOpen}
+        enter={() => enter(key)} leave={() => leave(key)} focus={() => focus(key)} blur={() => blur(key)} dismiss={() => dismiss(key)} />;
+    })}</div>
+    {!shown.categorized && <p className="context-categories-note">Category breakdown not reported</p>}
+    {shown.categorized && !shown.complete && <p className="context-categories-note">Partial category breakdown</p>}
   </div>;
 }
