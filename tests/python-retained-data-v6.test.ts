@@ -28,6 +28,14 @@ async function filled(path: string, bytes: number): Promise<void> {
 const allocated = async (...paths: string[]) => { let total = 0n; for (const path of paths) total += (await lstat(path, { bigint: true })).blocks * 512n; return total; };
 afterEach(async () => { unavailable.clear(); await Promise.all(roots.splice(0).map(path => rm(path, { recursive: true, force: true }))); });
 
+// Cases marked linuxFs need Linux filesystem semantics: truncate() leaves a
+// sparse file, ext4 charges block-map metadata to a dense file, and mkfifo makes
+// a FIFO. On Windows, libuv reports st_blocks as NTFS AllocationSize/512, so a
+// truncated file is fully allocated, a dense 64 MiB file is exactly 64 MiB and
+// there are no FIFOs. Each such case keeps its full Linux assertions; every
+// platform-neutral case, including both ceilings, still runs everywhere.
+const linuxFs = process.platform === 'linux';
+
 describe('M12 Python retained-data accounting (accepted retained state, not a filesystem quota)', () => {
   it('pins separate inclusive 64 MiB ceilings for logical and allocated bytes and refuses looser overrides', async () => {
     expect(PYTHON_RETAINED_DATA_LIMITS).toEqual({ maxLogicalBytes: CEILING, maxAllocatedBytes: CEILING });
@@ -40,6 +48,16 @@ describe('M12 Python retained-data accounting (accepted retained state, not a fi
   });
 
   it('admits exactly 64 MiB of logical length and refuses one byte more', async () => {
+    const dir = await root(), file = join(dir, 'sparse.bin');
+    await writeFile(file, ''); await truncate(file, Number(CEILING));
+    const accounting = await inspectPythonPrivateDirectory(dir);
+    expect(accounting).toMatchObject({ entries: 2, maxDepth: 1, regularFiles: 1, logicalBytes: CEILING });
+    expect(accounting.allocatedBytes).toBeLessThanOrEqual(CEILING);
+    await truncate(file, Number(CEILING) + 1);
+    await expect(inspectPythonPrivateDirectory(dir)).rejects.toMatchObject({ code: 'PYTHON_RETAINED_DATA_LIMIT' });
+  });
+
+  it.runIf(linuxFs)('refuses one logical byte over 64 MiB on the logical ceiling while sparse allocation stays below its own', async () => {
     const dir = await root(), file = join(dir, 'sparse.bin');
     await writeFile(file, ''); await truncate(file, Number(CEILING));
     const accounting = await inspectPythonPrivateDirectory(dir);
@@ -70,7 +88,7 @@ describe('M12 Python retained-data accounting (accepted retained state, not a fi
       .rejects.toMatchObject({ code: 'PYTHON_RETAINED_DATA_LIMIT', message: expect.stringMatching(/allocated/) });
   });
 
-  it('refuses real allocated data over 64 MiB even while logical length stays within its ceiling', async () => {
+  it.runIf(linuxFs)('refuses real allocated data over 64 MiB even while logical length stays within its ceiling', async () => {
     const dir = await root(), file = join(dir, 'dense.bin');
     await filled(file, Number(CEILING));
     expect((await lstat(file)).size).toBe(Number(CEILING));
@@ -96,13 +114,17 @@ describe('M12 Python retained-data accounting (accepted retained state, not a fi
     await expect(inspectPythonPrivateDirectory(join(await root(), 'missing'))).rejects.toMatchObject({ code: 'PYTHON_RETAINED_DATA_UNAVAILABLE' });
   });
 
-  it('keeps the existing link, special-file, entry and depth refusals', async () => {
+  it.runIf(linuxFs)('keeps the existing special-file refusal for a FIFO', async () => {
+    const special = await root(); execFileSync('mkfifo', [join(special, 'pipe')]);
+    expect((await lstat(join(special, 'pipe'))).isFIFO()).toBe(true);
+    await expect(inspectPythonPrivateDirectory(special)).rejects.toMatchObject({ code: 'PYTHON_PROFILE_DENIED' });
+  });
+
+  it('keeps the existing link, entry and depth refusals', async () => {
     const linked = await root(); await writeFile(join(linked, 'a'), 'x'); await symlink(join(linked, 'a'), join(linked, 'b'));
     await expect(inspectPythonPrivateDirectory(linked)).rejects.toMatchObject({ code: 'PYTHON_PROFILE_DENIED' });
     const hard = await root(); await writeFile(join(hard, 'a'), 'x'); await link(join(hard, 'a'), join(hard, 'b'));
     await expect(inspectPythonPrivateDirectory(hard)).rejects.toMatchObject({ code: 'PYTHON_PROFILE_DENIED' });
-    const special = await root(); execFileSync('mkfifo', [join(special, 'pipe')]);
-    await expect(inspectPythonPrivateDirectory(special)).rejects.toMatchObject({ code: 'PYTHON_PROFILE_DENIED' });
     const wide = await root(); await Promise.all(Array.from({ length: 4095 }, (_, i) => writeFile(join(wide, `f${i}`), '')));
     await expect(inspectPythonPrivateDirectory(wide)).resolves.toMatchObject({ entries: 4096 });
     await writeFile(join(wide, 'extra'), '');

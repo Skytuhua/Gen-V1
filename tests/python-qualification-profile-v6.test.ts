@@ -93,11 +93,22 @@ describe('M12 test-only Python qualification profile', () => {
     }
   });
 
-  it('requires a canonical, owned, non-shared-writable root directory', async () => {
+  it('requires the qualification root to be a present plain directory', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'm12-qual-root-')); dirs.push(dir);
     const root = join(dir, 'root'); await writeFile(join(dir, 'file'), '');
     expect(() => verifyQualificationRoot(root)).toThrow(/not present/);
     expect(() => verifyQualificationRoot(join(dir, 'file'))).toThrow(/plain directory/);
+    await symlink(dir, root);
+    expect(() => verifyQualificationRoot(root)).toThrow(/plain directory/);
+  });
+
+  // POSIX owner/mode semantics. On Windows, libuv reports st_mode 0666 for
+  // every non-readonly entry and chmod only toggles the readonly attribute, so
+  // a group/other-writable check cannot be satisfied there. The staged
+  // qualification profile itself is Linux x64 only.
+  it.runIf(process.platform !== 'win32')('requires a canonical, owned, non-shared-writable root directory', async () => {
+    const dir = await mkdtemp(join(tmpdir(), 'm12-qual-root-')); dirs.push(dir);
+    const root = join(dir, 'root');
     await symlink(dir, root);
     expect(() => verifyQualificationRoot(root)).toThrow(/plain directory/);
     await chmod(dir, 0o775);
