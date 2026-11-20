@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { migrationSpec } from '../../scripts/review-fixtures';
+import { openApp } from './app-ready';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
 
 const schema = {
@@ -21,7 +22,7 @@ const inputs = {
 
 test('migration leads with workspace relationships, visible value changes and inspectable SQL', async ({ page }) => {
   const snapshot = taskFixture(migrationSpec(), inputs, { table: 'users' }); snapshot.settings.theme = 'dark';
-  await serveTaskFixture(page, snapshot); await page.goto('/');
+  await serveTaskFixture(page, snapshot); await openApp(page);
   await expect(page.getByRole('figure', { name: 'Workspace links', exact: true })).toBeVisible();
   await expect(page.getByText('3 workspaces added', { exact: true })).toBeVisible();
   await expect(page.getByText('New table · id, name', { exact: true })).toBeVisible();
@@ -41,7 +42,7 @@ test('migration leads with workspace relationships, visible value changes and in
 
 test('completed inspection retains table identity, keyboard navigation and chat-only scrolling', async ({ page }) => {
   const snapshot = taskFixture(migrationSpec(), inputs, { table: 'users' }); snapshot.settings.theme = 'dark';
-  const fixture = await serveTaskFixture(page, snapshot); await page.goto('/');
+  const fixture = await serveTaskFixture(page, snapshot); await openApp(page);
   const usersTable = page.getByRole('tabpanel').filter({ visible: true }).locator('table'); await expect(usersTable).toBeVisible();
   const identity = await usersTable.elementHandle();
   await page.getByRole('tab', { name: 'projects', exact: true }).click();
@@ -57,7 +58,7 @@ test('completed inspection retains table identity, keyboard navigation and chat-
 
 test('generic tables keep unchanged values plain and reject untrusted change metadata', async ({ page }) => {
   const snapshot = taskFixture({ root: 'table', elements: { table: { type: 'Table', props: { rowsBinding: 'rows', changesBinding: 'changes', rowKey: 'id', columns: [{ key: 'name', label: 'Name' }] } } } }, { rows: [{ id: 'a', name: 'Unchanged' }], changes: { rows: [{ id: 'a', cells: [{ key: 'name', status: 'updated', before: 'Unchanged' }] }] } });
-  const fixture = await serveTaskFixture(page, snapshot); await page.goto('/');
+  const fixture = await serveTaskFixture(page, snapshot); await openApp(page);
   await expect(page.locator('.task-table-value')).toHaveText('Unchanged');
   await expect(page.locator('.task-table-before')).toHaveCount(0);
   fixture.setInput('changes', { rows: [{ id: 'a', cells: [{ key: 'name', status: 'added' }] }] }); await fixture.publish();

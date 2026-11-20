@@ -112,12 +112,18 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
         );
       }
     });
+    // A lifecycle observer cannot veto worker cleanup or the next notification.
+    const notifyExit = (notify: () => void) => { try { notify(); } catch { /* The native worker still needs to be released. */ } };
+    let didEnd = false;
     const ended = () => {
+      if (didEnd) return;
+      didEnd = true;
       for (const pending of worker.pending.values()) { clearTimeout(pending.timer); pending.reject(new HarnessError("PI_WORKER_EXITED", "Pi worker exited before completing the request. Run pnpm install if the SDK cannot load; retry or sign in with pnpm agent:login.")); }
       worker.pending.clear();
       if (worker.active && !worker.stopping) {
-        emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered.");
-        if (worker.ctx && current(worker)) callbacks?.onEvent({ ...worker.ctx, type: "settled", aborted: true });
+        notifyExit(() => emit(worker, "error", "Pi worker exited unexpectedly. Persisted history will determine which inputs were delivered."));
+        const ctx = worker.ctx;
+        if (ctx && current(worker)) notifyExit(() => callbacks?.onEvent({ ...ctx, type: "settled", aborted: true }));
       }
       worker.active = false;
       if (worker.authority) { worker.authority.settled = true; worker.authority.revoked = true; }
@@ -129,7 +135,7 @@ export function createPiRuntime({ dataDir,modelOnly:requestedModelOnly,purpose }
       didExit();
     };
     child.once("exit", ended);
-    child.once("error", error => { emit(worker, "error", safeError(error)); ended(); });
+    child.once("error", error => { if (!didEnd) notifyExit(() => emit(worker, "error", safeError(error))); ended(); });
     return worker;
   }
   function request(worker: Worker, command: string, args: Record<string, unknown> = {}, timeoutMs = 30_000): Promise<unknown> {

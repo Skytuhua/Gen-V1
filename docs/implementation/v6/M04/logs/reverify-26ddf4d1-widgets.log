@@ -1,0 +1,4 @@
+
+> gen-v1@0.6.5 build:widgets /home/ubuntu/repos/Gen-V1
+> node scripts/build-widgets.mjs
+
