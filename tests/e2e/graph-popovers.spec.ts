@@ -103,7 +103,9 @@ test('pointer transfer stays readable and selection retains the exact source val
 
 for(const theme of ['dark','light'] as const)for(const zoom of [1,1.25,1.5])test(`${theme} graph details stay below title chrome at ${zoom*100}% CSS zoom in a short window`,async({page},testInfo)=>{
  await page.setViewportSize({width:390,height:360});await page.emulateMedia({reducedMotion:'reduce'});await page.evaluate(({theme,zoom})=>{document.documentElement.dataset.theme=theme;document.documentElement.style.zoom=String(zoom);},{theme,zoom});
- await page.getByRole('button',{name:'Map modules',exact:true}).focus();const tooltip=page.getByRole('tooltip');await expect(tooltip).toBeVisible();const box=(await tooltip.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(7);expect(box.y).toBeGreaterThanOrEqual(49);expect(box.x+box.width).toBeLessThanOrEqual(383);expect(box.y+box.height).toBeLessThanOrEqual(353);
+ await page.getByRole('button',{name:'Map modules',exact:true}).focus();const tooltip=page.getByRole('tooltip');await expect(tooltip).toBeVisible();
+ // The popover repositions asynchronously after the zoom change; measure once its box settles.
+ await expect(async()=>{const box=(await tooltip.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(7);expect(box.y).toBeGreaterThanOrEqual(49);expect(box.x+box.width).toBeLessThanOrEqual(383);expect(box.y+box.height).toBeLessThanOrEqual(353);}).toPass();
  await expect(tooltip).toContainText('Source modules and imports');await page.screenshot({path:testInfo.outputPath('graph-popup.png')});
 });
 
