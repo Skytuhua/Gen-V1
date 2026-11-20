@@ -9,17 +9,21 @@ import type {SkillDetail,SkillSummary} from '../packages/contracts/skills.ts';
 import {Store} from '../packages/storage/store.ts';
 import {applySkillOperations} from '../packages/core/skills.ts';
 async function freePort(){const server=createServer();await new Promise<void>(done=>server.listen(0,'127.0.0.1',done));const address=server.address();if(!address||typeof address==='string')throw Error('No test port');await new Promise<void>((done,reject)=>server.close(error=>error?reject(error):done()));return address.port;}
+const addressInUse=(error:unknown)=>error instanceof Error&&((error as NodeJS.ErrnoException).code==='EADDRINUSE'||/EADDRINUSE|address already in use/i.test(error.message));
 const catalog=():RuntimeAdapter=>({configure:()=>{},models:async()=>[],start:async()=>{throw Error('No inference in host CRUD verification');},followUp:async()=>{},cancel:async()=>{},compact:async()=>{},history:async()=>[],dispose:async()=>{}});
 it('serves original source CRUD, approval-aware UI saves, archive/restore/history and restart through the default host',async()=>{
- const dataDir=await mkdtemp(join(tmpdir(),'hermes-default-host-')),port=await freePort();let widgetPort=await freePort();while(widgetPort===port)widgetPort=await freePort();
- const options={dataDir,port,widgetPort,dev:true};let host:RunningHost|undefined,cookie='',csrf='';
+ const dataDir=await mkdtemp(join(tmpdir(),'hermes-default-host-'));let host:RunningHost|undefined,cookie='',csrf='';
+ // freePort() closes its probe before the host binds the port, so a parallel worker can steal it in the gap; re-pick and retry on EADDRINUSE.
+ const options={dataDir,port:0,widgetPort:0,dev:true};
+ const repick=async()=>{options.port=await freePort();options.widgetPort=await freePort();while(options.widgetPort===options.port)options.widgetPort=await freePort();};
+ const start=async()=>{await repick();for(let attempt=0;;attempt++){try{return await launchHost(options,{createRuntime:catalog});}catch(error){if(attempt>=3||!addressInUse(error))throw error;await repick();}}};
  const legacy=new Store(dataDir);legacy.internal('fixture.legacy',null,()=>applySkillOperations(legacy,[{action:'create',name:'legacy-large',description:'A preserved legacy description that is longer than the original Hermes sixty character index permits.',content:'Preserve the complete legacy body and all supporting files.',baseRevision:0},...Array.from({length:20},(_,index)=>({action:'write_file' as const,name:'legacy-large',baseRevision:index+1,path:`references/${index}.md`,content:`Preserved legacy source ${index}.`}))],{kind:'user'}));legacy.close();
  const bootstrap=async()=>{const response=await fetch(host!.origin+'/api/bootstrap');cookie=response.headers.get('set-cookie')!.split(';')[0];csrf=(await response.json()).csrfToken;};
  const json=async(path:string,body?:unknown)=>{const response=await fetch(host!.origin+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json',Origin:host!.origin,Cookie:cookie,'X-Harness-CSRF':csrf},...(body?{body:JSON.stringify(body)}:{})});const value=await response.json();expect(response.status,JSON.stringify(value)).toBe(200);return value;};
  const command=(type:string,payload:Record<string,unknown>)=>json('/api/commands',{id:crypto.randomUUID(),type,payload});
  const read=()=>json('/api/skills/http-source?includeInactive=true') as Promise<SkillDetail>;
  try{
-  host=await launchHost(options,{createRuntime:catalog});
+  host=await start();
   await bootstrap();
   const preserved=await json('/api/skills/legacy-large?includeInactive=true') as SkillDetail;expect(preserved.skill.migrationError).toBeTruthy();expect(preserved.content).toContain('complete legacy body');expect(preserved.files).toHaveLength(20);
   await command('skill.manage',{operations:[{action:'create',name:'http-source',description:'Verify source-backed host behavior.',content:'Inspect the actual source and preserve verification receipts.',baseRevision:0}]});
@@ -32,7 +36,7 @@ it('serves original source CRUD, approval-aware UI saves, archive/restore/histor
   await command('skill.manage',{operations:[{action:'restore',name:'http-source',baseRevision:detail.skill.revision}]});detail=await read();
   await command('skill.manage',{operations:[{action:'rollback',name:'http-source',revision:initial,baseRevision:detail.skill.revision}]});
   detail=await read();expect(detail.content).toBe('Inspect the actual source and preserve verification receipts.');expect(detail.files).toEqual([]);expect(detail.versions.length).toBeGreaterThan(1);
-  await host.close();host=await launchHost(options,{createRuntime:catalog});await bootstrap();detail=await read();expect(detail.content).toContain('preserve verification receipts');
+  await host.close();host=await start();await bootstrap();detail=await read();expect(detail.content).toContain('preserve verification receipts');
   const snapshot=await json('/api/snapshot') as Snapshot;expect(snapshot.skills?.find((skill:SkillSummary)=>skill.name==='http-source')?.revision).toBe(detail.skill.revision);expect(JSON.stringify(snapshot.skills)).not.toContain(detail.content);expect(snapshot.skillProposals).toEqual([]);
  }finally{await host?.close();await rm(dataDir,{recursive:true,force:true,maxRetries:10,retryDelay:100});}
 },90000);

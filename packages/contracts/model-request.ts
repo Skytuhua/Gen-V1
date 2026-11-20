@@ -19,13 +19,13 @@ export const MODEL_REQUEST_OBSERVATION_LIMIT = 64;
 /* means the stage never completed — it never means zero.              */
 /* ------------------------------------------------------------------ */
 
-export const modelRequestPhaseV1Schema = z.enum(['foreground', 'background']);
+const modelRequestPhaseV1Schema = z.enum(['foreground', 'background']);
 export type ModelRequestPhaseV1 = z.infer<typeof modelRequestPhaseV1Schema>;
 
-export const modelRequestOutcomeV1Schema = z.enum(['completed', 'cancelled', 'failed']);
+const modelRequestOutcomeV1Schema = z.enum(['completed', 'cancelled', 'failed']);
 export type ModelRequestOutcomeV1 = z.infer<typeof modelRequestOutcomeV1Schema>;
 
-export const modelRequestTimingsV1Schema = z.strictObject({
+const modelRequestTimingsV1Schema = z.strictObject({
   queued: z.number().nonnegative(),
   acquired: elapsedMs,
   runtimeReady: elapsedMs,
@@ -37,7 +37,7 @@ export const modelRequestTimingsV1Schema = z.strictObject({
 });
 export type ModelRequestTimingsV1 = z.infer<typeof modelRequestTimingsV1Schema>;
 
-export const modelRequestUsageV1Schema = z.strictObject({
+const modelRequestUsageV1Schema = z.strictObject({
   inputTokens: tokenCount,
   outputTokens: tokenCount,
   cacheReadTokens: tokenCount,
@@ -108,14 +108,14 @@ export type RequestCapabilitiesV1 = z.infer<typeof requestCapabilitiesV1Schema>;
 /* confinement ExecutionProfileV1 in execution-profile.ts.              */
 /* ------------------------------------------------------------------ */
 
-export const modelRequestBudgetV1Schema = z.strictObject({
+const modelRequestBudgetV1Schema = z.strictObject({
   maxCalls: z.number().int().positive().optional(),
   maxInputTokens: z.number().int().positive().optional(),
   maxOutputTokens: z.number().int().positive().optional(),
 });
 export type ModelRequestBudgetV1 = z.infer<typeof modelRequestBudgetV1Schema>;
 
-export const modelExecutionProfileV1Schema = z.strictObject({
+const modelExecutionProfileV1Schema = z.strictObject({
   version: z.literal(1),
   profileId: boundedText(100),
   allowedProviderAccount: z.strictObject({

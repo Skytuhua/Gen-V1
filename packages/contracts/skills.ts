@@ -1,4 +1,4 @@
-export type SkillState='active'|'stale'|'archived';
+type SkillState='active'|'stale'|'archived';
 export interface SkillActor {kind:'user'|'agent'|'curator';threadId?:string;runId?:string;evidence?:string[]}
 export interface SkillSummary {
  name:string;description:string;category:string;revision:number;state:SkillState;enabled:boolean;protected:boolean;

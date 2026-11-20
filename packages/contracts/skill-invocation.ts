@@ -24,10 +24,8 @@ export const skillInvocationSendPayloadSchema = z.strictObject({
   thinkingLevel: z.string().min(1).max(240).nullable().optional(),
   skills: z.array(boundSkillReferenceSchema).min(1).max(8),
 });
-export type SkillInvocationSendPayload = z.infer<typeof skillInvocationSendPayloadSchema>;
 export const skillInvocationRequestSchema = z.strictObject({commandId: identity, payload: skillInvocationSendPayloadSchema});
-export type SkillInvocationRequest = z.infer<typeof skillInvocationRequestSchema>;
-export interface AdmittedSkillFile {readonly path: string; readonly bytes: number; readonly digest: string}
+interface AdmittedSkillFile {readonly path: string; readonly bytes: number; readonly digest: string}
 export interface AdmittedSkillGuidance {
   readonly inputId: string;
   readonly trust: 'untrusted-guidance';
