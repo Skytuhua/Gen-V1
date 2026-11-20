@@ -104,9 +104,9 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
       if (message.type === 'ui.event' && leaseSuspended.current && !releasePending.current) void resumeLease().catch(error => reportError(error, 'The edit lease could not be resumed.'));
       handle(event.data);
     };
-    const handle = (message: Record<string, any>) => {
+    const handle = (message: Record<string, unknown>) => {
       if (!sameOwner() || !message || typeof message !== 'object' || message.channel !== 'harness-widget' || message.token !== mount.token || message.mountId !== mount.mountId || message.artifactId !== artifact.id) return;
-      const payload = message.payload;
+      const payload = message.payload as Record<string, unknown> | null | undefined;
       if (message.type === 'ready') { setReady(true); init(); return; }
       if (!payload || typeof payload !== 'object' || Array.isArray(payload)) return;
       if (message.type === 'dirty' && typeof payload.dirty === 'boolean') { leaseDirty.current = payload.dirty; if (payload.dirty) editGeneration.current++; latest.current.onDirty(payload.dirty); if (payload.dirty && !leaseSuspended.current) void lease().catch(error => reportError(error, 'The edit lease could not be acquired.')); return; }
