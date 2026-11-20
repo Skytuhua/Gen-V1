@@ -1,0 +1,84 @@
+name: M05 bounded purge qualification
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/m05-purge-qualification.yml'
+      - 'tests/project-memory-service-v3.test.ts'
+      - 'tests/memory-forget-v3.test.ts'
+      - 'packages/core/project-memory.ts'
+      - 'packages/contracts/project-memory.ts'
+      - 'apps/server/project-memory-routes.ts'
+      - 'packages/core/service.ts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: m05-purge-${{ github.event.pull_request.head.sha || github.sha }}
+  cancel-in-progress: false
+
+env:
+  GIT_CONFIG_COUNT: 1
+  GIT_CONFIG_KEY_0: core.longpaths
+  GIT_CONFIG_VALUE_0: true
+
+jobs:
+  qualification:
+    name: M05 purge / ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out immutable PR head
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          persist-credentials: false
+      - name: Check exact source identity
+        run: |
+          $actual = (git rev-parse HEAD).Trim()
+          $expected = '${{ github.event.pull_request.head.sha || github.sha }}'
+          if ($actual -ne $expected) { throw 'Purge test checkout source SHA mismatch' }
+          Write-Output ('M05_PURGE_SOURCE_SHA=' + $actual)
+      - name: Install pinned repository toolchain
+        uses: ./.github/actions/setup
+        with:
+          python: 'false'
+      - name: Build existing required assets
+        run: pnpm build:widgets
+      - name: Whole-project TypeScript check
+        run: pnpm typecheck
+      - name: Verify elapsed retention and unchanged Forget behavior
+        run: |
+          New-Item -ItemType Directory -Path .harness-qualification -Force | Out-Null
+          pnpm exec vitest run tests/project-memory-service-v3.test.ts tests/memory-forget-v3.test.ts --maxWorkers=1 --reporter=default --reporter=json --outputFile=.harness-qualification/m05-purge.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $result = Get-Content -Raw -LiteralPath .harness-qualification/m05-purge.json | ConvertFrom-Json
+          if ($result.numTotalTests -lt 2 -or $result.numFailedTests -ne 0 -or $result.numPendingTests -ne 0 -or $result.numTodoTests -ne 0 -or $result.numPassedTests -ne $result.numTotalTests) { throw 'M05 required purge cases failed, skipped or were not executed' }
+          $requiredCases = @(
+            'physically purges permitted local memory copies while preserving tombstones and original task history'
+            'does not report physical purge complete while a reader retains old WAL pages'
+            'bounds each physical purge batch even when an item has a long revision history'
+          )
+          $files = @($result.testResults | Where-Object { ($_.name -replace '\\','/').EndsWith('tests/memory-forget-v3.test.ts') })
+          foreach ($case in $requiredCases) {
+            $assertionsFound = @($files.assertionResults | Where-Object { $_.title -eq $case -or $_.fullName -eq $case })
+            if ($assertionsFound.Count -ne 1 -or $assertionsFound[0].status -ne 'passed') { throw "M05 required purge case missing, ambiguous or not passed: $case" }
+          }
+          Write-Output ('M05_PURGE_RESULTS=' + (@{sourceSha=(git rev-parse HEAD).Trim(); platform=$env:RUNNER_OS; total=$result.numTotalTests; passed=$result.numPassedTests; failed=$result.numFailedTests; skipped=$result.numPendingTests} | ConvertTo-Json -Compress))
+      - name: Retain bounded verification report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: m05-purge-${{ matrix.os }}-${{ github.run_id }}-${{ github.run_attempt }}
+          retention-days: 7
+          if-no-files-found: warn
+          path: .harness-qualification/m05-purge.json

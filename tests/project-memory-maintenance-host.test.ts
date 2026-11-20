@@ -32,12 +32,22 @@ it.each([true, false])('schedules one bounded purge per host tick and preserves 
   const dataDir = seed.store.dataDir, originalSource = seed.store.get('message', 'source'); seed.store.close();
   cleanup.push(() => rmSync(seed.root, { recursive: true, force: true }));
   vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] });
-  const hostPort = await freePort(); let widgetPort = await freePort(); while (widgetPort === hostPort) widgetPort = await freePort();
+  // freePort() closes its probe before the host binds the port, so a parallel worker can steal it in the gap; re-pick and retry on EADDRINUSE.
+  let hostPort = await freePort(), widgetPort = await freePort(); while (widgetPort === hostPort) widgetPort = await freePort();
   let host: RunningHost | undefined, service!: Service, cookie = '', csrf = '';
+  const addressInUse = (error: unknown) => error instanceof Error && ((error as NodeJS.ErrnoException).code === 'EADDRINUSE' || /EADDRINUSE|address already in use/i.test(error.message));
   const start = async () => {
-    host = await launchHost({ dataDir, port: hostPort, widgetPort, dev: false, pluginDir: join(seed.root, 'plugins'), capabilityFlags: { 'memory.projectV1': memoryEnabled } }, {
-      createRuntime: runtime, createService: (store, adapter) => service = new Service(store, adapter),
-    });
+    for (let attempt = 0;; attempt++) {
+      try {
+        host = await launchHost({ dataDir, port: hostPort, widgetPort, dev: false, pluginDir: join(seed.root, 'plugins'), capabilityFlags: { 'memory.projectV1': memoryEnabled } }, {
+          createRuntime: runtime, createService: (store, adapter) => service = new Service(store, adapter),
+        });
+        return;
+      } catch (error) {
+        if (attempt >= 3 || !addressInUse(error)) throw error;
+        hostPort = await freePort(); widgetPort = await freePort(); while (widgetPort === hostPort) widgetPort = await freePort();
+      }
+    }
   };
   cleanup.push(async () => { await host?.close(); });
   const authenticate = async () => {
