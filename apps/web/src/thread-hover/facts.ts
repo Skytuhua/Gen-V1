@@ -9,7 +9,7 @@ export interface ThreadHoverScope {
   readonly revision: string;
 }
 
-export interface ThreadHoverPullRequest<Target = unknown> {
+interface ThreadHoverPullRequest<Target = unknown> {
   readonly id: string;
   readonly label: string;
   readonly target: Target;

@@ -27,7 +27,7 @@
 .loading-message-user { align-self: flex-end; width: 44%; padding: var(--ui-space-4); border: 1px solid var(--border); border-radius: var(--control-radius, 6px); }
 .loading-message .loading-state-rows { padding-inline: 0; }
 .loading-message .loading-skeleton-icon { display: none; }
-.loading-composer { display: flex; flex-direction: column; gap: var(--ui-space-6); padding: var(--ui-panel-inset); border: 1px solid var(--border); border-radius: var(--control-radius, 6px); background: var(--surface); }
+.loading-composer { display: flex; flex-direction: column; gap: var(--ui-space-6); padding: var(--ui-panel-inset); border: 1px solid var(--control-border); border-radius: var(--control-radius, 6px); background: var(--surface); }
 .loading-composer-controls { display: flex; align-items: center; justify-content: space-between; gap: var(--ui-space-2); }
 .loading-agent-composer { margin: var(--ui-space-2) var(--ui-panel-inset) var(--ui-panel-inset); }
 .loading-diff .loading-state-rows { padding-block: var(--ui-space-2); }

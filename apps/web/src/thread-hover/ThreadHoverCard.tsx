@@ -7,7 +7,7 @@ import {hoverScopeKey, scopedThreadHoverFacts, type ThreadHoverFacts, type Threa
 import {createThreadHoverInteraction} from './interaction';
 import './thread-hover.css';
 
-export type ThreadHoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> & {ref: RefObject<HTMLButtonElement | null>};
+type ThreadHoverTriggerProps = ButtonHTMLAttributes<HTMLButtonElement> & {ref: RefObject<HTMLButtonElement | null>};
 export interface ThreadHoverCardProps<Target = unknown> {
   facts: ThreadHoverFacts<Target>;
   loadFacts?: ThreadHoverLoad<Target>;

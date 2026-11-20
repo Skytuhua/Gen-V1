@@ -18,10 +18,10 @@ export const CASES: readonly EvalCase[] = Object.freeze([
   { id: "novel-evidence-map", category: "novel-apps", mandatoryNovel: true, prompt: "Create a purpose-built interactive contradiction map from the two research sources as an isolated widget. Let the user link claims, annotate uncertainty and submit a synthesis decision back to the agent. Reuse sourced data and preserve edits through expansion and remount.", checks: ["source-provenance", "data-binding", "widget-artifact", "persistent-state", "novel-interaction-review", "correctness-review"] },
 ].map(item => Object.freeze({ ...item, checks: Object.freeze(item.checks) })) as EvalCase[]);
 export const CASESET_SHA256 = createHash("sha256").update(JSON.stringify(CASES)).digest("hex");
-export const FROZEN_CASESET_SHA256 = "b44f476e974f0e0f3a44da6b62ed13ce5c4036f9d8bd58aa0ff38025d0a04275";
-export const PILOT_POLICY = Object.freeze({ version: "replacement-plan-v1", repetitions: 3, successfulRuns: 30, successfulScenarios: 10, scenarioSuccesses: 2, designatedNovel: "novel-custody" });
+const FROZEN_CASESET_SHA256 = "b44f476e974f0e0f3a44da6b62ed13ce5c4036f9d8bd58aa0ff38025d0a04275";
+const PILOT_POLICY = Object.freeze({ version: "replacement-plan-v1", repetitions: 3, successfulRuns: 30, successfulScenarios: 10, scenarioSuccesses: 2, designatedNovel: "novel-custody" });
 if (CASESET_SHA256 !== FROZEN_CASESET_SHA256) throw new Error("Held-out cases changed; create a deliberately versioned new case set before execution");
-export interface EvalAssertion { id: string; status: "pass" | "fail" | "pending"; evidence: string }
+interface EvalAssertion { id: string; status: "pass" | "fail" | "pending"; evidence: string }
 export interface EvalResult {
   caseId: string; repetition?: number; modelId: string; status: "completed" | "failed" | "pending";
   executionOutcome?: "ready" | "working" | "awaiting_input" | "completed" | "failed" | "interrupted" | "stopped";

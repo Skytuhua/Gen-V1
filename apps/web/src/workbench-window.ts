@@ -1,6 +1,6 @@
 import {sameLogicalOwner, type LogicalOwnerV1, type WorkbenchViewV1} from '../../../packages/contracts/source-selection';
 
-export const MAX_MOUNTED_OUTPUT_ROWS = 300;
+const MAX_MOUNTED_OUTPUT_ROWS = 300;
 export interface WorkbenchOutputRow {readonly id: string; readonly text: string}
 export type OutputScrollAnchor = NonNullable<WorkbenchViewV1['scrollAnchor']>;
 export interface WorkbenchWindowOptions {scrollTop: number; viewportHeight: number; rowHeight: number; overscan?: number}
