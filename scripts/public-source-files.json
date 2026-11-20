@@ -2844,6 +2844,7 @@
     "tests/browser-consent-v3.test.ts",
     "tests/browser-runner.test.ts",
     "tests/browser-verification-v3.test.ts",
+    "tests/build-review-index.test.ts",
     "tests/capabilities.test.ts",
     "tests/capture-ui/helpers-edges.test.ts",
     "tests/chat-gesture-audit.test.ts",
