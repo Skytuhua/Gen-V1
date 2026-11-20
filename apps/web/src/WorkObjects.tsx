@@ -1,14 +1,12 @@
-import {useContext,useId,useLayoutEffect,useMemo,useRef,useState,type CSSProperties,type KeyboardEvent,type RefObject} from 'react';
+import {useContext,useId,useLayoutEffect,useMemo,useRef,useState,type CSSProperties,type KeyboardEvent,type ReactNode,type RefObject} from 'react';
 import {useStateStore,type ComponentRegistry,type ComponentRenderProps} from '@json-render/react';
 import {ArrowRight,Check,ChevronDown,ChevronRight,Database,Focus,GripVertical,Layers,Monitor,Search,Server,Workflow} from 'lucide-react';
 import {WORK_OBJECT_SCHEMAS,WORK_OBJECT_DATA_SCHEMAS,boundedWorkObjectData,readBoardDraft,boardDraftMatchesSource,boardProposal,type WorkflowData,type ArchitectureData,type TraceData} from '../../../packages/ui-catalog/work-objects';
 import {ArtifactInline,ArtifactTitle,inputPath,statePath,useTaskAction} from './task-context';
-import {MotionRegion,reducedMotion} from './task-motion';
-import {createSpringValue} from './motion-spring';
+import {MotionRegion,animateTask,reducedMotion} from './task-motion';
 import {readMotionPolicy,observeMotionPolicy} from './motion-policy';
 import {Select} from '../../../packages/ui-shell/Select';
 import './work-objects.css';
-import {useRowMotion} from './list-motion';
 
 const object=(value:unknown):Record<string,unknown>=>value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};
 function Heading({title,caption}:{title?:string;caption:string}){
@@ -20,24 +18,24 @@ function ActionError({error}:{error:string}){return error?<p className="error-te
 
 /** Only a deliberate local move animates; restored artifacts start settled. */
 function useBoardMotion(ref:RefObject<HTMLDivElement|null>,layout:string){
- const positions=useRef(new Map<string,DOMRect>()),springs=useRef<ReturnType<typeof createSpringValue>[]>([]);
+ const positions=useRef(new Map<string,DOMRect>()),animations=useRef<Animation[]>([]);
  useLayoutEffect(()=>{
   const cards=Array.from(ref.current?.querySelectorAll<HTMLElement>('[data-work-card]')??[]),next=new Map<string,DOMRect>();
   const before=positions.current;
   for(const card of cards)next.set(card.dataset.workCard!,card.getBoundingClientRect());
-  springs.current.forEach(spring=>spring.dispose());springs.current=[];
+  animations.current.forEach(animation=>animation.cancel());animations.current=[];
   for(const card of cards){
-   const previous=before.get(card.dataset.workCard!),current=next.get(card.dataset.workCard!);card.style.transform='';
+   const previous=before.get(card.dataset.workCard!),current=next.get(card.dataset.workCard!);
    if(!previous||!current||reducedMotion()||current.bottom<0||current.top>innerHeight)continue;
-   const x=previous.left-current.left,y=previous.top-current.top,distance=Math.hypot(x,y);
-   if(distance<1)continue;
-   const spring=createSpringValue(distance,value=>{card.style.transform=`translate(${x*value/distance}px,${y*value/distance}px)`;},()=>{card.style.transform='';});
-   springs.current.push(spring);spring.to(0);
+   const x=previous.left-current.left,y=previous.top-current.top;
+   if(Math.hypot(x,y)<1)continue;
+   const animation=animateTask(card,[{transform:`translate(${x}px,${y}px)`},{transform:'translate(0,0)'}],180,{duration:'--ui-motion-insert',easing:'--ui-ease-enter'});
+   if(animation)animations.current.push(animation);
   }
   positions.current=next;
  },[layout,ref]);
  useLayoutEffect(()=>{
-  const settle=()=>{springs.current.forEach(spring=>spring.dispose());springs.current=[];ref.current?.querySelectorAll<HTMLElement>('[data-work-card]').forEach(card=>{card.style.transform='';});};
+  const settle=()=>{animations.current.forEach(animation=>animation.cancel());animations.current=[];};
   const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full')settle();});
   return()=>{stopObservingMotion();settle();};
  },[ref]);
@@ -161,10 +159,11 @@ function traceLayout(spans:Span[],query:string,status:string,collapsed:Set<strin
  for(const span of spans){const group=children.get(span.parentId)??[];group.push(span);children.set(span.parentId,group);}
  const matching=new Set<string>(),filtering=Boolean(query||status!=='all');
  for(const span of spans){if((status==='all'||span.status===status)&&(!query||`${span.name} ${span.service??''} ${span.detail??''}`.toLowerCase().includes(query.toLowerCase()))){matching.add(span.id);let parent=span.parentId;while(parent){matching.add(parent);parent=byId.get(parent)?.parentId;}}}
- const rows:{span:Span;depth:number;hasChildren:boolean;expanded:boolean}[]=[];
- const visit=(parent:string|undefined,depth:number)=>{for(const span of children.get(parent)??[]){if(filtering&&!matching.has(span.id))continue;const expanded=Boolean(children.get(span.id)?.some(child=>!filtering||matching.has(child.id)))&&(filtering||!collapsed.has(span.id));rows.push({span,depth,hasChildren:children.has(span.id),expanded});if(expanded)visit(span.id,depth+1);}};visit(undefined,0);
+ type TraceNode={span:Span;depth:number;hasChildren:boolean;expanded:boolean;children:TraceNode[]};
+ const rows:{span:Span;depth:number;hasChildren:boolean;expanded:boolean}[]=[],tree:TraceNode[]=[];
+ const visit=(parent:string|undefined,depth:number,into:TraceNode[],visible:boolean)=>{for(const span of children.get(parent)??[]){if(filtering&&!matching.has(span.id))continue;const expanded=Boolean(children.get(span.id)?.some(child=>!filtering||matching.has(child.id)))&&(filtering||!collapsed.has(span.id)),node:TraceNode={span,depth,hasChildren:children.has(span.id),expanded,children:[]};if(visible)rows.push(node);into.push(node);if(node.hasChildren)visit(span.id,depth+1,node.children,visible&&expanded);}};visit(undefined,0,tree,true);
  const timed=spans.filter((span):span is Span&{startMs:number;durationMs:number}=>span.startMs!==undefined&&span.durationMs!==undefined),start=timed.length?Math.min(...timed.map(span=>span.startMs)):0,end=timed.length?Math.max(...timed.map(span=>span.startMs+span.durationMs)):0;
- return {rows,start,end,timed:timed.length>0,filtering};
+ return {rows,tree,start,end,timed:timed.length>0,filtering};
 }
 const durationFormat=new Intl.NumberFormat(undefined,{maximumFractionDigits:2});
 const milliseconds=(value:number)=>`${durationFormat.format(value)} ms`;
@@ -206,19 +205,21 @@ export function TraceWaterfall({element:{props}}:ComponentRenderProps){
   if(!latest?.success||current.sourceRevision!==latest.data.revision||!latest.data.spans.some(span=>span.id===current.selectedId)){setSelectionError('This trace changed. Select a current span before sending.');return;}
   if(p.actionId)void action.run(p.actionId,{sourceRevision:latest.data.revision,spanId:current.selectedId});
  };
- // G9: expanded children reveal at the panel-enter timing; collapsed rows ghost out.
- const motion=useRowMotion(layout.rows,row=>row.span.id);
  const labelWidth=inline?Math.min(220,Math.max(120,viewportWidth*.45)):220;
  const range=layout.end>layout.start?layout.end-layout.start:1,tabEntry=layout.rows.some(row=>row.span.id===selected?.id)?selected?.id:layout.rows[0]?.span.id,trackWidth=inline?Math.max(1,viewportWidth-labelWidth):Math.max(360,viewportWidth-220)*zoom;
+ const rowIndex=new Map(layout.rows.map((row,index)=>[row.span.id,index]));
+ const renderSpan=(node:typeof layout.tree[number]):ReactNode=>{const {span,depth,hasChildren,expanded,children}=node,timed=span.startMs!==undefined&&span.durationMs!==undefined;
+  return <div className="trace-node" key={span.id}>
+   <div className="trace-row" data-selected={selected?.id===span.id}><button type="button" className="trace-collapse" tabIndex={-1} style={{left:Math.min(depth,8)*12+3}} disabled={!hasChildren} aria-label={`${expanded?'Collapse':'Expand'} ${span.name}`} onClick={()=>toggle(span.id)}>{hasChildren?(expanded?<ChevronDown size={12}/>:<ChevronRight size={12}/>):<span/>}</button><button type="button" className="trace-span" role="treeitem" data-trace-span={span.id} aria-label={span.name} aria-selected={selected?.id===span.id} aria-level={depth+1} aria-expanded={hasChildren?expanded:undefined} tabIndex={tabEntry===span.id?0:-1} onClick={event=>{save({selectedId:span.id});selectionHalo(event.currentTarget.querySelector('.trace-bar'));}} onKeyDown={event=>keyboard(event,rowIndex.get(span.id)!)}><span className="trace-span-label" style={{paddingLeft:Math.min(depth,8)*12+22}}><span className={`trace-status is-${span.status}`} aria-label={span.status}>{span.status==='ok'&&<Check size={8}/>}</span><span><strong>{span.name}</strong>{span.service&&<small>{span.service}</small>}</span></span><span className="trace-track" style={{width:trackWidth}}>{timed?<><span className={`trace-bar is-${span.status}`} style={{left:`${(span.startMs!-layout.start)/range*100}%`,width:Math.max(2,span.durationMs!/range*trackWidth)}} title={`${milliseconds(span.startMs!)} start 路 ${milliseconds(span.durationMs!)} duration`}/><span className="trace-duration">{milliseconds(span.durationMs!)}</span></>:<span className="trace-unknown">Timing unavailable</span>}</span></button></div>
+   {hasChildren&&<div className="trace-children" role="group" data-open={expanded||undefined}><div className="trace-children-inner" inert={!expanded}>{children.map(renderSpan)}</div></div>}
+  </div>;
+ };
  return <section className="work-object trace-waterfall" aria-label={data.title??'Trace waterfall'} style={{'--trace-label-width':`${labelWidth}px`} as CSSProperties}>
   <Heading title={data.title} caption={`${data.spans.length} supplied spans`}/>
   <div className="trace-toolbar"><label className="trace-filter"><Search size={14}/><input type="search" aria-label="Filter spans" placeholder="Filter spans..." value={query} maxLength={200} onChange={event=>save({query:event.target.value})}/></label><Select aria-label="Span status" value={status} onValueChange={status=>save({status})} options={[{value:'all',label:'All statuses'},{value:'ok',label:'OK'},{value:'error',label:'Error'},{value:'unknown',label:'Unknown'}]}/>{!inline&&<Select aria-label="Timeline zoom" value={String(zoom)} onValueChange={zoom=>save({zoom:Number(zoom)})} options={[{value:'1',label:'1x zoom'},{value:'2',label:'2x zoom'},{value:'4',label:'4x zoom'}]}/>}</div>
   <div className="trace-scroll" ref={scroll}><div className="trace-timeline" style={{minWidth:labelWidth+trackWidth}}>
    <div className="trace-ruler"><span>Span / service</span><div style={{width:trackWidth}}>{layout.timed?[0,.25,.5,.75,1].map(tick=><span key={tick} style={{left:`${tick*100}%`}}>{milliseconds(layout.start+(layout.end-layout.start)*tick)}</span>):<span className="trace-no-time">Timing unavailable</span>}</div></div>
-   <div className="trace-tree" role="tree" aria-label="Supplied spans" ref={tree}>{layout.rows.map(({span,depth,hasChildren,expanded},index)=>{
-    const timed=span.startMs!==undefined&&span.durationMs!==undefined;
-    return <div className="trace-row" key={span.id} data-selected={selected?.id===span.id} data-arrival={motion.arrivals.has(span.id)||undefined}><button type="button" className="trace-collapse" tabIndex={-1} style={{left:Math.min(depth,8)*12+3}} disabled={!hasChildren} aria-label={`${expanded?'Collapse':'Expand'} ${span.name}`} onClick={()=>toggle(span.id)}>{hasChildren?(expanded?<ChevronDown size={12}/>:<ChevronRight size={12}/>):<span/>}</button><button type="button" className="trace-span" role="treeitem" data-trace-span={span.id} aria-label={span.name} aria-selected={selected?.id===span.id} aria-level={depth+1} aria-expanded={hasChildren?expanded:undefined} tabIndex={tabEntry===span.id?0:-1} onClick={event=>{save({selectedId:span.id});selectionHalo(event.currentTarget.querySelector('.trace-bar'));}} onKeyDown={event=>keyboard(event,index)}><span className="trace-span-label" style={{paddingLeft:Math.min(depth,8)*12+22}}><span className={`trace-status is-${span.status}`} aria-label={span.status}>{span.status==='ok'&&<Check size={8}/>}</span><span><strong>{span.name}</strong>{span.service&&<small>{span.service}</small>}</span></span><span className="trace-track" style={{width:trackWidth}}>{timed?<><span className={`trace-bar is-${span.status}`} style={{left:`${(span.startMs!-layout.start)/range*100}%`,width:Math.max(2,span.durationMs!/range*trackWidth)}} title={`${milliseconds(span.startMs!)} start 路 ${milliseconds(span.durationMs!)} duration`}/><span className="trace-duration">{milliseconds(span.durationMs!)}</span></>:<span className="trace-unknown">Timing unavailable</span>}</span></button></div>;
-   })}{[...motion.leaving].map(id=>{const g=motion.cached(id);if(!g)return null;return <div key={`leaving-${id}`} className="trace-row" data-leaving aria-hidden="true" onAnimationEnd={event=>{if(event.target===event.currentTarget)motion.finishLeaving(id);}}><span className="trace-span-label" style={{paddingLeft:Math.min(g.depth,8)*12+22}}><span className={`trace-status is-${g.span.status}`} aria-hidden="true"/><span><strong>{g.span.name}</strong>{g.span.service&&<small>{g.span.service}</small>}</span></span></div>;})}</div>
+   <div className="trace-tree" role="tree" aria-label="Supplied spans" ref={tree}>{layout.tree.map(renderSpan)}</div>
    {!layout.rows.length&&<p className="work-object-empty">{data.spans.length?'No supplied spans match these filters.':'No trace spans were supplied.'}</p>}
   </div></div>
   <MotionRegion open={Boolean(selected)}>{selected&&<div className="trace-detail"><div><h4>{selected.name}</h4>{selected.service&&<span className="trace-detail-service">{selected.service}</span>}{selected.detail&&<p>{selected.detail}</p>}</div><dl><div><dt>Status</dt><dd className={`trace-detail-status is-${selected.status}`}>{selected.status}</dd></div><div><dt>Relative start</dt><dd>{selected.startMs===undefined?'Timing unavailable':milliseconds(selected.startMs)}</dd></div><div><dt>Duration</dt><dd>{selected.durationMs===undefined?'Timing unavailable':milliseconds(selected.durationMs)}</dd></div></dl></div>}</MotionRegion>
