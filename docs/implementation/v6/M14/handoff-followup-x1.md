@@ -153,3 +153,39 @@ No guard, check, or rejection was removed; no permission widened.
   historical 27/42 run's environment) — same x86_64/root/ext4 gate.
 - X1 63/63 re-run: blocked separately on a recoverable manifest, which
   does not exist (see above).
+
+## Ordinary-only fixture mode and qualified writer attribution
+
+Verifier ordinal 34 recorded a PASS of a distinct ordinary-only WSL
+fixture (fixture SHA256
+fa6be7135069e4000bc55064f2094cf7a4b8aeebcce4058f8028dc22b48ba2f2) on
+pristine production code at this head: awaited synthetic store write,
+single acquire, assert/read, release/settled, exit 0, no leaked
+mounts or processes.
+
+The earlier O_RDWR fd-23-on-mount-173 attribution to the parked
+`withLockAsync` remains qualified: the cited scratch command stream
+came from a successful acquire and does not establish that fd's
+opening call. The trace found no supported operation that retains a
+writable descriptor on the credential parent — `proper-lockfile` is a
+mkdir/stat/utimes protocol (no held fd), `writable` is the only
+O_RDWR ever opened and `await writable.close()` drops its writer
+before the `await` resolves — so no broker or SDK change is
+justified. The broker fence and the combined `credential-barrier`
+regression are unchanged.
+
+New fixture mode `credential-lease` in
+`tests/fixtures/linux-path-guard/native.mjs` reproduces the
+ordinary-only lifecycle in this harness, with a separate outcome
+(`LOCAL_NATIVE_CREDENTIAL_LEASE_ORDINARY`) from the unchanged
+combined `credential-barrier` regression: profile custody → awaited
+synthetic `store.modify` → single `acquireLiteralCredentialLease` →
+`assertCurrent`/`read` → `release`/`settled` → post-release native
+write. It contains no denial, held-writer, lock, parked-transaction,
+or loss cases.
+
+Gate status: the prior combined-fixture EBUSY and the full
+`credential-barrier` variant are NOT re-verified by this mode;
+`credential-loss` was NOT_RUN; the original X1 manifest remains
+unverified. A pass on this ordinary-only mode does not satisfy those
+other gates.
