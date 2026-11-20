@@ -133,6 +133,13 @@ it.each(['push','requested','in_progress'])('bounds the %s sweep to two discover
   expect(result.requests.filter(request=>request.method==='list')).toHaveLength(2);
   expect(result.cancelled).toHaveLength(100);expect(new Set(result.cancelled).size).toBe(100);expect(result.result.checked).toBe(100);expect(result.result.limited).toBe(true);
 });
+it('keeps in-progress runs in the sweep when the queued page is full',async()=>{
+  const queued=Array.from({length:100},(_,index)=>({...makeRun(),id:501+index}));
+  const running=[{...makeRun(),id:9000,status:'in_progress'}];
+  const result=await execute({queued,running});
+  expect(result.requests).toContainEqual({method:'run',id:9000});
+  expect(result.cancelled).toContain(9000);
+});
 it('does not sweep on pushes outside the default branch or unsupported events',async()=>{
   for(const options of [{eventName:'push',ref:'refs/heads/feature'},{eventName:'workflow_dispatch'},{action:'completed'}])expect((await execute(options)).requests).toEqual([]);
 });

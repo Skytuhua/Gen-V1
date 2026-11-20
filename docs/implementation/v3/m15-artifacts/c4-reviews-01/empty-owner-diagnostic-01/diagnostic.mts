@@ -42,7 +42,7 @@ const outcome = await registry.prepareEditorHandoff().then(() => ({status: 'READ
 removals.forEach(remove => remove());
 const files = ['apps/web/src/journal.ts', 'apps/web/src/workbench-recovery.ts', 'apps/web/src/editor-handoff.ts', 'apps/web/src/App.tsx', 'apps/web/src/SourceWorkbench.tsx', 'tests/source-handoff-v3.test.ts'];
 const source = Object.fromEntries(files.map(path => [path, createHash('sha256').update(readFileSync(repo + '/' + path)).digest('hex')]));
-const result = {scope: 'Actual journal/recovery/editor registry; scripted empty IndexedDB requests delivered by setImmediate; no React, browser, native, or host execution.', owner, outcome, allReads, sourceReads, sources: source, finalMetadata: journal.journalHandoffState(keys).map(({failure, ...state}: any) => ({...state, ...(failure ? {failure: String(failure.cause)} : {})})), events};
+const result = {scope: 'Actual journal/recovery/editor registry; scripted empty IndexedDB requests delivered by setImmediate; no React, browser, native, or host execution.', owner, outcome, allReads, sourceReads, sources: source, finalMetadata: journal.journalHandoffState(keys).map(({failure, ...state}: {failure?:{cause?:unknown};[key:string]:unknown}) => ({...state, ...(failure ? {failure: String(failure.cause)} : {})})), events};
 writeFileSync(output + '/results.json', JSON.stringify(result, null, 2) + '\n', {flag: 'wx'});
 console.log(JSON.stringify({outcome, allReads, sourceReads, source, started: events.filter(value => value.event.endsWith('-start') && !value.key).map(value => value.event), ready: events.filter(value => value.event.endsWith('-ready')).map(value => value.event)}));
 if (outcome.status !== 'READY') throw Error('Both healthy empty-owner guards must settle: ' + JSON.stringify(outcome));

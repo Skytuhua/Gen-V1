@@ -50,7 +50,7 @@
   gap: var(--ui-space-2);
   min-height: var(--ui-row-compact);
   padding: 6px var(--ui-control-inset);
-  border: 1px solid var(--border, #282828);
+  border: 1px solid var(--control-border, #707070);
   border-radius: 6px;
   background: var(--surface, #0f0f0f);
   color: var(--text, #e6e6e6);

@@ -11,8 +11,8 @@ interface Distribution {name:string;version:string;wheelSha256?:string;sourceUrl
 interface PythonLock {version:1;python:'3.14';requirements:string[];distributions:Distribution[];files:LockedFile[];bytes:number}
 interface PayloadFile extends LockedFile {source?:string;content?:string}
 export interface CanonicalPythonOptions {wheelDirectory:string;pythonExecutable:string}
-export interface CanonicalPythonReceipt {version:2;mode:'wheel-canonical-record-v2';sourceLockSha256:string;wheels:{name:string;version:string;sha256:string}[];files:LockedFile[]}
-export interface CanonicalPythonProjection {files:PayloadFile[];bytes:number;receipt:CanonicalPythonReceipt;inputDiagnosis:unknown}
+interface CanonicalPythonReceipt {version:2;mode:'wheel-canonical-record-v2';sourceLockSha256:string;wheels:{name:string;version:string;sha256:string}[];files:LockedFile[]}
+interface CanonicalPythonProjection {files:PayloadFile[];bytes:number;receipt:CanonicalPythonReceipt;inputDiagnosis:unknown}
 export interface IntegrationPayload {files:PayloadFile[];bytes:number;integrations:number;pythonProjection?:CanonicalPythonReceipt;pythonInputDiagnosis?:unknown}
 const MAX_BYTES=1024*1024*1024,MAX_FILES=20000;
 const normalize=(name:string)=>name.toLowerCase().replace(/[-_.]+/g,'-');
@@ -58,7 +58,7 @@ export async function collectCanonicalPythonPayload(root:string,options:Canonica
  return projection;
 }
 /** Explicit install-time lock, after the parent's wheel-only isolated installation. */
-export async function lockIntegrationDependencies(root:string,pipReport?:string){
+async function lockIntegrationDependencies(root:string,pipReport?:string){
  root=resolve(root);const directory=join(root,'.harness-integrations-python-deps'),files=await walk(directory,'.harness-integrations-python-deps');
  const distributions:Distribution[]=[];for(const file of files.filter(file=>file.path.endsWith('.dist-info/METADATA'))){const text=(await ordinaryFile(payloadPath(root,file.path))).toString(),name=/^Name: (.+)\r?$/m.exec(text)?.[1],version=/^Version: (.+)\r?$/m.exec(text)?.[1];if(!name||!version)throw Error('Integration distribution metadata is incomplete');distributions.push({name:normalize(name),version});}
  distributions.sort((a,b)=>a.name.localeCompare(b.name));if(new Set(distributions.map(item=>item.name)).size!==distributions.length||!distributions.some(item=>item.name==='graphifyy'&&item.version==='0.9.100')||!distributions.some(item=>item.name==='specify-cli'&&item.version==='1.2.5'))throw Error('Pinned main Python integration distributions are absent');

@@ -1,6 +1,6 @@
 # A document and a plan, inside Gen
 
-The README uses two different workflows from the actual Gen interface. These are browser captures with authored sample content, separate from the earlier checkout-trace demonstration.
+These document and plan workflows are browser captures of the actual Gen interface with authored sample content, made for an earlier README refresh. The README now embeds the five launch workflows documented in [launch-demos.md](launch-demos.md); this page remains the description and provenance for the earlier capture set.
 
 [Back to Gen](../../../README.md) · [Asset provenance](readme-refresh-provenance.json)
 
@@ -20,7 +20,7 @@ A sample task plan keeps its steps visible alongside the discussion. The recorde
 
 The captures use the accepted 0.6.4 frontend with its application components and styles. Browser requests are intercepted locally: application data is synthetic, and no personal profile, provider sign-in, live model request or external operation is involved. This is browser UI evidence; it does not establish native installation, persistence or update acceptance.
 
-The GIFs are scaled and palette-optimized for the README. Still images and these text descriptions provide alternatives to the animations. The [provenance file](readme-refresh-provenance.json) identifies the served inputs, transformations, dimensions, durations and asset hashes.
+The GIFs are scaled and palette-optimized for the earlier README embed. Still images and these text descriptions provide alternatives to the animations. The [provenance file](readme-refresh-provenance.json) identifies the source commit, transformations, dimensions, durations and asset hashes.
 
 ## Repository branding
 

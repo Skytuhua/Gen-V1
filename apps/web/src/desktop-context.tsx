@@ -1,5 +1,4 @@
 import {createContext,useCallback,useContext,useEffect,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
-import {ExternalLink} from 'lucide-react';
 import type {DesktopBridge,DesktopContext,DesktopState,DesktopSurface,DesktopWindowInfo} from '../../../packages/desktop-contract/index';
 import {desktopSurfaceKey} from '../../../packages/desktop-contract/index';
 import {prepareEditorHandoff,registerEditorHandoff} from './editor-handoff';
@@ -12,7 +11,7 @@ declare global {interface Window {harnessDesktop?:DesktopBridge}}
 type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];ownership:(surface:DesktopSurface|null)=>number|undefined;detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>;flows:Record<string,AccountLoginFlow>;signIn:ReturnType<typeof createAccountLoginMonitor>['start'];cancelSignIn:ReturnType<typeof createAccountLoginMonitor>['cancel'];recoverSignIn:ReturnType<typeof createAccountLoginMonitor>['recover']};
 const Context=createContext<DesktopValue|null>(null);
 export const useDesktop=()=>useContext(Context);
-export const surfaceKey=desktopSurfaceKey;
+const surfaceKey=desktopSurfaceKey;
 function sameEditor(left:DesktopSurface,right:DesktopSurface){const artifact=(value:DesktopSurface)=>value.kind==='artifact'||value.kind==='workspace'&&value.tab==='artifact';return artifact(left)&&artifact(right)?'artifactId'in left&&'artifactId'in right&&left.artifactId===right.artifactId&&left.threadId===right.threadId:surfaceKey(left)===surfaceKey(right);}
 export function detachedSurface(desktop:DesktopValue|null,surface:DesktopSurface|null){return desktop&&surface?desktop.windows.find(info=>info.id!==desktop.context.windowId&&sameEditor(info.surface,surface)):undefined;}
 export function pendingSurface(desktop:DesktopValue|null,surface:DesktopSurface|null){return Boolean(desktop&&surface&&desktop.pending.some(item=>sameEditor(item,surface)));}
@@ -55,11 +54,6 @@ export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;
  const detachSurface=useCallback(async(surface:DesktopSurface,before?:()=>Promise<void>)=>{const key=surfaceKey(surface);if(pendingKeys.current.has(key))throw Error('This view is already moving to another window.');pendingKeys.current.add(key);setPending(value=>[...value,surface]);try{await prepareEditorHandoff();await before?.();return await bridge.detach(surface);}finally{pendingKeys.current.delete(key);setPending(value=>value.filter(item=>surfaceKey(item)!==key));}},[bridge]);
  const value=useMemo(()=>({bridge,context,...state,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,resumeEditing:()=>updateClosing(false),flows,signIn,cancelSignIn,recoverSignIn}),[bridge,context,state,registerClose,prepareHandoff,pending,ownership,detachSurface,closing,updateClosing,flows,signIn,cancelSignIn,recoverSignIn]);
  return <Context value={value}>{children}</Context>;
-}
-/** Moves a view into its own native window, or focuses the window that owns it. */
-export function DetachButton({surface,label,before,after,onError}:{surface:DesktopSurface;label:string;before?:()=>Promise<void>;after?:()=>void;onError?:(error:Error)=>void}){
- const desktop=useDesktop(),detached=useDetachedSurface(surface),[busy,setBusy]=useState(false);
- return <button type="button" className="icon-button" aria-label={detached?`Focus detached ${label}`:`Detach ${label}`} title={detached?`Focus detached ${label}`:`Detach ${label}`} disabled={!desktop||busy} onClick={()=>{if(!desktop)return;setBusy(true);void(async()=>{if(detached){await desktop.bridge.focus(detached.id);return;}await desktop.detachSurface(surface,before);after?.();})().catch(cause=>onError?.(cause instanceof Error?cause:Error('The desktop window could not open.'))).finally(()=>setBusy(false));}}><ExternalLink size={14}/></button>;
 }
 /** Recovery is offered only for a child that already owns saved work. */
 export function DesktopWindowActions(){const desktop=useDesktop(),[error,setError]=useState('');if(!desktop||desktop.context.surface.kind==='main')return null;
