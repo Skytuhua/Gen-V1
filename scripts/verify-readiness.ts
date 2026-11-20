@@ -54,24 +54,23 @@ export function redactSecrets(text:string):string{
 
 // Line-buffered so a secret split across stream chunks is still redacted whole.
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
-  let carry='',insidePrivateKey=false;
-  // PEM material spans lines; a per-line regex would publish the entire key body.
-  const begin=/-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----/;
-  const end=/-----END [A-Z0-9 ]*PRIVATE KEY-----/;
+  let carry='',privateKeyEnd:string|null=null;
+  // PEM material spans lines; require the matching closing label before resuming output.
+  const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
   const scrubLine=(line:string):string=>{
     let remaining=line,visible='';
     while(remaining){
-      if(insidePrivateKey){
-        const match=end.exec(remaining);
-        if(!match)break;
-        remaining=remaining.slice(match.index+match[0].length);
-        insidePrivateKey=false;
+      if(privateKeyEnd!==null){
+        const endAt=remaining.indexOf(privateKeyEnd);
+        if(endAt<0)break;
+        remaining=remaining.slice(endAt+privateKeyEnd.length);
+        privateKeyEnd=null;
       }else{
         const match=begin.exec(remaining);
         if(!match){visible+=remaining;break;}
         visible+=remaining.slice(0,match.index)+'[REDACTED PRIVATE KEY]';
+        privateKeyEnd='-----END '+match[1]+'-----';
         remaining=remaining.slice(match.index+match[0].length);
-        insidePrivateKey=true;
       }
     }
     return redactSecrets(visible);
@@ -82,7 +81,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
       const lines=carry.split('\n');carry=lines.pop()!;
       for(const line of lines){
         const safe=scrubLine(line);
-        if(safe||!insidePrivateKey)stream.write(safe+'\n');
+        if(safe||privateKeyEnd===null)stream.write(safe+'\n');
       }
     },
     end(){if(carry){const safe=scrubLine(carry);if(safe)stream.write(safe);}stream.end();},
