@@ -3334,6 +3334,7 @@
     "tests/native-persistence.test.ts",
     "tests/official-claude-stdio.test.ts",
     "tests/official-history-ownership.test.ts",
+    "tests/official-manifest-save.test.ts",
     "tests/official-native-boundaries.test.ts",
     "tests/official-runtime-acp.test.ts",
     "tests/official-runtime-claude.test.ts",
