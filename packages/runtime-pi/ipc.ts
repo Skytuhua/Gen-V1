@@ -39,7 +39,7 @@ export class ToolBridge {
     const pending = this.pending.get(reply.requestId);
     if (!pending || pending.toolCallId !== reply.toolCallId) return;
     this.pending.delete(reply.requestId); pending.cleanup();
-    if (reply.error) pending.reject(new Error(reply.error)); else pending.resolve(reply.value);
+    if (typeof reply.error === "string") pending.reject(new Error(reply.error || "Pi host tool failed.")); else pending.resolve(reply.value);
   }
   close() {
     this.closed = true;
