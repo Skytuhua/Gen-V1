@@ -26,13 +26,13 @@ export interface DebugRecipe {
   confinementProfile: string;
 }
 
-export interface DebugVariable {
+interface DebugVariable {
   name: string;
   value: string;
   variablesReference: number;
 }
 
-export interface DebugStackFrame {
+interface DebugStackFrame {
   id: number;
   name: string;
   line?: number;
