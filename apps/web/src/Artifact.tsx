@@ -76,6 +76,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   }, [restored, prepared]);
   useArtifactEntrance(section, animateEntry && ready, entranceBody);
   const placed = useRef<{ expanded: boolean; inWorkspace: boolean } | null>(null);
+  const lastRect = useRef<DOMRect | null>(null);
   const expandButton = useRef<HTMLElement | null>(null);
   const pendingApproval = useRef<string | null>(null);
   const [widgetRecord, setWidgetRecord] = useState<UserStateRecord | undefined>(record);
@@ -83,7 +84,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const expanded = incoming.placement === 'expanded'&&!editorHeld&&!standaloneEditor;
   const inline = !expanded && !inWorkspace && !standaloneEditor;
   useLayoutEffect(() => {
-    const element = section.current, before = placed.current;
+    const element = section.current, before = placed.current, previousRect = lastRect.current;
     placed.current = { expanded, inWorkspace };
     // Initial mount is not a placement transition: a restored/docked artifact must
     // stay quiet. Only a real expand/dock/return change animates.
@@ -92,7 +93,19 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     animateTask(element, inWorkspace || expanded
       ? [{ opacity: 0, transform: 'translateX(12px)' }, { opacity: 1, transform: 'translateX(0)' }]
       : [{ opacity: .5, transform: 'translateY(4px)' }, { opacity: 1, transform: 'translateY(0)' }], inWorkspace || expanded ? 220 : 180);
+    // M10: expand/collapse also tweens height (grid-rows-equivalent FLIP on a
+    // fixed-position overlay) at the panel windows and eases the content in.
+    if (previousRect) {
+      const next = element.getBoundingClientRect();
+      if (Math.abs(next.height - previousRect.height) > 1)
+        animateTask(element, [{ height: previousRect.height + 'px' }, { height: next.height + 'px' }], inWorkspace || expanded ? 220 : 180);
+    }
+    const content = element.querySelector<HTMLElement>('.artifact-content');
+    if (content) animateTask(content, [{ opacity: .25 }, { opacity: 1 }], 140);
   }, [expanded, inWorkspace]);
+  // Runs after the placement effect each commit, so `lastRect` still holds the
+  // previous commit's geometry when the placement effect reads it.
+  useLayoutEffect(() => { lastRect.current = section.current?.getBoundingClientRect() ?? null; });
   const act = async (type: string, payload: Record<string, unknown>) => {
     if (type === 'artifact.expand' && payload.expanded) expandButton.current = section.current?.querySelector<HTMLElement>('[aria-label="Expand artifact"]') ?? null;
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }

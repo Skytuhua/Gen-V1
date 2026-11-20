@@ -3,6 +3,7 @@ import {ChevronDown,ChevronRight,EyeOff,GripHorizontal,Maximize2,Minus,Pin,Plus,
 import type {Thread} from '../../../packages/contracts/index.ts';
 import type {CanvasLayout,PanelBounds,PanelPlacement,ProjectSummary,WorkspacePanelKind} from '../../../packages/contracts/workspace.ts';
 import {arrangeCanvasPanels,canvasZoom,canvasZoomAt,fitCanvasViewport,groupCanvasPanels,panelInViewport,snapPanelBounds,threadParent} from './workspace-canvas-layout';
+import {readMotionPolicy} from './motion-policy';
 import './workspace-canvas.css';
 
 type Viewport=CanvasLayout['viewport'];
@@ -77,6 +78,34 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
   void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)done();});
   return()=>{cancelled=true;};
  },[leaving]);
+ // E6: panel height only tweens while a collapse/expand is in flight.
+ const[collapsing,setCollapsing]=useState<Record<string,boolean>>({}),prevCollapsed=useRef<Record<string,boolean>>({});
+ useLayoutEffect(()=>{
+  const next:Record<string,boolean>={};
+  const changed:string[]=[];
+  for(const panel of displayed){next[panel.id]=panel.collapsed;if(prevCollapsed.current[panel.id]!==undefined&&prevCollapsed.current[panel.id]!==panel.collapsed)changed.push(panel.id);}
+  prevCollapsed.current=next;
+  if(changed.length)setCollapsing(current=>{const updated={...current};for(const id of changed)updated[id]=true;return updated;});
+ });
+ useLayoutEffect(()=>{
+  if(!Object.keys(collapsing).length)return;
+  const running=[...root.current?.querySelectorAll('.canvas-panel[data-collapsing]')??[]].flatMap(element=>element.getAnimations?.({subtree:true})??[]);
+  if(!running.length){setCollapsing({});return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)setCollapsing({});});
+  return()=>{cancelled=true;};
+ },[collapsing,displayed]);
+ // E6/M19: applying a canvas or preset remounts panels so entrances stagger (assembly).
+ const[seenApply,setSeenApply]=useState(canvas.id+':'+canvas.preset),[assembling,setAssembling]=useState(false);
+ if(seenApply!==canvas.id+':'+canvas.preset){setSeenApply(canvas.id+':'+canvas.preset);setAssembling(true);}
+ useLayoutEffect(()=>{
+  if(!assembling)return;
+  const running=[...root.current?.querySelectorAll('.canvas-panel')??[]].flatMap(element=>element.getAnimations?.()??[]);
+  if(!running.length){setAssembling(false);return;}
+  let cancelled=false;
+  void Promise.allSettled(running.map(animation=>animation.finished)).then(()=>{if(!cancelled)setAssembling(false);});
+  return()=>{cancelled=true;};
+ },[assembling,displayed]);
  const projectGroups=canvas.preset==='all-agents'?groupCanvasPanels(displayed,threads):[];
  const panelDomId=(id:string)=>`canvas-panel-${canvas.id}-${id}`;
  const fit=(values=displayed)=>saveViewport(fitCanvasViewport(values,size,canvas.preset==='all-agents'?88:24));
@@ -123,9 +152,9 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
      const projectName=projects.find(value=>value.id===project.projectId&&JSON.stringify(value.authority)===JSON.stringify(project.authority))?.name??(project.projectId==='unassigned'?'Conversations':project.authority.kind==='local'?threads.find(value=>value.projectId===project.projectId)?.projectName??'Project':'Project');
      return <section key={project.key} className="canvas-project-group" style={{left:project.bounds.x,top:project.bounds.y,width:project.bounds.width,height:project.bounds.height}} aria-label={projectName} aria-owns={project.families.map((_,familyIndex)=>`canvas-family-${canvas.id}-${index}-${familyIndex}`).join(' ')}><h2 className="canvas-project-heading">{projectName}<small>{project.families.length} {project.families.length===1?'conversation':'conversations'}</small></h2>{project.families.map((family,familyIndex)=>{const parent=project.authority.kind==='local'?threads.find(value=>value.id===family.rootThreadId):undefined,main=displayed.find(panel=>family.panelIds.includes(panel.id)&&panel.binding.threadId===family.rootThreadId);return <section key={family.key} id={`canvas-family-${canvas.id}-${index}-${familyIndex}`} className="canvas-family-group" style={{left:family.bounds.x-project.bounds.x,top:family.bounds.y-project.bounds.y,width:family.bounds.width,height:family.bounds.height}} aria-label={parent?.title??(main?title(main):'Conversation')} aria-owns={family.panelIds.map(panelDomId).join(' ')}><h3 className="canvas-family-heading">{parent?.title??(main?title(main):'Conversation')}<small>{family.panelIds.length>1?`${family.panelIds.length-1} linked ${family.panelIds.length===2?'agent':'agents'}`:'Main chat'}</small></h3></section>;})}</section>;
     })}
-    {displayed.map(panel=>{
+    {displayed.map((panel,panelIndex)=>{
      const bounds=panel.bounds,visible=panelInViewport({...bounds,height:panel.collapsed?40:bounds.height},viewport,size),keep=panel.kind==='thread'||panel.kind==='artifact'||drafts[panel.id]!==undefined,thread=panel.binding.authority.kind==='local'?threads.find(value=>value.id===panel.binding.threadId):undefined,parent=thread&&threadParent(thread),parentTitle=parent?threads.find(value=>value.id===parent)?.title:undefined;
-     return <section key={panel.id} id={panelDomId(panel.id)} className={`canvas-panel canvas-panel-${panel.kind}`} data-panel-id={panel.id} data-parent-thread-id={parent} data-collapsed={panel.collapsed} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0)}} aria-label={title(panel)}>
+     return <section key={canvas.id+':'+canvas.preset+':'+panel.id} id={panelDomId(panel.id)} className={`canvas-panel canvas-panel-${panel.kind}`} data-panel-id={panel.id} data-parent-thread-id={parent} data-collapsed={panel.collapsed} data-collapsing={collapsing[panel.id]||undefined} data-pinned={panel.alwaysOnTop} style={{left:bounds.x,top:bounds.y,width:bounds.width,height:panel.collapsed?40:bounds.height,zIndex:panel.order+1+(panel.alwaysOnTop?100001:0),animationDelay:assembling&&readMotionPolicy()==='full'?Math.min(panelIndex*30,150)+'ms':undefined}} aria-label={title(panel)}>
       <header className="canvas-panel-header"><button className="canvas-panel-move" aria-label={`Move ${title(panel)}`} title="Drag to move. Arrow keys move; Shift + arrows resize." disabled={arranging} onPointerDown={event=>move(event,panel)} onKeyDown={event=>{const delta=event.key==='ArrowLeft'?[-8,0]:event.key==='ArrowRight'?[8,0]:event.key==='ArrowUp'?[0,-8]:event.key==='ArrowDown'?[0,8]:null;if(!delta||arranging)return;event.preventDefault();event.stopPropagation();const next=reachableBounds(event.shiftKey?{...bounds,width:bounds.width+delta[0],height:bounds.height+delta[1]}:{...bounds,x:bounds.x+delta[0],y:bounds.y+delta[1]});run(()=>updatePanel(panel,{bounds:next}));}}><GripHorizontal size={13}/><strong>{title(panel)}</strong></button>
        <button className="icon-button canvas-panel-pin" aria-label={`${panel.alwaysOnTop?'Unpin':'Pin'} ${title(panel)}`} aria-pressed={panel.alwaysOnTop} title={panel.alwaysOnTop?'Allow other panels above this panel':'Keep this panel above other panels'} onClick={()=>run(()=>updatePanel(panel,{alwaysOnTop:!panel.alwaysOnTop}))}><Pin size={13}/></button>
        <button className="icon-button" aria-label={`${panel.collapsed?'Expand':'Collapse'} ${title(panel)}`} onClick={()=>run(()=>updatePanel(panel,{collapsed:!panel.collapsed}))}>{panel.collapsed?<ChevronRight size={13}/>:<ChevronDown size={13}/>}</button><button className="icon-button" aria-label={`Hide ${title(panel)}`} title="Hide panel" onClick={()=>run(()=>updatePanel(panel,{visible:false}))}><EyeOff size={13}/></button>

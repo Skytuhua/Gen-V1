@@ -8,7 +8,10 @@
 /* E6: canvas panels fade in scaling from .96 and fade back out. */
 @keyframes canvas-panel-in{from{opacity:0;transform:scale(.96)}}
 @keyframes canvas-panel-out{to{opacity:0;transform:scale(.96)}}
-.canvas-panel{transform-origin:center top;animation:canvas-panel-in var(--ui-motion-panel-enter) var(--ui-ease-enter);transition:height var(--ui-motion-popup-enter) var(--ui-ease-move)}
+/* E6: panels assemble staggered on preset apply — --panel-enter-delay set inline per panel. */
+.canvas-panel{transform-origin:center top;animation:canvas-panel-in var(--ui-motion-panel-enter) var(--ui-ease-enter) backwards}
+/* Height tweens only during a collapse/expand lifecycle, not on every resize. */
+.canvas-panel[data-collapsing]{transition:height var(--ui-motion-popup-enter) var(--ui-ease-move)}
 .workspace-canvas-interaction .canvas-panel{transition:none}
 .canvas-panel[data-leaving]{pointer-events:none;animation:canvas-panel-out var(--ui-motion-panel-exit) var(--ui-ease-move) both}
 /* E7: the collapsed body row tweens 1fr→0fr while fading. */
@@ -16,7 +19,7 @@
 .canvas-panel-collapse[data-collapsed=true]{grid-template-rows:0fr;opacity:0;transition-duration:var(--ui-motion-popup-exit),var(--ui-motion-popup-exit)}
 .canvas-panel-collapse>.canvas-panel-body{min-height:0}
 .canvas-panel-collapse[data-collapsed=true]>.canvas-panel-body{overflow:hidden}
-@media(prefers-reduced-motion:reduce){.workspace-canvas-shell *{scroll-behavior:auto}.canvas-panel{animation-name:ui-popover-fade;animation-duration:var(--ui-motion-press);transition:none}.canvas-panel-collapse{transition:none}}
+@media(prefers-reduced-motion:reduce){.workspace-canvas-shell *{scroll-behavior:auto}.canvas-panel{animation-name:ui-popover-fade;animation-duration:var(--ui-motion-press);animation-delay:0ms;transition:none}.canvas-panel-collapse{transition:none}}
 .canvas-side-composer{padding:10px;border-top:1px solid var(--border)}.canvas-side-composer textarea{width:100%;min-height:72px;max-height:150px;resize:vertical;border:1px solid var(--control-border);border-radius:8px;padding:9px;background:var(--canvas);color:var(--text);font:inherit;font-size:13px}.canvas-side-composer>div{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:7px}.canvas-side-composer small{font-size:10px;color:var(--muted)}.canvas-side-composer p{font-size:11px}
 .canvas-panel-browser .desktop-browser-native{margin-bottom:28px}
 

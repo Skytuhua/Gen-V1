@@ -3,6 +3,7 @@ import {readFileSync} from 'node:fs';
 
 const read=(path:string)=>readFileSync(new URL('../'+path,import.meta.url),'utf8');
 const canvas=read('apps/web/src/workspace-canvas.css'),split=read('apps/web/src/workspace-split.css'),shell=read('apps/web/src/shell.css'),dock=read('packages/ui-shell/summary-dock.css');
+const canvasTsx=read('apps/web/src/WorkspaceCanvas.tsx'),appTsx=read('apps/web/src/App.tsx'),hostTsx=read('apps/web/src/WorkspaceHost.tsx'),artifactTsx=read('apps/web/src/Artifact.tsx');
 
 describe('workspace chrome motion contract',()=>{
  it('keeps expanded canvas panel bodies scrollable and only clips them while collapsed',()=>{
@@ -25,6 +26,30 @@ describe('workspace chrome motion contract',()=>{
   expect(shell).toMatch(/desktop-browser-dock\[data-state="closed"\][^}]*animation:ui-item-out var\(--ui-motion-panel-exit\)/);
   expect(dock).toMatch(/grid-template-rows var\(--ui-motion-panel-enter\)/);
   expect(dock).toMatch(/grid-template-rows:auto 0fr[^}]*var\(--ui-motion-panel-exit\)/);
+ });
+ it('scopes geometry transitions to their intended lifecycle, not every layout change',()=>{
+  // Split panes only tween while an add/remove is in flight.
+  expect(split).toMatch(/\.split-surface-plane:has\(>\.split-surface\[data-arrival\],>\.split-surface\[data-leaving\]\) \.split-surface\{transition:left/);
+  expect(split).not.toMatch(/\.split-surface\{position:absolute[^}]*transition:[^}]*\}/);
+  // Canvas panels only tween height during a collapse lifecycle.
+  expect(canvas).toMatch(/\.canvas-panel\[data-collapsing\]\{transition:height var\(--ui-motion-popup-enter\)/);
+  expect(canvas).not.toMatch(/\.canvas-panel\{[^}]*transition:height/);
+ });
+ it('assembles canvas panels with a capped stagger when a canvas or preset applies (M19)',()=>{
+  expect(canvas).toMatch(/animation:canvas-panel-in var\(--ui-motion-panel-enter\) var\(--ui-ease-enter\) backwards/);
+  expect(canvasTsx).toMatch(/canvas\.id\+':'\+canvas\.preset\+':'\+panel\.id/);
+  expect(canvasTsx).toMatch(/animationDelay:assembling&&readMotionPolicy\(\)==='full'\?Math\.min\(panelIndex\*30,150\)/);
+ });
+ it('fades the navigation scrim in and out through the motion helper at both render sites (M20)',()=>{
+  for(const source of [appTsx,hostTsx]){
+   expect(source).toMatch(/animateTask\([^\n]*\[\{ opacity: 0 \}, \{ opacity: 1 \}\], 180\)/);
+   expect(source).toMatch(/animateTask\([^\n]*\[\{ opacity: 1 \}, \{ opacity: 0 \}\], 140\)/);
+   expect(source).toMatch(/scrimHeld/);
+  }
+ });
+ it('tweens artifact height and eases content on expand/collapse (M10)',()=>{
+  expect(artifactTsx).toMatch(/animateTask\(element, \[\{ height: previousRect\.height \+ 'px' \}, \{ height: next\.height \+ 'px' \}\], inWorkspace \|\| expanded \? 220 : 180\)/);
+  expect(artifactTsx).toMatch(/animateTask\(content, \[\{ opacity: \.25 \}, \{ opacity: 1 \}\], 140\)/);
  });
  it('neutralizes every new motion rule under prefers-reduced-motion',()=>{
   const rm=(css:string)=>css.slice(css.indexOf('@media(prefers-reduced-motion:reduce)'));
