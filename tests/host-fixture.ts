@@ -160,6 +160,7 @@ export class HostFixture {
   widgets!: Awaited<ReturnType<typeof buildWidgetServer>>;
   readonly commands: HostCommand[] = [];
   readonly generations: ContractRuntime[] = [];
+  readonly closeStages: Array<{ phase: string; generation: number; startedAt: string; startedMs: number; finishedAt?: string; elapsedMs?: number; status: 'pending' | 'succeeded' | 'failed'; sockets?: number }> = [];
   beforeCommand?: (command: HostCommand) => Promise<void>;
   private closing?: Promise<void>;
   private readonly effectOptions: { toolEffectFlags?: ServiceOptions['toolEffectFlags']; toolEffectAuthenticator?: ReturnType<typeof fixtureEffectAuthenticator> };
@@ -186,11 +187,25 @@ export class HostFixture {
     // A test restart and runner teardown can both try to close this generation.
     // Share its outcome rather than disposing the same SQLite connection again.
     const { host, widgets, service, store } = this;
+    const generation = this.generations.length;
+    const observe = async (phase: string, action: () => unknown) => {
+      const stage: HostFixture['closeStages'][number] = { phase, generation, startedAt: new Date().toISOString(), startedMs: performance.now(), status: 'pending' };
+      this.closeStages.push(stage);
+      const pending = setTimeout(() => {
+        const report = () => console.log('HOST_FIXTURE_CLOSE_PENDING', JSON.stringify({ phase, elapsedMs: performance.now() - stage.startedMs, generation, ...(stage.sockets === undefined ? {} : { sockets: stage.sockets }) }));
+        if (phase === 'host.close' && host) host.server.getConnections((error, count) => { if (!error) stage.sockets = count; report(); });
+        else report();
+      }, 10_000);
+      pending.unref();
+      try { await action(); stage.status = 'succeeded'; }
+      catch (error) { stage.status = 'failed'; throw error; }
+      finally { clearTimeout(pending); stage.finishedAt = new Date().toISOString(); stage.elapsedMs = performance.now() - stage.startedMs; }
+    };
     return this.closing ??= (async () => {
-      await host?.close();
-      await widgets?.close();
-      await service?.dispose();
-      store?.close();
+      await observe('host.close', () => host?.close());
+      await observe('widgets.close', () => widgets?.close());
+      await observe('service.dispose', () => service?.dispose());
+      await observe('store.close', () => store?.close());
     })();
   }
   async restart(observe?: (phase: 'closing' | 'starting' | 'ready') => void) {
@@ -210,8 +225,11 @@ export const test = base.extend<{ host: HostFixture; toolEffectFlags: ServiceOpt
     const sourceFile = join(folder, 'evidence-ledger.md'); await writeFile(sourceFile, BEFORE, { flag: 'wx' });
     const host = new HostFixture(folder, sourceFile, toolEffectFlags); await host.start();
     try { await use(host); } finally {
-      await writeFile(info.outputPath('host-observations.json'), JSON.stringify({ fixture: FIXTURE_LABEL, folder, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), snapshot: host.snapshot() }, null, 2));
-      await host.close();
+      const observations = { fixture: FIXTURE_LABEL, folder, ports: [4337, 4338], commands: host.commands, runtimeDeliveries: host.generations.map(runtime => runtime.deliveries), runtimeStages: host.generations.map(runtime => runtime.observations), closeStages: host.closeStages, snapshot: host.snapshot() };
+      const closing = host.close();
+      await writeFile(info.outputPath('host-observations.json'), JSON.stringify(observations, null, 2));
+      try { await closing; }
+      finally { await writeFile(info.outputPath('host-observations.json'), JSON.stringify(observations, null, 2)); }
     }
   },
 });

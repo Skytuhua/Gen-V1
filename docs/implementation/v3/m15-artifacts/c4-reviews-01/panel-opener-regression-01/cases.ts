@@ -21,5 +21,5 @@ test('M15 panel opener: a pinned native thread retains its workspace control',as
  await bridge(page,{kind:'thread',threadId:'task-thread'});const host=await serveTaskFixture(page,fixture());await page.goto('/');
  await checkSinglePanelOpener(page,'Retain the pinned native-thread draft');await expect(page.locator('.workspace-controls')).toHaveCount(0);
  expect(host.commands.filter(command=>['message.send','thread.create','run.stop','run.resume'].includes(command.type))).toEqual([]);
- expect(await page.evaluate(()=>(window as any).__desktopCalls)).toEqual([]);
+ expect(await page.evaluate(()=>(window as {__desktopCalls?:unknown[]}).__desktopCalls)).toEqual([]);
 });

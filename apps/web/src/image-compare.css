@@ -22,7 +22,7 @@
 .image-compare-position:has(input:disabled) { opacity:.5; }
 .image-compare-message { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:10px; padding:20px; margin:0; text-align:center; color:var(--muted); font-size:12px; line-height:1.6; }
 .image-compare-message p { margin:0; }
-.image-compare-message button { padding:6px 10px; border:1px solid var(--border); border-radius:6px; background:var(--surface); color:var(--text); }
+.image-compare-message button { padding:6px 10px; border:1px solid var(--control-border); border-radius:6px; background:var(--surface); color:var(--text); }
 .image-compare-size-note { margin:2px 0 0; color:var(--muted); font-size:11px; }
 .image-compare :is(button,input):focus-visible { outline:2px solid var(--ui-focus-ring,#808080); outline-offset:2px; }
 @media(max-width:520px) { .image-compare-modes { max-width:100%; } .image-compare-modes button { padding-inline:8px; font-size:11px; white-space:nowrap; } .image-compare-stage { min-height:200px; } .image-compare-label { top:8px; max-width:calc(50% - 17px); font-size:10px; } .image-compare-label-before { left:8px; } .image-compare-label-after { right:8px; } }

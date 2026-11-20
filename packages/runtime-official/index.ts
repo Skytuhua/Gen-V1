@@ -45,6 +45,8 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
   let disposed = false;
   let modelCache:ModelInfo[]|undefined,modelDiscovery:Promise<ModelInfo[]>|undefined;
   let modelCacheEpoch=0,modelDiscoveryEpoch=0,modelDiscoveryProvider:string|undefined;
+  // An empty provider can be a fresh result or an invalidated cache slot.
+  const invalidatedProviders=new Set<string>();
   const current = (authority: Authority) => !disposed && !authority.revoked && runs.get(authority.ctx.threadId) === authority;
   const assert = (authority: Authority) => { if (!current(authority)) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   function serial<T>(key: string, action: () => Promise<T>): Promise<T> {
@@ -202,7 +204,8 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
       if (disposed) throw new HarnessError('OFFICIAL_DISPOSED', 'Official runtime is disposed.');
       if(modelDiscovery&&(options?.providerId!==modelDiscoveryProvider||modelCacheEpoch!==modelDiscoveryEpoch)){await modelDiscovery.catch(()=>{});return models(options);}
       if(!modelDiscovery){
-       if(modelCache&&!options?.refresh)return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+       if(modelCache&&!options?.refresh&&(!options?.providerId||!invalidatedProviders.has(options.providerId)))return structuredClone(options?.providerId?modelCache.filter(model=>model.provider===options.providerId):modelCache);
+       if(modelCache&&options?.providerId)invalidatedProviders.add(options.providerId);
        modelCache=options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
        const epoch=modelCacheEpoch;modelDiscoveryEpoch=epoch;modelDiscoveryProvider=options?.providerId;
        modelDiscovery=(async()=>{
@@ -227,14 +230,19 @@ export function createOfficialRuntime({ dataDir,modelOnly:requestedModelOnly,pur
         const teardown=values.find(result=>result.status==='rejected'&&result.reason instanceof HarnessError&&result.reason.code==='RUNTIME_TEARDOWN_FAILED');
         if(teardown?.status==='rejected')throw teardown.reason;
         const result=values.flatMap(result=>result.status==='fulfilled'?result.value:[]);
-        if(epoch===modelCacheEpoch)modelCache=options?.providerId?(modelCache?[...modelCache,...result]:undefined):result;
+        if(epoch===modelCacheEpoch){
+         modelCache=options?.providerId?(modelCache?[...modelCache,...result]:undefined):result;
+         if(options?.providerId)invalidatedProviders.delete(options.providerId);else invalidatedProviders.clear();
+        }
         return result;
        })().finally(()=>{modelDiscovery=undefined;});
       }
       return structuredClone(await modelDiscovery);
     },
     async invalidateModels(options) {
-      modelCacheEpoch++;modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
+      modelCacheEpoch++;
+      if(options?.providerId&&modelCache)invalidatedProviders.add(options.providerId);else invalidatedProviders.clear();
+      modelCache = options?.providerId?modelCache?.filter(model=>model.provider!==options.providerId):undefined;
     },
     start(input) { return queue(input, false); },
     followUp(input) {

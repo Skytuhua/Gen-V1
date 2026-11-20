@@ -3,7 +3,7 @@ import { createContext, useContext, useRef, useState } from 'react';
 export const ArtifactTitle = createContext('');
 export const ArtifactInline = createContext(false);
 export const ArtifactActions = createContext<(actionId: string, payload?: unknown) => Promise<void>>(async () => {});
-export const escapeKey = (key: string) => key.replace(/~/g, '~0').replace(/\//g, '~1');
+const escapeKey = (key: string) => key.replace(/~/g, '~0').replace(/\//g, '~1');
 export const statePath = (key: unknown) => `/values/${escapeKey(String(key))}`;
 export const inputPath = (key: string) => `/inputs/${escapeKey(key)}`;
 const record = (value: unknown): Record<string, unknown> => value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {};

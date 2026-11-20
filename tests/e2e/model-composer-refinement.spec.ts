@@ -19,7 +19,7 @@ test('combined trigger opens advertised models and actual reasoning options with
  await trigger.click();await page.getByRole('option',{name:'GPT-6.1 Terra',exact:true}).click();await expect(trigger).toContainText('GPT-6.1 Terra');
  await expect(panel.getByRole('radio',{name:'Ultra',exact:true})).toHaveCount(0);await expect(panel.getByRole('radio',{name:'Max',exact:true})).toBeVisible();
  await panel.getByRole('radio',{name:'Default',exact:true}).click();
- expect(await page.evaluate(()=>(window as any).modelComposerCalls)).toEqual([['effort','high'],['model','openai/terra'],['effort','']]);
+ expect(await page.evaluate(()=>window.modelComposerCalls)).toEqual([['effort','high'],['model','openai/terra'],['effort','']]);
  await expect(page.getByRole('textbox',{name:'Fixture draft'})).toHaveValue('Retain my draft');
 });
 test('provider search retains actual model identities and omits unsupported reasoning',async({page})=>{
@@ -30,7 +30,7 @@ test('provider search retains actual model identities and omits unsupported reas
  await expect(page.getByRole('radio')).toHaveCount(0);
  await page.getByRole('searchbox',{name:'Search models'}).fill('terra');await expect(page.getByRole('option')).toHaveCount(1);
  await page.getByRole('searchbox',{name:'Search models'}).press('Escape');
- expect(await page.evaluate(()=>(window as any).modelComposerCalls)).toEqual([['model','claude-code/sonnet']]);
+ expect(await page.evaluate(()=>window.modelComposerCalls)).toEqual([['model','claude-code/sonnet']]);
 });
 test('keyboard reasoning, working lock, project selection and narrow popup stay usable',async({page},testInfo)=>{
  await page.setViewportSize({width:390,height:844});
@@ -46,7 +46,7 @@ test('keyboard reasoning, working lock, project selection and narrow popup stay 
  await page.keyboard.press('Escape');
  await page.getByRole('button',{name:'Select project',exact:true}).click();
  await trigger.click();await page.getByRole('button',{name:'Toggle working'}).click();await expect(trigger).toBeDisabled();await expect(trigger).toHaveAttribute('aria-expanded','false');
- expect(await page.evaluate(()=>(window as any).modelComposerCalls)).toEqual([['effort',''],['effort','low'],['project']]);
+ expect(await page.evaluate(()=>window.modelComposerCalls)).toEqual([['effort',''],['effort','low'],['project']]);
 });
 
 test('the original standalone picker API still selects by keyboard and closes',async({page})=>{
@@ -54,5 +54,5 @@ test('the original standalone picker API still selects by keyboard and closes',a
  const trigger=page.getByRole('combobox',{name:'Model',exact:true});await trigger.click();
  const search=page.getByRole('searchbox',{name:'Search models'});await search.fill('terra');await search.press('Enter');
  await expect(trigger).toContainText('GPT-6.1 Terra');await expect(trigger).toHaveAttribute('aria-expanded','false');await expect(trigger).toBeFocused();
- expect(await page.evaluate(()=>(window as any).modelComposerCalls)).toEqual([['model','openai/terra']]);
+ expect(await page.evaluate(()=>window.modelComposerCalls)).toEqual([['model','openai/terra']]);
 });

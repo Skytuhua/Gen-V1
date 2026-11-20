@@ -14,7 +14,7 @@ import {verifyPluginPackage,type VerifiedPackage} from './installation.ts';
 
 /** Package-relative path of the optional declaration that opts a package into
  * the isolated extension lane. */
-export const ISOLATED_DECLARATION_PATH='isolated.json';
+const ISOLATED_DECLARATION_PATH='isolated.json';
 
 /** A package admitted to the isolated lane: the V2 manifest derived from its
  * declaration (bound to the verified digest and worker protocol version) plus

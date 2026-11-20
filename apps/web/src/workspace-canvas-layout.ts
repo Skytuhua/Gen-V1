@@ -3,7 +3,7 @@ import type {CanvasLayout,PanelBounds,PanelPlacement} from '../../../packages/co
 
 export interface CanvasSize {width:number;height:number}
 type Viewport=CanvasLayout['viewport'];
-export interface CanvasFamilyGroup {key:string;rootThreadId?:string;panelIds:string[];bounds:PanelBounds}
+interface CanvasFamilyGroup {key:string;rootThreadId?:string;panelIds:string[];bounds:PanelBounds}
 export interface CanvasProjectGroup {key:string;projectId:string;authority:PanelPlacement['binding']['authority'];families:CanvasFamilyGroup[];bounds:PanelBounds}
 const finite=(value:number,fallback:number)=>Number.isFinite(value)?value:fallback;
 const snap=(value:number)=>Math.round(value/8)*8;

@@ -99,7 +99,7 @@ export interface WorkerTransport{
 /** Everything a launcher needs to start one generation: the verified package
  * directory, the plug-in's private data directory and the generation it runs
  * under. */
-export interface WorkerLaunchSpec{
+interface WorkerLaunchSpec{
  packageDir:string;dataDir:string;generation:number;
  /** Child environment built from the host allowlist, never process.env. */
  env:Record<string,string|undefined>;
@@ -110,7 +110,7 @@ export interface WorkerLauncher{launch(spec:WorkerLaunchSpec):Promise<WorkerTran
 
 /** Real private-pipe transport over a spawned child process' stdio. The pipes
  * are created by the host for exactly this child; nothing is shared. */
-export class PipeWorkerTransport implements WorkerTransport{
+class PipeWorkerTransport implements WorkerTransport{
  private frameHandler:((frame:WorkerFrameV1)=>void)|undefined;
  private exitHandler:((exit:WorkerExit)=>void)|undefined;
  private exitInfo:WorkerExit|undefined;
@@ -358,7 +358,7 @@ export interface IsolatedExtensionRecord{
 
 /** A STARTING generation tracked from admission until its launch and
  * handshake settle, so Stop can fence replacement on the outcome. */
-export interface StartingGeneration{
+interface StartingGeneration{
  lease:PluginLeaseV1;
  /** Resolves (never rejects) once the launch/handshake path has finished and
   * any late worker was cleaned up; carries whether exit was confirmed. */
