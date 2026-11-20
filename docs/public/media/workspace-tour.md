@@ -10,7 +10,7 @@ This is an actual Gen browser UI recording with authored sample data. No live in
 | 00:08–00:20 | **Find a model. Choose its reasoning effort.** Open the combined picker and search the sample catalog. |
 | 00:20–00:27 | **Explore the supplied data. Compare the next step.** Select an alternative in the interactive comparison. No change is executed. |
 | 00:27–00:36 | **Keep a checklist beside the conversation.** Show the validated sample task plan and compact context. |
-| 00:36–00:47 | **Inspect the procedures your workspace keeps.** Open Skills & learning and a sample skill’s instructions and revision history. |
+| 00:36–00:47 | **Inspect the procedures your workspace keeps.** Open Settings → Skills & Integrations → Skills & learning and a sample skill’s instructions and revision history. |
 | 00:47–01:00 | **Light or dark. A focused place to continue.** Return to the light workspace and type an unsent draft. |
 
 Captions appear below the recorded interface. There is no audio. This clip demonstrates interface behavior; persistence, native packaging and live-provider acceptance have separate verification scopes. See [preview release notes](../release-notes.md).

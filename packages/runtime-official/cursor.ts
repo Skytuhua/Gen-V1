@@ -1,4 +1,4 @@
-import { spawn, type ChildProcess } from 'node:child_process';
+import { spawn, type ChildProcess, type Serializable } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { lstat } from 'node:fs/promises';
 import { dirname } from 'node:path';
@@ -39,10 +39,10 @@ function startWorker(dataDir: string, cwd: string, spawnChild: typeof spawn, own
   own?.(child); // Must precede readiness, SDK initialization and every asynchronous wait.
   child.stdout?.resume(); child.stderr?.resume();
   child.once('exit', () => exited.resolve());
-  child.on('message', (frame: any) => { if (frame?.type === 'closed') closeAck.resolve(); });
+  child.on('message', (frame: { type?: string }) => { if (frame?.type === 'closed') closeAck.resolve(); });
   const send = (message: unknown) => new Promise<void>((resolve, reject) => {
     if (closed || child.exitCode !== null || child.signalCode !== null) { reject(aborted()); return; }
-    try { child.send(message as any, error => error ? reject(safeError(error)) : resolve()); } catch (error) { reject(safeError(error)); }
+    try { child.send(message as Serializable, error => error ? reject(safeError(error)) : resolve()); } catch (error) { reject(safeError(error)); }
   });
   return {
     child, exited: exited.promise, send,

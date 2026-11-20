@@ -4,7 +4,7 @@ import { createCursorMcpGate } from '../packages/runtime-official/cursor-mcp.ts'
 
 it('preserves supported host-operation lifetime without a shorter proxy deadline or late header writes', async () => {
   const nativeTimer = globalThis.setTimeout;
-  const timer = vi.spyOn(globalThis, 'setTimeout').mockImplementation(((callback: any, milliseconds: number, ...args: any[]) => nativeTimer(callback, milliseconds === 30_000 ? 20 : milliseconds, ...args)) as any);
+  const timer = vi.spyOn(globalThis, 'setTimeout').mockImplementation(((callback: (...args: unknown[]) => void, milliseconds: number, ...args: unknown[]) => nativeTimer(callback, milliseconds === 30_000 ? 20 : milliseconds, ...args)) as typeof setTimeout);
   const server = createServer(async (request, response) => { for await (const _chunk of request) {} nativeTimer(() => response.writeHead(200, { 'content-type': 'application/json' }).end('{"jsonrpc":"2.0","id":1,"result":{"content":[]}}'), 120); });
   await new Promise<void>(yes => server.listen(0, '127.0.0.1', yes)); const port = (server.address() as { port: number }).port;
   const gate = await createCursorMcpGate({ url: `http://127.0.0.1:${port}/mcp`, headers: { Authorization: 'Bearer parent-only' } }, ['repository_test'], async () => {});

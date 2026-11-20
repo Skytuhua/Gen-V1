@@ -1,6 +1,6 @@
 import type { RuntimeUsage, Thread } from '../../../packages/contracts';
 
-export interface UsageLimitReport { id: string; label: string; usedPercent?: number | null; reset?: string | null }
+interface UsageLimitReport { id: string; label: string; usedPercent?: number | null; reset?: string | null }
 export interface UsageProviderReport {
   id: string; scopeId: string; scopeLabel: string; providerId: string; providerLabel: string;
   cost?: { amount: number; currency?: string } | null;

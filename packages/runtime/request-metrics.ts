@@ -5,7 +5,7 @@ import type {
   ModelRequestUsageV1,
 } from '../contracts/model-request.ts';
 
-export const MODEL_REQUEST_STAGES = [
+const MODEL_REQUEST_STAGES = [
   'acquired',
   'runtimeReady',
   'requestSent',

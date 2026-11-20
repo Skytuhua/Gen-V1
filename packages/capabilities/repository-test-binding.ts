@@ -94,5 +94,6 @@ export async function withRepositoryTestBinding<T>(cwdPath: string, testPath: st
 }
 
 export function requireRepositoryTestBinding(expected: RepositoryTestBinding | undefined, actual: RepositoryTestBinding, testSha256: string | undefined) {
-  if (!expected || JSON.stringify(expected) !== JSON.stringify(bindingSchema.parse(actual)) || actual.test.sha256 !== testSha256) throw changed();
+  const parsed = bindingSchema.safeParse(actual);
+  if (!expected || !parsed.success || JSON.stringify(expected) !== JSON.stringify(parsed.data) || parsed.data.test.sha256 !== testSha256) throw changed();
 }

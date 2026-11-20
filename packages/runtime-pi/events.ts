@@ -4,7 +4,24 @@ import { safeError } from "./sdk.ts";
 import { messageInputIds } from "./input-envelope.ts";
 
 interface State { isIdle: boolean; isCompacting?: boolean; isRetrying?: boolean }
-type Event = { type: string; [key: string]: any };
+// The fields accept() consumes; the SDK's AgentSessionEvent and test stubs are
+// both assignable, and unrecognized event types/fields pass through untouched.
+type Event = {
+  type: string;
+  message?: { role?: string; content?: unknown; stopReason?: string; errorMessage?: string };
+  assistantMessageEvent?: { type: string; delta?: unknown; partial?: unknown; content?: unknown };
+  toolCallId?: string;
+  toolName?: string;
+  isError?: boolean;
+  reason?: string;
+  aborted?: boolean;
+  willRetry?: boolean;
+  errorMessage?: string;
+  attempt?: number;
+  maxAttempts?: number;
+  success?: boolean;
+  finalError?: string;
+};
 function text(content: unknown): string {
   return typeof content === "string" ? content : Array.isArray(content) ? content.filter(c => c?.type === "text" && typeof c.text === "string").map(c => c.text).join("") : "";
 }
