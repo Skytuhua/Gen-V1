@@ -723,6 +723,19 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   // and returns to the empty container; pinned and embedded views stay locked to it.
   const mainDetached=Boolean(detachedThread)&&!pinnedThreadId;
   const thread=mainDetached?undefined:candidateThread;
+  useEffect(() => {
+    if (!desktop?.bridge.setQuickAskConfig) return;
+    void desktop.bridge.setQuickAskConfig({ enabled: preferences.quickAskEnabled, shortcut: preferences.keybindings.quickAsk }).catch(() => {});
+  }, [desktop, preferences.quickAskEnabled, preferences.keybindings.quickAsk]);
+  useEffect(() => {
+    if (!desktop?.bridge.setQuickAskContext) return;
+    const working = Boolean(thread?.runId) || thread?.status === 'working', unavailable = !models.length || !models.some(model => model.id === modelId);
+    void desktop.bridge.setQuickAskContext({
+      currentThreadId: thread?.id ?? null, currentThreadTitle: thread?.title ?? null,
+      currentThreadSendable: Boolean(thread) && !working && !unavailable,
+      currentProjectId: thread?.projectId ?? null, currentProjectName: thread?.projectName ?? null,
+    }).catch(() => {});
+  }, [desktop, thread?.id, thread?.title, thread?.runId, thread?.status, thread?.projectId, thread?.projectName, modelId, models]);
   const {overview: sessionBranchOverview, reload: reloadSessionBranch} = useSessionBranchOverview(thread?.id);
   useLayoutEffect(() => {if (thread) host?.selectThread(thread.id); else if(!pinnedThreadId) host?.selectThread(undefined);}, [host, thread?.id, pinnedThreadId]);
   const customConversationLayout=useMemo(()=>{
