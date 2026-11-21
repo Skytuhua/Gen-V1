@@ -192,6 +192,11 @@ export class GitHubTools{
   this.failureReports.save(owner,report);
   return structuredClone(report);
  }
+ /** T05 send validation: the report cached for this thread's owner, or CI_REPORT_EXPIRED. */
+ async failedReportForSend(projectId:string,threadId:string,reportId:string){
+  const{path,repo}=await this.repo(projectId,threadId);
+  return this.failureReports.get(JSON.stringify([projectId,threadId,path,repo]),reportId);
+ }
  async comparisonFile(projectId:string,threadId:string|undefined,input:unknown):Promise<ComparisonPatch>{
   const request=ComparisonFileRequestSchema.parse(input),{path,owner,repo}=await this.comparisonRepository(projectId,threadId),entry=this.reviewComparisons.get(owner,request.comparisonId),result=entry.patches?.get(request.path);
   if(!result)throw new HarnessError('NOT_FOUND','The selected file is not in this comparison.');

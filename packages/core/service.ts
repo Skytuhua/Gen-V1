@@ -69,6 +69,7 @@ import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdm
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
+import {CI_FAILURE_LIMITS, CiFailureSendV1, ciFailureEvidenceBlock, type CiFailureReport, type CiStoredFailure} from '../contracts/ci-failures.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import {applySessionBranch} from './session-branches.ts';
 import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
@@ -79,7 +80,7 @@ import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
 import type {ModelRequestGate} from '../runtime/model-capacity.ts';
 import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
-type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1;ciFailure?:CiStoredFailure};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -109,6 +110,8 @@ export interface ServiceOptions {
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
   predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   prepareWorkspace?:(thread:Thread)=>Promise<void>;
+  /** M18: resolve a cached CI failure report for a project-bound thread (host-owned). */
+  ciFailureReport?:(projectId:string,threadId:string,reportId:string)=>Promise<CiFailureReport>;
   /** Trusted host activation only. Never accepted from UI preferences or commands. */
   requestContextEnabled?:boolean;
   requestContextHooks?:RequestContextHooks;
@@ -1487,6 +1490,8 @@ export class Service {
     // Until then a selected reference must never become an ordinary unpinned send.
     if (command.payload.skills !== undefined) throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE', 'Selected skills are unavailable for this runtime. Your draft is retained.', {sendAccepted: false});
     const sourceRefs = sourceRefsV1Schema.parse(command.payload.sourceRefs ?? []), sendMode = sendModeV1Schema.parse(command.payload.sendMode ?? 'NOW');
+    const ciFailure = command.payload.ciFailure === undefined ? null : CiFailureSendV1.parse(command.payload.ciFailure);
+    if (ciFailure && !capabilityEnabled('workspace.ciFixV1')) throw new HarnessError('CAPABILITY_DENIED', 'CI failure evidence is disabled.');
     if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && !capabilityEnabled('ui.sourceWorkbenchV1')) throw new HarnessError('CAPABILITY_DENIED', 'The source workbench is disabled on this host.');
     if ((sourceRefs.length || sendMode === 'AFTER_CURRENT') && (thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate')) throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit source workbench mutations.');
     const sourceOwner = sourceRefs.length ? this.sourceWorkbench.owner(thread.id) : null;
@@ -1514,6 +1519,18 @@ export class Service {
     // Its final checks run again inside that commit and at runtime dispatch.
     const preparedSources = sourceOwner ? await this.sourceWorkbench.prepareSend(sourceOwner, sourceRefs) : null;
     if (preparedSources) {current = this.thread(thread.id); if (current.epoch !== thread.epoch || current.runId !== thread.runId || ['stopped', 'interrupted'].includes(current.status)) throw new HarnessError('CANCELLED_RUN', 'The task changed while validating the selected sources.');}
+    // M18: resolve the cached report for this thread's owner; only ready jobs
+    // may be quoted, in report order, as a stored reference on the message.
+    let ciStored: CiStoredFailure | null = null;
+    if (ciFailure) {
+      if (!thread.projectId || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate') throw new HarnessError('CAPABILITY_DENIED', 'This task does not admit CI failure evidence.');
+      if (!this.options.ciFailureReport) throw new HarnessError('CAPABILITY_DENIED', 'CI failure evidence is unavailable in this host.');
+      const report = await this.options.ciFailureReport(thread.projectId, thread.id, ciFailure.reportId);
+      const selected = new Set(ciFailure.jobIds), jobs = report.jobs.filter((job) => job.logState === 'ready' && selected.has(job.id));
+      if (jobs.length !== selected.size) throw new HarnessError('INVALID_INPUT', 'Every selected job must have a ready log excerpt. Refresh the pull request failures.');
+      ciStored = { repo: report.repo, number: report.number, headOid: report.headOid, localHead: report.localHead, jobs: jobs.map((job) => ({ id: job.id, checkName: job.checkName, workflowName: job.workflowName, failedStep: job.failedStep, conclusion: job.conclusion, url: job.url, excerpt: job.excerpt, truncated: job.truncated })) };
+      if (Buffer.byteLength(JSON.stringify(ciStored), 'utf8') > CI_FAILURE_LIMITS.reportBytes) throw new HarnessError('CI_REPORT_EXPIRED', 'The CI failure report no longer fits a stored reference. Refresh the pull request failures.');
+    }
     const receipt = this.store.command(command, () => {
       this.assertBinding(this.thread(thread.id),providerId,binding);
       if (sourceRefs.length || sendMode === 'AFTER_CURRENT') {
@@ -1526,7 +1543,7 @@ export class Service {
       const bindCapturedAccount = this.sourceWorkbench.prepareInitialAccountBinding(thread.id, command.id, binding.accountId);
       const before=requestContextId?this.requestBasis(this.thread(thread.id),modelId,thinkingLevel):null;
       if(requestContextId)rollbackClaim=this.requestCustody.claim(requestContextId,command.id,content,before!);
-      const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {})};
+      const sourceFields = {...(sourceRefs.length ? {sourceRefs} : {}), ...(sendMode === 'AFTER_CURRENT' ? {sendMode} : {}), ...(ciStored ? {ciFailure: ciStored} : {})};
       const message: Message = { id: randomUUID(), threadId: thread.id, role: "user", content, createdAt: now(), runId: current.runId, ...sourceFields };
       const input: Outbox = { id: command.id, threadId: thread.id, content, status: "persisted", runId: null,messageId:message.id,...(requestContextId?{requestContextId}:{}), ...sourceFields };
       this.store.put("message", message.id, thread.id, message); this.enqueueInput(input);
@@ -1672,7 +1689,7 @@ export class Service {
     let contents=requestContextId?[this.requestCustody.resolvedPrompt(requestContextId,inputs[0].id)]:inputs.map(input=>input.content);
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
-    const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
+    const sourceContext = sourceContexts.map(context => context.text).join('') + inputs.map(input => input.ciFailure ? ciFailureEvidenceBlock(input.ciFailure) : '').join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
     let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
