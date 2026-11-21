@@ -1500,7 +1500,10 @@ export class Service {
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
     const promptBlocked = await this.hookRunner.pre('UserPromptSubmit', null, { ...this.hookBase('UserPromptSubmit', thread, thread.runId), prompt: content, attachments_count: Array.isArray(command.payload.attachments) ? command.payload.attachments.length : 0 }, this.aborts.get(thread.id)?.signal ?? new AbortController().signal);
-    if (promptBlocked.blocked) throw new HarnessError('HOOK_BLOCKED', promptBlocked.reason, { sendAccepted: false });
+    if (promptBlocked.blocked) {
+      const blocking = hookSettingsFor(this.store.dataDir).snapshot().hooks.find(hook => hook.id === promptBlocked.record.hookId), name = blocking ? blocking.name || blocking.command.slice(0, 60) : '';
+      throw new HarnessError('HOOK_BLOCKED', name && !promptBlocked.reason.startsWith('Blocked by hook') ? `Blocked by hook ${name}: ${promptBlocked.reason}` : promptBlocked.reason, { sendAccepted: false });
+    }
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
     const availableModels = await this.runtime.models({accountId:binding.accountId});
@@ -1938,9 +1941,13 @@ export class Service {
   private hookOperationInput(op: Operation) { const input: Record<string, unknown> = { kind: op.kind }; if (typeof op.args.path === 'string') input.path = op.args.path; if (typeof op.args.content === 'string') input.contentBytes = Buffer.byteLength(op.args.content, 'utf8'); return input; }
   private recordHookActivity(hook: Hook, record: HookRunRecord, threadId: string | null) {
     if (!threadId || (record.outcome === 'succeeded' && !record.systemMessage)) return;
-    const name = hook.name || hook.command.slice(0, 60), output = (record.stderr || record.stdout).slice(0, 4096);
-    const line = record.outcome === 'blocked' ? `Hook ${name} blocked ${record.matchKey ?? record.event}: ${record.reason}` : record.systemMessage ? `Hook ${name} (${record.event}): ${record.systemMessage}` : `Hook ${name} (${record.event}) ${record.outcome}: ${record.reason}`;
-    try { const message: Message = { id: randomUUID(), threadId, role: 'activity', content: line + (output ? '\n' + output : ''), runId: null, createdAt: now() }; this.store.internal('hook.activity', threadId, () => { this.store.put('message', message.id, threadId, message); return { id: message.id }; }); } catch { /* Activity rows are best-effort. */ }
+    const name = hook.name || hook.command.slice(0, 60), output = (record.stderr || record.stdout).slice(0, 4096), duration = ` · ${record.durationMs} ms`;
+    const line = record.outcome === 'blocked' ? `Hook ${name} blocked ${record.matchKey ?? record.event}: ${record.reason}${duration}`
+      : record.systemMessage ? `Hook ${name}: ${record.systemMessage}${duration}`
+      : record.outcome === 'failed' ? `Hook ${name} failed (exit ${record.exitCode ?? 'unknown'})${record.reason ? `: ${record.reason}` : ''}${duration}`
+      : record.outcome === 'timed_out' ? `Hook ${name} timed out after ${hook.timeoutSeconds} s${duration}`
+      : `Hook ${name} ${record.outcome}: ${record.reason}${duration}`;
+    try { const message: Message = { id: randomUUID(), threadId, role: 'activity', content: line + (output ? '\n' + output : ''), runId: null, createdAt: now(), activityKind: 'hook' }; this.store.internal('hook.activity', threadId, () => { this.store.put('message', message.id, threadId, message); return { id: message.id }; }); } catch { /* Activity rows are best-effort. */ }
   }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);

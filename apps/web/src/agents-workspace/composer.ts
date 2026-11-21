@@ -26,7 +26,7 @@ export interface ChildFollowUpController {
  subscribe(listener: (agentId: string, ticket: ChildInputTicket) => void): () => void;
  dispose?(): void;
 }
-export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; resumeRequired?: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; ticket?: ChildInputTicket}
+export interface ComposerState {draft: string; ready: boolean; busy: boolean; stopping: boolean; error: string; retry: boolean; resumeRequired?: boolean; hookBlock?: boolean; thinkingLevel?: string | null; skills?: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; ticket?: ChildInputTicket}
 export interface ComposerSubmission {content: string; generation: string | undefined; skills: readonly SkillBinding[]; excerpts?:readonly TerminalExcerpt[]; excerptGeneration?:string}
 /** Share this exact instance with every conversation view, including the host composer. */
 export interface SharedAgentComposers {
@@ -65,6 +65,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
   const next = {...value.state, ...patch};
   // A replacement error is not a resume request unless the transport explicitly says so.
   if (patch.error !== undefined && patch.error !== value.state.error && patch.resumeRequired === undefined) next.resumeRequired = false;
+  if (patch.error !== undefined && patch.error !== value.state.error && patch.hookBlock === undefined) next.hookBlock = false;
   value.state = next; value.listeners.forEach(listener => listener());
  };
  const supports = (agent: ComposerTarget) => !inventoryAgent(agent) || Boolean(agent.threadId) && !agent.archived && (agent.parentId
@@ -212,11 +213,11 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      try {await journalWrite(pendingKey(agent), null); value.pending = undefined;}
      catch {emit(value, {error: 'The rejected message could not be saved locally. Keep this workspace open.', retry: true}); return;}
     }
-    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
+    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED', hookBlock: cause instanceof ApiError && cause.code === 'HOOK_BLOCKED'});
    }
    finally {emit(value, {busy: false});}
   },
-  clearError(agent) {emit(entry(agent), {error: '', resumeRequired: false});},
+  clearError(agent) {emit(entry(agent), {error: '', resumeRequired: false, hookBlock: false});},
   async stop(agent) {
    const value = entry(agent), working = inventoryAgent(agent) ? !agent.parentId && Boolean(agent.threadId) && !agent.readOnly && agent.status === 'working' : agent.working;
    if (!working || value.state.stopping || ownership(agent) === undefined) return;

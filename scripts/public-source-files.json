@@ -3047,6 +3047,8 @@
     "tests/e2e/graph-popovers.playwright.config.ts",
     "tests/e2e/graph-popovers.spec.ts",
     "tests/e2e/graph-popovers.vite.config.ts",
+    "tests/e2e/hook-activity.playwright.config.ts",
+    "tests/e2e/hook-activity.spec.ts",
     "tests/e2e/hook-settings-fixture.tsx",
     "tests/e2e/hook-settings.playwright.config.ts",
     "tests/e2e/hook-settings.spec.ts",

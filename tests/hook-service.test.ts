@@ -63,7 +63,7 @@ it('master switch disabled runs no hook processes even with saved hooks', async 
 it('UserPromptSubmit block rejects message.send before storage with HOOK_BLOCKED', async () => {
   const { service, settings, store } = await setup();
   await settings.save({ hook: hook({ event: 'UserPromptSubmit', name: 'censor', command: nodee('process.stdout.write(JSON.stringify({decision:"block",reason:"prompt denied"}))') }), baseRevision: 0 });
-  await expect(service.command({ id: 'cmd-1', type: 'message.send', threadId: 't1', payload: { content: 'hello', modelId: 'model-x' } })).rejects.toMatchObject({ code: 'HOOK_BLOCKED', message: 'prompt denied' });
+  await expect(service.command({ id: 'cmd-1', type: 'message.send', threadId: 't1', payload: { content: 'hello', modelId: 'model-x' } })).rejects.toMatchObject({ code: 'HOOK_BLOCKED', message: 'Blocked by hook censor: prompt denied' });
   expect(store.snapshot().messages.filter(m => m.role === 'user')).toHaveLength(0);
   const rows = store.snapshot().messages.filter(m => m.role === 'activity');
   expect(rows).toHaveLength(1); expect(rows[0].content).toContain('censor');
