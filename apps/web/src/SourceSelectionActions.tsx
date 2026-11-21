@@ -1,4 +1,4 @@
-import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import {useEffect,useId,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import '../../../packages/ui-shell/controls.css';
 import './source-workbench.css';
@@ -52,9 +52,22 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
   latest.current={text,enabled,onAction,onOpenCanonical};
   const [candidate,setCandidate]=useState<Candidate|null>(null),[busy,setBusy]=useState(false),[error,setError]=useState('');
   const [exactRendering,setExactRendering]=useState(true);
+  const [note,setNote]=useState('');
+  const describedBy=useId();
   const candidateRef=useRef(candidate);candidateRef.current=candidate;
-  const revision=useRef(0),composing=useRef(false);
+  const revision=useRef(0),composing=useRef(false),announceDone=useRef(false),prevCandidate=useRef(candidate);
   useLayoutEffect(()=>{authored.current=root.current?.textContent??'';setExactRendering(authored.current===text);revision.current++;setCandidate(null);setError('');setBusy(false);},[text,enabled]);
+  useEffect(()=>{
+    const previous=prevCandidate.current;prevCandidate.current=candidate;
+    if(candidate){
+      announceDone.current=false;
+      const text=candidate.text.trim();
+      setNote(`Selected “${text.length>60?text.slice(0,60)+'…':text}”. Press Shift F10 or Tab for actions.`);
+    } else if(previous) {
+      if(announceDone.current)announceDone.current=false;
+      else setNote('Selection cleared.');
+    }
+  },[candidate]);
   useEffect(()=>{
     if(!enabled)return;
     let dismissed:Range|null=null;
@@ -85,7 +98,7 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
         if((event.ctrlKey||event.metaKey)&&event.key.toLowerCase()==='a'){
           event.preventDefault();const range=document.createRange();range.selectNodeContents(element);selection.removeAllRanges();selection.addRange(range);read();return;
         }
-        const granularity=event.key==='Home'||event.key==='End'?'lineboundary':event.key==='ArrowUp'||event.key==='ArrowDown'?'line':event.key==='ArrowLeft'||event.key==='ArrowRight'?'character':null;
+        const granularity=event.key==='Home'||event.key==='End'?'lineboundary':event.key==='ArrowUp'||event.key==='ArrowDown'?'line':event.key==='ArrowLeft'||event.key==='ArrowRight'?(event.ctrlKey||event.metaKey?'word':'character'):null;
         if(event.shiftKey&&granularity&&typeof selection.modify==='function'){
           event.preventDefault();
           const backward=event.key==='ArrowLeft'||event.key==='ArrowUp'||event.key==='Home';
@@ -122,6 +135,7 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     try{
       await latest.current.onAction(action,{start:value.start,end:value.end,text:value.text});
       if(version===revision.current){
+        announceDone.current=true;setNote('Done.');
         const selection=getSelection();
         if(selection?.rangeCount===1&&sameRange(selection.getRangeAt(0)))selection.removeAllRanges();
         setCandidate(current=>current&&sameRange(current.range)?null:current);
@@ -130,8 +144,11 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
     catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
     finally{if(version===revision.current)setBusy(false);}
   }
-  return <div className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text">{children}</div>
-    {enabled&&!exactRendering&&<p className="muted" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(cause instanceof Error?cause.message:'Canonical source is unavailable.');}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
+  return <div className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text" aria-keyshortcuts="shift+ArrowRight control+a shift+f10" aria-describedby={describedBy} data-selection={candidate?'active':undefined}>{children}</div>
+    {enabled&&exactRendering&&!candidate&&<span className="source-selection-hint" aria-hidden="true">Shift+arrows select · Ctrl+A all · Shift+F10 actions</span>}
+    <span id={describedBy} className="sr-only">Selectable source. Use Shift plus arrow keys to select text, Control A to select all, Shift F10 for actions.</span>
+    <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{note}</span>
+    {enabled&&!exactRendering&&<p className="muted source-selection-fallback" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(cause instanceof Error?cause.message:'Canonical source is unavailable.');}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
     {candidate&&enabled&&<Popover anchor={root} getAnchorRect={()=>candidate.range.getBoundingClientRect()} contentRef={toolbar} open width={430} height={error?96:52} preferredSide="above" align="start" onDismiss={()=>setCandidate(null)} role="toolbar" aria-label="Selected source" tabIndex={-1} className="ui-control-popup source-selection-toolbar" onPointerDown={event=>event.preventDefault()}>
       <button type="button" disabled={busy} onClick={()=>void act('ask')}>Ask about this</button><button type="button" disabled={busy} onClick={()=>void act('attach')}>Attach to prompt</button><button type="button" disabled={busy} onClick={()=>void act('open')}>Open source</button>
       {error&&<span role="alert">{error}</span>}
