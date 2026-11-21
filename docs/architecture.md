@@ -23,7 +23,7 @@ flowchart TD
 
 [apps/server/host.ts](../apps/server/host.ts) acquires the profile lease, starts both loopback origins and recovers durable state. [apps/server/hermes-service.ts](../apps/server/hermes-service.ts) selects the production Hermes composition. Tests and embedders can inject a runtime without changing that default.
 
-Two boundaries sit beside that flow. An installed plug-in runs in its own opaque frame behind a source-checked, data-only bridge and never receives a personal bridge; see [the plug-in API](plugin-api.md). Project work — git storage, code review, selective commits, checkpoints and the terminal — runs through `packages/workspace` under the same host authority and resource grants as every other tool.
+Two boundaries sit beside that flow. An installed plug-in's frontend runs in its own opaque frame behind a source-checked, data-only bridge and never receives a personal bridge; its host entry is trusted Node code that runs inside the backend process (see [SECURITY.md](../SECURITY.md) and [the plug-in API](plugin-api.md)). Project work — git storage, code review, selective commits, checkpoints and the terminal — runs through `packages/workspace` under the same host authority and resource grants as every other tool.
 
 ## Module map
 

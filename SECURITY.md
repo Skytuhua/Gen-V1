@@ -1,6 +1,6 @@
 # Security policy
 
-Last updated: 2026-11-01.
+Last updated: 2026-11-19.
 
 Gen V1 is a beta local application. Security reports should identify the affected version and a minimal, redacted reproduction. The current release line is the focus of review; there is no published response-time or patch-support guarantee for older builds.
 
@@ -22,6 +22,7 @@ Ordinary UI bugs and feature requests can use the normal issue templates.
 - The backend binds to loopback. Remote or multi-user exposure is not an accepted deployment mode.
 - Credentials stay in app-owned provider profiles. A local label, configured credential or advertised model list is not verified account identity or entitlement.
 - File and operation access is scoped by host grants, validation and explicit approval. Approved project tests and native runtimes execute with local-user privileges; they are not an operating-system sandbox.
+- Installed plug-ins are trusted Node extensions: their host entry runs inside the backend process with its privileges, and installing one is equivalent to installing local software. The plug-in index and inventory digests detect damaged or partially written packages; they are not a boundary against other code running as the same Windows user (the supported desktop platform), which can already modify the per-user application install and unprotect current-user DPAPI data. Install plug-ins only from sources you trust, and treat any approved project test or native runtime as able to install one.
 - Generated JavaScript runs in opaque workers with bounded messages, schema checks and a watchdog. There is no hard per-worker operating-system memory quota.
 - Native work retains ownership until teardown is confirmed. Do not remove guard files or clear blocked metadata to bypass an unfinished sign-in or process.
 - Model output and learned skill text do not grant permissions. Review consequential actions and proposed skill changes before approval.
