@@ -16,6 +16,11 @@ export function replaceCommandToken(text: string, token: CommandToken) {
   if (token.start < 0 || token.end > text.length || !/^\/[^\s/\\]*$/u.test(text.slice(token.start, token.end))) throw Error('The command token changed.');
   return {text: text.slice(0, token.start) + text.slice(token.end), caret: token.start};
 }
+export type BuiltinCommand = {id: 'model' | 'plan' | 'default' | 'snippets'; description: string};
+/** `snippets` is offered only to callers that supplied the deferred D04 handoff. */
+export function builtinCommands(snippets: boolean): BuiltinCommand[] {
+  return [{id: 'model', description: 'Choose a model'}, {id: 'plan', description: 'Switch to Plan'}, {id: 'default', description: 'Switch to Build'}, ...(snippets ? [{id: 'snippets' as const, description: 'Insert a saved snippet'}] : [])];
+}
 export const skillBindingSchema = z.strictObject({
   id: z.string().uuid(), name: z.string().min(1).max(240), source: z.string().min(1).max(240),
   ref: skillReferenceSchema.refine(ref => ref.scope.kind === 'personal'),

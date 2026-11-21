@@ -3,7 +3,7 @@ import {Bot, LoaderCircle, Search, X} from 'lucide-react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import type {SkillCatalogEntry, SkillCatalogPage} from '../../../packages/contracts/skill-catalog';
-import {commandToken, replaceCommandToken, type SkillBinding} from './composer-commands';
+import {builtinCommands, commandToken, replaceCommandToken, type BuiltinCommand, type CommandToken, type SkillBinding} from './composer-commands';
 import {getSkillCatalog, mergeSkillCatalogPages} from './skill-catalog-api';
 import './composer-commands.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
@@ -14,16 +14,18 @@ interface Props {
   threadId?: string; projectId?: string; disabled?: boolean;
   onDraft(text: string): void;
   onModel(): void | Promise<void>; onMode(mode: 'plan' | 'build'): void | Promise<void>;
+  /** Deferred /snippets handoff (D04): receives the validated token; the token text
+   *  survives until the snippet flow replaces its exact span or is cancelled. */
+  onSnippets?: (invocation: CommandToken) => void | Promise<void>;
 }
-type Builtin = {id: 'model' | 'plan' | 'default'; description: string};
-const builtins: Builtin[] = [{id: 'model', description: 'Choose a model'}, {id: 'plan', description: 'Switch to Plan'}, {id: 'default', description: 'Switch to Build'}];
+type Builtin = BuiltinCommand;
 type Option = {id: string; builtin: Builtin} | {id: string; skill: SkillCatalogEntry};
 const available = (option: Option) => 'builtin' in option;
 const availabilityLabel = {disabled: 'Disabled', disconnected: 'Disconnected', unsupported: 'Unavailable', denied: 'No access', changed: 'Changed', limit: 'Limit reached', invalid: 'Unavailable', missing: 'Not installed'};
 const reason = (item: SkillCatalogEntry) => item.availability.status === 'unavailable' ? availabilityLabel[item.availability.reason] : '';
 
 /** Readable catalog metadata does not imply that the runtime admits selected skills. */
-export function ComposerCommands({ref, input, draft, threadId, projectId, disabled = false, onDraft, onModel, onMode}: Props) {
+export function ComposerCommands({ref, input, draft, threadId, projectId, disabled = false, onDraft, onModel, onMode, onSnippets}: Props) {
   const id = useId(), content = useRef<HTMLDivElement>(null), request = useRef(0), loadingMore = useRef(false);
   const [position, setPosition] = useState({caret: 0, end: 0, focused: false, composing: false});
   const [dismissed, setDismissed] = useState(''), [captured, setCaptured] = useState<{key: string; page: SkillCatalogPage} | null>(null), [loading, setLoading] = useState(false), [error, setError] = useState(''), [active, setActive] = useState('model'), [reload, setReload] = useState(0);
@@ -32,6 +34,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
   const open = Boolean(token && signature !== dismissed), query = token?.query.replace(/^skill:/i, '') ?? '';
   const catalogKey = JSON.stringify([threadId, projectId, query]), page = captured?.key === catalogKey ? captured.page : null;
   const unavailableSources = page?.sources.filter(source => source.availability.status === 'unavailable') ?? [];
+  const builtins = builtinCommands(Boolean(onSnippets));
   const options: Option[] = [...(token?.query.toLowerCase().startsWith('skill:') ? [] : builtins.filter(item => item.id.includes(query.toLowerCase())).map(builtin => ({id: builtin.id, builtin}))), ...(page?.skills ?? []).map(skill => ({id: skill.id, skill}))];
   const selected = options.find(option => option.id === active && available(option)) ?? options.find(available);
   const close = () => setDismissed(signature);
@@ -76,6 +79,10 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
     close(); setError('');
     try {
       if (element.value !== draft) return;
+      if (option.builtin.id === 'snippets') {
+        if (onSnippets) await onSnippets(current);
+        return;
+      }
       const replacement = replaceCommandToken(element.value, current); onDraft(replacement.text);
       await new Promise<void>(resolve => requestAnimationFrame(() => {if (element.isConnected) {element.focus(); element.setSelectionRange(replacement.caret, replacement.caret);} resolve();}));
       if (option.builtin.id === 'model') await onModel(); else await onMode(option.builtin.id === 'plan' ? 'plan' : 'build');
