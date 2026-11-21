@@ -59,6 +59,7 @@ export interface ServiceInputsHost {
   aborts: Map<string, AbortController>;
   teardowns: Map<string, { ctx: RunContext; side: boolean; promise: Promise<void> }>;
   mainAdmissions: Set<string>;
+  deliveries: Map<string, Promise<void>>;
   compactionInflight: Map<string, Promise<void>>;
   planning: PlanningCoordinator;
   backgroundWork: BackgroundWorkCoordinator;
@@ -102,7 +103,6 @@ export interface ServiceInputsHost {
 }
 
 export class ServiceInputs {
-  private readonly deliveries = new Map<string, Promise<void>>();
   private readonly skillIndexes = new Map<string, string>();
   constructor(private readonly host: ServiceInputsHost) {}
 
@@ -279,9 +279,10 @@ export class ServiceInputs {
     }); host.backgroundWork.noteForegroundAdmission(thread.id); host.background(this.deliverOutbox(thread.id)); return receipt;
   }
   async deliverOutbox(threadId: string): Promise<void> {
-    const previous=this.deliveries.get(threadId),work=previous?previous.catch(()=>{}).then(()=>this.deliverInputs(threadId)):this.deliverInputs(threadId);
-    this.deliveries.set(threadId,work);
-    try{await work;}finally{if(this.deliveries.get(threadId)===work)this.deliveries.delete(threadId);}
+    const host = this.host;
+    const previous=host.deliveries.get(threadId),work=previous?previous.catch(()=>{}).then(()=>this.deliverInputs(threadId)):this.deliverInputs(threadId);
+    host.deliveries.set(threadId,work);
+    try{await work;}finally{if(host.deliveries.get(threadId)===work)host.deliveries.delete(threadId);}
   }
   private assertSavedInput(input: Outbox): void {
     const host = this.host;
