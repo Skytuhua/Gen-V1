@@ -245,7 +245,7 @@ test('native return waits for canonical placement and keeps delayed source work 
   await page.getByRole('menuitem',{name:'Detach thread',exact:true}).click();
   await expect.poll(h.nativeCalls).toContainEqual({type:'detach',surface:{kind:'thread',threadId:h.owners.a.threadId}});
   await expect.poll(()=>input(h.owners.a.threadId).evaluate(element=>Boolean(element.closest('[inert]')))).toBe(true);
-  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await page.getByRole('button',{name:/^Native return B, Ready/}).click();
   await expect(page.getByRole('tab',{name:'Native return B',exact:true})).toHaveAttribute('aria-selected','true');
   await expect(input(h.owners.b.threadId)).toBeVisible();await input(h.owners.b.threadId).fill('Different authored draft owned by B');
   await selectSource(h.owners.b.threadId,'reply-b');await page.getByRole('button',{name:'Attach to prompt',exact:true}).click();
@@ -265,7 +265,7 @@ test('native return waits for canonical placement and keeps delayed source work 
   await expect(view(h.owners.a.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toHaveCount(0);
   expect(h.splitCommands.slice(commandsBeforeReturn)).toContainEqual(expect.objectContaining({type:'split-workspace.view.open',payload:expect.objectContaining({view:expect.objectContaining({kind:'thread',binding:expect.objectContaining({threadId:h.owners.a.threadId})})})}));
   const afterReturn=await expectDrafts();expect(h.captures.size).toBe(2);
-  await page.getByRole('button',{name:'Native return B Ready',exact:true}).click();
+  await page.getByRole('button',{name:/^Native return B, Ready/}).click();
   await expect(input(h.owners.b.threadId)).toHaveValue('Different authored draft owned by B');
   await expect(view(h.owners.b.threadId).getByRole('article',{name:'Selected source Owner B message',exact:true})).toBeVisible();
   await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(1);

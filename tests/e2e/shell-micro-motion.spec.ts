@@ -50,7 +50,7 @@ test('settings opens with bounded motion and reduced motion removes travel',asyn
  expect(await dialog.evaluate(node=>getComputedStyle(node).transform)).toBe('none');expect(await dialog.evaluate(node=>node.getAnimations().length)).toBe(0);
 });
 test('navigation shows actual recency without repeating idle status but retains accessible task state',async({page})=>{
- const snapshot=fixture();snapshot.threads[0].updatedAt=new Date(Date.now()-10*60*1000).toISOString();await serveTaskFixture(page,snapshot);await openApp(page);const row=page.locator('.sidebar-thread-row').first();await expect(row.locator('time')).toBeVisible();await expect(row.locator('time')).toHaveAttribute('dateTime',snapshot.threads[0].updatedAt);await expect(row.getByRole('button',{name:'Source-bound task fixture Ready',exact:true})).toBeVisible();expect(await row.locator('.thread-item-state').evaluate(node=>getComputedStyle(node).position)).toBe('absolute');
+ const snapshot=fixture();snapshot.threads[0].updatedAt=new Date(Date.now()-10*60*1000).toISOString();await serveTaskFixture(page,snapshot);await openApp(page);const row=page.locator('.sidebar-thread-row').first();await expect(row.locator('time')).toBeVisible();await expect(row.locator('time')).toHaveAttribute('dateTime',snapshot.threads[0].updatedAt);await expect(row.getByRole('button',{name:'Source-bound task fixture, Ready, 10m, Reusable task surfaces',exact:true})).toBeVisible();expect(await row.locator('.thread-item-state').evaluate(node=>getComputedStyle(node).position)).toBe('absolute');
 });
 
 test('completed operation receipts are compact, truthful and retain full evidence on inspection',async({page})=>{

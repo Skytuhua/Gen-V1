@@ -186,9 +186,9 @@ test('replacement state and unmount abort their own pending draft worker', async
     await expect.poll(workers).toEqual([false]);
     await page.getByRole('textbox', { name: 'Full name', exact: true }).fill('Replacement two');
     await expect.poll(workers).toEqual([true, false]);
-    await page.getByRole('button', { name: 'Other task Ready', exact: true }).click();
+    await page.getByRole('button', { name: /^Other task, Ready/ }).click();
     expect(await workers()).toEqual([true, false]);
-    await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click();
+    await page.getByRole('button', { name: /^PDF review, Ready/ }).click();
     await page.getByRole('button', { name: 'Archive artifact', exact: true }).click();
     await expect.poll(workers).toEqual([true, true]);
   } finally { release(); await page.unroute('**/src/pdf-draft.worker.ts*'); }
@@ -381,8 +381,8 @@ test('drawn and keyboard marks stay normalized across theme, resize and remount;
   await expect.poll(() => signature.evaluate(canvas => (canvas as HTMLCanvasElement).toDataURL())).not.toBe(lightImage);
   await page.setViewportSize({ width: 1050, height: 850 });
   expect(state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
-  await page.getByRole('button', { name: 'Other task Ready', exact: true }).click(); await expect(signature).toHaveCount(0);
-  await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click(); await expect(signature).toBeVisible();
+  await page.getByRole('button', { name: /^Other task, Ready/ }).click(); await expect(signature).toHaveCount(0);
+  await page.getByRole('button', { name: /^PDF review, Ready/ }).click(); await expect(signature).toBeVisible();
   expect(state.snapshot.userStates[0].values.visualSignature).toEqual(saved);
   await signature.focus(); await signature.press('Enter'); await signature.press('ArrowRight'); await signature.press('ArrowUp'); await signature.press('Enter');
   await expect.poll(() => (state.snapshot.userStates[0].values.visualSignature as { strokes?: unknown[] }).strokes?.length).toBe(2);
@@ -394,7 +394,7 @@ test('drawn and keyboard marks stay normalized across theme, resize and remount;
   await page.getByRole('textbox', { name: 'Type your name', exact: true }).fill('Ada Lovelace');
   await expect.poll(() => (state.snapshot.userStates[0].values.visualSignature as { kind?: string })?.kind).toBe('image');
   await expect.poll(() => image(page)).not.toBe(before);
-  await page.getByRole('button', { name: 'Other task Ready', exact: true }).click(); await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click();
+  await page.getByRole('button', { name: /^Other task, Ready/ }).click(); await page.getByRole('button', { name: /^PDF review, Ready/ }).click();
   await page.getByRole('button', { name: 'Generate', exact: true }).click(); await expect(page.getByRole('img', { name: 'Selected visual signature' })).toBeVisible();
 });
 
@@ -456,8 +456,8 @@ test('unmount destroys the actual PDF loading task and rapid rerenders leave no 
   }, Array.from(bytes));
   await preview(page).getByRole('button', { name: 'Zoom in PDF' }).click({ clickCount: 3 });
   await page.getByRole('button', { name: 'Collapse artifact', exact: true }).click();
-  await page.getByRole('button', { name: 'Other task Ready', exact: true }).click();
-  await page.getByRole('button', { name: 'PDF review Ready', exact: true }).click();
+  await page.getByRole('button', { name: /^Other task, Ready/ }).click();
+  await page.getByRole('button', { name: /^PDF review, Ready/ }).click();
   await page.getByRole('button', { name: 'Archive artifact', exact: true }).click();
   await expect.poll(() => page.evaluate(() => (window as unknown as Record<string, number>).__destroyCount)).toBeGreaterThan(1);
   await expect.poll(() => page.evaluate(() => (window as unknown as Record<string, number>).__cancelCount)).toBeGreaterThan(0);

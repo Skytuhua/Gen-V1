@@ -139,7 +139,7 @@ test('started chat opens an explicitly new project chat and retains its original
  const host=await fixture(page,true);await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original draft stays here');await page.getByRole('button',{name:'Select project',exact:true}).click();
  await page.getByRole('dialog',{name:'Select project',exact:true}).getByRole('option',{name:'Second project',exact:true}).click();await expect(page.getByRole('dialog',{name:'Select project',exact:true})).toHaveCount(0);
  const created=host.snapshot.threads.find(value=>value.id==='new-thread');expect(created?.projectId).toBe('second');expect(created?.projectName).toBe('Second project');expect(host.snapshot.threads[0].projectId).toBe('first');
- await page.getByRole('button',{name:'Original chat Ready',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original draft stays here');
+ await page.getByRole('button',{name:/^Original chat, Ready/}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original draft stays here');
 });
 
 test('chat header omits retired controls while sidebar rename and archive remain available and detach stays desktop-only',async({page})=>{

@@ -110,7 +110,7 @@ test('QA r1 actual App fences named libraries by thread account and working copy
  h.workingCopy.id='copy-two';await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');await page.keyboard.press('Escape');
  h.workingCopy.id='copy-one';h.snapshot.threads[0].accountId='other-account';await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');await page.keyboard.press('Escape');
  h.snapshot.threads[0].accountId=null;await page.reload();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('Owner library');await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'Review keyboard navigation Ready',exact:true}).click();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');expect(h.commands.filter(command=>command.type==='message.send')).toEqual([]);expect(h.unexpected).toEqual([]);
+ await page.getByRole('button',{name:/^Review keyboard navigation, Ready/}).click();await expect(drafts).toBeEnabled();await drafts.click();await expect(page.getByRole('dialog',{name:'Saved drafts',exact:true})).toContainText('No saved drafts yet.');expect(h.commands.filter(command=>command.type==='message.send')).toEqual([]);expect(h.unexpected).toEqual([]);
 });
 
 test('fixture blocks foreign canonical workspace requests',async({page})=>{

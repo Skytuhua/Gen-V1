@@ -44,7 +44,7 @@ async function fixture(page: Page, preferences: Record<string, unknown> = {}, mo
   }
   await page.goto('/');
   await expect(collapse(page)).toBeVisible();
-  await expect(sidebar(page).getByRole('button', {name: 'Source-bound task fixture Ready', exact: true})).toBeVisible();
+  await expect(sidebar(page).getByRole('button', {name: /^Source-bound task fixture, Ready/})).toBeVisible();
 }
 async function motions(page: Page) {
   return page.evaluate(() => (window as unknown as MotionWindow).sidebarAnimations.map(animation => ({

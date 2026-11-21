@@ -844,8 +844,8 @@ test('an old save acknowledgment cannot erase a newer remounted journal or overl
   await page.goto('/');
   await page.getByRole('textbox', { name: 'Review name' }).fill('Old generation');
   await expect.poll(() => state.commands.filter(cmd => cmd.type === 'state.save').length).toBe(1);
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
+  await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await page.getByRole('textbox', { name: 'Review name' }).fill('New remounted generation');
   await page.getByRole('button', { name: 'Unsaved changes', exact: true }).click();
   expect(state.commands.filter(cmd => cmd.type === 'state.save')).toHaveLength(1);
@@ -924,7 +924,7 @@ test('decision drafts survive navigation and reload but are isolated by request 
   const initial = populated(); initial.requests.push({ id: 'draft-request', threadId: 'one', artifactId: null, revision: 1, title: 'Draft decision', prompt: 'Review it.', responseSchema: { type: 'object', properties: { label: { type: 'string', title: 'Decision label' }, approved: { type: 'boolean', title: 'Accept terms' } }, required: ['label', 'approved'] }, basis: [], status: 'pending' });
   const state = await host(page, initial); await page.goto('/');
   await page.getByRole('textbox', { name: 'Decision label' }).fill('Retained decision');
-  await page.getByRole('button', { name: 'Second task Ready' }).click(); await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click(); await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await expect(page.getByRole('textbox', { name: 'Decision label' })).toHaveValue('Retained decision');
   await page.reload(); await expect(page.getByRole('textbox', { name: 'Decision label' })).toHaveValue('Retained decision');
   state.snapshot.requests[0].revision = 2; state.snapshot.seq += 10; await emit(page, state.snapshot.seq);
@@ -1028,7 +1028,7 @@ test('long conversations restore reading positions and follow the tail only near
   state.snapshot.messages.push({ id: 'new-tail', threadId: 'one', role: 'assistant', content: 'New assistant update', createdAt: timestamp, runId: null }); state.snapshot.seq += 10; await emit(page, state.snapshot.seq);
   await expect(page.getByRole('button', { name: 'Jump to latest' })).toBeVisible(); expect(await scroller.evaluate(el => el.scrollTop)).toBeCloseTo(position, -1);
   await expect(page.locator('div[aria-live="polite"]')).toContainText('New');
-  await page.getByRole('button', { name: 'Second task Ready' }).click(); await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click(); await page.getByRole('button', { name: /^First task, Ready/ }).click();
   expect(await scroller.evaluate(el => el.scrollTop)).toBeCloseTo(position, -1);
   await page.getByRole('button', { name: 'Jump to latest' }).click();
   await expect.poll(() => scroller.evaluate(el => el.scrollHeight - el.scrollTop - el.clientHeight)).toBeLessThan(5);
@@ -1135,13 +1135,13 @@ test('drafts, row selection, disclosure and the same mounted expanded artifact s
   await page.getByRole('textbox', { name: 'Message', exact: true }).fill('Thread one draft');
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread one draft');
   await expect(name).toHaveValue('Unsaved review name');
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   // Inactive split views keep their composer mounted but inert; wait for the target view's composer.
   await expect(page.locator('[data-split-view="thread:two"] [aria-label="Message"]')).toBeVisible();
   await page.locator('[data-split-view="thread:two"] [aria-label="Message"]').fill('Thread two draft');
   await page.reload();
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread two draft');
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await expect(page.locator('[data-split-view="thread:one"] [aria-label="Message"]')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toHaveValue('Thread one draft');
   await expect(name).toHaveValue('Unsaved review name');
@@ -1235,7 +1235,7 @@ test('arbitrary sandboxed widget checkpoints only through its current authentica
   await page.evaluate(() => window.postMessage({ channel: 'harness-widget', token: 'token-1', mountId: 'mount-1', artifactId: 'artifact-one', type: 'checkpoint', payload: { values: { note: 'forged' }, stateSchemaVersion: 1, requestId: 'forged' } }, '*'));
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Edited inside the sandbox');
   await page.evaluate(() => Object.assign(window, { __retainedWidget: document.querySelector('iframe.widget-frame') }));
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   await expect(page.locator('[data-split-view="thread:two"]')).toBeVisible();
   expect(await page.getByText('Checkpoint widget edits before moving this artifact.', { exact: true }).count()).toBe(0);
   expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __retainedWidget: Element }).__retainedWidget)).toBe(true);
@@ -1263,7 +1263,7 @@ test('arbitrary sandboxed widget checkpoints only through its current authentica
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Current mount edit');
   expect(state.commands.filter(item => item.type === 'widget.checkpoint')).toHaveLength(1);
   await page.getByRole('button', { name: 'Collapse artifact', exact: true }).click();
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   state.failRelease = true;
   await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click();
   await expect(page.locator('.workspace-error[role="status"]')).toContainText('The edits for 1 widget could not be discarded. Reopen the conversation and try again.');
@@ -1274,7 +1274,7 @@ test('arbitrary sandboxed widget checkpoints only through its current authentica
   await expect.poll(() => state.mounts).toBe(3);
   expect(await page.evaluate(() => document.querySelector('iframe.widget-frame') === (window as unknown as { __discardedWidget: Element }).__discardedWidget)).toBe(false);
   expect(await unloadIsGuarded(page)).toBe(false);
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Edited inside the sandbox');
   expect(state.mounts).toBe(3);
 });
@@ -1300,14 +1300,14 @@ test('hidden widget discard accepts its unchanged owner after an unrelated commi
   const state = await host(page, widgetWorkspace()); await page.goto('/');
   const frame = page.frameLocator('iframe.widget-frame');
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Discard this generation');
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   const requested = gate(), acknowledgment = gate();
   state.afterCommand = async command => { if (command.type === 'edit.end') { requested.release(); await acknowledgment.promise; } };
   await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click(); await requested.promise;
   state.snapshot.settings.theme = 'light'; state.snapshot.seq++; await emit(page, state.snapshot.seq);
   await expect(page.locator('html')).toHaveAttribute('data-theme', 'light'); expect(state.mounts).toBe(1);
   acknowledgment.release(); await expect.poll(() => state.mounts).toBe(2);
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await expect(frame.getByRole('textbox', { name: 'Widget note' })).toHaveValue('Original checkpoint');
   expect(await unloadIsGuarded(page)).toBe(false);
 });
@@ -1316,12 +1316,12 @@ test('hidden widget discard preserves edits made while its lease release acknowl
   const state = await host(page, widgetWorkspace()); await page.goto('/');
   const frame = page.frameLocator('iframe.widget-frame');
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Original discard intent');
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   const requested = gate(), acknowledgment = gate();
   state.afterCommand = async command => { if (command.type === 'edit.end') { requested.release(); await acknowledgment.promise; } };
   await page.getByRole('button', { name: 'Discard hidden widget edits', exact: true }).click();
   await requested.promise;
-  await page.getByRole('button', { name: 'First task Ready' }).click();
+  await page.getByRole('button', { name: /^First task, Ready/ }).click();
   await frame.getByRole('textbox', { name: 'Widget note' }).fill('Newer edit after discard started');
   acknowledgment.release();
   await expect(page.locator('.workspace-error[role="status"]')).toContainText('The edits for 1 widget could not be discarded.');
@@ -1356,7 +1356,7 @@ test('keyboard, narrow layout and reduced motion remain usable', async ({ page }
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.getByRole('button', { name: 'Open navigation' }).click();
   await expect(page.getByRole('textbox', { name: 'Search threads' })).toBeVisible();
-  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: /^Second task, Ready/ }).click();
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('textbox', { name: 'Search threads' })).toBeFocused();
   await page.keyboard.press('Escape');

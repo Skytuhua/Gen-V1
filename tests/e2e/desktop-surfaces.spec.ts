@@ -22,7 +22,7 @@ test('desktop context and usage minimize in the workspace while thread detachmen
  await serveTaskFixture(page,fixture());
  await serveTaskSplitLayout(page);
  await page.goto('/');
- await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Source-bound task fixture, Ready/}).click();
  const overview=page.getByRole('region',{name:'Project overview window',exact:true});
  await expect(overview).toBeVisible({timeout:15000});
  const toggle=overview.locator('.docked-summary-toggle');if(await toggle.getAttribute('aria-expanded')==='false')await toggle.click();
@@ -69,7 +69,7 @@ test('sidebar detaches a thread into its own window and the main workspace stays
  await serveTaskFixture(page,s);
  await serveTaskSplitLayout(page);
  await page.goto('/');
- await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Source-bound task fixture, Ready/}).click();
  const input=page.getByRole('textbox',{name:'Review name',exact:true});
  await input.fill('Sidebar edit');
  await page.getByRole('button',{name:'Options for Source-bound task fixture',exact:true}).click();
@@ -80,9 +80,9 @@ test('sidebar detaches a thread into its own window and the main workspace stays
  const heldComposer=page.getByRole('textbox',{name:'Message',exact:true});
  await expect.poll(()=>heldComposer.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
  await expect.poll(()=>input.evaluate(node=>Boolean(node.closest('[inert]')))).toBe(true);
- await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Source-bound task fixture, Ready/}).click();
  expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['focus','detached-1']);
- await page.getByRole('button',{name:'Second conversation Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Second conversation, Ready/}).click();
  await expect(page.locator('.breadcrumb:visible').filter({hasText:'Second conversation'})).toHaveCount(1);
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
  await page.evaluate(()=>(window as any).__desktopState({windows:[{id:'main',surface:{kind:'main'},ready:true,minimized:false}],focusSurface:{kind:'thread',threadId:'task-thread'}}));

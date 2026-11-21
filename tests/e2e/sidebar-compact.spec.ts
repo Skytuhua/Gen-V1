@@ -13,10 +13,13 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  expect(Math.abs(searchBox!.y-filterBox!.y)).toBeLessThanOrEqual(4);
  expect(Math.abs(searchBox!.y-newThreadBox!.y)).toBeLessThanOrEqual(4);
 
+ const group=page.locator('.thread-project-group').first();
+ await expect(group.locator('.thread-project-monogram')).toHaveText('EP');
+ await expect(group.locator('.thread-project-group-name')).toHaveText('Example project');
  const row=page.locator('.sidebar-thread-row').first(),item=row.locator('.thread-item');
- await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-header');
- await expect(item.locator('.thread-project-monogram')).toHaveText('EP');
- await expect(item.locator('.thread-project-label')).toHaveText('Example project');
+ await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-title');
+ await expect(item.locator('.thread-project-monogram')).toHaveCount(0);
+ await expect(item.locator('.thread-project-label')).toHaveCount(0);
  await expect(item.locator('.thread-branch-meta')).toContainText('feature/compact-sidebar');
  expect((await row.boundingBox())!.height).toBeLessThanOrEqual(74);
  expect((await page.locator('.sidebar-thread-row').nth(3).boundingBox())!.height).toBeLessThanOrEqual(58);

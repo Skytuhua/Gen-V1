@@ -150,9 +150,9 @@ test('current question and mapped form values survive expansion, thread switchin
   await expect(page.getByRole('heading', { name: 'Confirm your details' })).toBeVisible();
   await page.getByRole('button', { name: 'Collapse artifact', exact: true }).click();
   await expect.poll(() => state.snapshot.userStates[0].values.currentStep).toBe('Review');
-  await page.getByRole('button', { name: 'Other task Ready' }).click();
+  await page.getByRole('button', { name: /^Other task, Ready/ }).click();
   await expect(page.locator('[data-split-view="thread:two"]')).toBeVisible();
-  await page.getByRole('button', { name: 'Service agreement Ready' }).click();
+  await page.getByRole('button', { name: /^Service agreement, Ready/ }).click();
   await expect(page.locator('[data-split-view="thread:one"]')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Confirm your details' })).toBeVisible();
   await reloadApp(page);
