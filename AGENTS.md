@@ -9,6 +9,44 @@ Use GitHub Issues to coordinate work on `skytuhua-org/Gen-V1`. Apply these rules
 3. **Identify the session.** Use the tool and execution location, plus an existing non-sensitive account alias where known. Append a short, locally generated random suffix when starting a new session, for example `devin-a-cloud-9f31a2` or `codex-local-b47280`. On resume, reuse your own recorded name if the session history identifies it. If identity was lost, introduce a fresh name and reference the existing branch and issue. If the account alias is unknown, omit it. Never derive a public name from credentials, emails, private session URLs, or machine paths.
 4. **Claim a scope before editing.** Post one issue comment containing your worker name, role, exact scope, and branch or PR when available. Refresh the thread after posting. Honor the maintainer's assignment first. For overlapping, equally authorized claims, the earliest GitHub claim owns that scope until release or reassignment. Other workers can review or claim distinct work within their assignment. When two sessions create duplicate issues concurrently, link both, continue in the earlier matching issue, and release the duplicate claim. Avoid treating an old or silent session as having released work.
 5. **Use the available GitHub connection.** Prefer the configured integration or authenticated GitHub CLI. Useful commands are `gh issue list --repo skytuhua-org/Gen-V1 --state open --search "<keywords>"`, `gh issue view <issue-url> --comments`, and `gh issue comment <issue-url> --body-file <message-file>`. Confirm GitHub accepted a claim or update before reporting it as posted. On a write timeout, reread the thread before retrying. If access fails, state the failed operation in the current session, retain the pending update, and continue independent work where ownership is clear.
+6. **Label every issue you create or touch.** Apply one label from each axis below when creating an issue, and add any missing axes on issues you adopt. The `issue-labeler` workflow applies a heuristic set on newly opened issues; always review and correct its guesses — the workflow's labels are a starting point, not a decision.
+
+## Issue labels
+
+Every issue should carry labels from four axes: **type** (what kind of work), **area** (where it lives), **level** (difficulty) and **priority** (order in the backlog). Apply at least a type and a level on every new issue, plus area and priority when known.
+
+### Type — what kind of work
+- `bug` — something is broken or behaves incorrectly.
+- `enhancement` — new feature or improvement to existing behavior.
+- `documentation` — docs content changes.
+- `type:refactor` — cleanup with no behavior change (cast removal, dedupe, dead code, file moves).
+- `type:test` — add or fix tests, verification, qualification and acceptance work.
+- `type:security` — security fixes, hardening, vulnerable dependencies.
+- `type:tracking` — umbrella issue that groups and tracks sub-tasks (sweeps, worker assignments, audits). Stays open until its children land.
+
+### Area — where it lives
+- `area:frontend` — web and desktop UI (`apps/web`, `apps/desktop`, `packages/ui-shell`, `packages/widgets`).
+- `area:runtime` — server, core and runtime packages (`apps/server`, `packages/core`, `packages/runtime*`, storage, contracts).
+- `area:ci` — CI workflows, test infrastructure and `scripts/`.
+- `area:docs` — documentation files.
+
+### Level — difficulty / who should take it
+- `level:low` — mechanical work; safe for free sessions or smaller models.
+- `level:medium` — focused change with some design or risk.
+- `level:high` — design-heavy or multi-surface work; reserve for stronger models.
+
+### Priority — backlog order
+- `priority:high` — blocks the release or other work in flight; do first.
+- `priority:medium` — normal backlog order.
+- `priority:low` — nice to have; pick up when nothing higher is free.
+
+### Standing labels (unchanged)
+`accessibility` (barrier affecting people with disabilities), `ci-test` (flaky/skipped/missing verification), `deferred` (out of current scope), `good first issue`, `help wanted`, `duplicate`, `invalid`, `question`, `wontfix`.
+
+### Conventions
+- `type:tracking` issues group sub-tasks and do not need an area unless the tracking itself is scoped; they may skip `priority` when their children's priorities drive the order.
+- Human-authored issues get a first-pass label set from the `issue-labeler` workflow; agents must confirm or fix it on first touch.
+- Do not invent ad-hoc labels; extend this list via a reviewed change when a new axis value is genuinely needed.
 
 ## Complete Markdown plan publication: normative contract
 
