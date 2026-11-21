@@ -11,6 +11,7 @@ import {registerIntegrationSecretReferenceRoutes} from './integration-secret-ref
 import {registerGitHubAuthRoutes} from './github-auth-routes.ts';
 import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
+import {PublishService} from '../../packages/workspace/publish.ts';
 import {workspaceActionTypeSchema,workspaceActionOperationSchema} from '../../packages/contracts/workspace-action-outcomes.ts';
 import {capabilityEnabled} from '../../packages/core/capability-flags.ts';
 import {workspaceOwnerScope} from '../../packages/workspace/edit-journal.ts';
@@ -32,6 +33,22 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  const host=workspaceHost(service),{projects,terminals}=host,github=githubFor(host);projects.workspace.migrateProjects();
  registerIntegrationSecretReferenceRoutes(app,host);
  const actionOutcomes=new WorkspaceActionOutcomes(projects,github);
+ const publish=new PublishService(projects,github,actionOutcomes),publishQuery=z.strictObject({threadId:identifier});
+ app.get('/api/projects/:projectId/publish/draft',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=publishQuery.parse(request.query);
+  return publish.draft(projectId,threadId);
+ });
+ app.post('/api/projects/:projectId/publish',{bodyLimit:128*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params);
+  return publish.execute(projectId,request.body);
+ });
+ app.get('/api/projects/:projectId/publish',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=publishQuery.parse(request.query);
+  return publish.read(projectId,threadId);
+ });
  // Read-only inspection uses POST so private journal payloads never enter URLs.
  app.post('/api/projects/:projectId/action-outcomes/inspect',{bodyLimit:1024*1024},async(request,reply)=>{
   reply.header('Cache-Control','no-store');

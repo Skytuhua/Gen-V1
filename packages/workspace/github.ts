@@ -57,6 +57,12 @@ export class GitHubTools{
  }
  async repo(projectId:string,threadId?:string){const{path}=await this.projects.binding(projectId,threadId),url=(await this.projects.git(path,['remote','get-url','origin'])).trim(),match=/^(?:https:\/\/github\.com\/|git@github\.com:)([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+?)(?:\.git)?$/.exec(url);if(!match)throw new HarnessError('GITHUB_REMOTE_REQUIRED','Use an origin remote hosted on github.com.');return{path,repo:repository.parse(match[1])};}
  async list(projectId:string,threadId?:string){const{path,repo}=await this.repo(projectId,threadId),items=this.parseOutput(await this.run(path,['pr','list','--repo',repo,'--state','all','--limit','50','--json','number,title,url,state,headRefOid,headRefName,isDraft'])) as PullRequest[];return{repo,items};}
+ /** Remote default branch; falls back to main with a visible note when lookup is unavailable. */
+ async defaultBranch(projectId:string,threadId?:string){
+  const{path,repo}=await this.repo(projectId,threadId);
+  try{const data=z.object({defaultBranchRef:z.object({name:z.string().min(1).max(200)})}).parse(this.parseOutput(await this.run(path,['repo','view',repo,'--json','defaultBranchRef'])));return{base:data.defaultBranchRef.name,note:undefined as string|undefined};}
+  catch{return{base:'main',note:'The GitHub default branch could not be read, so the draft uses main as the base.'};}
+ }
  async create(projectId:string,threadId:string|undefined,input:Record<string,unknown>,beforeWrite?:()=>void){
   const{path,repo}=await this.repo(projectId,threadId),status=await this.projects.gitStatus(projectId,threadId);if(status.gitWrite!==true)throw new HarnessError('PROJECT_READ_ONLY','Pull request creation requires a writable managed working copy.');if(input.revision!==status.revision||input.head!==status.head)throw new HarnessError('REVISION_CHANGED','The reviewed working copy changed. Refresh before creating the pull request.');
   if(status.files.length)throw new HarnessError('UNCOMMITTED_CHANGES','Commit the reviewed changes before creating the pull request.');
