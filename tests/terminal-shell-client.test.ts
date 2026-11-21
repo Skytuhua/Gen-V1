@@ -34,17 +34,19 @@ it('passes refresh=1 and the abort signal through', async () => {
   expect(fetch.mock.calls[1]).toEqual(['/api/terminal-shells?refresh=1', expect.objectContaining({ signal: abort.signal })]);
 });
 
-it('rejects a malformed catalog and a failed response', async () => {
+it('rejects a malformed catalog', async () => {
   const fetch = vi.fn().mockResolvedValueOnce(Response.json({ csrfToken: 'csrf' })).mockResolvedValueOnce(Response.json({ platform: 'win32', options: 'nope', wsl: {} }));
   vi.stubGlobal('fetch', fetch);
   const { getTerminalShells } = await import('../apps/web/src/terminal-shell-api.ts');
   await expect(getTerminalShells()).rejects.toThrow();
+});
 
-  const failing = vi.fn().mockResolvedValueOnce(Response.json({ csrfToken: 'csrf' })).mockRejectedValueOnce(new TypeError('Connection lost'));
-  vi.stubGlobal('fetch', failing);
-  const api = await import('../apps/web/src/terminal-shell-api.ts');
-  await expect(api.getTerminalShells()).rejects.toThrow('Connection lost');
-  expect(failing).toHaveBeenCalledTimes(2);
+it('propagates a failed response', async () => {
+  const fetch = vi.fn().mockResolvedValueOnce(Response.json({ csrfToken: 'csrf' })).mockRejectedValueOnce(new TypeError('Connection lost'));
+  vi.stubGlobal('fetch', fetch);
+  const { getTerminalShells } = await import('../apps/web/src/terminal-shell-api.ts');
+  await expect(getTerminalShells()).rejects.toThrow('Connection lost');
+  expect(fetch).toHaveBeenCalledTimes(2);
 });
 
 it('keeps the catalog schema honest about option shape', () => {
