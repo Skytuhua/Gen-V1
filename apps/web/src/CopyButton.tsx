@@ -23,5 +23,5 @@ export function CopyButton({text,label='Copy'}:{text:string;label?:string}) {
       if(generation.current===current)toast('Copy failed. Select the text and copy manually.',{tone:'error'});
     }
   };
-  return <><button type="button" className="icon-button copy-button" aria-label={label} title={copied?'Copied':label} onClick={()=>void copy()}>{copied?<Check size={14} aria-hidden="true"/>:<Copy size={14} aria-hidden="true"/>}</button><span className="sr-only" role="status">{copied?'Copied':''}</span></>;
+  return <><button type="button" className="icon-button copy-button" aria-label={label} title={copied?'Copied':label} onClick={()=>void copy()}>{copied?<Check className="success-confirmation" size={14} aria-hidden="true"/>:<Copy size={14} aria-hidden="true"/>}</button><span className="sr-only" role="status">{copied?'Copied':''}</span></>;
 }

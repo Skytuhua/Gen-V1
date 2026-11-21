@@ -67,6 +67,11 @@ dialog:modal::backdrop {
 @keyframes ui-popover-in { from { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
 @keyframes ui-popover-out { to { opacity: 0; transform: translateY(var(--ui-popover-shift, 0)) scale(.98); } }
 @keyframes ui-popover-fade { from { opacity: 0; } }
+.ui-popover[data-motion-origin="keyboard"][data-state] { animation-name:ui-popover-fade; animation-duration:var(--ui-motion-press); transform:none; }
+.ui-popover[data-motion-origin="keyboard"][data-state="closed"] { animation-direction:reverse; }
+:root[data-motion="reduced"] .ui-popover[data-state] { animation-name:ui-popover-fade; animation-duration:var(--ui-motion-press); animation-delay:0s; transform:none; }
+:root[data-motion="reduced"] .ui-popover[data-state="closed"] { animation-direction:reverse; }
+:root[data-motion="off"] .ui-popover[data-state] { animation:none!important; transition:none!important; }
 @media (prefers-reduced-motion: reduce) {
   :where(.ui-popover[data-state]) { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
   :where(.ui-popover[data-state="closed"]) { animation-direction: reverse; }

@@ -57,6 +57,10 @@ export function createConversationScroll(element:HTMLElement){
   if(towardTail&&nearTail())following=true;
  };
  const settleHidden=()=>{if(document.visibilityState==='hidden'&&following)spring.to(maximum(),true);};
+ const selectionChanged=()=>{
+  const selection=element.ownerDocument?.getSelection();
+  if(selection&&!selection.isCollapsed&&(element.contains(selection.anchorNode)||element.contains(selection.focusNode)))interrupt();
+ };
  const stopObservingMotion=observeMotionPolicy(policy=>{if(policy!=='full'&&following&&!dragging)spring.to(maximum(),true);});
  element.addEventListener('wheel',wheel,{passive:true});
  element.addEventListener('touchstart',touchStart,{passive:true});
@@ -67,6 +71,7 @@ export function createConversationScroll(element:HTMLElement){
  document.addEventListener('pointerup',pointerEnd);
  document.addEventListener('pointercancel',pointerEnd);
  document.addEventListener('visibilitychange',settleHidden);
+ document.addEventListener('selectionchange',selectionChanged);
  return {
   beginManualScroll(){if(!disposed){nativePointer=undefined;dragging=true;interrupt();}},
   scrollTo(top:number):ConversationPosition{
@@ -97,7 +102,7 @@ export function createConversationScroll(element:HTMLElement){
   dispose(){
    if(disposed)return;disposed=true;spring.dispose();observer.disconnect();observed.clear();
    element.removeEventListener('wheel',wheel);element.removeEventListener('touchstart',touchStart);element.removeEventListener('touchend',touchEnd);element.removeEventListener('touchcancel',touchEnd);element.removeEventListener('pointerdown',pointerDown);element.removeEventListener('keydown',key);
-   document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);stopObservingMotion();
+   document.removeEventListener('pointerup',pointerEnd);document.removeEventListener('pointercancel',pointerEnd);document.removeEventListener('visibilitychange',settleHidden);document.removeEventListener('selectionchange',selectionChanged);stopObservingMotion();
   },
  };
 }

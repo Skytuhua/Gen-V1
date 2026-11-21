@@ -10,7 +10,8 @@ function fixture(){
  vi.stubGlobal('MutationObserver',class{constructor(private callback:()=>void){}observe(){mutations.add(this.callback);}disconnect(){mutations.delete(this.callback);}});
  const preference=Object.assign(new EventTarget(),{matches:false});
  const content={} as Element;
- const element=Object.assign(new EventTarget(),{scrollTop:0,scrollHeight:1000,clientHeight:400,clientWidth:600,children:[content],getClientRects:()=>[{}]});
+ const selection={isCollapsed:true,anchorNode:null as Element|null,focusNode:null as Element|null};
+ const element=Object.assign(new EventTarget(),{scrollTop:0,scrollHeight:1000,clientHeight:400,clientWidth:600,children:[content],getClientRects:()=>[{}],ownerDocument:{getSelection:()=>selection},contains:(node:Node)=>node===content});
  let resized:ResizeObserverCallback=()=>{};
  vi.stubGlobal('document',page);
  vi.stubGlobal('performance',{now:()=>now});
@@ -21,9 +22,19 @@ function fixture(){
  const scroll=createConversationScroll(element as unknown as HTMLElement);
  const tick=(count=1)=>{for(let i=0;i<count;i++){now+=16;const callbacks=[...frames.values()];frames.clear();callbacks.forEach(callback=>callback(now));}};
  const intent=(type:string,properties:Record<string,unknown>={})=>element.dispatchEvent(Object.assign(new Event(type),properties));
- return {element,scroll,tick,frames,page,preference,intent,mutations,motion:(value:string)=>{root.dataset.motion=value;for(const notify of mutations)notify();},resize:()=>resized([],{} as ResizeObserver)};
+ return {element,scroll,tick,frames,page,preference,intent,mutations,selection,content,motion:(value:string)=>{root.dataset.motion=value;for(const notify of mutations)notify();},resize:()=>resized([],{} as ResizeObserver)};
 }
 afterEach(()=>vi.unstubAllGlobals());
+
+it('selecting transcript text interrupts tail motion, while an empty or unrelated selection does not',()=>{
+ const f=fixture();f.scroll.update('one',{top:0,tail:true});f.element.scrollHeight=1600;f.resize();f.tick(2);
+ f.page.dispatchEvent(new Event('selectionchange'));expect(f.frames.size).toBeGreaterThan(0);
+ f.selection.isCollapsed=false;f.selection.anchorNode={} as Element;f.selection.focusNode={} as Element;f.page.dispatchEvent(new Event('selectionchange'));expect(f.frames.size).toBeGreaterThan(0);
+ f.selection.anchorNode=f.content;f.page.dispatchEvent(new Event('selectionchange'));const top=f.element.scrollTop;expect(f.frames.size).toBe(0);
+ f.element.scrollHeight=2200;f.resize();f.scroll.update('one',{top:600,tail:true});f.tick(60);expect(f.element.scrollTop).toBe(top);
+ f.selection.isCollapsed=true;f.page.dispatchEvent(new Event('selectionchange'));f.resize();f.tick(60);expect(f.element.scrollTop).toBe(top);
+ f.scroll.dispose();
+});
 
 it('lets the left scroll control hold history through streaming and resume following only after release',()=>{
  const f=fixture();f.scroll.update('one',{top:0,tail:true});

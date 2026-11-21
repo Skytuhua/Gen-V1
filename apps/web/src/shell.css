@@ -211,7 +211,7 @@
 .artifact-in-workspace .widget-frame { min-height:60vh; }
 .shell-workarea:has(.artifact-in-workspace)>:is(.summary-layout-owner,.split-root-workarea) { position:relative; z-index:29; }
 .app-shell[data-panel-animations=false] * { animation:none; transition:none; }
-@keyframes panel-enter { 0% { opacity:.45; transform:translateX(14px); } 78% { opacity:1; transform:translateX(-1px); } 100% { opacity:1; transform:translateX(0); } }
+@keyframes panel-enter { from { opacity:.45; transform:translateX(14px); } to { opacity:1; transform:translateX(0); } }
 @keyframes panel-exit { to { opacity:0; transform:translateX(14px); } }
 .workspace-right[data-state="closed"] { pointer-events:none; animation:panel-exit var(--ui-motion-panel-exit) var(--ui-ease-move) both; }
 @media (prefers-reduced-motion: reduce) { .workspace-right[data-state="closed"] { animation-duration:var(--ui-motion-press); } }

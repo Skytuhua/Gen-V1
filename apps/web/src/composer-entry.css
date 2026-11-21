@@ -5,3 +5,6 @@
 .composer-attachment-clip { min-height:0; }
 .composer-attachment-clip>.resource-strip { margin:0; padding:0 0 var(--ui-space-2); max-height:128px; overflow:auto; scrollbar-width:thin; flex-wrap:wrap; }
 .resource-chip-readonly { opacity:.6; flex:0 0 auto; }
+.composer-attachment-item { display:flex; flex:0 0 auto; min-width:0; max-width:100%; overflow:hidden; transform-origin:center; }
+.composer-attachment-item[data-leaving] { pointer-events:none; }
+.composer-attachment-item>.resource-chip { animation:none; }

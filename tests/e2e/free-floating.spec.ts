@@ -2,6 +2,27 @@ import {test,expect,type Page} from '@playwright/test';
 declare global { interface Window { __exitAnimations: Promise<unknown>[]; __exitCount: number } }
 
 const flushFrames=(page:Page)=>page.evaluate(()=>new Promise<void>(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>resolve()))));
+
+for(const policy of ['system','reduced','off'] as const)test(`position handoffs obey ${policy} without delaying direct drag`,async({page})=>{
+ await page.emulateMedia({reducedMotion:'no-preference'});await page.goto('/free-floating-check');
+ const panel=page.locator('[data-floating-id="free-test"]'),handle=panel.getByRole('button',{name:'Move Test tool',exact:true});await expect(handle).toBeVisible();
+ await panel.evaluate(async node=>{await Promise.allSettled(node.getAnimations().map(animation=>animation.finished));});
+ const identity=await panel.getByRole('textbox',{name:'Tool draft'}).elementHandle();
+ await page.evaluate(policy=>{
+  document.documentElement.dataset.motion=policy;const animate=Element.prototype.animate,records:{frames:Keyframe[];duration:number}[]=[];Object.assign(window,{positionHandoffs:records});
+  Element.prototype.animate=function(frames,options){if(this.getAttribute('data-floating-id')==='free-test')records.push({frames:frames as Keyframe[],duration:Number((options as KeyframeAnimationOptions).duration)});return animate.call(this,frames,options);};
+ },policy);
+ await handle.focus();await handle.press('ArrowLeft');await expect(panel).toHaveAttribute('data-floating','true');await flushFrames(page);
+ const entries=()=>page.evaluate(()=>(window as unknown as {positionHandoffs:{frames:Keyframe[];duration:number}[]}).positionHandoffs);
+ const undock=await entries();expect(undock).toHaveLength(policy==='off'?0:1);
+ if(policy!=='off'){expect(undock[0].duration).toBe(policy==='system'?220:80);expect(undock[0].frames.some(frame=>'transform' in frame)).toBe(policy==='system');}
+ await panel.evaluate(node=>node.getAnimations().forEach(animation=>animation.finish()));
+ await handle.press('Home');await expect(panel).toHaveAttribute('data-floating','false');await flushFrames(page);expect(await entries()).toHaveLength(policy==='off'?0:2);
+ await panel.evaluate(node=>node.getAnimations().forEach(animation=>animation.finish()));
+ const grab=(await handle.boundingBox())!;await page.mouse.move(grab.x+20,grab.y+14);await page.mouse.down();const before=(await panel.boundingBox())!;await page.mouse.move(grab.x-80,grab.y+54);await flushFrames(page);
+ const during=(await panel.boundingBox())!;expect(during.x-before.x).toBeCloseTo(-100,0);expect(during.y-before.y).toBeCloseTo(40,0);expect(await panel.evaluate(node=>getComputedStyle(node).transitionProperty)).toBe('none');expect(await entries()).toHaveLength(policy==='off'?0:2);
+ await page.mouse.up();expect(await panel.getByRole('textbox',{name:'Tool draft'}).evaluate((node,previous)=>node===previous,identity)).toBe(true);
+});
 import {resolve} from 'node:path';
 
 const fixture='/@fs/'+resolve('tests/e2e/free-floating-fixture.tsx').replaceAll('\\','/');

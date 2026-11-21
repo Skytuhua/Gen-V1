@@ -223,7 +223,9 @@ for (const theme of ['dark', 'light']) test(`selected, hovered and focused state
   await page.getByRole('combobox', { name: 'Choice' }).click();
   const selected = page.getByRole('option', { name: 'Charlie' });
   const other = page.getByRole('option', { name: 'Delta' });
+  await page.getByRole('listbox', { name: 'Choice' }).evaluate(node => Promise.allSettled(node.getAnimations().map(animation => animation.finished)));
   await other.hover();
+  await other.evaluate(node => Promise.allSettled(node.getAnimations().map(animation => animation.finished)));
   const selectedStyle = await selected.evaluate(node => getComputedStyle(node).backgroundColor);
   const hoverStyle = await other.evaluate(node => getComputedStyle(node).backgroundColor);
   expect(selectedStyle).not.toBe(hoverStyle);
