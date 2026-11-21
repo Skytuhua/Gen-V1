@@ -2,6 +2,7 @@ import { createRoot } from 'react-dom/client';
 import '@fontsource-variable/inter';
 import './styles.css';
 import './frontend-fidelity.css';
+import './empty-workspace.css';
 
 // The personal harness is always the shell. Optional installed plug-ins are
 // contributed through its verified host registry and isolated frame bridge.
