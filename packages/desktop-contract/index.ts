@@ -21,6 +21,31 @@ export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrows
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}
 export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
+export type AccessibilityImpact = 'critical' | 'serious' | 'moderate' | 'minor';
+export type AccessibilityAuditCommand =
+  | {type:'run';target:{kind:'browser'}}
+  | {type:'run';target:{kind:'local';url:string;viewport:'desktop'|'mobile'}}
+  | {type:'cancel'}
+  | {type:'capability'};
+export interface AccessibilityAuditNode {target:string;html:string;failureSummary:string}
+export interface AccessibilityAuditRule {
+  ruleId:string;impact:AccessibilityImpact;help:string;description:string;helpUrl:string;
+  wcag:string[];nodeCount:number;nodes:AccessibilityAuditNode[];
+}
+export interface AccessibilityAuditResult {
+  status:'completed';
+  target:{kind:'browser'|'local';url:string;title:string};
+  viewport:{width:number;height:number};
+  axeVersion:string;standard:'WCAG 2.2 A/AA';
+  startedAt:string;durationMs:number;
+  counts:Record<AccessibilityImpact,number>;
+  elementCount:number;rules:AccessibilityAuditRule[];
+  blockedRequests:number;truncated:boolean;
+}
+export type AccessibilityAuditOutcome =
+  | AccessibilityAuditResult
+  | {status:'cancelled'}
+  | {status:'failed';code:'LOAD_FAILED'|'LOAD_TIMEOUT'|'RUN_TIMEOUT'|'PAGE_GONE'|'DISABLED'|'ASSET_MISSING'|'BUSY'|'NO_PAGE'|'INVALID_URL';message:string};
 export interface DesktopMemoryExportResult {status:'saved'|'cancelled';admitted:true;filename:string;bytes:number;sha256:string}
 export interface DesktopBridge {
   exportProjectMemory?(serializedExport:string):Promise<DesktopMemoryExportResult>;
@@ -44,11 +69,12 @@ export interface DesktopBridge {
   captureLayout?():Promise<DesktopLayout>;
   applyLayout?(layout:DesktopLayout):Promise<void>;
   browser(command:DesktopBrowserCommand):Promise<void>;
+  accessibilityAudit?(command:AccessibilityAuditCommand):Promise<AccessibilityAuditOutcome | {available:boolean}>;
   onState(listener:(state:DesktopState)=>void):()=>void;
   onCloseRequested(handler:()=>Promise<boolean>):()=>void;
   onWorkspaceChanged?(listener:(change:DesktopWorkspaceChange)=>void):()=>void;
 }
-export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
+export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout',accessibilityAudit:'harness-desktop:accessibility-audit'} as const;
 const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin']);
 const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests']);
 export function desktopId(value:unknown):value is string{return typeof value==='string'&&value.length<=200&&/^[a-zA-Z0-9_.:-]+$/.test(value)&&!['__proto__','prototype','constructor'].includes(value);}

@@ -9,6 +9,10 @@ export interface HostFlagDefinition {
 }
 
 export const HOST_FLAG_REGISTRY = Object.freeze({
+  'browser.accessibilityAuditV1': Object.freeze({
+    default: false,
+    description: 'Desktop accessibility check: axe-core WCAG A/AA audit of the Gen browser page or a confirmed loopback dev server, findings sent to the thread on request.',
+  }),
   'security.projectTrustV1': Object.freeze({
     default: false,
     description: 'Project trust records: canonical root identity, approved executable/configuration digests, scope and explicit user decisions.',

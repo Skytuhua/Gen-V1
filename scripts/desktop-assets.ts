@@ -44,6 +44,7 @@ export const REQUIRED_RUNTIME_FILES=[
  'host/.harness-hermes-python-deps/openai/__init__.py','host/.harness-hermes-python-deps/pydantic_core/__init__.py',
  'host/third-party/hermes-agent/upstream/run_agent.py','host/third-party/hermes-agent/UPSTREAM_MANIFEST.json','host/third-party/hermes-agent/RUNTIME_DEPENDENCIES.json',
  'host/node_modules/fastify/package.json','host/node_modules/@earendil-works/pi-coding-agent/package.json',
+ 'host/node_modules/axe-core/axe.min.js','host/node_modules/axe-core/LICENSE',
  'host/packages/runtime/index.ts','host/packages/runtime-login/index.ts','host/packages/runtime-pi/worker.ts',
  'host/packages/runtime-official/index.ts','host/node_modules/@anthropic-ai/claude-agent-sdk/sdk.mjs',
  'host/node_modules/@anthropic-ai/claude-agent-sdk-win32-x64/claude.exe',
