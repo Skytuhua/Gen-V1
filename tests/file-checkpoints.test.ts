@@ -44,6 +44,12 @@ describe('frozen checkpoint read seam',()=>{
   expect(checkpointOwnerKey(owner)).not.toBe(checkpointOwnerKey({...owner,binding:otherHash}));
   expect(readCheckpointList({...list(),owner:{...owner,threadId:null}}, {...owner,threadId:null}).owner.threadId).toBeNull();
  });
+ it('accepts a manual_edit checkpoint in list, detail and review (issue #1344 T05)',()=>{
+  const manual:FileCheckpoint={...checkpoint,id:'manual',label:'Manual edit: notes.md',provenance:{kind:'manual_edit',operationId:'man-00000000-0000-4000-8000-000000000000'}};
+  expect(readCheckpointList({owner,items:[manual],nextCursor:null},owner).items).toEqual([manual]);
+  expect(readCheckpointDetail({owner,checkpoint:manual,files:[file()]},owner,manual).checkpoint).toEqual(manual);
+  expect(readCheckpointReview(review(),owner,manual,['src/file.ts']).files).toEqual(review().files);
+ });
  it.each(['projectId','threadId','workingCopyId','binding'] as const)('rejects a foreign %s in every response',key=>{
   const foreign={...owner,[key]:key==='binding'?otherHash:'other'};
   expect(()=>readCheckpointList({...list(),owner:foreign},owner)).toThrow('owner changed');
