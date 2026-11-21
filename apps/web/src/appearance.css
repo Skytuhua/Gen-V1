@@ -16,3 +16,6 @@
 :root[data-density] :is(.ui-select-trigger,.ui-action-trigger,button.secondary,button.primary,input:not([type=checkbox],[type=radio],[type=range]),textarea) { border-radius:var(--control-radius); }
 :root[data-motion=off] :is(*, *::before, *::after) { animation:none!important;transition:none!important;scroll-behavior:auto!important; }
 :root[data-motion=reduced] :is(*, *::before, *::after) { animation:none!important;transition-property:opacity,color,background-color,border-color!important;scroll-behavior:auto!important; }
+@media (prefers-reduced-motion: reduce) {
+ :root :is(*, *::before, *::after) { animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important; }
+}

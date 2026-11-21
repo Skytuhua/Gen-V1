@@ -42,14 +42,12 @@ export const HOST_FLAG_REGISTRY = Object.freeze({
 export type RegisteredHostFlag = keyof typeof HOST_FLAG_REGISTRY;
 export const HOST_FLAG_NAMES = Object.keys(HOST_FLAG_REGISTRY) as RegisteredHostFlag[];
 
-export function isHostFlagName(value: string): value is RegisteredHostFlag {
-  return Object.hasOwn(HOST_FLAG_REGISTRY, value);
-}
+
 
 /** Environment channel: HARNESS_FLAG_<KEY uppercased, '.'/'-' as '_',
  * camelCase humps as '_'>. Only the exact values 1/true enable a flag;
  * anything else stays disabled. */
-export function hostFlagEnvName(name: RegisteredHostFlag): string {
+function hostFlagEnvName(name: RegisteredHostFlag): string {
   return 'HARNESS_FLAG_' + name
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .replace(/[^a-zA-Z0-9]+/g, '_')
@@ -61,12 +59,3 @@ export function hostFlagEnabled(name: RegisteredHostFlag, env: Readonly<Record<s
   return value === '1' || value === 'true';
 }
 
-/** Host-composed flag source for tests and embedders. The host supplies the
- * map at composition time; it is never read from Store settings, UI patches,
- * tool arguments or plug-in RPC payloads. */
-export function createHostFlags(source: Readonly<Record<string, string | undefined>> = process.env) {
-  return Object.freeze({
-    enabled(name: RegisteredHostFlag): boolean { return hostFlagEnabled(name, source); },
-    names: HOST_FLAG_NAMES,
-  });
-}
