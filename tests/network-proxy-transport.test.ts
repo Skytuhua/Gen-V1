@@ -44,6 +44,22 @@ describe('network proxy transport', () => {
     expect(networkProxyDispatcher()).toBeUndefined();
     expect(networkProxyChildEnv()).toEqual({});
   });
+  it('policy() failure keeps the last good snapshot (no crash, no downgrade)', async () => {
+    const s = new NetworkProxySettings(dir, stubCodec);
+    await s.save({ baseRevision: 0, url: 'http://keep.corp:1', bypass: [] });
+    await initNetworkProxyTransport(s);
+    // corrupt the file: refresh must not throw or clear the working snapshot
+    const fs = await import('node:fs/promises');
+    await fs.writeFile(join(dir, 'network-proxy', 'policy.json'), '{not json', 'utf8');
+    await refreshNetworkProxyTransport();
+    expect(networkProxyChildEnv().HTTP_PROXY).toContain('keep.corp:1');
+    expect(networkProxyDispatcher()).toBeDefined();
+  });
+  it('empty/null snapshot yields empty child env (desktop sign-in fallback)', async () => {
+    const { networkProxyChildEnvFor } = await import('../packages/core/network-proxy-env.ts');
+    expect(networkProxyChildEnvFor(null)).toEqual({});
+    expect(networkProxyChildEnvFor({ revision: 1, url: null, credentials: null, bypass: [] })).toEqual({});
+  });
   it('new revision replaces the cached upstream after refresh', async () => {
     const s = new NetworkProxySettings(dir, stubCodec);
     await s.save({ baseRevision: 0, url: 'http://one.corp:1', bypass: [] });
