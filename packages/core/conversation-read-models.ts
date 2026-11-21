@@ -2,10 +2,10 @@ import {createHash, createHmac, randomBytes, timingSafeEqual} from 'node:crypto'
 import {z} from 'zod';
 import {HarnessError, type WorkspaceEvent} from '../contracts/index.ts';
 import {
-  conversationTargetSchema, conversationHistoryQuerySchema, conversationContentQuerySchema, conversationUpdatesQuerySchema,
+  conversationTargetSchema, conversationHistoryQuerySchema, conversationContentQuerySchema, conversationUpdatesQuerySchema, conversationTurnsQuerySchema,
   conversationOwnerSchema, conversationMessageSchema,
   type ConversationContext, type ConversationHistoryPage, type ConversationContentPage, type ConversationMessage, type ConversationOwner,
-  type ConversationUpdates,
+  type ConversationUpdates, type ConversationTurns,
 } from '../contracts/conversation-read-models.ts';
 import {digest, type Store} from '../storage/store.ts';
 
@@ -39,6 +39,7 @@ const ownerSelect = `SELECT id AS threadId,substr(json_extract(body,'$.title'),1
     AND json_type(body,'$.id')='text' AND json_type(body,'$.epoch')='integer' AND json_type(body,'$.title')='text'
     AND json_type(body,'$.projectName') IN ('text','null') AND json_type(body,'$.runId') IN ('text','null')
     AND json_type(body,'$.modelId') IN ('text','null')`;
+const notSuperseded = "NOT EXISTS(SELECT 1 FROM entities sv WHERE sv.kind='turnVersion' AND sv.thread_id=entities.thread_id AND json_extract(sv.body,'$.messageId')=entities.id AND json_extract(sv.body,'$.status')='superseded')";
 const messageWhere = "kind='message' AND thread_id=? AND json_extract(body,'$.threadId')=? AND json_extract(body,'$.id')=id AND json_type(body,'$.id')='text' AND json_type(body,'$.threadId')='text'";
 const messageSelect = `SELECT rowid AS row,id,json_extract(body,'$.threadId') AS threadId,
   json_extract(body,'$.role') AS role,json_extract(body,'$.createdAt') AS createdAt,json_extract(body,'$.runId') AS runId,
@@ -206,7 +207,7 @@ export class ConversationReadModels {
         const value = this.decode(cursor, 'history', scopeKey); before = value.position;
         if (!this.store.db.prepare('SELECT 1 FROM entities WHERE ' + messageWhere + ' AND rowid=? AND id=?').get(target.threadId, target.threadId, before, value.messageId)) throw resync();
       }
-      const rows = this.store.db.prepare(messageSelect + ' WHERE ' + messageWhere + ' AND rowid<? ORDER BY rowid DESC LIMIT ?')
+      const rows = this.store.db.prepare(messageSelect + ' WHERE ' + messageWhere + ' AND ' + notSuperseded + ' AND rowid<? ORDER BY rowid DESC LIMIT ?')
         .all(1, target.threadId, target.threadId, before, limit + 1) as unknown as MessageRow[];
       const selected = rows.slice(0, limit).reverse();
       return {...this.envelope(target, scopeKey), messages: selected.map(row => this.slice(row, scopeKey)),
@@ -221,6 +222,30 @@ export class ConversationReadModels {
         .get(value.position + 1, target.threadId, target.threadId, value.messageId, value.row) as MessageRow | undefined;
       if (!row || row.revision !== value.revision || value.position >= row.contentLength) throw resync();
       return {...this.envelope(target, scopeKey), message: this.slice(row, scopeKey, value.position)};
+    });
+  }
+  // Explicit turn disclosure (#1532): the only read that may surface a
+  // superseded prompt version; scoped to the owner like every other read.
+  turns(input: unknown): ConversationTurns {
+    const {scopeKey, turnId, ...target} = conversationTurnsQuerySchema.parse(input);
+    return this.read(() => {
+      this.scoped(target, scopeKey);
+      const anchors = this.store.db.prepare("SELECT id,json_extract(body,'$.originalMessageId') AS originalMessageId,json_extract(body,'$.revision') AS revision FROM entities WHERE kind='turn' AND thread_id=? ORDER BY rowid")
+        .all(target.threadId) as {id: string; originalMessageId: string; revision: number}[];
+      const chosen = turnId === undefined ? anchors : anchors.filter(a => a.id === turnId);
+      if (turnId !== undefined && chosen.length === 0) throw new HarnessError('NOT_FOUND', 'The conversation turn is unavailable.');
+      const versionRows = this.store.db.prepare("SELECT json_extract(body,'$.version') AS version,json_extract(body,'$.messageId') AS messageId,json_extract(body,'$.inputId') AS inputId,json_extract(body,'$.status') AS status,json_extract(body,'$.createdAt') AS createdAt FROM entities WHERE kind='turnVersion' AND thread_id=? AND json_extract(body,'$.turnId')=? ORDER BY json_extract(body,'$.version')");
+      const promptRow = this.store.db.prepare("SELECT rowid,substr(json_extract(body,'$.content'),1,4096) AS content FROM entities WHERE kind='message' AND thread_id=? AND id=?");
+      const nextUserRow = this.store.db.prepare("SELECT min(rowid) AS r FROM entities WHERE kind='message' AND thread_id=? AND rowid>? AND json_extract(body,'$.role')='user'");
+      const replyRows = this.store.db.prepare("SELECT substr(json_extract(body,'$.content'),1,4096) AS content FROM entities WHERE kind='message' AND thread_id=? AND rowid>? AND rowid<? AND json_type(body,'$.content')='text' ORDER BY rowid");
+      const turns = chosen.map(anchor => ({turnId: anchor.id, originalMessageId: anchor.originalMessageId, revision: anchor.revision,
+        versions: (versionRows.all(target.threadId, anchor.id) as {version: number; messageId: string; inputId: string; status: string; createdAt: string}[]).map(version => {
+          const prompt = promptRow.get(target.threadId, version.messageId) as {rowid: number; content: string | null} | undefined;
+          const boundary = prompt ? (nextUserRow.get(target.threadId, prompt.rowid) as {r: number | null}).r ?? Number.MAX_SAFE_INTEGER : 0;
+          const reply = prompt ? (replyRows.all(target.threadId, prompt.rowid, boundary) as {content: string | null}[]).map(r => r.content).filter((c): c is string => c !== null).join('\n') : '';
+          return {...version, status: version.status as 'active' | 'superseded', content: prompt?.content ?? '', reply: reply === '' ? null : reply};
+        })}));
+      return {...this.envelope(target, scopeKey), turns};
     });
   }
   updates(input: unknown): ConversationUpdates {

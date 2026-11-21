@@ -148,7 +148,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     return {
       seq: service.store.sequence,
       threads: [thread],
-      messages: service.store.all('message', id),
+      messages: (service.store.all('message', id) as { id: string }[]).filter(m => !service.store.supersededMessageIds(id).has(m.id)),
       artifacts: service.store.all('artifact', id),
       userStates: service.store.all('userState', id),
       data: service.store.all('data', id),
@@ -207,7 +207,8 @@ export async function buildServer(service: Service, options: ServerOptions) {
     if (!query) return { threadIds: [] };
     const ids = (request.query.threads ?? '').slice(0, 4000).split(',').filter(id => /^[\w:.-]{1,200}$/.test(id)).slice(0, 200);
     const threadIds = ids.filter(id => service.store.get('thread', id) && !service.store.get('archivedThread', id)
-      && service.store.all<{ content: string }>('message', id).some(message => message.content.toLocaleLowerCase().includes(query)));
+      && (() => { const superseded = service.store.supersededMessageIds(id);
+        return service.store.all<{ id: string; content: string }>('message', id).some(message => !superseded.has(message.id) && message.content.toLocaleLowerCase().includes(query)); })());
     return { threadIds };
   });
   app.get("/api/models", async (request, reply) => {

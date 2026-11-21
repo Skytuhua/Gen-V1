@@ -3,6 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
+import { ConversationReadModels } from '../packages/core/conversation-read-models.ts';
 import { Service } from '../packages/core/service.ts';
 import type { RuntimeAdapter, RuntimeCallbacks, StartRun, Thread } from '../packages/contracts/index.ts';
 
@@ -10,7 +11,6 @@ import type { RuntimeAdapter, RuntimeCallbacks, StartRun, Thread } from '../pack
 // proves command admission, turn records and generation passthrough.
 const makeRuntime = (dir: string, prompts: StartRun[]) => {
   let callbacks!: RuntimeCallbacks;
-  const sessionPath = join(dir, 'hermes', 'sessions', 'seed.json');
   const runtime: RuntimeAdapter = {
     configure: c => { callbacks = c; },
     models: async () => [{ id: 'openai/m', provider: 'openai', name: 'm' }],
@@ -25,7 +25,7 @@ const makeRuntime = (dir: string, prompts: StartRun[]) => {
     captureTurnCut: async path => ({ cutId: 'c' + 'a'.repeat(16), path: path.slice(0, -5) + '.cut-' + 'c' + 'a'.repeat(16) + '.json' }),
     hydrateSessionGeneration: async (_cut, input) => join(dir, 'hermes', 'sessions', 'gen-' + input.sessionGeneration + '.json'),
   };
-  return { runtime, sessionPath };
+  return { runtime };
 };
 
 describe('message.editRerun (#1532 T02)', async () => {
@@ -33,7 +33,7 @@ describe('message.editRerun (#1532 T02)', async () => {
     const dir = await mkdtemp(join(tmpdir(), 'edit-rerun-'));
     const store = new Store(dir);
     const prompts: StartRun[] = [];
-    const { runtime, sessionPath } = makeRuntime(dir, prompts);
+    const { runtime } = makeRuntime(dir, prompts);
     const service = new Service(store, runtime);
     try {
       await service.recover();
@@ -75,6 +75,20 @@ describe('message.editRerun (#1532 T02)', async () => {
       expect(versions2.map(v => [v.version, v.status])).toEqual([[1, 'superseded'], [2, 'superseded'], [3, 'active']]);
       expect(store.get<Thread>('thread', thread.id)!.sessionGeneration).not.toBe(turn.generationId);
       expect(prompts[prompts.length - 1].prompt).toContain('REVISED_V2');
+      // T03 projection: superseded versions are absent from transcript reads…
+      const superseded = store.supersededMessageIds(thread.id);
+      expect(superseded.size).toBe(2);
+      const visible = store.messagesFor(thread.id).messages;
+      expect(visible.filter(m => superseded.has(m.id))).toHaveLength(0);
+      expect(store.snapshot().messages.some(m => superseded.has(m.id))).toBe(false);
+      // …but explicitly readable through the scoped turn-disclosure model.
+      const reads = new ConversationReadModels(store);
+      const context = reads.context({authority: 'personal', threadId: thread.id});
+      const disclosed = reads.turns({authority: 'personal', threadId: thread.id, scopeKey: (context as {scopeKey: string}).scopeKey});
+      expect(disclosed.turns).toHaveLength(1);
+      expect(disclosed.turns[0].versions.map(v => [v.version, v.status, v.content])).toEqual([[1, 'superseded', 'ORIGINAL_PROMPT'], [2, 'superseded', 'REVISED_PROMPT'], [3, 'active', 'REVISED_V2']]);
+      expect(disclosed.turns[0].versions[0].reply).toBe('R');
+      reads.dispose();
     } finally {
       await service.dispose(); store.close();
       await rm(dir, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 });
