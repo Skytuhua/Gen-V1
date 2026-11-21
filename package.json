@@ -8,6 +8,7 @@
     "node": ">=24.10.0"
   },
   "scripts": {
+    "bench:startup": "tsx scripts/bench-startup.ts",
     "capture:ui": "tsx scripts/capture-ui/index.ts",
     "dev": "node scripts/dev.mjs",
     "start": "tsx apps/server/main.ts",
