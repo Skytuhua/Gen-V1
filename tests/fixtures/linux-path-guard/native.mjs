@@ -175,6 +175,23 @@ if(process.argv[3]==='credential-barrier'){
  },signal,'synthetic-barrier');
  console.log(JSON.stringify({scope:'LOCAL_NATIVE_CREDENTIAL_READ_BARRIER',writableFdRejected:true,existingLockRejected:true,staleNativeWrite:'EROFS',descendantWrite:'EROFS',expiredFenceRetained:true,restoredNativeWrite:true,literalSnapshot:true,reentrantRelease:true,abortFenceRetained:true,expirySettlementPending:true,modelCalls:0,realCredentials:false}));process.exit(0);
 }
+if(process.argv[3]==='credential-lease'){
+ const account={id:'a9314811-0937-4f76-b565-445d57504ccc',providerId:'openai-codex',label:'Synthetic ordinary lease only',enabled:true};
+ await withAccountProfile(root,account,async profile=>{
+  const {authPath}=taskPaths(profile,'synthetic-lease'),store=await createLiteralCredentialStore(authPath);
+  const value={type:'oauth',access:'SYNTHETIC-NO-NETWORK',refresh:'SYNTHETIC-NO-NETWORK',expires:0};
+  await store.modify('openai-codex',async()=>value);
+  const lease=await acquireLiteralCredentialLease(authPath,{signal,maxHoldMs:2000});
+  try{
+   lease.assertCurrent();
+   assert.deepEqual(lease.read('openai-codex'),value);
+  }finally{await lease.release();}
+  await lease.settled;
+  await store.modify('openai-codex',async()=>value);
+  assert.equal((await store.read('openai-codex')).access,value.access);
+ },signal,'synthetic-lease');
+ console.log(JSON.stringify({scope:'LOCAL_NATIVE_CREDENTIAL_LEASE_ORDINARY',ordinaryLeaseAcquired:true,literalSnapshot:true,postReleaseNativeWrite:true,modelCalls:0,realCredentials:false}));process.exit(0);
+}
 async function unlinkDirectory(path){const {rmdir}=await import('node:fs/promises');await rmdir(path);}
 const directory=join(root,'ordinary');await mkdir(directory,{mode:0o700,recursive:true});
 await withPathGuard([{path:directory,leaf:false,allowChildWrites:true,childWriteRoot:root}],signal,async()=>{
@@ -194,7 +211,11 @@ let entered=false;
 await assert.rejects(withPathGuard([{path:'/etc',leaf:false}],signal,async()=>{entered=true;}),{code:'CAPABILITY_DENIED'});assert.equal(entered,false);
 await symlink(directory,join(root,'redirect'));
 await assert.rejects(withPathGuard([{path:join(root,'redirect'),leaf:false}],signal,async()=>{entered=true;}),{code:'CAPABILITY_DENIED'});await unlink(join(root,'redirect'));
-await assert.rejects(withPathGuard([{path:join(directory,'save.txt'),leaf:true}],signal,async()=>{}),{code:'CAPABILITY_DENIED'});
+await withPathGuard([{path:join(directory,'save.txt'),leaf:true}],signal,async()=>{
+ await assert.rejects(rename(join(directory,'save.txt'),join(directory,'save-renamed.txt')),{code:'EBUSY'});
+ await writeFile(join(directory,'save.txt'),'leaf writable');
+});
+assert.equal(await readFile(join(directory,'save.txt'),'utf8'),'leaf writable');
 
 const parent=join(root,'engine');await mkdir(parent,{mode:0o700,recursive:true});
 const client=new HermesClient({home:join(parent,'home'),timeoutMs:10000});

@@ -169,6 +169,17 @@ class DirectoryGuard:
         self.root, self.uid, self.groups, self.pins = root, uid, {}, {}
         self.readonly_pins: set = set()
         self.credentials, self.barriers = {}, {}
+        # Applied mounts whose cleanup unwind failed stay fenced outside the
+        # pin ledger; quarantining them stops acquisitions borrowing the
+        # anomalous mount while the state is unresolved.
+        self.quarantined: set = set()
+        # Failed-acquisition rollback pins that stayed fenced keep a named
+        # cleanup owner here — recorded, not releasable as a lease.
+        self.unresolved: dict = {}
+
+    def record_unresolved(self, owner, paths):
+        if paths:
+            self.unresolved[owner] = self.unresolved.get(owner, []) + paths
 
     def credential_parent(self, auth):
         if not isinstance(auth, str) or not auth.startswith(self.root + '/') or not re.fullmatch(r'(?:manager-runtime/)?(?:(?!manager-|\.\.?(?=/|$))[^/]+/)*accounts/provider-auth-[a-f0-9]{64}/pi/auth\.json', auth[len(self.root) + 1:]):
@@ -190,7 +201,7 @@ class DirectoryGuard:
         except BaseException:
             if fd >= 0:
                 os.close(fd)
-            self.release_paths(held)
+            self.record_unresolved(parent, self.release_paths(held))
             raise
 
     def credential_mounts(self, prepared, readonly):
@@ -206,7 +217,12 @@ class DirectoryGuard:
             if within(parent, record['path']):
                 relative = os.path.relpath(record['path'], parent)
                 expected = target['root'] if relative == '.' else os.path.join(target['root'], relative)
-                if record['path'] not in self.pins or record['dev'] != target['dev'] or record['root'] != expected or record['filesystem'] != 'ext4' or not stat.S_ISDIR(os.stat(record['path']).st_mode) or ('ro' in record['flags']) != readonly:
+                info = os.stat(record['path']).st_mode
+                # A ledgered read-only leaf (a pinned child-write marker or an
+                # explicit read-only file) is the guard's own custody: it stays
+                # fenced instead of tracking the barrier's readonly state.
+                leaf = record['path'] in self.readonly_pins and stat.S_ISREG(info)
+                if record['path'] not in self.pins or record['dev'] != target['dev'] or record['root'] != expected or record['filesystem'] != 'ext4' or not (stat.S_ISDIR(info) or leaf) or ('ro' in record['flags']) != (readonly or leaf):
                     raise PermissionError('Unsupported credential submount')
                 descendants.append(record['id'])
             elif record['dev'] == target['dev'] and (within(record['root'], target['root']) or within(target['root'], record['root'])) and not within(record['path'], parent) and 'ro' not in record['flags']:
@@ -306,8 +322,14 @@ class DirectoryGuard:
         mounts = self.credential_mounts(prepared, False)
         self.credential_processes(prepared, mounts)
         held = [record['path'] for record in mount_records() if record['id'] in mounts]
-        for path in held:
-            self.pin(path)
+        pinned = []
+        try:
+            for path in held:
+                self.pin(path)
+                pinned.append(path)
+        except BaseException:
+            self.record_unresolved(parent, self.release_paths(pinned))
+            raise
         identifier = uuid.uuid4().hex
         barrier = dict(parent=parent, mounts=mounts, held=held, expires=time.monotonic() + duration / 1000, fenced=False)
         self.barriers[identifier] = barrier
@@ -334,12 +356,26 @@ class DirectoryGuard:
                 if self.credential_mounts(prepared, True) != barrier['mounts']:
                     raise PermissionError('Credential mount set changed')
                 mount_readonly(prepared['fd'], False)
+                for path in barrier['held']:
+                    # The recursive un-fence also clears each leaf pin's
+                    # permanent fence; restore it so custody matches the ledger.
+                    if path in self.readonly_pins:
+                        leaf = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                        try:
+                            mount_readonly(leaf, True)
+                        finally:
+                            os.close(leaf)
                 barrier['fenced'] = False
                 if self.credential_mounts(prepared, False) != barrier['mounts']:
                     raise PermissionError('Credential restoration did not settle')
             except BaseException as error:
                 raise CustodyUncertain('Retain credential custody') from error
-        self.release_paths(barrier['held'])
+        unresolved = self.release_paths(barrier['held'])
+        if unresolved:
+            # Keep the barrier owning exactly the paths that stayed fenced —
+            # a refused cleanup must not claim the fence released.
+            barrier['held'] = unresolved
+            raise CustodyUncertain('Retain credential custody')
         del self.barriers[identifier]
 
     def components(self, path):
@@ -354,6 +390,8 @@ class DirectoryGuard:
         return result
 
     def pin(self, path):
+        if path in self.quarantined:
+            raise PermissionError('Path retains quarantined cleanup state')
         if path in self.pins:
             self.pins[path] += 1
             return
@@ -364,33 +402,63 @@ class DirectoryGuard:
             info = os.fstat(fd)
             if not stat.S_ISDIR(info.st_mode) or info.st_uid != self.uid or info.st_mode & 0o022:
                 raise PermissionError("Private ordinary directory required")
+            mounted = False
             if path != self.root:
                 name = os.fsencode(f"/proc/self/fd/{fd}")
                 checked(LIBC.mount(name, name, None, 4096, None))  # Mandatory rename/unlink protection.
-            after = os.stat(path, follow_symlinks=False)
-            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
-                raise PermissionError("Directory identity changed")
+                mounted = True
+            try:
+                after = os.stat(path, follow_symlinks=False)
+                if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                    raise PermissionError("Directory identity changed")
+            except BaseException:
+                if mounted:
+                    try:
+                        checked(LIBC.umount2(os.fsencode(path), 2))
+                    except BaseException:
+                        # The mount stays applied but unledgered; quarantine the
+                        # path so acquisitions cannot borrow the anomaly.
+                        self.quarantined.add(path)
+                raise
             self.pins[path] = 1
         finally:
             os.close(fd)
 
     def release_paths(self, paths):
+        # Each pin releases independently; unresolved paths keep their ledger
+        # entry and fence. A still-held child's ancestors stay held — releasing
+        # them would strand the child mount under a detached parent — while
+        # independent paths release normally. Returns the paths that remain
+        # held so the caller can retain lease ownership for a retry.
+        unresolved = []
         for path in sorted(paths, key=lambda value: value.count("/"), reverse=True):
             if path not in self.pins:
                 continue  # Consumed by an owned remove/replace.
+            # A still-held child — unresolved this pass or quarantined from a
+            # failed unwind — keeps its ancestors held; siblings release.
+            if any(held.startswith(path + "/") for held in unresolved) or any(quarantined.startswith(path + "/") for quarantined in self.quarantined):
+                unresolved.append(path)
+                continue
             if self.pins[path] == 1:
-                if path != self.root:
-                    # MNT_DETACH: release ends the lease like a handle close even
-                    # while a child still maps or roots inside the mount.
-                    checked(LIBC.umount2(os.fsencode(path), 2))
+                try:
+                    if path != self.root:
+                        # MNT_DETACH: release ends the lease like a handle close even
+                        # while a child still maps or roots inside the mount.
+                        checked(LIBC.umount2(os.fsencode(path), 2))
+                except BaseException:
+                    unresolved.append(path)
+                    continue
                 del self.pins[path]
                 self.readonly_pins.discard(path)
             else:
                 self.pins[path] -= 1
+        return unresolved
 
     def drop_pin(self, path, writable_only=False):
         if path not in self.pins:
             return
+        if any(quarantined.startswith(path + "/") for quarantined in self.quarantined):
+            raise PermissionError("Quarantined child retains ancestry custody")
         if self.pins[path] != 1:
             raise PermissionError("Path is pinned by another guard lease")
         if writable_only and path in self.readonly_pins:
@@ -400,6 +468,8 @@ class DirectoryGuard:
         self.readonly_pins.discard(path)
 
     def pin_leaf(self, path, read_only, expected=None, empty=False):
+        if path in self.quarantined:
+            raise PermissionError('Path retains quarantined cleanup state')
         if path in self.pins:
             self.pins[path] += 1
             return
@@ -416,16 +486,25 @@ class DirectoryGuard:
                 raise PermissionError("Directory identity mismatch")
             name = os.fsencode(f"/proc/self/fd/{fd}")
             checked(LIBC.mount(name, name, None, 4096, None))  # Rename/unlink protection, like directory pins.
-            if read_only:
-                bound = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+            try:
+                if read_only:
+                    bound = os.open(path, os.O_PATH | os.O_NOFOLLOW | os.O_CLOEXEC)
+                    try:
+                        attributes = MountAttr(1, 0, 0, 0)  # MOUNT_ATTR_RDONLY on the bind mount itself
+                        syscall(442, ctypes.c_int(bound), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
+                    finally:
+                        os.close(bound)
+                after = os.stat(path, follow_symlinks=False)
+                if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
+                    raise PermissionError("File identity changed")
+            except BaseException:
                 try:
-                    attributes = MountAttr(1, 0, 0, 0)  # MOUNT_ATTR_RDONLY on the bind mount itself
-                    syscall(442, ctypes.c_int(bound), ctypes.c_char_p(b""), ctypes.c_uint(0x1000), ctypes.byref(attributes), ctypes.c_size_t(ctypes.sizeof(attributes)))
-                finally:
-                    os.close(bound)
-            after = os.stat(path, follow_symlinks=False)
-            if (after.st_dev, after.st_ino) != (info.st_dev, info.st_ino):
-                raise PermissionError("File identity changed")
+                    checked(LIBC.umount2(os.fsencode(path), 2))
+                except BaseException:
+                    # The mount stays applied but unledgered; quarantine the
+                    # path so acquisitions cannot borrow the anomaly.
+                    self.quarantined.add(path)
+                raise
             self.pins[path] = 1
             if read_only:
                 self.readonly_pins.add(path)
@@ -550,14 +629,37 @@ class DirectoryGuard:
             self.release_credential(request['leaseId'])
             return {'id': request['id']}
         if command == "release" and set(request) == {"command", "id"}:
-            self.release_paths(self.groups.pop(request["id"]))
-            if not self.groups and not self.barriers:
+            if request["id"] not in self.groups:
+                raise PermissionError("Unknown guard group")
+            unresolved = self.release_paths(self.groups[request["id"]])
+            if unresolved:
+                # A cleanup refusal is not a release: the lease keeps
+                # ownership of exactly the paths that stayed fenced so a
+                # retry resumes without double-decrementing released ones.
+                self.groups[request["id"]] = unresolved
+                raise PermissionError("Guard cleanup did not settle")
+            # Keep the id as a cleanup-only owner until ancillary credential
+            # cleanup settles: a retry must resume the ancillary stage instead
+            # of failing on an unknown group, and the empty ledger can neither
+            # re-drop settled paths nor act as an ordinary acquisition.
+            self.groups[request["id"]] = []
+            pending = False
+            if all(not held for held in self.groups.values()) and not self.barriers:
                 # Credential ancestry pins are scope-scoped: drop them once no
                 # guarded scope remains so fixture trees stay replaceable.
-                for prepared in self.credentials.values():
-                    os.close(prepared["fd"])
-                    self.release_paths(prepared["held"])
-                self.credentials.clear()
+                for parent, prepared in list(self.credentials.items()):
+                    unresolved = self.release_paths(prepared["held"])
+                    if unresolved:
+                        prepared["held"] = unresolved
+                        pending = True
+                    else:
+                        os.close(prepared["fd"])
+                        del self.credentials[parent]
+            if pending:
+                # Ancillary credential cleanup is explicitly uncertain — the
+                # stage is not complete and the prepared entries keep custody.
+                raise CustodyUncertain('Ancillary credential cleanup did not settle')
+            del self.groups[request["id"]]
             return {"id": request["id"], "entries": []}
         elif command == "acquire" and set(request) == {"command", "id", "paths"}:
             entries = request["paths"]
@@ -617,7 +719,7 @@ class DirectoryGuard:
                             self.tree(path, bool(entry.get("gitMetadataImport")), manifest, held)
                 self.groups[request["id"]] = held
             except BaseException:
-                self.release_paths(held)
+                self.record_unresolved(request["id"], self.release_paths(held))
                 raise
             return {"id": request["id"], "entries": manifest}
         elif command == "removeOwned" and set(request) == {"command", "id", "path", "dev", "ino", "empty", "directory"}:
