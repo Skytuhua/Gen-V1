@@ -95,6 +95,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('task-interface'),
   suite('ui-shell-controls'),
   suite('usage-context'),
+  suite('read-aloud'),
   suite('wo8'),
 ];
 

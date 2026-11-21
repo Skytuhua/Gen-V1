@@ -19,21 +19,28 @@ function storage(): Storage | null {
   try { return localStorage; } catch { storageBlocked = true; return null; }
 }
 
+let cached: ReadAloudPreferences | null = null;
+
 export function readReadAloudPreferences(): ReadAloudPreferences {
   const store = storage();
   let raw: string | null = null;
   if (store) {
     try { raw = store.getItem(READ_ALOUD_STORAGE_KEY); } catch { storageBlocked = true; }
   }
-  if (raw === null) return { ...sessionOnly };
-  try {
-    const parsed = JSON.parse(raw) as { voiceURI?: unknown; rate?: unknown };
-    const voiceURI = typeof parsed.voiceURI === 'string' ? parsed.voiceURI : null;
-    const rate = READ_ALOUD_RATES.includes(parsed.rate as ReadAloudRate) ? parsed.rate as ReadAloudRate : 1;
-    return { voiceURI, rate };
-  } catch {
-    return { ...defaults };
+  let value: ReadAloudPreferences;
+  if (raw === null) value = { ...sessionOnly };
+  else {
+    try {
+      const parsed = JSON.parse(raw) as { voiceURI?: unknown; rate?: unknown };
+      value = {
+        voiceURI: typeof parsed.voiceURI === 'string' ? parsed.voiceURI : null,
+        rate: READ_ALOUD_RATES.includes(parsed.rate as ReadAloudRate) ? parsed.rate as ReadAloudRate : 1,
+      };
+    } catch { value = { ...defaults }; }
   }
+  // Stable reference: useSyncExternalStore must see an identical object when nothing changed.
+  if (!cached || cached.voiceURI !== value.voiceURI || cached.rate !== value.rate) cached = value;
+  return cached;
 }
 
 export function writeReadAloudPreferences(next: ReadAloudPreferences): ReadAloudPreferences {

@@ -11,4 +11,4 @@
 .read-aloud-speaking .read-aloud-bars i:nth-child(3) { animation-delay:240ms; }
 .read-aloud-error { display:block; margin-top:4px; font-size:11px; color:var(--muted); }
 @keyframes read-aloud-bar { 0%,100% { transform:scaleY(1); } 50% { transform:scaleY(2.2); } }
-@media (prefers-reduced-motion:reduce) { .read-aloud-bars i { animation:none; } }
+@media (prefers-reduced-motion:reduce) { .read-aloud-speaking .read-aloud-bars i { animation:none; } }
