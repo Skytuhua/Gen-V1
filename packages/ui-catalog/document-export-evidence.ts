@@ -3,7 +3,7 @@ import type { Operation, ResourceGrant } from '../contracts';
 export type DocumentLocation = { resourceId: string; resourcePath?: string };
 export type VerifiedExportEvidence = { operationId: string; source: DocumentLocation; destination: DocumentLocation; sourceSha256: string; outputSha256: string };
 const path = (value: unknown) => value === undefined ? '' : typeof value === 'string' ? value : null;
-const sameDocumentLocation = (a: DocumentLocation, b: DocumentLocation) => a.resourceId === b.resourceId && path(a.resourcePath) === path(b.resourcePath);
+export const sameDocumentLocation = (a: DocumentLocation, b: DocumentLocation) => a.resourceId === b.resourceId && path(a.resourcePath) === path(b.resourcePath);
 
 /** Evidence correlation only. Resource access and byte verification remain separate. */
 export function documentExportEvidence(threadId: string, operationId: string, operations: readonly Operation[], resources: readonly ResourceGrant[], destination: DocumentLocation, previous?: DocumentLocation): VerifiedExportEvidence {
