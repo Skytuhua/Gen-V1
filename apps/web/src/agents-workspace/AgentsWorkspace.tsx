@@ -1,5 +1,5 @@
 import {Fragment, createContext, useContext, useEffect, useId, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties, type KeyboardEvent, type ReactNode} from 'react';
-import {ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
+import {Bot, ChevronDown, ChevronRight, ExternalLink, Search, Send, Square, X} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {isComposing} from '../../../../packages/ui-shell/list-navigation';
 import {agentStatuses, type AgentStatus, type AgentSummary} from '../../../../packages/contracts/agent-inventory';
@@ -25,6 +25,10 @@ export interface AgentsWorkspaceProps {
  preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>};
  projects?: readonly {id: string; name: string}[];
  hasConversations?: boolean;
+ /** Same path as the sidebar New thread action; the zero-agent hero hides its action without it. */
+ onNewConversation?: () => void;
+ /** Label of the new-thread keybinding for the hero subline. */
+ newThreadShortcut?: string;
 }
 const Visibility = createContext<(id: string, visible: boolean) => void>(() => {});
 const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
@@ -32,7 +36,7 @@ const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
 export const columnsForWidth = (width: number): 1 | 2 | 4 => width >= 1080 ? 4 : width >= 768 ? 2 : 1;
 
 /** Personal-only leaf: the outer host selects compact bootstrap before mounting any legacy App. */
-export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations = false}: AgentsWorkspaceProps) {
+export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations: _hasConversations, onNewConversation, newThreadShortcut = 'Ctrl+Shift+O'}: AgentsWorkspaceProps) {
  const state = useSyncExternalStore(controller.subscribe, controller.getSnapshot), [searchOpen, setSearchOpen] = useState(Boolean(state.scope.text)), [text, setText] = useState(state.scope.text ?? '');
  const rows = useMemo(() => groupAgents(state.agents), [state.agents]);
  const catalog = useMemo(() => agentProjectCatalog(projects, state.agents), [projects, state.agents]);
@@ -67,11 +71,21 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
   {state.error && <ErrorState className="agents-error" message={state.error} retryLabel="Retry connection" onRetry={() => {void controller.start();}} />}
   <div className="agents-projects" ref={viewport} onScroll={event => controller.setView('$workspace', {top: event.currentTarget.scrollTop})}>
    <LoadingState pending={state.pending} hasContent={Boolean(state.scopeKey) || rows.length > 0} label="Loading agents…" skeleton={<AgentsSkeleton/>}>
-   {Boolean(state.scopeKey) && !rows.length && <p className="agents-empty">{state.scope.text || state.scope.statuses || state.scope.projectId !== undefined ? 'No agents match these filters.' : hasConversations ? 'No active agents. Agents appear here once a conversation starts working.' : 'No agents yet. Open a conversation to begin.'}</p>}
+   {Boolean(state.scopeKey) && !rows.length && <AgentsEmptyState filtered={Boolean(state.scope.text || state.scope.statuses || state.scope.projectId !== undefined)} onClear={() => {pushed.current = undefined; setText(''); void controller.setScope({});}} onNewConversation={onNewConversation} newThreadShortcut={newThreadShortcut}/>}
    {rows.map(row => <Project key={row.id ?? '$none'} row={row} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}
    </LoadingState>
   </div>
  </section></Visibility.Provider>;
+}
+
+function AgentsEmptyState({filtered, onClear, onNewConversation, newThreadShortcut}: {filtered: boolean; onClear: () => void; onNewConversation?: () => void; newThreadShortcut: string}) {
+ if (filtered) return <div className="agents-empty-filtered" role="region" aria-label="No matching agents"><Bot size={20} aria-hidden="true"/><span>No agents match these filters.</span><button type="button" className="agents-empty-clear" onClick={onClear}>Clear filters</button></div>;
+ return <div className="agents-empty-state" role="region" aria-label="No active agents">
+  <div className="agents-empty-tile" aria-hidden="true"><Bot size={23} strokeWidth={1.4}/></div>
+  <h2>No active agents</h2>
+  <p>Agents appear here once a conversation starts working. Start one from the sidebar or press {newThreadShortcut}.</p>
+  {onNewConversation && <div className="agents-empty-actions"><button type="button" onClick={onNewConversation}>New conversation</button></div>}
+ </div>;
 }
 
 function VirtualSlot({children, className, label}: {children: ReactNode; className: string; label: string}) {

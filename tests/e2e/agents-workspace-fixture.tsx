@@ -12,7 +12,7 @@ import '../../apps/web/src/styles.css';
 const controller = new AgentsWorkspaceController();
 const composers = createPersonalAgentComposers(createPersonalChildFollowUp(agent => controller.getSnapshot().agents.find(parent => parent.agentId === agent.parentId)?.threadId ?? undefined));
 const root = createRoot(document.getElementById('root')!);
-const props: AgentsWorkspaceProps = {controller, composers, onOpenConversation: id => {document.documentElement.dataset.openedThread = id;}};
+const props: AgentsWorkspaceProps = {controller, composers, onOpenConversation: id => {document.documentElement.dataset.openedThread = id;}, onNewConversation: () => {document.documentElement.dataset.newConversation = '1';}};
 async function mount() {
  let content;
  if (new URLSearchParams(location.search).has('candidate') || new URLSearchParams(location.search).has('app')) {
