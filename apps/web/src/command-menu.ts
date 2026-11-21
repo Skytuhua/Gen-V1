@@ -77,8 +77,8 @@ export function rankCommands(query: string, items: readonly CommandItem[], limit
 }
 
 /** Ordered, non-empty groups following COMMAND_GROUP_ORDER. */
-export function groupCommands(items: readonly CommandItem[]): {group: CommandGroup; items: CommandItem[]}[] {
-  const groups: {group: CommandGroup; items: CommandItem[]}[] = [];
+export function groupCommands<T extends {group: CommandGroup}>(items: readonly T[]): {group: CommandGroup; items: T[]}[] {
+  const groups: {group: CommandGroup; items: T[]}[] = [];
   for (const group of COMMAND_GROUP_ORDER) {
     const members = items.filter(item => item.group === group);
     if (members.length > 0) groups.push({group, items: members});
