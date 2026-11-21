@@ -4520,7 +4520,8 @@
     "third-party/vespin/provenance.json",
     "tsconfig.json",
     "vite.config.ts",
-    "vitest.config.ts"
+    "vitest.config.ts",
+    "vitest.linux.config.ts"
   ],
   "runtime": [
     "apps/server/account-auth.ts",
