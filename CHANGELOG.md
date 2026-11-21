@@ -57,6 +57,9 @@ Expect Windows SmartScreen to show a
   read-only GitHub polling intake that proposes work rather than approving it.
 - Add gated fixed-cut session inspection, explicitly labelled quoted-context new
   tasks and validated inert ArchiveV1 history imports, not native session forks.
+- Add per-thread Markdown export from the sidebar and History menus, saved via
+  the native dialog on desktop or a browser download, with plan revisions,
+  tool effects and task memory in one redacted document.
 
 ### Context, memory and Hermes runtime
 

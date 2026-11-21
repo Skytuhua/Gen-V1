@@ -142,6 +142,23 @@ export class Store {
     const rows = (threadId === undefined ? this.statements.allKind.all(kind) : this.statements.allKindThread.all(kind, threadId)) as { body: string }[];
     return rows.map(row => JSON.parse(row.body) as T);
   }
+  /** Entity kinds the per-thread chronological timeline may read. The caller's
+   * kind list is validated against this allowlist and bound as parameters;
+   * no query text ever comes from input. */
+  private static readonly TIMELINE_KINDS = new Set([
+    'message', 'dataVersion', 'data', 'operation', 'request', 'artifact', 'resource', 'toolEffect', 'taskMemory', 'userState',
+  ]);
+  /** One chronological read across entity kinds for a thread. rowid order is
+   * insertion order; an upserted row keeps its rowid (and its position). */
+  timelineFor(threadId: string, kinds: readonly string[]): { kind: string; id: string; value: unknown }[] {
+    const unique = [...new Set(kinds)];
+    if (!unique.length || unique.length > Store.TIMELINE_KINDS.size || unique.some(kind => !Store.TIMELINE_KINDS.has(kind))) {
+      throw new HarnessError('INVALID_INPUT', 'Timeline kinds must be a nonempty subset of known entity kinds');
+    }
+    const placeholders = unique.map(() => '?').join(',');
+    const rows = this.db.prepare(`SELECT kind, id, body FROM entities WHERE thread_id=? AND kind IN (${placeholders}) ORDER BY rowid`).all(threadId, ...unique) as { kind: string; id: string; body: string }[];
+    return rows.map(row => ({ kind: row.kind, id: row.id, value: JSON.parse(row.body) }));
+  }
   put(kind: string, id: string, threadId: string | null, value: unknown): void {
     if (!this.transactionOpen) throw new Error("Projection writes require a command transaction");
     this.statements.put.run(kind, id, threadId, JSON.stringify(value));

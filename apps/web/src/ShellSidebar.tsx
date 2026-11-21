@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Circle,
   ExternalLink,
+  FileDown,
   FolderPlus,
   GitBranch,
   GitPullRequest,
@@ -33,6 +34,7 @@ import {createThreadHoverCache} from './thread-hover/data';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import {loadPersonalThreadHover,type ThreadHoverPRTarget} from './thread-hover/host';
 import { projectColor, threadDragPayload } from './project-colors';
+import { runExportWithFeedback } from './thread-export-api';
 import { ActionMenu } from '../../../packages/ui-shell/ActionMenu';
 import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
@@ -216,6 +218,10 @@ export function ShellSidebar({
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
             onSelect: async () => { const next = !item.presentation?.settled; try { if (await presentation(item, {settled: next})) toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); } catch (cause) { toast(cause instanceof Error ? cause.message : 'Thread presentation could not save.', {tone: 'error'}); } }},
+          {id: 'export-markdown', label: 'Export as Markdown…', icon: <FileDown size={13} />,
+            accessibleLabel: `Export “${item.title}” as Markdown`,
+            title: 'Save the whole conversation as a .md file — every message, plan and tool entry.',
+            onSelect: () => void runExportWithFeedback(item, () => matching.some(row => row.id === item.id))},
           {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),
             title: item.runId ? 'Stop the task before archiving.' : undefined, onSelect: () => archive(item.id)},
         ]}/>
