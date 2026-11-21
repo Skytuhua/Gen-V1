@@ -102,6 +102,28 @@ jobs:
       - name: Run application regression tests
         run: pnpm test --maxWorkers=1 --shard=${{ matrix.shard }}/4
 
+  test-linux:
+    name: Linux tests
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request' || github.event.pull_request.draft == false
+    timeout-minutes: 30
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Install toolchain
+        uses: ./.github/actions/setup
+
+      - name: Check the repository type program
+        run: pnpm typecheck
+
+      # vitest.linux.config.ts excludes tests measured to fail off Windows
+      # (see issue #1318); every exclusion carries a reason in that file.
+      - name: Run platform-independent tests
+        run: pnpm exec vitest run --config vitest.linux.config.ts
+
   browser:
     name: Browser tests
     runs-on: windows-2022
