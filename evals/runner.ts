@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import { randomUUID } from "node:crypto";
 import { CASES, CASESET_SHA256, CASESET_VERSION, scoreResults, type EvalResult, type EvalCase } from "./cases.ts";
 import { createFixtures } from "../scripts/create-fixtures.ts";
-import type { Snapshot, HostCommand, ModelInfo } from "../packages/contracts/index.ts";
+import type { Snapshot, HostCommand, ModelInfo, CommandReceipt } from "../packages/contracts/index.ts";
 
 export interface EvalOptions { destination: string; host?: string; modelId?: string; repetitions?: number; timeoutMs?: number; signal?: AbortSignal }
 export async function runEvals(options: EvalOptions) {
@@ -24,12 +24,12 @@ export async function runEvals(options: EvalOptions) {
   async function request(path: string, body?: HostCommand, recovery = false) {
     const response = await fetch(new URL(path, host), { method: body ? "POST" : "GET", redirect: "error", headers: { ...(cookie ? { cookie } : {}), ...(body ? { "content-type": "application/json", "x-harness-csrf": csrf } : {}) }, ...(body ? { body: JSON.stringify(body) } : {}), signal: options.signal && !recovery ? AbortSignal.any([options.signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000) });
     const cookies = response.headers.getSetCookie(); if (cookies.length) cookie = cookies.map(c => c.split(";", 1)[0]).join("; ");
-    const value = await response.json() as any;
+    const value = await response.json() as unknown;
     if (!response.ok) throw new Error(`Host ${path} ${response.status}: ${JSON.stringify(value)}`);
     return value;
   }
-  async function command(type: string, payload: Record<string, unknown>, threadId?: string) { return request("/api/commands", { id: randomUUID(), type, payload, ...(threadId ? { threadId } : {}) }, type === "run.stop"); }
-  const bootstrap = await request("/api/bootstrap"); csrf = bootstrap.csrfToken;
+  async function command(type: string, payload: Record<string, unknown>, threadId?: string): Promise<CommandReceipt> { return request("/api/commands", { id: randomUUID(), type, payload, ...(threadId ? { threadId } : {}) }, type === "run.stop") as Promise<CommandReceipt>; }
+  const bootstrap = await request("/api/bootstrap") as { csrfToken: string }; csrf = bootstrap.csrfToken;
   const modelResponse = await request("/api/models") as { models: ModelInfo[]; error?: string };
   if (!modelResponse.models.some(model => model.id === options.modelId)) throw new Error(`Selected model is unavailable: ${modelResponse.error ?? options.modelId}`);
   for (const testCase of CASES) for (let repetition = 1; repetition <= repetitions; repetition++) {
@@ -38,7 +38,7 @@ export async function runEvals(options: EvalOptions) {
     const fixture = await createFixtures(join(destination, label));
     const receipt = await command("thread.create", { title: `Held-out ${label}`, projectName: "Disposable evaluation" });
     const current = await request("/api/snapshot") as Snapshot;
-    const thread = current.threads.find(t => t.id === receipt.result?.id);
+    const thread = current.threads.find(t => t.id === (receipt.result as { id?: string } | undefined)?.id);
     if (!thread) throw new Error("Host did not create an observable new eval thread");
     try {
       for (const grant of [{ path: fixture.repository, kind: "project", writable: true }, { path: fixture.database, kind: "database", writable: true }, { path: fixture.pdf, kind: "file", writable: false }, { path: join(fixture.root, "sources"), kind: "project", writable: false }, { path: join(fixture.root, "exports"), kind: "export", writable: true }]) await command("resource.grant", { ...grant, label: `Disposable ${label} ${grant.kind}` }, thread.id);
@@ -77,7 +77,7 @@ export function observeCase(testCase: EvalCase, repetition: number, modelId: str
     if (id === "widget-artifact") { pass = artifacts.some(a => a.kind === "widget"); evidence = `Widget artifacts: ${artifacts.filter(a => a.kind === "widget").map(a => a.id).join(",")}`; }
     if (id === "data-binding") { pass = artifacts.some(a => Object.keys(a.bindings).length > 0); evidence = `Artifact bindings: ${JSON.stringify(artifacts.map(a => ({ id: a.id, bindings: a.bindings })))}`; }
     if (id === "prepared-operation") { pass = operations.length > 0; evidence = `Operations: ${operations.map(o => `${o.id}:${o.kind}:${o.status}`).join(",")}. Await user approval for effects.`; }
-    if (id === "actual-test-failure") { pass = operations.some(o => o.kind === "repository.test" && typeof (o.result as any)?.exitCode === "number" && (o.result as any).exitCode !== 0); evidence = `Test operation results: ${JSON.stringify(operations.filter(o => o.kind === "repository.test").map(o => o.result))}`; }
+    if (id === "actual-test-failure") { pass = operations.some(o => { const exitCode = (o.result as { exitCode?: unknown } | undefined)?.exitCode; return o.kind === "repository.test" && typeof exitCode === "number" && exitCode !== 0; }); evidence = `Test operation results: ${JSON.stringify(operations.filter(o => o.kind === "repository.test").map(o => o.result))}`; }
     return { id, status: genuine && pass ? "pass" as const : "pending" as const, evidence };
   });
   return { caseId: testCase.id, repetition, modelId, status: "pending", executionOutcome: thread?.status, source: genuine ? "host-pi" : undefined, threadId, sessionPath: thread?.sessionPath ?? undefined, snapshotSeq: snapshot.seq, assertions };
