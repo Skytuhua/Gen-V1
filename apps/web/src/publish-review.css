@@ -1,0 +1,37 @@
+.publish-review { width: min(720px, calc(100vw - 32px)); }
+.publish-review-note { color: var(--muted); font-size: 12px; }
+.publish-review-form { display: flex; flex-direction: column; gap: 4px; }
+.publish-review-section { margin-bottom: 8px; }
+.publish-review-label { margin: 0 0 6px; font-size: 11px; font-weight: 500; color: var(--muted); }
+.publish-review-label label { cursor: inherit; }
+.publish-review-branch { margin: 0; font-size: 12px; }
+.publish-review-branch code { font-family: var(--font-mono, monospace); }
+.publish-review-mono { font-family: var(--font-mono, monospace); }
+.publish-review-form input[type='text'], .publish-review-form input:not([type]), .publish-review-form textarea {
+  width: 100%; box-sizing: border-box; padding: 7px 9px; border: 1px solid var(--border);
+  border-radius: 8px; color: var(--text); background: var(--surface); font-size: 12px;
+}
+.publish-review-form textarea { min-height: 72px; resize: vertical; }
+.publish-review-files {
+  list-style: none; margin: 0; padding: 4px 6px; border: 1px solid var(--border);
+  border-radius: 10px; max-height: 240px; overflow: auto; display: grid; gap: 2px;
+}
+.publish-review-files li { display: flex; align-items: center; gap: 8px; padding: 7px 4px; font-size: 12px; }
+.publish-review-files li:hover { background: var(--subtle); }
+.publish-review-files li[data-excluded] { opacity: 0.6; }
+.publish-review-files input[type='checkbox'] { width: 16px; height: 16px; flex: none; accent-color: var(--accent-solid); }
+.publish-review-path { flex: 1; min-width: 0; overflow-wrap: anywhere; font-family: var(--font-mono, monospace); }
+.publish-review-counts { flex: none; font-variant-numeric: tabular-nums; font-size: 12px; color: var(--muted); }
+.publish-review-pill {
+  flex: none; font-size: 11px; color: var(--muted); border: 1px solid var(--border);
+  border-radius: 8px; padding: 1px 6px;
+}
+.publish-review-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 10px; }
+.publish-review-steps { list-style: none; margin: 0 0 12px; padding: 0; display: grid; gap: 6px; }
+.publish-review-steps li { display: flex; align-items: baseline; gap: 8px; font-size: 12px; }
+.publish-review-steps li > span { flex: 1; }
+.publish-review-steps li > small { color: var(--muted); }
+.publish-review-steps li[data-state='confirmed'] > small { color: var(--success); }
+.publish-review-steps li[data-state='uncertain'] > small, .publish-review-steps li[data-state='not-applied'] > small { color: var(--warning-fg); }
+.publish-review-done { font-size: 13px; }
+.publish-review-done a { color: var(--accent-fg); }
