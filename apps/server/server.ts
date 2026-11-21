@@ -43,6 +43,7 @@ import {SessionBranchReadModels} from '../../packages/core/session-branches.ts';
 import {registerSessionBranchReadRoutes} from './session-branch-routes.ts';
 import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.ts';
 import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
+import {registeredCapabilityFlags} from '../../packages/core/capability-flags.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
@@ -115,7 +116,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header('Cache-Control','no-store');
     const settings=service.store.get<Snapshot['settings']>('settings','global')??{theme:'dark',modelId:null};
     let preferences:UiPreferences;try{preferences=shellPreferencesSchema.parse(getPreferences(settings));}catch{preferences=shellPreferencesSchema.parse(getPreferences({}));}
-    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences};
+    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences,flags:registeredCapabilityFlags()};
   });
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
