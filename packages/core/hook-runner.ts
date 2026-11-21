@@ -77,7 +77,7 @@ export class HookRunner {
   if(payload.file_path)environment.GEN_FILE_PATH=String(payload.file_path);
   let record:HookRunRecord;
   try{
-   const result=await this.runProcessImpl(spec.command,spec.args,String(payload.cwd??process.env.HOME??'.'),signal,this.progress,hook.timeoutSeconds*1000,environment,64*1024,{input:JSON.stringify(truncatePayload(payload))+'\n',label:`hook "${label(hook)}" (${event})`});
+   const result=await this.runProcessImpl(spec.command,spec.args,String(payload.cwd??process.env.HOME??'.'),signal,this.progress,hook.timeoutSeconds*1000,environment,64*1024,{input:JSON.stringify(truncatePayload(payload))+'\n',label:`hook "${label(hook)}" (${event})`,verbatim:process.platform==='win32'});
    record=this.parse(hook,event,matchKey,startedAt,started,result);
   }catch(error){
    record={hookId:hook.id,event,matchKey,startedAt,durationMs:Date.now()-started,outcome:signal.aborted?'cancelled':'spawn_failed',exitCode:null,reason:signal.aborted?'Cancelled.':`Hook ${label(hook)} could not start: ${error instanceof Error?error.message:'spawn failed'}.`,systemMessage:null,stdout:'',stderr:'',truncated:false,ignoredFields:[]};

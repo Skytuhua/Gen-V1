@@ -18,6 +18,8 @@ export function registerHookRoutes(app:FastifyInstance,service:Service){
  app.delete('/api/hooks',{bodyLimit:2048},async(request,reply)=>{reply.header('Cache-Control','no-store');return settings.remove(request.body);});
  app.put('/api/hooks/enabled',{bodyLimit:2048},async(request,reply)=>{reply.header('Cache-Control','no-store');return settings.setEnabled(request.body);});
  app.post('/api/hooks/test',{bodyLimit:64*1024},async(request,reply)=>{
+  // The master switch is absolute: no hook process spawns while it is off, even for a manual test.
+  if((await settings.read()).enabled===false)throw new HarnessError('HOOKS_DISABLED','Hooks are off. Turn Run hooks back on to test a hook.');
   reply.header('Cache-Control','no-store');
   const input=testInput.parse(request.body);
   let hook:Hook|undefined;

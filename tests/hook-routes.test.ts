@@ -65,6 +65,19 @@ describe('hook routes',()=>{
   const missing=await app.inject({method:'POST',url:'/api/hooks/test',headers,payload:{id:'hook_00000000'}});
   expect(missing.statusCode).toBe(404);
  });
+ it('refuses the Test endpoint while the master switch is off',async()=>{
+  const{app,headers}=await setup();
+  const saved=await app.inject({method:'PUT',url:'/api/hooks',headers,payload:hookBody});
+  expect(saved.statusCode).toBe(200);
+  const off=await app.inject({method:'PUT',url:'/api/hooks/enabled',headers,payload:{enabled:false,baseRevision:saved.json().revision}});
+  expect(off.statusCode).toBe(200);
+  const byId=await app.inject({method:'POST',url:'/api/hooks/test',headers,payload:{id:saved.json().hooks[0].id}});
+  expect(byId.statusCode).toBe(400);
+  expect(byId.json().error.code).toBe('HOOKS_DISABLED');
+  const unsaved=await app.inject({method:'POST',url:'/api/hooks/test',headers,payload:{hook:{event:'UserPromptSubmit',command:'node -e "process.exit(0)"'}}});
+  expect(unsaved.statusCode).toBe(400);
+  expect(unsaved.json().error.code).toBe('HOOKS_DISABLED');
+ });
  it('rejects requests without the session cookie like environment routes',async()=>{
   const{app,headers}=await setup();
   for(const method of ['GET','PUT']){
