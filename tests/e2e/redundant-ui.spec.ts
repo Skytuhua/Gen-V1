@@ -160,6 +160,17 @@ test('retained destinations surface actual loading/error/empty boundaries',async
  await page.goto('/redundant-ui?state=usage-loading');await page.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(page.getByRole('dialog').getByRole('status')).toContainText('Refreshing usage');
  await page.goto('/redundant-ui?state=usage-error');await page.getByRole('button',{name:'Open Usage',exact:true}).click();await expect(page.getByRole('dialog').getByRole('alert')).toContainText('Usage refresh failed');
 });
+test('Diff surface Current tab names its own empty state (#1561)',async({page},info)=>{
+ await page.goto('/redundant-ui?state=disconnected');
+ await page.getByRole('button',{name:'Current changes',exact:true}).click();
+ await expect(page.getByText('No current changes',{exact:true})).toBeVisible();
+ await expect(page.getByText('Changes in the connected folder appear here.',{exact:true})).toBeVisible();
+ await expect(page.getByText('No recorded diffs',{exact:true})).toBeHidden();
+ await page.screenshot({path:info.outputPath('1561-current-empty.png'),fullPage:true});
+ await page.getByRole('tab',{name:'Recorded',exact:true}).click();
+ await expect(page.getByText('No recorded diffs',{exact:true})).toBeVisible();
+ await expect(page.getByText('No current changes',{exact:true})).toBeHidden();
+});
 for(const motion of ['reduced','off'])test(`light/zoom keyboard destinations respect ${motion} motion`,async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.goto('/redundant-ui');
  await page.evaluate(motion=>{document.documentElement.dataset.theme='light';document.documentElement.dataset.motion=motion;document.documentElement.style.zoom='1.25';},motion);
