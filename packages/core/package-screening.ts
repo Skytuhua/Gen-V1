@@ -172,25 +172,3 @@ export function screeningGate(record: PackageScreeningV1): 'BLOCK' | 'NEUTRAL' |
     return parsed.decision === 'OPERATOR_EXCEPTION' ? 'EXCEPTION_RECORDED' : 'BLOCK';
   return parsed.decision === 'ALLOW' ? 'NEUTRAL' : 'BLOCK';
 }
-
-export interface ScreeningAdvisory {
-  label: 'Advisory';
-  classifier: string;
-  model: string;
-  version: string;
-  uncertainty: 'low' | 'medium' | 'high';
-  rationale: string;
-  cannotAuthorize: true;
-}
-
-/** Deterministic advisory note attached to a screening outcome. It explains,
- * it never decides: KNOWN_BAD stays denied and clean lookups stay neutral. */
-export function screeningAdvisory(record: PackageScreeningV1): ScreeningAdvisory {
-  const parsed = packageScreeningV1Schema.parse(record);
-  const uncertainty = parsed.status === 'UNAVAILABLE' ? 'high' : parsed.status === 'KNOWN_BAD' ? 'low' : 'medium';
-  return {
-    label: 'Advisory', classifier: 'package-screening-advisory',
-    model: 'deterministic-v1', version: '1.0.0', uncertainty,
-    rationale: parsed.reason, cannotAuthorize: true,
-  };
-}

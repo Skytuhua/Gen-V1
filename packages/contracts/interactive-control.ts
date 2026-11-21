@@ -24,7 +24,6 @@ export const controlModeSchema = z.enum(['FRESH_VERIFICATION_BROWSER', 'CONSENTE
 export type ControlMode = z.infer<typeof controlModeSchema>;
 
 export const controlTargetKindSchema = z.enum(['APPLICATION', 'BROWSER_TAB']);
-export type ControlTargetKind = z.infer<typeof controlTargetKindSchema>;
 
 /** Interact operations. CAPTURE is deliberately absent: observation is a
  * separate permission from input (D03). */
@@ -41,7 +40,6 @@ export const controlGeometryV1Schema = z.strictObject({
   height: z.number().positive(),
   dpiScale: z.number().positive(),
 });
-export type ControlGeometryV1 = z.infer<typeof controlGeometryV1Schema>;
 
 /** Exact selected target identity. `creationIdentity` is a non-reused
  * process/session creation identity issued by the approved driver (a browser
@@ -115,7 +113,6 @@ export const captureScopeV1Schema = z.strictObject({
   kind: z.enum(['WINDOW', 'TAB', 'REGION']),
   region: controlGeometryV1Schema.nullable(),
 });
-export type CaptureScopeV1 = z.infer<typeof captureScopeV1Schema>;
 
 export const captureV1Schema = z.strictObject({
   artifactId: nonEmpty,
@@ -125,7 +122,6 @@ export const captureV1Schema = z.strictObject({
   sourceOwner: nonEmpty,
   captureScope: captureScopeV1Schema,
 });
-export type CaptureV1 = z.infer<typeof captureV1Schema>;
 
 /** D02: approved driver registration. A driver must name one immutable
  * executable/package digest, its API protocol, backend/profile proof, the
@@ -170,7 +166,6 @@ export function classifyControlAction(action: ControlActionKind, redactedParamet
  * what makes the disabled capability presentation visible; it grants nothing
  * by itself. */
 export const consentRequestStateSchema = z.enum(['PENDING', 'GRANTED', 'DENIED', 'UNAVAILABLE', 'EXPIRED']);
-export type ConsentRequestState = z.infer<typeof consentRequestStateSchema>;
 
 export const consentRequestV1Schema = z.strictObject({
   consentId: nonEmpty,
