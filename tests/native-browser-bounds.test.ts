@@ -1,5 +1,5 @@
 import {expect,it} from 'vitest';
-import {nativeBrowserBounds} from '../apps/desktop/browser-bounds';
+import {nativeBrowserBounds,nativeBrowserPreviewBounds} from '../apps/desktop/browser-bounds';
 import {browserSlotRect} from '../apps/web/src/browser-slot-bounds';
 
 it('excludes a full-height sidebar resize target without hiding the rest of the browser',()=>{
@@ -30,4 +30,23 @@ it('preserves a fully hidden native view and rejects malformed or out-of-owner b
  for(const zoom of [0,-1,NaN,Infinity])expect(()=>nativeBrowserBounds({x:0,y:0,width:100,height:100},[800,600],zoom)).toThrow();
  for(const patch of [{x:-1},{y:-1},{width:-1},{height:-1},{x:NaN},{width:Infinity},{x:750,width:100}])expect(()=>nativeBrowserBounds({x:0,y:0,width:100,height:100,...patch},[800,600],1.25)).toThrow();
  expect(()=>nativeBrowserBounds({x:0,y:0,width:800,height:600},[800,600],1.5)).toThrow();
+});
+it('centers fitting preview widths inside the rounded slot',()=>{
+ const slot=nativeBrowserBounds({x:251.5,y:436.825,width:532.5,height:123.175},[980,700],1.25);
+ const rect=nativeBrowserPreviewBounds({x:251.5,y:436.825,width:532.5,height:123.175},[980,700],1.25,1,390);
+ expect(rect.width).toBe(390);expect(rect.y).toBe(slot.y);expect(rect.height).toBe(slot.height);
+ expect(rect.x).toBeGreaterThanOrEqual(slot.x);expect(rect.x+rect.width).toBeLessThanOrEqual(slot.x+slot.width);
+ expect(Math.abs((rect.x-slot.x)-(slot.x+slot.width-rect.x-rect.width))).toBeLessThanOrEqual(1);
+ expect(rect.effective).toBe(390);expect(rect.actualWidth).toBe(390);expect(rect.fallback).toBeUndefined();
+});
+it('falls back to Fit when a preset exceeds available width',()=>{
+ const slot=nativeBrowserBounds({x:10,y:10,width:300,height:200},[400,300],1);
+ const result=nativeBrowserPreviewBounds({x:10,y:10,width:300,height:200},[400,300],1,1,768);
+ expect({x:result.x,y:result.y,width:result.width,height:result.height}).toEqual(slot);
+ expect(result.effective).toBe('fit');expect(result.fallback).toBe('insufficient-space');expect(result.availability).toEqual({390:false,768:false});
+});
+it('keeps the Fit rectangle unchanged for empty slots and invalid content zoom',()=>{
+ expect(nativeBrowserPreviewBounds({x:0,y:0,width:0,height:0},[400,300],1,1,768)).toMatchObject({x:0,y:0,width:0,height:0,effective:'fit',hidden:true});
+ expect(()=>nativeBrowserPreviewBounds({x:0,y:0,width:400,height:200},[400,300],1,0,390)).toThrow();
+ expect(()=>nativeBrowserPreviewBounds({x:0,y:0,width:400,height:200},[400,300],1,NaN,390)).toThrow();
 });

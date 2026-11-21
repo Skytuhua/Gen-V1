@@ -1,6 +1,6 @@
 import {isIP} from 'node:net';
 import {lookup} from 'node:dns/promises';
-import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand} from '../../packages/desktop-contract/index.ts';
+import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand,type DesktopBrowserWidthPreset} from '../../packages/desktop-contract/index.ts';
 import {pluginFrameSource} from '../../packages/plugins/frame-protocol.ts';
 import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
 export interface DesktopBounds {x:number;y:number;width:number;height:number}
@@ -47,7 +47,7 @@ export function parseBrowserCommand(raw:unknown):DesktopBrowserCommand {
  const value=raw as Record<string,unknown>;
  if(value.type==='open'&&Object.keys(value).length===1)return {type:'open'};
  if(value.type==='navigate'&&Object.keys(value).length===2&&typeof value.url==='string'&&value.url.length<=4096)return {type:'navigate',url:value.url};
- if(value.type==='bounds'&&Object.keys(value).length===2&&value.bounds&&typeof value.bounds==='object'&&!Array.isArray(value.bounds)){const bounds=value.bounds as Record<string,unknown>;if(Object.keys(bounds).length===4&&['x','y','width','height'].every(key=>typeof bounds[key]==='number'&&Number.isFinite(bounds[key])&&Math.abs(bounds[key] as number)<=20000))return {type:'bounds',bounds:bounds as unknown as DesktopBounds};}
+ if(value.type==='bounds'&&[2,3].includes(Object.keys(value).length)&&value.bounds&&typeof value.bounds==='object'&&!Array.isArray(value.bounds)){const bounds=value.bounds as Record<string,unknown>;const preset=value.widthPreset;if(Object.keys(bounds).length===4&&['x','y','width','height'].every(key=>typeof bounds[key]==='number'&&Number.isFinite(bounds[key])&&Math.abs(bounds[key] as number)<=20000)&&(preset===undefined||preset==='fit'||preset===390||preset===768))return {type:'bounds',bounds:bounds as unknown as DesktopBounds,...(preset!==undefined?{widthPreset:preset as DesktopBrowserWidthPreset}:{})};}
  if(['back','forward','reload','stop','close'].includes(String(value.type))&&Object.keys(value).length===1)return {type:value.type as 'back'|'forward'|'reload'|'stop'|'close'};
  throw Error('Invalid browser command');
 }

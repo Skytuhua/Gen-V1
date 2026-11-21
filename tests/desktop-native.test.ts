@@ -166,6 +166,11 @@ describe('isolated built-in browser',()=>{
   expect(publicAddress('::ffff:7f00:1')).toBe(false);expect(publicAddress('fc00::1')).toBe(false);expect(publicAddress('fe80::1')).toBe(false);expect(publicAddress('2002:7f00:1::')).toBe(false);expect(publicAddress('2606:4700:4700::1111')).toBe(true);
   expect(parseBrowserCommand({type:'bounds',bounds:{x:0,y:96,width:400,height:0}})).toEqual({type:'bounds',bounds:{x:0,y:96,width:400,height:0}});
   for(const value of [{type:'executeJavaScript',code:'process.exit()'},{type:'back',url:'file:///'},{type:'bounds',bounds:{x:Infinity,y:0,width:1,height:1}},{type:'navigate',url:'https://example.org',extra:true}])expect(()=>parseBrowserCommand(value)).toThrow();
+  expect(parseBrowserCommand({type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:'fit'})).toEqual({type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:'fit'});
+  for(const preset of [390,768])expect(parseBrowserCommand({type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:preset})).toEqual({type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:preset});
+ });
+ it('rejects unknown preview presets without relaxing legacy bounds validation',()=>{
+  for(const value of [{type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:'512'},{type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:512},{type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:'768px'},{type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:null},{type:'bounds',bounds:{x:0,y:0,width:400,height:200},widthPreset:768,extra:true},{type:'bounds',bounds:{x:Infinity,y:0,width:1,height:1},widthPreset:'fit'}])expect(()=>parseBrowserCommand(value)).toThrow();
  });
 });
 
