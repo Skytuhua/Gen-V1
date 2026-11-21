@@ -5,4 +5,17 @@ import { tmpdir } from "node:os";
 // Windows runners can expose TEMP through an 8.3 alias; fixtures use canonical paths.
 if (process.platform === "win32") process.env.TEMP = process.env.TMP = realpathSync.native(tmpdir());
 
-export default defineConfig({ test: { include: ["tests/**/*.test.{ts,tsx,js,jsx,mjs,cjs,mts,cts}"], exclude: ["tests/plugin-api-package.test.mjs"], testTimeout: 60000, hookTimeout: 60000 } });
+export default defineConfig({
+  test: {
+    include: ["tests/**/*.test.{ts,tsx,js,jsx,mjs,cjs,mts,cts}"],
+    exclude: ["tests/plugin-api-package.test.mjs"],
+    testTimeout: 60000,
+    hookTimeout: 60000,
+    coverage: {
+      provider: "v8",
+      include: ["apps/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}", "packages/**/*.{ts,tsx,mts,cts,js,jsx,mjs,cjs}"],
+      exclude: ["third-party/**", "tests/**", "**/dist/**", "**/*.d.ts", "**/generated/**"],
+      reporter: ["text-summary", "html", "json-summary"],
+    },
+  },
+});
