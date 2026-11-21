@@ -2987,6 +2987,7 @@
     "tests/e2e/dark-default.spec.ts",
     "tests/e2e/desktop-surfaces.playwright.config.ts",
     "tests/e2e/desktop-surfaces.spec.ts",
+    "tests/e2e/quick-ask.spec.ts",
     "tests/e2e/document-pair-fixture.tsx",
     "tests/e2e/document-pair-layout.spec.ts",
     "tests/e2e/document-preview-fixture.ts",
