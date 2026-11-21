@@ -9,7 +9,7 @@
 | Issue | https://github.com/skytuhua-org/Gen-V1/issues/1236 |
 | Design revision | d1, 2026-11-21 |
 | Baseline | `main` @ `1f9466ab3fde0713b42430d0e59e08f744637d52` (verified by fetch on 2026-11-21) |
-| Behavior plan | [`docs/agent-plans/thread-markdown-export.md`](./thread-markdown-export.md) r1 (PR #1241) — owns behavior, data, contracts, wiring. This document overrides its "placeholder UI choices in T05", as that plan explicitly provides. |
+| Behavior plan | [`docs/agent-plans/thread-markdown-export.md` @ `b1f192d0`](https://github.com/skytuhua-org/Gen-V1/blob/b1f192d08ed83e0f0bcab5464ed682776dfaadbb/docs/agent-plans/thread-markdown-export.md) r1 (docs PR #1241) — owns behavior, data, contracts, wiring. SHA-pinned because it lands in a sibling docs PR; once #1241 merges the same path exists on `main`. This document overrides its "placeholder UI choices in T05", as that plan explicitly provides. |
 | Implementation status | NOT_STARTED. Design spec only; nothing is implemented. |
 | Provenance | Front-end design team (S's front-end team) per the issue's "Design and animation ownership" note. Every value below was read from source at the baseline SHA; anything not verifiable is marked DISCOVERY. |
 
