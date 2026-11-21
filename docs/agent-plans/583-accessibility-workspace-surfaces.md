@@ -128,30 +128,29 @@ Keep `persistView` calls on sources/evidence activation exactly as now.
 
 ## EXECUTION_DAG
 
-- **T01 — Tabs in WorkbenchDialog** (`SourceWorkbench.tsx`, `source-workbench.css`): implement D1 markup + keydown + `autoFocus` on selected tab + CSS swap. Done when arrow keys activate tabs and axe reports the tablist pattern.
-- **T02 — Tabs in evidence filter** (`WorkbenchPanelContent.tsx`): same pattern per D1. Independent of T01.
-- **T03 — Accessible names** (D2): `SourceWorkbench.tsx`, `WorkbenchInputsPanel.tsx`, `BackgroundWork.tsx`. Independent.
-- **T04 — Announcements** (D3): `role="alert"` error swaps + live region in `BackgroundWorkView`. Independent.
-- **T05 — Table semantics** (D4): `WorkbenchPanels.tsx`. Independent.
-- **T06 — Fieldset label** (D6): `BackgroundWork.tsx`. Independent.
-- **T07 — Focus-visible offsets** (D7): `source-workbench.css`. Independent.
-- **T08 — a11y test file** `tests/workspace-a11y.test.tsx` (see VALIDATION): covers tab keyboard nav, focus return on close, live-region text, aria names. Depends on T01–T07.
+Tasks are partitioned so each source file has exactly one owning task — run them in order or assign one worker per file; no two tasks edit the same file.
 
-Each task's owner edits only the files listed; no shared-state conflicts.
+- **T01 — Source workbench dialog + composer** (`SourceWorkbench.tsx`, `source-workbench.css`): D1 tab strip for the five view tabs (markup, roving tabindex, arrow-key activation, `autoFocus` on the selected tab), D2 chip button names, D7 focus-visible offsets, D1/D8 CSS swap (`[role="tab"][aria-selected="true"]` + reduced-motion block). Depends on nothing.
+- **T02 — Evidence filter tabs** (`WorkbenchPanelContent.tsx`): D1 tabs pattern for the five categories. Depends on nothing.
+- **T03 — Inputs panel names** (`WorkbenchInputsPanel.tsx`): D2 `aria-label` on "Inspect retained source N" buttons. Depends on nothing.
+- **T04 — Background drawer** (`BackgroundWork.tsx`): D2 per-row names (Output/Cancel/Open child task/Decline/Respond/model select), D3 `role="alert"` error swap + live region, D6 fieldset label. Depends on nothing.
+- **T05 — Request table** (`WorkbenchPanels.tsx`): D4 `aria-label` + `scope="col"`. Depends on nothing.
+- **T06 — Validation spec** (`tests/workspace-a11y.test.ts`, new file only): static contract assertions per VALIDATION. Depends on T01–T05 landing.
 
 ## VALIDATION
 
+No new dependencies — the repo has vitest (`pnpm test` / `pnpm exec vitest run <file>`) and a Playwright-driven browser harness (`pnpm test:browser`, `scripts/test-browser.ts`); React Testing Library, jsdom and axe-core are NOT installed and must not be added.
+
 - `pnpm lint && pnpm typecheck` — must pass.
-- New unit/component test `tests/workspace-a11y.test.tsx` (React Testing Library + existing vitest setup; jsdom):
-  1. WorkbenchDialog tab strip: `getAllByRole('tab')` length 5; ArrowRight moves `aria-selected` to next; ArrowLeft wraps; Home/End; `tabpanel` labelled by active tab.
-  2. Evidence filter: identical expectations for 5 categories.
-  3. Modal close: render `WorkbenchDialog` through a harness that records `document.activeElement` of the opener, close via Esc, assert focus returns to the opener element.
-  4. `BackgroundWorkView` fixture (component is exported and takes plain props): assert `role="status"` live region text contains counts; assert each `role="alert"` error appears; assert per-control accessible names (`Open child task for <title>` etc.); assert `aria-expanded` toggles on Output.
-  5. `WorkbenchRequestPanel` table: `scope="col"` on all headers, `aria-label` present.
-  6. Chip buttons: names contain the source label.
-- axe: run `axe-core` (or `@axe-core/playwright` if present) over the three rendered fixtures in the test file; expect 0 violations. If axe is not already a dependency, the test asserts the roles/names directly instead — do NOT add a dependency; note it as manual verification.
-- Manual/real-user check (QA): keyboard-only run-through of flows 1–4 in REQUIREMENTS in the fixture host (`node --import tsx … review-host` + Vite); screen reader pass (NVDA on Windows or VoiceOver) on the dialog and background pane; axe DevTools scan of both surfaces, 0 violations.
-- Acceptance matrix: every REQUIREMENTS item ↔ at least one test or the QA pass.
+- `tests/workspace-a11y.test.ts` (vitest, source-contract style — read the changed files and assert the DOM contract the same way `tests/ui-guard.test.ts`/`ui-numeric-children` guard markup):
+  1. `SourceWorkbench.tsx` contains `role="tablist"` with `aria-label="Workbench views"`, five `role="tab"` buttons each with `aria-selected`, `aria-controls`, roving `tabIndex`, arrow/Home/End key handling, and a `role="tabpanel"` wrapper `tabIndex={0}` `aria-labelledby` the active tab.
+  2. `WorkbenchPanelContent.tsx` contains `role="tablist" aria-label="Evidence categories"` with the same contract.
+  3. `BackgroundWork.tsx`: every `error-text` paragraph carries `role="alert"`; the live region `role="status"`/`aria-live="polite"`/`className="sr-only"` exists; `Select` aria-label includes the task title; `fieldset` has `aria-label`.
+  4. `WorkbenchPanels.tsx`: `aria-label` on the table and `scope="col"` on all `<th>`.
+  5. `SourceWorkbench.tsx`/`WorkbenchInputsPanel.tsx`: chip and inspect buttons' `aria-label` templates include the source/input name.
+- Keyboard/real-user pass (the real a11y evidence): serve the fixture host + Vite (`node --import tsx … openReviewHost … :4317` + `node node_modules/vite/bin/vite.js`) and drive flows 1–4 in REQUIREMENTS with Playwright (`pnpm test:browser` pattern), asserting `document.activeElement` after open/tab-arrows/Esc-close (focus returns to the opener control) and the live region text after refresh. Where a rendered component can't be exercised through the existing harness, QA checks it manually on Windows (NVDA) or macOS (VoiceOver) and records the result on the issue.
+- Manual axe: axe DevTools browser extension on the workbench dialog and background pane during the QA pass; 0 violations expected. Not automatable without adding a dependency.
+- Acceptance matrix: every REQUIREMENTS item ↔ one test assertion or one QA checklist line above.
 
 ## STATE
 
