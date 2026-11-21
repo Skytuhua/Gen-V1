@@ -36,10 +36,11 @@ import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
-import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
+import {applySkillOperations,curateSkills,decideSkillProposal,setSkillFlags,skillIndex} from './skills.ts';
+import {ServiceSkills} from './service-skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
 import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
-import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
+import type {SkillActor} from '../contracts/skills.ts';
 import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
@@ -152,6 +153,7 @@ export class Service {
   private sideRuntime:SideRuntime;
   private learningCalls=new Map<string,number>();
   private skillIndexes=new Map<string,string>();
+  private readonly skills:ServiceSkills;
   private learningSupported:boolean;
   private lastActivity=Date.now();
   private readonly compactionRegistry = createCompactionCandidateRegistry();
@@ -296,6 +298,12 @@ export class Service {
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
     this.learning=new LearningCoordinator({factory:job=>{if(!options.learningRuntimeFactory)throw new HarnessError('LEARNING_UNAVAILABLE','Automatic reviews are unavailable in this host.');return options.learningRuntimeFactory(job);},tool:(call,job,reads)=>this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:{threadId:job.source.threadId},thread:this.thread(job.source.threadId),role:"learning"},async()=>this.learningTool(call,job,reads)) as Promise<LearningToolResult>:this.learningTool(call,job,reads),result:(job,outcome)=>this.learningResult(job,outcome)});
+    this.skills=new ServiceSkills({
+      store,learning:this.learning,effects:this.effects,learningCalls:this.learningCalls,
+      learningSupported:()=>this.learningSupported,isClosed:()=>this.closed,
+      thread:id=>this.thread(id),hasGate:id=>this.hasGate(id),
+      preferences:()=>this.preferences,source:()=>this.source,
+    });
     this.backgroundWork=new BackgroundWorkCoordinator({store,isEnabled:key=>capabilityEnabled(key),currentThread:id=>this.store.get<Thread>('thread',id)??null,
       enqueueFollowUp:input=>{this.enqueueInput({id:input.id,threadId:input.threadId,content:input.content,status:'persisted',runId:null});queueMicrotask(()=>this.background(this.deliverOutbox(input.threadId)));},
       gate:options.background?.gate,executionGate:options.background?.executionGate,idleExecutor:options.background?.idleExecutor,
@@ -426,8 +434,8 @@ export class Service {
   composerPrediction(input:PredictionRequest,signal?:AbortSignal){return this.predictions.request(input,signal);}
   /** Credential mutations and real work wait for the independently owned session. */
   async cancelComposerPredictions():Promise<void>{await Promise.all([this.predictions.cancel(),this.memoryHostInstance?.cancel()]);}
-  async skillDetail(name:string,options:Parameters<typeof viewSkill>[2]={}){return this.source?this.source.library.view(name,options):viewSkill(this.store,name,options);}
-  async skillProposal(id:string){return this.source?this.source.library.proposal(id):viewSkillProposal(this.store,id);}
+  async skillDetail(name:string,options:Parameters<typeof this.skills.detail>[1]={}){return this.skills.detail(name,options);}
+  async skillProposal(id:string){return this.skills.proposal(id);}
   sourceEvent(event:HermesEvent):void {
     if(this.closed||!this.source)return;
     if(event.event==='library'){this.background(this.source.library.refresh());return;}
@@ -442,46 +450,10 @@ export class Service {
       this.store.put('learningStatus','global',null,{...old,supported:true,status:event.event==='review_started'?'reviewing':'idle',lastReview:review});
     });
   }
-  private skillActor(kind:SkillActor['kind'],ctx?:RunContext):SkillActor {
-    return {kind,...(ctx?{threadId:ctx.threadId,runId:ctx.runId,evidence:this.store.all<Operation>('operation',ctx.threadId).filter(op=>op.status==='succeeded').slice(-8).map(op=>op.id)}:{})};
-  }
-  private skillTool(call:ToolCall,actor:SkillActor,readVersions?:Map<string,number>):LearningToolResult {
-    const a=call.args,allowed=call.name==='skills_list'?['query','category','offset','limit']:call.name==='skill_view'?['name','path','revision','versionOffset']:['operations','commandId'];
-    if(Object.keys(a).some(key=>!allowed.includes(key)))throw new HarnessError('INVALID_SKILL','Unsupported skill tool argument.');
-    if(call.name==='skills_list')return {value:listSkills(this.store,a)};
-    if(call.name==='skill_view'){
-      const name=text(a,'name',64),options={...(a.path===undefined?{}:{path:text(a,'path',1024)}),...(a.revision===undefined?{}:{revision:a.revision as number}),...(a.versionOffset===undefined?{}:{versionOffset:a.versionOffset as number}),useId:actor.runId};
-      let value!:ReturnType<typeof viewSkill>;
-      this.store.internal('skill.viewed',actor.threadId??null,()=>{value=viewSkill(this.store,name,options);return{name,revision:value.skill.revision};});
-      if(readVersions)readVersions.set(name+(a.path&&a.path!=='SKILL.md'?'/'+String(a.path):''),value.skill.revision);
-      return {value:{skill:value.skill,content:value.content,files:value.files,...(a.versionOffset===undefined?{}:{versions:value.versions,nextVersionOffset:value.nextVersionOffset})}};
-    }
-    let committed=0;
-    const apply=()=>{const result=applySkillOperations(this.store,a.operations,actor,{requireApproval:this.preferences.learningApproval,readVersions});if(result.status==='applied')committed=result.appliedOperations??result.changes.length;return result;};
-    const result=(a.commandId===undefined?this.store.internal('skill.managed',actor.threadId??null,apply):this.store.command({id:text(a,'commandId',200),type:'skill_manage',threadId:actor.threadId,payload:a},apply).result) as SkillChangeResult;
-    if(actor.threadId&&committed)this.learningCalls.set(actor.threadId,0);
-    return {value:result,appliedChanges:committed};
-  }
-  private assertLearningSource(job:LearningJob):Thread {
-    this.learning.assertCurrent(job);
-    const source=this.thread(job.source.threadId);
-    if(this.closed||source.epoch!==job.source.epoch||source.runId||!['ready','completed'].includes(source.status)||this.store.all<Thread>('thread').some(thread=>thread.runId)||this.hasGate(source.id)||this.store.all<Operation>('operation',source.id).some(op=>['prepared','running','unknown'].includes(op.status)))throw new HarnessError('CANCELLED_RUN','The source task changed during learning.');
-    return source;
-  }
-  private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult {
-    this.effects.assertAdmissionsEnabled();
-    this.assertLearningSource(job);
-    if(!this.preferences.learningEnabled)throw new HarnessError('CANCELLED_RUN','Automatic learning was disabled.');
-    if(call.name==='session_search')return {value:searchSessions(this.store,call.args)};
-    try{return this.skillTool(call,this.skillActor('agent',job.source),reads);}
-    catch(error){if(error instanceof HarnessError&&['INVALID_SKILL','STALE_SKILL','SKILL_READ_REQUIRED','SKILL_PROTECTED','SKILL_DISABLED','NOT_FOUND','SKILL_FULL'].includes(error.code))return {value:{error:{code:error.code,message:error.message}}};throw error;}
-  }
-  private learningResult(job:LearningJob,outcome:LearningOutcome):void {
-    this.store.internal('learning.finished',job.source.threadId,()=>{
-      const old=this.store.get<Snapshot['learning']>('learningStatus','global');
-      this.store.put('learningStatus','global',null,{...old,supported:this.learningSupported,status:outcome.cleanupConfirmed===false?'blocked':'idle',lastReview:{sourceThreadId:job.source.threadId,sourceRunId:job.source.runId,modelId:job.modelId,accountId:job.accountId,startedAt:old?.lastReview?.startedAt??now(),finishedAt:now(),...outcome}});
-    });
-  }
+  private skillActor(kind:SkillActor['kind'],ctx?:RunContext):SkillActor { return this.skills.actor(kind,ctx); }
+  private skillTool(call:ToolCall,actor:SkillActor,readVersions?:Map<string,number>):LearningToolResult { return this.skills.tool(call,actor,readVersions); }
+  private learningTool(call:ToolCall,job:LearningJob,reads:Map<string,number>):LearningToolResult { return this.skills.learningTool(call,job,reads); }
+  private learningResult(job:LearningJob,outcome:LearningOutcome):void { this.skills.learningResult(job,outcome); }
   private async reviewAfter(ctx:RunContext,force=false):Promise<boolean> {
     if(this.source)return false;
     if(this.closed||!this.learningSupported||this.learning.busy)return false;
@@ -511,16 +483,7 @@ export class Service {
     return !["stopped", "interrupted", "failed"].includes(previous) && this.store.all<Outbox>("outbox", threadId).some(input => input.status === "persisted") ? this.hasGate(threadId) ? "awaiting_input" : "ready" : previous;
   }
   /** Called inside the same transaction as terminal authority changes. */
-  private failUnansweredDetails(ctx:RunContext,error:string):void {
-    for(const request of this.store.all<InputRequest>('request',ctx.threadId).filter(item=>item.status==='pending')){
-      let changed=false;const details=request.detailRequests?.map(detail=>{
-        const input=this.store.get<Outbox>('outbox',detail.id);
-        if(detail.status!=='pending'||input?.runId!==ctx.runId)return detail;
-        changed=true;return {...detail,status:'failed' as const,error};
-      });
-      if(changed)this.store.put('request',request.id,ctx.threadId,{...request,revision:request.revision+1,detailRequests:details});
-    }
-  }
+  private failUnansweredDetails(ctx:RunContext,error:string):void { this.skills.failUnansweredDetails(ctx,error); }
   thread(id: string | undefined): Thread {
     if (!id) throw new HarnessError("INVALID_INPUT", "A thread is required");
     const thread = this.store.get<Thread>("thread", id);
