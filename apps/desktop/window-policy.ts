@@ -1,6 +1,6 @@
 import {isIP} from 'node:net';
 import {lookup} from 'node:dns/promises';
-import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand} from '../../packages/desktop-contract/index.ts';
+import {DESKTOP_CHANNELS,desktopSurfaceKey,parseDesktopSurface,type DesktopSurface,type DesktopBrowserCommand,type AccessibilityAuditCommand} from '../../packages/desktop-contract/index.ts';
 import {pluginFrameSource} from '../../packages/plugins/frame-protocol.ts';
 import {pluginSurfaceSchema} from '../../packages/plugins/contracts.ts';
 export interface DesktopBounds {x:number;y:number;width:number;height:number}
@@ -66,6 +66,28 @@ export function remoteBrowserUrl(raw:string):URL {
 }
 export async function allowRemoteBrowserUrl(raw:string,resolver:(hostname:string)=>Promise<{address:string}[]>=hostname=>lookup(hostname,{all:true,verbatim:true})):Promise<boolean>{
  try{const url=remoteBrowserUrl(raw),host=url.hostname.replace(/^\[|\]$/g,'');if(isIP(host))return publicAddress(host);let timer:ReturnType<typeof setTimeout>|undefined;try{const addresses=await Promise.race([resolver(host),new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error('Lookup timed out')),2500);})]);return addresses.length>0&&addresses.length<=32&&addresses.every(item=>publicAddress(item.address));}finally{clearTimeout(timer);}}catch{return false;}
+}
+export function parseAccessibilityAuditCommand(raw:unknown):AccessibilityAuditCommand {
+ if(!raw||typeof raw!=='object'||Array.isArray(raw)||Object.getPrototypeOf(raw)!==Object.prototype)throw Error('Invalid accessibility audit command');
+ const value=raw as Record<string,unknown>;
+ if(value.type==='capability'&&Object.keys(value).length===1)return {type:'capability'};
+ if(value.type==='cancel'&&Object.keys(value).length===1)return {type:'cancel'};
+ if(value.type==='run'&&Object.keys(value).length===2&&value.target&&typeof value.target==='object'&&!Array.isArray(value.target)){
+  const target=value.target as Record<string,unknown>;
+  if(target.kind==='browser'&&Object.keys(target).length===1)return {type:'run',target:{kind:'browser'}};
+  if(target.kind==='local'&&Object.keys(target).length===3&&typeof target.url==='string'&&target.url.length<=2048&&(target.viewport==='desktop'||target.viewport==='mobile'))return {type:'run',target:{kind:'local',url:target.url,viewport:target.viewport}};
+ }
+ throw Error('Invalid accessibility audit command');
+}
+/** Loopback-only audit target. Hostname literals are compared without DNS so a
+ * dev server can never resolve into the private range of remoteBrowserUrl. */
+export function loopbackAuditUrl(raw:string):URL {
+ if(raw.length>2048||/[\u0000-\u0020\\]/.test(raw))throw Error('Use a localhost address. Public pages can be checked from the browser with Check this page.');
+ let url:URL;try{url=new URL(raw);}catch{throw Error('Use a localhost address. Public pages can be checked from the browser with Check this page.');}
+ const host=url.hostname.replace(/^\[|\]$/g,'').toLowerCase();
+ if(!['http:','https:'].includes(url.protocol)||!(host==='localhost'||host==='127.0.0.1'||host==='::1')||url.username||url.password)throw Error('Use a localhost address. Public pages can be checked from the browser with Check this page.');
+ if(url.port&&(Number(url.port)<1||Number(url.port)>65535))throw Error('Use a localhost address. Public pages can be checked from the browser with Check this page.');
+ url.hash='';return url;
 }
 export function surfaceSize(surface:DesktopSurface){parseDesktopSurface(surface);return surface.kind==='main'||surface.kind==='thread'?{width:1440,height:960}:surface.kind==='browser'?{width:1160,height:860}:['plan','usage','navigation','agent','plugin'].includes(surface.kind)?{width:430,height:720}:{width:1000,height:800};}
 export function needsEditorHandoff(target:DesktopSurface,source:DesktopSurface):boolean {

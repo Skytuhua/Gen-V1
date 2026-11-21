@@ -1,4 +1,5 @@
 import {timingSafeEqual} from 'node:crypto';
+import {hostFlagEnabled} from '../../packages/core/host-flags.ts';
 import type {AttentionDelivery} from '../../packages/contracts/attention.ts';
 
 interface DesktopHostControls{attentionRead?():Promise<AttentionDelivery>;attentionAction?(type:'open'|'dismiss',eventId:string):Promise<{threadId?:string;dismissed?:boolean}>;stopAll():Promise<{stopped:number;errors?:string[]}>;saveNativeLayout(layout:unknown):Promise<void>;validatePluginSurface?:(surface:unknown)=>Promise<boolean>;updateReadiness?:()=>Promise<{idle:boolean}>;prepareUpdateClose?:()=>Promise<{idle:boolean}>}
@@ -15,6 +16,9 @@ export async function handleDesktopControl(value:unknown,token:string,host:Deskt
  if((input.type==='harness.update.readiness'||input.type==='harness.update.prepare')&&Object.keys(input).length===3){
   try{const method=input.type==='harness.update.prepare'?host.prepareUpdateClose:host.updateReadiness;const result=await method?.call(host);await send({type:input.type+'.result',token,requestId:input.requestId,idle:result?.idle===true});}
   catch{await send({type:input.type+'.result',token,requestId:input.requestId,idle:false});}return true;
+ }
+ if(input.type==='harness.accessibilityAudit.capability'&&Object.keys(input).length===3){
+  await send({type:'harness.accessibilityAudit.capability.result',token,requestId:input.requestId,available:hostFlagEnabled('browser.accessibilityAuditV1')});return true;
  }
  if(input.type==='harness.attention.read'&&Object.keys(input).length===3){
   try{if(!host.attentionRead)throw Error('Unavailable');await send({type:input.type+'.result',token,requestId:input.requestId,delivery:await host.attentionRead()});}catch{await send({type:input.type+'.result',token,requestId:input.requestId,error:'Notification delivery is unavailable.'});}return true;
