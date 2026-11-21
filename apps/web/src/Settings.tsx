@@ -7,6 +7,7 @@ import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, I
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
+import { ReadAloudRateControl, ReadAloudVoiceControl } from './ReadAloudSettings.tsx';
 import { command, getModels } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
 import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
@@ -63,6 +64,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('harness-personalization', 'Appearance', 'appearance', 'theme dark light system accent custom contrast density compact comfortable touch fonts interface prompt code size radius motion speed reduced preview reset'),
   row('chat-width', 'Chat width', 'appearance', '680 760 full comfortable wide message composer'), row('word-wrap', 'Code line wrap', 'appearance'), row('harness-project-colors', 'Project colors', 'appearance', 'palette custom hex'),
   row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
+  row('read-aloud-voice', 'Read-aloud voice', 'chat', 'speech narrator tts spoken listen windows narrator'), row('read-aloud-speed', 'Read-aloud speed', 'chat', 'speech rate playback listen faster slower'),
   row('harness-local-models', 'Available models', 'providers', 'refresh runtime'), row('default-model', 'Default model', 'providers'), row('harness-accounts', 'Accounts', 'providers', 'subscriptions sign in credentials'), row('harness-runtime', 'Local runtime & environments', 'providers', 'environment variables secret local host'),
   ...SUBSCRIPTION_CONNECTIONS.map(connection => row(`provider-${connection.id}`, connection.label, 'providers', `${connection.id} ${connection.description}`)),
   ...APPEARANCE_FIELDS.filter(field => field.id !== 'chat-width' && field.id !== 'word-wrap').map(field => row(field.id, field.label, 'appearance', field.terms)),
@@ -174,6 +176,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       case 'harness-licenses': return { description: 'Settings presentation and account selection adapted from T3 Code, pinned 8760d063. Copyright (c) 2026 T3 Tools Inc. Full MIT notice and selective source ranges/hashes: third-party/t3code.', control: <a href="https://github.com/pingdotgg/t3code/blob/8760d063e903406c8e8f695b0852c0a15fc1e00f/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
       case 'harness-hermes-license': return { description: 'Skill learning adapted from Hermes Agent. Copyright (c) 2025 Nous Research. Complete MIT notice retained in third-party/hermes-agent.', control: <a href="https://github.com/NousResearch/hermes-agent/blob/c627ec84664d43e0b18b95d9d86d8963747d56c7/LICENSE" target="_blank" rel="noreferrer">MIT notice<ExternalLink size={12}/></a> };
       case 'harness-dependency-notices': return { description: 'Direct package notices are listed below. Full transitive distribution notices are not assembled in this interface.', control: <span className="settings-value">{DEPENDENCY_NOTICES.length} packages</span> };
+      case 'read-aloud-voice': return { description: 'Local voice used to read assistant replies aloud.', control: <ReadAloudVoiceControl/> };
+      case 'read-aloud-speed': return { description: 'Applies on the next play.', control: <ReadAloudRateControl/> };
       default: return { description: '', control: null };
     }
   };

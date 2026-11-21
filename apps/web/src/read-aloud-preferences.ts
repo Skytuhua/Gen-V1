@@ -56,6 +56,7 @@ const notify = () => { const value = readReadAloudPreferences(); for (const list
 /** Subscribe to preference changes; fires for same-document writes and cross-document `storage` events. */
 export function subscribeReadAloudPreferences(listener: (value: ReadAloudPreferences) => void): () => void {
   listeners.add(listener);
+  if (typeof window === 'undefined') return () => listeners.delete(listener);
   const onStorage = (event: StorageEvent) => {
     if (event.key === READ_ALOUD_STORAGE_KEY) listener(readReadAloudPreferences());
   };
