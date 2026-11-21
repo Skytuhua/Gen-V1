@@ -83,6 +83,21 @@ test('aggregate conflicts reveal a readable keyboard-accessible stacked comparis
   expect(rows[1]).toBeGreaterThan(rows[0]);
 });
 
+test('a single unresolved conflict has singular visible and accessible labels', async ({ page }) => {
+  const host = await fixture(page, 'vertical');
+  const updated = network();
+  updated.nodes.find(node => node.id === 'topic')!.conflictCount = 0;
+  updated.summary = { label: 'One comparison needs review', status: 'pending' };
+  host.setInput('network', updated);
+  await host.publish();
+  const inspect = page.getByRole('button', { name: 'Inspect 1 conflict', exact: true });
+  await expect(inspect).toBeVisible();
+  await expect(inspect).not.toHaveAttribute('aria-label', /conflicts$/);
+  await inspect.focus();
+  await expect(page.getByRole('tooltip')).toContainText('1 conflict in the supplied source');
+  await expect(graphNode(page, 'Review framing').locator('.task-node-conflicts')).toContainText('1 conflict');
+});
+
 test('branch identity remains separate from conflict status and explicit completion tone', async ({ page }) => {
   const host = await fixture(page);
   const before = await dot(page, 'Review ceramics').evaluate(node => getComputedStyle(node).backgroundColor);
