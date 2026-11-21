@@ -18,7 +18,7 @@ test('approved file replacement exposes its durable ledger receipt through the a
     .or(page.getByRole('dialog', { name: 'Evidence document', exact: true }));
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();
   await artifact.getByRole('button', { name: 'Apply document replacement', exact: true }).click();
-  const approvalPanel = page.getByRole('region', { name: 'Operation approval', exact: true });
+  const approvalPanel = page.getByRole('region', { name:/^Operation approval:/, exact: true });
   await expect(approvalPanel.getByRole('button', { name: 'Approve operation', exact: true })).toBeFocused();
   const operation = host.snapshot().operations[0]!;
   const thread = host.snapshot().threads.find(value => value.id === operation.threadId)!;
@@ -42,7 +42,7 @@ test('approved file replacement exposes its durable ledger receipt through the a
   expect(spentApproval).toMatchObject({ operationId: operation.id, owner, remainingUses: 0 });
 
   const visibleReceipt = async () => {
-    const outcome = page.getByRole('region', { name: 'Operation outcome', exact: true });
+    const outcome = page.getByRole('region', { name:/^Operation outcome:/, exact: true });
     await expect(outcome).toContainText('Succeeded');
     await outcome.locator('details.operation-receipt > summary').click();
     const details = outcome.locator('details.action-details');

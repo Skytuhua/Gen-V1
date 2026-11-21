@@ -32,7 +32,7 @@ test('compact rows show project monogram chip, readable title and metadata, and 
 test('footer invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
  await expect(page.locator('.sidebar-footer button')).toHaveCount(4);
  await page.getByRole('button',{name:'Settings',exact:true}).click();
- await page.getByRole('button',{name:'Pull requests',exact:true}).click();
+ await page.getByRole('button',{name:'PRs, Pull requests',exact:true}).click();
  await page.getByRole('button',{name:'Usage',exact:true}).click();
  await page.getByRole('button',{name:'Update',exact:true}).click();
  await page.getByRole('navigation',{name:'Installed plug-ins'}).getByRole('button').click();
@@ -40,7 +40,7 @@ test('footer invokes supplied actions and the single updater while plug-in navig
 });
 test('footer falls back to its existing workspace context',async({page})=>{
  await page.goto('/sidebar-compact-check?fallback=1');
- await page.getByRole('button',{name:'Pull requests',exact:true}).click();
+ await page.getByRole('button',{name:'PRs, Pull requests',exact:true}).click();
  await page.getByRole('button',{name:'Usage',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toEqual(['workspace:linked-pull-requests','workspace:usage']);
 });

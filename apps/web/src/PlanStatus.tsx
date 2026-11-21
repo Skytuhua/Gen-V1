@@ -171,7 +171,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
             ) : (
               <GitBranch size={22} aria-hidden="true" />
             )}
-            <h3>{invalid || error ? "Plan unavailable" : "No plan yet"}</h3>
+            <h2>{invalid || error ? "Plan unavailable" : "No plan yet"}</h2>
             <p role={invalid || error ? "alert" : undefined}>
               {error ||
                 (invalid
@@ -219,6 +219,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
         aria-label={`Task plan: ${record.value.title}`}
         aria-busy={loading || undefined}
       >
+        <h2 className="sr-only">Task plan: {record.value.title}</h2>
         <header className="plan-status-header">
           <div className="plan-context-toolbar" aria-label="Plan progress and actions">
             <span className="plan-completion" title={`Plan revision ${timeline.revision}`}>
@@ -299,9 +300,9 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
         )}
         {timeline.unassignedAgents.length > 0 && (
           <section className="plan-unassigned" aria-label="Available agents">
-            <h4>
+            <h3>
               Available agents <span>No assigned step</span>
-            </h4>
+            </h3>
             <ul className="plan-agents">
               {timeline.unassignedAgents.map((lane) => (
                 <AgentLane key={lane.job.id} lane={lane} {...agentProps} />

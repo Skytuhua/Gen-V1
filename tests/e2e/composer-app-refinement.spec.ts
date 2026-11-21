@@ -5,8 +5,43 @@ import type {WorkspaceEnvelope} from '../../packages/contracts/workspace';
 import {planDataId,PLANNING_PROVENANCE} from '../../packages/contracts/planning';
 import {serveTaskFixture,taskFixture} from './task-interface-fixture';
 import {snapshotServed,warmApp} from './app-ready';
+import {mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
 
 test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
+
+test('audit UI-001 and UI-004 keep jump above a growing composer and label excerpts',async({page})=>{
+ const host=await fixture(page);host.snapshot.resources=Array.from({length:6},(_,i)=>({id:'attachment-'+i,threadId:'task-thread',kind:'attachment' as const,path:'C:/fixture/file-'+i+'.txt',label:'Investigation notes '+i+'.txt',writable:false,createdAt:'2026-11-05T00:00:00Z'}));
+ await page.evaluate(async()=>{
+  const path='/src/terminal-excerpts.ts',module=await import(path);
+  const excerpt=module.captureTerminalExcerpt({terminalId:'621ea60c-6e9e-4635-9f15-94f37a173c6b',terminalName:'Review terminal',lineRange:{start:12,end:15},projectId:'first',threadId:'task-thread',selection:'FAIL workspace.test.ts\nExpected: 3 panels\nReceived: 2 panels\nReview the panel layout.'});
+  await module.changeTerminalExcerpts('task-thread',()=>[excerpt]);
+ });
+ await page.reload();const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled({timeout:15000});
+ await draft.fill('Review these files and the terminal output.\nKeep the existing layout.\nExplain the failure.\nPropose a focused correction.');
+ const directory=process.env.AUDIT_CAPTURE_DIR,phase=process.env.AUDIT_CAPTURE_PHASE??'after',gaps:number[]=[];
+ if(directory)await mkdir(directory,{recursive:true});
+ const display=await page.context().newCDPSession(page);
+ for(const [width,zoom] of [[1440,1],[1440,1.5],[900,1.5]]){
+  const viewport={width:Math.round(width/zoom),height:Math.round(900/zoom)};await page.setViewportSize(viewport);await display.send('Emulation.setDeviceMetricsOverride',{...viewport,deviceScaleFactor:zoom,mobile:false});
+  const scroll=page.locator('[data-split-view="thread:task-thread"] .conversation-scroll');await scroll.press('Control+Home');
+  const jump=page.getByRole('button',{name:'Jump to latest',exact:true});await expect(jump).toBeVisible();
+  if(directory){await page.screenshot({path:resolve(directory,`ui-001-${phase}-${width}-${zoom}.png`)});if(zoom===1)await page.locator('.composer-dock').screenshot({path:resolve(directory,`ui-004-${phase}.png`)});}
+  gaps.push(await jump.evaluate(node=>{const composer=node.closest('main')!.querySelector('.composer-dock')!,bounds=composer.getBoundingClientRect();if(bounds.bottom>innerHeight+1)throw Error('Composer is below the viewport');return bounds.top-node.getBoundingClientRect().bottom;}));
+ }
+ expect(gaps.every(gap=>gap>=8)).toBe(true);
+ const chip=page.locator('.terminal-excerpt-chip');await expect(chip).toContainText('Review terminal · lines 12–15');await expect(chip).not.toContainText('621ea60c');
+});
+
+test('audit UI-002 and UI-006 expose visible control names and conversation headings',async({page})=>{
+ await fixture(page);
+ await expect(page.getByRole('button',{name:'First project, Select project',exact:true})).toBeVisible();
+ const mode=page.getByRole('button',{name:'Build mode, switch to Plan',exact:true});await mode.click();
+ await expect(page.getByRole('button',{name:'Plan mode, switch to Build',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(page.getByRole('button',{name:'PRs, Pull requests',exact:true})).toBeVisible();
+ await expect(page.getByRole('heading',{name:'Original chat',level:1,exact:true})).toHaveCount(1);
+ await expect(page.getByRole('region',{name:'Messages in Original chat',exact:true})).toBeVisible();
+});
 
 async function fixture(page:Page,started=false){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture content'}}}});
@@ -119,24 +154,24 @@ test('attachment band reverses an interrupted exit without removing the live row
 test('composer removes repeated captions and toggles Build Plan without changing its draft',async({page})=>{
  const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep this thought');
  for(const text of ['Local workspace','Enter to send · Shift + Enter for a new line','Legacy connection'])await expect(page.getByText(text,{exact:true})).toHaveCount(0);
- const toggle=page.getByRole('button',{name:'Task mode',exact:true});await expect(toggle).toHaveText('Build');await toggle.click();await expect(toggle).toHaveText('Plan');await toggle.click();await expect(toggle).toHaveText('Build');await expect(draft).toHaveValue('Keep this thought');
+ const toggle=page.getByRole('button',{name:/^(Build|Plan) mode, switch to (Plan|Build)$/,exact:true});await expect(toggle).toHaveText('Build');await toggle.click();await expect(toggle).toHaveText('Plan');await toggle.click();await expect(toggle).toHaveText('Build');await expect(draft).toHaveValue('Keep this thought');
  expect(host.commands.filter(value=>value.type==='thread.mode').map(value=>value.payload.mode)).toEqual(['plan','build']);
  await draft.focus();expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).boxShadow)).toBe('none');
  await page.emulateMedia({reducedMotion:'reduce'});expect(await page.locator('.composer').evaluate(node=>getComputedStyle(node).animationName)).toBe('none');
  await page.screenshot({path:'.harness-frontend-refinement/shell-desktop.png'});
  await page.setViewportSize({width:390,height:844});await expect(draft).toHaveValue('Keep this thought');
- const send=await page.getByRole('button',{name:'Send message',exact:true}).boundingBox();expect(send!.x+send!.width).toBeLessThanOrEqual(390);await expect(page.getByRole('button',{name:'Select project',exact:true})).toBeVisible();
+ const send=await page.getByRole('button',{name:'Send message',exact:true}).boundingBox();expect(send!.x+send!.width).toBeLessThanOrEqual(390);await expect(page.getByRole('button',{name:/Select project$/,exact:true})).toBeVisible();
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await page.screenshot({path:'.harness-frontend-refinement/shell-narrow.png'});
 });
 test('project selection uses the explicit local host binding and leaves attachments on plus',async({page})=>{
  const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Unsent draft');
- await page.getByRole('button',{name:'Select project',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();await expect(dialog.getByText('Other authority',{exact:true})).toHaveCount(0);
+ await page.getByRole('button',{name:/Select project$/,exact:true}).click();const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();await expect(dialog.getByText('Other authority',{exact:true})).toHaveCount(0);
  await dialog.getByRole('option',{name:'Second project',exact:true}).click();await expect(dialog).toHaveCount(0);
  expect(host.workspaceCommands.find(value=>value.type==='workspace.project.connect')?.payload).toMatchObject({threadId:'task-thread',name:'Second project',path:'C:/fixture/second'});await expect(draft).toHaveValue('Unsent draft');expect(host.snapshot.threads[0].projectId).toBe('second');
  const choosing=page.waitForEvent('filechooser');await page.getByRole('button',{name:'Attach files',exact:true}).click();expect((await choosing).isMultiple()).toBe(true);
 });
 test('started chat opens an explicitly new project chat and retains its original binding and draft',async({page})=>{
- const host=await fixture(page,true);await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original draft stays here');await page.getByRole('button',{name:'Select project',exact:true}).click();
+ const host=await fixture(page,true);await page.getByRole('textbox',{name:'Message',exact:true}).fill('Original draft stays here');await page.getByRole('button',{name:/Select project$/,exact:true}).click();
  await page.getByRole('dialog',{name:'Select project',exact:true}).getByRole('option',{name:'Second project',exact:true}).click();await expect(page.getByRole('dialog',{name:'Select project',exact:true})).toHaveCount(0);
  const created=host.snapshot.threads.find(value=>value.id==='new-thread');expect(created?.projectId).toBe('second');expect(created?.projectName).toBe('Second project');expect(host.snapshot.threads[0].projectId).toBe('first');
  await page.getByRole('button',{name:'Original chat Ready',exact:true}).click();await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveValue('Original draft stays here');

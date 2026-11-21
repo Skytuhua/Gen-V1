@@ -77,7 +77,7 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
   {!separateActions&&<ComposerTaskActions changeSummary={changeSummary} onChanges={onChanges} onCreatePR={onCreatePR} disabled={disabled} working={working}/>}
   <div className="composer-footer-main">
    <div className="composer-project-controls" role="group" aria-label="Project and runtime">
-    {leading}<button type="button" className="composer-tool composer-project" aria-label="Select project" title={projectLabel?'Select project · '+projectLabel:'Select project'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Select project'}</span></button>{runtime}
+    {leading}<button type="button" className="composer-tool composer-project" aria-label={projectLabel?`${projectLabel}, Select project`:'Select project'} title={projectLabel?'Select project · '+projectLabel:'Select project'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Select project'}</span></button>{runtime}
    </div>
    <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
     <ModelPicker ref={modelPickerRef} models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange} scopeHint={modelScopeHint} onNewTask={onModelNewTask}/>

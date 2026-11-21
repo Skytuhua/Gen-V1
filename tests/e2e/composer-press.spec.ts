@@ -10,7 +10,7 @@ async function fixture(page: Page, separate = false) {
   const path = encodeURI('/@fs/' + resolve('tests/e2e/composer-press-fixture.tsx').replaceAll('\\', '/'));
   await page.route('**/composer-press-fixture?*', route => route.fulfill({ contentType: 'text/html', body: `<html data-theme="dark"><body><div id="root"></div><script type="module">import RefreshRuntime from '/@react-refresh';RefreshRuntime.injectIntoGlobalHook(window);window.$RefreshReg$=()=>{};window.$RefreshSig$=()=>type=>type;window.__vite_plugin_react_preamble_installed__=true;await import('${path}');</script></body></html>` }));
   await page.goto(`/composer-press-fixture?${separate ? 'separate=1' : ''}`);
-  await expect(page.getByRole('button', { name: 'Select project', exact: true })).toBeEnabled();
+  await expect(page.getByRole('button', { name: /Select project$/, exact: true })).toBeEnabled();
 }
 
 // Pause in the first frame so short transitions remain measurable on slower hosts.
@@ -50,7 +50,7 @@ async function pointerPress(page: Page, control: Locator) {
 }
 
 test('a foreign pointer leaving does not clear the active composer press', async ({ page }) => {
-  await fixture(page, true); const control = page.getByRole('button', { name: 'Select project', exact: true });
+  await fixture(page, true); const control = page.getByRole('button', { name: /Select project$/, exact: true });
   await control.hover(); await page.mouse.down(); await expect(control).toHaveAttribute('data-pointer-pressed');
   await control.dispatchEvent('pointerout', { pointerId: 77, pointerType: 'touch', bubbles: true, relatedTarget: null });
   await expect(control).toHaveAttribute('data-pointer-pressed');
@@ -59,7 +59,7 @@ test('a foreign pointer leaving does not clear the active composer press', async
 
 test('a foreign primary pointer does not replace the active composer press', async ({ page }) => {
   await fixture(page, true);
-  const control = page.getByRole('button', { name: 'Select project', exact: true });
+  const control = page.getByRole('button', { name: /Select project$/, exact: true });
   const other = page.getByRole('button', { name: 'Attach files', exact: true });
   await control.hover(); await page.mouse.down(); await expect(control).toHaveAttribute('data-pointer-pressed');
   await other.dispatchEvent('pointerdown', { button: 0, isPrimary: true, pointerId: 77, pointerType: 'touch', bubbles: true });
@@ -86,7 +86,7 @@ for (const width of [1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 }); await page.emulateMedia({ reducedMotion: 'no-preference' });
     for (const separate of [false, true]) {
       await fixture(page, separate);
-      for (const name of ['Select project', 'Inspect changes', 'Create PR', 'Attach files']) await pointerPress(page, page.getByRole('button', { name, exact: true }));
+      for (const name of ['Select project', 'Inspect changes', 'Create PR', 'Attach files']) await pointerPress(page, page.getByRole('button', { name: name==='Select project'?/Select project$/:name, exact: true }));
       await pointerPress(page, page.getByRole('combobox', { name: 'Model', exact: true }));
       await expect(page.getByRole('dialog', { name: 'Model and reasoning', exact: true })).toBeVisible();
       await page.keyboard.press('Escape');
@@ -96,7 +96,7 @@ for (const width of [1024, 1440]) {
 
   test(`hover colors use 120ms and move easing at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await fixture(page, true);
-    for (const control of [page.getByRole('button', { name: 'Select project', exact: true }), page.getByRole('button', { name: 'Inspect changes', exact: true }), page.locator('.composer-select')]) {
+    for (const control of [page.getByRole('button', { name: /Select project$/, exact: true }), page.getByRole('button', { name: 'Inspect changes', exact: true }), page.locator('.composer-select')]) {
       await page.mouse.move(0, 0); await finishMotion(control);
       await armMotion(control, 'pointerover'); await control.hover();
       const motions = await sampledMotion(control);
@@ -109,10 +109,10 @@ for (const width of [1024, 1440]) {
   test(`Space and Enter keep focus and activation without scaling at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await fixture(page, true);
     // Also check keyboard use after a pointer press on the same control.
-    await pointerPress(page, page.getByRole('button', { name: 'Select project', exact: true }));
+    await pointerPress(page, page.getByRole('button', { name: /Select project$/, exact: true }));
     await page.mouse.move(0, 0); await page.keyboard.press('Tab');
     for (const name of ['Select project', 'Inspect changes', 'Create PR', 'Attach files']) {
-      const control = page.getByRole('button', { name, exact: true }); await control.focus();
+      const control = page.getByRole('button', { name: name==='Select project'?/Select project$/:name, exact: true }); await control.focus();
       for (const key of ['Space', 'Enter']) {
         await page.keyboard.down(key);
         await expect(control).toBeFocused();
@@ -131,7 +131,7 @@ for (const width of [1024, 1440]) {
   for (const policy of ['os', 'reduced', 'off', 'panels-off'] as const) test(`${policy} has no scale and instant state colors at ${width}`, async ({ page }) => {
     await page.setViewportSize({ width, height: 1000 }); await page.emulateMedia({ reducedMotion: 'no-preference' }); await fixture(page, true);
     // Changing the preference during a held press must settle it too.
-    const project = page.getByRole('button', { name: 'Select project', exact: true });
+    const project = page.getByRole('button', { name: /Select project$/, exact: true });
     await project.hover(); await finishMotion(project); await armMotion(project, 'pointerdown'); await page.mouse.down(); await sampledMotion(project);
     if (policy === 'os') await page.emulateMedia({ reducedMotion: 'reduce' });
     else await page.evaluate(policy => {
@@ -157,7 +157,7 @@ for (const width of [1024, 1440]) {
 test('release outside, cancellation, pointer exit, blur and unmount clear presses', async ({ page }) => {
   await fixture(page, true);
   for (const name of ['Select project', 'Inspect changes']) {
-    const control = page.getByRole('button', { name, exact: true });
+    const control = page.getByRole('button', { name: name==='Select project'?/Select project$/:name, exact: true });
     for (const action of ['outside', 'cancel', 'blur', 'keyboard'] as const) {
       await control.hover(); await finishMotion(control); await page.mouse.down(); await expect(control).toHaveAttribute('data-pointer-pressed');
       if (action === 'outside') await page.mouse.move(0, 0);
@@ -168,7 +168,7 @@ test('release outside, cancellation, pointer exit, blur and unmount clear presse
       await expect(control).not.toHaveAttribute('data-pointer-pressed'); await page.mouse.up();
     }
   }
-  const project = page.getByRole('button', { name: 'Select project', exact: true });
+  const project = page.getByRole('button', { name: /Select project$/, exact: true });
   await project.hover(); await page.mouse.down();
   const held = await project.elementHandle(); await page.evaluate(() => (window as unknown as FixtureWindow).composerPressFixture.unmount());
   expect(await held!.evaluate(node => node.hasAttribute('data-pointer-pressed'))).toBe(false); await page.mouse.up();
@@ -177,14 +177,14 @@ test('release outside, cancellation, pointer exit, blur and unmount clear presse
 test('disabled and non-primary presses stay unscaled', async ({ page }) => {
   await fixture(page, true);
   for (const name of ['Select project', 'Inspect changes']) {
-    const control = page.getByRole('button', { name, exact: true });
+    const control = page.getByRole('button', { name: name==='Select project'?/Select project$/:name, exact: true });
     await control.hover(); await page.mouse.down({ button: 'right' });
     expect(await control.evaluate(node => getComputedStyle(node).transform)).toBe('none'); await expect(control).not.toHaveAttribute('data-pointer-pressed'); await page.mouse.up({ button: 'right' });
     await control.dispatchEvent('pointerdown', { button: 0, isPrimary: false, pointerId: 2 }); await expect(control).not.toHaveAttribute('data-pointer-pressed');
   }
   await page.evaluate(() => (window as unknown as FixtureWindow).composerPressFixture.setDisabled(true));
   for (const name of ['Select project', 'Inspect changes']) {
-    const control = page.getByRole('button', { name, exact: true }); await expect(control).toBeDisabled();
+    const control = page.getByRole('button', { name: name==='Select project'?/Select project$/:name, exact: true }); await expect(control).toBeDisabled();
     await control.hover({ force: true }); await page.mouse.down();
     expect(await control.evaluate(node => getComputedStyle(node).transform)).toBe('none'); await expect(control).not.toHaveAttribute('data-pointer-pressed'); await page.mouse.up();
   }
@@ -192,7 +192,7 @@ test('disabled and non-primary presses stay unscaled', async ({ page }) => {
 
 test('768px secondary desktop retains pointer feedback and draft', async ({ page }) => {
   await page.setViewportSize({ width: 768, height: 1000 }); await fixture(page, true);
-  await pointerPress(page, page.getByRole('button', { name: 'Select project', exact: true }));
+  await pointerPress(page, page.getByRole('button', { name: /Select project$/, exact: true }));
   await pointerPress(page, page.getByRole('button', { name: 'Inspect changes', exact: true }));
   await expect(page.getByRole('textbox', { name: 'Draft', exact: true })).toHaveValue('Keep this draft');
 });
@@ -202,7 +202,7 @@ test.describe('coarse pointer at desktop width', () => {
   test('hover colors and color transitions require hover capability and a fine pointer', async ({ page }) => {
     await fixture(page, true);
     expect(await page.evaluate(() => matchMedia('(hover: hover) and (pointer: fine)').matches)).toBe(false);
-    for (const control of [page.getByRole('button', { name: 'Select project', exact: true }), page.getByRole('button', { name: 'Inspect changes', exact: true }), page.locator('.composer-select')]) {
+    for (const control of [page.getByRole('button', { name: /Select project$/, exact: true }), page.getByRole('button', { name: 'Inspect changes', exact: true }), page.locator('.composer-select')]) {
       const before = await control.evaluate(node => ({ color: getComputedStyle(node).color, background: getComputedStyle(node).backgroundColor }));
       await control.hover();
       expect(await control.evaluate(node => ({ color: getComputedStyle(node).color, background: getComputedStyle(node).backgroundColor }))).toEqual(before);

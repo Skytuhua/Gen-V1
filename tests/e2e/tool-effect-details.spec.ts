@@ -140,7 +140,7 @@ test('repository test approval visibly discloses unrestricted host execution', a
   Object.assign(value.operation, { kind: 'repository.test', status: 'prepared', approved: false,
     description: 'Run the approved project test.' });
   await value.open();
-  const review = page.getByRole('region', { name: 'Operation approval', exact: true });
+  const review = page.getByRole('region', { name:/^Operation approval:/, exact: true });
   await expect(review.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('Unrestricted host');
   await expect(review.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('local user privileges');
   await expect(review.getByRole('button', { name: 'Approve operation', exact: true })).toBeEnabled();
@@ -152,7 +152,7 @@ test('repository test receipts retain the actual unrestricted execution policy',
   Object.assign(value.operation, { kind: 'repository.test', status: 'succeeded', approved: true,
     description: 'Run the approved project test.', result: { exitCode: 0 } });
   await page.goto('/');
-  const receipt = page.getByRole('region', { name: 'Operation outcome', exact: true });
+  const receipt = page.getByRole('region', { name:/^Operation outcome:/, exact: true });
   await receipt.locator('.operation-receipt > summary').click();
   await expect(receipt.getByRole('note', { name: 'Execution policy', exact: true })).toContainText('Unrestricted host');
   await expect(receipt.getByRole('button', { name: 'Approve operation', exact: true })).toHaveCount(0);

@@ -12,7 +12,7 @@ test('the empty composer is compact, grows for multiline work and keeps its draf
  await serveTaskFixture(page,fixture());await openApp(page);const input=page.getByRole('textbox',{name:'Message',exact:true}),composer=page.locator('form.composer');await expect(input).toBeEnabled();
  expect((await composer.boundingBox())!.height).toBeLessThanOrEqual(96);expect((await input.boundingBox())!.height).toBeLessThanOrEqual(32);
  await input.fill('One\nTwo\nThree\nFour\nFive\nSix');expect((await composer.boundingBox())!.height).toBeGreaterThan(150);await reloadApp(page);await expect(input).toHaveValue('One\nTwo\nThree\nFour\nFive\nSix');
- for(const name of ['Attach files','Select project','Inspect context usage','Send message'])await expect(page.getByRole('button',{name,exact:true})).toBeVisible();
+ for(const name of ['Attach files','Select project','Inspect context usage','Send message'])await expect(page.getByRole('button',{name:name==='Select project'?/Select project$/:name,exact:true})).toBeVisible();
 });
 test('desktop navigation becomes inert immediately on collapse and restores on reopen',async({page})=>{
  await serveTaskFixture(page,fixture());await openApp(page);const sidebar=page.getByRole('complementary',{name:'Thread navigation',exact:true});await expect(sidebar).toBeVisible();await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
@@ -56,7 +56,7 @@ test('navigation shows actual recency without repeating idle status but retains 
 test('completed operation receipts are compact, truthful and retain full evidence on inspection',async({page})=>{
  const snapshot=fixture(),digest='a'.repeat(64);
  snapshot.operations=[{id:'finished',threadId:'task-thread',revision:4,kind:'database.migration',description:`Apply 4 statements and resource version ${digest}`,args:{statements:['alter table projects add archived integer']},resourceIds:['database-one'],preconditions:{sourceSha256:digest},status:'succeeded',approved:true,result:{rowsChanged:12,integrity:'ok'},createdAt:new Date().toISOString()}];
- await serveTaskFixture(page,snapshot);await openApp(page);const receipt=page.getByRole('region',{name:'Operation outcome',exact:true}),summary=receipt.locator('summary').first();
+ await serveTaskFixture(page,snapshot);await openApp(page);const receipt=page.getByRole('region',{name:/^Operation outcome:/,exact:true}),summary=receipt.locator('summary').first();
  await expect(summary).toContainText('Succeeded');await expect(summary).toContainText('Apply 4 statements');await expect(receipt.locator('details').first()).not.toHaveAttribute('open','');expect((await receipt.boundingBox())!.height).toBeLessThanOrEqual(66);await expect(receipt.getByText(digest,{exact:false})).toBeHidden();
  expect(await receipt.locator('.operation-outcome-status').evaluate(node=>getComputedStyle(node).color)).toBe(await receipt.evaluate(node=>getComputedStyle(node).getPropertyValue('--success').trim()).then(async color=>page.evaluate(value=>{const node=document.createElement('span');node.style.color=value;document.body.append(node);const resolved=getComputedStyle(node).color;node.remove();return resolved;},color)));
  await summary.click();await receipt.getByText('Changes and preconditions',{exact:true}).click();await expect(receipt.locator('pre').first()).toContainText(digest);await receipt.getByText('Executor result',{exact:true}).click();await expect(receipt.locator('pre').last()).toContainText('rowsChanged');
@@ -65,7 +65,11 @@ test('completed operation receipts are compact, truthful and retain full evidenc
 test('failed and cancelled receipts do not claim success and prepared approval retains exact authority',async({page})=>{
  const snapshot=fixture(),base={threadId:'task-thread',revision:7,kind:'file.replace',description:'Replace the reviewed file.',args:{content:'reviewed'},resourceIds:['file-one'],preconditions:{'file-one':'expected-version'},createdAt:new Date().toISOString()};
  snapshot.operations=[{...base,id:'failed',status:'failed',approved:true,error:'The file changed. Review the current version.'},{...base,id:'cancelled',status:'cancelled',approved:true},{...base,id:'prepared',status:'prepared',approved:false}];
- const host=await serveTaskFixture(page,snapshot);await openApp(page);const failed=page.locator('[data-operation-id="failed"]'),cancelled=page.locator('[data-operation-id="cancelled"]'),approval=page.getByRole('region',{name:'Operation approval',exact:true});
+ snapshot.operations[1].description='Cancel the outdated file replacement.';
+ const host=await serveTaskFixture(page,snapshot);await openApp(page);
+ await expect(page.getByRole('region',{name:'Operation outcome: Replace the reviewed file. — Failed',exact:true})).toBeVisible();
+ await expect(page.getByRole('region',{name:'Operation outcome: Cancel the outdated file replacement. — Cancelled',exact:true})).toBeVisible();
+ const failed=page.locator('[data-operation-id="failed"]'),cancelled=page.locator('[data-operation-id="cancelled"]'),approval=page.getByRole('region',{name:/^Operation approval:/,exact:true});
  await expect(failed.locator('summary').first()).toContainText('Failed');await expect(cancelled.locator('summary').first()).toContainText('Cancelled');await failed.locator('summary').first().click();await expect(failed.getByText('The file changed. Review the current version.',{exact:true})).toBeVisible();
  await expect(approval.getByText('Replace the reviewed file.',{exact:true})).toBeVisible();await expect(approval.getByRole('button',{name:'Decline operation',exact:true})).toBeVisible();await approval.getByText('Changes and preconditions',{exact:true}).click();await expect(approval.locator('pre')).toContainText('expected-version');await approval.getByRole('button',{name:'Approve operation',exact:true}).click();
  await expect.poll(()=>host.commands.find(command=>command.type==='operation.approve')?.payload).toEqual({operationId:'prepared',revision:7});expect(host.commands.find(command=>command.type==='operation.approve')?.threadId).toBe('task-thread');

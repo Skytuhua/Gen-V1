@@ -1,6 +1,19 @@
 import {describe,it,expect} from 'vitest';
-import {captureTerminalExcerpt,editTerminalExcerpt,readTerminalExcerpts,serializeTerminalExcerpts,TERMINAL_EXCERPT_MAX_BYTES} from '../apps/web/src/terminal-excerpts';
+import {captureTerminalExcerpt,editTerminalExcerpt,readTerminalExcerpts,serializeTerminalExcerpts,terminalExcerptLabel,TERMINAL_EXCERPT_MAX_BYTES} from '../apps/web/src/terminal-excerpts';
 const owner={terminalId:'terminal',projectId:'p',threadId:'t'};
+it('labels captured terminal names and immutable line ranges, not identifiers',()=>{
+ const excerpt=captureTerminalExcerpt({...owner,terminalName:'Build terminal',lineRange:{start:12,end:15},selection:'first\nsecond\nthird\nfourth'});
+ expect(terminalExcerptLabel(excerpt)).toBe('Build terminal · lines 12–15');
+ expect(terminalExcerptLabel(editTerminalExcerpt(excerpt,'Reviewed'))).toBe('Build terminal · lines 12–15');
+ expect(readTerminalExcerpts([excerpt])[0]).toEqual(excerpt);
+});
+it('retains legacy excerpts without inventing unknown terminal names or line positions',()=>{
+ const excerpt=captureTerminalExcerpt({...owner,selection:'old output'});
+ expect(terminalExcerptLabel(readTerminalExcerpts([excerpt])[0])).toBe('Terminal · line range unavailable');
+ expect(readTerminalExcerpts([])).toEqual([]);
+ expect(()=>captureTerminalExcerpt({...owner,lineRange:{start:9,end:2},selection:'invalid'})).toThrow();
+ expect(()=>captureTerminalExcerpt({...owner,lineRange:{start:0,end:1},selection:'invalid'})).toThrow();
+});
 describe('terminal excerpts v1 frozen schema',()=>{
  it('bounds UTF-8 without splitting a scalar and freezes original text and provenance',()=>{
   const excerpt=captureTerminalExcerpt({...owner,selection:'😀'.repeat(10000)});

@@ -47,6 +47,12 @@ const withStorage = <T,>(
 };
 
 describe("plan timeline presentation", () => {
+  it("exposes a plan heading and a coherent available-agent subheading", () => {
+    expect(render()).toContain('<h2 class="sr-only">Task plan: Improve the workspace</h2>');
+    expect(render()).toMatch(/<h3>\s*Available agents/);
+    expect(render()).not.toContain('<h4>');
+    expect(render({...timelineSnapshot(), data: []})).toContain('<h2>No plan yet</h2>');
+  });
   it("renders the existing nested delegated transcript from its complete canonical plan", () => {
     const html = renderToStaticMarkup(createElement(DelegatedAgentTranscript, {snapshot: timelineSnapshot(), threadId: 'thread-a', agentId: 'child'}));
     expect(html).toContain('Evidence helper');

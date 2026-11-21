@@ -96,7 +96,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    try{localStorage.setItem(key,first.id);localStorage.removeItem(key+':pending');}catch{}
    append(first);
    const canCapture=()=>ownerCurrent()&&latest.current.excerptComposer&&!latest.current.excerptComposer.readOnly&&latest.current.excerptComposer.projectId===projectId&&latest.current.excerptComposer.threadId===threadId;
-   instance.onSelectionChange(()=>{if(!canCapture()||!confirmedId||!threadId)return;const text=instance!.getSelection();setSelection(text?captureTerminalExcerpt({terminalId:confirmedId,projectId,threadId,selection:text}):null);});
+   instance.onSelectionChange(()=>{if(!canCapture()||!confirmedId||!threadId)return;const text=instance!.getSelection(),position=instance!.getSelectionPosition();setSelection(text?captureTerminalExcerpt({terminalId:confirmedId,terminalName:'Terminal',...(position?{lineRange:{start:position.start.y+1,end:Math.max(position.start.y+1,position.end.y+(position.end.x>0?1:0))}}:{}),projectId,threadId,selection:text}):null);});
    instance.attachCustomKeyEventHandler(event=>{
     if(!canCapture()||event.isComposing)return true;
     if((event.ctrlKey||event.metaKey)&&event.shiftKey&&event.key.toLowerCase()==='a'){if(event.type==='keydown'){event.preventDefault();instance!.selectAll();}return false;}

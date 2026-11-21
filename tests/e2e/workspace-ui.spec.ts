@@ -84,7 +84,7 @@ test('primary Workspace keeps tools fixed and preserves its anchored draft throu
 
 test('retained navigation directs tools to the main workspace without creating detached owners',async({page})=>{
  await page.addInitScript(()=>sessionStorage.setItem('workspace-test-surface',JSON.stringify({kind:'navigation'})));await nativeBridge(page);await fixture(page,[],undefined,'workspace');
- for(const label of ['Pull requests','Usage']){await page.getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Open this tool in the main workspace.'})).toBeVisible();}
+ for(const label of ['PRs, Pull requests','Usage']){await page.getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Open this tool in the main workspace.'})).toBeVisible();}
  expect(await page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach'))).toEqual([]);
 });
 
@@ -247,7 +247,7 @@ test('canvas project selection targets its owner and cancellation restores indep
  const main=panel('selected-main','task-thread',24),other=panel('other-main','other-main',560),host=await fixture(page,[main,other]);
  host.snapshot.threads.push({...host.snapshot.threads[0],id:'other-main',title:'Other main',sessionPath:null});
  host.envelope.projects.push({id:'chosen-local',name:'Other local project',rootPath:'C:/Fixture/Owner',authority:{kind:'local'},createdAt:stamp});await page.reload();
- const first=page.locator('[data-panel-id="selected-main"]').getByRole('textbox',{name:'Message',exact:true}),owner=page.locator('[data-panel-id="other-main"]'),second=owner.getByRole('textbox',{name:'Message',exact:true}),opener=owner.getByRole('button',{name:'Select project',exact:true});
+ const first=page.locator('[data-panel-id="selected-main"]').getByRole('textbox',{name:'Message',exact:true}),owner=page.locator('[data-panel-id="other-main"]'),second=owner.getByRole('textbox',{name:'Message',exact:true}),opener=owner.getByRole('button',{name:/Select project$/,exact:true});
  await first.fill('Selected draft');await second.fill('Other owner draft');await opener.click();
  const dialog=page.getByRole('dialog',{name:'Select project',exact:true});await expect(dialog).toBeVisible();
  await dialog.getByRole('button',{name:'Cancel',exact:true}).click();await expect(opener).toBeFocused();

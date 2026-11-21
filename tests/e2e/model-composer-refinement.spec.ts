@@ -44,7 +44,7 @@ test('keyboard reasoning, working lock, project selection and narrow popup stay 
  await expect(page.getByRole('radio',{name:'Low',exact:true})).toBeFocused();
  await expect(trigger).toContainText('Low');await page.keyboard.press('Enter');await expect(trigger).toContainText('Low');
  await page.keyboard.press('Escape');
- await page.getByRole('button',{name:'Select project',exact:true}).click();
+ await page.getByRole('button',{name:/Select project$/,exact:true}).click();
  await trigger.click();await page.getByRole('button',{name:'Toggle working'}).click();await expect(trigger).toBeDisabled();await expect(trigger).toHaveAttribute('aria-expanded','false');
  expect(await page.evaluate(()=>window.modelComposerCalls)).toEqual([['effort',''],['effort','low'],['project']]);
 });

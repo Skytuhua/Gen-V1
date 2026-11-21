@@ -54,7 +54,7 @@ test('trusted catalog rejects broken and oversized updates, then supports a real
   await expect(page.getByRole('dialog', { name: 'Settings', exact: true })).toBeVisible();
   await evidence(page, info, 'trusted-catalog-endurance');
 });
-const region = (page: Page, name: string) => page.getByRole('region', { name, exact: true }).or(page.getByRole('dialog', { name, exact: true }));
+const region = (page: Page, name: string | RegExp) => page.getByRole('region', { name, exact: true }).or(page.getByRole('dialog', { name, exact: true }));
 async function widgetFrame(page: Page): Promise<Frame> {
   await expect(page.locator('iframe')).toHaveCount(1);
   await expect.poll(() => page.frames().some(value => value.url().startsWith('http://localhost:4338/widget/'))).toBe(true);
@@ -178,7 +178,7 @@ test('generated operation button requires native approval; restart restores with
   await expect(artifact.getByRole('button', { name: 'Apply document replacement' })).toBeVisible();
   await artifact.getByRole('button', { name: 'Expand artifact', exact: true }).click();
   await artifact.getByRole('button', { name: 'Apply document replacement' }).click();
-  const approval = region(page, 'Operation approval');
+  const approval = region(page, /^Operation approval:/);
   await expect(approval.getByRole('button', { name: 'Approve operation', exact: true })).toBeFocused();
   expect(host.snapshot().operations[0]).toMatchObject({ approved: false, status: 'prepared' });
   expect(await readFile(host.sourceFile, 'utf8')).toBe(BEFORE);
@@ -193,7 +193,7 @@ test('generated operation button requires native approval; restart restores with
   await approval.getByRole('button', { name: 'Approve operation', exact: true }).click();
   await expect.poll(() => host.snapshot().operations[0]?.status).toBe('succeeded');
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
-  await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
+  await expect(region(page, /^Operation outcome:/)).toContainText('Succeeded');
   const effectMs = performance.now() - started; stage('effect-recorded');
   const modified = (await stat(host.sourceFile)).mtimeMs;
   const beforeRestart = host.snapshot();
@@ -205,7 +205,7 @@ test('generated operation button requires native approval; restart restores with
   expect(host.snapshot().userStates).toEqual(beforeRestart.userStates);
   expect(host.snapshot().threads[0]?.status).toBe('interrupted');
   stage('restored-navigation-start'); await openHost(page); stage('restored-navigation-complete');
-  await expect(region(page, 'Operation outcome')).toContainText('Succeeded');
+  await expect(region(page, /^Operation outcome:/)).toContainText('Succeeded');
   await expect(region(page, 'Evidence document')).toBeVisible();
   expect(await readFile(host.sourceFile, 'utf8')).toBe(AFTER);
   expect((await stat(host.sourceFile)).mtimeMs).toBe(modified);

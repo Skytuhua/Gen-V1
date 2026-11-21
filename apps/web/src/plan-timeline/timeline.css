@@ -71,12 +71,12 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-agent-usage {display:grid;grid-template-columns:1fr auto;gap:4px 12px;font-size:11.5px;color:var(--muted);margin:10px 0 0;}
 .plan-agent-usage dd {margin:0;color:var(--text);font-variant-numeric:tabular-nums;}
 .plan-unassigned {margin-top:18px;padding-top:16px;border-top:1px solid var(--border);}
-.plan-unassigned h4 {font-size:12px;line-height:1.6;font-weight:550;margin:0 0 12px;}
-.plan-unassigned h4 span {font-weight:400;color:var(--muted);margin-left:8px;}
+.plan-unassigned h3 {font-size:12px;line-height:1.6;font-weight:550;margin:0 0 12px;}
+.plan-unassigned h3 span {font-weight:400;color:var(--muted);margin-left:8px;}
 .plan-unassigned>.plan-agents {display:flex;flex-direction:column;gap:12px;}
 .plan-empty {display:flex;flex-direction:column;align-items:start;gap:10px;}
 .plan-empty>svg {color:var(--muted);}
-.plan-empty h3 {font-size:14px;}
+.plan-empty h2 {font-size:14px;}
 .plan-empty p,.plan-status-note,.plan-update-error {font-size:12px;line-height:1.6;margin:0 0 12px;}
 .plan-update-error {color:var(--danger);}
 @container (max-width:520px) {
