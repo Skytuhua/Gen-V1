@@ -16,12 +16,17 @@ export function accentInk(color: string): string {
 }
 export type ProjectAccent = keyof typeof PROJECT_PALETTE;
 export const projectColorSchema = z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Choose a six-digit hex color, such as #4F6EFF.');
-const projectColorKey = z.string().max(1000).refine(value => {
+/** Exact project identity shared by per-project preference maps; independent of editable names. */
+export const projectIdentityKeySchema = z.string().max(1000).refine(value => {
   try {
     const parts: unknown = JSON.parse(value);
     return Array.isArray(parts) && (parts.length === 2 && parts[0] === 'local' || parts.length === 4 && parts[0] === 'plugin') && parts.slice(1).every(part => typeof part === 'string' && /^[A-Za-z0-9][A-Za-z0-9_.:-]{0,199}$/.test(part));
   } catch { return false; }
-}, 'Project colors need an exact authority and project identity.');
+}, 'Project overrides need an exact authority and project identity.');
+const projectModelDefaultEntry = z.strictObject({
+  modelId: z.string().min(1).max(200),
+  thinkingLevel: z.string().min(1).max(40).regex(/^[a-z0-9_-]+$/i, 'Use letters, digits, dashes and underscores only.').nullable(),
+});
 const rasterImage = z.string().max(2_800_000).refine(value => {
   const match = /^data:image\/(png|jpeg|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(value);
   return Boolean(match && match[2]!.length % 4 === 0 && (match[1] === 'png' && match[2]!.startsWith('iVBORw0KGgo') || match[1] === 'jpeg' && match[2]!.startsWith('/9j/') || match[1] === 'webp' && match[2]!.startsWith('UklGR')));
@@ -49,7 +54,8 @@ export const preferencesSchema = z.strictObject({
   notificationVolume: z.number().finite().min(0).max(1), notificationPreview: z.enum(['full', 'title', 'private']), notificationQuietHours: quietHours,
   appearanceAccent: z.enum(['blue', 'violet', 'cyan', 'orange', 'rose', 'green']),
   backgroundStyle: z.enum(['solid', 'graphite', 'midnight', 'image']), backgroundImage: rasterImage.nullable(), backgroundOpacity: z.number().finite().min(0).max(1),
-  projectColors: z.record(projectColorKey, projectColorSchema).refine(value => Object.keys(value).length <= 200, 'Keep at most 200 project color overrides.'),
+  projectColors: z.record(projectIdentityKeySchema, projectColorSchema).refine(value => Object.keys(value).length <= 200, 'Keep at most 200 project color overrides.'),
+  projectModelDefaults: z.record(projectIdentityKeySchema, projectModelDefaultEntry).refine(value => Object.keys(value).length <= 200, 'Keep at most 200 project model defaults.'),
   diffLayout: z.enum(['stacked', 'split']), hideWhitespace: z.boolean(), diffDefaultExpanded: z.boolean(), diffColors: z.enum(['red-green', 'blue-orange']),
   showThreadDetails: z.boolean(), showComposerContext: z.boolean(), showUsageFooter:z.boolean(), wordWrap: z.boolean(), keybindings,
   learningEnabled:z.boolean(),learningApproval:z.boolean(),learningInterval:z.number().int().min(0).max(100),skillCurator:z.boolean(),
@@ -64,7 +70,7 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   projectGrouping: true, projectOrder: 'recent', showWorkingSection: true, timeFormat: 'system',
   archiveConfirmation: true, deleteConfirmation: true, unpinConfirmation: false, threadNotifications: 'off', inAppNotifications: true,
   notificationVolume: .35, notificationPreview: 'title', notificationQuietHours: { enabled: false, start: '22:00', end: '08:00' },
-  appearanceAccent: 'blue', backgroundStyle: 'solid', backgroundImage: null, backgroundOpacity: .18, projectColors: {},
+  appearanceAccent: 'blue', backgroundStyle: 'solid', backgroundImage: null, backgroundOpacity: .18, projectColors: {}, projectModelDefaults: {},
   diffLayout: 'split', hideWhitespace: false, diffDefaultExpanded: true, diffColors: 'red-green',
   showThreadDetails: true, showComposerContext: true, showUsageFooter:true, wordWrap: true,
   learningEnabled:true,learningApproval:false,learningInterval:10,skillCurator:true,
