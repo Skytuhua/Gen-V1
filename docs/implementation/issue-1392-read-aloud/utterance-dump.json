@@ -1,0 +1,1240 @@
+{
+ "calls": [
+  {
+   "text": "Here is a long synthetic reply for the read aloud verification pass.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258718746,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258718798,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258718925,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258719164,
+     "charIndex": 5,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258719314,
+     "charIndex": 8,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258719375,
+     "charIndex": 10,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258719624,
+     "charIndex": 15,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258720165,
+     "charIndex": 25,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258720564,
+     "charIndex": 31,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258720724,
+     "charIndex": 35,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258720864,
+     "charIndex": 39,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258721064,
+     "charIndex": 44,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258721375,
+     "charIndex": 50,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258722224,
+     "charIndex": 63,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258723385,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Summary",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258723479,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258723481,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258723594,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258724895,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Use Settings and Help to pick a voice.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258724991,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258724998,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258725115,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258725365,
+     "charIndex": 4,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258725814,
+     "charIndex": 13,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258725964,
+     "charIndex": 17,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258726215,
+     "charIndex": 22,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258726365,
+     "charIndex": 25,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258726614,
+     "charIndex": 30,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258726664,
+     "charIndex": 32,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258727836,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "The quick brown fox jumps over the lazy dog, again and again, while the harness keeps reading in bounded utterances.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258727936,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258727955,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258728075,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258728225,
+     "charIndex": 4,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258728524,
+     "charIndex": 10,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258728824,
+     "charIndex": 16,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258729175,
+     "charIndex": 20,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258729475,
+     "charIndex": 26,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258729725,
+     "charIndex": 31,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258729875,
+     "charIndex": 35,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258730225,
+     "charIndex": 40,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258731025,
+     "charIndex": 45,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258731324,
+     "charIndex": 51,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258731524,
+     "charIndex": 55,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258732375,
+     "charIndex": 62,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258732575,
+     "charIndex": 68,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258732675,
+     "charIndex": 72,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258733125,
+     "charIndex": 80,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258733475,
+     "charIndex": 86,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258733825,
+     "charIndex": 94,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258733975,
+     "charIndex": 97,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258734327,
+     "charIndex": 105,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258735746,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "inline code should read as ordinary words without any backticks.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258735843,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258735853,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258735965,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258736415,
+     "charIndex": 7,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258736715,
+     "charIndex": 12,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258736915,
+     "charIndex": 19,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258737165,
+     "charIndex": 24,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258737365,
+     "charIndex": 27,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258737865,
+     "charIndex": 36,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258738166,
+     "charIndex": 42,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258738565,
+     "charIndex": 50,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258738765,
+     "charIndex": 54,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258740216,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Step Result Open The reply started reading Pause Playback held its place Resume Reading continued in order",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258740304,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258740312,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258740425,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258740775,
+     "charIndex": 5,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258741225,
+     "charIndex": 12,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258741525,
+     "charIndex": 17,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258741625,
+     "charIndex": 21,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258741975,
+     "charIndex": 27,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258742425,
+     "charIndex": 35,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258742775,
+     "charIndex": 43,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258743075,
+     "charIndex": 49,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258743625,
+     "charIndex": 58,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258743875,
+     "charIndex": 63,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258744025,
+     "charIndex": 67,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258744375,
+     "charIndex": 73,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258744775,
+     "charIndex": 80,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258745125,
+     "charIndex": 88,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258745625,
+     "charIndex": 98,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258745775,
+     "charIndex": 101,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258746897,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Paragraph two keeps going with enough prose to cross the two hundred and forty code unit chunk boundary several times over.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258746992,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258747000,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258747125,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258747825,
+     "charIndex": 10,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258748025,
+     "charIndex": 14,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258748325,
+     "charIndex": 20,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258748615,
+     "charIndex": 26,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258748815,
+     "charIndex": 31,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258749065,
+     "charIndex": 38,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258749466,
+     "charIndex": 44,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258749575,
+     "charIndex": 47,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258749965,
+     "charIndex": 53,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258750076,
+     "charIndex": 57,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258750276,
+     "charIndex": 61,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258750765,
+     "charIndex": 69,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258750926,
+     "charIndex": 73,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258751326,
+     "charIndex": 79,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258751625,
+     "charIndex": 84,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258751926,
+     "charIndex": 89,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258752225,
+     "charIndex": 95,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258752726,
+     "charIndex": 104,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258753125,
+     "charIndex": 112,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258753575,
+     "charIndex": 118,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258754636,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Each sentence is deliberately plain so that a listener can tell whether the engine skipped ahead, repeated itself, or stalled between chunks.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258754732,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258754740,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258754856,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258755056,
+     "charIndex": 5,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258755505,
+     "charIndex": 14,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258755705,
+     "charIndex": 17,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258756356,
+     "charIndex": 30,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258756655,
+     "charIndex": 36,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258756957,
+     "charIndex": 39,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258757106,
+     "charIndex": 44,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258757156,
+     "charIndex": 46,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258757606,
+     "charIndex": 55,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258757855,
+     "charIndex": 59,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258758105,
+     "charIndex": 64,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258758356,
+     "charIndex": 72,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258758505,
+     "charIndex": 76,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258758856,
+     "charIndex": 83,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258759206,
+     "charIndex": 91,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258760005,
+     "charIndex": 98,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258760406,
+     "charIndex": 107,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258761406,
+     "charIndex": 115,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258761556,
+     "charIndex": 118,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258761956,
+     "charIndex": 126,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258762356,
+     "charIndex": 134,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258763657,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "A third sentence pads the paragraph further so the total reply comfortably exceeds a few chunks at the configured rate.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258763753,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258763759,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258763876,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258763975,
+     "charIndex": 2,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258764226,
+     "charIndex": 8,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258764676,
+     "charIndex": 17,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258765036,
+     "charIndex": 22,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258765126,
+     "charIndex": 26,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258765726,
+     "charIndex": 36,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258766126,
+     "charIndex": 44,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258766376,
+     "charIndex": 47,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258766476,
+     "charIndex": 51,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258766836,
+     "charIndex": 57,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258767235,
+     "charIndex": 63,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258767876,
+     "charIndex": 75,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258768276,
+     "charIndex": 83,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258768336,
+     "charIndex": 85,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258768576,
+     "charIndex": 89,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258768926,
+     "charIndex": 96,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258769076,
+     "charIndex": 99,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258769176,
+     "charIndex": 103,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258769776,
+     "charIndex": 114,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258770817,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "Final paragraph:",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258770907,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258770913,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258771036,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258771486,
+     "charIndex": 6,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258772936,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  },
+  {
+   "text": "stop should clear the position, and play again should start from the beginning with the same text snapshot.",
+   "rate": 1,
+   "pitch": 1,
+   "voiceURI": "Microsoft David - English (United States)",
+   "voiceName": "Microsoft David - English (United States)",
+   "lang": "en-US",
+   "volume": 1,
+   "events": [
+    {
+     "ev": "start",
+     "t": 1795258773035,
+     "charIndex": 0,
+     "name": ""
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258773041,
+     "charIndex": 0,
+     "name": "sentence"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258773166,
+     "charIndex": 0,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258773556,
+     "charIndex": 5,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258773766,
+     "charIndex": 12,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258774056,
+     "charIndex": 18,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258774167,
+     "charIndex": 22,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258775156,
+     "charIndex": 32,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258775366,
+     "charIndex": 36,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258775666,
+     "charIndex": 41,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258775966,
+     "charIndex": 47,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258776166,
+     "charIndex": 54,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258776566,
+     "charIndex": 60,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258776766,
+     "charIndex": 65,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258776816,
+     "charIndex": 69,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258777266,
+     "charIndex": 79,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258777466,
+     "charIndex": 84,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258777566,
+     "charIndex": 88,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258777866,
+     "charIndex": 93,
+     "name": "word"
+    },
+    {
+     "ev": "boundary",
+     "t": 1795258778205,
+     "charIndex": 98,
+     "name": "word"
+    },
+    {
+     "ev": "end",
+     "t": 1795258779678,
+     "charIndex": 0,
+     "name": ""
+    }
+   ]
+  }
+ ],
+ "ops": [
+  {
+   "op": "cancel",
+   "t": 1795258718270
+  },
+  {
+   "op": "resume",
+   "t": 1795258779677
+  }
+ ],
+ "orig": {}
+}
