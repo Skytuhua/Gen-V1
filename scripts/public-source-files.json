@@ -2691,6 +2691,7 @@
     "packages/workspace/github-auth.ts",
     "packages/workspace/github.ts",
     "packages/workspace/repo-map.ts",
+    "packages/workspace/secret-scan.ts",
     "packages/workspace/selective-commit.ts",
     "packages/workspace/terminal.ts",
     "packages/workspace/tools.ts",
@@ -3454,6 +3455,7 @@
     "tests/schema-admission.test.ts",
     "tests/scoped-conversation-fixture.ts",
     "tests/secret-custody-v3.test.ts",
+    "tests/secret-scan.test.ts",
     "tests/selective-commit-v3.test.ts",
     "tests/server-tool-effect-read.test.ts",
     "tests/server.test.ts",
@@ -4816,6 +4818,7 @@
     "packages/workspace/github-auth.ts",
     "packages/workspace/github.ts",
     "packages/workspace/repo-map.ts",
+    "packages/workspace/secret-scan.ts",
     "packages/workspace/selective-commit.ts",
     "packages/workspace/terminal.ts",
     "packages/workspace/tools.ts"
