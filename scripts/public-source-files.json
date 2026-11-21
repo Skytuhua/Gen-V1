@@ -2855,6 +2855,7 @@
     "tests/ci-concurrency-policy.test.ts",
     "tests/ci-draft-policy.test.ts",
     "tests/ci-failures-contracts.test.ts",
+    "tests/ci-failures-workspace.test.ts",
     "tests/ci-logs.test.ts",
     "tests/ci-merged-pr-cleanup.test.ts",
     "tests/ci-queue-guard.test.ts",

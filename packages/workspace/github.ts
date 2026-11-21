@@ -13,17 +13,56 @@ import {GitHubAuth} from './github-auth.ts';
 import {secureDirectory} from '../runtime-official/manifest.ts';
 import {readBoundFile,removeOwnedFile,withPathGuard} from '../core/file-access.ts';
 import {CODE_REVIEW_LIMITS,ComparisonFileRequestSchema,type CodeReviewComparison,type ComparisonPatch,type ComparisonRead,type PullRequestComparisonIdentity} from '../contracts/code-review.ts';
+import {CI_FAILURE_LIMITS,type CiFailedJob,type CiFailureReport} from '../contracts/ci-failures.ts';
+import {capabilityEnabled} from '../core/capability-flags.ts';
 import {ComparisonSnapshots,PullComparisonSchema,RemoteComparisonSchema,comparisonError,comparisonResult,normalizeChecks,remotePatch,reviewHash} from './code-review.ts';
+import {extractFailureExcerpt,isBlobMissing} from './ci-logs.ts';
 
 const repository=z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),number=z.number().int().positive();
 const bodyText=z.string().max(64000).refine(value=>Buffer.from(value,'utf8').toString('utf8')===value,'Pull request text must be valid Unicode.');
 const quote=(path:string)=>"'"+path.replaceAll('\\','/').replaceAll("'","'\\''")+"'";
 const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
 interface PullRequest{number:number;title:string;url:string;state:string;headRefOid:string;headRefName:string;isDraft:boolean}
+const checkJobUrl=/^https:\/\/github\.com\/([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+)\/actions\/runs\/(\d+)\/job\/(\d+)$/;
+/** Owner-keyed in-memory cache of CI failure reports (R06): TTL `cacheMs`, max 20
+ * entries LRU, one report per owner+repository+pull request. */
+export class CiFailureReports{
+ private readonly entries=new Map<string,{owner:string;report:CiFailureReport;at:number}>();
+ private slot(owner:string,repo:string,number:number){return JSON.stringify([owner,repo,number]);}
+ private prune(now:number){for(const[id,entry]of this.entries)if(now-entry.at>CI_FAILURE_LIMITS.cacheMs)this.entries.delete(id);while(this.entries.size>20){const oldest=this.entries.keys().next().value;if(oldest===undefined)break;this.entries.delete(oldest);}}
+ save(owner:string,report:CiFailureReport,now=Date.now()){
+  const slot=this.slot(owner,report.repo,report.number);
+  for(const[id,entry]of this.entries)if(this.slot(entry.owner,entry.report.repo,entry.report.number)===slot)this.entries.delete(id);
+  this.entries.set(report.id,{owner,report:structuredClone(report),at:now});
+  this.prune(now);
+ }
+ fresh(owner:string,repo:string,number:number,headOid:string,now=Date.now()){
+  this.prune(now);
+  const slot=this.slot(owner,repo,number);
+  for(const entry of this.entries.values())if(this.slot(entry.owner,entry.report.repo,entry.report.number)===slot&&entry.report.headOid===headOid)return structuredClone(entry.report);
+ }
+ get(owner:string,reportId:string,now=Date.now()){
+  this.prune(now);
+  const entry=this.entries.get(reportId);
+  if(!entry||entry.owner!==owner)throw new HarnessError('CI_REPORT_EXPIRED','The CI failure report expired. Refresh the pull request failures before sending.');
+  return structuredClone(entry.report);
+ }
+}
+/** Keep a report under `reportBytes` by cutting earlier lines from the largest excerpts. */
+function trimReport(report:CiFailureReport){
+ for(let guard=0;Buffer.byteLength(JSON.stringify(report),'utf8')>CI_FAILURE_LIMITS.reportBytes&&guard<5000;guard++){
+  const largest=report.jobs.reduce<CiFailedJob|undefined>((best,job)=>job.excerpt&&(!best||Buffer.byteLength(job.excerpt,'utf8')>Buffer.byteLength(best.excerpt,'utf8'))?job:best,undefined);
+  if(!largest)return;
+  const lines=largest.excerpt.split('\n');
+  if(lines.length<=1){largest.excerpt='';largest.excerptLines=0;largest.truncated=true;continue;}
+  lines.shift();largest.excerpt=lines.join('\n');largest.excerptLines=lines.length;largest.truncated=true;
+ }
+}
 /** Bundled GitHub CLI with a private sign-in profile and exact reviewed revisions. */
 export class GitHubTools{
  readonly auth:GitHubAuth;
  private readonly reviewComparisons=new ComparisonSnapshots();
+ readonly failureReports=new CiFailureReports();
  constructor(private readonly projects:ProjectTools,_terminals:TerminalHost,private readonly executable=bundledGh){this.auth=new GitHubAuth(projects.store.dataDir);}
  private environment(){const root=join(this.projects.store.dataDir,'github');return{...processEnvironment(),HOME:root,USERPROFILE:root,GH_CONFIG_DIR:join(root,'config'),GH_HOST:'github.com',GH_PROMPT_DISABLED:'1',GH_NO_UPDATE_NOTIFIER:'1',GIT_TERMINAL_PROMPT:'0'};}
  private parseOutput(output:string){try{return JSON.parse(output) as unknown;}catch{throw new HarnessError('GITHUB_CLI_OUTPUT_INVALID','The GitHub CLI returned unreadable output. Check the bundled gh tool and the repository state.');}}
@@ -39,6 +78,18 @@ export class GitHubTools{
   try{decoded=JSON.parse(stdout);}catch{return redactor.redact(stdout).text;}
   const encoded=JSON.stringify(decoded,(_key:string,value:unknown)=>typeof value==='string'?redactor.redact(value).text:value);
   return redactor.redact(encoded).text;
+ }
+/** Text variant of `run` for non-JSON endpoints (job logs). Returns the raw body
+ * or an error detail; callers classify the failure instead of a generic throw. */
+ private async runText(path:string,args:string[],maxBuffer:number):Promise<{stdout:string}|{error:string}>{
+  const token=await this.auth.token();await mkdir(join(this.projects.store.dataDir,'github/config'),{recursive:true});
+  try{
+   const{stdout}=await promisify(execFile)(this.executable,args,{cwd:path,env:{...this.environment(),GH_TOKEN:token},windowsHide:true,timeout:120000,maxBuffer,encoding:'utf8'});
+   return{stdout};
+  }catch(error){
+   const detail=`${error instanceof Error?error.message:String(error)}\n${(error as {stderr?:string}|undefined)?.stderr??''}`;
+   return{error:createSecretRedactor([token]).redact(detail).text};
+  }
  }
  private async withInput<T>(text:string,target:{url:string;head:string;revision:string;repo:string},action:(path:string)=>Promise<T>):Promise<T>{
   const parent=await secureDirectory(this.projects.store.dataDir,join(this.projects.store.dataDir,'github','requests')),directory=await mkdtemp(join(parent,'request-')),directoryIdentity=await lstat(directory,{bigint:true}),path=join(directory,'input'),bytes=Buffer.from(text,'utf8'),signal=new AbortController().signal;
@@ -102,6 +153,44 @@ export class GitHubTools{
    this.reviewComparisons.save(owner,value,patches);
    return comparisonResult(value);
   }catch(error){return comparisonError(error);}
+ }
+ /** R01-R06: failed checks on a pull request with bounded, redacted Actions log
+  * excerpts. Read-only; reports are cached per owner for the send path. */
+ async failedChecks(projectId:string,threadId:string|undefined,pullNumber:number,options:{refresh?:boolean}={}){
+  if(!capabilityEnabled('workspace.ciFixV1'))throw new HarnessError('CAPABILITY_DENIED','CI failure evidence is disabled.');
+  const selected=number.parse(pullNumber),details=await this.details(projectId,threadId,selected),{repo,head}=details,{path}=await this.projects.binding(projectId,threadId);
+  const item=details.item as {headRefOid?:string;statusCheckRollup?:unknown},headOid=z.string().min(1).max(64).parse(item.headRefOid??'');
+  const owner=JSON.stringify([projectId,threadId??null,path,repo]);
+  if(options.refresh!==true){const cached=this.failureReports.fresh(owner,repo,selected,headOid);if(cached)return cached;}
+  const rows=z.array(z.unknown()).max(1000).parse(item.statusCheckRollup??[]),checks=normalizeChecks(rows);
+  const failed=rows.map((row,index)=>({row,check:checks[index]!})).filter(entry=>entry.check.status==='failed');
+  const jobs:CiFailedJob[]=[];let attempts=0,systemic=0;
+  const redactor=createSecretRedactor([await this.auth.token()]);
+  for(const[position,entry]of failed.slice(0,CI_FAILURE_LIMITS.maxJobs).entries()){
+   const parsed=z.object({detailsUrl:z.string().max(2048).optional(),conclusion:z.string().nullable().optional(),state:z.string().optional(),status:z.string().optional()}).safeParse(entry.row);
+   const data=parsed.success?parsed.data:{},conclusion=(data.conclusion??data.state??data.status)??'';
+   const match=checkJobUrl.exec(data.detailsUrl??''),actions=match&&match[1].toLowerCase()===repo.toLowerCase()?match:null;
+   const job:CiFailedJob={id:actions?actions[3]:`ext:${position}`,checkName:entry.check.name,workflowName:null,failedStep:null,conclusion,url:actions?actions[0]:'',logState:'not-actions',excerpt:'',excerptLines:0,truncated:false};
+   if(!actions){jobs.push(job);continue;}
+   attempts+=1;
+   try{
+    const meta=z.object({workflow_name:z.string().optional(),steps:z.array(z.object({name:z.string().optional(),conclusion:z.string().nullable().optional()})).optional()}).parse(this.parseOutput(await this.run(path,['api',`repos/${repo}/actions/jobs/${actions[3]}`])));
+    job.workflowName=meta.workflow_name??null;job.failedStep=(meta.steps??[]).find(step=>step.conclusion==='failure')?.name??null;
+   }catch{systemic+=1;job.logState='unavailable';jobs.push(job);continue;}
+   const fetched=await this.runText(path,['api',`repos/${repo}/actions/jobs/${actions[3]}/logs`],CI_FAILURE_LIMITS.rawLogBytes);
+   if('error'in fetched){
+    if(/maxBuffer/i.test(fetched.error))job.logState='too-large';
+    else{job.logState='unavailable';if(!/\b(404|410)\b/.test(fetched.error)&&!isBlobMissing(fetched.error))systemic+=1;}
+    jobs.push(job);continue;
+   }
+   const{excerpt,lines,truncated}=extractFailureExcerpt(redactor.redact(fetched.stdout).text);
+   Object.assign(job,{logState:'ready' as const,excerpt,excerptLines:lines,truncated});jobs.push(job);
+  }
+  if(systemic>0&&systemic===attempts)throw new HarnessError('CI_LOGS_UNAVAILABLE','None of the failed job logs could be fetched from GitHub.');
+  const report:CiFailureReport={id:'',repo,number:selected,headOid,localHead:head,observedAt:new Date().toISOString(),jobs,omittedJobs:Math.max(0,failed.length-jobs.length)};
+  trimReport(report);report.id=reviewHash([owner,report.repo,report.number,report.headOid,report.observedAt]);
+  this.failureReports.save(owner,report);
+  return structuredClone(report);
  }
  async comparisonFile(projectId:string,threadId:string|undefined,input:unknown):Promise<ComparisonPatch>{
   const request=ComparisonFileRequestSchema.parse(input),{path,owner,repo}=await this.comparisonRepository(projectId,threadId),entry=this.reviewComparisons.get(owner,request.comparisonId),result=entry.patches?.get(request.path);

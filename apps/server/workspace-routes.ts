@@ -75,6 +75,12 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   return{repo,items:[...new Map(saved.map(value=>[value.item.number,value.item])).values()]};
  });
  app.get('/api/projects/:projectId/pull-requests/:number',async request=>{const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId}=querySchema.parse(request.query);return github.details(projectId,threadId,number);});
+ // M18 CI failure evidence. The capability flag is enforced inside failedChecks.
+ app.get('/api/projects/:projectId/pull-requests/:number/failures',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId,refresh}=z.strictObject({threadId:identifier.optional(),refresh:z.literal('1').optional()}).parse(request.query);
+  return github.failedChecks(projectId,threadId,number,{refresh:refresh==='1'});
+ });
  // M08 managed-workspace checkpoints. The owner is always recomputed from the
  // thread's managed binding server-side; a client-supplied owner must match.
  const ownerPayload=z.strictObject({projectId:identifier,threadId:identifier.nullable(),workingCopyId:identifier.nullable(),binding:z.string().regex(/^[a-f0-9]{64}$/)});
