@@ -12,7 +12,7 @@ export function panelDesktopSurface(panel:PanelPlacement):DesktopSurface {
  const tab=['files','diff','output','usage','notes','context','terminal','pull-request','linked-pull-requests'].includes(panel.kind)?panel.kind as 'files'|'diff'|'output'|'usage'|'notes'|'context'|'terminal'|'pull-request'|'linked-pull-requests':'launcher';
  return {kind:'workspace',panelId:panel.id,tab,...(b.threadId?{threadId:b.threadId}:{})};
 }
-export function desktopSurfaceKind(surface:DesktopSurface):WorkspacePanelKind {if(surface.kind==='plugin')return 'workspace';return surface.kind==='main'?'workspace':surface.kind==='workspace'&&surface.tab&&surface.tab!=='launcher'?surface.tab:surface.kind;}
+export function desktopSurfaceKind(surface:DesktopSurface):WorkspacePanelKind {if(surface.kind==='plugin')return 'workspace';return surface.kind==='main'||surface.kind==='quick-ask'?'workspace':surface.kind==='workspace'&&surface.tab&&surface.tab!=='launcher'?surface.tab:surface.kind;}
 /** Correlate placement with the existing native editor identity; origin panels never become extra editors. */
 export function panelsForDesktopSurface(panels:PanelPlacement[],surface:DesktopSurface):PanelPlacement[]{
  const key=desktopSurfaceKey(surface);

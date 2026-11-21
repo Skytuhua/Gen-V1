@@ -9,7 +9,8 @@ export type DesktopSurface =
   | {kind:'plan'|'usage'|'thread';threadId:string}
   | {kind:'artifact';threadId:string;artifactId:string}
   | {kind:'agent';threadId:string;agentId:string}
-  | {kind:'browser';browserId:string};
+  | {kind:'browser';browserId:string}
+  | {kind:'quick-ask'};
 export interface DesktopBrowserState {url:string;title:string;canGoBack:boolean;canGoForward:boolean;loading:boolean;error?:string}
 export interface DesktopBounds {x:number;y:number;width:number;height:number}
 export interface DesktopLayoutEntry {surface:DesktopSurface;bounds:DesktopBounds;visible:boolean;alwaysOnTop:boolean;dockedBrowserId?:string;displayId?:string;placement?:{displayId:string;workArea:DesktopBounds;bounds:DesktopBounds}}
@@ -20,6 +21,10 @@ interface DesktopUpdateStatus {state:'unavailable'|'idle'|'checking'|'current'|'
 export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrowserState;dockedBrowser?:{browserId:string;state:DesktopBrowserState};focusSurface?:DesktopSurface;backendError?:string;layoutError?:string;closeCancelled?:boolean;update?:DesktopUpdateStatus;nativeTitleBar?:boolean}
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}
+export type QuickAskRegistration='off'|'ready'|'in-use'|'invalid';
+export interface QuickAskConfig {enabled:boolean;shortcut:string}
+export interface QuickAskContext {currentThreadId:string|null;currentThreadTitle:string|null;currentThreadSendable:boolean;currentProjectId:string|null;currentProjectName:string|null}
+export interface QuickAskOpen extends QuickAskContext {target:'new'|'current'}
 export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
 export interface DesktopMemoryExportResult {status:'saved'|'cancelled';admitted:true;filename:string;bytes:number;sha256:string}
 export interface DesktopBridge {
@@ -47,9 +52,16 @@ export interface DesktopBridge {
   onState(listener:(state:DesktopState)=>void):()=>void;
   onCloseRequested(handler:()=>Promise<boolean>):()=>void;
   onWorkspaceChanged?(listener:(change:DesktopWorkspaceChange)=>void):()=>void;
+  setQuickAskConfig?(config:QuickAskConfig):Promise<QuickAskRegistration>;
+  setQuickAskContext?(context:QuickAskContext):Promise<void>;
+  onQuickAskRegistration?(listener:(state:QuickAskRegistration)=>void):()=>void;
+  quickAskHide?():Promise<void>;
+  quickAskResize?(height:number):Promise<void>;
+  quickAskSent?(result:{threadId:string;target:'new'|'current'}):Promise<void>;
+  onQuickAskOpen?(listener:(value:QuickAskOpen)=>void):()=>void;
 }
-export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
-const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin']);
+export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout',quickAskConfig:'harness-desktop:quick-ask-config',quickAskContext:'harness-desktop:quick-ask-context',quickAskRegistration:'harness-desktop:quick-ask-registration',quickAskHide:'harness-desktop:quick-ask-hide',quickAskResize:'harness-desktop:quick-ask-resize',quickAskSent:'harness-desktop:quick-ask-sent',quickAskOpen:'harness-desktop:quick-ask-open'} as const;
+const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin','quick-ask']);
 const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests']);
 export function desktopId(value:unknown):value is string{return typeof value==='string'&&value.length<=200&&/^[a-zA-Z0-9_.:-]+$/.test(value)&&!['__proto__','prototype','constructor'].includes(value);}
 export function parseDesktopSurface(value:unknown):DesktopSurface {

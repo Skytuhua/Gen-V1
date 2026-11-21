@@ -32,3 +32,36 @@ it('forwards only serialized project memory through the explicit export channel'
   await bridge.exportProjectMemory!(serialized);
   expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.memoryExport, serialized);
 });
+it('forwards quick-ask config and context through dedicated channels', async () => {
+  await bridge.setQuickAskConfig!({ enabled: true, shortcut: 'Alt+Space' });
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.quickAskConfig, { enabled: true, shortcut: 'Alt+Space' });
+  const context = { currentThreadId: 't1', currentThreadTitle: 'Title', currentThreadSendable: true, currentProjectId: null, currentProjectName: null };
+  await bridge.setQuickAskContext!(context);
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.quickAskContext, context);
+  await expect(bridge.setQuickAskConfig!({ enabled: 'yes' } as never)).rejects.toThrow();
+  await expect(bridge.setQuickAskContext!({ currentThreadId: 't1' } as never)).rejects.toThrow();
+});
+it('rejects malformed quick-ask window actions before they reach main', async () => {
+  await bridge.quickAskResize!(120);
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.quickAskResize, 120);
+  for (const height of [71, 281, 1.5, Number.NaN]) await expect(bridge.quickAskResize!(height)).rejects.toThrow();
+  await bridge.quickAskSent!({ threadId: 'thread-1', target: 'current' });
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.quickAskSent, { threadId: 'thread-1', target: 'current' });
+  await expect(bridge.quickAskSent!({ threadId: '__proto__', target: 'current' })).rejects.toThrow();
+  await expect(bridge.quickAskSent!({ threadId: 'thread-1', target: 'later' } as never)).rejects.toThrow();
+  await bridge.quickAskHide!();
+  expect(ipc.invoke).toHaveBeenLastCalledWith(DESKTOP_CHANNELS.quickAskHide);
+});
+it('drops malformed quick-ask open and registration events', () => {
+  const opens: unknown[] = [], states: unknown[] = [];
+  const offOpen = bridge.onQuickAskOpen!(value => opens.push(value)), offReg = bridge.onQuickAskRegistration!(value => states.push(value));
+  const openHandler = ipc.on.mock.calls.find(call => call[0] === DESKTOP_CHANNELS.quickAskOpen)![1] as (event: unknown, value: unknown) => void;
+  const regHandler = ipc.on.mock.calls.find(call => call[0] === DESKTOP_CHANNELS.quickAskRegistration)![1] as (event: unknown, value: unknown) => void;
+  const open = { target: 'new', currentThreadId: null, currentThreadTitle: null, currentThreadSendable: false, currentProjectId: null, currentProjectName: null };
+  openHandler(null, open); openHandler(null, { target: 'elsewhere' }); openHandler(null, null);
+  regHandler(null, 'in-use'); regHandler(null, 'enabled'); regHandler(null, {});
+  expect(opens).toEqual([open]); expect(states).toEqual(['in-use']);
+  offOpen(); offReg();
+  expect(ipc.remove).toHaveBeenCalledWith(DESKTOP_CHANNELS.quickAskOpen, openHandler);
+  expect(ipc.remove).toHaveBeenCalledWith(DESKTOP_CHANNELS.quickAskRegistration, regHandler);
+});
