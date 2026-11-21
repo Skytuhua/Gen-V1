@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { createSubscriptionRuntime, selectSubscriptionModel, subscriptionModels } from '../packages/runtime-pi/models.ts';
 import { loginMain, loginSubscription } from '../packages/runtime-pi/login.ts';
 
-const fixture = vi.hoisted(() => ({ sdk: undefined as any }));
-vi.mock('../packages/runtime-pi/credentials.ts', () => ({ createLiteralCredentialStore: async (authPath: string) => ({ read: async (provider: string) => fixture.sdk.readStoredCredential(provider, authPath) }) }));
+const fixture = vi.hoisted(() => ({ sdk: undefined as unknown as {readStoredCredential:Mock<(...args:any[])=>any>;ModelRuntime:{create:Mock<(...args:any[])=>any>}} }));
+vi.mock('../packages/runtime-pi/credentials.ts', () => ({ createLiteralCredentialStore: async (authPath: string) => ({ read: async (provider: string) => fixture.sdk!.readStoredCredential(provider, authPath) }) }));
 vi.mock('../packages/runtime-pi/sdk.ts', async original => ({
   ...await original<typeof import('../packages/runtime-pi/sdk.ts')>(),
   loadSdk: async () => fixture.sdk,
@@ -21,7 +22,7 @@ function fakeSdk(credentials: Record<string, 'oauth' | 'api_key'> = {}) {
   const models = enabled.map(provider => ({ provider, id: 'model', name: provider, thinkingLevelMap: { low: 'low', off: null } }));
   const runtime = {
     getProvider: vi.fn((id: string) => providers.get(id)),
-    registerNativeProvider: vi.fn((provider: any) => providers.set(provider.id, provider)),
+    registerNativeProvider: vi.fn((provider: {id:string;auth:{oauth:{isSubscription:boolean};apiKey:{resolve:Mock<(...args:any[])=>any>}}}) => providers.set(provider.id, provider)),
     getAvailable: vi.fn(async (id: string) => models.filter(model => model.provider === id)),
     getModel: vi.fn((provider: string, id: string) => models.find(model => model.provider === provider && model.id === id)),
     checkAuth: vi.fn(async () => ({ type: 'oauth' })),
@@ -109,8 +110,8 @@ describe('subscription connection boundaries', () => {
 
   it('validates device URLs before exposing them to the caller', async () => {
     const { runtime } = fakeSdk();
-    runtime.login.mockImplementation(async (_provider: any, _method: any, channel: any) => {
-      channel.notify({ type: 'device_code', userCode: 'ABCD-1234', verificationUri: 'https://evil.example/oauth2/device' });
+    runtime.login.mockImplementation(async (_provider: string, _method: string, channel: unknown) => {
+      (channel as {notify(event:unknown):unknown}).notify({ type: 'device_code', userCode: 'ABCD-1234', verificationUri: 'https://evil.example/oauth2/device' });
     });
     const channel = interaction();
     await expect(loginSubscription({ dataDir: 'fake-data', provider: 'xai', interaction: channel })).rejects.toThrow(/authorization|sign-in|verification/i);
@@ -120,7 +121,7 @@ describe('subscription connection boundaries', () => {
   it('preserves device-code fields on a validated provider path', async () => {
     const { runtime } = fakeSdk();
     const event = { type: 'device_code', userCode: 'ABCD-1234', verificationUri: 'https://accounts.x.ai/oauth2/device?user_code=ABCD-1234', expiresInSeconds: 900 };
-    runtime.login.mockImplementation(async (_provider: any, _method: any, channel: any) => { channel.notify(event); });
+    runtime.login.mockImplementation(async (_provider: string, _method: string, channel: unknown) => { (channel as {notify(event:unknown):unknown}).notify(event); });
     const channel = interaction();
     await loginSubscription({ dataDir: 'fake-data', provider: 'xai', interaction: channel });
     expect(channel.notify).toHaveBeenCalledWith(event);
@@ -128,8 +129,8 @@ describe('subscription connection boundaries', () => {
 
   it('rejects unconfigured GitHub Enterprise domains before the SDK can use them', async () => {
     const { runtime } = fakeSdk();
-    runtime.login.mockImplementation(async (_provider: any, _method: any, channel: any) => {
-      await channel.prompt({ type: 'text', message: 'GitHub Enterprise URL/domain (blank for github.com)' });
+    runtime.login.mockImplementation(async (_provider: string, _method: string, channel: unknown) => {
+      await (channel as {prompt(options:unknown):Promise<unknown>}).prompt({ type: 'text', message: 'GitHub Enterprise URL/domain (blank for github.com)' });
     });
     const channel = interaction(); channel.prompt.mockResolvedValue('company.example');
     await expect(loginSubscription({ dataDir: 'fake-data', provider: 'github-copilot', interaction: channel })).rejects.toThrow(/github.com|Enterprise/i);

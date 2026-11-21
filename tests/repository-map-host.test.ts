@@ -8,7 +8,7 @@ import { Store } from '../packages/storage/store';
 import { ToolAuthority, buildToolRegistry } from '../packages/core/tool-authority';
 import { createHostTools, loadDomainTools } from '../packages/runtime-pi/tool-definitions';
 import { hermesContextExposure, isBoundedContextRead } from '../packages/core/context-progressive-tools';
-import type { DataRecord, ResourceGrant, RuntimeAdapter } from '../packages/contracts';
+import type { ResourceGrant, RuntimeAdapter } from '../packages/contracts';
 import { testEffectAuthenticator } from './fixtures/effect-authenticator.ts';
 
 const custody = vi.hoisted(() => ({ active: 0, read: [] as string[], afterRead: undefined as (() => void) | undefined, hold: undefined as Promise<void> | undefined }));
@@ -32,6 +32,7 @@ vi.mock('../packages/core/file-access.ts', async original => {
 const cleanup: Array<() => Promise<void>> = [];
 afterEach(async () => { custody.afterRead = undefined; custody.hold = undefined; custody.read.length = 0; for (const close of cleanup.splice(0)) await close(); });
 const hash = (value: string) => createHash('sha256').update(value).digest('hex');
+type MapValue = { files: { path: string; exports?: { name: string; line: number }[]; imports?: string[]; omittedExports?: number; reason?: string; [key: string]: unknown }[]; exclusions: { path: string; reason: string }[]; localParseCache: { reusedFiles: number; parsedFiles: number }; mapDigest: string; readBytes: number; [key: string]: unknown };
 function fixture(files: Record<string, string>) {
   const directory = mkdtempSync(join(tmpdir(), 'm04-repo-map-')), root = join(directory, 'project'), store = new Store(join(directory, 'profile'));
   mkdirSync(root);
@@ -45,7 +46,7 @@ function fixture(files: Record<string, string>) {
     store.put('resource', grant.id, grant.threadId, grant);
   });
   cleanup.push(async () => { await service.dispose(); store.close(); rmSync(directory, { recursive: true, force: true, maxRetries: 5 }); });
-  const map = async (paths: string[], extra: Record<string, unknown> = {}) => await service.tool({ name: 'repository_map', args: { resourceId: grant.id, paths, ...extra } }, ctx) as DataRecord;
+  const map = async (paths: string[], extra: Record<string, unknown> = {}) => await service.tool({ name: 'repository_map', args: { resourceId: grant.id, paths, ...extra } }, ctx) as { value: MapValue };
   return { directory, root, store, service, grant, ctx, map };
 }
 
@@ -86,8 +87,8 @@ it('returns the same bounded host evidence through the actual native tool execut
 it('filters private paths before reading and never expands the request into a directory crawl', async () => {
   const f = fixture({ 'src/main.ts': 'export const safe = 1;', '.env': 'NEVER_READ_SECRET', 'node_modules/hidden.ts': 'export const secret = 1;', '.git/config': 'PRIVATE_GIT', '.hermes/history.json': 'PRIVATE_HISTORY' });
   const result = await f.map(['src/main.ts', '.env', 'node_modules/hidden.ts', '.git/config', '.hermes/history.json']);
-  expect((result.value as any).files.map((file: any) => file.path)).toEqual(['src/main.ts']);
-  expect((result.value as any).exclusions).toHaveLength(4);
+  expect(result.value.files.map(file => file.path)).toEqual(['src/main.ts']);
+  expect(result.value.exclusions).toHaveLength(4);
   expect(custody.read).toEqual([join(f.root, 'src/main.ts')]);
   expect(JSON.stringify(result)).not.toContain('NEVER_READ_SECRET');
 });
@@ -133,20 +134,20 @@ it.each([
 
 it('reuses only local parsed metadata while rechecking current bytes and invalidates changed content', async () => {
   const f = fixture({ 'src/main.ts': 'export const before = 1;' });
-  const first = (await f.map(['src/main.ts'])).value as any;
-  const second = (await f.map(['src/main.ts'])).value as any;
+  const first = (await f.map(['src/main.ts'])).value;
+  const second = (await f.map(['src/main.ts'])).value;
   expect(first.localParseCache).toEqual({ reusedFiles: 0, parsedFiles: 1 });
   expect(second.localParseCache).toEqual({ reusedFiles: 1, parsedFiles: 0 });
   expect(second.mapDigest).toBe(first.mapDigest); expect(custody.read).toHaveLength(2);
   writeFileSync(join(f.root, 'src/main.ts'), 'export const after = 2;');
-  const third = (await f.map(['src/main.ts'])).value as any;
+  const third = (await f.map(['src/main.ts'])).value;
   expect(third.localParseCache).toEqual({ reusedFiles: 0, parsedFiles: 1 });
   expect(third.files[0].exports).toEqual([{ name: 'after', line: 1 }]); expect(third.mapDigest).not.toBe(first.mapDigest);
 });
 
 it('reports actual export aliases, default exports and destructured bindings at their source lines', async () => {
   const f = fixture({ 'exports.ts': "const local = 1;\nexport { local as publicName };\nexport { remote as renamed } from './remote';\nexport default function Named() {}\nexport const { first, property: second } = { first: 1, property: 2 };\n" });
-  const result = (await f.map(['exports.ts'])).value as any;
+  const result = (await f.map(['exports.ts'])).value;
   expect(result.files[0].imports).toEqual(['./remote']);
   expect(result.files[0].exports).toEqual([
     { name: 'default', line: 4 }, { name: 'first', line: 5 }, { name: 'publicName', line: 2 }, { name: 'renamed', line: 3 }, { name: 'second', line: 5 },
@@ -155,7 +156,7 @@ it('reports actual export aliases, default exports and destructured bindings at 
 
 it('does not invent a content revision for files outside the byte budget', async () => {
   const f = fixture({ 'large.ts': 'x'.repeat(65537) });
-  const result = (await f.map(['large.ts'])).value as any;
+  const result = (await f.map(['large.ts'])).value;
   expect(result.files[0]).toMatchObject({ path: 'large.ts', mode: 'FILE_LIST_ONLY', sha256: null, sourceRevision: null, reason: 'SOURCE_TOO_LARGE' });
   expect(result.readBytes).toBe(0); expect(custody.read).toEqual([]);
 });
@@ -165,11 +166,11 @@ it('keeps combined reads and returned metadata bounded with explicit omission co
   expect(Object.values(sources).every(source => Buffer.byteLength(source) <= 65536)).toBe(true);
   expect(Object.values(sources).reduce((sum, source) => sum + Buffer.byteLength(source), 0)).toBeGreaterThan(256 * 1024);
   const f = fixture(sources), result = await f.map(Object.keys(sources), { focusPaths: ['src/4.ts'], symbols: ['symbol_1299'] });
-  const value = result.value as any;
+  const value = result.value;
   expect(value.readBytes).toBeLessThanOrEqual(256 * 1024); expect(Buffer.byteLength(JSON.stringify(result))).toBeLessThanOrEqual(16 * 1024);
   expect(value.files[0].path).toBe('src/4.ts');
-  expect(value.files.some((file: any) => file.omittedExports > 0)).toBe(true);
-  expect(value.files.some((file: any) => file.reason === 'READ_BYTE_BUDGET')).toBe(true);
+  expect(value.files.some(file => file.omittedExports! > 0)).toBe(true);
+  expect(value.files.some(file => file.reason === 'READ_BYTE_BUDGET')).toBe(true);
 });
 
 it('refuses a fifth concurrent map while admitted readers hold their file custody', async () => {
