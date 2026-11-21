@@ -1,4 +1,4 @@
-import {useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode} from 'react';
+import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode} from 'react';
 import {Menu, PanelLeftOpen, X} from 'lucide-react';
 import {threadNavigationRevision,type ThreadNavigationRow} from '../../../packages/contracts/shell-read-models';
 import type {PanelBinding, WorkspacePreset} from '../../../packages/contracts/workspace';
@@ -20,6 +20,9 @@ import {SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ShellSidebar} from './ShellSidebar';
 import {getShellNavigationItem} from './shell-read-api';
 import {matchesShortcut, readShellLayout, useShellLayout} from './shell-layout';
+import {KEYBOARD_BINDINGS, chordFor, shortcutKeys} from './keyboard-bindings';
+import {CommandMenu} from './CommandMenu';
+import type {CommandItem} from './command-menu';
 import {useSidebarCollapse} from './sidebar-collapse';
 import {useShellNavigation} from './shell-navigation';
 import {useAppearance} from './useAppearance';
@@ -212,6 +215,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   const [unpin, setUnpin] = useState<{ row: ThreadNavigationRow; patch: NonNullable<ThreadNavigationRow['presentation']>; decide: (accepted: boolean) => void }>();
   const mutationPending = useRef(false), [mutationBusy, setMutationBusy] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const sidebar = useRef<HTMLElement>(null), scrim = useRef<HTMLButtonElement>(null), searchRef = useRef<HTMLInputElement>(null);
   const prepareSidebarToggle = useSidebarCollapse(sidebar, layout.sidebarCollapsed, preferences.panelAnimations && preferences.motionDuration > 0, mobile);
   const latestAttention = useRef(openConversation); latestAttention.current = openConversation;
@@ -232,7 +236,8 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
   useEffect(() => {
     const key = (event: KeyboardEvent) => {
       if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
-      if (matchesShortcut(event, preferences.keybindings.openSettings)) {event.preventDefault(); shortcuts.current.openSettings();}
+      if (!(event.isComposing || event.keyCode === 229) && ((matchesShortcut(event, preferences.keybindings.commandMenu) && !(event.target instanceof Element && event.target.closest('.xterm-host'))) || matchesShortcut(event, chordFor('command-menu-alias')))) {event.preventDefault(); setCommandMenuOpen(value => !value);}
+      else if (matchesShortcut(event, preferences.keybindings.openSettings)) {event.preventDefault(); shortcuts.current.openSettings();}
       else if (matchesShortcut(event, preferences.keybindings.newThread)) {event.preventDefault(); shortcuts.current.action('new-thread');}
       else if (matchesShortcut(event, preferences.keybindings.search)) {event.preventDefault(); setOpen(true); setLayout(value => ({...value, sidebarCollapsed: false})); requestAnimationFrame(() => searchRef.current?.focus());}
       else if (matchesShortcut(event, preferences.keybindings.toggleSidebar)) {event.preventDefault(); if (mobile) setOpen(value => !value); else setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}
@@ -240,6 +245,13 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
     };
     window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key);
   }, [keybindings, mobile]);
+  const monitorCommands = useMemo<CommandItem[]>(() => [
+    {id: 'new-thread', group: 'actions', label: 'New thread', bindingId: 'new-thread', run: () => shortcuts.current.action('new-thread')},
+    {id: 'search-threads', group: 'actions', label: 'Search threads in sidebar', bindingId: 'search', run: () => {setOpen(true); setLayout(value => ({...value, sidebarCollapsed: false})); requestAnimationFrame(() => searchRef.current?.focus());}},
+    {id: 'keyboard-shortcuts', group: 'actions', label: 'Keyboard shortcuts', run: () => shortcuts.current.openSettings()},
+    {id: 'toggle-sidebar', group: 'panels', label: 'Toggle sidebar', bindingId: 'toggle-sidebar', run: () => {if (mobile) setOpen(value => !value); else setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}},
+    {id: 'open-settings', group: 'settings', label: 'Open settings', bindingId: 'open-settings', run: () => shortcuts.current.openSettings()},
+  ], [mobile]);
   const closeSettings = () => fail(async () => {await prepare(); setSettingsOpen(false); await Promise.all([refreshSettings(), navigation.refresh()]);});
   const openBrowser = desktop?.context.surface.kind === 'main' ? async (url: string) => {
     const owner = desktop.context.windowId;
@@ -293,6 +305,7 @@ function MonitorShell({workspace, settings, controller, composers, choosePreset,
         preferences={{density: preferences.density === 'compact' ? 'compact' : 'comfortable', projectColors: preferences.projectColors}}
         onOpenConversation={(id,kind) => fail(() => openConversation(id,kind))}/></div>
     </div>
+    <CommandMenu open={commandMenuOpen} onClose={() => setCommandMenuOpen(false)} commands={monitorCommands} chord={bindingId => {const binding = KEYBOARD_BINDINGS.find(item => item.id === bindingId); return binding?.preference ? shortcutKeys(chordFor(bindingId, preferences.keybindings)) : undefined;}} reportError={cause => fail(() => Promise.reject(cause))}/>
     <Modal open={settingsOpen} title="Settings" className="settings-dialog" onClose={closeSettings}>
       {settingsOpen && <CompactSettingsContent scopeKey="personal-main" close={closeSettings} addResource={() => action('resources')} openBrowser={openBrowser}/>}
     </Modal>

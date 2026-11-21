@@ -23,6 +23,8 @@ const module = (name: string) => `apps/web/src/${name}`;
 
 /** The only declaration of a shortcut. Handlers, Settings rows and the reference all read it. */
 export const KEYBOARD_BINDINGS: readonly KeyboardBinding[] = [
+  {id: 'command-menu', label: 'Open command menu', scope: 'Global', preference: 'commandMenu', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
+  {id: 'command-menu-alias', label: 'Open command menu (alternate)', scope: 'Global', chords: ['Ctrl+Shift+P'], handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
   {id: 'search', label: 'Search threads', scope: 'Global', preference: 'search', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
   {id: 'new-thread', label: 'New thread', scope: 'Global', preference: 'newThread', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
   {id: 'toggle-sidebar', label: 'Toggle sidebar', scope: 'Global', preference: 'toggleSidebar', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},

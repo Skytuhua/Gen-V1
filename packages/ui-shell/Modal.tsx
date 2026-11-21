@@ -28,7 +28,7 @@ export function Modal({ open, title, onClose, children, className = '' }: ModalP
     const release = retainFocus(element.ownerDocument, () => element, callback => requestAnimationFrame(callback));
     return () => {
       release();
-      element.removeEventListener('close', closed); element.close();
+      element.removeEventListener('close', closed); if (element.open) element.close();
       if (previous?.isConnected) previous.focus();
     };
   }, [open]);

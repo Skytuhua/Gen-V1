@@ -25,6 +25,11 @@ import { ShellSidebar, threadStatus } from './ShellSidebar';
 import { ProjectPicker } from './ProjectPicker';
 import { projectColorKey } from './project-colors';
 import { useShellLayout, matchesShortcut } from './shell-layout';
+import { KEYBOARD_BINDINGS, chordFor, shortcutKeys } from './keyboard-bindings';
+import { CommandMenu, type CommandResults } from './CommandMenu';
+import type { CommandItem } from './command-menu';
+import { getSkillCatalog } from './skill-catalog-api';
+import { SETTINGS_SECTIONS, SECTION_ICONS } from './Settings';
 import {useSidebarCollapse} from './sidebar-collapse';
 import {sameSplitWorkspaceView,createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../../packages/core/split-workspace-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
@@ -523,6 +528,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const updateLiveUsageViews=useCallback((workspaceId:string,viewIds:string[])=>setLiveUsageViews(current=>current.workspaceId===workspaceId&&current.viewIds.length===viewIds.length&&current.viewIds.every((id,index)=>id===viewIds[index])?current:{workspaceId,viewIds}),[]);
   const [usageOpen,setUsageOpen]=useState(false),[usageThreadId,setUsageThreadId]=useState<string|null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [commandMenuOpen, setCommandMenuOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState('general');
   const [layout, setLayout] = useShellLayout();
   const [workspaceMode,setWorkspaceModeState]=useState<'chat'|'split'|'retained-canvas'>(()=>{try{const saved=localStorage.getItem('harness:workspace-mode:v3')??localStorage.getItem('harness:workspace-mode:v2');return saved==='split'||saved==='retained-canvas'?saved:'chat';}catch{return 'chat';}});
@@ -786,14 +792,15 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const newThreadRef = useRef<() => Promise<void>>(async()=>{}); newThreadRef.current = async()=>{if(composerPending.current||creationPending.current)return;await prepareWorkspace();openProjectSelection();};
   useEffect(() => { if(embeddedThreadId)return;const key = (event: KeyboardEvent) => {
     if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
-    if (matchesShortcut(event, preferences.keybindings.search)) { event.preventDefault(); setSidebarOpen(true); setLayout(value => ({ ...value, sidebarCollapsed: false })); requestAnimationFrame(() => searchRef.current?.focus()); }
+    if (!(event.isComposing || event.keyCode === 229) && ((matchesShortcut(event, preferences.keybindings.commandMenu) && !(event.target instanceof Element && event.target.closest('.xterm-host'))) || matchesShortcut(event, chordFor('command-menu-alias')))) { event.preventDefault(); setCommandMenuOpen(value => !value); }
+    else if (matchesShortcut(event, preferences.keybindings.search)) { event.preventDefault(); setSidebarOpen(true); setLayout(value => ({ ...value, sidebarCollapsed: false })); requestAnimationFrame(() => searchRef.current?.focus()); }
     else if (matchesShortcut(event, preferences.keybindings.newThread)) { event.preventDefault(); if (!composerPending.current) void newThreadRef.current().catch(error => setError(messageOf(error))); }
     else if (matchesShortcut(event, preferences.keybindings.toggleSidebar)) { event.preventDefault(); if (mobile) setSidebarOpen(value => !value); else setLayout(value => ({ ...value, sidebarCollapsed: !value.sidebarCollapsed })); }
     else if (matchesShortcut(event, preferences.keybindings.toggleRightPanel)) { event.preventDefault(); setLayout(value => ({ ...value, rightPanelOpen: !value.rightPanelOpen })); }
     else if (matchesShortcut(event, preferences.keybindings.openSettings)) { event.preventDefault(); setSettingsSection('general'); setSettingsOpen(true); }
     else if (matchesShortcut(event, preferences.keybindings.stop)) { const focused = snapshotRef.current.threads.find(item => item.id === placedThread.current); const owner = focused?.runId ? focused : modelThreadRef.current; if (owner?.runId) { event.preventDefault(); void stopConversation(owner, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error))); } }
     if (event.key === 'Escape') { setSidebarOpen(false);  }
-  }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [preferences.keybindings.search, preferences.keybindings.newThread, preferences.keybindings.toggleSidebar, preferences.keybindings.toggleRightPanel, preferences.keybindings.openSettings, preferences.keybindings.stop, selectedId, mobile, refresh, host?.composers]);
+  }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [preferences.keybindings.search, preferences.keybindings.newThread, preferences.keybindings.toggleSidebar, preferences.keybindings.toggleRightPanel, preferences.keybindings.openSettings, preferences.keybindings.stop, preferences.keybindings.commandMenu, selectedId, mobile, refresh, host?.composers]);
   const conversationMotion=useRef<ReturnType<typeof createConversationScroll>|null>(null),conversationElement=useRef<HTMLElement|null>(null);
   useEffect(()=>()=>conversationMotion.current?.dispose(),[]);
   const messages = snapshot.messages.filter(item => item.threadId === thread?.id);
@@ -954,7 +961,93 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     await journalFlush();
     const placed=await convSplitState.send(next.type,next.payload);try{localStorage.setItem('harness:selected-thread',threadId);}catch{/* Current selection remains usable. */}placedThread.current=threadId;setSelectedId(threadId);publishMainSelection(placed);
   };
-  useEffect(()=>{
+  const commandSkills = useRef<{key: string; items: CommandItem[]; pending: boolean; error: string}>({key: '', items: [], pending: false, error: ''});
+  const [, bumpSkillTick] = useState(0);
+  const commandSkillResults = (query: string): CommandResults => {
+    const key = query.toLowerCase();
+    if (commandSkills.current.key !== key) {
+      const request = key;
+      commandSkills.current = {key, items: [], pending: true, error: ''};
+      window.setTimeout(() => void getSkillCatalog({query, limit: 6, ...(thread?.id ? {threadId: thread.id} : {}), ...(thread?.projectId ? {projectId: thread.projectId} : {})}).then(page => {
+        if (commandSkills.current.key !== request) return;
+        commandSkills.current = {
+          key: request, pending: false, error: '',
+          items: page.skills.slice(0, 6).map(skill => ({
+            id: 'skill:' + skill.id, group: 'skills' as const, label: skill.name, detail: skill.description, remember: false,
+            disabledReason: skill.availability.status === 'available' && skill.ref ? undefined : 'Unavailable for this runtime',
+            run: async () => {
+              if (!skill.ref) throw Error('This skill is unavailable for the current conversation.');
+              const target: ConversationComposerTarget = {kind: 'conversation', projectId: thread?.projectId, workspaceId: thread?.workspaceId, threadId: thread?.id ?? 'new', modelId, working: false};
+              const targetComposers = host?.composers ?? sharedComposers;
+              if (!targetComposers) throw Error('The composer is not ready yet.');
+              await targetComposers.prepare(target);
+              await targetComposers.addSkill(target, {id: crypto.randomUUID(), name: skill.name, source: skill.sourceId, ref: skill.ref});
+            },
+          })),
+        };
+        bumpSkillTick(value => value + 1);
+      }).catch(cause => {
+        if (commandSkills.current.key !== request) return;
+        commandSkills.current = {key: request, items: [], pending: false, error: cause instanceof Error ? cause.message : 'Skills unavailable.'};
+        bumpSkillTick(value => value + 1);
+      }), 150);
+    }
+    const current = commandSkills.current;
+    return {items: current.items, pending: current.pending, error: current.error, retry: () => {commandSkills.current = {key: '', items: [], pending: false, error: ''}; bumpSkillTick(value => value + 1);}};
+  };
+  const commandThreadResults = (query: string): CommandResults => ({
+    pending: false, error: '', retry: () => {},
+    items: matchingThreads(snapshot.threads, snapshot.messages, query, preferences.projectOrder, deepMatches)
+      .filter(item => item.id !== thread?.id).slice(0, 8)
+      .map(item => ({
+        id: 'thread:' + item.id, group: 'threads' as const, label: item.title || 'Untitled thread',
+        detail: item.projectName ?? undefined, remember: false,
+        run: async () => {await prepareWorkspace(); select(item.id);},
+      })),
+  });
+  const commandMenuCommands = useMemo<CommandItem[]>(() => {
+    const needsThread = !thread ? 'No thread selected' : undefined;
+    const pendingThread = threadCreating || composerPending.current || creationPending.current;
+    const panelTabs: [typeof layout.activeTab, string][] = [['files', 'Open Files'], ['diff', 'Open Diff'], ['terminal', 'Open Terminal'], ['notes', 'Open Notes'], ['plan', 'Open Plan'], ['output', 'Open Output']];
+    const connectedProjects = (workspaceEnvelope?.projects ?? []).filter(project => project.authority.kind === 'local' && project.rootPath && project.id !== thread?.projectId);
+    return [
+      {id: 'new-thread', group: 'actions', label: 'New thread', keywords: ['chat', 'conversation', 'task', 'create'], bindingId: 'new-thread', icon: Plus,
+        disabledReason: pendingThread ? 'A thread is being created' : undefined,
+        run: () => newThreadRef.current().catch(error => setError(messageOf(error)))},
+      {id: 'search-threads', group: 'actions', label: 'Search threads in sidebar', keywords: ['find', 'filter'], bindingId: 'search', icon: MessageSquare,
+        run: () => {setSidebarOpen(true); setLayout(value => ({...value, sidebarCollapsed: false})); requestAnimationFrame(() => searchRef.current?.focus());}},
+      ...(thread?.runId ? [{id: 'stop-run', group: 'actions' as const, label: 'Stop active run', bindingId: 'stop', icon: CircleStop,
+        run: () => {const focused = snapshotRef.current.threads.find(item => item.id === placedThread.current); const owner = focused?.runId ? focused : modelThreadRef.current; if (owner?.runId) void stopConversation(owner, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error)));}}] : []),
+      {id: 'rename-thread', group: 'actions', label: 'Rename thread', keywords: ['title'], icon: PenLine, disabledReason: needsThread,
+        run: () => {if (!thread) return; void prepareSourceJournal().then(() => {selectNow(thread.id); setTitle(thread.title); setRename(true);}).catch(cause => setError(messageOf(cause)));}},
+      {id: 'keyboard-shortcuts', group: 'actions', label: 'Keyboard shortcuts', keywords: ['keybindings', 'hotkeys'],
+        run: () => {setSettingsSection('keybindings'); setSettingsOpen(true);}},
+      {id: 'toggle-sidebar', group: 'panels', label: 'Toggle sidebar', keywords: ['navigation', 'hide', 'show'], bindingId: 'toggle-sidebar', icon: PanelLeftOpen,
+        run: () => {if (mobile) setSidebarOpen(value => !value); else setLayout(value => ({...value, sidebarCollapsed: !value.sidebarCollapsed}));}},
+      {id: 'toggle-workspace-panel', group: 'panels', label: 'Toggle workspace panel', bindingId: 'toggle-workspace-panel', icon: PanelRight,
+        run: () => setLayout(value => ({...value, rightPanelOpen: !value.rightPanelOpen}))},
+      ...panelTabs.map(([tab, label]): CommandItem => ({
+        id: 'panel:' + tab, group: 'panels', label,
+        keywords: tab === 'files' ? ['explorer', 'tree'] : tab === 'terminal' ? ['shell', 'console'] : undefined,
+        disabledReason: needsThread,
+        run: () => revealWorkspaceTool(tab),
+      })),
+      {id: 'panel:usage', group: 'panels', label: 'Open Usage', run: () => openSidebarTool('usage')},
+      {id: 'panel:linked-pull-requests', group: 'panels', label: 'Open Linked pull requests', run: () => openSidebarTool('linked-pull-requests')},
+      {id: 'choose-project', group: 'projects', label: 'Choose project…', icon: Folder, run: () => openProjectSelection()},
+      ...connectedProjects.map((project): CommandItem => ({
+        id: 'project:' + project.id, group: 'projects', label: `Switch to ${project.name}`, icon: Folder,
+        run: async () => {await prepareWorkspace(); await createThread(undefined, project.id);},
+      })),
+      {id: 'connect-project', group: 'projects', label: 'Connect a project…', icon: Folder, run: () => openProjectConnect({})},
+      {id: 'open-settings', group: 'settings', label: 'Open settings', bindingId: 'open-settings', icon: SlidersHorizontal,
+        run: () => {setSettingsSection('general'); setSettingsOpen(true);}},
+      ...SETTINGS_SECTIONS.map(([section, label]): CommandItem => ({
+        id: 'settings:' + section, group: 'settings', label: `Settings: ${label}`, keywords: [section], icon: SECTION_ICONS[section],
+        run: () => {setSettingsSection(section); setSettingsOpen(true);},
+      })),
+    ];
+  }, [thread?.id, thread?.projectId, thread?.runId, thread?.title, threadCreating, workspaceEnvelope?.projects, mobile, deepMatches, refresh, host?.composers]);  useEffect(()=>{
     if(!splitEnabled||!convSplitState.layout||!thread||placedThread.current===thread.id)return;
     const current=convSplitState.layout,existing=Object.values(current.panes).find(pane=>pane.viewIds.some(id=>current.views[id]?.kind==='thread'&&current.views[id]?.binding.threadId===thread.id));
     if(existing&&!existing.collapsed&&existing.activeViewId&&current.views[existing.activeViewId]?.kind==='thread'&&current.views[existing.activeViewId]?.binding.threadId===thread.id){placedThread.current=focusedSplitThread(current)??thread.id;return;}
@@ -1204,6 +1297,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
       onAddProject={()=>{projectConnectPicker.current=projectPicker;setProjectPicker(null);openProjectConnect({});}}/>}
     {projectConnectOpen&&<Dialog title="Connect project" close={closeProjectConnect}><form onSubmit={event=>{event.preventDefault();const target=projectConnectTarget.current;setProjectConnectError('');void prepareWorkspace().then(()=>{if(target?.projectId&&snapshotRef.current.threads.find(item=>item.id===target.threadId)?.projectId!==target.projectId)throw Error('The owning project changed. Close this dialog and reopen it from that conversation.');return workspaceState.send('workspace.project.connect',{name:projectName,path:projectPath,...(target?.threadId?{threadId:target.threadId}:{})}).then(async()=>{if(target?.threadId)await reconcileSplitThreadProject(target.threadId);});}).then(async()=>{await refresh();if(projectConnectTarget.current===target)closeProjectConnect();}).catch(cause=>{if(projectConnectTarget.current===target)setProjectConnectError(messageOf(cause));});}}><label className="field">Project name<input required maxLength={100} value={projectName} onChange={event=>setProjectName(event.target.value)}/></label><label className="field">Local folder<input required value={projectPath} onChange={event=>setProjectPath(event.target.value)} placeholder="C:\Projects\My project"/></label>{projectConnectError&&<p role="alert" className="error-text">{projectConnectError}</p>}<footer className="dialog-actions"><button type="button" className="quiet" onClick={closeProjectConnect}>Cancel</button><button className="primary" disabled={!projectName.trim()||!projectPath.trim()}>Connect project</button></footer></form></Dialog>}
     <UsageDialog open={usageOpen} onClose={()=>setUsageOpen(false)} reports={usageReport?[usageReport]:[]} requests={usageThreadId?(snapshot.modelRequests?.[usageThreadId]??[]):[]} onRefresh={refresh}/>
+    <CommandMenu open={commandMenuOpen} onClose={() => setCommandMenuOpen(false)} commands={commandMenuCommands} threadResults={commandThreadResults} skillResults={commandSkillResults} chord={bindingId => {const binding = KEYBOARD_BINDINGS.find(item => item.id === bindingId); return binding?.preference ? shortcutKeys(chordFor(bindingId, preferences.keybindings)) : undefined;}} reportError={cause => setError(messageOf(cause))}/>
     {settingsOpen && <SettingsWindow openBrowser={desktop?.context.surface.kind==='main'?openManualBrowser:undefined} environmentSettings={<EnvironmentSettings/>} initialSection={settingsSection} snapshot={snapshot} modelError={modelError} refresh={refresh} loadModels={loadModels} close={() => setSettingsOpen(false)} addResource={() => { setSettingsOpen(false); void ensureThread(async id => { if (thread) return; const pending = await journalReadRecord<string>('draft:new'); if (pending?.value) { await journalWrite(`draft:${id}`, pending.value); await journalCompareAndSwap('draft:new', pending.generation, ''); } }).then(id=>openResourcePicker(id)).catch(error => setError(messageOf(error))); }} />}
     {rename && thread && <Dialog title="Rename thread" close={() => setRename(false)}><form onSubmit={event => { event.preventDefault(); void command('thread.rename', { title: title.trim() }, thread.id).then(async () => { await refresh(); setRename(false); }).catch(error => setError(messageOf(error))); }}><label className="field">Thread name<input autoFocus required value={title} maxLength={180} onChange={event => setTitle(event.target.value)} /></label><footer className="dialog-actions"><button type="button" className="quiet" onClick={() => setRename(false)}>Cancel</button><button className="primary" disabled={!title.trim()}>Save name</button></footer></form></Dialog>}
   </div></WorkspaceProvider>;

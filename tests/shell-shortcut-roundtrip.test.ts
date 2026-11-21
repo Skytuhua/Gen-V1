@@ -16,3 +16,12 @@ it('requires both requested modifiers while preserving existing Ctrl cross-platf
   expect(matchesShortcut({...press, metaKey:true}, 'Ctrl+K')).toBe(false);
   expect(matchesShortcut({...press, metaKey:true}, 'Meta+K')).toBe(false);
 });
+
+it('matches the command menu chords and the moved thread-search chord (#1371)', () => {
+  const press = {key:'K', ctrlKey:true, metaKey:false, shiftKey:false, altKey:false};
+  expect(matchesShortcut(press, 'Ctrl+K')).toBe(true);
+  expect(matchesShortcut({...press, key:'P', shiftKey:true}, 'Ctrl+Shift+P')).toBe(true);
+  expect(matchesShortcut({...press, key:'F', shiftKey:true}, 'Ctrl+Shift+F')).toBe(true);
+  expect(matchesShortcut({...press, key:'F'}, 'Ctrl+Shift+F')).toBe(false);
+  expect(matchesShortcut({...press, metaKey:true, ctrlKey:false}, 'Ctrl+K')).toBe(true);
+});
