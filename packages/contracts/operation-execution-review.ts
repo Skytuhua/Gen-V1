@@ -6,7 +6,7 @@ export const operationExecutionTargetSchema = z.strictObject({
   threadId: id, operationId: id, operationRevision: z.number().int().positive(),
 });
 export type OperationExecutionTarget = z.infer<typeof operationExecutionTargetSchema>;
-export const operationAdvisorySchema = z.strictObject({
+const operationAdvisorySchema = z.strictObject({
   label: z.literal('Advisory'), classifier: z.literal('execution-policy-advisory'),
   model: z.literal('deterministic-v1'), version: z.literal('1.0.0'),
   uncertainty: z.enum(['low', 'medium', 'high']), rationale: z.enum([

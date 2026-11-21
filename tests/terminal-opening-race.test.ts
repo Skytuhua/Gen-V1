@@ -46,6 +46,21 @@ it('keeps the retained output and its cursor on a complete UTF-16 character boun
  expect((await host.read(opened.id,opened.projectId,undefined,result.cursor)).output).toBe('');
 });
 
+it('settles an observed native exit even when recording it in the Store fails',async()=>{
+ const {host,projects}=fixture();
+ const opened=await host.open({projectId:'project-a',terminalId:'exit-storage'});
+ const pty=mocks.spawn.mock.results[0]!.value;
+ const onExit=pty.onExit.mock.calls[0]![0] as (event:{exitCode:number})=>void;
+ vi.spyOn(projects.store,'put').mockImplementationOnce(()=>{throw new Error('Fixture storage is full');});
+ pty.kill.mockImplementationOnce(()=>{
+  expect(()=>onExit({exitCode:0})).not.toThrow();
+ });
+ await expect(host.command(opened.id,opened.projectId,undefined,{type:'stop'})).resolves.toMatchObject({exited:true,exitCode:0});
+ await expect(host.read(opened.id,opened.projectId)).resolves.toMatchObject({exited:true,exitCode:0});
+ expect(projects.store.get('terminalSession',opened.id)).toMatchObject({exited:false});
+});
+
+
 it('retains newly exited scrollback by exit order, not by when the terminal opened',async()=>{
  const {host}=fixture();
  const projectId='project-a';
@@ -65,3 +80,4 @@ it('retains newly exited scrollback by exit order, not by when the terminal open
  await expect(host.read('short-1',projectId)).rejects.toMatchObject({code:'TERMINAL_ENDED'});
  await expect(host.read('short-2',projectId)).resolves.toMatchObject({output:'short 2',exited:true});
 });
+

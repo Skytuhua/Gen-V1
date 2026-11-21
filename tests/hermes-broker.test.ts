@@ -103,3 +103,14 @@ it('holds shared capacity through confirmed native disposal and yields it betwee
   await vi.waitFor(()=>expect(natives[2].runtime.start).toHaveBeenCalled());natives[1].event('settled');natives[2].event('settled');await Promise.all(requests);
  }finally{release?.();await Promise.all(brokers.map(b=>b.close()));}
 });
+
+it.each([undefined,null,false])('records a failed native start with an empty rejection reason (%s)',async reason=>{
+ const n=native();n.runtime.start=vi.fn(async()=>{throw reason;});
+ const b=await createHermesBroker({input,createRuntime:()=>n.runtime});
+ try{
+  b.expect({sequence:1,inputIds:['input'],phase:'foreground'});
+  expect((await post(b,{sessionId:'acp',modelId:input.modelId,prompt:'fixture'})).status).toBe(400);
+  expect(b.observation(1)).toMatchObject({outcome:'failed',error:'The owned model request failed.'});
+  expect(n.runtime.dispose).toHaveBeenCalledOnce();
+ }finally{await b.close();}
+});
