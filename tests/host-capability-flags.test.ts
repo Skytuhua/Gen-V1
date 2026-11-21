@@ -30,6 +30,13 @@ it('requires explicit environment input and never turns ambient environment into
   expect(capabilityEnabled('memory.projectV1')).toBe(false);
 });
 
+it('keeps ui.sidebarSectionsV1 disabled by default and enables it through the host flag env key', () => {
+  expect(registeredCapabilityFlags()['ui.sidebarSectionsV1']).toBe(false);
+  expect(readHostOptions({}).capabilityFlags).toBeUndefined();
+  const configured = readHostOptions({ HARNESS_FLAG_UI_SIDEBAR_SECTIONS_V1: '1' });
+  expect(configured.capabilityFlags).toEqual({ 'ui.sidebarSectionsV1': true });
+});
+
 it('applies trusted host capabilities before runtime and Service construction and leaves omitted flags disabled', async () => {
   const f = fixture(), seen: Record<string, boolean>[] = [];
   vi.mocked(f.factories.createRuntime).mockImplementationOnce(() => { seen.push(registeredCapabilityFlags()); return f.runtime as never; });
