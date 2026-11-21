@@ -4,9 +4,9 @@
 .context-inspector>header>strong { font-weight:400; color:var(--muted); }
 .context-inspector>header>strong>span { color:var(--text); margin-left:8px; font-variant-numeric:tabular-nums; }
 .context-inspector-total { color:var(--text); font-size:12px; font-variant-numeric:tabular-nums; }
-.context-inspector-body { min-height:0; flex:1; overflow:auto; }
+.context-inspector-body { min-height:0; flex:1; overflow:auto; scrollbar-width:thin; scrollbar-color:var(--border) transparent; overscroll-behavior:contain; }
 .context-inspector-inner { display:flow-root; }
-.context-inspector .context-segment { transition:none; } scrollbar-width:thin; scrollbar-color:var(--border) transparent; overscroll-behavior:contain; }
+.context-inspector .context-segment { transition:none; }
 .context-meter .context-segment-bar { display:flex; position:relative; height:10px; overflow:hidden; border-radius:3px; background:var(--subtle); }
 .context-meter .context-segment { flex:none; min-width:0; height:10px; background:var(--context-color); border-radius:2px; box-shadow:inset -2px 0 0 var(--surface); }
 .context-category-grid { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); column-gap:8px; margin-top:8px; }
