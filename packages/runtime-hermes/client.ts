@@ -9,7 +9,7 @@ import {assertHermesTree,withHermesHome} from './home.ts';
 
 export interface HermesEvent {event:string;ctx?:Record<string,unknown>;data?:unknown}
 export interface HermesHostCall {id:string;name:string;args:Record<string,unknown>;ctx?:Record<string,unknown>}
-export interface PythonCommand {executable:string;args:string[]}
+interface PythonCommand {executable:string;args:string[]}
 interface Pending {resolve(value:unknown):void;reject(error:Error):void;timer:ReturnType<typeof setTimeout>}
 interface ClientOptions {
  home:string;python?:PythonCommand;workerPath?:string;timeoutMs?:number;

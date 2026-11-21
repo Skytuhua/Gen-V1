@@ -37,10 +37,11 @@ async function fixture() {
   });
   const url = await app.listen({ host: '127.0.0.1', port: 0 });
   const boot = await app.inject({ url: '/api/bootstrap', headers: { host: '127.0.0.1:4317' } }), cookie = String(boot.headers['set-cookie']).split(';')[0];
-  const open = async (after = 0) => {
-    incoming = await new Promise<IncomingMessage>((done, fail) => { request = get(`${url}/api/events?after=${baseline+after}`, { headers: { host: '127.0.0.1:4317', cookie } }, done); request.once('error', fail); });
+  const open = async (after = 0, query = '?after=' + (baseline + after)) => {
+    incoming = await new Promise<IncomingMessage>((done, fail) => { request = get(`${url}/api/events${query}`, { headers: { host: '127.0.0.1:4317', cookie } }, done); request.once('error', fail); });
     incoming.setEncoding('utf8'); incoming.on('data', chunk => { text += chunk; }); incoming.on('error', () => {});
     await new Promise<void>(done => setImmediate(done));
+    return incoming.statusCode;
   };
   // A forced false also needs a synthetic drain when Node accepted the chunk below its high water mark.
   const release = () => { releaseRequested = true; if (response && !response.writableNeedDrain) { blocked = false; response.emit('drain'); } };
@@ -87,4 +88,11 @@ it('keeps complete ledger reads compatible and validates bounded page sizes', as
   expect(x.store.eventsAfter(x.baseline)).toHaveLength(5);
   expect(x.store.eventsAfter(x.baseline+1, 2).map(event => event.seq)).toEqual([x.baseline+2, x.baseline+3]);
   for (const limit of [0, -1, 1.5, 1001]) expect(() => x.store.eventsAfter(0, limit)).toThrow(expect.objectContaining({ code: 'INVALID_INPUT' }));
+});
+
+it('rejects a non-decimal event cursor before registering a reader', async () => {
+  const x = await fixture();
+  expect(await x.open(0, '?after=0x1')).toBe(400);
+  expect(x.subscriptions()).toBe(0);
+  expect(await x.open(0, '')).toBe(200);
 });

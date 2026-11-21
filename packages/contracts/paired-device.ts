@@ -48,8 +48,7 @@ export type DeviceIdentityV1 = z.infer<typeof deviceIdentityV1Schema>;
  * one-time challenge — the challenge bytes themselves are returned once to
  * the issuer and never persisted. A presented code is not sufficient without
  * authenticated approval on the controlling host. */
-export const pairingRequestStateSchema = z.enum(['ISSUED', 'PENDING_APPROVAL', 'CONSUMED', 'DENIED', 'EXPIRED']);
-export type PairingRequestState = z.infer<typeof pairingRequestStateSchema>;
+const pairingRequestStateSchema = z.enum(['ISSUED', 'PENDING_APPROVAL', 'CONSUMED', 'DENIED', 'EXPIRED']);
 
 export const pairingRequestV1Schema = z.strictObject({
   pairingId: nonEmpty,
@@ -93,7 +92,7 @@ export type DeviceGrantV1 = z.infer<typeof deviceGrantV1Schema>;
  * cursor was issued under; `filterDigest` commits the exact scope/project
  * filter; `snapshotUpperSeq` is the immutable upper source sequence of this
  * snapshot cut and `afterSeq` the last scanned source sequence inside it. */
-export const syncCursorV1Schema = z.strictObject({
+const syncCursorV1Schema = z.strictObject({
   owner: nonEmpty,
   deviceGrantGeneration: z.number().int().positive(),
   filterDigest: z.string().regex(/^[a-f0-9]{64}$/),
@@ -106,7 +105,7 @@ export type SyncCursorV1 = z.infer<typeof syncCursorV1Schema>;
 
 /** Public task projection delta. Public fields of the canonical thread only —
  * never transcript bodies, credentials or native session data (S04/S09). */
-export const syncTaskDeltaV1Schema = z.strictObject({
+const syncTaskDeltaV1Schema = z.strictObject({
   threadId: nonEmpty,
   title: z.string(),
   status: z.string(),
@@ -120,7 +119,7 @@ export type SyncTaskDeltaV1 = z.infer<typeof syncTaskDeltaV1Schema>;
 
 /** Public evidence projection delta: artifact summaries for a thread, never
  * artifact bytes or private logs. */
-export const syncEvidenceDeltaV1Schema = z.strictObject({
+const syncEvidenceDeltaV1Schema = z.strictObject({
   artifactId: nonEmpty,
   threadId: nonEmpty,
   title: z.string(),
@@ -134,7 +133,7 @@ export type SyncEvidenceDeltaV1 = z.infer<typeof syncEvidenceDeltaV1Schema>;
 /** One ordered public projection delta inside a bounded page. `seq` is the
  * source sequence that caused the emission; gaps mean excluded records, not
  * missing ones. */
-export const syncDeltaV1Schema = z.strictObject({
+const syncDeltaV1Schema = z.strictObject({
   seq: z.number().int().nonnegative(),
   threadId: nonEmpty,
   kind: z.enum(['task', 'evidence']),
@@ -166,13 +165,12 @@ export const remoteTransportConfigV1Schema = z.strictObject({
   tls: z.strictObject({ certPath: nonEmpty, keyPath: nonEmpty }),
   clientAuth: z.literal(true),
 });
-export type RemoteTransportConfigV1 = z.infer<typeof remoteTransportConfigV1Schema>;
 
 /** U02/S07: remote view status. OFFLINE means the host is unavailable or the
  * transport is unauthenticated; RESYNCING means a verified gap is being
  * repaired — never an apparently current dashboard (U03). STALE means the
  * last accepted cut is older than the freshness bound. */
-export const remoteViewStatusSchema = z.enum(['OFFLINE', 'RESYNCING', 'SYNCED', 'STALE']);
+const remoteViewStatusSchema = z.enum(['OFFLINE', 'RESYNCING', 'SYNCED', 'STALE']);
 export type RemoteViewStatus = z.infer<typeof remoteViewStatusSchema>;
 
 /** Typed pairing/sync failure codes surfaced to callers (D02 denies without

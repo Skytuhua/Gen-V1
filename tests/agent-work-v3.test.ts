@@ -357,7 +357,7 @@ describe('live-steer semantics, revocation revalidation and dispatch race', () =
     const f = fixture({runtimeFactory: () => new Promise<AgentWorkChild>(resolve => { resolveFactory = resolve; })});
     const spec = f.admission();
     const pending = f.coordinator.admit(f.ctx, spec, new AbortController().signal);
-    while (!f.coordinator.inspect(spec.workId)) await new Promise(resolve => setTimeout(resolve, 5));
+    await vi.waitFor(() => expect(f.coordinator.inspect(spec.workId)).toBeTruthy());
     await f.coordinator.revokeForParent(f.ctx.threadId);
     const child = new FakeChild(false);
     resolveFactory(child);

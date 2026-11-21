@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { createHash, randomUUID } from 'node:crypto';
-import type { Snapshot, Thread, RuntimeUsage, ModelInfo } from '../packages/contracts/index.ts';
+import type { Snapshot, Thread, RuntimeUsage, ModelInfo, CommandReceipt } from '../packages/contracts/index.ts';
 import {isConnectionProviderId} from '../packages/contracts/connections.ts';
 import { memoryPreparedRequestSchema, memoryUsageReportSchema, projectMemoryViewSchema, type MemoryPreparedRequest, type MemoryUsageReport, type MemoryScope, type MemoryItemV1 } from '../packages/contracts/project-memory.ts';
 
@@ -53,12 +53,12 @@ export async function runMemoryStudy(options: MemoryStudyOptions) {
   const timeoutMs = options.timeoutMs ?? 120_000;
   if (!Number.isSafeInteger(timeoutMs) || timeoutMs < 1000 || timeoutMs > 300_000) throw new Error('Choose a bounded per-task deadline.');
   let cookie = '', csrf = '', activeThread: string | null = null, sourceScope: MemoryScope | undefined;
-  const request = async (path: string, body?: unknown, recovery = false): Promise<any> => {
+  const request = async (path: string, body?: unknown, recovery = false): Promise<unknown> => {
     const response = await fetch(new URL(path, origin), {method: body === undefined ? 'GET' : 'POST', redirect: 'error', headers: {...(cookie ? {cookie} : {}), ...(body === undefined ? {} : {'content-type': 'application/json', 'x-harness-csrf': csrf})}, ...(body === undefined ? {} : {body: JSON.stringify(body)}), signal: options.signal && !recovery ? AbortSignal.any([options.signal, AbortSignal.timeout(15_000)]) : AbortSignal.timeout(15_000)});
     const cookies = response.headers.getSetCookie(); if (cookies.length) cookie = cookies.map(value => value.split(';', 1)[0]).join('; ');
     const value = await response.json(); if (!response.ok) throw new Error(`The live host rejected ${path} (${response.status}).`); return value;
   };
-  const command = (type: string, payload: Record<string, unknown>, threadId?: string) => request('/api/commands', {id: randomUUID(), type, payload, ...(threadId ? {threadId} : {})}, type === 'run.stop');
+  const command = (type: string, payload: Record<string, unknown>, threadId?: string): Promise<CommandReceipt> => request('/api/commands', {id: randomUUID(), type, payload, ...(threadId ? {threadId} : {})}, type === 'run.stop') as Promise<CommandReceipt>;
   const send = (payload: Record<string, unknown>, threadId: string) => {report.execution.foregroundSubmissions++; return command('message.send', payload, threadId);};
   const base = '/api/projects/' + encodeURIComponent(options.projectId) + '/memory';
   const pause = async () => {await new Promise<void>(resolve => setTimeout(resolve, 250)); options.signal?.throwIfAborted();};
@@ -85,12 +85,12 @@ export async function runMemoryStudy(options: MemoryStudyOptions) {
     throw new Error('The live study task exceeded its deadline.');
   };
   try {
-    const bootstrap = await request('/api/bootstrap'); csrf = bootstrap.csrfToken;
+    const bootstrap = await request('/api/bootstrap') as { csrfToken: string }; csrf = bootstrap.csrfToken;
     const sourceSnapshot = await request('/api/threads/' + encodeURIComponent(options.sourceThreadId) + '/snapshot') as Snapshot;
     const source = sourceSnapshot.threads.find(value => value.id === options.sourceThreadId);
     if (!source || source.projectId !== options.projectId || source.modelId !== options.modelId || source.runId || !source.sessionPath || !['ready', 'completed'].includes(source.status) || source.sideParentId || source.kind === 'side' || source.kind === 'delegate') throw new Error('The fixture source must be settled and pinned to the explicitly selected project/model/account.');
-    const models = await request('/api/models?threadId=' + encodeURIComponent(source.id));
-    const model = (models.models as ModelInfo[] | undefined)?.find(value => value.id === options.modelId);
+    const models = await request('/api/models?threadId=' + encodeURIComponent(source.id)) as { models?: ModelInfo[] };
+    const model = models.models?.find(value => value.id === options.modelId);
     if (!model || model.provider !== model.id.split('/')[0] || source.thinkingLevel && !model.thinkingLevels?.includes(source.thinkingLevel)) throw new Error('The explicitly selected model or pinned thinking level is unavailable.');
     const accountId = source.accountId ?? null, thinkingLevel = source.thinkingLevel ?? null;
     report.execution.providerId = model.provider; report.execution.accountId = accountId; report.execution.thinkingLevel = thinkingLevel;
@@ -127,7 +127,7 @@ export async function runMemoryStudy(options: MemoryStudyOptions) {
       const arms = (index % 2 ? ['project-memory', 'thread-note-only'] : ['thread-note-only', 'project-memory']) as StudyRun['arm'][];
       for (const arm of arms) {
         options.signal?.throwIfAborted(); await checkSelection(); await checkPolicy();
-        const thread = (await command('thread.create', {projectId: options.projectId, title: `M05 study ${test.id} ${arm}`})).result as Thread;
+        const thread = (await command('thread.create', {projectId: options.projectId, title: `M05 study ${test.id} ${arm}`})).result as Thread | undefined;
         if (!thread?.id || thread.id === source.id || report.warmups.some(value => value.threadId === thread.id) || thread.projectId !== options.projectId || thread.runId || thread.sessionPath || thread.modelId || thread.epoch !== 0 || thread.sideParentId || thread.kind === 'side' || thread.kind === 'delegate') throw new Error('The host did not create a fresh isolated study conversation.');
         activeThread = thread.id;
         await send({content: 'READY', modelId: options.modelId, thinkingLevel}, thread.id);
