@@ -231,6 +231,15 @@ export async function buildServer(service: Service, options: ServerOptions) {
   app.post('/api/composer-prediction/cancel',{bodyLimit:1024},async(request,reply)=>{
     z.strictObject({}).optional().parse(request.body);reply.header('Cache-Control','no-store');await service.cancelComposerPredictions();return{cancelled:true};
   });
+  const enhanceInput=z.strictObject({draft:z.string().min(1).max(8192).refine(value=>value.trim().length>0&&Buffer.byteLength(value)<=8192),target:z.discriminatedUnion('kind',[z.strictObject({kind:z.literal('thread'),threadId:z.string().min(1).max(200),modelId:z.string().min(1).max(300).optional()}),z.strictObject({kind:z.literal('new'),modelId:z.string().min(1).max(300)})])});
+  const enhanceStatus=(error:unknown):number=>{const code=error instanceof HarnessError?error.code:'';return code==='ENHANCE_NOT_FOUND'?404:['ENHANCE_BUSY','ENHANCE_STALE','ENHANCE_CANCELLED','ACCOUNT_SELECTION_CHANGED','STALE_REQUEST_CONTEXT','CANCELLED_RUN'].includes(code)?409:['ENHANCE_TIMEOUT'].includes(code)?504:['ENHANCE_PROVIDER','ENHANCE_INVALID_OUTPUT','ENHANCE_OUTPUT_LIMIT','ENHANCE_TOOL_DENIED'].includes(code)?502:['ENHANCE_UNAVAILABLE','ENHANCE_UNSUPPORTED','ENHANCE_CLEANUP_FAILED'].includes(code)||code.startsWith('ACCOUNT_')||code.startsWith('AI_AUTH')||code.startsWith('PI_AUTH')?503:400;};
+  app.post('/api/composer-enhance',{bodyLimit:64*1024},async(request,reply)=>{
+    reply.header('Cache-Control','no-store');const input=enhanceInput.parse(request.body),controller=new AbortController();
+    const close=()=>{if(!reply.raw.writableEnded)controller.abort();};reply.raw.once('close',close);
+    try{return await service.composerEnhance(input,controller.signal);}
+    catch(error){if(error instanceof HarnessError)return reply.code(enhanceStatus(error)).send({error:{code:error.code,message:error.message}});throw error;}
+    finally{reply.raw.removeListener('close',close);}
+  });
   registerAccountAuthRoutes(app,service);
   registerWorkspaceRoutes(app,service);
   registerSourceWorkbenchRoutes(app,service);
