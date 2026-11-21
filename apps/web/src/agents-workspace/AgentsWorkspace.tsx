@@ -28,8 +28,11 @@ export interface AgentsWorkspaceProps {
 }
 const Visibility = createContext<(id: string, visible: boolean) => void>(() => {});
 const statusLabel = (value: AgentStatus) => value.replaceAll('_', ' ');
-/** Column count for the agent grid at a given content width: four >= 1080, two 768–1079, one below 768. */
-export const columnsForWidth = (width: number): 1 | 2 | 4 => width >= 1080 ? 4 : width >= 768 ? 2 : 1;
+export const columnsForWidth = (width: number): number => Math.max(1, Math.floor((width + 10) / 350));
+const relativeTime = (value: string) => {
+ const minutes = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 60000));
+ return !Number.isFinite(minutes) ? '' : minutes < 1 ? 'now' : minutes < 60 ? `${minutes}m` : minutes < 1440 ? `${Math.floor(minutes / 60)}h` : `${Math.floor(minutes / 1440)}d`;
+};
 
 /** Personal-only leaf: the outer host selects compact bootstrap before mounting any legacy App. */
 export function AgentsWorkspace({controller, composers, onOpenConversation, preferences, projects = [], hasConversations = false}: AgentsWorkspaceProps) {
@@ -75,12 +78,18 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
 }
 
 function VirtualSlot({children, className, label}: {children: ReactNode; className: string; label: string}) {
- const ref = useRef<HTMLDivElement>(null), [near, setNear] = useState(false), [held, setHeld] = useState(false);
+ const ref = useRef<HTMLDivElement>(null), [near, setNear] = useState(false), [held, setHeld] = useState(false), [height, setHeight] = useState(180);
  useEffect(() => {
   const observer = new IntersectionObserver(([entry]) => setNear(entry.isIntersecting), {rootMargin: '200px'});
   if (ref.current) observer.observe(ref.current); return () => observer.disconnect();
  }, []);
  const mounted = near || held;
+ useLayoutEffect(() => {
+  const card = ref.current?.firstElementChild;
+  if (!mounted || !card) return;
+  const observer = new ResizeObserver(() => setHeight(Math.ceil(card.getBoundingClientRect().height)));
+  observer.observe(card); return () => observer.disconnect();
+ }, [mounted]);
  useLayoutEffect(() => {
   const slot = ref.current;
   // Arrow navigation and the reveal control can focus the stable slot before its card mounts.
@@ -89,7 +98,7 @@ function VirtualSlot({children, className, label}: {children: ReactNode; classNa
   }
  }, [mounted]);
  const reveal = () => {ref.current?.focus(); setHeld(true);};
- return <div ref={ref} tabIndex={-1} className={className} onFocusCapture={() => setHeld(true)} onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false);}}>
+ return <div ref={ref} tabIndex={-1} className={className} style={mounted ? undefined : {minHeight: height}} onFocusCapture={() => setHeld(true)} onBlurCapture={event => {if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHeld(false);}}>
   {mounted ? children : <button type="button" className="agents-virtual-reveal" onFocus={reveal} onClick={reveal}>Show {label}</button>}
  </div>;
 }
@@ -125,30 +134,45 @@ function Project({row, controller, ...props}: {row: ProjectRow} & Omit<AgentsWor
 function Agent({node, controller, composers, onOpenConversation, preferences}: {node: AgentNode} & Omit<AgentsWorkspaceProps, 'projects'>) {
  const {agent, children} = node;
  useSyncExternalStore(controller.subscribe, controller.getSnapshot);
- const view = controller.view(agent.agentId), child = Boolean(agent.parentId), groupId = useId();
- const toggle = () => controller.setView(agent.agentId, {collapsed: !view.collapsed}, true);
+ const view = controller.view(agent.agentId), child = Boolean(agent.parentId), groupId = useId(), expandedChildren = view.expandedChildren ?? [];
+ const toggle = () => controller.setView(agent.agentId, {childrenExpanded: !view.childrenExpanded}, true);
+ const time = relativeTime(agent.updatedAt), meta = [agent.modelId, time].filter(Boolean).join(' · ');
+ const status = statusLabel(agent.status), statusText = status.charAt(0).toUpperCase() + status.slice(1), showStatus = !['working', 'ready', 'completed'].includes(agent.status);
+ const action = agent.currentAction || (showStatus ? '' : agent.status === 'completed' ? 'Work completed' : statusText);
  return <section className={`agents-agent${child ? ' agents-child' : ''}`} tabIndex={-1} role="group" aria-label={`Agent ${agent.title}`} data-agent-id={agent.agentId}>
-
-  <header className="agents-agent-header"><div className="agents-agent-title"><h3>{agent.title}</h3><span className="agents-agent-state" data-state={agent.status}>{statusLabel(agent.status)}</span></div>
-   {!child && agent.threadId && <button type="button" className="agents-icon" aria-label={`Open conversation ${agent.title}`} onClick={() => onOpenConversation(agent.threadId!)}><ExternalLink size={15}/></button>}
+  {agent.reportedPercent !== null && <progress className="agents-card-progress" max={100} value={agent.reportedPercent} aria-label={`${agent.title} progress`}/>}
+  <header className="agents-agent-header">
+   <span className="agents-status-dot" data-state={agent.status} title={statusText} aria-hidden="true"/>
+   <div className="agents-agent-title"><h3 title={agent.title}>{agent.title}</h3></div>
+   <span className="agents-agent-state sr-only" data-state={agent.status}>{statusText}</span>
+   {meta && <span className="agents-meta" title={[agent.modelId, agent.updatedAt].filter(Boolean).join(' · ')}>{agent.modelId}{agent.modelId && time && ' · '}{time && <time dateTime={agent.updatedAt}>{time}</time>}</span>}
+   {!child && agent.threadId && <button type="button" className="agents-icon" aria-label={`Open conversation ${agent.title}`} title="Open conversation" onClick={() => onOpenConversation(agent.threadId!)}><ExternalLink size={15}/></button>}
   </header>
-  <div className="agents-activity">{agent.modelId && <span className="agents-model">{agent.modelId}</span>}<p>{agent.currentAction || (agent.status === 'completed' ? 'Work completed' : statusLabel(agent.status))}</p>{agent.reportedPercent !== null && <progress max={100} value={agent.reportedPercent} aria-label={`${agent.title} progress`}/>}</div>
+  <p className="agents-activity" title={[showStatus && statusText, action].filter(Boolean).join(' · ')}>{showStatus && <span className="agents-action-state">{statusText}{action && ' · '}</span>}{action}</p>
   {agent.threadId ? <Transcript agent={agent} controller={controller}/> : <p className="agents-empty">Transcript unavailable.</p>}
   {!child && agent.threadId && <AgentWorkPanel threadId={agent.threadId}/>}
   {composers.supports(agent) ? <InlineComposer agent={agent} composers={composers} controller={controller} onOpenConversation={onOpenConversation}/> : child && <p className="agents-readonly">{agent.status === 'working' ? 'Follow-up unavailable' : 'Read-only'}</p>}
-  {Boolean(children.length) && <div className="agents-children"><button type="button" className="agents-disclosure" aria-expanded={!view.collapsed} aria-controls={groupId} onClick={toggle}>{view.collapsed ? <ChevronRight size={15}/> : <ChevronDown size={15}/>}Subagents · {children.length}</button><div id={groupId} hidden={view.collapsed}>{children.map(child => <Agent key={child.agent.agentId} node={child} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}</div></div>}
+  {Boolean(children.length) && <footer className="agents-children"><button type="button" className="agents-disclosure" aria-expanded={Boolean(view.childrenExpanded)} aria-controls={groupId} onClick={toggle}>{view.childrenExpanded ? <ChevronDown size={14}/> : <ChevronRight size={14}/>}{children.length} {children.length === 1 ? 'subagent' : 'subagents'}</button><div id={groupId} hidden={!view.childrenExpanded}>{children.map(node => {
+   const item = node.agent, expanded = expandedChildren.includes(item.agentId), id = groupId + ':' + item.agentId;
+   return <div key={item.agentId} className="agents-child-item">
+    <button type="button" className="agents-child-row" aria-label={`Inspect subagent ${item.title}`} aria-expanded={expanded} aria-controls={id} onClick={() => controller.setView(agent.agentId, {expandedChildren: expanded ? expandedChildren.filter(value => value !== item.agentId) : [...expandedChildren, item.agentId]}, true)}>
+     <span className="agents-status-dot" data-state={item.status} aria-hidden="true"/><strong title={item.title}>{item.title}</strong><span className="agents-child-action" title={item.currentAction ?? undefined}>{item.currentAction}</span><span className="agents-child-status">{statusLabel(item.status)}</span>{expanded ? <ChevronDown size={12}/> : <ChevronRight size={12}/>}
+    </button>
+    <div id={id}>{expanded && <Agent node={node} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>}</div>
+   </div>;
+  })}</div></footer>}
  </section>;
 }
 function Transcript({agent, controller}: {agent: AgentSummary; controller: AgentsWorkspaceController}) {
  useSyncExternalStore(controller.subscribe, controller.getSnapshot);
- const state = controller.transcript(agent.agentId), view = controller.view(agent.agentId), setVisible = useContext(Visibility), log = useRef<HTMLDivElement>(null), previous = useRef({height: 0, first: '', initialized: false});
+ const state = controller.transcript(agent.agentId), view = controller.view(agent.agentId), expanded = Boolean(view.transcriptExpanded), transcriptId = useId(), setVisible = useContext(Visibility), wrapper = useRef<HTMLDivElement>(null), log = useRef<HTMLDivElement>(null), previous = useRef({height: 0, first: '', initialized: false});
  useEffect(() => {
   const observer = new IntersectionObserver(([entry]) => setVisible(agent.agentId, entry.isIntersecting), {rootMargin: '80px'});
-  if (log.current) observer.observe(log.current);
+  if (wrapper.current) observer.observe(wrapper.current);
   return () => {observer.disconnect(); setVisible(agent.agentId, false);};
  }, [agent.agentId, setVisible]);
  useLayoutEffect(() => {
-  const element = log.current; if (!element || !state.loaded) return;
+  const element = log.current; if (!element || !state.loaded || !expanded) return;
   const old = previous.current, first = state.messages[0]?.id ?? '';
   const anchor = view.anchorId && [...element.querySelectorAll<HTMLElement>('[data-message-id]')].find(node => node.dataset.messageId === view.anchorId);
   if (view.atEnd) element.scrollTop = element.scrollHeight;
@@ -157,8 +181,13 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
   else if (old.first !== first) element.scrollTop = view.top + element.scrollHeight - old.height;
   previous.current = {height: element.scrollHeight, first, initialized: true};
   controller.setView(agent.agentId, {top: element.scrollTop});
- }, [state.messages, state.loaded, controller, agent.agentId, view.atEnd]);
- return <div className="agents-transcript-wrap"><div className="agents-transcript" role="log" aria-label={`${agent.title} messages`} aria-live="off" tabIndex={0} ref={log} onFocus={() => controller.setView(agent.agentId, {focus: 'transcript'})} onScroll={event => {
+ }, [state.messages, state.loaded, controller, agent.agentId, view.atEnd, expanded]);
+ const latest = state.messages.at(-1);
+ return <div className="agents-transcript-wrap" ref={wrapper} data-expanded={expanded}>
+  <div className="agents-preview" hidden={expanded}>{state.error ? <ErrorState className="agents-error" message={state.error} retryLabel="Retry history" onRetry={() => {void controller.retryHistory(agent.agentId);}}/> : <div className="agents-preview-text">{latest ? <span>{latest.content.trimEnd()}</span> : <p className="agents-transcript-empty">{state.pending ? 'Loading messages…' : state.loaded ? 'No messages yet.' : 'Messages load as they come into view.'}</p>}</div>}</div>
+  <button type="button" className="agents-transcript-toggle" aria-expanded={expanded} aria-controls={transcriptId} aria-label={expanded ? 'Hide transcript' : 'Show transcript'} onClick={() => controller.setView(agent.agentId, {transcriptExpanded: !expanded}, true)}>{expanded ? 'Hide' : 'Show transcript'}{expanded ? <ChevronDown size={12}/> : <ChevronRight size={12}/>}</button>
+  <div className="agents-transcript-expansion" data-expanded={expanded} inert={!expanded} aria-hidden={!expanded} id={transcriptId}><div className="agents-transcript-clip"><div className="agents-transcript" role="log" aria-label={`${agent.title} messages`} aria-live="off" tabIndex={0} ref={log} onFocus={() => controller.setView(agent.agentId, {focus: 'transcript'})} onScroll={event => {
+  if (!expanded) return;
   const element = event.currentTarget, atEnd = element.scrollHeight - element.clientHeight - element.scrollTop < 24;
   const top = element.getBoundingClientRect().top, anchor = [...element.querySelectorAll<HTMLElement>('[data-message-id]')].find(node => node.getBoundingClientRect().bottom > top);
   controller.setView(agent.agentId, {top: element.scrollTop, atEnd, anchorId: anchor?.dataset.messageId, anchorOffset: anchor ? anchor.getBoundingClientRect().top - top : undefined, ...(atEnd ? {unread: false} : {})});
@@ -170,7 +199,7 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
   {state.messages.map(message => <Fragment key={message.id}>{state.gaps.some(gap => gap.beforeId === message.id) && <button type="button" className="agents-earlier" disabled={state.pending} onClick={() => {void controller.loadEarlier(agent.agentId, message.id);}}>Load missing messages</button>}<article className={`agents-message agents-message-${message.role}`} data-message-id={message.id}><span className="agents-message-role">{message.role}</span><Markdown text={message.content}/></article></Fragment>)}
   </LoadingState>
   {state.error && <ErrorState className="agents-error" message={state.error} retryLabel="Retry history" onRetry={() => {void controller.retryHistory(agent.agentId);}} />}
- </div>{view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
+ </div></div></div>{expanded && view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
 }
 function InlineComposer({agent, composers, controller,onOpenConversation}: {agent: AgentSummary; composers: SharedAgentComposers; controller: AgentsWorkspaceController;onOpenConversation:AgentsWorkspaceProps['onOpenConversation']}) {
  const state = useSyncExternalStore(listener => composers.subscribe(agent, listener), () => composers.getSnapshot(agent)), input = useRef<HTMLTextAreaElement>(null), commands=useRef<ComposerCommandsHandle>(null);
@@ -184,12 +213,14 @@ function InlineComposer({agent, composers, controller,onOpenConversation}: {agen
  const skillsBlocked = !agent.parentId && Boolean(state.skills?.length) && !state.retry;
  const send = () => {if (!currentHeld.current && !skillsBlocked) void composers.submit(agent);};
  return <><div inert={held}><ComposerView className="agents-composer" onSubmit={event => {event.preventDefault(); send();}}>
-  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={1} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
-  {!agent.parentId&&<><ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(agent,id).catch(()=>{});}}/><ComposerCommands ref={commands} input={input} draft={state.draft} threadId={agent.threadId??undefined} projectId={agent.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(agent,text);}} onModel={()=>{if(agent.threadId)onOpenConversation(agent.threadId,'model');}} onMode={async mode=>{if(agent.status==='working')throw Error('Wait for the active run to finish to change mode.');const revision=modeOwner.current.revision,owner=desktop?desktop.ownership(surface):0;if(agent.threadId)await command('thread.mode',{mode},agent.threadId,undefined,()=>modeOwner.current.active&&!currentHeld.current&&modeOwner.current.revision===revision&&owner!==undefined&&(!desktop||desktop.ownership(surface)===owner));}}/></>}
-  <div className="agents-composer-actions"><span role="status">{state.ticket ? `${state.ticket.status.replaceAll('_', ' ')}${state.ticket.error ? ': ' + state.ticket.error : ''}` : state.busy ? 'Sending…' : ''}</span>
-   {!agent.parentId && agent.status === 'working' && <button type="button" aria-label={`Stop ${agent.title}`} disabled={held || state.stopping} onClick={() => {if (!currentHeld.current) void composers.stop(agent);}}><Square size={13}/>{state.stopping ? 'Stopping…' : 'Stop'}</button>}
-   <button type="submit" aria-label={`${state.retry ? 'Retry send to' : 'Send to'} ${agent.title}`} disabled={held || skillsBlocked || !composers.canSend(agent) || !state.retry && !state.draft.trim()}><Send size={14}/>{state.retry ? 'Retry send' : 'Send'}</button>
+  <div className="agents-composer-entry"><textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={1} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
+   <div className="agents-composer-actions">
+    {!agent.parentId && agent.status === 'working' && <button type="button" title={state.stopping ? 'Stopping…' : 'Stop'} aria-label={`Stop ${agent.title}`} disabled={held || state.stopping} onClick={() => {if (!currentHeld.current) void composers.stop(agent);}}><Square size={13}/></button>}
+    <button type="submit" title={state.retry ? 'Retry send' : 'Send'} aria-label={`${state.retry ? 'Retry send to' : 'Send to'} ${agent.title}`} disabled={held || skillsBlocked || !composers.canSend(agent) || !state.retry && !state.draft.trim()}><Send size={14}/></button>
+   </div>
   </div>
+  {!agent.parentId&&<><ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(agent,id).catch(()=>{});}}/><ComposerCommands ref={commands} input={input} draft={state.draft} threadId={agent.threadId??undefined} projectId={agent.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(agent,text);}} onModel={()=>{if(agent.threadId)onOpenConversation(agent.threadId,'model');}} onMode={async mode=>{if(agent.status==='working')throw Error('Wait for the active run to finish to change mode.');const revision=modeOwner.current.revision,owner=desktop?desktop.ownership(surface):0;if(agent.threadId)await command('thread.mode',{mode},agent.threadId,undefined,()=>modeOwner.current.active&&!currentHeld.current&&modeOwner.current.revision===revision&&owner!==undefined&&(!desktop||desktop.ownership(surface)===owner));}}/></>}
+  {(state.ticket || state.busy) && <p className="agents-composer-status" role="status">{state.ticket ? `${state.ticket.status.replaceAll('_', ' ')}${state.ticket.error ? ': ' + state.ticket.error : ''}` : 'Sending…'}</p>}
   {!agent.parentId && !agent.modelId && <p className="agents-readonly">Choose a model in this conversation to send.</p>}
   {state.error && <ErrorState className="agents-error" message={state.error} />}
  </ComposerView></div>{detached ? <button type="button" onClick={() => {void desktop?.bridge.focus(detached.id).catch(() => {});}}>Focus existing window</button> : pending && <p role="status">Opening conversation window…</p>}</>;

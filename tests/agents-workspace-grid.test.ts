@@ -59,7 +59,7 @@ describe('agents workspace grid layout', () => {
         return card.top >= view.top - 1 && card.bottom <= view.bottom + 1;
       })).toBe(true);
       await page.setViewportSize({width: 1920, height: 1000});
-      expect(await trackCount(page)).toBe(4);
+      expect(await trackCount(page)).toBe(5);
       expect(await noHorizontalOverflow(page, 1920)).toEqual({page: true, workspace: true});
     } finally {await page.close();}
   });
@@ -76,7 +76,7 @@ describe('agents workspace grid layout', () => {
     } finally {await page.close();}
   });
 
-  it('collapses to two columns at narrow content width and one below 768', async () => {
+  it('fits as many 340px columns as available and collapses to one on small screens', async () => {
     const page = await open(900);
     try {
       expect(await trackCount(page)).toBe(2);
@@ -108,39 +108,43 @@ describe('agents workspace grid layout', () => {
       expect(await label()).toBe('Agent parent-00');
       await page.keyboard.press('ArrowUp');
       expect(await label()).toBe('Agent parent-00');
+      await cards(page).first().getByRole('button', {name: 'Show transcript', exact: true}).click();
       await page.locator('.agents-transcript').first().focus();
       await page.keyboard.press('ArrowDown');
       expect(await label()).toBe('parent-00 messages');
     } finally {await page.close();}
   });
 
-  it('reserves a 420px card, gives the transcript two thirds of the body and keeps the composer at one 72px-capped line', async () => {
+  it('sizes cards to content, previews three lines and keeps a single-row composer that grows', async () => {
     const page = await open(1440);
     try {
       const card = cards(page).nth(3);
-      await visible(card.locator('.agents-message p')).toBeVisible({timeout: 5000});
-      const metrics = await card.evaluate(element => {
-        const height = element.getBoundingClientRect().height;
-        const header = element.querySelector('.agents-agent-header')!.getBoundingClientRect().height;
-        const activity = element.querySelector('.agents-activity')!.getBoundingClientRect().height;
-        const transcript = element.querySelector('.agents-transcript-wrap')!.getBoundingClientRect().height;
-        const composer = element.querySelector('.agents-composer')!.getBoundingClientRect().height;
-        const textarea = element.querySelector('textarea')!;
-        const messageFont = getComputedStyle(element.querySelector('.agents-message p')!).fontSize;
-        return {height, body: height - header - activity, transcript, composer, textareaHeight: textarea.getBoundingClientRect().height, textareaMax: getComputedStyle(textarea).maxHeight, messageFont};
+      await visible(card.locator('.agents-preview')).toContainText('transcript line');
+      const metrics = await card.evaluate(element => ({
+        height: element.getBoundingClientRect().height,
+        preview: element.querySelector('.agents-preview')!.getBoundingClientRect().height,
+        composer: element.querySelector('.agents-composer-entry')!.getBoundingClientRect().height,
+        nestedBorders: [...element.querySelectorAll('.agents-transcript,.agents-composer')].map(node => getComputedStyle(node).borderTopWidth),
+      }));
+      expect(metrics.height).toBeLessThan(280);
+      expect(metrics.preview).toBeLessThanOrEqual(60);
+      expect(metrics.composer).toBeCloseTo(36, 2);
+      expect(metrics.nestedBorders).toEqual(['0px', '0px']);
+      const lines = await card.locator('.agents-preview-text').evaluate(element => {
+        const bounds = element.getBoundingClientRect(), range = document.createRange();
+        range.selectNodeContents(element.firstElementChild!);
+        const rects = [...range.getClientRects()], visible = rects.filter(rect => rect.bottom > bounds.top && rect.top < bounds.bottom);
+        return {count: new Set(visible.map(rect => Math.round(rect.top * 10))).size, whole: visible.every(rect => rect.top >= bounds.top && rect.bottom <= bounds.bottom), end: rects.at(-1)!.bottom <= bounds.bottom && rects.at(-1)!.top >= bounds.top};
       });
-      expect(metrics.height).toBeGreaterThanOrEqual(416);
-      expect(metrics.height).toBeLessThanOrEqual(430);
-      expect(metrics.messageFont).toBe('14px');
-      expect(metrics.transcript).toBeGreaterThanOrEqual(metrics.body * 2 / 3);
-      expect(metrics.textareaHeight).toBeGreaterThanOrEqual(30);
-      expect(metrics.textareaHeight).toBeLessThanOrEqual(42);
-      expect(metrics.textareaMax).toBe('72px');
+      expect(lines).toEqual({count: 3, whole: true, end: true});
+      await visible(card.getByRole('log')).toHaveCount(0);
+      await card.getByRole('button', {name: 'Show transcript'}).click();
+      await visible(card.getByRole('log')).toContainText('transcript line');
+      expect(await card.getByRole('log').evaluate(node => node.getBoundingClientRect().height)).toBeLessThanOrEqual(280);
       const textarea = card.locator('textarea');
       await textarea.fill('first\nsecond\nthird\nfourth');
-      const grown = await textarea.evaluate(element => ({height: element.getBoundingClientRect().height, scrollable: element.scrollHeight > element.clientHeight}));
-      expect(grown.height).toBeLessThanOrEqual(74);
-      expect(grown.scrollable).toBe(true);
+      expect(await textarea.evaluate(node => node.getBoundingClientRect().height)).toBeGreaterThan(36);
+      expect(await textarea.evaluate(node => node.scrollHeight > node.clientHeight)).toBe(false);
     } finally {await page.close();}
   });
 

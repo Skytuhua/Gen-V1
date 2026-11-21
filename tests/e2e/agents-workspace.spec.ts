@@ -4,9 +4,9 @@ import type {CommandReceipt} from '../../packages/contracts';
 import type {AgentSummary} from '../../packages/contracts/agent-inventory';
 const fixture = '/@fs/' + resolve('tests/e2e/agents-workspace-fixture.tsx').replaceAll('\\', '/');
 const agent = (id: string, patch: Partial<AgentSummary> = {}): AgentSummary => ({agentId: id, parentId: null, rootId: id, jobId: null, threadId: id, projectId: 'a', projectName: 'Alpha', title: id, status: 'working', modelId: 'test/model', currentAction: 'Reading project sources', reportedPercent: 35, createdAt: '2026-11-06', updatedAt: '2026-11-06', orderKey: id, revision: 1, archived: false, readOnly: false, metadata: 'thread', ...patch});
-async function setup(page: Page, candidate = false, burstHistory = false, delayed = false) {
+async function setup(page: Page, candidate = false, burstHistory = false, delayed = false, status: AgentSummary['status'] = 'working') {
  const requests: string[] = [], commands: {id: string; type: string; threadId: string; payload: {content?: string}}[] = [];
- const agents = [agent('parent-00'), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
+ const agents = [agent('parent-00', {status}), agent('child-active', {parentId: 'parent-00', rootId: 'parent-00', jobId: 'job', readOnly: true}), agent('child-done', {parentId: 'parent-00', rootId: 'parent-00', status: 'completed', readOnly: true}), ...Array.from({length: 32}, (_, i) => agent('parent-' + String(i + 1).padStart(2, '0'))), agent('beta-parent', {projectId: 'b', projectName: 'Beta'})];
  let failSend = false, output = 'Current transcript output', sequence = 10, ticketStatus = 'processing', messageTotal = 40;
  let release!: () => void;
  let gate = delayed ? new Promise<void>(resolve => {release = resolve;}) : Promise.resolve();
@@ -61,6 +61,15 @@ async function setup(page: Page, candidate = false, burstHistory = false, delaye
  return {requests, commands, delay: () => {gate = new Promise<void>(resolve => {release = resolve;});}, release: () => release?.(), fail: (value: boolean) => {failSend = value;}, output: (value: string) => {output = value; sequence++;}, ticket: (value: string) => {ticketStatus = value;}, burst: (total: number) => {messageTotal = total; sequence++;}};
 }
 
+async function expandTranscript(page: Page, id = 'parent-00') {
+ await page.getByRole('group', {name: `Agent ${id}`, exact: true}).getByRole('button', {name: 'Show transcript', exact: true}).click();
+}
+async function expandChild(page: Page, id: string) {
+ const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
+ await parent.getByRole('button', {name: '2 subagents', exact: true}).click();
+ await parent.getByRole('button', {name: `Inspect subagent ${id}`, exact: true}).click();
+}
+
 for (const width of [1440, 1024, 768]) test(`first agent reads reserve project rows and parent conversations at ${width}`, async ({page}) => {
  await page.setViewportSize({width, height: 1000}); await page.emulateMedia({reducedMotion: 'reduce'});
  const h = await setup(page, false, false, true);
@@ -85,7 +94,7 @@ for (const width of [1440, 1024, 768]) test(`first agent reads reserve project r
 });
 
 test('missing history remains reachable after offscreen bursts without moving the message being read', async ({page}) => {
- const h = await setup(page, false, true), log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), projects = page.locator('.agents-projects');
+ const h = await setup(page, false, true); await expandTranscript(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true}), projects = page.locator('.agents-projects');
  await expect(log).toContainText('Transcript message 40.');
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
  await projects.evaluate(node => {node.scrollTop = node.scrollHeight;}); await expect(log).toHaveCount(0);
@@ -138,9 +147,16 @@ test('a slower evidence request cannot replace the latest selected child', async
  } finally {finish();}
 });
 
-test('project rows expose working parent and nested child transcripts before any details click', async ({page}) => {
+test('project rows preview the latest message and reveal full transcripts and compact child rows on demand', async ({page}) => {
  const h = await setup(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
- await expect(parent.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
+ await expect(parent.locator(':scope > .agents-transcript-wrap .agents-preview')).toContainText('Current transcript output 11.');
+ await expect(parent.getByRole('log')).toHaveCount(0);
+ await expect(parent.getByRole('button', {name: '2 subagents', exact: true})).toHaveAttribute('aria-expanded', 'false');
+ await expandTranscript(page); await expandChild(page, 'child-active');
+ await expect(parent.getByRole('log', {name: 'parent-00 messages', exact: true})).toHaveAttribute('aria-live', 'off');
+ const row = parent.getByRole('button', {name: 'Inspect subagent child-done', exact: true});
+ expect(await row.evaluate(node => node.getBoundingClientRect().height)).toBe(32);
+ await row.focus(); await page.keyboard.press('Enter');
  await expect(parent.getByRole('group', {name: 'Agent child-active', exact: true})).toBeVisible();
  await expect(parent.getByRole('group', {name: 'Agent child-done', exact: true}).getByRole('textbox')).toHaveCount(0);
  await expect(page.getByRole('heading', {name: 'All Agents', exact: true})).toHaveCount(0);
@@ -154,7 +170,7 @@ test('all grid parents are reachable, subscriptions follow visibility, and draft
  await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
  const projects = page.locator('.agents-projects');
  await projects.evaluate(node => {node.scrollTop = node.scrollHeight;});
- await expect(page.getByRole('log', {name: 'parent-32 messages', exact: true})).toContainText('Current transcript output');
+ await expect(page.getByRole('group', {name: 'Agent parent-32', exact: true}).locator('.agents-preview')).toContainText('Current transcript output');
  await expect(input).toHaveCount(0);
  expect(h.requests.some(path => path.includes('agentId=parent-32'))).toBe(true);
  for (const path of h.requests.filter(path => path.includes('visible='))) expect(new URL(path, 'http://fixture').searchParams.get('visible')!.split(',').length).toBeLessThanOrEqual(24);
@@ -171,7 +187,7 @@ test('the actual App retains offscreen drafts, keyboard targets and the 24-histo
  const projects = page.locator('.agents-projects'), slots = page.locator('.agents-agent-grid').first().locator(':scope > .agents-grid-slot');
  for (let index = 0; index < 33; index++) {
   await slots.nth(index).scrollIntoViewIfNeeded();
-  await expect(page.getByRole('log', {name: `parent-${String(index).padStart(2, '0')} messages`, exact: true})).toContainText('Current transcript output');
+  await expect(page.getByRole('group', {name: `Agent parent-${String(index).padStart(2, '0')}`, exact: true}).locator('.agents-preview')).toContainText('Current transcript output');
  }
  await expect(input).toHaveCount(0);
  const histories = h.requests.filter(path => path.startsWith('/api/agents/history?')).map(path => new URL(path, 'http://fixture').searchParams.get('agentId')).filter(id => id?.startsWith('parent-'));
@@ -191,14 +207,14 @@ test('IME does not send, working parents send, uncertain retries keep identity a
  await expect(page.getByRole('button', {name: 'Retry send to parent-00', exact: true})).toHaveCount(0);
 });
 test('filtered children retain their completed owning parent and local reading state', async ({page}) => {
- const h = await setup(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});
+ const h = await setup(page); await expandTranscript(page); const log = page.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output');
  await log.evaluate(node => {node.scrollTop = 100;});
  await page.getByRole('button', {name: 'Search agents', exact: true}).click();
  await page.getByRole('searchbox', {name: 'Filter agents', exact: true}).fill('child-active');
  await expect.poll(() => h.requests.some(path => path.includes('text=child-active'))).toBe(true);
  await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true})).toBeVisible();
- await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true}).locator('.agents-agent-state').first()).toHaveText('completed');
+ await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true}).locator('.agents-agent-state').first()).toHaveText('Completed');
  await page.getByRole('searchbox', {name: 'Filter agents', exact: true}).fill('');
  await expect(log).toBeVisible(); expect(await log.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
 });
@@ -207,13 +223,13 @@ test('the actual App opens and restores compact routing without mounting snapsho
  await expect(page.locator('.workspace-host')).toBeVisible();
  await expect.poll(() => h.requests.some(path => path.startsWith('/api/agents?'))).toBe(true);
  expect(h.requests.some(path => path.startsWith('/api/snapshot') || path.startsWith('/api/events'))).toBe(false);
- await expect(page.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
- await page.reload(); await expect(page.getByRole('log', {name: 'parent-00 messages', exact: true})).toContainText('Current transcript output');
+ await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true}).locator(':scope > .agents-transcript-wrap .agents-preview')).toContainText('Current transcript output');
+ await page.reload(); await expect(page.getByRole('group', {name: 'Agent parent-00', exact: true}).locator(':scope > .agents-transcript-wrap .agents-preview')).toContainText('Current transcript output');
  expect(h.requests.some(path => path.startsWith('/api/snapshot') || path.startsWith('/api/events'))).toBe(false);
 });
 test('child follow-up uses the published parent/run target and current ticket through handled', async ({page}) => {
  const h = await setup(page, true), child = page.getByRole('group', {name: 'Agent child-active', exact: true});
- await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});
+ await expandChild(page, 'child-active'); await child.scrollIntoViewIfNeeded(); const input = child.getByRole('textbox', {name: 'Message to child-active', exact: true});
  await input.fill('Read the next source'); await expect(child.getByRole('button', {name: 'Send to child-active', exact: true})).toBeEnabled(); await input.press('Enter');
  await expect(child.getByRole('status')).toHaveText('processing'); expect(h.commands).toHaveLength(1);
  expect(h.commands[0]).toMatchObject({type: 'agent.followUp', threadId: 'parent-00', payload: {jobId: 'job', parentRun: {runId: 'parent-run', epoch: 1}, childRun: {threadId: 'child-active', runId: 'child-run', epoch: 1}, content: 'Read the next source'}});
@@ -245,7 +261,7 @@ test('agent task progress exposes its name and unknown share to assistive techno
 });
 
 test('output while reading earlier retains position and exposes an explicit new-output action', async ({page}) => {
- const h = await setup(page, true), parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
+ const h = await setup(page, true); await expandTranscript(page); const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), log = parent.getByRole('log', {name: 'parent-00 messages', exact: true});
  await expect(log).toContainText('Current transcript output'); await log.evaluate(node => {node.scrollTop = 100;});
  const before = await log.evaluate(node => node.scrollTop); h.output('Updated current transcript output');
  await expect(parent.getByRole('button', {name: 'New output', exact: true})).toBeVisible(); expect(Math.abs(await log.evaluate(node => node.scrollTop) - before)).toBeLessThan(3);
@@ -254,7 +270,7 @@ test('output while reading earlier retains position and exposes an explicit new-
  await expect(log.locator('.agents-message').first()).toContainText('Updated current transcript output');
  expect(await log.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
 });
-for (const [theme, width, height, zoom, columns] of [['dark', 1920, 1080, 1, 4], ['dark', 1440, 900, 1, 4], ['light', 1024, 768, 1.25, 1], ['dark', 1280, 600, 1, 2], ['dark', 640, 520, 1.5, 1], ['light', 390, 844, 1, 1]] as const) {
+for (const [theme, width, height, zoom, columns] of [['dark', 1920, 1080, 1, 4], ['dark', 1440, 900, 1, 3], ['light', 1024, 768, 1.25, 1], ['dark', 1280, 600, 1, 2], ['dark', 640, 520, 1.5, 1], ['light', 390, 844, 1, 1]] as const) {
  test(`readable geometry ${theme} ${width}x${height} at ${zoom}`, async ({page}, info) => {
   await page.setViewportSize({width, height}); await page.emulateMedia({reducedMotion: 'reduce'}); await setup(page, true);
   await expect(page.locator('.workspace-host')).toBeVisible();
@@ -368,4 +384,65 @@ test('keyboard entry into a virtual agent keeps focus on that card', async ({pag
  await expect(destination).toHaveCount(0);
  await page.keyboard.press('ArrowLeft');
  await expect(destination).toBeFocused();
+});
+
+
+for (const [status, label, action] of [['awaiting_input', 'Awaiting input', 'Awaiting input · Reading project sources'], ['ready', 'Ready', 'Reading project sources'], ['failed', 'Failed', 'Failed · Reading project sources']] as const) test(`header status does not compete with the title: ${status}`, async ({page}) => {
+ await setup(page, false, false, false, status);
+ const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), header = parent.locator(':scope > header');
+ await expect(header.locator('.agents-agent-state')).toHaveText(label);
+ await expect(header.locator('.agents-agent-state')).toHaveClass(/sr-only/);
+ await expect(header.locator('.agents-status-dot')).toHaveAttribute('title', label);
+ expect(await header.locator('.agents-agent-state').evaluate(node => getComputedStyle(node).position)).toBe('absolute');
+ await expect(parent.locator(':scope > .agents-activity')).toHaveText(action);
+});
+
+test('empty history and retry remain available in the collapsed preview and expanded log', async ({page}) => {
+ const h = await setup(page, false, false, true);
+ let failed = true;
+ await page.route('**/api/agents/history?*', route => {
+  const agentId = new URL(route.request().url()).searchParams.get('agentId')!;
+  return failed ? route.fulfill({status: 503, json: {error: {code: 'TEMPORARY', message: 'History temporarily unavailable'}}}) : route.fulfill({json: {authority: 'personal', agentId, threadId: agentId, sequence: 10, nextCursor: null, messages: []}});
+ });
+ try {
+  h.release();
+  const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true}), preview = parent.locator('.agents-preview');
+  await expect(preview.getByRole('button', {name: 'Retry history', exact: true})).toBeVisible();
+  failed = false; await preview.getByRole('button', {name: 'Retry history', exact: true}).click();
+  await expect(preview).toHaveText('No messages yet.');
+  await expandTranscript(page);
+  await expect(parent.getByRole('log')).toContainText('No messages yet.');
+  await parent.getByRole('button', {name: 'Hide transcript', exact: true}).click();
+  await expect(parent.getByRole('log')).toHaveCount(0);
+  await expect(preview).toHaveText('No messages yet.');
+ } finally {h.release();}
+});
+
+test('expansion state survives virtualization and density and motion policies apply', async ({page}) => {
+ await setup(page, true);
+ const parent = page.getByRole('group', {name: 'Agent parent-00', exact: true});
+ await expandTranscript(page); await expandChild(page, 'child-active');
+ const child = parent.getByRole('group', {name: 'Agent child-active', exact: true});
+ await expect(child).toBeVisible();
+ await page.getByRole('button', {name: 'Search agents', exact: true}).focus();
+ const projects = page.locator('.agents-projects');
+ await projects.evaluate(node => {node.scrollTop = node.scrollHeight;}); await expect(parent).toHaveCount(0);
+ await projects.evaluate(node => {node.scrollTop = 0;});
+ await expect(parent.getByRole('button', {name: 'Hide transcript', exact: true})).toBeVisible();
+ await expect(child).toBeVisible();
+ await page.locator('.agents-workspace').evaluate(node => {node.setAttribute('data-density', 'compact');});
+ expect(await parent.evaluate(node => getComputedStyle(node).paddingTop)).toBe('8px');
+ expect(await parent.getByRole('button', {name: 'Inspect subagent child-active', exact: true}).evaluate(node => node.getBoundingClientRect().height)).toBe(28);
+ expect(await parent.locator(':scope > header .agents-status-dot').evaluate(node => getComputedStyle(node).animationName)).toBe('agents-working');
+ for (const policy of ['reduced', 'off']) {
+  await page.evaluate(policy => {document.documentElement.dataset.motion = policy;}, policy);
+  expect(await parent.locator(':scope > header .agents-status-dot').evaluate(node => getComputedStyle(node).animationName)).toBe('none');
+  expect(await parent.locator(':scope > .agents-transcript-wrap .agents-transcript-expansion').evaluate(node => getComputedStyle(node).transitionDuration)).toBe('0s');
+ }
+ await page.evaluate(() => {delete document.documentElement.dataset.motion;});
+ await page.emulateMedia({reducedMotion: 'reduce'});
+ expect(await parent.locator(':scope > header .agents-status-dot').evaluate(node => getComputedStyle(node).animationName)).toBe('none');
+ await page.emulateMedia({reducedMotion: 'no-preference'});
+ await page.locator('.app-shell').evaluate(node => {node.setAttribute('data-panel-animations', 'false');});
+ expect(await parent.locator(':scope > header .agents-status-dot').evaluate(node => getComputedStyle(node).animationName)).toBe('none');
 });
