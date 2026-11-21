@@ -9,7 +9,7 @@ export function panelDesktopSurface(panel:PanelPlacement):DesktopSurface {
  if(panel.kind==='usage'&&b.threadId)return {kind:'usage',threadId:b.threadId};
  if(panel.kind==='navigation')return {kind:'navigation',...(b.threadId?{threadId:b.threadId}:{})};
  if(panel.kind==='browser'&&b.browserId)return {kind:'browser',browserId:b.browserId};
- const tab=['files','diff','output','usage','notes','context','terminal','pull-request','linked-pull-requests'].includes(panel.kind)?panel.kind as 'files'|'diff'|'output'|'usage'|'notes'|'context'|'terminal'|'pull-request'|'linked-pull-requests':'launcher';
+ const tab=['files','diff','output','usage','notes','context','terminal','pull-request','linked-pull-requests','database'].includes(panel.kind)?panel.kind as 'files'|'diff'|'output'|'usage'|'notes'|'context'|'terminal'|'pull-request'|'linked-pull-requests'|'database':'launcher';
  return {kind:'workspace',panelId:panel.id,tab,...(b.threadId?{threadId:b.threadId}:{})};
 }
 export function desktopSurfaceKind(surface:DesktopSurface):WorkspacePanelKind {if(surface.kind==='plugin')return 'workspace';return surface.kind==='main'?'workspace':surface.kind==='workspace'&&surface.tab&&surface.tab!=='launcher'?surface.tab:surface.kind;}

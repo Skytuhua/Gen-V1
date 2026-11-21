@@ -1,5 +1,5 @@
 import {pluginSurfaceSchema,type PluginSurface} from '../plugins/contracts.ts';
-type DesktopWorkspaceTab = 'launcher' | 'files' | 'diff' | 'output' | 'usage' | 'notes' | 'artifact' | 'context' | 'terminal' | 'pull-request' | 'linked-pull-requests';
+type DesktopWorkspaceTab = 'launcher' | 'files' | 'diff' | 'output' | 'usage' | 'notes' | 'artifact' | 'context' | 'terminal' | 'pull-request' | 'linked-pull-requests' | 'database';
 type DesktopPluginSurface=PluginSurface;
 export type DesktopSurface =
   | {kind:'main'}
@@ -50,7 +50,7 @@ export interface DesktopBridge {
 }
 export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
 const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin']);
-const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests']);
+const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests','database']);
 export function desktopId(value:unknown):value is string{return typeof value==='string'&&value.length<=200&&/^[a-zA-Z0-9_.:-]+$/.test(value)&&!['__proto__','prototype','constructor'].includes(value);}
 export function parseDesktopSurface(value:unknown):DesktopSurface {
   if(!value||typeof value!=='object'||Array.isArray(value)||Object.getPrototypeOf(value)!==Object.prototype)throw Error('Invalid desktop surface');

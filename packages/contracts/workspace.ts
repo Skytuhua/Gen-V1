@@ -6,7 +6,7 @@ import {pluginIdSchema,pluginSurfaceSchema} from '../plugins/contracts.ts';
 export const workspaceIdSchema=z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9:_.-]*$/);
 const title=z.string().trim().min(1).max(100);
 export const WORKSPACE_PRESETS=['workspace','all-agents','code-review','research','custom'] as const;
-export const WORKSPACE_PANEL_KINDS=['thread','agent','artifact','context','plan','usage','notes','navigation','workspace','browser','terminal','files','diff','output','pull-request','linked-pull-requests'] as const;
+export const WORKSPACE_PANEL_KINDS=['thread','agent','artifact','context','plan','usage','notes','navigation','workspace','browser','terminal','files','diff','output','pull-request','linked-pull-requests','database'] as const;
 export type WorkspacePreset=typeof WORKSPACE_PRESETS[number];
 export type WorkspacePanelKind=typeof WORKSPACE_PANEL_KINDS[number];
 export const workspacePresetSchema=z.enum(WORKSPACE_PRESETS);
@@ -23,7 +23,7 @@ const surfaceFields={id:workspaceIdSchema,kind:workspacePanelKindSchema,binding:
 function validateBinding(value:{kind:WorkspacePanelKind;binding:PanelBinding},context:z.RefinementCtx){
  const pluginEntity=value.binding.authority.kind==='plugin';
  if(pluginEntity&&value.kind==='plan'&&!value.binding.resourceId)context.addIssue({code:'custom',path:['binding','resourceId'],message:'A scoped plug-in plan reference is required'});
- if(!pluginEntity&&['thread','agent','artifact','plan','notes'].includes(value.kind)&&!value.binding.threadId)context.addIssue({code:'custom',path:['binding','threadId'],message:'A thread binding is required'});
+ if(!pluginEntity&&['thread','agent','artifact','plan','notes','database'].includes(value.kind)&&!value.binding.threadId)context.addIssue({code:'custom',path:['binding','threadId'],message:'A thread binding is required'});
  if(value.kind==='agent'&&!value.binding.agentId)context.addIssue({code:'custom',path:['binding','agentId'],message:'An agent binding is required'});
  if(value.kind==='artifact'&&!value.binding.artifactId)context.addIssue({code:'custom',path:['binding','artifactId'],message:'An artifact binding is required'});
  if(value.kind==='browser'&&!value.binding.browserId)context.addIssue({code:'custom',path:['binding','browserId'],message:'A browser binding is required'});

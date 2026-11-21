@@ -22,6 +22,7 @@ export {TerminalBody} from './TerminalBody.tsx';
 import './workspace-tools.css';
 import {ProjectFiles} from './files/ProjectFiles';
 import {panelLabels} from './WorkspaceControls';
+import {DatabasePanel} from './database/DatabasePanel';
 import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
@@ -59,6 +60,7 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  if(kind==='plan')return <PlanStatus snapshot={snapshot} threadId={threadId}/>;
  if(kind==='notes')return binding.threadId&&snapshot.threads.some(item=>item.id===binding.threadId)?<TaskMemory key={binding.threadId} snapshot={snapshot} threadId={binding.threadId}/>:<p className="panel-note">Choose the owning conversation to use these notes.</p>;
  if(kind==='usage')return <UsageSummary usage={threadId?snapshot.usage[threadId]:undefined}/>;
+ if(kind==='database')return <DatabasePanel binding={binding}/>;
  if(kind==='artifact')return <ArtifactSurface binding={binding} snapshot={snapshot} refresh={refresh} active={active}/>;
  if(kind==='output')return <OutputPanel snapshot={snapshot} threadId={threadId} preferences={prefs}/>;
  if(kind==='workspace')return <WorkspaceLauncher onOpenTool={onOpenTool}/>;
