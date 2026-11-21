@@ -111,7 +111,7 @@ Rows are emitted for every condition the inventory satisfies; unsatisfiable cond
 - `<kind> menu move → display <id>` — `settledOn` (displayId match + bounds inside workArea).
 - `<kind> Ctrl+Alt+Right/Left` — adjacent-display wraparound.
 - `<kind> cold restart restores <id>` — existing check, applied to every detached surface.
-- `rescue on display-removed` — programmatically verified by re-launching with the saved placement record whose display is absent **only if** physical unplugging is unavailable; physical unplug is the required primary method, simulated absence is the documented fallback and is labelled as such.
+- `rescue on display-removed` — physically disconnect the display (or disable it in OS display settings) and assert every window it held lands inside the primary work area while its placement record is retained. No simulated absence and no saved-state editing substitutes: if the operator cannot disconnect a display on that runner, this check records `unverified`.
 - `reconnect restores placement` — bounds equal the pre-disconnect bounds within ±4 DIP.
 - `deliberate move after rescue sticks` — move rescued window, restart, new display retained.
 - `attention popup placement` — assert `popup.bounds` inside `mainDisplay.workArea`, `popup.bounds.x + width = area.x + area.width − xGap` and `popup.bounds.y + height = area.y + area.height − yGap`, within ±2 DIP; repeat per scale factor.
