@@ -7,6 +7,7 @@ interface ConversationReadRouteHost {
   history(input: unknown): unknown;
   content(input: unknown): unknown;
   updates(input: unknown): unknown;
+  turns(input: unknown): unknown;
 }
 const cursor = z.string().min(1).max(2048);
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
@@ -29,4 +30,6 @@ export function registerConversationReadRoutes(app: FastifyInstance, reads: Conv
     reads.content({...scope.extend({cursor}).parse(request.query), threadId: request.params.threadId}));
   app.get<{Params: {threadId: string}}>('/api/conversations/:threadId/updates', async request =>
     reads.updates({...scope.extend({checkpoint: cursor}).parse(request.query), threadId: request.params.threadId}));
+  app.get<{Params: {threadId: string}}>('/api/conversations/:threadId/turns', async request =>
+    reads.turns({...scope.extend({turnId: z.string().regex(/^[A-Za-z0-9:_-]{1,80}$/).optional()}).parse(request.query), threadId: request.params.threadId}));
 }

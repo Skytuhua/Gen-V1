@@ -64,6 +64,9 @@ export class Store {
       CREATE TABLE IF NOT EXISTS receipts (id TEXT PRIMARY KEY, hash TEXT NOT NULL, body TEXT NOT NULL);
       INSERT OR IGNORE INTO migrations(version) VALUES (1);
     `);
+    // Superseded edit-and-rerun prompt versions never reach transcript reads
+    // (#1532); they stay in the journal for turn-disclosure reads only.
+    const activeMessage = "NOT EXISTS(SELECT 1 FROM entities sv WHERE sv.kind='turnVersion' AND sv.thread_id=entities.thread_id AND json_extract(sv.body,'$.messageId')=entities.id AND json_extract(sv.body,'$.status')='superseded')";
     this.statements = {
       get: this.db.prepare("SELECT body FROM entities WHERE kind=? AND id=?"),
       // rowid order is insertion order: callers rely on chronological message
@@ -71,10 +74,10 @@ export class Store {
       allKind: this.db.prepare("SELECT body FROM entities WHERE kind=? ORDER BY rowid"),
       allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid"),
       messageCursor: this.db.prepare("SELECT rowid FROM entities WHERE kind='message' AND id=? AND thread_id=?"),
-      messageTail: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? ORDER BY rowid DESC LIMIT ?"),
-      messageBefore: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?"),
-      messageCount: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=?"),
-      messageCountBefore: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND rowid<?"),
+      messageTail: this.db.prepare(`SELECT body FROM entities WHERE kind='message' AND thread_id=? AND ${activeMessage} ORDER BY rowid DESC LIMIT ?`),
+      messageBefore: this.db.prepare(`SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<? AND ${activeMessage} ORDER BY rowid DESC LIMIT ?`),
+      messageCount: this.db.prepare(`SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND ${activeMessage}`),
+      messageCountBefore: this.db.prepare(`SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND rowid<? AND ${activeMessage}`),
       snapshotMessages: this.db.prepare(`
         WITH groups AS (
           SELECT thread_id, COUNT(*) AS total, MIN(rowid) AS first_row
@@ -92,6 +95,7 @@ export class Store {
         SELECT entity.body, tails.total
         FROM tails CROSS JOIN entities AS entity
         WHERE entity.kind='message' AND entity.thread_id IS tails.thread_id AND entity.rowid >= tails.first_retained
+            AND NOT EXISTS(SELECT 1 FROM entities sv WHERE sv.kind='turnVersion' AND sv.thread_id=entity.thread_id AND json_extract(sv.body,'$.messageId')=entity.id AND json_extract(sv.body,'$.status')='superseded')
         ORDER BY entity.rowid
       `),
       put: this.db.prepare("INSERT INTO entities(kind,id,thread_id,body) VALUES(?,?,?,?) ON CONFLICT(kind,id) DO UPDATE SET thread_id=excluded.thread_id,body=excluded.body"),
@@ -261,6 +265,9 @@ export class Store {
       count = this.statements.messageCountBefore.get(threadId, cursor.rowid) as { count: number };
     }
     return { messages: rows.reverse().map(row => JSON.parse(row.body) as Message), truncated: count.count - rows.length };
+  }
+  supersededMessageIds(threadId: string): Set<string> {
+    return new Set((this.db.prepare("SELECT json_extract(body,'$.messageId') AS m FROM entities WHERE kind='turnVersion' AND thread_id=? AND json_extract(body,'$.status')='superseded'").all(threadId) as { m: string }[]).map(row => row.m));
   }
   subscribe(listener: (event: WorkspaceEvent) => void): () => void { this.listeners.add(listener); return () => this.listeners.delete(listener); }
   close(): void { this.listeners.clear(); this.committedEvents.length = 0; this.db.close(); }

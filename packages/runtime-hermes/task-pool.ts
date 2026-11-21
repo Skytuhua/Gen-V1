@@ -26,6 +26,8 @@ export function createHermesTaskPool(options:HermesRuntimeOptions,dependencies:H
   async compactProtected(ctx,path,modelId,accountId,protection,memoryCheckpoint){check();const engine=main.get(ctx.threadId);if(!engine?.compactProtected)throw new HarnessError('HERMES_COMPACTION_UNSUPPORTED','Protected compaction requires a retained capable source task.');return engine.compactProtected(ctx,path,modelId,accountId,protection,memoryCheckpoint);},
   nativeHistoryDigest(ctx,path,accountId){check();const engine=main.get(ctx.threadId);if(!engine?.nativeHistoryDigest)return Promise.resolve(null);return engine.nativeHistoryDigest(ctx,path,accountId);},
   history(path,account){check();return canonical.history(path,account);},
+  async captureTurnCut(path){check();return canonical.captureTurnCut!(path);},
+  async hydrateSessionGeneration(cut,input){check();return (main.get(input.threadId)??canonical).hydrateSessionGeneration!(cut,input);},
   sourceRequest(method,params){check();return canonical.sourceRequest(method,params);},sourceTool(params,authority){check();return canonical.sourceTool(params,authority);},
   async cancelBackground(){await Promise.all([...engines].map(engine=>engine.cancelBackground()));},
   async refreshIntegrations(disabledIds){check();await Promise.all([...engines].map(engine=>engine.refreshIntegrations(disabledIds)));},

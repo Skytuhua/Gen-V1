@@ -79,7 +79,9 @@ import {ExternalIntakeCoordinator,type IntakeAuth} from './external-intake.ts';
 import type {ModelRequestGate} from '../runtime/model-capacity.ts';
 import type {BackgroundWorkKind} from '../contracts/background-work.ts';
 
-type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1};
+type Outbox = WorkbenchQueuedInput & {messageId?:string;completedWrite?:CompletedWriteReceipt;hookClaimed?:boolean;hookDiagnostic?:WriteHookDiagnostic;sendMode?:SendModeV1;turnCutPath?:string;turnId?:string};
+type TurnAnchor={id:string;threadId:string;originalMessageId:string;activeVersionId:string;revision:number;turnCutPath:string;generationId?:string};
+type TurnVersion={id:string;threadId:string;turnId:string;version:number;messageId:string;inputId:string;status:'active'|'superseded';createdAt:string};
 type Lease = { id: string; threadId: string; clientId: string; fields: string[]; expiresAt: number };
 type FinishRecord = { inputIds: string[]; invalidated?: boolean; [key: string]: unknown };
 const text = (p: Record<string, unknown>, key: string, max = 128 * 1024): string => {
@@ -1073,7 +1075,7 @@ export class Service {
     }
     const target=command.threadId?this.store.get<Thread>('thread',command.threadId):null;
     if(target?.kind==='delegate'&&!['thread.rename','thread.presentation','thread.archive','thread.restore'].includes(command.type))throw new HarnessError('DELEGATE_READ_ONLY','Delegated transcripts are read-only. Control their work from the parent task.');
-    const preempts=['message.send','run.resume','run.compact','run.stop','thread.archive','settings.update','action.submit','request.respond','request.detail','operation.approve','operation.reject','learning.curate'].includes(command.type)||command.type.startsWith('account.');
+    const preempts=['message.send','message.editRerun','run.resume','run.compact','run.stop','thread.archive','settings.update','action.submit','request.respond','request.detail','operation.approve','operation.reject','learning.curate'].includes(command.type)||command.type.startsWith('account.');
     if(!preempts)return this.executeCommand(command);
     // Hold admission through asynchronous model discovery/history/teardown. A
     // previous reply settling in that interval must not start optional work.
@@ -1121,7 +1123,7 @@ export class Service {
       if(projectId&&(!project||project.authority?.kind!=='local'))throw new HarnessError('CAPABILITY_DENIED','Choose a connected personal project.');
       const thread: Thread = { id: randomUUID(),kind:parent?'side':'main',...(projectId?{projectId}:{}),...(parent?.workspaceId?{workspaceId:parent.workspaceId}:{}), title: typeof p.title === "string" ? p.title.slice(0, 140) || "New thread" : parent?'Side question':"New thread", projectName:project?.name??(typeof p.projectName === "string" ? p.projectName : parent?.projectName??null), createdAt: now(), updatedAt: now(), status: "ready", epoch: 0, runId: null, modelId: null, sessionPath: null,...(parent?{sideParentId:parent.id,parentThreadId:parent.id,mode:'plan' as const,...(this.isAccountBound(parent)?{accountId:parent.accountId??null,modelId:parent.modelId}:{})}:{}) };
       this.store.put("thread", thread.id, thread.id, thread);
-      if(parent)this.store.put('sideContext',thread.id,thread.id,{parentId:parent.id,title:parent.title,capturedAt:now(),messages:this.store.all<Message>('message',parent.id).filter(message=>message.role!=='activity').slice(-8).map(message=>({id:message.id,role:message.role,content:message.content.slice(0,1500)}))});
+      if(parent){const sup=this.store.supersededMessageIds(parent.id);this.store.put('sideContext',thread.id,thread.id,{parentId:parent.id,title:parent.title,capturedAt:now(),messages:this.store.all<Message>('message',parent.id).filter(message=>message.role!=='activity'&&!sup.has(message.id)).slice(-8).map(message=>({id:message.id,role:message.role,content:message.content.slice(0,1500)}))});}
       return thread;
     });
     if (command.type === "settings.update") return this.store.command(command, () => {
@@ -1171,6 +1173,7 @@ export class Service {
     }
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
     if (command.type === "message.send") return this.sendMessage(command, thread);
+    if (command.type === "message.editRerun") return this.editRerun(command, thread);
     if (command.type === "run.stop") {
       const pending=[...this.teardowns.values()].find(owner=>owner.ctx.threadId===thread.id);
       const ctx = !thread.runId&&pending?pending.ctx:{ threadId: thread.id, runId: thread.runId ?? "", epoch: thread.epoch };
@@ -1547,6 +1550,58 @@ export class Service {
       throw error;
     }
   }
+  /** Edit the newest user prompt in place and rerun it (#1532 T02). The
+   * admission flips the turn's active pointer, persists the new attempt and
+   * enqueues its input in one transaction; dispatch loads only the immutable
+   * pre-turn cut under a fresh generation namespace. */
+  private async editRerun(command: HostCommand, thread: Thread) {
+    const p=command.payload;
+    if(typeof p!=='object'||p===null||Object.keys(p).some(k=>!['messageId','expectedRevision','content'].includes(k)))throw new HarnessError('INVALID_INPUT','The edit payload carries unsupported fields.');
+    const messageId=text(p,'messageId',200),content=text(p,'content',64*1024),expectedRevision=p.expectedRevision;
+    if(typeof expectedRevision!=='number'||!Number.isSafeInteger(expectedRevision)||expectedRevision<0)throw new HarnessError('STALE_REVISION','The edit head is stale.');
+    if(!content.trim())throw new HarnessError('INVALID_INPUT','The edited prompt cannot be blank.');
+    this.assertNoOtherRun(thread.id);
+    const idle=(t:Thread)=>t.runId===null&&['ready','completed'].includes(t.status)&&!this.store.get('archivedThread',t.id)&&!this.hasGate(t.id)&&!this.store.all<Outbox>('outbox',t.id).some(i=>i.status!=='handled')&&!this.store.all<Operation>('operation',t.id).some(op=>['prepared','running','unknown'].includes(op.status));
+    if(thread.sideParentId||thread.kind==='side'||thread.kind==='delegate'||thread.mode==='plan'||!idle(thread)||this.store.all<Thread>('thread').some(t=>t.runId)||this.reviewing)throw new HarnessError('RUN_BUSY','Only an idle main conversation admits prompt editing.');
+    const message=this.store.get<Message>('message',messageId);
+    if(!message||message.threadId!==thread.id||message.role!=='user')throw new HarnessError('EDIT_UNAVAILABLE','Only a user prompt can be edited.');
+    const users=this.store.all<Message>('message',thread.id).filter(m=>m.role==='user');
+    if(users[users.length-1]?.id!==messageId)throw new HarnessError('EDIT_UNAVAILABLE','Only the newest prompt can be edited.');
+    const versionRow=this.store.all<TurnVersion>('turnVersion',thread.id).find(v=>v.messageId===messageId&&v.status==='active');
+    const turnId=versionRow?versionRow.turnId:messageId;
+    const anchor=this.store.get<TurnAnchor>('turn',turnId)??null;
+    if(anchor&&anchor.activeVersionId!==versionRow!.id)throw new HarnessError('EDIT_UNAVAILABLE','Only the active version can be edited.');
+    if((anchor?.revision??0)!==expectedRevision)throw new HarnessError('STALE_REVISION','The prompt changed while editing.',{currentRevision:anchor?.revision??0});
+    if(content===message.content)throw new HarnessError('INVALID_INPUT','The edited prompt is unchanged.');
+    const originalInput=this.store.all<Outbox>('outbox',thread.id).find(i=>i.messageId===(anchor?this.store.all<TurnVersion>('turnVersion',thread.id).find(v=>v.turnId===turnId&&v.version===1)?.messageId:messageId));
+    if(!originalInput||originalInput.turnCutPath===undefined)throw new HarnessError('EDIT_UNAVAILABLE','This prompt has no captured native cut.');
+    const adapter=this.runtime as {captureTurnCut?:unknown;hydrateSessionGeneration?:(cut:string|null,input:StartRun)=>Promise<string>};
+    if(typeof adapter.hydrateSessionGeneration!=='function')throw new HarnessError('EDIT_RERUN_UNSUPPORTED','This runtime cannot prove generation custody.');
+    const generation='g'+randomUUID().replace(/-/g,'').slice(0,16);
+    const genPath=await adapter.hydrateSessionGeneration(originalInput.turnCutPath||null,{threadId:thread.id,runId:'',epoch:thread.epoch,prompt:'',modelId:thread.modelId!,sessionPath:null,sessionGeneration:generation,accountId:thread.accountId??null,inputId:'staged',inputIds:[],resources:[]});
+    try{
+      const receipt=this.store.command(command,()=>{
+        const current=this.thread(thread.id);
+        if(!current||!idle(current)||this.store.all<Thread>('thread').some(t=>t.runId))throw new HarnessError('RUN_BUSY','The conversation is not idle.');
+        const latestAnchor=this.store.get<TurnAnchor>('turn',turnId);
+        if((latestAnchor?.revision??0)!==expectedRevision)throw new HarnessError('STALE_REVISION','The prompt changed while editing.',{currentRevision:latestAnchor?.revision??0});
+        if(!latestAnchor)this.store.put('turnVersion',randomUUID(),thread.id,{id:randomUUID(),threadId:thread.id,turnId,version:1,messageId,inputId:originalInput.id,status:'superseded',createdAt:now()});
+        else for(const v of this.store.all<TurnVersion>('turnVersion',thread.id).filter(v=>v.turnId===turnId&&v.status==='active'))this.store.put('turnVersion',v.id,thread.id,{...v,status:'superseded'});
+        const newMessage:Message={id:randomUUID(),threadId:thread.id,role:'user',content,createdAt:now(),runId:null,turnId};
+        const v2:TurnVersion={id:randomUUID(),threadId:thread.id,turnId,version:expectedRevision+2,messageId:newMessage.id,inputId:command.id,status:'active',createdAt:now()};
+        this.store.put('turnVersion',v2.id,thread.id,v2);
+        this.store.put('turn',turnId,thread.id,{id:turnId,threadId:thread.id,originalMessageId:anchor?anchor.originalMessageId:messageId,activeVersionId:v2.id,revision:expectedRevision+1,turnCutPath:originalInput.turnCutPath,generationId:generation});
+        this.store.put('message',newMessage.id,thread.id,newMessage);
+        this.enqueueInput({id:command.id,threadId:thread.id,content,status:'persisted',runId:null,messageId:newMessage.id,turnCutPath:originalInput.turnCutPath,turnId});
+        this.store.put('thread',thread.id,thread.id,{...current,sessionPath:genPath,sessionGeneration:generation,status:'ready',error:null,updatedAt:now()});
+        return {turnId,versionId:v2.id,messageId:newMessage.id,inputId:command.id};
+      });
+      this.backgroundWork.noteForegroundAdmission(thread.id);
+      this.background(this.deliverOutbox(thread.id));
+      return receipt;
+    }catch(failure){await import('node:fs/promises').then(fs=>fs.unlink(genPath).catch(()=>{}));throw failure;}
+  }
+
   private async resume(command: HostCommand, thread: Thread) {
     this.assertNoOtherRun(thread.id);
     if (thread.runId) throw new HarnessError("RUN_BUSY", "Thread is already working");
@@ -1642,6 +1697,11 @@ export class Service {
     const ctx = { threadId, runId: thread.runId ?? randomUUID(), epoch: thread.runId ? thread.epoch : thread.epoch + 1 };
     const binding=this.binding(thread,modelProvider(modelId));
     const completedWrites:CompletedWriteReceipt[]=[];
+    // Immutable pre-turn cut for prompt edit-and-rerun (#1532): capture the
+    // exact pre-admission native state once per new foreground run. '' marks
+    // the provably empty-history cut; absent means the prompt is not editable.
+    const turnCutPath=thread.sideParentId||thread.runId||typeof this.runtime.captureTurnCut!=='function'?undefined
+      :thread.sessionPath?(await this.runtime.captureTurnCut(thread.sessionPath).then(c=>c.path,()=>undefined)):!this.store.all<Outbox>('outbox',threadId).some(i=>i.runId!==null)?'':undefined;
     this.store.internal("input.processing", threadId, () => {
       for (const input of inputs) this.assertSavedInput(input);
       this.assertBinding(this.thread(threadId),modelProvider(modelId),binding);
@@ -1659,7 +1719,7 @@ export class Service {
           claimed={hookClaimed:true,hookDiagnostic:{operationId:receipt.operationId,revision:receipt.revision,inputId:input.id,status:overflow?'failed':valid?'unknown':'stale',message:overflow?'Post-edit hook batch limit exceeded; the approved write remains succeeded.':valid?'Hook delivery claimed; completion is not yet known.':'The approved write no longer matches its source owner.'}};
           if(valid&&!overflow)completedWrites.push({...receipt,delivery:ctx});
         }
-        this.store.put("outbox", input.id, threadId, { ...input,...claimed,status: "processing", runId: ctx.runId, enteredRuntime: false });
+        this.store.put("outbox", input.id, threadId, { ...input,...claimed,...(turnCutPath!==undefined?{turnCutPath}:{}),status: "processing", runId: ctx.runId, enteredRuntime: false });
         if(receipt){const op=this.store.get<Operation>('operation',receipt.operationId);if(op)this.operationData(op);}
       }
       if(before)this.requestCustody.advanceAdmission(before,this.requestBasis(this.thread(threadId),modelId,thread.thinkingLevel));
@@ -1673,7 +1733,7 @@ export class Service {
     if(!requestContextId&&this.source&&!thread.sideParentId&&contents.some(content=>/^\/learn(?:\s|$)/i.test(content.trim())))try{contents=await Promise.all(contents.map(async content=>/^\/learn(?:\s|$)/i.test(content.trim())?(await this.source!.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:content.trim().replace(/^\/learn\s*/i,'')})).prompt:content));}catch(error){this.runtimeFailure(ctx,error);return;}
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
-    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, ...(thread.sessionGeneration?{sessionGeneration:thread.sessionGeneration}:{}), inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
