@@ -48,6 +48,7 @@ import {LoadingState} from './LoadingState';
 import {SurfaceBoundary} from './SurfaceBoundary';
 import {ComposerSkeleton, ConversationSkeleton, SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ComposerAttachments} from './ComposerAttachments';
+import {pastedImageFiles} from './pasted-images';
 import {Modal} from '../../../packages/ui-shell/Modal';
 import {SessionBranchLineage, SessionBranchMenu, useSessionBranchOverview} from './SessionBranchMenu';
 import {toast,Toaster} from '../../../packages/ui-shell/Toast';
@@ -428,7 +429,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       <ComposerCommands ref={commands} input={input} draft={draft} threadId={thread?.id} projectId={thread?.projectId} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onModel={()=>modelPicker.current?.open()} onMode={chooseMode}/>
       <div className="composer-entry-row">
       <div className="composer-input">
-        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
+        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={event => { prediction.dismiss(); const images = pastedImageFiles(event.clipboardData, new Date()); if (!images.length) return; event.preventDefault(); if (busy || retry) return; void upload(images); }} onCompositionStart={prediction.dismiss} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
           const submitKey = event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey);
           if (submitKey && /^\/(?:btw|side)$/i.test(draft.trim())) { event.preventDefault(); void send(); return; }
