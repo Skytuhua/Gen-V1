@@ -1,5 +1,5 @@
 import {expect, it} from 'vitest';
-import {commandToken, replaceCommandToken, skillBindingSchema} from '../apps/web/src/composer-commands';
+import {builtinCommands, commandToken, replaceCommandToken, skillBindingSchema} from '../apps/web/src/composer-commands';
 
 it('finds slash commands at the caret after text without interpreting URLs or paths', () => {
   expect(commandToken('Please explain /', 16)).toEqual({start: 15, end: 16, query: ''});
@@ -15,6 +15,10 @@ it('replaces only the exact command token and preserves surrounding text and car
   const text = 'Before /mod after', token = commandToken(text, 11)!;
   expect(replaceCommandToken(text, token)).toEqual({text: 'Before  after', caret: 7});
   expect(() => replaceCommandToken('changed', token)).toThrow();
+});
+it('offers the deferred /snippets builtin only when an onSnippets handoff exists', () => {
+  expect(builtinCommands(true).map(item => item.id)).toEqual(['model', 'plan', 'default', 'snippets']);
+  expect(builtinCommands(false).map(item => item.id)).toEqual(['model', 'plan', 'default']);
 });
 it('admits a bounded Personal selection identity without converting literal text into a skill', () => {
   const ref = {version: 1, scope: {kind: 'personal'}, sourceId: 'personal:test', skillId: 'id', locator: 'a'.repeat(64), revision: 'b'.repeat(64), digest: 'c'.repeat(64), sourceBinding: 'd'.repeat(64)};

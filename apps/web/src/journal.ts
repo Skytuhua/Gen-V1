@@ -141,6 +141,27 @@ export async function journalReadRecord<T>(key: string): Promise<JournalRecord<T
   });
 }
 export async function journalRead<T>(key: string): Promise<T | undefined> { return (await journalReadRecord<T>(key))?.value; }
+/** Durable read for keys whose cross-window notice may have been missed: reconciles
+ * the durable record into memory and notifies subscribers, but never downgrades a
+ * staged/pending or locally newer record (same ordering as the channel handler). */
+export async function journalRefreshRecord<T>(key: string): Promise<JournalRecord<T> | undefined> {
+  return observeJournalOperation([key],'read',async()=>{
+  const staged = pendingRecord(key);
+  const db = await open();
+  const record = await new Promise<JournalRecord<T> | undefined>((resolve, reject) => {
+    const request = db.transaction('entries').objectStore('entries').get(key);
+    request.onsuccess = () => resolve(request.result as JournalRecord<T> | undefined);
+    request.onerror = () => reject(request.error);
+  });
+  if (staged && staged.generation !== record?.generation) return memory.get(key) as JournalRecord<T> | undefined;
+  const previous = memory.get(key);
+  if (previous && (!record || previous.updatedAt > record.updatedAt)) return previous as JournalRecord<T>;
+  if (!record) return previous as JournalRecord<T> | undefined;
+  memory.set(key, record); observeJournalRecord(key, record);
+  if (previous?.generation !== record.generation) notifyLocal(key, record.value);
+  return record;
+  });
+}
 export async function journalWrite(key: string, value: unknown) {
   const record: JournalRecord = { value, updatedAt: Math.max(Date.now(), (memory.get(key)?.updatedAt ?? 0) + 1), generation: crypto.randomUUID() };
   return observeJournalOperation([key],'write',async()=>{
