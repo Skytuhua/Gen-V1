@@ -3380,6 +3380,7 @@
     "tests/pdf-structure.test.ts",
     "tests/personal-visuals-ui.test.ts",
     "tests/personal-visuals.test.ts",
+    "tests/pi-plan-keys.test.ts",
     "tests/plan-extension-v3.test.ts",
     "tests/plan-key-connections.test.ts",
     "tests/plan-visibility.test.ts",
