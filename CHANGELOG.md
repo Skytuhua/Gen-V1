@@ -163,6 +163,10 @@ These items are in 0.6.5 scope but not merged and ship only if they pass freeze 
   compact composer, plan and workspace-surface behavior.
 - Retain a known-bad integration denial when advisory refresh fails (#936),
   rather than losing the prior denial during a failed refresh.
+- @-mention project files in the composer (#1242): suggestion index, contracts,
+  acceptance-time capture and prompt dispatch behind `ui.fileMentionsV1`
+  (default off). Flag enabling is a separate approved change after frontend
+  design review and owner acceptance.
 - Independent installed-Windows memory retention and opt-in qualification (#782):
   draft CI-only work, not completed acceptance or a user-facing feature.
 

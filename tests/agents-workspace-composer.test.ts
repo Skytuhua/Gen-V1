@@ -334,3 +334,35 @@ it('retains legacy pending excerpts when their accepted generation is unknown',a
  const owner=createSharedAgentComposers({sendParent:async()=>{},stopParent:async()=>{}});
  try{await owner.prepare(target);await owner.submit(target);expect(owner.getSnapshot(target).excerpts).toEqual([excerpt]);expect(records.get(excerptDraftKey('owner'))?.generation).toBe('newer');}finally{owner.dispose();}
 });
+it('sends only file mentions whose literal token remains in the draft',async()=>{
+ const target={kind:'conversation' as const,threadId:'owner',projectId:'p',modelId:'model',working:false};
+ const send=vi.fn(async(_input:import('../apps/web/src/agents-workspace/composer').ParentSend):Promise<void>=>{});
+ const owner=createSharedAgentComposers({sendParent:send,stopParent:async()=>{}});
+ try{
+  records.set('mentions:owner',{value:[{path:'README.md'},{path:'src/removed.ts'}],generation:'m'});
+  await owner.prepare(target);expect(owner.getSnapshot(target).fileMentions).toEqual([{path:'README.md'},{path:'src/removed.ts'}]);
+  await owner.edit(target,'Summarize @README.md now');
+  await owner.submit(target);
+  expect(send).toHaveBeenCalledExactlyOnceWith(expect.objectContaining({fileMentions:[{path:'README.md'}]}));
+  expect(records.get('mentions:owner')?.value??null).toBeNull();
+ }finally{owner.dispose();}
+});
+it('recovers journaled file mentions and freezes them in a failed send',async()=>{
+ const target={kind:'conversation' as const,threadId:'owner',projectId:'p',modelId:'model',working:false};
+ records.set('mentions:owner',{value:[{path:'docs/plan.md'},{path:'dir/a file.ts'}],generation:'m'});
+ const send=vi.fn(async(_input:import('../apps/web/src/agents-workspace/composer').ParentSend):Promise<void>=>{throw Error('Connection lost');});
+ let owner=createSharedAgentComposers({sendParent:send,stopParent:async()=>{}});
+ try{
+  await owner.prepare(target);expect(owner.getSnapshot(target).fileMentions).toEqual([{path:'docs/plan.md'},{path:'dir/a file.ts'}]);
+  await owner.edit(target,'Review @docs/plan.md and @"dir/a file.ts"');await owner.submit(target);
+  expect(send.mock.calls[0][0]).toMatchObject({content:'Review @docs/plan.md and @"dir/a file.ts"',fileMentions:[{path:'docs/plan.md'},{path:'dir/a file.ts'}]});
+  expect(records.get('agents-pending:owner')?.value).toMatchObject({fileMentions:[{path:'docs/plan.md'},{path:'dir/a file.ts'}]});
+ }finally{owner.dispose();}
+ send.mockImplementation(async()=>{});
+ owner=createSharedAgentComposers({sendParent:send,stopParent:async()=>{}});
+ try{
+  await owner.prepare(target);await owner.edit(target,'Different text without tokens');await owner.submit(target);
+  expect(send.mock.calls[1][0]).toEqual(send.mock.calls[0][0]);
+  expect(records.get('mentions:owner')?.value??null).toBeNull();
+ }finally{owner.dispose();}
+});

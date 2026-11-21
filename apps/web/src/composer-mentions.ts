@@ -1,4 +1,4 @@
-import type {FileMentionV1} from '../../../packages/contracts/index';
+import type {FileMentionV1} from '../../../packages/contracts/file-mentions';
 
 export interface MentionToken {start: number; end: number; query: string}
 

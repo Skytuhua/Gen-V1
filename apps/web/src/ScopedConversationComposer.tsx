@@ -8,6 +8,8 @@ import type {SavedDraftOwner} from './saved-drafts';
 import {ComposerAttachments} from './ComposerAttachments';
 import {ComposerView} from './ComposerView';
 import {ComposerCommands, ComposerSkillBindings, type ComposerCommandsHandle} from './ComposerCommands';
+import {ComposerMentions, type ComposerMentionsHandle} from './ComposerMentions';
+import {FILE_MENTION_LIMITS} from '../../../packages/contracts/file-mentions';
 import {ModelPicker, type ModelPickerHandle} from './ModelPicker';
 import {command, getModels} from './api';
 import {journalWrite} from './journal';
@@ -21,7 +23,7 @@ export function ScopedConversationComposer({context,composers,openConversation,r
  const target=useMemo<ConversationComposerTarget>(()=>({kind:'conversation',projectId:context.owner.projectId??undefined,threadId:context.owner.threadId,modelId,working}),[context.owner.threadId,context.owner.projectId,modelId,working]);
  const state=useSyncExternalStore(listener=>composers.subscribe(target,listener),()=>composers.getSnapshot(target));
  const desktop=useDesktop(),surface={kind:'thread' as const,threadId:context.owner.threadId},detached=useDetachedSurface(surface),pending=usePendingSurface(surface);
- const held=Boolean(context.readOnly||context.archived||detached||pending||desktop?.closing),input=useRef<HTMLTextAreaElement>(null),commands=useRef<ComposerCommandsHandle>(null),picker=useRef<ModelPickerHandle>(null);
+ const held=Boolean(context.readOnly||context.archived||detached||pending||desktop?.closing),input=useRef<HTMLTextAreaElement>(null),commands=useRef<ComposerCommandsHandle>(null),mentions=useRef<ComposerMentionsHandle>(null),picker=useRef<ModelPickerHandle>(null);
  const fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([context.scopeKey,context.owner.epoch,context.owner.runId,context.owner.status,held]);
  if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
@@ -43,10 +45,11 @@ export function ScopedConversationComposer({context,composers,openConversation,r
  }
  return <div className="scoped-owner-composer-wrap">
   <div inert={held}><ComposerView className="scoped-owner-composer" onSubmit={event=>{event.preventDefault();send();}}>
-   <textarea ref={input} aria-label="Message" placeholder={placeholder} rows={2} value={state.draft} disabled={held||!state.ready} onChange={event=>{void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||isComposing(event)||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
+   <textarea ref={input} aria-label="Message" placeholder={placeholder} rows={2} value={state.draft} disabled={held||!state.ready} onChange={event=>{void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||mentions.current?.keyDown(event)||isComposing(event)||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
    <ComposerAttachments resources={[]} excerpts={state.excerpts} disabled={held||!state.ready} onEditExcerpt={(id,text)=>composers.editExcerpt(target,id,text)} onRemoveExcerpt={id=>composers.removeExcerpt(target,id)}/>
    <ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(target,id).catch(()=>{});}}/>
    <ComposerCommands ref={commands} input={input} draft={state.draft} threadId={context.owner.threadId} projectId={context.owner.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(target,text);}} onModel={()=>picker.current?.open()} onMode={mode}/>
+   <ComposerMentions ref={mentions} input={input} draft={state.draft} owner={context.owner.projectId?{projectId:context.owner.projectId,threadId:context.owner.threadId}:undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(target,text);}} onSelect={path=>{const next=[...(state.fileMentions??[]).filter(mention=>mention.path!==path),{path}].slice(-FILE_MENTION_LIMITS.maxMentions);void journalWrite('mentions:'+context.owner.threadId,next).catch(()=>setError('File mentions could not be stored locally.'));}}/>
    <div className="scoped-owner-composer-actions">
     {savedDraftOwner&&savedDraftOwner.threadId===context.owner.threadId&&<SavedDrafts owner={savedDraftOwner} input={input} disabled={held||!state.ready||state.busy||state.retry}/>}
     <button type="button" className="quiet" aria-label="Open conversation" disabled={held||state.busy||state.stopping} onClick={()=>{void openConversation(context.owner.threadId).catch(()=>setError('The conversation could not open. Keep this draft and retry.'));}}><MessageSquare size={14}/></button>

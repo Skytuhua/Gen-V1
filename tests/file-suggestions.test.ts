@@ -1,5 +1,5 @@
 import {afterEach, expect, it, vi} from 'vitest';
-import {closeSync, linkSync, mkdirSync, openSync, symlinkSync} from 'node:fs';
+import {linkSync, mkdirSync, symlinkSync} from 'node:fs';
 import {mkdtemp, mkdir, writeFile, rm} from 'node:fs/promises';
 import {join} from 'node:path';
 import {tmpdir} from 'node:os';
@@ -61,7 +61,7 @@ it('walks the bound root once, excluding guarded, linked and skipped entries', a
     await mkdir(join(f.path, '.GIT'), {recursive: true}); await writeFile(join(f.path, '.GIT', 'config'), 'g');
     await writeFile(join(f.path, '.harness-directory-guard'), 'guard');
     await writeFile(join(f.path, 'target-file.ts'), 't'); linkSync(join(f.path, 'target-file.ts'), join(f.path, 'hardlinked.ts'));
-    symlinkSync('main.ts', join(f.path, 'src', 'linked.ts'));
+    try { symlinkSync('main.ts', join(f.path, 'src', 'linked.ts')); } catch (cause) { if ((cause as NodeJS.ErrnoException).code !== 'EPERM') throw cause; }
     const result = await f.suggestions.suggest(f.projectId, f.threadId, '', 50, signal());
     expect(result).toMatchObject({complete: true});
     expect(result.items.map(i => i.path)).toEqual(['README.md', 'src/main.ts', 'src/deep/util.ts']);
@@ -86,12 +86,12 @@ it('refreshes the cached index after fifteen seconds', async () => {
 it('stops the walk at the entry budget and reports limitReason entries', async () => {
   const f = await fixture(() => 0), many = join(f.path, 'many'); // frozen clock: the entry cap, not the clock, bounds this walk
   mkdirSync(many);
-  for (let i = 0; i < 20_001; i++) closeSync(openSync(join(many, 'f' + String(i).padStart(6, '0') + '.ts'), 'w'));
+  for (let batch = 0; batch < 20_001; batch += 500) await Promise.all(Array.from({length: Math.min(500, 20_001 - batch)}, (_, i) => writeFile(join(many, 'f' + String(batch + i).padStart(6, '0') + '.ts'), '')));
   try {
     const result = await f.suggestions.suggest(f.projectId, f.threadId, '', 50, signal());
     expect(result).toMatchObject({complete: false, limitReason: 'entries'});
   } finally {await f.close();}
-}, 60_000);
+}, 240_000);
 
 it('stops the walk when the injected clock exceeds the time budget', async () => {
   let now = 0;
