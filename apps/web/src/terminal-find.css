@@ -1,0 +1,57 @@
+.terminal-find-toggle {
+  width: 28px; height: 28px; border-radius: 7px; color: var(--muted);
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: color var(--ui-motion-hover) var(--ui-ease-enter), background var(--ui-motion-hover) var(--ui-ease-enter);
+}
+.terminal-find-toggle:hover, .terminal-find-toggle[aria-expanded="true"] {color: var(--text); background: var(--hover);}
+
+.terminal-find {
+  display: flex; align-items: center; gap: 6px; min-height: 36px; flex-shrink: 0;
+  padding: 4px var(--ui-panel-inset, 12px); border-bottom: 1px solid var(--border); background: var(--surface);
+  animation: terminal-find-in var(--ui-motion-tab) var(--ui-ease-enter);
+}
+@keyframes terminal-find-in {from {opacity: 0; transform: translateY(-4px);} to {opacity: 1; transform: none;}}
+
+.terminal-find input {
+  flex: 1 1 160px; min-width: 0; height: 28px; padding: 0 8px;
+  font: 13px/1 var(--font-mono, monospace);
+  border: 1px solid var(--control-border); border-radius: 7px;
+  background: transparent; color: var(--text);
+}
+.terminal-find input:focus {border-color: var(--accent); outline: none;}
+.terminal-find input.no-results {border-color: var(--danger);}
+
+.terminal-find-counter {
+  font-size: 12px; color: var(--muted); min-width: 72px; text-align: right;
+  font-variant-numeric: tabular-nums; white-space: nowrap;
+}
+.terminal-find-counter.no-results {color: var(--danger);}
+
+.terminal-find-case {
+  width: 28px; height: 28px; font-size: 12px; font-weight: 600; color: var(--muted);
+  border: 1px solid transparent; border-radius: 7px; background: transparent;
+  display: inline-flex; align-items: center; justify-content: center;
+}
+.terminal-find-case[aria-pressed="true"] {color: var(--accent); background: var(--hover); border-color: var(--accent);}
+
+.terminal-find button {flex-shrink: 0;}
+.terminal-find button:disabled {opacity: .5;}
+.terminal-find button:active {transform: scale(.97); transition: transform var(--ui-motion-press) var(--ui-ease-move);}
+
+@media (max-width: 360px) {
+  .terminal-find-case {border: none;}
+  .terminal-find-counter {min-width: 52px;}
+  .terminal-find input {flex-basis: 100px;}
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .terminal-find {animation-duration: var(--ui-motion-press); animation-name: terminal-find-fade;}
+  .terminal-find button:active {transform: none; transition: none;}
+}
+@keyframes terminal-find-fade {from {opacity: 0;} to {opacity: 1;}}
+:root[data-motion=reduced] .terminal-find {animation-duration: var(--ui-motion-press); animation-name: terminal-find-fade;}
+:root[data-motion=reduced] .terminal-find button:active {transform: none; transition: none;}
+:root[data-motion=off] .terminal-find {animation: none;}
+:root[data-motion=off] .terminal-find button:active {transform: none; transition: none;}
+.app-shell[data-panel-animations=false] .terminal-find {animation: none;}
+.app-shell[data-panel-animations=false] .terminal-find button:active {transform: none; transition: none;}

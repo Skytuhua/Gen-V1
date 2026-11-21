@@ -1,6 +1,9 @@
-import {useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useEffect,useId,useLayoutEffect,useRef,useState} from 'react';
+import {Search} from 'lucide-react';
 import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
+import {ariaKeyShortcuts} from './keyboard-bindings';
+import {TerminalFind} from './TerminalFind';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
 import './terminal-excerpts.css';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
@@ -8,6 +11,15 @@ export interface TerminalExcerptComposer {projectId:string;threadId:string;readO
 interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
 type Phase='starting'|'running'|'read-interrupted'|'ended'|'unconfirmed';
 const message=(error:unknown)=>error instanceof Error?error.message:'The project tool could not complete this request.';
+const FIND_HIGHLIGHT_LIMIT=1000;
+const FIND_DECORATIONS={
+ matchBackground:'#4a3b12',
+ matchBorder:'#7a6220',
+ matchOverviewRuler:'#b08a2e',
+ activeMatchBackground:'#7a5000',
+ activeMatchBorder:'#ffd166',
+ activeMatchColorOverviewRuler:'#ffd166',
+} as const;
 const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()=>{
  if(!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');
  return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});
@@ -15,20 +27,26 @@ const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()
 
 export function TerminalBody({projectId,threadId,terminalId,active,openAnother,isCurrent,excerptComposer}:{projectId:string;threadId?:string;terminalId?:string;active:boolean;openAnother?:()=>void|Promise<void>;isCurrent?:()=>boolean;excerptComposer?:TerminalExcerptComposer}){
  const [selection,setSelection]=useState<TerminalExcerpt|null>(null),[adding,setAdding]=useState(false);
+ const [findOpen,setFindOpen]=useState(false),[findQuery,setFindQuery]=useState(''),[findCaseSensitive,setFindCaseSensitive]=useState(false),[findResult,setFindResult]=useState<{index:number;count:number}|null>(null),[findAvailable,setFindAvailable]=useState(false);
  const element=useRef<HTMLDivElement>(null);
+ const findInput=useRef<HTMLInputElement|null>(null),findToggle=useRef<HTMLButtonElement|null>(null),findDebounce=useRef<ReturnType<typeof setTimeout>|undefined>(undefined),findVia=useRef<'terminal'|'button'>('terminal');
+ const findRowId=useId();
+ const openFind=(via:'terminal'|'button'='terminal')=>{findVia.current=via;setFindOpen(true);findInput.current?.focus();findInput.current?.select();};
  const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
  const key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
- const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer});
+ const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer,findOpen,findQuery,findCaseSensitive,openFind});
  // Only a committed render may move ownership: a suspended concurrent render
  // must never lend its isCurrent guard to in-flight terminal work.
- useLayoutEffect(()=>{latest.current={projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer};});
+ useLayoutEffect(()=>{latest.current={projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer,findOpen,findQuery,findCaseSensitive,openFind};});
  const pendingId=useRef<{key:string;id:string}|null>(null);
- const actions=useRef<{current:()=>boolean;retry:()=>void;stop:()=>Promise<void>}|null>(null);
+ const actions=useRef<{current:()=>boolean;retry:()=>void;stop:()=>Promise<void>;find:(query:string,caseSensitive:boolean,direction:'next'|'previous'|'refresh'|'type')=>void;clearFind:()=>void;focusTerminal:()=>void}|null>(null);
+ useEffect(()=>()=>clearTimeout(findDebounce.current),[]);
 
  useEffect(()=>{
   if(!active||!element.current)return;
   let disposed=false,confirmedId:string|undefined,cursor=0,ended=false,interrupted=false,reading=false,stopPending=false,readSequence=0;
   let timer:ReturnType<typeof setTimeout>|undefined,observer:ResizeObserver|undefined,instance:import('@xterm/xterm').Terminal|undefined;
+  let search:import('@xterm/addon-search').SearchAddon|undefined;
   const controller=new AbortController();
   const ownerCurrent=()=>!disposed&&latest.current.active&&latest.current.projectId===projectId&&latest.current.threadId===threadId&&latest.current.terminalId===terminalId&&latest.current.generation===generation&&(!latest.current.isCurrent||latest.current.isCurrent());
   const matches=(value:TerminalRead,id:string)=>{
@@ -62,7 +80,15 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
     reading=false;if(ownerCurrent()&&sequence===readSequence)setRetrying(false);
    }
   };
-  const ownedActions={current:ownerCurrent,retry:()=>{
+  const ownedActions={current:ownerCurrent,find:(query:string,caseSensitive:boolean,direction:'next'|'previous'|'refresh'|'type')=>{
+   if(!ownerCurrent()||!search||!query)return;
+   try{
+    const options={caseSensitive,regex:false,wholeWord:false,incremental:direction==='refresh'||direction==='type',decorations:FIND_DECORATIONS};
+    if(direction==='previous')search.findPrevious(query,options);else search.findNext(query,options);
+   }catch{setFindResult({index:-1,count:0});}
+  },clearFind:()=>{
+   if(ownerCurrent()){search?.clearDecorations();setFindResult(null);}
+  },focusTerminal:()=>{instance?.focus();},retry:()=>{
    if(!ownerCurrent()||!interrupted||reading||stopPending||ended)return;
    setRetrying(true);void poll();
   },stop:async()=>{
@@ -79,12 +105,19 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   }};
   actions.current=ownedActions;
   setSelection(null);setAdding(false);setPhase('starting');setError('');setAcknowledged(false);setRetrying(false);setStopping(false);
+  setFindOpen(false);setFindQuery('');setFindCaseSensitive(false);setFindResult(null);setFindAvailable(false);
   void(async()=>{
    const [{Terminal},{FitAddon}]=await Promise.all([import('@xterm/xterm'),import('@xterm/addon-fit'),import('@xterm/xterm/css/xterm.css')]);
    if(!ownerCurrent())return;
    const colors=getComputedStyle(element.current!);
-   instance=new Terminal({convertEol:false,fontSize:13,scrollback:2000,theme:{background:'#101010',foreground:'#dedede',selectionBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionInactiveBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionForeground:colors.getPropertyValue('--text').trim()||'#e6e6e6'}});
+   instance=new Terminal({allowProposedApi:true,convertEol:false,fontSize:13,scrollback:2000,theme:{background:'#101010',foreground:'#dedede',selectionBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionInactiveBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionForeground:colors.getPropertyValue('--text').trim()||'#e6e6e6'}});
    const fit=new FitAddon();instance.loadAddon(fit);instance.open(element.current!);fit.fit();
+   void import('@xterm/addon-search').then(({SearchAddon})=>{
+    if(!ownerCurrent()||!instance)return;
+    search=new SearchAddon();instance.loadAddon(search);
+    search.onDidChangeResults(event=>{if(ownerCurrent())setFindResult({index:event.resultIndex,count:event.resultCount});});
+    setFindAvailable(true);
+   }).catch(()=>{if(ownerCurrent())setFindAvailable(false);});
    let saved:string|null=null,pending:string|null=null;try{saved=localStorage.getItem(key);pending=localStorage.getItem(key+':pending');}catch{}
    const requestedId=terminalId??saved??pending??(pendingId.current?.key===key?pendingId.current.id:crypto.randomUUID());
    pendingId.current={key,id:requestedId};
@@ -98,6 +131,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    const canCapture=()=>ownerCurrent()&&latest.current.excerptComposer&&!latest.current.excerptComposer.readOnly&&latest.current.excerptComposer.projectId===projectId&&latest.current.excerptComposer.threadId===threadId;
    instance.onSelectionChange(()=>{if(!canCapture()||!confirmedId||!threadId)return;const text=instance!.getSelection();setSelection(text?captureTerminalExcerpt({terminalId:confirmedId,projectId,threadId,selection:text}):null);});
    instance.attachCustomKeyEventHandler(event=>{
+    if(!event.isComposing&&ownerCurrent()&&search&&event.key.toLowerCase()==='f'&&(event.ctrlKey||event.metaKey)&&!event.shiftKey&&!event.altKey){if(event.type==='keydown'){event.preventDefault();event.stopPropagation();latest.current.openFind('terminal');}return false;}
     if(!canCapture()||event.isComposing)return true;
     if((event.ctrlKey||event.metaKey)&&event.shiftKey&&event.key.toLowerCase()==='a'){if(event.type==='keydown'){event.preventDefault();instance!.selectAll();}return false;}
     if(event.key==='Tab'&&instance!.hasSelection())return false;
@@ -120,9 +154,12 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   pendingId.current=null;try{localStorage.removeItem(key);localStorage.removeItem(key+':pending');}catch{}
   setGeneration(value=>value+1);
  };
+ const closeFind=(focus:'terminal'|'button')=>{clearTimeout(findDebounce.current);actions.current?.clearFind();setFindOpen(false);if(focus==='terminal')actions.current?.focusTerminal();else findToggle.current?.focus();};
+ const closeFindRow=()=>closeFind(findVia.current);
+ const findNext=(direction:'next'|'previous')=>{clearTimeout(findDebounce.current);if(findQuery)actions.current?.find(findQuery,findCaseSensitive,direction);};
  const canAdd=active&&excerptComposer&&!excerptComposer.readOnly&&excerptComposer.projectId===projectId&&excerptComposer.threadId===threadId;
  const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(message(cause));}finally{if(owner.current())setAdding(false);}};
  const canStop=active&&acknowledged&&phase!=='ended'&&!stopping&&!!actions.current?.current();
  const label=stopping?'Stopping':({starting:'Starting',running:'Running','read-interrupted':'Read interrupted',ended:'Ended',unconfirmed:'Start unconfirmed'} as const)[phase];
- return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
+ return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span>{findAvailable&&<button type="button" ref={findToggle} className="quiet terminal-find-toggle" aria-label="Find in terminal" title="Find in terminal (Ctrl+F)" aria-expanded={findOpen} aria-controls={findRowId} onClick={()=>{findOpen?closeFind('button'):openFind('button');}}><Search size={14}/></button>}<button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}{findOpen&&<TerminalFind id={findRowId} query={findQuery} caseSensitive={findCaseSensitive} result={findResult} limit={FIND_HIGHLIGHT_LIMIT} inputRef={findInput} onQuery={value=>{setFindQuery(value);clearTimeout(findDebounce.current);if(value===''){actions.current?.clearFind();return;}findDebounce.current=setTimeout(()=>actions.current?.find(value,findCaseSensitive,'type'),120);}} onCaseSensitive={value=>{setFindCaseSensitive(value);if(findQuery)actions.current?.find(findQuery,value,'type');}} onNext={()=>findNext('next')} onPrevious={()=>findNext('previous')} onClose={closeFindRow}/>}<div className="xterm-host" ref={element} aria-label="Terminal output" aria-keyshortcuts={ariaKeyShortcuts(['terminal-find'])}/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
 }
