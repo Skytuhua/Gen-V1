@@ -12,7 +12,7 @@ import { networkProxySaveSchema, networkProxyDeleteSchema } from '../../packages
  */
 export function registerNetworkProxyRoutes(app: FastifyInstance, service: Service) {
   const settings = networkProxySettingsFor(service.store.dataDir);
-  void initNetworkProxyTransport(settings);
+  void initNetworkProxyTransport(settings).catch(() => {});
   app.get('/api/network-proxy', async (_request, reply) =>
     reply.header('Cache-Control', 'no-store').send(await settings.read()));
   app.put('/api/network-proxy', { bodyLimit: 32768 }, async (request, reply) => {

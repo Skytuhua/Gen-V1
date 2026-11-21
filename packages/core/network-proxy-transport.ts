@@ -1,5 +1,6 @@
 import { Agent, ProxyAgent, type Dispatcher } from 'undici';
 import { bypassesHost, type NetworkProxySettings } from './network-proxy-settings.ts';
+import { networkProxyChildEnvFor, type NetworkProxySnapshot } from './network-proxy-env.ts';
 
 /**
  * #1531 T03 — scoped proxy transport for host fetch lanes and spawned workers.
@@ -11,10 +12,8 @@ import { bypassesHost, type NetworkProxySettings } from './network-proxy-setting
  * or process.env.
  */
 
-interface Snapshot { revision: number; url: string | null; credentials: string | null; bypass: string[] }
-
 let settingsRef: NetworkProxySettings | null = null;
-let snapshot: Snapshot | null = null;
+let snapshot: NetworkProxySnapshot | null = null;
 let direct: Agent | null = null;
 let upstream: ProxyAgent | null = null;
 let upstreamRevision = -1;
@@ -24,10 +23,13 @@ export async function initNetworkProxyTransport(settings: NetworkProxySettings) 
   settingsRef = settings;
   await refreshNetworkProxyTransport();
 }
-/** Re-read the policy snapshot; call after every successful save/remove. */
+/** Re-read the policy snapshot; call after every successful save/remove.
+ *  An unreadable/corrupt policy keeps the last good snapshot (or unset) — the
+ *  settings route surfaces NETWORK_PROXY_UNAVAILABLE to the caller; transport
+ *  never downgrades a working proxy and never crashes the host. */
 export async function refreshNetworkProxyTransport() {
   if (!settingsRef) return;
-  snapshot = await settingsRef.policy();
+  try { snapshot = await settingsRef.policy(); } catch { /* keep last good snapshot */ }
 }
 
 const ensureAgents = () => {
@@ -67,15 +69,7 @@ export const networkProxyFetch: typeof fetch = (input, init?) =>
 
 /** Proxy env for spawned runtime/login processes; empty object when unset. */
 export function networkProxyChildEnv(): NodeJS.ProcessEnv {
-  if (!snapshot?.url) return {};
-  const url = new URL(snapshot.url);
-  if (snapshot.credentials) {
-    const [user, pass] = snapshot.credentials.split(/:(.*)/s);
-    url.username = user; url.password = pass;
-  }
-  const proxy = url.toString();
-  const noProxy = snapshot.bypass.join(',');
-  return { HTTP_PROXY: proxy, HTTPS_PROXY: proxy, NO_PROXY: noProxy, http_proxy: proxy, https_proxy: proxy, no_proxy: noProxy };
+  return networkProxyChildEnvFor(snapshot);
 }
 
 /** Test seam: reset cached snapshot/agents. */
