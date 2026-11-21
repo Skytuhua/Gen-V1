@@ -19,11 +19,25 @@ export function ReviewDiff({ threadId, modelId, scope, diff, head, revision, act
   const [selection, setSelection] = useState<{ path: string; side: 'new' | 'old'; start: number; end: number } | null>(null);
   const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
-  const generation = useRef(0);
+  const [announcement, setAnnouncement] = useState('');
+  const generation = useRef(0), commentsRef = useRef<ReviewComment[] | null>(null), opener = useRef<HTMLElement | null>(null);
   const load = useCallback(async () => {
     if (!active) return;
     const captured = ++generation.current;
-    try { const value = await fetchComments(threadId); if (captured === generation.current) { setEnabled(value.enabled); setComments(value.comments); setError(''); onEnabled?.(value.enabled); } }
+    try {
+      const value = await fetchComments(threadId);
+      if (captured !== generation.current) return;
+      const prior = commentsRef.current;
+      if (prior) {
+        const lines = value.comments.filter(c => { const before = prior.find(p => p.id === c.id); return before && before.status !== c.status; })
+          .map(c => `${c.anchor.path}:${c.anchor.startLine} is now ${c.status}`);
+        const removed = prior.filter(p => !value.comments.some(c => c.id === p.id)).length;
+        if (removed) lines.push(`${removed} review comment${removed === 1 ? '' : 's'} removed`);
+        if (lines.length) setAnnouncement(lines.join('. ') + '.');
+      }
+      commentsRef.current = value.comments;
+      setEnabled(value.enabled); setComments(value.comments); setError(''); onEnabled?.(value.enabled);
+    }
     catch (cause) { if (captured === generation.current) setError(message(cause)); }
   }, [threadId]);
   useEffect(() => { setComments(null); setEnabled(false); void load(); }, [load]);
@@ -38,9 +52,15 @@ export function ReviewDiff({ threadId, modelId, scope, diff, head, revision, act
   const drafts = scopeComments.filter(c => c.status === 'draft');
 
   const select = (path: string, side: 'new' | 'old', line: number, extend: boolean) => {
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     setSelection(current => extend && current && current.path === path && current.side === side
       ? { ...current, end: Math.max(line, current.start), start: Math.min(line, current.start) }
       : { path, side, start: line, end: line });
+  };
+  const closeComposer = () => {
+    setSelection(null);
+    const target = opener.current; opener.current = null;
+    if (target?.isConnected) target.focus();
   };
   const create = async () => {
     if (!selection || !draft.trim()) return;
@@ -51,7 +71,8 @@ export function ReviewDiff({ threadId, modelId, scope, diff, head, revision, act
     const anchor: ReviewCommentAnchor = { path: selection.path, side: selection.side, startLine: selection.start, endLine: selection.end, scope, head, revision, hunkHeader, ...excerptFor(texts) };
     await command('review.comment.create', { id: crypto.randomUUID(), anchor, body: draft.trim() }, threadId).then(load);
     await journalWrite(journalKey, '').catch(() => undefined);
-    setSelection(null); setDraft('');
+    setAnnouncement('Review comment saved.');
+    closeComposer(); setDraft('');
   };
   const act = async (type: string, c: ReviewComment, extra: Record<string, unknown> = {}) =>
     command(type, { id: c.id, expectedRev: c.rev, ...extra }, threadId).then(load).catch(cause => setError(message(cause)));
@@ -64,6 +85,7 @@ export function ReviewDiff({ threadId, modelId, scope, diff, head, revision, act
   };
   if (!enabled) return null;
   return <div className="review-diff" data-review-diff>
+    <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</span>
     {error && <p role="alert" className="error-text">{error}</p>}
     <div className="review-diff-toolbar">
       <label><input type="checkbox" checked={showResolved} onChange={e => setShowResolved(e.target.checked)} />Show resolved</label>
@@ -74,7 +96,7 @@ export function ReviewDiff({ threadId, modelId, scope, diff, head, revision, act
       {file.binary && <p className="panel-note">Binary file</p>}
       {file.hunks.map(hunk => <div key={hunk.header} role="group" aria-label={hunk.header}>
         <div className="review-diff-hunk">{hunk.header}</div>
-        {hunk.lines.map((row, index) => <DiffRow key={index} file={file} row={row} comments={live} selection={selection} select={select} renderComposer={selection && composerAt(file, row, selection) ? { selection, draft, setDraft, create, cancel: () => setSelection(null), journalKey } : null} act={act} />)}
+        {hunk.lines.map((row, index) => <DiffRow key={index} file={file} row={row} comments={live} selection={selection} select={select} renderComposer={selection && composerAt(file, row, selection) ? { selection, draft, setDraft, create, cancel: closeComposer, journalKey } : null} act={act} />)}
       </div>)}
     </section>)}
     {outdated.length > 0 && <details className="review-diff-outdated"><summary>{outdated.length} outdated comment{outdated.length === 1 ? '' : 's'} from an earlier revision</summary>
