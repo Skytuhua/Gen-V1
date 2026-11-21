@@ -1,0 +1,115 @@
+{
+  "sha": "e883ac0327c8",
+  "node": "v24.11.0",
+  "platform": "linux/x64",
+  "generatedAt": "2026-11-21T08:57:09.501Z",
+  "seed": {
+    "threads": 200,
+    "messages": 50
+  },
+  "budgets": {},
+  "runs": [
+    {
+      "name": "host_boot_ms",
+      "samples_ms": [],
+      "p50": 0,
+      "p95": 0,
+      "mean": 0,
+      "note": "node --import tsx apps/server/main.ts; UNAVAILABLE: Harness exited during boot: (node:32196) ExperimentalWarning: SQLite is an experimental feature and might change at any time\n(Use `node --trace-warnings ...` to show where the warning was created)\nFile access check failed — the folder could"
+    },
+    {
+      "name": "review_host_boot_ms",
+      "samples_ms": [
+        211.61,
+        92.21,
+        91.46,
+        86.97,
+        69.94
+      ],
+      "p50": 91.46,
+      "p95": 211.61,
+      "mean": 110.44,
+      "note": "in-process Store+Service+Fastify via openReviewHost; excludes the desktop guard broker"
+    },
+    {
+      "name": "snapshot_serialize_ms",
+      "samples_ms": [
+        61.17,
+        17.33,
+        18.02,
+        17.37,
+        17.19,
+        17.43,
+        16.98,
+        17.79,
+        20.38,
+        21.87,
+        13.87,
+        11.94,
+        11.73,
+        11.79,
+        19.53,
+        20.41,
+        11.98,
+        11.58,
+        11.43,
+        11.4
+      ],
+      "p50": 17.19,
+      "p95": 21.87,
+      "mean": 18.06,
+      "bytes": 2190297,
+      "note": "review host + 200 threads x 50 messages; includes per-seq JSON cache warm reads"
+    },
+    {
+      "name": "first_render_ms",
+      "samples_ms": [
+        838.34,
+        555.05,
+        555.54
+      ],
+      "p50": 555.54,
+      "p95": 838.34,
+      "mean": 649.64,
+      "note": "goto -> [data-thread-id] visible; FCP [304,264,260]"
+    },
+    {
+      "name": "split_interaction_ms",
+      "samples_ms": [
+        123.4,
+        200,
+        131.6,
+        220.2,
+        111.6,
+        132,
+        147.4,
+        116,
+        210.6,
+        124
+      ],
+      "p50": 131.6,
+      "p95": 220.2,
+      "mean": 151.68,
+      "note": "pane.split + pane.resize command -> two painted frames"
+    },
+    {
+      "name": "store_snapshot_ms",
+      "samples_ms": [
+        27.83,
+        32.58,
+        28.99,
+        27.2,
+        27.08,
+        30.66,
+        27.31,
+        27.17,
+        27.47,
+        28.74
+      ],
+      "p50": 27.47,
+      "p95": 32.58,
+      "mean": 28.5,
+      "note": "in-process Store.snapshot() on seeded data; excludes HTTP and JSON.stringify"
+    }
+  ]
+}
