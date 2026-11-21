@@ -112,16 +112,19 @@ function browserState(record:BrowserRecord){const contents=record.view.webConten
 const configuredBrowserSessions=new WeakMap<Session,Promise<void>>();
 // #1531 T04: revision-snapshotted corporate upstream for the docked Browser's
 // local proxy; refreshed over the trusted sidecar IPC on each policy notice.
-let browserUpstream:NetworkProxySnapshot|null=null,browserUpstreamRevision=-1,proxyApplyQueue:Promise<unknown>=Promise.resolve();
+let browserUpstream:NetworkProxySnapshot|null=null,browserUpstreamRevision=-1,browserUpstreamFailed=false,proxyApplyQueue:Promise<unknown>=Promise.resolve();
 function applyProxyRevision(){
  const task=proxyApplyQueue.then(async()=>{
   const value=await backendRequest('networkProxy.snapshot'),snapshot=(value.snapshot??null) as NetworkProxySnapshot|null;
+  browserUpstreamFailed=false;
   const revision=snapshot?.revision??0;if(revision===browserUpstreamRevision)return;
   browserUpstreamRevision=revision;browserUpstream=snapshot;
   // Retire stale connections before new navigation adopts the new revision.
   for(const record of browsers.values()){const session=record.view.webContents.session;await session.closeAllConnections().catch(()=>{});}
  });
- proxyApplyQueue=task.catch(()=>{});return task;
+ // A failed read with no admitted snapshot fails closed: upstream() throws and
+  // the local proxy denies external traffic until a successful apply.
+  proxyApplyQueue=task.catch(()=>{browserUpstreamFailed=!browserUpstream;});return task;
 }
 function secureBrowserSession(value:Session){
  const existing=configuredBrowserSessions.get(value);if(existing)return existing;
@@ -130,7 +133,7 @@ function secureBrowserSession(value:Session){
   if(details.url==='about:blank'||details.url.startsWith('data:')||details.url.startsWith('blob:')){callback({cancel:false});return;}
   void allowRemoteBrowserUrl(details.url).then(allow=>callback({cancel:!allow}),()=>callback({cancel:true}));
  });
- const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy({upstream:async()=>browserUpstream}));await applyProxyRevision().catch(()=>{});await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
+ const ready=(async()=>{const proxy=await (proxyPromise??=createBrowserProxy({upstream:async()=>{if(browserUpstreamFailed)throw Error('The configured proxy is unavailable.');return browserUpstream;}}));await applyProxyRevision().catch(()=>{});await value.setProxy({mode:'fixed_servers',proxyRules:'http=127.0.0.1:'+proxy.port+';https=127.0.0.1:'+proxy.port,proxyBypassRules:'<-loopback>'});await value.closeAllConnections();})();configuredBrowserSessions.set(value,ready);return ready;
 }
 const memoryExports=createMemoryExportDownloads();
 function secureSessionDownloads(value:Session){memoryExports.guard(value);}
