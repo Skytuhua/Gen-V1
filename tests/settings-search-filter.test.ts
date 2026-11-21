@@ -44,3 +44,11 @@ describe('one centralized settings search (T06)', () => {
     expect(supported.find(row => row.id === 'provider-openai')?.group).toBe('Models & accounts');
   });
 });
+
+describe('desktop-only power settings', () => {
+  it('surfaces the keep-awake rows through search on desktop only', () => {
+    expect(search('power', 'desktop').map(row => row.id)).toEqual(expect.arrayContaining(['keep-awake-tasks', 'keep-awake-schedules']));
+    expect(search('power', 'browser').map(row => row.id).filter(id => id.startsWith('keep-awake'))).toEqual([]);
+    expect(search('sleep', 'desktop').map(row => row.id)).toEqual(expect.arrayContaining(['keep-awake-tasks', 'keep-awake-schedules']));
+  });
+});

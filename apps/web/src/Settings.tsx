@@ -42,6 +42,8 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'time-format': { key: 'timeFormat', options: ['system', '12h', '24h'], labels: ['System', '12 hour', '24 hour'], description: 'Clock format for thread and activity timestamps.' },
   'archive-confirmation': { key: 'archiveConfirmation', description: 'Ask before archiving.' },
   'unpin-confirmation': { key: 'unpinConfirmation', description: 'Ask before removing a pinned thread.' },
+  'keep-awake-tasks': { key: 'keepAwakeTasks', description: 'Hold this PC awake while task runs are active. Power button sleep is ignored while a hold is active.' },
+  'keep-awake-schedules': { key: 'keepAwakeSchedules', description: 'Hold this PC awake while scheduled runs are armed.' },
   'composer-context': { key: 'showComposerContext', description: 'Show conversation capacity beside the composer.' },
   'harness-composer-predictions': { key: 'composerPredictions', description: 'Uses the selected model and subscription quota.' },
   'thread-details-items': { key: 'showThreadDetails', description: 'Show task status in the conversation header.' },
@@ -60,6 +62,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
 const row = (id: string, title: string, section: string, terms = ''): SettingsInventoryRow => ({ id, title, section, terms });
 export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('time-format', 'Time format', 'general'), row('archive-confirmation', 'Archive confirmation', 'general'), row('unpin-confirmation', 'Unpin confirmation', 'general'),
+  row('keep-awake-tasks', 'Keep the PC awake for tasks', 'general', 'power sleep battery charge suspend windows'), row('keep-awake-schedules', 'Keep the PC awake for schedules', 'general', 'power sleep wake scheduled runs'),
   row('harness-personalization', 'Appearance', 'appearance', 'theme dark light system accent custom contrast density compact comfortable touch fonts interface prompt code size radius motion speed reduced preview reset'),
   row('chat-width', 'Chat width', 'appearance', '680 760 full comfortable wide message composer'), row('word-wrap', 'Code line wrap', 'appearance'), row('harness-project-colors', 'Project colors', 'appearance', 'palette custom hex'),
   row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
@@ -150,7 +153,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     await persist({ preferences: value });
   };
   const searching = query.trim().length > 0;
-  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
+  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section && (item.platform === 'all' || item.platform === (desktop ? 'desktop' : 'browser')));
   const matches = (id: string) => rows.some(item => item.id === id);
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
@@ -158,7 +161,19 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
   const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
-  const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
+  const details = (item: SettingsInventoryRow): { description: string; after?: ReactNode; control: ReactNode } => {
+    if (item.id === 'keep-awake-schedules') {
+      const power = desktop?.state.power;
+      const locked = Boolean(!preferences.keepAwakeSchedules && power?.state === 'holding' && (power.reason === 'tasks' || power.reason === 'both'));
+      const status: Record<string, string> = { off: 'This PC sleeps normally.', idle: 'Work is armed, but the PC can still sleep between runs.', unavailable: 'Power status is unavailable — the app keeps retrying automatically.' };
+      const holdingCopy: Record<string, string> = { tasks: 'A task run is keeping this PC awake — side power-button sleep is blocked.', schedules: 'An armed schedule is keeping this PC awake — side power-button sleep is blocked.', both: 'Tasks and schedules are keeping this PC awake — side power-button sleep is blocked.' };
+      const label = power?.state === 'holding' ? holdingCopy[power.reason ?? 'both'] : (status[power?.state ?? 'off'] ?? status.off);
+      return {
+        description: `${preferenceRows[item.id]!.description}${locked ? ' Task runs already hold this PC awake; the schedule setting can change once they finish.' : ''}`,
+        after: desktop ? <p className={`settings-power-status settings-power-${power?.state ?? 'off'}`} role="status"><span className="settings-power-dot" aria-hidden="true"/>{label}</p> : undefined,
+        control: <button type="button" role="switch" aria-label={item.title} aria-checked={preferences.keepAwakeSchedules} disabled={busy || locked} className="settings-switch" onClick={() => void update({ keepAwakeSchedules: !preferences.keepAwakeSchedules })}><span/></button>
+      };
+    }
     if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
@@ -197,7 +212,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
         {rows.length === 0 && <p className="settings-empty">No matching settings.</p>}
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
-      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}</div><div className="settings-row-control">{control}</div></section>; })}
+      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, after, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}{after}</div><div className="settings-row-control">{control}</div></section>; })}
       {matches('harness-keyboard-reference') && <div data-setting-id="harness-keyboard-reference"><KeyboardReference keybindings={preferences.keybindings}/></div>}
       {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/></div>}
       {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}

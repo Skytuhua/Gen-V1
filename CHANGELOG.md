@@ -165,6 +165,10 @@ These items are in 0.6.5 scope but not merged and ship only if they pass freeze 
   rather than losing the prior denial during a failed refresh.
 - Independent installed-Windows memory retention and opt-in qualification (#782):
   draft CI-only work, not completed acceptance or a user-facing feature.
+- Opt-in "Keep the PC awake" switches for Windows (#1322): the desktop can hold a
+  `prevent-app-suspension` request only while task runs are active or schedules
+  are armed; display sleep, lid close and explicit Sleep stay unaffected, and
+  the hold releases on completion, stop, backend loss or quit.
 
 ### Known issues
 

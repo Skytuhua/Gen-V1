@@ -16,7 +16,7 @@ export const GROUPS: Record<string, string> = {
  notifications: 'Notifications & usage', browser: 'Browser', keybindings: 'Keyboard', maintenance: 'Data & recovery', about: 'About & licenses',
 };
 // Rows whose effect only exists on one platform; everything else is cross-platform.
-const PLATFORM_OVERRIDES: Record<string, SettingPlatform> = {};
+const PLATFORM_OVERRIDES: Record<string, SettingPlatform> = { 'keep-awake-tasks': 'desktop', 'keep-awake-schedules': 'desktop' };
 
 export function buildSupportedSettings(rows: readonly SettingsInventoryRow[], sections: readonly (readonly [string, string])[]): SupportedSettingRow[] {
  const labels = Object.fromEntries(sections);
