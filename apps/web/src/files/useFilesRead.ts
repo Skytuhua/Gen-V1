@@ -74,6 +74,15 @@ export function useFilesRead<T>(
 	return {
 		...visible,
 		pending: enabled && visible.pending,
-		refresh: () => setRetry((value) => value + 1),
+		// Mark same-key manual reads pending synchronously so derived UI cannot
+		// reuse the old read while the replacement is in flight.
+		refresh: () => {
+			setRetry((value) => value + 1);
+			setState((previous) =>
+				previous.key === key && enabled
+					? { ...previous, pending: true }
+					: previous,
+			);
+		},
 	};
 }

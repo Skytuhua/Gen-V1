@@ -932,3 +932,211 @@ for (const { name, text, line } of [
 			fullPage: true,
 		});
 	});
+
+declare global {
+	interface Window {
+		__clipboardFixture: { writes: string[]; failures: number };
+	}
+}
+async function clipboardWrites(page: Page) {
+	await page.addInitScript(() => {
+		const state = { writes: [] as string[], failures: 0 };
+		Object.assign(window, { __clipboardFixture: state });
+		const write = navigator.clipboard.writeText.bind(navigator.clipboard);
+		navigator.clipboard.writeText = (value: string) => {
+			state.writes.push(value);
+			return write(value);
+		};
+	});
+}
+const clipboard = (page: Page) =>
+	page.evaluate(() => window.__clipboardFixture.writes);
+async function resolveSearch(
+	page: Page,
+	matches: { path: string; line: number | null; kind?: string }[],
+) {
+	await page.evaluate((list) => {
+		const pending = window.projectSearchFixture.pending[0];
+		pending.resolve({
+			owner: {
+				...pending.request.owner,
+				workingCopyId: `copy-${pending.request.owner.projectId}`,
+				binding: "b".repeat(64),
+			},
+			matches: list.map((match) => ({
+				path: match.path,
+				kind: (match.kind ?? "text") as "text",
+				line: match.line,
+				column: match.line == null ? null : 1,
+				preview: match.path,
+				sha256: "a".repeat(64),
+			})),
+			nextCursor: null,
+			complete: true,
+			exclusions: [],
+			limits: {
+				files: 10000,
+				bytes: 33554432,
+				matches: 1000,
+				timeoutMs: 2000,
+				fileBytes: 1048576,
+			},
+			issues: [],
+			issuesTruncated: false,
+		});
+	}, matches);
+}
+
+test("a verified text hit copies path:line; a query edit keeps the accepted target", async ({
+	page,
+}) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page);
+	await projectScope(page);
+	await hits(page).first().click();
+	const copy = page.getByRole("button", { name: "Copy file reference" });
+	await expect(copy).toBeVisible();
+	await copy.click();
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts:48",
+	]);
+	expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+		"src/workspace/workspace-layout.ts:48",
+	);
+	await search(page).fill("edited");
+	await copy.click();
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts:48",
+		"src/workspace/workspace-layout.ts:48",
+	]);
+});
+
+test("a digest-stale hit falls back to the relative path", async ({ page }) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page, "?state=stale");
+	await projectScope(page);
+	await hits(page).first().click();
+	await expect(preview(page)).toContainText("changed since the search");
+	const copy = page.getByRole("button", { name: "Copy relative path" });
+	await expect(copy).toBeVisible();
+	await copy.click();
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts",
+	]);
+});
+
+test("an out-of-bounds hit line falls back to the relative path", async ({
+	page,
+}) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page, "?state=loading");
+	await projectScope(page);
+	await waitForSearchRequest(page);
+	await resolveSearch(page, [
+		{ path: "src/workspace/workspace-layout.ts", line: 200 },
+	]);
+	await hits(page).first().click();
+	await expect(preview(page)).toContainText("no longer available");
+	const copy = page.getByRole("button", { name: "Copy relative path" });
+	await expect(copy).toBeVisible();
+	await copy.click();
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts",
+	]);
+});
+
+test("a filename hit copies the project-relative path only", async ({
+	page,
+}) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page);
+	await projectScope(page);
+	await hits(page).nth(2).click();
+	const copy = page.getByRole("button", { name: "Copy relative path" });
+	await expect(copy).toBeVisible();
+	await copy.click();
+	expect(await clipboard(page)).toEqual(["tests/workspace.test.ts"]);
+});
+
+test("reselecting a hit in the same file updates the line when the read settles", async ({
+	page,
+}) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page, "?state=loading");
+	await projectScope(page);
+	await waitForSearchRequest(page);
+	await resolveSearch(page, [
+		{ path: "src/workspace/workspace-layout.ts", line: 3 },
+		{ path: "src/workspace/workspace-layout.ts", line: 7 },
+	]);
+	const copy = page.getByRole("button", { name: "Copy file reference" });
+	await hits(page).first().click();
+	await copy.click();
+	let held: import("@playwright/test").Route | undefined;
+	await page.route("**/api/projects/*/file?*", (route) => {
+		held = route;
+	});
+	await hits(page).nth(1).click();
+	await expect.poll(() => !!held).toBe(true);
+	await expect(copy).toHaveCount(0);
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts:3",
+	]);
+	await held!.fulfill({
+		json: {
+			text: Array.from(
+				{ length: 100 },
+				(_, index) => `// File line ${index + 1}`,
+			).join("\n"),
+			binary: false,
+			sha256: "a".repeat(64),
+		},
+	});
+	await copy.click();
+	expect(await clipboard(page)).toEqual([
+		"src/workspace/workspace-layout.ts:3",
+		"src/workspace/workspace-layout.ts:7",
+	]);
+});
+
+test("a line from a carriage-return file copies the verified line", async ({
+	page,
+}) => {
+	await page
+		.context()
+		.grantPermissions(["clipboard-read", "clipboard-write"]);
+	await clipboardWrites(page);
+	await fixture(page, "?state=loading");
+	await page.route("**/api/projects/*/file?*", (route) =>
+		route.fulfill({
+			json: {
+				text: "first\rneedle",
+				binary: false,
+				sha256: "a".repeat(64),
+			},
+		}),
+	);
+	await projectScope(page);
+	await waitForSearchRequest(page);
+	await resolveSearch(page, [{ path: "notes.txt", line: 2 }]);
+	await hits(page).first().click();
+	const copy = page.getByRole("button", { name: "Copy file reference" });
+	await expect(copy).toBeVisible();
+	await copy.click();
+	expect(await clipboard(page)).toEqual(["notes.txt:2"]);
+});
