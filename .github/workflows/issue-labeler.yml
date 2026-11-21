@@ -21,9 +21,10 @@ jobs:
 
             const labels = new Set();
 
-            // type
-            if (has('[tracking]', 'tracking]', 'sweep:', 'worker 1', 'worker 2', 'worker 3', 'worker 4')) labels.add('type:tracking');
-            if (has('vulnerab', 'cve-', 'security')) labels.add('type:security');
+            // type: tracking is exclusive; the rest of the chain picks one fallback type
+            const tracking = has('[tracking]', 'tracking]', 'sweep:', 'worker 1', 'worker 2', 'worker 3', 'worker 4');
+            if (tracking) labels.add('type:tracking');
+            else if (has('vulnerab', 'cve-', 'security')) labels.add('type:security');
             else if (has('flake', 'flaky', 'unit test', 'add tests', 'verify ', 'qualify ', 'acceptance')) labels.add('type:test');
             else if (has('refactor', 'remove any casts', 'dedupe', 'cleanup', 'move ')) labels.add('type:refactor');
             else if (has('document', 'docs', 'readme', 'jsdoc', '.md')) labels.add('documentation');
@@ -49,6 +50,16 @@ jobs:
             // accessibility keyword
             if (has('accessib', 'a11y', 'keyboard', 'screen reader')) labels.add('accessibility');
             if (has('flake', 'flaky', 'skipped test', 'browser spec')) labels.add('ci-test');
+
+            // never contradict an axis the author or template already labeled
+            const TYPES = new Set(['bug', 'enhancement', 'documentation']);
+            const axis = name => (name.includes(':') ? name.split(':')[0] : (TYPES.has(name) ? 'type' : name));
+            const held = new Set((issue.labels || []).map(l => (l.name || l).toString()));
+            const heldAxes = new Set([...held].map(axis));
+            for (const name of [...labels]) {
+              if (heldAxes.has(axis(name))) labels.delete(name);
+            }
+            if (!labels.size) return;
 
             await github.rest.issues.addLabels({
               owner: context.repo.owner,
