@@ -25,6 +25,7 @@ import { ShellSidebar, threadStatus } from './ShellSidebar';
 import { ProjectPicker } from './ProjectPicker';
 import { projectColorKey } from './project-colors';
 import { useShellLayout, matchesShortcut } from './shell-layout';
+import { chordFor } from './keyboard-bindings';
 import {useSidebarCollapse} from './sidebar-collapse';
 import {sameSplitWorkspaceView,createSplitWorkspaceLayout,applySplitWorkspaceCommand} from '../../../packages/core/split-workspace-layout';
 import { ResizeHandle, WorkspacePanel } from './WorkspacePanel';
@@ -523,6 +524,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const updateLiveUsageViews=useCallback((workspaceId:string,viewIds:string[])=>setLiveUsageViews(current=>current.workspaceId===workspaceId&&current.viewIds.length===viewIds.length&&current.viewIds.every((id,index)=>id===viewIds[index])?current:{workspaceId,viewIds}),[]);
   const [usageOpen,setUsageOpen]=useState(false),[usageThreadId,setUsageThreadId]=useState<string|null>(null);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [, setCommandMenuOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState('general');
   const [layout, setLayout] = useShellLayout();
   const [workspaceMode,setWorkspaceModeState]=useState<'chat'|'split'|'retained-canvas'>(()=>{try{const saved=localStorage.getItem('harness:workspace-mode:v3')??localStorage.getItem('harness:workspace-mode:v2');return saved==='split'||saved==='retained-canvas'?saved:'chat';}catch{return 'chat';}});
@@ -786,14 +788,15 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const newThreadRef = useRef<() => Promise<void>>(async()=>{}); newThreadRef.current = async()=>{if(composerPending.current||creationPending.current)return;await prepareWorkspace();openProjectSelection();};
   useEffect(() => { if(embeddedThreadId)return;const key = (event: KeyboardEvent) => {
     if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
-    if (matchesShortcut(event, preferences.keybindings.search)) { event.preventDefault(); setSidebarOpen(true); setLayout(value => ({ ...value, sidebarCollapsed: false })); requestAnimationFrame(() => searchRef.current?.focus()); }
+    if (!(event.isComposing || event.keyCode === 229) && ((matchesShortcut(event, preferences.keybindings.commandMenu) && !(event.target instanceof Element && event.target.closest('.xterm-host'))) || matchesShortcut(event, chordFor('command-menu-alias')))) { event.preventDefault(); setCommandMenuOpen(value => !value); }
+    else if (matchesShortcut(event, preferences.keybindings.search)) { event.preventDefault(); setSidebarOpen(true); setLayout(value => ({ ...value, sidebarCollapsed: false })); requestAnimationFrame(() => searchRef.current?.focus()); }
     else if (matchesShortcut(event, preferences.keybindings.newThread)) { event.preventDefault(); if (!composerPending.current) void newThreadRef.current().catch(error => setError(messageOf(error))); }
     else if (matchesShortcut(event, preferences.keybindings.toggleSidebar)) { event.preventDefault(); if (mobile) setSidebarOpen(value => !value); else setLayout(value => ({ ...value, sidebarCollapsed: !value.sidebarCollapsed })); }
     else if (matchesShortcut(event, preferences.keybindings.toggleRightPanel)) { event.preventDefault(); setLayout(value => ({ ...value, rightPanelOpen: !value.rightPanelOpen })); }
     else if (matchesShortcut(event, preferences.keybindings.openSettings)) { event.preventDefault(); setSettingsSection('general'); setSettingsOpen(true); }
     else if (matchesShortcut(event, preferences.keybindings.stop)) { const focused = snapshotRef.current.threads.find(item => item.id === placedThread.current); const owner = focused?.runId ? focused : modelThreadRef.current; if (owner?.runId) { event.preventDefault(); void stopConversation(owner, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error))); } }
     if (event.key === 'Escape') { setSidebarOpen(false);  }
-  }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [preferences.keybindings.search, preferences.keybindings.newThread, preferences.keybindings.toggleSidebar, preferences.keybindings.toggleRightPanel, preferences.keybindings.openSettings, preferences.keybindings.stop, selectedId, mobile, refresh, host?.composers]);
+  }; window.addEventListener('keydown', key); return () => window.removeEventListener('keydown', key); }, [preferences.keybindings.search, preferences.keybindings.newThread, preferences.keybindings.toggleSidebar, preferences.keybindings.toggleRightPanel, preferences.keybindings.openSettings, preferences.keybindings.stop, preferences.keybindings.commandMenu, selectedId, mobile, refresh, host?.composers]);
   const conversationMotion=useRef<ReturnType<typeof createConversationScroll>|null>(null),conversationElement=useRef<HTMLElement|null>(null);
   useEffect(()=>()=>conversationMotion.current?.dispose(),[]);
   const messages = snapshot.messages.filter(item => item.threadId === thread?.id);

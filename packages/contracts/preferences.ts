@@ -31,6 +31,7 @@ const keybindings = z.strictObject({
   search: z.string().min(1).max(80), newThread: z.string().min(1).max(80),
   toggleSidebar: z.string().min(1).max(80), toggleRightPanel: z.string().min(1).max(80),
   openSettings: z.string().min(1).max(80), stop: z.string().min(1).max(80),
+  commandMenu: z.string().min(1).max(80),
 });
 export const preferencesSchema = z.strictObject({
   density: z.enum(['compact', 'comfortable', 'touch']), uiFontSize: z.number().int().min(13).max(16),
@@ -68,7 +69,7 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   diffLayout: 'split', hideWhitespace: false, diffDefaultExpanded: true, diffColors: 'red-green',
   showThreadDetails: true, showComposerContext: true, showUsageFooter:true, wordWrap: true,
   learningEnabled:true,learningApproval:false,learningInterval:10,skillCurator:true,
-  keybindings: { search: 'Ctrl+K', newThread: 'Ctrl+Shift+O', toggleSidebar: 'Ctrl+B', toggleRightPanel: 'Ctrl+Shift+B', openSettings: 'Ctrl+Comma', stop: 'Escape' },
+  keybindings: { search: 'Ctrl+Shift+F', newThread: 'Ctrl+Shift+O', toggleSidebar: 'Ctrl+B', toggleRightPanel: 'Ctrl+Shift+B', openSettings: 'Ctrl+Comma', stop: 'Escape', commandMenu: 'Ctrl+K' },
 };
 const patchSchema = preferencesSchema.partial().extend({ keybindings: keybindings.partial().optional() }).strict();
 export function mergePreferences(current: UiPreferences, patch: unknown): UiPreferences {
@@ -106,6 +107,9 @@ function readPreferences(stored: PreferencePatch): UiPreferences {
     const result = keybindings.shape[key].safeParse(storedBindings[key]);
     if (result.success) bindings[key] = result.data;
   }
+  // Command menu migration (D1): a stored search binding left at the old
+  // default moves to the new default; an explicit user choice is kept.
+  if (!Object.hasOwn(storedBindings, 'commandMenu') && typeof storedBindings.search === 'string' && storedBindings.search.trim().toLowerCase() === 'ctrl+k') bindings.search = DEFAULT_PREFERENCES.keybindings.search;
   parsed.keybindings = bindings;
   return { ...stored, ...parsed, keybindings: { ...storedBindings, ...parsed.keybindings } };
 }

@@ -40,9 +40,21 @@ describe('UI preferences and thread presentation', () => {
   });
   it('merges keybinding changes without dropping other bindings and returns independent defaults', () => {
     const a = getPreferences({}); a.keybindings.search = 'Alt+K';
-    expect(getPreferences({}).keybindings.search).toBe('Ctrl+K');
+    expect(getPreferences({}).keybindings.search).toBe('Ctrl+Shift+F');
     const b = mergePreferences(DEFAULT_PREFERENCES, { keybindings: { search: 'Alt+K' } });
     expect(b.keybindings.newThread).toBe('Ctrl+Shift+O'); expect(b.keybindings.search).toBe('Alt+K');
+  });
+  it('migrates an unmoved search binding to Ctrl+Shift+F and keeps explicit choices (#1371 T01)', () => {
+    const defaults = getPreferences({});
+    expect(defaults.keybindings.commandMenu).toBe('Ctrl+K');
+    expect(defaults.keybindings.search).toBe('Ctrl+Shift+F');
+    expect(getPreferences({ preferences: { keybindings: { search: 'Ctrl+K' } } }).keybindings.search).toBe('Ctrl+Shift+F');
+    expect(getPreferences({ preferences: { keybindings: { search: ' ctrl+k ' } } }).keybindings.search).toBe('Ctrl+Shift+F');
+    expect(getPreferences({ preferences: { keybindings: { search: 'Ctrl+Alt+S' } } }).keybindings.search).toBe('Ctrl+Alt+S');
+    const explicit = getPreferences({ preferences: { keybindings: { search: 'Ctrl+K', commandMenu: 'Ctrl+K' } } });
+    expect(explicit.keybindings.search).toBe('Ctrl+K'); expect(explicit.keybindings.commandMenu).toBe('Ctrl+K');
+    expect(mergePreferences(DEFAULT_PREFERENCES, { keybindings: { commandMenu: 'Ctrl+P' } }).keybindings.commandMenu).toBe('Ctrl+P');
+    expect(() => mergePreferences(DEFAULT_PREFERENCES, { keybindings: { commandMenu: 'x'.repeat(81) } })).toThrow();
   });
   it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { keybindings: { executeShell: 'Ctrl+X' } }])('rejects unsupported or invalid preference values %j', value => {
     expect(() => mergePreferences(DEFAULT_PREFERENCES, value)).toThrow();
