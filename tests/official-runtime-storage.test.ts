@@ -113,6 +113,10 @@ describe('official distribution version verification',()=>{
  it('rejects an otherwise successful probe exceeding the combined output budget',async()=>{
   await expect(probe("process.stdout.write('1.2.3\\n'); process.stderr.write('note: '.repeat(12000));")).rejects.toThrow('Official version output exceeded its bound.');
  });
+ it('rejects malformed UTF-8 version output without discarding valid Unicode',async()=>{
+  await expect(probe("process.stdout.write(Buffer.from([0x31,0xc3]))")).rejects.toThrow('Invalid UTF-8 CLI version output.');
+  await expect(probe("process.stdout.write('release café 1.2.3')")).resolves.toBe('release café 1.2.3');
+ });
  it('keeps a nonempty version from a successfully exited process',async()=>{
   await expect(probe("process.stdout.write('1.2.3\\n')")).resolves.toBe('1.2.3');
  });
