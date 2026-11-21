@@ -44,7 +44,7 @@ function MemoryNote({ note, threadId, fresh = false, expanded = true, onExpanded
     try {
       const receipt = await command(remove ? 'memory.delete' : 'memory.save', remove ? { key: note.key, baseRevision: submittedRevision } : { key, content, baseRevision: submittedRevision }, threadId);
       if (submitted) await journalCompareAndSwap(journalKey, submitted, null);
-      if (alive.current && generation.current === submitted) { dirty.current = false; baseRevision.current = fresh ? 0 : (receipt.result as Note)?.revision ?? note.revision; if (fresh) { setKey(''); setContent(''); } }
+      if (alive.current && generation.current === submitted) { dirty.current = false; baseRevision.current = fresh ? 0 : (receipt.result as Note)?.revision ?? note.revision; if (fresh) { setKey(''); setContent(''); onExpandedChange?.(false); } }
       else if (alive.current && !remove && draft.current?.key === key && draft.current.baseRevision === submittedRevision) {
         // Keep later edits, but advance only the basis acknowledged for this same note.
         const saved = receipt.result as Note;
