@@ -67,3 +67,11 @@ The API requires Gen 0.6.4; packages declare supported versions. See [the public
 The React UI and Windows Electron shell share a loopback Fastify host. SQLite stores application projections and receipts. The pinned original Hermes engine owns conversation state and source skill packages. Credentials and working state remain in local app-owned directories.
 
 Model requests still leave the machine for the connected provider. Approved project tests and native runtimes run with local-user privileges. Read [architecture](../architecture.md), [security](../../SECURITY.md) and [preview limits](release-notes.md) for the practical boundaries.
+
+## Network proxy for the profile
+
+Settings → Models & Accounts → **Network proxy** sets one corporate proxy per profile. Enter an HTTP or HTTPS proxy URL (`https://proxy.example:8443`); optional credentials go in their own field and are stored in the host's protected credential storage, never in the URL, logs, IPC or child-process arguments. A comma-separated bypass list of hosts or `.suffix` entries (optional `:port`) keeps matching destinations direct; local addresses always bypass the proxy regardless of the list.
+
+The setting routes the docked Browser, sign-in flows and provider runtime traffic where each lane supports it. The docked Browser stays pinned to its local validating proxy and applies the corporate hop only to destinations that already passed the public-address, port and DNS checks; a bypassed or unset destination connects straight to the verified address. Saved changes apply to the next operation — work already running keeps the revision it started with. Removing the proxy returns new work to direct connections. If the proxy refuses a tunnel or cannot be reached, traffic fails closed with an error rather than falling back to a direct connection.
+
+Limitations: the system browser used for external sign-in pages keeps its own proxy settings. Some corporate proxies refuse `CONNECT` to numeric IP addresses or port 80, and the Browser requires those tunnels — such proxies appear configured but Browser navigation will fail closed. Prefer an HTTPS endpoint when entering credentials, since a credential-bearing HTTP hop is not encrypted between the app and the proxy. Automatic configuration (PAC/WPAD) and upstream authentication schemes other than Basic are not supported.
