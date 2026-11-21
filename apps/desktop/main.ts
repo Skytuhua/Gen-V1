@@ -24,6 +24,8 @@ import {workspaceEvents} from './workspace-events.ts';
 import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layout-transaction.ts';
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createMemoryExportDownloads} from './memory-export.ts';
+import {parseOpenProjectArgs} from './open-project-args.ts';
+import {createOpenProjectDelivery} from './open-project-delivery.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
@@ -50,6 +52,21 @@ let startup:BrowserWindow|undefined,startupTimer:ReturnType<typeof setTimeout>|u
 let proxyPromise:Promise<BrowserProxy>|undefined;
 let handoffQueue:Promise<unknown>=Promise.resolve();
 let workspaceRelay:ReturnType<typeof workspaceEvents>|undefined;
+const openProjectDelivery=createOpenProjectDelivery(()=>backendOrigin!==''&&backend!==undefined&&backend.exitCode===null&&backend.signalCode===null);
+function mainWindowRecord():WindowRecord|undefined{return [...windows.values()].find(record=>record.surface.kind==='main'&&!record.window.isDestroyed());}
+function deliverOpenProject(){
+ if(quitting||quitPending)return;
+ const main=mainWindowRecord();if(!main)return;
+ const envelope=openProjectDelivery.deliver();if(!envelope)return;
+ if(main.ready){if(!main.visible||main.window.isMinimized()){main.visible=true;if(main.window.isMinimized())main.window.restore();main.window.show();remember(main);broadcast();}main.window.focus();}
+ try{main.window.webContents.send(channels.openProject,envelope);}catch{/* A closing renderer resets readiness via its 'closed' hook. */}
+}
+function queueOpenProjectArgv(argv:readonly string[]){
+ const request=parseOpenProjectArgs(argv);
+ if(request.kind==='none')return;
+ if(request.kind==='invalid'){process.stderr.write('Open in Gen V1 request rejected: '+request.reason.slice(0,200)+'\n');return;}
+ openProjectDelivery.enqueue(request.path);deliverOpenProject();
+}
 let attentionPopups:ReturnType<typeof createAttentionPopups>|undefined,attentionNative:BrowserWindow|undefined,attentionUrl='',attentionAction:((action:AttentionPopupAction)=>void|Promise<void>)|undefined;
 let tray:Tray|undefined,hostLayout:DesktopLayout|undefined,layoutError:string|undefined,restoringLayout=true;
 function handoff<T>(action:()=>Promise<T>):Promise<T>{const next=handoffQueue.catch(()=>{}).then(action);handoffQueue=next;return next;}
@@ -166,10 +183,12 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  windows.set(id,record);broadcast();
  native.webContents.setWindowOpenHandler(details=>githubDevicePopup(details,{surface,expectedUrl:url.split('#')[0]!,currentUrl:native.webContents.mainFrame.url.split('#')[0]!},()=>shell.openExternal(GITHUB_DEVICE_URL,{activate:true})));native.webContents.on('will-attach-webview',event=>event.preventDefault());
  native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
+ native.webContents.on('did-start-navigation',(_event,_next,inPlace,mainFrame)=>{if(surface.kind==='main'&&mainFrame&&!inPlace)openProjectDelivery.rendererNotReady();});
  native.webContents.on('will-frame-navigate',event=>{if(!event.isMainFrame&&!trustedDesktopSubframe(event.url,backendOrigin,`http://localhost:${widgetPort}`))event.preventDefault();});
  native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);secureSessionDownloads(native.webContents.session);
+ if(surface.kind==='main'){const reset=()=>openProjectDelivery.rendererNotReady();native.webContents.on('did-navigate',reset);native.webContents.on('render-process-gone',reset);native.on('closed',reset);}
  native.on('close',event=>{if(!quitting){event.preventDefault();void requestClose(record).then(allow=>{if(allow)destroyWindow(record);else cancelClose(record);}).catch(()=>cancelClose(record));}});
- native.on('closed',()=>{clearTimeout(record.readyTimer);if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
+ native.on('closed',()=>{clearTimeout(record.readyTimer);if(surface.kind==='main')openProjectDelivery.rendererNotReady();if(!record.settled){record.settled=true;record.rejectReady(Error('The detached window closed before it was ready'));}windows.delete(id);if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);}broadcast();});
  const resized=()=>{remember(record);if(record.browser){const [width,height]=native.getContentSize();record.browser.view.setBounds({x:0,y:96,width,height:Math.max(0,height-96)});}};
  const manuallyPlaced=(_event:unknown,next:DesktopBounds)=>{
   if(!record.ready||native.isMaximized()||native.isMinimized()||native.isFullScreen())return;
@@ -178,7 +197,7 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  native.on('will-move',manuallyPlaced);native.on('will-resize',manuallyPlaced);
  native.on('move',resized);native.on('resize',resized);native.on('minimize',()=>broadcast());native.on('restore',()=>broadcast());
  native.webContents.on('render-process-gone',()=>{
-  if(surface.kind==='main')startupDiagnostic('main-renderer-gone');
+  if(surface.kind==='main'){startupDiagnostic('main-renderer-gone');openProjectDelivery.rendererNotReady();}
   if(record.closeRequest){clearTimeout(record.closeRequest.timer);record.closeRequest.resolve(false);record.closeRequest=undefined;}
   const wasReady=record.ready;record.ready=false;clearTimeout(record.readyTimer);
   if(quitting||!wasReady||(record.recoveries??0)>=2){record.settled=true;record.rejectReady(Error('The detached view failed to load'));loseBrowserOwner(record);native.destroy();return;}
@@ -243,6 +262,15 @@ function registerIpc(){
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
  handle(channels.ready,record=>{if(!record.ready){try{if(record.surface.kind==='browser')moveBrowser(browserRecord(record.surface.browserId),record,false);record.ready=true;record.settled=true;clearTimeout(record.readyTimer);if(record.visible)record.window.show();record.resolveReady(info(record));remember(record);broadcast();}catch(error){record.settled=true;clearTimeout(record.readyTimer);record.rejectReady(error instanceof Error?error:Error(String(error)));loseBrowserOwner(record);record.window.destroy();throw error;}}return context(record);});
  handle(channels.list,caller=>[...windows.values()].filter(record=>caller.surface.kind!=='plugin'||record.surface.kind==='plugin'&&record.surface.pluginId===caller.surface.pluginId&&record.surface.scopeId===caller.surface.scopeId).map(info));
+ handle(channels.openProjectReady,record=>{if(record.surface.kind!=='main')throw Error('Open-project requests are limited to the main workspace.');openProjectDelivery.rendererReady();deliverOpenProject();});
+ handle(channels.openProjectNotReady,record=>{if(record.surface.kind!=='main')throw Error('Open-project requests are limited to the main workspace.');openProjectDelivery.rendererNotReady();});
+ handle(channels.openProjectAck,(record,value)=>{
+  if(record.surface.kind!=='main')throw Error('Open-project requests are limited to the main workspace.');
+  if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==1)return;
+  const requestId=(value as Record<string,unknown>).requestId;
+  if(typeof requestId!=='string'||requestId.length>100)return;
+  if(openProjectDelivery.acknowledge(requestId)==='acked')deliverOpenProject();
+ });
  handle(channels.captureLayout,()=>captureLayout());
  handle(channels.applyLayout,(_record,value)=>handoff(()=>applyLayout(parseDesktopLayout(value))));
  handle(channels.control,(_caller,value)=>{const command=parseDesktopWindowControl(value),record=windows.get(command.windowId);if(!record)throw Error('Window is no longer open');if(_caller.surface.kind==='plugin'&&desktopSurfaceKey(_caller.surface)!==desktopSurfaceKey(record.surface))throw Error('This window belongs to another workspace.');if(command.type==='always-on-top')record.window.setAlwaysOnTop(command.enabled);else{if(!command.visible&&!tray)throw Error('The tray must be available before hiding a window.');record.visible=command.visible;if(command.visible){if(record.window.isMinimized())record.window.restore();record.window.show();}else record.window.hide();}remember(record);broadcast();});
@@ -323,7 +351,7 @@ async function startBackend():Promise<void>{
   if(value.nativeLayout!==undefined)try{hostLayout=parseDesktopLayout(value.nativeLayout);}catch{layoutError='The saved host workspace layout is invalid. The local backup is retained.';}
   workspaceRelay=workspaceEvents(backendOrigin,change=>{for(const record of windows.values())if(!record.window.isDestroyed())record.window.webContents.send(channels.workspaceChanged,change);},token);
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
-  backendError=undefined;broadcast();
+  backendError=undefined;broadcast();deliverOpenProject();
  },observeStartup);
  }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{}}
 }
@@ -374,7 +402,8 @@ async function closeApplication(){
 }
 
 if(!app.requestSingleInstanceLock()){app.exit(0);}else{
- app.on('second-instance',()=>{void mainWindow().catch(()=>{});});
+ queueOpenProjectArgv(process.argv);
+ app.on('second-instance',(_event,argv)=>{queueOpenProjectArgv(argv);void mainWindow().catch(()=>{});});
  app.on('window-all-closed',()=>{if(!quitting)app.quit();});
  app.on('before-quit',event=>{if(quitting)return;event.preventDefault();if(quitPending)return;quitPending=true;void closeApplication().catch(()=>{for(const record of windows.values())cancelClose(record);}).finally(()=>{quitPending=false;if(!quitting)restartForUpdate=false;});});
  void app.whenReady().then(async()=>{
