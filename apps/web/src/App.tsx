@@ -220,6 +220,7 @@ function ActionDetails({ threadId, invocationId, observationKey }: { threadId: s
   </details>;
 }
 function OperationExecutionPolicy({ kind }: { kind: string }) {
+  if (kind === 'database.transaction' || kind === 'database.migration') return <p className="muted" role="note" aria-label="Execution policy"><strong>Direct connection</strong>. Statements run in one transaction on the attached database; every write rolls back if a row count or the schema changed since preparation.</p>;
   if (kind !== 'repository.test' && kind !== 'integration.context7') return null;
   return <p className="muted" role="note" aria-label="Execution policy"><strong>Unrestricted host</strong>. Uses your local user privileges, including your account's file and network access. This operation has no isolated execution backend.</p>;
 }

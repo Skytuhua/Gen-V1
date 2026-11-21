@@ -106,6 +106,18 @@ export class DatabaseGateway {
       }
     });
   }
+  async executeWrite(connection: DatabaseConnectionV1, args: { statements: { sql: string; params?: unknown[]; expectedChanges?: number }[]; mode: 'transaction' | 'migration'; schemaDigest: string; signal?: AbortSignal }): Promise<unknown> {
+    return this.runOnLane(connection.id, async () => {
+      const adapter = await this.adapterFor(connection);
+      if (!adapter.executeWrite) throw new HarnessError('CAPABILITY_DENIED', `Write execution is not implemented for the ${connection.engine} adapter`);
+      try {
+        return await adapter.executeWrite(args);
+      } catch (cause) {
+        if (cause instanceof HarnessError) throw new HarnessError(cause.code, this.redactText(cause.message));
+        throw new HarnessError('DATABASE_ERROR', this.redactText(cause instanceof Error ? cause.message : String(cause)));
+      }
+    });
+  }
   private redactText(value: string): string { return this.redactor.redact(value).text; }
   async close(connectionId?: string): Promise<void> {
     const ids = connectionId ? [connectionId] : [...this.adapters.keys()];

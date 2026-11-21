@@ -1,6 +1,8 @@
 // PostgreSQL adapter (T03) over the `pg` driver. Read-only enforcement is
 // precheckReadOnlySql + a READ ONLY transaction per query.
 import pg from 'pg';
+import { createHash } from 'node:crypto';
+import { HarnessError } from '../contracts/index.ts';
 import type { DatabaseSchemaV1, DatabaseTls } from '../contracts/database.ts';
 import type { AdapterQuery, DatabaseAdapter, RawQueryResult } from './database-gateway.ts';
 
@@ -50,7 +52,8 @@ export class PostgresAdapter implements DatabaseAdapter {
     for (const column of columnsResult.rows) bySchema.get(column.schema)?.get(column.table)?.columns.push({ name: column.name, type: column.type, nullable: column.nullable, primaryKey: column.primaryKey });
     const schemas = [...bySchema.entries()].map(([name, tables]) => ({ name, objects: [...tables.values()] }));
     if (rows.length >= 2000) truncated = true;
-    return { version: 1, engine: 'postgres', serverVersion: String((client as unknown as { serverVersion?: string }).serverVersion ?? 'unknown'), schemas, truncated, digest: '' };
+    const digest = createHash('sha256').update(JSON.stringify(schemas)).digest('hex');
+    return { version: 1, engine: 'postgres', serverVersion: String((client as unknown as { serverVersion?: string }).serverVersion ?? 'unknown'), schemas, truncated, digest };
   }
   async query(request: AdapterQuery): Promise<RawQueryResult> {
     const client = await this.connect(request.timeoutMs);
@@ -65,6 +68,28 @@ export class PostgresAdapter implements DatabaseAdapter {
     } finally {
       await client.query('ROLLBACK').catch(() => {});
       request.signal?.removeEventListener('abort', abort);
+    }
+  }
+  /** One transaction: digest re-check, per-statement expectedChanges, rollback on any mismatch. */
+  async executeWrite(args: { statements: { sql: string; params?: unknown[]; expectedChanges?: number }[]; mode: 'transaction' | 'migration'; schemaDigest: string; signal?: AbortSignal }): Promise<{ changes: number; schemaDigest: string }> {
+    const client = await this.connect(30_000);
+    try {
+      await client.query('BEGIN');
+      const before = await this.schema();
+      if (before.digest !== args.schemaDigest) throw new HarnessError('PRECONDITION_FAILED', 'Database schema changed since preparation');
+      let changes = 0;
+      for (const statement of args.statements) {
+        const result = await client.query(statement.sql, statement.params as unknown[]);
+        if (statement.expectedChanges !== undefined && (result.rowCount ?? 0) !== statement.expectedChanges)
+          throw new HarnessError('DATABASE_ERROR', `Statement affected ${result.rowCount ?? 0} rows; expected ${statement.expectedChanges}. Rolled back.`);
+        changes += result.rowCount ?? 0;
+      }
+      await client.query('COMMIT');
+      const after = await this.schema();
+      return { changes, schemaDigest: after.digest };
+    } catch (cause) {
+      await client.query('ROLLBACK').catch(() => {});
+      throw cause;
     }
   }
   async close(): Promise<void> { await this.client?.end().catch(() => {}); this.client = null; }

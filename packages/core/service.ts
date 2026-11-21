@@ -924,6 +924,12 @@ export class Service {
     }
     return this.databaseConnections;
   }
+  /** Grid edits (T10): build a prepared database.* operation for a thread
+   * attachment through the same `database_prepare` contract agents use. */
+  async prepareDatabaseEdits(threadId: string, args: { attachmentId: string; mode: 'transaction' | 'migration'; statements: { sql: string; params?: unknown[]; expectedChanges?: number }[] }): Promise<Operation> {
+    const domain = await import('../capabilities/index.ts');
+    return domain.handleDomainTool('database_prepare', args, this.context(threadId)) as Promise<Operation>;
+  }
   publishData(threadId: string, value: unknown, provenance: string): DataRecord {
     if (Buffer.byteLength(JSON.stringify(value)) > 8 * 1024 * 1024) throw new HarnessError("INVALID_INPUT", "Dataset exceeds the 8 MiB import limit");
     const record: DataRecord = { id: randomUUID(), threadId, revision: 1, value, provenance, createdAt: now() };

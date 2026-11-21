@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CircleAlert, Copy, Database, MoreHorizontal, Play, RefreshCw, Square, Table2 } from 'lucide-react';
+import { CircleAlert, Copy, Database, MoreHorizontal, Play, RefreshCw, Square, Table2, PencilLine } from 'lucide-react';
 import { ActionMenu } from '../../../../packages/ui-shell/ActionMenu';
 import { Popover } from '../../../../packages/ui-shell/Popover';
 import { Select } from '../../../../packages/ui-shell/Select';
 import { errorMessage } from '../../../../packages/ui-shell/format-utils';
 import type { PanelBinding } from '../../../../packages/contracts/workspace.ts';
 import type { DatabaseAttachmentV1, DatabaseConnectionV1, DatabaseQueryResultV1, DatabaseSchemaV1 } from '../../../../packages/contracts/database.ts';
-import { cancelQuery, detachDatabase, fetchSchema, listThreadDatabases, runQuery } from '../database-api';
+import { cancelQuery, detachDatabase, fetchSchema, listThreadDatabases, prepareEdits, runQuery } from '../database-api';
 import { DatabaseAttachDialog } from './DatabaseAttachDialog';
 import { recordSqlHistory, SqlEditor } from './SqlEditor';
 import { SchemaTree } from './SchemaTree';
@@ -51,6 +51,10 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const [result, setResult] = useState<DatabaseQueryResultV1 | null>(null);
 	const [queryError, setQueryError] = useState('');
 	const [sentToChat, setSentToChat] = useState(false);
+	const [editing, setEditing] = useState(false);
+	const [edits, setEdits] = useState<Record<string, string>>({});
+	const [editBusy, setEditBusy] = useState(false);
+	const [editNote, setEditNote] = useState('');
 	const [selectedObject, setSelectedObject] = useState('');
 	const [narrow, setNarrow] = useState(false);
 	const [treeOpen, setTreeOpen] = useState(false);
@@ -70,6 +74,7 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	useEffect(load, [load]);
 
 	const attachment = attachments.find(row => row.id === attachmentId);
+	useEffect(() => { setEdits({}); setEditing(false); setEditNote(''); }, [attachmentId, result]);
 	const connection = connections.find(row => row.id === attachment?.connectionId);
 	const refreshSchema = useCallback((bypass = false) => {
 		if (!threadId || !attachmentId) { setSchema(null); return; }
@@ -102,6 +107,38 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const cancel = useCallback(() => {
 		if (threadId && attachmentId && running) void cancelQuery(threadId, attachmentId, running).catch(() => {});
 	}, [threadId, attachmentId, running]);
+
+	// T10: grid edits are allowed when the attachment is writable and the last
+	// query is a simple SELECT over one schema table whose primary key columns
+	// are present in the result.
+	const editTarget = useMemo(() => {
+		if (!attachment?.writable || !result || !schema) return { editable: false as const, reason: 'This attachment is read only.' };
+		const match = /^\s*select\s+[\s\S]+?\sfrom\s+(?:"([^"]+)"\s*\.\s*)?["'`\[]?([A-Za-z_][\w]*)["'`\]]?/i.exec(sql);
+		if (!match) return { editable: false as const, reason: 'Editing works on a single SELECT over one table.' };
+		const object = schema.schemas.flatMap(entry => entry.objects.map(item => ({ ...item, schemaName: entry.name }))).find(item => item.name === match[2] && (!match[1] || item.schemaName === match[1]));
+		if (!object) return { editable: false as const, reason: 'The selected table is not in the loaded schema.' };
+		const pk = object.columns.filter(column => column.primaryKey).map(column => column.name);
+		if (!pk.length) return { editable: false as const, reason: 'Editing needs a primary key' };
+		const pkIndex = pk.map(name => result.columns.findIndex(column => column.name === name));
+		if (pkIndex.some(index => index < 0)) return { editable: false as const, reason: 'Editing needs the primary key columns in the result.' };
+		return { editable: true as const, schemaName: object.schemaName, table: object.name, pk, pkIndex };
+	}, [attachment, result, schema, sql]);
+	const draft = editing && editTarget.editable ? { edits, onEdit: (rowIndex: number, columnIndex: number, value: string) => setEdits(current => ({ ...current, [`${rowIndex}:${columnIndex}`]: value })) } : undefined;
+	const readOnlyColumns = draft && editTarget.editable ? new Set(editTarget.pkIndex) : undefined;
+	const editCount = Object.keys(edits).length;
+	const reviewChanges = useCallback(() => {
+		if (!threadId || !attachmentId || !result || !editTarget.editable || !editCount) return;
+		setEditBusy(true); setEditNote('');
+		const statements = Object.entries(edits).map(([key, value]) => {
+			const [rowIndex, columnIndex] = key.split(':').map(Number);
+			const pk = editTarget.pkIndex.map((_, position) => `"${editTarget.pk[position]}"=?`).join(' AND ');
+			return { sql: `UPDATE "${editTarget.schemaName}"."${editTarget.table}" SET "${result.columns[columnIndex]!.name}"=? WHERE ${pk}`, params: [value, ...editTarget.pkIndex.map(index => result.rows[rowIndex]![index]!)], expectedChanges: 1 };
+		});
+		prepareEdits(threadId, attachmentId, statements)
+			.then(() => { setEdits({}); setEditing(false); setEditNote('Prepared for approval in the conversation.'); })
+			.catch(cause => setQueryError(errorMessage(cause, 'The changes could not be prepared.')))
+			.finally(() => setEditBusy(false));
+	}, [threadId, attachmentId, result, editTarget, edits, editCount]);
 
 	const pickObject = useCallback((schemaName: string, name: string) => {
 		setSelectedObject(`${schemaName}.${name}`);
@@ -165,11 +202,16 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 					<div className="database-results">
 						{running && <><div className="database-progress" aria-hidden="true"/><span className="database-running-static" role="status">Running…</span></>}
 						{result
-							? <QueryResultGrid result={result} density={density}/>
+							? <QueryResultGrid result={result} density={density} draft={draft} readOnlyColumns={readOnlyColumns}/>
 							: running && slowRun ? <QueryResultSkeleton/> : !running && <p className="database-empty muted">{sql.trim() ? 'Run the query to see results.' : 'Pick a table or write SQL to see results.'}</p>}
 					</div>
 					<div className="database-status">
-						<span className="muted">{result ? `${result.rowCount} rows · ${result.elapsedMs} ms · limit ${limit}${result.truncated ? ' · ' : ''}` : ''}{result?.truncated ? <span className="database-truncated">truncated</span> : ''}</span>
+						<span className="muted">{result ? `${result.rowCount} rows · ${result.elapsedMs} ms · limit ${limit}${result.truncated ? ' · ' : ''}` : ''}{result?.truncated ? <span className="database-truncated">truncated</span> : ''}{editNote && <span className="muted"> · {editNote}</span>}</span>
+						{result && attachment?.writable && <button type="button" className={editing ? 'secondary' : 'quiet'} disabled={!editTarget.editable && !editing} title={editTarget.editable ? 'Edit result cells' : editTarget.reason} aria-pressed={editing} onClick={() => { setEditing(value => !value); if (editing) setEdits({}); }}><PencilLine size={14}/> Edit</button>}
+						{editCount > 0 && <>
+							<button type="button" className="quiet" disabled={editBusy} onClick={() => setEdits({})}>Discard</button>
+							<button type="button" className="primary" disabled={editBusy} onClick={reviewChanges}>{editBusy ? 'Preparing…' : `Review changes (${editCount})`}</button>
+						</>}
 						<span className="toolbar-spacer"/>
 						{result && threadId && <button type="button" className="quiet" disabled={sentToChat} onClick={() => void sendResultToChat(threadId, result).then(() => setSentToChat(true)).catch(cause => setQueryError(errorMessage(cause, 'The result could not be quoted.')))}>{sentToChat ? 'Quoted in composer' : 'Send to chat'}</button>}
 						{result && <button type="button" className="icon-button" aria-label="Copy rows as TSV" title="Copy rows as TSV" onClick={() => void navigator.clipboard?.writeText(rowsTsv(result))}><Copy size={14}/></button>}

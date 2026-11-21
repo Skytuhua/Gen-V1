@@ -176,6 +176,7 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       if (a.attachmentId !== undefined) {
         const t = await requireAttachment(ctx, a.attachmentId);
         if (!t.attachment.writable) throw new HarnessError('CAPABILITY_DENIED', 'The database attachment is read-only.');
+        if (t.connection.engine === 'mysql' && a.mode === 'migration') throw new HarnessError('CAPABILITY_DENIED', 'MySQL attachments accept DML transactions only');
         const schema = await t.gateway.schema(t.connection, ctx.signal);
         return ctx.prepareOperation(`database.${a.mode}`, a, [], { schemaDigest: schema.digest }, `Apply ${a.statements.length} statements to ${t.connection.label}; rollback on mismatch`);
       }
@@ -240,8 +241,23 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
     }
     case "database.transaction":
     case "database.migration": {
-      const a = parse("database_prepare", operation.args); operationResources(operation, [a.attachmentId ?? a.resourceId ?? ""]); validateStatements(a);
-      if (a.attachmentId !== undefined) throw new HarnessError("CAPABILITY_DENIED", "Attachment write execution is not available yet");
+      const a = parse("database_prepare", operation.args); operationResources(operation, a.attachmentId !== undefined ? [] : [a.resourceId ?? ""]); validateStatements(a);
+      if (a.attachmentId !== undefined) {
+        const t = await requireAttachment(ctx, a.attachmentId);
+        if (!t.attachment.writable) throw new HarnessError('CAPABILITY_DENIED', 'The database attachment is read-only.');
+        if (operation.kind !== `database.${a.mode}` || !/^[a-f0-9]{64}$/.test(operation.preconditions.schemaDigest ?? "")) throw new HarnessError("INVALID_OPERATION", "Invalid database operation or schema digest");
+        if (t.connection.engine === 'mysql' && a.mode === 'migration') throw new HarnessError('CAPABILITY_DENIED', 'MySQL attachments accept DML transactions only');
+        if (t.connection.engine === 'sqlite') {
+          const result = await databaseJob({ mode: "execute", path: t.connection.sqlite!.path, statements: a.statements, expectedVersion: operation.preconditions.schemaDigest }, ctx);
+          ctx.progress("Database transaction committed", { completed: a.statements.length, total: a.statements.length, changes: result.changes ?? 0 });
+          publish(ctx, result, `operation:${operation.id}; attachment:${a.attachmentId}`); return result;
+        }
+        const schema = await t.gateway.schema(t.connection, ctx.signal);
+        if (schema.digest !== operation.preconditions.schemaDigest) throw new HarnessError("PRECONDITION_FAILED", "Database schema changed since preparation");
+        const result = await t.gateway.executeWrite(t.connection, { statements: a.statements, mode: a.mode, schemaDigest: operation.preconditions.schemaDigest, signal: ctx.signal });
+        ctx.progress("Database transaction committed", { completed: a.statements.length, total: a.statements.length });
+        publish(ctx, result, `operation:${operation.id}; attachment:${a.attachmentId}`); return result;
+      }
       if (operation.kind !== `database.${a.mode}` || !/^[a-f0-9]{64}$/.test(operation.preconditions.resourceVersion ?? "")) throw new HarnessError("INVALID_OPERATION", "Invalid database operation or version");
       const result = await access(ctx, a.resourceId!, a.path, true, path => databaseJob({ mode: "execute", path, statements: a.statements, expectedVersion: operation.preconditions.resourceVersion }, ctx));
       ctx.progress("Database transaction committed", { completed: a.statements.length, total: a.statements.length, changes: result.changes ?? 0 });
@@ -288,8 +304,16 @@ export async function reconcileDomainOperation(operation: Operation, ctx: Domain
     }
     case "database.transaction":
     case "database.migration": {
-      const a = parse("database_prepare", operation.args); operationResources(operation, [a.attachmentId ?? a.resourceId ?? ""]);
-      if (a.attachmentId !== undefined) return unknown("Attachment write execution is not available yet; outcome remains unknown.");
+      const a = parse("database_prepare", operation.args); operationResources(operation, a.attachmentId !== undefined ? [] : [a.resourceId ?? ""]);
+      if (a.attachmentId !== undefined) {
+        const t = await requireAttachment(ctx, a.attachmentId);
+        const current = t.connection.engine === 'sqlite'
+          ? await databaseJob({ mode: "inspect", path: t.connection.sqlite!.path }, ctx).then(result => ({ resourceVersion: String(result.resourceVersion ?? ''), integrity: result.integrity }))
+          : await t.gateway.schema(t.connection, ctx.signal).then(schema => ({ resourceVersion: schema.digest, integrity: 'ok' as const }));
+        const recorded = operation.result as { resourceVersion?: unknown } | undefined;
+        if (typeof recorded?.resourceVersion === "string" && recorded.resourceVersion === current.resourceVersion) return { status: "succeeded", basis: "recorded-result", result: recorded, message: "Database matches the recorded committed result version." };
+        return unknown(current.resourceVersion === operation.preconditions.schemaDigest ? "Database still matches its before version; execution history remains unknown." : "Database version changed but no matching committed after version was recorded. Outcome remains unknown; inspect before taking a new action.", { resourceVersion: current.resourceVersion });
+      }
       const current = await access(ctx, a.resourceId!, a.path, false, path => databaseJob({ mode: "inspect", path }, ctx));
       const recorded = operation.result as { resourceVersion?: unknown; changes?: unknown } | undefined;
       if (typeof recorded?.resourceVersion === "string" && recorded.resourceVersion === current.resourceVersion) return { status: "succeeded", basis: "recorded-result", result: { ...recorded, integrity: current.integrity }, message: "Database integrity is valid and bytes match the recorded committed result version." };
