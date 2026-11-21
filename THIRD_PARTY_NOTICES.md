@@ -30,3 +30,8 @@ Historical comparison frames under `docs/reference/` depict their original
 owners' products and are identified in [the reference inventory](docs/reference-videos.md).
 They are reference material, not Gen V1 product screenshots. Current product
 screenshots and captioned demos are documented in [the current media index](docs/public/media/README.md). Earlier screenshots remain in `docs/screenshots/`; both collections describe their authored sample-data scope.
+
+The MIT-licensed `pg` 8.16.3 and `mysql2` 3.15.3 packages provide the database
+browser's PostgreSQL and MySQL wire clients (issue #1350 T03). Their licenses
+remain included with the packages; connections are created only from saved
+connection profiles and stay read-only by precheck and transaction mode.

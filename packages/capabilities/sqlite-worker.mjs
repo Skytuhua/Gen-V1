@@ -54,6 +54,28 @@ try {
     db.setAuthorizer(null);
     const after = hash(); if (after !== before) throw new Error("Database changed while being inspected");
     parentPort.postMessage({ result: { resourceVersion: before, integrity: "ok", schema: definitions, rows, totalRows, rowsTruncated, journalMode } });
+  } else if (mode === "query") {
+    // Read-only query mode (T03): the authorizer denies every action but
+    // SELECT reads and scalar functions; params come in as bound values.
+    const deniedWrites = [...new Set([...[], C.SQLITE_INSERT, C.SQLITE_UPDATE, C.SQLITE_DELETE, C.SQLITE_ATTACH, C.SQLITE_DETACH, C.SQLITE_PRAGMA, C.SQLITE_TRANSACTION, C.SQLITE_SAVEPOINT, C.SQLITE_CREATE_VTABLE, C.SQLITE_DROP_VTABLE, C.SQLITE_CREATE_TRIGGER, C.SQLITE_CREATE_TEMP_TRIGGER, C.SQLITE_CREATE_TEMP_TABLE, C.SQLITE_CREATE_TEMP_INDEX, C.SQLITE_CREATE_TEMP_VIEW, C.SQLITE_CREATE_TABLE, C.SQLITE_CREATE_INDEX, C.SQLITE_CREATE_VIEW, C.SQLITE_DROP_TABLE, C.SQLITE_DROP_INDEX, C.SQLITE_DROP_VIEW, C.SQLITE_DROP_TRIGGER, C.SQLITE_ALTER_TABLE, C.SQLITE_REINDEX, C.SQLITE_ANALYZE])];
+    db.setAuthorizer((action, arg1, arg2, database) => {
+      if (deniedWrites.includes(action) || (database && database !== "main")) return C.SQLITE_DENY;
+      if (action === C.SQLITE_FUNCTION && ["load_extension", "writefile", "readfile"].includes((arg2 ?? arg1 ?? "").toLowerCase())) return C.SQLITE_DENY;
+      return C.SQLITE_OK;
+    });
+    try {
+      const stmt = db.prepare(workerData.sql);
+      const columns = stmt.columns().map(column => ({ name: column.name, type: column.type ?? "unknown" }));
+      const budget = 8 * 1024 * 1024, rows = [];
+      let bytes = 0, truncated = false, truncatedReason;
+      for (const row of stmt.iterate(...(workerData.params ?? []))) {
+        if (rows.length >= limit) { truncated = true; truncatedReason = "limit"; break; }
+        const size = Buffer.byteLength(JSON.stringify(row));
+        if (bytes + size > budget) { truncated = true; truncatedReason = "bytes"; break; }
+        bytes += size; rows.push(row);
+      }
+      parentPort.postMessage({ result: { columns, rows, truncated, truncatedReason } });
+    } finally { db.setAuthorizer(null); }
   } else if (mode === "execute") {
     db.exec("BEGIN IMMEDIATE"); transaction = true;
     if (hash() !== expectedVersion) throw new Error("Database resource version changed before transaction");
