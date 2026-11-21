@@ -49,7 +49,7 @@ function unregistered(binding: KeyboardBinding, text: string): string | null {
 const NATIVE_KEYS: Record<string, readonly string[]> = {
   'apps/web/src/App.tsx': ['enter', 'tab'],
   'apps/web/src/TerminalBody.tsx': ['tab'],
-  'apps/web/src/Settings.tsx': ['tab', ',', 'control', 'meta', 'alt', 'shift'],
+  'apps/web/src/Settings.tsx': ['tab', ',', ' ', 'control', 'meta', 'alt', 'shift'],
 };
 
 /** Every key literal and preference id the scanned modules register, so a chord no binding declares is reported. */

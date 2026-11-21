@@ -88,7 +88,7 @@ function PreferenceControl({ item, preferences, update, busy }: { item: Settings
   return <button type="button" role="switch" aria-label={item.title} aria-checked={Boolean(value)} disabled={busy} className="settings-switch" onClick={() => void update({ [definition.key]: !value })}><span/></button>;
 }
 function ShortcutInput({ action, label, value, save, busy }: { action: string; label: string; value: string; save: (key: string, value: string) => void; busy: boolean }) {
-  return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
+  return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key === ' ' ? 'Space' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
 }
 export interface SettingsActions {
   environmentSettings?: ReactNode; openBrowser?: (url: string) => Promise<void>;
@@ -126,7 +126,8 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const preferences = getPreferences(data.settings);
   const [browserUrl, setBrowserUrl] = useState(preferences.browserStartUrl);
   const [quickAskStatus, setQuickAskStatus] = useState<QuickAskRegistration>('off');
-  useEffect(() => desktop?.bridge.onQuickAskRegistration?.(setQuickAskStatus), [desktop?.bridge]);
+  // setQuickAskConfig resolves with the live registration; re-applying the same config seeds the status on every open since onQuickAskRegistration only emits transitions.
+  useEffect(() => { const off = desktop?.bridge.onQuickAskRegistration?.(setQuickAskStatus); if (desktop?.bridge.setQuickAskConfig) void desktop.bridge.setQuickAskConfig({enabled: preferences.quickAskEnabled, shortcut: preferences.keybindings.quickAsk}).then(setQuickAskStatus).catch(() => {}); return off; }, [desktop?.bridge, preferences.quickAskEnabled, preferences.keybindings.quickAsk]);
   useLayoutEffect(() => { navigation.current?.querySelector<HTMLElement>('[aria-current="page"]')?.scrollIntoView({ block: 'nearest' }); content.current?.scrollTo(0, 0); }, [section]);
   // A selected search result scrolls to its real target and focuses its control (T06).
   useLayoutEffect(() => {
