@@ -101,6 +101,27 @@ test('independent retries, paused success receipt, and dismiss during a pending 
  await expect(page.getByRole('alert').filter({hasText:'Operation 3'})).toBeVisible();
 });
 
+test('successful receipts expire when actual focus left with the removed retry control',async({page})=>{
+ await mount(page);
+ const fourth=page.getByRole('alert').filter({hasText:'Operation 4'}),fifth=page.getByRole('alert').filter({hasText:'Operation 5'});
+ await fourth.getByRole('button',{name:'Retry Operation 4',exact:true}).click();await expect(fourth).toContainText('Recovered');
+ expect(await fourth.evaluate(node=>node.contains(document.activeElement))).toBe(false);
+ await page.mouse.move(0,700);await expect(fourth).toHaveCount(0,{timeout:3500});
+ await fifth.getByRole('button',{name:'Retry Operation 5',exact:true}).click();await expect(fifth).toContainText('Retrying');
+ await page.evaluate(()=>(window as unknown as {notificationFixture:Fixture}).notificationFixture.resolve());await expect(fifth).toContainText('Recovered');
+ await page.getByRole('button',{name:'Underlying content',exact:true}).focus();await page.mouse.move(0,700);await expect(fifth).toHaveCount(0,{timeout:3500});
+ await expect(page.getByRole('alert').filter({hasText:'Operation 3'})).toBeVisible();
+});
+
+test('a success receipt pauses while the card retains actual focus and expires after blur',async({page})=>{
+ await mount(page);const fourth=page.getByRole('alert').filter({hasText:'Operation 4'});
+ await fourth.getByRole('button',{name:'Retry Operation 4',exact:true}).click();await expect(fourth).toContainText('Recovered');
+ await fourth.getByRole('button',{name:'Dismiss Operation 4',exact:true}).focus();await page.mouse.move(0,700);
+ await page.waitForTimeout(2400);await expect(fourth).toBeVisible();
+ await page.getByRole('button',{name:'Underlying content',exact:true}).focus();
+ await expect(fourth).toHaveCount(0,{timeout:3000});
+});
+
 test('long errors fit narrow screens and app/OS motion policies stop translation and spinning',async({page})=>{
  await page.emulateMedia({reducedMotion:'reduce'});await page.setViewportSize({width:390,height:700});await mount(page);
  const panel=page.getByRole('region',{name:'Workspace errors',exact:true});await expect(panel).toHaveAttribute('data-motion','reduced');

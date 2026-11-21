@@ -8,15 +8,17 @@ import './workspace-notifications.css';
 export const WorkspaceNotificationContext=createContext<WorkspaceNotificationStore|null>(null);
 
 function Notification({entry,store,motion,dismiss}:{entry:WorkspaceNotification;store:WorkspaceNotificationStore;motion:MotionPolicy;dismiss:(id:number)=>void}){
- const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false);
+ const [hovered,setHovered]=useState(false),[focused,setFocused]=useState(false),card=useRef<HTMLElement>(null);
  const title=entry.title??entry.message,success=entry.status==='success',busy=entry.status==='retrying';
+ // No blur event fires when the focused control unmounts (retry→success), so re-derive the flag from actual DOM focus.
+ useLayoutEffect(()=>{if(focused&&card.current&&!card.current.contains(document.activeElement))setFocused(false);});
  useEffect(()=>{
   if(entry.leaving){const timer=setTimeout(()=>store.remove(entry.id),motion==='off'?0:motion==='reduced'?100:160);return()=>clearTimeout(timer);}
   if(success&&!hovered&&!focused){const timer=setTimeout(()=>store.dismiss(entry.id),2000);return()=>clearTimeout(timer);}
  },[entry.id,entry.leaving,entry.revision,success,hovered,focused,motion,store]);
  const Icon=success?CheckCircle2:busy?LoaderCircle:CircleAlert;
  return <div className="workspace-notification-slot" data-leaving={entry.leaving}>
-  <article className="workspace-notification" role="alert" aria-live="polite" aria-atomic="true" aria-busy={busy} data-status={entry.status}
+  <article ref={card} className="workspace-notification" role="alert" aria-live="polite" aria-atomic="true" aria-busy={busy} data-status={entry.status}
    onMouseEnter={()=>setHovered(true)} onMouseLeave={()=>setHovered(false)} onFocusCapture={()=>setFocused(true)} onBlurCapture={event=>{if(!event.currentTarget.contains(event.relatedTarget))setFocused(false);}}>
    <Icon size={16} className={busy?'workspace-notification-icon spinning':'workspace-notification-icon'} aria-hidden="true"/>
    <div className="workspace-notification-copy"><strong>{success?'Recovered':title}</strong>{(entry.title||success)&&<span>{success?title:entry.message}</span>}</div>
