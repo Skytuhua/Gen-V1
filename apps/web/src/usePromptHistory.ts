@@ -114,14 +114,27 @@ export function usePromptHistory(options: PromptHistoryOptions) {
     ? Math.max(1, (entries.findIndex(entry => entry.id === state.entryId) + 1) || state.index + 1)
     : 0;
   const current = state.mode === 'browsing' ? entries[position - 1] : undefined;
+  const sourceTitle = current && !current.current ? threads.find(thread => thread.id === current.threadId)?.title ?? null : null;
+
+  // Keep the last chip briefly after browsing ends so the caption can animate out.
+  const total = entries.length;
+  const [heldChip, setHeldChip] = useState<{position: number; total: number; sourceTitle: string | null} | null>(null);
+  useEffect(() => {
+    if (state.mode === 'browsing') { setHeldChip(previous => (previous?.position === position && previous?.total === total && previous?.sourceTitle === sourceTitle) ? previous : {position, total, sourceTitle}); return; }
+    if (!heldChip) return;
+    const timer = setTimeout(() => setHeldChip(null), 140);
+    return () => clearTimeout(timer);
+  }, [state.mode, position, total, sourceTitle]);
 
   return {
     browsing: state.mode === 'browsing',
     shown,
     entries,
     position,
-    total: entries.length,
-    sourceTitle: current && !current.current ? threads.find(thread => thread.id === current.threadId)?.title ?? null : null,
+    total,
+    sourceTitle,
+    chip: heldChip,
+    chipExiting: state.mode !== 'browsing' && heldChip !== null,
     searchOpen,
     keyDown,
     openSearch,

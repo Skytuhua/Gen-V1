@@ -1,6 +1,6 @@
 import {useEffect, useMemo, useRef, useState, useSyncExternalStore} from 'react';
 import {ArrowUp, CircleStop, MessageSquare} from 'lucide-react';
-import type {ModelInfo} from '../../../packages/contracts';
+import type {ModelInfo, Snapshot} from '../../../packages/contracts';
 import type {ConversationContext} from '../../../packages/contracts/conversation-read-models';
 import {isComposing} from '../../../packages/ui-shell/list-navigation';
 import {SavedDrafts} from './SavedDrafts';
@@ -13,15 +13,18 @@ import {command, getModels} from './api';
 import {journalWrite} from './journal';
 import {useDesktop, useDetachedSurface, usePendingSurface} from './desktop-context';
 import type {ConversationComposerTarget, SharedAgentComposers} from './agents-workspace/composer';
+import {ariaKeyShortcuts} from './keyboard-bindings';
+import {usePromptHistory} from './usePromptHistory';
+import {PromptHistorySearch, type PromptHistorySearchHandle} from './PromptHistorySearch';
 
 /** Uses the ordinary owner's durable drafts, pending command identity, Send and Stop controller. */
-export function ScopedConversationComposer({context,composers,openConversation,refreshOwner,savedDraftOwner,placeholder='Ask about these sources...'}:{context:ConversationContext;composers:SharedAgentComposers;openConversation:(threadId:string)=>Promise<void>;refreshOwner:()=>Promise<void>;placeholder?:string;savedDraftOwner?:SavedDraftOwner}){
+export function ScopedConversationComposer({context,composers,openConversation,refreshOwner,savedDraftOwner,placeholder='Ask about these sources...',snapshot}:{context:ConversationContext;composers:SharedAgentComposers;openConversation:(threadId:string)=>Promise<void>;refreshOwner:()=>Promise<void>;placeholder?:string;savedDraftOwner?:SavedDraftOwner;snapshot?:Snapshot}){
  const working=Boolean(context.owner.runId)||context.owner.status==='working';
  const [models,setModels]=useState<ModelInfo[]>([]),[modelId,setModelId]=useState(context.owner.modelId??''),[error,setError]=useState('');
  const target=useMemo<ConversationComposerTarget>(()=>({kind:'conversation',projectId:context.owner.projectId??undefined,threadId:context.owner.threadId,modelId,working}),[context.owner.threadId,context.owner.projectId,modelId,working]);
  const state=useSyncExternalStore(listener=>composers.subscribe(target,listener),()=>composers.getSnapshot(target));
  const desktop=useDesktop(),surface={kind:'thread' as const,threadId:context.owner.threadId},detached=useDetachedSurface(surface),pending=usePendingSurface(surface);
- const held=Boolean(context.readOnly||context.archived||detached||pending||desktop?.closing),input=useRef<HTMLTextAreaElement>(null),commands=useRef<ComposerCommandsHandle>(null),picker=useRef<ModelPickerHandle>(null);
+ const held=Boolean(context.readOnly||context.archived||detached||pending||desktop?.closing),input=useRef<HTMLTextAreaElement>(null),commands=useRef<ComposerCommandsHandle>(null),picker=useRef<ModelPickerHandle>(null),historySearch=useRef<PromptHistorySearchHandle>(null);
  const fence=useRef({signature:'',version:0,active:true}),signature=JSON.stringify([context.scopeKey,context.owner.epoch,context.owner.runId,context.owner.status,held]);
  if(fence.current.signature!==signature)fence.current={...fence.current,signature,version:fence.current.version+1};
  useEffect(()=>{fence.current.active=true;return()=>{fence.current.active=false;fence.current.version++;};},[]);
@@ -33,6 +36,8 @@ export function ScopedConversationComposer({context,composers,openConversation,r
   }).catch(()=>{if(!controller.signal.aborted)setError('Models could not load. Open the conversation to retry.');});
   return()=>controller.abort();
  },[context.scopeKey,context.owner.threadId]);
+ const history=usePromptHistory({messages:snapshot?.messages??[],threads:snapshot?.threads??[],truncated:snapshot?.messagesTruncated?.[context.owner.threadId]??0,threadId:context.owner.threadId,draft:state.draft,write:value=>{void composers.edit(target,value);},input,disabled:held||!state.ready||state.busy});
+ const historyTitles=useMemo(()=>new Map((snapshot?.threads??[]).map(item=>[item.id,item.title])),[snapshot?.threads]);
  const skillsBlocked=Boolean(state.skills?.length)&&!state.retry;
  const send=()=>{if(!held&&!skillsBlocked&&models.some(model=>model.id===modelId))void composers.submit(target);};
  async function mode(value:'plan'|'build'){
@@ -43,9 +48,10 @@ export function ScopedConversationComposer({context,composers,openConversation,r
  }
  return <div className="scoped-owner-composer-wrap">
   <div inert={held}><ComposerView className="scoped-owner-composer" onSubmit={event=>{event.preventDefault();send();}}>
-   <textarea ref={input} aria-label="Message" placeholder={placeholder} rows={2} value={state.draft} disabled={held||!state.ready} onChange={event=>{void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||isComposing(event)||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
+   <textarea ref={input} aria-label="Message" aria-keyshortcuts={ariaKeyShortcuts(['prompt-history-previous','prompt-history-next','prompt-history-search'])} placeholder={placeholder} rows={2} value={history.browsing?history.shown:state.draft} disabled={held||!state.ready} onChange={event=>{history.onDraftChange();void composers.edit(target,event.target.value);}} onKeyDown={event=>{if(commands.current?.keyDown(event)||isComposing(event))return;if(historySearch.current?.keyDown(event))return;if(history.keyDown(event))return;if(event.shiftKey||event.altKey||event.ctrlKey||event.metaKey)return;if(event.key==='Enter'){event.preventDefault();send();}}}/>
    <ComposerAttachments resources={[]} excerpts={state.excerpts} disabled={held||!state.ready} onEditExcerpt={(id,text)=>composers.editExcerpt(target,id,text)} onRemoveExcerpt={id=>composers.removeExcerpt(target,id)}/>
    <ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(target,id).catch(()=>{});}}/>
+   <PromptHistorySearch ref={historySearch} input={input} open={history.searchOpen} entries={history.entries} titles={historyTitles} onClose={history.closeSearch} onChoose={history.choose}/>
    <ComposerCommands ref={commands} input={input} draft={state.draft} threadId={context.owner.threadId} projectId={context.owner.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(target,text);}} onModel={()=>picker.current?.open()} onMode={mode}/>
    <div className="scoped-owner-composer-actions">
     {savedDraftOwner&&savedDraftOwner.threadId===context.owner.threadId&&<SavedDrafts owner={savedDraftOwner} input={input} disabled={held||!state.ready||state.busy||state.retry}/>}
@@ -54,6 +60,8 @@ export function ScopedConversationComposer({context,composers,openConversation,r
     {working?<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={held||state.stopping} onClick={()=>{if(!held)void composers.stop(target);}}><CircleStop size={18}/></button>:<button className="send-button" aria-label={state.retry?'Retry send':'Send message'} disabled={held||skillsBlocked||!models.some(model=>model.id===modelId)||!composers.canSend(target)||!state.retry&&!state.draft.trim()&&!state.excerpts?.length}><ArrowUp size={18}/></button>}
    </div>
    {(error||state.error)&&<p role="alert" className="error-text">{error||state.error}</p>}
+   <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{history.browsing?`Prompt ${history.position} of ${history.total} from history${history.sourceTitle?`, from ${history.sourceTitle}`:''}`:''}</span>
+   {history.chip?<div className="composer-caption"><span className={history.chipExiting?'prompt-history-chip prompt-history-chip-out':'prompt-history-chip'}><span className="prompt-history-count">History {history.chip.position} of {history.chip.total}</span>{history.chip.sourceTitle?<span className="prompt-history-source"> · {history.chip.sourceTitle.length>28?`${history.chip.sourceTitle.slice(0,27)}…`:history.chip.sourceTitle}</span>:null}<span className="prompt-history-hint" aria-hidden="true">↑ older · ↓ newer · Esc restore</span></span></div>:null}
   </ComposerView></div>
   {detached&&<button className="quiet" onClick={()=>{void desktop?.bridge.focus(detached.id).catch(()=>setError('The owning window could not be focused.'));}}>Focus existing window</button>}
  </div>;
