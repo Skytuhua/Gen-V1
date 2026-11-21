@@ -2671,6 +2671,7 @@
     "packages/ui-shell/focus-retention.ts",
     "packages/ui-shell/list-navigation.ts",
     "packages/ui-shell/overlay-position.ts",
+    "packages/ui-shell/popover-motion.css",
     "packages/ui-shell/summary-dock.css",
     "packages/ui-shell/tokens.css",
     "packages/widgets/README.md",

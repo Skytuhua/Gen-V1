@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { placePopover, type OverlayAnchor, type OverlaySide, type PopoverPlacement } from './overlay-position';
 import { retainFocus } from './focus-retention';
 import './tokens.css';
+import './popover-motion.css';
 
 export interface PopoverProps extends Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
   anchor: RefObject<HTMLElement | null>;

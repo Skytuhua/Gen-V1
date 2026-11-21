@@ -140,7 +140,7 @@ function GraphTooltip({ id, children, wide = false, compact = false, dismissOnSe
     return () => observer.disconnect();
   }, [visible, body, compact]);
   return <><span ref={marker} aria-hidden="true" /><Popover anchor={anchor} contentRef={popup} open={visible} present={ownerAvailable && (visible || present)} width={compact ? 320 : wide ? 480 : 420} height={height} layoutRevision={layoutRevision} align="start" preferredSide="below"
-    role="tooltip" id={id} className={`task-node-popover ${compact ? 'task-check-popover' : ''}`} onDismiss={() => interaction.dismiss()}
+    role="tooltip" id={id} className={`task-node-popover ${compact ? 'task-check-popover' : ''}`} data-popover-motion onDismiss={() => interaction.dismiss()}
     onPointerEnter={() => interaction.pointerEnter('card')} onPointerLeave={() => interaction.pointerLeave('card')}>
     <div ref={setBody} className="task-node-details">{children}</div>
   </Popover></>;

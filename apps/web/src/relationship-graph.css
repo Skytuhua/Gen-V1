@@ -110,12 +110,7 @@
 @keyframes task-checks-out { from { opacity:1; } to { opacity:0; } }
 @keyframes task-merge-pulse { 0%,25% { background:color-mix(in srgb,var(--graph-purple) 17%,transparent); } 100% { background:transparent; } }
 @media(max-width:600px) { .task-node-author,.task-node-time { display:none; } .task-node-meta { gap:6px; } .task-node-hash { font-size:10px; } .task-graph-footer-row { gap:8px; } .task-graph-summary { font-size:12px; } .task-graph-summary small { max-width:36ch; } .task-graph-footer-actions button { padding:5px 9px; } }
-@media(prefers-reduced-motion:reduce) { .task-graph .graph-edge[data-reveal],.task-graph .graph-edge[data-prospective][data-reveal],.task-graph-check,.task-node-popover,.task-graph-checks.is-leaving,.task-node.task-node-merge-pulse { animation:none; } .task-graph * { transition:none!important; } }
+@media(prefers-reduced-motion:reduce) { .task-graph .graph-edge[data-reveal],.task-graph .graph-edge[data-prospective][data-reveal],.task-graph-check,.task-graph-checks.is-leaving,.task-node.task-node-merge-pulse { animation:none; } .task-graph * { transition:none!important; } }
 
-.task-node-popover[data-side="below"] { --graph-tip-offset:-3px; transform-origin:top left; }
-.task-node-popover[data-side="above"] { --graph-tip-offset:3px; transform-origin:bottom left; }
-.task-node-popover[data-state="open"] { animation:graph-tip-in var(--ui-motion-tooltip-enter) var(--ui-ease-enter) both; }
-.task-node-popover[data-state="closed"] { animation:graph-tip-out var(--ui-motion-tooltip-exit) var(--ui-ease-move) both; }
-@keyframes graph-tip-in { from { transform:translateY(var(--graph-tip-offset)) scale(.95); } to { transform:none; } }
-@keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
-@media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }
+.task-node-popover[data-side="below"] { transform-origin:top left; }
+.task-node-popover[data-side="above"] { transform-origin:bottom left; }

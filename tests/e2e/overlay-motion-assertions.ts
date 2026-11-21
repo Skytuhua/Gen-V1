@@ -13,7 +13,7 @@ export async function pauseNextEntry(page: Page, selector: string) {
   }, selector);
 }
 
-export async function expectOpaqueEntry(card: Locator) {
+export async function expectOpaqueEntry(card: Locator, motion: { duration?: number; fadeIn?: boolean } = {}) {
   const entry = await card.evaluate(node => {
     const animations = node.getAnimations();
     for (const animation of animations) animation.pause();
@@ -28,10 +28,14 @@ export async function expectOpaqueEntry(card: Locator) {
     const style = getComputedStyle(node);
     return {durations, opacities, samples, settled: {opacity: style.opacity, background: style.backgroundColor}};
   });
-  expect(entry.durations).toEqual([160]);
-  expect(entry.opacities.every(opacity => opacity === '1')).toBe(true);
+  expect(entry.durations).toEqual([motion.duration ?? 160]);
+  if (motion.fadeIn) expect(entry.opacities).toContain('0');
+  else expect(entry.opacities.every(opacity => opacity === '1')).toBe(true);
   expect(entry.settled).toEqual({opacity: '1', background: 'rgb(15, 15, 15)'});
-  for (const {time, ...sample} of entry.samples) expect(sample, `entry at ${time}ms`).toEqual(entry.settled);
+  for (const {time, ...sample} of entry.samples) {
+    if (motion.fadeIn) expect(sample.background, `entry at ${time}ms`).toBe(entry.settled.background);
+    else expect(sample, `entry at ${time}ms`).toEqual(entry.settled);
+  }
 }
 
 export async function expectVisibleKeyboardFocus(trigger: Locator) {
