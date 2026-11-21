@@ -408,26 +408,72 @@
 		grid-template-columns: minmax(0, 1fr);
 	}
 }
-/* Manual edit v1 (T06 host structure; full visual design lands in T08). */
+/* Manual edit v1 — DESIGN §8: layout, colors, syntax vars, motion. */
 .files-edit-host {
 	display: flex;
 	flex-direction: column;
 	min-height: 0;
 	flex: 1;
+	animation: files-editor-in var(--ui-motion-tab) var(--ui-ease-move);
+}
+@keyframes files-editor-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 .files-edit-host .gen-code-editor {
 	flex: 1;
 	min-height: 0;
 	overflow: auto;
-	font: var(--code-font-size, 12px) / 1.65 var(--font-mono, monospace);
+	font-family: var(--code-font, monospace);
+	font-size: var(--code-font-size, 14px);
+	line-height: 1.65;
 }
 .files-edit-host .cm-editor {
 	height: 100%;
 }
+/* §8.3 syntax colors (dark; light overrides below). */
+.gen-code-editor {
+	--gen-syn-keyword: #c586c0;
+	--gen-syn-string: #ce9178;
+	--gen-syn-number: #b5cea8;
+	--gen-syn-comment: #7f848e;
+	--gen-syn-function: #dcdcaa;
+	--gen-syn-type: #4ec9b0;
+	--gen-syn-property: #9cdcfe;
+	--gen-syn-variable: #d4d4d4;
+	--gen-syn-tag: #569cd6;
+	--gen-syn-link: #4fc1ff;
+	--gen-syn-invalid: var(--danger);
+}
+[data-theme="light"] .gen-code-editor {
+	--gen-syn-keyword: #af00db;
+	--gen-syn-string: #a31515;
+	--gen-syn-number: #098658;
+	--gen-syn-comment: #6a737d;
+	--gen-syn-function: #795e26;
+	--gen-syn-type: #267f99;
+	--gen-syn-property: #0451a5;
+	--gen-syn-variable: #1f2328;
+	--gen-syn-tag: #800000;
+	--gen-syn-link: #0066bf;
+}
+/* §8.1 toolbar: compact row, opacity swap between Edit and Save/Done. */
 .files-edit-toolbar {
 	display: inline-flex;
 	align-items: center;
-	gap: var(--ui-space-2, 8px);
+	gap: var(--ui-space-2);
+	height: var(--ui-row-compact);
+	animation: files-toolbar-in var(--ui-motion-hover) var(--ui-ease-move);
+}
+.files-edit-open {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	animation: files-toolbar-in var(--ui-motion-hover) var(--ui-ease-move);
+}
+@keyframes files-toolbar-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
 }
 .files-edit-dirty {
 	display: inline-flex;
@@ -442,19 +488,53 @@
 	height: 6px;
 	border-radius: 50%;
 	background: var(--project-accent, var(--accent));
+	animation: files-dirty-in var(--ui-motion-status) var(--ui-ease-enter);
 }
+@keyframes files-dirty-in {
+	from { opacity: 0; transform: scale(.6); }
+	to { opacity: 1; transform: scale(1); }
+}
+.files-edit-saved {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	animation: files-toolbar-in var(--ui-motion-success) var(--ui-ease-move);
+}
+.files-edit-more { display: none; }
+/* §8.2 bars between header and editor; status color is always paired with text. */
 .files-edit-bar {
+	display: grid;
+	grid-template-rows: 1fr;
+	animation: files-bar-in var(--ui-motion-insert) var(--ui-ease-enter);
+}
+@keyframes files-bar-in {
+	from { grid-template-rows: 0fr; opacity: 0; }
+	to { grid-template-rows: 1fr; opacity: 1; }
+}
+.files-edit-bar-inner {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	gap: var(--ui-space-2, 8px);
-	padding: var(--ui-space-2, 8px) var(--ui-space-3, 12px);
+	gap: var(--ui-space-2);
+	min-height: 0;
+	overflow: hidden;
+	padding: var(--ui-space-2) var(--ui-space-3);
 	font-size: 12px;
-	background: var(--task-surface, #1f1f1f);
+}
+.files-edit-bar-info .files-edit-bar-inner {
+	background: var(--selection-bg);
+}
+.files-edit-bar-conflict .files-edit-bar-inner {
+	background: color-mix(in srgb, var(--warning-fg) 12%, transparent);
+	color: var(--warning-fg);
+}
+.files-edit-bar-error .files-edit-bar-inner {
+	background: color-mix(in srgb, var(--danger) 12%, transparent);
+	color: var(--danger);
 }
 .files-edit-bar-actions {
 	display: inline-flex;
-	gap: var(--ui-space-2, 8px);
+	gap: var(--ui-space-2);
 }
 .files-edit-announce {
 	position: absolute;
@@ -463,18 +543,24 @@
 	overflow: hidden;
 	clip: rect(0 0 0 0);
 }
+/* §8.4 compare view enters with opacity + 8px translateY. */
 .files-compare {
 	display: flex;
 	flex-direction: column;
 	flex: 1;
 	min-height: 0;
+	animation: files-compare-in var(--ui-motion-panel-enter) var(--ui-ease-enter);
+}
+@keyframes files-compare-in {
+	from { opacity: 0; transform: translateY(8px); }
+	to { opacity: 1; transform: translateY(0); }
 }
 .files-compare-labels {
 	display: grid;
 	grid-template-columns: 1fr 1fr;
 	font-size: 12px;
 	color: var(--muted);
-	padding: 4px var(--ui-space-3, 12px);
+	padding: 4px var(--ui-space-3);
 }
 .files-compare-panes {
 	flex: 1;
@@ -483,4 +569,61 @@
 }
 .files-compare-panes .cm-mergeView {
 	height: 100%;
+}
+/* §8.1 narrow container: collapse Done into the "More" ActionMenu. */
+@container files (max-width: 560px) {
+	.files-edit-done { display: none; }
+	.files-edit-more { display: inline-flex; }
+	.files-edit-dirty > i + * , .files-edit-dirty { font-size: 0; }
+	.files-edit-dirty > i { margin-right: 4px; }
+}
+/* §8.5 reduced motion: no transforms or height animation; opacity fades ≤ press. */
+:root[data-motion="reduced"] .files-edit-host,
+:root[data-motion="reduced"] .files-edit-toolbar,
+:root[data-motion="reduced"] .files-edit-open,
+:root[data-motion="reduced"] .files-edit-saved,
+:root[data-motion="reduced"] .files-edit-bar,
+:root[data-motion="reduced"] .files-compare,
+:root[data-motion="reduced"] .files-dirty-dot,
+.app-shell[data-panel-animations="false"] .files-edit-host,
+.app-shell[data-panel-animations="false"] .files-edit-toolbar,
+.app-shell[data-panel-animations="false"] .files-edit-open,
+.app-shell[data-panel-animations="false"] .files-edit-saved,
+.app-shell[data-panel-animations="false"] .files-edit-bar,
+.app-shell[data-panel-animations="false"] .files-compare,
+.app-shell[data-panel-animations="false"] .files-dirty-dot {
+	animation-duration: var(--ui-motion-press);
+}
+:root[data-motion="reduced"] .files-edit-bar,
+:root[data-motion="reduced"] .files-compare,
+:root[data-motion="reduced"] .files-dirty-dot,
+.app-shell[data-panel-animations="false"] .files-edit-bar,
+.app-shell[data-panel-animations="false"] .files-compare,
+.app-shell[data-panel-animations="false"] .files-dirty-dot {
+	animation-name: files-toolbar-in;
+}
+:root[data-motion="off"] .files-edit-host,
+:root[data-motion="off"] .files-edit-toolbar,
+:root[data-motion="off"] .files-edit-open,
+:root[data-motion="off"] .files-edit-saved,
+:root[data-motion="off"] .files-edit-bar,
+:root[data-motion="off"] .files-compare,
+:root[data-motion="off"] .files-dirty-dot {
+	animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+	.files-edit-host,
+	.files-edit-toolbar,
+	.files-edit-open,
+	.files-edit-saved,
+	.files-edit-bar,
+	.files-compare,
+	.files-dirty-dot {
+		animation-duration: var(--ui-motion-press);
+	}
+	.files-edit-bar,
+	.files-compare,
+	.files-dirty-dot {
+		animation-name: files-toolbar-in;
+	}
 }
