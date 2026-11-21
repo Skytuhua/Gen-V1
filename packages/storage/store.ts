@@ -142,6 +142,21 @@ export class Store {
     const rows = (threadId === undefined ? this.statements.allKind.all(kind) : this.statements.allKindThread.all(kind, threadId)) as { body: string }[];
     return rows.map(row => JSON.parse(row.body) as T);
   }
+  private timelineStatements = new Map<string, ReturnType<DatabaseSync['prepare']>>();
+  /** One chronological read across entity kinds for thread export. Kind values
+   * are allowlisted and bound as parameters; SQL text never carries input. */
+  timelineFor(threadId: string, kinds: readonly string[]): { kind: string; value: unknown }[] {
+    const allowed = new Set(['message', 'dataVersion', 'operation', 'request', 'artifact', 'resource', 'toolEffect']);
+    if (!kinds.length || kinds.some(kind => !allowed.has(kind))) throw new HarnessError('INVALID_INPUT', 'Unknown timeline entity kind');
+    const key = kinds.join(',');
+    let statement = this.timelineStatements.get(key);
+    if (!statement) {
+      statement = this.db.prepare(`SELECT kind, body FROM entities WHERE thread_id=? AND kind IN (${kinds.map(() => '?').join(',')}) ORDER BY rowid`);
+      this.timelineStatements.set(key, statement);
+    }
+    const rows = statement.all(threadId, ...kinds) as { kind: string; body: string }[];
+    return rows.map(row => ({ kind: row.kind, value: JSON.parse(row.body) }));
+  }
   put(kind: string, id: string, threadId: string | null, value: unknown): void {
     if (!this.transactionOpen) throw new Error("Projection writes require a command transaction");
     this.statements.put.run(kind, id, threadId, JSON.stringify(value));

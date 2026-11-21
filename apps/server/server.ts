@@ -45,6 +45,9 @@ import {ToolEffectReadModels} from '../../packages/core/tool-effect-read-models.
 import {readCompactionModelRequests} from '../../packages/core/compaction-model-requests.ts';
 import {verificationPanelModel} from '../../packages/core/verification-read-models.ts';
 import {VerificationArtifactStore} from '../../packages/core/verification-artifacts.ts';
+import {buildThreadExport} from '../../packages/core/thread-export.ts';
+import {renderThreadMarkdown, slugFilename, THREAD_EXPORT_MAX_BYTES} from '../../packages/core/thread-markdown.ts';
+import {homedir} from 'node:os';
 import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
@@ -72,7 +75,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
     const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
     const code = known ? error.code : malformed ? "INVALID_INPUT" : native === 413 ? "RESOURCE_LIMIT" : "HOST_ERROR";
-    const status = code === "NOT_FOUND" ? 404 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
+    const status = code === "NOT_FOUND" ? 404 : code === "EXPORT_TOO_LARGE" ? 413 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
     const message = known ? error.message : error instanceof z.ZodError ? "Command envelope is invalid" : error instanceof URIError ? "The request path is invalid" : code === "RESOURCE_LIMIT" ? "The request exceeds its byte limit" : "The host could not complete this request";
     reply.code(status).send({ error: { code, message, ...(known && error.details ? { details: error.details } : {}) } });
   });
@@ -161,6 +164,20 @@ export async function buildServer(service: Service, options: ServerOptions) {
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  // onSend also covers gate and validation failures sent by earlier hooks.
+  app.addHook('onSend', async (request, reply) => { if (/^\/api\/threads\/[^/?]+\/export\.md(?:[/?]|$)/.test(request.url)) reply.header('Cache-Control', 'no-store'); });
+  // Whole-thread Markdown export: host-side read because the renderer only
+  // ever holds the windowed snapshot. Read-only; safe while a run is active.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/export.md', async (request, reply) => {
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    const version = JSON.parse(await readFile(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8')).version as string;
+    const model = buildThreadExport(service.store, id, { version, now: new Date().toISOString() });
+    const document = renderThreadMarkdown(model, { home: homedir() });
+    if (new TextEncoder().encode(document).length > THREAD_EXPORT_MAX_BYTES) throw new HarnessError('EXPORT_TOO_LARGE', 'The thread export exceeds its byte limit.');
+    reply.header('X-Gen-Export-Filename', slugFilename(model.thread.title, model.exportedAt.slice(0, 10)));
+    return reply.type('text/markdown; charset=utf-8').send(document);
   });
   app.get<{Params: {id: string; candidateId: string}; Querystring: {beforeRequestId?: string}}>('/api/threads/:id/compaction/:candidateId/model-requests', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');

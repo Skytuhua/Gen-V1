@@ -47,6 +47,10 @@ Expect Windows SmartScreen to show a
 
 ### Conversations and agents
 
+- Add thread export to Markdown from the header or sidebar Options menu; the
+  host assembles the complete stored thread (prompts, replies, plan, tool
+  activity, operations, memory), redacts secrets and home paths, and saves via
+  a native dialog on desktop or a browser download on web.
 - Add phrase search within loaded messages, named local prompts, command/skill
   selection and terminal excerpts attached to composer drafts.
 - Add paged Personal conversation and agent reads, inspectable skill metadata,
