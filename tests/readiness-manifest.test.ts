@@ -273,6 +273,54 @@ describe('aggregate and manifest',()=>{
     expect(redactSecrets('plain readiness output')).toBe('plain readiness output');
   });
 
+  it('redacts named cloud access keys that lack an api_key or token suffix',()=>{
+    for(const name of ['AWS_SECRET_ACCESS_KEY','AWS_ACCESS_KEY_ID','GCP_SERVICE_ACCOUNT_KEY']){
+      const safe=redactSecrets(`${name}=SYNTHETIC_CLOUD_CANARY_5513 another-word`);
+      expect(safe).toContain('[REDACTED]');
+      expect(safe).not.toContain('SYNTHETIC_CLOUD_CANARY_5513');
+      expect(safe).not.toContain('another-word');
+    }
+  });
+
+  it('redacts named cloud keys in child logs and blocks a multiline opposite-pipe value',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\nAWS_SECRET_ACCESS_KEY=SYNTHETIC_AWS_CANARY_5514\nAWS_ACCESS_KEY_ID=SYNTHETIC_ID_CANARY_5514\nGCP_SERVICE_ACCOUNT_KEY=SYNTHETIC_GCP_CANARY_5514\nAWS_SECRET_ACCESS_KEY:\n");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_CANARY_5514\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED]');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    for(const canary of ['SYNTHETIC_AWS_CANARY_5514','SYNTHETIC_ID_CANARY_5514','SYNTHETIC_GCP_CANARY_5514','SYNTHETIC_MULTILINE_CANARY_5514'])expect(log).not.toContain(canary);
+  });
+  it('redacts every word in a quoted or unquoted named credential field',()=>{
+    for(const raw of [
+      'password: "SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481"',
+      "password: 'SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481'",
+      'api_key = SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481',
+      '{"api_key": "SYNTHETIC_MULTIWORD_A_4481 SYNTHETIC_MULTIWORD_B_4481"}',
+    ]){
+      const safe=redactSecrets(raw);
+      expect(safe).toContain('[REDACTED]');
+      expect(safe).not.toContain('SYNTHETIC_MULTIWORD_A_4481');
+      expect(safe).not.toContain('SYNTHETIC_MULTIWORD_B_4481');
+    }
+    expect(redactSecrets('plain readiness output')).toBe('plain readiness output');
+  });
+
+  it('does not persist the trailing words of a multiword child credential',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\npassword: 'SYNTHETIC_CHILD_A_4482 SYNTHETIC_CHILD_B_4482'\nafter\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('password: [REDACTED]\n');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_CHILD_A_4482');
+    expect(log).not.toContain('SYNTHETIC_CHILD_B_4482');
+  });
+
   it('log redaction survives secrets split across stream chunks',async()=>{
     const directory=temporaryDirectory();
     const result=await runCheck(specFor(directory,{
@@ -282,4 +330,241 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('split-secret-value');
     expect(log).toContain('[REDACTED]');
   });
+  it('redacts multiline PEM credentials split across child output chunks',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_");setTimeout(()=>process.stdout.write("CANARY_9281\n-----END RSA PRIVATE KEY-----\nafter\n"),30);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('after\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('SYNTHETIC_PEM_');
+    expect(log).not.toContain('CANARY_9281');
+    expect(log).not.toContain('-----BEGIN RSA PRIVATE KEY-----');
+    expect(log).not.toContain('-----END RSA PRIVATE KEY-----');
+  });
+
+  it('fails closed when a PEM begin marker has no matching end before child exit',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN PRIVATE KEY-----\nUNTERMINATED_PEM_CANARY_9282\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('UNTERMINATED_PEM_CANARY_9282');
+    expect(log).not.toContain('-----BEGIN PRIVATE KEY-----');
+  });
+
+  it('does not resume logging after a mismatched private-key end delimiter',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_CANARY_9284\n-----END PRIVATE KEY-----\nDO_NOT_LEAK_AFTER_MISMATCH\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('SYNTHETIC_PEM_CANARY_9284');
+    expect(log).not.toContain('DO_NOT_LEAK_AFTER_MISMATCH');
+  });
+
+  it('preserves text around a same-line PEM block without disclosing the key',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before -----BEGIN PRIVATE KEY-----INLINE_PEM_CANARY_9283-----END PRIVATE KEY----- after\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before [REDACTED PRIVATE KEY] after\n');
+    expect(log).not.toContain('INLINE_PEM_CANARY_9283');
+  });
+
+
+  it('does not let stderr forge the end of a stdout private-key region',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-----BEGIN RSA PRIVATE KEY-----\nSYNTHETIC_PEM_KEY_A\n");setTimeout(()=>process.stderr.write("status -----END RSA PRIVATE KEY-----\n"),60);setTimeout(()=>process.stdout.write("SYNTHETIC_PEM_KEY_B\n"),120);setTimeout(()=>process.stdout.write("-----END RSA PRIVATE KEY-----\nafter\n"),180);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    // While stdout owns the open key, other-pipe bytes stay suppressed.
+    expect(log).not.toContain('status -----END RSA PRIVATE KEY-----');
+    expect(log).not.toContain('SYNTHETIC_PEM_KEY_A');
+    expect(log).not.toContain('SYNTHETIC_PEM_KEY_B');
+  });
+
+  it('keeps incomplete stdout lines independent of stderr while redacting',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("left-");setTimeout(()=>process.stderr.write("right\n"),60);setTimeout(()=>process.stdout.write("half\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const lines=readFileSync(result.artifact,'utf8').trimEnd().split('\n').sort();
+    expect(lines).toEqual(['left-half','right']);
+  });
+
+
+  it('does not disclose a PEM body emitted on the opposite pipe',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----\n");setTimeout(()=>process.stderr.write("SYNTHETIC_PEM_BODY_OTHER_PIPE\n"),60);setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_PEM_BODY_OTHER_PIPE');
+  });
+
+
+  it('does not flush an opposite-pipe secret fragment after its owner key closes',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----\n");setTimeout(()=>process.stderr.write("SYNTHETIC_UNTERMINATED_OTHER_PIPE"),60);setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_UNTERMINATED_OTHER_PIPE');
+  });
+
+  it('redacts an ANSI-colored credential label assembled from child chunks',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("pa\x1b[31mss");setTimeout(()=>process.stdout.write("\x1b[0mword: ANSI_PASSWORD_CANARY_7341\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('password: [REDACTED]');
+    expect(log).not.toContain('ANSI_PASSWORD_CANARY_7341');
+  });
+
+  it('recognizes a colored PEM start delimiter before suppressing the body',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BE\x1b[36mGIN PRIVATE KEY-----\nANSI_PEM_CANARY_7342\n");setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('ANSI_PEM_CANARY_7342');
+  });
+
+  it('suppresses all later child output when unknown controls could hide a key delimiter',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\npassword\x1b[=UNSAFE_CONTROL_CANARY_7343\n");setTimeout(()=>process.stderr.write("FOLLOW_ON_CANARY_7343\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED UNSAFE CONTROL OUTPUT]');
+    expect(log).not.toContain('UNSAFE_CONTROL_CANARY_7343');
+    expect(log).not.toContain('FOLLOW_ON_CANARY_7343');
+  });
+
+  it('taints an unfinished unsafe terminal sequence before the opposite pipe can leak',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password\x1b[=PARTIAL_CANARY_7344");setTimeout(()=>process.stderr.write("OPPOSITE_PIPE_CANARY_7344\n"),50);setTimeout(()=>process.stdout.write("\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED UNSAFE CONTROL OUTPUT]');
+    expect(log).not.toContain('PARTIAL_CANARY_7344');
+    expect(log).not.toContain('OPPOSITE_PIPE_CANARY_7344');
+  });
+
+  it('blocks other-pipe output when a PEM header is buffered without a newline',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----");setTimeout(()=>process.stderr.write("OPPOSITE_PEM_CANARY_7345\n"),50);setTimeout(()=>process.stdout.write("\n-----END PRIVATE KEY-----\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).not.toContain('OPPOSITE_PEM_CANARY_7345');
+  });
+
+
+  it('suppresses a credential value on the next stdout line',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password:\nSYNTHETIC_MULTILINE_VALUE_9911\n");`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9911');
+  });
+
+  it('suppresses a bearer value emitted on the other child pipe',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("Authorization: Bearer\n");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_VALUE_9912\n"),50);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9912');
+  });
+
+  it('blocks other-pipe output before an unfinished password label is flushed',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password:");setTimeout(()=>process.stderr.write("SYNTHETIC_MULTILINE_VALUE_9913\n"),50);setTimeout(()=>process.stdout.write("\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED MULTILINE CREDENTIAL]');
+    expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9913');
+  });
+
+
+
+  it('releases deferred opposite-pipe lines when a single hyphen is ordinary output',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("other-pipe\n"),40);setTimeout(()=>process.stdout.write("safe\n"),80);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('-safe\n');
+    expect(log).toContain('other-pipe\n');
+  });
+
+  it('discards a queued opposite-pipe canary when the entire PEM region closes in one write',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("SYNTHETIC_QUEUED_PEM_CANARY_8822\n"),40);setTimeout(()=>process.stdout.write("----BEGIN PRIVATE KEY-----\nSYNTHETIC_KEY_8822\n-----END PRIVATE KEY-----\nafter\n"),80);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_QUEUED_PEM_CANARY_8822');
+    expect(log).not.toContain('SYNTHETIC_KEY_8822');
+  });
+
+  it('fails closed when tentative cross-pipe output exceeds its bounded in-memory holdback',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("before\n-");setTimeout(()=>process.stderr.write("SYNTHETIC_OVERFLOW_8823"+"X".repeat(20*1024)+"\n"),40);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('before\n');
+    expect(log).toContain('[REDACTED UNCLASSIFIED CHILD OUTPUT]');
+    expect(log).not.toContain('SYNTHETIC_OVERFLOW_8823');
+  });
+
+  it('suppresses opposite-pipe output while the PEM start marker is incomplete',async()=>{
+    const opener='-----BEGIN RSA PRIVATE KEY-----';
+    for(const length of [1,2,3,4,5,7,19,opener.length-1]){
+      const directory=temporaryDirectory();
+      // The child is real; the same canary crosses pipes between two opener writes.
+      const script=String.raw`const opener="-----BEGIN RSA PRIVATE KEY-----";const cut=Number(process.argv[1]);process.stdout.write("before\n"+opener.slice(0,cut));setTimeout(()=>process.stderr.write("SYNTHETIC_PARTIAL_PEM_OTHER_PIPE_8821\n"),40);setTimeout(()=>process.stdout.write(opener.slice(cut)+"\nSYNTHETIC_PARTIAL_PEM_KEY_8821\n-----END RSA PRIVATE KEY-----\nafter\n"),80);`;
+      const result=await runCheck(specFor(directory,{args:['-e',script,String(length)]}));
+      expect(result.status).toBe('PASS');
+      const log=readFileSync(result.artifact,'utf8');
+      expect(log).toContain('before\n');
+      expect(log).toContain('after\n');
+      expect(log).toContain('[REDACTED PRIVATE KEY]');
+      expect(log).not.toContain('SYNTHETIC_PARTIAL_PEM_OTHER_PIPE_8821');
+      expect(log).not.toContain('SYNTHETIC_PARTIAL_PEM_KEY_8821');
+    }
+  });
+
 });
