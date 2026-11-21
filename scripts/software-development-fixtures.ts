@@ -16,6 +16,11 @@ export const SOFTWARE_FIXTURE_DATA={
     {id:'types',name:'Typecheck',status:'failed',command:'pnpm typecheck',durationMs:860,dependsOn:['test'],log:'src/orders.ts:42: Type number is not assignable to type string.'},
     {id:'build',name:'Build',status:'blocked',command:'pnpm build',dependsOn:['types']},
     {id:'release',name:'Publish',status:'not-run',dependsOn:['build']}],source:'Supplied CI log. Build and release executors are not connected'},
+  TestResults:{version:1,runner:'node-test',reportState:'complete',truncated:false,durationMs:184,totals:{tests:3,passed:2,failed:1,skipped:0,todo:0},
+    suites:[{id:'s00000000000000a1',name:'tests/total.test.mjs',file:'tests/total.test.mjs',status:'failed',suites:[],tests:[
+      {id:'t00000000000000a1',name:'includes item quantity',fullName:'includes item quantity',status:'failed',durationMs:8,location:{file:'tests/total.test.mjs',line:4,column:1},failure:{message:'Expected 12, received 3',expected:'12',actual:'3',stack:[{file:'src/total.ts',line:3,column:15,text:'at total (src/total.ts:3:15)'}],truncated:false}},
+      {id:'t00000000000000a2',name:'empty basket returns zero',fullName:'empty basket returns zero',status:'passed',durationMs:2,location:{file:'tests/total.test.mjs',line:8,column:1}},
+      {id:'t00000000000000a3',name:'rounds the final total',fullName:'rounds the final total',status:'passed',durationMs:3,location:{file:'tests/total.test.mjs',line:14,column:1}}]}]},
 };
 export type SoftwareFixtureName=keyof typeof SOFTWARE_FIXTURE_DATA;
 export function softwareDevelopmentSpec(name:SoftwareFixtureName,actionId?:string):SurfaceSpec{

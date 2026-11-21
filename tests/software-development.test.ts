@@ -3,12 +3,19 @@ import {SOFTWARE_DATA_SCHEMAS,SOFTWARE_SCHEMAS,SOFTWARE_DISCOVERY} from '../pack
 import {SOFTWARE_FIXTURE_DATA} from '../scripts/software-development-fixtures';
 
 describe('source-bound software-development surfaces',()=>{
-  it('admits four source-bound views without executable or URL props',()=>{
+  it('admits five source-bound views without executable or URL props',()=>{
     for(const schema of Object.values(SOFTWARE_SCHEMAS)){
       expect(schema.safeParse({dataBinding:'evidence',stateKey:'selected',actionId:'inspect',actionLabel:'Inspect'}).success).toBe(true);
       expect(schema.safeParse({dataBinding:'evidence',stateKey:'selected',onClick:'fetch("/execute")'}).success).toBe(false);
       expect(schema.safeParse({dataBinding:'evidence',stateKey:'__proto__'}).success).toBe(false);
     }
+  });
+  it('accepts a recorded test run and rejects an invented result shape',()=>{
+    const run=SOFTWARE_FIXTURE_DATA.TestResults;
+    expect(SOFTWARE_DATA_SCHEMAS.TestResults.safeParse(run).success).toBe(true);
+    expect(SOFTWARE_SCHEMAS.TestResults.safeParse({dataBinding:'testRun',stateKey:'selectedTest'}).success).toBe(true);
+    expect(SOFTWARE_SCHEMAS.TestResults.safeParse({dataBinding:'testRun',execute:'node --test'}).success).toBe(false);
+    expect(SOFTWARE_DATA_SCHEMAS.TestResults.safeParse({...run,totals:{...run.totals,passed:'all'}}).success).toBe(false);
   });
   it('accepts actual diagnostic, diff, contract and stage-shaped records',()=>{
     for(const [name,schema] of Object.entries(SOFTWARE_DATA_SCHEMAS))expect(schema.safeParse(SOFTWARE_FIXTURE_DATA[name as keyof typeof SOFTWARE_FIXTURE_DATA]).success,name).toBe(true);

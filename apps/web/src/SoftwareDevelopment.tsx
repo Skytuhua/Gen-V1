@@ -6,6 +6,7 @@ import {ArtifactTitle,inputPath,statePath,useTaskAction} from './task-context';
 import {StatusIcon,type StatusKind} from './task-status';
 import {animateTask} from './task-motion';
 import './software-development.css';
+import {TestResults as TestResultsCard} from './test-results-view/TestResults';
 
 type CheckStatus='not-run'|'running'|'passed'|'failed'|'skipped'|'blocked'|'unknown';
 const statusKind:Record<CheckStatus,StatusKind>={'not-run':'neutral',running:'running',passed:'success',failed:'error',skipped:'neutral',blocked:'pending',unknown:'pending'};
@@ -191,4 +192,11 @@ export function Pipeline({element:{props}}:ComponentRenderProps){
   </section>;
 }
 
-export const SOFTWARE_REGISTRY={Diagnostics,ChangeSet,ApiExplorer,Pipeline} satisfies ComponentRegistry;
+export function TestResults({element:{props}}:ComponentRenderProps){
+  const p=SOFTWARE_SCHEMAS.TestResults.parse(props),store=useStateStore(),raw=store.get(inputPath(p.dataBinding));
+  const parsed=useMemo(()=>raw?SOFTWARE_DATA_SCHEMAS.TestResults.safeParse(raw):null,[raw]);
+  if(!parsed?.success)return <Unavailable name="Test results"/>;
+  return <section className="software-surface" aria-label="Test results"><TestResultsCard run={parsed.data}/></section>;
+}
+
+export const SOFTWARE_REGISTRY={Diagnostics,ChangeSet,ApiExplorer,Pipeline,TestResults} satisfies ComponentRegistry;
