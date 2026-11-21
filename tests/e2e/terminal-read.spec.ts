@@ -177,3 +177,118 @@ test('an unbound start fails closed when its pending caller ID cannot be retaine
  const api=await mount(page,{unbound:true});await expect(phase(page)).toHaveText('Start unconfirmed');await expect(errorText(page)).toContainText('retain');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
  expect(api.creates()).toEqual([]);await page.evaluate(()=>window.terminalFixture.show(false));await expect(page.locator('.xterm')).toHaveCount(0);await page.evaluate(()=>window.terminalFixture.show(true));await expect(phase(page)).toHaveText('Start unconfirmed');expect(api.creates()).toEqual([]);
 });
+
+test('find searches the retained buffer, moves between matches and sends nothing to the shell',async({page})=>{
+ const output=Array.from({length:2050},(_,index)=>`line-${index}\r\n`).join('');
+ const api=await mount(page,{create:route=>json(route,result('terminal-a',output,{cursor:output.length}))});
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ const input=page.locator('.terminal-find input');await expect(input).toBeFocused();
+ await input.fill('line-204');
+ const expected=await page.evaluate(()=>{const buffer=window.terminalFixture.instances[0].buffer.active;let count=0;for(let row=0;row<buffer.length;row++){if(buffer.getLine(row)?.translateToString().includes('line-204'))count++;}return count;});
+ expect(expected).toBeGreaterThan(1);
+ const counter=page.locator('.terminal-find .terminal-find-counter');
+ await expect(counter).toHaveText(`1 of ${expected}`);
+ await input.press('Enter');await expect(counter).toHaveText(`2 of ${expected}`);
+ await input.press('Shift+Enter');await expect(counter).toHaveText(`1 of ${expected}`);
+ expect(await page.evaluate(()=>{const terminal=window.terminalFixture.instances[0];const selection=terminal.getSelectionPosition();return !!selection&&selection.start.y>=terminal.buffer.active.viewportY&&selection.start.y<terminal.buffer.active.viewportY+terminal.rows;})).toBe(true);
+ const before=api.requests.filter(item=>item.body?.type==='input').length;
+ await input.press('Escape');await expect(page.locator('.terminal-find')).toHaveCount(0);await expect(page.locator('.xterm-helper-textarea')).toBeFocused();
+ await page.locator('.xterm-helper-textarea').press('x');await expect.poll(()=>api.requests.filter(item=>item.body?.type==='input').length).toBe(before+1);
+ expect(api.blocked).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('Ctrl+F inside the terminal opens find without reaching the document or the shell',async({page})=>{
+ const api=await mount(page);
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.evaluate(()=>{(window as unknown as {findKeys:boolean[]}).findKeys=[];document.addEventListener('keydown',event=>{if(event.key.toLowerCase()==='f'&&(event.ctrlKey||event.metaKey))(window as unknown as {findKeys:boolean[]}).findKeys.push(event.defaultPrevented);});});
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ await expect(page.locator('.terminal-find input')).toBeFocused();
+ expect(await page.evaluate(()=>(window as unknown as {findKeys:boolean[]}).findKeys)).toEqual([]);
+ expect(api.requests.filter(item=>item.body?.type==='input')).toEqual([]);
+});
+
+test('find reports no results and disables match navigation',async({page})=>{
+ const api=await mount(page,{create:route=>json(route,result('terminal-a','before\r\n'))});
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ const input=page.locator('.terminal-find input');await input.fill('zzz');
+ await expect(page.locator('.terminal-find .terminal-find-counter')).toHaveText('No results');
+ await expect(page.getByRole('button',{name:'Previous match',exact:true})).toBeDisabled();
+ await expect(page.getByRole('button',{name:'Next match',exact:true})).toBeDisabled();
+ expect(api.errors).toEqual([]);
+});
+
+test('match case narrows a literal find',async({page})=>{
+ const api=await mount(page,{create:route=>json(route,result('terminal-a','Error error ERROR\r\n',{cursor:18}))});
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ const input=page.locator('.terminal-find input');await input.fill('error');
+ const counter=page.locator('.terminal-find .terminal-find-counter');
+ await expect(counter).toHaveText('1 of 3');
+ await page.getByRole('button',{name:'Match case',exact:true}).click();
+ await expect(counter).toHaveText('1 of 1');
+ expect(api.requests.filter(item=>item.body?.type==='input')).toEqual([]);
+});
+
+test('find works on an ended terminal over its retained output',async({page})=>{
+ const api=await mount(page,{create:route=>json(route,result('terminal-a','done tail\r\n',{cursor:10,exited:true,exitCode:0}))});
+ await expect(phase(page)).toHaveText('Ended');
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ const input=page.locator('.terminal-find input');await input.fill('tail');
+ await expect(page.locator('.terminal-find .terminal-find-counter')).toHaveText('1 of 1');
+ expect(api.requests.filter(item=>item.body?.type==='input')).toEqual([]);
+});
+
+test('new output refreshes the find counter without moving the active match',async({page})=>{
+ const api=await mount(page,{create:route=>json(route,result('terminal-a','ready\r\n',{cursor:6})),read:route=>json(route,result('terminal-a','ready\r\n',{start:6,cursor:12}))});
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ const input=page.locator('.terminal-find input');await input.fill('ready');
+ const counter=page.locator('.terminal-find .terminal-find-counter');
+ await expect(counter).toHaveText('1 of 1');
+ await expect(counter).toHaveText('1 of 2',{timeout:3000});
+ expect(api.requests.filter(item=>item.body?.type==='input')).toEqual([]);
+});
+
+test('the toolbar button opens the row and the close button returns focus to it',async({page})=>{
+ const api=await mount(page);
+ const toggle=page.getByRole('button',{name:'Find in terminal',exact:true});
+ await expect(toggle).toBeVisible();await toggle.click();
+ await expect(page.locator('.terminal-find input')).toBeFocused();await expect(toggle).toHaveAttribute('aria-expanded','true');
+ await page.getByRole('button',{name:'Close find',exact:true}).click();
+ await expect(page.locator('.terminal-find')).toHaveCount(0);await expect(toggle).toBeFocused();await expect(toggle).toHaveAttribute('aria-expanded','false');
+ expect(api.requests.filter(item=>item.body?.type==='input')).toEqual([]);
+});
+
+test('Escape inside the find row does not reach the window stop shortcut',async({page})=>{
+ await mount(page);
+ await expect(page.getByRole('button',{name:'Find in terminal',exact:true})).toBeVisible();
+ await page.locator('.xterm-helper-textarea').focus();await page.locator('.xterm-helper-textarea').press('Control+f');
+ await page.evaluate(()=>{(window as unknown as {escapes:number}).escapes=0;window.addEventListener('keydown',event=>{if(event.key==='Escape')(window as unknown as {escapes:number}).escapes++;});});
+ const input=page.locator('.terminal-find input');await expect(input).toBeFocused();await input.press('Escape');
+ await expect(page.locator('.terminal-find')).toHaveCount(0);
+ expect(await page.evaluate(()=>(window as unknown as {escapes:number}).escapes)).toBe(0);
+});
+
+for(const theme of ['dark','light'])test(`${theme} narrow find row stays inside 320px with no running animations`,async({page},info)=>{
+ await page.setViewportSize({width:320,height:600});await page.emulateMedia({reducedMotion:'reduce'});
+ const api=await mount(page);
+ await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);
+ const toggle=page.getByRole('button',{name:'Find in terminal',exact:true});await expect(toggle).toBeVisible();await toggle.click();
+ const input=page.locator('.terminal-find input');await input.fill('before');await page.waitForTimeout(200);
+ for(const button of await page.locator('.live-terminal button').all()){const box=(await button.boundingBox())!;expect(box.x).toBeGreaterThanOrEqual(0);expect(box.x+box.width).toBeLessThanOrEqual(320);}
+ expect(await page.locator('.live-terminal').evaluate(element=>element.getAnimations({subtree:true}).filter(animation=>animation.playState==='running').length)).toBe(0);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
+ await page.screenshot({path:info.outputPath(`04-${theme}-narrow-find.png`)});
+ await page.setViewportSize({width:1000,height:760});await page.screenshot({path:info.outputPath(`05-${theme}-find.png`)});
+ expect(api.blocked).toEqual([]);expect(api.errors).toEqual([]);
+});
+
+test('find highlight colors keep 4.5:1 contrast on the dark terminal',()=>{
+ const luminance=(hex:string)=>{const channel=[1,3,5].map(index=>parseInt(hex.slice(index,index+2),16)/255).map(value=>value<=0.03928?value/12.92:Math.pow((value+0.055)/1.055,2.4));return 0.2126*channel[0]+0.7152*channel[1]+0.0722*channel[2];};
+ const ratio=(a:string,b:string)=>{const[light,dark]=[luminance(a),luminance(b)].sort((x,y)=>y-x);return (light+0.05)/(dark+0.05);};
+ expect(ratio('#dedede','#4a3b12')).toBeGreaterThanOrEqual(4.5);
+ expect(ratio('#dedede','#7a5000')).toBeGreaterThanOrEqual(4.5);
+});
