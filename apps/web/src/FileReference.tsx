@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useMemo, useRef, type ReactNode } from 'react';
 import type { FileReference } from './file-references';
 import { createFileReferenceVerifier, useFileReferenceStatus, type FileReferenceOwner, type FileReferenceVerifier } from './file-reference-verifier';
 
@@ -9,10 +9,17 @@ export interface FileReferenceContextValue {
 }
 export const FileReferenceContext = createContext<FileReferenceContextValue | null>(null);
 
-/** One verifier per conversation owner; detection in the wrapped assistant replies only. */
-export function FileReferenceProvider({ owner, open, children }: { owner: FileReferenceOwner; open: (ref: FileReference) => void; children: ReactNode }) {
-  const value = useMemo<FileReferenceContextValue>(() => ({ owner, verifier: createFileReferenceVerifier(owner), open }), [owner.projectId, owner.threadId]); // eslint-disable-line react-hooks/exhaustive-deps
-  useEffect(() => () => value.verifier.dispose(), [value]);
+/** One verifier per conversation owner; mount once per transcript, then share. */
+export function useFileReferenceContext(owner: FileReferenceOwner | null, open: (ref: FileReference) => void): FileReferenceContextValue | null {
+  const openRef = useRef(open);
+  openRef.current = open;
+  const value = useMemo<FileReferenceContextValue | null>(() => owner ? { owner, verifier: createFileReferenceVerifier(owner), open: ref => openRef.current(ref) } : null, [owner?.projectId, owner?.threadId]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => () => value?.verifier.dispose(), [value]);
+  return value;
+}
+
+export function FileReferenceProvider({ value, children }: { value: FileReferenceContextValue | null; children: ReactNode }) {
+  if (!value) return <>{children}</>;
   return <FileReferenceContext.Provider value={value}>{children}</FileReferenceContext.Provider>;
 }
 
