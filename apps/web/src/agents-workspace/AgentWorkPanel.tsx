@@ -1,4 +1,5 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
+import {usePolling} from '../usePolling.ts';
 import {Ban, Eye, Play, Square} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {
@@ -36,10 +37,10 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
       const targets = next.works.filter(work => work.state === 'RUNNING' || work.state === 'QUEUED').map(work => work.owner.threadId);
       setInputs((await Promise.all(targets.map(owner => getAgentWorkInputs(threadId, owner)))).flatMap(batch => batch.inputs));
       setError(null);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Agent work unavailable'); }
+    } catch (e) { setError(e instanceof Error ? e.message : 'Agent work unavailable'); throw e; }
     finally { busy.current = false; }
   }, [threadId]);
-  useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 4000); return () => clearInterval(timer); }, [refresh]);
+  usePolling(refresh, 4000);
   if (error && !list) return null;
   if (!list || list.works.length === 0) return null;
   const progress = plan?.extension ? plan.progress : undefined;
