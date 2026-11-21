@@ -9,7 +9,6 @@ export function nativeBrowserBounds(bounds:DesktopBounds,[width,height]:readonly
  return w&&h?{x,y,width:w,height:h}:{x:0,y:0,width:0,height:0};
 }
 
-const PREVIEW_WIDTHS=[390,768] as const;
 /** Sizing authority for the docked browser preview. The supplied rectangle is the
  * renderer-measured usable slot; the returned bounds are always a subset of the
  * validated slot, so a preset can never expand an accepted rectangle. */
