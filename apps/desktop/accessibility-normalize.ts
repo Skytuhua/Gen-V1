@@ -211,13 +211,19 @@ export function normalizeAudit(
 		JSON.stringify(result).length > MAX_BYTES &&
 		kept.some((rule) => rule.nodes.length > 0)
 	) {
-		for (const rule of [...kept].reverse())
-			if (rule.nodes.length > 0) {
-				rule.nodes.pop();
-				truncated = true;
-				break;
-			}
+		const size = JSON.stringify(result).length;
+		const nodeTotal = kept.reduce((sum, rule) => sum + rule.nodes.length, 0);
+		const perNode = Math.max(1, Math.ceil(size / nodeTotal));
+		let drop = Math.max(1, Math.ceil((size - MAX_BYTES) / perNode));
+		for (const rule of [...kept].reverse()) {
+			if (drop <= 0) break;
+			const take = Math.min(drop, rule.nodes.length);
+			rule.nodes.splice(rule.nodes.length - take, take);
+			drop -= take;
+		}
+		truncated = true;
 	}
+	result.truncated = truncated;
 	return result;
 }
 

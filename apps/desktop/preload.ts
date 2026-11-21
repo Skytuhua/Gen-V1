@@ -18,6 +18,7 @@ const bridge:DesktopBridge={
  setTheme:theme=>ipcRenderer.invoke(channels.theme,theme),
  update:action=>ipcRenderer.invoke(channels.update,action),
  getContext:()=>ipcRenderer.invoke(channels.context),ready:()=>ipcRenderer.invoke(channels.ready),detach:surface=>ipcRenderer.invoke(channels.detach,parseDesktopSurface(surface)),reattach:()=>ipcRenderer.invoke(channels.reattach),minimize:()=>ipcRenderer.invoke(channels.minimize),resetBounds:()=>ipcRenderer.invoke(channels.reset),focus:id=>ipcRenderer.invoke(channels.focus,id),list:()=>ipcRenderer.invoke(channels.list),browser:command=>ipcRenderer.invoke(channels.browser,command),
+ accessibilityAudit:command=>ipcRenderer.invoke(channels.accessibilityAudit,command),
  control:command=>ipcRenderer.invoke(channels.control,command),captureLayout:()=>ipcRenderer.invoke(channels.captureLayout),applyLayout:layout=>ipcRenderer.invoke(channels.applyLayout,layout),
  signIn:(provider,accountId)=>ipcRenderer.invoke(channels.signIn,...(accountId!==undefined?[{provider,accountId}]:[provider])),
  activeSignIn:()=>ipcRenderer.invoke(channels.activeSignIn),signInStatus:flowId=>ipcRenderer.invoke(channels.signInStatus,flowId),cancelSignIn:flowId=>ipcRenderer.invoke(channels.cancelSignIn,flowId),
