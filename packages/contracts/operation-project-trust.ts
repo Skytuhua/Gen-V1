@@ -20,7 +20,7 @@ export const operationProjectTrustRevokeSchema = operationProjectTrustTargetSche
 });
 export type OperationProjectTrustRevoke = z.infer<typeof operationProjectTrustRevokeSchema>;
 
-export const operationProjectTrustStateSchema = z.strictObject({
+const operationProjectTrustStateSchema = z.strictObject({
   trustId: z.string().min(1).max(100), revision: z.number().int().nonnegative(),
   decision: z.enum(['required', 'trusted', 'declined', 'revoked', 'invalidated']),
 }).refine(state => state.decision === 'required' ? state.revision === 0 : state.revision > 0,
@@ -28,14 +28,13 @@ export const operationProjectTrustStateSchema = z.strictObject({
 export type OperationProjectTrustState = z.infer<typeof operationProjectTrustStateSchema>;
 /** Requested project scope is consent metadata, not an operating-system policy.
  * The existing runner is explicitly unrestricted; no isolated backend is selected. */
-export const repositoryHostExecutionDisclosureSchema = z.strictObject({
+const repositoryHostExecutionDisclosureSchema = z.strictObject({
   mode: z.literal('TRUSTED_HOST'), label: z.literal('Unrestricted host'),
   executable: z.strictObject({ path: z.string().min(1).max(32767), sha256: sha256HexSchema }),
   argv: z.tuple([z.literal('--test'), z.literal('--'), z.string().min(1).max(1024)]),
   cwd: z.string().min(1).max(4096), filesystem: z.literal('unrestricted'),
   network: z.literal('unrestricted'), processes: z.literal('unrestricted'), platformProofRef: z.null(),
 });
-export type RepositoryHostExecutionDisclosure = z.infer<typeof repositoryHostExecutionDisclosureSchema>;
 export const operationProjectTrustReviewSchema = z.discriminatedUnion('enabled', [
   operationProjectTrustTargetSchema.extend({ version: z.literal(1), enabled: z.literal(false), reason: z.literal('PROJECT_TRUST_DISABLED') }),
   operationProjectTrustTargetSchema.extend({ version: z.literal(1), enabled: z.literal(true), reviewId: id,

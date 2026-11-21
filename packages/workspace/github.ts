@@ -18,7 +18,7 @@ import {ComparisonSnapshots,PullComparisonSchema,RemoteComparisonSchema,comparis
 const repository=z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/),number=z.number().int().positive();
 const bodyText=z.string().max(64000).refine(value=>Buffer.from(value,'utf8').toString('utf8')===value,'Pull request text must be valid Unicode.');
 const quote=(path:string)=>"'"+path.replaceAll('\\','/').replaceAll("'","'\\''")+"'";
-export const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
+const bundledGh=fileURLToPath(new URL('../../.harness-tool-bundles/gh/bin/gh.exe',import.meta.url));
 interface PullRequest{number:number;title:string;url:string;state:string;headRefOid:string;headRefName:string;isDraft:boolean}
 /** Bundled GitHub CLI with a private sign-in profile and exact reviewed revisions. */
 export class GitHubTools{
