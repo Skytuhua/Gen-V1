@@ -28,7 +28,7 @@ function fixture(){
   store.internal('fixture',grant.threadId,()=>store.put('resource',grant.id,grant.threadId,grant));
   const controller=new AbortController();
   const lineage=createContextResultLineage({store,threadId:'t1',signal:controller.signal,assertCurrent:()=>{}});
-  const context={withResource:(id:string,relativePath:string|undefined,write:boolean,action:(path:string)=>Promise<unknown>)=>
+  const context={withResource:(id:string,relativePath:string|undefined,_write:boolean,action:(path:string)=>Promise<unknown>)=>
     action(relativePath?join(store.get<typeof grant>('resource',id)!.path,relativePath):store.get<typeof grant>('resource',id)!.path)} as never;
   return {store,grant,file,lineage,context,controller};
 }
