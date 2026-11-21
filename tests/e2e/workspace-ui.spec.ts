@@ -64,6 +64,17 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
  return {...host,envelope};
 }
 
+test('workspace controls live in the brand menu instead of a footer',async({page})=>{
+ await fixture(page,[],undefined,'workspace');
+ await expect(page.locator('.sidebar-footer')).toHaveCount(0);
+ const controls=page.locator('.brand-row').getByRole('button',{name:'App controls',exact:true});
+ await controls.click();await expect(page.getByRole('menuitem',{name:'Settings',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Pull requests',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Usage',exact:true})).toBeVisible();
+ await expect(page.getByRole('menuitem',{name:'Check for updates',exact:true})).toBeDisabled();
+ await page.keyboard.press('Escape');await expect(controls).toBeFocused();
+});
+
 test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
@@ -84,7 +95,7 @@ test('primary Workspace keeps tools fixed and preserves its anchored draft throu
 
 test('retained navigation directs tools to the main workspace without creating detached owners',async({page})=>{
  await page.addInitScript(()=>sessionStorage.setItem('workspace-test-surface',JSON.stringify({kind:'navigation'})));await nativeBridge(page);await fixture(page,[],undefined,'workspace');
- for(const label of ['Pull requests','Usage']){await page.getByRole('button',{name:label,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Open this tool in the main workspace.'})).toBeVisible();}
+ for(const label of ['Pull requests','Usage']){await page.getByRole('button',{name:'App controls',exact:true}).click();await page.getByRole('menuitem',{name:label,exact:true}).click();await expect(page.getByRole('status').filter({hasText:'Open this tool in the main workspace.'})).toBeVisible();}
  expect(await page.evaluate(()=>(window as any).__workspaceNativeCalls.filter((value:any)=>value[0]==='detach'))).toEqual([]);
 });
 
@@ -303,7 +314,7 @@ test('closing Settings cancels its pending catalog read and leaves the current w
  await expect.poll(async()=>(await reads()).filter(read=>read.url.includes('threadId=task-thread')).length).toBe(1);
  await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models').length).toBe(1);
  const retainedCatalog=(await reads()).find(read=>read.url==='/api/models')!.id;
- await page.getByRole('button',{name:'Settings',exact:true}).click();
+ await page.getByRole('button',{name:'App controls',exact:true}).click();await page.getByRole('menuitem',{name:'Settings',exact:true}).click();
  await expect(page.getByRole('dialog',{name:'Settings',exact:true})).toBeVisible();
  await expect.poll(async()=>(await reads()).filter(read=>read.url==='/api/models?refresh=1').length).toBe(1);
  const settingsCatalog=(await reads()).find(read=>read.url==='/api/models?refresh=1'&&read.id!==retainedCatalog)!.id;

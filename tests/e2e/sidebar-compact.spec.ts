@@ -29,19 +29,21 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  await page.getByRole('menuitem',{name:'Pin thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toContain('presentation:{"pinned":true}');
 });
-test('footer invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
- await expect(page.locator('.sidebar-footer button')).toHaveCount(4);
- await page.getByRole('button',{name:'Settings',exact:true}).click();
- await page.getByRole('button',{name:'Pull requests',exact:true}).click();
- await page.getByRole('button',{name:'Usage',exact:true}).click();
- await page.getByRole('button',{name:'Update',exact:true}).click();
+test('brand menu invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
+ await expect(page.locator('.sidebar-footer')).toHaveCount(0);
+ for(const name of ['Settings','Pull requests','Usage','Check for updates']){
+  await page.getByRole('button',{name:'App controls',exact:true}).click();
+  await page.getByRole('menuitem',{name,exact:true}).click();
+ }
  await page.getByRole('navigation',{name:'Installed plug-ins'}).getByRole('button').click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toEqual(['settings','pull-requests','usage','update:check','plugin']);
 });
-test('footer falls back to its existing workspace context',async({page})=>{
+test('brand menu falls back to its existing workspace context',async({page})=>{
  await page.goto('/sidebar-compact-check?fallback=1');
- await page.getByRole('button',{name:'Pull requests',exact:true}).click();
- await page.getByRole('button',{name:'Usage',exact:true}).click();
+ for(const name of ['Pull requests','Usage']){
+  await page.getByRole('button',{name:'App controls',exact:true}).click();
+  await page.getByRole('menuitem',{name,exact:true}).click();
+ }
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toEqual(['workspace:linked-pull-requests','workspace:usage']);
 });
 test('hidden scrollbar keeps wheel and keyboard navigation usable',async({page})=>{
@@ -51,8 +53,9 @@ test('hidden scrollbar keeps wheel and keyboard navigation usable',async({page})
  await expect.poll(()=>list.evaluate(node=>node.scrollTop)).toBeGreaterThan(100);
  await list.focus();await page.keyboard.press('End');
  await expect.poll(()=>list.evaluate(node=>node.scrollTop+node.clientHeight>=node.scrollHeight-2)).toBe(true);
- const footer=page.locator('.sidebar-footer');
- expect((await footer.boundingBox())!.y+(await footer.boundingBox())!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
+ const controls=page.locator('.brand-row').getByRole('button',{name:'App controls',exact:true});
+ await expect(controls).toBeVisible();
+ expect((await controls.boundingBox())!.y+(await controls.boundingBox())!.height).toBeLessThanOrEqual(page.viewportSize()!.height);
 });
 
 test('ready rows show age only while working and input states remain visible',async({page})=>{

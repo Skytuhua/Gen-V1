@@ -7,6 +7,7 @@ import {
   ChevronRight,
   Circle,
   ExternalLink,
+  Download,
   FolderPlus,
   GitBranch,
   GitPullRequest,
@@ -25,7 +26,7 @@ import type { UiPreferences } from '../../../packages/contracts/preferences';
 import type { ShellLayout } from './shell-layout';
 import { ariaKeyShortcuts } from './keyboard-bindings';
 import { MotionRegion } from './task-motion';
-import { UpdateControl } from './UpdateControl';
+import { useUpdateControl } from './UpdateControl';
 import { useWorkspace } from './workspace-context';
 import './sidebar-context.css';
 import {ThreadHoverCard} from './thread-hover/ThreadHoverCard';
@@ -158,6 +159,7 @@ export function ShellSidebar({
   const workspace = useWorkspace();
   const [hoverCache]=useState(createThreadHoverCache<ThreadHoverPRTarget>);
   const [menuId, setMenuId] = useState<string | null>(null);
+  const [appMenuOpen,setAppMenuOpen]=useState(false),update=useUpdateControl();
   const [filter, setFilter] = useState<'all' | 'working' | 'waiting'>('all');
   const [showAllSettled, setShowAllSettled] = useState(false);
   const navRef = useRef<HTMLElement | null>(null);
@@ -374,6 +376,15 @@ export function ShellSidebar({
           <MessageSquare size={16} />
         </span>
         <strong>Gen V1</strong>
+        <span className="sidebar-app-menu">
+          <ActionMenu label="App controls" icon={<Settings2 size={16}/>} iconOnly open={appMenuOpen} onOpenChange={setAppMenuOpen} items={[
+            {id:'settings',label:'Settings',accessibleLabel:'Settings',shortcut:preferences.keybindings.openSettings,onSelect:settings},
+            {id:'pull-requests',label:'Pull requests',icon:<GitPullRequest size={15}/>,onSelect:onOpenPullRequests??(()=>workspace.setActiveTab('linked-pull-requests'))},
+            {id:'usage',label:'Usage',icon:<BarChart3 size={15}/>,onSelect:onOpenUsage??(()=>workspace.setActiveTab('usage'))},
+            {id:'updates',label:update.ready?'Restart to update':'Check for updates',icon:<Download size={15}/>,title:update.message,disabled:update.disabled,onSelect:()=>void update.run()},
+          ]}/>
+          {update.available&&<span className="sidebar-update-dot" role="status" aria-label="Update available"/>}
+        </span>
         <button
           type="button"
           className="icon-button sidebar-close"
@@ -476,31 +487,7 @@ export function ShellSidebar({
         {pageControls}
       </nav>
       {navigation}
-      <div className="sidebar-footer" aria-label="App controls">
-        <button type="button" onClick={settings} aria-label="Settings" title="Settings">
-          <Settings2 size={16} />
-          <span>Settings</span>
-        </button>
-        <button
-          type="button"
-          onClick={onOpenPullRequests ?? (() => workspace.setActiveTab('linked-pull-requests'))}
-          aria-label="Pull requests"
-          title="Pull requests"
-        >
-          <GitPullRequest size={16} />
-          <span>PRs</span>
-        </button>
-        <button
-          type="button"
-          onClick={onOpenUsage ?? (() => workspace.setActiveTab('usage'))}
-          aria-label="Usage"
-          title="Usage"
-        >
-          <BarChart3 size={16} />
-          <span>Usage</span>
-        </button>
-        <UpdateControl compact />
-      </div>
+
     </aside>
   );
 }

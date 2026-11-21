@@ -266,6 +266,11 @@
   white-space: nowrap;
 }
 
+.sidebar-app-menu{position:relative;display:flex;margin-left:auto}
+.sidebar-app-menu .ui-action-trigger{width:28px;min-height:28px;height:28px;padding:4px;justify-content:center}
+.sidebar-update-dot{position:absolute;top:3px;right:3px;width:6px;height:6px;border-radius:50%;background:var(--accent);pointer-events:none}
+.sidebar .brand-row .sidebar-close{margin-left:0}
+
 .app-shell .sidebar .sidebar-thread-row .thread-item-title,
 .sidebar .sidebar-thread-row .thread-item-title {
   font-size: 13.5px;
