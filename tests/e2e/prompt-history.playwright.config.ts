@@ -1,0 +1,3 @@
+import { defineConfig } from '@playwright/test';
+import { resolve } from 'node:path';
+export default defineConfig({ testDir: '.', testMatch: 'prompt-history.spec.ts', workers: 1, timeout: 30000, outputDir: resolve('.harness-ui-shell/prompt-history'), use: { baseURL: 'http://127.0.0.1:5351', viewport: { width: 1440, height: 1000 }, trace: 'retain-on-failure' }, webServer: process.env.GEN_WO5_SERVER_EXTERNAL === '1' ? undefined : { cwd: resolve(import.meta.dirname, '../..'), command: (process.platform === 'win32' ? '' : 'exec timeout --kill-after=5s 300s ') + 'pnpm exec vite --host 127.0.0.1 --port 5351 --strictPort', url: 'http://127.0.0.1:5351', reuseExistingServer: false } });

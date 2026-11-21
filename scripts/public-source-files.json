@@ -3115,6 +3115,8 @@
     "tests/e2e/project-search.spec.ts",
     "tests/e2e/project-search.vite.config.ts",
     "tests/e2e/project-trust-review.spec.ts",
+    "tests/e2e/prompt-history.playwright.config.ts",
+    "tests/e2e/prompt-history.spec.ts",
     "tests/e2e/redundant-ui-fixture.css",
     "tests/e2e/redundant-ui-fixture.tsx",
     "tests/e2e/redundant-ui.playwright.config.ts",
