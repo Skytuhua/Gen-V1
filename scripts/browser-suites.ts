@@ -71,6 +71,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('inline-surfaces'),
   suite('native-browser-bounds'),
   suite('pdf', ['document-preview.spec.ts']),
+  suite('personal-instructions'),
   suite('plan-presentation'),
   suite('project-app-integration', ['project-app-integration.spec.mjs']),
   suite('project-picker'),

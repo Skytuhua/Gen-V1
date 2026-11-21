@@ -111,6 +111,10 @@ pnpm desktop:dev
 
 The directory contains credentials, conversations, attachments, skill files, state and receipts. Keep it out of Git and take backups with the application fully closed. Do not delete profile guards or copy credentials between account folders to clear a blocked connection.
 
+### Personal instructions
+
+Settings > Chat & Composer > Personal instructions edits a single `personal-instructions/AGENTS.md` inside the backend data directory. When the switch is on, the text is appended to the system prompt of every new main-thread run in every project, below project instructions in precedence — project `AGENTS.md` wins on conflict. The file is capped at 16 KiB of UTF-8 text, must not contain include or hook directives, and changes apply to the next run start. The card reports and refuses stale writes when the file changed on disk since it was loaded; on desktop, "Open file" and "Show in folder" reach the file directly.
+
 Optional host settings are `HARNESS_PORT` and `HARNESS_WIDGET_PORT`. Desktop development uses `HARNESS_DESKTOP_PORT` and `HARNESS_DESKTOP_WIDGET_PORT`. Keep the two ports distinct. Vite's development proxy uses the same `HARNESS_PORT` as the backend. Set it before starting `pnpm dev`.
 
 ### Host capability activation

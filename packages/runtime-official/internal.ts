@@ -6,7 +6,7 @@ import type {ModelPurpose} from '../runtime/model-only.ts';
 
 export interface WireInput { uuid: string; text: string; inputIds: string[] }
 export interface DriverContext {
-  dataDir: string; taskDir: string; manifest: ManifestState; mcp: HostMcp; memory?: string; thinkingLevel?:string|null;modelOnly?:boolean;purpose?:ModelPurpose;
+  dataDir: string; taskDir: string; manifest: ManifestState; mcp: HostMcp; memory?: string; personalInstructions?: {text:string;digest:string}; thinkingLevel?:string|null;modelOnly?:boolean;purpose?:ModelPurpose;
   current(): boolean;
   event(type: string, value?: Record<string, unknown>): void;
   observed(uuid: string): Promise<string[]>;

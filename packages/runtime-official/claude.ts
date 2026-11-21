@@ -2,7 +2,7 @@ import { spawn } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import type { AccountInfo, Options, Query, SDKUserMessage } from '@anthropic-ai/claude-agent-sdk';
 import { HarnessError } from '../contracts/index.ts';
-import { hostSystemPrompt } from '../runtime-pi/tool-definitions.ts';
+import { hostSystemPrompt, withPersonalInstructions } from '../runtime-pi/tool-definitions.ts';
 import { officialRuntimeCommand, officialRuntimeEnvironment } from './environment.ts';
 import { asyncQueue, bounded, finite, textContent, type DriverContext, type OfficialDriver } from './internal.ts';
 import { saveManifest } from './manifest.ts';
@@ -46,7 +46,7 @@ export async function openClaude(context: DriverContext, sdk: ClaudeSdk, modelId
     ...(resuming ? { resume: context.manifest.value.sessionId! } : { sessionId: context.manifest.value.sessionId! }),
     tools: [], settingSources: [], strictMcpConfig: true,
     skills: [], plugins: [], agents: {},
-    systemPrompt: context.modelOnly?modelOnlySystemPrompt(context.purpose):hostSystemPrompt(context.memory),
+    systemPrompt: context.modelOnly?modelOnlySystemPrompt(context.purpose):withPersonalInstructions(hostSystemPrompt(context.memory),context.personalInstructions),
     permissionMode: 'default', includePartialMessages: true,
     mcpServers: context.modelOnly?{}:{ host: { type: 'http', url: context.mcp.url, headers: context.mcp.headers } },
     canUseTool: async (name, args) => permit(name) ? { behavior: 'allow', updatedInput: args } : { behavior: 'deny', message: 'Only current-run host MCP tools are permitted.' },

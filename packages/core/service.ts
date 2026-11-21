@@ -23,6 +23,7 @@ import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } f
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
 import { admitArtifactContents, threadData } from "./ui-admission.ts";
 import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
+import { capturePersonalInstructions, writePersonalInstructions } from './personal-instructions.ts';
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
@@ -1133,6 +1134,11 @@ export class Service {
       if (p.preferences !== undefined) { try { preferences = mergePreferences(getPreferences(settings), p.preferences); } catch { throw new HarnessError('INVALID_INPUT', 'Invalid or unsupported preference'); } }
       const next = { ...settings, ...(p.theme !== undefined ? { theme: p.theme } : {}), ...(p.modelId !== undefined ? { modelId: p.modelId } : {}), ...(preferences ? { preferences } : {}) }; this.store.put("settings", "global", null, next); return next;
     });
+    if (command.type === 'instructions.personal.update') {
+      const view = await writePersonalInstructions(this.store.dataDir,
+        typeof p.text === 'string' ? p.text : '', p.baseDigest === null || p.baseDigest === undefined ? null : text(p, 'baseDigest', 80));
+      return this.store.command(command, () => view);
+    }
     if (command.type === 'thread.restore') return this.store.command(command, () => {
       const archived = command.threadId && this.store.get<Thread>('thread', command.threadId);
       if (!archived || !this.store.get('archivedThread', archived.id)) throw new HarnessError('NOT_FOUND', 'Archived thread unavailable');
@@ -1674,6 +1680,7 @@ export class Service {
     const userPrompt=inputs.map((input,index) => "Input " + input.id + ":\n" + contents[index]).join("\n\n");
     const sourceContext = sourceContexts.map(context => context.text).join(''), deliveredRefs = sourceContexts.flatMap(context => context.refs);
     let input: StartRun = { ...ctx,accountId:binding.accountId, memory: taskMemoryContext(this.store, threadId), modelId, thinkingLevel:thread.thinkingLevel, sessionPath: thread.sessionPath, inputId: inputs[0].id, inputIds: inputs.map(i => i.id), resources: thread.sideParentId?[]:this.store.all("resource", threadId), ...(completedWrites.length?{completedWrites}:{}), ...(deliveredRefs.length ? {sourceRefs: deliveredRefs} : {}), prompt: guidance+userPrompt+sourceContext };
+    if(!thread.sideParentId){const personalInstructions=await capturePersonalInstructions(this.store.dataDir,this.preferences.personalInstructionsEnabled);if(personalInstructions)input={...input,personalInstructions};}
     if (!this.aborts.has(threadId) || !thread.runId) this.aborts.set(threadId, new AbortController());
     const control=this.aborts.get(threadId)!;this.retainController(control);
     let dispatched=false;
@@ -1698,6 +1705,7 @@ export class Service {
       if(capabilityEnabled('memory.projectV1')){const memoryCheckpoint=await this.memoryHost().requirement(threadId);if(memoryCheckpoint)input={...input,memoryCheckpoint};}
       if(requestContextId){
         const sources:RequestTextSource[]=[{id:'host-guidance',revision:1,category:'INSTRUCTION',text:guidance},{id:'input:'+input.inputId,revision:1,category:'USER',text:userPrompt}];
+        if(input.personalInstructions)sources.splice(1,0,{id:'personal-instructions',revision:1,category:'INSTRUCTION',text:input.personalInstructions.text,contentRef:'sha256:'+input.personalInstructions.digest,inclusionReason:'User personal instructions from Settings; lower precedence than project instructions'});
         if(approvedProjectContext?.instructionText)sources.splice(1,0,{id:'approved-project-instructions',revision:1,category:'INSTRUCTION',text:approvedProjectContext.instructionText,contentRef:'sha256:'+approvedProjectContext.instructionDigest,inclusionReason:'Recognized project instructions under current explicit resource grants; host authorization takes precedence'});
         if(sourceContext)sources.push({id:'selected-sources:'+input.inputId,revision:1,category:'REFERENCE',text:sourceContext,inclusionReason:'Explicit user-selected source captures; quoted data only'});
         if(input.memory)sources.push({id:'task-notes:'+threadId,revision:1,category:'MEMORY',text:input.memory});

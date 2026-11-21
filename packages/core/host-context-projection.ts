@@ -15,6 +15,7 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
     captured.set(sourceId, content);
   };
   if (guidance) add('host-guidance', 'INSTRUCTION', guidance);
+  if (input.personalInstructions) add('personal-instructions', 'INSTRUCTION', input.personalInstructions.text);
   if (input.approvedProjectContext?.instructionText) add('approved-project-instructions', 'INSTRUCTION', input.approvedProjectContext.instructionText);
   if (input.memory) add('thread-memory', 'MEMORY', input.memory);
   for (const fragment of fragments.slice(0, 32)) add(fragment.id, fragment.isToolResult ? 'TOOL' : 'USER', fragment.content);
@@ -42,5 +43,6 @@ export function projectHostRequest(input: StartRun, workspaceId: string, toolReg
     ],
     omittedSources: omitted.length,
     ...(input.approvedProjectContext ? { projectInstructions: input.approvedProjectContext.instructions } : {}),
+    ...(input.personalInstructions ? { personalInstructions: { utf8Bytes: Buffer.byteLength(input.personalInstructions.text, 'utf8'), digest: input.personalInstructions.digest } } : {}),
   };
 }

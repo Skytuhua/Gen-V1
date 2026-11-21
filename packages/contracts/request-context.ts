@@ -190,6 +190,7 @@ export interface HostRequestProjectionV1 {
   }[];
   readonly omittedSources: number;
   readonly projectInstructions?: ProjectInstructionsManifestV1;
+  readonly personalInstructions?: { utf8Bytes: number; digest: string };
 }
 
 /** Host projection of the compaction candidate registry into usage; metadata only, never a grant or history change. */
