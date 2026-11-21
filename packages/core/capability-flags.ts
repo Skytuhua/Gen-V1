@@ -121,7 +121,14 @@ export type M13FlagKey = (typeof M13_FLAG_KEYS)[number];
 export const M17_FLAG_KEYS = ["remote.readSyncV1", "remote.submitInputV1"] as const;
 export type M17FlagKey = (typeof M17_FLAG_KEYS)[number];
 
-export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey;
+// Secret-scan flag set: pre-write scanning of every Gen-performed commit and
+// push for likely secrets, with user-bound approvals. Off until the scanner,
+// enforcement call sites and review sheet each land their own proof; no
+// milestone claims this key yet.
+export const SECRET_SCAN_FLAG_KEYS = ["workspace.secretScanV1"] as const;
+export type SecretScanFlagKey = (typeof SECRET_SCAN_FLAG_KEYS)[number];
+
+export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFlagKey | M05FlagKey | M09FlagKey | M11FlagKey | M14FlagKey | M15FlagKey | M10FlagKey | M16FlagKey | M13FlagKey | M17FlagKey | SecretScanFlagKey;
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
@@ -153,6 +160,7 @@ const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "plugins.isolatedV1", owner: "m13", description: "Isolated extension worker lane: leased registrations and lifecycle over private authenticated pipes; activation requires a proven M03 backend." },
   { key: "remote.readSyncV1", owner: "m17", description: "Paired-device read-only synchronization of public task/evidence projections over a configured authenticated TLS transport." },
   { key: "remote.submitInputV1", owner: "m17", description: "Paired-device input submission; reserved and denied until the M09 durable-input and M02 authority bindings are proven." },
+  { key: "workspace.secretScanV1", owner: "secret-scan", description: "Scan commits and pushes for secrets and require user approval for findings." },
 ];
 let hostFlags = createCapabilityFlags<CapabilityFlagKey>(hostDefinitions);
 let hostOwners = 0;

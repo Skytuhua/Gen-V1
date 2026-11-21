@@ -1131,6 +1131,9 @@ export class Service {
       if (p.modelId !== undefined && p.modelId !== null && (typeof p.modelId !== 'string' || p.modelId.length > 200)) throw new HarnessError('INVALID_INPUT', 'Invalid model selection');
       let preferences = settings.preferences;
       if (p.preferences !== undefined) { try { preferences = mergePreferences(getPreferences(settings), p.preferences); } catch { throw new HarnessError('INVALID_INPUT', 'Invalid or unsupported preference'); } }
+      // Audit every transition that turns secret checks off; the setting itself
+      // carries no secret material.
+      if (p.preferences !== undefined && getPreferences(settings).secretScan !== false && preferences?.secretScan === false) this.store.put('workspaceSecretScan', `secretScan.disabled-${randomUUID()}`, null, { event: 'secretScan.disabled', at: now() });
       const next = { ...settings, ...(p.theme !== undefined ? { theme: p.theme } : {}), ...(p.modelId !== undefined ? { modelId: p.modelId } : {}), ...(preferences ? { preferences } : {}) }; this.store.put("settings", "global", null, next); return next;
     });
     if (command.type === 'thread.restore') return this.store.command(command, () => {

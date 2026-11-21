@@ -7,7 +7,8 @@ import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, I
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
-import { command, getModels } from './api';
+import { command, getModels, getShellSettings } from './api';
+import { Modal } from '../../../packages/ui-shell/Modal';
 import type { SettingsInventoryRow } from './settings-inventory';
 import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
 import { PREFERENCE_BINDINGS, chordFor } from './keyboard-bindings';
@@ -56,6 +57,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'hide-whitespace-changes': { key: 'hideWhitespace', description: 'Hide whitespace-only differences and unchanged lines in recorded before/after comparisons.' },
   'default-diff-file-state': { key: 'diffDefaultExpanded', description: 'Expand executor diff records when opening review.' },
   'diff-color-scheme': { key: 'diffColors', options: ['red-green', 'blue-orange'], labels: ['Red and green', 'Blue and orange'], description: 'Before/after tint for recorded comparisons.' },
+  'secret-scan': { key: 'secretScan', description: 'Scan commits and pushes for secrets before they leave this machine.' },
 };
 const row = (id: string, title: string, section: string, terms = ''): SettingsInventoryRow => ({ id, title, section, terms });
 export const SETTINGS_ROWS: SettingsInventoryRow[] = [
@@ -67,7 +69,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   ...SUBSCRIPTION_CONNECTIONS.map(connection => row(`provider-${connection.id}`, connection.label, 'providers', `${connection.id} ${connection.description}`)),
   ...APPEARANCE_FIELDS.filter(field => field.id !== 'chat-width' && field.id !== 'word-wrap').map(field => row(field.id, field.label, 'appearance', field.terms)),
   row('project-overview', 'Granted resources', 'projects', 'project folder working copies permissions access'),
-  row('diff-layout', 'Diff layout', 'diffs'), row('hide-whitespace-changes', 'Hide whitespace changes', 'diffs'), row('default-diff-file-state', 'Expand diffs', 'diffs'), row('diff-color-scheme', 'Diff colors', 'diffs'),
+  row('diff-layout', 'Diff layout', 'diffs'), row('hide-whitespace-changes', 'Hide whitespace changes', 'diffs'), row('default-diff-file-state', 'Expand diffs', 'diffs'), row('diff-color-scheme', 'Diff colors', 'diffs'), row('secret-scan', 'Check for secrets before commit and push', 'diffs', 'secret scan api key token leak credentials commit push block'),
   row('harness-skills', 'Skills & learning', 'skills', 'library proposals automatic learning review archive restore rollback'), row('harness-integrations', 'Bundled integrations', 'skills', 'humanizer impeccable graphify superpowers ponytail tools hooks mcp'),
   row('thread-notifications', 'Task notifications', 'notifications', 'sound popup'), row('in-app-notifications', 'In-app notifications', 'notifications'), row('live-usage', 'Live usage', 'notifications'), row('harness-notification-controls', 'Notification preferences', 'notifications', 'volume sound preview privacy quiet hours'),
   row('browser-start-page', 'Start page', 'browser', 'manual browser address website'),
@@ -84,6 +86,16 @@ function PreferenceControl({ item, preferences, update, busy }: { item: Settings
   const definition = preferenceRows[item.id]!, value = preferences[definition.key];
   if (definition.options) return <Select aria-label={item.title} disabled={busy} value={String(value)} onValueChange={next => void update({ [definition.key]: next })} options={definition.options.map((option, index) => ({ value: option, label: definition.labels?.[index] ?? option }))}/>;
   return <button type="button" role="switch" aria-label={item.title} aria-checked={Boolean(value)} disabled={busy} className="settings-switch" onClick={() => void update({ [definition.key]: !value })}><span/></button>;
+}
+function SecretScanControl({ enabled, busy, onChange }: { enabled: boolean; busy: boolean; onChange: (value: boolean) => Promise<void> }) {
+  const [confirming, setConfirming] = useState(false);
+  return <>
+    <button type="button" role="switch" aria-label="Check for secrets before commit and push" aria-checked={enabled} disabled={busy} className="settings-switch" onClick={() => { if (enabled) setConfirming(true); else void onChange(true); }}><span/></button>
+    <Modal open={confirming} title="Turn off secret checks?" onClose={() => setConfirming(false)} className="dialog">
+      <p>Commits and pushes from Gen will no longer be checked.</p>
+      <footer className="dialog-actions"><button type="button" className="quiet" onClick={() => setConfirming(false)}>Cancel</button><button type="button" className="primary" disabled={busy} onClick={() => { setConfirming(false); void onChange(false); }}>Turn off</button></footer>
+    </Modal>
+  </>;
 }
 function ShortcutInput({ action, label, value, save, busy }: { action: string; label: string; value: string; save: (key: string, value: string) => void; busy: boolean }) {
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
@@ -149,8 +161,11 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     // the browser keeps in-app notices, so no browser permission is requested (T07).
     await persist({ preferences: value });
   };
+  // The host capability decides visibility; an unreadable flag reads as off.
+  const [secretScanEnabled, setSecretScanEnabled] = useState(false);
+  useEffect(() => { let alive = true; void getShellSettings().then(value => { if (alive) setSecretScanEnabled(value.flags?.['workspace.secretScanV1'] === true); }).catch(() => {}); return () => { alive = false; }; }, []);
   const searching = query.trim().length > 0;
-  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
+  const rows = (searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section)).filter(item => item.id !== 'secret-scan' || secretScanEnabled);
   const matches = (id: string) => rows.some(item => item.id === id);
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
@@ -160,6 +175,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
     if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
+    if (item.id === 'secret-scan') return { description: preferenceRows[item.id]!.description, control: <SecretScanControl enabled={preferences.secretScan} busy={busy} onChange={value => update({ secretScan: value })}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }

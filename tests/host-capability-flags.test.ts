@@ -17,8 +17,8 @@ function fixture() {
 }
 
 it('reads only finite capability environment keys with the existing exact enablement values', () => {
-  const configured = readHostOptions({ HARNESS_FLAG_MEMORY_PROJECT_V1: '1', HARNESS_FLAG_CONTEXT_COMPILER_V1: 'true', HARNESS_FLAG_TOOLS_DEFERRED_V1: 'TRUE', HARNESS_FLAG_MEMORY_EXTERNAL_RECALL_EXPERIMENT_V1: '0', HARNESS_FLAG_UNKNOWN: 'true' });
-  expect(configured.capabilityFlags).toEqual({ 'memory.projectV1': true, 'context.compilerV1': true, 'tools.deferredV1': false, 'memory.externalRecallExperimentV1': false });
+  const configured = readHostOptions({ HARNESS_FLAG_MEMORY_PROJECT_V1: '1', HARNESS_FLAG_CONTEXT_COMPILER_V1: 'true', HARNESS_FLAG_TOOLS_DEFERRED_V1: 'TRUE', HARNESS_FLAG_MEMORY_EXTERNAL_RECALL_EXPERIMENT_V1: '0', HARNESS_FLAG_WORKSPACE_SECRET_SCAN_V1: '1', HARNESS_FLAG_UNKNOWN: 'true' });
+  expect(configured.capabilityFlags).toEqual({ 'memory.projectV1': true, 'context.compilerV1': true, 'tools.deferredV1': false, 'memory.externalRecallExperimentV1': false, 'workspace.secretScanV1': true });
   expect(Object.isFrozen(configured.capabilityFlags)).toBe(true);
   expect(Object.values(registeredCapabilityFlags()).every(value => value === false)).toBe(true);
 });
@@ -28,6 +28,7 @@ it('requires explicit environment input and never turns ambient environment into
   expect(readCapabilityFlagOverrides({})).toEqual({});
   expect(readHostOptions({}).capabilityFlags).toBeUndefined();
   expect(capabilityEnabled('memory.projectV1')).toBe(false);
+  expect(capabilityEnabled('workspace.secretScanV1')).toBe(false);
 });
 
 it('applies trusted host capabilities before runtime and Service construction and leaves omitted flags disabled', async () => {

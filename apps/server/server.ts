@@ -8,6 +8,7 @@ import { z } from "zod";
 import { Service } from "../../packages/core/service.ts";
 import { HarnessError, type ArtifactRecord, type ResourceGrant, type Snapshot } from "../../packages/contracts/index.ts";
 import {getPreferences,preferencesSchema,type UiPreferences} from '../../packages/contracts/preferences.ts';
+import {registeredCapabilityFlags} from '../../packages/core/capability-flags.ts';
 import { inside } from "../../packages/core/security.ts";
 import { GENERATED_APPS_ENABLED } from "../../packages/core/widgets.ts";
 import { WIDGET_SHELL_CSP, widgetShellDocument } from "../../packages/widgets/document.ts";
@@ -115,7 +116,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     reply.header('Cache-Control','no-store');
     const settings=service.store.get<Snapshot['settings']>('settings','global')??{theme:'dark',modelId:null};
     let preferences:UiPreferences;try{preferences=shellPreferencesSchema.parse(getPreferences(settings));}catch{preferences=shellPreferencesSchema.parse(getPreferences({}));}
-    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences};
+    return{theme:settings.theme==='light'||settings.theme==='system'?settings.theme:'dark',preferences,flags:registeredCapabilityFlags()};
   });
   app.get("/api/snapshot", async (_request, reply) => {
     const seq = service.store.sequence;
