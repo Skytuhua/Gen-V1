@@ -15,6 +15,7 @@ import { Artifact } from './Artifact';
 import { Markdown } from './Markdown';
 import {CopyButton} from './CopyButton';
 import { groupWorkActivity, WorkActivity } from './WorkActivity';
+import { runEventAnnouncements } from './run-announcements';
 import { display, schemaDefaults, SchemaFields } from './registry';
 import { useModalRegion } from './focus';
 import { validateSchema } from './schema-validator';
@@ -750,6 +751,8 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const previousUpdate = useRef('');
   const [latestAvailable, setLatestAvailable] = useState(false);
   const [announcement, setAnnouncement] = useState('');
+  const [alert, setAlert] = useState('');
+  const previousRunEvent = useRef<{ status: string | null; pending: number } | null>(null);
   const [historyCounts, setHistoryCounts] = useState<Record<string, number>>({});
   const historyStarts = useRef(new Map<string, number>());
   const [historyAnchor] = useState(createHistoryAnchor);
@@ -807,6 +810,16 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
   const activeHistoryControl=useRef<HTMLButtonElement>(null);
   const canLoadActiveHistory=Boolean(thread&&canLoadConversationHistory(activeHistoryStart,snapshot.messagesTruncated?.[activeHistoryId]??0,activeOlder.length));
   const requests = snapshot.requests.filter(item => item.threadId === thread?.id && item.status === 'pending');
+  useEffect(() => {
+    const pending = requests.length + snapshot.operations.filter(item => item.threadId === thread?.id && item.status === 'prepared' && !item.approved).length;
+    const previous = previousRunEvent.current;
+    previousRunEvent.current = { status: thread?.status ?? null, pending };
+    if (!previous) return;
+    for (const { text, assertive } of runEventAnnouncements({ previousStatus: previous.status, status: thread?.status ?? null, error: thread?.error, previousPendingApprovals: previous.pending, pendingApprovals: pending })) {
+      const repeat = (value: string) => value === text ? `${text}\u00a0` : text;
+      if (assertive) setAlert(repeat); else setAnnouncement(repeat);
+    }
+  }, [thread?.id, thread?.status, thread?.error, requests.length, snapshot.operations]);
   useLayoutEffect(() => {
     const element = conversation.current;
     if (!element || !loaded) return;
@@ -1182,6 +1195,7 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         {thread && (thread.runId || thread.status === 'working') && <div className="working-status" role="status"><LoaderCircle size={13} className="spinning" /><span>{({queued:'Queued for account…',starting:'Starting runtime…',generating:'Generating…',tool:'Running tool…',cleanup:'Cleaning up…',compacting:'Compacting context…'} as Record<string,string>)[snapshot.usage[thread.id]?.activity ?? ''] ?? 'Working…'}</span><button className="quiet" onClick={() => void stopConversation(thread, host?.composers ?? sharedComposers).then(() => refresh()).catch(error => setError(messageOf(error)))}>Stop</button></div>}
       </div></div>; })}</div></div>
       <div className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</div>
+      <div className="sr-only" aria-live="assertive" aria-atomic="true">{alert}</div>
       {latestAvailable && <button className="jump-latest secondary" onClick={() => { const position=conversationMotion.current?.jump();if(position)readingPositions.current.set(thread?.id??'new',position);setLatestAvailable(false);setAnnouncement(''); }}>Jump to latest<ArrowUp size={13} /></button>}
       <div style={{display:'contents'}} inert={threadHeld}>{thread&&delegatedThread(thread)?<div className="canvas-thread-readonly">Read-only. Continue in the parent conversation.</div>:loaded&&thread&&threadParent(thread)?<SideThreadComposer key={thread.id} thread={thread} modelId={modelId} refresh={refresh}/>:loaded ? <Composer usageOpen={liveUsage?.open??liveUsageOpen} onShowUsage={liveUsage?.toggle??(()=>setLiveUsageOpen(value=>!value))} onComposerChangesAvailability={reportComposerChanges} modelPickerRequest={pickerRequest?.threadId===thread?.id?pickerRequest?.id:undefined} onModelPickerOpened={id=>setModelPickerRequest(current=>current?.id===id?undefined:current)} sharedComposers={host?.composers??sharedComposers} selectProject={openProjectSelection} predictionBlocked={Boolean(embeddedThreadId&&!embeddedActive) || threadHeld || Boolean(projectPicker) || projectConnectOpen || settingsOpen || usageOpen || Boolean(resourcePicker) || rename || (mobile && sidebarOpen)} key={thread?.id ?? 'new'} thread={thread} models={models} modelId={modelId} setModelId={updateModel} snapshot={snapshot} ensureThread={ensureThread} onNewTask={id=>{void updateModel(id);void newThreadRef.current().catch(error=>setError(messageOf(error)));}} busy={composerBusy || threadCreating} runAction={runComposerAction} refresh={refresh} setup={() => { setSettingsSection('providers'); setSettingsOpen(true); }} openResource={openResourcePicker} browseProject={id=>revealWorkspaceTool('files',id)} inspectChanges={()=>revealWorkspaceTool('diff')} reportError={setError} onSide={async content=>{setSideOpen(true);if(!sideChat.current)throw new Error("The side conversation is still opening.");await sideChat.current.ask(content);}} /> : <div className="composer-dock"><LoadingState pending={!error} hasContent={false} label="Opening conversation…" skeleton={<ComposerSkeleton/>}/></div>}</div>
     </ChatView></div></SourceWorkbenchProvider>
