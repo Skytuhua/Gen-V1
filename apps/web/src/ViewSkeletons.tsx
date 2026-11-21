@@ -19,7 +19,7 @@ export function ComposerSkeleton() {
 
 export function WorkspaceSkeleton({sidebar = true}: {sidebar?: boolean}) {
   return <div className="loading-workspace" aria-hidden="true">
-    {sidebar && <div className="sidebar"><div className="brand-row"><span className="loading-skeleton loading-skeleton-icon"/><span className="loading-skeleton loading-skeleton-line"/></div><Skeleton/><div className="sidebar-footer"><span className="loading-skeleton loading-skeleton-control"/></div></div>}
+    {sidebar && <div className="sidebar"><div className="brand-row"><span className="loading-skeleton loading-skeleton-icon"/><span className="loading-skeleton loading-skeleton-line"/></div><Skeleton/></div>}
     <div className="workspace"><div className="workspace-header"><span className="loading-skeleton loading-skeleton-control"/></div><div className="conversation-scroll"><ConversationSkeleton/></div><div className="composer-dock"><ComposerSkeleton/></div></div>
   </div>;
 }

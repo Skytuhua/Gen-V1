@@ -63,8 +63,8 @@ test('text entry shares its first row with Changes and Create PR at wide and nar
 });
 
 for(const dismissal of ['Cancel','Add resource'] as const)test(`resource picker ${dismissal} preserves a newly focused composer before its deferred frame`,async({page})=>{
- const host=await fixture(page),settings=page.getByRole('button',{name:'Settings',exact:true});
- await settings.click();
+ const host=await fixture(page),settings=page.getByRole('button',{name:'App controls',exact:true});
+ await settings.click();await page.getByRole('menuitem',{name:'Settings',exact:true}).click();
  await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
  await page.getByRole('button',{name:'Add resource',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true});await expect(dialog).toBeVisible();
@@ -86,7 +86,7 @@ for(const dismissal of ['Cancel','Add resource'] as const)test(`resource picker 
 });
 
 test('resource picker keyboard dismissal restores its opener when focus was not moved',async({page})=>{
- await fixture(page);const settings=page.getByRole('button',{name:'Settings',exact:true});await settings.click();
+ await fixture(page);const settings=page.getByRole('button',{name:'App controls',exact:true});await settings.click();await page.getByRole('menuitem',{name:'Settings',exact:true}).click();
  await page.getByRole('dialog',{name:'Settings',exact:true}).getByRole('button',{name:'Projects & Working Copies',exact:true}).click();
  await page.getByRole('button',{name:'Add resource',exact:true}).click();
  const dialog=page.getByRole('dialog',{name:'Add a resource',exact:true});await expect(dialog).toBeVisible();
