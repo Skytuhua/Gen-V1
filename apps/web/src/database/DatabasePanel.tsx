@@ -10,13 +10,12 @@ import { cancelQuery, detachDatabase, fetchSchema, listThreadDatabases, runQuery
 import { DatabaseAttachDialog } from './DatabaseAttachDialog';
 import { recordSqlHistory, SqlEditor } from './SqlEditor';
 import { SchemaTree } from './SchemaTree';
+import { QueryResultGrid, rowsTsv } from './QueryResultGrid';
+import { sendResultToChat } from './send-to-chat';
 import './database-panel.css';
+import './query-result-grid.css';
 
 const LIMITS = [100, 500, 1000];
-
-const cellText = (cell: DatabaseQueryResultV1['rows'][number][number]) =>
-	cell === null ? 'NULL' : typeof cell === 'object' ? (cell.kind === 'bytes' ? `<bytes ${formatBytes(cell.length)}>` : cell.preview) : String(cell);
-const formatBytes = (length: number) => length >= 1024 ? `${(length / 1024).toFixed(1)} KB` : `${length} B`;
 
 export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const threadId = binding.threadId;
@@ -34,6 +33,7 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const [running, setRunning] = useState<string | null>(null);
 	const [result, setResult] = useState<DatabaseQueryResultV1 | null>(null);
 	const [queryError, setQueryError] = useState('');
+	const [sentToChat, setSentToChat] = useState(false);
 	const [selectedObject, setSelectedObject] = useState('');
 	const [narrow, setNarrow] = useState(false);
 	const [treeOpen, setTreeOpen] = useState(false);
@@ -78,7 +78,7 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 		setRunning(requestId); setQueryError('');
 		if (connection) recordSqlHistory(connection.id, sql);
 		runQuery(threadId, attachmentId, sql, limit, requestId)
-			.then(response => setResult(response.result))
+			.then(response => { setResult(response.result); setSentToChat(false); })
 			.catch(cause => setQueryError(errorMessage(cause, 'The query could not run.')))
 			.finally(() => setRunning(null));
 	}, [threadId, attachmentId, running, sql, limit, connection]);
@@ -147,22 +147,14 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 					<div className="database-results">
 						{running && <div className="database-progress" aria-hidden="true"/>}
 						{result
-							? <div className="database-grid-wrap"><table className="database-grid">
-								<thead><tr><th className="row-number">#</th>{result.columns.map((column, index) => <th key={index}>{column.name} <span className="schema-type">{column.type}</span></th>)}</tr></thead>
-								<tbody>{result.rows.slice(0, limit).map((row, rowIndex) => <tr key={rowIndex}><td className="row-number">{rowIndex + 1}</td>{row.map((cell, columnIndex) => {
-										void result.columns[columnIndex];
-										const text = cellText(cell);
-										return <td key={columnIndex} className={`${typeof cell === 'number' ? 'numeric' : ''} ${cell === null ? 'null-cell' : ''}`} title={text.length > 60 ? text : undefined}>{cell === null ? <em>NULL</em> : text}</td>;
-									})}</tr>)}
-								</tbody>
-							</table></div>
+							? <QueryResultGrid result={result}/>
 							: !running && <p className="database-empty muted">{sql.trim() ? 'Run the query to see results.' : 'Pick a table or write SQL to see results.'}</p>}
-						{result && result.rows.length === 0 && <p className="database-empty muted">No rows</p>}
 					</div>
 					<div className="database-status">
 						<span className="muted">{result ? `${result.rowCount} rows · ${result.elapsedMs} ms · limit ${limit}${result.truncated ? ' · ' : ''}` : ''}{result?.truncated ? <span className="database-truncated">truncated</span> : ''}</span>
 						<span className="toolbar-spacer"/>
-						{result && <button type="button" className="icon-button" aria-label="Copy rows as TSV" title="Copy rows as TSV" onClick={() => void navigator.clipboard?.writeText([result.columns.map(column => column.name).join('\t'), ...result.rows.map(row => row.map(cellText).join('\t'))].join('\n'))}><Copy size={14}/></button>}
+						{result && threadId && <button type="button" className="quiet" disabled={sentToChat} onClick={() => void sendResultToChat(threadId, result).then(() => setSentToChat(true)).catch(cause => setQueryError(errorMessage(cause, 'The result could not be quoted.')))}>{sentToChat ? 'Quoted in composer' : 'Send to chat'}</button>}
+						{result && <button type="button" className="icon-button" aria-label="Copy rows as TSV" title="Copy rows as TSV" onClick={() => void navigator.clipboard?.writeText(rowsTsv(result))}><Copy size={14}/></button>}
 					</div>
 				</div>
 			</div>}

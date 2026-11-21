@@ -22,6 +22,7 @@ const EVERYDAY_REGISTRY = lazyRegistry(() => import('./EverydayData').then(modul
 const INTERACTION_REGISTRY = lazyRegistry(() => import('./InteractionTools').then(module => module.INTERACTION_REGISTRY), ['ReviewQueue', 'EditableTable', 'ParameterControls']);
 const EXPLORATION_REGISTRY = lazyRegistry(() => import('./ExplorationTools').then(module => module.EXPLORATION_REGISTRY), ['ImageAnnotator', 'SchedulePicker', 'LogExplorer']);
 const WORK_OBJECT_REGISTRY = lazyRegistry(() => import('./WorkObjects').then(module => module.WORK_OBJECT_REGISTRY), ['WorkflowBoard', 'ArchitectureCanvas', 'TraceWaterfall']);
+const QUERY_RESULT_REGISTRY = lazyRegistry(() => import('./database/QueryResultCard').then(module => module.QUERY_RESULT_REGISTRY), ['QueryResult']);
 
 const DocumentPreview = lazy(() => import('./DocumentPreview').then(module => ({ default: module.DocumentPreview })));
 const SignaturePad = lazy(() => import('./SignaturePad').then(module => ({ default: module.SignaturePad })));
@@ -208,6 +209,7 @@ export const registry: ComponentRegistry = {
   ...INTERACTION_REGISTRY,
   ...EXPLORATION_REGISTRY,
   ...WORK_OBJECT_REGISTRY,
+  ...QUERY_RESULT_REGISTRY,
   ChoiceList, Steps, RelationshipGraph, Status, MapView,
   DocumentPreview: ({ element: { props } }) => <Suspense fallback={<div className="document-preview muted" data-preview-state="loading" role="status">Loading document preview…</div>}><DocumentPreview {...props as DocumentPreviewProps} /></Suspense>,
   SignaturePad: ({ element: { props } }) => <Suspense fallback={<SignatureLoading {...props as SignaturePadProps}/>}><SignaturePad {...props as SignaturePadProps} /></Suspense>,
