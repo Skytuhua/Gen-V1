@@ -1,0 +1,58 @@
+name: issue-labeler
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Apply first-pass labels to new issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const text = `${issue.title}\n${issue.body || ''}`.toLowerCase();
+            const has = (...words) => words.some(w => text.includes(w));
+
+            const labels = new Set();
+
+            // type
+            if (has('[tracking]', 'tracking]', 'sweep:', 'worker 1', 'worker 2', 'worker 3', 'worker 4')) labels.add('type:tracking');
+            if (has('vulnerab', 'cve-', 'security')) labels.add('type:security');
+            else if (has('flake', 'flaky', 'unit test', 'add tests', 'verify ', 'qualify ', 'acceptance')) labels.add('type:test');
+            else if (has('refactor', 'remove any casts', 'dedupe', 'cleanup', 'move ')) labels.add('type:refactor');
+            else if (has('document', 'docs', 'readme', 'jsdoc', '.md')) labels.add('documentation');
+            else if (has('bug', 'fix', 'broken', 'reject ', 'restore ', 'does not', 'cannot', "can't", 'crash', 'error')) labels.add('bug');
+            else labels.add('enhancement');
+
+            // area
+            if (has('ux:', 'ui ', 'ui:', 'frontend', 'sidebar', 'composer', 'dialog', 'popover', 'theme', 'animation', 'motion', 'desktop', 'window', 'canvas', 'dock')) labels.add('area:frontend');
+            if (has('runtime', 'server', 'hermes', 'sqlite', 'migration', 'sse', 'subprocess', 'plugin backend', 'credential')) labels.add('area:runtime');
+            if (has('ci:', 'ci ', 'workflow', 'windows-latest', 'node-gyp', 'playwright', 'spec boot')) labels.add('area:ci');
+            if (has('docs', 'documentation', 'security.md', 'readme')) labels.add('area:docs');
+
+            // level
+            if (has('taxonomy', 'redesign', 'architecture', 'release gate', 'reconcile', 'confinement', 'supervisor')) labels.add('level:high');
+            else if (has('mechanical', 'env.example', 'move root', 'jsdoc', 'link', 'label')) labels.add('level:low');
+            else labels.add('level:medium');
+
+            // priority
+            if (has('release', 'blocks', 'blocker', 'audit:', 'audit carryover', 'security', 'vulnerab')) labels.add('priority:high');
+            else if (has('deferred', 'nice to have', 'someday')) labels.add('priority:low');
+            else labels.add('priority:medium');
+
+            // accessibility keyword
+            if (has('accessib', 'a11y', 'keyboard', 'screen reader')) labels.add('accessibility');
+            if (has('flake', 'flaky', 'skipped test', 'browser spec')) labels.add('ci-test');
+
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              labels: [...labels],
+            });
