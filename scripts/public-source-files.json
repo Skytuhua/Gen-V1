@@ -2691,6 +2691,7 @@
     "packages/workspace/github.ts",
     "packages/workspace/repo-map.ts",
     "packages/workspace/selective-commit.ts",
+    "packages/workspace/terminal-shell.ts",
     "packages/workspace/terminal.ts",
     "packages/workspace/tools.ts",
     "patches/node-pty-1.1.0.patch",
@@ -3507,6 +3508,7 @@
     "tests/terminal-opening-race.test.ts",
     "tests/terminal-reopen-ended.test.ts",
     "tests/terminal-shell-contract.test.ts",
+    "tests/terminal-shell.test.ts",
     "tests/theme-contrast.test.ts",
     "tests/thinking-level.test.ts",
     "tests/thread-search.test.ts",
@@ -4818,6 +4820,7 @@
     "packages/workspace/github.ts",
     "packages/workspace/repo-map.ts",
     "packages/workspace/selective-commit.ts",
+    "packages/workspace/terminal-shell.ts",
     "packages/workspace/terminal.ts",
     "packages/workspace/tools.ts"
   ]
