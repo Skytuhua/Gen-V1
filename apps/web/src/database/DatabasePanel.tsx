@@ -129,10 +129,16 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const reviewChanges = useCallback(() => {
 		if (!threadId || !attachmentId || !result || !editTarget.editable || !editCount) return;
 		setEditBusy(true); setEditNote('');
-		const statements = Object.entries(edits).map(([key, value]) => {
+		// R10: one parameterized UPDATE per edited row.
+		const byRow = new Map<number, { columnIndex: number; value: string }[]>();
+		for (const [key, value] of Object.entries(edits)) {
 			const [rowIndex, columnIndex] = key.split(':').map(Number);
+			byRow.set(rowIndex!, [...(byRow.get(rowIndex!) ?? []), { columnIndex: columnIndex!, value }]);
+		}
+		const statements = [...byRow.entries()].map(([rowIndex, cells]) => {
 			const pk = editTarget.pkIndex.map((_, position) => `"${editTarget.pk[position]}"=?`).join(' AND ');
-			return { sql: `UPDATE "${editTarget.schemaName}"."${editTarget.table}" SET "${result.columns[columnIndex]!.name}"=? WHERE ${pk}`, params: [value, ...editTarget.pkIndex.map(index => result.rows[rowIndex]![index]!)], expectedChanges: 1 };
+			const set = cells.map(({ columnIndex }) => `"${result.columns[columnIndex]!.name}"=?`).join(', ');
+			return { sql: `UPDATE "${editTarget.schemaName}"."${editTarget.table}" SET ${set} WHERE ${pk}`, params: [...cells.map(cell => cell.value), ...editTarget.pkIndex.map(index => result.rows[rowIndex]![index]!)], expectedChanges: 1 };
 		});
 		prepareEdits(threadId, attachmentId, statements)
 			.then(() => { setEdits({}); setEditing(false); setEditNote('Prepared for approval in the conversation.'); })
