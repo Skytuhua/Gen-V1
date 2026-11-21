@@ -15,7 +15,7 @@ test('failed handoffs have one dismissible shell presenter and keep drafts and c
  await page.evaluate(async message=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);(window as Window & {releaseSyntheticGuard?:()=>void}).releaseSyntheticGuard=module.registerEditorHandoff('synthetic-unsaved',async()=>{throw Error(message);});},message);
  await page.getByRole('button',{name:'New thread',exact:true}).click();const alerts=page.getByRole('alert').filter({hasText:message});await expect(alerts).toHaveCount(1);
  const agents=page.getByRole('button',{name:'All Agents',exact:true});await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);
- await expect(alerts.getByRole('button',{name:'Refresh',exact:true})).toBeVisible();await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(alerts).toHaveCount(0);
+ await expect(alerts.getByRole('button',{name:/^Retry /})).toHaveCount(0);await alerts.getByRole('button',{name:`Dismiss ${message}`,exact:true}).click();await expect(alerts).toHaveCount(0);
  await agents.click();await expect(agents).toBeEnabled();await expect(alerts).toHaveCount(1);await expect(draft).toHaveValue('Keep this draft after a failed handoff');
  expect(workspaceCommands).toHaveLength(0);expect(fixture.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
 });
@@ -31,7 +31,7 @@ test('the shell error remains visible while a plug-in workspace owns the main su
  const iframe=page.getByRole('region',{name:'Studio',exact:true}).locator('iframe');await expect(iframe).toBeVisible();const frame=await(await iframe.elementHandle())!.contentFrame();if(!frame)throw Error('Owned fixture frame missing');await frame.waitForFunction(()=>(window as Window & {fixtureConnected?:boolean}).fixtureConnected===true);
  await page.evaluate(async()=>{const path='/src/editor-handoff.ts',module=await import(/* @vite-ignore */ path);module.registerEditorHandoff('synthetic-private-save',async()=>{throw Error('Source edits must be confirmed before leaving.');});});
  await page.getByRole('button',{name:'New thread',exact:true}).click();const error=page.getByRole('alert').filter({hasText:'Source edits must be confirmed before leaving.'});await expect(error).toBeVisible();await expect(error).toHaveCount(1);await expect(iframe).toBeVisible();
- await error.getByRole('button',{name:'Dismiss error',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
+ await error.getByRole('button',{name:'Dismiss Source edits must be confirmed before leaving.',exact:true}).click();await expect(error).toHaveCount(0);await expect(iframe).toBeVisible();expect(host.commands.filter(command=>command.type==='thread.create')).toHaveLength(0);
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeHidden();
  await page.getByRole('button',{name:'Usage',exact:true}).click();await expect(page.getByRole('dialog',{name:'Usage',exact:true})).toBeVisible();
  await expect(iframe).toBeVisible();await page.keyboard.press('Escape');await expect(iframe).toBeVisible();

@@ -365,7 +365,7 @@ describe.runIf(enabled)('actual App split workspace',()=>{
    await pw(page.locator('[data-split-pane="right"]').getByRole('tab',{name:'First investigation',exact:true})).toHaveCount(1);const concurrent=structuredClone(host.layout);
    await page.evaluate(()=>(window as any).releasePlacementPreflight());
    await pw.poll(()=>host.splitCommands.filter(command=>command.type===type).at(-1)?.payload.baseRevision).toBe(revision);
-   await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(1);await page.getByRole('button',{name:'Dismiss error',exact:true}).click();await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(0);
+   await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(1);await page.getByRole('alert').filter({hasText:'The layout revision changed.'}).getByRole('button',{name:/^Dismiss /}).click();await pw(page.getByRole('alert').filter({hasText:'The layout revision changed.'})).toHaveCount(0);
    expect(host.layout).toEqual(concurrent);expect(host.layout.panes.right.viewIds).toContain('thread:thread-a');expect(host.layout.parkedViewIds).not.toContain('thread:thread-a');await pw(draft).toHaveValue('Keep stale preflight draft');expect(host.errors).toEqual([]);
   }finally{await page.evaluate(()=>(window as any).releasePlacementPreflight?.()).catch(()=>{});await page.close();}
  },30000);
