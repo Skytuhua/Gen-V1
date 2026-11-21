@@ -1,0 +1,14 @@
+/* Read-aloud message controls (#1392): in-flow trailing group, always visible. */
+.message-actions { display:flex; gap:4px; margin-top:6px; align-items:center; }
+.message-actions .copy-button { position:static; opacity:1; }
+.read-aloud-button { position:relative; }
+.read-aloud-button[aria-disabled="true"] { color:var(--muted); opacity:.65; }
+.read-aloud-button.read-aloud-speaking,.read-aloud-button.read-aloud-paused { color:var(--accent); }
+.read-aloud-bars { position:absolute; right:1px; bottom:1px; display:flex; gap:1px; align-items:flex-end; height:7px; }
+.read-aloud-bars i { width:2px; height:3px; background:var(--accent); border-radius:1px; }
+.read-aloud-speaking .read-aloud-bars i { animation:read-aloud-bar 1.2s ease-in-out infinite; }
+.read-aloud-speaking .read-aloud-bars i:nth-child(2) { animation-delay:120ms; }
+.read-aloud-speaking .read-aloud-bars i:nth-child(3) { animation-delay:240ms; }
+.read-aloud-error { display:block; margin-top:4px; font-size:11px; color:var(--muted); }
+@keyframes read-aloud-bar { 0%,100% { transform:scaleY(1); } 50% { transform:scaleY(2.2); } }
+@media (prefers-reduced-motion:reduce) { .read-aloud-bars i { animation:none; } }

@@ -258,3 +258,20 @@ export function getReadAloudController(): ReadAloudController {
   if (!shared) shared = createReadAloudController();
   return shared;
 }
+
+let latestSnapshot: ReadAloudSnapshot = { phase: 'idle', owner: null, error: null, supported: false, voices: [] };
+let snapshotBound = false;
+const bindSnapshot = () => {
+  if (snapshotBound || typeof window === 'undefined') return;
+  snapshotBound = true;
+  getReadAloudController().subscribe(s => { latestSnapshot = s; });
+};
+/** Subscription source for useSyncExternalStore over the shared window controller. */
+export function subscribeReadAloudSnapshot(listener: () => void): () => void {
+  bindSnapshot();
+  return getReadAloudController().subscribe(() => listener());
+}
+export function getReadAloudSnapshot(): ReadAloudSnapshot {
+  bindSnapshot();
+  return latestSnapshot;
+}

@@ -129,3 +129,14 @@ export function chunkSpeechText(text: string): string[] {
   for (const paragraph of text.split(/\n\n+/)) push(paragraph);
   return chunks;
 }
+
+const eligibilityCache = new Map<string, boolean>();
+/** Cached early-exit check for whether a reply has any speakable prose. */
+export function hasSpeechText(markdown: string): boolean {
+  const cached = eligibilityCache.get(markdown);
+  if (cached !== undefined) return cached;
+  const value = Boolean(toSpeechText(markdown));
+  eligibilityCache.set(markdown, value);
+  if (eligibilityCache.size > 500) eligibilityCache.delete(eligibilityCache.keys().next().value!);
+  return value;
+}
