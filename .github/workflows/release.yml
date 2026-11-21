@@ -23,6 +23,7 @@ jobs:
   build:
     if: ${{ (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main') || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) }}
     runs-on: windows-latest
+    environment: windows-signing
     timeout-minutes: 90
     permissions:
       contents: read
@@ -136,12 +137,38 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Package the production Windows installer
+        env:
+          HARNESS_WINDOWS_SIGNING: azure
+          HARNESS_AZURE_SIGNING_ENDPOINT: ${{ vars.HARNESS_AZURE_SIGNING_ENDPOINT }}
+          HARNESS_AZURE_SIGNING_ACCOUNT: ${{ vars.HARNESS_AZURE_SIGNING_ACCOUNT }}
+          HARNESS_AZURE_SIGNING_PROFILE: ${{ vars.HARNESS_AZURE_SIGNING_PROFILE }}
+          HARNESS_WINDOWS_PUBLISHER_NAME: ${{ vars.HARNESS_WINDOWS_PUBLISHER_NAME }}
+          AZURE_TENANT_ID: ${{ secrets.AZURE_TENANT_ID }}
+          AZURE_CLIENT_ID: ${{ secrets.AZURE_CLIENT_ID }}
+          AZURE_CLIENT_SECRET: ${{ secrets.AZURE_CLIENT_SECRET }}
         run: pnpm desktop:package --output-root .harness-release-package
 
-      # Future signing must use WINDOWS_CSC_LINK / WINDOWS_CSC_KEY_PASSWORD
-      # during packaging, before blockmap, feed checksums and manifest are written.
-      - name: Signing hook (unsigned placeholder)
-        run: Write-Output 'Unsigned release; certificate signing is not configured.'
+      - name: Verify Authenticode signatures and feed checksums
+        env:
+          HARNESS_WINDOWS_PUBLISHER_NAME: ${{ vars.HARNESS_WINDOWS_PUBLISHER_NAME }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $release = Join-Path $PWD ('.harness-release-package/desktop-release-' + $env:RELEASE_VERSION)
+          $installer = Join-Path $release ('Gen-V1-Setup-' + $env:RELEASE_VERSION + '-win-x64.exe')
+          $unpacked = @(Get-ChildItem -LiteralPath $release -Recurse -Filter 'Gen V1.exe' -File)
+          if ($unpacked.Count -ne 1) { throw 'Expected exactly one unpacked Gen V1.exe; found ' + $unpacked.Count }
+          foreach ($file in @($installer, $unpacked[0].FullName)) {
+            $signature = Get-AuthenticodeSignature -LiteralPath $file
+            $name = Split-Path -Leaf $file
+            if ($signature.Status -ne 'Valid') { throw "Unsigned or invalid release artifact: $name" }
+            if (-not $signature.SignerCertificate.Subject.Contains('CN=' + $env:HARNESS_WINDOWS_PUBLISHER_NAME)) { throw "Unsigned or invalid release artifact: $name" }
+            if ($null -eq $signature.TimeStamperCertificate) { throw "Unsigned or invalid release artifact: $name" }
+            Write-Output ($name + ': ' + $signature.Status + ' ' + $signature.SignerCertificate.Thumbprint)
+          }
+          $feed = if ($env:HARNESS_RELEASE_CHANNEL -eq 'prerelease') { 'beta.yml' } else { 'latest.yml' }
+          $feedHashes = [regex]::Matches((Get-Content -Raw -LiteralPath (Join-Path $release $feed)), 'sha512:\s*([A-Za-z0-9+/=]+)') | ForEach-Object { $_.Groups[1].Value }
+          $sha512 = [Convert]::ToBase64String([System.Security.Cryptography.SHA512]::HashData([System.IO.File]::ReadAllBytes($installer)))
+          if ($feedHashes -notcontains $sha512) { throw 'Feed checksum does not match the signed installer' }
 
       - name: Stage release assets and identity metadata
         run: |

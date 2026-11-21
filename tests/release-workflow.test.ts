@@ -89,6 +89,36 @@ describe('draft desktop release workflow',()=>{
   expect(workflow).not.toMatch(/--clobber|gh release|git (?:tag|push|update-ref)|['"](?:DELETE|PATCH)['"]/);
   expect(readFileSync(new URL('../scripts/package-desktop.ts',import.meta.url),'utf8')).toContain("publish:'never' as const");
  });
+ it('gates signing secrets behind the windows-signing environment on the read-only build job',()=>{
+  const build=workflow.slice(workflow.indexOf('  build:'),workflow.indexOf('  publish:'));
+  expect(build).toContain('environment: windows-signing');
+  expect(build.indexOf('environment: windows-signing')).toBeLessThan(build.indexOf('pnpm desktop:package'));
+ });
+ it('passes the Azure signing contract to the packaging step only',()=>{
+  const build=workflow.slice(workflow.indexOf('  build:'),workflow.indexOf('  publish:'));
+  const pack=build.slice(build.indexOf('- name: Package the production Windows installer'),build.indexOf('- name: Verify Authenticode signatures'));
+  expect(pack).toContain('HARNESS_WINDOWS_SIGNING: azure');
+  for(const ref of ['secrets.AZURE_CLIENT_SECRET','secrets.AZURE_CLIENT_ID','secrets.AZURE_TENANT_ID','vars.HARNESS_AZURE_SIGNING_ENDPOINT','vars.HARNESS_AZURE_SIGNING_ACCOUNT','vars.HARNESS_AZURE_SIGNING_PROFILE','vars.HARNESS_WINDOWS_PUBLISHER_NAME'])expect(pack).toContain(ref);
+ });
+ it('keeps signing credentials out of the publish job',()=>{
+  const publish=workflow.slice(workflow.indexOf('  publish:'));
+  expect(publish).not.toMatch(/AZURE_|HARNESS_AZURE/);
+ });
+ it('verifies Authenticode signatures and feed checksums after packaging and before staging',()=>{
+  expect(workflow.indexOf('- name: Verify Authenticode signatures and feed checksums')).toBeGreaterThan(workflow.indexOf('- name: Package the production Windows installer'));
+  expect(workflow.indexOf('- name: Verify Authenticode signatures and feed checksums')).toBeLessThan(workflow.indexOf('- name: Stage release assets'));
+  const verify=workflow.slice(workflow.indexOf('- name: Verify Authenticode signatures'),workflow.indexOf('- name: Stage release assets'));
+  expect(verify).toContain('Get-AuthenticodeSignature');
+  expect(verify).toContain("'Valid'");
+  expect(verify).toContain('TimeStamperCertificate');
+  expect(verify).toContain('sha512');
+  expect(verify).toContain('Feed checksum does not match the signed installer');
+  expect(verify).toContain('vars.HARNESS_WINDOWS_PUBLISHER_NAME');
+ });
+ it('retires the unsigned signing placeholder',()=>{
+  expect(workflow).not.toContain('Signing hook (unsigned placeholder)');
+  expect(workflow).not.toMatch(/WINDOWS_CSC/);
+ });
  it('re-checks draft state before each upload and after the last upload',()=>{
   expect(workflow).toContain('$state = Invoke-GitHubJson -Arguments @("repos/$repo/releases/$releaseId")');
   expect(workflow).toContain("if ($state.draft -ne $true) { throw 'Release is no longer a draft; refusing further uploads' }");
