@@ -168,6 +168,7 @@
   border: 1px solid transparent;
   margin-bottom: 3px;
   background: transparent;
+  transition: background-color var(--ui-motion-hover) var(--ui-ease-move);
 }
 
 .app-shell .sidebar .sidebar-thread-row:hover:not(.active),
@@ -510,6 +511,40 @@
 .sidebar .sidebar-footer > button:disabled {
   opacity: 0.45;
   cursor: default;
+}
+
+/* --- Row removal: ghosts stay mounted at their old slot until ui-item-out ends (resource-chip pattern) --- */
+
+.sidebar .sidebar-thread-row[data-leaving] {
+  pointer-events: none;
+  animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both;
+}
+
+.sidebar .sidebar-thread-row[data-leaving] .thread-item {
+  animation: none;
+}
+
+/* Group expand: children replay the row entrance while the region opens.
+   Clearing the animation while collapsed lets it restart on each open. */
+.task-motion-region.thread-group-content[data-motion-phase='closed'] .thread-item,
+.task-motion-region.thread-group-content[data-motion-phase='closing'] .thread-item {
+  animation: none;
+}
+
+.task-motion-region.thread-group-content[data-motion-phase='opening'] .thread-item {
+  animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidebar .sidebar-thread-row[data-leaving] {
+    animation-name: ui-popover-fade;
+    animation-direction: reverse;
+    animation-duration: var(--ui-motion-press);
+  }
+  .task-motion-region.thread-group-content[data-motion-phase='opening'] .thread-item {
+    animation-name: ui-popover-fade;
+    animation-duration: var(--ui-motion-press);
+  }
 }
 
 /* --- Row actions: quiet at rest, revealed on hover/focus/touch, aligned to the metadata line --- */

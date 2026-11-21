@@ -1,21 +1,21 @@
 import {test, expect, type Page} from '@playwright/test';
 import {resolve} from 'node:path';
-import {expectOpaqueEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
+import {expectTooltipEntry, expectVisibleKeyboardFocus, pauseNextEntry} from './overlay-motion-assertions';
 
 const fixture = '/@fs/' + encodeURI(resolve(import.meta.dirname, 'sidebar-shared-menu-fixture.tsx').replaceAll('\\', '/'));
 const calls = (page: Page) => page.evaluate(() => (window as unknown as {sidebarMenuCalls: unknown[]}).sidebarMenuCalls);
 const options = (page: Page, title = 'Other conversation') => page.getByRole('button', {name: `Options for ${title}`, exact: true});
 const menu = (page: Page, title = 'Other conversation') => page.getByRole('menu', {name: `Options for ${title}`, exact: true});
-for (const width of [1024, 1440]) test(`sidebar focus and hover cards stay opaque throughout entry at ${width}px`, async ({page}) => {
+for (const width of [1024, 1440]) test(`sidebar focus and hover cards enter at tooltip timing at ${width}px`, async ({page}) => {
   await page.setViewportSize({width, height: 1000});
   const row = page.getByRole('button', {name: 'Other conversation Working', exact: true});
   const card = page.getByRole('dialog', {name: 'Thread details: Other conversation', exact: true});
   await pauseNextEntry(page, '.thread-hover-card[data-state="open"]');
-  await row.focus(); await expectVisibleKeyboardFocus(row); await expectOpaqueEntry(card);
+  await row.focus(); await expectVisibleKeyboardFocus(row); await expectTooltipEntry(card);
   await row.press('Escape'); await expect(card).toHaveCount(0);
   await page.getByRole('button', {name: 'Outside target', exact: true}).focus();
   await pauseNextEntry(page, '.thread-hover-card[data-state="open"]'); await row.hover();
-  await expect(card).toBeVisible(); await expectOpaqueEntry(card);
+  await expect(card).toBeVisible(); await expectTooltipEntry(card);
 });
 test.beforeEach(async ({page}) => {
   await page.route('**/api/**', route => route.fulfill({json: {}}));

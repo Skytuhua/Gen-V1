@@ -27,7 +27,7 @@ export function useThreadMove(sidebar: RefObject<HTMLElement | null>, matching: 
     const rows = new Map<string, Position>(), list = sidebar.current?.querySelector('.thread-list');
     if (!list) return rows;
     const clip = list.getBoundingClientRect();
-    for (const node of list.querySelectorAll<HTMLElement>('.sidebar-thread-row[data-thread-id]')) {
+    for (const node of list.querySelectorAll<HTMLElement>('.sidebar-thread-row[data-thread-id]:not([data-leaving])')) {
       if (node.closest('[inert], [aria-hidden="true"]') || !node.getClientRects().length) continue;
       const rect = node.getBoundingClientRect(), translation = offset(node);
       const x = rect.left - translation.x, y = rect.top - translation.y;
