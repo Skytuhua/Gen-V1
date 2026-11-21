@@ -6,7 +6,7 @@ claims. The current GitHub workflow is available under [Actions](https://github.
 The preceding 0.6.0 implementation passed all 1,040 application regression tests,
 23 original-Hermes worker/custody/control checks and 14 packaged native checks.
 The owned OpenAI subscription completed genuine tasks, prediction acceptance,
-same-artifact revision and restart recovery. The [completion report](../2026-11-01-product-completion.md)
+same-artifact revision and restart recovery. The [completion report](../archive/2026-11-01-product-completion.md)
 records the observed interruption and recovery as well as remaining limits.
 
 The 0.6.1 Gen V1 publication build passed all 14 packaged native fixture checks,

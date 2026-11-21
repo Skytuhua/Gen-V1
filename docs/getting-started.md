@@ -95,7 +95,7 @@ Do not pass secrets as command arguments. A local account label is not authentic
 
 Each saved account has a separate app profile. Gen V1 does not automatically adopt an existing external CLI login. Changing the default affects new tasks; existing tasks retain their account. Bound Claude profiles currently require a new local account for reconnect because staged reconnect is unsupported. Pi/Gemini identity and Claude immutable-subject information are unavailable through the installed APIs.
 
-Only OpenAI has genuine live acceptance recorded for the preceding milestone. [The connection reference](subscription-connections.md) contains provider-specific constraints and earlier evidence; [the acceptance report](2026-11-01-product-completion.md) separates live and scripted checks.
+Only OpenAI has genuine live acceptance recorded for the preceding milestone. [The connection reference](subscription-connections.md) contains provider-specific constraints and earlier evidence; [the acceptance report](archive/2026-11-01-product-completion.md) separates live and scripted checks.
 
 ## Data and profiles
 

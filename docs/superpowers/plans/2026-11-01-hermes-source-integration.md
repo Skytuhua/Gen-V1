@@ -8,7 +8,7 @@
 
 **Tech Stack:** Existing TypeScript/React/Node/SQLite adapters plus pinned Python 3.14 and Hermes runtime dependencies. No additional agent framework or scheduler.
 
-**Spec:** `docs/superpowers/specs/2026-11-01-hermes-source-integration.md`.
+**Spec:** `docs/superpowers/specs/../../archive/2026-11-01-hermes-source-integration.md`.
 
 ## Global constraints
 

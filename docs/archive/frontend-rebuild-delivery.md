@@ -1,6 +1,6 @@
 # Frontend rebuild: recorded handoff
 
-The original standalone review was generated locally at `evidence/frontend-review/delivery-20261030/index.html`. The bundle is not in a clean checkout. The recordings and verification below describe that historical handoff. The [published media gallery](public/media/README.md) offers separate, fixture-backed demos; it does not contain the original recordings or reproduce their live verification.
+The original standalone review was generated locally at `evidence/frontend-review/delivery-20261030/index.html`. The bundle is not in a clean checkout. The recordings and verification below describe that historical handoff. The [published media gallery](../public/media/README.md) offers separate, fixture-backed demos; it does not contain the original recordings or reproduce their live verification.
 
 ## What changed visibly
 
