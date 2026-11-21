@@ -103,3 +103,35 @@ it('stashed whitespace drafts come back exactly', () => {
   const out = stepHistory(step.state, entries, 'newer', '')!;
   expect(out.text).toBe('   ');
 });
+
+import {historyKeyAction} from '../apps/web/src/usePromptHistory';
+
+const press = (key: string, flags: Partial<{ctrl: boolean; meta: boolean; alt: boolean; shift: boolean}> = {}) => ({key, ctrlKey: flags.ctrl ?? false, metaKey: flags.meta ?? false, altKey: flags.alt ?? false, shiftKey: flags.shift ?? false});
+const ctx = (over: Partial<Parameters<typeof historyKeyAction>[1]> = {}) => ({draft: '', selectionStart: 0, selectionEnd: 0, shown: '', browsing: false, composing: false, disabled: false, ...over});
+
+it('Up starts history only with an empty draft and no modifiers, composing or disabled state', () => {
+  expect(historyKeyAction(press('ArrowUp'), ctx())).toBe('older');
+  expect(historyKeyAction(press('ArrowUp'), ctx({draft: 'typed'}))).toBe('none');
+  expect(historyKeyAction(press('ArrowUp'), ctx({draft: '  '}))).toBe('older');
+  for (const flags of [{ctrl: true}, {meta: true}, {alt: true}, {shift: true}]) expect(historyKeyAction(press('ArrowUp', flags), ctx()), JSON.stringify(flags)).toBe('none');
+  expect(historyKeyAction(press('ArrowUp'), ctx({composing: true}))).toBe('none');
+  expect(historyKeyAction(press('ArrowUp'), ctx({disabled: true}))).toBe('none');
+});
+
+it('while browsing Up moves older only on the first line, Down newer only on the last line', () => {
+  const shown = 'line one\nline two';
+  expect(historyKeyAction(press('ArrowUp'), ctx({browsing: true, shown, selectionStart: 0}))).toBe('older');
+  expect(historyKeyAction(press('ArrowUp'), ctx({browsing: true, shown, selectionStart: 10}))).toBe('none');
+  expect(historyKeyAction(press('ArrowDown'), ctx({browsing: true, shown, selectionStart: 10, selectionEnd: shown.length}))).toBe('newer');
+  expect(historyKeyAction(press('ArrowDown'), ctx({browsing: true, shown, selectionStart: 0, selectionEnd: 0}))).toBe('none');
+  expect(historyKeyAction(press('ArrowDown'), ctx())).toBe('none');
+});
+
+it('Ctrl+R and Meta+R open search without Alt/Shift, Escape restores only while browsing', () => {
+  expect(historyKeyAction(press('r', {ctrl: true}), ctx())).toBe('search');
+  expect(historyKeyAction(press('R', {meta: true}), ctx())).toBe('search');
+  expect(historyKeyAction(press('r', {ctrl: true, shift: true}), ctx())).toBe('none');
+  expect(historyKeyAction(press('r', {ctrl: true, alt: true}), ctx())).toBe('none');
+  expect(historyKeyAction(press('Escape'), ctx({browsing: true}))).toBe('restore');
+  expect(historyKeyAction(press('Escape'), ctx())).toBe('none');
+});
