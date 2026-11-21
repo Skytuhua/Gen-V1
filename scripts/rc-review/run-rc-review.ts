@@ -12,7 +12,7 @@ import {terminateProcessTree} from '../../packages/runtime-pi/process-tree.ts';
 const phases=['build','clean','native','flags','dpapi','physical','upgrade','failed-setup'];
 export function assertCleanLifecycle(receipt:{passed?:boolean;setupSha256?:string;memoryRetentionRequested?:boolean;cleanup?:{status?:string}},sha256:string,continueAfterFailure=false){if(receipt.setupSha256!==sha256||!receipt.memoryRetentionRequested||receipt.cleanup?.status!=='uninstalled-owned-installation')throw Error('Need a candidate-bound clean lifecycle receipt with completed owned uninstall.');if(!receipt.passed&&!continueAfterFailure)throw Error('Clean lifecycle failed; explicit --continue-after-clean-failure is required to continue a dry run.');}
 export async function preserveNativeFailure(error:unknown,collect:(log:string)=>Promise<unknown>):Promise<never>{
- const log=(error as {stdout?:string}).stdout;if(log)await collect(log);throw error;
+ const log=(error as {stdout?:string}).stdout;if(log)await collect(log).catch(()=>{});throw error;
 }
 main(import.meta.url,async()=>{
  windows();const {options}=args(),phase=required(options,'phase'),out=output(options);if(!phases.includes(phase))throw Error('Phases: '+phases.join(', '));await mkdir(out,{recursive:true});
