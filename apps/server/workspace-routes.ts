@@ -3,6 +3,8 @@ import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import type {Service} from '../../packages/core/service.ts';
 import {HarnessError} from '../../packages/contracts/index.ts';
+import type {Thread} from '../../packages/contracts/index.ts';
+import {manualEditCapabilityV1} from '../../packages/contracts/manual-edit.ts';
 import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
 import {ComparisonFileRequestSchema,ComparisonScopeSchema} from '../../packages/contracts/code-review.ts';
 import {workspaceHost,githubFor} from './workspace-host.ts';
@@ -68,6 +70,17 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  });
  app.get('/api/projects/:projectId/files',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,path}=querySchema.parse(request.query);return projects.files(projectId,threadId,path);});
  app.get('/api/projects/:projectId/file',async request=>{const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,path}=querySchema.parse(request.query);return projects.file(projectId,threadId,z.string().min(1).parse(path));});
+ app.get('/api/projects/:projectId/file/edit-capability',async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=z.strictObject({threadId:identifier.optional()}).parse(request.query);
+  if(!capabilityEnabled('workspace.manualEditV1'))return manualEditCapabilityV1.parse({available:false,checkpoints:false,reason:'flag_off'});
+  const checkpoints=capabilityEnabled('workspace.checkpointsV1');
+  if(threadId&&service.store.get('archivedThread',threadId))return manualEditCapabilityV1.parse({available:false,checkpoints,reason:'archived'});
+  const thread=threadId?service.store.get<Thread>('thread',threadId):undefined;
+  if(thread&&(thread.kind==='side'||thread.kind==='delegate'||thread.sideParentId))return manualEditCapabilityV1.parse({available:false,checkpoints,reason:'thread_kind'});
+  try{await projects.binding(projectId,threadId);return manualEditCapabilityV1.parse({available:true,checkpoints});}
+  catch{return manualEditCapabilityV1.parse({available:false,checkpoints,reason:'no_project'});}
+ });
  app.get('/api/projects/:projectId/pull-requests',async request=>{
   const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,linked}=pullQuerySchema.parse(request.query);if(!linked)return github.list(projectId,threadId);
   await projects.binding(projectId,threadId);const{repo}=await github.repo(projectId,threadId);

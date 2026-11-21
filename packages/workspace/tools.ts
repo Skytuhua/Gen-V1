@@ -11,6 +11,9 @@ import {WorkspaceRepository} from '../core/workspace-layout.ts';
 import {assertNotStorage,canonical,inside} from '../core/security.ts';
 import {gitExecutable} from '../capabilities/process.ts';
 import {readBoundFile,withPathGuard} from '../core/file-access.ts';
+import {capabilityEnabled} from '../core/capability-flags.ts';
+import {secretPathName} from './checkpoints.ts';
+import type {ManualEditFileStateV1} from '../contracts/manual-edit.ts';
 import {directoryIdentity,importGitFamily,nativeGit,privateFamilyForBinding,sameIdentity,withLegacyGitView,withPrivateGitFamily} from './git-storage.ts';
 import {ComparisonFileRequestSchema,ComparisonScopeSchema,type ComparisonRead} from '../contracts/code-review.ts';
 import {ComparisonSnapshots,comparisonError,comparisonResult,readLocalComparison,readLocalComparisonFile} from './code-review.ts';
@@ -26,6 +29,17 @@ const equal=(a:Identity,b:Identity)=>a.dev===b.dev&&a.ino===b.ino;
 const pathName=z.string().min(1).max(1024).refine(path=>!path.includes('\0')&&!path.includes(':')&&!/^[\\/]|(?:^|[\\/])\.\.(?:[\\/]|$)/.test(path),'Choose a file inside the project.');
 // Git metadata is never project content, whatever its case or nesting depth.
 const gitSegment=(value:string)=>value.split(/[\\/]/).some(part=>part.toLowerCase()==='.git');
+// R04: Gen sentinels, .git segments and secret-named files are view-only for manual editing.
+const protectedPath=(value:string)=>value.split(/[\\/]/).some(part=>part==='.harness-directory-guard')||gitSegment(value)||secretPathName(value);
+const manualEditState=(relativePath:string,data:Buffer,binary:boolean):ManualEditFileStateV1=>{
+ const bom=data.length>=3&&data[0]===0xef&&data[1]===0xbb&&data[2]===0xbf;
+ let crlf=0,lf=0;for(let index=0;index<data.length;index++){if(data[index]===0x0a){if(index>0&&data[index-1]===0x0d)crlf++;else lf++;}}
+ const lineSeparator=crlf>0?lf>0?'mixed':'crlf':'lf';
+ if(binary)return{editable:false,reason:'binary',bom,lineSeparator};
+ try{new TextDecoder('utf-8',{fatal:true}).decode(data);}catch{return{editable:false,reason:'not_utf8',bom,lineSeparator};}
+ if(protectedPath(relativePath))return{editable:false,reason:'protected',bom,lineSeparator};
+ return{editable:true,bom,lineSeparator};
+};
 async function untrackedDigest(path:string,signal:AbortSignal){
  return withPathGuard([{path,leaf:true,readOnly:true}],signal,async()=>{
   const file=await open(path,'r');try{const info=await file.stat({bigint:true});if(!info.isFile()||info.nlink!==1n)throw new HarnessError('CAPABILITY_DENIED','Changed paths must be ordinary files.');
@@ -201,6 +215,6 @@ export class ProjectTools{
   const{path}=await this.binding(projectId,threadId),target=relativePath?join(path,pathName.parse(relativePath)):path,resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Files stay inside the selected worktree.');
   return withPathGuard([{path:target,leaf:false}],new AbortController().signal,async()=>{const{readdir}=await import('node:fs/promises'),entries=[];for(const item of(await readdir(target,{withFileTypes:true})).slice(0,500)){if(item.name.toLowerCase()==='.git'||item.name==='.harness-directory-guard'||item.isSymbolicLink())continue;entries.push({name:item.name,path:relativePath?relativePath+'/'+item.name:item.name,kind:item.isDirectory()?'directory':'file'});}return{path:relativePath,entries};});
  }
- async file(projectId:string,threadId:string|undefined,relativePath:string){const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath)),resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');return withPathGuard([{path:target,leaf:true,readOnly:true}],new AbortController().signal,async()=>{const data=await readBoundFile(target,1024*1024);return{text:data.includes(0)?null:data.toString('utf8'),binary:data.includes(0),sha256:hash(data)};});}
+ async file(projectId:string,threadId:string|undefined,relativePath:string){const{path}=await this.binding(projectId,threadId),target=join(path,pathName.parse(relativePath)),resolved=await realpath(target);if(!inside(path,resolved)||gitSegment(relative(path,resolved))||gitSegment(relativePath))throw new HarnessError('CAPABILITY_DENIED','Choose a source file inside this worktree.');return withPathGuard([{path:target,leaf:true,readOnly:true}],new AbortController().signal,async()=>{const data=await readBoundFile(target,1024*1024),binary=data.includes(0),result:{text:string|null;binary:boolean;sha256:string;edit?:ManualEditFileStateV1}={text:binary?null:data.toString('utf8'),binary,sha256:hash(data)};if(capabilityEnabled('workspace.manualEditV1'))result.edit=manualEditState(relativePath,data,binary);return result;});}
  async dispose(){await Promise.allSettled([...this.queues.values()]);}
 }

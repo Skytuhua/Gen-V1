@@ -55,10 +55,15 @@ export interface StoredRestorePlan extends RestorePlanV1 {
   createdAt: string;
 }
 
+/** Shared secret-name predicate: also used by the manual editor's protected-path check (issue #1344). */
+export const secretPathName = (path: string): boolean => {
+  const name = path.split("/").at(-1) ?? path;
+  return SECRET_NAME.test(name) || SECRET_EXT.test(name);
+};
+
 const isBinary = (data: Buffer) => data.includes(0);
 const exclusionReason = (path: string, data: Buffer | null, statBytes?: number): "secret" | "binary" | "too_large" | "unsupported" | null => {
-  const name = path.split("/").at(-1) ?? path;
-  if (SECRET_NAME.test(name) || SECRET_EXT.test(name)) return "secret";
+  if (secretPathName(path)) return "secret";
   if (!checkpointPathSchema.safeParse(path).success) return "unsupported";
   const size = statBytes ?? data?.length ?? 0;
   if (size > CHECKPOINT_V1_LIMITS.fileBytes) return "too_large";
