@@ -60,3 +60,8 @@ html[data-native-titlebar="true"] .usage-dialog.ui-modal { height:min(560px,calc
 .usage-request .usage-dialog-error { margin-top:8px; }
 @media(max-width:420px) { .usage-request-stages>li,.usage-request-metrics>li { padding:2px 6px; } }
 @media(forced-colors:active) { .usage-request-stages>li,.usage-request-metrics>li { border-color:ButtonBorder; } }
+
+/* H4: the usage dialog tab pill eases its state; panels crossfade via the
+   shared tabpanel rule. */
+.usage-dialog [role="tab"] { transition: background-color var(--ui-motion-hover) var(--ui-ease-enter), color var(--ui-motion-hover) var(--ui-ease-enter); }
+@media (prefers-reduced-motion: reduce) { .usage-dialog [role="tab"] { transition: none; } }

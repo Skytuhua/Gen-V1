@@ -119,3 +119,10 @@
 @keyframes graph-tip-in { from { transform:translateY(var(--graph-tip-offset)) scale(.95); } to { transform:none; } }
 @keyframes graph-tip-out { from { opacity:1; transform:none; } to { opacity:0; transform:translateY(var(--graph-tip-offset)) scale(.95); } }
 @media(prefers-reduced-motion:reduce) { .task-node-popover[data-state] { animation:none; } }
+
+/* M9: graph nodes entering the staged layout fade in like other list rows;
+   exit handled by the graph's geometry opacity easing (verified). */
+.task-graph [data-node-id][data-arrival] { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+@media (prefers-reduced-motion: reduce) {
+  .task-graph [data-node-id][data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+}

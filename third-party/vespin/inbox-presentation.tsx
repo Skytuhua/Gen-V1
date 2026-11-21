@@ -3,15 +3,16 @@
  * Pinned source/ranges and modifications are recorded in provenance.json.
  * This is only the list/row/reader presentation. No Vespin service or store is used.
  */
-import {memo,type ReactNode,type Ref} from 'react';
+import {memo,type CSSProperties,type ReactNode,type Ref} from 'react';
 
 interface InboxItemRowProps {
  title:string;description:ReactNode;lead:{icon:ReactNode;label:ReactNode};meta:ReactNode;
  unread:boolean;current:boolean;muted:boolean;onPress:()=>void;label:string;pressRef?:Ref<HTMLButtonElement>;
+ arrival?:number;leaving?:boolean;onLeavingEnd?:()=>void;
 }
 
 /** ListRow's ABOVE lead + TITLE metadata branch, as InboxItemRow composes it. */
-export const InboxItemRow=memo(function InboxItemRow({title,description,lead,meta,unread,current,muted,onPress,label,pressRef}:InboxItemRowProps){
+export const InboxItemRow=memo(function InboxItemRow({title,description,lead,meta,unread,current,muted,onPress,label,pressRef,arrival,leaving,onLeavingEnd}:InboxItemRowProps){
  const heading=(
   <span className="ui-list-row-title">
    {unread?<span className="sr-only">Unread. </span>:null}
@@ -42,7 +43,7 @@ export const InboxItemRow=memo(function InboxItemRow({title,description,lead,met
   </>
  );
  return(
-  <li className="ui-list-row" data-meta="title" data-lead="above" data-current={current?'true':undefined} data-current-look="tint" data-unread={unread?'true':undefined} data-muted={muted?'true':undefined} data-ink="sidebar">
+  <li className="ui-list-row" data-meta="title" data-lead="above" data-current={current?'true':undefined} data-current-look="tint" data-unread={unread?'true':undefined} data-muted={muted?'true':undefined} data-ink="sidebar" data-arrival={arrival!==undefined?'true':undefined} data-leaving={leaving||undefined} aria-hidden={leaving||undefined} style={arrival!==undefined?{'--row-delay':`${Math.min(arrival,5)*30}ms`} as CSSProperties:undefined} onAnimationEnd={leaving?event=>{if(event.target===event.currentTarget)onLeavingEnd?.();}:undefined}>
    <button ref={pressRef} type="button" className="ui-list-row-main" aria-current={current?'page':undefined} aria-label={label} onClick={onPress}>{face}</button>
   </li>
  );

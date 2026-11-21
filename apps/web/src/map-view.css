@@ -43,3 +43,9 @@
 @keyframes task-map-route-in { from { stroke-dasharray:1; stroke-dashoffset:1; } to { stroke-dasharray:1; stroke-dashoffset:0; } }
 @media(max-width:600px) { .task-map-plan { height:245px; } .task-map-heading { align-items:flex-start; flex-direction:column; } .task-map-point-label { max-width:180px; overflow:hidden; text-overflow:ellipsis; } }
 @media(prefers-reduced-motion:reduce) { .task-map-route { animation:none; } .task-map * { transition-duration:1ms!important; } .task-map-point-label { transition:none; } }
+
+/* M8: a newly added pin pops in with the shared check spring. */
+.task-map-point[data-arrival] { animation: ui-check-in var(--ui-motion-spring) var(--ui-ease-spring) both; }
+@media (prefers-reduced-motion: reduce) {
+  .task-map-point[data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+}

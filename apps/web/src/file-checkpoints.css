@@ -78,3 +78,9 @@
  .file-checkpoints button.file-checkpoints-primary:enabled:hover { background:var(--accent-hover); } }
 @media(prefers-reduced-motion:reduce) { .file-checkpoints button { transition:none; } }
 @media(forced-colors:active) { .file-checkpoints [aria-selected="true"],.file-checkpoints-file[data-selected] { outline:1px solid Highlight; } }
+
+/* G4: checkpoint entries fade in on insert only — no removal animation and no stagger. */
+.file-checkpoints-entries > li[data-arrival] { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter) both; }
+@media (prefers-reduced-motion: reduce) {
+  .file-checkpoints-entries > li[data-arrival] { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+}

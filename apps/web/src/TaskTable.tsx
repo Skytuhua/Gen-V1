@@ -1,4 +1,4 @@
-import { useContext, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useContext, useLayoutEffect, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { useStateStore, type ComponentRenderProps } from '@json-render/react';
 import { tableChangesData } from '../../../packages/ui-catalog/workflow';
 import { ArtifactInline, ArtifactTitle, inputPath, statePath } from './task-context';
@@ -7,6 +7,7 @@ import { useTableControls } from './TaskTableControls';
 import { tableCellText as cellText, tableIdentity, tableObject as object, tableText as text } from './task-table-model';
 import './task-table.css';
 import {useTableOverflow} from './use-table-overflow';
+import { useRowMotion } from './list-motion';
 
 const array = (value: unknown): unknown[] => Array.isArray(value) ? value : [];
 
@@ -48,6 +49,10 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
     });
     return { id, change, cells, index };
   }), [controls.view, columns, rowChanges, identity]);
+  // G2: arriving rows stagger in; removed rows ghost out with frozen cells.
+  const motion = useRowMotion(renderedRows, row => row.id);
+  const ghostCache = useRef(new Map<string, (typeof renderedRows)[number]>());
+  for (const rendered of renderedRows) ghostCache.current.set(rendered.id, rendered);
   const selectionPath = bindings?.value ?? statePath(props.stateKey);
   const selected = array(store.get(selectionPath));
   const previousIdentity = useRef(identity);
@@ -198,9 +203,16 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
         {columns.length > 0 && <colgroup>{Boolean(props.stateKey) && <col style={{ width: 40 }} />}{columns.map((column, index) => <col key={column.key} style={{ width: controls.widths[index] }} />)}</colgroup>}
         <thead><tr>{Boolean(props.stateKey) && <th scope="col" className="task-table-select"><span className="sr-only">Selected</span></th>}{controls.headers}</tr></thead>
         <tbody>{renderedRows.map(({ id, change, cells, index }) => {
-          return <tr key={id} data-row-id={id} data-change={change?.status} data-active={activeRow === id}>
+          const arrival = motion.arrivals.get(id);
+          return <tr key={id} data-row-id={id} data-change={change?.status} data-active={activeRow === id} data-arrival={arrival !== undefined ? true : undefined} style={arrival !== undefined ? { '--row-delay': `${Math.min(arrival, 5) * 30}ms` } as CSSProperties : undefined}>
             {Boolean(props.stateKey) && <td className="task-table-select"><input aria-label={`Select row ${index + 1}`} type="checkbox" checked={selected.includes(id)} onChange={event => store.set(selectionPath, event.target.checked ? [...selected, id] : selected.filter(key => key !== id))} /></td>}
             {cells}
+          </tr>;
+        })}{[...motion.leaving].map(id => {
+          const ghost = ghostCache.current.get(id);
+          if (!ghost) return null;
+          return <tr key={`leaving-${id}`} data-leaving aria-hidden="true" onAnimationEnd={event => { if (event.target === event.currentTarget) { ghostCache.current.delete(id); motion.finishLeaving(id); } }}>
+            {ghost.cells}
           </tr>;
         })}</tbody>
       </table>

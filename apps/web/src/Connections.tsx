@@ -14,6 +14,7 @@ import { getAccountAuth, signOutAccount, cancelAccountPredictions, type AccountA
 import {accountTargetKey} from './account-login-monitor';
 import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
+import { useRowMotion } from './list-motion';
 import { useDesktop } from './desktop-context';
 import './connections.css';
 const AUTH_LABELS: Record<string, string> = {error: 'Status unavailable', checking: 'Checking connection…', cancelling: 'Stopping sign-in', configured: 'Saved, not verified', authenticated: 'Signed in', 'signed-out': 'Not signed in', blocked: 'Connection blocked', 'signing-in': 'Sign-in in progress', unavailable: 'Unavailable', unknown: 'Status unknown'};
@@ -63,6 +64,8 @@ function AccountPicker({ connection, accounts, selectedAccountId, selectedMethod
   selectedMethodId:string;select:(id:string)=>void;busy: string; run: AccountAction;
 }) {
   const providerAccounts = accounts.filter(account => account.providerId === connection.id);
+  // M4: account rows enter like every other list surface.
+  const motion = useRowMotion(providerAccounts, account => account.id);
   const [editing, setEditing] = useState<{ id?: string } | null>(null);
   const [label, setLabel] = useState('');
   const [savingDefault, setSavingDefault] = useState(false);
@@ -84,7 +87,7 @@ function AccountPicker({ connection, accounts, selectedAccountId, selectedMethod
     {providerAccounts.length > 0 && <><p className="connection-account-default"><span>Default for new tasks:</span>{' '}<strong>{selected?.enabled ? selected.label : 'Legacy connection'}</strong></p>
     <fieldset disabled={!!busy} className="connection-account-options"><legend className="sr-only">{connection.label} account for new tasks</legend>
       <div className="connection-account-row" data-chosen={selectedMethodId === LEGACY}><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label="Legacy connection" checked={selectedMethodId === LEGACY} onChange={() => select(LEGACY)} /><span>Legacy connection</span>{defaultMethodId === LEGACY && <small className="connection-account-badge"><Check size={11} aria-hidden="true" />Default</small>}</label></div>
-      {providerAccounts.map(account => <div className={`connection-account-row${account.enabled ? '' : ' connection-account-inactive'}`} key={account.id} data-account-id={account.id} data-chosen={selectedMethodId === account.id}>
+      {providerAccounts.map(account => <div className={`connection-account-row${account.enabled ? '' : ' connection-account-inactive'}`} key={account.id} data-account-id={account.id} data-chosen={selectedMethodId === account.id} data-arrival={motion.arrivals.has(account.id) || undefined}>
         <div className="connection-account-line"><label className="connection-account-choice"><input type="radio" name={`account-${connection.id}`} aria-label={account.label} disabled={!account.enabled} checked={selectedMethodId === account.id} onChange={() => select(account.id)} /><span>{account.label}</span>{account.enabled && defaultMethodId === account.id && <small className="connection-account-badge"><Check size={11} aria-hidden="true" />Default</small>}{!account.enabled && <small>Removed</small>}</label>
           <div className="connection-account-actions"><button className="quiet" aria-label={`Rename ${account.label}`} onClick={() => { setEditing({ id: account.id }); setLabel(account.label); }}>Rename</button>{account.enabled ? <button className="quiet" aria-label={`Remove ${account.label}`} title="Disable for new tasks. Keep its private profile and existing task bindings." onClick={() => void run('account.remove', { accountId: account.id })}>Remove</button> : <button className="quiet" aria-label={`Restore ${account.label}`} onClick={() => void run('account.restore', { accountId: account.id })}>Restore</button>}</div></div>
       </div>)}

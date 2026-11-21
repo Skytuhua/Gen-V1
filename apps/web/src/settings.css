@@ -116,3 +116,19 @@
 .settings-shortcuts-keys { display:flex;flex:0 0 auto;gap:4px; }
 .settings-shortcuts-keys kbd { padding:1px 5px;border:1px solid var(--border);border-radius:4px;font-size:11px;color:var(--muted);white-space:nowrap; }
 .settings-shortcuts-label small { display:block;margin-top:1px;font-size:12px;line-height:1.4;color:var(--muted); }
+
+/* H1: switching settings sections crossfades the incoming content. */
+.settings-content > .settings-section { animation: task-pane-in var(--ui-motion-tab) var(--ui-ease-enter) both; }
+
+/* H2: the save-state chip pops its check in, fades out on idle. */
+.settings-save-state[data-state="saved"] svg { animation: ui-check-in var(--ui-motion-tab) var(--ui-ease-spring) both; }
+.settings-save-state[data-state="idle"] { animation: ui-popover-fade var(--ui-motion-tab) var(--ui-ease-move) reverse both; }
+
+/* H5: control commit states ease their surface color. */
+.settings-content :is(input[type="checkbox"], select, .settings-switch) { transition: background-color var(--ui-motion-hover) var(--ui-ease-enter), border-color var(--ui-motion-hover) var(--ui-ease-enter); }
+@media (prefers-reduced-motion: reduce) {
+  .settings-content > .settings-section { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  .settings-save-state[data-state="saved"] svg { animation-name: ui-popover-fade; animation-duration: var(--ui-motion-press); }
+  .settings-content :is(input[type="checkbox"], select, .settings-switch) { transition: none; }
+  .settings-save-state[data-state="idle"] { animation-duration: var(--ui-motion-press); }
+}
