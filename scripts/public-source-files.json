@@ -2806,6 +2806,7 @@
     "scripts/verify-subscription-accounts.ts",
     "scripts/verify-workspace-checkpoint.ts",
     "scripts/work-object-review-data.ts",
+    "tests/audit-1081-pi.test.ts",
     "tests/account-auth-http.test.ts",
     "tests/account-auth.test.ts",
     "tests/account-login-monitor.test.ts",
