@@ -529,6 +529,30 @@ describe('complete requirement evidence',()=>{
   expect(result.requirements[0].missing).toEqual([]);
  });
 
+ it.each([
+  ['FAIL','FAILED'], ['BLOCKED','BLOCKED'], ['CANCELLED','FAILED'],
+ ] as const)('a current %s check is observed evidence rather than a missing check',(outcome,label)=>{
+  const result=assess(['exec-complete','test'],[
+   observation('test',{outcome,exitCode:outcome==='FAIL'?1:null}),
+   observation('cleanup',{phase:'TEARDOWN',observationKind:'cleanup'}),
+  ]);
+  expect(result.label).toBe(label);
+  expect(result.requirements[0]).toMatchObject({assessment:label,missing:[]});
+ });
+
+ it('a recorded failure still reports unavailable artifact custody',()=>{
+  const result=assess(['test'],[observation('test',{outcome:'FAIL',exitCode:1,artifactRefs:['untrusted://log']})]);
+  expect(result.label).toBe('FAILED');
+  expect(result.requirements[0].missing).toEqual(['artifact custody is unavailable for build-and-test (test)']);
+ });
+
+ it('does not turn an unsupported persisted outcome into verification',()=>{
+  const recorded={...observation('test'),outcome:'unsupported'} as unknown as CheckObservationV1;
+  const result=assess(['test'],[recorded]);
+  expect(result.label).toBe('COMPLETED_UNVERIFIED');
+  expect(result.requirements[0].missing).toEqual(['evidence for build-and-test (test) is indeterminate or missing']);
+ });
+
  it('a browser artifact reference cannot attest its own screenshot custody',()=>{
   const result=assess(['browser'],[observation('browser',{phase:'BROWSER',observationKind:'browser',artifactRefs:['untrusted://capture.png']})]);
   expect(result.label).toBe('BLOCKED');
