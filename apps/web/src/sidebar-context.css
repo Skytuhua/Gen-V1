@@ -526,7 +526,7 @@
   align-items: center;
   gap: 2px;
   opacity: 0;
-  transition: opacity 90ms linear;
+  transition: opacity var(--ui-motion-hover) var(--ui-ease-move);
 }
 
 .sidebar .sidebar-settled-row .sidebar-thread-actions {
