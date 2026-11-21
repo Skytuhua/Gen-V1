@@ -19,7 +19,6 @@ import { display, schemaDefaults, SchemaFields } from './registry';
 import { useModalRegion } from './focus';
 import { validateSchema } from './schema-validator';
 import { matchingThreads, type HistoricalThreadMatches } from './thread-search';
-import { hasPendingDocumentAssets } from './signature-assets';
 import { getPreferences, mergePreferences } from '../../../packages/contracts/preferences';
 import { ShellSidebar, threadStatus } from './ShellSidebar';
 import { ProjectPicker } from './ProjectPicker';
@@ -101,9 +100,11 @@ import {DesktopBrowserSlot,DesktopBrowserToolbar} from './DesktopBrowser';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {OperationProjectTrust, OperationProjectTrustStatus, type ProjectTrustReadiness} from './OperationProjectTrust';
 import { OperationExecutionReviewPanel } from './OperationExecutionReview';
+import { withTimeout } from './with-timeout';
 
 type SettingsComponent = typeof import('./Settings').Settings;
 let loadedSettings: SettingsComponent | undefined;
+const SETTINGS_LOAD_ERROR = "Settings didn't load. Check your connection and try again.";
 
 const readPlacementRaw=(workspaceId:string):string|null=>{try{return localStorage.getItem(conversationPlacementKey(workspaceId));}catch{return null;}};
 const writePlacementRecord=(record:ConversationPlacementRecord)=>{try{localStorage.setItem(conversationPlacementKey(record.workspaceId),JSON.stringify(record));}catch{/* Placement remains usable when storage is unavailable. */}};
@@ -119,26 +120,24 @@ function Dialog({ title, children, close }: { title: string; children: ReactNode
 }
 
 function SettingsWindow(props: ComponentProps<SettingsComponent>) {
-  const desktop = useDesktop();
   const opener = useRef(document.activeElement as HTMLElement | null);
   const [Settings, setSettings] = useState(() => loadedSettings);
   const [error, setError] = useState(''), [reloading, setReloading] = useState(false);
   useEffect(() => () => { if (opener.current?.isConnected) opener.current.focus({ preventScroll: true }); }, []);
+  const read = useRef<AbortController | null>(null);
+  const load = useCallback(() => {
+    const controller = new AbortController();
+    read.current = controller;
+    setReloading(true);
+    void withTimeout(import('./Settings'), 8_000, controller.signal).then(module => { loadedSettings = module.Settings; if (!controller.signal.aborted) setSettings(() => module.Settings); }).catch(cause => { if (!controller.signal.aborted) setError(cause instanceof Error && cause.message === 'settings-load-timeout' ? SETTINGS_LOAD_ERROR : 'Settings could not load. Try again or close this window.'); }).finally(() => { if (!controller.signal.aborted) setReloading(false); });
+  }, []);
   useEffect(() => {
     if (Settings) return;
-    let active = true;
-    void import('./Settings').then(module => { loadedSettings = module.Settings; if (active) setSettings(() => module.Settings); }).catch(() => { if (active) setError('Settings could not load. Try again or close this window.'); });
-    return () => { active = false; };
-  }, [Settings]);
-  const reload = async () => {
-    setReloading(true);
-    try {
-      if (props.snapshot.threads.some(thread => hasPendingDocumentAssets(thread.id))) { setError('Wait for the signature mark to finish saving, or clear it before reloading.'); return; }
-      await desktop?.prepareHandoff(); await journalFlush(); window.location.reload();
-    } catch (cause) { setError(`Drafts could not be saved. ${messageOf(cause)} Keep this window open and retry.`); }
-    finally { setReloading(false); }
-  };
-  return <Modal open title="Settings" onClose={props.close} className="settings-dialog">{Settings ? <Settings {...props} /> : <>{error ? <ErrorState message={error} retryLabel="Reload to retry" busy={reloading} onRetry={() => void reload()}/> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>}</>}</Modal>;
+    load();
+    return () => { read.current?.abort(); };
+  }, [Settings, load]);
+  const retry = () => { setError(''); load(); };
+  return <Modal open title="Settings" onClose={props.close} className="settings-dialog">{Settings ? <Settings {...props} /> : <>{error ? <ErrorState message={error} retryLabel="Reload settings" busy={reloading} onRetry={retry}><p style={{fontSize: '12px', color: 'var(--muted)'}}>If this keeps happening, reload the app.</p></ErrorState> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>}</>}</Modal>;
 }
 
 const AssistantProse = memo(function AssistantProse({message,arrivals,active}:{message:Message;arrivals:Set<string>;active:boolean}){

@@ -14,7 +14,7 @@ import {detachedSurface, pendingSurface, useDesktop, useDesktopCloseGuard, useDe
 import {prepareEditorHandoff} from './editor-handoff';
 import {useModalRegion} from './focus';
 import {journalFlush} from './journal';
-import {hasPendingDocumentAssets} from './signature-assets';
+import {withTimeout} from './with-timeout';
 import {LoadingState, PendingStatus} from './LoadingState';
 import {SettingsSkeleton, WorkspaceSkeleton} from './ViewSkeletons';
 import {ShellSidebar} from './ShellSidebar';
@@ -49,26 +49,25 @@ const prepare = async () => {await journalFlush(); await prepareEditorHandoff();
 
 type CompactSettingsComponent = typeof import('./CompactSettings').CompactSettings;
 let loadedCompactSettings: CompactSettingsComponent | undefined;
+const SETTINGS_LOAD_ERROR = "Settings didn't load. Check your connection and try again.";
 function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>) {
   const [Settings, setSettings] = useState(() => loadedCompactSettings), [error, setError] = useState(''), [reloading, setReloading] = useState(false);
   const alive = useRef(true);
   useLayoutEffect(() => {alive.current = true; return () => {alive.current = false;};}, []);
+  const read = useRef<AbortController | null>(null);
+  const load = useCallback(() => {
+    const controller = new AbortController();
+    read.current = controller;
+    setReloading(true);
+    void withTimeout(import('./CompactSettings'), 8_000, controller.signal).then(module => {loadedCompactSettings = module.CompactSettings; if (!controller.signal.aborted) setSettings(() => module.CompactSettings);}).catch(cause => {if (!controller.signal.aborted) setError(cause instanceof Error && cause.message === 'settings-load-timeout' ? SETTINGS_LOAD_ERROR : 'Settings could not load.');}).finally(() => {if (!controller.signal.aborted) setReloading(false);});
+  }, []);
   useEffect(() => {
     if (Settings) return;
-    let active = true;
-    void import('./CompactSettings').then(module => {loadedCompactSettings = module.CompactSettings; if (active) setSettings(() => module.CompactSettings);}).catch(() => {if (active) setError('Settings could not load.');});
-    return () => {active = false;};
-  }, [Settings]);
-  const reload = async () => {
-    setReloading(true);
-    try {
-      if (hasPendingDocumentAssets()) {setError('Wait for the signature mark to finish saving, or clear it before reloading.'); return;}
-      await prepare();
-      if (alive.current) window.location.reload();
-    } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${message(cause)} Keep this window open and retry.`);}
-    finally {if (alive.current) setReloading(false);}
-  };
-  return Settings ? <Settings {...props}/> : error ? <ErrorState message={error} retryLabel="Reload to retry" busy={reloading} onRetry={() => void reload()}/> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
+    load();
+    return () => {read.current?.abort();};
+  }, [Settings, load]);
+  const retry = () => {setError(''); load();};
+  return Settings ? <Settings {...props}/> : error ? <ErrorState message={error} retryLabel="Reload settings" busy={reloading} onRetry={retry}><p style={{fontSize: '12px', color: 'var(--muted)'}}>If this keeps happening, reload the app.</p></ErrorState> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
 }
 
 /** Resolve the main window's canonical workspace before mounting a conversation owner. */
