@@ -1,5 +1,5 @@
 import {contextBridge,ipcRenderer} from 'electron';
-import {DESKTOP_CHANNELS as channels,parseDesktopSurface,type DesktopBridge,type DesktopState} from '../../packages/desktop-contract/index.ts';
+import {DESKTOP_CHANNELS as channels,parseDesktopSurface,parseLaunchRequestDelivery,type DesktopBridge,type DesktopState} from '../../packages/desktop-contract/index.ts';
 if(process.argv.includes('--gen-attention-popup')){
  contextBridge.exposeInMainWorld('harnessAttention',Object.freeze({
   action:(type:unknown,eventId:unknown)=>{if(!['open','dismiss','pause','resume'].includes(String(type))||typeof eventId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9:_.-]{0,999}$/.test(eventId))return;void ipcRenderer.invoke(channels.attentionPopupAction,{type,eventId}).catch(()=>{});},
@@ -24,6 +24,9 @@ const bridge:DesktopBridge={
  onState:listener=>{const receive=(_event:Electron.IpcRendererEvent,state:DesktopState)=>listener(state);ipcRenderer.on(channels.state,receive);return()=>ipcRenderer.removeListener(channels.state,receive);},
  onCloseRequested:handler=>{closeHandlers.add(handler);return()=>closeHandlers.delete(handler);},
  onWorkspaceChanged:listener=>{const receive=(_event:Electron.IpcRendererEvent,value:unknown)=>{if(!value||typeof value!=='object')return;const change=value as Record<string,unknown>;if(Object.keys(change).length===2&&typeof change.connected==='boolean'&&Number.isSafeInteger(change.sequence)&&Number(change.sequence)>=0)listener({connected:change.connected,sequence:Number(change.sequence)});};ipcRenderer.on(channels.workspaceChanged,receive);return()=>ipcRenderer.removeListener(channels.workspaceChanged,receive);},
+ onLaunchRequest:listener=>{const receive=(_event:Electron.IpcRendererEvent,value:unknown)=>{const parsed=parseLaunchRequestDelivery(value);if(parsed)listener(parsed);};ipcRenderer.on(channels.launchRequest,receive);return()=>ipcRenderer.removeListener(channels.launchRequest,receive);},
+ launchRequestReady:()=>ipcRenderer.invoke(channels.launchRequestReady),
+ launchRequestAck:requestId=>ipcRenderer.invoke(channels.launchRequestAck,requestId),
 };
 contextBridge.exposeInMainWorld('harnessDesktop',Object.freeze(bridge));
 

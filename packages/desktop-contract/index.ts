@@ -1,4 +1,23 @@
 import {pluginSurfaceSchema,type PluginSurface} from '../plugins/contracts.ts';
+import {z} from 'zod';
+export type TaskbarMode='none'|'indeterminate'|'normal'|'paused'|'error';
+export interface TaskbarStatus {enabled:boolean;mode:TaskbarMode;progress:number|null;failed:boolean}
+export interface JumpListProjectStatus {id:string;name:string}
+export interface JumpListStatus {enabled:boolean;projects:JumpListProjectStatus[]}
+export interface TaskbarReadResult {taskbar:TaskbarStatus;jumpList:JumpListStatus}
+export type LaunchRequest={type:'new-thread'}|{type:'open-project-id',projectId:string};
+export type LaunchRequestDelivery=LaunchRequest&{requestId:string};
+const desktopIdentity=()=>z.string().min(1).max(200).regex(/^[a-zA-Z0-9_.:-]+$/).refine(value=>!['__proto__','prototype','constructor'].includes(value));
+export const taskbarReadResultSchema=z.strictObject({
+ type:z.literal('harness.taskbar.read.result'),token:z.string().min(32).max(128),requestId:z.string().min(1).max(200),
+ taskbar:z.strictObject({enabled:z.boolean(),mode:z.enum(['none','indeterminate','normal','paused','error']),progress:z.number().finite().nullable(),failed:z.boolean()}),
+ jumpList:z.strictObject({enabled:z.boolean(),projects:z.array(z.strictObject({id:desktopIdentity(),name:z.string().max(160)})).max(5)}),
+ error:z.string().max(500).optional(),
+});
+const launchRequestSchema=z.discriminatedUnion('type',[z.strictObject({type:z.literal('new-thread')}),z.strictObject({type:z.literal('open-project-id'),projectId:desktopIdentity()})]);
+export const launchRequestDeliverySchema=z.discriminatedUnion('type',[z.strictObject({type:z.literal('new-thread'),requestId:z.string().min(1).max(200)}),z.strictObject({type:z.literal('open-project-id'),projectId:desktopIdentity(),requestId:z.string().min(1).max(200)})]);
+export function parseLaunchRequestDelivery(value:unknown):LaunchRequestDelivery|null{const parsed=launchRequestDeliverySchema.safeParse(value);return parsed.success?parsed.data:null;}
+export function parseLaunchRequest(value:unknown):LaunchRequest|null{const parsed=launchRequestSchema.safeParse(value);return parsed.success?parsed.data:null;}
 type DesktopWorkspaceTab = 'launcher' | 'files' | 'diff' | 'output' | 'usage' | 'notes' | 'artifact' | 'context' | 'terminal' | 'pull-request' | 'linked-pull-requests';
 type DesktopPluginSurface=PluginSurface;
 export type DesktopSurface =
@@ -47,8 +66,11 @@ export interface DesktopBridge {
   onState(listener:(state:DesktopState)=>void):()=>void;
   onCloseRequested(handler:()=>Promise<boolean>):()=>void;
   onWorkspaceChanged?(listener:(change:DesktopWorkspaceChange)=>void):()=>void;
+  onLaunchRequest?(listener:(request:LaunchRequestDelivery)=>void):()=>void;
+  launchRequestReady?():Promise<void>;
+  launchRequestAck?(requestId:string):Promise<void>;
 }
-export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout'} as const;
+export const DESKTOP_CHANNELS={memoryExport:'harness-desktop:memory-export',attentionOpen:'harness-desktop:attention-open',attentionSelected:'harness-desktop:attention-selected',attentionPopupCards:'harness-attention:cards',attentionPopupAction:'harness-attention:action',theme:'harness-desktop:theme',update:'harness-desktop:update',context:'harness-desktop:context',ready:'harness-desktop:ready',detach:'harness-desktop:detach',reattach:'harness-desktop:reattach',minimize:'harness-desktop:minimize',signIn:'harness-desktop:sign-in',signInStatus:'harness-desktop:sign-in-status',activeSignIn:'harness-desktop:active-sign-in',cancelSignIn:'harness-desktop:cancel-sign-in',reset:'harness-desktop:reset',focus:'harness-desktop:focus',list:'harness-desktop:list',browser:'harness-desktop:browser',state:'harness-desktop:state',closeRequest:'harness-desktop:close-request',closeAnswer:'harness-desktop:close-answer',workspaceChanged:'harness-desktop:workspace-changed',control:'harness-desktop:control',captureLayout:'harness-desktop:capture-layout',applyLayout:'harness-desktop:apply-layout',launchRequest:'harness-desktop:launch-request',launchRequestReady:'harness-desktop:launch-request-ready',launchRequestAck:'harness-desktop:launch-request-ack'} as const;
 const kinds=new Set(['main','navigation','workspace','plan','usage','thread','artifact','agent','browser','plugin']);
 const tabs=new Set(['launcher','files','diff','output','usage','notes','artifact','context','terminal','pull-request','linked-pull-requests']);
 export function desktopId(value:unknown):value is string{return typeof value==='string'&&value.length<=200&&/^[a-zA-Z0-9_.:-]+$/.test(value)&&!['__proto__','prototype','constructor'].includes(value);}
