@@ -123,12 +123,14 @@ test("flow 1: Edit opens the editor, typing dirties, Ctrl+S saves and announces 
 	await page.keyboard.press("Control+s");
 	await page.waitForTimeout(300);
 	expect(saves).toHaveLength(0);
-	await editButton(page).click();
+	// Keyboard-only open: E on the focused preview.
+	await page.locator(".files-preview").focus();
+	await page.keyboard.press("e");
 	await expect(page.locator(".gen-code-editor")).toBeVisible();
 	expect(
 		requested.filter((url) => /codemirror|lezer/i.test(url)).length,
 	).toBeGreaterThan(0);
-	await page.locator(".cm-content").click();
+	await page.locator(".cm-content").focus();
 	await page.keyboard.press("End");
 	await page.keyboard.type("delta");
 	await expect(page.locator(".files-edit-dirty")).toContainText("Edited");

@@ -17,6 +17,7 @@ export default defineConfig({
 		viewport: { width: 1440, height: 1000 },
 		trace: "retain-on-failure",
 		screenshot: "on",
+		video: "on",
 	},
 	webServer: process.env.GEN_FILES_EDITING_EXTERNAL === '1' ? undefined : {
 		command:
