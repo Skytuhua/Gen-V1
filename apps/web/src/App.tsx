@@ -93,6 +93,7 @@ import {AgentInbox} from './AgentInbox';
 import {BackgroundWork} from './BackgroundWork';
 import {ConversationFind} from './ConversationFind';
 import {canLoadConversationHistory} from './conversation-find';
+import {createExplorerOpenHandler} from './explorer-open-project';
 import {changeTerminalExcerpts,clearAcceptedExcerpts,editTerminalExcerpt,excerptDraftKey,readTerminalExcerpts,serializeTerminalExcerpts,type TerminalExcerpt} from './terminal-excerpts';
 import type {TerminalExcerptComposer} from './TerminalBody';
 import {WorkspaceSurfaceBody, type ReviewRequest} from './WorkspaceSurfaceBody';
@@ -783,6 +784,25 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
     if (!thread) return createThread(prepare);
     await prepare(thread.id); return thread.id;
   };
+  const workspaceStateRef = useRef(workspaceState); workspaceStateRef.current = workspaceState;
+  const explorerActionsRef = useRef({ select, createThread }); explorerActionsRef.current = { select, createThread };
+  const explorerHandlerRef = useRef<((path: string) => void) | null>(null);
+  if (!explorerHandlerRef.current) explorerHandlerRef.current = createExplorerOpenHandler(() => ({
+    projects: () => workspaceStateRef.current.envelope?.projects ?? null,
+    connect: (name, folder) => workspaceStateRef.current.send('workspace.project.connect', { name, path: folder }),
+    pendingThread: () => creationPending.current,
+    createThread: projectId => explorerActionsRef.current.createThread(undefined, projectId),
+    select: threadId => explorerActionsRef.current.select(threadId),
+    toast,
+  }));
+  // Only the main desktop window consumes Explorer open requests, and only once
+  // bootstrap finished and a workspace envelope exists; unsubscribing tells the
+  // main process the renderer is not ready again (T03 handshake).
+  useEffect(() => {
+    const dispatch = explorerHandlerRef.current;
+    if (embeddedThreadId || desktopSurface?.kind !== 'main' || !loaded || !workspaceEnvelope || !dispatch || !desktop?.bridge.onOpenProjectRequest) return;
+    return desktop.bridge.onOpenProjectRequest(dispatch);
+  }, [desktop?.bridge, desktopSurface?.kind, loaded, workspaceEnvelope != null, embeddedThreadId]);
   const newThreadRef = useRef<() => Promise<void>>(async()=>{}); newThreadRef.current = async()=>{if(composerPending.current||creationPending.current)return;await prepareWorkspace();openProjectSelection();};
   useEffect(() => { if(embeddedThreadId)return;const key = (event: KeyboardEvent) => {
     if (event.defaultPrevented || document.querySelector('dialog[open]')) return;
