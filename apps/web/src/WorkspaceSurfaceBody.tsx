@@ -21,6 +21,7 @@ import {TerminalBody} from './TerminalBody.tsx';
 export {TerminalBody} from './TerminalBody.tsx';
 import './workspace-tools.css';
 import {ProjectFiles} from './files/ProjectFiles';
+import type {FileRevealRequest} from './files/file-reveal';
 import {panelLabels} from './WorkspaceControls';
 
 const get=<T,>(url:string,signal?:AbortSignal)=>authenticated(()=>fetch(url,{credentials:'same-origin',cache:'no-store',signal})).then(read<T>);
@@ -32,9 +33,9 @@ function useProjectRequest<T>(url:string,active:boolean){
  activeLoad.current=load;
  useEffect(()=>{activeLoad.current=load;setValue(null);if(active)void load();return()=>{activeLoad.current=null;generation.current++;pending.current?.abort();pending.current=null;};},[load,active]);return{value,error,errorCode,load,setError};
 }
-function FilesBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
+function FilesBody({base,query,active,fallback,reveal,onRevealHandled}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode;reveal?:FileRevealRequest|null;onRevealHandled?:(id:number)=>void}){
  const owner=base+'?'+query.toString();
- return <ProjectFiles key={owner} base={base} query={query.toString()} active={active} fallback={fallback}/>;
+ return <ProjectFiles key={owner} base={base} query={query.toString()} active={active} fallback={fallback} reveal={reveal} onRevealHandled={onRevealHandled}/>;
 }
 function DiffBody({base,query,active,fallback}:{base:string;query:URLSearchParams;active:boolean;fallback:ReactNode}){
  const{value,error,errorCode,load,setError}=useProjectRequest<GitStatus>(base+'/git?'+query,active),[staged,setStaged]=useState(false),[pending,setPending]=useState(false);
@@ -51,7 +52,7 @@ function ChangesBody({base,query,active,recorded,preferences}:{base:string;query
  return <FileCheckpoints preferences={preferences} owner={value?.available?value.owner:undefined} adapter={adapter} current={<DiffBody base={base} query={query} active={active} fallback={recorded}/>} recorded={recorded}/>;
 }
 export type ReviewRequest = {id:number;repo:string;number:number;threadId:string;projectId:string;panelId:string};
-export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId,excerptComposer,reviewRequest,onReviewHandled}:{reviewRequest?:ReviewRequest;onReviewHandled?:(id:number)=>void;excerptComposer?:TerminalExcerptComposer;kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){
+export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,preferences,onSelectThread,onOpenTool,panelId,excerptComposer,reviewRequest,onReviewHandled,fileReveal,onFileRevealHandled}:{reviewRequest?:ReviewRequest;onReviewHandled?:(id:number)=>void;fileReveal?:FileRevealRequest|null;onFileRevealHandled?:(id:number)=>void;excerptComposer?:TerminalExcerptComposer;kind:WorkspacePanelKind;binding:PanelBinding;snapshot:Snapshot;refresh:()=>Promise<void>;active?:boolean;preferences?:UiPreferences;panelId?:string;onSelectThread?:(id:string)=>void|Promise<void>;onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}){
  const threadId=binding.threadId??snapshot.activeThreadId??undefined,thread=snapshot.threads.find(item=>item.id===threadId),projectId=binding.projectId??thread?.projectId;
  if(binding.authority.kind!=='local')return <p className="panel-note">This panel requires its owning plug-in adapter.</p>;
  const prefs=preferences??getPreferences(snapshot.settings);
@@ -68,7 +69,7 @@ export function WorkspaceSurfaceBody({kind,binding,snapshot,refresh,active=true,
  if(!projectId&&(kind==='pull-request'||kind==='linked-pull-requests'))return <><GitHubSignIn active={active} timeFormat={prefs.timeFormat}/><p className="panel-note">Connect a project to use {panelLabels[kind].toLowerCase()}.</p></>;
  if(!projectId)return <p className="panel-note">Connect a project to use {panelLabels[kind].toLowerCase()}.</p>;
  const base='/api/projects/'+encodeURIComponent(projectId),query=new URLSearchParams(threadId?{threadId}:{});
- if(kind==='files')return <FilesBody base={base} query={query} active={active} fallback={files}/>;
+ if(kind==='files')return <FilesBody base={base} query={query} active={active} fallback={files} reveal={fileReveal&&fileReveal.panelId===(panelId??'sidebar')?fileReveal:null} onRevealHandled={onFileRevealHandled}/>;
  if(kind==='diff')return <ChangesBody key={base+'?'+query} base={base} query={query} active={active} recorded={recordedDiff} preferences={prefs}/>;
  if(kind==='terminal')return <TerminalBody key={projectId+':'+threadId+':'+binding.terminalId} projectId={projectId} threadId={threadId} terminalId={binding.terminalId} active={active} excerptComposer={excerptComposer} openAnother={onOpenTool?()=>onOpenTool('terminal'):undefined}/>;
  if(kind==='pull-request'||kind==='linked-pull-requests'){const journalKey='pr-panel:'+JSON.stringify(['local',projectId,threadId??null,kind,panelId??'sidebar']);return <PullRequestsBody key={journalKey} journalKey={journalKey} base={base} query={query} active={active} threadId={threadId} linked={kind==='linked-pull-requests'} reviewRequest={kind==='linked-pull-requests'&&reviewRequest&&reviewRequest.threadId===threadId&&reviewRequest.projectId===projectId&&reviewRequest.panelId===(panelId??'sidebar')?reviewRequest:undefined} onReviewHandled={onReviewHandled} timeFormat={prefs.timeFormat}/>;}

@@ -9,6 +9,7 @@ import type {ShellLayout} from './shell-layout';
 import {WorkspaceLauncher} from './WorkspacePanelBodies';
 import type {TerminalExcerptComposer} from './TerminalBody';
 import {WorkspaceSurfaceBody, type ReviewRequest} from './WorkspaceSurfaceBody';
+import type {FileRevealRequest} from './files/file-reveal';
 import type {workspacePanelBounds} from './panel-geometry';
 export {UsageSummary,snapshotDiffs} from './WorkspacePanelBodies';
 
@@ -26,7 +27,7 @@ export function ResizeHandle({ label, value, minimum, maximum, change, side }: {
     element.setPointerCapture?.(pointerId);
   }} />;
 }
-export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWidth, resizeBounds, close, preferredResourceId, standalone=false,refresh=async()=>{},excerptComposer,leaving=false,onLeave,reviewRequest,onReviewHandled }: { reviewRequest?:ReviewRequest; onReviewHandled?:(id:number)=>void; excerptComposer?:TerminalExcerptComposer; leaving?:boolean; onLeave?:()=>void; refresh?:()=>Promise<void>; standalone?:boolean; preferredResourceId?:string; snapshot: Snapshot; threadId?: string; preferences: UiPreferences; layout: ShellLayout; setWidth: (width: number) => void; resizeBounds?: ReturnType<typeof workspacePanelBounds>; close?: () => void }) {
+export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWidth, resizeBounds, close, preferredResourceId, standalone=false,refresh=async()=>{},excerptComposer,leaving=false,onLeave,reviewRequest,onReviewHandled,fileReveal,onFileRevealHandled }: { reviewRequest?:ReviewRequest; onReviewHandled?:(id:number)=>void; fileReveal?:FileRevealRequest|null; onFileRevealHandled?:(id:number)=>void; excerptComposer?:TerminalExcerptComposer; leaving?:boolean; onLeave?:()=>void; refresh?:()=>Promise<void>; standalone?:boolean; preferredResourceId?:string; snapshot: Snapshot; threadId?: string; preferences: UiPreferences; layout: ShellLayout; setWidth: (width: number) => void; resizeBounds?: ReturnType<typeof workspacePanelBounds>; close?: () => void }) {
   const workspace = useWorkspace();
   const content = useRef<HTMLDivElement>(null);
   useLayoutEffect(() => {
@@ -78,7 +79,7 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
     {handoffError&&<p role="status" className="error-text">{handoffError}</p>}
     <div ref={content} className="workspace-panel-content" role="tabpanel" id={`workspace-view-${workspace.activeTab}`} aria-labelledby={`workspace-tab-${workspace.activeTab}`}>
       {workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><Select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onValueChange={workspace.requestOpenArtifact} options={[{value:'',label:'Choose an artifact'},...artifacts.map(artifact=>({value:artifact.id,label:artifact.title}))]}/></div>{!activeArtifact && <WorkspaceLauncher />}</>}
-      {workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
+      {workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} fileReveal={fileReveal} onFileRevealHandled={onFileRevealHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
     </div>
   </aside>;
 }

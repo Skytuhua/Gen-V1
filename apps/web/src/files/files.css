@@ -387,10 +387,24 @@
 	outline:2px solid var(--ui-focus-ring,#808080);
 	outline-offset: 2px;
 }
-.files-matching-line {
+.files-matching-line,
+.files-reveal-line {
 	background: var(--selection-bg);
 	color: var(--selection-ink);
 	outline: 1px solid var(--selection-border);
+}
+.files-reveal-line {
+	animation: files-reveal-pulse 700ms var(--ui-ease-enter) 1;
+}
+@keyframes files-reveal-pulse {
+	from { box-shadow: 0 0 0 3px var(--accent-soft); }
+	to { box-shadow: 0 0 0 0 transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.files-reveal-line { animation: none; }
+}
+:root:is([data-motion="reduced"], [data-motion="off"]) .files-reveal-line {
+	animation: none;
 }
 .files-content[data-project-search="true"] {
 	grid-template-columns: minmax(280px, 42%) minmax(0, 1fr);

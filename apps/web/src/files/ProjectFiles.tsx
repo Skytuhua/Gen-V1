@@ -8,6 +8,8 @@ import {
 } from "react";
 import { authenticated, read } from "../api";
 import { FilesView, type FilesEntry } from "./FilesView";
+import { referenceFolder, referenceName } from "../file-references";
+import type { FileRevealRequest } from "./file-reveal";
 import { ProjectSearch } from "./ProjectSearch";
 import {
 	unavailableProjectSearch,
@@ -27,6 +29,8 @@ interface ProjectFilesProps {
 	active: boolean;
 	fallback: ReactNode;
 	searchAdapter?: ProjectSearchAdapter;
+	reveal?: FileRevealRequest | null;
+	onRevealHandled?: (id: number) => void;
 }
 export function ProjectFiles(props: ProjectFilesProps) {
 	return <ProjectFilesReader key={props.base + "?" + props.query} {...props} />;
@@ -37,13 +41,17 @@ function ProjectFilesReader({
 	active,
 	fallback,
 	searchAdapter = unavailableProjectSearch,
+	reveal = null,
+	onRevealHandled,
 }: ProjectFilesProps) {
 	const [path, setPath] = useState(""),
 		[selected, setSelected] = useState<FilesEntry | null>(null),
 		[selectedMatch, setSelectedMatch] = useState<ProjectSearchMatch | null>(
 			null,
 		),
-		[searchRefresh, setSearchRefresh] = useState(0);
+		[searchRefresh, setSearchRefresh] = useState(0),
+		[revealLine, setRevealLine] = useState<number>(),
+		[revealVersion, setRevealVersion] = useState(0);
 	const matchLine = useRef<HTMLElement>(null);
 	const owner = {
 		projectId: decodeURIComponent(base.split("/").at(-1) ?? ""),
@@ -96,9 +104,34 @@ function ProjectFilesReader({
 				behavior: "instant",
 			});
 	}, [file, selectedMatch, stale, preview.pending]);
+	// Reveal requests arrive from assistant file references; one-shot per id.
+	useEffect(() => {
+		if (
+			!active ||
+			!reveal ||
+			reveal.projectId !== owner.projectId ||
+			(reveal.threadId !== null && reveal.threadId !== owner.threadId)
+		)
+			return;
+		setSelectedMatch(null);
+		setPath(referenceFolder(reveal.path));
+		if (selected?.path === reveal.path) preview.refresh();
+		else
+			setSelected({
+				name: referenceName(reveal.path),
+				path: reveal.path,
+				kind: "file",
+			});
+		setRevealLine(reveal.line);
+		setRevealVersion((value) => value + 1);
+		onRevealHandled?.(reveal.id);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [reveal, active]);
 	if (folder.errorCode === "PROJECT_NOT_CONNECTED") return fallback;
 	const line =
-		selectedMatch?.kind === "text" && !stale ? selectedMatch.line : undefined;
+		selectedMatch?.kind === "text" && !stale
+			? selectedMatch.line
+			: revealLine;
 	const lines =
 		line && file?.text ? file.text.split(/(\r\n|\r|\n)/) : undefined;
 	const lineIndex = line ? (line - 1) * 2 : -1;
@@ -121,6 +154,7 @@ function ProjectFilesReader({
 			path={path}
 			folder={folder}
 			selected={selected}
+			revealVersion={revealVersion}
 			projectSearch={{
 				available: searchAdapter.available,
 				body: (openPreview) => (
@@ -131,6 +165,7 @@ function ProjectFilesReader({
 						refreshVersion={searchRefresh}
 						selected={selectedMatch}
 						onSelect={(match) => {
+							setRevealLine(undefined);
 							setSelectedMatch(match);
 							if (selected?.path === match.path) preview.refresh();
 							else
@@ -156,11 +191,15 @@ function ProjectFilesReader({
 						)}
 						{line && lines && lineIndex >= lines.length && (
 							<p className="files-message" role="status">
-								The matching line is no longer available. Refresh the search.
+								{revealLine
+									? `Line ${line} is past the end of this file.`
+									: "The matching line is no longer available. Refresh the search."}
 							</p>
 						)}
 						{line && lines && lineIndex < lines.length && (
-							<p className="files-message files-limit">Matching line {line}</p>
+							<p className="files-message files-limit">
+								{revealLine ? "Line" : "Matching line"} {line}
+							</p>
 						)}
 						{file.binary ? (
 							<p className="files-message">
@@ -173,7 +212,15 @@ function ProjectFilesReader({
 								{lines && line && lineIndex < lines.length ? (
 									<>
 										{renderParts(lines.slice(0, lineIndex))}
-										<mark className="files-matching-line" ref={matchLine}>
+										<mark
+											className={
+												revealLine
+													? "files-reveal-line"
+													: "files-matching-line"
+											}
+											key={`line-${line}-${revealVersion}`}
+											ref={matchLine}
+										>
 											{lines[lineIndex]}
 										</mark>
 										{renderParts(lines.slice(lineIndex + 1))}
@@ -194,11 +241,13 @@ function ProjectFilesReader({
 			}
 			onDirectory={(next) => {
 				setSelectedMatch(null);
+				setRevealLine(undefined);
 				setPath(next);
 				setSelected(null);
 			}}
 			onSelect={(entry) => {
 				setSelectedMatch(null);
+				setRevealLine(undefined);
 				if (selected?.path === entry.path) preview.refresh();
 				else setSelected(entry);
 			}}

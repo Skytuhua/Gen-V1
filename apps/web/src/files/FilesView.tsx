@@ -1,4 +1,5 @@
 import {
+	useEffect,
 	useId,
 	useLayoutEffect,
 	useRef,
@@ -50,6 +51,7 @@ export function FilesView({
 	download,
 	limitNote,
 	projectSearch,
+	revealVersion,
 	onDirectory,
 	onSelect,
 	onRefresh,
@@ -69,6 +71,8 @@ export function FilesView({
 		available: boolean;
 		body: (openPreview: () => void) => ReactNode;
 	};
+	/** Bumps once per reveal request: clears the filter and opens the preview. */
+	revealVersion?: number;
 	onDirectory: (path: string) => void;
 	onSelect: (entry: FilesEntry) => void;
 	onRefresh: () => void;
@@ -101,6 +105,13 @@ export function FilesView({
 		previewFocusRequested.current = true;
 		setTreeOpen(false);
 	};
+	useEffect(() => {
+		if (revealVersion) {
+			setFilter("");
+			setScope("folder");
+			openPreview();
+		}
+	}, [revealVersion]);
 	const parts = path.split("/").filter(Boolean);
 	return (
 		<div
