@@ -9,7 +9,7 @@ import { TerminalHost } from '../packages/workspace/terminal.ts';
 import { DEFAULT_PREFERENCES } from '../packages/contracts/preferences.ts';
 
 const cleanups: (() => void)[] = [];
-afterEach(() => { for (const cleanup of cleanups.splice(0)) cleanup(); });
+afterEach(() => { vi.unstubAllEnvs(); for (const cleanup of cleanups.splice(0)) cleanup(); });
 
 const spawned = vi.hoisted(() => [] as { onData: (cb: (data: string) => void) => void; onExit: (cb: (event: { exitCode: number }) => void) => void; write: ReturnType<typeof vi.fn>; resize: ReturnType<typeof vi.fn>; kill: ReturnType<typeof vi.fn>; emitData: (data: string) => void; emitExit: (code: number) => void }[]);
 
@@ -129,13 +129,13 @@ describe('TerminalHost shell selection', () => {
   it('returns shell metadata on an interactive open and persists it with the record', async () => {
     const { host, store } = fixture();
     const opened = await host.open({ ...openInput, terminalId: 'term-1' });
-    expect(opened.shell).toMatchObject({ kind: 'default', label: 'System shell' });
+    expect(opened.shell).toMatchObject({ kind: 'default', label: process.platform === 'win32' ? 'System default (Command Prompt)' : 'System shell' });
     expect(vi.mocked(spawn).mock.calls.at(-1)![0]).toBe(legacyShell);
     expect(store.get<{ shell?: { kind: string } }>('terminalSession', 'term-1')?.shell).toMatchObject({ kind: 'default' });
     spawned[0].emitData('ok');
     expect((await host.read('term-1', 'project-a', 'thread-a')).shell).toMatchObject({ kind: 'default' });
   });
-  it('keeps the stored Windows selection on Linux with a notice and the system shell', async () => {
+  it.skipIf(process.platform === 'win32')('keeps the stored Windows selection on Linux with a notice and the system shell', async () => {
     const { host, store } = fixture();
     store.internal('fixture.settings', null, () => store.put('settings', 'global', null, { preferences: { ...DEFAULT_PREFERENCES, terminalShell: { kind: 'pwsh' } } }));
     const opened = await host.open({ ...openInput, terminalId: 'term-1' });
@@ -154,6 +154,8 @@ describe('TerminalHost shell selection', () => {
   });
   it('maps a missing executable to TERMINAL_SHELL_UNAVAILABLE and writes no record', async () => {
     const { host, store } = fixture();
+    // Pin COMSPEC to the system path so the default selection has no ENOENT retry on Windows.
+    vi.stubEnv('COMSPEC', `${process.env.SystemRoot ?? 'C:\\Windows'}\\System32\\cmd.exe`);
     vi.mocked(spawn).mockImplementationOnce(() => { throw new Error('spawn /missing ENOENT'); });
     await expect(host.open({ ...openInput, terminalId: 'term-1' })).rejects.toMatchObject({ code: 'TERMINAL_SHELL_UNAVAILABLE' });
     expect(store.get('terminalSession', 'term-1')).toBeNull();
