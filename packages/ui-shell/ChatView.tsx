@@ -1,4 +1,5 @@
-import {useEffect,useLayoutEffect,useRef,useState,type KeyboardEvent,type PointerEvent,type ReactNode} from 'react';
+import {createContext,useContext,useEffect,useLayoutEffect,useRef,useState,type KeyboardEvent,type PointerEvent,type ReactNode} from 'react';
+import {createPortal} from 'react-dom';
 import {GripVertical,Maximize2,PanelRight,Unplug} from 'lucide-react';
 import {CHAT_EDGES,CHAT_TRANSITION_MS,chatBounds,chatPanelRect,clampChatRect,isChatDockTarget,readChatLayout,resizeChatRect,writeChatLayout,type ChatEdge,type ChatLayout,type ChatRect,type ChatViewport} from './chat-layout';
 import './chat-view.css';
@@ -10,9 +11,11 @@ function viewport():ChatViewport{
 }
 function storage(){try{return localStorage;}catch{return undefined;}}
 const motionAllowed=()=>!matchMedia('(prefers-reduced-motion: reduce)').matches&&!['off','reduced'].includes(document.documentElement.dataset.motion??'');
+export const ChatHeaderTargetContext=createContext<HTMLElement|null>(null);
 
 /** Keeps saved conversation-window geometry while preserving one live subtree. */
 export function ChatView({header,actions,children,enabled=true}:{header:ReactNode;actions?:ReactNode;children:ReactNode;enabled?:boolean}){
+ const headerTarget=useContext(ChatHeaderTargetContext);
  const [layout,setLayout]=useState<ChatLayout>(()=>enabled?readChatLayout(storage()):{mode:'full',detached:false});
  const current=useRef(layout),slot=useRef<HTMLDivElement>(null),panel=useRef<HTMLElement>(null),animation=useRef<Animation|null>(null);
  const pending=useRef<ChatRect|null>(null),instant=useRef(false),stop=useRef<((cancel?:boolean)=>void)|null>(null);
@@ -115,15 +118,16 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
   saveRect(next,edge?current.current.detached:true);setAnnouncement(`${Math.round(next.width)} by ${Math.round(next.height)} pixels`);
  };
  const bounds=chatBounds(viewport());
- return <div ref={slot} className="workspace chat-view-slot">
-  <main ref={panel} className="workspace chat-view-surface" aria-label="Chat" data-chat-mode={layout.mode} data-detached={layout.detached} data-tracking={tracking}
-   onFocusCapture={event=>{const target=event.target as HTMLElement;if(panel.current?.contains(target)&&!target.closest('.chat-layout-actions,.chat-resize-handle,.chat-move-handle'))rememberedFocus.current=target;}}>
-   <header className="workspace-header chat-view-header" onPointerDown={event=>begin(event)}>
+ const chatHeader=<header className="workspace-header chat-view-header" onPointerDown={event=>begin(event)}>
     {header}<div className="header-actions">{actions}{enabled&&<div className="chat-layout-actions">
      {floating&&<button type="button" className="icon-button chat-move-handle" aria-label="Move chat panel" title="Move chat panel (arrow keys; Shift for larger steps)" onPointerDown={event=>{event.stopPropagation();begin(event);}} onKeyDown={event=>adjust(event)}><GripVertical size={15}/></button>}
      {layout.mode==='full'||layout.mode==='drawer'&&!layout.detached?<button type="button" className="icon-button" aria-label="Detach chat" title="Detach chat" onClick={event=>detach(event.detail===0)}><Unplug size={15}/></button>:<button type="button" className="icon-button" aria-label="Dock chat to side drawer" title="Expand to side drawer" onClick={event=>dock(event.detail===0)}><Maximize2 size={15}/></button>}
     </div>}</div>
-   </header>
+   </header>;
+ return <div ref={slot} className="workspace chat-view-slot">
+  <main ref={panel} className="workspace chat-view-surface" aria-label="Chat" data-chat-mode={layout.mode} data-detached={layout.detached} data-tracking={tracking}
+   onFocusCapture={event=>{const target=event.target as HTMLElement;if(panel.current?.contains(target)&&!target.closest('.chat-layout-actions,.chat-resize-handle,.chat-move-handle'))rememberedFocus.current=target;}}>
+   {headerTarget&&!floating?createPortal(chatHeader,headerTarget):chatHeader}
    {children}
    {floating&&CHAT_EDGES.map(edge=><button key={edge} type="button" className={`chat-resize-handle chat-resize-${edge}`} aria-label={`Resize chat ${edgeNames[edge]}`} title={`Resize ${edgeNames[edge]} (arrow keys; Shift for larger steps)`} onPointerDown={event=>begin(event,edge)} onKeyDown={event=>adjust(event,edge)}/>)}
   </main>
