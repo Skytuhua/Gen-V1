@@ -130,6 +130,11 @@ export interface ComposerPrediction { suggestion: string | null; replyId: string
 export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
   return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(readSchema(composerPredictionSchema));
 }
+const composerEnhanceSchema = z.object({ draft: z.string(), usedProjectContext: z.boolean() });
+export interface ComposerEnhanceInput { draft: string; target: { kind: 'thread'; threadId: string; modelId?: string } | { kind: 'new'; modelId: string } }
+export function postComposerEnhance(input: ComposerEnhanceInput, signal: AbortSignal): Promise<{ draft: string; usedProjectContext: boolean }> {
+  return authenticated(() => fetch('/api/composer-enhance', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(readSchema(composerEnhanceSchema));
+}
 export const getSkill=(name:string,options:{path?:string;revision?:number;versionOffset?:number;includeInactive?:boolean}={})=>{const query=new URLSearchParams(Object.entries(options).filter(([,value])=>value!==undefined).map(([key,value])=>[key,String(value)])).toString();return authenticated(()=>fetch(`/api/skills/${encodeURIComponent(name)}${query?'?'+query:''}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillDetail>);};
 export const getSkillProposal=(id:string)=>authenticated(()=>fetch(`/api/skill-proposals/${encodeURIComponent(id)}`,{credentials:'same-origin',cache:'no-store'})).then(read<import('../../../packages/contracts/skills.ts').SkillProposal>);
 export const getModels = (refresh = false, threadId?: string, signal?: AbortSignal, target?:AccountAuthTarget) => {

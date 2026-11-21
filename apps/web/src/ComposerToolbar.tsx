@@ -11,7 +11,7 @@ export interface ComposerToolbarProps {
  onProject:()=>void|Promise<void>;onChanges:()=>void|Promise<void>;onCreatePR:()=>void|Promise<void>;
  onTranscript:(text:string)=>void;disabled?:boolean;working?:boolean;
  modelScopeHint?:string;onModelNewTask?:(modelId:string)=>void;
- separateActions?:boolean;leading?:ReactNode;runtime?:ReactNode;context?:ReactNode;trailing?:ReactNode;
+ separateActions?:boolean;leading?:ReactNode;runtime?:ReactNode;context?:ReactNode;trailing?:ReactNode;enhance?:ReactNode;
 }
 interface VoiceResult {isFinal:boolean;length:number;[index:number]:{transcript:string}}
 interface VoiceEvent {resultIndex:number;results:ArrayLike<VoiceResult>}
@@ -45,7 +45,7 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
  </div>;
 }
 
-export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,modelScopeHint,onModelNewTask,separateActions=false,leading,runtime,context,trailing}:ComposerToolbarProps){
+export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thinkingLevel,onThinkingChange,projectLabel,changeSummary,onProject,onChanges,onCreatePR,onTranscript,disabled=false,working=false,modelScopeHint,onModelNewTask,separateActions=false,leading,runtime,context,trailing,enhance}:ComposerToolbarProps){
  const pointerPress=useComposerPointerPress();
  const [listening,setListening]=useState(false),[error,setError]=useState('');
  const session=useRef<{recognition:VoiceRecognition;epoch:number;seen:Set<number>}|null>(null),epoch=useRef(0),transcript=useRef(onTranscript);
@@ -79,9 +79,9 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
    <div className="composer-project-controls" role="group" aria-label="Project and runtime">
     {leading}<button type="button" className="composer-tool composer-project" aria-label="Select project" title={projectLabel?'Select project · '+projectLabel:'Select project'} disabled={disabled} onClick={()=>void invoke(onProject)}>{folder}<span>{projectLabel??'Select project'}</span></button>{runtime}
    </div>
-   <div className="composer-runtime-controls" role="group" aria-label="Model and voice">
+   <div className="composer-runtime-controls" role="group" aria-label="Model, voice and draft tools">
     <ModelPicker ref={modelPickerRef} models={models} modelId={modelId} thinkingLevel={thinkingLevel} onThinkingChange={onThinkingChange} disabled={locked} onChange={onModelChange} scopeHint={modelScopeHint} onNewTask={onModelNewTask}/>
-    {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{trailing}
+    {context}<button type="button" className={`composer-tool composer-voice ${listening?'is-listening':''}`} aria-label={!Voice?'Voice input unavailable':listening?'Stop voice input':'Start voice input'} aria-pressed={listening} title={!Voice?'Voice input is unavailable in this browser':listening?'Stop listening':'Dictate into your draft'} disabled={locked||!Voice} onClick={startVoice}>{microphone}<span className="sr-only">{listening?'Listening':''}</span></button>{enhance}{trailing}
    </div>
   </div>
   {error&&<div className="composer-toolbar-error" role="status">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss composer error" onClick={()=>setError('')}>{close}</button></div>}

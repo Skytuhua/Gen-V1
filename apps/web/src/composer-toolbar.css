@@ -42,3 +42,15 @@
 }
 :root:is([data-motion=reduced],[data-motion=off]) :is(.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip),.app-shell[data-panel-animations=false] :is(.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip){transform:none!important;transition:none!important}
 @media(prefers-reduced-motion:reduce){.composer-toolbar .composer-tool,.composer-toolbar .composer-select,.composer-context-chip{transform:none!important;transition:none!important}}
+
+.composer-toolbar .composer-enhance{gap:5px}
+.composer-toolbar .composer-enhance>svg{width:15px;height:15px}
+.composer-enhance-status{display:flex;align-items:center;gap:7px;margin:7px 3px 0;color:var(--muted);font-size:11px;line-height:1.3;animation:composer-enhance-in var(--ui-motion-status) var(--ui-ease-enter) both}
+@keyframes composer-enhance-in{from{opacity:0}to{opacity:1}}
+.composer-enhance-ring{width:12px;height:12px;flex:none;border-radius:50%;border:1.5px solid var(--muted);border-top-color:var(--accent);animation:composer-enhance-spin 900ms linear infinite}
+@keyframes composer-enhance-spin{to{transform:rotate(360deg)}}
+.composer-enhance-undo{padding:0;background:none;border:0;color:var(--accent);font:inherit;cursor:pointer}
+.composer-enhance-undo:hover{color:var(--text)}
+@container composer-footer (max-width:610px){.composer-toolbar .composer-enhance{width:32px;justify-content:center;padding:5px}.composer-toolbar .composer-enhance .composer-enhance-text{display:none}}
+:root:is([data-motion=reduced],[data-motion=off]) :is(.composer-enhance-status,.composer-enhance-ring),.app-shell[data-panel-animations=false] :is(.composer-enhance-status,.composer-enhance-ring){animation:none!important}
+@media(prefers-reduced-motion:reduce){.composer-enhance-status,.composer-enhance-ring{animation:none!important}}

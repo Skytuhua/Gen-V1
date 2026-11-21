@@ -1,12 +1,13 @@
 import { memo, useCallback, useEffect, useLayoutEffect, useRef, useState, useMemo, useSyncExternalStore, type ComponentProps, type CSSProperties, type ReactNode } from 'react';
-import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, WifiOff, X } from 'lucide-react';
+import { Activity, ArrowUp, Bot, Check, ChevronDown, ChevronRight, CircleHelp, CircleStop, Folder, Laptop, LoaderCircle, Menu, MessageSquare, PanelLeftOpen, PanelRight, PenLine, Plus, SlidersHorizontal, Sparkles, Square, WifiOff, X } from 'lucide-react';
 import type { InputRequest, ModelInfo, Operation, Snapshot, Thread,Message } from '../../../packages/contracts';
 import { ApiError, bootstrap, command, getModels, getSnapshot, getThreadMessages, getToolEffectObservation, searchThreadMessages, subscribe, type ToolEffectObservation } from './api';
 import {onAccountCatalogChanged,notifyAccountCatalogChanged,mergeAccountModels} from './account-api';
 import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
-import {isConnectionProviderId} from '../../../packages/contracts/connections';
+import {isConnectionProviderId,isSubscriptionProviderId} from '../../../packages/contracts/connections';
 import { applyRuntimeEvent } from './snapshot-events';
 import { journalCompareAndSwap, journalGeneration, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
+import { ENHANCE_MAX_DRAFT_BYTES, ENHANCE_UNAVAILABLE_TEXT, useComposerEnhance } from './useComposerEnhance';
 import {SavedDrafts} from './SavedDrafts';
 import {SourceWorkbenchProvider, SourceMessage, WorkbenchComposer, useSourceWorkbench} from './SourceWorkbench';
 import {prepareSourceOwnerHandoff} from './workbench-recovery';
@@ -306,11 +307,29 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
   const ghost = useRef<HTMLDivElement>(null);
   const resources = snapshot.resources.filter(item => item.threadId === thread?.id);
   const unavailable = !models.length || !models.some(model => model.id === modelId);
+  const enhanceModelId = thread?.modelId ?? modelId;
+  const enhanceSupported = isSubscriptionProviderId(enhanceModelId.split('/')[0]);
+  const draftBytes = useMemo(() => new TextEncoder().encode(draft).length, [draft]);
+  const enhanceEligible = ready && !busy && !working && !unavailable && enhanceSupported;
+  const enhanceButton = useRef<HTMLButtonElement>(null);
+  const [composing, setComposing] = useState(false);
+  const enhance = useComposerEnhance({
+    journalKey: `draft:${draftTarget.current}`,
+    owner: () => JSON.stringify([draftTarget.current, thread?.id ?? null, thread?.projectId ?? null, thread?.workspaceId ?? null, enhanceModelId, shared]),
+    text: () => draftLatest.current,
+    target: () => thread ? { kind: 'thread' as const, threadId: thread.id, ...(thread.modelId ? {} : { modelId }) } : { kind: 'new' as const, modelId },
+    eligible: () => enhanceEligible,
+    input, button: enhanceButton,
+  });
+  useEffect(() => { enhance.invalidate(); }, [key, thread?.id, thread?.epoch, thread?.modelId, thread?.accountId, thread?.projectId, thread?.workspaceId, modelId, shared]);
+  useEffect(() => { if (busy || working || !ready) enhance.invalidate(); }, [busy, working, ready]);
+  const enhanceDisabled = !enhanceEligible || composing || !draft.trim() || draftBytes > ENHANCE_MAX_DRAFT_BYTES;
+  const enhanceReason = draft.trim() && !enhance.pending && ready && !busy && !working && !enhanceSupported ? ENHANCE_UNAVAILABLE_TEXT : '';
   const project=resources.find(resource=>resource.kind==='project');const changes=useMemo(()=>recordedChangeSummary(snapshot.data,thread?.id),[snapshot.data,thread?.id]);
   useEffect(()=>{const model=models.find(model=>model.id===modelId);if(model&&thinkingLevel&&!model.thinkingLevels?.includes(thinkingLevel))chooseThinking('');},[models,modelId,thinkingLevel]);
   useEffect(() => { if (shared) return; let current = true; void journalRead<string>(`draft:${key}`).then(value => { if (current) { setDraft(value ?? ''); setReady(true); } }).catch(() => { if (current) { setReady(true); setError('Draft recovery is unavailable. Keep this tab open until your message is sent.'); } }); return () => { current = false; }; }, [key, shared]);
   useEffect(() => shared ? undefined : journalSubscribe(`draft:${key}`, value => { if (draftTarget.current === key) { prediction.dismiss(); setDraft(typeof value === 'string' ? value : ''); } }), [key, shared]);
-  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen, draft, generation: journalGeneration(`draft:${key}`), input });
+  const prediction = useComposerPrediction({ thread, snapshot, modelId, enabled: preferences.composerPredictions, ready, blocked: predictionBlocked || busy || unavailable || contextOpen || enhance.pending, draft, generation: journalGeneration(`draft:${key}`), input });
   useLayoutEffect(() => {
     const textarea = input.current;
     if (!textarea) return;
@@ -354,6 +373,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
     void journalRead<string>('thinking:'+thread.id).then(level=>command('run.resume',{modelId,thinkingLevel:level===undefined?(thread.thinkingLevel??null):(level||null)},thread.id)).then(()=>refresh()).catch(fail);
   };
   const send = async () => {
+    enhance.invalidate();
     if (busy || !skillsReady || !shared&&!excerptsReady || skillsBlocked || !draft.trim() && !excerpts.length && !retry) return;
     const sideCommand=!retry&&/^\/(?:btw|side)(?:\s|$)/i.exec(draft.trim());
     if(sideCommand){
@@ -428,7 +448,7 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       <ComposerCommands ref={commands} input={input} draft={draft} threadId={thread?.id} projectId={thread?.projectId} disabled={!ready||!skillsReady||busy||predictionBlocked} onDraft={updateDraft} onModel={()=>modelPicker.current?.open()} onMode={chooseMode}/>
       <div className="composer-entry-row">
       <div className="composer-input">
-        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={prediction.dismiss} onCompositionStart={prediction.dismiss} onKeyDown={event => {
+        <textarea ref={input} aria-label="Message" placeholder={prediction.candidate ? '' : dragging ? 'Drop files to attach' : 'Ask anything…'} value={draft} disabled={!ready} onChange={event => updateDraft(event.target.value)} onPaste={() => { prediction.dismiss(); enhance.invalidate(); }} onCompositionStart={() => { prediction.dismiss(); setComposing(true); enhance.invalidate(); }} onCompositionEnd={() => setComposing(false)} onKeyDown={event => {
           if (event.nativeEvent.isComposing || event.nativeEvent.keyCode === 229) return;
           const submitKey = event.key === 'Enter' && !event.shiftKey && (preferences.sendShortcut === 'enter' || event.ctrlKey || event.metaKey);
           if (submitKey && /^\/(?:btw|side)$/i.test(draft.trim())) { event.preventDefault(); void send(); return; }
@@ -442,10 +462,12 @@ function Composer({ modelPickerRequest, onModelPickerOpened, sharedComposers, on
       <ComposerTaskActions changeSummary={changes} onChanges={inspectChanges} onCreatePR={preparePR} disabled={busy||!ready} working={working}/>
       </div>
       <span className="sr-only" role="status" aria-live="polite" aria-atomic="true">{prediction.candidate ? `Suggested message: ${prediction.candidate} Tab to accept. Escape to dismiss.` : ''}</span>
+      {(enhance.message || enhanceReason) && <div className="composer-enhance-status" role="status" aria-live="polite" aria-atomic="true">{enhance.pending && <span className="composer-enhance-ring" aria-hidden="true" />}<span>{enhance.message || enhanceReason}</span>{enhance.phase === 'applied' && <button type="button" className="composer-enhance-undo" onClick={enhance.restore}>Undo</button>}</div>}
       <ComposerToolbar modelPickerRef={modelPicker} models={models} modelId={modelId} onModelChange={id=>{chooseThinking('');setModelId(id);}} modelScopeHint={thread?'New conversations only.':'Applies to new tasks.'} onModelNewTask={onNewTask} thinkingLevel={thinkingLevel} onThinkingChange={chooseThinking} projectLabel={thread?.projectName??project?.label} changeSummary={changes} onProject={async()=>{if(!selectProject){await addResource();return;}const opener=document.activeElement as HTMLElement|null;selectProject(thread?.id,opener,thread?undefined:id=>migrateDraft(id,draftLatest.current,true));}} onChanges={inspectChanges} onCreatePR={preparePR} onTranscript={text=>{const current=draftLatest.current;updateDraft(current+(current&&!/\s$/.test(current)?' ':'')+text);}} disabled={busy||!ready} working={working} separateActions
         leading={<>{savedDraftOwner?<SavedDrafts owner={savedDraftOwner} input={input} disabled={busy||!ready||retry||predictionBlocked}/>:<button type="button" className="quiet saved-drafts-trigger" disabled title={thread?'Saved drafts are waiting for the owning project context.':'Start a conversation to save named drafts.'}>Saved drafts</button>}<button type="button" className="icon-button attach-button" aria-label="Attach files" title="Attach files" disabled={busy} onClick={()=>file.current?.click()}><Plus size={18}/></button><input type="file" multiple ref={file} hidden onChange={event=>{if(event.target.files)void upload(event.target.files);event.target.value='';}}/></>}
         runtime={<>{thread?.accountId!=null&&<span className="composer-account" title="Account for this task">{snapshot.accounts?.find(account=>account.id===thread.accountId)?.label??'Account unavailable'}</span>}<span className="pill runtime-pill" title="Local workspace"><Laptop size={14}/>Local</span><button type="button" className="mode-toggle" aria-label="Task mode" aria-pressed={(thread?.mode??draftMode)==='plan'} title={(thread?.mode??draftMode)==='plan'?'Switch to Build':'Switch to Plan'} disabled={working||busy} onClick={()=>{void chooseMode((thread?.mode??draftMode)==='plan'?'build':'plan').catch(cause=>setError(messageOf(cause)));}}>{(thread?.mode??draftMode)==='plan'?<PenLine size={15}/>:<Bot size={15}/>}<span>{(thread?.mode??draftMode)==='plan'?'Plan':'Build'}</span></button>{preferences.showUsageFooter&&onShowUsage&&<button type="button" className="composer-tool composer-usage-launcher" aria-label={usageOpen?'Hide live usage':'Show live usage'} title={usageOpen?'Hide live usage':'Show live usage'} aria-pressed={usageOpen} onClick={onShowUsage}><Activity size={15}/></button>}</>}
         context={preferences.showComposerContext&&<span className="context-anchor"><button ref={contextAnchor} type="button" className="icon-button context-button" aria-label="Inspect context usage" aria-expanded={contextOpen} onClick={()=>setContextOpen(value=>!value)}><SlidersHorizontal size={15}/></button><ContextInspector open={contextOpen} anchor={contextAnchor} usage={thread?snapshot.usage[thread.id]:undefined} usageThreadId={thread?.id} thread={thread} close={()=>setContextOpen(false)} refresh={refresh} memoryRecall={preparedMemory.memoryRecall} memoryPreparation={memoryOwner ? {pending: preparedMemory.pending, error: preparedMemory.error, refresh: preparedMemory.refresh, disabled: busy || working} : undefined}/></span>}
+        enhance={<button ref={enhanceButton} type="button" className={`composer-tool composer-enhance ${enhance.pending ? 'is-pending' : ''}`} aria-label={enhance.pending ? 'Cancel enhancement' : 'Enhance prompt'} title={enhance.pending ? 'Cancel enhancement' : 'Rewrite this draft before sending'} disabled={!enhance.pending && enhanceDisabled} onClick={() => { if (enhance.pending) { enhance.cancel(); return; } prediction.dismiss(); enhance.start(); }}>{enhance.pending ? <Square size={11} fill="currentColor" /> : <Sparkles size={16} />}<span className="composer-enhance-text">{enhance.pending ? 'Cancel' : 'Enhance'}</span></button>}
         trailing={working?<>{workbench?.enabled&&workbench.draft?.sendMode==='AFTER_CURRENT'&&<button type="button" className="secondary" disabled={busy||!retry&&preparedMemory.blocked||!ready||skillsBlocked||!draft.trim()} onClick={()=>void send()}>Queue after current</button>}{/^\/(?:btw|side)(?:\s|$)/i.test(draft.trim())&&<button type="button" className="send-button" aria-label="Send side question" disabled={busy||!ready||skillsBlocked} onClick={()=>void send()}><ArrowUp size={17}/></button>}<button type="button" className="send-button stop-button" aria-label="Stop agent" disabled={shared && sharedState.stopping} onClick={()=>{void (sharedComposers && sharedTarget ? sharedComposers.stop(sharedTarget) : command('run.stop',{},thread!.id)).then(()=>refresh()).catch(error=>fail(error));}}><CircleStop size={20}/></button></>:<button className="send-button" aria-label={retry ? "Retry send" : "Send message"} disabled={busy||!retry&&preparedMemory.blocked||!skillsReady||skillsBlocked||unavailable||!draft.trim() && !excerpts.length && !retry||!ready||!shared&&!excerptsReady} title={unavailable?'Connect an available model in Settings to send.':'Send message (Enter)'}>{busy?<LoaderCircle size={17} className="spinning"/>:<ArrowUp size={19}/>}</button>}
       />
     </ComposerView>

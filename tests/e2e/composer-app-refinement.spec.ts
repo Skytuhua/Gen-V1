@@ -8,12 +8,13 @@ import {snapshotServed,warmApp} from './app-ready';
 
 test.beforeAll(async({browser,baseURL})=>{await warmApp(browser,baseURL);});
 
-async function fixture(page:Page,started=false){
+async function fixture(page:Page,started=false,model='test/model'){
  const snapshot=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Fixture content'}}}});
- snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';
- snapshot.threads[0]={...snapshot.threads[0],title:'Original chat',projectId:'first',projectName:'First project',mode:'build',sessionPath:started?'fixture-session':null};
+ snapshot.artifacts=[];snapshot.userStates=[];snapshot.settings.theme='dark';snapshot.settings.modelId=model;
+ snapshot.threads[0]={...snapshot.threads[0],title:'Original chat',projectId:'first',projectName:'First project',mode:'build',modelId:model,sessionPath:started?'fixture-session':null};
  snapshot.messages=Array.from({length:55},(_,index)=>({id:'message-'+index,threadId:'task-thread',role:'assistant' as const,content:'Original conversation message '+index,runId:null,createdAt:'2026-11-04'}));
  const host=await serveTaskFixture(page,snapshot),commands:HostCommand[]=[],workspaceCommands:HostCommand[]=[];
+ await page.route(/\/api\/models(\?|$)/,route=>route.fulfill({json:{models:[{id:model,provider:model.split('/')[0],name:'Fixture'}]}}));
  const envelope:WorkspaceEnvelope={projects:[{id:'first',name:'First project',rootPath:'C:/fixture/first',authority:{kind:'local'},createdAt:'2026-11-04T00:00:00.000Z'},{id:'second',name:'Second project',rootPath:'C:/fixture/second',authority:{kind:'local'},createdAt:'2026-11-04T00:00:00.000Z'},{id:'private',name:'Other authority',authority:{kind:'plugin',pluginId:'fixture-plugin',scopeId:'private'},rootPath:'C:/not-personal',createdAt:'2026-11-04T00:00:00.000Z'}],state:{version:1,revision:0,activeCanvasId:'main',canvases:[createWorkspaceCanvas('workspace','Workspace','main')],profiles:[],disabledKinds:[],integrations:{}}};
  await page.route('**/api/workspace',route=>route.fulfill({json:envelope}));
  await page.route('**/api/workspace/commands',async route=>{
@@ -178,4 +179,55 @@ for(const alias of ['btw','side'])test(`/${alias} still sends a side question wi
  expect(host.commands.find(command=>command.type==='thread.create')?.payload.sideParentId).toBe('task-thread');
  await expect(owner.getByRole('region',{name:'Side conversation window',exact:true})).toBeVisible();
  await expect(owner.locator('.workspace-header').getByRole('button',{name:'Open side conversation',exact:true})).toHaveCount(0);
+});
+
+test('enhance rewrites the draft in place with Undo and never sends',async({page})=>{
+ const host=await fixture(page,false,'openai/model'),draft=page.getByRole('textbox',{name:'Message',exact:true});
+ let request:unknown;
+ await page.route('**/api/composer-enhance',route=>{request=route.request().postDataJSON();return route.fulfill({json:{draft:'  Enhanced request text  ',usedProjectContext:false}});});
+ await draft.fill('rough thought');const enhance=page.getByRole('button',{name:'Enhance prompt',exact:true});await expect(enhance).toBeEnabled();await enhance.click();
+ await expect(draft).toHaveValue('  Enhanced request text  ');
+ const status=page.getByRole('status').filter({hasText:'Draft enhanced. Review or edit before sending.'});await expect(status).toBeVisible();
+ expect(request).toEqual({draft:'rough thought',target:{kind:'thread',threadId:'task-thread'}});
+ await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeEnabled();
+ await status.getByRole('button',{name:'Undo',exact:true}).click();await expect(draft).toHaveValue('rough thought');await expect(draft).toBeFocused();
+ expect(host.commands.filter(command=>command.type==='message.send')).toEqual([]);
+});
+test('enhance cancel and late replies leave the draft untouched',async({page})=>{
+ const host=await fixture(page,false,'openai/model'),draft=page.getByRole('textbox',{name:'Message',exact:true});
+ let release:(()=>void)|undefined;const held=new Promise<void>(resolve=>{release=resolve;});
+ await page.route('**/api/composer-enhance',async route=>{await held;return route.fulfill({json:{draft:'Late rewrite',usedProjectContext:false}});});
+ await draft.fill('keep me');await page.getByRole('button',{name:'Enhance prompt',exact:true}).click();
+ const pending=page.getByRole('status').filter({hasText:'Enhancing draft…'});await expect(pending).toBeVisible();
+ const cancel=page.getByRole('button',{name:'Cancel enhancement',exact:true});await expect(cancel).toBeVisible();await cancel.click();
+ await expect(page.getByRole('status').filter({hasText:'Enhancement cancelled. Draft kept.'})).toBeVisible();
+ release!();await expect(draft).toHaveValue('keep me');
+ await page.getByRole('button',{name:'Enhance prompt',exact:true}).click();await draft.fill('keep me edited');release!();
+ await expect(draft).toHaveValue('keep me edited');expect(host.commands.filter(command=>command.type==='message.send')).toEqual([]);
+});
+test('enhance maps busy and provider failures to fixed messages',async({page})=>{
+ const host=await fixture(page,false,'openai/model'),draft=page.getByRole('textbox',{name:'Message',exact:true});
+ let code='ENHANCE_BUSY',status=409;
+ await page.route('**/api/composer-enhance',route=>route.fulfill({status,json:{error:{code,message:'raw provider detail'}}}));
+ await draft.fill('try me');const enhance=page.getByRole('button',{name:'Enhance prompt',exact:true});
+ await enhance.click();await expect(page.getByRole('status').filter({hasText:'Enhance is busy. Try again.'})).toBeVisible();await expect(draft).toHaveValue('try me');
+ code='ENHANCE_PROVIDER';status=502;
+ await enhance.click();await expect(page.getByRole('status').filter({hasText:"Couldn't enhance this draft. Try again."})).toBeVisible();await expect(draft).toHaveValue('try me');
+ expect(host.commands.filter(command=>command.type==='message.send')).toEqual([]);
+});
+test('enhance stays disabled on an unsupported model with an inline reason',async({page})=>{
+ const host=await fixture(page),draft=page.getByRole('textbox',{name:'Message',exact:true});
+ const enhance=page.getByRole('button',{name:'Enhance prompt',exact:true});
+ await expect(enhance).toBeDisabled();
+ await draft.fill('typed draft');
+ await expect(enhance).toBeDisabled();await expect(page.getByRole('status').filter({hasText:'Enhance is unavailable for this model. You can still send your draft.'})).toBeVisible();
+ await expect(page.getByRole('button',{name:'Send message',exact:true})).toBeEnabled();
+ expect(host.commands.filter(command=>command.type==='message.send')).toEqual([]);
+});
+test('enhance control stays reachable at narrow widths',async({page})=>{
+ await fixture(page,false,'openai/model'),page.setViewportSize({width:390,height:844});
+ const draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('narrow draft');
+ const enhance=page.getByRole('button',{name:'Enhance prompt',exact:true});await expect(enhance).toBeVisible();await expect(enhance).toBeEnabled();
+ const bounds=await enhance.boundingBox();expect(bounds!.x+bounds!.width).toBeLessThanOrEqual(390);
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });
