@@ -1,6 +1,6 @@
 # Frontend fidelity pass — recorded delivery
 
-The historical, standalone ten-video handoff is not included in this checkout. See the [current README demos](../README.md) for recordings shipped with this repository. It documented nine workflow/catalog/shell demonstrations, a fresh genuine-Pi run, chapters, six reference/result pairs, component coverage, exact local effect receipts and source/state evidence.
+The historical, standalone ten-video handoff is not included in this checkout. See the [current README demos](../../README.md) for recordings shipped with this repository. It documented nine workflow/catalog/shell demonstrations, a fresh genuine-Pi run, chapters, six reference/result pairs, component coverage, exact local effect receipts and source/state evidence.
 
 ## Visible corrections
 

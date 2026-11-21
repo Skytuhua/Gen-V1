@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-31.
 
-Shared types live in [packages/contracts/index.ts](../packages/contracts/index.ts). Paths below are relative to the project. This describes the current source contract; availability and verification are tracked separately in [acceptance.md](acceptance.md).
+Shared types live in [packages/contracts/index.ts](../packages/contracts/index.ts). Paths below are relative to the project. This describes the current source contract; availability and verification are tracked separately in [acceptance.md](archive/acceptance.md).
 
 ## Browser API
 - GET /api/bootstrap -> {csrfToken,widgetOrigin}; cookie authentication, then x-harness-csrf for commands.
