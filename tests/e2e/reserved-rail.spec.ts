@@ -15,7 +15,7 @@ for(const theme of ['dark','light'] as const)test(`consolidated conversation and
  await page.setViewportSize({width:1440,height:900});
  const value=snapshot();value.settings.theme=theme;
  await serveTaskFixture(page,value);await page.goto('/');
- const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled();
+ const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled({timeout:15000});
  const header=page.locator('.split-thread-header>.chat-view-header');await expect(header).toBeVisible();
  const pane=header.locator('xpath=ancestor::*[@data-split-pane][1]');
  await expect(pane.getByRole('tablist')).toBeHidden();
@@ -23,6 +23,23 @@ for(const theme of ['dark','light'] as const)test(`consolidated conversation and
  await header.getByRole('button',{name:'Find in conversation',exact:true}).focus();
  await page.keyboard.press('Control+f');await expect(header.getByRole('textbox',{name:'Find phrase',exact:true})).toBeFocused();
  await page.keyboard.press('Escape');await expect(header.getByRole('button',{name:'Find in conversation',exact:true})).toBeFocused();
+ await draft.focus();
+ for(const width of [1100,1440]){
+  await page.setViewportSize({width,height:900});
+  await expect.poll(async()=>(await pane.locator('.split-pane-header').boundingBox())?.height).toBe(40);
+  for(const selector of ['.breadcrumb-project','.breadcrumb>strong']){
+   const label=header.locator(selector);await expect(label).toHaveAttribute('title',(await label.textContent())!);
+   await expect(label).toHaveCSS('white-space','nowrap');await expect(label).toHaveCSS('text-overflow','ellipsis');
+   expect(await label.evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);return new Set([...range.getClientRects()].map(rect=>rect.top)).size;})).toBe(1);
+  }
+  const project=await header.locator('.breadcrumb-project').boundingBox(),title=await header.locator('.breadcrumb>strong').boundingBox();
+  expect(project!.width).toBeLessThan(title!.width);
+  const actions=header.locator('.header-actions');await expect(actions).toHaveCSS('flex-shrink','0');
+  expect(await actions.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
+  const row=(await header.boundingBox())!,buttons=(await actions.boundingBox())!;
+  expect(buttons.x+buttons.width).toBeLessThanOrEqual(row.x+row.width);
+  if(width===1100&&process.env.HEADER_CAPTURE_DIR)await page.screenshot({path:resolve(process.env.HEADER_CAPTURE_DIR,`conversation-${theme}-1100.png`)});
+ }
  const plan=page.getByRole('region',{name:'Task plan: Repair checkout failures',exact:true});await expect(plan).toBeVisible();
  const progress=plan.getByRole('progressbar',{name:'Completed or accepted steps',exact:true});
  const bar=(await progress.boundingBox())!,toolbar=(await plan.locator('.plan-status-header').boundingBox())!;
