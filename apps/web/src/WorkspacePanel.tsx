@@ -7,6 +7,7 @@ import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
 import type {ShellLayout} from './shell-layout';
 import {WorkspaceLauncher} from './WorkspacePanelBodies';
+import {WORKSPACE_SURFACES} from './workspace-surfaces';
 import type {TerminalExcerptComposer} from './TerminalBody';
 import {WorkspaceSurfaceBody, type ReviewRequest} from './WorkspaceSurfaceBody';
 import type {workspacePanelBounds} from './panel-geometry';
@@ -70,15 +71,16 @@ export function WorkspacePanel({ snapshot, threadId, preferences, layout, setWid
   const tabLabels: Record<WorkspaceTab, string> = {artifact:'Artifact',plan:'Plan',diff:'Diff',files:'Files',terminal:'Terminal','pull-request':'Pull request','linked-pull-requests':'Linked pull requests',notes:'Notes',output:'Output',usage:'Usage'};
   const openTabs = workspace.openTabs ?? layout.openTabs;
   const [addOpen,setAddOpen]=useState(false);
-  const addable: WorkspaceTab[] = (Object.keys(tabLabels) as WorkspaceTab[]).filter(tab => tab !== 'artifact');
-  const addItems = addable.map(tab=>({id:'add-'+tab,label:tabLabels[tab],onSelect:()=>{workspace.openTab?.(tab);}}));
+  const addItems = WORKSPACE_SURFACES.map(surface=>({id:'add-'+surface.id,label:surface.label,icon:<Plus size={13}/>,disabled:Boolean(workspace.surfaceAvailability?.[surface.id]??surface.disabled),onSelect:()=>{void workspace.openSurface?.(surface.id);}}));
+  const showLauncher = openTabs.length===0 || !openTabs.includes(workspace.activeTab);
   return <aside className="workspace-right" aria-label="Workspace panel" data-state={leaving?"closed":undefined} onAnimationEnd={event=>{if(leaving&&event.target===event.currentTarget&&event.animationName==="panel-exit")onLeave?.();}}>
     {!standalone && !resizeBounds?.stacked && <ResizeHandle label="Resize workspace panel" value={resizeBounds?.width ?? layout.rightPanelWidth} minimum={resizeBounds?.minimum ?? 280} maximum={resizeBounds?.maximum ?? 720} side="right" change={setWidth} />}
-    <header className="workspace-right-header"><div ref={tabStrip} role="tablist" aria-label="Workspace views">{openTabs.map(id => <button role="tab" key={id} id={`workspace-tab-${id}`} aria-selected={workspace.activeTab === id} aria-controls={`workspace-view-${id}`} onClick={() => workspace.setActiveTab(id)}>{tabLabels[id]}</button>)}</div><ActionMenu label="Add surface" icon={<Plus size={14} aria-hidden="true"/>} iconOnly open={addOpen} onOpenChange={setAddOpen} items={addItems}/>{standalone&&close&&<button className="icon-button" aria-label="Close workspace panel" onClick={close}><X size={15} /></button>}</header>
+    <header className="workspace-right-header"><div ref={tabStrip} role="tablist" aria-label="Workspace views">{openTabs.map(id => <button role="tab" key={id} id={`workspace-tab-${id}`} aria-selected={workspace.activeTab === id} aria-controls={`workspace-view-${id}`} onClick={() => workspace.setActiveTab(id)}>{tabLabels[id]}</button>)}</div><ActionMenu label="Add surface" icon={<Plus size={14} aria-hidden="true"/>} iconOnly open={addOpen} onOpenChange={setAddOpen} items={addItems}/>{standalone&&close&&<button className="icon-button" aria-label="Hide panel" title="Hide panel" onClick={close}><X size={15} /></button>}</header>
     {handoffError&&<p role="status" className="error-text">{handoffError}</p>}
     <div ref={content} className="workspace-panel-content" role="tabpanel" id={`workspace-view-${workspace.activeTab}`} aria-labelledby={`workspace-tab-${workspace.activeTab}`}>
-      {workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><Select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onValueChange={workspace.requestOpenArtifact} options={[{value:'',label:'Choose an artifact'},...artifacts.map(artifact=>({value:artifact.id,label:artifact.title}))]}/></div>{!activeArtifact && <WorkspaceLauncher />}</>}
-      {workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
+      {showLauncher && <div className="workspace-launcher-center"><WorkspaceLauncher /></div>}
+      {!showLauncher && workspace.activeTab === 'artifact' && <><div className="panel-toolbar"><Select aria-label="Workspace artifact" value={activeArtifact?.id ?? ''} onValueChange={workspace.requestOpenArtifact} options={[{value:'',label:'Choose an artifact'},...artifacts.map(artifact=>({value:artifact.id,label:artifact.title}))]}/></div>{!activeArtifact && <WorkspaceLauncher />}</>}
+      {!showLauncher && workspace.activeTab !== 'artifact' && <WorkspaceSurfaceBody reviewRequest={reviewRequest} onReviewHandled={onReviewHandled} excerptComposer={excerptComposer} kind={workspace.activeTab} binding={{authority:{kind:'local'},...(threadId?{threadId}:{}),...(preferredResourceId?{resourceId:preferredResourceId}:{})}} snapshot={snapshot} refresh={refresh} preferences={preferences}/>}
     </div>
   </aside>;
 }

@@ -118,16 +118,16 @@ export function ChatView({header,actions,children,enabled=true}:{header:ReactNod
  return <div ref={slot} className="workspace chat-view-slot">
   <main ref={panel} className="workspace chat-view-surface" aria-label="Chat" data-chat-mode={layout.mode} data-detached={layout.detached} data-tracking={tracking}
    onFocusCapture={event=>{const target=event.target as HTMLElement;if(panel.current?.contains(target)&&!target.closest('.chat-layout-actions,.chat-resize-handle,.chat-move-handle'))rememberedFocus.current=target;}}>
-   <header className="workspace-header chat-view-header" onPointerDown={event=>begin(event)}>
+   {Boolean(header||actions||enabled)&&<header className="workspace-header chat-view-header" onPointerDown={event=>begin(event)}>
     {header}<div className="header-actions">{actions}{enabled&&<div className="chat-layout-actions">
      {floating&&<button type="button" className="icon-button chat-move-handle" aria-label="Move chat panel" title="Move chat panel (arrow keys; Shift for larger steps)" onPointerDown={event=>{event.stopPropagation();begin(event);}} onKeyDown={event=>adjust(event)}><GripVertical size={15}/></button>}
      {layout.mode==='full'||layout.mode==='drawer'&&!layout.detached?<button type="button" className="icon-button" aria-label="Detach chat" title="Detach chat" onClick={event=>detach(event.detail===0)}><Unplug size={15}/></button>:<button type="button" className="icon-button" aria-label="Dock chat to side drawer" title="Expand to side drawer" onClick={event=>dock(event.detail===0)}><Maximize2 size={15}/></button>}
     </div>}</div>
-   </header>
+   </header>}
    {children}
    {floating&&CHAT_EDGES.map(edge=><button key={edge} type="button" className={`chat-resize-handle chat-resize-${edge}`} aria-label={`Resize chat ${edgeNames[edge]}`} title={`Resize ${edgeNames[edge]} (arrow keys; Shift for larger steps)`} onPointerDown={event=>begin(event,edge)} onKeyDown={event=>adjust(event,edge)}/>)}
   </main>
-  <div ref={snap} className="chat-dock-target" aria-hidden="true" data-visible={dockTarget} style={{top:bounds.top,right:20,height:bounds.bottom-bounds.top}}><PanelRight size={20}/><span>Dock chat</span></div>
+  <div ref={snap} className="chat-dock-target" aria-hidden="true" data-visible={dockTarget} style={{top:bounds.top,right:20,height:bounds.bottom-bounds.top}}><PanelRight size={20}/></div>
   <span className="sr-only" aria-live="polite" aria-atomic="true">{announcement}</span>
  </div>;
 }

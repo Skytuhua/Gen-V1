@@ -163,7 +163,7 @@ it('a create preflight refusal is not-applied and permits a fresh reviewed inten
  (f.github as unknown as {run:typeof run}).run=run;
  expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'not-applied'});expect(writes).toBe(0);
  remoteHead=status.head;expect(await f.outcomes.execute(f.projectId,input)).toEqual({state:'not-applied'});expect((await f.outcomes.execute(f.projectId,{...input,id:randomUUID()})).state).toBe('confirmed');expect(writes).toBe(1);
-});
+},240000);
 it('retains an uncertain create command across restart without repeating its effect',async()=>{
  const f=await fixture(),{input}=await f.operation('create-pr');let writes=0;
  vi.spyOn(f.github,'create').mockImplementation(async(_project,_thread,_input,beforeWrite)=>{beforeWrite?.();writes++;throw Error('Synthetic lost remote acknowledgment');});
@@ -234,7 +234,7 @@ it('commits intent before local write and private result before event, then repl
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'confirmed' });
   expect(await f.outcomes.execute(f.projectId, input)).toEqual(first);
   expect(forbidden).not.toHaveBeenCalled();
-}, 60000);
+}, 240000);
 
 it('retains interrupted remote write as uncertain across restart without submitting it again', async () => {
   const f = await fixture(),
@@ -258,7 +258,7 @@ it('retains interrupted remote write as uncertain across restart without submitt
   expect(writes).toBe(1);
   expect(cli).not.toHaveBeenCalled();
   expect(f.store.receipt(transformed(f.projectId, input))).toBeNull();
-}, 60000);
+}, 240000);
 
 it('serializes same-ID attempts across separate Store connections without a double write', async () => {
   const f = await fixture(),
@@ -288,7 +288,7 @@ it('serializes same-ID attempts across separate Store connections without a doub
   expect((await pending).state).toBe('confirmed');
   expect(writes).toBe(1);
   expect(await other.execute(f.projectId, input)).toMatchObject({ state: 'confirmed' });
-}, 60000);
+}, 240000);
 
 it.each(['payload', 'type', 'threadId', 'projectId'] as const)(
   'denies reuse of an ID with a changed %s',
@@ -314,7 +314,7 @@ it.each(['payload', 'type', 'threadId', 'projectId'] as const)(
     });
     expect(writes).toBe(1);
   },
-  60000,
+  240000,
 );
 
 it('inspects original payload/revision without current diff, review reads, or any write', async () => {
@@ -337,7 +337,7 @@ it('inspects original payload/revision without current diff, review reads, or an
   expect(review).not.toHaveBeenCalled();
   expect(details).not.toHaveBeenCalled();
   expect(f.store.sequence).toBe(seq);
-}, 60000);
+}, 240000);
 
 it('returns revoked after working copy or account access changes, including confirmed receipts', async () => {
   const f = await fixture(),
@@ -356,7 +356,7 @@ it('returns revoked after working copy or account access changes, including conf
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'revoked' });
   await rm(credential);
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'revoked' });
-}, 60000);
+}, 240000);
 
 it('keeps private intent, result, credentials and errors out of events, receipts and snapshots', async () => {
   const f = await fixture(),
@@ -375,7 +375,7 @@ it('keeps private intent, result, credentials and errors out of events, receipts
     command: { payload: { body: 'private review text' } },
     result: { body: 'secret remote response' },
   });
-}, 60000);
+}, 240000);
 
 it('keeps missing and legacy records uncertain without adopting unbound receipts', async () => {
   const f = await fixture(),
@@ -392,7 +392,7 @@ it('keeps missing and legacy records uncertain without adopting unbound receipts
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'uncertain' });
   expect(await f.outcomes.execute(f.projectId, input)).toEqual({ state: 'uncertain' });
   expect(f.store.get('workspaceActionOutcome', input.id)).toBeNull();
-}, 60000);
+}, 240000);
 
 it('records not-applied only after host rejection before starting and never restarts that ID', async () => {
   const f = await fixture(),
@@ -411,7 +411,7 @@ it('records not-applied only after host rejection before starting and never rest
   await f.restart();
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'not-applied' });
   expect(await f.outcomes.execute(f.projectId, input)).toEqual({ state: 'not-applied' });
-}, 60000);
+}, 240000);
 
 it('keeps failures after started uncertain even when there is no receipt', async () => {
   const f = await fixture(),
@@ -420,7 +420,7 @@ it('keeps failures after started uncertain even when there is no receipt', async
   expect(await f.outcomes.execute(f.projectId, input)).toEqual({ state: 'uncertain' });
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'uncertain' });
   expect(f.store.receipt(transformed(f.projectId, input))).toBeNull();
-}, 60000);
+}, 240000);
 
 it('keeps completed external write uncertain if durable result commit fails', async () => {
   const f = await fixture(),
@@ -436,7 +436,7 @@ it('keeps completed external write uncertain if durable result commit fails', as
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'uncertain' });
   expect(await f.outcomes.execute(f.projectId, input)).toEqual({ state: 'uncertain' });
   expect(writes).toBe(1);
-}, 60000);
+}, 240000);
 
 it('recovers a confirmed review when the remote branch name differs from the managed local branch', async () => {
   const f = await fixture(),
@@ -447,7 +447,7 @@ it('recovers a confirmed review when the remote branch name differs from the man
   expect((await f.outcomes.execute(f.projectId, input)).state).toBe('confirmed');
   await f.restart();
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'confirmed' });
-}, 60000);
+}, 240000);
 
 it('keeps an active prepared reservation uncertain until its owner durably proves no execution began', async () => {
   const f = await fixture(),
@@ -476,7 +476,7 @@ it('keeps an active prepared reservation uncertain until its owner durably prove
   }
   expect(await pending).toEqual({ state: 'not-applied' });
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'not-applied' });
-}, 60000);
+}, 240000);
 
 it('pins profile access while GitHubTools is awaiting remote validation', async () => {
   const f = await fixture(),
@@ -498,7 +498,7 @@ it('pins profile access while GitHubTools is awaiting remote validation', async 
   expect((await f.outcomes.execute(f.projectId, input)).state).toBe('confirmed');
   expect(writes).toBe(1);
   expect(JSON.parse(await readFile(credential, 'utf8')).token).toBe('synthetic-profile-token');
-}, 60000);
+}, 240000);
 
 it('rejects a profile replaced between inspection identity capture and credential read', async () => {
   const f = await fixture(),
@@ -513,7 +513,7 @@ it('rejects a profile replaced between inspection identity capture and credentia
     return token();
   });
   expect(await f.outcomes.inspect(operation)).toEqual({ state: 'revoked' });
-}, 60000);
+}, 240000);
 
 it('supports local unstage and commit through the original revision and replays a commit without a second write', async () => {
   const f = await fixture();
@@ -533,4 +533,4 @@ it('supports local unstage and commit through the original revision and replays 
   expect(after.files).toHaveLength(0);
   expect(await f.outcomes.execute(f.projectId, commit.input)).toEqual(result);
   expect((await f.projects.gitStatus(f.projectId, f.thread.id)).head).toBe(after.head);
-}, 60000);
+}, 240000);

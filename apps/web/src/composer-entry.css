@@ -1,6 +1,8 @@
 .composer-entry-row { display:flex; align-items:flex-start; gap:12px; min-width:0; }
 .composer-entry-row>.composer-input { flex:1; min-width:0; }
 .composer-entry-row>.composer-secondary-actions { flex:0 0 auto; flex-wrap:nowrap; align-items:center; margin:0; }
+.composer-entry-row>.composer-inline-actions { flex:0 0 auto; display:inline-flex; align-items:center; gap:6px; margin-left:auto; align-self:flex-end; padding-bottom:6px; }
+.composer-inline-actions .send-button { margin:0; }
 .composer-attachment-band { display:block; }
 .composer-attachment-clip { min-height:0; }
 .composer-attachment-clip>.resource-strip { margin:0; padding:0 0 var(--ui-space-2); max-height:128px; overflow:auto; scrollbar-width:thin; flex-wrap:wrap; }

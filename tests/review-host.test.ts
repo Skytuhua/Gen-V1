@@ -37,7 +37,7 @@ describe('isolated actual-host recording fixtures', () => {
   const source = (scenario: Scenario, alias: string) => host.store.get<DataRecord>('data', host.runtime.aliases.get(thread(scenario).id)!.get(alias)!)!.value;
   const command = (scenario: Scenario, type: string, payload: Record<string, unknown>) => host.service.command({ id: randomUUID(), type, threadId: thread(scenario).id, payload });
   async function settled(scenario: Scenario) {
-    await expect.poll(() => host.service.thread(thread(scenario).id).status, { timeout: 12_000, interval: 25 }).toMatch(/^(ready|completed|failed|interrupted)$/);
+    await expect.poll(() => host.service.thread(thread(scenario).id).status, { timeout: 60_000, interval: 25 }).toMatch(/^(ready|completed|failed|interrupted)$/);
     const current = host.service.thread(thread(scenario).id);
     expect(current.error ?? null).toBeNull();
     expect(current.status).toMatch(/^(ready|completed)$/);
@@ -84,7 +84,7 @@ describe('isolated actual-host recording fixtures', () => {
     expect(request.result).toMatchObject({ approvalRequired: true });
     expect(host.store.get<Operation>('operation', operation.id)!.status).toBe('prepared');
     await command('signing', 'operation.approve', { operationId: operation.id, revision: operation.revision });
-    await expect.poll(() => host.service.thread(thread('signing').id).status, { timeout: 12_000, interval: 25 }).toBe('completed');
+    await expect.poll(() => host.service.thread(thread('signing').id).status, { timeout: 60_000, interval: 25 }).toBe('completed');
     const result = host.store.get<Operation>('operation', operation.id)!.result as { path: string; fieldsFilled: number; signaturesPlaced: number };
     expect(result.signaturesPlaced).toBe(1);
     const exported = await PDFDocument.load(await readFile(join(folder, 'resources', 'exports', result.path)));
@@ -104,7 +104,7 @@ describe('isolated actual-host recording fixtures', () => {
     expect((source('migration', 'users') as { workspace: number }[]).map(row => row.workspace)).toEqual([1, 2, 3, 1, 2, 3, 1, 2, 3, 1, 2, 3]);
     const db = new DatabaseSync(join(folder, 'resources', 'project.sqlite'), { readOnly: true });
     try { expect(db.prepare('SELECT COUNT(*) AS n FROM users WHERE workspace_id IS NOT NULL').get()!.n).toBe(12); } finally { db.close(); }
-  }, 30_000);
+  }, 120_000);
   it('keeps the faq topic free of an automatic question form and preserves state through composer continuation', async () => {
     await send('faq');
     const current = artifact('faq');

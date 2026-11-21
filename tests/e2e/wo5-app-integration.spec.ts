@@ -38,6 +38,8 @@ async function host(page:Page){
    return route.fulfill({json:{id:body.terminalId,projectId:body.projectId,threadId:body.threadId,output,start:0,cursor:output.length,exited:true,exitCode:1}});
   }
   if(path==='/api/commands')commands.push(route.request().postDataJSON());
+  const branchMatch=path.match(/^\/api\/session-branches\/([^/]+)$/);
+  if(branchMatch)return route.fulfill({json:{enabled:{branch:false,import:false},capabilities:{inspect:'SUPPORTED',quote:'SUPPORTED',nativeFork:'UNSUPPORTED',adapters:[]},captures:[],branch:null,children:[],imports:[]}});
   const workbenchMatch=path.match(/^\/api\/workbench\/threads\/([^/]+)(\/inputs)?$/);
   if(workbenchMatch)return route.fulfill({json:workbenchMatch[2]?{logicalOwner:{threadId:workbenchMatch[1],projectId:'capture-project',workspaceId:workingCopy.id},inputs:[]}:{logicalOwner:{threadId:workbenchMatch[1],projectId:'capture-project',workspaceId:workingCopy.id},enabled:false,sources:[],sourceCapabilities:[]}});
   const allowed=['/api/bootstrap','/api/snapshot','/api/shell-settings','/api/models','/api/workspace','/api/shell/navigation','/api/shell/settings','/api/shell/archive','/api/shell/resources','/api/plugins','/api/skills/available','/api/environment','/api/integrations','/api/commands','/api/split-workspace/profiles'];
@@ -48,7 +50,7 @@ async function host(page:Page){
  return {snapshot,commands,unexpected,workingCopy};
 }
 async function panel(page:Page,name:string){
- const open=page.getByRole('button',{name:'Open workspace panel',exact:true});if(await open.count())await open.click();
+ const open=page.getByRole('button',{name:'Open panel',exact:true});if(await open.count())await open.click();
  const target=page.getByRole('tab',{name,exact:true});
  if(!await target.count()){await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name,exact:true}).click();}
  await target.click();

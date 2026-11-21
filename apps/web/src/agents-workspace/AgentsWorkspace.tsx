@@ -14,7 +14,7 @@ import {projectColor} from '../project-colors';
 import {groupAgents, type AgentNode, type AgentsWorkspaceController, type ProjectRow} from './controller';
 import type {SharedAgentComposers} from './composer';
 import {AgentWorkPanel} from './AgentWorkPanel';
-import {agentProjectCatalog} from './project-catalog';
+import {agentProjectCatalog, agentProjectFilterOptions} from './project-catalog';
 import './agents-workspace.css';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
 
@@ -22,7 +22,7 @@ export interface AgentsWorkspaceProps {
  controller: AgentsWorkspaceController;
  composers: SharedAgentComposers;
  onOpenConversation(threadId: string, intent?: 'model'): void;
- preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>};
+ preferences?: {density?: 'compact' | 'comfortable' | 'touch'; projectColors?: Record<string, string>};
  projects?: readonly {id: string; name: string}[];
  hasConversations?: boolean;
 }
@@ -58,7 +58,7 @@ export function AgentsWorkspace({controller, composers, onOpenConversation, pref
  useLayoutEffect(() => {if (viewport.current) viewport.current.scrollTop = controller.view('$workspace').top;}, [controller]);
  return <Visibility.Provider value={visible.set}><section className="agents-workspace" aria-label="Agent workspace" data-density={preferences?.density ?? 'comfortable'}>
   <div className="agents-toolbar" role="toolbar" aria-label="Agent filters">
-   <Select aria-label="Project filter" value={state.scope.projectId === undefined ? '$all' : state.scope.projectId === null ? '$none' : state.scope.projectId} options={[{value: '$all', label: 'All projects'}, ...[...catalog].map(([value, label]) => ({value, label})), {value: '$none', label: 'No project'}]} onValueChange={value => {void controller.setScope({...state.scope, projectId: value === '$all' ? undefined : value === '$none' ? null : value});}}/>
+   <Select aria-label="Project filter" value={state.scope.projectId === undefined ? '$all' : state.scope.projectId === null ? '$none' : state.scope.projectId} options={agentProjectFilterOptions(catalog, state.scope.projectId)} onValueChange={value => {void controller.setScope({...state.scope, projectId: value === '$all' ? undefined : value === '$none' ? null : value});}}/>
    <Select aria-label="Status filter" value={state.scope.statuses?.[0] ?? '$all'} options={[{value: '$all', label: 'All statuses'}, ...agentStatuses.map(value => ({value, label: statusLabel(value)}))]} onValueChange={value => {void controller.setScope({...state.scope, statuses: value === '$all' ? undefined : [value as AgentStatus]});}}/>
    <button type="button" className="agents-icon" aria-label={searchOpen ? 'Close agent search' : 'Search agents'} aria-expanded={searchOpen} onClick={() => {setSearchOpen(!searchOpen); if (searchOpen) setText(''); else requestAnimationFrame(() => search.current?.focus());}}>{searchOpen ? <X size={16}/> : <Search size={16}/>}</button>
    {searchOpen && <input ref={search} type="search" aria-label="Filter agents" placeholder="Find agent…" maxLength={200} value={text} onChange={event => setText(event.target.value)}/>}

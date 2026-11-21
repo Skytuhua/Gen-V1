@@ -48,6 +48,7 @@ test('actual App Live usage preference controls the composer launcher without op
  h.snapshot.settings.preferences={...h.snapshot.settings.preferences,showUsageFooter:false};await h.publish();await expect(launcher).toHaveCount(0);await expect(summary).toBeHidden();
 });
 test('split conversation launchers control the shared summary for the active pane and start closed after reload',async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
  await host(page,{split:true});
  const first=page.locator('[data-split-view="thread:task-thread"]'),second=page.locator('[data-split-view="thread:other"]');
  const summary=page.getByRole('region',{name:'Live usage',exact:true}),launchers=page.locator('.composer-usage-launcher');

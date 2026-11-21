@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import type { WorkspaceTab } from './workspace-context';
 
 export interface ShellLayout { sidebarCollapsed: boolean; sidebarWidth: number; rightPanelOpen: boolean; rightPanelWidth: number; rightPanelMaximized: boolean; activeTab: WorkspaceTab; openTabs: WorkspaceTab[]; activeArtifactId: string | null; folded: Record<string, boolean> }
-const defaults: ShellLayout = { sidebarCollapsed: false, sidebarWidth: 248, rightPanelOpen: false, rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', openTabs: ['artifact'], activeArtifactId: null, folded: {} };
+const defaults: ShellLayout = { sidebarCollapsed: false, sidebarWidth: 248, rightPanelOpen: false, rightPanelWidth: 520, rightPanelMaximized: false, activeTab: 'artifact', openTabs: [], activeArtifactId: null, folded: {} };
 export const WORKSPACE_TABS: WorkspaceTab[] = ['artifact', 'plan', 'files', 'diff', 'notes', 'output', 'usage', 'terminal', 'pull-request', 'linked-pull-requests'];
 export function readShellLayout(): ShellLayout {
   try {
@@ -11,7 +11,7 @@ export function readShellLayout(): ShellLayout {
     const value = saved as Partial<ShellLayout>;
     return { ...defaults, sidebarCollapsed: value.sidebarCollapsed === true, sidebarWidth: typeof value.sidebarWidth === 'number' && Number.isFinite(value.sidebarWidth) ? Math.max(200, Math.min(380, value.sidebarWidth)) : defaults.sidebarWidth,
       rightPanelOpen: value.rightPanelOpen === true, rightPanelWidth: typeof value.rightPanelWidth === 'number' && Number.isFinite(value.rightPanelWidth) ? Math.max(280, Math.min(720, value.rightPanelWidth)) : defaults.rightPanelWidth,
-      rightPanelMaximized: value.rightPanelMaximized === true, activeTab: WORKSPACE_TABS.includes(value.activeTab ?? ('' as WorkspaceTab)) ? value.activeTab! : 'artifact', openTabs: (() => { const tabs = Array.isArray(value.openTabs) ? value.openTabs.filter((tab): tab is WorkspaceTab => WORKSPACE_TABS.includes(tab)) : []; const active = WORKSPACE_TABS.includes(value.activeTab ?? ('' as WorkspaceTab)) ? value.activeTab! : 'artifact'; return tabs.includes(active) ? tabs : [...tabs, active]; })(), activeArtifactId: typeof value.activeArtifactId === 'string' ? value.activeArtifactId : null,
+      rightPanelMaximized: value.rightPanelMaximized === true, activeTab: WORKSPACE_TABS.includes(value.activeTab ?? ('' as WorkspaceTab)) ? value.activeTab! : 'artifact', openTabs: (() => { const tabs = Array.isArray(value.openTabs) ? value.openTabs.filter((tab): tab is WorkspaceTab => WORKSPACE_TABS.includes(tab)) : []; if (!tabs.length) return tabs; const active = WORKSPACE_TABS.includes(value.activeTab ?? ('' as WorkspaceTab)) ? value.activeTab! : 'artifact'; return tabs.includes(active) ? tabs : [...tabs, active]; })(), activeArtifactId: typeof value.activeArtifactId === 'string' ? value.activeArtifactId : null,
       folded: value.folded && typeof value.folded === 'object' ? Object.fromEntries(Object.entries(value.folded).filter(([key, state]) => key.length < 220 && typeof state === 'boolean')) : {} };
   } catch { return defaults; }
 }

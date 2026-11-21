@@ -1,10 +1,11 @@
 import {useState} from 'react';
-import {Folder,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined} from 'lucide-react';
+import {Folder,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined,PanelRight,MessagesSquare,LayoutTemplate,ListChecks,StickyNote} from 'lucide-react';
+import {WORKSPACE_SURFACES} from './workspace-surfaces';
 import type {DataRecord,RuntimeUsage,Snapshot} from '../../../packages/contracts';
 import {formatLocalClock} from './time-format';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import type {WorkspacePanelKind} from '../../../packages/contracts/workspace';
-import {useWorkspace,type WorkspaceTab} from './workspace-context';
+import {useWorkspace} from './workspace-context';
 import {usageCost,usagePercent} from './usage-presentation';
 import {ContextMeter} from './ContextMeter';
 
@@ -15,20 +16,24 @@ export function UsageSummary({ usage }: { usage?: RuntimeUsage }) {
   return <div className="usage-summary"><div className="usage-context"><span>Context window</span><strong>{ratio == null ? 'Unavailable' : usagePercent(ratio)}</strong></div><ContextMeter usage={usage} /><p>{count(usage?.contextTokens)} of {count(usage?.contextWindow)} tokens</p><dl><dt>Input tokens</dt><dd>{count(usage?.inputTokens)}</dd><dt>Output tokens</dt><dd>{count(usage?.outputTokens)}</dd><dt>Reported cost</dt><dd>{usage?.cost == null ? 'Unavailable' : usageCost({amount:usage.cost})}</dd><dt>Session limit</dt><dd>{usage?.sessionPercent == null ? 'Unavailable' : usagePercent(usage.sessionPercent)}</dd><dt>Weekly limit</dt><dd>{usage?.weeklyPercent == null ? 'Unavailable' : usagePercent(usage.weeklyPercent)}</dd></dl></div>;
 }
 
+const SURFACE_ICONS: Record<string, typeof Folder> = {
+ browser: PanelRight, terminal: Terminal, files: Folder, diff: GitCompare, 'pull-request': GitPullRequest,
+ 'linked-pull-requests': Link, device: Smartphone, 'side-chat': MessagesSquare, artifact: LayoutTemplate,
+ plan: ListChecks, notes: StickyNote, output: ScrollText, usage: ChartNoAxesCombined,
+};
+
+/** One launcher fed by the shared ordered surface list; also backs the plus menu (T04/R05). */
 export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}={}) {
   const workspace = useWorkspace();
   const [error,setError]=useState('');
-  const openTool=(kind:WorkspacePanelKind)=>{setError('');try{const result=onOpenTool?onOpenTool(kind):workspace.setActiveTab(kind as WorkspaceTab);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
-  const unavailable = 'Unavailable in this local harness';
-  return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="status" className="error-text">{error}</p>}
-    <button type="button" aria-label="Terminal" onClick={()=>openTool('terminal')} title="Open an interactive host terminal"><Terminal size={18} /><span>Terminal</span><small>Interactive host session</small></button>
-    <button type="button" aria-label="Files" onClick={() => openTool('files')}><Folder size={18} /><span>Files</span><small>Granted resources</small></button>
-    <button type="button" aria-label="Diff" onClick={() => openTool('diff')}><GitCompare size={18} /><span>Diff</span><small>Prepared changes</small></button>
-    <button type="button" aria-label="Pull request" onClick={()=>openTool('pull-request')} title="Open project pull requests"><GitPullRequest size={18} /><span>Pull request</span><small>Project pull requests</small></button>
-    <button type="button" aria-label="Linked pull requests" onClick={()=>openTool('linked-pull-requests')} title="Open linked pull requests"><Link size={18} /><span>Linked pull requests</span><small>Connected reviews</small></button>
-    <button type="button" aria-label="Device" disabled title="Phone and device automation is not connected."><Smartphone size={18} /><span>Device</span><small>{unavailable}</small></button>
-    <button type="button" aria-label="Executor output" onClick={() => openTool('output')}><ScrollText size={18} /><span>Executor output</span><small>Recorded operations</small></button>
-    <button type="button" aria-label="Usage" onClick={() => openTool('usage')}><ChartNoAxesCombined size={18} /><span>Usage</span><small>Runtime reports</small></button>
+  const open=(id:string)=>{setError('');try{const entry=WORKSPACE_SURFACES.find(surface=>surface.id===id);const result=entry?.tab&&onOpenTool?onOpenTool(id as WorkspacePanelKind):workspace.openSurface?.(id);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
+  return <section className="workspace-launcher" aria-label="Workspace launcher" onKeyDown={event=>{
+    const target=event.target as HTMLElement;
+    if(target.closest('input,textarea,select,[contenteditable]')||event.altKey||event.ctrlKey||event.metaKey)return;
+    const entry=WORKSPACE_SURFACES.find(surface=>surface.shortcut===event.key.toLowerCase());
+    if(entry&&!workspace.surfaceAvailability?.[entry.id]){event.preventDefault();open(entry.id);}
+  }}><h3>Open a surface</h3>{error&&<p role="status" className="error-text">{error}</p>}
+    {WORKSPACE_SURFACES.map(surface=>{const Icon=SURFACE_ICONS[surface.id]??Folder,reason=workspace.surfaceAvailability?.[surface.id]??surface.disabled;return <button key={surface.id} type="button" aria-label={surface.label} disabled={Boolean(reason)} title={reason} onClick={()=>open(surface.id)}><Icon size={18} /><span>{surface.label}</span><small>{reason??surface.description}</small>{surface.shortcut&&<kbd>{surface.shortcut.toUpperCase()}</kbd>}</button>;})}
   </section>;
 }
 

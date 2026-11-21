@@ -1,5 +1,5 @@
 import {describe,expect,it} from 'vitest';
-import {agentProjectCatalog} from '../apps/web/src/agents-workspace/project-catalog';
+import {agentProjectCatalog, agentProjectFilterOptions} from '../apps/web/src/agents-workspace/project-catalog';
 
 describe('agent project filter catalog (AUD-12)',()=>{
  it('drops an authoritatively removed project that no visible agent references',()=>{
@@ -24,5 +24,21 @@ describe('agent project filter catalog (AUD-12)',()=>{
   const second=agentProjectCatalog([{id:'p1',name:'One'}],[]);
   expect([...first.keys()]).toEqual(['p1','p2']);
   expect([...second.keys()]).toEqual(['p1']);
+ });
+});
+
+describe('agent project filter options (AUD-13)',()=>{
+ const catalog=agentProjectCatalog([{id:'p1',name:'One'}],[]);
+ it('keeps an applied filter visible when its project left the catalog',()=>{
+  const options=agentProjectFilterOptions(catalog,'p-gone');
+  expect(options.some(option=>option.value==='p-gone')).toBe(true);
+ });
+ it('does not duplicate a project already in the catalog',()=>{
+  const options=agentProjectFilterOptions(catalog,'p1');
+  expect(options.filter(option=>option.value==='p1')).toHaveLength(1);
+ });
+ it('leaves the option list untouched for all/none scopes',()=>{
+  expect(agentProjectFilterOptions(catalog,undefined).map(option=>option.value)).toEqual(['$all','p1','$none']);
+  expect(agentProjectFilterOptions(catalog,null).map(option=>option.value)).toEqual(['$all','p1','$none']);
  });
 });

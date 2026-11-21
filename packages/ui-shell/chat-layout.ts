@@ -11,9 +11,19 @@ export function chatBounds(view:ChatViewport){
  const margin=Math.min(20,view.width/8,view.height/8),top=Math.max(margin,view.top??0);
  return {left:margin,top,right:Math.max(margin,view.width-margin),bottom:Math.max(top,view.height-margin)};
 }
-export function clampChatRect(rect:ChatRect,view:ChatViewport):ChatRect{
- const area=chatBounds(view),width=clamp(rect.width,Math.min(320,area.right-area.left),area.right-area.left),height=clamp(rect.height,Math.min(300,area.bottom-area.top),area.bottom-area.top);
- return {width,height,x:clamp(rect.x,area.left,area.right-width),y:clamp(rect.y,area.top,area.bottom-height)};
+// A rect at least as large as its clamp area would pin at the area's edge on
+// every drag; live move drags may pass slack so an edge-filling float can still
+// slide a little (like an OS window wider than the screen). Slack only opens
+// left: the float's top header and its right-edge and bottom-right controls
+// always stay inside the clip, so they remain reachable wherever the drag lands.
+// Persisted, restored, resized and keyboard-moved rects keep the strict
+// in-bounds clamp.
+export function clampChatRect(rect:ChatRect,view:ChatViewport,slack=0):ChatRect{
+ // Slack admits moves only toward edges whose controls stay inside the clip:
+ // left for a width-filling float. A height-filling float gets no vertical slack
+ // — either direction drops its header or its resize handle out of reach.
+ const area=chatBounds(view),availW=area.right-area.left,availH=area.bottom-area.top,width=clamp(rect.width,Math.min(320,availW),availW),height=clamp(rect.height,Math.min(300,availH),availH),sx=width>=availW?slack:0;
+ return {width,height,x:clamp(rect.x,Math.min(area.left,area.right-width)-sx,Math.max(area.left,area.right-width)),y:clamp(rect.y,Math.min(area.top,area.bottom-height),Math.max(area.top,area.bottom-height))};
 }
 export function chatPanelRect(layout:ChatLayout,view:ChatViewport):ChatRect{
  const area=chatBounds(view),mode=layout.mode==='full'?'popup':layout.mode;

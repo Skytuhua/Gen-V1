@@ -120,7 +120,7 @@ test('model, account and thread changes reject late results and do not restore h
   host.snapshot.threads[0].accountId = 'new-pinned-account'; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
   await host.settle('two'); await expect.poll(() => host.calls.length).toBe(2);
   host.snapshot.threads[0].modelId = 'test/replaced'; await host.publish(); await host.release(); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
-  const current = host.snapshot.threads[0]; host.snapshot.threads.push({ ...current, id: 'different-thread', title: 'Different prediction owner', modelId: 'test/model' }); host.snapshot.activeThreadId = 'different-thread'; await host.publish();await page.getByRole('button',{name:'Different prediction owner',exact:true}).click();
+  const current = host.snapshot.threads[0]; host.snapshot.threads.push({ ...current, id: 'different-thread', title: 'Different prediction owner', modelId: 'test/model' }); host.snapshot.activeThreadId = 'different-thread'; await host.publish();await page.getByRole('button',{name:/^Different prediction owner/}).click();
   await host.draft.focus(); await flushEffects(page); expect(host.calls).toHaveLength(2); await expect(page.locator('.composer-prediction-text')).toHaveCount(0);
 });
 

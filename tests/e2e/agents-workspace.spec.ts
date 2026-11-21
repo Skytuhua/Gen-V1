@@ -269,6 +269,47 @@ for (const [theme, width, height, zoom, columns] of [['dark', 1920, 1080, 1, 4],
  });
 }
 
+for (const [density, composerHeight] of [['compact', 32], ['comfortable', 36], ['touch', 44]] as const) {
+ test(`a card keeps two-thirds history and a ${composerHeight} px composer at ${density} density`, async ({page}) => {
+  await page.setViewportSize({width: 1440, height: 900});
+  await setup(page);
+  await page.goto('/agents-workspace-check?density=' + density);
+  const card = page.locator('.agents-grid-slot > .agents-agent', {has: page.getByRole('textbox', {name: 'Message to parent-01', exact: true})});
+  await expect(card).toBeVisible();
+  const box = (await card.boundingBox())!;
+  expect(Math.round(box.height)).toBe(420);
+  const transcript = (await card.locator('.agents-transcript').boundingBox())!;
+  expect(transcript.height).toBeGreaterThanOrEqual(280);
+  const composer = (await card.locator('.agents-composer').boundingBox())!;
+  expect(Math.abs(composer.height - composerHeight)).toBeLessThanOrEqual(1);
+ });
+}
+test('a short viewport keeps two-thirds history inside the compact card', async ({page}) => {
+ await page.setViewportSize({width: 1440, height: 600});
+ await setup(page);
+ const card = page.locator('.agents-grid-slot > .agents-agent', {has: page.getByRole('textbox', {name: 'Message to parent-01', exact: true})});
+ await expect(card).toBeVisible();
+ expect(Math.round((await card.boundingBox())!.height)).toBe(360);
+ expect((await card.locator('.agents-transcript').boundingBox())!.height).toBeGreaterThanOrEqual(240);
+});
+test('grid columns switch on the container edge widths', async ({page}) => {
+ await page.setViewportSize({width: 1440, height: 900});
+ await setup(page);
+ const slot = page.locator('.agents-project-slot').first();
+ await expect(page.locator('.agents-agent-grid').first()).toBeVisible();
+ const columns = () => page.locator('.agents-agent-grid').first().evaluate(node => getComputedStyle(node).gridTemplateColumns.split(' ').length);
+ for (const [width, expected] of [[767, 1], [768, 2], [1079, 2], [1080, 4]] as const) {
+  await slot.evaluate((node, w) => {node.style.width = w + 'px';}, width);
+  await expect.poll(columns).toBe(expected);
+ }
+});
+test('a long draft caps at three lines inside the composer', async ({page}) => {
+ await page.setViewportSize({width: 1440, height: 900});
+ await setup(page);
+ const input = page.getByRole('textbox', {name: 'Message to parent-01', exact: true});
+ await input.fill('first\nsecond\nthird\nfourth\nfifth\nsixth');
+ await expect.poll(async () => (await input.boundingBox())!.height).toBeLessThanOrEqual(73);
+});
 test('a child input acknowledgement preserves a newer draft', async ({page}) => {
  const fixtureHost = await setup(page, false, false, true);
  let finish!: () => void;

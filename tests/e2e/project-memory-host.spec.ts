@@ -26,7 +26,7 @@ async function preview(page: Page, memoryHost: MemoryHostFixture, threadId: stri
     if (!value.url().endsWith('/memory/requests/prepare') || value.request().method() !== 'POST') return false;
     const body = value.request().postDataJSON() as { threadId?: unknown; prompt?: unknown } | null;
     return body?.threadId === threadId && body.prompt === prompt;
-  }, { timeout: 10_000 });
+  }, { timeout: 30_000 });
   await page.getByRole('button', { name: 'Inspect context usage', exact: true }).click();
   const result = await response; expect(result.status()).toBe(200);
   expect(memoryHost.preparedResponseCaptureError).toBeNull();

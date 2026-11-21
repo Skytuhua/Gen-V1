@@ -33,13 +33,16 @@ public static class HarnessPathGuard {
   static readonly Dictionary<string, List<ManifestEntry>> Manifests = new Dictionary<string, List<ManifestEntry>>();
   static List<SafeFileHandle> Held;
   static List<ManifestEntry> Manifest;
+  // Native opens need the extended prefix or paths past MAX_PATH (deep account
+  // profiles under a user directory) fail as if a component were missing.
+  static string Long(string path) { return path.StartsWith(@"\\?\") ? path : @"\\?\" + path; }
   public static void Begin(string id) { Held = new List<SafeFileHandle>(); Groups.Add(id, Held); Manifest = new List<ManifestEntry>(); Manifests.Add(id, Manifest); }
   public static ManifestEntry[] GetManifest(string id) { return Manifests[id].ToArray(); }
   static Info Pin(string path, bool directory, bool readOnly = false, bool allowChildWrites = false, bool createMarker = false) {
     // Strict directory guards deny write/delete opens; files share writes but deny deletion.
     // Include data/list access: attribute-only opens do not enforce Windows sharing denial.
     var sharing = directory ? 1u : (readOnly ? 1u : 3u);
-    var handle = CreateFile(path, directory ? 0x81u : 0x80000080u, sharing, IntPtr.Zero, createMarker ? 4u : 3u, 0x02200000, IntPtr.Zero);
+    var handle = CreateFile(Long(path), directory ? 0x81u : 0x80000080u, sharing, IntPtr.Zero, createMarker ? 4u : 3u, 0x02200000, IntPtr.Zero);
     if (handle.IsInvalid) { handle.Dispose(); throw new Win32Exception(Marshal.GetLastWin32Error()); }
     Held.Add(handle);
     Info info;
@@ -59,7 +62,7 @@ public static class HarnessPathGuard {
       // Pin an ordinary marker before relaxing write sharing for native atomic saves.
       // Its read-only, deny-delete handle keeps the directory nonempty throughout use.
       Pin(Path.Combine(path, ".harness-directory-guard"), false, true, false, true);
-      var writable = CreateFile(path, 0x81u, 3u, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
+      var writable = CreateFile(Long(path), 0x81u, 3u, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
       if (writable.IsInvalid) { writable.Dispose(); throw new Win32Exception(Marshal.GetLastWin32Error()); }
       Held.Add(writable);
       Info verified;
@@ -111,7 +114,7 @@ public static class HarnessPathGuard {
   public static void Release(string id) { var held = Groups[id]; for (int i=held.Count-1; i>=0; i--) held[i].Dispose(); Groups.Remove(id); Manifests.Remove(id); }
   public static void ReleaseAll() { foreach (var held in Groups.Values) foreach (var h in held) h.Dispose(); Groups.Clear(); Manifests.Clear(); }
   public static void RemoveOwned(string path, string volume, string index, bool empty, bool directory) {
-    using (var handle = CreateFile(path, 0x10080, 3, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero)) {
+    using (var handle = CreateFile(Long(path), 0x10080, 3, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero)) {
       if (handle.IsInvalid) return; // Missing, replaced or busy: preserve it.
       Info info;
       if (!GetFileInformationByHandle(handle, out info)) return;
@@ -125,7 +128,7 @@ public static class HarnessPathGuard {
   static FileStream VerifyDestination(string destination, string volume, string index, string expectedHash) {
     // Share read/delete so the atomic rename remains possible. This denies
     // in-place writers; external atomic pathname replacements remain possible.
-    var handle = CreateFile(destination, 0x80000080, 5, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
+    var handle = CreateFile(Long(destination), 0x80000080, 5, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero);
     FileStream stream = null;
     try {
       if (handle.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error());
@@ -144,7 +147,7 @@ public static class HarnessPathGuard {
   }
   public static void ReplaceOwned(string source, string destination, string volume, string index, string expectedHash, string targetVolume, string targetIndex, string targetHash) {
     using (var target = String.IsNullOrEmpty(targetHash) ? null : VerifyDestination(destination, targetVolume, targetIndex, targetHash))
-    using (var handle = CreateFile(source, 0x80010080, 1, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero)) {
+    using (var handle = CreateFile(Long(source), 0x80010080, 1, IntPtr.Zero, 3, 0x02200000, IntPtr.Zero)) {
       if (handle.IsInvalid) throw new Win32Exception(Marshal.GetLastWin32Error(), "Cannot open replacement source");
       Info info;
       if (!GetFileInformationByHandle(handle, out info)) throw new Win32Exception(Marshal.GetLastWin32Error());

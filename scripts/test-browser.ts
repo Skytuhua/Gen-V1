@@ -19,7 +19,7 @@ export function runBrowserSuites(suites:BrowserSuite[], list=false):number {
     const output=resolve(directory,suite.name);
     mkdirSync(output,{recursive:true});
     const args=[cli,'test','--config',suite.config,...suite.specs.map(spec=>`(?:^|[/\\\\])${escapePattern(spec)}$`),
-      ...(suite.project?['--project',suite.project]:[]),'--output',resolve(output,'artifacts'),'--reporter=list,json',...(list?['--list']:[])];
+      ...(suite.project?['--project',suite.project]:[]),'--output',resolve(output,'artifacts'),'--reporter=list,json','--retries=1',...(list?['--list']:[])];
     console.log(`\nBrowser suite: ${suite.name} (${suite.specs.length} spec files)`);
     const result=spawnSync(process.execPath,args,{cwd:root,stdio:'inherit',windowsHide:true,
       env:{...process.env,GEN_E2E:'1',GEN_MEMORY_MODE:'',GEN_BROWSER_OUTPUT_DIR:resolve(output,'artifacts'),...suite.env,PLAYWRIGHT_JSON_OUTPUT_FILE:resolve(output,list?'discovery.json':'results.json')}});

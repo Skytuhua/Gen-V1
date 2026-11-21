@@ -19,6 +19,7 @@ vi.mock('react', () => ({
 vi.mock('../apps/web/src/api.ts', () => ({
   authenticated: (send: () => Promise<Response>) => send(),
   read: (response: Response) => response.json(),
+  ApiError: class extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); } },
 }));
 
 import { useProjectContext } from '../apps/web/src/project-api';

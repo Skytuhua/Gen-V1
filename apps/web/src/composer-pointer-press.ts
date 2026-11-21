@@ -9,7 +9,11 @@ export function useComposerPointerPress(){
   window.addEventListener('pointerup',release,true);
   window.addEventListener('pointercancel',release,true);
   window.addEventListener('blur',clear);
-  return ()=>{clear();window.removeEventListener('pointerup',release,true);window.removeEventListener('pointercancel',release,true);window.removeEventListener('blur',clear);};
+  // Keyboard cancels a held press wherever focus is: chips keep composer
+  // focus via pointerdown preventDefault, so a per-group key handler never
+  // sees the event.
+  window.addEventListener('keydown',clear,true);
+  return ()=>{clear();window.removeEventListener('pointerup',release,true);window.removeEventListener('pointercancel',release,true);window.removeEventListener('blur',clear);window.removeEventListener('keydown',clear,true);};
  },[]);
  return {
   'data-composer-press-group':'',
@@ -24,7 +28,6 @@ export function useComposerPointerPress(){
   onPointerOut(event:PointerEvent<HTMLDivElement>){
    if(event.pointerId===pressed.current?.pointerId&&!(event.relatedTarget instanceof Node&&pressed.current.target.contains(event.relatedTarget)))clear();
   },
-  onKeyDownCapture:clear,
   onBlurCapture(event:FocusEvent<HTMLDivElement>){if(pressed.current?.target.contains(event.target))clear();},
  };
 }

@@ -20,9 +20,9 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "3cc1ccf530aaa143d9182d9a5bc64b46e0876f247cbe7a4bfba3be7027455555",
-      "reason": "Retained geometry: bounded conversation scrollbar, not a popup.",
-      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:20px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
+      "fingerprint": "7d27147a7a543eb43488e8536c95a71130db9c50e4ca6e42d1cd80b2b26a51e9",
+      "reason": "Retained geometry: bounded conversation scrollbar, not a popup. Pointer strip widened to 24px per repair spec.",
+      "evidence": ".chat-scroll-indicator{position:absolute;inset:8px auto 8px 0;width:24px;z-index:2;touch-action:none;cursor:pointer;outline-offset:-2px}",
       "disposition": "retained-geometry"
     },
     {
@@ -306,7 +306,7 @@
       "column": 1,
       "rule": "ad-hoc-overlay",
       "message": "Overlay CSS geometry/backdrop: styles belong to named shared primitives; legacy rules require an individually reviewed migration entry.",
-      "fingerprint": "9f7472cea2357b2e6b93c092790c8dab48608678a6bb5ea6ca2d996408e0d7b8",
+      "fingerprint": "0702e9bdcf7c4392bc2aad12adacb993153e45dca8651e1c9500487dfc2a347e",
       "reason": "LAYOUT: migrate area actions menu; retain exact split-plane and drag-preview geometry. Neutral ink only; preview geometry, eligibility and pointer behavior are unchanged.",
       "evidence": ".split-drop-preview{position:absolute;pointer-events:none;z-index:10;box-sizing:border-box;border:2px solid var(--ui-focus-ring,#808080);background:color-mix(in srgb,var(--ui-focus-ring,#808080) 15%,transparent);display:",
       "disposition": "staged-migration"

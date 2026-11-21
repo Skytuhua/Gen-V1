@@ -40,7 +40,7 @@ for (const theme of ['dark', 'light'] as const) for (const width of [1440, 1024]
       const dialog=page.getByRole('dialog',{name:'Usage',exact:true});
       await expect(dialog).toContainText('23.5%');await expect(dialog).toContainText('2030');await expect(dialog).not.toContainText('2030-01-01T12:34:56Z');
       await expect(dialog.locator('dd').first()).toHaveCSS('text-align','right');
-      await expect(dialog.locator('.ui-modal-close>svg')).toHaveCSS('color',theme==='dark'?'rgb(160, 160, 160)':'rgb(112, 112, 112)');
+      await expect(dialog.locator('.ui-modal-close>svg')).toHaveCSS('color',theme==='dark'?'rgb(160, 160, 160)':'rgb(102, 102, 102)');
     }
     await page.screenshot({path:info.outputPath(`usage-limits-${stage}-${theme}-${width}.png`)});
     await page.keyboard.press('Escape');

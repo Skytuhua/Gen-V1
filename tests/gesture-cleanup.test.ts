@@ -236,7 +236,7 @@ describe('gesture cleanup', () => {
   });
 
   for (const type of ['pointercancel', 'lostpointercapture']) for (const mode of ['move', 'resize'] as const) it(`foreign ${type} cannot cancel a floating split ${mode}`, async () => {
-    const page = await openPage('?float'), grip = page.getByRole('button', { name: mode === 'move' ? 'Placement and move for Conversation' : 'Resize Conversation' });
+    const page = await openPage('?float'), grip = page.getByRole('button', { name: mode === 'move' ? 'Move chat' : 'Resize Conversation' });
     await grip.scrollIntoViewIfNeeded();
     const surface = page.locator('[data-split-view="thread:solo"]'), box = (await grip.boundingBox())!, start = (await surface.boundingBox())!;
     const property = mode === 'move' ? 'x' : 'width';
@@ -252,7 +252,7 @@ describe('gesture cleanup', () => {
   for (const mode of ['move', 'resize'] as const) for (const delta of [60, 0, 9999]) it(`floating ${mode} uses final pointer bounds (${delta}) and retains its draft`, async () => {
     const page = await openPage('?float&terminal'), surface = page.locator('[data-split-view="thread:solo"]');
     try {
-      const grip = page.getByRole('button', {name: mode === 'move' ? 'Placement and move for Conversation' : 'Resize Conversation'});
+      const grip = page.getByRole('button', {name: mode === 'move' ? 'Move chat' : 'Resize Conversation'});
       const input = surface.getByRole('textbox', {name: 'Float draft thread:solo'});
       await input.fill('Unsent terminal-position draft');
       await page.evaluate(() => { (window as any).originalFloatInput = document.querySelector('[data-split-view="thread:solo"] input'); });
@@ -277,7 +277,7 @@ describe('gesture cleanup', () => {
   for (const delta of [2, 60]) it(`floating header click respects the movement threshold at release (${delta})`, async () => {
     const page = await openPage('?float&terminal'), surface = page.locator('[data-split-view="thread:solo"]');
     try {
-      const grip = page.getByRole('button', {name: 'Placement and move for Conversation'});
+      const grip = page.getByRole('button', {name: 'Move chat'});
       await grip.scrollIntoViewIfNeeded(); const box = (await grip.boundingBox())!, x = box.x + box.width / 2, y = box.y + box.height / 2;
       await page.mouse.move(x, y); await page.mouse.down(); await page.mouse.move(x + 2, y);
       const pointerId = await page.evaluate(() => (window as any).lastFloatPointer as number);

@@ -99,7 +99,9 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      if (value.pending.sourceRefs.some(ref => !sameLogicalOwner(ref.source.logicalOwner, value.pending!.sourceOwner!))) throw Error('Invalid pending source ownership.');
     }
     if (value.pending?.sendMode) value.pending.sendMode = sendModeV1Schema.parse(value.pending.sendMode);
-    emit(value, {draft: draft?.value ?? '', skills: readSkillBindings(skills?.value), excerpts:readTerminalExcerpts(excerpts?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
+    // A draft edit that landed while this read was in flight owns the composer: only
+    // apply the journal value when it is still the latest generation.
+    emit(value, {draft: (draft?.generation ?? null) === (journalGeneration(key(agent)) ?? null) ? (draft?.value ?? '') : value.state.draft, skills: readSkillBindings(skills?.value), excerpts:readTerminalExcerpts(excerpts?.value), ready: true, retry: Boolean(value.pending), ticket: ticket?.value, thinkingLevel: typeof thinking?.value === 'string' ? thinking.value || null : undefined, error: value.state.error === recoveryError ? '' : value.state.error});
     if (ticket?.value && inventoryAgent(agent)) actions.followUp?.track?.(agent, ticket.value);
    } catch {
     value.unsubscribe?.(); value.unsubscribe = undefined; value.prepared = undefined;

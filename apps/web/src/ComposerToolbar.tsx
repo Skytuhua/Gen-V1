@@ -39,8 +39,8 @@ export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled
  const [error,setError]=useState(''),counts=validCounts(changeSummary);
  async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(reason instanceof Error?reason.message:'The action could not finish. Try again.');}}
  return <div className="composer-secondary-actions" role="group" aria-label="Task actions" {...pointerPress}>
-  <button type="button" className="composer-context-chip composer-changes" aria-label="Inspect changes" title="Inspect recorded changes" disabled={disabled} onClick={()=>void invoke(onChanges)}>{changes}{counts?<span className="composer-change-counts"><span>+{counts.added}</span><span>−{counts.removed}</span></span>:<span>Changes</span>}</button>
-  <button type="button" className="composer-context-chip composer-pr" aria-label="Create PR" title={working?'Wait for the active run to finish':'Ask the agent to prepare a pull request'} disabled={disabled||working} onClick={()=>void invoke(onCreatePR)}>{branch}<span>Create PR</span></button>
+  <button type="button" className="composer-context-chip composer-changes" aria-label="Inspect changes" title="Inspect recorded changes" disabled={disabled} onPointerDown={event=>event.preventDefault()} onClick={()=>void invoke(onChanges)}>{changes}{counts?<span className="composer-change-counts"><span>+{counts.added}</span><span>−{counts.removed}</span></span>:<span>Changes</span>}</button>
+  <button type="button" className="composer-context-chip composer-pr" aria-label="Create PR" title={working?'Wait for the active run to finish':'Ask the agent to prepare a pull request'} disabled={disabled||working} onPointerDown={event=>event.preventDefault()} onClick={()=>void invoke(onCreatePR)}>{branch}<span>Create PR</span></button>
   {error&&<div className="composer-toolbar-error" role="status">{error}<button type="button" className="composer-dismiss" aria-label="Dismiss task action error" onClick={()=>setError('')}>{close}</button></div>}
  </div>;
 }

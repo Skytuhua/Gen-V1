@@ -164,8 +164,9 @@ test('release outside, cancellation, pointer exit, blur and unmount clear presse
       if (action === 'cancel') await control.dispatchEvent('pointercancel', { pointerId: 1 });
       if (action === 'blur') await page.evaluate(() => window.dispatchEvent(new Event('blur')));
       if (action === 'keyboard') await page.keyboard.press('Escape');
-      expect(await control.evaluate(node => getComputedStyle(node).transform)).toBe('none');
-      await expect(control).not.toHaveAttribute('data-pointer-pressed'); await page.mouse.up();
+      await expect(control).not.toHaveAttribute('data-pointer-pressed');
+      await expect.poll(() => control.evaluate(node => getComputedStyle(node).transform)).toBe('none');
+      await page.mouse.up();
     }
   }
   const project = page.getByRole('button', { name: 'Select project', exact: true });

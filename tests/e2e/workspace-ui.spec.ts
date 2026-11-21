@@ -66,13 +66,13 @@ async function fixture(page:Page,panels:PanelPlacement[],beforeCommand?:(type:st
 
 test('primary Workspace keeps tools fixed and preserves its anchored draft through close reopen and reload',async({page})=>{
  const host=await fixture(page,[],undefined,'workspace'),draft=page.getByRole('textbox',{name:'Message',exact:true});await draft.fill('Keep the primary draft');
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ await page.getByRole('button',{name:'Open panel',exact:true}).click();
  const files=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(files).toBeVisible();
  await files.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Files',exact:true}).click();
  await expect(files.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
  await expect(page.locator('.canvas-panel-files')).toHaveCount(0);
- await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect(files).toHaveCount(0);
- await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();
+ await page.getByRole('button',{name:'Hide panel',exact:true}).click();await expect(files).toHaveCount(0);
+ await page.getByRole('button',{name:'Open panel',exact:true}).click();
  await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.reload();await expect(files).toBeVisible();await expect(draft).toHaveValue('Keep the primary draft');
  await page.getByRole('button',{name:'Inspect changes',exact:true}).click();
@@ -167,7 +167,7 @@ test('native dock refuses a panel retargeted by a concurrent profile change',asy
  await fixture(page,[original],(type,envelope)=>{if(raceEnabled&&type==='workspace.panel.update'){raceEnabled=false;original.binding={...original.binding,threadId:'side'};original.visible=false;envelope.state.revision++;}});
  await expect(page.locator('[data-panel-id="origin"]')).toHaveCount(0);raceEnabled=true;
  await returnSavedNative(page,surface);
- await expect(page.getByRole('status').filter({hasText:'owning panel changed'})).toBeVisible();
+ await expect(page.getByRole('alert').filter({hasText:'owning panel changed'})).toBeVisible();
  expect(original).toMatchObject({binding:{threadId:'side'},placement:'native',visible:false});
 });
 
@@ -176,7 +176,7 @@ for(const geometryOnly of [true,false])test(`canvas command ${geometryOnly?'retr
  const host=await fixture(page,[owner],(type,envelope)=>{if(type==='workspace.panel.add'&&!conflicts){conflicts++;envelope.state.revision++;if(!geometryOnly)envelope.state.canvases[0].name='Changed by another layout';}});
  await page.locator('[data-panel-id="owner"]').getByRole('button',{name:'Inspect changes',exact:true}).click();
  if(geometryOnly){await expect(page.locator('.canvas-panel-diff')).toBeVisible();expect(host.envelope.state.canvases[0].panels.find(panel=>panel.kind==='diff')!.binding.threadId).toBe('task-thread');}
- else{await expect(page.getByRole('status').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
+ else{await expect(page.getByRole('alert').filter({hasText:'workspace revision changed'})).toBeVisible();expect(host.envelope.state.canvases[0].panels.some(panel=>panel.kind==='diff')).toBe(false);}
  expect(conflicts).toBe(1);
 });
 

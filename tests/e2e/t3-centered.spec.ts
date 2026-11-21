@@ -41,8 +41,8 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
   snapshot.userStates=snapshot.artifacts.map(artifact=>({...snapshot.userStates[0],id:artifact.stateId}));
   await serveTaskFixture(page,snapshot);await page.goto('/');
   await expect(page.locator('.artifact')).toHaveCount(3);await matchesComposer(page);
-  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await matchesComposer(page);
-  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();
+  await page.getByRole('button',{name:'Open panel',exact:true}).click();await matchesComposer(page);
+  await page.getByRole('button',{name:'Hide panel',exact:true}).click();
   await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();await matchesComposer(page);
   await page.setViewportSize({width:900,height:1000});await matchesComposer(page);
   await page.setViewportSize({width:390,height:844});await matchesComposer(page);
@@ -58,7 +58,8 @@ for(const chatWidth of ['comfortable','wide','full'] as const)test(`all inline a
 test('default shell uses all space after navigation and centers artifact and composer without a right rail',async({page})=>{
   await page.setViewportSize({width:1920,height:1080});await serveTaskFixture(page,fixture(false));await page.goto('/');
   await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
-  const main=await page.locator('main.workspace').boundingBox();expect(main!.x+main!.width).toBeCloseTo(1920,0);
+  const region=await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox();expect(region!.x+region!.width).toBeCloseTo(1920,0);
+  const main=await page.locator('main.workspace').boundingBox();
   await centered(page);
   const artifact=await page.locator('[data-artifact-id="task-surface"]').boundingBox();
   expect(artifact!.x+artifact!.width/2).toBeCloseTo(main!.x+main!.width/2,0);
@@ -73,13 +74,13 @@ test('automatic Plan summary reserves task space while telemetry preserves the m
   await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep my next message');
   const overview=page.getByRole('region',{name:'Project overview window',exact:true});await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
   const summary=overview.getByRole('region',{name:'Plan summary',exact:true});await expect(summary).toBeVisible();
-  const layout=await page.locator('.summary-layout').boundingBox(),dock=await page.locator('.summary-dock').boundingBox(),workspace=await page.locator('main.workspace').boundingBox();
+  const layout=await page.locator('.summary-layout:not(.embedded-thread-app *)').boundingBox(),dock=await page.locator('.summary-dock:not(.embedded-thread-app *)').boundingBox(),workspace=await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox();
   expect(dock!.width).toBeGreaterThanOrEqual(270);expect(dock!.width).toBeLessThanOrEqual(310);
   expect(workspace!.width).toBeCloseTo(layout!.width-dock!.width-6,0);await centered(page);
   const body=await summary.elementHandle();
   await page.getByRole('button',{name:'Show live usage',exact:true}).click();await expect(page.getByRole('region',{name:'Live usage',exact:true})).toBeVisible();
   await overview.getByRole('button',{name:'Collapse Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','true');
-  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(layout!.width,0);
+  await expect.poll(async()=>(await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox())!.width).toBeCloseTo(layout!.width,0);
   await overview.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(overview).toHaveAttribute('data-collapsed','false');
   expect(await summary.evaluate((node,old)=>node===old,body)).toBe(true);
   expect(await input.evaluate((node,old)=>node===old,original)).toBe(true);await expect(input).toHaveValue('Keep the current review');
@@ -88,23 +89,23 @@ test('automatic Plan summary reserves task space while telemetry preserves the m
 
 test('explicit workspace panels claim only their own width and closing restores the full centered surface',async({page})=>{
   await page.setViewportSize({width:1920,height:1080});await serveTaskFixture(page,fixture(false));await page.goto('/');await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
-  const input=await page.getByRole('textbox',{name:'Review name',exact:true}).elementHandle(),before=await page.locator('main.workspace').boundingBox();
-  await page.getByRole('button',{name:'Open workspace panel',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();await centered(page);
+  const input=await page.getByRole('textbox',{name:'Review name',exact:true}).elementHandle(),before=await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox();
+  await page.getByRole('button',{name:'Open panel',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();await centered(page);
   await expect.poll(()=>page.getByRole('complementary',{name:'Workspace panel',exact:true}).evaluate(node=>node.getAnimations().filter(animation=>animation.playState==='running').length)).toBe(0);
-  const main=await page.locator('main.workspace').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
+  const main=await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox(),panel=await page.getByRole('complementary',{name:'Workspace panel',exact:true}).boundingBox();
   expect(panel!.x-(main!.x+main!.width)).toBeCloseTo(6,0);expect(panel!.x+panel!.width).toBeCloseTo(1920,0);
-  await page.getByRole('button',{name:'Hide workspace panel',exact:true}).click();await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
+  await page.getByRole('button',{name:'Hide panel',exact:true}).click();await expect.poll(async()=>(await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox())!.width).toBeCloseTo(before!.width,0);await centered(page);
   expect(await page.getByRole('textbox',{name:'Review name',exact:true}).evaluate((node,old)=>node===old,input)).toBe(true);
 });
 
 test('narrow default layout has no empty tool strip and sidebar collapse centers the available workspace',async({page})=>{
   await page.setViewportSize({width:390,height:844});await page.emulateMedia({reducedMotion:'reduce'});await serveTaskFixture(page,fixture(false));await page.goto('/');
   await expect(page.getByRole('textbox',{name:'Review name',exact:true})).toBeVisible();
-  const main=await page.locator('main.workspace').boundingBox(),dock=await page.locator('.summary-dock').boundingBox();
+  const main=await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox(),dock=await page.locator('.summary-dock:not(.embedded-thread-app *)').boundingBox();
   expect(main!.width).toBeCloseTo(390,0);expect(main!.y+main!.height+6).toBeCloseTo(dock!.y,0);expect(dock!.y+dock!.height).toBeCloseTo(844,0);await centered(page);
   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth)).toBe(false);
   await page.setViewportSize({width:1440,height:1000});await page.getByRole('button',{name:'Collapse sidebar',exact:true}).click();
-  await expect.poll(async()=>(await page.locator('main.workspace').boundingBox())!.x).toBe(0);await centered(page);expect((await page.locator('main.workspace').boundingBox())!.width).toBeCloseTo(1440,0);
+  await expect.poll(async()=>(await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox())!.x).toBe(0);await centered(page);expect((await page.locator('.split-workspace:not(.embedded-thread-app *)').boundingBox())!.width).toBeCloseTo(1440,0);
 });
 
 const captures=process.env.T3_CENTERED_CAPTURE_DIR;

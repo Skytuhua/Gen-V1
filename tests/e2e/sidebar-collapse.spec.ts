@@ -183,9 +183,10 @@ for (const width of [1024, 1440]) {
   for (const policy of ['os', 'reduced', 'off', 'panels', 'duration'] as const) {
     test(`${policy} motion policy makes pointer toggles immediate at ${width}`, async ({page}) => {
       await page.setViewportSize({width, height: 1000});
-      await fixture(page, policy === 'panels' ? {panelAnimations: false} : policy === 'duration' ? {motionDuration: 0} : {});
+      // Drive app-level policies through the fixture: applyAppearance rewrites
+      // documentElement.dataset.motion whenever preferences apply, which races a direct poke.
+      await fixture(page, policy === 'panels' ? {panelAnimations: false} : policy === 'duration' ? {motionDuration: 0} : policy === 'reduced' || policy === 'off' ? {motion: policy} : {});
       if (policy === 'os') await page.emulateMedia({reducedMotion: 'reduce'});
-      else if (policy === 'reduced' || policy === 'off') await page.evaluate(policy => {document.documentElement.dataset.motion = policy;}, policy);
       const expanded = await bounds(page);
       await collapse(page).click(); await expect(sidebar(page)).toHaveCSS('width', '0px');
       expect((await bounds(page)).width).toBe(expanded.width + 248);

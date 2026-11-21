@@ -177,6 +177,74 @@ test("deep nested agents and long output labels fit a 280px panel without hiding
   await page.screenshot({ path: test.info().outputPath("deep-narrow.png") });
 });
 
+test("branch cards stack below 560px and split only when each column keeps 260px", async ({
+  page,
+}) => {
+  const branches = page.locator(
+    '[data-step-id="build"] > .plan-step-details .plan-branches > .plan-agents',
+  );
+  for (const [width, columns] of [
+    [280, 1],
+    [320, 1],
+    [465, 1],
+    [559, 1],
+    // At >=560 the pane may split, but only once each branch card keeps 260 px
+    // usable width: 16 px insets + 10 px gap need a ~562 px pane.
+    [600, 2],
+  ] as const) {
+    await page.setViewportSize({ width, height: 700 });
+    await expect
+      .poll(() =>
+        branches.evaluate((node) => getComputedStyle(node).gridTemplateColumns.split(" ").length),
+      )
+      .toBe(columns);
+  }
+});
+
+test("a dependency link expands its collapsed target step", async ({ page }) => {
+  const build = page.locator('[data-step-id="build"] > .plan-step-summary');
+  await build.click();
+  await expect(build).toHaveAttribute("aria-expanded", "false");
+  await page.locator('[data-step-id="verify"] .plan-dependencies a').first().click();
+  await expect(build).toHaveAttribute("aria-expanded", "true");
+});
+
+test("light plan badges map each state to a distinct semantic color", async ({ page }) => {
+  await page.setViewportSize({ width: 560, height: 700 });
+  const snapshot = timelineSnapshot("thread-a", 2);
+  const plan = snapshot.data[0].value as ReturnType<typeof import("./plan-timeline-fixture").timelinePlan>;
+  for (const step of plan.steps) {
+    // `state` is the field the projection exposes as the rendered step.status.
+    (step as unknown as { state: string }).state = {
+      scope: "completed", build: "running", audit: "interrupted", verify: "failed",
+    }[step.id as "scope" | "build" | "audit" | "verify"] ?? step.state;
+  }
+  await page.evaluate((snapshot) => {
+    document.documentElement.dataset.theme = "light";
+    window.planFixture.update(snapshot);
+  }, snapshot);
+  const luminance = (color: string) => {
+    const rgb = color.match(/[\d.]+/g)!.slice(0, 3).map(Number)
+      .map((v) => { const c = v / 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); });
+    return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+  };
+  const badge = (step: string) => page.locator(`[data-step-id="${step}"] .plan-step-badge`)
+    .evaluate((node) => getComputedStyle(node).color);
+  const bg = await page.locator(".plan-step-summary").first().evaluate((node) => getComputedStyle(node).backgroundColor);
+  const contrast = (fg: string) => { const a = luminance(fg), b = luminance(bg); return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05); };
+  await expect(page.locator('[data-step-id="audit"] .plan-step-badge')).toHaveText("Interrupted");
+  const completed = await badge("scope"), running = await badge("build"),
+    interrupted = await badge("audit"), failed = await badge("verify");
+  // R17/T14: completed reads green, running blue, failed red, others neutral;
+  // completed and interrupted must not collapse into the same neutral look.
+  expect(completed).not.toBe(interrupted);
+  expect(running).not.toBe(interrupted);
+  expect(failed).not.toBe(interrupted);
+  for (const color of [completed, running, failed]) {
+    expect(contrast(color), `badge ${color} vs ${bg}`).toBeGreaterThanOrEqual(4.5);
+  }
+});
+
 test("manual collapse survives reopening the plan with the same exact thread and step identity", async ({
   page,
 }) => {

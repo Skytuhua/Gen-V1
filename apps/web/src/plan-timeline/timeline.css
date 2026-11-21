@@ -28,9 +28,12 @@
 .plan-step-copy strong {font-size:14px;font-weight:550;line-height:1.45;}
 .plan-step-copy>span {font-size:11.5px;line-height:1.5;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap;}
 .plan-step-badge {color:var(--text);}
+/* R17/T14: every state maps to its semantic token — running blue, waiting
+   amber, completed green, failed red; anything else stays neutral. */
 .step-failed>.plan-step-summary .plan-step-badge,.step-failed>.plan-step-summary .plan-step-node {color:var(--danger);}
-.step-blocked>.plan-step-summary .plan-step-badge,.step-review_required>.plan-step-summary .plan-step-badge {color:var(--pending);}
-.step-accepted>.plan-step-summary .plan-step-node {color:var(--success);}
+.step-blocked>.plan-step-summary .plan-step-badge,.step-blocked>.plan-step-summary .plan-step-node,.step-review_required>.plan-step-summary .plan-step-badge,.step-review_required>.plan-step-summary .plan-step-node {color:var(--pending);}
+.step-completed>.plan-step-summary .plan-step-badge,.step-completed>.plan-step-summary .plan-step-node,.step-accepted>.plan-step-summary .plan-step-badge,.step-accepted>.plan-step-summary .plan-step-node {color:var(--success-fg,var(--success));}
+.step-running>.plan-step-summary .plan-step-badge,.step-running>.plan-step-summary .plan-step-node {color:var(--accent-fg,var(--accent));}
 .plan-step-summary>svg,.plan-agent-summary>svg:last-child {color:var(--muted);margin-top:4px;transition:transform var(--ui-motion-status) var(--ui-ease-enter);}
 button.plan-step-summary:hover,.plan-agent-summary:hover {background:var(--subtle);border-radius:6px;}
 button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:var(--muted);}
@@ -51,7 +54,7 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-requirements [data-check-state=verified_failed] small,.plan-requirements [data-check-state=reported_failed] small {color:var(--danger);}
 .plan-blockers {padding:8px 12px;background:var(--subtle);border:1px solid var(--border);border-radius:var(--control-radius,6px);}
 .plan-branches {margin:10px 0;position:relative;}
-.plan-branches>.plan-agents {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,250px),1fr));gap:10px;padding:8px 0;border-block:1px solid var(--border);}
+.plan-branches>.plan-agents {display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:10px;padding:8px 0;border-block:1px solid var(--border);}
 .plan-agent {min-width:0;padding:10px;background:var(--subtle);border:1px solid var(--border);border-radius:var(--control-radius,6px);}
 .plan-agent-top {display:flex;gap:8px;align-items:start;flex-wrap:wrap;}
 .plan-agent-summary {display:grid;grid-template-columns:16px minmax(0,1fr) 14px;gap:8px;min-height:32px;flex:1 1 120px;min-width:0;text-align:left;padding:0;align-items:start;}
@@ -60,7 +63,9 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-agent-copy strong {font-size:12px;line-height:1.45;font-weight:550;}
 .plan-agent-copy>span {font-size:11px;line-height:1.5;color:var(--muted);}
 .agent-failed>.plan-agent-top .plan-agent-copy>span {color:var(--danger);}
-.agent-needs_review>.plan-agent-top .plan-agent-copy>span {color:var(--pending);}
+.agent-needs_review>.plan-agent-top .plan-agent-copy>span,.agent-queued>.plan-agent-top .plan-agent-copy>span {color:var(--pending);}
+.agent-completed>.plan-agent-top .plan-agent-copy>span {color:var(--success-fg,var(--success));}
+.agent-working>.plan-agent-top .plan-agent-copy>span {color:var(--accent-fg,var(--accent));}
 .plan-agent-details>.task-motion-inner {padding-top:8px;}
 .plan-agent-details .plan-fact:last-child,.plan-agent-details p:last-child {margin-bottom:0;}
 .plan-agent-children {display:flex;flex-direction:column;gap:10px;margin-top:10px;padding-left:8px;border-left:1px solid var(--border);}
@@ -79,7 +84,7 @@ button.plan-step-summary:hover .plan-step-node {color:var(--text);border-color:v
 .plan-empty h3 {font-size:14px;}
 .plan-empty p,.plan-status-note,.plan-update-error {font-size:12px;line-height:1.6;margin:0 0 12px;}
 .plan-update-error {color:var(--danger);}
-@container (max-width:520px) {
+@container (max-width:559.98px) {
   .plan-context-toolbar {gap:8px;}
   .plan-jump span {display:none;}
   .plan-status .plan-jump {width:32px;padding:0;}

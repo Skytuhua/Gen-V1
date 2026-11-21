@@ -314,3 +314,5 @@
 .verification-retained-artifact { min-width:0; max-width:100%; margin:12px 0; }
 .verification-retained-artifact img { display:block; max-width:100%; height:auto; border:1px solid var(--border); }
 .verification-retained-artifact figcaption { color:var(--muted); margin-bottom:8px; }
+.workspace-launcher-center { display:flex; flex:1; min-height:0; align-items:flex-start; justify-content:center; overflow-y:auto; }
+.workspace-launcher>button kbd { font-size:9px; color:var(--muted); border:1px solid var(--border); border-radius:4px; padding:0 4px; margin-left:6px; }

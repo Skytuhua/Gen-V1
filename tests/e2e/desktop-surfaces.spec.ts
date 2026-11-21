@@ -17,6 +17,16 @@ async function bridge(page:Page,surface:Record<string,unknown>={kind:'main'}){
    focus:async(id:string)=>{w.__desktopCalls.push(['focus',id]);},browser:async(command:unknown)=>{w.__desktopCalls.push(['browser',command]);if(w.__desktopFail)throw Error('Native browser action failed');}};
  },surface);
 }
+test('a detached initial Files tab survives adding and selecting another surface',async({page},info)=>{
+ await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'files'});
+ await page.addInitScript(()=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({openTabs:[]})));
+ await serveTaskFixture(page,fixture());await page.goto('/');
+ const tabs=page.getByRole('tablist',{name:'Workspace views',exact:true});await expect(tabs.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.getByRole('button',{name:'Add surface',exact:true}).click();await page.getByRole('menuitem',{name:'Diff',exact:true}).click();
+ await expect(tabs.getByRole('tab')).toHaveText(['Files','Diff']);await tabs.getByRole('tab',{name:'Files',exact:true}).click();await expect(tabs.getByRole('tab',{name:'Files',exact:true})).toHaveAttribute('aria-selected','true');
+ await page.screenshot({path:info.outputPath('detached-files-and-diff.png')});
+});
+
 test('desktop context and usage minimize in the workspace while thread detachment stays available',async({page})=>{
  await bridge(page);
  await serveTaskFixture(page,fixture());
@@ -41,7 +51,7 @@ test('desktop context and usage minimize in the workspace while thread detachmen
  await page.keyboard.press('Escape');
  expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>['detach','minimize'].includes(call[0])))).toEqual([]);
 });
-test('authoritative detached plan ignores URL descriptors and restores its owning thread',async({page})=>{await bridge(page,{kind:'plan',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/?desktopWindow=ignored&threadId=wrong');await expect(page.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Return to workspace',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
+test('authoritative detached plan ignores URL descriptors and restores its owning thread',async({page})=>{await bridge(page,{kind:'plan',threadId:'task-thread'});await serveTaskFixture(page,fixture());await page.goto('/?desktopWindow=ignored&threadId=wrong');await expect(page.getByRole('region',{name:'Plan summary',exact:true})).toContainText('Repair checkout failures');await expect(page.getByRole('region',{name:'Task plan: Repair checkout failures'})).toContainText('Inspect the task boundary');await expect(page.getByRole('textbox',{name:'Message',exact:true})).toHaveCount(0);await page.getByRole('button',{name:'Return to workspace',exact:true}).click();expect(await page.evaluate(()=>(window as any).__desktopCalls)).toContainEqual(['reattach']);});
 test('an artifact stays editable in the main window with no new-detachment entry',async({page})=>{await bridge(page);await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Ada');await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);await expect(input).toBeEnabled();await expect(input).toHaveValue('Ada');expect(await page.evaluate(()=>(window as any).__desktopCalls.filter((call:any)=>call[0]==='detach'))).toEqual([]);});
 test('browser clients expose no native window controls',async({page})=>{await serveTaskFixture(page,fixture());await page.goto('/');await expect(page.getByRole('button',{name:'Minimize chat window',exact:true})).toHaveCount(0);await expect(page.getByRole('button',{name:'Detach artifact',exact:true})).toHaveCount(0);});
 
@@ -133,7 +143,7 @@ test('review: an existing native browser action remains visible and retryable',a
 });
 
 test('review: a failed detached workspace close retains the editable surface',async({page})=>{
- await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Close workspace panel',exact:true}).click();
+ await bridge(page,{kind:'workspace',threadId:'task-thread',tab:'artifact',artifactId:'task-surface'});await page.addInitScript(()=>{window.harnessDesktop!.reattach=async()=>{throw Error('Dock destination is unavailable');};});await serveTaskFixture(page,fixture());await page.goto('/');const input=page.getByRole('textbox',{name:'Review name',exact:true});await input.fill('Keep this workspace edit');await page.getByRole('button',{name:'Hide panel',exact:true}).click();
  await expect(page.getByRole('alert').filter({hasText: 'Dock destination is unavailable'})).toBeVisible();await expect(input).toHaveValue('Keep this workspace edit');await expect(input).toBeEnabled();
 });
 
@@ -149,9 +159,9 @@ test('review: detached browser follows saved theme and subsequent system changes
 async function checkSinglePanelOpener(page:Page,draft:string){
  const composer=page.getByRole('textbox',{name:'Message',exact:true});await composer.fill(draft);
  await expect(composer).toHaveCount(1);const retained=await composer.elementHandle();
- const opener=page.getByRole('button',{name:'Open workspace panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
+ const opener=page.getByRole('button',{name:'Open panel',exact:true});await expect(opener).toHaveCount(1);await opener.click();
  const panel=page.getByRole('complementary',{name:'Workspace panel',exact:true});await expect(panel).toBeVisible();
- const close=page.getByRole('button',{name:'Hide workspace panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
+ const close=page.getByRole('button',{name:'Hide panel',exact:true});await expect(close).toHaveCount(1);await close.click();await expect(panel).toBeHidden();
  await expect(opener).toBeFocused();await expect(composer).toHaveValue(draft);await expect(composer).toHaveCount(1);
  expect(await retained!.evaluate(element=>element.isConnected&&element===document.querySelector('textarea[aria-label="Message"]'))).toBe(true);
 }

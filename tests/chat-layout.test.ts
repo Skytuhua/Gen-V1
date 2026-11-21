@@ -44,6 +44,23 @@ describe('chat layout geometry',()=>{
   expect(rect).toEqual({x:20,y:62,width:728,height:338});expect(rect.y+rect.height).toBe(area.bottom);
   expect(clampChatRect(start,{width:200,height:180})).toEqual({x:20,y:20,width:160,height:140});
  });
+ it('lets a float that fills the area still move within edge slack',()=>{
+  const view={width:420,height:671};
+  // Slack only opens left, where every control stays inside the clip: the
+  // header grip and the bottom-right resize corner always stay reachable.
+  expect(clampChatRect({x:140,y:120,width:380,height:594},view,64)).toEqual({x:20,y:57,width:380,height:594});
+  expect(clampChatRect({x:-500,y:-500,width:380,height:594},view,64)).toEqual({x:-44,y:20,width:380,height:594});
+  // A height-filling float stays pinned vertically — sliding either way would
+  // drop its header or its resize handle out of the clip.
+  expect(clampChatRect({x:140,y:200,width:380,height:631},view,64)).toEqual({x:20,y:20,width:380,height:631});
+  expect(clampChatRect({x:-500,y:-500,width:380,height:631},view,64)).toEqual({x:-44,y:20,width:380,height:631});
+  // Without slack the same rects clamp strictly inside the area.
+  expect(clampChatRect({x:140,y:120,width:380,height:594},view)).toEqual({x:20,y:57,width:380,height:594});
+  expect(clampChatRect({x:-500,y:-500,width:380,height:594},view)).toEqual({x:20,y:20,width:380,height:594});
+  // Narrower floats keep the strict inside-the-area clamp.
+  expect(clampChatRect({x:140,y:40,width:340,height:300},view)).toEqual({x:60,y:40,width:340,height:300});
+  expect(clampChatRect({x:200,y:80,width:340,height:600},view)).toEqual({x:60,y:51,width:340,height:600});
+ });
  it('accepts the right snap zone only within vertical viewport bounds',()=>{
   expect(isChatDockTarget(1400,450,viewport)).toBe(true);
   for(const [x,y] of [[1200,400],[1400,0],[1400,899],[1500,400]])expect(isChatDockTarget(x,y,viewport)).toBe(false);

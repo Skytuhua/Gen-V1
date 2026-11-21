@@ -83,6 +83,11 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
       return route.fulfill({json: {commandId: command.id, eventSeq: snapshot.seq, result: splitLayout}});
     }
     if (path === '/api/workspace') return route.fulfill({json: {projects: [], state: {version: 1, revision: 0, activeCanvasId: 'workspace', canvases: [{id: 'workspace', name: 'Workspace', preset: 'workspace', version: 1, panels: [], filter: 'active', projectIds: [], viewport: {x: 0, y: 0, zoom: 1}}], profiles: [], disabledKinds: [], integrations: {}}}});
+    if (path === '/api/plugins') return route.fulfill({json: {plugins: []}});
+    const branchMatch = path.match(/^\/api\/session-branches\/([^/]+)$/);
+    if (branchMatch) return route.fulfill({json: {enabled: {branch: false, import: false}, capabilities: {inspect: 'SUPPORTED', quote: 'SUPPORTED', nativeFork: 'UNSUPPORTED', adapters: []}, captures: [], branch: null, children: [], imports: []}});
+    const workbenchMatch = path.match(/^\/api\/workbench\/threads\/([^/]+)(\/inputs)?$/);
+    if (workbenchMatch) { const logicalOwner = {threadId: workbenchMatch[1], projectId: null, workspaceId: null}; return route.fulfill({json: workbenchMatch[2] ? {logicalOwner, inputs: []} : {logicalOwner, enabled: false, sources: [], sourceCapabilities: []}}); }
     if (path !== '/api/commands') return route.fulfill({ status: 404 });
     const command = route.request().postDataJSON() as HostCommand; commands.push(command);
     let result: unknown = {};
@@ -93,7 +98,7 @@ export async function serveTaskFixture(page: Page, snapshot: Snapshot, action?: 
     await route.fulfill({ json: { commandId: command.id, seq: snapshot.seq, result } });
     // The real host broadcasts accepted settings writes to every snapshot subscriber
     // (embedded conversations included); mirror that so tests see the same propagation.
-    if (command.type === 'settings.update') await page.evaluate(seq => window.dispatchEvent(new CustomEvent('task-fixture-update', { detail: seq })), snapshot.seq);
+    if (command.type === 'settings.update') await page.evaluate(seq => window.dispatchEvent(new CustomEvent('task-fixture-update', { detail: seq })), snapshot.seq).catch(() => {});
   });
   return {
     commands, snapshot,

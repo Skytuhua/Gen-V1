@@ -128,6 +128,10 @@ export function capturePlacementExpectation(layout:SplitWorkspaceLayout,command:
  }
  return {mainPaneId:resolvedMain,mainActiveViewId:next.panes[resolvedMain]?.activeViewId??null,locations,active};
 }
+/** Detaching a non-main view leaves the main selection untouched; only detaching main's active thread empties it (R02). */
+export function detachDesiredMainSelection(layout:SplitWorkspaceLayout,viewId:string,base:MainSelection,mainPaneId:string):MainSelection{
+ return layout.panes[mainPaneId]?.activeViewId===viewId?{kind:'empty'}:base;
+}
 export function expectationHolds(layout:SplitWorkspaceLayout,expectation:PlacementExpectation):boolean{
  const mainPane=layout.panes[expectation.mainPaneId];
  if(!mainPane||(mainPane.activeViewId??null)!==expectation.mainActiveViewId)return false;

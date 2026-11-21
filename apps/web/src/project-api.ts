@@ -1,6 +1,7 @@
 import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {authenticated,csrfToken,read} from './api.ts';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
+import {ApiError} from './api.ts';
 
 export function useProjectContext(projectId?:string,threadId?:string,workspaceId?:string){
  const owner=projectId?JSON.stringify([projectId,threadId,workspaceId]):'';
@@ -11,7 +12,17 @@ export function useProjectContext(projectId?:string,threadId?:string,workspaceId
   const captured=++generation.current;pending.current?.abort();pending.current=null;if(!projectId){setState({owner,context:null,loading:false,error:''});return;}
   const controller=new AbortController();pending.current=controller;
   setState(previous=>({owner,context:previous.owner===owner?previous.context:null,loading:true,error:''}));
-  try{const next=await authenticated(()=>fetch(`/api/projects/${encodeURIComponent(projectId)}/context${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store',signal:controller.signal})).then(read<ProjectContext>);if(captured!==generation.current)return;const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next,loading:false,error:malformed?'The project context response was malformed.':''});}
+  try{
+   // The host rejects a context request when thread metadata mutates while it
+   // resolves (REVISION_CHANGED). That rejection is transient — retry a few
+   // times instead of leaving the panel empty until the next owner change.
+   let next:ProjectContext|undefined,lastError:unknown;
+   for(let attempt=0;attempt<4;attempt++){
+    try{next=await authenticated(()=>fetch(`/api/projects/${encodeURIComponent(projectId)}/context${threadId?'?threadId='+encodeURIComponent(threadId):''}`,{credentials:'same-origin',cache:'no-store',signal:controller.signal})).then(read<ProjectContext>);lastError=undefined;break;}
+    catch(reason){lastError=reason;if(controller.signal.aborted||captured!==generation.current)return;if(!(reason instanceof ApiError&&reason.code==='REVISION_CHANGED'))throw reason;await new Promise(resolve=>setTimeout(resolve,250));}
+   }
+   if(lastError)throw lastError;if(captured!==generation.current)return;
+   const malformed=!next||typeof next!=='object'||!next.project||typeof next.project!=='object'||!next.capabilities||typeof next.capabilities!=='object'||!Array.isArray(next.lineage);setState({owner,context:malformed?null:next??null,loading:false,error:malformed?'The project context response was malformed.':''});}
   catch(reason){if(captured===generation.current&&!controller.signal.aborted)setState({owner,context:null,loading:false,error:reason instanceof Error?reason.message:'Project context could not be loaded.'});}
   finally{if(pending.current===controller)pending.current=null;}
  },[projectId,threadId,owner]);

@@ -299,7 +299,7 @@ test('desktop sign-in targets the chosen provider and account only on an explici
   await provider.getByRole('radio', { name: 'Work', exact: true }).check(); await provider.getByRole('button', { name: 'Use account', exact: true }).click();
   expect(await page.evaluate(() => (window as any).__signIns)).toEqual([]);
   await provider.getByRole('button', { name: 'Connect Work', exact: true }).click();
-  expect(await page.evaluate(() => (window as any).__signIns)).toEqual([['openai', work]]);
+  await expect.poll(() => page.evaluate(() => (window as any).__signIns)).toEqual([['openai', work]]);
 });
 
 test('shows per-account readiness without turning model counts or local labels into authenticated identity',async({page})=>{

@@ -9,18 +9,21 @@ test.beforeEach(async({page})=>{
 });
 test('default launcher opens the real tool tabs and keeps browser and device boundaries',async({page})=>{
  const panel=page.getByRole('complementary',{name:'Workspace panel'}),launcher=panel.getByRole('region',{name:'Workspace launcher'});
- await expect(launcher.getByRole('button',{name:'Browser',exact:true})).toHaveCount(0);await expect(launcher.getByRole('button',{name:'Device',exact:true})).toBeDisabled();
- for(const label of ['Terminal','Pull request','Linked pull requests']){
-  await panel.getByRole('tab',{name:'Artifact',exact:true}).click();await launcher.getByRole('button',{name:label,exact:true}).click();
+ for(const [label,reason] of [['Browser','Open the browser from the desktop app.'],['Device','Phone and device automation is not connected.'],['Side chat','Open a conversation first.']] as const){
+  const button=launcher.getByRole('button',{name:label,exact:true});await expect(button).toBeDisabled();await expect(button).toContainText(reason);
+ }
+ await launcher.getByRole('button',{name:'Terminal',exact:true}).click();await expect(panel.getByRole('tab',{name:'Terminal',exact:true})).toHaveAttribute('aria-selected','true');await expect(panel.getByRole('tabpanel')).toContainText('Connect a project to use terminal');
+ for(const label of ['Pull request','Linked pull requests']){
+  await openSurface(page,panel,label);
   await expect(panel.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');await expect(panel.getByRole('tabpanel')).toContainText('Connect a project to use '+label.toLowerCase());
  }
  await openSurface(page,panel,'Output');await expect(panel.getByRole('tabpanel')).toContainText('No executor output yet');await expect(panel.getByRole('tabpanel')).not.toContainText('PTY input are unavailable');
 });
 test('canvas launch requests go to the owning canvas callback',async({page})=>{
  const canvas=page.getByRole('region',{name:'Canvas launcher'});
- for(const name of ['Terminal','Files','Diff','Pull request','Linked pull requests','Executor output','Usage'])await canvas.getByRole('button',{name,exact:true}).click();
+ for(const name of ['Terminal','Files','Diff','Pull request','Linked pull requests','Output','Usage'])await canvas.getByRole('button',{name,exact:true}).click();
  expect(await page.evaluate(()=>(window as any).__opened)).toEqual(['terminal','files','diff','pull-request','linked-pull-requests','output','usage']);
- await expect(page.getByRole('tab',{name:'Artifact',exact:true})).toHaveAttribute('aria-selected','true');
+ await expect(page.getByRole('complementary',{name:'Workspace panel'}).getByRole('tab')).toHaveCount(0);
 });
 test('browser layout handoff saves every duplicate editor and refuses a failed save',async({page})=>{
  await page.getByRole('textbox',{name:'first editor'}).fill('unsaved first');await page.getByRole('textbox',{name:'second editor'}).fill('unsaved second');
@@ -30,7 +33,7 @@ test('browser layout handoff saves every duplicate editor and refuses a failed s
 });
 test('saved terminal and pull request tabs restore through the shared panel',async({page})=>{
  for(const [kind,label] of [['terminal','Terminal'],['pull-request','Pull request'],['linked-pull-requests','Linked pull requests']]){
-  await page.evaluate(tab=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:tab})),kind);await page.reload();await expect(page.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');
+  await page.evaluate(tab=>localStorage.setItem('harness:shell-layout:v1',JSON.stringify({activeTab:tab,openTabs:[tab]})),kind);await page.reload();await expect(page.getByRole('tab',{name:label,exact:true})).toHaveAttribute('aria-selected','true');
  }
 });
 test('directory navigation rejects a file response from the previous selection',async({page})=>{
@@ -173,7 +176,7 @@ async function profileAuthFixture(page:Page){
  await page.route('**/api/bootstrap',route=>route.fulfill({json:{csrfToken:'fixture'}}));
  const flow=(n:number)=>({id:`aaaaaaaa-aaaa-4aaa-8aaa-${String(n).padStart(12,'0')}`,userCode:n===1?'ABCD-EFGH':'NEXT-CODE',url:'https://github.com/login/device',expiresAt:Date.now()+60000,interval:1000});
  await page.route('**/api/github/auth/*',async route=>{const action=new URL(route.request().url()).pathname.split('/').at(-1)!;actions.push({action,payload:route.request().postDataJSON()});if(action==='start'){starts++;if(holdStart){heldStart=route;return;}await route.fulfill({json:flow(starts)});}else if(action==='poll'){if(holdPoll){heldPoll=route;return;}await route.fulfill({json:{status:'pending'}});}else await route.fulfill({json:{status:'cancelled'}});});
- await page.goto('/shared-panels-check');const panel=page.getByRole('complementary',{name:'Workspace panel'});await panel.getByRole('tab',{name:'Artifact',exact:true}).click();await panel.getByRole('button',{name:'Pull request',exact:true}).click();
+ await page.goto('/shared-panels-check');const panel=page.getByRole('complementary',{name:'Workspace panel'});await openSurface(page,panel,'Artifact');await panel.getByRole('button',{name:'Pull request',exact:true}).click();
  return{panel,actions,flow,holdStart:()=>{holdStart=true;},holdPoll:()=>{holdPoll=true;},releaseStart:async()=>{await expect.poll(()=>!!heldStart).toBe(true);await heldStart!.fulfill({json:flow(1)});},releasePoll:async()=>{await expect.poll(()=>!!heldPoll).toBe(true);await heldPoll!.fulfill({json:{status:'authenticated',login:'stale-user'}});}};
 }
 test('profile sign-in works without a project and leaves the Terminal project gate intact',async({page,context})=>{

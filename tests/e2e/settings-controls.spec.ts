@@ -59,6 +59,19 @@ test('saving a project color preserves the active appearance preview',async({pag
   expect(getPreferences(host.snapshot.settings).projectColors['["local","preview-project"]']).toBe('#123abc');
 });
 
+test('an invalid project color found through search shows its error and sends no write (AUD-09)',async({page})=>{
+  const host=await openSettings(page);host.snapshot.threads[0].projectId='preview-project';host.snapshot.threads[0].projectName='Preview project';await host.publish();
+  await host.search.fill('project colors');
+  await host.dialog.getByRole('button',{name:/Project colors/}).click();
+  const field=host.dialog.getByRole('textbox',{name:'Custom color for Preview project',exact:true});
+  await expect(field).toBeVisible();
+  await field.fill('#12345');
+  const before=host.commands.length;
+  await host.dialog.getByRole('button',{name:'Save color',exact:true}).click();
+  await expect(host.dialog.getByRole('status').filter({hasText:'six-digit project hex'})).toBeVisible();
+  expect(host.commands.slice(before).filter(command=>command.type==='settings.update')).toHaveLength(0);
+});
+
 async function installManualBrowserFixture(page:Page){
   await page.addInitScript(()=>{
     const context:{windowId:string;surface:{kind:string};windows:unknown[];dockedBrowser?:{browserId:string;state:{url:string;title:string;canGoBack:boolean;canGoForward:boolean;loading:boolean}}}={windowId:'main',surface:{kind:'main'},windows:[]},calls:unknown[]=[];
@@ -195,6 +208,7 @@ test('dropdown popovers anchor to their trigger inside the settings dialog with 
   await trigger.click();
   const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });
   await expect(list).toBeVisible();
+  await list.evaluate(node => Promise.all(node.getAnimations({ subtree: true }).filter(animation => animation.playState === 'running').map(animation => animation.finished.catch(() => {}))));
   const anchor = await trigger.boundingBox(), popup = await list.boundingBox();
   expect(Math.abs(popup!.x + popup!.width - (anchor!.x + anchor!.width))).toBeLessThanOrEqual(2);
   expect(Math.abs(popup!.y - (anchor!.y + anchor!.height + 8))).toBeLessThanOrEqual(2);
