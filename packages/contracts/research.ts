@@ -1,14 +1,14 @@
 import {z} from 'zod';
 
 export const RESEARCH_SOURCE_BYTES = 4 * 1024 * 1024;
-export const RESEARCH_PASSAGE_BYTES = 64 * 1024;
+const RESEARCH_PASSAGE_BYTES = 64 * 1024;
 const id = z.string().min(1).max(200).regex(/^[A-Za-z0-9:_-]+$/);
-export const researchHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
-export const researchAuthoritySchema = z.discriminatedUnion('kind', [
+const researchHashSchema = z.string().regex(/^[a-f0-9]{64}$/);
+const researchAuthoritySchema = z.discriminatedUnion('kind', [
   z.strictObject({kind: z.literal('personal')}),
   z.strictObject({kind: z.literal('company'), companyId: id}),
 ]);
-export type ResearchAuthority = z.infer<typeof researchAuthoritySchema>;
+type ResearchAuthority = z.infer<typeof researchAuthoritySchema>;
 export const researchContextSchema = z.strictObject({authority: researchAuthoritySchema, threadId: id, projectId: id.nullable()});
 export type ResearchContext = z.infer<typeof researchContextSchema>;
 export const researchPassageSchema = z.strictObject({sourceId: id, revision: z.number().int().positive(), sha256: researchHashSchema, start: z.number().int().nonnegative(), end: z.number().int().positive()}).refine(v => v.end > v.start && v.end - v.start <= RESEARCH_PASSAGE_BYTES, {message: 'Choose a bounded nonempty passage in UTF-8 bytes.'});
@@ -16,7 +16,7 @@ export const researchPassageSchema = z.strictObject({sourceId: id, revision: z.n
 export type ResearchPassage = z.infer<typeof researchPassageSchema>;
 export const researchPageSchema = z.strictObject({kind: z.enum(['sources', 'documents']), limit: z.number().int().min(1).max(100).optional(), cursor: z.string().max(2048).optional()});
 export type ResearchPageQuery = z.infer<typeof researchPageSchema>;
-export type ResearchSourceIdentity = {kind: 'text'} | {kind: 'bookmark'; url: string} |
+type ResearchSourceIdentity = {kind: 'text'} | {kind: 'bookmark'; url: string} |
   {kind: 'file'; resourceId: string; relativePath?: string; grantBinding: string; dev: string; ino: string} |
   {kind: 'browser'; browserId: string; navigationId: string; authorizationId: string; url: string};
 export interface ResearchSource extends ResearchContext {

@@ -8,7 +8,7 @@ import { MemoryExtractionCoordinator } from '../packages/core/memory-extraction.
 
 const fixtures: Awaited<ReturnType<typeof memoryFixture>>[] = [];
 async function fixture() {
-  const f = await memoryFixture(store => store.internal('fixture-model', 'thread', () => store.put('thread', 'thread', 'thread', {...store.get<any>('thread', 'thread'), modelId: 'provider/model'}))); fixtures.push(f);
+  const f = await memoryFixture(store => store.internal('fixture-model', 'thread', () => store.put('thread', 'thread', 'thread', {...store.get<Record<string, unknown>>('thread', 'thread')!, modelId: 'provider/model'}))); fixtures.push(f);
   f.store.internal('fixture-settled', 'thread', () => f.store.put('outbox', 'input', 'thread', {id: 'input', threadId: 'thread', messageId: 'source', content: 'Use SQLite.', status: 'handled', runId: 'run'}));
   return f;
 }
@@ -32,17 +32,17 @@ it('commits metadata-only pending usage before native dispatch and retains unkno
   try {
     const result = await coordinator.extract({access: f.access, source, modelId: 'provider/model'});
     expect(observed).toMatchObject({phase: 'EXTRACTION', status: 'PENDING', settled: false, finishedAt: null, usage: {modelCalls: 1, inputBytes: expect.any(Number), inputTokens: null, outputTokens: null, cost: null}});
-    expect((observed as any).usage.inputBytes).toBeGreaterThan(0);
+    expect((observed as {usage:{inputBytes?:number}}).usage.inputBytes).toBeGreaterThan(0);
     expect(JSON.stringify(observed)).not.toContain('Use SQLite');
     expect(result.status).toBe('FAILED'); expect(coordinator.busy).toBe(true);
-    expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({settled: false, usage: {modelCalls: 1, cost: null}});
+    expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({settled: false, usage: {modelCalls: 1, cost: null}});
   } finally {await expect(coordinator.dispose()).rejects.toMatchObject({code: 'MEMORY_EXTRACTION_CLEANUP_FAILED'});}
 });
 
 it('rechecks authority after pending usage observers opt out and records zero dispatches', async () => {
   const f = await fixture(); let revoked = false;
   const unsubscribe = f.store.subscribe(event => {
-    if (revoked || event.type !== 'project.memory.extraction.usage' || f.store.all<any>('projectMemoryAuxiliaryUsage')[0]?.status !== 'PENDING') return;
+    if (revoked || event.type !== 'project.memory.extraction.usage' || f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]?.status !== 'PENDING') return;
     revoked = true;
     f.act({action: 'configure', enabled: false, sourceThreadIds: ['thread'], baseRevision: 1});
   });
@@ -54,7 +54,7 @@ it('rechecks authority after pending usage observers opt out and records zero di
     const result = await coordinator.extract({access: f.access, source, modelId: 'provider/model'});
     expect(revoked).toBe(true); expect(start).not.toHaveBeenCalled(); expect(result.status).toBe('STALE');
     expect(result.usage).toMatchObject({modelCalls: 0, inputBytes: 0, cost: null});
-    expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'STALE', settled: true, usage: {modelCalls: 0, inputBytes: 0, cost: null}});
+    expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'STALE', settled: true, usage: {modelCalls: 0, inputBytes: 0, cost: null}});
   } finally {unsubscribe(); await coordinator.dispose();}
 });
 
@@ -62,7 +62,7 @@ it('persists known zero dispatches after observer opt-out even while native tear
   const f = await fixture(); let revoked = false, release!: () => void;
   const cleanup = new Promise<void>(done => {release = done;}), dispose = vi.fn(() => cleanup), start = vi.fn();
   const unsubscribe = f.store.subscribe(event => {
-    if (revoked || event.type !== 'project.memory.extraction.usage' || f.store.all<any>('projectMemoryAuxiliaryUsage')[0]?.status !== 'PENDING') return;
+    if (revoked || event.type !== 'project.memory.extraction.usage' || f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]?.status !== 'PENDING') return;
     revoked = true; f.act({action: 'configure', enabled: false, sourceThreadIds: ['thread'], baseRevision: 1});
   });
   const coordinator = new MemoryExtractionCoordinator(f.store, f.memory, {factory: () => adapter(start, dispose)});
@@ -70,7 +70,7 @@ it('persists known zero dispatches after observer opt-out even while native tear
   try {
     await vi.waitFor(() => expect(dispose).toHaveBeenCalledOnce());
     expect(start).not.toHaveBeenCalled(); expect(coordinator.busy).toBe(true);
-    expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'STALE', settled: false, usage: {modelCalls: 0, inputBytes: 0, cost: null}});
+    expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'STALE', settled: false, usage: {modelCalls: 0, inputBytes: 0, cost: null}});
   } finally {unsubscribe(); release(); await pending; await coordinator.dispose();}
 });
 
@@ -118,7 +118,7 @@ it.each(['bytes', 'messages'] as const)('stops retaining %s immediately on outpu
     expect(f.memory.read(f.access).items).toEqual([]);
   } finally {release(); await pending; await coordinator.dispose();}
   expect(coordinator.busy).toBe(false);
-  expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'FAILED', settled: true, usage: {inputTokens: 11, outputTokens: 7, cost: 0.01}});
+  expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'FAILED', settled: true, usage: {inputTokens: 11, outputTokens: 7, cost: 0.01}});
 });
 it('uses a fresh tool-free pinned account/model request, publishes proposals and records all measured auxiliary spend', async () => {
   const f = await fixture(); let received!: StartRun;
@@ -137,7 +137,7 @@ it('uses a fresh tool-free pinned account/model request, publishes proposals and
   expect(received.memory).toBeUndefined(); expect(received.threadId).not.toBe('thread');
   expect(f.memory.read(f.access).items[0].item.state).toBe('PROPOSED');
   expect(f.memory.accepted(f.access)).toEqual([]);
-  expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({phase: 'EXTRACTION', settled: true, status: 'PUBLISHED', usage: {modelCalls: 1, inputTokens: 100, outputTokens: 30, cost: 0.004}});
+  expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({phase: 'EXTRACTION', settled: true, status: 'PUBLISHED', usage: {modelCalls: 1, inputTokens: 100, outputTokens: 30, cost: 0.004}});
   expect((await coordinator.extract({access: f.access, source, modelId: 'provider/model'})).status).toBe('UNCHANGED');
   expect(factory).toHaveBeenCalledTimes(1);
 });
@@ -166,19 +166,19 @@ it('retains occupied capacity after timeout until native cleanup actually comple
   expect((await pending).status).toBe('TIMEOUT');
   expect((await second.extract({access: f.access, source, modelId: 'provider/model'})).status).toBe('BUSY');
   expect(secondFactory).not.toHaveBeenCalled();
-  expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0].settled).toBe(false);
+  expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0].settled).toBe(false);
   settle(); await vi.advanceTimersByTimeAsync(0);
   expect(first.busy).toBe(true);
   release(); await vi.advanceTimersByTimeAsync(0);
   expect(first.busy).toBe(false);
   expect(f.memory.read(f.access).items).toEqual([]);
-  expect(f.store.all<any>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'TIMEOUT', settled: true});
+  expect(f.store.all<{settled?:boolean;status?:string;usage?:{modelCalls?:number;cost?:unknown;inputBytes?:number;inputTokens?:number;outputTokens?:number}}>('projectMemoryAuxiliaryUsage')[0]).toMatchObject({status: 'TIMEOUT', settled: true});
 });
 
 it('rejects stale source ownership before publication and cancels without calling a provider when already aborted', async () => {
   const f = await fixture();
   const runtime = adapter((input, callbacks) => {
-    f.store.internal('new-run', 'thread', () => f.store.put('thread', 'thread', 'thread', {...f.store.get<any>('thread', 'thread'), runId: 'new', epoch: 2, status: 'working'}));
+    f.store.internal('new-run', 'thread', () => f.store.put('thread', 'thread', 'thread', {...f.store.get<Record<string, unknown>>('thread', 'thread')!, runId: 'new', epoch: 2, status: 'working'}));
     callbacks.onEvent({...input, type: 'assistant.message', messageId: 'reply', content: '[]'});
     callbacks.onEvent({...input, type: 'settled'});
   });
