@@ -10,6 +10,8 @@ import { Select } from '../../../packages/ui-shell/Select';
 import { command, getModels } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
 import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
+import { EXPLORER_INTEGRATION_TITLE, explorerIntegrationRowModel } from './explorer-integration-settings';
+import type { DesktopBridge, ExplorerIntegrationStatus } from '../../../packages/desktop-contract/index.ts';
 import { PREFERENCE_BINDINGS, chordFor } from './keyboard-bindings';
 import { matchesShortcut } from './shell-layout';
 import { KeyboardReference } from './KeyboardReference';
@@ -59,7 +61,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
 };
 const row = (id: string, title: string, section: string, terms = ''): SettingsInventoryRow => ({ id, title, section, terms });
 export const SETTINGS_ROWS: SettingsInventoryRow[] = [
-  row('time-format', 'Time format', 'general'), row('archive-confirmation', 'Archive confirmation', 'general'), row('unpin-confirmation', 'Unpin confirmation', 'general'),
+  row('time-format', 'Time format', 'general'), row('archive-confirmation', 'Archive confirmation', 'general'), row('unpin-confirmation', 'Unpin confirmation', 'general'), row('explorer-integration', EXPLORER_INTEGRATION_TITLE, 'general', 'windows file explorer right click context menu folder open project shell verb registry'),
   row('harness-personalization', 'Appearance', 'appearance', 'theme dark light system accent custom contrast density compact comfortable touch fonts interface prompt code size radius motion speed reduced preview reset'),
   row('chat-width', 'Chat width', 'appearance', '680 760 full comfortable wide message composer'), row('word-wrap', 'Code line wrap', 'appearance'), row('harness-project-colors', 'Project colors', 'appearance', 'palette custom hex'),
   row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
@@ -84,6 +86,25 @@ function PreferenceControl({ item, preferences, update, busy }: { item: Settings
   const definition = preferenceRows[item.id]!, value = preferences[definition.key];
   if (definition.options) return <Select aria-label={item.title} disabled={busy} value={String(value)} onValueChange={next => void update({ [definition.key]: next })} options={definition.options.map((option, index) => ({ value: option, label: definition.labels?.[index] ?? option }))}/>;
   return <button type="button" role="switch" aria-label={item.title} aria-checked={Boolean(value)} disabled={busy} className="settings-switch" onClick={() => void update({ [definition.key]: !value })}><span/></button>;
+}
+function ExplorerIntegrationRow({ api }: { api: NonNullable<DesktopBridge['explorerIntegration']> }) {
+  const [status, setStatus] = useState<ExplorerIntegrationStatus | null>(null), [applying, setApplying] = useState(false), [failure, setFailure] = useState<'read' | 'write' | null>(null);
+  const read = useCallback(async () => { try { setStatus(await api.get()); setFailure(null); } catch { setFailure('read'); } }, [api]);
+  useEffect(() => { void read(); }, [read]);
+  const toggle = async () => {
+    if (applying) return;
+    setApplying(true); setFailure(null);
+    try { setStatus(await api.set(status?.enabled !== true)); }
+    catch {
+      try { setStatus(await api.get()); setFailure('write'); }
+      catch { setFailure('read'); }
+    } finally { setApplying(false); }
+  };
+  const model = explorerIntegrationRowModel({ status, applying, failure });
+  return <section className="settings-row" data-setting-id="explorer-integration">
+    <div className="settings-row-copy"><h2>{EXPLORER_INTEGRATION_TITLE}</h2><p id="explorer-integration-helper" role={applying || failure ? 'status' : undefined} className={model.danger ? 'error-text' : undefined}>{model.helper}{model.retry && <> <button type="button" onClick={() => void (model.retry === 'read' ? read() : toggle())}>Retry</button></>}</p></div>
+    <div className="settings-row-control"><button type="button" role="switch" aria-label={EXPLORER_INTEGRATION_TITLE} aria-checked={model.checked} aria-describedby="explorer-integration-helper" disabled={model.disabled} className="settings-switch" style={applying ? { opacity: .55 } : undefined} onClick={() => void toggle()}><span/></button></div>
+  </section>;
 }
 function ShortcutInput({ action, label, value, save, busy }: { action: string; label: string; value: string; save: (key: string, value: string) => void; busy: boolean }) {
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
@@ -155,7 +176,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
   const showAppearance = !searching && section === 'appearance';
-  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
+  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', 'explorer-integration', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
   const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
@@ -198,6 +219,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
       {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}</div><div className="settings-row-control">{control}</div></section>; })}
+      {matches('explorer-integration') && desktop?.bridge.explorerIntegration && <ExplorerIntegrationRow api={desktop.bridge.explorerIntegration}/>}
       {matches('harness-keyboard-reference') && <div data-setting-id="harness-keyboard-reference"><KeyboardReference keybindings={preferences.keybindings}/></div>}
       {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/></div>}
       {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}
