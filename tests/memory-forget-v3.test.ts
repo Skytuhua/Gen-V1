@@ -20,7 +20,7 @@ it('forgets immediately, invalidates derived references and rejects source repla
   expect(preview.affectedDerivedArtifacts).toEqual(['index']); expect(preview.externalDeletion).toBe('NOT_SUPPORTED');
   f.act({ action: 'forget', itemId: item.id, baseRevision: item.revision });
   expect(f.memory.accepted(f.access)).toEqual([]);
-  expect(f.store.get<any>('projectMemoryDerived', 'index').valid).toBe(false);
+  expect(f.store.get<{valid?:boolean}>('projectMemoryDerived', 'index')!.valid).toBe(false);
   expect(() => f.propose('Recreated', [f.ref])).toThrow();
   f.store.internal('old-replay', null, () => f.store.put('projectMemoryItem', item.id, null, { item, profileId: f.access.profileId, projectId: f.access.projectId, accountId: f.access.accountId, lastUsedAt: null }));
   expect(f.memory.accepted(f.access)).toEqual([]);
@@ -33,13 +33,13 @@ it('invalidates derived references to every claim whose shared source becomes ex
   expect(f.memory.forgetPreview(f.access, forgotten.id, forgotten.revision).affectedDerivedArtifacts).toEqual(['related-index']);
   f.act({ action: 'forget', itemId: forgotten.id, baseRevision: forgotten.revision });
   expect(f.memory.accepted(f.access)).toEqual([]);
-  expect(f.store.get<any>('projectMemoryDerived', 'related-index').valid).toBe(false);
+  expect(f.store.get<{valid?:boolean}>('projectMemoryDerived', 'related-index')!.valid).toBe(false);
   expect(f.memory.read(f.access).tombstones[0].affectedDerivedArtifacts).toEqual(['related-index']);
 });
 
 it('bounds each physical purge batch even when an item has a long revision history', async () => {
   const f = await fixture(), item = f.accept('Bounded revision purge');
-  const row = f.store.get<any>('projectMemoryItem', item.id);
+  const row = f.store.get<Record<string, unknown>>('projectMemoryItem', item.id)!;
   f.store.internal('many-old-revisions', null, () => {
     for (let revision = 3; revision <= 800; revision++) f.store.put('projectMemoryRevision', `${item.id}@${revision}`, null, { ...row, item: { ...item, revision } });
     f.store.put('projectMemoryItem', item.id, null, { ...row, item: { ...item, revision: 800 } });
@@ -114,7 +114,7 @@ it('physically purges permitted local memory copies while preserving tombstones 
   expect(readFileSync(join(f.store.dataDir, 'harness.sqlite')).includes(Buffer.from('Erase local memory copies'))).toBe(false);
   const wal = join(f.store.dataDir, 'harness.sqlite-wal');
   expect(readFileSync(wal).includes(Buffer.from('Erase local memory copies'))).toBe(false);
-  expect(f.store.get<any>('message', 'source').content).toBe('Use SQLite for project persistence.');
+  expect(f.store.get<{content?:string}>('message', 'source')!.content).toBe('Use SQLite for project persistence.');
   const exported = f.memory.export(f.access);
   expect(exported.redacted).toBe(true); expect(JSON.stringify(exported)).not.toContain('Erase local memory copies');
 });
