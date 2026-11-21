@@ -2,6 +2,8 @@ import {useEffect,useLayoutEffect,useRef,useState} from 'react';
 import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
+import {openWebLink} from './open-web-link';
+import {terminalLinkHint,terminalLinkModifier,terminalLinkUrl} from './terminal-links';
 import './terminal-excerpts.css';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
 
@@ -16,6 +18,7 @@ const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()
 export function TerminalBody({projectId,threadId,terminalId,active,openAnother,isCurrent,excerptComposer}:{projectId:string;threadId?:string;terminalId?:string;active:boolean;openAnother?:()=>void|Promise<void>;isCurrent?:()=>boolean;excerptComposer?:TerminalExcerptComposer}){
  const [selection,setSelection]=useState<TerminalExcerpt|null>(null),[adding,setAdding]=useState(false);
  const element=useRef<HTMLDivElement>(null);
+ const [linkHint,setLinkHint]=useState<'hint'|'failed'|null>(null);
  const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
  const key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
  const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer});
@@ -28,7 +31,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  useEffect(()=>{
   if(!active||!element.current)return;
   let disposed=false,confirmedId:string|undefined,cursor=0,ended=false,interrupted=false,reading=false,stopPending=false,readSequence=0;
-  let timer:ReturnType<typeof setTimeout>|undefined,observer:ResizeObserver|undefined,instance:import('@xterm/xterm').Terminal|undefined;
+  let timer:ReturnType<typeof setTimeout>|undefined,hintTimer:ReturnType<typeof setTimeout>|undefined,observer:ResizeObserver|undefined,instance:import('@xterm/xterm').Terminal|undefined;
   const controller=new AbortController();
   const ownerCurrent=()=>!disposed&&latest.current.active&&latest.current.projectId===projectId&&latest.current.threadId===threadId&&latest.current.terminalId===terminalId&&latest.current.generation===generation&&(!latest.current.isCurrent||latest.current.isCurrent());
   const matches=(value:TerminalRead,id:string)=>{
@@ -78,13 +81,27 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    finally{stopPending=false;if(ownerCurrent())setStopping(false);}
   }};
   actions.current=ownedActions;
-  setSelection(null);setAdding(false);setPhase('starting');setError('');setAcknowledged(false);setRetrying(false);setStopping(false);
+  setSelection(null);setAdding(false);setPhase('starting');setLinkHint(null);setError('');setAcknowledged(false);setRetrying(false);setStopping(false);
   void(async()=>{
    const [{Terminal},{FitAddon}]=await Promise.all([import('@xterm/xterm'),import('@xterm/addon-fit'),import('@xterm/xterm/css/xterm.css')]);
    if(!ownerCurrent())return;
    const colors=getComputedStyle(element.current!);
    instance=new Terminal({convertEol:false,fontSize:13,scrollback:2000,theme:{background:'#101010',foreground:'#dedede',selectionBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionInactiveBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionForeground:colors.getPropertyValue('--text').trim()||'#e6e6e6'}});
-   const fit=new FitAddon();instance.loadAddon(fit);instance.open(element.current!);fit.fit();
+   const fit=new FitAddon();instance.loadAddon(fit);
+   try{
+    const {WebLinksAddon}=await import('@xterm/addon-web-links');
+    const activate=(event:MouseEvent,raw:string)=>{
+     if(!ownerCurrent()||!terminalLinkModifier(event))return;
+     const url=terminalLinkUrl(raw);if(!url)return;
+     event.preventDefault();
+     void openWebLink(url).catch(()=>{if(ownerCurrent()){setLinkHint('failed');clearTimeout(hintTimer);hintTimer=setTimeout(()=>{if(ownerCurrent())setLinkHint(null);},4000);}});
+    };
+    const hover=(_event:MouseEvent,raw:string)=>{if(ownerCurrent()&&terminalLinkUrl(raw))setLinkHint('hint');};
+    const leave=()=>{if(ownerCurrent())setLinkHint(current=>current==='hint'?null:current);};
+    instance.options.linkHandler={activate,hover,leave,allowNonHttpProtocols:false};
+    instance.loadAddon(new WebLinksAddon(activate,{hover,leave}));
+   }catch{}
+   instance.open(element.current!);fit.fit();
    let saved:string|null=null,pending:string|null=null;try{saved=localStorage.getItem(key);pending=localStorage.getItem(key+':pending');}catch{}
    const requestedId=terminalId??saved??pending??(pendingId.current?.key===key?pendingId.current.id:crypto.randomUUID());
    pendingId.current={key,id:requestedId};
@@ -111,7 +128,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    observer.observe(element.current!);
    if(!ended)timer=setTimeout(()=>void poll(),250);
   })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');setError(message(error));}});
-  return()=>{disposed=true;readSequence++;clearTimeout(timer);controller.abort();observer?.disconnect();instance?.dispose();if(actions.current===ownedActions)actions.current=null;};
+  return()=>{disposed=true;readSequence++;clearTimeout(timer);clearTimeout(hintTimer);controller.abort();observer?.disconnect();instance?.dispose();if(actions.current===ownedActions)actions.current=null;};
  },[projectId,threadId,terminalId,active,generation,key]);
 
  const restart=async()=>{
@@ -124,5 +141,5 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(message(cause));}finally{if(owner.current())setAdding(false);}};
  const canStop=active&&acknowledged&&phase!=='ended'&&!stopping&&!!actions.current?.current();
  const label=stopping?'Stopping':({starting:'Starting',running:'Running','read-interrupted':'Read interrupted',ended:'Ended',unconfirmed:'Start unconfirmed'} as const)[phase];
- return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
+ return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span>{linkHint&&<span className="terminal-link-hint" aria-live="polite" data-state={linkHint==='failed'?'failed':undefined}>{linkHint==='failed'?'Could not open link':terminalLinkHint(navigator.platform)}</span>}<button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
 }
