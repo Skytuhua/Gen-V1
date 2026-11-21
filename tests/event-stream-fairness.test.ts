@@ -102,3 +102,32 @@ it('releases a failed replay before registering the stream even if destroy emits
     expect(streams.size).toBe(0);
   } finally { destroyEventStreams(streams); }
 });
+
+it('rejects a late stream registration after preClose without allocating a subscription', () => {
+  const streams = new Map<ServerResponse, () => void>();
+  const destroy = vi.fn(), unsubscribe = vi.fn();
+  const response = Object.assign(new EventEmitter(), { write: vi.fn(() => true), destroy }) as unknown as ServerResponse;
+  const store: Parameters<typeof streamEvents>[1] = {
+    eventsAfter: vi.fn(() => []),
+    subscribe: vi.fn(() => unsubscribe),
+  };
+  destroyEventStreams(streams);
+  registerEventStream(streams, response, store, 0);
+  expect(destroy).toHaveBeenCalledOnce();
+  expect(streams.size).toBe(0);
+  expect(store.subscribe).not.toHaveBeenCalled();
+  expect(store.eventsAfter).not.toHaveBeenCalled();
+});
+
+it('releases a reader if shutdown happens during synchronous subscription', () => {
+  const streams = new Map<ServerResponse, () => void>(), destroy = vi.fn(), unsubscribe = vi.fn();
+  const response = Object.assign(new EventEmitter(), { write: vi.fn(() => true), destroy }) as unknown as ServerResponse;
+  const store: Parameters<typeof streamEvents>[1] = {
+    eventsAfter: vi.fn(() => []),
+    subscribe: vi.fn(() => { destroyEventStreams(streams); return unsubscribe; }),
+  };
+  registerEventStream(streams, response, store, 0);
+  expect(destroy).toHaveBeenCalledOnce();
+  expect(unsubscribe).toHaveBeenCalledOnce();
+  expect(streams.size).toBe(0);
+});
