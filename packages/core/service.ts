@@ -13,8 +13,8 @@ import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
-import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { basename, join, relative, resolve, sep } from "node:path";
+import { existsSync } from 'node:fs';
+import { basename, join, relative, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
@@ -60,7 +60,7 @@ import { recoverEffects, disableEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
-import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
+import { RequestContextCustody, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
 import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
 import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
@@ -70,6 +70,7 @@ import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} 
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
 import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
+import {ServiceRequestContext} from './service-request-context.ts';
 import {applySessionBranch} from './session-branches.ts';
 import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
 import type {MemoryExtractionAdmission,MemoryExtractionJob} from './memory-extraction.ts';
@@ -252,10 +253,9 @@ export class Service {
     try { assertCurrent(); lineage?.assertCurrent(); } catch { this.contextResultAuthorities.delete(invocationId); return absent; }
     return { ...result, totalBytes: encoded.totalBytes };
   }
+  private readonly requestContext:ServiceRequestContext;
   private readonly requestCustody:RequestContextCustody;
-  private readonly inferenceOwners = new Map<string, { ctx: RunContext; basis: string; sequence: number }>();
   private readonly requestRegistryDigest=digest(buildToolRegistry());
-  private requestPreparationWork=0;
   private memoryHostInstance?:ProjectMemoryHost;
   private readonly hostOperationExecutors:ReadonlyMap<string,HostOperationExecutor>;
   constructor(readonly store: Store, readonly runtime: RuntimeAdapter,private readonly options:ServiceOptions={}) {
@@ -263,11 +263,21 @@ export class Service {
     if(hostExecutors.length>32||hostExecutors.some(([kind,executor])=>!/^integration\.[a-z][a-z0-9._-]{0,79}$/.test(kind)||typeof executor!=='function'))
       throw new HarnessError('INVALID_HOST_OPERATION','Host operations require explicit integration executor bindings.');
     this.hostOperationExecutors=new Map(hostExecutors);
-    this.requestCustody=new RequestContextCustody(store,{
+    this.requestContext=new ServiceRequestContext({
+      store,runtime,
+      requestRegistryDigest:()=>this.requestRegistryDigest,
+      isClosing:()=>this.closed||this.updateClosing,
+      thread:id=>this.thread(id),
+      assertRun:ctx=>this.assertRun(ctx),
+      binding:(thread,providerId)=>this.binding(thread,providerId),
+      planningInspect:id=>this.planning.inspect(id),
+      source:()=>this.source,
+    },{
       prepare:async(preparation,prompt)=>{await options.requestContextHooks?.prepare?.(preparation,prompt);if(capabilityEnabled('memory.projectV1'))await this.memoryHost().prepare(preparation,prompt);},
       finalize:async(preparation,input)=>{const memory=this.memoryHostInstance?await this.memoryHostInstance.finalize(preparation,input):{sources:[]},extra=await options.requestContextHooks?.finalize?.(preparation,input);return{sources:[...memory.sources,...(extra?.sources??[])],assertCurrent:()=>{memory.assertCurrent?.();extra?.assertCurrent?.();}};},
       released:(preparation,reason)=>{this.memoryHostInstance?.released(preparation,reason);options.requestContextHooks?.released?.(preparation,reason);},
-    });
+    },options);
+    this.requestCustody=this.requestContext.custody;
     this.controlConsent = new BrowserConsentHost(store, {registry: hostControlDriverRegistry});
     this.sourceWorkbench = new SourceWorkbench(store, requestId => this.requestCustody.release(requestId, 'cancelled'), {
       requestContextEnabled: () => this.requestContextEnabled(),
@@ -381,8 +391,7 @@ export class Service {
   }
   private cancelRun(input:RunContext,side:boolean):Promise<void>{
     const ctx:RunContext={threadId:input.threadId,runId:input.runId,epoch:input.epoch};
-    const inference=this.inferenceOwners.get(ctx.threadId);
-    if(inference?.ctx.runId===ctx.runId&&inference.ctx.epoch===ctx.epoch)this.inferenceOwners.delete(ctx.threadId);
+    this.requestContext.releaseOwner(ctx.threadId,ctx);
     const key=JSON.stringify([ctx.threadId,ctx.runId,ctx.epoch]),previous=this.teardowns.get(key);if(previous)return previous.promise;
     const control=this.aborts.get(ctx.threadId);
     const cancel=(runtime:Pick<RuntimeAdapter,'cancel'>):Promise<void>=>{try{return runtime.cancel(ctx);}catch(error){return Promise.reject(error);}};
@@ -549,15 +558,10 @@ export class Service {
     const current=this.binding(thread,providerId);
     if(current.accountId!==captured.accountId)throw new HarnessError('ACCOUNT_SELECTION_CHANGED','The selected account changed. Send the message again using the current selection.');
   }
-  private requestContextEnabled():boolean { return capabilityEnabled('memory.projectV1')||(this.options.requestContextEnabled??capabilityEnabled('context.compilerV1')); }
+  private requestContextEnabled():boolean { return this.requestContext.enabled(); }
   /** Mint a deterministic candidate from the latest admitted receipt and record the verdict in usage.
    * Never mutates native history; candidates carry metadata only. */
-  private latestRequestReceipt(threadId:string):RequestContextV1|null {
-    const row=this.store.db.prepare("SELECT body FROM entities WHERE kind='requestContextReceipt' AND thread_id=? ORDER BY rowid DESC LIMIT 1").get(threadId) as {body:string}|undefined;
-    if(!row)return null;
-    const receipt=(JSON.parse(row.body) as {receipt?:RequestContextV1}).receipt;
-    return receipt??null;
-  }
+  private latestRequestReceipt(threadId:string):RequestContextV1|null { return this.requestContext.latestReceipt(threadId); }
   private compactionBindingOf(receipt:RequestContextV1){
     return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
   }
@@ -769,85 +773,16 @@ export class Service {
     const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
     this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:this.store.compactionProjection(threadId)}});
   }
-  private requestAuthorityBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):Omit<RequestContextBasis,'sourceCutDigest'|'admissionDigest'> {
-    if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
-    if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
-    const physical=(path:string,expected?:{dev:string;ino:string})=>{
-      const info=lstatSync(path,{bigint:true}),actual=realpathSync(path),normalize=(value:string)=>process.platform==='win32'?resolve(value).toLowerCase():resolve(value);
-      if(info.isSymbolicLink()||!info.isDirectory()&&!info.isFile()||normalize(actual)!==normalize(path)||expected&&(String(info.dev)!==expected.dev||String(info.ino)!==expected.ino))throw new HarnessError('STALE_REQUEST_CONTEXT','A prepared context resource changed its physical identity.');
-      return{path:actual,dev:String(info.dev),ino:String(info.ino)};
-    };
-    const profile=physical(this.store.dataDir),profileId=digest(profile),accountId=this.binding(thread,modelProvider(modelId)).accountId;
-    const project=thread.projectId?this.store.get<{id:string;authority:{kind:string}}>('workspaceProject',thread.projectId):null;
-    const root=thread.projectId?this.store.get<{path:string;identity:{dev:string;ino:string}}>('workspaceProjectRoot',thread.projectId):null;
-    const workspace=thread.workspaceId?this.store.get<{id:string;threadId:string;projectId:string;path:string;identity:{dev:string;ino:string}}>('workspaceBinding',thread.workspaceId):null;
-    if(thread.projectId&&(!project||project.authority.kind!=='local'||!root)||thread.workspaceId&&(!workspace||workspace.id!==thread.workspaceId||workspace.threadId!==thread.id||workspace.projectId!==thread.projectId))throw new HarnessError('STALE_REQUEST_CONTEXT','The project or workspace binding is unavailable.');
-    const rootIdentity=root?physical(root.path,root.identity):null,workspaceIdentity=workspace?physical(workspace.path,workspace.identity):null;
-    const resources=(this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body) as ResourceGrant);
-    if(resources.length>256)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
-    const grantDigest=digest(resources.map(resource=>{if(resource.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A resource grant changed owner.');return{resource,physical:physical(resource.path,resource.identity)};}));
-    const workspaceId=thread.workspaceId??(thread.projectId?'project:'+thread.projectId:'thread:'+thread.id);
-    const instructionDigest=digest([PLAN_RUNTIME_GUIDANCE,LEARN_REQUEST,thread.mode??'build',Boolean(this.source),Boolean(thread.sideParentId)]);
-    return{profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,modelId,accountId,thinkingLevel:thinkingLevel??null,
-      bindingDigest:digest({profileId,threadId:thread.id,projectId:thread.projectId??null,workspaceId,project,root,workspace,rootIdentity,workspaceIdentity,sideParentId:thread.sideParentId??null,kind:thread.kind??'main',mode:thread.mode??'build',modelId,accountId,thinkingLevel:thinkingLevel??null}),
-      grantDigest,instructionDigest,toolRegistryDigest:this.requestRegistryDigest};
-  }
-  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis {
-    const authority=this.requestAuthorityBasis(thread,modelId,thinkingLevel);
-    const notes=(this.store.db.prepare("SELECT body FROM entities WHERE kind='taskMemory' AND thread_id=? ORDER BY id LIMIT 13").all(thread.id) as {body:string}[]).map(row=>JSON.parse(row.body));
-    if(notes.length>12)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its supported bounds.');
-    const catalog=this.source?null:skillIndex(this.store),plan=this.planning.inspect(thread.id),side=thread.sideParentId?this.store.get('sideContext',thread.id):null;
-    const sourceCut={notes,catalog,plan,side};if(Buffer.byteLength(JSON.stringify(sourceCut))>512*1024)throw new HarnessError('INVALID_REQUEST_CONTEXT','The host source cut exceeds its byte limit.');
-    return{...authority,sourceCutDigest:digest(sourceCut),
-      admissionDigest:digest({epoch:thread.epoch,runId:thread.runId,sessionPath:thread.sessionPath,modelId:thread.modelId,thinkingLevel:thread.thinkingLevel??null,accountId:thread.accountId??null})};
-  }
-  private captureInferenceOwner(input:StartRun,continuing:boolean):void {
-    const thread=this.assertRun(input),basis=digest(this.requestAuthorityBasis(thread,input.modelId,input.thinkingLevel)),previous=this.inferenceOwners.get(thread.id);
-    if(previous&&previous.ctx.runId===input.runId&&previous.ctx.epoch===input.epoch){
-      if(previous.basis!==basis)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference authority changed.');
-      return;
-    }
-    if(continuing||this.inferenceOwners.size>=128)throw new HarnessError('STALE_REQUEST_CONTEXT','The active inference owner is unavailable.');
-    this.inferenceOwners.set(thread.id,{ctx:{threadId:input.threadId,runId:input.runId,epoch:input.epoch},basis,sequence:0});
-  }
-  private beforeInference(request:InferenceAdmissionV1):void {
-    const thread=this.assertRun(request.ctx),owner=this.inferenceOwners.get(thread.id);
-    const stale=()=>new HarnessError('STALE_REQUEST_CONTEXT','The next inference no longer matches its admitted owner.');
-    if(!capabilityEnabled('context.compilerV1')||!owner||owner.ctx.runId!==request.ctx.runId||owner.ctx.epoch!==request.ctx.epoch||
-      !Number.isSafeInteger(request.sequence)||request.sequence<=owner.sequence||!Array.isArray(request.inputIds)||request.inputIds.length>4096||new Set(request.inputIds).size!==request.inputIds.length||
-      thread.modelId!==request.modelId||(thread.thinkingLevel??null)!==request.thinkingLevel)throw stale();
-    const basis=this.requestAuthorityBasis(thread,request.modelId,request.thinkingLevel);
-    if(basis.accountId!==request.accountId||digest(basis)!==owner.basis)throw stale();
-    for(const id of request.inputIds){const input=typeof id==='string'&&id.length<=256?this.store.get<Outbox>('outbox',id):null;
-      if(!input||input.threadId!==thread.id||input.runId!==request.ctx.runId||!['processing','handled'].includes(input.status))throw stale();}
-    owner.sequence=request.sequence;
-  }
+  private requestBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):RequestContextBasis { return this.requestContext.basis(thread,modelId,thinkingLevel); }
+  private captureInferenceOwner(input:StartRun,continuing:boolean):void { this.requestContext.captureOwner(input,continuing); }
+  private beforeInference(request:InferenceAdmissionV1):void { this.requestContext.beforeInference(request); }
   /** A preview does not increment run epochs, start a runtime, or edit native history. */
   async prepareRequestContext(threadId:string,prompt:string,options:RequestPreparationOptions={}):Promise<RequestPreparationV1> {
-    if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');
-    if(options.skills!==undefined)throw new HarnessError('SKILL_ADMISSION_UNAVAILABLE','Selected skills are unavailable for this runtime. Your draft is retained.',{sendAccepted:false});
-    text({prompt},'prompt',64*1024);
-    if(this.requestPreparationWork>=REQUEST_PREPARATION_LIMITS.pending)throw new HarnessError('REQUEST_CONTEXT_BUSY','Too many requests are still being prepared.');
-    this.requestPreparationWork++;
-    try{
-      let thread=this.thread(threadId);
-      if(!thread.runId&&!thread.sideParentId&&thread.kind!=='delegate'&&this.options.prepareWorkspace){const before=thread;await this.options.prepareWorkspace(thread);thread=this.thread(threadId);if(thread.epoch!==before.epoch||thread.runId!==before.runId||thread.modelId!==before.modelId||thread.accountId!==before.accountId||thread.status!==before.status)throw new HarnessError('STALE_REQUEST_CONTEXT','The owner changed while preparing its workspace.');}
-      const modelId=options.modelId??thread.modelId;if(typeof modelId!=='string'||!modelId||modelId.length>300)throw new HarnessError('MODEL_UNAVAILABLE','Choose an authenticated model before preparing a request.');
-      const thinkingLevel=options.thinkingLevel===null?null:options.thinkingLevel??(thread.modelId===modelId?thread.thinkingLevel:undefined);
-      const basis=this.requestBasis(thread,modelId,thinkingLevel),current=()=>this.requestBasis(this.thread(threadId),modelId,thinkingLevel);
-      const model=(await this.runtime.models({accountId:basis.accountId})).find(item=>item.id===modelId);
-      if(!model)throw new HarnessError('MODEL_UNAVAILABLE','Connect this account and choose an available model.');
-      if(thinkingLevel!==undefined&&thinkingLevel!==null&&(typeof thinkingLevel!=='string'||!model.thinkingLevels?.includes(thinkingLevel)))throw new HarnessError('INVALID_INPUT','Choose a reasoning level supported by this model.');
-      if(digest(basis)!==digest(current()))throw new HarnessError('STALE_REQUEST_CONTEXT','The request changed while checking its model.');
-      const resolved=this.source&&!thread.sideParentId&&/^\/learn(?:\s|$)/i.test(prompt.trim())?(await this.source.runtime.sourceRequest<{prompt:string}>('learn.prompt',{request:prompt.trim().replace(/^\/learn\s*/i,'')})).prompt:prompt;
-      if(typeof resolved!=='string')throw new HarnessError('INVALID_REQUEST_CONTEXT','The prepared source did not return a text prompt.');
-      return await this.requestCustody.prepare(basis,prompt,resolved,current);
-    }finally{this.requestPreparationWork--;}
+    return this.requestContext.prepare(threadId,prompt,options);
   }
   /** Authenticated host read: consumed, expired, or stale previews cannot be edited. */
   getRequestPreparation(threadId:string,requestId:string):RequestPreparationV1 {
-    if(!this.requestContextEnabled())throw new HarnessError('REQUEST_CONTEXT_DISABLED','Request context custody is not enabled by this host.');
-    return this.requestCustody.getReady(threadId,requestId,preparation=>this.requestBasis(this.thread(threadId),preparation.modelId,preparation.thinkingLevel));
+    return this.requestContext.getPreparation(threadId,requestId);
   }
   async models(options:{refresh?:boolean;threadId?:string;target?:AccountAuthTarget}={}) {
     const thread=options.threadId===undefined?undefined:this.thread(options.threadId);
@@ -1730,7 +1665,7 @@ export class Service {
     if (this.closed) return;
     const thread = this.store.get<Thread>("thread", ctx.threadId);
     if (!thread || thread.epoch !== ctx.epoch || thread.runId !== ctx.runId) return;
-    this.inferenceOwners.delete(thread.id);
+    this.requestContext.releaseOwner(thread.id);
     this.flushDeltas(thread.id);
     this.store.internal("run.failed", thread.id, () => {
       this.failUnansweredDetails(ctx,'The explanation could not finish. Resume the task to retry.');
@@ -1904,7 +1839,7 @@ export class Service {
         }
       }
       if (event.type === "settled") {
-        this.inferenceOwners.delete(thread.id);
+        this.requestContext.releaseOwner(thread.id);
         this.relevanceObserver.forget(thread.id);
         this.failUnansweredDetails(event,event.aborted?'The explanation was stopped. Resume the task to retry.':'The agent finished without updating this option. Try again.');
         const intent = this.store.get<{kind:string;previousStatus:Thread["status"]}>("runtimeIntent", event.runId);
@@ -2342,7 +2277,7 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.requestContext.clearOwners();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
