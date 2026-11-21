@@ -5,6 +5,9 @@ import {getPreferences} from '../../../packages/contracts/preferences';
 import {bootstrap,command,getSnapshot,subscribe} from './api';
 import {useDesktop,useDesktopReady} from './desktop-context';
 import {ComposerView} from './ComposerView';
+import {useAppearance} from './useAppearance';
+import {ArrowUp,LoaderCircle,TriangleAlert} from 'lucide-react';
+import './quick-ask.css';
 
 const emptySnapshot: Snapshot = { seq: 0, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: null };
 const messageOf = (error: unknown) => error instanceof Error ? error.message : 'The request could not be completed.';
@@ -60,15 +63,22 @@ export function QuickAsk() {
   useEffect(() => { if (!ready) return; return subscribe(current.current.seq, () => { void refresh().catch(() => {}); }, () => {}, () => refresh()); }, [ready, refresh]);
   useDesktopReady(ready);
 
+  const [closing, setClosing] = useState(false), [show, setShow] = useState(0);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   useEffect(() => bridge.onQuickAskOpen?.(value => {
+    if (closeTimer.current) { clearTimeout(closeTimer.current); closeTimer.current = null; }
+    setClosing(false); setShow(count => count + 1);
     setOpen(value); setError(''); pending.current = null;
     setTarget(quickAskDefaultTarget(value));
     requestAnimationFrame(() => { const box = input.current; if (box) { box.focus(); box.setSelectionRange(box.value.length, box.value.length); } });
   }), [bridge]);
 
   const preferences = getPreferences(snapshot.settings);
+  useAppearance(preferences);
   const theme = snapshot.settings.theme === 'system' ? (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : snapshot.settings.theme;
   useLayoutEffect(() => { document.documentElement.dataset.theme = theme; }, [theme]);
+  useEffect(() => { const root = document.documentElement; root.dataset.contrast = preferences.contrast; root.dataset.panelAnimations = String(preferences.panelAnimations); root.style.setProperty('--interface-font-size', preferences.uiFontSize + 'px'); }, [preferences.contrast, preferences.panelAnimations, preferences.uiFontSize]);
 
   const thread: Thread | undefined = open?.currentThreadId ? snapshot.threads.find(item => item.id === open.currentThreadId) : undefined;
   const sendable = quickAskSendable(open, thread);
@@ -81,9 +91,16 @@ export function QuickAsk() {
     const measure = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(() => { void bridge.quickAskResize?.(Math.ceil(node.scrollHeight) + 24).catch(() => {}); }); };
     const observer = new ResizeObserver(measure); observer.observe(node); measure();
     return () => { observer.disconnect(); cancelAnimationFrame(frame); };
-  }, [bridge, ready]);
+  }, [bridge, ready, show]);
 
-  const hide = useCallback(() => { void bridge.quickAskHide?.().catch(() => {}); }, [bridge]);
+  const hide = useCallback(() => {
+    if (closing) return;
+    const prefs = getPreferences(current.current.settings);
+    const ms = Number.parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--ui-motion-popup-exit')) || 0;
+    if (ms <= 0 || !prefs.panelAnimations || prefs.motion === 'off') { void bridge.quickAskHide?.().catch(() => {}); return; }
+    setClosing(true);
+    closeTimer.current = setTimeout(() => { closeTimer.current = null; void bridge.quickAskHide?.().catch(() => {}); }, ms + 40);
+  }, [bridge, closing]);
   const send = useCallback(async () => {
     const attempt = pending.current ?? { commandId: crypto.randomUUID(), content: draft.trim(), target };
     if (!attempt.content || busy || projectMissing) return;
@@ -105,8 +122,8 @@ export function QuickAsk() {
   const mainWindow = desktop.windows.find(info => info.surface.kind === 'main');
   const openMain = () => { if (mainWindow) void bridge.focus(mainWindow.id).catch(() => {}); };
 
-  if (loadError) return <main className="quick-ask"><p role="alert">{loadError}</p></main>;
-  return <main className="quick-ask"><div ref={panel} className="quick-ask-panel">
+  if (loadError) return <main className="quick-ask" data-contrast={preferences.contrast}><p role="alert">{loadError}</p></main>;
+  return <main className="quick-ask" data-contrast={preferences.contrast}><div ref={panel} key={show} className={closing ? 'quick-ask-panel closing' : 'quick-ask-panel'}>
     {projectMissing ? <div className="quick-ask-empty"><p>Add a project in Gen V1 first.</p><button type="button" className="secondary" onClick={openMain}>Open Gen V1</button></div> : <>
       <div className="quick-ask-head" role="radiogroup" aria-label="Send target">
         <button type="button" role="radio" aria-checked={target === 'new'} className={target === 'new' ? 'selected' : ''} onClick={() => setTarget('new')}>New thread</button>
@@ -114,10 +131,10 @@ export function QuickAsk() {
         <span className="quick-ask-where">{target === 'current' ? `Thread: ${open?.currentThreadTitle ?? ''}` : `Project: ${open?.currentProjectName ?? ''}`}</span>
       </div>
       <ComposerView className="quick-ask-form" onSubmit={event => { event.preventDefault(); void send(); }}>
-        <textarea ref={input} aria-label="Ask Gen V1" placeholder="Ask Gen V1…" rows={1} value={draft} readOnly={busy} onChange={event => setDraft(event.target.value)} onKeyDown={onKeyDown} />
-        <button type="submit" aria-label="Send" disabled={busy || !draft.trim() || !modelId} title={modelId ? undefined : 'Choose an available model in Gen V1 first.'}>{busy ? '…' : '↑'}</button>
+        <textarea ref={input} aria-label="Ask Gen V1" placeholder="Ask Gen V1…" rows={1} value={draft} readOnly={busy} onChange={event => { setDraft(event.target.value); event.target.style.height = 'auto'; event.target.style.height = Math.min(event.target.scrollHeight, 120) + 'px'; }} onKeyDown={onKeyDown} />
+        <button type="submit" aria-label="Send" disabled={busy || !draft.trim() || !modelId} title={modelId ? undefined : 'Choose an available model in Gen V1 first.'}>{busy ? <LoaderCircle size={15} className="spinning" aria-hidden="true"/> : <ArrowUp size={16} aria-hidden="true"/>}</button>
       </ComposerView>
-      {error ? <p role="alert" className="quick-ask-error"><span>{error}</span><button type="button" className="quiet" disabled={busy} onClick={() => void send()}>Retry</button></p> : <p className="quick-ask-hint">{hint}</p>}
+      {error ? <p role="alert" className="quick-ask-error"><TriangleAlert size={12} aria-hidden="true"/><span>{error}</span><button type="button" className="quiet" disabled={busy} onClick={() => void send()}>Retry</button></p> : <p className="quick-ask-hint">{hint}</p>}
     </>}
   </div></main>;
 }
