@@ -484,7 +484,7 @@ export function ShellSidebar({
         <button
           type="button"
           onClick={onOpenPullRequests ?? (() => workspace.setActiveTab('linked-pull-requests'))}
-          aria-label="Pull requests"
+          aria-label="PRs, Pull requests"
           title="Pull requests"
         >
           <GitPullRequest size={16} />

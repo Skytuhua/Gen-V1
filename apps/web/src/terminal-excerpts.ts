@@ -4,15 +4,16 @@ import {journalCompareAndSwap,journalReadRecord} from './journal';
 import {TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
 export {TERMINAL_EXCERPT_MAX_BYTES,TERMINAL_EXCERPT_MAX_COUNT} from './draft-limits';
 const encoder=new TextEncoder(),bounded=(value:string)=>encoder.encode(value).length<=TERMINAL_EXCERPT_MAX_BYTES;
-export const terminalExcerptSchema=z.object({version:z.literal(1),id:z.string().uuid(),terminalId:z.string().min(1).max(1024),projectId:z.string().min(1).max(1024),threadId:z.string().min(1).max(1024),capturedAt:z.string().datetime(),originalText:z.string().min(1).refine(bounded),text:z.string().min(1).refine(bounded),truncated:z.boolean(),originalBytes:z.number().int().nonnegative()}).strict().refine(value=>value.originalBytes>=encoder.encode(value.originalText).length&&value.truncated===(value.originalBytes>encoder.encode(value.originalText).length));
+export const terminalExcerptSchema=z.object({version:z.literal(1),id:z.string().uuid(),terminalId:z.string().min(1).max(1024),terminalName:z.string().trim().min(1).max(160).optional(),lineRange:z.object({start:z.number().int().positive(),end:z.number().int().positive()}).strict().refine(value=>value.end>=value.start).optional(),projectId:z.string().min(1).max(1024),threadId:z.string().min(1).max(1024),capturedAt:z.string().datetime(),originalText:z.string().min(1).refine(bounded),text:z.string().min(1).refine(bounded),truncated:z.boolean(),originalBytes:z.number().int().nonnegative()}).strict().refine(value=>value.originalBytes>=encoder.encode(value.originalText).length&&value.truncated===(value.originalBytes>encoder.encode(value.originalText).length));
 export type TerminalExcerpt=z.infer<typeof terminalExcerptSchema>;
 export interface TerminalExcerptOwner {projectId:string;threadId:string}
 export const excerptDraftKey=(threadId:string)=>'draft-excerpts:'+threadId;
-export function captureTerminalExcerpt(input:TerminalExcerptOwner&{terminalId:string;selection:string}):TerminalExcerpt{
+export function captureTerminalExcerpt(input:TerminalExcerptOwner&{terminalId:string;terminalName?:string;lineRange?:{start:number;end:number};selection:string}):TerminalExcerpt{
  const originalBytes=encoder.encode(input.selection).length;let originalText='',bytes=0;
  for(const scalar of input.selection){const size=encoder.encode(scalar).length;if(bytes+size>TERMINAL_EXCERPT_MAX_BYTES)break;originalText+=scalar;bytes+=size;}
- return terminalExcerptSchema.parse({version:1,id:crypto.randomUUID(),terminalId:input.terminalId,projectId:input.projectId,threadId:input.threadId,capturedAt:new Date().toISOString(),originalText,text:originalText,truncated:bytes<originalBytes,originalBytes});
+ return terminalExcerptSchema.parse({version:1,id:crypto.randomUUID(),terminalId:input.terminalId,...(input.terminalName?{terminalName:input.terminalName}:{}),...(input.lineRange?{lineRange:input.lineRange}:{}),projectId:input.projectId,threadId:input.threadId,capturedAt:new Date().toISOString(),originalText,text:originalText,truncated:bytes<originalBytes,originalBytes});
 }
+export function terminalExcerptLabel(excerpt:TerminalExcerpt):string{return `${excerpt.terminalName??'Terminal'} · ${excerpt.lineRange?`lines ${excerpt.lineRange.start}–${excerpt.lineRange.end}`:'line range unavailable'}`;}
 export function editTerminalExcerpt(excerpt:TerminalExcerpt,text:string):TerminalExcerpt{return terminalExcerptSchema.parse({...excerpt,text});}
 export function readTerminalExcerpts(value:unknown,owner?:TerminalExcerptOwner):TerminalExcerpt[]{
  const excerpts=value===undefined?[]:z.array(terminalExcerptSchema).max(TERMINAL_EXCERPT_MAX_COUNT).parse(value);

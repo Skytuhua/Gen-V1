@@ -47,7 +47,7 @@ async function fixture(page: Page) {
     fail(value: boolean) { failure = value; },
     holdNext() { let release!: () => void; hold = new Promise<void>(done => { release = done; }); return release; },
     async open() { await page.goto('/'); await expect(page.getByRole('textbox', { name: 'Message', exact: true })).toBeEnabled();
-      return page.getByRole('region', { name: 'Operation approval', exact: true }); },
+      return page.getByRole('region', { name:/^Operation approval:/, exact: true }); },
   };
 }
 
@@ -234,7 +234,7 @@ test('trust can still be revoked after approval while the operation is queued', 
   await expect.poll(() => value.host.commands.filter(command => command.type === 'operation.approve').length).toBe(1);
   value.snapshot.operations[0].approved = true;
   await value.host.publish();
-  const outcome = page.getByRole('region', { name: 'Operation outcome', exact: true });
+  const outcome = page.getByRole('region', { name:/^Operation outcome:/, exact: true });
   await expect(outcome.getByRole('button', { name: 'Revoke project trust', exact: true })).toBeEnabled();
   await expect(outcome.getByRole('button', { name: 'Review project trust', exact: true })).toHaveCount(0);
   await expect(outcome.getByRole('button', { name: 'Approve operation', exact: true })).toHaveCount(0);

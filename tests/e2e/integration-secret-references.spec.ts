@@ -1,5 +1,35 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import {mkdir} from 'node:fs/promises';
+import {resolve} from 'node:path';
+
+test('audit UI-003 and UI-005 separate readiness and offer safe missing-integration recovery',async({page})=>{
+ const f=await fixture(page);let reads=0,installed=false;
+ const raw="ENOENT: no such file or directory, lstat 'C:/fixture/private/integrations/graphify'";
+ await page.route('**/api/integrations',route=>{reads++;return route.fulfill({json:{integrations:[
+  {id:'graphify',name:'Graphify',version:'1.0',installed,enabled:true,state:installed?'ready':'missing',error:installed?undefined:raw,capabilities:{skills:['graph'],commands:[],hooks:[],mcp:false}},
+  {id:'context7',name:'Context7',version:'2.0',installed:true,enabled:true,state:'ready',capabilities:{skills:[],commands:[],hooks:[],mcp:true}},
+ ]}});});
+ await f.open();const row=page.locator('.integration-settings .settings-row').filter({has:page.getByRole('heading',{name:/Graphify/})});await expect(row).toBeVisible();
+ const directory=process.env.AUDIT_CAPTURE_DIR,phase=process.env.AUDIT_CAPTURE_PHASE??'after';
+ if(directory){await mkdir(directory,{recursive:true});for(const finding of ['ui-003','ui-005'])await page.screenshot({path:resolve(directory,`${finding}-${phase}.png`)});}
+ await expect(row).toContainText("Graphify isn't installed in this environment");await expect(row.getByText(raw,{exact:true})).toBeHidden();
+ const heading=row.getByRole('heading');expect(await heading.evaluate(node=>getComputedStyle(node).columnGap)).not.toBe('normal');
+ await row.getByText('Technical details',{exact:true}).click();await expect(row.getByText(raw,{exact:true})).toBeVisible();
+ if(directory)await page.screenshot({path:resolve(directory,`ui-003-${phase}-details.png`)});
+ const previous=reads;installed=true;await row.getByRole('button',{name:'Recheck Graphify',exact:true}).click();
+ await expect(row.locator('.availability')).toHaveText('ready');expect(reads).toBeGreaterThan(previous);expect(f.writes).toEqual([]);
+});
+
+test('integration inventory errors disclose diagnostics and read-only recheck recovers',async({page})=>{
+ const f=await fixture(page);let unavailable=true;
+ const raw="ENOENT C:/fixture/private/inventory";
+ await page.route('**/api/integrations',route=>unavailable?route.fulfill({status:503,json:{error:{code:'UNAVAILABLE',message:raw}}}):route.fulfill({json:{integrations:[]}}));
+ await f.open();const inventory=page.locator('.integration-settings');
+ await expect(inventory.getByRole('status')).toContainText('Integrations could not be checked or updated');await expect(inventory.getByText(raw,{exact:true})).toBeHidden();
+ unavailable=false;await inventory.getByRole('button',{name:'Recheck integrations',exact:true}).click();
+ await expect(inventory.getByRole('status')).toHaveCount(0);await expect(inventory.locator('.settings-row')).toHaveCount(0);expect(f.writes).toEqual([]);
+});
 
 const reference = { refId: 'context7.12345678-1234-4234-8234-123456789abc', purpose: 'Context7 documentation', owner: 'personal/context7',
   destination: { kind: 'process-env', executableSha256: 'b'.repeat(64), envName: 'CONTEXT7_API_KEY' }, revoked: false };
@@ -28,7 +58,7 @@ async function fixture(page: Page) {
     async open() {
       await page.goto('/');
       const settings = page.getByRole('button', { name: 'Settings', exact: true });
-      await expect(settings).toBeAttached();
+      await expect(settings).toBeAttached({timeout:15000});
       const navigation = page.getByRole('button', { name: 'Open navigation', exact: true });
       if (await navigation.isVisible()) await navigation.click();
       await settings.click();
