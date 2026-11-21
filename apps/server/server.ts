@@ -128,15 +128,16 @@ export async function buildServer(service: Service, options: ServerOptions) {
     }
     return reply.header("Cache-Control", "no-store").type('application/json').send(json);
   });
-  app.get<{ Params: { id: string }; Querystring: { beforeId?: string; limit?: string } }>('/api/threads/:id/messages', async (request, reply) => {
+  app.get<{ Params: { id: string }; Querystring: { beforeId?: string; anchorId?: string; limit?: string } }>('/api/threads/:id/messages', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');
-    const { id } = request.params, { beforeId, limit } = request.query;
-    if ((beforeId !== undefined && typeof beforeId !== 'string') || (limit !== undefined && typeof limit !== 'string')) throw new HarnessError('INVALID_INPUT', 'Message paging parameters must be single values');
+    const { id } = request.params, { beforeId, anchorId, limit } = request.query;
+    if ((beforeId !== undefined && typeof beforeId !== 'string') || (anchorId !== undefined && typeof anchorId !== 'string') || (limit !== undefined && typeof limit !== 'string')) throw new HarnessError('INVALID_INPUT', 'Message paging parameters must be single values');
+    if (beforeId !== undefined && anchorId !== undefined) throw new HarnessError('INVALID_INPUT', 'Message anchor and paging cursor are mutually exclusive');
     if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
     if (limit !== undefined && (!limit || /\D/.test(limit.replace(/^[+-]/, '')))) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
     const parsed = limit === undefined ? 200 : Number(limit);
     if (!Number.isSafeInteger(parsed)) throw new HarnessError('INVALID_INPUT', 'Choose a valid message page size');
-    return service.store.messagesFor(id, beforeId, parsed);
+    return service.store.messagesFor(id, beforeId, parsed, anchorId);
   });
   // Thread-scoped read for evals and other single-thread pollers: no full
   // workspace snapshot serialization per poll.

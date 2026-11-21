@@ -34,8 +34,9 @@ export async function getConversationContext(input: ConversationTarget, signal?:
   if (context.owner.threadId !== threadId || context.includeArchived !== target.includeArchived) throw invalid();
   return context;
 }
-export async function getConversationHistory(input: ConversationContext, query: {limit?: number; cursor?: string} = {}, signal?: AbortSignal): Promise<ConversationHistoryPage> {
-  const context = checkedContext(input), options = conversationHistoryQuerySchema.pick({limit: true, cursor: true}).parse(query);
+export async function getConversationHistory(input: ConversationContext, query: {limit?: number; cursor?: string; anchorId?: string} = {}, signal?: AbortSignal): Promise<ConversationHistoryPage> {
+  if (query.cursor !== undefined && query.anchorId !== undefined) throw new ApiError('INVALID_INPUT', 'Anchor and cursor are mutually exclusive.');
+  const context = checkedContext(input), options = conversationHistoryQuerySchema.pick({limit: true, cursor: true, anchorId: true}).parse(query);
   const {threadId, ...target} = {...scope(context), ...options};
   const page = parse(conversationHistoryPageSchema, await get(threadId, '/transcript', target, signal)); checkEnvelope(context, page);
   const ids = new Set<string>();

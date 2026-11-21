@@ -12,7 +12,8 @@ const cursor = z.string().min(1).max(2048);
 const hash = z.string().regex(/^[a-f0-9]{64}$/);
 const target = z.strictObject({authority: z.literal('personal'), includeArchived: z.enum(['true', 'false']).transform(value => value === 'true').optional()});
 const scope = target.extend({scopeKey: hash});
-const history = scope.extend({limit: z.string().regex(/^[1-9][0-9]?$/).transform(Number).pipe(z.number().max(50)).optional(), cursor: cursor.optional()});
+const history = scope.extend({limit: z.string().regex(/^[1-9][0-9]?$/).transform(Number).pipe(z.number().max(50)).optional(), cursor: cursor.optional(), anchorId: z.string().min(1).max(200).optional()})
+  .refine(query => !(query.cursor !== undefined && query.anchorId !== undefined), {message: 'anchorId and cursor are mutually exclusive'});
 
 /** Register before app.ready(), only in the existing authenticated Personal server. */
 export function registerConversationReadRoutes(app: FastifyInstance, reads: ConversationReadRouteHost) {

@@ -78,3 +78,18 @@ it('revokes a captured scope when its canonical owner epoch changes', async () =
   expect(response.statusCode).toBe(400); expect(response.json().error.code).toBe('RESYNC_REQUIRED');
   expect(response.headers['cache-control']).toBe('no-store');
 });
+
+it('serves an inclusive anchored page and rejects anchor plus cursor together', async () => {
+  const f = await fixture();
+  f.store.internal('fixture.more', 'personal', () => {
+    for (let i = 1; i <= 40; i++) f.store.put('message', 'm-' + i, 'personal', {id: 'm-' + i, threadId: 'personal', role: 'user', content: 'row ' + i, createdAt: '2026-11-06T00:00:00Z', runId: null});
+    f.store.put('message', 'foreign', 'other-thread', {id: 'foreign', threadId: 'other-thread', role: 'user', content: 'x', createdAt: '2026-11-06T00:00:00Z', runId: null});
+  });
+  const context = (await f.app.inject({url: path + '?authority=personal', headers: f.headers})).json();
+  const query = '?authority=personal&scopeKey=' + context.scopeKey;
+  const page = (await f.app.inject({url: path + '/transcript' + query + '&anchorId=m-35', headers: f.headers})).json();
+  expect(page.messages.at(-1).id).toBe('m-35'); expect(page.messages.length).toBe(30); expect(page.nextCursor).toBeTruthy();
+  const absent = (await f.app.inject({url: path + '/transcript' + query + '&anchorId=foreign', headers: f.headers})).json();
+  expect(absent).toMatchObject({messages: [], nextCursor: null});
+  expect((await f.app.inject({url: path + '/transcript' + query + '&anchorId=m-35&cursor=' + encodeURIComponent(page.nextCursor), headers: f.headers})).statusCode).toBe(400);
+});

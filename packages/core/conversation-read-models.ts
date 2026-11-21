@@ -199,9 +199,26 @@ export class ConversationReadModels {
       nextContentCursor: next < row.contentLength ? this.encode({kind: 'content', scope, position: next, messageId: row.id, row: row.row, revision: row.revision}) : null});
   }
   history(input: unknown): ConversationHistoryPage {
-    const {scopeKey, limit, cursor, ...target} = conversationHistoryQuerySchema.parse(input);
+    const {scopeKey, limit, cursor, anchorId, ...target} = conversationHistoryQuerySchema.parse(input);
+    if (cursor !== undefined && anchorId !== undefined) throw invalidCursor();
     return this.read(() => {
-      this.scoped(target, scopeKey); let before = Number.MAX_SAFE_INTEGER;
+      this.scoped(target, scopeKey);
+      if (anchorId !== undefined) {
+        // Inclusive seek: index the anchor row by thread plus ID, then read a
+        // bounded page ending at it. An absent or ineligible anchor is an empty
+        // page, indistinguishable from a cross-thread ID after admission.
+        const anchor = this.store.db.prepare("SELECT rowid,json_extract(body,'$.role') AS role FROM entities WHERE " + messageWhere + " AND id=?")
+          .get(target.threadId, target.threadId, anchorId) as {rowid: number; role: unknown} | undefined;
+        if (!anchor || (anchor.role !== 'user' && anchor.role !== 'assistant'))
+          return {...this.envelope(target, scopeKey), messages: [], nextCursor: null};
+        const seekLimit = Math.min(limit, 30);
+        const rows = this.store.db.prepare(messageSelect + ' WHERE ' + messageWhere + ' AND rowid<=? ORDER BY rowid DESC LIMIT ?')
+          .all(1, target.threadId, target.threadId, anchor.rowid, seekLimit + 1) as unknown as MessageRow[];
+        const selected = rows.slice(0, seekLimit).reverse();
+        return {...this.envelope(target, scopeKey), messages: selected.map(row => this.slice(row, scopeKey)),
+          nextCursor: rows.length > seekLimit ? this.encode({kind: 'history', scope: scopeKey, position: selected[0].row, messageId: selected[0].id}) : null};
+      }
+      let before = Number.MAX_SAFE_INTEGER;
       if (cursor) {
         const value = this.decode(cursor, 'history', scopeKey); before = value.position;
         if (!this.store.db.prepare('SELECT 1 FROM entities WHERE ' + messageWhere + ' AND rowid=? AND id=?').get(target.threadId, target.threadId, before, value.messageId)) throw resync();

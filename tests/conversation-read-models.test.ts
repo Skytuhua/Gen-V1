@@ -251,3 +251,32 @@ it('fails closed after disposal or synchronous host revocation', () => {
   expect(() => reads.history({...f.target, scopeKey: context.scopeKey})).toThrow(/revoked/i);
   f.reads.dispose(); expect(() => f.reads.context(f.target)).toThrow(/unavailable/i);
 });
+
+it('seeks an inclusive bounded page ending at an eligible anchor beyond the normal window', () => {
+  const f = fixture();
+  for (let i = 1; i <= 200; i++) f.message('m-' + i, 'row ' + i, 'main', {role: i % 2 ? 'user' : 'assistant'});
+  f.message('act-1', 'status', 'main', {role: 'activity'});
+  const scope = f.scope();
+  const page = f.reads.history({...scope, anchorId: 'm-150'});
+  expect(page.messages.length).toBe(30);
+  expect(page.messages.at(-1)?.id).toBe('m-150');
+  expect(page.messages[0]?.id).toBe('m-121');
+  expect(page.nextCursor).not.toBeNull();
+  const older = f.reads.history({...scope, cursor: page.nextCursor!});
+  expect(older.messages.at(-1)?.id).toBe('m-120');
+  const small = f.reads.history({...scope, limit: 5, anchorId: 'm-150'});
+  expect(small.messages.map(row => row.id)).toEqual(['m-146', 'm-147', 'm-148', 'm-149', 'm-150']);
+  const head = f.reads.history({...scope, anchorId: 'm-3'});
+  expect(head.messages.map(row => row.id)).toEqual(['m-1', 'm-2', 'm-3']);
+  expect(head.nextCursor).toBeNull();
+  for (const anchorId of ['act-1', 'missing', 'foreign-id'])
+    expect(f.reads.history({...scope, anchorId}), anchorId).toMatchObject({messages: [], nextCursor: null});
+  expect(() => f.reads.history({...scope, anchorId: 'm-150', cursor: page.nextCursor!})).toThrow(/cursor/i);
+});
+
+it('rejects anchor seeks after the owner is archived, revoked or rebound', () => {
+  const f = fixture(); f.message('m-1', 'row 1');
+  const scope = f.scope();
+  f.putThread('main', {epoch: 99});
+  expect(() => f.reads.history({...scope, anchorId: 'm-1'})).toThrow(/resync/i);
+});
