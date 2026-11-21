@@ -50,7 +50,7 @@ try{
 }catch(error){
  const detail=error instanceof Error?error.message:'Could not start the local harness.';
  const diagnostic=startupErrorDiagnostic(error);
- if(validToken&&process.env.HARNESS_DESKTOP_TEST_DATA_DIR)try{writeSync(1,'HARNESS_STARTUP_V1 '+JSON.stringify({stage:'backend-error',elapsedMs:Math.max(0,Date.now()-startupStarted),error:diagnostic})+'\n');}catch{}
+ if(validToken&&process.env.HARNESS_DESKTOP_TEST_DATA_DIR)try{writeSync(1,'HARNESS_STARTUP_V1 '+JSON.stringify({stage:'backend-error',elapsedMs:Math.max(0,Date.now()-startupStarted),error:diagnostic})+'\n');}catch{/* The test-data startup emit is best effort. */}
  if(validToken)await message({type:'harness.error',token,message:detail,diagnostic});
  process.stderr.write(detail+'\n');process.exit(1);
 }

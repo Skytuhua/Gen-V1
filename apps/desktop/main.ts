@@ -36,7 +36,7 @@ const testData=process.env.HARNESS_DESKTOP_TEST_DATA_DIR;
 const startupStarted=Date.now();let startupSettled=false;
 function startupDiagnostic(stage:StartupDiagnostic['stage'],error:StartupDiagnostic['error']=null,output?:StartupDiagnostic['output']){
  try{if(!testData||startupSettled)return;
- writeStartupDiagnostic(line=>{writeSync(2,line);},{stage,elapsedMs:Math.max(0,Date.now()-startupStarted),error,...(output?{output}:{})});}catch{}
+ writeStartupDiagnostic(line=>{writeSync(2,line);},{stage,elapsedMs:Math.max(0,Date.now()-startupStarted),error,...(output?{output}:{})});}catch{/* The startup diagnostic sink itself may be unavailable this early. */}
 }
 const observeStartup=(value:StartupObservation)=>startupDiagnostic(value.stage,value.error);
 app.setName('Gen V1');
@@ -99,7 +99,7 @@ function remember(record:WindowRecord,open=true){if(record.window.isDestroyed())
  if(!awaitingRescue)record.placement=retainDesktopPlacement(bounds,record.placement,record.appliedBounds,all);
  if(record.placement&&all.some(display=>display.id===record.placement!.displayId))record.monitorRescued=false;
  const value={surface:record.surface,bounds,placement:record.placement,open,visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{})};saved=[...saved.filter(entry=>desktopSurfaceKey(entry.surface)!==key),value];if(saved.length>24){const live=new Set([...windows.values()].map(item=>desktopSurfaceKey(item.surface)));saved=[...saved.filter(entry=>live.has(desktopSurfaceKey(entry.surface))),...saved.filter(entry=>!live.has(desktopSurfaceKey(entry.surface)))].slice(0,24);}persist();}
-async function loadSaved(){try{const bytes=await readFile(stateFile,'utf8');if(bytes.length>128*1024)return;const raw=JSON.parse(bytes);if(raw.version!==1||!Array.isArray(raw.windows)||raw.windows.length>24)return;for(const entry of raw.windows){try{const surface=parseDesktopSurface(entry.surface);if(!desktopSurfaceAllowed(surface))continue;if(entry.bounds&&typeof entry.bounds==='object')saved.push({surface,bounds:clampDesktopBounds(entry.bounds,workAreas(),surfaceSize(surface)),placement:parseDesktopPlacement(entry.placement),open:entry.open===true,visible:entry.visible!==false,alwaysOnTop:entry.alwaysOnTop===true,...(surface.kind==='main'&&desktopId(entry.dockedBrowserId)?{dockedBrowserId:entry.dockedBrowserId}:{})});}catch{}}}catch{}}
+async function loadSaved(){try{const bytes=await readFile(stateFile,'utf8');if(bytes.length>128*1024)return;const raw=JSON.parse(bytes);if(raw.version!==1||!Array.isArray(raw.windows)||raw.windows.length>24)return;for(const entry of raw.windows){try{const surface=parseDesktopSurface(entry.surface);if(!desktopSurfaceAllowed(surface))continue;if(entry.bounds&&typeof entry.bounds==='object')saved.push({surface,bounds:clampDesktopBounds(entry.bounds,workAreas(),surfaceSize(surface)),placement:parseDesktopPlacement(entry.placement),open:entry.open===true,visible:entry.visible!==false,alwaysOnTop:entry.alwaysOnTop===true,...(surface.kind==='main'&&desktopId(entry.dockedBrowserId)?{dockedBrowserId:entry.dockedBrowserId}:{})});}catch{/* A malformed window entry is skipped. */}}}catch{/* A missing or corrupt state file just yields no saved layout. */}}
 function applyPlacement(record:WindowRecord,bounds:DesktopBounds,preferred=record.placement){if(record.window.isDestroyed())return;record.placement=preferred;record.appliedBounds=bounds;record.normalBounds.apply(bounds);record.window.setBounds(bounds);remember(record);}
 function resetWindowPosition(record:WindowRecord){const all=displays(),current=captureDesktopPlacement(record.window.getBounds(),all),target=all.find(display=>display.id===current.displayId)!;const bounds=placeOnDesktopDisplay(surfaceSize(record.surface),target);applyPlacement(record,bounds,captureDesktopPlacement(bounds,all));}
 function focusedRecord(){const focused=BrowserWindow.getFocusedWindow();return [...windows.values()].find(record=>record.window===focused);}
@@ -281,7 +281,7 @@ function registerIpc(){
   if(command.type==='open')return handoff(async()=>{
    if(quitting||quitPending||record.window.isDestroyed()||windows.get(record.id)!==record)throw Error('The workspace is closing.');
    const browser=ensureMainDockedBrowser(record,()=>browserRecord(randomUUID()),browser=>{moveBrowser(browser,record,true);browser.view.setBounds({x:0,y:0,width:0,height:0});},browser=>{
-    try{record.window.contentView.removeChildView(browser.view);}catch{}
+    try{record.window.contentView.removeChildView(browser.view);}catch{/* The view may already be detached during teardown. */}
     if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
     if(browsers.get(browser.id)===browser)browsers.delete(browser.id);
    });
@@ -290,7 +290,7 @@ function registerIpc(){
   if(command.type==='close')return handoff(async()=>{
    if(quitting||quitPending||record.window.isDestroyed()||windows.get(record.id)!==record)throw Error('The workspace is closing.');
    const browser=record.dockedBrowser;if(!browser)throw Error('Only the docked browser can be closed from the workspace.');
-   detachOwnedBrowser(record,browser,value=>{try{record.window.contentView.removeChildView(value.view);}catch{}});
+   detachOwnedBrowser(record,browser,value=>{try{record.window.contentView.removeChildView(value.view);}catch{/* The view may already be detached during teardown. */}});
    browser.generation++;if(browsers.get(browser.id)===browser)browsers.delete(browser.id);
    if(!browser.view.webContents.isDestroyed())browser.view.webContents.close({waitForBeforeUnload:false});
    remember(record);broadcast();
@@ -313,7 +313,7 @@ async function startBackend():Promise<void>{
  startupDiagnostic('backend-starting');
  const child=spawn(nodePath,nodeSidecarArguments(root),{cwd:root,env,stdio:['ignore','pipe','pipe','ipc'],windowsHide:true,serialization:'json'});backend=child;
  let output:ReturnType<typeof createStartupOutputCapture>|undefined;
- if(testData&&!startupSettled)try{output=createStartupOutputCapture(Date.now,value=>{if(value.stage==='backend-error')startupDiagnostic('backend-stream-error',value.error);});}catch{}
+ if(testData&&!startupSettled)try{output=createStartupOutputCapture(Date.now,value=>{if(value.stage==='backend-error')startupDiagnostic('backend-stream-error',value.error);});}catch{/* Test-data output capture is optional; spawn proceeds without it. */}
  let stderr='';child.stderr?.on('data',bytes=>{stderr=(stderr+String(bytes)).slice(-8000);output?.write('stderr',bytes);});child.stdout?.on('data',(bytes:Buffer)=>output?.write('stdout',bytes));
  try{
  const value=await waitForBackendReady(child,token,backendPort,()=>stderr,observeStartup);
@@ -325,7 +325,7 @@ async function startBackend():Promise<void>{
   child.once('exit',()=>{if(closing||backend!==child)return;backendError='The local backend stopped. Reconnecting…';broadcast();if(restarting)return;restarting=true;setTimeout(()=>{void startBackend().catch(error=>{backendError='Backend restart failed: '+String(error instanceof Error?error.message:error).slice(0,500);broadcast();}).finally(()=>{restarting=false;});},700);});
   backendError=undefined;broadcast();
  },observeStartup);
- }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{}}
+ }finally{try{if(output)startupDiagnostic('backend-output',null,output.read().streams);}catch{/* Emitting captured output is best effort. */}}
 }
 async function stopBackend():Promise<boolean>{
  let clean=true;
@@ -357,7 +357,7 @@ function startUpdater(){
 }
 async function closeApplication(){
  let activeWorkAtClose=true,savedStateFlushed=false;
- try{activeWorkAtClose=signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true;}catch{}
+ try{activeWorkAtClose=signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true;}catch{/* On probe failure keep the safe default and still confirm the close. */}
  for(const record of windows.values())if(!await requestClose(record)){for(const entry of windows.values())cancelClose(entry);restartForUpdate=false;return;}
  await signInFlows.close();
  clearTimeout(saveTimer);try{await persistence.flush();}catch{layoutError='Workspace layout could not be saved.';}

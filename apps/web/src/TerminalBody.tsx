@@ -85,7 +85,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    const colors=getComputedStyle(element.current!);
    instance=new Terminal({convertEol:false,fontSize:13,scrollback:2000,theme:{background:'#101010',foreground:'#dedede',selectionBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionInactiveBackground:colors.getPropertyValue('--selection-bg').trim()||'#1f1f1f',selectionForeground:colors.getPropertyValue('--text').trim()||'#e6e6e6'}});
    const fit=new FitAddon();instance.loadAddon(fit);instance.open(element.current!);fit.fit();
-   let saved:string|null=null,pending:string|null=null;try{saved=localStorage.getItem(key);pending=localStorage.getItem(key+':pending');}catch{}
+   let saved:string|null=null,pending:string|null=null;try{saved=localStorage.getItem(key);pending=localStorage.getItem(key+':pending');}catch{/* Storage may be unavailable (private mode or quota); fall back to a fresh ID. */}
    const requestedId=terminalId??saved??pending??(pendingId.current?.key===key?pendingId.current.id:crypto.randomUUID());
    pendingId.current={key,id:requestedId};
    // The host deduplicates caller IDs; retain an unconfirmed attempt on remount.
@@ -93,7 +93,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    const first=await post<TerminalRead>('/api/terminals',{projectId,...(threadId?{threadId}:{}),terminalId:requestedId,cols:instance.cols,rows:instance.rows},ownerCurrent);
    if(!ownerCurrent())return;
    matches(first,requestedId);confirmedId=first.id;setAcknowledged(true);
-   try{localStorage.setItem(key,first.id);localStorage.removeItem(key+':pending');}catch{}
+   try{localStorage.setItem(key,first.id);localStorage.removeItem(key+':pending');}catch{/* Persisting the session ID is best effort; the terminal keeps working. */}
    append(first);
    const canCapture=()=>ownerCurrent()&&latest.current.excerptComposer&&!latest.current.excerptComposer.readOnly&&latest.current.excerptComposer.projectId===projectId&&latest.current.excerptComposer.threadId===threadId;
    instance.onSelectionChange(()=>{if(!canCapture()||!confirmedId||!threadId)return;const text=instance!.getSelection();setSelection(text?captureTerminalExcerpt({terminalId:confirmedId,projectId,threadId,selection:text}):null);});
@@ -117,7 +117,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  const restart=async()=>{
   const owner=actions.current;if(!owner?.current())return;
   if(terminalId){if(openAnother)try{await openAnother();}catch(error){if(owner.current())setError(message(error));}return;}
-  pendingId.current=null;try{localStorage.removeItem(key);localStorage.removeItem(key+':pending');}catch{}
+  pendingId.current=null;try{localStorage.removeItem(key);localStorage.removeItem(key+':pending');}catch{/* Clearing stored IDs is best effort. */}
   setGeneration(value=>value+1);
  };
  const canAdd=active&&excerptComposer&&!excerptComposer.readOnly&&excerptComposer.projectId===projectId&&excerptComposer.threadId===threadId;
