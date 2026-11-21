@@ -18,6 +18,7 @@ import {registerAccountAuthRoutes} from './account-auth.ts';
 import {parseAccountAuthTarget} from '../../packages/runtime/account-auth.ts';
 import {registerWorkspaceRoutes} from './workspace-routes.ts';
 import {registerSourceWorkbenchRoutes} from './source-workbench-routes.ts';
+import {registeredCapabilityFlags} from '../../packages/core/capability-flags.ts';
 import {registerCodeIntelligenceRoutes} from './code-intelligence-routes.ts';
 import {registerAttentionRoutes} from './attention-routes.ts';
 import {registerBackgroundRoutes} from './background-routes.ts';
@@ -121,7 +122,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const seq = service.store.sequence;
     let json = snapshotCache?.seq === seq ? snapshotCache.json : undefined;
     if (json === undefined) {
-      json = JSON.stringify(service.store.snapshot());
+      json = JSON.stringify({ ...service.store.snapshot(), capabilities: registeredCapabilityFlags() });
       // One immutable response per committed sequence, shared by local windows.
       // Keep large workspaces responsive without retaining unbounded payloads.
       snapshotCache = Buffer.byteLength(json) <= 16 * 1024 * 1024 ? { seq, json } : undefined;
