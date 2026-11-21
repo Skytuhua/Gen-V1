@@ -3356,6 +3356,7 @@
     "tests/native-context-projection.test.ts",
     "tests/native-dock-regression.test.ts",
     "tests/native-persistence.test.ts",
+    "tests/network-proxy-inventory.test.ts",
     "tests/official-claude-stdio.test.ts",
     "tests/official-history-ownership.test.ts",
     "tests/official-manifest-save.test.ts",
