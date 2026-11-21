@@ -40,6 +40,15 @@ export function armTurnElapsed(start: number, tick: (ms: number) => void, doc: P
   return () => { unarm(); doc.removeEventListener('visibilitychange', onVisibility); };
 }
 
+/** Live elapsed count for the working-status row; renders nothing until a
+ * turnTiming record exists. aria-hidden because role=status would announce
+ * every tick; screen readers get the finished line instead. */
+export function TurnElapsed({ startedAt }: { startedAt?: string }) {
+  const elapsed = useTurnElapsed(startedAt);
+  if (elapsed === null) return null;
+  return <span className="turn-elapsed" aria-hidden="true">{formatTurnDuration(elapsed)}</span>;
+}
+
 /** Elapsed ms for the live working-status count; null until armed or when
  * the record has not landed in the snapshot yet. */
 export function useTurnElapsed(startedAt?: string): number | null {
