@@ -4,7 +4,8 @@ import {existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import { StringDecoder } from 'node:string_decoder';
 import { HarnessError } from "../contracts/index.ts";
-export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean; pid: number | undefined }
+import type { TestRunV1 } from "../contracts/test-results.ts";
+export interface ProcessResult { status: "succeeded" | "failed" | "cancelled"; exitCode: number | null; signal: string | null; cancelled: boolean; timedOut: boolean; stdout: string; stderr: string; truncated: boolean; pid: number | undefined; testRun?: TestRunV1 }
 export function gitExecutable():string{
   const bundled=process.env.HARNESS_BUNDLED_GIT??fileURLToPath(new URL('../../.harness-tool-bundles/git/cmd/git.exe',import.meta.url));
   if(existsSync(bundled))return bundled;

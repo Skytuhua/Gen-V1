@@ -3,14 +3,16 @@ import { createHash, randomUUID } from "node:crypto";
 import { readdir, stat, lstat, open, realpath } from "node:fs/promises";
 import { dirname, join, relative, basename } from "node:path";
 import { HarnessError, type DataRecord, type Operation } from "../contracts/index.ts";
-import { toolSchemas, descriptions, type ToolName, type PdfArgs } from "./schemas.ts";
+import { toolSchemas, descriptions, repositoryTestResultsArgs, type ToolName, type PdfArgs } from "./schemas.ts";
+import { capabilityEnabled } from "../core/capability-flags.ts";
 import { databaseJob, validateStatements } from "./database.ts";
 import { inspectPdf, renderPdf } from "./pdf.ts";
 import { gitExecutable, runProcess } from "./process.ts";
 import { readBoundFile, removeOwnedFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
 import { withGitMetadata, type ManagedGitFamily } from "./git-access.ts";
 import { validateCanonicalPng } from './signature-png.ts';
-import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding } from './repository-test-binding.ts';
+import { GEN_REPORT_DIR_TOKEN, parseRepositoryTestOperation, requireRepositoryTestBinding, requireRepositoryTestBindingV2, withRepositoryTestBinding, withRepositoryTestBindingV2, type AnyRepositoryTestBinding } from './repository-test-binding.ts';
+import { collectTestReport, createReportDir, removeReportDir } from './test-report.ts';
 export interface DomainContext {
   threadId: string;
   signal: AbortSignal;
@@ -20,11 +22,20 @@ export interface DomainContext {
   publishData(value: unknown, provenance: string): DataRecord;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
-  assertRepositoryTestTrust?(operation: Operation, binding: import('./repository-test-binding.ts').RepositoryTestBinding): void;
+  assertRepositoryTestTrust?(operation: Operation, binding: AnyRepositoryTestBinding): void;
+  dataDir?: string;
   completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
   preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
 }
-export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({ name, description: descriptions[name as ToolName], parameters: z.toJSONSchema(schema) as Record<string, unknown> }));
+const testResultsToolDescription = "Prepare exactly node --test -- <named testFile> in a granted project, or Vitest with recipe:'vitest'; an exact testName runs one test. Approval authorizes running that file's code with local user privileges; no arbitrary shell recipe. Structured results arrive on the operation's testRun field (runner evidence, not tamper-proof attestation).";
+export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({
+  name,
+  get description() { return name === "repository_test_prepare" && capabilityEnabled("ui.testResultsV1") ? testResultsToolDescription : descriptions[name as ToolName]; },
+  get parameters() {
+    const active = name === "repository_test_prepare" && capabilityEnabled("ui.testResultsV1") ? repositoryTestResultsArgs : schema;
+    return z.toJSONSchema(active) as Record<string, unknown>;
+  },
+}));
 const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
 function active(ctx: DomainContext) { if (ctx.signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled"); }
 function parse<N extends ToolName>(name: N, args: unknown): z.infer<(typeof toolSchemas)[N]> {
@@ -120,9 +131,17 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       return ctx.prepareOperation("file.replace", a, [a.resourceId], { sha256: source.sha256 }, `Replace ${a.path ?? a.resourceId} if SHA-256 ${source.sha256} still matches`);
     }
     case "repository_test_prepare": {
-      const a = parse("repository_test_prepare", rawArgs);
+      const testResultsOn = capabilityEnabled("ui.testResultsV1");
+      const checked = (testResultsOn ? repositoryTestResultsArgs : toolSchemas.repository_test_prepare).safeParse(rawArgs);
+      if (!checked.success) throw new HarnessError("INVALID_TOOL_ARGUMENTS", "Invalid repository_test_prepare arguments", checked.error.issues.map(i => ({ path: i.path, message: i.message })));
+      const a = checked.data;
       return access(ctx, a.resourceId, undefined, false, async cwd => {
         const testPath = await ctx.resolveResource(a.resourceId, a.testFile, false);
+        if (testResultsOn) return withRepositoryTestBindingV2(cwd, testPath, a.testFile, a.recipe ?? "node-test", 'testName' in a ? a.testName : undefined, ctx.signal, async binding => {
+          const shown = binding.argv.map(arg => arg.replaceAll(GEN_REPORT_DIR_TOKEN, "<Gen report folder>")).join(" ");
+          return ctx.prepareOperation("repository.test", { ...a, executionBinding: binding }, [a.resourceId],
+            { testSha256: binding.test.sha256 }, `Run exactly ${binding.executable.path} ${shown} in ${binding.cwd.path}; this executes granted project code with local user privileges`);
+        });
         return withRepositoryTestBinding(cwd, testPath, a.testFile, ctx.signal, async binding =>
           ctx.prepareOperation("repository.test", { ...a, recipe: "node-test", executionBinding: binding }, [a.resourceId],
             { testSha256: binding.test.sha256 }, `Run exactly ${binding.executable.path} --test -- ${a.testFile} in ${binding.cwd.path}; this executes granted project code with local user privileges`));
@@ -184,10 +203,27 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
     case "repository.test": {
       const a = parseRepositoryTestOperation(operation.args); operationResources(operation, [a.resourceId]);
       if (!a.executionBinding) throw new HarnessError("PRECONDITION_FAILED", "Prepare and approve a new repository test with an exact launch binding");
+      const eb = a.executionBinding;
       return access(ctx, a.resourceId, undefined, true, async cwd => {
         const testPath = await ctx.resolveResource(a.resourceId, a.testFile, false);
+        if (eb.version === 2) {
+          if (!capabilityEnabled("ui.testResultsV1")) throw new HarnessError("CAPABILITY_DENIED", "Test results are turned off; ask the agent to prepare the run again");
+          const v2 = eb;
+          return withRepositoryTestBindingV2(cwd, testPath, a.testFile, v2.recipe, 'testName' in a ? a.testName : undefined, ctx.signal, async (binding, signal) => {
+            requireRepositoryTestBindingV2(v2, binding, operation.preconditions.testSha256);
+            ctx.assertRepositoryTestTrust?.(operation, binding);
+            const reportDir = ctx.dataDir ? await createReportDir(ctx.dataDir) : undefined;
+            try {
+              const argv = binding.argv.map(arg => arg.replaceAll(GEN_REPORT_DIR_TOKEN, reportDir ?? "/dev/null"));
+              const result = await runProcess(binding.executable.path, argv, binding.cwd.path, signal, m => ctx.progress(m));
+              result.testRun = await collectTestReport(reportDir, binding.recipe, cwd, binding.filter ? { testName: binding.filter.testName } : undefined,
+                'rerunOf' in a && a.rerunOf ? a.rerunOf : undefined);
+              publish(ctx, result, `operation:${operation.id}; resource:${a.resourceId}; ${binding.recipe} -- ${a.testFile}; test sha256:${binding.test.sha256}`); return result;
+            } finally { if (reportDir) await removeReportDir(reportDir); }
+          });
+        }
         return withRepositoryTestBinding(cwd, testPath, a.testFile, ctx.signal, async (binding, signal) => {
-          requireRepositoryTestBinding(a.executionBinding, binding, operation.preconditions.testSha256);
+          requireRepositoryTestBinding(eb.version === 1 ? eb : undefined, binding, operation.preconditions.testSha256);
           ctx.assertRepositoryTestTrust?.(operation, binding);
           const result = await runProcess(binding.executable.path, binding.argv, binding.cwd.path, signal, m => ctx.progress(m));
           publish(ctx, result, `operation:${operation.id}; resource:${a.resourceId}; node --test -- ${a.testFile}; test sha256:${binding.test.sha256}`); return result;

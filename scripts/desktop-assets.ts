@@ -56,7 +56,7 @@ export const REQUIRED_RUNTIME_FILES=[
  'host/node_modules/@google/gemini-cli/bundle/gemini.js','host/node_modules/@modelcontextprotocol/sdk/package.json',
  'host/node_modules/typescript/lib/typescript.js','host/node_modules/typescript/package.json',
  'host/node_modules/typescript/LICENSE.txt','host/node_modules/typescript/ThirdPartyNoticeText.txt',
- 'host/packages/core/windows-path-guard.ps1','host/packages/core/windows-credential-lease.node','host/packages/capabilities/sqlite-worker.mjs','host/dist/web/index.html'
+ 'host/packages/core/windows-path-guard.ps1','host/packages/core/windows-credential-lease.node','host/packages/capabilities/sqlite-worker.mjs','host/packages/capabilities/node-test-reporter.mjs','host/dist/web/index.html'
 ] as const;
 export function packageManagerInvocation(manager:string,node:string,args:string[]){return /\.exe$/i.test(manager)?{file:manager,args}:{file:node,args:[manager,...args]};}
 export function runtimeInstallArguments(host:string){return ['install','--ignore-workspace','--dir',host,'--lockfile-dir',host,'--prod','--frozen-lockfile','--offline','--ignore-scripts'];}

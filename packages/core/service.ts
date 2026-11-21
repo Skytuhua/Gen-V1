@@ -991,8 +991,8 @@ export class Service {
   private context(threadId: string, signal?: AbortSignal, operationId?: string, authority?: RunContext, completedWrite?:(evidence:{path:string;sha256:string;bytes:number})=>void, preWrite?:(evidence:{path:string;bytes:Uint8Array;sha256:string})=>Promise<void>) {
     const assertAuthority = () => { if (authority) this.assertRun(authority); };
     return {
-      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite,
-      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').RepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
+      threadId, signal: signal ?? new AbortController().signal,completedWrite,preWrite, dataDir: this.store.dataDir,
+      assertRepositoryTestTrust: (operation: Operation, binding: import('../capabilities/repository-test-binding.ts').AnyRepositoryTestBinding) => this.projectTrust.assertLaunch(operation, binding),
       managedGitFamily: (cwd: string) => {
         assertAuthority();
         // Git snapshots enumerate descendants, so a broad grant cannot include host storage.

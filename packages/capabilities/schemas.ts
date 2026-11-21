@@ -21,6 +21,17 @@ export const toolSchemas = {
   pdf_inspect: z.strictObject(resource),
   pdf_prepare: z.strictObject({ ...resource, exportResourceId: id, outputPath: relativePath.refine(s => s.toLowerCase().endsWith(".pdf")), fields: z.record(z.string().min(1).max(300), z.union([z.string().max(10_000), z.boolean(), z.array(z.string().max(1000)).max(100)])).optional(), signatures: z.array(z.union([z.strictObject({ kind: z.literal("typed"), text: z.string().min(1).max(200), ...placement }), z.union([z.strictObject({ kind: z.literal("drawn"), points: z.array(point).min(2).max(2000), ...placement }), z.strictObject({ kind: z.literal("drawn"), strokes: z.array(z.array(point).min(2).max(2000)).min(1).max(1000).refine(strokes => strokes.reduce((sum, stroke) => sum + stroke.length, 0) <= 2000, "At most 2000 total signature points"), ...placement })]), z.strictObject({ kind: z.literal("image"), resourceId: id.refine(value => !/[\u0000-\u0020/\\?#]/.test(value) && ![".", ".."].includes(value)), ...placement })])).max(20).optional() }),
 };
+
+// ui.testResultsV1 flag-on arguments for repository_test_prepare. The public
+// tool schema above stays exactly the baseline shape while the flag is off, so
+// baseline prepared operations and argv are unchanged; this extended schema is
+// the enforcement shape when the host enables structured results.
+export const repositoryTestResultsArgs = z.strictObject({
+  resourceId: id,
+  testFile: relativePath.refine(s => /(?:^|[\\/])[^\\/]+\.test\.(?:[cm]?[jt]s)$/.test(s) && !s.startsWith("-"), "Name one .test.js/.mjs/.cjs/.ts file"),
+  recipe: z.enum(["node-test", "vitest"]).optional(),
+  testName: z.string().min(1).max(4000).refine(s => !s.includes("\0") && !s.includes("\n") && !s.includes("\r"), "testName must be a single line").optional(),
+});
 export type ToolName = keyof typeof toolSchemas;
 export type DatabaseArgs = z.infer<typeof toolSchemas.database_prepare>;
 export type PdfArgs = z.infer<typeof toolSchemas.pdf_prepare>;
