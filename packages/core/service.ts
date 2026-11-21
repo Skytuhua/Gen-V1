@@ -28,6 +28,8 @@ import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
 import {AgentWorkCoordinator} from './agent-work.ts';
 import {PlanExtensionStore} from './plan-extension.ts';
+import {DatabaseConnectionService} from './database-connections.ts';
+import {DatabaseGateway} from '../capabilities/database-gateway.ts';
 import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
 import {SideRuntime} from './side-runtime.ts';
@@ -912,6 +914,16 @@ export class Service {
   data(threadId: string, id: string, revision?: number): DataRecord {
     return threadData(this.store, threadId, id, revision);
   }
+  private databaseConnections?: DatabaseConnectionService;
+  private databaseGateway?: DatabaseGateway;
+  databases(): DatabaseConnectionService {
+    if (!this.databaseConnections) {
+      const store = this.store;
+      const connections: DatabaseConnectionService = new DatabaseConnectionService(store, () => this.databaseGateway ??= new DatabaseGateway(connections.resolvePassword));
+      this.databaseConnections = connections;
+    }
+    return this.databaseConnections;
+  }
   publishData(threadId: string, value: unknown, provenance: string): DataRecord {
     if (Buffer.byteLength(JSON.stringify(value)) > 8 * 1024 * 1024) throw new HarnessError("INVALID_INPUT", "Dataset exceeds the 8 MiB import limit");
     const record: DataRecord = { id: randomUUID(), threadId, revision: 1, value, provenance, createdAt: now() };
@@ -1073,6 +1085,7 @@ export class Service {
     }
     const target=command.threadId?this.store.get<Thread>('thread',command.threadId):null;
     if(target?.kind==='delegate'&&!['thread.rename','thread.presentation','thread.archive','thread.restore'].includes(command.type))throw new HarnessError('DELEGATE_READ_ONLY','Delegated transcripts are read-only. Control their work from the parent task.');
+    if(command.type.startsWith('database.'))return this.databases().command(command) as Promise<CommandReceipt>;
     const preempts=['message.send','run.resume','run.compact','run.stop','thread.archive','settings.update','action.submit','request.respond','request.detail','operation.approve','operation.reject','learning.curate'].includes(command.type)||command.type.startsWith('account.');
     if(!preempts)return this.executeCommand(command);
     // Hold admission through asynchronous model discovery/history/teardown. A

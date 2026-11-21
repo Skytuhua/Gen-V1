@@ -33,6 +33,7 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {registerDatabaseRoutes} from './database-routes.ts';
 import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
 import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
@@ -257,6 +258,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
   registerDevicePairingRoutes(app,new DevicePairingHost(service.store),new ReadSyncHost(service.store));
   app.addHook('onClose',async()=>{conversationReads.dispose();toolEffectReads.dispose();});
   if(!options.agentInventory)app.addHook('onClose',async()=>{agentInventory.dispose();});
+  registerDatabaseRoutes(app,service);
   registerSkillCatalogRoutes(app,options.skillCatalog??createPersonalSkillCatalog(service.store));
   const skillRead=z.strictObject({path:z.string().min(1).max(1024).optional(),revision:z.coerce.number().int().positive().optional(),versionOffset:z.coerce.number().int().nonnegative().optional(),includeInactive:z.enum(['true','false']).optional()});
   app.get<{Params:{name:string}}>('/api/skills/:name',async(request,reply)=>{reply.header('Cache-Control','no-store');const args=skillRead.parse(request.query);return service.skillDetail(request.params.name,{...args,includeInactive:args.includeInactive==='true'});});
