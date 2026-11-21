@@ -100,11 +100,11 @@ async function isExecuting(pid: number): Promise<boolean> {
 
 function mockWorkers() {
   const children: (EventEmitter & {send:ReturnType<typeof vi.fn>})[] = [];
-  const commands: {requestId?:string;command?:string;input?:{runId?:string}}[] = [];
+  const commands: {requestId?:string;command?:string;providerId?:string;input?:{runId?:string}}[] = [];
   const spawnWorker = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       connected: true, exitCode: null, signalCode: null,
-      send: vi.fn((message: {requestId?:string;command?:string}, callback: (error: Error | null) => void) => {
+      send: vi.fn((message: {requestId?:string;command?:string;providerId?:string}, callback: (error: Error | null) => void) => {
         commands.push(message);
         queueMicrotask(() => {
           child.emit("message", { type: "response", requestId: message.requestId, value: null });
@@ -278,6 +278,15 @@ describe("SDK lifecycle normalization", () => {
 });
 
 describe("authoritative parent tool IPC", () => {
+  it("rejects a present tool error even when its diagnostic is empty", async () => {
+    const sent: {requestId: string}[] = [];
+    const bridge = new ToolBridge(ctx, message => sent.push(message));
+    const outcome = bridge.call("tc-failure", "read_fixture", {});
+    const error = expect(outcome).rejects.toThrow("Pi host tool failed.");
+    bridge.receive({ type: "tool.result", requestId: sent[0].requestId, ctx, toolCallId: "tc-failure", error: "" });
+    await error;
+  });
+
   it("ignores mismatched epochs and tool IDs even when the request ID matches", async () => {
     const sent: {requestId?:string}[] = [];
     const bridge = new ToolBridge(ctx, m => { sent.push(m); });

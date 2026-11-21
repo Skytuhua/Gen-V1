@@ -36,36 +36,36 @@ export const AGENT_WORK_LIMITS = Object.freeze({
 } as const);
 
 /** Durable thread custody plus the run epoch that owned a live dispatch. */
-export const AgentWorkOwnerSchema = z.strictObject({
+const AgentWorkOwnerSchema = z.strictObject({
   threadId: id,
   runId: id.nullable(),
   epoch: seq,
 });
 export type AgentWorkOwner = z.infer<typeof AgentWorkOwnerSchema>;
 
-export const AgentWorkRoleSchema = z.enum(['PLAN_READ', 'CODE_WORKTREE', 'QA', 'RESEARCH_READ']);
+const AgentWorkRoleSchema = z.enum(['PLAN_READ', 'CODE_WORKTREE', 'QA', 'RESEARCH_READ']);
 export type AgentWorkRole = z.infer<typeof AgentWorkRoleSchema>;
-export const AgentWorkStateSchema = z.enum(['QUEUED', 'RUNNING', 'WAITING_HUMAN', 'COMPLETED_REPORTED', 'VERIFIED', 'FAILED', 'CANCELLED', 'INTERRUPTED']);
+const AgentWorkStateSchema = z.enum(['QUEUED', 'RUNNING', 'WAITING_HUMAN', 'COMPLETED_REPORTED', 'VERIFIED', 'FAILED', 'CANCELLED', 'INTERRUPTED']);
 export type AgentWorkState = z.infer<typeof AgentWorkStateSchema>;
-export const AgentWorkFailureSchema = z.enum(['OUTPUT_SCHEMA_INVALID', 'BUDGET_EXHAUSTED', 'PERMISSION_REVOKED', 'RUNTIME_FAILURE', 'UNKNOWN']);
-export type AgentWorkFailure = z.infer<typeof AgentWorkFailureSchema>;
+const AgentWorkFailureSchema = z.enum(['OUTPUT_SCHEMA_INVALID', 'BUDGET_EXHAUSTED', 'PERMISSION_REVOKED', 'RUNTIME_FAILURE', 'UNKNOWN']);
+
 
 export const AGENT_WORK_TERMINAL_STATES: ReadonlySet<AgentWorkState> = new Set(['COMPLETED_REPORTED', 'VERIFIED', 'FAILED', 'CANCELLED', 'INTERRUPTED']);
 
 /** A child reservation against the parent's global budget. At least one
  * dimension must be bounded; the coordinator tracks failed and cancelled
  * work against the same ledger. */
-export const AgentWorkBudgetSchema = z.strictObject({
+const AgentWorkBudgetSchema = z.strictObject({
   tokens: units.nullable(),
   ms: units.nullable(),
 }).refine(value => value.tokens !== null || value.ms !== null, 'Reserve a token and/or wall-time bound');
-export type AgentWorkBudget = z.infer<typeof AgentWorkBudgetSchema>;
+
 
 const jsonSchema = z.record(z.string(), z.unknown()).refine(
   value => utf8(JSON.stringify(value)) <= AGENT_WORK_LIMITS.schemaBytes,
   `Output schema must fit within ${AGENT_WORK_LIMITS.schemaBytes} UTF-8 bytes`,
 );
-export type JsonSchemaObject = z.infer<typeof jsonSchema>;
+
 
 export const AgentWorkV1Schema = z.strictObject({
   version: z.literal(1),
@@ -103,12 +103,12 @@ export const AgentWorkAdmissionV1Schema = z.strictObject({
 });
 export type AgentWorkAdmissionV1 = z.infer<typeof AgentWorkAdmissionV1Schema>;
 
-export const AgentInputKindSchema = z.enum(['STEER', 'FOLLOW_UP', 'MESSAGE']);
+const AgentInputKindSchema = z.enum(['STEER', 'FOLLOW_UP', 'MESSAGE']);
 export type AgentInputKind = z.infer<typeof AgentInputKindSchema>;
 /** ACCEPTED is a durable queue position only — never a delivery claim. Entry
  * and handling exist solely through an adapter acknowledgment. */
-export const AgentInputDeliverySchema = z.enum(['ACCEPTED', 'ENTERED_RUNTIME', 'HANDLED', 'REJECTED', 'UNKNOWN']);
-export type AgentInputDelivery = z.infer<typeof AgentInputDeliverySchema>;
+const AgentInputDeliverySchema = z.enum(['ACCEPTED', 'ENTERED_RUNTIME', 'HANDLED', 'REJECTED', 'UNKNOWN']);
+
 
 export const AgentInputV1Schema = z.strictObject({
   version: z.literal(1),
@@ -130,7 +130,7 @@ export const AgentInputV1Schema = z.strictObject({
 });
 export type AgentInputV1 = z.infer<typeof AgentInputV1Schema>;
 
-export const AgentMessageReceiptSchema = z.strictObject({
+const AgentMessageReceiptSchema = z.strictObject({
   status: z.enum(['POSTED', 'DELIVERED', 'EXPIRED', 'REJECTED']),
   at: iso,
 });
@@ -155,8 +155,8 @@ export type AgentMessageV1 = z.infer<typeof AgentMessageV1Schema>;
  * plan's existing step/job nodes. planId and canonicalRevision pin it to an
  * exact base plan; a changed base rejects the sidecar instead of migrating
  * hidden fields into v1 records. */
-export const PlanParentRelationSchema = z.strictObject({ childId: id, parentId: id });
-export const PlanWeightSchema = z.strictObject({ nodeId: id, units });
+const PlanParentRelationSchema = z.strictObject({ childId: id, parentId: id });
+const PlanWeightSchema = z.strictObject({ nodeId: id, units });
 export const PlanExtensionV1Schema = z.strictObject({
   version: z.literal(1),
   planId: id,
@@ -174,8 +174,8 @@ export type PlanExtensionV1 = z.infer<typeof PlanExtensionV1Schema>;
 /* references and explicit incomplete/blocked outcomes.                 */
 /* ------------------------------------------------------------------ */
 
-export const AgentResultOutcomeSchema = z.enum(['COMPLETED', 'INCOMPLETE', 'BLOCKED']);
-export type AgentResultOutcome = z.infer<typeof AgentResultOutcomeSchema>;
+const AgentResultOutcomeSchema = z.enum(['COMPLETED', 'INCOMPLETE', 'BLOCKED']);
+
 
 const boundedSummary = z.string().trim().min(1).max(AGENT_WORK_LIMITS.summaryBytes).refine(value => utf8(value) <= AGENT_WORK_LIMITS.summaryBytes, `Summary must fit within ${AGENT_WORK_LIMITS.summaryBytes} UTF-8 bytes`);
 const evidenceRefs = z.array(ref).max(AGENT_WORK_LIMITS.evidenceRefs);
@@ -187,8 +187,8 @@ const resultBase = {
   requirementIds,
 };
 
-export const PlanReadResultV1Schema = z.strictObject({ ...resultBase });
-export const ResearchReadResultV1Schema = z.strictObject({
+const PlanReadResultV1Schema = z.strictObject({ ...resultBase });
+const ResearchReadResultV1Schema = z.strictObject({
   ...resultBase,
   citationRefs: z.array(ref).max(AGENT_WORK_LIMITS.evidenceRefs),
 });
@@ -197,16 +197,16 @@ export const CodeWorktreeResultV1Schema = z.strictObject({
   worktreeId: id,
   commits: z.array(sha1Hex).max(8),
 });
-export const QaObservationSchema = z.strictObject({
+const QaObservationSchema = z.strictObject({
   checkId: id,
   outcome: z.enum(['PASS', 'FAIL', 'BLOCKED']),
   evidenceRef: ref.nullable(),
 });
-export const QaResultV1Schema = z.strictObject({
+const QaResultV1Schema = z.strictObject({
   ...resultBase,
   observations: z.array(QaObservationSchema).max(16),
 });
-export type QaResultV1 = z.infer<typeof QaResultV1Schema>;
+
 
 export function agentResultSchemaFor(role: AgentWorkRole): z.ZodType<unknown> {
   switch (role) {
