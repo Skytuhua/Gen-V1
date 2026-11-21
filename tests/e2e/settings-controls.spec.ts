@@ -3,6 +3,63 @@ import { resolve } from 'node:path';
 import type { HostCommand } from '../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../packages/contracts/preferences';
 import { serveTaskFixture, taskFixture } from './task-interface-fixture';
+import {mkdir} from 'node:fs/promises';
+import {openApp} from './app-ready';
+
+for(const theme of ['dark','light'] as const)test(`ornament remains decorative and respects contrast preferences in ${theme}`,async({page})=>{
+  await page.setViewportSize({width:1440,height:900});
+  const directory=process.env.ORNAMENT_CAPTURE_DIR;
+  const capture=async(name:string)=>{if(directory){const close=page.getByRole('button',{name:'Dismiss notification',exact:true});let count=await close.count();while(count){await close.first().click();await expect(close).toHaveCount(--count);}await page.evaluate(()=>Promise.all(document.getAnimations().filter(animation=>animation.playState==='running'&&animation.effect?.getComputedTiming().iterations!==Infinity).map(animation=>animation.finished.catch(()=>{}))));await mkdir(directory,{recursive:true});await page.screenshot({path:resolve(directory,name+'.png')});}};
+  const empty=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'Ready'}}}});
+  empty.settings.theme=theme;empty.threads=[];empty.messages=[];empty.artifacts=[];empty.userStates=[];empty.activeThreadId=null;
+  await serveTaskFixture(page,empty);await openApp(page);await expect(page.locator('.workspace-switcher')).toBeVisible();
+  await expect(page.locator('.sidebar .brand-mark')).toBeVisible();
+  const grain=await page.locator('body').evaluate(node=>{const style=getComputedStyle(node,'::after');return {opacity:style.opacity,image:style.backgroundImage,position:style.position,pointer:style.pointerEvents,animation:style.animationName};});
+  expect(grain).toMatchObject({opacity:theme==='dark'?'0.05':'0.03',position:'fixed',pointer:'none',animation:'none'});expect(grain.image).toContain('feTurbulence');
+  const canvas=page.locator('.conversation-frame:visible').first();
+  const grid=await canvas.evaluate(node=>getComputedStyle(node).backgroundImage);
+  expect(grid).toContain('radialGradient');expect(grid).toContain("width='22'");expect(grid).toContain("r='.5'");expect(grid).toContain('radial-gradient');
+  await expect(canvas.locator('.composer')).toHaveCount(0);
+  expect(await page.locator('.composer:visible').first().evaluate(node=>getComputedStyle(node).backgroundImage)).toContain('to right');
+  await capture(`empty-${theme}`);
+  const value=taskFixture({root:'text',elements:{text:{type:'Text',props:{text:'A considered workspace. Clear priorities, small changes, dependable outcomes.'}}}});
+  value.settings.theme=theme;value.threads[0].title='Review the release checklist';value.threads[0].projectName='Fieldwork';
+  value.messages[0].content='## Release review\n\nThe workspace is ready for a focused review. Keep the scope small, verify the details, and leave a clear handoff.\n\n- Confirm the expected behavior\n- Review the final changes\n- Record the verification results';
+  await serveTaskFixture(page,value);await openApp(page);await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled();
+  await expect(page.getByText('A considered workspace. Clear priorities, small changes, dependable outcomes.',{exact:true})).toBeVisible();
+  if(theme==='dark'){
+    await page.setViewportSize({width:390,height:844});await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);await capture('mobile-dark');await page.setViewportSize({width:1440,height:900});
+  }
+  await page.getByRole('button',{name:'Open artifact in workspace',exact:true}).click();await expect(page.getByRole('complementary',{name:'Workspace panel',exact:true})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Release review',exact:true})).toBeInViewport();await expect(page.getByText('A considered workspace. Clear priorities, small changes, dependable outcomes.',{exact:true})).toBeInViewport();
+  await capture(`conversation-${theme}`);
+  expect(await page.locator('.sidebar-thread-row.active').evaluate(node=>getComputedStyle(node,'::before').width)).toBe('2px');
+  expect(await page.locator('.artifact:visible').first().evaluate(node=>getComputedStyle(node,'::after').width)).toBe('6px');
+  const unchanged=await page.evaluate(()=>{
+    const elements=[document.querySelector('.composer'),document.querySelector('.workspace-right'),document.querySelector('.split-divider')].filter((node):node is Element=>Boolean(node));
+    const sample=()=>elements.map(node=>{const s=getComputedStyle(node);return {color:s.color,borderLeft:s.borderLeft,borderRight:s.borderRight,width:s.width,height:s.height};});
+    const on=sample(),sheets=[...document.styleSheets].filter(sheet=>sheet.ownerNode instanceof Element&&sheet.ownerNode.getAttribute('data-vite-dev-id')?.endsWith('/ornament.css'));
+    for(const sheet of sheets)sheet.disabled=true;const off=sample();for(const sheet of sheets)sheet.disabled=false;return {on,off,count:sheets.length};
+  });
+  expect(unchanged.count).toBeGreaterThan(0);expect(unchanged.on).toEqual(unchanged.off);
+  await page.getByRole('button',{name:'Settings',exact:true}).click();const dialog=page.getByRole('dialog',{name:'Settings',exact:true});await expect(dialog).toBeVisible();
+  await dialog.getByRole('navigation',{name:'Settings sections'}).getByRole('button',{name:'Appearance',exact:true}).click();await expect(dialog.getByRole('heading',{name:'Appearance',exact:true})).toBeVisible();await capture(`settings-${theme}`);
+  expect(await dialog.evaluate(node=>getComputedStyle(node).boxShadow)).not.toBe('none');
+  const mark=page.locator('.sidebar .brand-mark');expect(await mark.evaluate(node=>getComputedStyle(node).backgroundImage)).toContain('linear-gradient');
+  const expectDecorationsDisabled=async()=>{expect(await canvas.evaluate(node=>getComputedStyle(node).backgroundImage)).toBe('none');expect(await page.locator('.artifact:visible').first().evaluate(node=>getComputedStyle(node,'::after').display)).toBe('none');expect(await page.locator('.sidebar-thread-row.active').evaluate(node=>getComputedStyle(node,'::before').display)).toBe('none');expect(await page.locator('html').evaluate(node=>getComputedStyle(node).getPropertyValue('--ornament-sage').trim())).toBe('transparent');};
+  await page.evaluate(()=>document.querySelectorAll<HTMLElement>('.app-shell').forEach(node=>node.dataset.contrast='high'));
+  expect(await page.locator('body').evaluate(node=>getComputedStyle(node,'::after').display)).toBe('none');expect(await mark.evaluate(node=>getComputedStyle(node).backgroundImage)).toBe('none');
+  await expectDecorationsDisabled();
+  await page.evaluate(()=>document.querySelectorAll<HTMLElement>('.app-shell').forEach(node=>node.dataset.contrast='normal'));
+  await page.emulateMedia({forcedColors:'active'});expect(await page.locator('body').evaluate(node=>getComputedStyle(node,'::after').display)).toBe('none');expect(await mark.evaluate(node=>getComputedStyle(node).backgroundImage)).toBe('none');
+  await expectDecorationsDisabled();
+  await page.emulateMedia({forcedColors:'none'});
+  const session=await page.context().newCDPSession(page);await session.send('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-transparency',value:'reduce'}]});
+  expect(await page.evaluate(()=>matchMedia('(prefers-reduced-transparency: reduce)').matches)).toBe(true);expect(await page.locator('body').evaluate(node=>getComputedStyle(node,'::after').display)).toBe('none');expect(await mark.evaluate(node=>getComputedStyle(node).backgroundImage)).toBe('none');
+  await expectDecorationsDisabled();
+  await session.detach();
+});
 
 async function openSettings(page: Page, theme: 'dark' | 'light' = 'dark') {
   const snapshot = taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Settings regression fixture' } } } });
@@ -195,6 +252,7 @@ test('dropdown popovers anchor to their trigger inside the settings dialog with 
   await trigger.click();
   const list = dialog.getByRole('listbox', { name: 'Time format', exact: true });
   await expect(list).toBeVisible();
+  await list.evaluate(node=>Promise.all(node.getAnimations().map(animation=>animation.finished.catch(()=>{}))));
   const anchor = await trigger.boundingBox(), popup = await list.boundingBox();
   expect(Math.abs(popup!.x + popup!.width - (anchor!.x + anchor!.width))).toBeLessThanOrEqual(2);
   expect(Math.abs(popup!.y - (anchor!.y + anchor!.height + 8))).toBeLessThanOrEqual(2);
@@ -397,8 +455,9 @@ for (const [theme, width] of [['dark', 1440], ['light', 1440], ['dark', 390], ['
       expect((await host.nav.getByRole('button',{name:'General',exact:true}).boundingBox())!.height).toBeLessThanOrEqual(36);
       expect((await host.dialog.locator('.settings-row').first().boundingBox())!.height).toBeLessThanOrEqual(66);
     }
-    const tones = await host.dialog.evaluate((node, narrow) => {
+    const tones = await host.dialog.evaluate(async (node, narrow) => {
       const label = node.querySelector(narrow ? '.settings-section-select .ui-select-trigger>span' : '.settings-navigation [aria-current="page"] span')!;
+      await Promise.all(label.parentElement!.getAnimations().map(animation=>animation.finished.catch(()=>{})));
       const style = getComputedStyle(label), parent = getComputedStyle(label.parentElement!), probe=document.createElement('span');
       probe.style.color=getComputedStyle(node).getPropertyValue('--text').trim();node.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();
       return {label:style.color,parent:parent.color,background:style.backgroundColor,heading:getComputedStyle(node.querySelector('h1')!).color,neutral};

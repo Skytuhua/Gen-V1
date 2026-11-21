@@ -8,6 +8,7 @@ import { Modal } from '../../packages/ui-shell/Modal';
 import type { Snapshot } from '../../packages/contracts';
 import type { WorkspaceEnvelope } from '../../packages/contracts/workspace';
 import '../../apps/web/src/styles.css';
+import '../../apps/web/src/ornament.css';
 import '../../apps/web/src/workspace-canvas.css';
 
 const envelope: WorkspaceEnvelope = { projects: [], state: {
