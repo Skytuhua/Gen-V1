@@ -100,6 +100,9 @@ describe('NetworkProxySettings storage', () => {
     await s.save({ baseRevision: 2, url: 'http://u:p@b.corp:2', bypass: [] });
     const r3 = await s.save({ baseRevision: 3, url: 'http://b.corp:2', bypass: [], clearCredentials: true });
     expect(r3.hasCredentials).toBe(false);
+    // explicit clear wins over userinfo supplied in the same save
+    const r4 = await s.save({ baseRevision: 4, url: 'http://u:p@b.corp:2', bypass: [], clearCredentials: true });
+    expect(r4.hasCredentials).toBe(false);
   });
   it('refuses credentials when no secret codec exists (no plaintext fallback)', async () => {
     const s = new NetworkProxySettings(dir, noCodec);

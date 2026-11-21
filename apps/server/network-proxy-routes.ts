@@ -13,7 +13,7 @@ export function registerNetworkProxyRoutes(app: FastifyInstance, service: Servic
   const settings = networkProxySettingsFor(service.store.dataDir);
   app.get('/api/network-proxy', async (_request, reply) =>
     reply.header('Cache-Control', 'no-store').send(await settings.read()));
-  app.put('/api/network-proxy', { bodyLimit: 8192 }, async (request, reply) => {
+  app.put('/api/network-proxy', { bodyLimit: 32768 }, async (request, reply) => {
     reply.header('Cache-Control', 'no-store');
     return settings.save(networkProxySaveSchema.parse(request.body));
   });

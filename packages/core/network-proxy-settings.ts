@@ -160,7 +160,7 @@ export class NetworkProxySettings {
       const endpointChanged = parsed.url !== current.url;
       if (endpointChanged) credentials = null; // never carry credentials to a different endpoint
       if (input.clearCredentials) credentials = null;
-      if (parsed.credentials) {
+      if (parsed.credentials && !input.clearCredentials) {
         if (!this.secretStorageAvailable) throw new HarnessError('NETWORK_PROXY_STORAGE', 'Secure credential storage is unavailable on this platform. Save the proxy without credentials.');
         credentials = await this.codec.protect(parsed.credentials);
       }
