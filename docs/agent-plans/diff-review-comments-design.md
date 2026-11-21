@@ -20,11 +20,12 @@ Mockup: `docs/agent-plans/assets/design/diff-review-comments.png`
 
 ## Comment cards
 
-- Rendered in `.comment-box` strips attached to their hunk, `border-left:2px solid var(--accent)`, `var(--surface)` body, 8px radius, 12.5px.
-- Header: author `You` (12px/600), `line 509`/`lines 512–515` (11px `var(--muted)`), status pill right:
+- Rendered in `.comment-box` strips attached to their hunk: `var(--surface)` body, 8px radius, 12.5px, `border:1px solid var(--border)` — no colored side rail; the anchor to code is a quote block instead of a rail.
+- Header: author `You` (12px/600), status pill right:
+- Quote block under the header: the commented lines, `11px var(--mono)`, `background:var(--subtle)`, 6px radius, `padding:5px 8px`, `var(--muted)` text, leading line-number column (`512`, `513`) so every comment visibly quotes its hunk; range comments quote up to 3 lines then `…`.
   - `Draft` — neutral pill, only for unsaved text restored from journal;
   - `Sent to agent` — `var(--warning-fg)`/`var(--warning-bg)`;
-  - `Resolved` — `var(--success-fg)`/`var(--success-bg)` (card at `opacity:.75`, border-left `var(--success)`);
+  - `Resolved` — `var(--success-fg)`/`var(--success-bg)` (card at `opacity:.8`);
   - `Outdated` — neutral pill, when the hunk moved.
 - Resolved cards keep visible text (no collapse); an `Outdated comments` disclosure at the file header (`3 comments` pill in `.fhead`, `var(--selection-bg)` neutral) filters the list when clicked.
 
