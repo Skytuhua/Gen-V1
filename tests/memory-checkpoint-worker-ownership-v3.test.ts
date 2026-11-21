@@ -16,11 +16,11 @@ afterEach(async()=>{vi.restoreAllMocks();await Promise.all(roots.splice(0).map(p
 const requirement={apiVersion:2,required:true} as const;
 const ctx={threadId:'thread',runId:'run',epoch:1};
 const input:StartRun={...ctx,modelId:'openai/model',accountId:null,sessionPath:null,prompt:'request',resources:[],inputId:'input',memoryCheckpoint:requirement};
-const ack=(request:any)=>({apiVersion:2 as const,requestId:request.requestId,checkpointId:'checkpoint',digest:'a'.repeat(64),persisted:true as const});
+const ack=(request:{requestId:string})=>({apiVersion:2 as const,requestId:request.requestId,checkpointId:'checkpoint',digest:'a'.repeat(64),persisted:true as const});
 
-async function fixture(callback:(request:any)=>Promise<any>){
- const root=await mkdtemp(join(tmpdir(),'checkpoint-worker-'));roots.push(root);const sent:any[]=[];
- const child=Object.assign(new EventEmitter(),{connected:true,exitCode:null as number|null,signalCode:null,send:vi.fn((value:any,done:(error:Error|null)=>void)=>{sent.push(value);queueMicrotask(()=>{if(value.type==='command')child.emit('message',{type:'response',requestId:value.requestId,value:null});done(null);});return true;})});
+async function fixture(callback:(request:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointRequestV1)=>Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>){
+ const root=await mkdtemp(join(tmpdir(),'checkpoint-worker-'));roots.push(root);const sent:{type?:string;requestId?:unknown;value?:unknown}[]=[];
+ const child=Object.assign(new EventEmitter(),{connected:true,exitCode:null as number|null,signalCode:null,send:vi.fn((value:{type?:string;requestId?:unknown},done:(error:Error|null)=>void)=>{sent.push(value);queueMicrotask(()=>{if(value.type==='command')child.emit('message',{type:'response',requestId:value.requestId,value:null});done(null);});return true;})});
  vi.spyOn(childProcess,'spawn').mockReturnValue(child as never);
  vi.spyOn(processTree,'terminateProcessTree').mockImplementation(async()=>{child.connected=false;child.exitCode=0;child.emit('exit',0,null);});
  const runtime=createPiRuntime({dataDir:root});runtime.configure({onEvent:()=>{},onTool:async()=>{},onMemoryCheckpoint:callback});await runtime.start(input);
@@ -30,7 +30,7 @@ async function fixture(callback:(request:any)=>Promise<any>){
 }
 
 it('retains checkpoint cleanup through unexpected worker exit and rejects a late persistence receipt',async()=>{
- let release!:(value:any)=>void;const pending=new Promise<any>(done=>{release=done;}),callback=vi.fn(()=>pending),f=await fixture(callback);
+ let release!:(value:import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1)=>void;const pending=new Promise<import('../packages/contracts/memory-checkpoint.ts').MemoryCheckpointAckV1>(done=>{release=done;}),callback=vi.fn(()=>pending),f=await fixture(callback);
  try{
   f.child.emit('message',{type:'memory.checkpoint',request:f.request});await vi.waitFor(()=>expect(callback).toHaveBeenCalledOnce());
   f.child.connected=false;f.child.exitCode=1;f.child.emit('exit',1,null);let closed=false;const disposing=f.runtime.dispose().then(()=>{closed=true;});
