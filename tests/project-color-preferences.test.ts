@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { Store } from '../packages/storage/store';
 import { Service } from '../packages/core/service';
 import type { RuntimeAdapter } from '../packages/contracts';
-import { DEFAULT_PREFERENCES, getPreferences, mergePreferences } from '../packages/contracts/preferences';
+import { DEFAULT_PREFERENCES, getPreferences, mergePreferences, projectIdentityKeySchema } from '../packages/contracts/preferences';
 
 const cleanup: (() => void)[] = [];
 afterEach(() => cleanup.splice(0).forEach(clean => clean()));
@@ -44,5 +44,12 @@ describe('project color preferences', () => {
     expect(getPreferences(other.snapshot().settings).projectColors).toEqual({});
     await new Service(store, runtime).command({ id: 'color-reset', type: 'settings.update', payload: { preferences: { projectColors: {} } } });
     expect(getPreferences(store.snapshot().settings).projectColors).toEqual({});
+  });
+
+  it('keeps colors unchanged after the key schema rename to projectIdentityKeySchema', () => {
+    expect(projectIdentityKeySchema.safeParse(key).success).toBe(true);
+    const updated = mergePreferences(DEFAULT_PREFERENCES, { projectColors: { [key]: '#4F6EFF' } });
+    expect(updated.projectColors).toEqual({ [key]: '#4F6EFF' });
+    expect(() => mergePreferences(DEFAULT_PREFERENCES, { projectColors: { 'project name': '#4F6EFF' } })).toThrow();
   });
 });
