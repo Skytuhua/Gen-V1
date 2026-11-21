@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { GitBranch, History, Import } from 'lucide-react';
+import { FileDown, GitBranch, History, Import } from 'lucide-react';
 import { ActionMenu, type ActionMenuItem } from '../../../packages/ui-shell/ActionMenu';
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { ApiError } from './api';
@@ -9,6 +9,7 @@ import {
   getSessionBranchOverview, inspectPoint, stageImport, startQuotedTask,
   type BranchCommandResult, type CapturePage, type ImportedPage, type SessionBranchOverview, type StageOutcome,
 } from './session-branch-api';
+import { runExportWithFeedback } from './thread-export-api';
 import type { Message, Thread } from '../../../packages/contracts/index';
 import './session-branch.css';
 
@@ -205,6 +206,13 @@ export function SessionBranchMenu({ thread, messages, onOpenThread, onChanged, o
       id: 'import', label: 'Import ArchiveV1 JSON…', title: 'Stage and preview an inert ArchiveV1 history import. Files don\'t change.',
       icon: <Import size={14} />, disabled: !importEnabled,
       onSelect: () => fileInput.current?.click(),
+    },
+    {
+      id: 'export-markdown', label: 'Export as Markdown…',
+      accessibleLabel: `Export “${thread.title}” as Markdown`,
+      title: 'Save the whole conversation as a .md file — every message, plan and tool entry.',
+      icon: <FileDown size={14} />,
+      onSelect: () => void runExportWithFeedback(thread),
     },
     ...(overview?.captures?.length ? [{
       id: 'capture', label: `Open latest inspect point (${overview.captures.length})`, title: 'Read the most recent fixed history cut.',

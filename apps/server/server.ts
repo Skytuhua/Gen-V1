@@ -1,6 +1,8 @@
 import Fastify from "fastify";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { readFile, stat, readdir, lstat } from "node:fs/promises";
+import { readFileSync } from "node:fs";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { readBoundFile, withResourceGrant } from "../../packages/core/file-access.ts";
 import { resolve, extname, basename, join } from "node:path";
@@ -33,6 +35,7 @@ import {registerAgentWorkRoutes} from './agent-work-routes.ts';
 import {registerShellReadRoutes} from './shell-read-routes.ts';
 import {registerConversationReadRoutes} from './conversation-read-routes.ts';
 import {registerToolEffectReadRoutes} from './tool-effect-read-routes.ts';
+import {buildThreadExport} from '../../packages/core/thread-export.ts';
 import {DevicePairingHost, registerDevicePairingRoutes} from './device-pairing.ts';
 import {ReadSyncHost} from '../../packages/core/read-sync.ts';
 import {registerProjectMemoryRoutes} from './project-memory-routes.ts';
@@ -49,6 +52,8 @@ import {AgentProjection} from '../../packages/agent-projection/index.ts';
 import type {PersonalAgentInventory} from '../../packages/contracts/agent-inventory.ts';
 
 type Mount = { artifactId: string; revision: number; expiresAt: number };
+let cachedVersion: string | undefined;
+const serverVersion = () => cachedVersion ??= (JSON.parse(readFileSync(fileURLToPath(new URL('../../package.json', import.meta.url)), 'utf8')).version as string);
 const shellPreferencesSchema=z.object({...preferencesSchema.shape,keybindings:z.object(preferencesSchema.shape.keybindings.shape)});
 export type MountRegistry = Map<string, Mount>;
 export interface ServerOptions { port: number; dev: boolean; widgetPort?: number; mounts?: MountRegistry; plugins?:PluginRegistry; pluginError?:string; admitPluginRequest?:()=>boolean; skillCatalog?:SkillCatalogRepository; agentInventory?:PersonalAgentInventory; launchToken?:string; isolatedExtensions?:IsolatedExtensionHost }
@@ -72,7 +77,7 @@ export async function buildServer(service: Service, options: ServerOptions) {
     const known = error instanceof HarnessError, malformed = error instanceof z.ZodError || error instanceof URIError;
     const native = typeof (error as { statusCode?: unknown }).statusCode === "number" ? (error as { statusCode: number }).statusCode : undefined;
     const code = known ? error.code : malformed ? "INVALID_INPUT" : native === 413 ? "RESOURCE_LIMIT" : "HOST_ERROR";
-    const status = code === "NOT_FOUND" ? 404 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
+    const status = code === "NOT_FOUND" ? 404 : code === "EXPORT_TOO_LARGE" ? 413 : ["CAPABILITY_DENIED", "AUTH_REQUIRED"].includes(code) ? 403 : known || malformed ? 400 : native !== undefined && native >= 400 && native < 500 ? native : 500;
     const message = known ? error.message : error instanceof z.ZodError ? "Command envelope is invalid" : error instanceof URIError ? "The request path is invalid" : code === "RESOURCE_LIMIT" ? "The request exceeds its byte limit" : "The host could not complete this request";
     reply.code(status).send({ error: { code, message, ...(known && error.details ? { details: error.details } : {}) } });
   });
@@ -161,6 +166,16 @@ export async function buildServer(service: Service, options: ServerOptions) {
       settings: { theme: 'dark', modelId: null },
       activeThreadId: null,
     };
+  });
+  // Read-only full-thread Markdown export (issue #1236). Rejects archived and
+  // unknown threads like the snapshot route; redaction and bounds are applied
+  // by the renderer, which sees no live handles.
+  app.get<{ Params: { id: string } }>('/api/threads/:id/export.md', async (request, reply) => {
+    reply.header('Cache-Control', 'no-store');
+    const { id } = request.params;
+    if (!service.store.get('thread', id) || service.store.get('archivedThread', id)) throw new HarnessError('NOT_FOUND', 'Thread unavailable');
+    const export_ = buildThreadExport(service.store, id, { version: serverVersion(), now: new Date().toISOString(), home: homedir() });
+    return reply.header('X-Gen-Export-Filename', export_.filename).type('text/markdown; charset=utf-8').send(export_.document);
   });
   app.get<{Params: {id: string; candidateId: string}; Querystring: {beforeRequestId?: string}}>('/api/threads/:id/compaction/:candidateId/model-requests', async (request, reply) => {
     reply.header('Cache-Control', 'no-store');
