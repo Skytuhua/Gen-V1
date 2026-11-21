@@ -6,7 +6,7 @@ import { AppearanceSettings, accentContrast } from '../apps/web/src/AppearanceSe
 import { getPreferences, mergePreferences } from '../packages/contracts/preferences';
 import type { Snapshot } from '../packages/contracts';
 
-const labels = ['General', 'Appearance', 'Chat & Composer', 'Models & Accounts', 'Projects & Working Copies', 'Source Control & Reviews', 'Skills & Integrations', 'Notifications & Usage', 'Browser', 'Keyboard Shortcuts', 'Data & Recovery', 'About & Licenses'];
+const labels = ['General', 'Appearance', 'Chat & Composer', 'Models & Accounts', 'Projects & Working Copies', 'Source Control & Reviews', 'Skills & Integrations', 'Hooks', 'Notifications & Usage', 'Browser', 'Keyboard Shortcuts', 'Data & Recovery', 'About & Licenses'];
 const snapshot = { seq: 0, threads: [], archivedThreads: [], messages: [], artifacts: [], data: [], resources: [], operations: [], settings: { theme: 'dark', modelId: null } } as unknown as Snapshot;
 
 describe('supported settings contract', () => {
