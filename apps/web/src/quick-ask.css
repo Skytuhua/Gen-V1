@@ -1,0 +1,45 @@
+/* Quick-ask popup surface (issue #1332, plan DESIGN §6–§7). Token values only;
+   --ui-motion-* and --control-radius/--chat-font-size come from useAppearance. */
+.quick-ask { margin:0; padding:0; background:transparent; color:var(--text); font-family:var(--appearance-interface-font,inherit); font-size:var(--interface-font-size,14px); }
+.quick-ask-panel { width:min(640px, calc(100vw - 32px)); margin:0 auto; box-sizing:border-box; background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; box-shadow:var(--elevation); animation:quick-ask-panel-in var(--ui-motion-popup-enter) var(--ui-ease-enter); }
+.quick-ask-panel.closing { opacity:0; transition:opacity var(--ui-motion-popup-exit) var(--ui-ease-move); }
+@keyframes quick-ask-panel-in { from { opacity:0; transform:translateY(-6px); } to { opacity:1; transform:none; } }
+@keyframes quick-ask-panel-fade { from { opacity:0; } to { opacity:1; } }
+
+/* Reduced motion: opacity only, press-token duration; OS reduce applies while motion is "system". */
+:root[data-motion="reduced"] .quick-ask-panel { animation-name:quick-ask-panel-fade; animation-duration:var(--ui-motion-press); }
+:root[data-motion="reduced"] .quick-ask-panel.closing { transition-duration:var(--ui-motion-press); }
+@media (prefers-reduced-motion: reduce) {
+  :root[data-motion="system"] .quick-ask-panel { animation-name:quick-ask-panel-fade; animation-duration:var(--ui-motion-press); }
+  :root[data-motion="system"] .quick-ask-panel.closing { transition-duration:var(--ui-motion-press); }
+}
+:root:is([data-motion="off"],[data-panel-animations="false"]) .quick-ask-panel { animation:none; transition:none; }
+:root[data-density="compact"] .quick-ask-panel { padding:8px; }
+
+/* Header row: compact two-option segmented control + destination label. */
+.quick-ask-head { display:flex; align-items:center; gap:6px; height:32px; }
+.quick-ask-head [role="radio"] { height:28px; padding:0 10px; border:1px solid var(--border); background:transparent; color:var(--muted); font:inherit; font-size:12px; cursor:pointer; border-radius:0; }
+.quick-ask-head [role="radio"]:first-child { border-radius:var(--control-radius,6px) 0 0 var(--control-radius,6px); }
+.quick-ask-head [role="radio"]:nth-child(2) { margin-left:-1px; border-radius:0 var(--control-radius,6px) var(--control-radius,6px) 0; }
+.quick-ask-head [role="radio"].selected { color:var(--accent); background:var(--subtle); border-color:var(--accent); position:relative; }
+.quick-ask-head [role="radio"]:disabled { opacity:.5; cursor:default; }
+.quick-ask-where { margin-left:auto; font-size:12px; color:var(--muted); max-width:200px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+
+/* Composer row: transparent borderless textbox + 32 px round accent send. */
+.quick-ask-form { display:flex; align-items:flex-end; gap:8px; border:none; background:transparent; padding:0; border-radius:0; }
+.quick-ask-form:focus-within { border:none; }
+.quick-ask-form textarea { flex:1; min-width:0; background:transparent; border:none; outline:none; resize:none; color:var(--text); font:inherit; font-size:var(--chat-font-size,14px); line-height:20px; min-height:32px; max-height:120px; padding:6px 0; caret-color:var(--accent); }
+.quick-ask-form textarea::placeholder { color:var(--placeholder); }
+.quick-ask-form button[type="submit"] { width:32px; height:32px; flex:none; border:none; border-radius:50%; background:var(--accent); color:var(--accent-ink,#fff); display:inline-flex; align-items:center; justify-content:center; cursor:pointer; transition:opacity var(--ui-motion-hover) var(--ui-ease-move); }
+.quick-ask-form button[type="submit"]:disabled { opacity:.4; pointer-events:none; }
+
+/* Hint / error row (error replaces hint, status beyond color via icon). */
+.quick-ask-hint { margin:0; font-size:12px; color:var(--muted); }
+.quick-ask-error { margin:0; display:flex; align-items:center; gap:6px; font-size:12px; color:var(--danger); animation:quick-ask-panel-fade var(--ui-motion-popup-exit) var(--ui-ease-enter); }
+.quick-ask-error svg { flex:none; }
+.quick-ask-error .quiet { color:var(--danger); font:inherit; background:none; border:none; padding:0; cursor:pointer; text-decoration:underline; }
+.quick-ask-error .quiet:disabled { opacity:.5; cursor:default; }
+
+/* No-project empty state. */
+.quick-ask-empty { padding:12px; display:flex; flex-direction:column; gap:8px; align-items:flex-start; }
+.quick-ask-empty p { margin:0; }

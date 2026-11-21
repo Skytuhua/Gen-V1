@@ -77,8 +77,8 @@
 .app-shell :is(.thread-item-meta,.artifact-state,.save-state,.badge,.composer-caption,.composer-caption button,.model-picker select,.pill,.resource-chip,.artifact-source>p,.artifact-source>div,.surface-tabs button,th,.code-block pre,.diff) { font-size:12px; }
 .app-shell[data-chat-width=comfortable] { --narrative-width:680px; }
 .app-shell[data-chat-width=full] { --narrative-width:100%; }
-.app-shell[data-contrast=high] { --muted:#494950; --border:#a2a2aa; }
-:root[data-theme=dark] .app-shell[data-contrast=high] { --muted:#c8c8ce; --border:#696973; }
+.app-shell[data-contrast=high], .quick-ask[data-contrast=high] { --muted:#494950; --border:#a2a2aa; }
+:root[data-theme=dark] .app-shell[data-contrast=high], :root[data-theme=dark] .quick-ask[data-contrast=high] { --muted:#c8c8ce; --border:#696973; }
 /* Desktop geometry changes once; the clipped copy owns pointer feedback. */
 .app-shell .sidebar { width:var(--sidebar-width); flex-basis:var(--sidebar-width); }
 .sidebar-collapse-overlay { display:none; }

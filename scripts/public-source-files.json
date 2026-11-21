@@ -288,6 +288,7 @@
     "apps/web/src/project-memory-request-api.ts",
     "apps/web/src/project-memory.css",
     "apps/web/src/project-picker.css",
+    "apps/web/src/quick-ask.css",
     "apps/web/src/registry.tsx",
     "apps/web/src/relationship-graph.css",
     "apps/web/src/runtime-presentation.ts",
