@@ -34,3 +34,23 @@ it('closes the replacement generation after a real fixture restart', async () =>
     try { await fixture.close(); } finally { await rm(folder, { recursive: true, force: true }); }
   }
 });
+
+it('bounds a stalled close stage and force-releases instead of hanging', async () => {
+  const folder = await mkdtemp(join(tmpdir(), 'gen-host-stall-'));
+  const fixture = new HostFixture(folder, join(folder, 'unused.md'));
+  try {
+    await fixture.start();
+    const realClose = fixture.host.close.bind(fixture.host);
+    fixture.host.close = () => new Promise<never>(() => {});
+    const started = performance.now();
+    await fixture.close();
+    const elapsed = performance.now() - started;
+    const stalled = fixture.closeStages.find(stage => stage.phase === 'host.close');
+    expect(stalled?.status).toBe('timed-out');
+    expect(elapsed).toBeLessThan(60_000);
+    expect(fixture.closeStages.every(stage => stage.status !== 'pending')).toBe(true);
+    await realClose();
+  } finally {
+    try { await fixture.close(); } finally { await rm(folder, { recursive: true, force: true }); }
+  }
+}, 90_000);
