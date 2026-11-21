@@ -98,7 +98,7 @@
 @media(prefers-reduced-motion:reduce){
  .model-picker-trigger>svg[data-open]{transition:none}
  .model-picker-popover{animation:model-picker-fade-in var(--ui-motion-press) var(--ui-ease-enter) both}
- .model-picker-popover[data-state=closed]{animation:model-picker-fade-out 60ms ease-in both}
+ .model-picker-popover[data-state=closed]{animation:model-picker-fade-out var(--ui-motion-press) var(--ui-ease-move) both}
  .model-picker-check{animation:model-picker-fade-in var(--ui-motion-press) var(--ui-ease-enter)}
  .model-picker-effort-dot{transition:none}
  @keyframes model-picker-fade-in{from{opacity:0}to{opacity:1}}
