@@ -2,6 +2,7 @@ import { HarnessError } from '../contracts/index.ts';
 import { SUBSCRIPTION_PLAN_PROVIDER_IDS, type SubscriptionPlanProviderId } from '../contracts/connections.ts';
 import type { PiSdk } from './sdk.ts';
 import type { SubscriptionRuntime } from './models.ts';
+import { cancelBody, entitlementFailure, fetchBoundedJson, type EntitlementOutcome } from './entitlement.ts';
 
 type NativeProvider = Parameters<SubscriptionRuntime['registerNativeProvider']>[0];
 type PlanCredential = NonNullable<Parameters<NonNullable<NativeProvider['auth']['apiKey']>['resolve']>[0]['credential']>;
@@ -28,46 +29,26 @@ export function isPlanCredential(provider: SubscriptionPlanProviderId, value: un
     && credential.env?.HARNESS_CONNECTION_KIND === markers[provider];
 }
 function planError(message: string) { return new HarnessError('PI_PLAN_VALIDATION_FAILED', message); }
-function beforeDeadline<T>(operation: Promise<T>, signal: AbortSignal): Promise<T> {
-  return new Promise((resolve, reject) => {
-    const abort = () => { signal.removeEventListener('abort', abort); reject(new Error('Plan validation deadline reached.')); };
-    if (signal.aborted) abort(); else signal.addEventListener('abort', abort, { once: true });
-    operation.then(value => { signal.removeEventListener('abort', abort); resolve(value); }, error => { signal.removeEventListener('abort', abort); reject(error); });
-  });
-}
-function cancelBody(response: Response) { void response.body?.cancel().catch(() => {}); }
 
-/** Authenticated coding catalog only: no Moonshot endpoint, redirect, cache or unbounded body. */
-async function kimiModels(key: string, signal?: AbortSignal): Promise<Set<string>> {
-  const timeout = AbortSignal.timeout(10_000), bounded = signal ? AbortSignal.any([signal, timeout]) : timeout;
-  try {
-    const response = await beforeDeadline(fetch(`${KIMI_BASE}/models`, { headers: { Authorization: `Bearer ${key}`, 'User-Agent': USER_AGENT, Accept: 'application/json' }, redirect: 'error', signal: bounded }), bounded);
-    if (!response.ok || response.redirected) { cancelBody(response); throw new Error(); }
-    if (!response.headers.get('content-type')?.toLowerCase().includes('application/json')) { cancelBody(response); throw new Error(); }
-    const length = response.headers.get('content-length');
-    if (length && (!/^\d+$/.test(length) || Number(length) > MODEL_BYTES)) { cancelBody(response); throw new Error(); }
-    if (!response.body) throw new Error();
-    const reader = response.body.getReader(), decoder = new TextDecoder('utf-8', { fatal: true });
-    let bytes = 0, text = '';
-    try {
-      for (;;) {
-        const chunk = await beforeDeadline(reader.read(), bounded); if (chunk.done) break;
-        bytes += chunk.value.byteLength; if (bytes > MODEL_BYTES) throw new Error();
-        text += decoder.decode(chunk.value, { stream: true });
-      }
-      text += decoder.decode();
-    } finally { void reader.cancel().catch(() => {}); reader.releaseLock(); }
-    const result: unknown = JSON.parse(text);
-    if (!result || typeof result !== 'object' || !('data' in result) || !Array.isArray(result.data) || !result.data.length || result.data.length > 2048) throw new Error();
-    const ids = new Set<string>();
-    for (const item of result.data) {
-      if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !/^[a-z\d][a-z\d._:-]{0,199}$/i.test(item.id) || ids.has(item.id)) throw new Error();
-      ids.add(item.id);
-    }
-    return ids;
-  } catch {
-    throw planError('Kimi Code credential/model validation failed. Check the membership key, account access and quota, then refresh models. No app-side API billing fallback.');
+function kimiModelIds(result: unknown): Set<string> {
+  if (!result || typeof result !== 'object' || !('data' in result) || !Array.isArray(result.data) || !result.data.length || result.data.length > 2048) throw new Error();
+  const ids = new Set<string>();
+  for (const item of result.data) {
+    if (!item || typeof item !== 'object' || typeof item.id !== 'string' || !/^[a-z\d][a-z\d._:-]{0,199}$/i.test(item.id) || ids.has(item.id)) throw new Error();
+    ids.add(item.id);
   }
+  return ids;
+}
+/** Authenticated coding catalog only: no Moonshot endpoint, redirect, cache or unbounded body. */
+const kimiCatalog = (key: string, signal?: AbortSignal) => fetchBoundedJson(`${KIMI_BASE}/models`, { Authorization: `Bearer ${key}`, 'User-Agent': USER_AGENT }, MODEL_BYTES, signal).then(kimiModelIds);
+async function kimiModels(key: string, signal?: AbortSignal): Promise<Set<string>> {
+  try { return await kimiCatalog(key, signal); }
+  catch { throw planError('Kimi Code credential/model validation failed. Check the membership key, account access and quota, then refresh models. No app-side API billing fallback.'); }
+}
+/** Readiness only: a well-formed authenticated catalog shows the key is accepted, not quota or per-model access. */
+export async function probeKimiEntitlement(key: string, signal?: AbortSignal): Promise<EntitlementOutcome> {
+  try { await kimiCatalog(key, signal); return 'accepted'; }
+  catch (error) { return entitlementFailure(error, signal); }
 }
 
 function endpoint(provider: SubscriptionPlanProviderId, model: Model): string | undefined {

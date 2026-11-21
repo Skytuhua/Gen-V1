@@ -48,7 +48,7 @@
 .connection-auth-summary strong::before { content:"";width:6px;height:6px;border-radius:50%;background:var(--connection-status-color,var(--muted)); }
 .connection-account-auth[data-state="authenticated"] .connection-auth-summary strong { --connection-status-color:var(--success-fg); }
 .connection-account-auth:is([data-state="configured"],[data-state="blocked"]) .connection-auth-summary strong { --connection-status-color:var(--warning-fg); }
-.connection-account-auth[data-state="error"] .connection-auth-summary strong { --connection-status-color:var(--danger-fg); }
+.connection-account-auth:is([data-state="error"],[data-state="rejected"]) .connection-auth-summary strong { --connection-status-color:var(--danger-fg); }
 .connection-account-default { display:flex;align-items:center;flex-wrap:wrap;gap:8px; }
 .connection-account-default>span { color:var(--muted); }
 .connection-account-default>strong { font-size:13px;font-weight:600;color:var(--text); }

@@ -141,3 +141,14 @@ test('the shortcut reference is revealed by search and follows a saved rebinding
   await expect.poll(() => host.commands.filter(command => command.type === 'settings.update').map(command => command.payload)).toContainEqual({preferences: {keybindings: {search: 'Alt+K'}}});
   await expect(reference.locator('[data-binding-id="search"] kbd')).toHaveText(/^(Alt\+K|⌥K)$/);
 });
+test('a refused or unconfirmed saved credential shows its readiness, explanation and recheck', async ({page}) => {
+  const host = await setup(page); let state = 'rejected'; const checks: string[] = [];
+  const messages: Record<string, string> = {rejected: 'Kimi Code rejected this saved credential. Sign in again through the connection console. No app-side API billing fallback.', unavailable: 'Kimi Code could not confirm this saved credential (deadline, rate limit or provider error). Retry the check. No app-side API billing fallback.'};
+  await page.route('**/api/account-auth?*', route => {const providerId = new URL(route.request().url()).searchParams.get('providerId')!; checks.push(providerId); return route.fulfill({json: {providerId, accountId: null, state, identity: {availability: 'unavailable', subject: null, email: null, organization: null, subscription: null}, lastCheckedAt: '2026-11-19T00:00:00.000Z', localSignout: true, message: messages[state]}});});
+  await host.open(); await host.nav.getByRole('button', {name: 'Models & Accounts', exact: true}).click(); await host.dialog.getByRole('button', {name: 'Kimi Code', exact: true}).click();
+  const provider = host.dialog.locator('[data-provider="kimi-coding"]'), auth = provider.locator('.connection-account-auth');
+  await expect(auth).toHaveAttribute('data-state', 'rejected'); await expect(auth.locator('.connection-auth-summary strong')).toHaveText('Not accepted'); await expect(auth).toContainText(messages.rejected);
+  state = 'unavailable'; const kimiChecks = () => checks.filter(id => id === 'kimi-coding').length, before = kimiChecks(); await provider.getByRole('button', {name: 'Check connection', exact: true}).click();
+  await expect(auth).toHaveAttribute('data-state', 'unavailable'); await expect(auth.locator('.connection-auth-summary strong')).toHaveText('Unavailable'); await expect(auth).toContainText(messages.unavailable);
+  expect(kimiChecks()).toBeGreaterThan(before);
+});
