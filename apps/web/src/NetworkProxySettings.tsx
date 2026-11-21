@@ -25,7 +25,7 @@ export function NetworkProxySettings(){
   if(!state||busy)return;const failure=validation();if(failure){setProblem(failure);urlField.current?.focus();return;}
   setBusy(true);setProblem('');setNotice('');
   try{
-   const endpoint=credentials?(()=>{const target=new URL(url.trim());target.username=encodeURIComponent(credentials.split(':')[0]);target.password=encodeURIComponent(credentials.slice(credentials.indexOf(':')+1));return target.href;})():(url.trim()||null);
+   const endpoint=credentials?(()=>{const target=new URL(url.trim());const at=credentials.indexOf(':');target.username=encodeURIComponent(at<0?credentials:credentials.slice(0,at));target.password=encodeURIComponent(at<0?'':credentials.slice(at+1));return target.href;})():(url.trim()||null);
    const result=await settingsOperation(()=>saveNetworkProxy({baseRevision:state.revision,url:endpoint,bypass:bypass.split(',').map(entry=>entry.trim()).filter(Boolean),...(credentials?{}:{clearCredentials:true})}));
    if(!mounted.current)return;setState(result);setEditing(false);setUrl('');setCredentials('');setBypass('');setNotice(result.url?'Proxy saved.':'Proxy cleared.');
   }catch(cause){
@@ -51,6 +51,7 @@ export function NetworkProxySettings(){
     <label className="field">Proxy URL<input ref={urlField} required type="password" autoComplete="off" spellCheck={false} maxLength={4096} value={url} disabled={busy} placeholder="https://proxy.example:8443" onChange={event=>setUrl(event.target.value)}/><small>Credentials are stored separately; keep them out of the URL.</small></label>
     <label className="field">Bypass list<input spellCheck={false} maxLength={4096} value={bypass} disabled={busy} placeholder=".example.org, build.example.net:443" onChange={event=>setBypass(event.target.value)}/><small>Hosts and suffixes that connect directly. The Browser only reaches public HTTP/HTTPS pages.</small></label>
     <label className="field">Credentials<input aria-label="Proxy credentials" type="password" autoComplete="new-password" spellCheck={false} maxLength={512} value={credentials} disabled={busy} placeholder="user:password (optional)" onChange={event=>setCredentials(event.target.value)}/><small>{state.secretStorageAvailable?'Stored in protected storage; sent only to the proxy hop.':'Protected storage is unavailable — credentials cannot be saved on this host.'}</small></label>
+    {validation()&&<p className="error-text" role="status">{validation()}</p>}
     <div className="settings-inline-controls"><button className="primary" disabled={busy||!!validation()}>{busy?'Saving…':'Save proxy'}</button><button type="button" className="secondary" disabled={busy} onClick={cancel}>Cancel</button></div>
    </form>:<>
     <div className="settings-card-row"><div><strong>{state.url??'No proxy configured'}</strong><p>{state.url?(state.hasCredentials?'Authenticated endpoint':'Endpoint')+(state.bypass.length?` · ${state.bypass.length} bypass ${state.bypass.length===1?'entry':'entries'}`:''):'Traffic connects directly.'}</p></div>
