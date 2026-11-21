@@ -34,5 +34,9 @@ export const fetchSchema = (threadId: string, attachmentId: string, refresh = fa
 export interface QueryRunResult { requestId: string; dataId: string; result: DatabaseQueryResultV1 }
 export const runQuery = (threadId: string, attachmentId: string, sql: string, limit: number, requestId: string) =>
 	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/query`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify({ sql, limit, requestId }) })).then(read<QueryRunResult>);
+export interface EditStatement { sql: string; params?: unknown[]; expectedChanges?: number }
+export interface PreparedEdit { operationId: string; kind: string; description: string }
+export const prepareEdits = (threadId: string, attachmentId: string, statements: EditStatement[], mode: 'transaction' | 'migration' = 'transaction') =>
+	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/edits/prepare`, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify({ mode, statements }) })).then(read<PreparedEdit>);
 export const cancelQuery = (threadId: string, attachmentId: string, requestId: string) =>
 	authenticated(() => fetch(`/api/threads/${threadId}/databases/${attachmentId}/query/${requestId}/cancel`, { method: 'POST', credentials: 'same-origin', headers: { 'x-harness-csrf': csrfToken } })).then(read<{ cancelled: boolean }>);

@@ -338,6 +338,29 @@ describe("database attachment tools", () => {
       await expect(handleDomainTool("database_prepare", { attachmentId: ro.attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1", expectedChanges: 2 }] }, ro.ctx)).rejects.toThrow(/read-only|denied/i);
     } finally { release(); }
   });
+  it("executes approved writes on a writable SQLite attachment with rollback and digest checks", async () => {
+    const release = configureHostCapabilityFlags({ "data.databaseBrowserV1": true });
+    try {
+      const s = await sandbox(); await tasks(s);
+      const { ctx, attachment } = await setup(s, true);
+      const op = await handleDomainTool("database_prepare", { attachmentId: attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1 WHERE id=?", params: [1], expectedChanges: 1 }] }, ctx) as Operation;
+      const result = await executeDomainOperation(approve(op), ctx) as { changes: number; resourceVersion?: string };
+      expect(result.changes).toBe(1);
+      const db = new DatabaseSync(join(s.root, "data.sqlite")); expect(db.prepare("SELECT done FROM tasks WHERE id=1").get()?.done).toBe(1); db.close();
+      const wrong = await handleDomainTool("database_prepare", { attachmentId: attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=0", expectedChanges: 5 }] }, ctx) as Operation;
+      await expect(executeDomainOperation(approve(wrong), ctx)).rejects.toThrow(/count|changes|rollback/i);
+      const stale = await handleDomainTool("database_prepare", { attachmentId: attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=0", expectedChanges: 1 }] }, ctx) as Operation;
+      const edit = new DatabaseSync(join(s.root, "data.sqlite")); edit.exec("UPDATE tasks SET title='raced' WHERE id=2"); edit.close();
+      await expect(executeDomainOperation(approve(stale), ctx)).rejects.toThrow(/version|changed|precondition/i);
+      const ro = await setup(s, false);
+      const denied = { ...approve(op), id: randomUUID() };
+      await expect(executeDomainOperation(denied, ro.ctx)).rejects.toThrow(/read-only|denied/i);
+      const mysqlConnection = { ...ro.connection, id: randomUUID(), engine: "mysql" as const, sqlite: undefined, network: { host: "127.0.0.1", port: 3306, database: "d", user: "u", tls: "disable" as const, secretRefId: "x" } };
+      const mysqlAttachment = { ...ro.attachment, id: randomUUID(), connectionId: mysqlConnection.id, writable: true };
+      const mysqlCtx: DomainContext = { ...ro.ctx, async databaseAttachment(id: string) { if (id !== mysqlAttachment.id) throw new HarnessError("NOT_FOUND", "attachment"); return { attachment: mysqlAttachment, connection: mysqlConnection, gateway: ro.gateway }; } };
+      await expect(handleDomainTool("database_prepare", { attachmentId: mysqlAttachment.id, mode: "migration", statements: [{ sql: "CREATE TABLE x(id INT)" }] }, mysqlCtx)).rejects.toThrow(/DML|denied/i);
+    } finally { release(); }
+  });
   it("bounds query output to 200 rows and 1 KiB cells", async () => {
     const release = configureHostCapabilityFlags({ "data.databaseBrowserV1": true });
     try {

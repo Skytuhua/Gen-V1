@@ -17,6 +17,14 @@ const queryBody = z.strictObject({
 	timeoutMs: z.number().int().min(100).max(DATABASE_LIMITS.maxTimeoutMs).optional(),
 	requestId: uuid.optional(),
 });
+const editsBody = z.strictObject({
+	mode: z.enum(['transaction', 'migration']).default('transaction'),
+	statements: z.array(z.strictObject({
+		sql: z.string().min(1).max(DATABASE_LIMITS.maxSqlChars),
+		params: z.array(z.unknown()).max(500).optional(),
+		expectedChanges: z.number().int().min(0).optional(),
+	})).min(1).max(100),
+});
 const SCHEMA_CACHE_MS = 30_000;
 const schemaCache = new Map<string, { value: unknown; expiresAt: number }>();
 const inFlight = new Map<string, AbortController>();
@@ -65,6 +73,15 @@ export function registerDatabaseRoutes(app: FastifyInstance, service: Service) {
 			} finally {
 				inFlight.delete(requestId);
 			}
+		});
+	app.post<{ Params: { threadId: string; attachmentId: string } }>(
+		'/api/threads/:threadId/databases/:attachmentId/edits/prepare', async request => {
+			const threadId = uuid.parse(request.params.threadId);
+			const attachmentId = uuid.parse(request.params.attachmentId);
+			const body = editsBody.parse(request.body);
+			service.databases().attachmentFor(threadId, attachmentId);
+			const operation = await service.prepareDatabaseEdits(threadId, { attachmentId, mode: body.mode, statements: body.statements });
+			return { operationId: operation.id, kind: operation.kind, description: operation.description };
 		});
 	app.post<{ Params: { threadId: string; attachmentId: string; requestId: string } }>(
 		'/api/threads/:threadId/databases/:attachmentId/query/:requestId/cancel', async request => {

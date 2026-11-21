@@ -1,7 +1,9 @@
 // MySQL adapter (T03) over `mysql2/promise`. Read-only enforcement is
 // precheckReadOnlySql + a START TRANSACTION READ ONLY per query.
 import mysql from 'mysql2/promise';
+import { createHash } from 'node:crypto';
 import type { FieldPacket } from 'mysql2';
+import { HarnessError } from '../contracts/index.ts';
 import type { DatabaseSchemaV1, DatabaseTls } from '../contracts/database.ts';
 import type { AdapterQuery, DatabaseAdapter, RawQueryResult } from './database-gateway.ts';
 
@@ -38,7 +40,8 @@ export class MysqlAdapter implements DatabaseAdapter {
       columns: columns.filter(column => column.table === table.name).map(column => ({ name: column.name, type: column.type, nullable: Boolean(column.nullable), primaryKey: Boolean(column.primaryKey) })),
       foreignKeys: [], indexes: [],
     }));
-    return { version: 1, engine: 'mysql', schemas: [{ name: this.network.database, objects }], truncated: tables.length >= 2000, digest: '' };
+    const digest = createHash('sha256').update(JSON.stringify(objects)).digest('hex');
+    return { version: 1, engine: 'mysql', schemas: [{ name: this.network.database, objects }], truncated: tables.length >= 2000, digest };
   }
   async query(request: AdapterQuery): Promise<RawQueryResult> {
     const connection = await this.connect(request.timeoutMs);
@@ -50,6 +53,30 @@ export class MysqlAdapter implements DatabaseAdapter {
       return { columns, rows: rows as Record<string, unknown>[], truncated: (rows as unknown[]).length >= request.limit, truncatedReason: (rows as unknown[]).length >= request.limit ? 'limit' : undefined };
     } finally {
       await connection.query('SET SESSION TRANSACTION READ WRITE').catch(() => {});
+    }
+  }
+  /** DML only (D7): one transaction, digest re-check, expectedChanges, rollback on mismatch. */
+  async executeWrite(args: { statements: { sql: string; params?: unknown[]; expectedChanges?: number }[]; mode: 'transaction' | 'migration'; schemaDigest: string; signal?: AbortSignal }): Promise<{ changes: number; schemaDigest: string }> {
+    if (args.mode === 'migration') throw new HarnessError('CAPABILITY_DENIED', 'MySQL attachments accept DML transactions only');
+    const connection = await this.connect(30_000);
+    await connection.query('SET SESSION TRANSACTION READ WRITE');
+    try {
+      await connection.beginTransaction();
+      const before = await this.schema();
+      if (before.digest !== args.schemaDigest) throw new HarnessError('PRECONDITION_FAILED', 'Database schema changed since preparation');
+      let changes = 0;
+      for (const statement of args.statements) {
+        const [result] = await connection.query<mysql.ResultSetHeader>(statement.sql, statement.params as unknown[]);
+        if (statement.expectedChanges !== undefined && Number(result.affectedRows ?? 0) !== statement.expectedChanges)
+          throw new HarnessError('DATABASE_ERROR', `Statement affected ${result.affectedRows ?? 0} rows; expected ${statement.expectedChanges}. Rolled back.`);
+        changes += Number(result.affectedRows ?? 0);
+      }
+      await connection.commit();
+      const after = await this.schema();
+      return { changes, schemaDigest: after.digest };
+    } catch (cause) {
+      await connection.rollback().catch(() => {});
+      throw cause;
     }
   }
   async close(): Promise<void> { await this.connection?.end().catch(() => {}); this.connection = null; }
