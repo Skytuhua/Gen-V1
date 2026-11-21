@@ -92,3 +92,19 @@ it('recovers exact source and plan values after compaction with revision-pinned 
     expect(() => read({ dataId: 'comparison', revision: 2 })).toThrow('unavailable');
   } finally { store.close(); rmSync(dir, { recursive: true, force: true }); }
 });
+
+it('only accepts JSON Pointer escapes and actual array indices when inspecting saved data',()=>{
+ const dir=mkdtempSync(join(tmpdir(),'harness-pointer-'));const store=new Store(dir);
+ try {
+  const data={id:'pointer-fixture',threadId:'mine',revision:1,provenance:'fixture',createdAt:'',value:{items:['element'],length:'object field','a~2':'literal tilde','a/b':'literal slash'}};
+  store.internal('fixture','mine',()=>store.put('data',data.id,'mine',data));
+  const read=(pointer:string)=>inspectTask(store,{id:'mine'} as never,undefined,{dataId:data.id,pointer});
+  expect(read('/items/0')).toHaveProperty('value','element');
+  expect(read('/length')).toHaveProperty('value','object field');
+  expect(read('/a~02')).toHaveProperty('value','literal tilde');
+  expect(read('/a~1b')).toHaveProperty('value','literal slash');
+  expect(()=>read('/items/length')).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
+  expect(()=>read('/a~2')).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
+  for(const rejected of ['/items/1','/items/01','/items/-','/a~']) expect(()=>read(rejected)).toThrow(expect.objectContaining({code:'INVALID_DATA_REF'}));
+ } finally {store.close();rmSync(dir,{recursive:true,force:true});}
+});
