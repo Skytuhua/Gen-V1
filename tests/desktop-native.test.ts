@@ -147,7 +147,7 @@ describe('corporate upstream browser hop (#1531 T04)',()=>{
    const head=await tunnel(proxy.port,'example.org:443');
    expect(head).toContain('200 Connection Established');
    expect(hopConnects).toBe(1);
-   expect(hopBytes).toContain('CONNECT example.org:443 HTTP/1.1');
+   expect(hopBytes).toContain('CONNECT 93.184.216.34:443 HTTP/1.1');
    expect(hopBytes).toContain('Proxy-Authorization: Basic '+Buffer.from('u:p@ss').toString('base64'));
   }finally{await proxy.close();await new Promise<void>(resolve=>echo.close(()=>resolve()));}
  });
@@ -163,8 +163,8 @@ describe('corporate upstream browser hop (#1531 T04)',()=>{
  it('upstream refusal or private upstream address fails closed',async()=>{
   const refusing=tcpServer(socket=>socket.on('data',bytes=>{if(bytes.toString().includes('\r\n\r\n'))socket.end('HTTP/1.1 407 Proxy Authentication Required\r\n\r\n');}));
   await new Promise<void>(resolve=>refusing.listen(0,'127.0.0.1',resolve));const address=refusing.address();if(!address||typeof address==='string')throw Error('Fixture did not bind');
-  const proxy=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'140.82.121.4':'93.184.216.34',family:4}],connect:options=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
-  const blocked=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'127.0.0.1':'93.184.216.34',family:4}],connect:options=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
+  const proxy=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'140.82.121.4':'93.184.216.34',family:4}],connect:()=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
+  const blocked=await createBrowserProxy({resolve:async host=>[{address:host==='corp.proxy'?'127.0.0.1':'93.184.216.34',family:4}],connect:()=>connect({host:'127.0.0.1',port:address.port}),upstream:async()=>snapshot()});
   try{
    expect(await tunnel(proxy.port,'example.org:443')).toContain('403 Forbidden'); // 407 upstream -> fail closed
    expect(await tunnel(blocked.port,'example.org:443')).toContain('403 Forbidden'); // private upstream IP -> refused
