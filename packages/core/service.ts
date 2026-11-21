@@ -1,4 +1,5 @@
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
+import { storeThreadAttachment } from './generated-images.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
@@ -12,9 +13,9 @@ import { withApprovedProjectContext } from './approved-project-context.ts';
 import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
-import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
+import { stat, open } from "node:fs/promises";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { basename, join, relative, resolve, sep } from "node:path";
+import { basename, relative, resolve, sep } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
@@ -1223,13 +1224,11 @@ export class Service {
       return this.store.command(command, () => { this.store.put("resource", grant.id, thread.id, grant); return grant; });
     }
     if (command.type === "resource.upload") {
-      const name = basename(text(p, "name", 200)).replace(/[^a-zA-Z0-9._ -]/g, "_");
+      const name = text(p, "name", 200);
       const base64 = text(p, "base64", 28 * 1024 * 1024);
       if (!/^[a-zA-Z0-9+/]*={0,2}$/.test(base64)) throw new HarnessError("INVALID_INPUT", "Invalid attachment encoding");
-      const bytes = Buffer.from(base64, "base64"); if (bytes.length > 20 * 1024 * 1024) throw new HarnessError("INVALID_INPUT", "Attachments are limited to 20 MiB");
-      const folder = join(this.store.dataDir, "attachments", thread.id); await mkdir(folder, { recursive: true });
-      const path = join(folder, command.id + "-" + name); try { await writeFile(path, bytes, { flag: "wx" }); } catch (e) { if ((e as NodeJS.ErrnoException).code !== "EEXIST") throw e; if (!(await readFile(path)).equals(bytes)) throw new HarnessError("DUPLICATE_COMMAND", "Upload ID already has different content"); }
-      const grant: ResourceGrant = { id: command.id, threadId: thread.id, path, label: name, kind: "attachment", writable: false, createdAt: now() };
+      const bytes = Buffer.from(base64, "base64");
+      const { grant } = await storeThreadAttachment({ dataDir: this.store.dataDir }, thread.id, command.id, name, bytes);
       return this.store.command(command, () => { this.store.put("resource", grant.id, thread.id, grant); return grant; });
     }
     const receipt = this.store.command(command, () => this.applyCommand(command, this.thread(thread.id)));
