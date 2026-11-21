@@ -83,6 +83,27 @@ test('a first send keeps a usable model when the account pin lands before the bo
   await expect(page.getByRole('button', { name: 'Send message', exact: true })).not.toHaveAttribute('title', 'Connect an available model in Settings to send.');
 });
 
+test('the model popover stays inside the composer column and clear of the sidebar', async ({ page }, testInfo) => {
+  await mount(page);
+  for (const [width, keyboard] of [[1280, false], [900, true], [700, false], [500, false]] as const) {
+    await page.setViewportSize({ width, height: 800 });
+    const trigger = page.getByRole('combobox', { name: 'Model', exact: true });
+    if (keyboard) { await trigger.focus(); await trigger.press('ArrowDown'); } else await trigger.click();
+    const popover = page.locator('.model-picker-popover');
+    await expect(popover).toHaveAttribute('data-state', 'open');
+    await popover.evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {}))));
+    const pop = (await popover.boundingBox())!;
+    const dock = (await page.locator('.composer-dock').boundingBox())!;
+    const sidebar = await page.getByRole('complementary', { name: 'Thread navigation' }).boundingBox();
+    await page.screenshot({ path: testInfo.outputPath(`model-picker-bounded-${width}.png`) });
+    expect(pop.x).toBeGreaterThanOrEqual(dock.x);
+    expect(pop.x + pop.width).toBeLessThanOrEqual(dock.x + dock.width);
+    if (sidebar && sidebar.x + sidebar.width > 0) expect(pop.x).toBeGreaterThanOrEqual(sidebar.x + sidebar.width);
+    await page.getByRole('searchbox', { name: 'Search models', exact: true }).press('Escape');
+    await expect(popover).toBeHidden();
+  }
+});
+
 test('an active run closes model selection and locks the trigger', async ({ page }) => {
   const host = await mount(page), trigger = page.getByRole('combobox', { name: 'Model', exact: true });
   await trigger.click(); await expect(page.getByRole('searchbox', { name: 'Search models', exact: true })).toBeFocused();
