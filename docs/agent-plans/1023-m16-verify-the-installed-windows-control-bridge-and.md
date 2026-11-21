@@ -43,11 +43,13 @@ Verified at baseline unless marked discovery:
 Finish M16: T01 verified at #812 head already. T02 is the remaining lane — keep the bridge interactive gate separate; once an authorized clean interactive Windows profile and approved artifact/backend exist, record interactive acceptance (registration, selected-target identity, consent, bounded capture, independent Stop). Flags and native input stay disabled.
 
 ## EXECUTION_DAG
+New plan task IDs are R01.. so they never collide with the issue's own T01/T02/... checklist IDs.
+
 | Task | Goal | Deps | Done when |
 |------|------|------|-----------|
-| T01 | Identify the authorized interactive fixture/backend or record the limiting gap | NONE | fixture path or gap recorded |
-| T02 | Run and record the interactive holds acceptance at an exact cut | T01 | T02 evidence posted |
-| T03 | Publish reviewed disposition | T02 | disposition posted |
+| R01 | Identify the authorized interactive fixture/backend or record the limiting gap | NONE | fixture path or gap recorded |
+| R02 | Run and record the interactive holds acceptance at an exact cut | R01 | R02 evidence posted |
+| R03 | Publish reviewed disposition | R02 | disposition posted |
 
 ## VALIDATION
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` (or the focused suite named in the issue) green on each PR.

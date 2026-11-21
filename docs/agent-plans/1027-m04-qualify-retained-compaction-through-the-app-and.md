@@ -49,7 +49,7 @@ Qualify retained compaction through the real App and installed desktop: T01 comp
 ## EXECUTION_DAG
 | Task | Goal | Deps | Done when |
 |------|------|------|-----------|
-| T01 | Compare the two actual-App drafts vs main; classify retained/merged/superseded | NONE | classification posted |
+| T01 | Compare the two actual-App drafts vs main; classify retained/merged/superseded, then capture real App evidence for supported retained history and cost display | NONE | classification posted AND real-App retained-history/cost-display evidence recorded |
 | T02 | Identify supported installed verifier + authorized provider/fixture; qualify apply/custody/rollback | T01 | exact-cut evidence |
 | T03 | Record Windows context-result custody separately | T02 | custody evidence or blocker linked to #993 |
 

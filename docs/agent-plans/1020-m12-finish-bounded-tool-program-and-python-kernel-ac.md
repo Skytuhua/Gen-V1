@@ -43,11 +43,13 @@ Verified at baseline unless marked discovery:
 Finish M12 acceptance: default-off bounded JS/Python tool programs and D06 retained-state accounting; 64 MiB logical and allocated limits independent and inclusive; Native Service admission keeps the original Linux x64 proof requirement. T01/T02 are largely verified per issue checkpoints — remaining work is reconciling residual tasks and publishing disposition.
 
 ## EXECUTION_DAG
+New plan task IDs are R01.. so they never collide with the issue's own T01/T02/... checklist IDs.
+
 | Task | Goal | Deps | Done when |
 |------|------|------|-----------|
-| T01 | Map every unchecked completion criterion in the issue to required evidence | NONE | remaining-acceptance list written |
-| T02 | Produce/reconcile the remaining source-bound evidence at exact cuts | T01 | each remaining criterion has evidence or a recorded gap |
-| T03 | Publish reviewed disposition; do not close without authorization | T02 | disposition comment posted |
+| R01 | Map every unchecked completion criterion in the issue to required evidence | NONE | remaining-acceptance list written |
+| R02 | Produce/reconcile the remaining source-bound evidence at exact cuts | R01 | each remaining criterion has evidence or a recorded gap |
+| R03 | Publish reviewed disposition; do not close without authorization | R02 | disposition comment posted |
 
 ## VALIDATION
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` (or the focused suite named in the issue) green on each PR.

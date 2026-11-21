@@ -46,11 +46,13 @@ Verified at baseline unless marked discovery:
 Finish M14: exact-cut Linux x64 ext4 custody verification for ledgered read-only mounts and normal synthetic credential lease (#869); keep combined barrier, credential-loss and X1 lanes separate.
 
 ## EXECUTION_DAG
+New plan task IDs are R01.. so they never collide with the issue's own T01/T02/... checklist IDs.
+
 | Task | Goal | Deps | Done when |
 |------|------|------|-----------|
-| T01 | Map unchecked completion criteria to required evidence | NONE | remaining-acceptance list |
-| T02 | Produce/reconcile remaining evidence at exact cuts | T01 | evidence or recorded gap per criterion |
-| T03 | Publish reviewed disposition | T02 | disposition posted; not closed without authorization |
+| R01 | Map unchecked completion criteria to required evidence | NONE | remaining-acceptance list |
+| R02 | Produce/reconcile remaining evidence at exact cuts | R01 | evidence or recorded gap per criterion |
+| R03 | Publish reviewed disposition | R02 | disposition posted; not closed without authorization |
 
 ## VALIDATION
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` (or the focused suite named in the issue) green on each PR.

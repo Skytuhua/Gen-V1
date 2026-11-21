@@ -40,7 +40,8 @@ Fix HostFixture.close() so a stalled host shutdown cannot eat the test timeout: 
 | Task | Goal | Deps | Done when |
 |------|------|------|-----------|
 | T01 | Instrument/locate which close stage (host.close vs socket drain) exceeds the timeout; reproduce per the trace | NONE | stall stage identified with evidence |
-| T02 | Bound the offending stage and force-release; verify spec teardown completes | T01 | 8-of-11 failure signature gone in repeated local runs |
+| T02 | If the stall is a harness close-stage timeout only, bound that stage and force-release; verify spec teardown completes | T01 | 8-of-11 failure signature gone in repeated local runs |
+| T03 | If T01 instead shows a product shutdown defect (e.g. a late SSE registration holding a socket, see #1227), do not mask it in the fixture: file/hand off the product defect to the Gen Runtime owner and keep this issue's fix harness-only | T01 | defect routed with evidence, or harness fix merged |
 
 ## VALIDATION
 - `pnpm lint`, `pnpm typecheck` and `pnpm test` (or the focused suite named in the issue) green on each PR.
