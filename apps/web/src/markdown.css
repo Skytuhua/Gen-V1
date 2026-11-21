@@ -14,3 +14,10 @@
 .markdown-code:hover>.copy-button,.markdown-code:focus-within>.copy-button { opacity:1; }
 @media (hover:none) { .markdown-code>.copy-button { opacity:1; } }
 @media (prefers-reduced-motion:reduce) { .markdown-code>.copy-button { transition:none; } }
+.markdown-file-ref { all:unset; font:inherit; color:var(--accent-text); cursor:pointer; overflow-wrap:anywhere; text-decoration:underline; text-decoration-color:color-mix(in srgb,var(--accent-text) 35%,transparent); text-underline-offset:3px; border-radius:4px; transition:color var(--ui-motion-hover) var(--ui-ease-move),background-color var(--ui-motion-hover) var(--ui-ease-move),text-decoration-color var(--ui-motion-hover) var(--ui-ease-move); }
+.markdown-file-ref code { color:inherit; }
+.markdown-file-ref:hover,.markdown-file-ref:focus-visible { text-decoration-color:var(--accent-text); }
+.markdown-file-ref:hover code { background:var(--accent-soft); }
+.markdown-file-ref:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.markdown-file-ref:active { transform:translateY(0.5px); transition-duration:var(--ui-motion-press); }
+@media (prefers-reduced-motion:reduce) { .markdown-file-ref { transition:none; } .markdown-file-ref:active { transform:none; } }
