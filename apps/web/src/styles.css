@@ -326,6 +326,8 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 .working-status,.resume-row { display:flex; align-items:center; gap:9px; color:var(--muted); font-size:12px; margin:22px 0 0; line-height:1.6; }
 .resume-row { justify-content:space-between; }
 .working-status .quiet { padding:4px 7px; min-height:25px; }
+.turn-duration { display:flex; align-items:center; gap:6px; margin:6px 0 0; font-size:12px; line-height:1.6; color:var(--muted); font-variant-numeric:tabular-nums; cursor:default; }
+.turn-elapsed { font-variant-numeric:tabular-nums; }
 .dialog { width:440px; max-width:calc(100vw - 32px); max-height:calc(100dvh - 50px); padding:22px; border:1px solid var(--border); border-radius:16px; color:var(--text); background:var(--surface); box-shadow:var(--elevation); }
 .dialog::backdrop { background:#0006; }
 .dialog>header { display:flex; align-items:center; justify-content:space-between; margin-bottom:21px; }
@@ -355,7 +357,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 :where(.thread-item) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where([role="tabpanel"], [role="tabpanel"] > *) { animation: ui-item-in var(--ui-motion-tab) var(--ui-ease-enter); }
 @keyframes ui-item-out { to { opacity:0; transform:translateY(3px); } }
-:where(.message[data-arrival="true"], .resource-chip:not([data-leaving])) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
+:where(.message[data-arrival="true"], .resource-chip:not([data-leaving]), .turn-duration[data-arrival="true"]) { animation: ui-item-in var(--ui-motion-insert) var(--ui-ease-enter); }
 :where(.resource-chip[data-leaving]) { pointer-events:none; animation: ui-item-out var(--ui-motion-remove) var(--ui-ease-move) both; }
 
 /* Chromium details-content: height transition needs the opt-in. */
@@ -366,7 +368,7 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :where(.message[data-arrival="true"], .resource-chip, .thread-item, [role="tabpanel"], [role="tabpanel"] > *) { animation-name: ui-popover-fade; animation-duration:var(--ui-motion-press); }
+  :where(.message[data-arrival="true"], .resource-chip, .thread-item, [role="tabpanel"], [role="tabpanel"] > *, .turn-duration[data-arrival="true"]) { animation-name: ui-popover-fade; animation-duration:var(--ui-motion-press); }
   :where(details)::details-content { transition:none; content-visibility:visible; block-size:auto; }
   :where(details:not([open]))::details-content { display:none; }
 }
@@ -379,4 +381,4 @@ progress::-moz-progress-bar { background:var(--text); border-radius:4px; }
 
 .surface-progress>div>span,.task-step-label>span { white-space:nowrap; }
 
-.working-status>span { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }
+.working-status>span:not(.turn-elapsed) { color:var(--accent-fg); background:var(--accent-bg); border-radius:5px; padding:2px 6px; }
