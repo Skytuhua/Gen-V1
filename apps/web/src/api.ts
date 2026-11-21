@@ -71,7 +71,7 @@ const resourceTreeSchema = z.object({
 const messageSchema = z.object({ id: nonEmpty, threadId: nonEmpty, role: z.enum(['user', 'assistant', 'activity']), content: z.string(), createdAt: z.string(), runId: z.string().nullable() });
 const threadMessagesSchema = z.object({ messages: z.array(messageSchema), truncated: z.number() });
 const threadSearchSchema = z.object({ threadIds: z.array(nonEmpty) });
-const shellSettingsSchema = z.object({ theme: z.enum(['light', 'dark', 'system']), preferences: z.record(z.string(), z.unknown()).optional() });
+const shellSettingsSchema = z.object({ theme: z.enum(['light', 'dark', 'system']), preferences: z.record(z.string(), z.unknown()).optional(), flags: z.record(z.string(), z.boolean()).optional() });
 const snapshotSchema = z.looseObject({
   seq: z.number(), threads: z.array(z.unknown()), messages: z.array(z.unknown()), artifacts: z.array(z.unknown()),
   userStates: z.array(z.unknown()), data: z.array(z.unknown()), requests: z.array(z.unknown()),
@@ -125,7 +125,7 @@ export async function command(type: string, payload: Record<string, unknown> = {
 }
 
 export const getSnapshot = () => authenticated(() => fetch('/api/snapshot', { credentials: 'same-origin', cache: 'no-store' })).then(async response => parseResponse(snapshotSchema, await read<unknown>(response)) as unknown as Snapshot);
-export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(shellSettingsSchema)) as Promise<Pick<Snapshot['settings'],'theme'|'preferences'>>;
+export const getShellSettings = () => authenticated(() => fetch('/api/shell-settings', { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(shellSettingsSchema)) as Promise<Pick<Snapshot['settings'],'theme'|'preferences'> & { flags?: Record<string, boolean> }>;
 export interface ComposerPrediction { suggestion: string | null; replyId: string; modelId: string }
 export function getComposerPrediction(input: { threadId: string; replyId: string; modelId: string }, signal: AbortSignal) {
   return authenticated(() => fetch('/api/composer-prediction', { method: 'POST', credentials: 'same-origin', signal, headers: { 'Content-Type': 'application/json', 'x-harness-csrf': csrfToken }, body: JSON.stringify(input) })).then(readSchema(composerPredictionSchema));
