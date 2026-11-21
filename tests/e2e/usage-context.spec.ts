@@ -368,8 +368,8 @@ test('scope/provider filters remain in the owning modal and refresh preserves ta
 });
 test('loading, empty, provider failure and refresh failure preserve honest per-metric state', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'loading'); await page.getByRole('button', { name: 'Open Usage', exact: true }).click();
-  await expect(usage(page).getByRole('status')).toContainText('Loading usage'); await expect(usage(page)).not.toContainText('No usage reported');
-  await update(page, 'empty'); await expect(usage(page)).toContainText('No usage reported');
+  await expect(usage(page).getByRole('status')).toContainText('Loading usage'); await expect(usage(page)).not.toContainText('No usage recorded');
+  await update(page, 'empty'); await expect(usage(page)).toContainText('No usage recorded');
   await update(page, 'error'); await expect(usage(page).getByRole('alert')).toContainText('Synthetic provider failure');
   await update(page, 'refresh-error'); await usage(page).getByRole('button', { name: 'Refresh usage', exact: true }).click();
   await expect(usage(page).getByRole('alert')).toContainText('Synthetic refresh failure'); await expect(usage(page)).toContainText('0.00123456 USD');

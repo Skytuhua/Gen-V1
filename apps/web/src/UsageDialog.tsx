@@ -85,11 +85,10 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
       {isRequests ? (visibleRequests.length ? visibleRequests.map(request => <ModelRequestDetails key={request.requestId} request={request}/>) : <p className="usage-dialog-empty">No measured model requests match this view yet.</p>) : <>
       {!visible.length && !loading && (reports.length
         ? <p className="usage-dialog-empty">No reported usage matches these filters.</p>
-        : <div className="usage-dialog-empty-state">
-          <BarChart3 size={20} aria-hidden="true" />
-          <strong>No usage reported yet</strong>
-
-          {onRefresh && <button type="button" className="usage-refresh" disabled={refreshing} onClick={() => void refresh()}><RefreshCw size={15} aria-hidden="true" /><span>{refreshing ? 'Refreshing…' : 'Refresh'}</span></button>}
+        : <div className="empty-state">
+          <div className="empty-symbol"><BarChart3 size={25} strokeWidth={1.25} aria-hidden="true" /></div>
+          <p>No usage recorded yet.</p>
+          <p className="usage-dialog-empty-hint">Usage appears after the first model request.</p>
         </div>)}
       {!visible.length && loading && <div className="usage-dialog-skeleton" aria-hidden="true"><span /><span /><span /></div>}
       {visible.map(report => <section className="usage-provider-row" key={report.id} aria-label={`${report.providerLabel} · ${report.scopeLabel}`}>
