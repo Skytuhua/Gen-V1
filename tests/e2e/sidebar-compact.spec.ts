@@ -14,9 +14,13 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  expect(Math.abs(searchBox!.y-newThreadBox!.y)).toBeLessThanOrEqual(4);
 
  const row=page.locator('.sidebar-thread-row').first(),item=row.locator('.thread-item');
- await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-header');
- await expect(item.locator('.thread-project-monogram')).toHaveText('EP');
- await expect(item.locator('.thread-project-label')).toHaveText('Example project');
+ await expect(item.locator(':scope > :first-child')).toHaveClass('thread-item-title');
+ await expect(item.locator('.thread-project-monogram')).toHaveCount(0);
+ await expect(item.locator('.thread-project-label')).toHaveCount(0);
+ const projectHeaders=page.locator('.thread-project-header');
+ await expect(projectHeaders).toHaveCount(1);
+ await expect(projectHeaders.first().locator('.thread-project-monogram')).toHaveText('EP');
+ await expect(projectHeaders.first()).toContainText('Example project');
  await expect(item.locator('.thread-branch-meta')).toContainText('feature/compact-sidebar');
  expect((await row.boundingBox())!.height).toBeLessThanOrEqual(74);
  expect((await page.locator('.sidebar-thread-row').nth(3).boundingBox())!.height).toBeLessThanOrEqual(58);
@@ -28,6 +32,13 @@ test('compact rows show project monogram chip, readable title and metadata, and 
  await page.keyboard.press('Enter');
  await page.getByRole('menuitem',{name:'Pin thread',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {sidebarCompactCalls:string[]}).sidebarCompactCalls)).toContain('presentation:{"pinned":true}');
+});
+test('active filter shows a visible chip that clears back to all',async({page})=>{
+ await page.getByRole('button',{name:'Filter threads',exact:true}).click();
+ const chip=page.locator('.sidebar-filter-chip');
+ await expect(chip).toContainText('Showing working threads');
+ await chip.getByRole('button',{name:'Clear thread filter'}).click();
+ await expect(chip).toHaveCount(0);
 });
 test('footer invokes supplied actions and the single updater while plug-in navigation survives',async({page})=>{
  await expect(page.locator('.sidebar-footer button')).toHaveCount(4);
