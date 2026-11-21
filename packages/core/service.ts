@@ -23,6 +23,7 @@ import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } f
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
 import { admitArtifactContents, threadData } from "./ui-admission.ts";
 import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
+import { changeReviewComment } from './review-comments.ts';
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
@@ -1170,6 +1171,10 @@ export class Service {
       return this.agentWorkCommand(ctx, command);
     }
     if (command.type === 'memory.save' || command.type === 'memory.delete') return this.store.command(command, () => changeTaskMemory(this.store, thread.id, command.type === 'memory.save' ? 'save' : 'delete', p, 'user'));
+    if (command.type.startsWith('review.comment.')) {
+      if (!capabilityEnabled('ui.reviewCommentsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Review comments are disabled on this host.');
+      return this.store.command(command, () => changeReviewComment(this.store, thread, command));
+    }
     if (command.type === "message.send") return this.sendMessage(command, thread);
     if (command.type === "run.stop") {
       const pending=[...this.teardowns.values()].find(owner=>owner.ctx.threadId===thread.id);
