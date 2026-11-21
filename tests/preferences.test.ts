@@ -44,7 +44,15 @@ describe('UI preferences and thread presentation', () => {
     const b = mergePreferences(DEFAULT_PREFERENCES, { keybindings: { search: 'Alt+K' } });
     expect(b.keybindings.newThread).toBe('Ctrl+Shift+O'); expect(b.keybindings.search).toBe('Alt+K');
   });
-  it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { keybindings: { executeShell: 'Ctrl+X' } }])('rejects unsupported or invalid preference values %j', value => {
+  it('defaults the quick-ask toggle off and rebinds its accelerator', () => {
+    const defaults = getPreferences({});
+    expect(defaults.quickAskEnabled).toBe(false); expect(defaults.keybindings.quickAsk).toBe('Alt+Space');
+    const merged = mergePreferences(DEFAULT_PREFERENCES, { quickAskEnabled: true, keybindings: { quickAsk: 'Ctrl+Shift+Space' } });
+    expect(merged.quickAskEnabled).toBe(true); expect(merged.keybindings.quickAsk).toBe('Ctrl+Shift+Space'); expect(merged.keybindings.search).toBe('Ctrl+K');
+    const stored = getPreferences({ preferences: { quickAskEnabled: true, keybindings: { quickAsk: 'Meta+K' } } });
+    expect(stored.quickAskEnabled).toBe(true); expect(stored.keybindings.quickAsk).toBe('Meta+K');
+  });
+  it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { quickAskEnabled: 'yes' }, { keybindings: { executeShell: 'Ctrl+X' } }, { keybindings: { quickAsk: '' } }, { keybindings: { quickAsk: 'A'.repeat(81) } }])('rejects unsupported or invalid preference values %j', value => {
     expect(() => mergePreferences(DEFAULT_PREFERENCES, value)).toThrow();
   });
   it('rejects unsupported host settings without committing a receipt or event', async () => {

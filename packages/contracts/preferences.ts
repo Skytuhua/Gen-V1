@@ -31,6 +31,7 @@ const keybindings = z.strictObject({
   search: z.string().min(1).max(80), newThread: z.string().min(1).max(80),
   toggleSidebar: z.string().min(1).max(80), toggleRightPanel: z.string().min(1).max(80),
   openSettings: z.string().min(1).max(80), stop: z.string().min(1).max(80),
+  quickAsk: z.string().min(1).max(80),
 });
 export const preferencesSchema = z.strictObject({
   density: z.enum(['compact', 'comfortable', 'touch']), uiFontSize: z.number().int().min(13).max(16),
@@ -53,6 +54,7 @@ export const preferencesSchema = z.strictObject({
   diffLayout: z.enum(['stacked', 'split']), hideWhitespace: z.boolean(), diffDefaultExpanded: z.boolean(), diffColors: z.enum(['red-green', 'blue-orange']),
   showThreadDetails: z.boolean(), showComposerContext: z.boolean(), showUsageFooter:z.boolean(), wordWrap: z.boolean(), keybindings,
   learningEnabled:z.boolean(),learningApproval:z.boolean(),learningInterval:z.number().int().min(0).max(100),skillCurator:z.boolean(),
+  quickAskEnabled: z.boolean(),
 });
 export type UiPreferences = z.infer<typeof preferencesSchema>;
 export type PreferencePatch = Partial<Omit<UiPreferences, 'keybindings'>> & { keybindings?: Partial<UiPreferences['keybindings']> };
@@ -67,8 +69,8 @@ export const DEFAULT_PREFERENCES: UiPreferences = {
   appearanceAccent: 'blue', backgroundStyle: 'solid', backgroundImage: null, backgroundOpacity: .18, projectColors: {},
   diffLayout: 'split', hideWhitespace: false, diffDefaultExpanded: true, diffColors: 'red-green',
   showThreadDetails: true, showComposerContext: true, showUsageFooter:true, wordWrap: true,
-  learningEnabled:true,learningApproval:false,learningInterval:10,skillCurator:true,
-  keybindings: { search: 'Ctrl+K', newThread: 'Ctrl+Shift+O', toggleSidebar: 'Ctrl+B', toggleRightPanel: 'Ctrl+Shift+B', openSettings: 'Ctrl+Comma', stop: 'Escape' },
+  learningEnabled:true,learningApproval:false,learningInterval:10,skillCurator:true, quickAskEnabled:false,
+  keybindings: { search: 'Ctrl+K', newThread: 'Ctrl+Shift+O', toggleSidebar: 'Ctrl+B', toggleRightPanel: 'Ctrl+Shift+B', openSettings: 'Ctrl+Comma', stop: 'Escape', quickAsk: 'Alt+Space' },
 };
 const patchSchema = preferencesSchema.partial().extend({ keybindings: keybindings.partial().optional() }).strict();
 export function mergePreferences(current: UiPreferences, patch: unknown): UiPreferences {
