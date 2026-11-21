@@ -207,6 +207,17 @@ executed receipts.
 
 Check [the Gen V1 beta release](https://github.com/skytuhua-org/Gen-V1/releases/tag/v0.6.1) for available assets and verification notes. Source builds do not imply that an installer upgrade or every provider account has been tested.
 
+## Debug in VS Code
+
+The repo ships `.vscode/launch.json` with ready-made configurations:
+
+- **Debug host (tsx)** — launches `apps/server/main.ts` through `tsx` with `HARNESS_DEV=1` (the same command `pnpm dev` uses for the backend, without Vite).
+- **Debug current Vitest file** — runs `vitest run` on the open file in a single fork so breakpoints in tests and source resolve.
+- **Chrome: Vite dev server** / **Edge: Vite dev server** — opens `http://127.0.0.1:5173` with source maps; start `pnpm dev` first.
+- **Electron: desktop main** — launches the built shell; run `pnpm build && pnpm desktop:build` first so `dist/desktop-app/main.mjs` exists.
+
+`.vscode/extensions.json` recommends the Vitest and Playwright extensions the repo's test tooling uses.
+
 ## Run the checks
 
 The full regression suite needs local runtime inputs beyond `pnpm install`.
