@@ -37,7 +37,7 @@ function Scoped() {
   const conversation = useScopedConversation(scopedSelection);
   const [composers] = useState(createPersonalAgentComposers);
   useEffect(() => () => composers.dispose(), [composers]);
-  return <div style={{height: '100dvh'}}><ConversationPane conversation={conversation} renderComposer={state => state.context && <ScopedConversationComposer context={state.context} composers={composers} openConversation={noop} refreshOwner={noop}/>} /></div>;
+  return <div style={{height: '100dvh'}}><ConversationPane conversation={conversation} timeFormat="system" renderComposer={state => state.context && <ScopedConversationComposer context={state.context} composers={composers} openConversation={noop} refreshOwner={noop}/>} /></div>;
 }
 function TerminalCapture() {
   const [id, setId] = useState('capture-terminal');
@@ -55,7 +55,7 @@ async function draftReferences() {
 function Content() {
   const [connectionProvider,setConnectionProvider]=useState('openai');
   switch (surface) {
-    case 'side-chat': localStorage.setItem('harness:side-selected:one', 'side-one'); return <SideChat parent={snapshot.threads[0]} snapshot={snapshot} modelId="synthetic/model" open onClose={()=>{}} refresh={noop}/>;
+    case 'side-chat': localStorage.setItem('harness:side-selected:one', 'side-one'); return <SideChat parent={snapshot.threads[0]} snapshot={snapshot} modelId="synthetic/model" timeFormat="system" open onClose={()=>{}} refresh={noop}/>;
     case 'scoped': return <Scoped/>;
     case 'memory': return <TaskMemory snapshot={snapshot} threadId="one"/>;
     case 'skills': return <SkillLibrary snapshot={snapshot} preferences={DEFAULT_PREFERENCES} update={noop} refresh={noop} busy={false}/>;

@@ -1,18 +1,21 @@
-import {useLayoutEffect, useRef, useState, type ReactNode} from 'react';
+import {Fragment, useLayoutEffect, useRef, useState, type ReactNode} from 'react';
 import type {ConversationReadState} from './reader';
 import type {ScopedConversation} from './useScopedConversation';
 import './conversation-pane.css';
 import {ConversationFind} from '../ConversationFind';
 import {ErrorState} from '../../../../packages/ui-shell/Feedback';
+import {ConversationDayDivider, dayBreaks, MessageTime, useLocalNow} from '../message-time';
+import type {TimeFormat} from '../time-format';
 
 export interface ConversationPaneProps {
   conversation: ScopedConversation;
+  timeFormat: TimeFormat;
   hidden?: boolean;
   renderComposer?: (state: ConversationReadState) => ReactNode;
   renderContext?: (state: ConversationReadState) => ReactNode;
 }
 /** Presentation only. The ordinary composer and all command admission belong to the parent. */
-export function ConversationPane({conversation: {state, reader}, hidden = false, renderComposer, renderContext}: ConversationPaneProps) {
+export function ConversationPane({conversation: {state, reader}, timeFormat, hidden = false, renderComposer, renderContext}: ConversationPaneProps) {
   const viewport = useRef<HTMLDivElement>(null);
   const scope = useRef<HTMLElement>(null);
   const reading = useRef<{key: string | null; follow: boolean; top: number; anchor: {id: string; offset: number} | null; latest: string | null}>({key: null, follow: true, top: 0, anchor: null, latest: null});
@@ -73,17 +76,20 @@ export function ConversationPane({conversation: {state, reader}, hidden = false,
     return () => observer.disconnect();
   }, [state.selectionKey, state.messages, state.historyPending, state.phase, hidden, latest]);
   const pending = state.pending || state.historyPending;
+  const localNow = useLocalNow();
+  const rowBreaks = new Map(dayBreaks(state.messages, item => item.head.createdAt).map(item => [item.beforeIndex, item.dayKey]));
   return <section ref={scope} className="scoped-conversation" hidden={hidden} aria-label="Optional conversation">
     {renderContext && <div className="scoped-conversation-context">{renderContext(state)}</div>}
     <ConversationFind ownerKey={state.selectionKey ?? 'closed'} transcript={viewport} scope={scope} active={!hidden} onNavigate={() => {reading.current.follow = false; remember();}} onLoadEarlier={state.nextCursor ? () => {void reader.loadOlder();} : undefined} historyPending={pending} historyLimited={state.historyLimited} historyError={state.error}/>
     <div ref={viewport} className="scoped-conversation-transcript" role="region" aria-label="Conversation transcript" aria-busy={pending} tabIndex={0} onScroll={remember}>
       <div className="scoped-conversation-messages">
         {state.nextCursor && <button type="button" className="ui-action-trigger" disabled={pending || state.historyLimited} onClick={() => {focusAfterRead.current = reading.current.anchor?.id ?? state.messages[0]?.head.id ?? null; void reader.loadOlder();}}>{state.historyLimited ? 'History limit reached' : state.historyPending ? 'Loading older messages…' : 'Load older messages'}</button>}
-        {state.messages.map(message => <article key={message.head.id} data-message-id={message.head.id} className="scoped-conversation-message" tabIndex={-1} aria-label={message.head.role === 'user' ? 'You' : message.head.role === 'assistant' ? 'Assistant' : 'Activity'}>
+        {state.messages.map((message, index) => <Fragment key={message.head.id}>{rowBreaks.has(index) && <ConversationDayDivider dayKey={rowBreaks.get(index) ?? ''} now={localNow}/>}<article data-message-id={message.head.id} className="scoped-conversation-message" tabIndex={-1} aria-label={message.head.role === 'user' ? 'You' : message.head.role === 'assistant' ? 'Assistant' : 'Activity'}>
           <span className="scoped-conversation-role">{message.head.role === 'user' ? 'You' : message.head.role === 'assistant' ? 'Assistant' : 'Activity'}</span>
+          {(message.head.role === 'user' || message.head.role === 'assistant') && <MessageTime createdAt={message.head.createdAt} timeFormat={timeFormat}/>}
           <div className="scoped-conversation-text">{message.text}</div>
           {message.tail.nextContentCursor && <button type="button" className="ui-action-trigger" disabled={message.pending || message.limited} onClick={() => {focusAfterRead.current = message.head.id; void reader.loadContent(message.head.id);}}>{message.limited ? 'Content limit reached' : message.pending ? 'Loading text…' : 'Read more'}</button>}
-        </article>)}
+        </article></Fragment>)}
         {state.pending && <p role="status">{state.phase === 'resync' ? 'Refreshing conversation…' : 'Loading conversation…'}</p>}
         {!state.pending && state.phase === 'ready' && !state.messages.length && <p>No messages yet.</p>}
         {state.error && <ErrorState message={state.error} onRetry={state.phase === 'error' ? () => {void reader.retry();} : undefined} />}
