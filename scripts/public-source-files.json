@@ -198,6 +198,8 @@
     "apps/web/src/background-work.css",
     "apps/web/src/browser-slot-bounds.ts",
     "apps/web/src/chat-scroll-indicator.css",
+    "apps/web/src/code-highlight.ts",
+    "apps/web/src/code-language.ts",
     "apps/web/src/code-review-workspace/CodeIntelligencePanel.tsx",
     "apps/web/src/compact-settings-data.ts",
     "apps/web/src/composer-commands.css",

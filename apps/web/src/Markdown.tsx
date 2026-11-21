@@ -1,6 +1,8 @@
-import { Fragment, memo, useMemo, type ReactNode } from 'react';
+import { Fragment, memo, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {SentenceReveal} from './SentenceReveal';
 import {CopyButton} from './CopyButton';
+import {highlightable, parseFenceLanguage} from './code-language';
+import type {HighlightParser} from './code-highlight';
 import './markdown.css';
 
 function inline(text: string): ReactNode {
@@ -43,6 +45,38 @@ function marker(line:string){
   const match=/^([ \t]*)([-+*]|\d{1,9}[.)])[ \t]+(.*)$/.exec(line);
   return match?{indent:match[1]!.replaceAll('\t','    ').length,ordered:/^\d/.test(match[2]!),start:Number.parseInt(match[2]!,10),text:match[3]!}:null;
 }
+let highlightModule:typeof import('./code-highlight')|undefined;
+let highlightModulePromise:Promise<typeof import('./code-highlight')>|undefined;
+function loadHighlightModule(){
+  if(!highlightModulePromise)highlightModulePromise=import('./code-highlight').then(module=>{highlightModule=module;return module;},error=>{highlightModulePromise=undefined;throw error;});
+  return highlightModulePromise;
+}
+
+function CodeBlock({code,tag,animate}:{code:string;tag:string|null;animate:boolean}){
+  const wanted=tag!==null&&highlightable(tag,code),generation=useRef(0);
+  const [parser,setParser]=useState<HighlightParser|null|undefined>(()=>wanted?highlightModule?.cachedParser(tag):undefined);
+  const readyOnMount=useRef(wanted&&highlightModule?.cachedParser(tag!)!=null);
+  useEffect(()=>{
+    if(!wanted||parser!==undefined)return;
+    const ticket=++generation.current;let mounted=true;
+    loadHighlightModule().then(module=>module.loadParser(tag!)).then(result=>{
+      if(mounted&&generation.current===ticket)setParser(result);
+    },()=>{
+      if(mounted&&generation.current===ticket)setParser(null);
+    });
+    return()=>{mounted=false;};
+  },[tag,wanted,parser]);
+  const parts=useMemo(()=>{
+    if(!(wanted&&parser&&highlightModule))return null;
+    try{return highlightModule.segments(code,parser);}catch{return null;}
+  },[code,parser,wanted]);
+  return <div className="markdown-code" data-language={tag??undefined} data-highlight={parts?'ready':undefined} data-tint={parts&&animate&&!readyOnMount.current?'true':undefined}>
+    {tag&&<span className="markdown-code-language">{tag}</span>}
+    <CopyButton text={code} label="Copy code"/>
+    <pre><code>{parts?parts.map((part,index)=>part.classes?<span key={index} className={part.classes}>{part.text}</span>:<Fragment key={index}>{part.text}</Fragment>):code}</code></pre>
+  </div>;
+}
+
 const heading=(line:string)=>/^ {0,3}(#{1,6})[ \t]+(.*)$/.exec(line);
 const fence=(line:string)=>/^ {0,3}(`{3,}|~{3,})(.*)$/.exec(line);
 const numeric=(value:string)=>/^[+\-−]?\d[\d,]*(?:\.\d+)?(?:\s*(?:%|ms|s|bytes?|[kmg]i?b))?$/i.test(value);
@@ -74,7 +108,7 @@ function list(lines:string[],start:number,key:string,depth=0):{node:ReactNode;ne
 }
 
 /** A small safe block renderer; malformed table rows remain visible as prose. */
-function blocks(text:string):ReactNode[]{
+function blocks(text:string,animate:boolean):ReactNode[]{
   const lines=text.replaceAll('\r\n','\n').split('\n'),nodes:ReactNode[]=[];let index=0,tableCells=0;
   while(index<lines.length){
     if(!lines[index]!.trim()){index++;continue;}
@@ -83,7 +117,7 @@ function blocks(text:string):ReactNode[]{
       const start=++index,character=opening[1]![0]!,minimum=opening[1]!.length;
       while(index<lines.length&&!new RegExp(`^ {0,3}${character}{${minimum},}[ \\t]*$`).test(lines[index]!))index++;
       const code=lines.slice(start,index).join('\n')+(index<lines.length&&index>start?'\n':'');
-      nodes.push(<div key={key} className="markdown-code"><CopyButton text={code} label="Copy code"/><pre><code>{code}</code></pre></div>);if(index<lines.length)index++;continue;
+      nodes.push(<CodeBlock key={key} code={code} tag={parseFenceLanguage(opening[2]??'')} animate={animate}/>);if(index<lines.length)index++;continue;
     }
     const title=heading(lines[index]!);
     if(title){const Heading=`h${title[1]!.length}` as 'h1'|'h2'|'h3'|'h4'|'h5'|'h6';nodes.push(<Heading key={key}>{inline(title[2]!)}</Heading>);index++;continue;}
@@ -111,6 +145,6 @@ function blocks(text:string):ReactNode[]{
   return nodes;
 }
 export const Markdown = memo(function Markdown({ text,animate=false,initialReveal=false }: { text: string;animate?:boolean;initialReveal?:boolean }) {
-  const rendered = useMemo(() => blocks(text), [text]);
+  const rendered = useMemo(() => blocks(text,animate), [text,animate]);
   return <SentenceReveal className="markdown" text={text} animate={animate} initialReveal={initialReveal}>{rendered}</SentenceReveal>;
 });

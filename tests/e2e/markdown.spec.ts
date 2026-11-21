@@ -105,6 +105,84 @@ test('streamed tables stay unmasked while prose updates retain sentence reveal',
  await expect(prose.getByRole('cell',{name:'620',exact:true})).toBeVisible();snapshot.messages[0].content=snapshot.messages[0].content.replace('620','640');await fixture.publish();await expect(prose.getByRole('cell',{name:'640',exact:true})).toBeVisible();await expect(prose.getByRole('table')).toHaveCount(1);
 });
 
+test('highlights a tagged fence, labels it and keeps the raw code selectable',async({page})=>{
+ const markdown=await documentFixture(page,'```ts\nconst x = "a"; // c\n```');
+ const block=markdown.locator('.markdown-code');
+ await expect(block).toHaveAttribute('data-language','ts');await expect(markdown.locator('.markdown-code-language')).toHaveText('ts');
+ const code=block.locator('pre code');await expect(code).toHaveText('const x = "a"; // c\n');
+ await expect(code.locator('.tok-keyword').first()).toHaveText('const');await expect(code.locator('.tok-string').first()).toHaveText('"a"');await expect(code.locator('.tok-comment').first()).toHaveText('// c');
+ await expect(code.locator('.tok-keyword').first()).toHaveCSS('color','rgb(175, 0, 219)');
+ await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));
+ await expect(code.locator('.tok-keyword').first()).toHaveCSS('color','rgb(197, 134, 192)');
+ await page.evaluate(()=>document.documentElement.removeAttribute('data-theme'));
+});
+
+test('leaves an untagged fence byte-identical with no label or token spans',async({page})=>{
+ const markdown=await documentFixture(page,'```\nplain code here\n```');
+ const block=markdown.locator('.markdown-code');
+ await expect(block).not.toHaveAttribute('data-language',/.+/);await expect(markdown.locator('.markdown-code-language')).toHaveCount(0);
+ await expect(block.locator('pre code span')).toHaveCount(0);await expect(block.locator('pre code')).toHaveText('plain code here\n');
+});
+
+test('labels but does not highlight unknown and excluded tags',async({page})=>{
+ for(const tag of ['foo','diff']){
+  const markdown=await documentFixture(page,'```'+tag+'\nsome body text\n```');
+  await expect(markdown.locator('.markdown-code-language')).toHaveText(tag);
+  await expect(markdown.locator('.markdown-code pre code span')).toHaveCount(0);await expect(markdown.locator('.markdown-code pre code')).toHaveText('some body text\n');
+ }
+});
+
+test('renders an oversized fence plain with its label',async({page})=>{
+ const lines=Array.from({length:1001},(_,index)=>`const line${index} = ${index};`).join('\n');
+ const markdown=await documentFixture(page,'```ts\n'+lines+'\n```');
+ await expect(markdown.locator('.markdown-code-language')).toHaveText('ts');
+ await expect(markdown.locator('.markdown-code pre code span')).toHaveCount(0);await expect(markdown.locator('.markdown-code pre code')).toContainText('const line1000 = 1000;');
+});
+
+test('Copy code on a highlighted block copies the exact raw code',async({page,context})=>{
+ const raw='const x = "a"; // c\n';
+ const markdown=await documentFixture(page,'```ts\n'+raw+'```');
+ await expect(markdown.locator('.markdown-code pre code .tok-keyword')).toHaveText(['const']);
+ await context.grantPermissions(['clipboard-read','clipboard-write']);
+ await markdown.locator('.markdown-code').hover();await markdown.getByRole('button',{name:'Copy code'}).click();
+ expect(await page.evaluate(()=>navigator.clipboard.readText())).toBe(raw);
+});
+
+test('the language label sits in the band above the code and never scrolls with it',async({page})=>{
+ const markdown=await documentFixture(page,'```ts\nconst wide = "'+ 'x'.repeat(400)+'";\n```');
+ const label=markdown.locator('.markdown-code-language');await expect(label).toHaveText('ts');
+ await expect(markdown.locator('.markdown-code pre code .tok-keyword').first()).toBeVisible();
+ const labelBox=(await label.boundingBox())!,codeBox=(await markdown.locator('.markdown-code pre code').boundingBox())!;
+ expect(labelBox.y+labelBox.height).toBeLessThanOrEqual(codeBox.y+1);
+ await page.locator('.app-shell').evaluateAll(nodes=>nodes.forEach(node=>node.setAttribute('data-word-wrap','false')));
+ const pre=markdown.locator('.markdown-code pre');await pre.evaluate(node=>{node.scrollLeft=200;});
+ const moved=(await label.boundingBox())!;expect(moved.x).toBe(labelBox.x);
+});
+
+test('renders hostile HTML inside a highlighted fence as inert text',async({page})=>{
+ const markdown=await documentFixture(page,'```html\n<img src=x onerror="globalThis.markdownExecuted=true">\n```');
+ await expect(markdown.locator('.markdown-code-language')).toHaveText('html');
+ await expect(markdown.locator('img,iframe')).toHaveCount(0);
+ expect(await page.evaluate(()=>(globalThis as unknown as {markdownExecuted?:boolean}).markdownExecuted)).toBeUndefined();
+ await expect(markdown.locator('.markdown-code pre code')).toContainText('<img src=x');
+});
+
+for(const theme of ['light','dark'] as const)test(`evidence: highlighted fences in ${theme}`,async({page})=>{
+ const markdown=await documentFixture(page,'```ts\nconst x = "a"; // c\n```\n\n```python\ndef f():\n    return "a"\n```\n\n```json\n{"a": [1, true, null]}\n```');
+ if(theme==='dark')await page.evaluate(()=>document.documentElement.setAttribute('data-theme','dark'));
+ await expect(markdown.locator('.markdown-code-language').first()).toBeVisible();
+ await expect(markdown.locator('.tok-keyword').first()).toBeVisible();
+ mkdirSync(evidence,{recursive:true});
+ await page.screenshot({path:join(evidence,'syntax-highlight-'+theme+'.png'),fullPage:true});
+});
+
+test('does not animate token color under reduced motion',async({page})=>{
+ await page.emulateMedia({reducedMotion:'reduce'});
+ const markdown=await documentFixture(page,'```ts\nconst x = 1;\n```');
+ await expect(markdown.locator('.markdown-code pre code .tok-keyword').first()).toBeVisible();
+ await expect(markdown.locator('.markdown-code pre code span').first()).toHaveCSS('animation-name','none');
+});
+
 for(const variant of [{name:'light',theme:'light',width:1440},{name:'dark',theme:'dark',width:1440},{name:'narrow',theme:'light',width:390}] as const)test(`table layout contains overflow and stays readable in ${variant.name}`,async({page})=>{
  await page.setViewportSize({width:variant.width,height:1000});const snapshot=taskFixture(spec(actualTraceTable+'\n\n| Detail | Value |\n| --- | ---: |\n| '+ 'long-source-token-'.repeat(18)+' | 1234 |'));snapshot.settings.theme=variant.theme;await serveTaskFixture(page,snapshot);await page.goto('/');const markdown=page.locator('[data-artifact-id="task-surface"] .markdown');await expect(markdown.getByRole('table')).toHaveCount(2);
  expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);const scroller=markdown.locator('.markdown-table-scroll').first();await expect(scroller).toHaveAttribute('tabindex','0');await scroller.focus();await expect(scroller).toBeFocused();
