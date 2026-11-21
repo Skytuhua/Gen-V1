@@ -113,15 +113,24 @@ export async function stageRepositoryMapParser(root:string,host:string){
 export function runtimeSourceAllowed(path:string){return publicRuntimeSourceAllowed(path);}
 
 export function validateNodeArchive(bytes:Uint8Array,expected=NODE_ARCHIVE_SHA256){if(createHash('sha256').update(bytes).digest('hex')!==expected)throw Error('Bundled Node archive checksum mismatch');}
-export function desktopBuilderConfig(dist:string,channel=process.env.HARNESS_RELEASE_CHANNEL){
+export function desktopBuilderConfig(dist:string,channel=process.env.HARNESS_RELEASE_CHANNEL,signing=process.env.HARNESS_WINDOWS_SIGNING){
  if(channel!==undefined&&channel!=='stable'&&channel!=='prerelease')throw Error('HARNESS_RELEASE_CHANNEL must be stable or prerelease.');
+ if(signing!==undefined&&signing!=='azure')throw Error('HARNESS_WINDOWS_SIGNING must be azure or unset.');
  const root=dist.replaceAll('\\','/').replace(/\/$/,'');
- return {appId:'local.generativeharness.desktop',productName:'Gen V1',electronVersion:'45.2.0',asar:true,npmRebuild:false,forceCodeSigning:false,
+ const win:{target:{target:string;arch:string[]}[];signAndEditExecutable:boolean;azureSignOptions?:{publisherName:string;endpoint:string;codeSigningAccountName:string;certificateProfileName:string}}={target:[{target:'nsis',arch:['x64']}],signAndEditExecutable:signing==='azure'};
+ if(signing==='azure'){
+  const azure={publisherName:['HARNESS_WINDOWS_PUBLISHER_NAME',process.env.HARNESS_WINDOWS_PUBLISHER_NAME],endpoint:['HARNESS_AZURE_SIGNING_ENDPOINT',process.env.HARNESS_AZURE_SIGNING_ENDPOINT],codeSigningAccountName:['HARNESS_AZURE_SIGNING_ACCOUNT',process.env.HARNESS_AZURE_SIGNING_ACCOUNT],certificateProfileName:['HARNESS_AZURE_SIGNING_PROFILE',process.env.HARNESS_AZURE_SIGNING_PROFILE]} as const;
+  const missing=Object.values(azure).filter(([,value])=>!value).map(([name])=>name);
+  if(missing.length)throw Error('Azure Artifact Signing requires '+missing.join(', ')+' to be set.');
+  // The TrustedSigning PowerShell module reads the AZURE_* credentials from the environment; repository code never sees them.
+  win.azureSignOptions={publisherName:azure.publisherName[1]!,endpoint:azure.endpoint[1]!,codeSigningAccountName:azure.codeSigningAccountName[1]!,certificateProfileName:azure.certificateProfileName[1]!};
+ }
+ return {appId:'local.generativeharness.desktop',productName:'Gen V1',electronVersion:'45.2.0',asar:true,npmRebuild:false,forceCodeSigning:signing==='azure',
   publish:[{provider:'github' as const,owner:'skytuhua-org',repo:'Gen-V1',releaseType:'release' as const,channel:channel==='prerelease'?'beta':'latest'}],
   directories:{app:root+'/desktop-app',output:root+'/desktop-release'},files:['main.mjs','preload.cjs','startup.html','package.json','!node_modules/**/*'],
   extraResources:[{from:root+'/desktop-host',to:'host'},{from:root+'/desktop-host/node_modules',to:'host/node_modules',filter:['**/*']},{from:root+'/desktop-host/.harness-hermes-python-deps',to:'host/.harness-hermes-python-deps',filter:['**/*']},{from:root+'/desktop-host/.harness-integrations-python-deps',to:'host/.harness-integrations-python-deps',filter:['**/*']},{from:root+'/desktop-host/.harness-tool-bundles',to:'host/.harness-tool-bundles',filter:['**/*']},{from:root+'/desktop-node',to:'node'}],
   // Use the supported 7z payload for large file counts. Its temporary-tree copy
   // occurs during installation; the installed application launches directly.
-  win:{target:[{target:'nsis',arch:['x64']}],signAndEditExecutable:false},
+  win,
   nsis:{artifactName:'Gen-V1-Setup-${version}-win-x64.exe',oneClick:true,perMachine:false,allowElevation:false,packElevateHelper:false,useZip:false,differentialPackage:channel!==undefined,runAfterFinish:false,deleteAppDataOnUninstall:false,createDesktopShortcut:false,createStartMenuShortcut:true},compression:'normal' as const};
 }
