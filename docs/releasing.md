@@ -4,7 +4,8 @@ The [draft release workflow](../.github/workflows/release.yml) builds the Window
 x64 installer and stages a **draft** release in `skytuhua-org/Gen-V1`. Publishing
 remains a separate human action. Version 0.6.5 ships as an **unsigned preview**
 on the prerelease channel, not as a stable release. Review the draft and its
-artifacts before publishing; signing is not yet configured.
+artifacts before publishing; signing activates once the `windows-signing`
+environment exists (see [Signing](#signing)).
 
 ## Trigger and channel
 
@@ -61,10 +62,66 @@ If an upload fails after some assets have arrived, reruns fail closed.
 Inspect the failure, delete the incomplete draft manually, and rerun; the
 workflow will not remove assets or modify a published release.
 
-## Signing hook
+## Signing
 
-The labelled signing step is currently a no-op: builds are **unsigned**.
-Future signing should wire certificate secrets such as `WINDOWS_CSC_LINK` and
-`WINDOWS_CSC_KEY_PASSWORD` into electron-builder during packaging (and enable
-its signing configuration), before blockmaps, feed hashes, and the manifest
-are finalized. Do not sign the executable after those checksums are generated.
+Release builds are Authenticode-signed (SHA-256, RFC 3161 timestamped) with a
+publicly trusted certificate from **Azure Artifact Signing**, Microsoft's
+managed code-signing service (formerly "Trusted Signing"). Signing activates
+once the GitHub environment `windows-signing` exists with every entry below.
+The `build` job declares that environment, so its secrets are released only
+to runs approved for `main` or `v*` tags; until then the package step fails
+closed naming the missing variables and never falls back to unsigned. The
+installer, the uninstaller and `Gen V1.exe` are all signed during packaging,
+before blockmaps, feed hashes and the manifest are finalized.
+
+| Name | Kind | Where set | Meaning |
+| --- | --- | --- | --- |
+| `HARNESS_WINDOWS_SIGNING` | env | `build` job | `azure` turns signing on; unset means unsigned; any other value is rejected |
+| `HARNESS_AZURE_SIGNING_ENDPOINT` | variable | environment `windows-signing` | Regional endpoint, e.g. `https://eus.codesigning.azure.net/` |
+| `HARNESS_AZURE_SIGNING_ACCOUNT` | variable | same | Artifact Signing account name |
+| `HARNESS_AZURE_SIGNING_PROFILE` | variable | same | Certificate profile name |
+| `HARNESS_WINDOWS_PUBLISHER_NAME` | variable | same | Exact certificate subject CN (validated organization name) |
+| `AZURE_TENANT_ID`, `AZURE_CLIENT_ID`, `AZURE_CLIENT_SECRET` | **secrets** | same | Entra ID app registration holding the signer role on that profile |
+
+Owner setup (Azure account):
+
+1. Register the `Microsoft.CodeSigning` resource provider on the subscription.
+2. Create an Artifact Signing account in a supported region (Basic SKU).
+3. Complete identity validation for **Public Trust** as an organization;
+   validation can take days and is the long pole.
+4. Create a Public Trust certificate profile bound to the validated identity
+   and record the subject CN exactly (it becomes
+   `HARNESS_WINDOWS_PUBLISHER_NAME`).
+5. Create an Entra ID app registration with a client secret and grant it only
+   the certificate-profile signer role (Microsoft names it "Artifact Signing
+   Certificate Profile Signer", formerly "Trusted Signing Certificate Profile
+   Signer") on that one profile.
+6. In the repository settings, create the environment `windows-signing`
+   restricted to `main` and `v*` tags with a required reviewer, and add the
+   three secrets and four variables from the table.
+
+After packaging, a verification step requires `Get-AuthenticodeSignature` to
+report `Valid` with a timestamp and the expected publisher CN on the installer
+and the unpacked `Gen V1.exe`, and requires the channel feed's `sha512` to
+equal the signed installer's checksum. The step prints names, statuses and
+thumbprints only — never secret values.
+
+Updater continuity:
+
+| Installed build | Update candidate | Result |
+| --- | --- | --- |
+| unsigned (0.6.5, no `publisherName` in `app-update.yml`) | signed | accepted (signature verification skipped) |
+| signed | signed by the same publisher CN | accepted |
+| signed | unsigned or a different publisher | `ERR_UPDATER_INVALID_SIGNATURE`; the update fails and the current version is kept |
+
+If the validated publisher name ever changes (for example an organization
+rename), every signed install rejects updates. `publisherName` may be set to
+an array listing the old and new names for one transition release.
+
+A signing or timestamp failure fails the build before any artifact is
+uploaded; fix the configuration and rerun — nothing is published. Rollback is
+reverting the workflow change; already-published signed releases stay valid
+because they are timestamped. Rotate the client secret at least yearly;
+revoking the app registration stops signing immediately. The unsigned CI
+packaging lane in `ci.yml` runs without `HARNESS_WINDOWS_SIGNING` and stays
+unsigned.
