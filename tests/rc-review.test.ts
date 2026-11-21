@@ -7,11 +7,19 @@ import {snapshot,compare} from '../scripts/rc-review/profile-manifest.ts';
 import {flagsOff} from '../scripts/rc-review/flags-off.ts';
 import {pnpm,run} from '../scripts/rc-review/common.ts';
 import {archiveProfile,restoreProfile} from '../scripts/rc-review/profile-archive.ts';
-import {assertCleanLifecycle} from '../scripts/rc-review/run-rc-review.ts';
+import {assertCleanLifecycle,collectNativeVerification} from '../scripts/rc-review/run-rc-review.ts';
 import {compareNativeGeometry} from '../scripts/rc-review/upgrade-check.ts';
 
 const roots:string[]=[];
 it('compares native geometry in one API space without throwing on a mismatch',()=>{const expected={left:80,top:80,width:1100,height:780};expect(compareNativeGeometry(expected,expected).status).toBe('passed');expect(compareNativeGeometry(expected,{left:72,top:80,width:1116,height:788}).status).toBe('passed');expect(compareNativeGeometry(expected,{...expected,left:113}).status).toBe('failed');expect(compareNativeGeometry(expected,undefined).status).toBe('failed');expect(compareNativeGeometry({},expected).status).toBe('failed');});
+it('keeps the native subprocess failure when diagnostic receipt collection fails',async()=>{
+ const failed=Object.assign(Error('verifier exited 2'),{stdout:'not a receipt',exitCode:2});
+ const parse=Error('unreadable receipt'),collect=vi.fn(async()=>{throw parse;}),capture=async()=>{throw failed;};
+ await expect(collectNativeVerification(capture,collect)).rejects.toBe(failed);
+ expect(collect).toHaveBeenCalledWith('not a receipt',false);
+ await expect(collectNativeVerification(async()=>'{receipt}',collect)).rejects.toBe(parse);
+ expect(collect).toHaveBeenLastCalledWith('{receipt}',true);
+});
 it('requires candidate-bound completed cleanup and explicit opt-in after a failed clean lifecycle',()=>{const receipt={passed:true,setupSha256:'candidate',memoryRetentionRequested:true,cleanup:{status:'uninstalled-owned-installation'}};expect(()=>assertCleanLifecycle(receipt,'candidate')).not.toThrow();expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate')).toThrow('explicit');expect(()=>assertCleanLifecycle({...receipt,passed:false},'candidate',true)).not.toThrow();for(const invalid of [{},{...receipt,setupSha256:'other'},{...receipt,cleanup:{status:'preserved-for-inspection'}}])expect(()=>assertCleanLifecycle(invalid,'candidate',true)).toThrow('candidate-bound');});
 it('retains captured failure output for review evidence',async()=>{await expect(run(process.execPath,['-e',"console.log('failure evidence');process.exit(3)"],{capture:true})).rejects.toMatchObject({stdout:'failure evidence',exitCode:3});});
 it('refuses outdated manifest versions before comparison or restore writes',async()=>{const {root,profile,host}=await fixture(),before=await snapshot(profile,host),old=structuredClone(before);Reflect.set(old,'version',1);expect(()=>compare(old,before)).toThrow('re-snapshot needed');expect(()=>compare(before,old)).toThrow('re-snapshot needed');const seed=join(root,'seed.json'),manifest=join(root,'old.json'),archive=join(root,'archive');await writeFile(seed,'{}');await writeFile(manifest,JSON.stringify(old));await archiveProfile(profile,host,seed,manifest,archive);await expect(restoreProfile(archive,profile,host,join(root,'refused'))).rejects.toThrow('re-snapshot needed');expect(await readdir(profile)).toEqual([]);expect(await readdir(host)).toEqual([]);});
