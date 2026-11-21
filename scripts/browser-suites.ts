@@ -29,6 +29,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('m08-restore', ['m08-restore-ui.spec.ts', 'm08-pr-checks.spec.ts']),
   suite('files-reading', undefined, {project:'files-reading'}),
   suite('file-policy-mentions'),
+	suite('settings-file-policy'),
   suite('generated-selects', ['generated-selects.spec.ts', 'inline-diagrams.spec.ts', 'work-objects.spec.ts'], {project:'generated-controls'}),
   suite('graph-popovers'),
   suite('inbox-controls'),
