@@ -1,7 +1,9 @@
 import { useCallback, useRef, useState } from 'react';
+import { Lock } from 'lucide-react';
 import type { DatabaseQueryResultV1 } from '../../../../packages/contracts/database.ts';
 
 export type ResultCell = DatabaseQueryResultV1['rows'][number][number];
+export type GridDensity = 'compact' | 'comfortable' | 'touch';
 
 export const formatBytes = (length: number) => length >= 1024 ? `${(length / 1024).toFixed(1)} KB` : `${length} B`;
 export const cellText = (cell: ResultCell) =>
@@ -9,26 +11,34 @@ export const cellText = (cell: ResultCell) =>
 export const rowsTsv = (result: Pick<DatabaseQueryResultV1, 'columns' | 'rows'>) =>
 	[result.columns.map(column => column.name).join('\t'), ...result.rows.map(row => row.map(cellText).join('\t'))].join('\n');
 
-const ROW_HEIGHT = 32, HEADER_HEIGHT = 32, GUTTER = 44, DEFAULT_COL_WIDTH = 160, MIN_COL_WIDTH = 64, OVERSCAN = 10, COLUMN_VIRTUALIZE_AT = 30;
+const HEADER_HEIGHT = 32, GUTTER = 44, MIN_COL_WIDTH = 48, OVERSCAN = 10, COLUMN_VIRTUALIZE_AT = 30;
+const ROW_HEIGHTS: Record<GridDensity, number> = { compact: 28, comfortable: 32, touch: 44 };
+const clampWidth = (value: number) => Math.min(320, Math.max(80, value));
+const contentWidth = (result: DatabaseQueryResultV1, index: number) => {
+	let longest = result.columns[index]!.name.length + result.columns[index]!.type.length / 2;
+	for (const row of result.rows.slice(0, 50)) longest = Math.max(longest, cellText(row[index]!).length);
+	return clampWidth(longest * 8 + 16);
+};
 
 export interface ResultDraft { edits: Record<string, string>; onEdit(rowIndex: number, columnIndex: number, value: string): void }
 
 /** Virtualized results grid shared by the Database panel and the in-thread card.
  * Renders only visible rows + overscan; columns above 30 are windowed too.
  * `draft` is the T10 edit-mode seam: keyed `row:column` draft text, edited inline. */
-export function QueryResultGrid({ result, draft, labelledBy, height }: { result: DatabaseQueryResultV1; draft?: ResultDraft; labelledBy?: string; height?: number }) {
+export function QueryResultGrid({ result, density = 'comfortable', draft, readOnlyColumns, labelledBy, height }: { result: DatabaseQueryResultV1; density?: GridDensity; draft?: ResultDraft; readOnlyColumns?: ReadonlySet<number>; labelledBy?: string; height?: number }) {
 	const scroll = useRef<HTMLDivElement>(null);
 	const [top, setTop] = useState(0), [left, setLeft] = useState(0), [viewH, setViewH] = useState(320), [viewW, setViewW] = useState(640);
 	const [widths, setWidths] = useState<Record<number, number>>({});
 	const measured = useRef(false);
 
-	const colWidth = (index: number) => widths[index] ?? DEFAULT_COL_WIDTH;
+	const rowHeight = ROW_HEIGHTS[density];
+	const colWidth = (index: number) => widths[index] ?? contentWidth(result, index);
 	const rows = result.rows;
-	const totalH = rows.length * ROW_HEIGHT;
-	const start = Math.max(0, Math.floor(top / ROW_HEIGHT) - OVERSCAN);
-	const end = Math.min(rows.length, Math.ceil((top + viewH) / ROW_HEIGHT) + OVERSCAN);
+	const totalH = rows.length * rowHeight;
+	const start = Math.max(0, Math.floor(top / rowHeight) - OVERSCAN);
+	const end = Math.min(rows.length, Math.ceil((top + viewH) / rowHeight) + OVERSCAN);
 	const virtualCols = result.columns.length > COLUMN_VIRTUALIZE_AT;
-	const offsets = useCallback((until: number) => { let sum = 0; for (let index = 0; index < until; index++) sum += colWidth(index); return sum; }, [widths]); // eslint-disable-line react-hooks/exhaustive-deps
+	const offsets = useCallback((until: number) => { let sum = 0; for (let index = 0; index < until; index++) sum += colWidth(index); return sum; }, [widths, result]); // eslint-disable-line react-hooks/exhaustive-deps
 	const totalW = offsets(result.columns.length);
 	const colStart = virtualCols ? Math.max(0, result.columns.findIndex((_, index) => offsets(index + 1) > left) - 4) : 0;
 	const firstPast = virtualCols ? result.columns.findIndex((_, index) => offsets(index) > left + viewW) : -1;
@@ -51,6 +61,7 @@ export function QueryResultGrid({ result, draft, labelledBy, height }: { result:
 					{result.columns.map((column, index) => index >= colStart && index < colEnd
 						? <span key={index} role="columnheader" aria-colindex={index + 2} className="query-result-th" style={{ width: colWidth(index), left: GUTTER + offsets(index) }}>
 							<span className="query-result-th-label" title={`${column.name} · ${column.type}`}>{column.name} <span className="schema-type">{column.type}</span></span>
+							{readOnlyColumns?.has(index) && <Lock size={12} aria-label="Read only"/>}
 							<span className="query-result-col-resize" role="separator" aria-orientation="vertical" aria-label={`Resize ${column.name}`} onPointerDown={resize(index)}/>
 						</span>
 						: null)}
@@ -58,7 +69,7 @@ export function QueryResultGrid({ result, draft, labelledBy, height }: { result:
 				</div>
 				{rows.slice(start, end).map((row, offset) => {
 					const rowIndex = start + offset;
-					return <div key={rowIndex} role="row" aria-rowindex={rowIndex + 2} className="query-result-tr" style={{ top: HEADER_HEIGHT + rowIndex * ROW_HEIGHT, width: GUTTER + totalW }}>
+					return <div key={rowIndex} role="row" aria-rowindex={rowIndex + 2} className="query-result-tr" style={{ top: HEADER_HEIGHT + rowIndex * rowHeight, height: rowHeight, width: GUTTER + totalW }}>
 						{row.map((cell, columnIndex) => columnIndex >= colStart && columnIndex < colEnd
 							? <ResultCellView key={columnIndex} cell={cell} rowIndex={rowIndex} columnIndex={columnIndex} draft={draft} style={{ width: colWidth(columnIndex), left: GUTTER + offsets(columnIndex) }}/>
 							: null)}
@@ -72,10 +83,18 @@ export function QueryResultGrid({ result, draft, labelledBy, height }: { result:
 }
 
 function ResultCellView({ cell, rowIndex, columnIndex, draft, style }: { cell: ResultCell; rowIndex: number; columnIndex: number; draft?: ResultDraft; style: React.CSSProperties }) {
-	const text = cellText(cell), key = `${rowIndex}:${columnIndex}`, edited = draft && Object.hasOwn(draft.edits, key);
-	if (draft && edited !== undefined && Object.hasOwn(draft.edits, key))
-		return <span role="gridcell" aria-colindex={columnIndex + 2} className="query-result-td editing" style={style}><input aria-label={`Edit row ${rowIndex + 1} column ${columnIndex + 1}`} value={draft.edits[key]} onChange={event => draft.onEdit(rowIndex, columnIndex, event.target.value)}/></span>;
-	return <span role="gridcell" aria-colindex={columnIndex + 2} className={`query-result-td ${typeof cell === 'number' ? 'numeric' : ''} ${cell === null ? 'null-cell' : ''} ${edited ? 'edited' : ''}`} style={style} title={text.length > 60 ? text : undefined}>
+	const text = cellText(cell), key = `${rowIndex}:${columnIndex}`, edited = draft !== undefined && Object.hasOwn(draft.edits, key);
+	if (draft && edited)
+		return <span role="gridcell" aria-colindex={columnIndex + 2} className="query-result-td editing draft" aria-description="Changed, not saved" style={style}><input aria-label={`Edit row ${rowIndex + 1} column ${columnIndex + 1}`} value={draft.edits[key]} onChange={event => draft.onEdit(rowIndex, columnIndex, event.target.value)}/></span>;
+	return <span role="gridcell" aria-colindex={columnIndex + 2} tabIndex={0} className={`query-result-td ${typeof cell === 'number' ? 'numeric' : ''} ${cell === null ? 'null-cell' : ''}`} style={style} title={text.length > 60 ? text : undefined}>
 		{draft && cell !== null ? <button type="button" className="query-result-cell-button" onClick={() => draft.onEdit(rowIndex, columnIndex, text)}>{text}</button> : (cell === null ? <em>NULL</em> : text)}
 	</span>;
+}
+
+/** Structure-matched static skeleton for the initial load (spec: header + 8 rows). */
+export function QueryResultSkeleton({ columns = 4 }: { columns?: number }) {
+	return <div className="query-result-grid" aria-hidden="true"><div className="query-result-scroll"><div className="query-result-skeleton">
+		<div className="query-result-header" style={{ display: 'flex' }}>{Array.from({ length: columns + 1 }, (_, index) => <span key={index} className="query-result-skeleton-cell" style={{ width: index ? 160 : GUTTER }}/>)}</div>
+		{Array.from({ length: 8 }, (_, row) => <div key={row} className="query-result-skeleton-row">{Array.from({ length: columns + 1 }, (_, index) => <span key={index} className="query-result-skeleton-cell" style={{ width: index ? 160 : GUTTER }}/>)}</div>)}
+	</div></div></div>;
 }
