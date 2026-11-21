@@ -98,7 +98,34 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
   const [animateReceipt, setAnimateReceipt] = useState(false);
   const panel = useRef<HTMLDivElement>(null), action = useRef<HTMLButtonElement>(null), restoreActionFocus = useRef(false);
   const active = useRef(true), locked = useRef(false);
+  const [innerNode, setInnerNode] = useState<HTMLDivElement | null>(null);
+  const [requestedHeight, setRequestedHeight] = useState(200);
   useLayoutEffect(() => { active.current = true; return () => { active.current = false; }; }, []);
+  // Natural-flow inner content is measured in CSS pixels after the portal mounts;
+  // the popover still owns available-space clamping of this requested size.
+  useLayoutEffect(() => {
+    const shell = panel.current;
+    if (!shell || !innerNode) return;
+    const body = innerNode.parentElement;
+    const measure = () => {
+      const style = getComputedStyle(shell);
+      const gap = parseFloat(style.rowGap) || 0;
+      let total = parseFloat(style.paddingTop) + parseFloat(style.paddingBottom) + parseFloat(style.borderTopWidth) + parseFloat(style.borderBottomWidth);
+      let visible = 0;
+      for (const child of Array.from(shell.children) as HTMLElement[]) {
+        if (child === body) { total += innerNode.offsetHeight; visible++; continue; }
+        if (getComputedStyle(child).display === 'none') continue;
+        total += child.getBoundingClientRect().height; visible++;
+      }
+      const height = Math.ceil(total + gap * Math.max(0, visible - 1));
+      setRequestedHeight(previous => previous === height ? previous : height);
+    };
+    measure();
+    const observer = new ResizeObserver(measure);
+    observer.observe(innerNode);
+    for (const child of Array.from(shell.children)) observer.observe(child);
+    return () => observer.disconnect();
+  }, [innerNode]);
   const measured = contextSegments(usage), unavailable = unavailableCompaction(thread);
   const request = usage?.lastRequest;
   const lastRequest = request?.threadId === thread?.id && request?.epoch === thread?.epoch &&
@@ -116,7 +143,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     if (!accepted) { setAnimateReceipt(false); return; }
     if (lastReceipt.current === accepted.receipt.id) return;
     lastReceipt.current = accepted.receipt.id; setAnimateReceipt(true);
-    const timer = setTimeout(() => setAnimateReceipt(false), 600); return () => clearTimeout(timer);
+    const timer = setTimeout(() => setAnimateReceipt(false), 160); return () => clearTimeout(timer);
   }, [accepted?.receipt.id]);
   const compacting = submitting || reported?.status === 'pending' || usage?.activity === 'compacting';
   useLayoutEffect(() => {
@@ -148,12 +175,12 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
     requested ? 'Result not reported' : usage?.activity === 'running' ? 'Agent working' : usage?.activity === 'retrying' ? 'Retrying' : unavailable?.status ?? 'Context';
   const failure = error || (reported?.status === 'failed' ? reported.error || 'Context could not be compacted. Try again.' : '');
   const recalled = ownedMemoryRecall(thread, memoryRecall);
-  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={(measured?.categories.length ? 282 : 200) + (failure ? 48 : 0) + (lastRequest || compactionHistory ? 84 : 0) + (budget ? 120 : 0) + (recalled ? 180 : 0) + (workbench?.enabled?48:0)}
+  return <Popover anchor={anchor} contentRef={panel} initialFocus={panel} open width={328} height={requestedHeight}
     role="dialog" aria-label="Context inspector" tabIndex={-1} className="context-inspector" onDismiss={close}>
     {workbench?.enabled&&<nav aria-label="Context views"><button type="button" onClick={()=>{close();workbench.show('request');}}>Last request</button><button type="button" onClick={()=>{close();workbench.show('sources');}}>Sources</button><button type="button" onClick={()=>{close();workbench.show('tools');}}>Tools</button><span aria-current="page">Compaction</span></nav>}
     <header><strong>Context <span>{measured ? `${Math.round(measured.ratio)}%` : 'Not reported'}</span></strong>
       {measured && <span className="context-inspector-total">{contextNumber(measured.used)} of {contextNumber(measured.total)} tokens</span>}</header>
-    <div className="context-inspector-body"><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
+    <div className="context-inspector-body"><div className="context-inspector-inner" ref={setInnerNode}><ContextMeter usage={usage} busy={compacting} accepted={playingReceipt} />
       {(lastRequest || compactionHistory) && <RequestEvidence request={lastRequest} sources={hostSources} compaction={compactionHistory} thread={thread} />}
       {budget && <InferenceBudget value={budget}/>}
       {failure && <ErrorState className="context-inspector-error" message={failure}/>}
@@ -161,7 +188,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
       {memoryPreparation?.error && <ErrorState message={memoryPreparation.error}/>}
       {memoryPreparation && (recalled || memoryPreparation.error) && <button type="button" disabled={memoryPreparation.pending || memoryPreparation.disabled} onClick={memoryPreparation.refresh}>Refresh prepared context</button>}
       {recalled && <MemoryRecallDetails value={recalled}/>}
-    </div>
+    </div></div>
     <footer><span role="status" aria-live="polite" className={playingReceipt ? 'context-receipt-pulse' : undefined}>{activity}</span>
       <button ref={action} type="button" disabled={!thread?.sessionPath || Boolean(thread.runId) || compacting || Boolean(unavailable)}
         title={unavailable?.reason ?? (!thread?.sessionPath ? 'Start a session before compacting context.' : undefined)} aria-description={unavailable?.reason}

@@ -1,10 +1,12 @@
 import {SentenceReveal} from './SentenceReveal';
 import {WindowDocument} from './DocumentWindow';
-import { Children, createContext, lazy, Suspense, useContext, useId, useRef, useState, type ReactNode } from 'react';
+import { Children, createContext, lazy, Suspense, useContext, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { useStateStore, type ComponentRegistry, type ComponentRenderProps } from '@json-render/react';
 import { ExternalLink, FileText, Check, AlertTriangle, CornerDownLeft } from 'lucide-react';
 import { Markdown } from './Markdown';
 import { ArtifactTitle, ChoiceList, RelationshipGraph, Status, Steps } from './task-interface';
+import { animateTask, MotionRegion, reducedMotion, TASK_MOTION, useTaskEffectCause, type TaskEffectCause } from './task-motion';
+import { readMotionPolicy } from './motion-policy';
 export { ArtifactTitle } from './task-interface';
 import type { DocumentPreviewProps, SignaturePadProps } from '../../../packages/ui-catalog/documents';
 
@@ -83,9 +85,18 @@ function Layout({ element, children }: ComponentRenderProps) {
 function Split({ element, children }: ComponentRenderProps) {
   const elements = useContext(ArtifactElements), types = childTypes(element, elements, children);
   const ratio = Math.max(.1, Math.min(.9, Number(element.props.ratio) || .5)), columns = `${ratio}fr ${1 - ratio}fr`;
-  return types.length === 2 && types.filter(type => type === 'DocumentPreview').length === 1
-    ? <DocumentPair columns={columns} split>{children}</DocumentPair>
-    : <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
+  if (types.length === 2) {
+    if (types.filter(type => type === 'DocumentPreview').length === 1)
+      return <DocumentPair columns={columns} split>{children}</DocumentPair>;
+    const imageIndex = types.indexOf('Image'), controlsIndex = types.indexOf('ParameterControls');
+    if (imageIndex !== -1 && controlsIndex !== -1) {
+      const sourceFr = imageIndex === 0 ? ratio : 1 - ratio, tracks = imageIndex === 0
+        ? `minmax(0,${sourceFr}fr) minmax(280px,${1 - sourceFr}fr)`
+        : `minmax(280px,${1 - sourceFr}fr) minmax(0,${sourceFr}fr)`;
+      return <div className="parameter-preview-pair"><div className="surface-split parameter-preview-columns" style={{ gridTemplateColumns: tracks }}>{Children.toArray(children).map((node, index) => index === imageIndex ? <figure key={element.children?.[index] ?? index} className="parameter-source-figure">{node}</figure> : node)}</div></div>;
+    }
+  }
+  return <div className="surface-split" style={{ gridTemplateColumns: columns }}>{children}</div>;
 }
 function SignatureLoading({ label = 'Your signature' }: SignaturePadProps) {
   // Reuse the control's shell geometry while its independently lazy logic loads.
@@ -115,16 +126,19 @@ function Button({ element: { props } }: ComponentRenderProps) {
   const action = useTaskAction(), store = useStateStore();
   return <span className="surface-action"><button type="button" className={props.tone === 'primary' || props.variant === 'primary' ? 'primary' : props.tone === 'danger' ? 'secondary tone-danger' : 'secondary'} disabled={action.busy || props.disabled === true || !props.actionId} title={!props.actionId ? 'This control has no registered action.' : undefined} onClick={() => { if (props.actionId) void action.run(string(props.actionId), mapActionPayload(props, store.getSnapshot().values)); }}>{action.busy && props.disabled !== true ? 'Submitting…' : string(props.label, 'Continue')}</button>{action.error && <span role="alert" className="error-text">{action.error}</span>}</span>;
 }
+const chartY = (value: unknown): number | null => {
+  if (typeof value === 'number') return Number.isFinite(value) ? value : null;
+  if (typeof value === 'string' && value.trim() !== '') { const parsed = Number(value); return Number.isFinite(parsed) ? parsed : null; }
+  return null;
+};
+const chartCap = (value: string) => value.charAt(0).toUpperCase() + value.slice(1);
+const chartTick = (value: number) => { const text = String(value); return text.length <= 8 ? text : value.toExponential(2); };
 function Chart({ element: { props } }: ComponentRenderProps) {
   const data = list(useData(props) ?? props.data);
   const xKey = string(props.xKey, 'label'), yKey = string(props.yKey, 'value');
-  const values = data.map(row => {
-    try {
-      const value = Number(obj(row)[yKey]);
-      return Number.isFinite(value) ? value : 0;
-    } catch { return 0; }
-  });
-  const max = values.reduce((maximum, value) => Math.max(maximum, Math.abs(value)), 1);
+  const xLabel = string(props.xLabel, chartCap(xKey)), yLabel = string(props.yLabel, chartCap(yKey)), yUnit = string(props.yUnit, '');
+  const rows = data.map((row, index) => { const record = obj(row); return { index, x: record[xKey], raw: record[yKey], y: chartY(record[yKey]) }; });
+  const finite = rows.filter(row => row.y !== null);
   const line = props.kind === 'line' || props.kind === 'scatter';
   // Normalize an overflowing signed range before subtraction. Ordinary ranges
   // keep their precision, including very small or closely spaced endpoints.
@@ -135,17 +149,64 @@ function Chart({ element: { props } }: ComponentRenderProps) {
     const scale = Math.max(Math.abs(minimum), Math.abs(maximum));
     return (value / scale - minimum / scale) / (maximum / scale - minimum / scale);
   };
-  const yMin = values.reduce((minimum, value) => Math.min(minimum, value), 0);
-  const yMax = values.reduce((maximum, value) => Math.max(maximum, value), 0);
+  const yMin = finite.reduce((minimum, row) => Math.min(minimum, row.y!), 0);
+  const yMax = finite.reduce((maximum, row) => Math.max(maximum, row.y!), 0);
   const numericXs = data.map(row => obj(row)[xKey]).filter((value): value is number => typeof value === 'number' && Number.isFinite(value));
   const numericX = props.kind === 'scatter' && numericXs.length === data.length;
   const xMin = numericXs.reduce((minimum, value) => Math.min(minimum, value), Infinity);
   const xMax = numericXs.reduce((maximum, value) => Math.max(maximum, value), -Infinity);
-  const points = values.map((value, i) => ({
-    x: 30 + (numericX ? fraction(numericXs[i]!, xMin, xMax) : i / Math.max(1, values.length - 1)) * 540,
-    y: yMin === yMax ? 210 : 210 - fraction(value, yMin, yMax) * 180,
+  const points = rows.map((row, i) => ({
+    x: 30 + (numericX ? fraction(numericXs[i]!, xMin, xMax) : i / Math.max(1, rows.length - 1)) * 540,
+    y: row.y === null ? null : yMin === yMax ? 210 : 210 - fraction(row.y, yMin, yMax) * 180,
   }));
-  return <figure className="chart"><figcaption>{string(props.title)}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <><svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${line ? 250 : Math.max(80, data.length * 36)}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && <polyline fill="none" stroke="var(--accent)" strokeWidth="2" points={points.map(point => `${point.x},${point.y}`).join(' ')} />}{values.map((value, i) => <g key={i}><circle cx={points[i]!.x} cy={points[i]!.y} r="4" fill="var(--accent)"><title>{display(obj(data[i])[xKey])}: {value}</title></circle><text x={points[i]!.x} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(obj(data[i])[xKey]).slice(0, 12)}</text></g>)}</> : data.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(obj(row)[xKey]).slice(0, 18)}</text><rect x="135" y="7" width={Math.abs(values[i]!) / max * 390} height="21" rx="3" fill="var(--accent)" /><text x="535" y="23" fill="currentColor" fontSize="12">{values[i]}</text></g>)}</svg><details><summary>View chart data</summary><pre>{JSON.stringify(data, null, 2)}</pre></details></>}</figure>;
+  const ticks = yMin === yMax ? [{ position: 84, value: yMin }] : [{ position: 12, value: yMax }, { position: 48, value: yMin / 2 + yMax / 2 }, { position: 84, value: yMin }];
+  const signedBars = !line && finite.some(row => row.y! < 0);
+  const barMax = finite.reduce((maximum, row) => Math.max(maximum, Math.abs(row.y!)), 1);
+  const barPosition = (value: number) => Math.min(525, Math.max(135, 135 + fraction(value, yMin, yMax) * 390));
+  const viewHeight = line ? 250 : Math.max(80, data.length * 36);
+  const runs: { x: number; y: number }[][] = [];
+  for (const point of points) {
+    if (point.y === null) { if (runs[runs.length - 1]?.length) runs.push([]); continue; }
+    if (!runs.length || !runs[runs.length - 1]!.length) runs.push([]);
+    runs[runs.length - 1]!.push({ x: point.x, y: point.y! });
+  }
+  const xKeyOf = (row: (typeof rows)[number]) => `${typeof row.x}:${String(row.x)}`;
+  const [open, setOpen] = useState(false), [cause, setCause] = useState<TaskEffectCause>('restore');
+  const [selectedX, setSelectedX] = useState<string | null>(null), [copied, setCopied] = useState('');
+  const figure = useRef<HTMLElement>(null), id = useId();
+  const selectedMatches = rows.filter(row => row.y !== null && xKeyOf(row) === selectedX);
+  const selectedRow = selectedX !== null && selectedMatches.length === 1 ? selectedMatches[0] : null;
+  // A change pulse applies only to an existing mark whose typed x is unique in
+  // both snapshots; reorders and duplicates never pulse or invent movement.
+  const previousYs = useRef(new Map<string, number>()), previousCounts = useRef(new Map<string, number>()), pulsed = useRef(false);
+  useLayoutEffect(() => {
+    const counts = new Map<string, number>(), ys = new Map<string, number>();
+    for (const row of rows) if (row.y !== null) { const key = xKeyOf(row); counts.set(key, (counts.get(key) ?? 0) + 1); ys.set(key, row.y!); }
+    const prev = previousYs.current, prevCounts = previousCounts.current;
+    previousYs.current = ys; previousCounts.current = counts;
+    figure.current?.querySelectorAll('[data-changed]').forEach(node => node.removeAttribute('data-changed'));
+    if (!pulsed.current) { pulsed.current = true; return; }
+    for (const [key, y] of ys) {
+      if (prev.get(key) === y || !prev.has(key) || counts.get(key) !== 1 || prevCounts.get(key) !== 1) continue;
+      const mark = rows.filter(row => xKeyOf(row) === key).map(row => figure.current?.querySelector(`[data-row-index="${row.index}"]`))[0] as SVGElement | null;
+      if (!mark) continue;
+      if (reducedMotion()) mark.setAttribute('data-changed', 'true');
+      else animateTask(mark, [{ fill: 'var(--success)' }, {}], 120, { duration: '--ui-motion-hover', easing: '--ui-ease-enter' });
+    }
+  });
+  const copy = () => { const write = navigator.clipboard?.writeText(JSON.stringify(data, null, 2)); if (!write) { setCopied('Select the raw data to copy.'); return; } void write.then(() => setCopied('Copied'), () => setCopied('Select the raw data to copy.')); };
+  const options = [{ value: '', label: 'Inspect…' }, ...finite.map(row => ({ value: String(row.index), label: `${display(row.x)}: ${display(row.raw)}${yUnit ? ` ${yUnit}` : ''}` }))];
+  return <figure className="chart" ref={figure}><figcaption>{string(props.title)}{yUnit ? ` (${yUnit})` : ''}</figcaption>{!data.length ? <p className="muted">No chart data available.</p> : <>
+    {finite.length ? <div className="chart-row"><div className="chart-y-scale" aria-hidden="true"><span className="chart-y-name">{yLabel}{yUnit ? ` (${yUnit})` : ''}</span>{ticks.map(tick => <span key={tick.position} style={{ top: `${tick.position}%` }}>{chartTick(tick.value)}</span>)}</div><div className="chart-plot" style={{ aspectRatio: `600/${viewHeight}` }}>
+      <svg role="img" aria-label={string(props.title, 'Data chart')} viewBox={`0 0 600 ${viewHeight}`}><title>{string(props.title, 'Data chart')}</title>{line ? <><line x1="25" y1="215" x2="580" y2="215" stroke="var(--border)" />{props.kind === 'line' && runs.filter(run => run.length).map((run, runIndex) => <polyline key={runIndex} fill="none" stroke="var(--accent)" strokeWidth="2" points={run.map(point => `${point.x},${point.y}`).join(' ')} />)}{rows.map((row, i) => <g key={i}><text className="chart-x-label" x={points[i]!.x} y="237" textAnchor="middle" fill="currentColor" fontSize="10">{display(row.x).slice(0, 12)}</text>{row.y !== null && <circle data-row-index={row.index} cx={points[i]!.x} cy={points[i]!.y!} r="4" fill="var(--accent)" onClick={() => setSelectedX(xKeyOf(row))}><title>{display(row.x)}: {row.y}</title></circle>}</g>)}</> : <>{signedBars && <line x1={barPosition(0)} y1="0" x2={barPosition(0)} y2={viewHeight} stroke="var(--border)" />}{rows.map((row, i) => <g key={i} transform={`translate(0,${i * 36})`}><text x="0" y="23" fill="currentColor" fontSize="12">{display(row.x).slice(0, 18)}</text>{row.y === null ? <text x="535" y="23" fill="var(--muted)" fontSize="12">Unavailable</text> : <><rect data-row-index={row.index} x={signedBars ? Math.min(barPosition(0), barPosition(row.y)) : 135} y="7" width={signedBars ? Math.abs(barPosition(row.y) - barPosition(0)) : Math.abs(row.y) / barMax * 390} height="21" rx="3" fill="var(--accent)" onClick={() => setSelectedX(xKeyOf(row))} /><text x="535" y="23" fill="currentColor" fontSize="12">{display(row.raw)}</text></>}</g>)}</>}</svg>
+    </div></div> : <p className="muted">No numeric values supplied.</p>}
+    {finite.length ? <div className="chart-x-legend" aria-hidden="true">{xLabel}</div> : null}
+    <div className="chart-controls">{finite.length ? <ShellSelect aria-label="Inspect chart value" value={selectedRow ? String(selectedRow.index) : ''} onValueChange={value => { const row = rows[Number(value)]; setSelectedX(value === '' || !row ? null : xKeyOf(row)); }} options={options} /> : null}<button type="button" className="secondary chart-data-toggle" aria-expanded={open} aria-controls={`${id}-data`} onClick={event => { setCause(event.detail > 0 ? 'pointer' : 'keyboard'); setOpen(!open); }}>View chart data</button>{selectedRow ? <output className="chart-readout" role="status">{display(selectedRow.x)}: {display(selectedRow.raw)}{yUnit ? ` ${yUnit}` : ''}</output> : null}</div>
+    <MotionRegion open={open} animate={cause === 'pointer'} id={`${id}-data`} duration={TASK_MOTION.branch}>
+      <div className="chart-data-scroll" tabIndex={0}><table className="chart-data-table"><caption className="sr-only">{`${string(props.title, 'Chart')} data`}</caption><thead><tr><th scope="col">{xLabel}</th><th scope="col">{yLabel}{yUnit ? ` (${yUnit})` : ''}</th></tr></thead><tbody>{rows.map(row => <tr key={row.index}><th scope="row">{display(row.x)}</th><td>{row.y === null ? 'Unavailable' : display(row.raw)}</td></tr>)}</tbody></table></div>
+      <details className="chart-raw"><summary>Raw data</summary><pre>{JSON.stringify(data, null, 2)}</pre><button type="button" className="secondary" onClick={copy}>Copy raw data</button><span role="status">{copied}</span></details>
+    </MotionRegion>
+  </>}</figure>;
 }
 function TreeNode({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (depth > 12) return <span className="muted">Nested content exceeds display depth.</span>;
@@ -169,13 +230,80 @@ function Tabs({ element: { props }, children, bindings }: ComponentRenderProps) 
   const parsed = tabStateData.safeParse(typeof props.statusBinding === 'string' ? store.get(`/inputs/${props.statusBinding}`) : undefined);
   const source = parsed.success ? parsed.data : undefined;
   const selected = source?.items.find(item => item.label === active);
+  const tablist = useRef<HTMLDivElement>(null), indicator = useRef<HTMLSpanElement>(null);
+  const intent = useTaskEffectCause(), pending = useRef<unknown>(undefined), travel = useRef<Animation | undefined>(undefined);
+  const geometry = useRef({ labels, active });
+  geometry.current = { labels, active };
+  const select = (label: unknown, cause: 'pointer' | 'keyboard') => {
+    if (label === active) { pending.current = undefined; return; }
+    intent.mark(cause);
+    pending.current = label;
+    setValue(label);
+  };
+  const buttonAt = (index: number) => tablist.current?.querySelectorAll<HTMLElement>('[role="tab"]')[index];
+  // The indicator's measured rect lives in the tablist's scroll box: the bottom
+  // edge of the active tab, compensated for horizontal scrolling.
+  const measure = () => {
+    const list = tablist.current, mark = indicator.current;
+    if (!list || !mark) return;
+    const button = buttonAt(geometry.current.labels.indexOf(geometry.current.active));
+    if (!button) { mark.hidden = true; return; }
+    const listBox = list.getBoundingClientRect(), box = button.getBoundingClientRect();
+    return { mark, list, left: box.left - listBox.left + list.scrollLeft, top: box.bottom - listBox.top + list.scrollTop - 2, width: box.width, color: getComputedStyle(button).color };
+  };
+  const paint = (target: NonNullable<ReturnType<typeof measure>>) => {
+    target.mark.hidden = false;
+    target.mark.style.left = `${target.left}px`; target.mark.style.top = `${target.top}px`; target.mark.style.width = `${target.width}px`; target.mark.style.color = target.color;
+  };
+  const settle = () => { const target = measure(); if (target) { travel.current?.cancel(); paint(target); } };
+  useLayoutEffect(() => {
+    const target = measure();
+    if (!target) return;
+    const committed = pending.current;
+    pending.current = undefined;
+    const cause = intent.take(), intentional = committed !== undefined && committed === active;
+    if (!intentional) {
+      // Unrelated commits keep an in-flight travel; only a mismatched pending
+      // target or an already settled effect repaints the static position.
+      if (committed !== undefined || !travel.current || travel.current.playState === 'finished' || travel.current.playState === 'idle') {
+        travel.current?.cancel();
+        travel.current = undefined;
+        paint(target);
+      }
+      return;
+    }
+    const { mark, list } = target;
+    const listBox = list.getBoundingClientRect(), painted = mark.getBoundingClientRect();
+    const from = { left: painted.left - listBox.left + list.scrollLeft, top: painted.bottom - listBox.top + list.scrollTop - 2, width: painted.width, height: painted.height };
+    travel.current?.cancel(); // sampled `painted` above already includes an in-flight transform
+    travel.current = undefined;
+    paint(target);
+    const wrapped = Math.abs(from.top - target.top) > .5;
+    if (intentional && cause === 'pointer' && !wrapped && from.width > .5 && from.height > .5 && target.width > .5 && readMotionPolicy() === 'full') {
+      const dx = from.left - target.left, sx = from.width / target.width;
+      if (Math.abs(dx) > .5 || Math.abs(sx - 1) > .01) travel.current = animateTask(mark, [{ transform: `translate(${dx}px, ${from.top - target.top}px) scaleX(${sx})` }, { transform: 'translate(0px, 0px) scaleX(1)' }], 140, { duration: '--ui-motion-tab', easing: '--ui-ease-move' });
+    }
+  });
+  useLayoutEffect(() => {
+    const list = tablist.current;
+    if (!list) return;
+    // observe() reports once synchronously; a selection commit must not let that
+    // first notification cancel the FLIP it just started.
+    let initial = true;
+    const observer = new ResizeObserver(() => { if (initial) { initial = false; return; } settle(); });
+    observer.observe(list);
+    const button = buttonAt(geometry.current.labels.indexOf(geometry.current.active));
+    if (button) observer.observe(button);
+    list.addEventListener('scroll', settle, { passive: true });
+    return () => { observer.disconnect(); list.removeEventListener('scroll', settle); };
+  }, [active]);
   if (new Set(labels).size !== labels.length) return <p role="alert">This saved tab view is invalid because its labels are not unique.</p>;
   return <div className={source ? 'task-tabs-operation' : undefined}>
     {source && (source.title || source.detail || source.status) && <header className="task-tabs-operation-header"><div>{source.title && source.title !== artifactTitle && <strong>{source.title}</strong>}{source.detail && <span>{source.detail}</span>}</div>{source.status && <StatusIcon status={source.status} />}</header>}
-    <div className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
+    <div ref={tablist} className="surface-tabs" role="tablist" aria-label={string(props.label, 'Views')}>{labels.map((label, i) => {
       const status = source?.items.find(item => item.label === label)?.status;
-      return <button type="button" key={i} role="tab" tabIndex={active === label ? 0 : -1} aria-selected={active === label} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? labels.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + labels.length) % labels.length; setValue(labels[index]); (event.currentTarget.parentElement?.children[index] as HTMLElement | undefined)?.focus(); } }} onClick={() => setValue(label)}>{source && <span className={`task-tab-status-slot status-${status??'neutral'}`} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flex:'0 0 14px'}} aria-hidden="true">{status && status !== 'neutral' && <StatusIcon status={status} />}</span>}<span className="task-tab-label">{display(label)}</span></button>;
-    })}</div>
+      return <button type="button" key={i} role="tab" tabIndex={active === label ? 0 : -1} aria-selected={active === label} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? labels.length - 1 : (i + (event.key === 'ArrowRight' ? 1 : -1) + labels.length) % labels.length; select(labels[index], 'keyboard'); buttonAt(index)?.focus(); } }} onClick={event => select(label, event.detail > 0 ? 'pointer' : 'keyboard')}>{source && <span className={`task-tab-status-slot status-${status??'neutral'}`} style={{display:'inline-flex',alignItems:'center',justifyContent:'center',width:14,height:14,flex:'0 0 14px'}} aria-hidden="true">{status && status !== 'neutral' && <StatusIcon status={status} />}</span>}<span className="task-tab-label">{display(label)}</span></button>;
+    })}<span ref={indicator} className="task-tab-indicator" aria-hidden="true" hidden /></div>
     {Children.toArray(children).map((child, i) => {
       const label = labels[i];
       return active === label || visited.has(label) ? <div role="tabpanel" className="task-tab-panel" key={i} hidden={active !== label}>{child}</div> : null;

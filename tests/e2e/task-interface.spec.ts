@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { branchGraphData, branchGraphSpec, growingQaSpec, linkedMapData, linkedMapSpec, migrationTableSpec, serveTaskFixture, taskFixture } from './task-interface-fixture';
 import { validateSurface } from '../../packages/ui-catalog';
+import { catalogSpec } from '../../scripts/review-fixtures';
 import { mkdir, writeFile } from 'node:fs/promises';
 
 test('vertical history and horizontal lanes are distinct accessible source views', async ({ page }) => {
@@ -77,6 +78,39 @@ test('progressive Q&A keeps branches, edit identity and focus while deduplicatin
   await expect(page.getByRole('button', { name: 'Could the package wait until Friday?' })).toBeVisible();
   await expect(page.getByText('Choose Friday while reviewing the destination, before confirming.')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveValue('Keep the labels separate');
+  // a pending follow-up branch resolves into exactly one new interactive row
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: true }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="pending"]')).toBeVisible();
+  const grown = structuredClone(snapshot.artifacts[0].spec!);
+  grown.elements.delivery.children!.push('insurance');
+  grown.elements.insurance = { type: 'Disclosure', props: { title: 'Is insurance included?', stateKey: 'insuranceOpen', text: 'Insurance is listed per destination.' } };
+  snapshot.artifacts[0].spec = grown; snapshot.artifacts[0].revision++;
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  const newBranch = page.getByRole('button', { name: 'Is insurance included?', exact: true });
+  await expect(newBranch).toBeVisible(); await expect(newBranch).toBeEnabled();
+  await expect.poll(() => page.locator('.disclosure-followups-pending').count()).toBe(0);
+  expect(fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'ask')).toHaveLength(1);
+  await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveAttribute('data-identity', identity!);
+  await expect(page.getByRole('textbox', { name: 'Destination note' })).toHaveValue('Keep the labels separate');
+  // a repeat publication of the same data never replays the child
+  const anims = () => newBranch.evaluate(node => node.closest('.disclosure-node')!.getAnimations({ subtree: true }).length);
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  expect(await anims()).toBe(0);
+  // close while a placeholder exits, reopen with keyboard, and tab into the real answer
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: true }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="pending"]')).toBeVisible();
+  const trigger = page.getByRole('button', { name: 'Can delivery be split?', exact: true });
+  fixture.setInput('answer', { status: 'ready', answer: 'Yes. Choose a destination for each package before confirming.', followupsPending: false }); await fixture.publish();
+  await expect(page.locator('.disclosure-followups-pending[data-phase="resolving"]')).toHaveCount(1);
+  await trigger.dispatchEvent('click');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  await trigger.focus(); await page.keyboard.press('Enter');
+  await expect(trigger).toHaveAttribute('aria-expanded', 'true');
+  await page.keyboard.press('Tab');
+  const tabbed = await page.evaluate(() => { const el = document.activeElement as HTMLElement; return { tag: el.tagName, visible: el.offsetParent !== null, inert: el.closest('[inert]') !== null }; });
+  expect(tabbed.inert).toBe(false); expect(tabbed.visible).toBe(true);
+  await expect.poll(() => page.locator('.disclosure-followups-pending').count()).toBe(0);
+  await expect(page.locator('[role="status"]').filter({ hasText: 'Preparing related questions' })).toHaveCount(0);
 });
 
 test('a pending question cannot duplicate or erase a newer draft and source errors can retry', async ({ page }) => {
@@ -187,4 +221,56 @@ test('capture one batched desktop, narrow and theme inspection of reusable task 
     }
   }
   await writeFile(`${path}/manifest.json`, JSON.stringify({ provenance: 'Authored synthetic local renderer fixtures. No live model, GitHub, database, geographic provider, or external feedback delivery.', reducedMotion: true, references: ['merge-16.png', 'graph-14.png', 'migration-16.png', 'faq-24.png'], metrics }, null, 2));
+});
+
+test('delivery preferences fill the task width and retain field identity', async ({ page }) => {
+  const catalog = catalogSpec('agreement', 'before-image');
+  const reachable = new Set<string>(); const walk = (id: string) => { if (reachable.has(id)) return; reachable.add(id); for (const child of catalog.elements[id]?.children ?? []) walk(child); };
+  walk('controls');
+  const spec = { root: 'controls', elements: Object.fromEntries([...reachable].map(id => [id, catalog.elements[id]!])) } as NonNullable<import('../../packages/contracts').ArtifactRecord['spec']>;
+  const snapshot = taskFixture(spec, { unrelated: 0 }, { delivery: 'download', density: 'comfortable', enabled: false, catalogStep: 'one' });
+  snapshot.artifacts[0].actions.inspect = { kind: 'agent' };
+  const fixture = await serveTaskFixture(page, snapshot);
+  await page.goto('/');
+  const note = page.getByLabel('Review note');
+  await expect(note).toBeVisible({ timeout: 30000 });
+  await note.evaluate(node => Object.assign(window, { noteHandle: node }));
+  await page.getByRole('radio', { name: /Review/ }).check();
+  await note.fill('Keep source');
+  await page.getByRole('combobox', { name: 'Density' }).click();
+  await page.getByRole('option', { name: 'Compact' }).click();
+  await page.getByRole('checkbox', { name: 'Keep selection on reload' }).check();
+  // Outer stack spans its content width; note and step nav track it (allowing panel padding).
+  const stackBox = await page.locator('.surface-layout').first().boundingBox();
+  const panelPad = await page.locator('.surface-section').first().evaluate(node => { const style = getComputedStyle(node); return parseFloat(style.paddingLeft) + parseFloat(style.paddingRight); });
+  const noteBox = await note.boundingBox();
+  const navBox = await page.locator('.task-step-navigation').boundingBox();
+  expect(Math.abs(noteBox!.width - (stackBox!.width - panelPad))).toBeLessThanOrEqual(1);
+  expect(Math.abs(navBox!.width - stackBox!.width)).toBeLessThanOrEqual(1);
+  const peers = page.locator('.surface-section > .surface-layout > *');
+  expect(await peers.count()).toBe(2);
+  for (const index of [0, 1]) expect((await peers.nth(index).innerText()).trim().length).toBeGreaterThan(0);
+  await page.setViewportSize({ width: 390, height: 800 });
+  const rows = await peers.evaluateAll(nodes => nodes.map(node => Math.round(node.getBoundingClientRect().y)));
+  expect(rows[1]).toBeGreaterThan(rows[0]);
+  await page.setViewportSize({ width: 1280, height: 800 });
+  await page.getByRole('button', { name: 'Save choice' }).click();
+  await expect.poll(() => fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length).toBe(1);
+  expect(fixture.commands.find(command => command.type === 'action.submit' && command.payload.actionId === 'inspect')!.payload.payload).toEqual({ delivery: 'review', note: 'Keep source' });
+  // Pointer advance/reverse, then keyboard advance.
+  await page.getByRole('button', { name: 'Next step' }).dispatchEvent('click');
+  await page.getByRole('button', { name: 'Previous step' }).dispatchEvent('click');
+  const nonCurrent = page.locator('.task-step-content > [role="group"]:not([data-phase="current"])');
+  for (const node of await nonCurrent.elementHandles()) expect(await node.getAttribute('inert')).not.toBeNull();
+  await page.getByRole('button', { name: 'Next step' }).press('Enter');
+  await expect(page.locator('.task-step-content > [role="group"][data-phase="current"]')).toHaveCSS('transform', 'none');
+  const before = fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length;
+  await page.getByRole('button', { name: 'Continue review' }).click();
+  await expect.poll(() => fixture.commands.filter(command => command.type === 'action.submit' && command.payload.actionId === 'inspect').length).toBe(before + 1);
+  await expect(note).toHaveValue('Keep source');
+  expect(await note.evaluate(node => node === (window as unknown as { noteHandle: Node }).noteHandle)).toBe(true);
+  await note.focus(); await note.press('End'); await note.pressSequentially('!');
+  fixture.setInput('unrelated', 1); await fixture.publish();
+  await expect(note).toBeFocused();
+  await expect(note).toHaveValue('Keep source!');
 });

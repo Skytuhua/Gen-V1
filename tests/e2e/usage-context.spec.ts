@@ -325,6 +325,21 @@ test('accepted receipt needs exact ownership; measured freed count is optional a
   await update(page, 'unmeasured'); await expect(context(page)).toContainText('Context compacted'); await expect(context(page)).not.toContainText('Freed');
   await update(page, 'accepted'); await expect(context(page)).toContainText('Freed 4K tokens');
   await update(page, 'restart'); await expect(context(page)).not.toContainText('Freed');
+  // A repeated accepted publication with the same receipt ID acknowledges once.
+  await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await page.evaluate(() => {
+    (window as unknown as { __pulses: number }).__pulses = 0;
+    new MutationObserver(records => {
+      for (const record of records) {
+        const el = record.target as Element;
+        if (el.classList.contains('context-receipt-pulse') && !(record.oldValue ?? '').includes('context-receipt-pulse')) (window as unknown as { __pulses: number }).__pulses++;
+      }
+    }).observe(document.body, { subtree: true, attributes: true, attributeOldValue: true, attributeFilter: ['class'] });
+  });
+  await update(page, 'accepted'); await update(page, 'accepted');
+  await expect(context(page)).toContainText('Freed 4K tokens');
+  await expect.poll(() => page.evaluate(() => (window as unknown as { __pulses: number }).__pulses)).toBe(1);
+  expect(await context(page).locator('.context-segment').first().evaluate(node => parseFloat(getComputedStyle(node).transitionDuration))).toBeLessThanOrEqual(0.001);
 });
 test('reported segments fit their capacity track without cumulative separator overflow', async ({ page }) => {
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
@@ -338,12 +353,23 @@ test('pending sweep is actual-pending only and stopped state is not accepted suc
   await expect(context(page).getByRole('button', { name: 'Compacting…', exact: true })).toBeDisabled();
   await update(page, 'cancelled'); await expect(context(page)).toContainText('Compaction stopped'); await expect(context(page).locator('.context-compaction-shimmer')).toHaveCount(0);
 });
-test('reported categories reveal token/share/subitems on focus after dwell; IME and nested Escape work', async ({ page }) => {
+test('reported categories open immediately on focus and after dwell on first pointer hover', async ({ page }) => {
+  await page.clock.install();
   await page.goto('/usage-context'); await update(page, 'categories'); await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
-  await expect(context(page)).not.toContainText('Session limit'); await expect(context(page)).not.toContainText('Cost');
-  const tools = context(page).getByRole('button', { name: 'Tools & MCP', exact: false }); await tools.focus();
+  await expect(context(page)).toContainText('Tools & MCP');
+  const tools = context(page).getByRole('button', { name: 'Tools & MCP', exact: false });
+  await tools.evaluate(el => { (window as unknown as { __et: number }).__et = 0; el.addEventListener('pointerover', () => { (window as unknown as { __et: number }).__et = Date.now(); }, { once: true }); });
+  await tools.hover();
+  const entered = await page.evaluate(() => (window as unknown as { __et: number }).__et);
+  await page.clock.pauseAt(entered + 190); await expect(page.getByRole('tooltip')).toHaveCount(0);
+  await page.clock.pauseAt(entered + 210);
   await expect(page.getByRole('tooltip')).toContainText('500 tokens'); await expect(page.getByRole('tooltip')).toContainText('5.0%');
   await expect(page.getByRole('tooltip')).toContainText('Reported tool instructions');
+  await context(page).getByRole('button', { name: /^Skills/ }).hover();
+  await expect(page.getByRole('tooltip')).toContainText('Skills'); await expect(page.getByRole('tooltip')).toContainText('500 tokens');
+  await context(page).hover({ position: { x: 8, y: 8 } });
+  await tools.focus(); await expect(page.getByRole('tooltip')).toContainText('Tools & MCP');
+  await context(page).getByRole('button', { name: /^Skills/ }).focus(); await expect(page.getByRole('tooltip')).toContainText('Skills');
   await tools.dispatchEvent('keydown', { key: 'Escape', isComposing: true }); await expect(page.getByRole('tooltip')).toBeVisible();
   await page.keyboard.press('Escape'); await expect(page.getByRole('tooltip')).toHaveCount(0); await expect(context(page)).toBeVisible();
   await page.keyboard.press('Escape'); await expect(context(page)).toHaveCount(0); await expect(page.getByRole('button', { name: 'Inspect context', exact: true })).toBeFocused();
@@ -405,9 +431,9 @@ test('accepted transition uses reference timing; reduced motion suppresses trave
   await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
   expect(await context(page).evaluate(node => getComputedStyle(node).animationDuration)).toBe('0.18s');
   await update(page, 'accepted'); await expect(context(page)).toContainText('Freed 4K tokens');
-  expect(await context(page).locator('.context-segment').evaluateAll(nodes => nodes.some(node => node.getAnimations().some(animation => animation.effect?.getTiming().duration === 600)))).toBe(true);
-  expect(await context(page).locator('.context-segment').first().evaluate(node => getComputedStyle(node).transitionDuration)).toBe('0.6s');
-  expect(await context(page).getByRole('status').evaluate(node => getComputedStyle(node).animationDuration)).toBe('0.24s');
+  expect(await context(page).locator('.context-segment').evaluateAll(nodes => nodes.flatMap(node => node.getAnimations()).length)).toBe(0);
+  expect(await context(page).locator('.context-segment').first().evaluate(node => getComputedStyle(node).transitionDuration)).toBe('0s');
+  expect(await context(page).getByRole('status').evaluate(node => getComputedStyle(node).animationDuration)).toBe('0.16s');
   await page.emulateMedia({ reducedMotion: 'reduce' }); await update(page, 'pending');
   await expect(context(page).locator('.context-compaction-shimmer')).toBeHidden();
   expect(await context(page).evaluate(node => getComputedStyle(node).animationName)).toBe('none');
@@ -784,4 +810,38 @@ for (const invalid of ['foreign thread', 'foreign candidate', 'foreign account',
   await openCompactionCosts(page); await costRegion(page).getByRole('button', {name: 'Load model request costs', exact: true}).click();
   await expect(costRegion(page)).toContainText('Compaction measurement response could not be verified.');
   await expect(costRegion(page).locator('.usage-request')).toHaveCount(0);
+});
+
+test('six reported categories fit intrinsically and long evidence stays within the viewport', async ({ page }) => {
+  const fit = async () => {
+    const gap = await context(page).evaluate(node => {
+      const body = node.querySelector('.context-inspector-body')!;
+      const inner = node.querySelector('.context-inspector-inner')!;
+      return Math.abs((body as HTMLElement).clientHeight - (inner as HTMLElement).offsetHeight);
+    });
+    expect(gap).toBeLessThanOrEqual(2);
+    expect(await context(page).evaluate(node => node.scrollHeight <= node.clientHeight + 1)).toBe(true);
+  };
+  await page.setViewportSize({ width: 1440, height: 1000 });
+  await page.goto('/usage-context'); await update(page, 'categories');
+  await page.getByRole('button', { name: 'Inspect context', exact: true }).click();
+  await expect(context(page)).toContainText('Tools & MCP');
+  await expect.poll(async () => (await context(page).evaluate(node => node.querySelector<HTMLElement>('.context-inspector-inner')!.offsetHeight))).toBeGreaterThan(0);
+  await fit();
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect.poll(async () => (await context(page).evaluate(node => node.getBoundingClientRect().height))).toBeGreaterThan(0);
+  await fit();
+  await page.setViewportSize({ width: 390, height: 300 });
+  await update(page, 'request-compaction-many');
+  await context(page).getByRole('tab', { name: 'Compaction' }).click();
+  await context(page).locator('summary', { hasText: 'Retained constraint references' }).dispatchEvent('click');
+  await context(page).getByRole('button', { name: /more references/ }).click();
+  const body = context(page).locator('.context-inspector-body');
+  await expect.poll(() => body.evaluate(node => node.scrollHeight > node.clientHeight)).toBe(true);
+  const shell = (await context(page).boundingBox())!;
+  expect(shell.y).toBeGreaterThanOrEqual(0); expect(shell.y + shell.height).toBeLessThanOrEqual(300);
+  const footer = (await context(page).locator('footer').boundingBox())!;
+  expect(footer.y).toBeGreaterThanOrEqual(shell.y); expect(footer.y + footer.height).toBeLessThanOrEqual(shell.y + shell.height);
+  await body.evaluate(node => { node.scrollTop = node.scrollHeight; });
+  await expect.poll(() => body.evaluate(node => node.scrollTop)).toBeGreaterThan(0);
 });

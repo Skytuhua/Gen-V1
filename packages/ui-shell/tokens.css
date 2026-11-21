@@ -37,7 +37,7 @@
   --ui-motion-tooltip-enter: 160ms;
   --ui-motion-tooltip-exit: 120ms;
   --ui-motion-spring: 200ms;
-  --ui-motion-receipt: 600ms;
+  --ui-motion-receipt: 160ms;
   --ui-tooltip-dwell: 350ms;
   --ui-layer-scrim: 59;
   --ui-layer-drawer: 60;

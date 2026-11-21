@@ -12,7 +12,7 @@ test('an unfinished numeric draft survives navigation and reload until it become
 test('typed edits keep stable row identity through source reorder and do not copy read-only drafts into actions',async({page})=>{const {host}=await open(page,'EditableTable');await page.goto('/');const hours=page.getByRole('spinbutton',{name:'Design · Hours',exact:true});await hours.fill('9');await hours.evaluate(node=>Object.assign(window,{editedCell:node}));await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({edits:{design:{hours:'9'}}});host.setInput('data',{...records,rows:[records.rows[1],{...records.rows[0],values:{...records.rows[0].values,reference:'TASK-14b'}}]});await host.publish();await expect(hours).toHaveValue('9');expect(await hours.evaluate(node=>node===(window as unknown as {editedCell:Node}).editedCell)).toBe(true);await expect(page.getByRole('cell',{name:'TASK-14b',exact:true})).toBeVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'design',columnId:'hours',value:9}]});});
 test('invalid parameter drafts survive reload until repaired and do not overwrite the supplied value',async({page})=>{const {host}=await open(page,'ParameterControls');await page.goto('/');const width=page.getByRole('spinbutton',{name:'Width',exact:true});await width.fill('100');await page.getByRole('button',{name:'Apply settings',exact:true}).click();await expect(page.locator('.interaction-tools .error-text')).toContainText('Minimum 320');await page.reload();await expect(width).toHaveValue('100');expect(host.commands.some(command=>command.type==='action.submit')).toBe(false);expect(host.snapshot.data[0].value).toEqual(parameters);await width.fill('1920');await page.getByRole('button',{name:'Apply settings',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toMatchObject({values:{width:1920}});});
 test('review layout responds to available artifact width rather than viewport width',async({page})=>{await page.setViewportSize({width:1440,height:1000});await open(page,'ReviewQueue');await page.goto('/');await page.locator('.review-queue').evaluate(node=>(node as HTMLElement).style.width='380px');const geometry=await page.locator('.review-queue-layout').evaluate(node=>{const nav=node.querySelector('nav')!.getBoundingClientRect(),detail=node.querySelector('.review-item-detail')!.getBoundingClientRect();return{stacked:nav.top>=detail.bottom-1,width:node.getBoundingClientRect().width,scroll:node.scrollWidth};});expect(geometry.stacked).toBe(true);expect(geometry.scroll).toBeLessThanOrEqual(geometry.width+1);});
-async function open(page:Page,name:keyof typeof data){const snapshot=taskFixture({root:'view',elements:{view:{type:name,props:{dataBinding:'data',stateKey:'draft',actionId:'ask',actionLabel:name==='ReviewQueue'?'Send review':name==='EditableTable'?'Review changes':'Apply settings'}}}},{data:data[name]});const host=await serveTaskFixture(page,snapshot);return{snapshot,host};}
+async function open(page:Page,name:keyof typeof data,action?:Parameters<typeof serveTaskFixture>[2]){const snapshot=taskFixture({root:'view',elements:{view:{type:name,props:{dataBinding:'data',stateKey:'draft',actionId:'ask',actionLabel:name==='ReviewQueue'?'Send review':name==='EditableTable'?'Review changes':'Apply settings'}}}},{data:data[name]});const host=await serveTaskFixture(page,snapshot,action);return{snapshot,host};}
 
 test('shared parameter choices retain false and null, restore focus and submit the original typed owner payload',async({page})=>{
  const {host}=await open(page,'ParameterControls');await page.goto('/');const metadata=page.getByRole('combobox',{name:'Include metadata',exact:true}),format=page.getByRole('combobox',{name:'Format',exact:true});
@@ -45,9 +45,16 @@ test('editable records use compact typed columns with aligned draft and previous
  await expect(table.locator('.interaction-footer')).toContainText('0 cells changed');
  const hours=page.getByRole('spinbutton',{name:'Design \u00b7 Hours',exact:true}),task=page.getByRole('textbox',{name:'Design \u00b7 Task',exact:true});
  const before=await hours.boundingBox();const textBox=await task.boundingBox();expect(before!.width).toBeLessThan(textBox!.width*.75);expect(before!.height).toBe(32);
+ const rowBox=await table.locator('tbody tr').first().boundingBox();
  await hours.fill('0');const after=await hours.boundingBox();expect(after!.height).toBe(before!.height);await expect(table.locator('.interaction-footer')).toContainText('1 cell changed');
  const aligned=await table.locator('tbody tr').first().evaluate(row=>{const controls=[...row.querySelectorAll('input,button[role="combobox"]')].map(node=>node.getBoundingClientRect());return Math.max(...controls.map(box=>box.top))-Math.min(...controls.map(box=>box.top));});expect(aligned).toBeLessThan(1);
  await expect(hours.locator('..').locator('.editable-original')).toHaveText('Was 4');
+ // clean->dirty is the only animation event: the marker and row geometry stay put
+ await expect(table.locator('td[data-edited]')).toHaveCount(1);
+ const rowAfter=await table.locator('tbody tr').first().boundingBox();
+ expect(Math.abs(rowAfter!.height-rowBox!.height)).toBeLessThanOrEqual(1);expect(Math.abs(rowAfter!.y-rowBox!.y)).toBeLessThanOrEqual(1);
+ await hours.fill('7');await hours.fill('6');await expect(hours.locator('..').locator('.editable-original')).toHaveText('Was 4');await expect(table.locator('td[data-edited]')).toHaveCount(1);
+ await hours.fill('4');await expect(table.locator('td[data-edited]')).toHaveCount(0);await expect(hours.locator('..').locator('.editable-original')).toHaveCount(0);
 });
 
 
@@ -63,7 +70,40 @@ test('delivery fixture keeps every narrow typed field visible without an inner s
  const snapshot=taskFixture({root:'records',elements:{records:{type:'EditableTable',props:{dataBinding:'delivery',stateKey:'draft',actionId:'ask'}}}},{delivery});
  const host=await serveTaskFixture(page,snapshot);await page.goto('/');const table=page.locator('.editable-table');await expect(table).toBeVisible();
  const assertVisible=async()=>{const geometry=await table.evaluate(node=>{const artifact=node.getBoundingClientRect(),scroll=node.querySelector('.editable-table-scroll')!;return{overflow:scroll.scrollWidth>scroll.clientWidth+1||scroll.scrollHeight>scroll.clientHeight+1,fields:[...node.querySelectorAll('input,button[role="combobox"]')].map(control=>{const box=control.getBoundingClientRect();return{label:control.getAttribute('aria-label'),visible:box.width>20&&box.height>=30&&box.left>=artifact.left&&box.right<=artifact.right&&box.left>=0&&box.right<=innerWidth&&box.top>=0&&box.bottom<=innerHeight};})};});expect(geometry.overflow).toBe(false);expect(geometry.fields).toHaveLength(6);expect(geometry.fields.filter(field=>!field.visible)).toEqual([]);};
- await expect(table.getByRole('columnheader')).toHaveCount(5);await assertVisible();const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');await chooseField(page,'Prints \u00b7 Ready','Yes');await assertVisible();await page.reload();await expect(quantity).toHaveValue('6');await assertVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'},{rowId:'prints',columnId:'ready',value:true}]});await page.setViewportSize({width:1440,height:1000});await table.evaluate(node=>(node as HTMLElement).style.width='320px');await assertVisible();
+ await expect(table.getByRole('columnheader')).toHaveCount(5);await assertVisible();const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');await chooseField(page,'Prints \u00b7 Ready','Yes');await assertVisible();
+ await expect(table.locator('td[data-edited]')).toHaveCount(3);await expect(page.getByText('Was 4',{exact:true})).toBeVisible();await expect(page.getByText('Was Normal',{exact:true})).toBeVisible();
+ await quantity.fill('4');await expect(table.locator('td[data-edited]')).toHaveCount(2);await expect(page.getByText('Was 4',{exact:true})).toHaveCount(0);await expect(page.getByText('Was Normal',{exact:true})).toBeVisible();await quantity.fill('6');
+ await page.reload();await expect(quantity).toHaveValue('6');await assertVisible();await page.getByRole('button',{name:'Review changes',exact:true}).click();await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'},{rowId:'prints',columnId:'ready',value:true}]});await page.setViewportSize({width:1440,height:1000});await table.evaluate(node=>(node as HTMLElement).style.width='320px');await assertVisible();
+});
+
+test('a table acknowledgment belongs only to the submitted changes',async({page})=>{
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ const delivery=INTERACTION_REVIEW_DATA.EditableTable;
+ const snapshot=taskFixture({root:'records',elements:{records:{type:'EditableTable',props:{dataBinding:'delivery',stateKey:'draft',actionId:'ask'}}}},{delivery});
+ const host=await serveTaskFixture(page,snapshot,async()=>{await gate;return{};});await page.goto('/');const table=page.locator('.editable-table');await expect(table).toBeVisible();
+ const quantity=page.getByRole('spinbutton',{name:'Prints \u00b7 Quantity',exact:true});
+ await quantity.fill('6');await chooseField(page,'Prints \u00b7 Priority','Urgent');
+ const button=table.locator('button.btn-swap');const idle=await button.boundingBox();
+ await button.click();const busy=await page.getByRole('button',{name:'Sending…',exact:true}).boundingBox();
+ expect(Math.abs(busy!.width-idle!.width)).toBeLessThanOrEqual(1);
+ release();
+ await expect(page.getByRole('status').filter({hasText:'2 changes sent for review'})).toHaveCount(1);
+ const ack=await button.boundingBox();expect(Math.abs(ack!.width-idle!.width)).toBeLessThanOrEqual(1);
+ await expect(button).toBeDisabled();
+ await expect.poll(()=>host.commands.find(command=>command.type==='action.submit')?.payload.payload).toEqual({changes:[{rowId:'prints',columnId:'quantity',value:6},{rowId:'prints',columnId:'priority',value:'urgent'}]});
+ expect(host.commands.some(command=>command.type==='operation.approve')).toBe(false);
+ expect(host.snapshot.data[0].value).toEqual(delivery);
+ await host.publish();await expect(button).toBeDisabled();
+ // a newer edit before the response makes a late result stale: no receipt
+ let release2!:()=>void;const gate2=new Promise<void>(resolve=>{release2=resolve;});
+ await page.route('**/api/commands',async route=>{const body=route.request().postDataJSON();if(body.type==='action.submit'){await gate2;await route.fulfill({status:200,json:{ok:true}});return;}await route.fallback();});
+ await quantity.fill('7');await button.click();
+ await quantity.fill('8');release2();
+ await expect(page.getByRole('status').filter({hasText:'changes sent for review'})).toHaveCount(0);await expect(button).toBeEnabled();
+ // a rejected proposal stays retryable with the same drafts
+ await page.route('**/api/commands',async route=>{const body=route.request().postDataJSON();if(body.type==='action.submit')return route.fulfill({status:409,json:{error:{code:'STALE',message:'Rejected by host'}}});await route.fallback();});
+ await button.click();
+ await expect(page.getByRole('status').filter({hasText:'Rejected by host'})).toBeVisible();await expect(quantity).toHaveValue('8');await expect(button).toBeEnabled();
 });
 
 test('review navigation moves only the arriving material and leaves unchanged snapshots and comment focus quiet',async({page})=>{
@@ -75,18 +115,47 @@ test('review navigation moves only the arriving material and leaves unchanged sn
  const {host}=await open(page,'ReviewQueue');await page.goto('/');
  const comment=page.getByRole('textbox',{name:'Review comment',exact:true});await comment.fill('Keep the existing callers compatible.');
  await comment.evaluate(node=>Object.assign(window,{reviewCommentNode:node}));
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(0);
+ const count=()=>page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount);
+ expect(await count()).toBe(0);
  await page.getByRole('button',{name:'Next item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
  await expect(page.getByRole('article',{name:'Cover empty input',exact:true})).toBeVisible();
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
+ expect(await count()).toBe(0);
  await expect(comment).toBeFocused();expect(await comment.evaluate(node=>node===(window as unknown as {reviewCommentNode:Node}).reviewCommentNode)).toBe(true);
+ await page.getByRole('button',{name:'Previous item',exact:true}).click();
+ await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();
+ expect(await count()).toBe(1);
  await host.publish();await page.evaluate(()=>document.documentElement.dataset.theme='light');
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
+ expect(await count()).toBe(1);
  await page.emulateMedia({reducedMotion:'reduce'});await expect.poll(()=>page.locator('.review-item-material').evaluate(node=>node.getAnimations().length)).toBe(0);
+ await page.getByRole('button',{name:'Next item',exact:true}).click();
+ await expect(page.getByRole('article',{name:'Cover empty input',exact:true})).toBeVisible();
+ expect(await count()).toBe(1);
  await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
  await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();await expect(comment).toHaveValue('Keep the existing callers compatible.');
- expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(1);
- await page.reload();await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();expect(await page.evaluate(()=>(window as unknown as {materialMotionCount:number}).materialMotionCount)).toBe(0);
+ expect(await count()).toBe(1);
+ await page.reload();await expect(page.getByRole('article',{name:'Keep the public API',exact:true})).toBeVisible();expect(await count()).toBe(0);
+});
+
+test('a submitted review acknowledges exactly once, disables repeats and clears on changed evidence',async({page})=>{
+ let release!:()=>void;const gate=new Promise<void>(resolve=>{release=resolve;});
+ const {host}=await open(page,'ReviewQueue',async()=>{await gate;return{};});await page.goto('/');
+ await page.getByRole('radio',{name:'Request changes',exact:true}).check();await page.getByRole('textbox',{name:'Review comment',exact:true}).fill('Keep both overloads for compatibility.');
+ await page.getByRole('button',{name:'Next item',exact:true}).click();await page.getByRole('radio',{name:'Accept',exact:true}).check();
+ await page.getByRole('button',{name:'Previous item',exact:true}).click();await expect(page.getByRole('textbox',{name:'Review comment',exact:true})).toHaveValue('Keep both overloads for compatibility.');
+ host.setInput('data',{...review,items:[review.items[1],review.items[0]]});await host.publish();
+ await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({items:{publicApi:{decision:'revise',comment:'Keep both overloads for compatibility.'},coverage:{decision:'approve'}}});
+ host.setInput('data',review);await host.publish();
+ const button=page.getByRole('button',{name:'Send review',exact:true});const idle=await button.boundingBox();
+ await button.click();const busy=await page.getByRole('button',{name:'Sending…',exact:true}).boundingBox();
+ expect(Math.abs(busy!.width-idle!.width)).toBeLessThanOrEqual(1);
+ release();
+ await expect(page.getByRole('status').filter({hasText:'Review submitted'})).toHaveCount(1);await expect(button).toBeDisabled();
+ expect(host.commands.filter(command=>command.type==='action.submit')).toHaveLength(1);
+ expect(host.commands.some(command=>command.type==='operation.approve')).toBe(false);
+ await host.publish();await expect(button).toBeDisabled();
+ host.setInput('data',{...review,items:[review.items[1],review.items[0]]});await host.publish();
+ await expect(button).toBeEnabled();await expect(page.getByText('Review submitted')).toHaveCount(0);
+ await expect.poll(()=>host.snapshot.userStates[0].values.draft).toMatchObject({items:{publicApi:{decision:'revise',comment:'Keep both overloads for compatibility.'},coverage:{decision:'approve'}}});
 });
 
 test('resetting the final parameter returns focus to its control while the proposal collapses inertly',async({page})=>{
@@ -110,9 +179,12 @@ test('rapid review reversal continues from the displayed frame instead of restar
  await page.getByRole('button',{name:'Next item',exact:true}).click();
  const material=page.locator('.review-item-material');await expect(material).toHaveAttribute('aria-label','Cover empty input');
  const before=await material.evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();animation.currentTime=70;const style=getComputedStyle(node);return {opacity:style.opacity,transform:style.transform};});
- await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>(node as HTMLButtonElement).click());
+ await page.getByRole('button',{name:'Previous item',exact:true}).evaluate(node=>node.dispatchEvent(new MouseEvent('click',{bubbles:true,detail:1})));
  await expect(material).toHaveAttribute('aria-label','Keep the public API');
- const start=await material.evaluate(node=>(node.getAnimations()[0].effect as KeyframeEffect).getKeyframes()[0]);
- expect(Number(start.opacity)).toBeCloseTo(Number(before.opacity),4);expect(start.transform).toBe(before.transform);
+ const frames=await material.evaluate(node=>(node.getAnimations()[0].effect as KeyframeEffect).getKeyframes());
+ const tx=(transform?:string)=>{if(!transform||transform==='none')return 0;const matrix=/matrix\(([^)]+)\)/.exec(transform);if(matrix)return Number(matrix[1].split(',')[4]);const slide=/translateX?\((-?[\d.]+)px/.exec(transform);return slide?Number(slide[1]):0;};
+ expect(Number(frames[0].opacity)).toBeCloseTo(Number(before.opacity),4);
+ expect(Math.abs(tx(String(frames[0].transform))-tx(before.transform))).toBeLessThanOrEqual(1);
+ expect(tx(String(frames[frames.length-1].transform))).toBe(0);
  await expect.poll(()=>material.evaluate(node=>node.getAnimations().length)).toBe(0);
 });

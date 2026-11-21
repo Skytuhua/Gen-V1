@@ -58,8 +58,8 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   const animatedChanges = useRef(new Map<string, string>());
   const sourceIdentity = `${String(props.rowsBinding ?? '')}:${String(props.changesBinding ?? '')}`;
   const previousSource = useRef(sourceIdentity);
-  const previousValues = useRef(new Map<string, string>()), previousColumns = useRef(new Map<string, { x: number; width: number }>());
-  const activeAnimations = useRef(new Map<HTMLElement, { animations: Animation[]; overlay?: HTMLElement }>());
+  const previousColumns = useRef(new Map<string, { x: number; width: number }>());
+  const activeAnimations = useRef(new Map<HTMLElement, Animation[]>());
   const columnAnimations = useRef<Animation[]>([]), sweepAnimation = useRef<Animation | undefined>(undefined);
   const columnKey = JSON.stringify(columns.map(column => column.key));
   const rowOrderKey = identity.rowOrderKey;
@@ -77,7 +77,7 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
   }, [rowChanges, identity]);
   // biome-ignore lint/correctness/useExhaustiveDependencies: unmount cleanup reads the mounted table refs.
   useLayoutEffect(() => () => {
-    for (const active of activeAnimations.current.values()) { active.animations.forEach(animation => { animation.cancel(); }); active.overlay?.remove(); }
+    for (const active of activeAnimations.current.values()) active.forEach(animation => { animation.cancel(); });
     activeAnimations.current.clear();
     columnAnimations.current.forEach(animation => { animation.cancel(); }); sweepAnimation.current?.cancel(); stopScroll();
   }, []);
@@ -102,40 +102,44 @@ export function Table({ element: { props }, bindings }: ComponentRenderProps) {
     }
     previousColumns.current = next; controls.skipMotion.current = false;
   }, [columnKey, sourceIdentity, inline]);
+  // Signatures come from accepted source data, not the DOM, so cells hidden by
+  // filters, scrolling or inactive tabs are marked observed and never replay.
+  const cellSignatures = useMemo(() => {
+    const signatures = new Map<string, string>();
+    for (const { item, index } of controls.view) {
+      const id = identity.ids[index]!, change = rowChanges.get(id);
+      for (const column of columns) {
+        const key = String(column.key), cell = change?.cells?.find(cell => cell.key === key), status = cell?.status ?? change?.status;
+        if (!status) continue;
+        const before = cell && Object.hasOwn(cell, 'before') ? JSON.stringify(cell.before) : undefined;
+        signatures.set(`${id}:${key}`, JSON.stringify([status, before, cellText(item[key], column)]));
+      }
+    }
+    return signatures;
+  }, [controls.view, columns, rowChanges, identity]);
+  const baselineObserved = useRef(false);
   // biome-ignore lint/correctness/useExhaustiveDependencies: only accepted source data triggers change animations.
   useLayoutEffect(() => {
-    if (previousSource.current !== sourceIdentity) { animatedChanges.current.clear(); previousValues.current.clear(); previousSource.current = sourceIdentity; }
-    const accepted = new Map<string, string>(), values = new Map<string, string>(), container = scroll.current;
+    const fresh = previousSource.current !== sourceIdentity;
+    if (fresh) { animatedChanges.current.clear(); previousSource.current = sourceIdentity; }
+    const baseline = fresh || !baselineObserved.current; baselineObserved.current = true;
+    const container = scroll.current;
     const area = container ? visibleBounds(container, inline) : undefined, visibleRows = new Set<Element>();
     for (const row of container?.querySelectorAll('tbody tr') ?? []) { const box = row.getBoundingClientRect(); if (area && box.bottom > area.top && box.top < area.bottom) visibleRows.add(row); }
-    for (const cell of container?.querySelectorAll<HTMLTableCellElement>('td[data-column-key]') ?? []) values.set(`${cell.closest('tr')?.dataset.rowId}:${cell.dataset.columnKey}`, cell.querySelector('.task-table-value')?.textContent ?? '');
     let animated = 0;
     for (const cell of scroll.current?.querySelectorAll<HTMLTableCellElement>('td[data-change]') ?? []) {
-      const rowId = cell.closest('tr')?.dataset.rowId, key = `${rowId}:${cell.dataset.columnKey}`;
-      const value = values.get(key) ?? '', signature = JSON.stringify([cell.dataset.change, cell.dataset.before, cell.title, value]);
-      accepted.set(key, signature);
-      if (animatedChanges.current.get(key) === signature || !visibleRows.has(cell.closest('tr')!) || animated >= 200) continue;
+      const rowId = cell.closest('tr')?.dataset.rowId, key = `${rowId}:${cell.dataset.columnKey}`, signature = cellSignatures.get(key);
+      if (baseline || !signature || animatedChanges.current.get(key) === signature || !visibleRows.has(cell.closest('tr')!) || animated >= 200 || reducedMotion()) continue;
       const box = cell.getBoundingClientRect(); if (!area || box.right < area.left || box.left > area.right) continue;
       animated++;
-      const prior = activeAnimations.current.get(cell); prior?.animations.forEach(animation => { animation.cancel(); }); prior?.overlay?.remove();
-      const animations: Animation[] = [], highlight = animateTask(cell, [{ backgroundColor: 'color-mix(in srgb,var(--success) 15%,var(--surface))' }, { backgroundColor: 'transparent' }], 400);
-      if (highlight) animations.push(highlight);
-      const content = cell.querySelector<HTMLElement>('.task-table-value'), previous = previousValues.current.get(key);
-      let overlay: HTMLElement | undefined;
-      if (content && previous !== undefined && previous !== value && !reducedMotion()) {
-        if (!cell.querySelector('.task-table-before')) {
-          overlay = document.createElement('span'); overlay.className = 'task-table-previous-value'; overlay.textContent = previous; overlay.setAttribute('aria-hidden', 'true'); cell.append(overlay);
-          const outgoing = animateTask(overlay, [{ opacity: .7, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-2px)' }], 160);
-          if (outgoing) animations.push(outgoing);
-        }
-        const incoming = animateTask(content, [{ opacity: .2, transform: 'translateY(2px)' }, { opacity: 1, transform: 'translateY(0)' }], 400);
-        if (incoming) animations.push(incoming);
-      }
-      const active = { animations, overlay }; activeAnimations.current.set(cell, active);
-      void Promise.allSettled(animations.map(animation => animation.finished)).then(() => { overlay?.remove(); if (activeAnimations.current.get(cell) === active) activeAnimations.current.delete(cell); });
+      activeAnimations.current.get(cell)?.forEach(animation => { animation.cancel(); });
+      const highlight = animateTask(cell, [{ backgroundColor: 'color-mix(in srgb,var(--success) 0%,var(--surface))' }, { backgroundColor: 'color-mix(in srgb,var(--success) 12%,var(--surface))' }, { backgroundColor: 'color-mix(in srgb,var(--success) 0%,var(--surface))' }], 240);
+      const animations = highlight ? [highlight] : [];
+      activeAnimations.current.set(cell, animations);
+      void Promise.allSettled(animations.map(animation => animation.finished)).then(() => { if (activeAnimations.current.get(cell) === animations) activeAnimations.current.delete(cell); });
     }
-    animatedChanges.current = accepted; previousValues.current = values;
-  }, [changes, rows, sourceIdentity, inline]);
+    animatedChanges.current = new Map(cellSignatures);
+  }, [changes, rows, sourceIdentity, inline, cellSignatures]);
   const previousSweep = useRef<number | null>(null), activeRow = identity.ids.includes(changes?.activeRowId ?? '') ? changes?.activeRowId : undefined;
   // biome-ignore lint/correctness/useExhaustiveDependencies: view identities reposition the active-row DOM marker.
   useLayoutEffect(() => {
