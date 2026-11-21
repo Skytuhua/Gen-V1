@@ -16,9 +16,10 @@ import {journalCompareAndSwap, journalReadRecord, journalSubscribe} from './jour
 import {loadWorkbenchViews, noteSourceDraftWork, prepareSourceOwnerHandoff, readSourceDraft, saveWorkbenchView, sourceDraftKey, updateSourceDraft, type SourceDraftSnapshot} from './workbench-recovery';
 import {messageSelection, workbenchApi, type WorkbenchApi} from './workbench-api';
 import './source-workbench.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const ownerKey=(owner?:LogicalOwnerV1)=>owner?JSON.stringify([owner.threadId,owner.projectId,owner.workspaceId]):'';
-const messageOf=(cause:unknown)=>cause instanceof Error?cause.message:'The source could not be read. The draft was retained.';
+
 const shortRevision=(value:string)=>value.length>16?`${value.slice(0,12)}\u2026`:value;
 const formatCaptured=(iso:string)=>{const time=Date.parse(iso);return Number.isNaN(time)?iso:new Date(time).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'});};
 function sourceRange(ref:SourceRefV1){const source=ref.source;switch(source.kind){case 'MESSAGE':return `UTF-16 [${source.range.start}, ${source.range.end})`;case 'FILE_RANGE':return `Lines ${source.range.startLine} to ${source.range.endLine}`;case 'DIFF_HUNK':return `Hunk lines ${source.range.startLine} to ${source.range.endLine}`;case 'ARTIFACT_REGION':return `Binding ${source.binding}, pointer ${source.range.pointer||'(root)'}`;}}
@@ -67,14 +68,14 @@ export function SourceWorkbenchProvider({owner,ownerEpoch='',active=true,snapsho
  const enabled=active&&loaded?.scope===scope&&loaded.enabled, draft=draftState?.scope===scope?draftState.value:undefined;
  const sources=sourceState.scope===scope?sourceState.values:{}, error=errorState?.scope===scope?errorState.message:'';
  const isCurrent=()=>current.current===scope;
- const report=(cause:unknown)=>{if(isCurrent())setError({scope,message:messageOf(cause)});};
+ const report=(cause:unknown)=>{if(isCurrent())setError({scope,message:errorMessage(cause,'The source could not be read. The draft was retained.')});};
  const remember=(value:SourceOpenV1|CapturedSourceV1)=>{if(isCurrent())setSources(previous=>({scope,values:{...(previous.scope===scope?previous.values:{}),[value.ref.captureId]:value}}));};
  const reloadInputs=async()=>{
   if(!owner||!isCurrent())return;
   const generation=++inputRead.current;
   const pending=await pendingInputRecoveries(owner).catch(cause=>{report(cause);return [];});
   try{const result=await api.inputs(owner,controller.current?.signal);if(isCurrent()&&generation===inputRead.current)setInputState({scope,inputs:result.inputs,pending,ready:true,error:''});}
-  catch(cause){if(isCurrent()&&generation===inputRead.current&&!controller.current?.signal.aborted)setInputState(previous=>({scope,inputs:previous?.scope===scope?previous.inputs:[],pending,ready:true,error:messageOf(cause)}));}
+  catch(cause){if(isCurrent()&&generation===inputRead.current&&!controller.current?.signal.aborted)setInputState(previous=>({scope,inputs:previous?.scope===scope?previous.inputs:[],pending,ready:true,error:errorMessage(cause,'The source could not be read. The draft was retained.')}));}
  };
  const persistView=(viewType:'SOURCES'|'EVIDENCE'|'RUN',selectedItem:string|null=null,scrollAnchor:WorkbenchViewV1['scrollAnchor']=null)=>{
   if(!owner||!isCurrent())return;
@@ -157,7 +158,7 @@ export function SourceMessage({id,threadId,text,children}:{id:string;threadId:st
 export function WorkbenchComposer({title,working=false,disabled=false}:{title:string;working?:boolean;disabled?:boolean}) {
  const context=useSourceWorkbench(),[localError,setLocalError]=useState('');
  if(!context||!context.enabled&&!context.draft?.sourceRefs.length&&context.draft?.sendMode!=='AFTER_CURRENT'&&!context.inputs.length&&!context.pendingRecoveries.length)return null;
- const run=(action:()=>Promise<void>)=>{setLocalError('');void action().catch(cause=>setLocalError(messageOf(cause)));};
+ const run=(action:()=>Promise<void>)=>{setLocalError('');void action().catch(cause=>setLocalError(errorMessage(cause,'The source could not be read. The draft was retained.')));};
  return <section aria-label="Prompt source context">
   <div className="workbench-destination"><strong>Destination: {title}</strong><span>Current task</span><button type="button" disabled={disabled} onClick={()=>context.show()}>Sources and evidence</button>
    <label>Delivery <Select aria-label="Source delivery mode" disabled={disabled} value={context.draft?.sendMode??'NOW'} onValueChange={value=>run(()=>context.setMode(value as 'NOW'|'AFTER_CURRENT'))} options={[{value:'NOW',label:'Now'},{value:'AFTER_CURRENT',label:'After current run',disabled:!context.enabled}]}/></label>

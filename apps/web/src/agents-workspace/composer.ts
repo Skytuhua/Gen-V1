@@ -8,6 +8,7 @@ import {changeTerminalExcerpts,clearAcceptedExcerpts,editTerminalExcerpt,excerpt
 import {clearAcceptedSkills, readSkillBindings, skillDraftKey} from '../composer-skill-drafts';
 import {logicalOwnerV1Schema, sameLogicalOwner, sendModeV1Schema, sourceRefsV1Schema, type LogicalOwnerV1, type SourceRefV1} from '../../../../packages/contracts/source-selection';
 import {clearAcceptedSourceDraft, parseSourceDraftMetadata, readSourceDraft} from '../workbench-recovery';
+import {errorMessage} from '../../../../packages/ui-shell/format-utils';
 
 export type ChildInputTicket = AgentInputTicket;
 export interface AgentSend {agent: AgentSummary; content: string; commandId: string; isCurrent?(): boolean}
@@ -107,7 +108,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    }
   })());
   if (inventoryAgent(agent) && agent.parentId && actions.followUp?.prepare) {
-   try {await actions.followUp.prepare(agent); emit(value, {});} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Follow-up is unavailable. Reopen to retry.'});}
+   try {await actions.followUp.prepare(agent); emit(value, {});} catch (cause) {emit(value, {error: errorMessage(cause,'Follow-up is unavailable. Reopen to retry.')});}
   }
  };
  return {
@@ -154,9 +155,9 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    const skills = submission?.skills ?? value.state.skills;
    let excerpts:TerminalExcerpt[];
    try{excerpts=readTerminalExcerpts(submission?.excerpts??value.state.excerpts);if(!value.pending&&excerpts.some(e=>e.threadId!==identity(agent)||e.projectId!==agent.projectId))throw Error('Terminal excerpts belong to another composer.');}
-   catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Terminal excerpts could not load.'});return;}
+   catch(cause){emit(value,{error:errorMessage(cause,'Terminal excerpts could not load.')});return;}
    let content:string;
-   try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:cause instanceof Error?cause.message:'Prompt exceeds the limit.'});return;}
+   try{content=value.pending?.content??serializeTerminalExcerpts(submission?.content??value.state.draft,excerpts);}catch(cause){emit(value,{error:errorMessage(cause,'Prompt exceeds the limit.')});return;}
    const submittedGeneration = submission ? submission.generation : journalGeneration(key(agent));
    const submittedExcerptGeneration = submission?.excerpts===undefined?journalGeneration(excerptDraftKey(identity(agent))):submission.excerptGeneration;
    const sourceOwner:LogicalOwnerV1 = {threadId:identity(agent),projectId:agent.projectId??null,workspaceId:inventoryAgent(agent)?null:agent.workspaceId??null};
@@ -182,7 +183,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      if (inventoryAgent(agent) && agent.parentId && source.sourceRefs.length) throw Error('Attach selected sources in the parent conversation.');
      if (source.sourceRefs.length || source.sendMode !== 'NOW') sourceFields = {sourceRefs:source.sourceRefs,sourceOwner,sourceGeneration:source.generation,sendMode:source.sendMode};
     }
-   } catch(cause) {emit(value,{busy:false,error:cause instanceof Error?cause.message:'Source context could not be recovered.',retry:Boolean(value.pending)});return;}
+   } catch(cause) {emit(value,{busy:false,error:errorMessage(cause,'Source context could not be recovered.'),retry:Boolean(value.pending)});return;}
    const pending = value.pending ?? {commandId: crypto.randomUUID(), content, ...sourceFields, ...(options?.requestContextId ? {requestContextId: options.requestContextId} : {}), ...(excerpts.length?{excerpts,excerptGeneration:submittedExcerptGeneration}:{}), generation: submittedGeneration, modelId: agent.modelId, ...(thinkingLevel !== undefined ? {thinkingLevel} : {}), ...((skills?.length ?? 0) > 0 ? {skills: skillBindingsSchema.parse(skills)} : {})};
    value.pending = pending; emit(value, {busy: true, error: '', retry: false});
    try {
@@ -212,7 +213,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      try {await journalWrite(pendingKey(agent), null); value.pending = undefined;}
      catch {emit(value, {error: 'The rejected message could not be saved locally. Keep this workspace open.', retry: true}); return;}
     }
-    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
+    emit(value, {error: errorMessage(cause,'Delivery is uncertain. Retry this message.'), retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
    }
    finally {emit(value, {busy: false});}
   },
@@ -223,7 +224,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    value.stopEpoch++; emit(value, {stopping: true, error: ''});
    const childOf = (child: Entry) => inventoryAgent(child.agent) && Boolean(value.inventory && (child.agent.parentId === value.inventory.agentId || child.agent.rootId === value.inventory.agentId));
    for (const child of entries.values()) if (child !== value && childOf(child)) {child.stopEpoch++; emit(child, {});}
-   try {await actions.stopParent(agent);} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Stop failed. Retry Stop.'});}
+   try {await actions.stopParent(agent);} catch (cause) {emit(value, {error: errorMessage(cause,'Stop failed. Retry Stop.')});}
    finally {emit(value, {stopping: false}); for (const child of entries.values()) if (childOf(child)) emit(child, {});}
   },
   dispose() {unsubscribeTickets?.(); actions.followUp?.dispose?.(); for (const value of entries.values()) {value.unsubscribe?.(); value.listeners.clear();}},

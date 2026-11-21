@@ -1,6 +1,7 @@
 import {useSyncExternalStore} from 'react';
 import {attentionItemSchema,type AttentionEnvelope} from '../../../packages/contracts/attention.ts';
 import {authenticated,csrfToken,read,subscribe} from './api';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 let state:AttentionEnvelope&{error:string}={items:[],unread:0,sequence:0,error:''};
 const listeners=new Set<()=>void>();let stop:(()=>void)|undefined,flight:Promise<void>|undefined,trailing:Promise<void>|undefined,timer:ReturnType<typeof setTimeout>|undefined;
@@ -9,7 +10,7 @@ function refreshAttention():Promise<void>{
  if(flight)return trailing??=flight.then(()=>{trailing=undefined;return refreshAttention();});
  return flight=Promise.resolve().then(async()=>{
   try{const value=await authenticated(()=>fetch('/api/attention',{credentials:'same-origin',cache:'no-store',redirect:'error'})).then(read<AttentionEnvelope>);if(!Array.isArray(value.items)||value.items.length>1000||!Number.isSafeInteger(value.sequence))throw Error('The Inbox response is invalid.');state={...value,items:value.items.map(item=>attentionItemSchema.parse(item)),error:''};publish();}
-  catch(cause){state={...state,error:cause instanceof Error?cause.message:'Inbox could not load.'};publish();}
+  catch(cause){state={...state,error:errorMessage(cause,'Inbox could not load.')};publish();}
   finally{flight=undefined;}
  });
 }

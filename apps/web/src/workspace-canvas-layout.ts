@@ -1,5 +1,6 @@
 ﻿import type {Thread} from '../../../packages/contracts/index.ts';
 import type {CanvasLayout,PanelBounds,PanelPlacement} from '../../../packages/contracts/workspace.ts';
+import {clamp} from '../../../packages/ui-shell/format-utils';
 
 export interface CanvasSize {width:number;height:number}
 type Viewport=CanvasLayout['viewport'];
@@ -7,7 +8,7 @@ interface CanvasFamilyGroup {key:string;rootThreadId?:string;panelIds:string[];b
 export interface CanvasProjectGroup {key:string;projectId:string;authority:PanelPlacement['binding']['authority'];families:CanvasFamilyGroup[];bounds:PanelBounds}
 const finite=(value:number,fallback:number)=>Number.isFinite(value)?value:fallback;
 const snap=(value:number)=>Math.round(value/8)*8;
-const clampZoom=(zoom:number)=>Math.max(.4,Math.min(2,finite(zoom,1)));
+const clampZoom=(zoom:number)=>clamp(finite(zoom,1),.4,2);
 const shown=(panel:PanelPlacement)=>panel.visible&&panel.placement==='canvas';
 const effectiveBounds=(panel:PanelPlacement)=>({...panel.bounds,height:panel.collapsed?40:panel.bounds.height});
 const authorityKey=(panel:PanelPlacement)=>panel.binding.authority.kind==='local'?'local':`plugin:${panel.binding.authority.pluginId}:${panel.binding.authority.scopeId}`;

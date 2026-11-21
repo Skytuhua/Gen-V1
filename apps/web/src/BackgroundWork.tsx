@@ -5,6 +5,7 @@ import { authenticated, command, getModels, read, subscribe } from './api';
 import { SchemaFields, schemaDefaults } from './registry';
 import { Select } from '../../../packages/ui-shell/Select';
 import './background-work.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 /** M10 task-owned background drawer. The presentational view is fixture-
  * testable; the container binds the real host read/command paths. Dismissing
@@ -106,7 +107,7 @@ function HumanStepCard({ step, work, onRespond, onDecline, onSettled }: { step: 
   const [cardError, setCardError] = useState('');
   const run = async (action: () => Promise<void>) => {
     setBusy(true); setCardError('');
-    try { await action(); } catch (cause) { setCardError(cause instanceof Error ? cause.message : 'The response could not be delivered.'); } finally { setBusy(false); onSettled(); }
+    try { await action(); } catch (cause) { setCardError(errorMessage(cause,'The response could not be delivered.')); } finally { setBusy(false); onSettled(); }
   };
   return <section className="background-human" aria-label={`Human step for ${work.title}`}>
     <header><span className="background-state" data-state="waiting-human">Waiting for you</span><strong>{step.requestId}</strong><span className="background-muted">revision {String(step.questionRevision)}</span></header>
@@ -134,11 +135,11 @@ function WorkCard({ work, step, props }: { work: Work; step: Step | undefined; p
   const restore = () => restoreFocus(() => card.current);
   const load = async (cursor: number) => {
     setOutputError('');
-    try { setOutput(await props.loadOutput(work.workId, work.owner.threadId, cursor)); } catch (cause) { setOutputError(cause instanceof Error ? cause.message : 'Output could not load.'); }
+    try { setOutput(await props.loadOutput(work.workId, work.owner.threadId, cursor)); } catch (cause) { setOutputError(errorMessage(cause,'Output could not load.')); }
   };
   const cancel = async () => {
     setBusy(true); setActionError('');
-    try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(cause instanceof Error ? cause.message : 'The work could not be cancelled.'); } finally { setBusy(false); restore(); }
+    try { await props.onCancel(work.workId, work.owner.threadId); } catch (cause) { setActionError(errorMessage(cause,'The work could not be cancelled.')); } finally { setBusy(false); restore(); }
   };
   return <article ref={card} tabIndex={-1} className="background-card" aria-label={work.title} data-work-id={work.workId}>
     <header>
@@ -179,7 +180,7 @@ function ScheduleRow({ schedule, props }: { schedule: Schedule; props: Backgroun
   const row = useRef<HTMLLIElement>(null);
   const toggle = async () => {
     setBusy(true); setRowError('');
-    try { schedule.paused ? await props.onResume(schedule.wakeupId) : await props.onPause(schedule.wakeupId); } catch (cause) { setRowError(cause instanceof Error ? cause.message : 'The schedule could not change.'); } finally { setBusy(false); restoreFocus(() => row.current); }
+    try { schedule.paused ? await props.onResume(schedule.wakeupId) : await props.onPause(schedule.wakeupId); } catch (cause) { setRowError(errorMessage(cause,'The schedule could not change.')); } finally { setBusy(false); restoreFocus(() => row.current); }
   };
   return <li ref={row} tabIndex={-1} className="background-schedule" data-wakeup-id={schedule.wakeupId}>
     <div>
@@ -204,7 +205,7 @@ function IntakeSection({ intake, models, defaultModelId, props }: { intake: Back
   const section = useRef<HTMLElement>(null);
   const act = async (intakeId: string, action: () => Promise<void>) => {
     setBusyId(intakeId); setIntakeError('');
-    try { await action(); } catch (cause) { setIntakeError(cause instanceof Error ? cause.message : 'The decision could not be recorded.'); } finally {
+    try { await action(); } catch (cause) { setIntakeError(errorMessage(cause,'The decision could not be recorded.')); } finally {
       setBusyId('');
       restoreFocus(() => Array.from(section.current?.querySelectorAll<HTMLElement>('[data-intake-id]') ?? []).find(row => row.dataset.intakeId === intakeId) ?? section.current ?? null);
     }
@@ -286,7 +287,7 @@ function refreshBackgroundWork(): Promise<void> {
       const parsed = viewSchema.parse(value);
       state = { data: parsed, loading: false, error: '', sequence: parsed.sequence }; publish();
     } catch (cause) {
-      state = { ...state, loading: false, error: cause instanceof Error ? cause.message : 'Background work could not load.' }; publish();
+      state = { ...state, loading: false, error: errorMessage(cause,'Background work could not load.') }; publish();
     } finally { flight = undefined; }
   })();
 }

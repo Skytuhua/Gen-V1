@@ -14,6 +14,7 @@ import { useDocumentEvidence, type DocumentEvidence, type DocumentHandoffState }
 import './document-preview.css';
 import { ArtifactInline } from './task-context';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const MAX_BYTES = 20 * 1024 * 1024, MAX_PAGES = 200, MAX_PIXELS = 8_000_000;
 const TASK_TIMEOUT = 15_000;
@@ -63,7 +64,6 @@ async function fetchPdfBytes(url: string, signal: AbortSignal): Promise<Uint8Arr
 
 export { createPdfDraft } from './pdf-draft';
 
-const message = (error: unknown) => error instanceof Error ? error.message : 'The PDF preview could not be displayed.';
 const destroy = (task: PDFDocumentLoadingTask) => { void task.destroy().catch(() => {}); };
 const grantIdentity = (grant: DocumentEvidence['resources'][number] | undefined) => grant ? JSON.stringify([grant.id, grant.threadId, grant.path, grant.identity]) : '';
 
@@ -147,7 +147,7 @@ export function DocumentPreview(props: DocumentPreviewProps) {
     if (canvas.current) { canvas.current.width = 0; canvas.current.height = 0; }
   };
   const failPreview = (cause: unknown) => {
-    setError(message(cause)); setActivity('');
+    setError(errorMessage(cause,'The PDF preview could not be displayed.')); setActivity('');
     if (props.exportOperationId) { clearCommitted(); notifyHandoff(props.exportOperationId, 'error'); }
   };
   const operation = evidence?.operations.find(item => item.id === props.exportOperationId);
@@ -207,7 +207,7 @@ export function DocumentPreview(props: DocumentPreviewProps) {
         notifyHandoff(props.exportOperationId, 'pending');
         if (!continuous && !alreadyVerified) clearFrame();
       } catch (cause) {
-        identity.current = sourceUrl; clearFrame(); setError(message(cause)); setActivity(''); notifyHandoff(props.exportOperationId, 'error'); return;
+        identity.current = sourceUrl; clearFrame(); setError(errorMessage(cause,'The PDF preview could not be displayed.')); setActivity(''); notifyHandoff(props.exportOperationId, 'error'); return;
       }
     } else {
       setHandoffState(null);
@@ -221,7 +221,7 @@ export function DocumentPreview(props: DocumentPreviewProps) {
       const hash = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes.slice().buffer)), value => value.toString(16).padStart(2, '0')).join('');
       if (exportEvidence && hash !== exportEvidence.outputSha256) throw new Error('The saved PDF differs from the approved export. Open the source or retry.');
       if (alive) { sourceOrigins.current.set(bytes, sourceUrl); sourceHashes.current.set(bytes, hash); setSource(bytes); }
-    }).catch(cause => { if (alive) { clearFrame(); setError(message(cause)); setActivity(''); if (props.exportOperationId) notifyHandoff(props.exportOperationId, 'error'); } }).finally(() => clearTimeout(timer));
+    }).catch(cause => { if (alive) { clearFrame(); setError(errorMessage(cause,'The PDF preview could not be displayed.')); setActivity(''); if (props.exportOperationId) notifyHandoff(props.exportOperationId, 'error'); } }).finally(() => clearTimeout(timer));
     return () => { alive = false; clearTimeout(timer); controller.abort(); };
   }, [sourceUrl, retry, props.exportOperationId, evidenceKey, grantKey]);
   useEffect(() => () => { generation.current++; if (committedDocument.current) destroy(committedDocument.current.loading); committedDocument.current = null; }, []);

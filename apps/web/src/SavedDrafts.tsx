@@ -6,6 +6,7 @@ import {deleteSavedDraft,disabledReferenceValidation,loadSavedDrafts,planDraftRe
 import {SAVED_DRAFT_IDLE_DAYS} from './draft-limits';
 import './saved-drafts.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 type Dialog={kind:'save'}|{kind:'delete';draft:SavedDraft;generation:string|undefined}|{kind:'restore';plan:DraftRestorePlan};
 export interface SavedDraftsProps {owner:SavedDraftOwner;input:RefObject<HTMLTextAreaElement|null>;disabled?:boolean;resourceRefs?:SavedResourceRef[]}
 export function SavedDrafts(props:SavedDraftsProps){return <SavedDraftsOwner key={savedDraftOwnerKey(props.owner)} {...props}/>;}
@@ -27,7 +28,7 @@ function SavedDraftsOwner({owner,input,disabled=false,resourceRefs=[]}:SavedDraf
  const current=()=>alive.current&&latest.current.key===key&&!latest.current.disabled&&!composing.current;
  const rememberCaret=()=>{caret.current=input.current?.selectionStart??0;};
  const close=(restoreCaret?:number)=>{setDialog(null);setError('');setFocusRequest({caret:restoreCaret});};
- async function run(action:()=>Promise<void>){if(!current())return;setBusy(true);setError('');try{await action();}catch(cause){if(alive.current){setError(cause instanceof Error?cause.message:'Saved draft could not be changed. Retry.');if(!dialog)setOpen(true);}}finally{if(alive.current)setBusy(false);}}
+ async function run(action:()=>Promise<void>){if(!current())return;setBusy(true);setError('');try{await action();}catch(cause){if(alive.current){setError(errorMessage(cause,'Saved draft could not be changed. Retry.'));if(!dialog)setOpen(true);}}finally{if(alive.current)setBusy(false);}}
  async function review(draft:SavedDraft){await run(async()=>{const plan=await planDraftRestore(owner,draft.id);if(!current())return;if(!draft.text||plan.active?.value||draft.resourceRefs.length||draft.skills.length||draft.excerpts.length||draft.sourceContext){setOpen(false);setDialog({kind:'restore',plan});}else{const position=await restoreSavedDraftText(owner,plan,'replace',caret.current);if(current()){setOpen(false);close(position);}}});}
  const rich=dialog?.kind==='restore'?dialog.plan.draft:null;
  return <><button ref={anchor} type="button" className="quiet saved-drafts-trigger" aria-haspopup="dialog" aria-expanded={open} disabled={disabled||ime} title={disabled?'Saved drafts are unavailable right now':library.records.length?'Open your saved drafts':'No saved drafts yet — save one from here'} onFocus={rememberCaret} onPointerDown={rememberCaret} onClick={()=>{rememberCaret();setOpen(value=>!value);}}>Saved drafts</button>

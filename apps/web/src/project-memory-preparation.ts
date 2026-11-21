@@ -1,6 +1,7 @@
 import type {MemoryPreparedRequest, MemoryRevisionRef} from '../../../packages/contracts/project-memory';
 import {memoryOwnerKey, type MemoryOwner} from './project-memory-api';
 import {excludeMemoryFromRequest, latestMemoryRequest, prepareMemoryRequest} from './project-memory-request-api';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export interface MemoryRequestInput {owner: MemoryOwner; prompt: string; modelId: string; thinkingLevel: string | null; ownerVersion?: string}
 export const memoryRequestKey = (input?: MemoryRequestInput) => input ? JSON.stringify([memoryOwnerKey(input.owner), input.prompt, input.modelId, input.thinkingLevel, input.ownerVersion]) : '';
@@ -36,7 +37,7 @@ export class MemoryPreparationController {
       this.emit({...initial(key), view});
     } catch (cause) {
       if (generation !== this.generation || abort.signal.aborted) return;
-      this.emit({...initial(key), blocked: Boolean(input.prompt), error: cause instanceof Error ? cause.message : 'Context preparation failed. Refresh before sending.'});
+      this.emit({...initial(key), blocked: Boolean(input.prompt), error: errorMessage(cause,'Context preparation failed. Refresh before sending.')});
     }
   }
   async exclude(revision: MemoryRevisionRef) {
@@ -50,7 +51,7 @@ export class MemoryPreparationController {
       this.emit({...initial(key), view: updated});
     } catch (cause) {
       if (generation !== this.generation || abort.signal.aborted) return;
-      const error = cause instanceof Error ? cause.message : 'Exclusion was not confirmed. Refresh context before sending.';
+      const error = errorMessage(cause,'Exclusion was not confirmed. Refresh context before sending.');
       this.emit({...this.state, pending: false, blocked: true, error}); throw Error(error);
     }
   }

@@ -1,3 +1,4 @@
+import {clamp} from './format-utils';
 interface OverlayViewport { left: number; top: number; width: number; height: number }
 export interface OverlayAnchor { left: number; right: number; top: number; bottom: number }
 export type OverlaySide = 'above' | 'below' | 'left' | 'right';
@@ -23,7 +24,6 @@ export function placePopover({ anchor, viewport, width, height, preferredSide = 
   const below = Math.max(0, bottomEdge - origin(anchor.bottom) - 8);
   const desiredHeight = Math.min(size(height), availableHeight);
   const popupWidth = Math.min(size(width), availableWidth);
-  const clamp = (value: number, minimum: number, maximum: number) => Math.max(minimum, Math.min(value, maximum));
   if (preferredSide === 'left' || preferredSide === 'right') {
     const right = Math.max(0, rightEdge - origin(anchor.right) - 8);
     const left = Math.max(0, origin(anchor.left) - 8 - leftEdge);

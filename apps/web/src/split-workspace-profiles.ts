@@ -3,6 +3,7 @@ import {z} from 'zod';
 import {splitWorkspaceIdSchema} from '../../../packages/contracts/split-workspace.ts';
 import {authenticated,read} from './api';
 import {createSplitLayoutProfileActions} from './layout-profile';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const profilesSchema=z.array(z.strictObject({id:splitWorkspaceIdSchema,name:z.string().min(1).max(100),updatedAt:z.string().datetime()})).max(50);
 export type SplitWorkspaceProfileSummary=z.infer<typeof profilesSchema>[number];
@@ -17,7 +18,7 @@ export function useSplitWorkspaceProfiles(enabled=true,workspaceId='workspace'){
   const active=()=>alive.current&&owner.current===workspaceId&&expected===generation.current&&readId===request.current;
   if(alive.current&&owner.current===workspaceId)setLoading(true);
   try{const value=await getSplitWorkspaceProfiles(workspaceId);if(active()){setProfiles(value);setError('');}return value;}
-  catch(cause){if(active())setError(cause instanceof Error?cause.message:'Saved layouts could not load.');throw cause;}
+  catch(cause){if(active())setError(errorMessage(cause,'Saved layouts could not load.'));throw cause;}
   finally{if(active())setLoading(false);}
  },[workspaceId]);
  useEffect(()=>{generation.current++;alive.current=enabled;setProfiles([]);setError('');setLoading(enabled);if(!enabled)return;const update=()=>{void refresh().catch(()=>{});};update();window.addEventListener('focus',update);window.addEventListener('harness:workspace-changed',update);return()=>{alive.current=false;generation.current++;window.removeEventListener('focus',update);window.removeEventListener('harness:workspace-changed',update);};},[enabled,refresh]);
