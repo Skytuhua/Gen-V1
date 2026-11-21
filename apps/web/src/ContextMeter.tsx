@@ -2,6 +2,7 @@ import { useId, useRef, useState, useEffect, type CSSProperties } from 'react';
 import type { RuntimeUsage } from '../../../packages/contracts';
 import { Popover } from '../../../packages/ui-shell/Popover';
 import { isComposing } from '../../../packages/ui-shell/list-navigation';
+import { workareaBoundary } from './popover-boundary';
 import './context-inspector.css';
 
 const contextFormatter = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
@@ -54,7 +55,7 @@ function Category({ item, total, id }: { item: ContextCategoryReport & { width: 
       }}>
       <i aria-hidden="true" style={{ '--context-color': categoryColor(item.label) } as CSSProperties} /><span>{item.label}</span><strong>{contextNumber(item.tokens)}</strong>
     </button>
-    <Popover anchor={anchor} contentRef={detail} open={open} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
+    <Popover anchor={anchor} contentRef={detail} open={open} getBoundary={()=>workareaBoundary(anchor.current)} width={220} height={Math.min(360, 90 + (item.subitems?.length ?? (item.label === 'Reserved' ? 1 : 0)) * 28)}
       role="tooltip" id={id} className="context-category-detail" onDismiss={() => setOpen(false)}>
       <strong>{item.label}</strong><span>{detailFormatter.format(item.tokens)} tokens · {(item.tokens / total * 100).toFixed(1)}%</span>
       <div className="context-subitems">{item.subitems?.map((child, index) => <div className="context-subitem" key={index}><span>{child.label}</span><span>{detailFormatter.format(child.tokens)}</span></div>)}</div>

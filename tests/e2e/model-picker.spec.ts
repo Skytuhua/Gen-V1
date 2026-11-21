@@ -110,3 +110,26 @@ test('model selection fits both themes on a phone and removes spatial motion whe
     await page.getByRole('searchbox', { name: 'Search models', exact: true }).press('Escape');
   }
 });
+
+test('the model picker never paints over the sidebar at supported widths', async ({ page }, testInfo) => {
+  await mount(page);
+  for (const width of [1280, 900, 700, 500]) {
+    await page.setViewportSize({ width, height: 1000 });
+    const trigger = page.getByRole('combobox', { name: 'Model', exact: true }); await trigger.click();
+    const popover = page.locator('.model-picker-popover'); await expect(popover).toHaveAttribute('data-state', 'open');
+    await popover.evaluate(node => Promise.all(node.getAnimations().map(animation => animation.finished.catch(() => {}))));
+    const bounds = (await popover.boundingBox())!;
+    const column = await trigger.evaluate(el => el.closest('.workspace-layout-workarea')?.getBoundingClientRect().toJSON() ?? null);
+    if (column) {
+      expect(bounds.x).toBeGreaterThanOrEqual(column.x + 8 - 0.5);
+      expect(bounds.x + bounds.width).toBeLessThanOrEqual(column.x + column.width - 8 + 0.5);
+    }
+    const sidebar = await page.locator('.sidebar:visible').first().boundingBox();
+    if (sidebar) {
+      const overlap = Math.max(0, Math.min(bounds.x + bounds.width, sidebar.x + sidebar.width) - Math.max(bounds.x, sidebar.x));
+      expect(overlap).toBe(0);
+    }
+    await page.screenshot({ path: testInfo.outputPath(`model-picker-column-${width}.png`) });
+    await page.getByRole('searchbox', { name: 'Search models', exact: true }).press('Escape');
+  }
+});
