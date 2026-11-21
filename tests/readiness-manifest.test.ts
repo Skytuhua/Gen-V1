@@ -513,4 +513,22 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('SYNTHETIC_MULTILINE_VALUE_9913');
   });
 
+
+  it('suppresses opposite-pipe output while the PEM start marker is incomplete',async()=>{
+    const opener='-----BEGIN RSA PRIVATE KEY-----';
+    for(const length of [5,7,19,opener.length-1]){
+      const directory=temporaryDirectory();
+      // The child is real; the same canary crosses pipes between two opener writes.
+      const script=String.raw`const opener="-----BEGIN RSA PRIVATE KEY-----";const cut=Number(process.argv[1]);process.stdout.write("before\\n"+opener.slice(0,cut));setTimeout(()=>process.stderr.write("SYNTHETIC_PARTIAL_PEM_OTHER_PIPE_8821\\n"),40);setTimeout(()=>process.stdout.write(opener.slice(cut)+"\\nSYNTHETIC_PARTIAL_PEM_KEY_8821\\n-----END RSA PRIVATE KEY-----\\nafter\\n"),80);`;
+      const result=await runCheck(specFor(directory,{args:['-e',script,String(length)]}));
+      expect(result.status).toBe('PASS');
+      const log=readFileSync(result.artifact,'utf8');
+      expect(log).toContain('before\\n');
+      expect(log).toContain('after\\n');
+      expect(log).toContain('[REDACTED PRIVATE KEY]');
+      expect(log).not.toContain('SYNTHETIC_PARTIAL_PEM_OTHER_PIPE_8821');
+      expect(log).not.toContain('SYNTHETIC_PARTIAL_PEM_KEY_8821');
+    }
+  });
+
 });

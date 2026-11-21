@@ -59,7 +59,18 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   const carry:Record<Source,string>={stdout:'',stderr:''};
   const taintedCarry:Record<Source,boolean>={stdout:false,stderr:false};
   const privateKeyEnd:Record<Source,string|null>={stdout:null,stderr:null};
+  // Hold off logging the other pipe when a PEM opener is still an unfinished
+  // child-output line. Its later bytes may identify the other pipe as key data.
+  const tentativePrivateKeyBegin:Record<Source,boolean>={stdout:false,stderr:false};
   const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
+  const incompletePemBegin=(line:string):boolean=>{
+    const opener='-----BEGIN ';
+    for(let length=5;length<opener.length;length++){
+      if(line.endsWith(opener.slice(0,length)))return true;
+    }
+    const start=line.lastIndexOf(opener);
+    return start>=0&&/^[A-Z0-9 -]*$/.test(line.slice(start+opener.length))&&!begin.test(line);
+  };
   // Recognized SGR color codes are presentation only. An unrecognized terminal
   // control can conceal a credential start marker; suppress all subsequent
   // child output rather than risk emitting its following unclassified lines.
@@ -103,7 +114,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   return {
     write(source:Source,chunk:string){
       const other:Source=source==='stdout'?'stderr':'stdout';
-      const suppressOther=privateKeyEnd[other]!==null;
+      const suppressOther=privateKeyEnd[other]!==null||tentativePrivateKeyBegin[other];
       const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
       const carryWasTainted=taintedCarry[source];
       for(let i=0;i<lines.length;i++){
@@ -112,8 +123,10 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
         const safe=scrubLine(source,lines[i]!);
         if(!suppress&&(safe||(!unsafeControlOutput&&privateKeyEnd[source]===null)))stream.write(safe+'\n');
       }
-      // A partial line can already contain an ambiguous terminal control.
-      // Lock suppression before the other pipe can emit an unclassified key body.
+      // A pending opener can be split before the full BEGIN marker arrives.
+      // Treat that other-pipe interval as sensitive, but allow subsequent
+      // normal lines once a complete, non-credential line proves it harmless.
+      tentativePrivateKeyBegin[source]=false;
       if(!unsafeControlOutput&&carry[source]){
         const checked=normalizeTerminalLine(carry[source]);
         if(unsafeControlOutput)stream.write(checked+'\n');
@@ -126,7 +139,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
           // The label may not have a newline yet; block the other pipe now.
           unsafeControlOutput=true;
           stream.write('[REDACTED MULTILINE CREDENTIAL]\n');
-        }
+        }else tentativePrivateKeyBegin[source]=incompletePemBegin(checked);
       }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
     },
@@ -134,7 +147,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
       for(const source of ['stdout','stderr'] as const){
         if(carry[source]){
           const other:Source=source==='stdout'?'stderr':'stdout';
-          const suppress=taintedCarry[source]||privateKeyEnd[other]!==null;
+          const suppress=taintedCarry[source]||privateKeyEnd[other]!==null||tentativePrivateKeyBegin[other];
           const safe=scrubLine(source,carry[source]);
           if(!suppress&&safe)stream.write(safe);
         }
