@@ -20,3 +20,19 @@
 @media(prefers-reduced-motion:reduce){.split-workspace *{scroll-behavior:auto!important}}
 .split-view-grip{width:26px;height:26px;min-height:26px;padding:4px;justify-content:center;align-items:center;display:inline-flex;opacity:.6;cursor:grab;touch-action:none}
 .split-view-grip:hover,.split-view-grip:focus-visible{opacity:1}
+.split-area-selector{flex:1;min-width:0}.split-area-selector label{display:flex;align-items:center;gap:6px;font-size:11px}.split-area-selector .ui-select-trigger{min-width:0;max-width:100%;font:inherit}
+.split-thread-header{display:none;min-width:0;flex:1;order:-1;container-type:inline-size}
+.split-thread-header:has(>.chat-view-header){display:flex}
+.split-pane-header:has(>.split-thread-header>.chat-view-header){height:40px;min-height:40px}
+.split-pane-header:has(>.split-thread-header>.chat-view-header)>.split-tab-strip{display:none}
+.split-pane-header:has(>.split-thread-header>.chat-view-header)>.split-corner{order:-2}
+.split-pane-header:has(>.split-thread-header>.chat-view-header)>.split-area-selector{flex:0 1 120px;order:-1}
+.split-thread-header>.chat-view-header{display:flex;align-items:center;gap:8px;height:40px;min-height:40px;padding:0 4px;border:0;flex:1;background:transparent}
+.split-thread-header>.chat-view-header>.breadcrumb{flex:1 1 240px;min-width:0;white-space:nowrap;overflow:hidden}
+.split-thread-header .breadcrumb>svg,.split-thread-header .breadcrumb-slash{flex:none}
+.split-thread-header .breadcrumb-project{flex:0 999 auto;min-width:0;max-width:35%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.split-thread-header .breadcrumb>strong{flex:1 1 auto;min-width:0}
+.split-thread-header>.chat-view-header>.conversation-metadata{flex:0 10 180px;min-width:0;max-width:24%}
+.split-thread-header>.chat-view-header>.header-actions{flex:none}
+@container(max-width:640px){.split-thread-header>.chat-view-header>.conversation-metadata{display:none}}
+.split-pane.is-collapsed .split-thread-header,.split-pane.is-collapsed .split-area-selector{display:none}

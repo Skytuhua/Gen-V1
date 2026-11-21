@@ -2,8 +2,8 @@
 /* Open live details use natural height so a later observer cannot move the reader. */
 .plan-status .task-motion-region[data-open=true] {height:auto!important;}
 .plan-status {padding:16px;min-width:0;overflow-wrap:anywhere;color:var(--text);container-type:inline-size;}
-.plan-status-header {margin-bottom:16px;}
-.plan-context-toolbar {display:flex;flex-wrap:wrap;align-items:center;gap:4px 12px;min-height:36px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
+.plan-status-header {position:relative;margin-bottom:12px;padding-bottom:2px;}
+.plan-context-toolbar {display:flex;align-items:center;gap:4px 12px;min-height:36px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;}
 .plan-completion {color:var(--text);font-weight:550;}
 .plan-toolbar-actions {display:flex;gap:4px;margin-left:auto;flex-shrink:0;}
 .plan-context-toolbar>span {white-space:nowrap;}
@@ -12,7 +12,7 @@
 .plan-status button.quiet {min-height:32px;padding:4px 8px;font-size:12px;}
 .plan-status button {border-radius:var(--control-radius,6px);}
 .plan-status button:focus-visible,.plan-status a:focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:2px;}
-.plan-overall-bar {height:3px;background:var(--border);overflow:hidden;border-radius:2px;}
+.plan-overall-bar {position:absolute;bottom:0;left:0;right:0;height:2px;background:var(--border);overflow:hidden;}
 .plan-overall-fill {display:block;height:100%;background:var(--muted);transition:width var(--ui-motion-status) var(--ui-ease-enter);}
 .plan-boundary {display:flex;gap:10px;align-items:center;font-size:12px;line-height:1.5;color:var(--muted);margin:0 0 14px;}
 .plan-boundary span {margin-left:auto;}

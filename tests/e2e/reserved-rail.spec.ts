@@ -11,6 +11,51 @@ const snapshot=()=>{
  value.usage['task-thread']={...EMPTY_USAGE,inputTokens:12640,outputTokens:820,contextTokens:35000,contextWindow:200000};return value;
 };
 const captureDirectory=process.env.RESERVED_RAIL_CAPTURE_DIR;
+for(const theme of ['dark','light'] as const)test(`consolidated conversation and narrow plan headers in ${theme}`,async({page})=>{
+ await page.setViewportSize({width:1440,height:900});
+ const value=snapshot();value.settings.theme=theme;
+ await serveTaskFixture(page,value);await page.goto('/');
+ const draft=page.getByRole('textbox',{name:'Message',exact:true});await expect(draft).toBeEnabled({timeout:15000});
+ const header=page.locator('.split-thread-header>.chat-view-header');await expect(header).toBeVisible();
+ const pane=header.locator('xpath=ancestor::*[@data-split-pane][1]');
+ await expect(pane.getByRole('tablist')).toBeHidden();
+ expect((await pane.locator('.split-pane-header').boundingBox())!.height).toBe(40);
+ await header.getByRole('button',{name:'Find in conversation',exact:true}).focus();
+ await page.keyboard.press('Control+f');await expect(header.getByRole('textbox',{name:'Find phrase',exact:true})).toBeFocused();
+ await page.keyboard.press('Escape');await expect(header.getByRole('button',{name:'Find in conversation',exact:true})).toBeFocused();
+ await draft.focus();
+ for(const width of [1100,1440]){
+  await page.setViewportSize({width,height:900});
+  await expect.poll(async()=>(await pane.locator('.split-pane-header').boundingBox())?.height).toBe(40);
+  for(const selector of ['.breadcrumb-project','.breadcrumb>strong']){
+   const label=header.locator(selector);await expect(label).toHaveAttribute('title',(await label.textContent())!);
+   await expect(label).toHaveCSS('white-space','nowrap');await expect(label).toHaveCSS('text-overflow','ellipsis');
+   expect(await label.evaluate(node=>{const range=document.createRange();range.selectNodeContents(node);return new Set([...range.getClientRects()].map(rect=>rect.top)).size;})).toBe(1);
+  }
+  const project=await header.locator('.breadcrumb-project').boundingBox(),title=await header.locator('.breadcrumb>strong').boundingBox();
+  expect(project!.width).toBeLessThan(title!.width);
+  const actions=header.locator('.header-actions');await expect(actions).toHaveCSS('flex-shrink','0');
+  expect(await actions.evaluate(node=>node.scrollWidth<=node.clientWidth)).toBe(true);
+  const row=(await header.boundingBox())!,buttons=(await actions.boundingBox())!;
+  expect(buttons.x+buttons.width).toBeLessThanOrEqual(row.x+row.width);
+  if(width===1100&&process.env.HEADER_CAPTURE_DIR)await page.screenshot({path:resolve(process.env.HEADER_CAPTURE_DIR,`conversation-${theme}-1100.png`)});
+ }
+ const plan=page.getByRole('region',{name:'Task plan: Repair checkout failures',exact:true});await expect(plan).toBeVisible();
+ const progress=plan.getByRole('progressbar',{name:'Completed or accepted steps',exact:true});
+ const bar=(await progress.boundingBox())!,toolbar=(await plan.locator('.plan-status-header').boundingBox())!;
+ expect(bar.height).toBe(2);expect(bar.y+bar.height).toBeCloseTo(toolbar.y+toolbar.height,1);
+ await expect(plan.locator('.plan-boundary:not(.plan-end)')).toHaveCount(0);
+ await expect(plan.getByText('End of published plan',{exact:true})).toBeVisible();
+ const directory=process.env.HEADER_CAPTURE_DIR;
+ if(directory){await mkdir(directory,{recursive:true});await page.screenshot({path:resolve(directory,`conversation-${theme}.png`)});}
+ await plan.click({position:{x:5,y:5}});
+ const tools=page.locator('.split-root-workarea .split-workspace').first();
+ await tools.evaluate(node=>{Object.assign((node as HTMLElement).style,{width:'350px',minWidth:'350px',maxWidth:'350px',marginLeft:'auto'});});
+ await expect(tools.getByRole('combobox',{name:'Active workspace area',exact:true})).toBeVisible();
+ await expect(tools.locator('.split-workspace-tools')).toHaveCount(0);
+ await expect(tools.locator('.split-tab-strip')).toBeHidden();
+ if(directory)await page.screenshot({path:resolve(directory,`narrow-plan-${theme}.png`)});
+});
 async function showPlan(page:Page){await expect(page.locator('[data-split-view="thread:task-thread"]').getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});const panel=page.getByRole('region',{name:'Project overview window',exact:true});await expect(panel).toBeVisible();if(await panel.getAttribute('data-collapsed')==='true')await panel.getByRole('button',{name:'Expand Project overview',exact:true}).click();await expect(panel).toHaveAttribute('data-collapsed','false');return panel;}
 // Await the retained conversation before checking its launcher during initial App replacement.
 async function showUsage(page:Page){const owner=page.locator('[data-split-view="thread:task-thread"]');await expect(owner.getByRole('textbox',{name:'Message',exact:true})).toBeEnabled({timeout:15000});const usage=page.getByRole('region',{name:'Live usage',exact:true}),launcher=owner.getByRole('button',{name:'Show live usage',exact:true});await launcher.click();await expect(usage).toBeVisible();return usage;}
@@ -44,7 +89,7 @@ test('minimized summaries retain their rail until an explicit artifact panel tak
 });
 test('expanded context keeps the header and composer across the full available chat frame',async({page})=>{
  await page.setViewportSize({width:1440,height:1000});const plan=await open(page);
- const main=(await page.locator('main.workspace').boundingBox())!,header=(await page.locator('.workspace-header').boundingBox())!,composer=(await page.locator('.composer-dock').boundingBox())!;
+ const main=(await page.locator('main.workspace').boundingBox())!,header=(await page.locator('.split-pane-header:has(.chat-view-header)').boundingBox())!,composer=(await page.locator('.composer-dock').boundingBox())!;
  const dock=(await page.getByRole('complementary',{name:'Conversation summaries',exact:true}).boundingBox())!;expect(main.width).toBeGreaterThanOrEqual(420);expect(main.x+main.width).toBeLessThanOrEqual(dock.x);expect(dock.x+dock.width).toBeCloseTo(1440,0);expect(header.x+header.width).toBeCloseTo(main.x+main.width,0);expect(composer.x+composer.width/2).toBeCloseTo(main.x+main.width/2,0);
  const overview=(await plan.boundingBox())!;expect(overview.x).toBeGreaterThanOrEqual(dock.x);expect(overview.x+overview.width).toBeLessThanOrEqual(dock.x+dock.width+1);
 });

@@ -1,6 +1,6 @@
 import {beforeAll,afterAll,describe,expect,it} from 'vitest';
 import {build} from 'esbuild';
-import {chromium,type Browser,type Page} from '@playwright/test';
+import {chromium,expect as browserExpect,type Browser,type Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 
@@ -10,23 +10,24 @@ const fixture=`
 import React,{useEffect,useState} from 'react';
 import {createRoot} from 'react-dom/client';
 import {WorkspaceSplitLayout} from './apps/web/src/WorkspaceSplitLayout.tsx';
+import {ChatView} from './packages/ui-shell/ChatView.tsx';
 import {createSplitWorkspaceLayout,applySplitWorkspaceCommand} from './packages/core/split-workspace-layout.ts';
 let initial=createSplitWorkspaceLayout('test-layout');
 initial=applySplitWorkspaceCommand(initial,'view.open',{view:{id:'one',kind:'thread',binding:{authority:{kind:'local'},threadId:'one'}}});
 initial=applySplitWorkspaceCommand(initial,'pane.split',{paneId:'pane-main',newPaneId:'right',splitId:'columns',axis:'horizontal',view:{id:'two',kind:'thread',binding:{authority:{kind:'local'},threadId:'two'}}});
 window.mounts={};window.commands=[];window.editorChoices=[];window.flushRejected=false;window.deferEditorChoice=false;
-function Editor({id,active}){const[value,setValue]=useState('');useEffect(()=>{window.mounts[id]=(window.mounts[id]||0)+1;},[]);return <div><label>{id}<input aria-label={'Draft '+id} value={value} onChange={e=>setValue(e.target.value)}/></label><iframe title={'Frame '+id} srcDoc='<input value="same renderer"/>'/><span>{active?'visible':'hidden'}</span></div>}
+function Editor({id,active}){const[value,setValue]=useState('');useEffect(()=>{window.mounts[id]=(window.mounts[id]||0)+1;},[]);const body=<div><label>{id}<input aria-label={'Draft '+id} value={value} onChange={e=>setValue(e.target.value)}/></label><iframe title={'Frame '+id} srcDoc='<input value="same renderer"/>'/><span>{active?'visible':'hidden'}</span></div>;return window.useChatHeader?<ChatView enabled={false} header={<strong>Thread {id}</strong>} actions={<button aria-label={'Find '+id}>Find</button>}>{body}</ChatView>:body;}
 function Fixture(){const[layout,setLayout]=useState(initial);window.currentLayout=layout;window.issue=(type,payload)=>setLayout(current=>applySplitWorkspaceCommand(current,type,payload));return <WorkspaceSplitLayout layout={layout} showHistory={false} emptyMainPaneId={window.emptyMain?'pane-main':undefined} editorOptions={[{id:'thread',title:'Conversation'},{id:'diff',title:'Diff'}]} onSelectEditor={async(kind,paneId)=>{window.editorChoices.push({kind,paneId});if(window.deferEditorChoice)await new Promise(resolve=>{window.finishEditorChoice=resolve;});}} onDropThread={async()=>{window.threadDrops=(window.threadDrops||0)+1;}} title={view=>view.id} prepare={async()=>{if(window.flushRejected)throw Error('Draft flush failed. Keep this view open.');}} onCommand={async(type,payload)=>{window.commands.push({type,payload});setLayout(current=>applySplitWorkspaceCommand(current,type,payload));}} renderView={(view,active)=><Editor id={view.id} active={active}/>}/>}
 createRoot(document.getElementById('root')).render(<Fixture/>);
 `;
 beforeAll(async()=>{
  const root=fileURLToPath(new URL('../',import.meta.url));
  const bundled=await build({stdin:{contents:fixture,resolveDir:root,sourcefile:'split-renderer-fixture.tsx',loader:'tsx'},bundle:true,write:false,format:'iife',platform:'browser',jsx:'automatic',define:{'process.env.NODE_ENV':'"production"'},loader:{'.css':'empty'},logLevel:'silent'});
- script=bundled.outputFiles[0]!.text;css=(await Promise.all(['packages/ui-shell/tokens.css','packages/ui-shell/controls.css','apps/web/src/workspace-split.css'].map(path=>readFile(new URL('../'+path,import.meta.url),'utf8')))).join('\n').replace("@import './tokens.css';",'');
+ script=bundled.outputFiles[0]!.text;css=(await Promise.all(['packages/ui-shell/tokens.css','packages/ui-shell/controls.css','apps/web/src/workspace-split.css','packages/ui-shell/chat-view.css'].map(path=>readFile(new URL('../'+path,import.meta.url),'utf8')))).join('\n').replace("@import './tokens.css';",'');
  browser=await chromium.launch({headless:true,...(process.env.GEN_TEST_BROWSER_CHANNEL?{channel:process.env.GEN_TEST_BROWSER_CHANNEL}:{})});
 });
 afterAll(async()=>{await browser?.close();});
-async function page(){const page=await browser.newPage({viewport:{width:1440,height:900}});await page.setContent('<html><head></head><body style="margin:0"><div id="root" style="display:flex;height:100vh"></div></body></html>');await page.addStyleTag({content:css});await page.addScriptTag({content:script});await page.getByRole('textbox',{name:'Draft one'}).waitFor({state:'visible'});return page;}
+async function page(headers=false){const page=await browser.newPage({viewport:{width:1440,height:900}});await page.setContent('<html><head></head><body style="margin:0"><div id="root" style="display:flex;height:100vh"></div></body></html>');await page.addStyleTag({content:'*{box-sizing:border-box}'+css});await page.evaluate(headers=>{(window as unknown as {useChatHeader:boolean}).useChatHeader=headers;},headers);await page.addScriptTag({content:script});await page.getByRole('textbox',{name:'Draft one'}).waitFor({state:'visible'});return page;}
 async function issue(page:Page,type:string,payload:Record<string,unknown>){await page.evaluate(({type,payload})=>(window as unknown as {issue:(type:string,payload:Record<string,unknown>)=>void}).issue(type,payload),{type,payload});}
 
 it('uses the shared area menu for keyboard editor selection, Escape and outside dismissal',async()=>{
@@ -46,6 +47,39 @@ it('uses the shared area menu for keyboard editor selection, Escape and outside 
   await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]')&&(document.activeElement as HTMLElement)?.getAttribute('aria-label')==='Area actions');
   expect(await tab.getByRole('menu').count()).toBe(0);expect(await trigger.evaluate(node=>node===document.activeElement)).toBe(true);
   await trigger.click();await tab.getByRole('menu').waitFor();await tab.getByRole('textbox',{name:'Draft two'}).click();await tab.waitForFunction(()=>!document.querySelector('[role="menu"][data-state="open"]'));expect(await tab.getByRole('menu').count()).toBe(0);
+ }finally{await tab.close();}
+});
+
+it('merges single-thread headers, keeps multiple-view tabs, and preserves the editor DOM',async()=>{
+ const tab=await page(true);try{
+  const pane=tab.locator('[data-split-pane="pane-main"]');
+  await browserExpect(pane.locator('.split-thread-header')).toBeVisible();
+  await browserExpect(pane.getByRole('tablist')).toBeHidden();
+  await browserExpect(pane.getByRole('button',{name:'Find one',exact:true})).toBeVisible();
+  expect((await pane.locator('.split-pane-header').boundingBox())!.height).toBe(40);
+  await pane.getByRole('button',{name:'Split this area',exact:true}).focus();
+  await tab.keyboard.press('Tab');await browserExpect(pane.getByRole('button',{name:'Area actions',exact:true})).toBeFocused();
+  await tab.keyboard.press('Tab');await browserExpect(pane.getByRole('button',{name:'Minimize area',exact:true})).toBeFocused();
+  await tab.keyboard.press('Tab');await browserExpect(pane.getByRole('button',{name:'Find one',exact:true})).toBeFocused();
+  await tab.getByRole('textbox',{name:'Draft one'}).fill('Retain the live editor');
+  await tab.evaluate(()=>{(window as any).savedEditor=document.querySelector('[aria-label="Draft one"]');});
+  await issue(tab,'view.move',{viewId:'two',paneId:'pane-main'});
+  await browserExpect(pane.getByRole('tablist')).toBeVisible();await browserExpect(pane.getByRole('tab')).toHaveCount(2);
+  await issue(tab,'pane.focus',{paneId:'pane-main'});
+  await tab.setViewportSize({width:500,height:270});
+  await browserExpect(pane.getByRole('tablist')).toBeVisible();
+  await browserExpect(pane.getByRole('combobox',{name:'Active workspace area',exact:true})).toBeVisible();
+  await tab.setViewportSize({width:1440,height:900});
+  await pane.getByRole('tab',{name:'one',exact:true}).click();
+  await browserExpect(tab.getByRole('textbox',{name:'Draft one'})).toHaveValue('Retain the live editor');
+  expect(await tab.evaluate(()=>(window as any).savedEditor===document.querySelector('[aria-label="Draft one"]'))).toBe(true);
+  await issue(tab,'view.park',{viewId:'two'});
+  await browserExpect(pane.getByRole('tablist')).toBeHidden();
+  await pane.getByRole('button',{name:'Minimize area',exact:true}).click();
+  await browserExpect(pane.getByRole('button',{name:'Restore area',exact:true})).toBeVisible();
+  await pane.getByRole('button',{name:'Restore area',exact:true}).click();
+  await browserExpect(pane.getByRole('button',{name:'Find one',exact:true})).toBeVisible();
+  expect(await tab.evaluate(()=>(window as any).mounts)).toEqual({one:1,two:1});
  }finally{await tab.close();}
 });
 
@@ -79,6 +113,8 @@ it('uses a shared narrow-area chooser without remounting either editor',async()=
   await tab.getByRole('textbox',{name:'Draft one'}).fill('Retained narrow draft');
   await tab.setViewportSize({width:500,height:270});
   const trigger=tab.getByRole('combobox',{name:'Active workspace area',exact:true});await trigger.click();
+  expect(await tab.locator('.split-workspace-tools').count()).toBe(0);
+  expect(await trigger.locator('xpath=ancestor::*[contains(@class,"split-pane-header")]').count()).toBe(1);
   expect(await tab.getByRole('listbox',{name:'Active workspace area',exact:true}).count()).toBe(1);
   await tab.getByRole('option',{name:'one',exact:true}).click();await tab.getByRole('textbox',{name:'Draft one'}).waitFor({state:'visible'});
   expect(await tab.getByRole('textbox',{name:'Draft one'}).inputValue()).toBe('Retained narrow draft');

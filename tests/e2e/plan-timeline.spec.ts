@@ -3,7 +3,7 @@ import { timelineSnapshot } from "./plan-timeline-fixture";
 
 test.beforeEach(async ({ page }) => {
   await page.goto("/plan-timeline.html");
-  await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "3px", { timeout: 30000 });
+  await expect(page.locator(".plan-overall-bar")).toHaveCSS("height", "2px", { timeout: 30000 });
   await page.evaluate(() => document.fonts.ready);
 });
 

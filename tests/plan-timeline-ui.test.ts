@@ -47,6 +47,13 @@ const withStorage = <T,>(
 };
 
 describe("plan timeline presentation", () => {
+  it("keeps plan authority on the list without a duplicate Start bar", () => {
+    const html = render();
+    expect(html).toContain('class="plan-steps" aria-label="Proposed plan"');
+    expect(html).not.toContain('Start <span>');
+    expect(html).toContain('End of published plan');
+    expect(html).toContain('aria-label="Completed or accepted steps"');
+  });
   it("renders the existing nested delegated transcript from its complete canonical plan", () => {
     const html = renderToStaticMarkup(createElement(DelegatedAgentTranscript, {snapshot: timelineSnapshot(), threadId: 'thread-a', agentId: 'child'}));
     expect(html).toContain('Evidence helper');

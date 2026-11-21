@@ -276,10 +276,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
         )}
         {timeline.steps.length ? (
           <>
-            <p className="plan-boundary">
-              Start <span>{timeline.authority === "approved" ? "Approved plan" : "Proposed plan"}</span>
-            </p>
-            <ol className="plan-steps">
+            <ol className="plan-steps" aria-label={timeline.authority === "approved" ? "Approved plan" : "Proposed plan"}>
               {timeline.steps.map((step, index) => (
                 <TimelineStep
                   key={step.id}
