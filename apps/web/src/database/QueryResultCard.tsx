@@ -19,12 +19,14 @@ const toGridResult = (data: QueryResultData): DatabaseQueryResultV1 => ({
 
 /** In-thread card body shared by the catalog renderer and the latest-query card. */
 export function QueryResultCardView({ result, threadId, onOpenPanel }: { result: DatabaseQueryResultV1; threadId?: string; onOpenPanel?: () => void }) {
-	const [sent, setSent] = useState(false), [error, setError] = useState('');
+	const [sent, setSent] = useState(false), [error, setError] = useState(''), [sqlOpen, setSqlOpen] = useState(false);
+	const mini = { ...result, columns: result.columns.slice(0, 8), rows: result.rows.slice(0, 20).map(row => row.slice(0, 8)) };
 	return <section className="query-result-card" aria-label={`Query result from ${result.connectionLabel}`}>
 		<div className="query-result-card-head">
-			<Database size={14}/><strong>{result.connectionLabel}</strong><span className="schema-type">{result.engine} · executed {new Date(result.executedAt).toLocaleTimeString()}</span>
+			<Database size={14}/><strong>{result.connectionLabel}</strong><span className="schema-type">{result.engine} · {result.rowCount} rows · executed {new Date(result.executedAt).toLocaleTimeString()}</span>
 		</div>
-		<QueryResultGrid result={result}/>
+		{result.sqlSha256 && <button type="button" className={`query-result-card-sql${sqlOpen ? ' expanded' : ''}`} aria-expanded={sqlOpen} title={`Statement digest ${result.sqlSha256}`} onClick={() => setSqlOpen(value => !value)}>Statement sha256 {result.sqlSha256}</button>}
+		<QueryResultGrid result={mini}/>
 		<div className="query-result-card-foot">
 			<span>{result.rowCount} rows · {result.elapsedMs} ms{result.truncated ? ' · truncated' : ''}</span>
 			<span className="toolbar-spacer"/>

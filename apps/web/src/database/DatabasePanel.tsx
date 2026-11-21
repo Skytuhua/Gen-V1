@@ -10,12 +10,28 @@ import { cancelQuery, detachDatabase, fetchSchema, listThreadDatabases, runQuery
 import { DatabaseAttachDialog } from './DatabaseAttachDialog';
 import { recordSqlHistory, SqlEditor } from './SqlEditor';
 import { SchemaTree } from './SchemaTree';
-import { QueryResultGrid, rowsTsv } from './QueryResultGrid';
+import { QueryResultGrid, QueryResultSkeleton, rowsTsv, type GridDensity } from './QueryResultGrid';
 import { sendResultToChat } from './send-to-chat';
 import './database-panel.css';
 import './query-result-grid.css';
 
 const LIMITS = [100, 500, 1000];
+
+const readDensity = (): GridDensity => { const value = document.documentElement.dataset.density; return value === 'compact' || value === 'touch' ? value : 'comfortable'; };
+const useDensity = (): GridDensity => {
+	const [density, setDensity] = useState<GridDensity>(readDensity);
+	useEffect(() => {
+		const observer = new MutationObserver(() => setDensity(readDensity()));
+		observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-density'] });
+		return () => observer.disconnect();
+	}, []);
+	return density;
+};
+const useDelayed = (active: boolean) => {
+	const [slow, setSlow] = useState(false);
+	useEffect(() => { setSlow(false); if (!active) return; const timer = setTimeout(() => setSlow(true), 150); return () => clearTimeout(timer); }, [active]);
+	return slow;
+};
 
 export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const threadId = binding.threadId;
@@ -27,6 +43,7 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	const [schema, setSchema] = useState<DatabaseSchemaV1 | null>(null);
 	const [schemaError, setSchemaError] = useState('');
 	const [schemaLoading, setSchemaLoading] = useState(false);
+	const density = useDensity();
 	const [filter, setFilter] = useState('');
 	const [sql, setSql] = useState('');
 	const [limit, setLimit] = useState(100);
@@ -100,9 +117,10 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 	};
 
 	const tree = schema ? <SchemaTree schema={schema} filter={filter} selected={selectedObject} onSelect={(schemaName, name) => { pickObject(schemaName, name); setTreeOpen(false); }}/> : null;
+	const slowSchema = useDelayed(schemaLoading), slowRun = useDelayed(Boolean(running));
 	const treePane = <>
 		<input className="schema-filter" type="search" aria-label="Filter tables" placeholder="Filter tables" value={filter} onChange={event => setFilter(event.target.value)}/>
-		{schemaLoading && <p className="schema-empty muted">Loading schema…</p>}
+		{schemaLoading && (slowSchema ? <div className="schema-tree" aria-hidden="true">{Array.from({ length: 6 }, (_, index) => <div key={index} className="schema-skeleton"/>)}</div> : <p className="schema-empty muted">Loading schema…</p>)}
 		{schemaError && <p className="error-text" role="alert">{schemaError} <button type="button" className="quiet" onClick={() => refreshSchema(true)}>Retry</button></p>}
 		{tree}
 	</>;
@@ -145,10 +163,10 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 					</div>
 					{queryError && <div className="database-error" role="alert"><CircleAlert size={15}/><code>{queryError}</code><button type="button" className="quiet" onClick={run}>Retry</button></div>}
 					<div className="database-results">
-						{running && <div className="database-progress" aria-hidden="true"/>}
+						{running && <><div className="database-progress" aria-hidden="true"/><span className="database-running-static" role="status">Running…</span></>}
 						{result
-							? <QueryResultGrid result={result}/>
-							: !running && <p className="database-empty muted">{sql.trim() ? 'Run the query to see results.' : 'Pick a table or write SQL to see results.'}</p>}
+							? <QueryResultGrid result={result} density={density}/>
+							: running && slowRun ? <QueryResultSkeleton/> : !running && <p className="database-empty muted">{sql.trim() ? 'Run the query to see results.' : 'Pick a table or write SQL to see results.'}</p>}
 					</div>
 					<div className="database-status">
 						<span className="muted">{result ? `${result.rowCount} rows · ${result.elapsedMs} ms · limit ${limit}${result.truncated ? ' · ' : ''}` : ''}{result?.truncated ? <span className="database-truncated">truncated</span> : ''}</span>
