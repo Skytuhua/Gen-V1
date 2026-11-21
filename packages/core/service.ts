@@ -1,5 +1,5 @@
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
-import { randomUUID, createHash } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
 import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
@@ -12,9 +12,9 @@ import { withApprovedProjectContext } from './approved-project-context.ts';
 import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
-import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
+import { mkdir, readFile, writeFile, stat } from "node:fs/promises";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
-import { basename, join, relative, resolve, sep } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
@@ -30,6 +30,7 @@ import {AgentWorkCoordinator} from './agent-work.ts';
 import {PlanExtensionStore} from './plan-extension.ts';
 import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
+import {ServiceOperations} from './service-operations.ts';
 import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
@@ -58,8 +59,6 @@ import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag 
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
 import { recoverEffects, disableEffects } from "./effect-recovery.ts";
 import { capabilityEnabled } from "./capability-flags.ts";
-import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
-import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
 import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
 import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
@@ -141,7 +140,6 @@ export class Service {
   private pending = new Set<Promise<unknown>>();
   // Grants may overlap or alias the same file. Serialize effects service-wide
   // rather than assuming distinct resource IDs imply independent resources.
-  private operationQueue: Promise<void> = Promise.resolve();
   private closed = false;
   // Assistant deltas arrive per streamed chunk. Buffer them briefly and commit
   // one coalesced runtime.assistant.delta per flush instead of one transaction
@@ -177,6 +175,8 @@ export class Service {
   private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
   private readonly relevanceObserver = createHostRelevanceObserver();
   private readonly repositoryMaps = createRepositoryMapReader();
+  private operationQueue: Promise<void> = Promise.resolve();
+  private readonly operations:ServiceOperations;
   private relevanceOwner(thread: Thread) {
     if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
     const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
@@ -310,6 +310,16 @@ export class Service {
         await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
         return {threadId:thread.id};
       }});
+    this.operations=new ServiceOperations({
+      store,effects:this.effects,effectFlags:this.effectFlags,aborts:this.aborts,
+      closed:()=>this.closed,assertMutation:id=>this.assertMutation(id),thread:id=>this.thread(id),
+      context:(threadId,signal,operationId,authority,completedWrite,preWrite)=>this.context(threadId,signal,operationId,authority,completedWrite,preWrite),
+      operationExecutor:kind=>this.hostOperationExecutors.get(kind),queue:()=>this.operationQueue,setQueue:promise=>{this.operationQueue=promise;},
+      retainController:control=>this.retainController(control),releaseController:(threadId,control)=>this.releaseController(threadId,control),
+      operationData:(operation,progress)=>this.operationData(operation,progress),enqueueInput:input=>this.enqueueInput(input),
+      deliverOutbox:threadId=>this.deliverOutbox(threadId),background:promise=>this.background(promise),
+      approvedWriteHooks:()=>Boolean(this.options.approvedWriteHooks),
+    });
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   /** Retire eligible local copies even if memory injection was disabled after Forget. */
@@ -930,10 +940,6 @@ export class Service {
     if(binding?.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||project?.authority.kind!=='local')return;
     return {...authority,sessionPath:thread.sessionPath,modelId:thread.modelId,accountId:thread.accountId??null,projectId:thread.projectId,workspaceId:thread.workspaceId,projectRoot:binding.path};
   }
-  private m08Journal?: EditJournal;
-  private m08Checkpoints?: CheckpointService;
-  private m08PreimageDigests = new Map<string, string>();
-  private m08PendingReceipts: { operation: Operation; evidence: { path: string; sha256: string; bytes: number } }[] = [];
   /** M09 read-role domain context: resources resolve read-only, operation
    * preparation is denied before effects, evidence publishing stays open. */
   private agentReadDomain(threadId: string) {
@@ -2163,147 +2169,7 @@ export class Service {
     }
     return assessment;
   }
-  async dispatchOperation(id: string): Promise<unknown> {
-    const requested = this.store.get<Operation>('operation', id);
-    if (!requested) throw new HarnessError('NOT_FOUND', 'Operation unavailable');
-    const control = this.aborts.get(requested.threadId) ?? new AbortController();
-    this.aborts.set(requested.threadId, control);
-    this.retainController(control);
-    const previous = this.operationQueue;
-    let release!: () => void;
-    this.operationQueue = new Promise<void>(resolve => { release = resolve; });
-    await previous;
-    try {
-      // Capture cancellation before waiting. Stop followed by Resume must not
-      // lend a new run's controller to an already queued effect.
-      if (this.closed || control.signal.aborted) throw new HarnessError('CANCELLED_RUN', 'Queued operation was stopped');
-      return await this.executeOperation(id, control);
-    } finally { this.releaseController(requested.threadId,control);release(); }
-  }
-  private async executeOperation(id: string, control: AbortController): Promise<unknown> {
-    const op = this.store.get<Operation>("operation", id);
-    if (!op) throw new HarnessError("NOT_FOUND", "Operation unavailable");
-    if (["succeeded", "failed", "cancelled"].includes(op.status)) return op;
-    if (op.status !== "prepared") throw new HarnessError("RECONCILIATION_REQUIRED", "An operation is already running or has an uncertain outcome");
-    this.assertMutation(op.threadId);
-    if (!op.approved) throw new HarnessError("APPROVAL_REQUIRED", "Approve this prepared operation first");
-    const markStarted = () => { const started: Operation = { ...op, status: "running" }; this.store.put("operation", id, op.threadId, started); this.operationData(started); return { operationId: id }; };
-    if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-      try {
-        this.effects.verifyOperationApproval(op, this.thread(op.threadId));
-        this.effects.admitOperationDispatch(op, this.thread(op.threadId), markStarted);
-      } catch (error) {
-        if (error instanceof HarnessError && error.code === "APPROVAL_REQUIRED") {
-          const current = this.store.get<Operation>("operation", id);
-          if (current?.status === "prepared" && current.approved && current.revision === op.revision)
-            this.store.internal("operation.approval_required", op.threadId, () => {
-              const review = { ...current, approved: false };
-              this.store.put("operation", id, op.threadId, review); this.operationData(review);
-              return { operationId: id };
-            });
-        }
-        throw error;
-      }
-    } else this.store.internal("operation.started", op.threadId, markStarted);
-    try {
-      const domain = await import("../capabilities/index.ts");
-      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
-        // Module loading yields after admission. Revalidate the durable owner
-        // before the executor can submit an effect; the approval stays spent.
-        const admitted = this.effects.get("operation:" + id + "@" + op.revision), current = this.thread(op.threadId);
-        const owner = admitted?.owner;
-        if (!owner || admitted.state !== "DISPATCHED" || owner.threadId !== current.id || owner.runId !== (current.runId ?? null)
-          || owner.epoch !== current.epoch || owner.accountBinding !== (current.accountId ?? null)
-          || owner.projectId !== (current.projectId ?? null) || owner.workspaceId !== (current.workspaceId ?? null))
-          throw new HarnessError("AUTHORITY_DENIED", "The admitted owner changed before dispatch");
-      }
-      let writeEvidence:{path:string;sha256:string;bytes:number}|undefined;
-      const hostExecutor=this.hostOperationExecutors.get(op.kind),running={...op,status:'running' as const};
-      const result = hostExecutor
-        ? await hostExecutor(running,Object.freeze({signal:control.signal,owner:Object.freeze(ownerFor(this.thread(op.threadId))),authenticatedApprovals:this.effectFlags.enabled('security.authorityV1')}))
-        : await domain.executeDomainOperation(running, this.context(op.threadId, control.signal, op.id,undefined,evidence=>{writeEvidence=evidence;},evidence=>this.captureEditPreimage(op,evidence)));
-      if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
-        throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
-      }
-      const renewedGrant = await this.replacementGrant(op, result);
-      if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
-      // Journal receipts append in their own transactions — Store rejects a
-      // nested transaction, so they must run after the success commit returns.
-      for(const pending of this.m08PendingReceipts.splice(0))this.recordEditReceipt(pending.operation,pending.evidence);
-      if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) this.effects.settle("operation:" + id + "@" + op.revision, { value: result }, "SUCCEEDED");
-      this.background(this.deliverOutbox(op.threadId));
-      return result;
-    } catch (error) {
-      if (!this.closed) this.store.internal("operation.failed", op.threadId, () => { const ended: Operation = { ...op, status: control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "unknown" : "failed", error: error instanceof Error ? error.message : String(error), ...(error instanceof HarnessError && error.details ? { result: error.details } : {}) }; this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended); return { operationId: id }; });
-      if ((this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) && this.effects.get("operation:" + id + "@" + op.revision)) this.effects.settle("operation:" + id + "@" + op.revision, { error: error instanceof Error ? error.message : String(error) }, control.signal.aborted || error instanceof HarnessError && error.code === "OPERATION_OUTCOME_UNKNOWN" ? "UNKNOWN_EXTERNAL_OUTCOME" : "FAILED");
-      this.background(this.deliverOutbox(op.threadId));
-      throw error;
-    }
-  }
-  private async replacementGrant(operation: Operation, result: unknown): Promise<ResourceGrant | null> {
-    if (operation.kind !== "file.replace" || typeof operation.args.resourceId !== "string" || operation.args.path) return null;
-    const grant = this.store.get<ResourceGrant>("resource", operation.args.resourceId);
-    if (!grant || grant.threadId !== operation.threadId || !grant.identity || !result || typeof result !== "object" || !("sha256" in result)) return null;
-    // An approved atomic replacement deliberately changes this file's identity.
-    // Pin only the opened file whose bytes match the executor's recorded result.
-    try {
-      if (await canonical(grant.path) !== grant.path) return null;
-      assertNotStorage(grant.path, this.store.dataDir);
-      const file = await open(grant.path, "r");
-      try {
-        const info = await file.stat({ bigint: true });
-        if (info.size > 8 * 1024 * 1024 || createHash("sha256").update(await file.readFile()).digest("hex") !== result.sha256 || await canonical(grant.path) !== grant.path) return null;
-        return { ...grant, identity: { dev: String(info.dev), ino: String(info.ino) } };
-      } finally { await file.close(); }
-    } catch { return null; }
-  }
-  /** M08: capture the preimage checkpoint and journal preparation for an
-   *  approved managed-workspace write, before the bytes change. Best effort:
-   *  checkpoint capture failures never abort an already-approved write. */
-  private async captureEditPreimage(op: Operation, evidence: {path:string;bytes:Uint8Array;sha256:string}): Promise<void> {
-    if(!capabilityEnabled('workspace.provenanceV1')&&!capabilityEnabled('workspace.checkpointsV1'))return;
-    const thread=this.store.get<Thread>('thread',op.threadId);
-    if(!thread?.projectId||!thread.workspaceId)return;
-    const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
-    if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
-    const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/');
-    this.m08PreimageDigests.set(op.id,evidence.sha256);
-    try{
-      if(capabilityEnabled('workspace.checkpointsV1')){
-        const info=await stat(evidence.path).catch(()=>null);
-        await (this.m08Checkpoints??=new CheckpointService(this.store)).createFromBytes({owner,files:[{path,data:Buffer.from(evidence.bytes),identity:info?{dev:String(info.dev),ino:String(info.ino)}:null}],label:`Before ${op.description}`,provenance:{kind:'guarded_write',operationId:op.id}});
-      }
-    }catch{/* a failed snapshot never blocks an approved write */}
-    try{
-      if(capabilityEnabled('workspace.provenanceV1'))(this.m08Journal??=new EditJournal(this.store)).prepareStructuredEdit({invocationId:'op:'+op.id,owner,repositoryId:owner.projectId,path,beforeDigest:evidence.sha256});
-    }catch{/* journal preparation is best effort */}
-  }
-  /** M08: record a proven edit receipt for a completed managed-workspace write. */
-  private recordEditReceipt(operation: Operation,evidence:{path:string;sha256:string;bytes:number}): void {
-    if(!capabilityEnabled('workspace.provenanceV1'))return;
-    try{
-      const thread=this.store.get<Thread>('thread',operation.threadId);
-      if(!thread?.projectId||!thread.workspaceId)return;
-      const binding=this.store.get<{id:string;threadId:string;projectId:string;path:string;gitDirectory?:string|null;identity?:unknown}>('workspaceBinding',thread.workspaceId);
-      if(!binding||binding.id!==thread.workspaceId||binding.threadId!==thread.id||binding.projectId!==thread.projectId||!inside(binding.path,evidence.path))return;
-      const owner=workspaceOwnerScope(thread.projectId,thread.id,binding),path=relative(binding.path,evidence.path).split(sep).join('/'),beforeDigest=this.m08PreimageDigests.get(operation.id)??null;
-      this.m08PreimageDigests.delete(operation.id);
-      (this.m08Journal??=new EditJournal(this.store)).recordProvenEdit({invocationId:'op:'+operation.id,owner,repositoryId:owner.projectId,workspaceIdentity:owner.binding,path,beforeIdentity:null,beforeDigest,afterDigest:evidence.sha256,boundedBlobRefs:[]});
-    }catch{/* journal receipts never block the outbox */}
-  }
-  private enqueueOperationResult(operation: Operation,writeEvidence?:{path:string;sha256:string;bytes:number}): void {
-    const data = this.store.get<DataRecord>("data", operation.id), input: Outbox = {
-      id: "operation-result:" + operation.id, threadId: operation.threadId, status: "persisted", runId: null,
-      content: "Executor receipt: operation " + operation.id + " (" + operation.kind + ") is " + operation.status + ". " + (operation.error ?? "") + " Inspect evidence data " + data?.id + "@" + data?.revision + " and the operation ledger before continuing. Do not repeat a completed effect."
-    };
-    if(this.options.approvedWriteHooks&&operation.kind==='file.replace'&&operation.status==='succeeded'){
-      const capture=this.store.get<{revision:number;origin?:ApprovedWriteOrigin;unavailable?:'scope_unavailable'|'no_project'}>('operationWriteOrigin',operation.id);
-      if(capture?.revision===operation.revision&&capture.origin&&writeEvidence){input.completedWrite={operationId:operation.id,revision:operation.revision,inputId:input.id,origin:capture.origin,...writeEvidence};this.m08PendingReceipts.push({operation,evidence:writeEvidence});}
-      else input.hookDiagnostic={operationId:operation.id,revision:operation.revision,inputId:input.id,status:capture?.unavailable??'scope_unavailable',message:'No authenticated source/project write origin was captured; no hook was run.'};
-    }
-    if (!this.store.get("outbox", input.id)) this.enqueueInput(input);
-    if(input.hookDiagnostic)this.operationData(operation);
-  }
+  async dispatchOperation(id: string): Promise<unknown> { return this.operations.dispatchOperation(id); }
   async recover(): Promise<void> {
     if(this.memoryHostInstance?.busy)throw new HarnessError('MEMORY_SOURCE_BUSY','Active memory work must finish cleanup before host recovery.');
     if(this.source)await this.source.library.initialize();
