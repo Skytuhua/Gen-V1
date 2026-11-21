@@ -46,7 +46,19 @@ interface ScanArgs {
 }
 
 export class DependencyScanService {
+ private readonly cancels = new Map<string, AbortController>();
  constructor(private readonly store: Store, private readonly deps: DependencyScanDeps = {}) {}
+
+ /** Cancel a prepared or running scan: marks the op cancelled and aborts its in-flight requests. */
+ cancel(operationId: string, threadId: string): Operation {
+  const op = this.store.get<Operation>('operation', operationId);
+  if (!op || op.threadId !== threadId || op.kind !== DEPENDENCY_SCAN_KIND) throw new HarnessError('NOT_FOUND', 'Dependency check not found');
+  if (op.status !== 'prepared' && op.status !== 'running') return op;
+  const next: Operation = {...op, status: 'cancelled', approved: false};
+  this.store.internal('dependencyScan.cancelled', threadId, () => this.store.put('operation', op.id, threadId, next));
+  this.cancels.get(op.id)?.abort();
+  return next;
+ }
 
  private assertEnabled(): void {
   if (!capabilityEnabled('workspace.dependencyCheckV1')) throw new HarnessError('CAPABILITY_DENIED', 'Dependency check is disabled.');
@@ -93,6 +105,14 @@ export class DependencyScanService {
  /** Dispatch-side execution: revalidate flag/owner/basis, query, normalize, store. */
  readonly execute: HostOperationExecutor = async (operation, context) => {
   this.assertEnabled();
+  const cancel = new AbortController();
+  this.cancels.set(operation.id, cancel);
+  const signal = AbortSignal.any([context.signal, cancel.signal]);
+  try { return await this.executeScan(operation, signal, context.owner); }
+  finally { this.cancels.delete(operation.id); }
+ };
+
+ private async executeScan(operation: Readonly<Operation>, signal: AbortSignal, owner: unknown) {
   if (operation.kind !== DEPENDENCY_SCAN_KIND) throw new HarnessError('UNKNOWN_OPERATION', 'Not a dependency scan operation');
   const args = operation.args as unknown as ScanArgs;
   if (args.version !== 1 || typeof args.scopeKey !== 'string' || typeof args.root !== 'string' || !Array.isArray(args.occurrences))
@@ -104,9 +124,9 @@ export class DependencyScanService {
    return op;
   };
   const assertCurrent = () => {
-   if (context.signal.aborted) throw new HarnessError('CANCELLED', 'Dependency check cancelled');
-   const owner = context.owner as {projectId?: string | null; threadId?: string | null} | undefined;
-   if (owner && (owner.projectId !== args.owner.projectId || owner.threadId !== args.owner.threadId))
+   if (signal.aborted) throw new HarnessError('CANCELLED', 'Dependency check cancelled');
+   const current = owner as {projectId?: string | null; threadId?: string | null} | undefined;
+   if (current && (current.projectId !== args.owner.projectId || current.threadId !== args.owner.threadId))
     throw new HarnessError('AUTHORITY_DENIED', 'The dependency check owner changed');
    stored();
   };
@@ -127,7 +147,7 @@ export class DependencyScanService {
 
   assertCurrent();
   const transport = this.deps.transport ?? osvTransport;
-  const scan = await queryOsv(args.occurrences, {signal: context.signal, transport});
+  const scan = await queryOsv(args.occurrences, {signal, transport});
   const normalized = normalizeFindings(args.occurrences, scan);
   const coverage = [...args.basis.coverage];
   for (const note of [...(scan.coverage ?? []), ...normalized.coverage]) {
