@@ -8,7 +8,7 @@ const options = (page: Page, title = 'Other conversation') => page.getByRole('bu
 const menu = (page: Page, title = 'Other conversation') => page.getByRole('menu', {name: `Options for ${title}`, exact: true});
 for (const width of [1024, 1440]) test(`sidebar focus and hover cards stay opaque throughout entry at ${width}px`, async ({page}) => {
   await page.setViewportSize({width, height: 1000});
-  const row = page.getByRole('button', {name: 'Other conversation Working', exact: true});
+  const row = page.getByRole('button', {name: /^Other conversation, Working/});
   const card = page.getByRole('dialog', {name: 'Thread details: Other conversation', exact: true});
   await pauseNextEntry(page, '.thread-hover-card[data-state="open"]');
   await row.focus(); await expectVisibleKeyboardFocus(row); await expectOpaqueEntry(card);
@@ -31,7 +31,7 @@ test('options open a shared menu without selecting or detaching its thread', asy
   await expect(menu(page).getByRole('menuitem')).toHaveText(['Place in workspaceAlt Enter', 'Detach thread', 'Rename thread', 'Pin thread', 'Mark as unread', 'Settle thread', 'Archive thread']);
   await expect(menu(page).getByRole('menuitem', {name: 'Place in workspace'}).locator('kbd')).toHaveText('Alt Enter');
   expect(await calls(page)).toEqual([]);
-  await expect(page.locator('.thread-item[aria-current="page"]')).toHaveAttribute('aria-label', 'Selected conversation Ready');
+  await expect(page.locator('.thread-item[aria-current="page"]')).toHaveAttribute('aria-label', /^Selected conversation, Ready,/);
 });
 
 test('keyboard navigation skips disabled archive, supports typeahead and ignores IME', async ({page}) => {
@@ -79,14 +79,14 @@ test('placement and rename hand off the original owner while runless working arc
   await options(page, working).click(); await menu(page, working).getByRole('menuitem', {name: 'Archive thread'}).click();
   expect(await calls(page)).toEqual([{place: expect.objectContaining({id: 'thread-1', projectId: 'project-1', workspaceId: 'copy-1'})}, {rename: expect.objectContaining({id: 'thread-1', projectId: 'project-1', workspaceId: 'copy-1'})}, {archive: 'thread-2'}]);
   await expect(options(page, working)).toBeFocused();
-  await page.getByRole('button', {name: 'Other conversation Working', exact: true}).focus(); await page.keyboard.press('Alt+Enter');
+  await page.getByRole('button', {name: /^Other conversation, Working/}).focus(); await page.keyboard.press('Alt+Enter');
   expect(await calls(page)).toHaveLength(4);
   expect((await calls(page))[3]).toEqual({place: expect.objectContaining({id: 'thread-1', workspaceId: 'copy-1'})});
 });
 
 test('Custom has no placement action or shortcut and row context keys add no menu', async ({page}) => {
   await page.goto('/sidebar-shared-menu-check?custom');
-  const row = page.getByRole('button', {name: 'Other conversation Working', exact: true});
+  const row = page.getByRole('button', {name: /^Other conversation, Working/});
   await row.dispatchEvent('contextmenu'); await row.focus(); await page.keyboard.press('Shift+F10');
   await row.dispatchEvent('keydown', {key: 'ContextMenu'}); await expect(page.getByRole('menu')).toHaveCount(0);
   await page.keyboard.press('Alt+Enter'); expect(await calls(page)).toEqual([]);
@@ -95,7 +95,7 @@ test('Custom has no placement action or shortcut and row context keys add no men
 });
 
 test('hover is suppressed while the menu is open and drag retains its scoped payload', async ({page}) => {
-  const row = page.getByRole('button', {name: 'Other conversation Working', exact: true});
+  const row = page.getByRole('button', {name: /^Other conversation, Working/});
   await row.hover(); await expect(page.locator('.thread-hover-card[data-state="open"]')).toBeVisible();
   await options(page).click(); await expect(menu(page)).toBeVisible();
   await expect(page.locator('.thread-hover-card[data-state="open"]')).toHaveCount(0);
@@ -109,14 +109,14 @@ test('hover is suppressed while the menu is open and drag retains its scoped pay
 test('hover reads keep the thread project scope and side or delegate copies never start personal reads', async ({page}) => {
   const reads: string[] = [];
   await page.route('**/api/projects/**', route => {reads.push(new URL(route.request().url()).pathname + new URL(route.request().url()).search); return route.fulfill({json: {}});});
-  for (const title of ['Side conversation Ready', 'Delegate conversation Ready']) {
-    await page.getByRole('button', {name: title, exact: true}).hover();
-    await expect(page.locator('.thread-hover-card[data-state="open"]')).toContainText(title.replace(' Ready', ''));
+  for (const title of ['Side conversation', 'Delegate conversation']) {
+    await page.getByRole('button', {name: new RegExp(`^${title}, Ready`)}).hover();
+    await expect(page.locator('.thread-hover-card[data-state="open"]')).toContainText(title);
     await page.mouse.move(700, 600);
     await expect(page.locator('.thread-hover-card[data-state="open"]')).toHaveCount(0);
   }
   expect(reads).toEqual([]);
-  await page.getByRole('button', {name: 'Other conversation Working', exact: true}).hover();
+  await page.getByRole('button', {name: /^Other conversation, Working/}).hover();
   await expect.poll(() => reads.length).toBe(2);
   expect(reads.sort()).toEqual(['/api/projects/project-1/context?threadId=thread-1', '/api/projects/project-1/pull-requests?linked=1&threadId=thread-1']);
   expect(await calls(page)).toEqual([]);

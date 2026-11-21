@@ -4,7 +4,7 @@ declare global { interface Window { failDraftWrites?: boolean } }
 
 // The main pane intentionally starts empty without a saved selection.
 async function openFixtureConversation(page: Page) {
-  await page.getByRole('button', { name: 'Source-bound task fixture Ready', exact: true }).click();
+  await page.getByRole('button', { name: /^Source-bound task fixture, Ready/ }).click();
   await expect(page.getByText('Synthetic local source data for the reusable renderer.', { exact: true })).toBeVisible();
 }
 

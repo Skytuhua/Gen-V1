@@ -108,7 +108,7 @@ test('cold restored monitor resolves its owner before any global conversation re
   h.release();
   await expect(page.getByRole('region', {name: 'Agent workspace', exact: true})).toBeVisible();
   await expect(page.getByRole('log', {name: 'Project investigation messages', exact: true})).toContainText('Bound live transcript');
-  await expect(page.getByRole('button', {name: 'Empty draft stays in navigation Ready', exact: true})).toBeVisible();
+  await expect(page.getByRole('button', {name: /^Empty draft stays in navigation, Ready/})).toBeVisible();
   expect(h.requests.filter(path => path === '/api/snapshot')).toEqual([]);
   expect(h.requests.filter(path => path.startsWith('/api/events'))).toEqual([]);
 });
@@ -405,7 +405,7 @@ test('review: returning through All Agents retains the latest conversation selec
  await fixture(page, {working:false});
  await page.getByRole('button',{name:'Open conversation Project investigation',exact:true}).click();
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
- await page.getByRole('button',{name:'Empty draft stays in navigation Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Empty draft stays in navigation, Ready/}).click();
  await expect(page.getByRole('tab',{name:'Empty draft stays in navigation',exact:true})).toHaveAttribute('aria-selected','true');
  const draftB=page.locator('[data-split-view="thread:empty-draft"]').getByRole('textbox',{name:'Message',exact:true});
  await expect(draftB).toBeVisible();await expect(draftB).toBeEnabled();
@@ -498,10 +498,10 @@ test('review: restored archived conversation becomes available in monitor naviga
  await dialog.getByRole('button',{name:'Restore thread',exact:true}).click();
  await expect.poll(()=>restored).toBe(true);
  await page.keyboard.press('Escape'); await expect(dialog).toHaveCount(0);
- await expect(page.getByRole('button',{name:'Restored canonical conversation Ready',exact:true})).toBeVisible();
+ await expect(page.getByRole('button',{name:/^Restored canonical conversation, Ready/})).toBeVisible();
  await expect(composer).toHaveValue('Keep the monitor draft through restore');
  expect(h.requests.filter(path=>path==='/api/snapshot')).toEqual([]);
- await page.getByRole('button',{name:'Restored canonical conversation Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Restored canonical conversation, Ready/}).click();
  await expect(page.getByRole('textbox',{name:'Message',exact:true})).toBeVisible();
  await page.getByRole('textbox',{name:'Message',exact:true}).fill('Open restored owner');
  await page.getByRole('button',{name:'Send message',exact:true}).click();

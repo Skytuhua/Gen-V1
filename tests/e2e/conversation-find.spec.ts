@@ -50,7 +50,7 @@ test('keyboard and reduced/off motion find paths are immediate at desktop and sm
 
 test('owner switch clears find and excluded composer text is never counted',async({page})=>{
  await setup(page);await page.locator('.composer textarea').fill('unique-draft-phrase');await open(page);await phrase(page).fill('unique-draft-phrase');await expect(page.getByRole('status').filter({hasText:'0 results'})).toBeVisible();
- await phrase(page).fill('workspace');await page.getByRole('button',{name:'Review keyboard navigation Ready',exact:true}).click();await expect(phrase(page)).toBeHidden();expect(await page.evaluate(()=>CSS.highlights.get('conversation-find-all')?.size??0)).toBe(0);
+ await phrase(page).fill('workspace');await page.getByRole('button',{name:/^Review keyboard navigation, Ready/}).click();await expect(phrase(page)).toBeHidden();expect(await page.evaluate(()=>CSS.highlights.get('conversation-find-all')?.size??0)).toBe(0);
 });
 test('retains active match and reading position on rendered background additions',async({page})=>{
  await setup(page,125);await open(page);await phrase(page).fill('workspace');await page.keyboard.press('Enter');const top=await page.locator('.conversation-scroll').evaluate(el=>el.scrollTop);

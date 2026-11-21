@@ -49,7 +49,7 @@ test('actual App chosen project migrates a new-composer draft only after confirm
 
 test('actual App started conversation keeps its owner and draft when another project creates a new chat',async({page})=>{
  const h=await host(page);
- await page.getByRole('button',{name:'Source-bound task fixture Ready',exact:true}).click();
+ await page.getByRole('button',{name:/^Source-bound task fixture, Ready/}).click();
  await expect(page.getByRole('tab',{name:'Source-bound task fixture',exact:true,selected:true})).toBeVisible();
  await expect(page.getByRole('button',{name:'Select project',exact:true})).toContainText('Alpha');
  await page.getByRole('textbox',{name:'Message',exact:true}).fill('Keep this started draft');

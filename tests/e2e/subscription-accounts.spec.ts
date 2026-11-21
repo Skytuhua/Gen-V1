@@ -235,9 +235,9 @@ test('bound thread catalogs follow their pinned account and ignore late discover
   });
   await page.goto('/'); await expect(page.locator('.composer-account')).toHaveText('Personal');
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText('Personal model');
-  await page.getByRole('button', { name: 'Work task Ready', exact: true }).click(); await expect.poll(() => requests).toBeGreaterThan(0);
+  await page.getByRole('button', { name: /^Work task, Ready/ }).click(); await expect.poll(() => requests).toBeGreaterThan(0);
   await expect(page.locator('.composer-account:visible')).toHaveText('Work');
-  await page.getByRole('button', { name: 'Personal task Ready', exact: true }).click();
+  await page.getByRole('button', { name: /^Personal task, Ready/ }).click();
   await expect(page.getByRole('combobox', { name: 'Model', exact: true })).toContainText('Personal model'); for(const release of releases)release();
   await expect.poll(() => h.discoveries.filter(q => q.includes('task-thread')).length).toBeGreaterThan(1);
   await expect.poll(() => lateDone).toBe(requests);
