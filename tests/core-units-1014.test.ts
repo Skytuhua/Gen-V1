@@ -71,7 +71,7 @@ describe('createContextResultLineage',()=>{
  it('records a real read and authorized() re-verifies it',async()=>{
   const f=fixture(),wrapped=f.lineage.wrap(f.context);
   expect(f.lineage.observed).toBe(false);
-  const value=await wrapped.withResource('g1','source.txt',false,async path=>path);
+  const value=await wrapped.withResource!('g1','source.txt',false,async path=>path);
   expect(value).toBe(f.file);
   expect(f.lineage.observed).toBe(true);
   await expect(f.lineage.authorized()).resolves.toBe(true);
@@ -79,12 +79,12 @@ describe('createContextResultLineage',()=>{
  it('write-capable or unobserved captures are never authorized',async()=>{
   const f=fixture(),wrapped=f.lineage.wrap(f.context);
   await expect(f.lineage.authorized()).resolves.toBe(false);
-  await wrapped.withResource('g1','source.txt',true,async()=>'w');
+  await wrapped.withResource!('g1','source.txt',true,async()=>'w');
   await expect(f.lineage.authorized()).resolves.toBe(false);
  });
  it('goes stale when the grant changes after capture',async()=>{
   const f=fixture(),wrapped=f.lineage.wrap(f.context);
-  await wrapped.withResource('g1','source.txt',false,async()=>'r');
+  await wrapped.withResource!('g1','source.txt',false,async()=>'r');
   f.store.internal('mutation','t1',()=>f.store.put('resource','g1','t1',{...f.grant,label:'swapped'}));
   expect(()=>f.lineage.assertCurrent()).toThrowError(/authority changed/i);
  });
@@ -95,20 +95,20 @@ describe('createContextResultLineage',()=>{
  });
  it('rejects when the captured file identity changes during the action',async()=>{
   const f=fixture(),wrapped=f.lineage.wrap(f.context);
-  await expect(wrapped.withResource('g1','source.txt',false,async path=>{
+  await expect(wrapped.withResource!('g1','source.txt',false,async path=>{
     const other=join(dirname(path),'swap.txt');writeFileSync(other,'replaced inode');renameSync(other,path);
     return path;
   })).rejects.toThrowError(/authority changed/i);
  });
  it('rejects a resource read with no live grant',async()=>{
   const f=fixture(),wrapped=f.lineage.wrap(f.context);
-  await expect(wrapped.withResource('missing','source.txt',false,async()=>'x')).rejects.toThrowError(/authority changed/i);
+  await expect(wrapped.withResource!('missing','source.txt',false,async()=>'x')).rejects.toThrowError(/authority changed/i);
  });
 });
 
 describe('OperationExecutionAdviceHost',()=>{
  const op=(over:Partial<Operation>={})=>({id:'op1',threadId:'t1',revision:1,kind:'repository.test',description:'t',args:{},resourceIds:[],preconditions:{},status:'prepared' as const,approved:false,createdAt:'2026-11-21',...over});
- const thread=(over:Partial<Thread>={})=>({id:'t1',title:'t',projectName:null,createdAt:'c',updatedAt:'c',status:'working',epoch:0,runId:'r1',modelId:'m',sessionPath:null,...over});
+ const thread=(over:Partial<Thread>={})=>({id:'t1',title:'t',projectName:null,createdAt:'c',updatedAt:'c',status:'working' as const,epoch:0,runId:'r1',modelId:'m',sessionPath:null,...over});
  const host=(store:Store)=>new OperationExecutionAdviceHost(store,{assertHostActive(){},sourceCommitment(){return 'commit'}});
  function seeded(){
   const dir=realpathSync(mkdtempSync(join(tmpdir(),'adv-')));dirs.push(dir);
