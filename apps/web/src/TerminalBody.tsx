@@ -3,6 +3,7 @@ import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
 import './terminal-excerpts.css';
+import {ConnectFolderNotice} from './ConnectFolderNotice';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
 
 interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
@@ -13,10 +14,11 @@ const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()
  return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});
 }).then(read<T>);
 
-export function TerminalBody({projectId,threadId,terminalId,active,openAnother,isCurrent,excerptComposer}:{projectId:string;threadId?:string;terminalId?:string;active:boolean;openAnother?:()=>void|Promise<void>;isCurrent?:()=>boolean;excerptComposer?:TerminalExcerptComposer}){
+export function TerminalBody({projectId,threadId,terminalId,active,openAnother,isCurrent,excerptComposer,onConnect}:{projectId:string;threadId?:string;terminalId?:string;active:boolean;openAnother?:()=>void|Promise<void>;isCurrent?:()=>boolean;excerptComposer?:TerminalExcerptComposer;onConnect?:()=>void}){
  const [selection,setSelection]=useState<TerminalExcerpt|null>(null),[adding,setAdding]=useState(false);
  const element=useRef<HTMLDivElement>(null);
- const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
+ const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[errorCode,setErrorCode]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
+ const showError=(cause:unknown)=>{setError(message(cause));setErrorCode(cause instanceof ApiError?cause.code:'');},clearError=()=>{setError('');setErrorCode('');};
  const key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
  const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer});
  // Only a committed render may move ownership: a suspended concurrent render
@@ -34,7 +36,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   const matches=(value:TerminalRead,id:string)=>{
    if(value.id!==id||value.projectId!==projectId||value.threadId!==threadId)throw new Error('The terminal response does not match the owning session.');
   };
-  const fail=(error:unknown)=>{if(ownerCurrent())setError(message(error));};
+  const fail=(error:unknown)=>{if(ownerCurrent())showError(error);};
   const command=(body:Record<string,unknown>)=>post<TerminalRead>(`/api/terminals/${encodeURIComponent(confirmedId!)}/commands`,{projectId,...(threadId?{threadId}:{}),...body},()=>ownerCurrent()&&!!confirmedId);
   const append=(value:TerminalRead)=>{
    if(value.start>cursor)instance!.writeln('\r\n[Earlier output expired from the bounded host buffer]\r\n');
@@ -52,12 +54,12 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
      return fetch(`/api/terminals/${encodeURIComponent(confirmedId!)}?`+params,{credentials:'same-origin',cache:'no-store',signal:controller.signal});
     }).then(read<TerminalRead>);
     if(!ownerCurrent()||sequence!==readSequence)return;
-    matches(next,confirmedId);append(next);interrupted=false;setError('');
+    matches(next,confirmedId);append(next);interrupted=false;clearError();
     if(!ended)timer=setTimeout(()=>void poll(),500);
    }catch(error){
     if(!ownerCurrent()||sequence!==readSequence)return;
     ended=error instanceof ApiError&&error.code==='TERMINAL_ENDED';interrupted=!ended;
-    setPhase(ended?'ended':'read-interrupted');setError(message(error));
+    setPhase(ended?'ended':'read-interrupted');showError(error);
    }finally{
     reading=false;if(ownerCurrent()&&sequence===readSequence)setRetrying(false);
    }
@@ -73,12 +75,12 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
     if(!ownerCurrent())return;
     matches(next,confirmedId);
     if(!next.exited)throw new Error('Terminal termination was not confirmed.');
-    readSequence++;clearTimeout(timer);controller.abort();append(next);interrupted=false;setRetrying(false);setError('');
+    readSequence++;clearTimeout(timer);controller.abort();append(next);interrupted=false;setRetrying(false);clearError();
    }catch(error){fail(error);if(ownerCurrent()&&!ended&&!interrupted&&!reading)timer=setTimeout(()=>void poll(),500);}
    finally{stopPending=false;if(ownerCurrent())setStopping(false);}
   }};
   actions.current=ownedActions;
-  setSelection(null);setAdding(false);setPhase('starting');setError('');setAcknowledged(false);setRetrying(false);setStopping(false);
+  setSelection(null);setAdding(false);setPhase('starting');clearError();setAcknowledged(false);setRetrying(false);setStopping(false);
   void(async()=>{
    const [{Terminal},{FitAddon}]=await Promise.all([import('@xterm/xterm'),import('@xterm/addon-fit'),import('@xterm/xterm/css/xterm.css')]);
    if(!ownerCurrent())return;
@@ -110,19 +112,20 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    });
    observer.observe(element.current!);
    if(!ended)timer=setTimeout(()=>void poll(),250);
-  })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');setError(message(error));}});
+  })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');showError(error);}});
   return()=>{disposed=true;readSequence++;clearTimeout(timer);controller.abort();observer?.disconnect();instance?.dispose();if(actions.current===ownedActions)actions.current=null;};
  },[projectId,threadId,terminalId,active,generation,key]);
 
  const restart=async()=>{
   const owner=actions.current;if(!owner?.current())return;
-  if(terminalId){if(openAnother)try{await openAnother();}catch(error){if(owner.current())setError(message(error));}return;}
+  if(terminalId){if(openAnother)try{await openAnother();}catch(error){if(owner.current())showError(error);}return;}
   pendingId.current=null;try{localStorage.removeItem(key);localStorage.removeItem(key+':pending');}catch{}
   setGeneration(value=>value+1);
  };
  const canAdd=active&&excerptComposer&&!excerptComposer.readOnly&&excerptComposer.projectId===projectId&&excerptComposer.threadId===threadId;
- const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(message(cause));}finally{if(owner.current())setAdding(false);}};
+ const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())clearError();}catch(cause){if(owner.current())showError(cause);}finally{if(owner.current())setAdding(false);}};
  const canStop=active&&acknowledged&&phase!=='ended'&&!stopping&&!!actions.current?.current();
  const label=stopping?'Stopping':({starting:'Starting',running:'Running','read-interrupted':'Read interrupted',ended:'Ended',unconfirmed:'Start unconfirmed'} as const)[phase];
+ if(errorCode==='PROJECT_NOT_CONNECTED')return <div className="surface-prerequisite"><ConnectFolderNotice onConnect={onConnect}/></div>;
  return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
 }

@@ -1,5 +1,6 @@
 import {useId,useState,type ReactNode} from 'react';
 import {Bot,CalendarClock,ChevronDown,ChevronRight,Code2,FileDiff,Folder,GitBranch,GitCommitHorizontal,ListChecks,MessageSquare,Plus,Server,Terminal} from 'lucide-react';
+import {ConnectFolderNotice} from './ConnectFolderNotice';
 import type {Snapshot} from '../../../packages/contracts/index.ts';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 import {contextCompanions} from './project-context-summary';
@@ -33,7 +34,7 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
   <LoadingState pending={Boolean(loading)&&!error} hasContent={Boolean(context)||Boolean(error)} label="Loading project…">
    <section className="project-context-section project-context-overview">
     <div className="project-context-machine"><Folder size={16}/><strong title={context?.project.rootPath}>{context?.project.name??threadTitle??'Project context'}</strong></div>
-    {!connected?<>{onConnect?<button className="project-context-row" onClick={onConnect}><Plus size={15}/><span>Connect project</span></button>:<p className="project-context-note">No project connected.</p>}</>:context&&<>
+    {!connected?<>{onConnect?<ConnectFolderNotice onConnect={onConnect}/>:<p className="project-context-note">No project connected.</p>}</>:context&&<>
      {context.branch&&<><button className="project-context-row" aria-busy={busy} disabled={busy||!context.capabilities.git||!onAction} aria-expanded={expanded==='branch'} onClick={()=>toggle('branch')}><GitBranch size={16}/><span title={context.branch}>{context.branch}</span><ChevronDown size={13}/></button>
       {expanded==='branch'&&<form className="project-context-detail" onSubmit={event=>{event.preventDefault();run('branch',{name:branch,expectedHead:context.head,revision:context.revision});}}><label>New branch<input value={branch} onChange={event=>setBranch(event.target.value)} required maxLength={200}/></label><button className="secondary" aria-busy={busy} disabled={busy||!branch.trim()}>Create branch</button></form>}</>}
      {!composerChangesAvailable&&<button className="project-context-row" disabled={!onShowChanges} onClick={onShowChanges} title={context.changes.files===null?'Changes unavailable':context.changes.files+' changed files'}><FileDiff size={16}/><span>Changes</span>

@@ -23,7 +23,7 @@ function WebEditor({name}:{name:string}){
 }
 function Fixture(){
  const [authActive,setAuthActive]=useState(true);
- const [layout,setLayout]=useState(()=>({...readShellLayout(),rightPanelOpen:true})),[error,setError]=useState(''),[editors,setEditors]=useState(true),[refreshes,setRefreshes]=useState(0);
+ const [layout,setLayout]=useState(()=>({...readShellLayout(),rightPanelOpen:true})),[error,setError]=useState(''),[editors,setEditors]=useState(true),[refreshes,setRefreshes]=useState(0),[connectCalls,setConnectCalls]=useState(0);
  const [panels,setPanels]=useState(true),mode=new URLSearchParams(location.search).get('pr-panels');
  if(new URLSearchParams(location.search).has('auth-retained'))return <><button onClick={()=>setAuthActive(value=>!value)}>Toggle sign-in active</button><div hidden={!authActive}><GitHubSignIn active={authActive}/></div></>;
  const prepare=async()=>{setError('');try{await prepareEditorHandoff();setEditors(false);}catch(cause){setError((cause as Error).message);}};
@@ -32,7 +32,8 @@ function Fixture(){
   {editors&&<><WebEditor name="first"/><WebEditor name="second"/></>}<button onClick={()=>void prepare()}>Prepare layout change</button>{error&&<p role="alert">{error}</p>}
   <section aria-label="Canvas launcher"><WorkspaceLauncher onOpenTool={kind=>{w.__opened??=[];w.__opened.push(kind);}}/></section>
   <output aria-label="Refresh count">{refreshes}</output>
-  <WorkspacePanel snapshot={snapshot} threadId="task-thread" preferences={DEFAULT_PREFERENCES} layout={layout} close={()=>{}} setWidth={()=>{}} refresh={async()=>{setRefreshes(value=>value+1);}}/>
+  {connectCalls>0&&<output aria-label="Connect requests">{connectCalls}</output>}
+  <WorkspacePanel snapshot={snapshot} threadId="task-thread" preferences={DEFAULT_PREFERENCES} layout={layout} close={()=>{}} setWidth={()=>{}} refresh={async()=>{setRefreshes(value=>value+1);}} onConnect={()=>setConnectCalls(value=>value+1)}/>
  </WorkspaceProvider>;
 }
 createRoot(document.getElementById('root')!).render(<Fixture/>);

@@ -208,7 +208,24 @@ test('a stale cancelled start response cannot replace or clear a newer sign-in',
  await page.route('**/api/github/auth/start',route=>route.fulfill({json:host.flow(2)}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await host.releaseStart();await expect.poll(()=>host.actions.some(item=>item.action==='cancel'&&item.payload.flowId===host.flow(1).id)).toBe(true);await expect(host.panel.getByText('NEXT-CODE',{exact:true})).toBeVisible();await expect(host.panel).toContainText('Waiting for GitHub');
 });
 test('a disconnected project can still sign in through the profile route',async({page})=>{
- const host=await profileAuthFixture(page);await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}}}));await page.goto('/shared-panels-check?project=1');await openSurface(page,host.panel,'Pull request');await expect(host.panel.locator('.error-text[role="status"]').first()).toContainText('Project folder unavailable');await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();expect(host.actions.find(item=>item.action==='start')?.payload).toEqual({});
+ const host=await profileAuthFixture(page);await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Project folder unavailable'}}}));await page.goto('/shared-panels-check?project=1');await openSurface(page,host.panel,'Pull request');await expect(host.panel.getByRole('button',{name:'Connect this project to a local folder',exact:true})).toBeVisible();await expect(host.panel.locator('.error-text[role="status"]')).toHaveCount(0);await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.getByText('ABCD-EFGH',{exact:true})).toBeVisible();expect(host.actions.find(item=>item.action==='start')?.payload).toEqual({});
+});
+test('the connect-folder notice replaces the dead-end prerequisite on gated surfaces',async({page})=>{
+ const host=await profileAuthFixture(page);
+ await page.route('**/api/projects/project-one/**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Connect this project to a local folder.'}}}));
+ await page.route('**/api/terminals**',route=>route.fulfill({status:400,json:{error:{code:'PROJECT_NOT_CONNECTED',message:'Connect this project to a local folder.'}}}));
+ await page.goto('/shared-panels-check?project=1');
+ for(const label of ['Terminal','Files','Diff','Pull request']){
+  await openSurface(page,host.panel,label);
+  await expect(host.panel.getByRole('button',{name:'Connect this project to a local folder',exact:true})).toHaveCount(1);
+  await expect(host.panel.locator('.error-text')).toHaveCount(0);
+ }
+ await openSurface(page,host.panel,'Files');await expect(host.panel.getByRole('combobox',{name:'Granted resource'})).toBeVisible();
+ const notice=host.panel.getByRole('button',{name:'Connect this project to a local folder',exact:true});
+ expect(await notice.evaluate(element=>{const style=getComputedStyle(element);return{padding:style.padding,gap:style.gap,fontSize:style.fontSize};})).toEqual({padding:'6px 10px',gap:'8px',fontSize:'12px'});
+ await notice.hover();await expect.poll(()=>notice.evaluate(element=>getComputedStyle(element).backgroundColor)).not.toBe('rgba(0, 0, 0, 0)');
+ await notice.focus();await page.keyboard.press('Enter');await expect(page.getByRole('status',{name:'Connect requests'})).toContainText('1');
+ await notice.click();await expect(page.getByRole('status',{name:'Connect requests'})).toContainText('2');
 });
 test('invalid profile sign-in responses show one actionable error and never expose an arbitrary opener',async({page})=>{
  const host=await profileAuthFixture(page);await page.route('**/api/github/auth/start',route=>route.fulfill({json:{...host.flow(1),url:'https://evil.example/device'}}));await host.panel.getByRole('button',{name:'Sign in to GitHub',exact:true}).click();await expect(host.panel.locator('.error-text[role="status"]')).toHaveText('GitHub returned an invalid sign-in response. Start a new sign-in.');await expect(host.panel.locator('a[href="https://evil.example/device"]')).toHaveCount(0);
