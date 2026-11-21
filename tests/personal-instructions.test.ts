@@ -65,6 +65,30 @@ describe('personal instructions storage', () => {
     await symlink(join(dataDir, 'real.md'), personalInstructionsPath(dataDir));
     expect((await readPersonalInstructions(dataDir)).reason).toBe('UNAVAILABLE_SOURCE');
   });
+  it('serializes overlapping saves so the second one sees the new digest', async () => {
+    const dataDir = await dir();
+    const first = await writePersonalInstructions(dataDir, 'one', null);
+    const [winner, loser] = await Promise.allSettled([
+      writePersonalInstructions(dataDir, 'two', first.digest),
+      writePersonalInstructions(dataDir, 'three', first.digest),
+    ]);
+    const results = [winner, loser];
+    expect(results.filter(result => result.status === 'fulfilled')).toHaveLength(1);
+    const rejected = results.find(result => result.status === 'rejected');
+    expect((rejected as PromiseRejectedResult).reason.code).toBe('STALE_REQUEST_CONTEXT');
+  });
+  it('detects excluded revision changes instead of overwriting them', async () => {
+    const dataDir = await dir();
+    await writePersonalInstructions(dataDir, 'x'.repeat(17 * 1024), null).catch(() => {});
+    await mkdir(join(dataDir, 'personal-instructions'), {recursive: true});
+    await writeFile(personalInstructionsPath(dataDir), 'y'.repeat(17 * 1024));
+    const excluded = await readPersonalInstructions(dataDir);
+    expect(excluded.status).toBe('EXCLUDED');
+    expect(excluded.digest).toBeTruthy();
+    // Repair attempt based on the first excluded revision now conflicts with the newer one.
+    await writeFile(personalInstructionsPath(dataDir), 'z'.repeat(17 * 1024));
+    await expect(writePersonalInstructions(dataDir, 'fixed', excluded.digest)).rejects.toMatchObject({code: 'STALE_REQUEST_CONTEXT'});
+  });
   it('rejects a stale baseDigest on save', async () => {
     const dataDir = await dir();
     await writePersonalInstructions(dataDir, 'v1', null);

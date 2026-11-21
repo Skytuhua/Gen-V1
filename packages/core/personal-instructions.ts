@@ -14,8 +14,8 @@ const DIRECTIVE_ERROR = "Includes and hooks aren't supported in personal instruc
 const SIZE_ERROR = (bytes: number) => `Keep personal instructions under ${Math.round(PERSONAL_INSTRUCTIONS_MAX_BYTES / 1024)} KB (now ${(bytes / 1024).toFixed(1)} KB).`;
 
 const absent = (path: string): PersonalInstructionsView => ({ text: '', digest: null, bytes: 0, updatedAt: null, status: 'ABSENT', path });
-const excluded = (path: string, reason: PersonalInstructionsExclusion, text = '', bytes = 0, updatedAt: string | null = null): PersonalInstructionsView =>
-  ({ text, digest: null, bytes, updatedAt, status: 'EXCLUDED', reason, path });
+const excluded = (path: string, reason: PersonalInstructionsExclusion, text = '', bytes = 0, updatedAt: string | null = null, digest: string | null = null): PersonalInstructionsView =>
+  ({ text, digest, bytes, updatedAt, status: 'EXCLUDED', reason, path });
 
 export async function readPersonalInstructions(dataDir: string): Promise<PersonalInstructionsView> {
   const path = personalInstructionsPath(dataDir);
@@ -23,14 +23,18 @@ export async function readPersonalInstructions(dataDir: string): Promise<Persona
   try { info = await lstat(path); }
   catch { return absent(path); }
   if (!info.isFile() || info.nlink !== 1) return excluded(path, 'UNAVAILABLE_SOURCE');
-  if (info.size > PERSONAL_INSTRUCTIONS_MAX_BYTES)
-    return excluded(path, 'SOURCE_TOO_LARGE', info.size <= 1024 * 1024 ? decodeSafe(await readFile(path)) : '', info.size, info.mtime.toISOString());
+  if (info.size > PERSONAL_INSTRUCTIONS_MAX_BYTES) {
+    const raw = info.size <= 1024 * 1024 ? await readFile(path) : null;
+    const digest = raw ? hash(raw) : hash(`${info.size}:${info.mtimeMs}`);
+    return excluded(path, 'SOURCE_TOO_LARGE', raw ? decodeSafe(raw) : '', info.size, info.mtime.toISOString(), digest);
+  }
   const bytes = await readFile(path);
+  const digest = hash(bytes);
   let text: string;
-  try { text = decode(bytes); } catch { return excluded(path, 'SOURCE_NOT_TEXT', '', bytes.length, info.mtime.toISOString()); }
-  if (text.includes('\0')) return excluded(path, 'SOURCE_NOT_TEXT', '', bytes.length, info.mtime.toISOString());
-  if (unsupportedDirective.test(text)) return excluded(path, 'UNSUPPORTED_DIRECTIVE', text, bytes.length, info.mtime.toISOString());
-  return { text, digest: hash(text), bytes: bytes.length, updatedAt: info.mtime.toISOString(), status: 'OK', path };
+  try { text = decode(bytes); } catch { return excluded(path, 'SOURCE_NOT_TEXT', '', bytes.length, info.mtime.toISOString(), digest); }
+  if (text.includes('\0')) return excluded(path, 'SOURCE_NOT_TEXT', '', bytes.length, info.mtime.toISOString(), digest);
+  if (unsupportedDirective.test(text)) return excluded(path, 'UNSUPPORTED_DIRECTIVE', text, bytes.length, info.mtime.toISOString(), digest);
+  return { text, digest, bytes: bytes.length, updatedAt: info.mtime.toISOString(), status: 'OK', path };
 }
 function decodeSafe(bytes: Buffer) { try { return decode(bytes); } catch { return ''; } }
 
@@ -42,11 +46,19 @@ export function normalizePersonalInstructions(text: string): string {
   return normalized;
 }
 
+let writeQueue: Promise<unknown> = Promise.resolve();
+
 export async function writePersonalInstructions(dataDir: string, text: string, baseDigest: string | null): Promise<PersonalInstructionsView> {
+  const run = writeQueue.then(() => writePersonalInstructionsNow(dataDir, text, baseDigest));
+  writeQueue = run.catch(() => {});
+  return run;
+}
+
+async function writePersonalInstructionsNow(dataDir: string, text: string, baseDigest: string | null): Promise<PersonalInstructionsView> {
   const normalized = normalizePersonalInstructions(text);
   const path = personalInstructionsPath(dataDir);
   const current = await readPersonalInstructions(dataDir);
-  const currentDigest = current.status === 'OK' ? current.digest : null;
+  const currentDigest = current.digest;
   if (currentDigest !== baseDigest) throw new HarnessError('STALE_REQUEST_CONTEXT', 'The file changed on disk. Reload to see the new text, then save again.');
   if (!normalized) {
     await rm(path, { force: true });
