@@ -58,8 +58,9 @@ export async function validateSessionPath(dataDir: string, sessionPath: string, 
 export async function openTaskSession(dataDir: string, input: Pick<StartRun, "threadId" | "sessionPath">, purpose?: ModelPurpose) {
   const sdk = await loadSdk();
   const paths = taskPaths(dataDir, input.threadId);
-  if (purpose === 'memory-extraction') {
-    if (input.sessionPath !== null) throw new HarnessError('MEMORY_EXTRACTION_SESSION_UNSUPPORTED', 'Memory extraction cannot resume or persist a native conversation.');
+  if (purpose === 'memory-extraction' || purpose === 'composer-enhance') {
+    const code = purpose === 'memory-extraction' ? 'MEMORY_EXTRACTION_SESSION_UNSUPPORTED' : 'ENHANCE_SESSION_UNSUPPORTED';
+    if (input.sessionPath !== null) throw new HarnessError(code, 'This isolated purpose cannot resume or persist a native conversation.');
     return sdk.SessionManager.inMemory(paths.taskDir);
   }
   await mkdir(paths.sessionsDir, { recursive: true, mode: 0o700 });

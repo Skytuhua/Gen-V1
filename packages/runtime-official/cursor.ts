@@ -58,6 +58,7 @@ function startWorker(dataDir: string, cwd: string, spawnChild: typeof spawn, own
 export async function openCursor(context: DriverContext, spawnChild: typeof spawn, modelId?: string, maintenance = false): Promise<OfficialDriver> {
   const purpose=context.purpose;
   if(purpose==='memory-extraction')throw new HarnessError('MEMORY_EXTRACTION_UNSUPPORTED','This external adapter cannot provide an ephemeral memory extraction session.');
+  if(purpose==='composer-enhance')throw new HarnessError('ENHANCE_UNSUPPORTED','This external adapter cannot provide an ephemeral enhancement session.');
   if (maintenance) throw new HarnessError('OFFICIAL_COMPACTION_UNSUPPORTED', 'The pinned Cursor SDK does not advertise a verifiable native compaction operation.');
   if (!context.current()) throw aborted();
   const worker = startWorker(context.dataDir, context.taskDir, spawnChild, child => context.own(child));
@@ -115,7 +116,7 @@ export async function openCursor(context: DriverContext, spawnChild: typeof spaw
   });
   void worker.exited.then(() => { if (!closed && !settled) fail(protocol()); }, fail);
   try {
-    const initialize = worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
+    const initialize = worker.send({ type: 'initialize', init: { mode: 'run', dataDir: context.dataDir, taskDir: context.taskDir, sessionId: context.manifest.value.sessionId, modelId, thinkingLevel: context.thinkingLevel, systemPrompt: context.modelOnly?modelOnlySystemPrompt(purpose):hostSystemPrompt(context.memory),...(context.modelOnly?{modelOnly:true,...(purpose==='prediction'?{purpose}:{})}:{}), mcp: { url: context.mcp.url, headers: context.mcp.headers, names: [...context.mcp.names] } } satisfies CursorWorkerInit });
     // Cancellation and the startup deadline also cover a pending IPC write.
     await bounded(Promise.all([initialize, startup.promise]), 30_000, 'Official Cursor initialization timed out.'); assert(); return driver;
   } catch (error) { await driver.close(); throw safeError(error); }

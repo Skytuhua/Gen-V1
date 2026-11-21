@@ -1,6 +1,6 @@
 import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
-import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
+import { MODEL_ONLY_MAX_PROMPT_BYTES, assertEnhanceModel } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
 import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
 import { createContextResultLineage } from './context-result-lineage.ts';
@@ -8,7 +8,7 @@ import { openContextResultCustody } from './context-result-custody.ts';
 import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
 import { createHostRelevanceObserver } from './context-relevance-host.ts';
-import { withApprovedProjectContext } from './approved-project-context.ts';
+import { withApprovedProjectContext, withIdleApprovedProjectContext } from './approved-project-context.ts';
 import { createRepositoryMapReader } from './repository-map-host.ts';
 import type {AccountAuthTarget} from '../contracts/authentication.ts';
 import {privateFamilyForBinding} from '../workspace/git-storage.ts';
@@ -32,6 +32,7 @@ import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
 import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
+import {ComposerEnhance,type EnhanceBasis,type EnhanceRequest,type EnhanceResult} from './composer-enhance.ts';
 import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
@@ -107,7 +108,7 @@ export interface ServiceOptions {
   toolEffectAuthenticator?: EffectAuthenticator;
   source?:SourceIntegration;sideRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;planningRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;
   agentWorkRuntimeFactory?:ConstructorParameters<typeof AgentWorkCoordinator>[0]['runtimeFactory'];
-  predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
+  predictionRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;enhanceRuntimeFactory?:()=>RuntimeAdapter|Promise<RuntimeAdapter>;learningRuntimeFactory?:(job:LearningJob)=>RuntimeAdapter|Promise<RuntimeAdapter>;
   prepareWorkspace?:(thread:Thread)=>Promise<void>;
   /** Trusted host activation only. Never accepted from UI preferences or commands. */
   requestContextEnabled?:boolean;
@@ -162,6 +163,7 @@ export class Service {
   private memoryPurgeFailure: string | null = null;
   private readonly source?:SourceIntegration;
   private readonly predictions:ComposerPredictions;
+  private readonly enhance:ComposerEnhance;
   private predictionMutations=0;
   private readonly deliveries=new Map<string,Promise<void>>();
   private readonly messageAdmissions=new Map<string,{commitment:string;work:Promise<CommandReceipt>}>();
@@ -283,6 +285,7 @@ export class Service {
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
+    this.enhance=new ComposerEnhance({factory:()=>{if(!options.enhanceRuntimeFactory)throw new HarnessError('ENHANCE_UNAVAILABLE','Composer enhancement is unavailable in this host.');return options.enhanceRuntimeFactory();},basis:input=>this.enhanceBasis(input)});
     this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute();}});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
     // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
@@ -397,14 +400,14 @@ export class Service {
     const targets=this.store.all<Thread>('thread').filter(thread=>thread.kind!=='delegate'&&(thread.runId||this.mainAdmissions.has(thread.id)));
     const errors:string[]=[];
     await Promise.all(targets.map(async thread=>{try{await this.command({id:randomUUID(),type:'run.stop',threadId:thread.id,payload:{}});}catch(error){errors.push(error instanceof Error?error.message:String(error));}}));
-    const outcomes=await Promise.allSettled([...this.teardowns.values()].map(owner=>owner.promise).concat([...this.deliveries.values(),this.cancelComposerPredictions(),this.cancelReview()]));
+    const outcomes=await Promise.allSettled([...this.teardowns.values()].map(owner=>owner.promise).concat([...this.deliveries.values(),this.cancelComposerPredictions(),this.cancelComposerEnhancements(),this.cancelReview()]));
     for(const outcome of outcomes)if(outcome.status==='rejected')errors.push(outcome.reason instanceof Error?outcome.reason.message:String(outcome.reason));
     return{stopped:targets.length,...(errors.length?{errors:[...new Set(errors)]}:{})};
   }
   /** Host-owned evidence; cancelling work during shutdown never turns a busy
    * close into permission to install an update. */
   isUpdateIdle():boolean {
-    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.backgroundWork.busy&&!this.intake.busy&&!this.source?.runtime.sourceBusy
+    return !this.closed&&!this.aborts.size&&!this.pending.size&&!this.deliveries.size&&!this.mainAdmissions.size&&!this.teardowns.size&&!this.predictionMutations&&!this.predictions.busy&&!this.enhance.busy&&!this.memoryHostInstance?.busy&&!this.reviewing&&!this.learning.busy&&!this.backgroundWork.busy&&!this.intake.busy&&!this.source?.runtime.sourceBusy
       &&!this.store.all<Thread>('thread').some(thread=>thread.runId||thread.status==='working'||thread.status==='awaiting_input'||this.planning.hasActiveChildren(thread.id))
       &&!this.store.all<Operation>('operation').some(operation=>['prepared','running','unknown'].includes(operation.status))
       &&!this.store.all<Outbox>('outbox').some(input=>input.status!=='handled')
@@ -424,8 +427,37 @@ export class Service {
     return{threadId,replyId:reply.id,modelId:thread.modelId,accountId:thread.accountId??null,epoch:thread.epoch,context:predictionContext(messages)};
   }
   composerPrediction(input:PredictionRequest,signal?:AbortSignal){return this.predictions.request(input,signal);}
+  composerEnhance(input:EnhanceRequest,signal?:AbortSignal):Promise<EnhanceResult>{return this.enhance.request(input,signal);}
   /** Credential mutations and real work wait for the independently owned session. */
   async cancelComposerPredictions():Promise<void>{await Promise.all([this.predictions.cancel(),this.memoryHostInstance?.cancel()]);}
+  async cancelComposerEnhancements():Promise<void>{await this.enhance.cancel();}
+  /** Idle, read-only admission for composer enhancement. Thread targets reuse
+   * the send-time binding; unbound and new drafts validate the submitted
+   * composer model against the current host/account selection. */
+  private enhanceBasis(input:EnhanceRequest):EnhanceBasis {
+    if(this.closed||this.updateClosing||this.predictionMutations)throw new HarnessError('ENHANCE_STALE','The draft owner is no longer available.');
+    const target=input.target;
+    if(target.kind==='new'){
+      assertEnhanceModel(target.modelId);
+      const provider=modelProvider(target.modelId),settings=this.store.get<Snapshot['settings']>('settings','global'),accountId=isConnectionProviderId(provider)?settings?.selectedAccounts?.[provider]??null:null;
+      assertAccountAvailable(this.store,provider,accountId,false);
+      return{modelId:target.modelId,accountId,assertCurrent:()=>{assertAccountAvailable(this.store,provider,accountId,false);},capture:async()=>undefined};
+    }
+    const eligible=()=>{
+      const thread=this.store.get<Thread>('thread',target.threadId);
+      if(!thread||thread.sideParentId||thread.kind==='delegate'||this.store.get('archivedThread',thread.id))throw new HarnessError('ENHANCE_NOT_FOUND','This draft is not owned by an eligible conversation.');
+      if(thread.runId||!['ready','completed'].includes(thread.status)||this.store.all<Thread>('thread').some(item=>item.runId)||this.hasGate(thread.id)||this.store.all<Outbox>('outbox',thread.id).some(input=>input.status!=='handled')||this.store.all<Operation>('operation',thread.id).some(op=>['prepared','running','unknown'].includes(op.status)))throw new HarnessError('ENHANCE_STALE','The draft owner is no longer idle.');
+      return thread;
+    };
+    const thread=eligible(),modelId=thread.modelId??target.modelId;
+    if(!modelId)throw new HarnessError('ENHANCE_UNAVAILABLE','No composer model is selected for this draft.');
+    if(target.modelId&&thread.modelId&&target.modelId!==thread.modelId)throw new HarnessError('ENHANCE_STALE','The composer model changed.');
+    assertEnhanceModel(modelId);
+    const provider=modelProvider(modelId),epoch=thread.epoch,accountId=this.binding(thread,provider).accountId;
+    return{modelId,accountId,
+      assertCurrent:()=>{const current=eligible();assertAccountAvailable(this.store,provider,this.binding(current,provider).accountId);},
+      capture:signal=>withIdleApprovedProjectContext(this.store,{threadId:thread.id,modelId,accountId,epoch},signal,async notes=>notes)};
+  }
   async skillDetail(name:string,options:Parameters<typeof viewSkill>[2]={}){return this.source?this.source.library.view(name,options):viewSkill(this.store,name,options);}
   async skillProposal(id:string){return this.source?this.source.library.proposal(id):viewSkillProposal(this.store,id);}
   sourceEvent(event:HermesEvent):void {
@@ -1078,7 +1110,7 @@ export class Service {
     // Hold admission through asynchronous model discovery/history/teardown. A
     // previous reply settling in that interval must not start optional work.
     this.predictionMutations++;
-    try{const busy=this.predictions.busy||this.memoryHostInstance?.busy,cancelled=this.cancelComposerPredictions();if(busy)await cancelled;return await this.executeCommand(command);}
+    try{const busy=this.predictions.busy||this.enhance.busy||this.memoryHostInstance?.busy,cancelled=Promise.all([this.cancelComposerPredictions(),this.cancelComposerEnhancements()]);if(busy)await cancelled;return await this.executeCommand(command);}
     finally{this.predictionMutations--;}
   }
   private async executeCommand(command:HostCommand){
@@ -1611,7 +1643,7 @@ export class Service {
     if(!this.store.all<Outbox>('outbox',threadId).some(i=>i.status==='persisted'&&!i.sourceFailure&&!i.sourceRecovery?.resumeRequired&&(!thread.runId||!i.completedWrite)&&(!thread.runId||i.sendMode!=='AFTER_CURRENT')))return;
     // Executor completions can enqueue input without a user command. Re-read
     // the thread after teardown; no captured state survives the async boundary.
-    if(this.predictions.busy||this.memoryHostInstance?.busy){this.predictionMutations++;try{await this.cancelComposerPredictions();await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
+    if(this.predictions.busy||this.enhance.busy||this.memoryHostInstance?.busy){this.predictionMutations++;try{await Promise.all([this.cancelComposerPredictions(),this.cancelComposerEnhancements()]);await this.deliverInputs(threadId);}finally{this.predictionMutations--;}return;}
     const preparing=!thread.sideParentId&&thread.kind!=='delegate'&&!thread.runId;
     if(preparing)this.mainAdmissions.add(threadId);
     const preparingEpoch=thread.epoch;
@@ -2343,7 +2375,7 @@ export class Service {
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
     this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
-    const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
+    const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.enhance.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
     this.compactionModelOwners.clear();
