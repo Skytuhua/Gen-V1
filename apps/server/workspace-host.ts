@@ -5,7 +5,7 @@ import type {IntegrationManager} from '../../packages/integrations/index.ts';
 import type {IntegrationSecretReferenceStatus} from '../../packages/contracts/integration-secrets.ts';
 import {GitHubTools} from '../../packages/workspace/github.ts';
 
-export interface WorkspaceHost{projects:ProjectTools;terminals:TerminalHost;github?:GitHubTools;integrations?:IntegrationManager;context7Key?:(key:string)=>Promise<void>;secretReferences?:()=>Promise<IntegrationSecretReferenceStatus>}
+export interface WorkspaceHost{projects:ProjectTools;terminals:TerminalHost;github?:GitHubTools;dependencyScan?:import('../../packages/workspace/dependency-scan.ts').DependencyScanService;integrations?:IntegrationManager;context7Key?:(key:string)=>Promise<void>;secretReferences?:()=>Promise<IntegrationSecretReferenceStatus>}
 export const githubFor=(host:WorkspaceHost)=>host.github??=new GitHubTools(host.projects,host.terminals);
 const hosts=new WeakMap<Service,WorkspaceHost>();
 export function workspaceHost(service:Service):WorkspaceHost{let host=hosts.get(service);if(!host){host={projects:new ProjectTools(service.store),terminals:null!};host.terminals=new TerminalHost(host.projects);hosts.set(service,host);}return host;}

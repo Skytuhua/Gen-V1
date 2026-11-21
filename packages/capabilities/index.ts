@@ -23,7 +23,11 @@ export interface DomainContext {
   assertRepositoryTestTrust?(operation: Operation, binding: import('./repository-test-binding.ts').RepositoryTestBinding): void;
   completedWrite?(evidence:{path:string;sha256:string;bytes:number}):void;
   preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
+  /** M-flagged feature reads scoped to this thread; absent on embedders without the host store. */
+  readDependencyScan?(scanId?: string, cursor?: string): unknown;
 }
+/** Domain tools hidden from discovery and denied at execution while their flag is off. */
+export const FLAGGED_DOMAIN_TOOLS: Readonly<Record<string, string>> = Object.freeze({ dependency_check_read: 'workspace.dependencyCheckV1' });
 export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({ name, description: descriptions[name as ToolName], parameters: z.toJSONSchema(schema) as Record<string, unknown> }));
 const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
 function active(ctx: DomainContext) { if (ctx.signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled"); }
@@ -32,6 +36,7 @@ function parse<N extends ToolName>(name: N, args: unknown): z.infer<(typeof tool
   if (!result.success) throw new HarnessError("INVALID_TOOL_ARGUMENTS", `Invalid ${name} arguments`, result.error.issues.map(i => ({ path: i.path, message: i.message })));
   return result.data as z.infer<(typeof toolSchemas)[N]>;
 }
+import {capabilityEnabled} from "../core/capability-flags.ts";
 async function access<T>(ctx: DomainContext, id: string, path: string | undefined, write: boolean, action: (filename: string) => Promise<T>): Promise<T> {
   active(ctx);
   if (ctx.withResource) return ctx.withResource(id, path, write, async filename => { active(ctx); return action(filename); });
@@ -79,6 +84,8 @@ async function git(ctx: DomainContext, resourceId: string, args: string[]) {
   });
 }
 export async function handleDomainTool(name: string, rawArgs: unknown, ctx: DomainContext): Promise<unknown> {
+  const flag = FLAGGED_DOMAIN_TOOLS[name];
+  if (flag && !capabilityEnabled(flag as never)) throw new HarnessError("CAPABILITY_DENIED", "This domain tool is disabled");
   active(ctx);
   if (!Object.hasOwn(toolSchemas, name)) throw new HarnessError("UNKNOWN_TOOL", `Unknown domain tool ${name}`);
   // Dispatch parses each schema explicitly, preserving type narrowing and rejecting unknown props.
@@ -137,6 +144,11 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       const a = parse("database_prepare", rawArgs); validateStatements(a);
       const result = await access(ctx, a.resourceId, a.path, false, path => databaseJob({ mode: "prepare", path, statements: a.statements }, ctx));
       return ctx.prepareOperation(`database.${a.mode}`, a, [a.resourceId], { resourceVersion: result.resourceVersion }, `Apply ${a.statements.length} SQLite statements with exact counts, rollback and resource version ${result.resourceVersion}`);
+    }
+    case "dependency_check_read": {
+      const a = parse("dependency_check_read", rawArgs);
+      if (!ctx.readDependencyScan) throw new HarnessError("CAPABILITY_DENIED", "Dependency check evidence is unavailable in this host");
+      return ctx.readDependencyScan(a.scanId, a.cursor);
     }
     case "pdf_inspect": {
       const a = parse("pdf_inspect", rawArgs), source = await readResource(ctx, a.resourceId, a.path, 32 * 1024 * 1024);

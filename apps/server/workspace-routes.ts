@@ -13,6 +13,7 @@ import {SplitWorkspaceRepository} from '../../packages/core/split-workspace.ts';
 import {WorkspaceActionOutcomes} from '../../packages/workspace/action-outcomes.ts';
 import {workspaceActionTypeSchema,workspaceActionOperationSchema} from '../../packages/contracts/workspace-action-outcomes.ts';
 import {capabilityEnabled} from '../../packages/core/capability-flags.ts';
+import type {Operation} from '../../packages/contracts/index.ts';
 import {workspaceOwnerScope} from '../../packages/workspace/edit-journal.ts';
 import {CheckpointService} from '../../packages/workspace/checkpoints.ts';
 import type {CheckpointScope} from '../../packages/contracts/workspace-checkpoints.ts';
@@ -125,6 +126,49 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
   const{projectId}=z.object({projectId:identifier}).parse(request.params),input=checkpointBody.extend({planId:identifier,approvalId:identifier}).parse(request.body);
   const{owner,root}=await checkpointOwner(projectId,input.threadId??input.owner.threadId??undefined);admitOwner(owner,input.owner);
   return checkpoints.applyRestore(owner,{planId:input.planId,approvalId:input.approvalId,root});
+ });
+ // Dependency vulnerability check (workspace.dependencyCheckV1): sealed local
+ // inventory, approved egress, scoped evidence. Everything gates on the flag.
+ const depScan=host.dependencyScan;
+ const depEnabled=()=>depScan!==undefined&&capabilityEnabled('workspace.dependencyCheckV1');
+ const depScope=async(projectId:string,threadId:string|undefined)=>{
+  const bound=await projects.binding(projectId,threadId);
+  return{root:bound.path,owner:workspaceOwnerScope(projectId,threadId,bound.workspace)};
+ };
+ const depGithubOrigin=async(projectId:string,threadId:string|undefined)=>{
+  try{const{repo}=await github.repo(projectId,threadId);const split=repo.split('/');return split.length===2?{owner:split[0],repo:split[1]}:null;}catch{return null;}
+ };
+ app.get('/api/projects/:projectId/dependency-check/capability',async request=>{
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId}=querySchema.parse(request.query);
+  if(!depEnabled())return{available:false};
+  await depScope(projectId,threadId);
+  return depScan!.capability(await depGithubOrigin(projectId,threadId));
+ });
+ app.post('/api/projects/:projectId/dependency-check/scan',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=z.strictObject({threadId:identifier,sources:z.strictObject({github:z.boolean().optional()}).optional()}).parse(request.body);
+  if(!depEnabled())throw new HarnessError('CAPABILITY_DENIED','Dependency check is disabled.');
+  const{root,owner}=await depScope(projectId,input.threadId);
+  const githubOrigin=input.sources?.github?await depGithubOrigin(projectId,input.threadId):null;
+  const op=await depScan!.prepare({projectId,threadId:input.threadId,binding:{root,owner},sources:{github:githubOrigin!=null},githubOrigin:githubOrigin??undefined});
+  depScan!.markStale(owner,op.preconditions.inputDigest!);
+  service.store.internal('operation.prepared',input.threadId,()=>{service.store.put('operation',op.id,input.threadId,op);return op;});
+  return op;
+ });
+ app.post('/api/projects/:projectId/dependency-check/scan/run',{bodyLimit:64*1024},async(request,reply)=>{
+  reply.header('Cache-Control','no-store');
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),input=z.strictObject({threadId:identifier,operationId:identifier}).parse(request.body);
+  if(!depEnabled())throw new HarnessError('CAPABILITY_DENIED','Dependency check is disabled.');
+  const op=service.store.get<Operation>('operation',input.operationId);
+  if(!op||op.threadId!==input.threadId||op.kind!=='integration.dependency.scan'||!op.approved||op.status!=='prepared')throw new HarnessError('APPROVAL_REQUIRED','Approve this prepared check first');
+  if((op.args as{owner?:{projectId?:string}}).owner?.projectId!==projectId)throw new HarnessError('CAPABILITY_DENIED','The check belongs to another project.');
+  return service.dispatchOperation(op.id);
+ });
+ app.get('/api/projects/:projectId/dependency-check/result',async request=>{
+  const{projectId}=z.object({projectId:identifier}).parse(request.params),{threadId,...q}=querySchema.extend({scanId:identifier.optional(),cursor:z.string().max(64).optional()}).parse(request.query);
+  if(!depEnabled())return{available:false};
+  const{owner}=await depScope(projectId,threadId);
+  return depScan!.read(owner,{scanId:q.scanId,cursor:q.cursor});
  });
  app.post('/api/projects/:projectId/actions',{bodyLimit:1024*1024},async(request,reply)=>{
   const{projectId}=z.object({projectId:identifier}).parse(request.params),input=envelope.parse(request.body);
