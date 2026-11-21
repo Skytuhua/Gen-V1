@@ -68,3 +68,38 @@ test('Escape and Close restore the rendered Find trigger',async({page})=>{
  await setup(page);const trigger=page.getByRole('button',{name:'Find in conversation',exact:true});await trigger.focus();await page.keyboard.press('Enter');await expect(phrase(page)).toBeFocused();await page.keyboard.press('Escape');await expect(trigger).toBeFocused();
  await page.keyboard.press('Enter');await page.getByRole('button',{name:'Close find',exact:true}).click();await expect(trigger).toBeFocused();
 });
+
+test('collapses long user prompts and Find reveals only the clipped prompt',async({page},info)=>{
+ const long=['```',...Array.from({length:30},(_,i)=>`log line ${i+1} payload`),'needlephrase below the cap','```'].join('\n');
+ const snapshot=shellSnapshot();
+ snapshot.messages=[
+  {...snapshot.messages[0],id:'m0',role:'user',content:long},
+  {...snapshot.messages[0],id:'m1',role:'assistant',content:'Short reply'},
+  {...snapshot.messages[0],id:'m2',role:'user',content:'Short prompt'},
+ ];
+ await page.addInitScript(shellInit);await page.route('**/api/**',r=>shellRoute(r,snapshot,false));await serveTaskSplitLayout(page,snapshot);await page.goto('/fixture');await page.locator('.composer textarea').waitFor();
+ const disclosure=page.locator('[data-message-id="m0"] .up-disclosure'),clip=disclosure.locator('.up-disclosure-clip');
+ await expect(clip).toHaveAttribute('data-collapsed',/.*/);
+ const clippedBox=await clip.boundingBox();expect(clippedBox!.height).toBeLessThan(210);
+ await expect(disclosure.getByRole('button',{name:'Show more'})).toBeVisible();
+ // Short prompts and assistant replies keep their current appearance.
+ await expect(page.locator('[data-message-id="m2"] .up-disclosure-rail')).toHaveCount(0);
+ await expect(page.locator('[data-message-id="m1"] .up-disclosure-clip')).toHaveCount(0);
+ // Manual toggle expands then collapses only this prompt.
+ await disclosure.getByRole('button',{name:'Show more'}).click();
+ await expect(clip).not.toHaveAttribute('data-collapsed',/.*/);
+ await expect(disclosure.getByRole('button',{name:'Show less'})).toBeVisible();
+ await disclosure.getByRole('button',{name:'Show less'}).click();
+ await expect(clip).toHaveAttribute('data-collapsed',/.*/);
+ // Find counts clipped text and reveals only the affected prompt before highlighting.
+ await open(page);await phrase(page).fill('needlephrase');
+ await expect(page.getByRole('status').filter({hasText:'1 of 1'})).toBeVisible();
+ await expect(clip).not.toHaveAttribute('data-collapsed',/.*/);
+ await expect(phrase(page)).toBeFocused();
+ const out=info.outputPath('screenshots');await mkdir(out,{recursive:true});
+ await page.screenshot({path:`${out}/5-find-revealed-light.png`});
+ await page.evaluate(()=>{document.documentElement.dataset.theme='dark';});
+ await disclosure.getByRole('button',{name:'Show less'}).click();
+ await expect(clip).toHaveAttribute('data-collapsed',/.*/);
+ await page.screenshot({path:`${out}/6-collapsed-dark.png`});
+});
