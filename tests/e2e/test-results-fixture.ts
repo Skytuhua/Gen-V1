@@ -24,7 +24,7 @@ export async function serveTestResultsFixture(page: Page, options: { flag?: bool
   const operation: Operation = {
     id: 'test-operation', threadId: 'task-thread', revision: 2, kind: 'repository.test',
     description: 'Run the prepared project test.', args: { resourceId: 'project-one', testFile: 'tests/total.test.mjs', recipe: 'node-test' },
-    resourceIds: ['project-one'], status: 'succeeded', approved: true,
+    resourceIds: ['project-one'], preconditions: { testSha256: 'a'.repeat(64) }, status: 'succeeded', approved: true,
     result: { exitCode: 1, testRun: FIXTURE_RUN },
     createdAt: '2026-11-21T00:00:00.000Z',
   };
@@ -36,7 +36,7 @@ export async function serveTestResultsFixture(page: Page, options: { flag?: bool
       snapshot.operations.push({
         id: `rerun-${testId}-${snapshot.operations.length}`, threadId: 'task-thread', revision: 1, kind: 'repository.test',
         description: 'Rerun one test.', args: { resourceId: 'project-one', testFile: 'tests/total.test.mjs', recipe: 'node-test', rerunOf: { operationId: 'test-operation', testId } },
-        resourceIds: ['project-one'], status, approved: true,
+        resourceIds: ['project-one'], preconditions: { testSha256: 'a'.repeat(64) }, status, approved: true,
         result: status === 'succeeded' ? { exitCode: 0, testRun: { ...FIXTURE_RUN, totals: { tests: 1, passed: 1, failed: 0, skipped: 0, todo: 0 }, rerunOf: { operationId: 'test-operation', testId } } } : undefined,
         createdAt: '2026-11-21T00:01:00.000Z',
       });
