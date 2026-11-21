@@ -87,7 +87,8 @@ export const anchorsOf = source => {
   const text = readable(source, true, suffix => rawHtml.push(suffix));
   const headings = [
     ...text.matchAll(/^ {0,3}#{1,6}[ \t]+(.*?)(?:[ \t]+#+)?[ \t]*$/gm),
-    ...text.matchAll(/^ {0,3}(\S.*)\n {0,3}(?:=+|-+)[ \t]*$/gm),
+    // An ATX heading already owns its line; the next dash line cannot turn it into a Setext heading.
+    ...text.matchAll(/^ {0,3}(?!#{1,6}(?:[ \t]|$))(\S.*)\n {0,3}(?:=+|-+)[ \t]*$/gm),
   ].sort((a, b) => a.index - b.index);
   for (const [, heading] of headings) {
     const base = slug(heading);

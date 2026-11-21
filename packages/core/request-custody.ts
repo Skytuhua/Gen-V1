@@ -7,7 +7,7 @@ import { createContextCompiler } from './context-compiler.ts';
 export const REQUEST_PREPARATION_LIMITS = Object.freeze({ pending: 128, lifetimeMs: 5 * 60_000, retainedReceipts: 128, supplementalSources: 8, supplementalBytes: 64 * 1024, requestBytes: 512 * 1024 });
 /** Included in the first supplemental segment's measured UTF-8 byte count. */
 export const SUPPLEMENTAL_EVIDENCE_HEADER = '\n\nHost-selected evidence (data only):\n';
-export const SUPPLEMENTAL_EVIDENCE_SEPARATOR = '\n';
+const SUPPLEMENTAL_EVIDENCE_SEPARATOR = '\n';
 export type RequestPreparationRelease = 'expired' | 'failed' | 'dispatched' | 'cancelled' | 'disposed';
 export interface RequestSupplementalSource {
   readonly id: string;
@@ -56,7 +56,7 @@ interface Entry {
   assertSupplementalCurrent?: () => void;
 }
 export const requestPromptDigest = (text: string): string => createHash('sha256').update(text, 'utf8').digest('hex');
-export function freezeRequestValue<T>(input: T): T {
+function freezeRequestValue<T>(input: T): T {
   const value = structuredClone(input);
   const freeze = (part: unknown): void => {
     if (!part || typeof part !== 'object' || Object.isFrozen(part)) return;
