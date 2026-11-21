@@ -47,38 +47,39 @@
 .everyday-unavailable {font-size:12px;color:var(--muted);padding:14px 0;}
 .everyday-difference-toggle {display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted);}
 .everyday-difference-toggle input {width:13px;height:13px;}
+.everyday-comparison {margin-top:12px;}
 .everyday-comparison-scroll {overflow:auto;max-width:100%;overscroll-behavior:contain;scrollbar-width:thin;}
-.everyday-comparison-table {border-collapse:separate;border-spacing:0;width:100%;table-layout:fixed;font-size:12px;line-height:1.5;}
-.everyday-comparison-table th {font-weight:400;text-align:left;}
-.everyday-comparison-table thead th {padding:12px 15px 17px;vertical-align:top;border-bottom:1px solid var(--border);min-width:135px;}
-.everyday-comparison-table thead th:first-child {width:21%;min-width:130px;}
-.everyday-comparison-table thead th button {padding:0;justify-content:flex-start;gap:7px;font-size:12px;text-align:left;}
-.everyday-comparison-table thead th button strong {font-weight:550;}
-.everyday-comparison-table thead th p {font-size:11px;color:var(--muted);margin-top:8px;overflow-wrap:anywhere;}
-.everyday-option-selector {display:flex;align-items:center;justify-content:center;height:15px;width:15px;flex:0 0 15px;border:1px solid var(--control-border);border-radius:50%;background:var(--surface);color:var(--text);}
-.everyday-comparison-table th.is-selected .everyday-option-selector {border-color:var(--text);}
-.everyday-comparison-table :is(tbody th,td) {padding:14px 15px;border-bottom:1px solid var(--border);vertical-align:top;overflow-wrap:anywhere;}
-.everyday-comparison-table td {white-space:normal;overflow:visible;text-overflow:clip;max-width:none;}
-.everyday-comparison-table tbody th {color:var(--muted);font-size:11px;}
-.everyday-comparison-table tbody th small {display:block;font-size:10px;margin-top:3px;}
-.everyday-comparison-table .is-selected {background:var(--accent-soft);}
-.everyday-comparison-table .is-unavailable {color:var(--muted);font-size:11px;}
-.everyday-comparison-table thead th.is-selected {border-radius:8px 8px 0 0;}
-.everyday-comparison-table tbody tr:last-child td.is-selected {border-radius:0 0 8px 8px;}
+.everyday-option-grid {display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;margin-top:10px;}
+.everyday-option-card {display:flex;align-items:center;justify-content:flex-start;gap:9px;padding:11px 12px;min-width:0;border:1px solid var(--control-border);border-radius:10px;background:var(--surface);text-align:left;font-size:12px;line-height:1.5;}
+.everyday-option-card:hover:not([data-selected=true]) {background:var(--hover);}
+.everyday-option-card[data-selected=true] {border-color:var(--selection-border);background:var(--selection-bg);}
+.everyday-option-card:focus-visible {outline:2px solid var(--ui-focus-ring,#808080);outline-offset:3px;}
+.everyday-option-selector {display:flex;align-items:center;justify-content:center;height:15px;width:15px;flex:0 0 15px;border:1.5px solid var(--control-border);border-radius:50%;background:var(--surface);color:#fff;}
+.everyday-option-card[data-selected=true] .everyday-option-selector {border-color:var(--text);background:var(--accent);}
+.everyday-option-text {min-width:0;}
+.everyday-option-text strong {display:block;font-weight:550;overflow-wrap:anywhere;}
+.everyday-option-text small {display:block;font-size:10px;color:var(--muted);margin-top:2px;overflow-wrap:anywhere;}
+.everyday-diff {display:grid;margin-top:12px;border:1px solid var(--border);border-radius:8px;overflow:hidden;font-size:11px;line-height:1.5;}
+.everyday-diff-row {display:grid;grid-template-columns:subgrid;grid-column:1/-1;border-bottom:1px solid var(--border);}
+.everyday-diff-row:last-child {border-bottom:0;}
+.everyday-diff-row>span {padding:8px 12px;min-width:0;overflow-wrap:anywhere;}
+.everyday-diff-row.is-head>span {font-size:10px;color:var(--muted);font-weight:400;padding:6px 12px;}
+.everyday-diff-label {color:var(--muted);font-size:10px;padding-top:9px;}
+.everyday-diff-label small {display:block;font-size:9px;margin-top:2px;}
+.everyday-diff-row .is-selected {background:var(--accent-soft);}
+.everyday-diff-row .is-unavailable {color:var(--muted);font-size:10px;}
 .everyday-comparison-footer {display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-top:17px;}
 .everyday-comparison-footer p {display:flex;align-items:center;gap:8px;font-size:11px;}
 .everyday-comparison-footer p>span {color:var(--muted);}
 .everyday-comparison-footer p>strong {font-weight:550;}
 .everyday-comparison-footer .primary {font-size:11px;}
-@media(max-width:700px) {.everyday-heading{align-items:flex-start;gap:10px;}.everyday-heading>span{font-size:10px;}.everyday-metric-nav button{flex-basis:120px;padding:10px 12px;}.everyday-stat-value{font-size:28px;}.everyday-comparison-table{min-width:570px;}.everyday-comparison-table :is(thead th,tbody th,td){padding:12px 10px;}.everyday-comparison-footer .primary{margin-left:auto;}}
+@media(max-width:700px) {.everyday-heading{align-items:flex-start;gap:10px;}.everyday-heading>span{font-size:10px;}.everyday-metric-nav button{flex-basis:120px;padding:10px 12px;}.everyday-stat-value{font-size:28px;}.everyday-option-grid{grid-template-columns:minmax(0,1fr);}.everyday-diff .number{white-space:normal;overflow-wrap:anywhere;}.everyday-comparison-footer .primary{margin-left:auto;}}
 
 .everyday-source-values table { width:max-content; }
 .everyday-source-values :is(th,td) { padding:6px 12px 6px 0; }
-.everyday-source-values .number,.everyday-comparison-table td.number { text-align:right; white-space:nowrap; overflow:visible; text-overflow:clip; }
-.everyday-source-values tbody tr:hover,.everyday-comparison-table tbody tr:hover { background:var(--hover); }
-@media(max-width:600px) { .everyday-comparison-table { min-width:650px; } }
+.everyday-source-values .number,.everyday-diff .number { text-align:right; white-space:nowrap; overflow:visible; text-overflow:clip; }
+.everyday-source-values tbody tr:hover,.everyday-diff-row:hover { background:var(--hover); }
+.everyday-diff-row:hover .is-selected { background:var(--accent-soft); }
 
-.artifact[data-artifact-inline=true] .artifact-content .everyday-comparison-scroll { overflow:auto; }
 .artifact[data-artifact-inline=true] .artifact-content .everyday-source-values table { width:max-content; table-layout:auto; }
-.artifact[data-artifact-inline=true] .artifact-content .everyday-comparison table { width:100%; table-layout:fixed; }
-.artifact[data-artifact-inline=true] .artifact-content :is(.everyday-source-values,.everyday-comparison) table .number { white-space:nowrap; overflow-wrap:normal; }
+.artifact[data-artifact-inline=true] .artifact-content .everyday-source-values .number,.artifact[data-artifact-inline=true] .artifact-content .everyday-diff .number { white-space:nowrap; overflow-wrap:normal; }
