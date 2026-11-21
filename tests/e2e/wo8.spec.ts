@@ -56,7 +56,7 @@ for (const theme of ['dark','light'] as const) {
     test.skip(stage==='before');
     await page.goto('/wo8-pairing');
     await page.evaluate(value=>{document.documentElement.dataset.theme=value;},theme);
-    await expect(page.locator('.everyday-comparison-table')).toBeVisible();
+    await expect(page.locator('.everyday-diff')).toBeVisible();
     await expect(page.locator('.task-step-label')).toBeVisible();
     for(const selector of ['.usage-summary>dl']){
       const measurements=await page.locator(selector).evaluate(element=>{
@@ -73,13 +73,13 @@ for (const theme of ['dark','light'] as const) {
     await expect(page.locator('.task-table td[data-column-key="count"]').first()).toHaveCSS('text-align','right');
     await expect(page.locator('.task-table td[data-column-key="code"]').first()).toHaveCSS('text-align','left');
     await expect(page.locator('.task-table td[data-column-key="code"]').first()).toHaveText('0012');
-    await expect(page.locator('.everyday-comparison-table td.number').first()).toHaveCSS('text-align','right');
+    await expect(page.locator('.everyday-diff .number').first()).toHaveCSS('text-align','right');
     const volume=page.locator('.settings-card-row').filter({has:page.getByRole('slider',{name:'Notification volume'})});
     await expect(volume.locator('.settings-inline-controls>output')).toHaveText('35.0%');
     await expect(page.locator('.usage-context strong')).toHaveText('80.0%');
     await expect(page.locator('.usage-summary dd').last()).toHaveText('0.0%');
     await expect(page.locator('.surface-metric strong')).toHaveText('124,800');
-    for(const selector of ['.task-table-scroll','.everyday-comparison-table']){const width=await page.locator(selector).evaluate(element=>element.getBoundingClientRect().width);expect(width).toBeCloseTo(728);}
+    for(const selector of ['.task-table-scroll','.everyday-diff']){const width=await page.locator(selector).evaluate(element=>element.getBoundingClientRect().width);expect(width).toBeCloseTo(728);}
     await page.screenshot({path:info.outputPath(`metrics-${stage}-${theme}-1440.png`)});
     await page.screenshot({path:info.outputPath(`metrics-full-${stage}-${theme}-1440.png`),fullPage:true});
     // A 720 CSS-pixel viewport represents a 1440px window at 200% zoom.

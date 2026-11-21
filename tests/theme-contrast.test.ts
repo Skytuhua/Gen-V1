@@ -314,7 +314,7 @@ describe('appearance theme contrast audit', () => {
 
   it('distinguishes selected controls and current review items from resting controls', () => {
     for (const [path, selectors] of Object.entries({
-      'apps/web/src/everyday-data.css': ['.everyday-comparison-table th.is-selected .everyday-option-selector'],
+      'apps/web/src/everyday-data.css': ['.everyday-option-card[data-selected=true] .everyday-option-selector'],
       'apps/web/src/work-objects.css': ['.workflow-card[data-selected=true]', '.architecture-node[aria-pressed=true]'],
       'apps/web/src/interaction-tools.css': ['.review-decision-choice[data-selected=true]'],
       'apps/web/src/task-interface.css': ['.task-choice.is-selected'],

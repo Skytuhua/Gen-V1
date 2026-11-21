@@ -12,7 +12,7 @@ for(const theme of ['light','dark'] as const)test(`${theme} selections are neutr
  const appearance=await selected.evaluate(node=>{const rgb=(value:string)=>value.match(/[\d.]+/g)!.slice(0,3).map(Number);return {background:rgb(getComputedStyle(node).backgroundColor),border:rgb(getComputedStyle(node).borderTopColor),canvas:rgb(getComputedStyle(document.body).backgroundColor)};});
  for(const color of [appearance.background,appearance.border,appearance.canvas])expect(Math.max(...color)-Math.min(...color)).toBeLessThanOrEqual(2);
  if(theme==='dark')expect(appearance.canvas).toEqual([0,0,0]);
- const selectedColumn=page.locator('.everyday-comparison-table td.is-selected').first();const color=await selectedColumn.evaluate(node=>getComputedStyle(node).backgroundColor.match(/\d+/g)!.slice(0,3).map(Number));expect(Math.max(...color)-Math.min(...color)).toBeLessThanOrEqual(2);
+ const selectedColumn=page.locator('.everyday-diff .is-selected').first();const color=await selectedColumn.evaluate(node=>getComputedStyle(node).backgroundColor.match(/\d+/g)!.slice(0,3).map(Number));expect(Math.max(...color)-Math.min(...color)).toBeLessThanOrEqual(2);
  await selected.focus();const outline=await selected.evaluate(node=>({width:parseFloat(getComputedStyle(node).outlineWidth),style:getComputedStyle(node).outlineStyle}));expect(outline.width).toBeGreaterThanOrEqual(2);expect(outline.style).not.toBe('none');
 });
 
