@@ -17,7 +17,6 @@ export const ComparisonFileRequestSchema = z.strictObject({
     .max(4096)
     .refine((value) => !value.includes("\0")),
 });
-export type ComparisonFileRequest = z.infer<typeof ComparisonFileRequestSchema>;
 export interface LocalComparisonIdentity {
   kind: "local";
   id: string;

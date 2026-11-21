@@ -4,7 +4,7 @@ import { Popover } from './Popover';
 import { isComposing, useListNavigation } from './list-navigation';
 import './controls.css';
 
-export interface SelectOption { value: string; label: string; disabled?: boolean }
+interface SelectOption { value: string; label: string; disabled?: boolean }
 export interface SelectProps {
   value: string;
   onValueChange: (value: string) => void;
