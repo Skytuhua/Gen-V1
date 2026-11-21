@@ -15,7 +15,7 @@ describe('workbench dock tab semantics',()=>{
   expect(workbench).toContain('role="tab"');
   expect(workbench).toContain("[['request','Last request'],['tools','Tools'],['run','Run'],['sources','Sources'],['evidence','Evidence']]");
   expect(workbench).toContain('aria-selected={tab===id}');
-  expect(workbench).toContain('aria-controls={`wb-panel-${id}`}');
+  expect(workbench).toContain('aria-controls={tab===id?`wb-panel-${id}`:undefined}');
   expect(workbench).toContain('id={`wb-tab-${id}`}');
   expect(workbench).toContain('tabIndex={tab===id?0:-1}');
   for(const key of ['ArrowLeft','ArrowRight','Home','End'])expect(workbench).toContain(`'${key}'`);
