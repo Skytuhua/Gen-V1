@@ -172,6 +172,7 @@ export function ShellSidebar({
   const [editingSection, setEditingSection] = useState<string | 'new' | null>(null);
   const [sectionNameError, setSectionNameError] = useState('');
   const [deletingSection, setDeletingSection] = useState<SidebarSectionV1 | null>(null);
+  const [removingSection, setRemovingSection] = useState<string | null>(null);
   const [announce, setAnnounce] = useState('');
   const announceRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const say = (message: string) => { clearTimeout(announceRef.current); setAnnounce(''); announceRef.current = setTimeout(() => setAnnounce(message), 60); };
@@ -256,8 +257,11 @@ export function ShellSidebar({
     const members = sectionRows.get(section.id) ?? [];
     if (members.length && !confirmed) { setDeletingSection(section); return; }
     setDeletingSection(null);
+    setRemovingSection(section.id);
+    await new Promise(resolve => setTimeout(resolve, 150));
     try {
       await runSection('sidebar.section.delete', { sectionId: section.id });
+      setRemovingSection(null);
       toast('Section deleted', { action: { label: 'Undo', onClick: () => void runSection('sidebar.section.restore', { section }).catch(() => {}) } });
     } catch { /* toasted */ }
   };
@@ -514,7 +518,8 @@ export function ShellSidebar({
           const rows = sectionRows.get(section.id) ?? [];
           const folded = layout.folded[list] ?? false;
           return (
-            <section key={section.id} className="thread-group thread-group-section" data-thread-list={list} data-drop-target={reorder.dropTargetList === list ? '' : undefined}>
+            <section key={section.id} className="thread-group thread-group-section" data-thread-list={list} data-removing={removingSection === section.id ? '' : undefined} data-drop-target={reorder.dropTargetList === list ? '' : undefined}>
+              <div className="sidebar-section-inner">
               <SectionHeader
                 section={section} count={rows.length} expanded={!folded}
                 menuOpen={sectionMenuId === section.id} onMenuOpenChange={next => setSectionMenuId(next ? section.id : null)}
@@ -531,6 +536,7 @@ export function ShellSidebar({
                 {rows.map(item => row(item, false))}
                 {!rows.length && !locked && <div className="sidebar-pinned-empty">Drag threads here.</div>}
               </MotionRegion>
+              </div>
             </section>
           );
         })}
