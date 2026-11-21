@@ -285,8 +285,8 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
  }
  async function hydrateSessionGeneration(cutPath:string,input:StartRun):Promise<string>{
   const cut=resolve(cutPath),generation=input.sessionGeneration;validateSessionGeneration(generation);
-  if(!within(sessions,cut)||!/\.cut-[0-9a-f]{16}\.json$/.test(cut))throw error('HERMES_SESSION_INVALID','Hydration requires an immutable app-owned turn cut.');
-  await safeFile(cut);const text=await readFile(cut,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES||turnCutId(text)!=='c'+cut.slice(-20,-5))throw error('HERMES_CUT_INVALID','The turn cut is stale or corrupt.');
+  const match=/\.cut-(c[0-9a-f]{16})\.json$/.exec(cut);if(!within(sessions,cut)||!match)throw error('HERMES_SESSION_INVALID','Hydration requires an immutable app-owned turn cut.');
+  await safeFile(cut);const text=await readFile(cut,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES||turnCutId(text)!==match[1])throw error('HERMES_CUT_INVALID','The turn cut is stale or corrupt.');
   const hydrated=hydrateGeneration(JSON.parse(text),pathFor(input),generation!);
   if(hydrated.ownership!.threadId!==input.threadId||(hydrated.ownership!.accountId??null)!==(input.accountId??null))throw error('HERMES_CUT_OWNER','The turn cut belongs to another thread or account.');
   const target=pathFor(input);await safeFile(target);const{writeFile,rename}=await import('node:fs/promises');await secureDirectory(root,dirname(target));const tmp=target+'.'+randomUUID()+'.tmp';await writeFile(tmp,JSON.stringify(hydrated));await rename(tmp,target);return target;
