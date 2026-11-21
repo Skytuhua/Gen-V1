@@ -3369,6 +3369,7 @@
     "tests/official-runtime-storage.test.ts",
     "tests/operation-queue.test.ts",
     "tests/packaged-providers.test.ts",
+    "tests/paired-devices-panel.test.ts",
     "tests/path-access.test.ts",
     "tests/pdf-structure.test.ts",
     "tests/personal-visuals-ui.test.ts",
