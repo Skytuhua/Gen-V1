@@ -7,6 +7,7 @@ import { usageCost, usageCount, usagePercent, usageReset, type UsageProviderRepo
 import type { ModelRequestObservationV1 } from '../../../packages/contracts/model-request';
 import './usage-dialog.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 export interface UsageDialogProps {
   open: boolean; onClose: () => void; reports?: readonly UsageProviderReport[];
@@ -60,7 +61,7 @@ export function UsageDialog({ open, onClose, reports = [], requests = [], loadin
     if (!onRefresh || pending.current) return;
     pending.current = true; setRefreshing(true); setRefreshError(''); const owner = generation.current;
     try { await onRefresh(); }
-    catch (cause) { if (generation.current === owner) setRefreshError(cause instanceof Error ? cause.message : 'Usage could not be refreshed. Try again.'); }
+    catch (cause) { if (generation.current === owner) setRefreshError(errorMessage(cause, 'Usage could not be refreshed. Try again.')); }
     finally { if (generation.current === owner) { pending.current = false; setRefreshing(false); } }
   };
   return <Modal open={open} title="Usage" onClose={onClose} className="usage-dialog">

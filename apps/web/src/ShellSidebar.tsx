@@ -38,6 +38,7 @@ import { toast } from '../../../packages/ui-shell/Toast';
 import { useThreadMove } from './sidebar-thread-move';
 import { useThreadReorder, type SidebarSection } from './sidebar-reorder';
 import './sidebar-thread-move.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 const threadAge = (value: string) => {
   const date = Date.parse(value);
@@ -215,7 +216,7 @@ export function ShellSidebar({
           {id: 'unread', label: item.presentation?.unread ? 'Mark as read' : 'Mark as unread', icon: <Circle size={12} />,
             onSelect: () => presentation(item, {unread: !item.presentation?.unread})},
           {id: 'settle', label: item.presentation?.settled ? 'Return to inbox' : 'Settle thread', icon: <Check size={13} />,
-            onSelect: async () => { const next = !item.presentation?.settled; try { if (await presentation(item, {settled: next})) toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); } catch (cause) { toast(cause instanceof Error ? cause.message : 'Thread presentation could not save.', {tone: 'error'}); } }},
+            onSelect: async () => { const next = !item.presentation?.settled; try { if (await presentation(item, {settled: next})) toast(next ? `"${item.title}" settled — find it under Settled` : `"${item.title}" returned to your threads`); } catch (cause) { toast(errorMessage(cause, 'Thread presentation could not save.'), {tone: 'error'}); } }},
           {id: 'archive', label: 'Archive thread', icon: <Archive size={13} />, disabled: Boolean(item.runId),
             title: item.runId ? 'Stop the task before archiving.' : undefined, onSelect: () => archive(item.id)},
         ]}/>

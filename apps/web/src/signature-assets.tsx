@@ -3,6 +3,7 @@ import { useStateStore } from '@json-render/react';
 import type { ResourceGrant } from '../../../packages/contracts';
 import { MAX_SIGNATURE_PNG_BYTES, validateSignaturePng } from '../../../packages/ui-catalog/signature-data';
 import { bootstrap, command, getResourceContent } from './api';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 type Pending = { id: string; stateKey: string; base64: string; resourceId?: string; error?: string };
 const prefix = 'harness:signature-assets:v1:';
@@ -86,7 +87,7 @@ export function DocumentAssetProvider({ threadId, stateId = '', active = true, c
         cache.set(`${threadId}:${grant.id}`, base64Bytes(record.base64));
         if (alive) { store.set(pathFor(record.stateKey), { kind: 'image', resourceId: grant.id }); write(key, current.filter(item => item.id !== record.id)); }
         else write(key, current.map(item => item.id === record.id ? { ...item, resourceId: grant.id } : item));
-      }).catch(error => { write(key, read(key).map(item => item.id === record.id ? { ...item, error: error instanceof Error ? error.message : 'Signature upload failed. Retry to continue.' } : item)); }).finally(() => { inFlight.delete(record.id); emit(); });
+      }).catch(error => { write(key, read(key).map(item => item.id === record.id ? { ...item, error: errorMessage(error, 'Signature upload failed. Retry to continue.') } : item)); }).finally(() => { inFlight.delete(record.id); emit(); });
     }
     return () => { alive = false; };
   }, [key, threadId, revision, store, active]);

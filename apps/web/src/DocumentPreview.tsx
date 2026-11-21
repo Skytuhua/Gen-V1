@@ -14,6 +14,7 @@ import { useDocumentEvidence, type DocumentEvidence, type DocumentHandoffState }
 import './document-preview.css';
 import { ArtifactInline } from './task-context';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 const MAX_BYTES = 20 * 1024 * 1024, MAX_PAGES = 200, MAX_PIXELS = 8_000_000;
 const TASK_TIMEOUT = 15_000;
@@ -63,7 +64,7 @@ async function fetchPdfBytes(url: string, signal: AbortSignal): Promise<Uint8Arr
 
 export { createPdfDraft } from './pdf-draft';
 
-const message = (error: unknown) => error instanceof Error ? error.message : 'The PDF preview could not be displayed.';
+const message = (error: unknown) => errorMessage(error, 'The PDF preview could not be displayed.');
 const destroy = (task: PDFDocumentLoadingTask) => { void task.destroy().catch(() => {}); };
 const grantIdentity = (grant: DocumentEvidence['resources'][number] | undefined) => grant ? JSON.stringify([grant.id, grant.threadId, grant.path, grant.identity]) : '';
 

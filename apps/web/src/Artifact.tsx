@@ -19,6 +19,7 @@ import { animateTask, useArtifactEntrance } from './task-motion';
 import { PendingStatus } from './LoadingState';
 import {useDesktop,useDesktopCloseGuard,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {journalFlush} from './journal';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 class ArtifactBoundary extends Component<{ children: ReactNode; resetKey: string }, { error: string }> {
   state = { error: '' };
@@ -96,7 +97,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const act = async (type: string, payload: Record<string, unknown>) => {
     if (type === 'artifact.expand' && payload.expanded) expandButton.current = section.current?.querySelector<HTMLElement>('[aria-label="Expand artifact"]') ?? null;
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }
-    try { setError(''); await command(type, { artifactId: artifact.id, ...payload }, artifact.threadId); await refresh(); } catch (error) { setError(error instanceof Error ? error.message : 'Action failed'); }
+    try { setError(''); await command(type, { artifactId: artifact.id, ...payload }, artifact.threadId); await refresh(); } catch (error) { setError(errorMessage(error, 'Action failed')); }
   };
   useModalRegion(section, expanded && restored, () => { void act('artifact.expand', { expanded: false }); }, '[aria-label="Collapse artifact"]');
   useLayoutEffect(() => {
@@ -134,7 +135,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
       await widget.current.releaseLease();
       await command('artifact.archive', { artifactId: artifact.id }, artifact.threadId);
       dirtyChanged(false); setArchiveGuard(false); await refresh();
-    } catch (error) { setError(error instanceof Error ? error.message : 'Archive failed'); } finally { setArchiving(false); }
+    } catch (error) { setError(errorMessage(error, 'Archive failed')); } finally { setArchiving(false); }
   };
   const effectiveRecord = widgetRecord && widgetRecord.revision > (record?.revision ?? -1) ? widgetRecord : record;
   const prepareDetach=async()=>{

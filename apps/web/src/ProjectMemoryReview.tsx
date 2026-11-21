@@ -6,12 +6,13 @@ import {PROJECT_MEMORY_LIMITS, type MemoryAction, type MemoryForgetPreview, type
 import {downloadProjectMemory, getMemoryForgetPreview, getMemorySource, getProjectMemory, memoryOwnerKey, mutateProjectMemory, type MemoryOwner} from './project-memory-api';
 import type {DesktopMemoryExportResult} from '../../../packages/desktop-contract/index';
 import './project-memory.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 const tabs = ['Accepted', 'Proposals', 'Conflicts', 'Deleted history'] as const;
 type Tab = typeof tabs[number];
 type Row = ProjectMemoryView['items'][number];
 const label = (value: string) => value[0] + value.slice(1).toLowerCase().replaceAll('_', ' ');
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'Project memory could not be updated.';
+const message = (cause: unknown) => errorMessage(cause, 'Project memory could not be updated.');
 const date = (value: string | null) => value ? new Date(value).toLocaleString() : 'Never';
 function age(value: string) {
   const hours = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 3_600_000));

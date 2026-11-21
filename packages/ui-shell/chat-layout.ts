@@ -1,4 +1,5 @@
 export type ChatMode='full'|'drawer'|'popup';
+import {clamp} from './helpers';
 export interface ChatRect {x:number;y:number;width:number;height:number}
 export interface ChatViewport {width:number;height:number;top?:number}
 export type ChatEdge='n'|'e'|'s'|'w'|'ne'|'nw'|'se'|'sw';
@@ -6,7 +7,6 @@ export interface ChatLayout {mode:ChatMode;detached:boolean;drawer?:ChatRect;pop
 export const CHAT_LAYOUT_KEY='harness:chat-view:v1';
 export const CHAT_TRANSITION_MS=360;
 export const CHAT_EDGES:ChatEdge[]=['n','e','s','w','ne','nw','se','sw'];
-const clamp=(value:number,min:number,max:number)=>Math.min(max,Math.max(min,value));
 export function chatBounds(view:ChatViewport){
  const margin=Math.min(20,view.width/8,view.height/8),top=Math.max(margin,view.top??0);
  return {left:margin,top,right:Math.max(margin,view.width-margin),bottom:Math.max(top,view.height-margin)};

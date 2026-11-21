@@ -4,6 +4,7 @@ import type { Snapshot, TaskMemory as Note } from '../../../packages/contracts';
 import { command } from './api';
 import { journalRead, journalWrite, journalCompareAndSwap, journalGeneration } from './journal';
 import './task-memory.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 type Draft = { key: string; content: string; baseRevision: number };
 function MemoryNote({ note, threadId, fresh = false, expanded = true, onExpandedChange }: { note: Note; threadId: string; fresh?: boolean; expanded?: boolean; onExpandedChange?: (value: boolean) => void }) {
@@ -54,7 +55,7 @@ function MemoryNote({ note, threadId, fresh = false, expanded = true, onExpanded
           if (await journalCompareAndSwap(journalKey, edited, retained) && alive.current && generation.current === edited) generation.current = journalGeneration(journalKey) ?? '';
         }
       }
-    } catch (cause) { if (alive.current) setError(cause instanceof Error ? cause.message : 'The note could not be saved. Your draft is retained.'); }
+    } catch (cause) { if (alive.current) setError(errorMessage(cause, 'The note could not be saved. Your draft is retained.')); }
     finally { inFlight.current = null; if (alive.current) setBusy(false); }
   };
   const recoveryMessage = recovery === 'pending' ? <p className="memory-recovery muted" role="status">Checking for an unsaved note…</p> : recovery === 'failed' ? <div className="memory-recovery"><p role="status" className="error-text">Note recovery is unavailable. Retry before editing.</p><button type="button" className="secondary" onClick={() => setAttempt(value => value + 1)}>Retry</button></div> : null;

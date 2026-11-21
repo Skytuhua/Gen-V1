@@ -8,6 +8,7 @@ import {changeTerminalExcerpts,clearAcceptedExcerpts,editTerminalExcerpt,excerpt
 import {clearAcceptedSkills, readSkillBindings, skillDraftKey} from '../composer-skill-drafts';
 import {logicalOwnerV1Schema, sameLogicalOwner, sendModeV1Schema, sourceRefsV1Schema, type LogicalOwnerV1, type SourceRefV1} from '../../../../packages/contracts/source-selection';
 import {clearAcceptedSourceDraft, parseSourceDraftMetadata, readSourceDraft} from '../workbench-recovery';
+import {errorMessage} from '../../../../packages/ui-shell/helpers';
 
 export type ChildInputTicket = AgentInputTicket;
 export interface AgentSend {agent: AgentSummary; content: string; commandId: string; isCurrent?(): boolean}
@@ -107,7 +108,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    }
   })());
   if (inventoryAgent(agent) && agent.parentId && actions.followUp?.prepare) {
-   try {await actions.followUp.prepare(agent); emit(value, {});} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Follow-up is unavailable. Reopen to retry.'});}
+   try {await actions.followUp.prepare(agent); emit(value, {});} catch (cause) {emit(value, {error: errorMessage(cause, 'Follow-up is unavailable. Reopen to retry.')});}
   }
  };
  return {
@@ -212,7 +213,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
      try {await journalWrite(pendingKey(agent), null); value.pending = undefined;}
      catch {emit(value, {error: 'The rejected message could not be saved locally. Keep this workspace open.', retry: true}); return;}
     }
-    emit(value, {error: cause instanceof Error ? cause.message : 'Delivery is uncertain. Retry this message.', retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
+    emit(value, {error: errorMessage(cause, 'Delivery is uncertain. Retry this message.'), retry: !rejected, resumeRequired: cause instanceof ApiError && cause.code === 'RESUME_REQUIRED'});
    }
    finally {emit(value, {busy: false});}
   },
@@ -223,7 +224,7 @@ export function createSharedAgentComposers(actions: {sendParent(input: ParentSen
    value.stopEpoch++; emit(value, {stopping: true, error: ''});
    const childOf = (child: Entry) => inventoryAgent(child.agent) && Boolean(value.inventory && (child.agent.parentId === value.inventory.agentId || child.agent.rootId === value.inventory.agentId));
    for (const child of entries.values()) if (child !== value && childOf(child)) {child.stopEpoch++; emit(child, {});}
-   try {await actions.stopParent(agent);} catch (cause) {emit(value, {error: cause instanceof Error ? cause.message : 'Stop failed. Retry Stop.'});}
+   try {await actions.stopParent(agent);} catch (cause) {emit(value, {error: errorMessage(cause, 'Stop failed. Retry Stop.')});}
    finally {emit(value, {stopping: false}); for (const child of entries.values()) if (childOf(child)) emit(child, {});}
   },
   dispose() {unsubscribeTickets?.(); actions.followUp?.dispose?.(); for (const value of entries.values()) {value.unsubscribe?.(); value.listeners.clear();}},

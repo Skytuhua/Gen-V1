@@ -4,9 +4,10 @@ import type { OperationProjectTrustReview, OperationProjectTrustStatus as TrustS
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { decideOperationProjectTrust, getOperationProjectTrust, getOperationProjectTrustStatus, revokeOperationProjectTrust } from './operation-project-trust-api';
 import './operation-project-trust.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 export interface ProjectTrustReadiness { key: string; allowed: boolean }
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The project trust request could not be completed.';
+const message = (cause: unknown) => errorMessage(cause, 'The project trust request could not be completed.');
 const labels = { required: 'Project trust required', trusted: 'Trusted reviewed bytes', declined: 'Project trust declined', revoked: 'Project trust revoked', invalidated: 'Reviewed bytes or owner changed' } as const;
 
 /** One mounted session per complete operation/owner key. A late read or decision

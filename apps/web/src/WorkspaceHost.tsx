@@ -31,6 +31,7 @@ import type {ThreadHoverPRTarget} from './thread-hover/host';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import './workspace-host.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests' | 'plugin-workspace';
 export interface ConversationHost {
@@ -44,7 +45,7 @@ export interface ConversationHost {
   pluginCatalog: ReturnType<typeof usePluginCatalog>;
   openReview?(target:ThreadHoverPRTarget,scope:ThreadHoverScope):Promise<void>;
 }
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The workspace could not open. Retry.';
+const message = (cause: unknown) => errorMessage(cause, 'The workspace could not open. Retry.');
 const prepare = async () => {await journalFlush(); await prepareEditorHandoff();};
 
 type CompactSettingsComponent = typeof import('./CompactSettings').CompactSettings;
