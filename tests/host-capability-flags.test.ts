@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { resolve } from 'node:path';
 import { launchHost, readHostOptions, type HostFactories } from '../apps/server/host.ts';
-import { capabilityEnabled, configureHostCapabilityFlags, readCapabilityFlagOverrides, registeredCapabilityFlags } from '../packages/core/capability-flags.ts';
+import { capabilityEnabled, capabilityFlagEnvName, configureHostCapabilityFlags, readCapabilityFlagOverrides, registeredCapabilityFlags } from '../packages/core/capability-flags.ts';
 
 const cleanup: (() => void | Promise<void>)[] = [];
 afterEach(async () => { for (const close of cleanup.splice(0).reverse()) await close(); vi.unstubAllEnvs(); });
@@ -63,4 +63,10 @@ it('prevents a competing host from changing live flags and retains an identical 
   const second = configureHostCapabilityFlags({ 'memory.projectV1': true }); cleanup.push(second);
   first(); first(); expect(capabilityEnabled('memory.projectV1')).toBe(true);
   second(); expect(Object.values(registeredCapabilityFlags()).every(value => value === false)).toBe(true);
+});
+
+it('registers the data.databaseBrowserV1 flag disabled by default behind the finite env channel', () => {
+  expect(capabilityFlagEnvName('data.databaseBrowserV1')).toBe('HARNESS_FLAG_DATA_DATABASE_BROWSER_V1');
+  expect(capabilityEnabled('data.databaseBrowserV1')).toBe(false);
+  expect(readCapabilityFlagOverrides({ HARNESS_FLAG_DATA_DATABASE_BROWSER_V1: 'true' })).toEqual({ 'data.databaseBrowserV1': true });
 });

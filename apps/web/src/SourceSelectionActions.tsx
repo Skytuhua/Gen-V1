@@ -2,6 +2,7 @@ import {useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import '../../../packages/ui-shell/controls.css';
 import './source-workbench.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 export interface VisibleSourceSelection {start:number;end:number;text:string}
 export type SourceSelectionAction = 'ask'|'attach'|'open';
 /** Offsets are JavaScript UTF-16 code units in canonical source, not DOM offsets.
@@ -127,11 +128,11 @@ export function SourceSelectionActions({children,text,enabled,onAction,onOpenCan
         setCandidate(current=>current&&sameRange(current.range)?null:current);
       }
     }
-    catch(cause){if(version===revision.current)setError(cause instanceof Error?cause.message:'Source could not be captured.');}
+    catch(cause){if(version===revision.current)setError(errorMessage(cause,'Source could not be captured.'));}
     finally{if(version===revision.current)setBusy(false);}
   }
   return <div className="source-selection" data-escape-scope={candidate?'source-selection':undefined}><div ref={root} tabIndex={enabled?0:undefined} className="source-selection-text">{children}</div>
-    {enabled&&!exactRendering&&<p className="muted" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(cause instanceof Error?cause.message:'Canonical source is unavailable.');}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
+    {enabled&&!exactRendering&&<p className="muted" role="status">Inline selection is unavailable for this formatted message. {onOpenCanonical?<button type="button" disabled={busy} onClick={()=>{const version=revision.current;setBusy(true);void Promise.resolve().then(()=>latest.current.onOpenCanonical?.()).catch(cause=>{if(version===revision.current)setError(errorMessage(cause,'Canonical source is unavailable.'));}).finally(()=>{if(version===revision.current)setBusy(false);});}}>Select canonical source</button>:'Open Sources to select the canonical message text.'}{error&&<span role="alert">{error}</span>}</p>}
     {candidate&&enabled&&<Popover anchor={root} getAnchorRect={()=>candidate.range.getBoundingClientRect()} contentRef={toolbar} open width={430} height={error?96:52} preferredSide="above" align="start" onDismiss={()=>setCandidate(null)} role="toolbar" aria-label="Selected source" tabIndex={-1} className="ui-control-popup source-selection-toolbar" onPointerDown={event=>event.preventDefault()}>
       <button type="button" disabled={busy} onClick={()=>void act('ask')}>Ask about this</button><button type="button" disabled={busy} onClick={()=>void act('attach')}>Attach to prompt</button><button type="button" disabled={busy} onClick={()=>void act('open')}>Open source</button>
       {error&&<span role="alert">{error}</span>}

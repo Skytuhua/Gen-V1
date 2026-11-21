@@ -1,5 +1,6 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ApiError } from "../api";
+import {errorMessage} from '../../../../packages/ui-shell/format-utils';
 
 export interface FilesRead<T> {
 	value: T | null;
@@ -55,9 +56,7 @@ export function useFilesRead<T>(
 							...previous,
 							pending: false,
 							error:
-								cause instanceof Error
-									? cause.message
-									: "This resource could not be read.",
+								errorMessage(cause,"This resource could not be read."),
 							errorCode: cause instanceof ApiError ? cause.code : "",
 						}));
 				});

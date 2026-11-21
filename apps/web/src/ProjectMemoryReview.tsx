@@ -6,12 +6,13 @@ import {PROJECT_MEMORY_LIMITS, type MemoryAction, type MemoryForgetPreview, type
 import {downloadProjectMemory, getMemoryForgetPreview, getMemorySource, getProjectMemory, memoryOwnerKey, mutateProjectMemory, type MemoryOwner} from './project-memory-api';
 import type {DesktopMemoryExportResult} from '../../../packages/desktop-contract/index';
 import './project-memory.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const tabs = ['Accepted', 'Proposals', 'Conflicts', 'Deleted history'] as const;
 type Tab = typeof tabs[number];
 type Row = ProjectMemoryView['items'][number];
 const label = (value: string) => value[0] + value.slice(1).toLowerCase().replaceAll('_', ' ');
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'Project memory could not be updated.';
+
 const date = (value: string | null) => value ? new Date(value).toLocaleString() : 'Never';
 function age(value: string) {
   const hours = Math.max(0, Math.floor((Date.now() - Date.parse(value)) / 3_600_000));
@@ -44,7 +45,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       scope.current = next.scope; setView(next);
       setEditor(previous => previous && next.tombstones.some(value => value.itemId === previous.id) ? undefined : previous);
       if (!configDirty.current) setSourceThreads(next.sourceThreadIds);
-    } catch (cause) {if (active.current && version === generation.current && !controller.signal.aborted) {setView(undefined); setSource(undefined); setForget(undefined); setError(message(cause));}}
+    } catch (cause) {if (active.current && version === generation.current && !controller.signal.aborted) {setView(undefined); setSource(undefined); setForget(undefined); setError(errorMessage(cause,'Project memory could not be updated.'));}}
     finally {if (active.current && version === generation.current) setLoading(false);}
   }, [ownerKey]);
   useEffect(() => {void load();}, [load]);
@@ -67,7 +68,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       if (receipt.result.state === 'CONFLICT') {setTab('Conflicts'); setNotice('Both revisions were retained. Resolve the conflict before this memory can be recalled.');}
       else setNotice(operation.action === 'forget' ? 'Forgotten. Retrieval exclusion is immediate; physical purge is tracked in Deleted history.' : 'Project memory updated.');
       await load(); return true;
-    } catch (cause) {if (active.current) setError(message(cause)); return false;}
+    } catch (cause) {if (active.current) setError(errorMessage(cause,'Project memory could not be updated.')); return false;}
     finally {if (active.current) {locked.current = false; setBusy(false);}}
   }
   async function detail(item: MemoryItemV1, ref?: MemorySourceRefV1) {
@@ -77,7 +78,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
     try {
       if (ref) {const result = await getMemorySource(view.scope, item, ref, controller.signal); if (active.current && version === detailGeneration.current) setSource(result);}
       else {const preview = await getMemoryForgetPreview(view.scope, item, controller.signal); if (active.current && version === detailGeneration.current) setForget({item, preview});}
-    } catch (cause) {if (active.current && version === detailGeneration.current && !controller.signal.aborted) setError(message(cause));}
+    } catch (cause) {if (active.current && version === detailGeneration.current && !controller.signal.aborted) setError(errorMessage(cause,'Project memory could not be updated.'));}
     finally {if (active.current && version === detailGeneration.current) setDetailPending(false);}
   }
   async function exportData() {
@@ -88,7 +89,7 @@ function ReviewSession({owner, close, readOnly = false}: ProjectMemoryReviewProp
       const result = await downloadProjectMemory(captured, isCurrent); if (!isCurrent()) return;
       setExportResult(result.admitted ? result : undefined);
       setNotice(result.status === 'saved' ? 'Redacted export downloaded.' : result.status === 'cancelled' ? 'Export cancelled.' : 'Redacted export download started.');
-    } catch (cause) {if (active.current) setError(message(cause));}
+    } catch (cause) {if (active.current) setError(errorMessage(cause,'Project memory could not be updated.'));}
     finally {if (active.current) {locked.current = false; setBusy(false);}}
   }
   const blocked = busy || loading, mutationBlocked = blocked || readOnly, rows = view?.items.filter(({item}) => tab === 'Accepted' ? item.state === 'ACCEPTED' || item.state === 'EXPIRED' : tab === 'Proposals' ? item.state === 'PROPOSED' : tab === 'Conflicts' ? item.state === 'CONFLICT' : false) ?? [];

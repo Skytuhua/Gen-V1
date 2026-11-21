@@ -8,6 +8,7 @@ import {ActionMenu} from '../../../packages/ui-shell/ActionMenu';
 import {Popover} from '../../../packages/ui-shell/Popover';
 import {Select} from '../../../packages/ui-shell/Select';
 import './workspace-split.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export const GEN_THREAD_DRAG_TYPE='application/x-gen-thread';
 export const GEN_VIEW_DRAG_TYPE='application/x-gen-workspace-view';
@@ -87,7 +88,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
   // to the element that was focused when the action began once busy clears.
   const focusHost=document.activeElement instanceof HTMLElement?document.activeElement:null;
   setBusy(true);setError('');
-  try{if(flush)await prepare?.();await action();}catch(cause){setError(cause instanceof Error?cause.message:'The layout could not be saved. Your views are retained.');}
+  try{if(flush)await prepare?.();await action();}catch(cause){setError(errorMessage(cause,'The layout could not be saved. Your views are retained.'));}
   finally{pending.current=false;setBusy(false);setDrop(null);if(focusHost)requestAnimationFrame(()=>{if(document.activeElement===document.body&&focusHost.isConnected)focusHost.focus({preventScroll:true});});}
  },[prepare]);
  const send=(type:string,payload:Record<string,unknown>,flush=true)=>run(()=>onCommand(type,{...payload,baseRevision:layout.revision}),flush);
@@ -125,7 +126,7 @@ export function WorkspaceSplitLayout({layout,onCommand,renderView,onActiveViewsC
    if(!onDropThread)throw Error('Conversation placement is unavailable in this workspace.');
    if(edge!=='center'&&!fitSplit(paneId,edge,outer,'thread'))throw Error('Make this area larger before splitting it.');
    void run(()=>onDropThread(threadId,paneId,edge,outer),false);
-  }catch(cause){setError(cause instanceof Error?cause.message:'This view could not be placed.');}
+  }catch(cause){setError(errorMessage(cause,'This view could not be placed.'));}
  };
  const beginResize=(event:ReactPointerEvent<HTMLDivElement>,node:Extract<SplitWorkspaceNode,{kind:'split'}>)=>{
   if(event.button!==0||busy||resize.current||corner.current||floatGesture.current)return;const region=event.currentTarget.parentElement?.getBoundingClientRect();if(!region)return;const horizontal=node.axis==='horizontal',span=(horizontal?region.width:region.height)-6,first=minimumSplitSize(layout,node.first),second=minimumSplitSize(layout,node.second),low=(horizontal?first.width:first.height)/span,high=1-(horizontal?second.width:second.height)/span;if(low>high)return;

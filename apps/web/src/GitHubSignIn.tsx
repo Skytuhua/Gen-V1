@@ -3,12 +3,13 @@ import {z} from 'zod';
 import {authenticated,csrfToken,read} from './api.ts';
 import {formatLocalClock,type TimeFormat} from './time-format';
 import './github-sign-in.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const deviceUrl='https://github.com/login/device';
 const flowSchema=z.object({id:z.string().uuid(),userCode:z.string().min(1).max(40),url:z.literal(deviceUrl),expiresAt:z.number().finite(),interval:z.number().int().min(1000).max(60000)});
 const cancelSchema=z.discriminatedUnion('status',[z.object({status:z.literal('cancelled')}),z.object({status:z.literal('authenticated'),login:z.string().regex(/^[A-Za-z0-9-]{1,100}$/)})]);
 type Flow=z.infer<typeof flowSchema>;
-const errorMessage=(error:unknown)=>error instanceof z.ZodError?'GitHub returned an invalid sign-in response. Start a new sign-in.':error instanceof Error?error.message:'GitHub sign-in failed. Try again.';
+const signInMessage=(error:unknown)=>error instanceof z.ZodError?'GitHub returned an invalid sign-in response. Start a new sign-in.':errorMessage(error,'GitHub sign-in failed. Try again.');
 const auth=<T,>(action:string,payload:unknown={})=>authenticated(()=>fetch('/api/github/auth/'+action,{method:'POST',credentials:'same-origin',cache:'no-store',keepalive:action==='cancel',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(payload)})).then(read<T>);
 
 /** Device codes are transient. Profile credentials stay exclusively on the host. */
@@ -22,10 +23,10 @@ export function GitHubSignIn({active=true,onAuthenticated,timeFormat='system'}:{
    const result=cancelSchema.parse(await auth('cancel',{flowId:id}));
    if(current(generation)){
     owned.current=null;setCancelId(null);setStatus(result.status==='authenticated'?'Sign-in completed as '+result.login+' before cancellation.':label);
-    if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(current(generation))setError(errorMessage(reason));});
+    if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(current(generation))setError(signInMessage(reason));});
    }return true;
   }
-  catch(reason){if(current(generation)){owned.current=id;setCancelId(id);setError(errorMessage(reason));setStatus('Sign-in stopped locally. Retry cancellation.');}return false;}
+  catch(reason){if(current(generation)){owned.current=id;setCancelId(id);setError(signInMessage(reason));setStatus('Sign-in stopped locally. Retry cancellation.');}return false;}
   finally{if(current(generation))setCancelling(false);}
  };
  useEffect(()=>{
@@ -37,8 +38,8 @@ export function GitHubSignIn({active=true,onAuthenticated,timeFormat='system'}:{
    if(id)void auth('cancel',{flowId:id}).then(value=>{
     const result=cancelSchema.parse(value);if(owned.current!==id)return;owned.current=null;
     if(mounted.current){setCancelId(null);setCancelling(false);setError('');setStatus(result.status==='authenticated'?'Sign-in completed as '+result.login+' before cancellation.':'Sign-in cancelled');
-     if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(mounted.current)setError(errorMessage(reason));});}
-   }).catch(reason=>{if(owned.current===id&&mounted.current){setCancelId(id);setCancelling(false);setError(errorMessage(reason));setStatus('Cancellation not confirmed.');}});
+     if(result.status==='authenticated')void Promise.resolve().then(()=>onSuccess.current?.()).catch(reason=>{if(mounted.current)setError(signInMessage(reason));});}
+   }).catch(reason=>{if(owned.current===id&&mounted.current){setCancelId(id);setCancelling(false);setError(signInMessage(reason));setStatus('Cancellation not confirmed.');}});
   };
  },[active]);
  const stop=(label='Sign-in cancelled')=>{
@@ -53,11 +54,11 @@ export function GitHubSignIn({active=true,onAuthenticated,timeFormat='system'}:{
    const next=flowSchema.parse(await auth('start'));
    if(!current(generation)){
     const stoppedAt=epoch.current;
-    try{await auth('cancel',{flowId:next.id});}catch(reason){if(mounted.current&&epoch.current===stoppedAt&&pendingStart.current===null&&!owned.current){owned.current=next.id;setCancelId(next.id);setError(errorMessage(reason));setStatus('Retry cancellation.');}}
+    try{await auth('cancel',{flowId:next.id});}catch(reason){if(mounted.current&&epoch.current===stoppedAt&&pendingStart.current===null&&!owned.current){owned.current=next.id;setCancelId(next.id);setError(signInMessage(reason));setStatus('Retry cancellation.');}}
     return;
    }
    owned.current=next.id;setCancelId(null);setFlow(next);setStatus('Waiting for GitHub authorization…');
-  }catch(reason){if(current(generation)){setError(errorMessage(reason));setStatus('');}}
+  }catch(reason){if(current(generation)){setError(signInMessage(reason));setStatus('');}}
   finally{if(pendingStart.current===generation)pendingStart.current=null;if(current(generation))setStarting(false);}
  };
  useEffect(()=>{
@@ -71,7 +72,7 @@ export function GitHubSignIn({active=true,onAuthenticated,timeFormat='system'}:{
     if(stopped||!current(generation))return;
     if(result.status==='authenticated'){if(Date.now()>=flow.expiresAt){stop('Sign-in expired. Start a new sign-in.');return;}epoch.current++;owned.current=null;setFlow(null);setStatus('Signed in as '+result.login);await onSuccess.current?.();}
     else schedule();
-   }catch(reason){if(!stopped&&current(generation)){setError(errorMessage(reason));setStatus('Sign-in could not be confirmed. Start a new sign-in or cancel.');}}
+   }catch(reason){if(!stopped&&current(generation)){setError(signInMessage(reason));setStatus('Sign-in could not be confirmed. Start a new sign-in or cancel.');}}
   };
   const schedule=()=>{timer=setTimeout(()=>void poll(),Math.max(0,Math.min(flow.interval,flow.expiresAt-Date.now())));};schedule();
   return()=>{stopped=true;clearTimeout(timer);clearTimeout(deadline);};

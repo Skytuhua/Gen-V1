@@ -5,6 +5,7 @@ import {PlanningQuestionSchema,type PlanningQuestionDefinition} from '../../../p
 import {Markdown} from './Markdown';
 import {MotionRegion} from './task-motion';
 import './planning-question.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 export type PlanningDetailKind='explain'|'examples';
 export type PlanningPending={optionId?:string;kind:PlanningDetailKind|'more-options'};
 export type PlanningQuestionProps=PlanningQuestionDefinition&{id:string;revision:number;title:string;prompt?:string;value:string;onChange:(value:string)=>void;resources:ResourceGrant[];onExplain?:(optionId:string,kind:PlanningDetailKind)=>Promise<void>;onMoreOptions?:()=>Promise<void>;onSubmit:()=>Promise<void>;busy?:boolean;error?:string;pending?:PlanningPending};
@@ -26,7 +27,7 @@ export function PlanningQuestion({id,revision,title,prompt,options,allowCustom,v
     if(operation.current||activePending||busy)return;
     operation.current=true;setLocalError('');setLocalPending({kind,...(optionId?{optionId}:{})});
     try{if(kind==='more-options')await onMoreOptions?.();else if(optionId)await onExplain?.(optionId,kind);}
-    catch(cause){setLocalPending(undefined);operation.current=false;setLocalError(cause instanceof Error?cause.message:'The request failed. Try again.');}
+    catch(cause){setLocalPending(undefined);operation.current=false;setLocalError(errorMessage(cause,'The request failed. Try again.'));}
     // Acknowledging the command is not the answer. Keep its pending state until
     // the host publishes a revised question rather than permitting duplicate work.
   };
@@ -36,7 +37,7 @@ export function PlanningQuestion({id,revision,title,prompt,options,allowCustom,v
     setExpanded(current=>({...current,[optionId]:local&&current[optionId]===kind?undefined:kind}));
     if(!local)void request(kind,optionId);
   };
-  const submit=async()=>{if(submitting.current||busy||composing.current)return;submitting.current=true;setLocalError('');try{await onSubmit();}catch(cause){setLocalError(cause instanceof Error?cause.message:'The choice could not be submitted. Try again.');}finally{submitting.current=false;}};
+  const submit=async()=>{if(submitting.current||busy||composing.current)return;submitting.current=true;setLocalError('');try{await onSubmit();}catch(cause){setLocalError(errorMessage(cause,'The choice could not be submitted. Try again.'));}finally{submitting.current=false;}};
   return <section className="planning-question" aria-label={title}>
     <header className="planning-question-header"><h3>{title}</h3>{prompt&&<Markdown text={prompt}/>}</header>
     <form onSubmit={event=>{event.preventDefault();void submit();}} onKeyDown={event=>{if(event.key==='Enter'&&(composing.current||event.nativeEvent.isComposing)){event.preventDefault();event.stopPropagation();}}}>

@@ -6,6 +6,7 @@ import {Modal} from '../../../packages/ui-shell/Modal';
 import {isComposing,useListNavigation} from '../../../packages/ui-shell/list-navigation';
 import './saved-layout-chooser.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export interface SavedLayoutRow {id:string;name:string;source:'split'|'recovery'|'canvas';updatedAt?:string;canRename?:boolean;canUpdate?:boolean;canDelete?:boolean}
 export interface SavedLayoutSelection {key:string;arrangement:string;version?:string}
@@ -32,7 +33,7 @@ export function SavedLayoutChooser({rows,arrangement,loading=false,error='',disa
  const close=()=>{setOpen(false);setOverflow(null);anchor.current?.focus();};
  const run=async(action:()=>Promise<unknown>,done?:()=>void)=>{
   if(pending.current)return;pending.current=true;onBusyChange?.(true);setBusy(true);setFailure('');
-  try{await action();if(alive.current)done?.();}catch(cause){if(alive.current)setFailure(cause instanceof Error?cause.message:'The layout could not be updated.');}
+  try{await action();if(alive.current)done?.();}catch(cause){if(alive.current)setFailure(errorMessage(cause,'The layout could not be updated.'));}
   finally{pending.current=false;onBusyChange?.(false);if(alive.current)setBusy(false);}
  };
  const apply=(row:SavedLayoutRow)=>{if(current(row))return;void run(async()=>{const accepted=await onApply(row);if(alive.current)setSelection(accepted??null);},close);};

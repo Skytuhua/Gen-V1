@@ -1,6 +1,7 @@
 import * as pdf from 'pdf-lib';
 import { signatureStrokes } from '../../../packages/ui-catalog/signature-data';
 import { draftInput, isPdfDraft, MAX_PDF_BYTES as MAX_BYTES, MAX_PDF_PAGES as MAX_PAGES, MAX_FIELD_RECTANGLES, type DraftInput, type DraftRequest, type FieldRectangle, type PdfDraft } from './pdf-draft-protocol';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 /** Check unique reachable dictionaries and Parent links before pdf-lib's recursive expansion. */
 function validatePageTree(document: pdf.PDFDocument) {
@@ -68,7 +69,7 @@ async function deriveDraft({ source, values, signature, box, signaturePng }: Dra
         else if (field.getOptions().includes(value)) field.select(value);
         else throw new Error('Choose one of the PDF field’s available options.');
       } else throw new Error('The value does not match this supported PDF field type.');
-    } catch (error) { throw new Error(`Cannot preview PDF field “${name}”: ${error instanceof Error ? error.message : 'unsupported value'}`); }
+    } catch (error) { throw new Error(`Cannot preview PDF field “${name}”: ${errorMessage(error,'unsupported value')}`); }
   }
   if (signature) {
     if (!box) throw new Error('A signature placement is required to preview this mark.');
@@ -95,7 +96,7 @@ async function deriveDraft({ source, values, signature, box, signaturePng }: Dra
   const edited = Boolean(edits.length || signature);
   if (!edited) return { bytes: source.slice(), fields: rectangles, edited: false };
   try { form.updateFieldAppearances(); return { bytes: await document.save(), fields: rectangles, edited }; }
-  catch (error) { throw new Error(`The PDF draft could not be rendered with these values: ${error instanceof Error ? error.message : 'unsupported text or appearance'}`); }
+  catch (error) { throw new Error(`The PDF draft could not be rendered with these values: ${errorMessage(error,'unsupported text or appearance')}`); }
 }
 
 // This entry is bundled from trusted source by Vite. PDF bytes are data, never executable code.
@@ -110,7 +111,7 @@ scope.onmessage = ({ data }) => {
       if (!isPdfDraft(draft)) throw new Error('The PDF draft exceeds the preview output limit.');
       scope.postMessage({ id, draft }, [draft.bytes.buffer]);
     } catch (error) {
-      scope.postMessage({ id, error: (error instanceof Error ? error.message : 'The PDF draft could not be prepared.').slice(0, 1000) || 'The PDF draft could not be prepared.' });
+      scope.postMessage({ id, error: (errorMessage(error,'The PDF draft could not be prepared.')).slice(0, 1000) || 'The PDF draft could not be prepared.' });
     }
   })();
 };

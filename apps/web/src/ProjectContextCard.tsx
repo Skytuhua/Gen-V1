@@ -5,6 +5,7 @@ import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 import {contextCompanions} from './project-context-summary';
 import {LoadingState,PendingStatus} from './LoadingState';
 import './project-context.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const compactCount=new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1});
 
@@ -22,7 +23,7 @@ export interface ProjectContextCardProps {
 /** Data and callbacks only: this card is safe to consume from either authority's shell. */
 export function ProjectContextCard({context,loading,error,threadTitle,plan,planOpen=false,onTogglePlan,fullPlanVisible=false,onAction,onSelectThread,onShowChanges,onConnect,snapshot,threadId,onOpenDetailedPlan,automationItems=[],automationsAvailable=false,composerChangesAvailable=false}:ProjectContextCardProps){
  const planId=useId(),[expanded,setExpanded]=useState<'scripts'|'branch'|'commit'|'lineage'|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState(''),[scriptName,setScriptName]=useState(''),[scriptCommand,setScriptCommand]=useState(''),[branch,setBranch]=useState(''),[commit,setCommit]=useState('');
- const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(cause instanceof Error?cause.message:'The project action could not finish.')).finally(()=>setBusy(false));};
+ const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(errorMessage(cause,'The project action could not finish.'))).finally(()=>setBusy(false));};
  const toggle=(name:NonNullable<typeof expanded>)=>setExpanded(value=>value===name?null:name);
  const connected=Boolean(context&&(context.project.rootPath||context.capabilities.git||context.capabilities.terminal||context.editor.available));
  const total=(value:number)=>compactCount.format(value);

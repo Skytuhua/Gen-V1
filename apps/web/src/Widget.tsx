@@ -5,6 +5,7 @@ import { command, getWidgetMount, widgetOrigin } from './api';
 import type { UserStateRecord } from '../../../packages/contracts';
 import { createWidgetRuntime } from '../../../packages/widgets/controller';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const ajv = new Ajv({ strict: false, allErrors: true });
 function themeTokens(mode: 'light' | 'dark') {
@@ -76,7 +77,7 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
       clientId.current = `widget:${artifact.id}:${ticket.mountId}`;
       leaseSuspended.current = false;
       setMount(ticket);
-    }).catch(error => { if (current) setError(error instanceof Error ? error.message : 'Widget mount failed.'); });
+    }).catch(error => { if (current) setError(errorMessage(error,'Widget mount failed.')); });
     return () => { current = false; };
   }, [artifact.id, artifact.revision, attempt]);
 
@@ -121,7 +122,7 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
         const definition = latest.current.artifact.actions[actionId]!;
         if (definition.schema && !ajv.validate(definition.schema, actionPayload)) { rejectAction('Action payload does not match its schema.', actionId); return; }
         const action = latest.current.onAction, actionClient = clientId.current;
-        const pending = resumeLease().then(() => action(actionId, actionPayload, actionClient)).then(() => { if (sameOwner()) { setActionError(''); send('action.ack', { actionId }); } }).catch(error => rejectAction(error instanceof Error ? error.message : 'Action failed.', actionId));
+        const pending = resumeLease().then(() => action(actionId, actionPayload, actionClient)).then(() => { if (sameOwner()) { setActionError(''); send('action.ack', { actionId }); } }).catch(error => rejectAction(errorMessage(error,'Action failed.'), actionId));
         pendingActions.current.add(pending); void pending.then(() => pendingActions.current.delete(pending));
         return;
       }
@@ -141,7 +142,7 @@ function WidgetOwner({ ref: widgetRef, artifact, inputs, values, stateRevision, 
         latest.current.onDirty(stillDirty);
         send('checkpoint.ack', { requestId: payload.requestId, stateRevision: state.revision });
         if (!stillDirty) await command('edit.end', { stateId: artifact.stateId, clientId: clientId.current }, artifact.threadId);
-      }).catch(error => send('checkpoint.error', { requestId: payload.requestId, message: error instanceof Error ? error.message : 'Checkpoint was not saved.' })).finally(() => { checkpointing = false; checkpointPending.current = null; });
+      }).catch(error => send('checkpoint.error', { requestId: payload.requestId, message: errorMessage(error,'Checkpoint was not saved.') })).finally(() => { checkpointing = false; checkpointPending.current = null; });
     };
     if (!iframe.current || !artifact.widget) return;
     try {

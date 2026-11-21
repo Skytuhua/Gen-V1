@@ -4,6 +4,7 @@ import {
   type AuthorizedOutputReader, type OutputScrollAnchor, type OutputSearchMatch, type WorkbenchOutputIdentity, type WorkbenchOutputRow,
 } from './workbench-window';
 import './workbench-output.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 type WorkbenchOutputState = 'ready' | 'loading' | 'empty' | 'denied' | 'offline' | 'stale' | 'partial' | 'unsupported';
 export interface WorkbenchOutputProps {
@@ -106,7 +107,7 @@ function OutputBody({identity, rows, state = 'ready', readFull, initialAnchor, o
         if (found.length) jump(found[0]);
       }
     } catch (cause) {
-      if (stillCurrent()) setStatus(cause instanceof Error ? cause.message : 'The authorized full result could not be read.');
+      if (stillCurrent()) setStatus(errorMessage(cause,'The authorized full result could not be read.'));
     } finally {if (stillCurrent()) setBusy(null);}
   };
   const moveMatch = (delta: number) => {

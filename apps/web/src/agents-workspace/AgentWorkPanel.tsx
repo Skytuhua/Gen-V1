@@ -6,6 +6,7 @@ import {
   sendAgentInput, stopAgentWork, resumeAgentWork, cancelAgentInput, postAgentMessage,
   type AgentWorkList, type AgentInputRow, type AgentMessageRow, type PlanProgress, type AgentWorkRow,
 } from '../agent-work-api.ts';
+import {errorMessage} from '../../../../packages/ui-shell/format-utils';
 
 /** M09 agent work surface: typed child work list with role/owner/worktree/
  * state/budget/evidence freshness, Send now vs After current input modes,
@@ -36,7 +37,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
       const targets = next.works.filter(work => work.state === 'RUNNING' || work.state === 'QUEUED').map(work => work.owner.threadId);
       setInputs((await Promise.all(targets.map(owner => getAgentWorkInputs(threadId, owner)))).flatMap(batch => batch.inputs));
       setError(null);
-    } catch (e) { setError(e instanceof Error ? e.message : 'Agent work unavailable'); }
+    } catch (e) { setError(errorMessage(e,'Agent work unavailable')); }
     finally { busy.current = false; }
   }, [threadId]);
   useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 4000); return () => clearInterval(timer); }, [refresh]);
@@ -49,7 +50,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
     const request = ++evidenceRequest.current;
     void getAgentWorkOutput(threadId, workId)
       .then(next => {if (request === evidenceRequest.current) setOutput(next);})
-      .catch(e => {if (request === evidenceRequest.current) setError(e instanceof Error ? e.message : 'Evidence unavailable');});
+      .catch(e => {if (request === evidenceRequest.current) setError(errorMessage(e,'Evidence unavailable'));});
   };
   const closeEvidence = () => {
     evidenceRequest.current++;
@@ -68,7 +69,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
         setDrafts(current => current[workId] === submitted ? {...current, [workId]: {text: ''}} : current);
         return refresh();
       })
-      .catch(e => setError(e instanceof Error ? e.message : 'Send failed'))
+      .catch(e => setError(errorMessage(e,'Send failed')))
       .finally(() => setPendingInputs(current => {
         const next = new Set(current);
         next.delete(workId);
@@ -84,7 +85,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
         setPost(current => current === submitted ? {recipientThreadId: '', topic: '', text: ''} : current);
         return refresh();
       })
-      .catch(e => setError(e instanceof Error ? e.message : 'Post failed'))
+      .catch(e => setError(errorMessage(e,'Post failed')))
       .finally(() => setPosting(false));
   };
   return <section className="agents-work" aria-label="Agent work">
@@ -102,8 +103,8 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
           <span className="agents-work-state" data-state={work.state}>{work.state.replaceAll('_', ' ')}{work.blockedReason ? ` — ${work.blockedReason}` : ''}</span>
           <span className="agents-work-meta">{work.budget.tokens !== null ? `${work.budget.tokens}tok ` : ''}{work.evidence.refs ? `${work.evidence.stale}/${work.evidence.refs} refs stale` : 'no evidence yet'}</span>
           <button type="button" className="agents-icon" aria-label={`Open evidence for ${work.workId}`} onClick={() => openEvidence(work.workId)}><Eye size={14}/></button>
-          {(work.state === 'RUNNING' || work.state === 'QUEUED') && <button type="button" className="agents-icon" aria-label={`Stop ${work.workId}`} onClick={() => { void stopAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Stop failed')); }}><Square size={13}/></button>}
-          {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Resume failed')); }}><Play size={13}/></button>}
+          {(work.state === 'RUNNING' || work.state === 'QUEUED') && <button type="button" className="agents-icon" aria-label={`Stop ${work.workId}`} onClick={() => { void stopAgentWork(threadId, work.workId).then(refresh).catch(e => setError(errorMessage(e,'Stop failed'))); }}><Square size={13}/></button>}
+          {work.state === 'INTERRUPTED' && <button type="button" className="agents-icon" aria-label={`Resume ${work.workId}`} onClick={() => { void resumeAgentWork(threadId, work.workId).then(refresh).catch(e => setError(errorMessage(e,'Resume failed'))); }}><Play size={13}/></button>}
         </header>
         <div className="agents-work-send">
           <input aria-label={`Message work ${work.workId}`} placeholder="Steer or queue a follow-up…" value={drafts[work.workId]?.text ?? ''} onChange={e => {const text = e.target.value; setDrafts(d => ({...d, [work.workId]: {text}}));}} disabled={work.state !== 'RUNNING' && work.state !== 'QUEUED'}/>
@@ -115,7 +116,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
         {inputs.filter(input => input.delivery === 'ACCEPTED' || input.delivery === 'ENTERED_RUNTIME').map(input => <div key={input.inputId} className="agents-work-input" data-delivery={input.delivery}>
           <span className="agents-work-meta">#{input.order}</span><span className="agents-input-kind">{input.kind}</span><span className="agents-input-text">{input.text}</span>
           <span className="agents-input-delivery">{input.delivery.replaceAll('_', ' ').toLowerCase()}</span>
-          {input.editable && <button type="button" className="agents-icon" aria-label="Cancel input" onClick={() => { void cancelAgentInput(threadId, input.targetOwner.threadId, input.inputId).then(refresh).catch(e => setError(e instanceof Error ? e.message : 'Cancel failed')); }}><Ban size={13}/></button>}
+          {input.editable && <button type="button" className="agents-icon" aria-label="Cancel input" onClick={() => { void cancelAgentInput(threadId, input.targetOwner.threadId, input.inputId).then(refresh).catch(e => setError(errorMessage(e,'Cancel failed'))); }}><Ban size={13}/></button>}
         </div>)}
       </div>}
       {output && <pre className="agents-work-output" aria-label="Work output evidence"><button type="button" className="agents-disclosure" onClick={closeEvidence}>Close evidence</button>{JSON.stringify(output.output, null, 2).slice(0, 4000)}</pre>}
