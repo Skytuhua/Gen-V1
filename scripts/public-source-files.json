@@ -2821,6 +2821,7 @@
     "tests/accessibility-audit-policy.test.ts",
     "tests/accessibility-audit-route.test.ts",
     "tests/accessibility-audit-runner.test.ts",
+    "tests/accessibility-badge-contrast.test.ts",
     "tests/accessibility-audit-ui.test.ts",
     "tests/accessibility-fix-message.test.ts",
     "tests/account-auth-http.test.ts",

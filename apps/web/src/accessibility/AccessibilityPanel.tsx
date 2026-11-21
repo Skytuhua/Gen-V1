@@ -78,7 +78,9 @@ function RuleRow({
 					<span className="a11y-rule-criteria">
 						{rule.wcag.map(criterionLabel).join(", ")}
 					</span>
-					{expanded && (
+					<span
+						className={`a11y-rule-elements-wrap${expanded ? " open" : ""}`}
+					>
 						<span className="a11y-rule-elements">
 							{shown.map((node, index) => (
 								<span className="a11y-element" key={index}>
@@ -109,7 +111,7 @@ function RuleRow({
 								</a>
 							)}
 						</span>
-					)}
+					</span>
 				</span>
 				<span
 					className="a11y-rule-count"
