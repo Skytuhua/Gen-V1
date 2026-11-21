@@ -9,6 +9,12 @@ import { findGeminiNativeSession } from './gemini-native-history.ts';
 import { bounded, finite, type DriverContext, type OfficialDriver, type WireInput } from './internal.ts';
 import {MODEL_ONLY_MAX_WIRE_BYTES} from '../runtime/model-only.ts';
 
+interface GeminiStreamFrame {
+  type?: string; session_id?: string; model?: string;
+  role?: string; content?: unknown; tool_name?: unknown;
+  status?: string; stats?: { input_tokens?: number; output_tokens?: number };
+}
+
 /** Native --resume emits only current-turn stream-json, avoiding ACP v1 replay ambiguity. */
 export async function openGeminiHeadless(context: DriverContext, spawnProcess: typeof spawn, modelId?: string): Promise<OfficialDriver> {
   if (!await findGeminiNativeSession(context.dataDir, context.manifest)) throw new HarnessError('OFFICIAL_RESUME_UNSUPPORTED', 'The official Gemini session has no matching canonical native transcript. Delivery remains unresolved; native resume cannot safely continue this task.');
@@ -41,11 +47,11 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     });
     context.own(child); child.stderr?.resume();
     let buffer = ''; let initialized = false; let echoed = false; let consumed = false; let terminal = false; let status: string | undefined;
-    let content = ''; let usage: any; let failure: Error | undefined;
+    let content = ''; let usage: { input_tokens?: number; output_tokens?: number } | undefined; let failure: Error | undefined;
     let writes: Promise<unknown> = Promise.resolve();
     const text = wire.text.replace(/@/g, '\\u0040');
     const receipt = () => { if (!consumed) { consumed = true; writes = writes.then(() => context.observed(wire.uuid)); } };
-    const accept = (frame: any) => {
+    const accept = (frame: GeminiStreamFrame) => {
       assert();
       if (terminal) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini emitted content after its terminal result.');
       if (frame.type === 'init') {
@@ -64,11 +70,11 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
       if (frame.type === 'tool_use') {
         if (!echoed) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini tool event lacks a current-turn input.');
         const allowed = new Set([...context.mcp.names].flatMap(name => [name, `host__${name}`, `mcp_host_${name}`]));
-        if (!allowed.has(frame.tool_name)) throw new HarnessError('OFFICIAL_TOOL_POLICY', 'Official Gemini exposed a tool outside the registered host MCP tools.');
+        if (typeof frame.tool_name !== 'string' || !allowed.has(frame.tool_name)) throw new HarnessError('OFFICIAL_TOOL_POLICY', 'Official Gemini exposed a tool outside the registered host MCP tools.');
         receipt(); return;
       }
       if (frame.type === 'result') {
-        if (!echoed || !['success', 'error'].includes(frame.status)) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini returned no recognized current-turn terminal result.');
+        if (!echoed || (frame.status !== 'success' && frame.status !== 'error')) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official Gemini returned no recognized current-turn terminal result.');
         terminal = true; status = frame.status; usage = frame.stats;
         if (status === 'success') receipt();
       }
@@ -82,7 +88,7 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
       while ((newline = buffer.indexOf('\n')) !== -1) {
         const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1);
         if (!line.trim()) continue;
-        try { accept(JSON.parse(line)); } catch (error) { failure = error instanceof Error ? error : new Error('Invalid official Gemini event.'); void terminateProcessTree(child); break; }
+        try { accept(JSON.parse(line) as GeminiStreamFrame); } catch (error) { failure = error instanceof Error ? error : new Error('Invalid official Gemini event.'); void terminateProcessTree(child); break; }
       }
     });
     const ended = new Promise<number | null>((resolve, reject) => { child.once('error', reject); child.once('close', resolve); child.stdin?.once('error', reject); });
@@ -90,7 +96,7 @@ export async function openGeminiHeadless(context: DriverContext, spawnProcess: t
     const code = await bounded(ended, 180_000, 'Official Gemini headless turn did not terminate.');
     // A clean process close ends its last JSONL record even without a newline.
     if (!failure && code === 0 && buffer.trim()) {
-      try { accept(JSON.parse(buffer)); }
+      try { accept(JSON.parse(buffer) as GeminiStreamFrame); }
       catch (error) { failure = error instanceof Error ? error : new Error('Invalid official Gemini event.'); }
     }
     await writes; assert();

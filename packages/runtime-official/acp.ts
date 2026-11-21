@@ -1,13 +1,22 @@
 import type { ChildProcess } from 'node:child_process';
 import { HarnessError } from '../contracts/index.ts';
 
+interface AcpMessage {
+  jsonrpc?: string; id?: number; method?: string;
+  params?: unknown; result?: unknown;
+  error?: { code?: number; message?: unknown };
+}
+function isAcpMessage(value: unknown): value is AcpMessage {
+  return typeof value === 'object' && value !== null;
+}
+
 /** Pinned Gemini CLI 0.66 uses ACP v1 newline-delimited JSON-RPC, not LSP framing. */
 export class AcpConnection {
   private next = 1;
   private buffer = '';
   private closed = false;
-  private readonly pending = new Map<number, { resolve(value: any): void; reject(error: Error): void; timer: ReturnType<typeof setTimeout> }>();
-  constructor(private readonly process: ChildProcess, private readonly update: (method: string, params: any) => void,private readonly maxFrameBytes=4*1024*1024) {
+  private readonly pending = new Map<number, { resolve(value: unknown): void; reject(error: Error): void; timer: ReturnType<typeof setTimeout> }>();
+  constructor(private readonly process: ChildProcess, private readonly update: (method: string, params: unknown) => void,private readonly maxFrameBytes=4*1024*1024) {
     const failed = () => this.close(new HarnessError('OFFICIAL_PROCESS_IO_FAILED', 'The native Gemini connection closed unexpectedly. Reconnect the provider and refresh models.'));
     process.on('error', failed);
     for (const stream of [process.stdin, process.stdout, process.stderr]) stream?.on('error', failed);
@@ -40,9 +49,9 @@ export class AcpConnection {
     const frame=JSON.stringify(value)+'\n';if(Buffer.byteLength(frame)>this.maxFrameBytes)throw new HarnessError('OFFICIAL_PROTOCOL_INVALID','Official ACP frame exceeded the bounded transport limit.');
     this.process.stdin.write(frame);
   }
-  private accept(message: any): void {
+  private accept(message: unknown): void {
     if (this.closed) return;
-    if (!message || message.jsonrpc !== '2.0') throw new Error('Invalid ACP message.');
+    if (!isAcpMessage(message) || message.jsonrpc !== '2.0') throw new Error('Invalid ACP message.');
     if (typeof message.method === 'string') {
       if (message.id !== undefined) {
         if (message.method === 'session/request_permission') this.send({ jsonrpc: '2.0', id: message.id, result: { outcome: { outcome: 'cancelled' } } });
@@ -50,6 +59,7 @@ export class AcpConnection {
       } else this.update(message.method, message.params);
       return;
     }
+    if (typeof message.id !== 'number') return;
     const pending = this.pending.get(message.id);
     if (!pending) return;
     clearTimeout(pending.timer); this.pending.delete(message.id);
@@ -57,7 +67,7 @@ export class AcpConnection {
     else if ('result' in message) pending.resolve(message.result);
     else pending.reject(new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Official ACP response has no result.'));
   }
-  request(method: string, params: unknown, timeout = 30_000): Promise<any> {
+  request<T = unknown>(method: string, params: unknown, timeout = 30_000): Promise<T> {
     const id = this.next++;
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => { this.pending.delete(id); reject(new HarnessError('OFFICIAL_PROTOCOL_TIMEOUT', `Official ACP ${method} did not acknowledge within the bounded request timeout.`)); }, timeout);

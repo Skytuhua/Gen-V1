@@ -24,6 +24,10 @@ async function assertGoogleLogin(dataDir: string): Promise<void> {
 
 type GeminiConfigOption = { category?: unknown; type?: unknown; id?: unknown; options?: unknown; value?: unknown; name?: unknown; currentValue?: unknown };
 type GeminiLegacyModel = { modelId?: unknown; name?: unknown };
+interface AcpPromptResult { stopReason?: string; usage?: { inputTokens?: number; outputTokens?: number } }
+interface AcpInitializeResult { protocolVersion?: number; agentCapabilities?: { mcpCapabilities?: { http?: boolean }; loadSession?: boolean }; authMethods?: { id?: unknown }[] }
+interface AcpSessionResult { sessionId?: string; configOptions?: unknown; models?: { availableModels?: unknown } }
+interface AcpSetConfigResult { configOptions?: GeminiConfigOption[] }
 function advertisedModels(response: { configOptions?: unknown; models?: { availableModels?: unknown } }): { models: ModelInfo[]; configId?: string } {
   if (Array.isArray(response.configOptions)) {
     const model = (response.configOptions as GeminiConfigOption[]).find(option => option?.category === 'model' && option.type === 'select' && typeof option.id === 'string');
@@ -86,11 +90,12 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   const historyWrites: Promise<unknown>[] = [];
   const trackWrite = (write: Promise<unknown>) => { write.catch(() => {}); historyWrites.push(write); };
   const rpc = new AcpConnection(child, (method, params) => {
-    if (method !== 'session/update' || !context.current() || closed || !params || params.sessionId !== sessionId) return;
-    const update = params.update;
+    const p = params as { sessionId?: unknown; update?: { sessionUpdate?: unknown; availableCommands?: { name?: unknown }[]; content?: { type?: unknown; text?: unknown }; used?: unknown; size?: unknown } };
+    if (method !== 'session/update' || !context.current() || closed || !params || p.sessionId !== sessionId) return;
+    const update = p.update;
     if (!update || typeof update.sessionUpdate !== 'string') return;
     if (update.sessionUpdate === 'available_commands_update') {
-      commands = new Set(((update.availableCommands ?? []) as { name?: unknown }[]).filter((command): command is { name: string } => typeof command.name === 'string').map(command => command.name));
+      commands = new Set((update.availableCommands ?? []).filter((command): command is { name: string } => typeof command.name === 'string').map(command => command.name));
       commandsSeen = true; commandsReady();
       return;
     }
@@ -111,9 +116,9 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   const assert = () => { if (!context.current() || closed) throw new HarnessError('OFFICIAL_RUN_ABORTED', 'Official run authority was revoked.'); };
   async function prompt(text: string) {
     assert();
-    const result = await rpc.request('session/prompt', { sessionId, prompt: [{ type: 'text', text }] }, 180_000);
+    const result = await rpc.request<AcpPromptResult | null>('session/prompt', { sessionId, prompt: [{ type: 'text', text }] }, 180_000);
     assert();
-    if (!['end_turn', 'max_tokens', 'max_turn_requests', 'refusal', 'cancelled'].includes(result?.stopReason)) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Gemini CLI returned no recognized ACP v1 terminal stop reason. Input delivery remains uncertain.');
+    if (typeof result?.stopReason !== 'string' || !['end_turn', 'max_tokens', 'max_turn_requests', 'refusal', 'cancelled'].includes(result.stopReason)) throw new HarnessError('OFFICIAL_PROTOCOL_INVALID', 'Gemini CLI returned no recognized ACP v1 terminal stop reason. Input delivery remains uncertain.');
     return result;
   }
   async function drain() {
@@ -164,14 +169,14 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
   };
   context.ready(driver);
   try {
-    const initialization = await rpc.request('initialize', { protocolVersion: 1, clientInfo: { name: 'generative-harness', version: '0.4.1' }, clientCapabilities: { terminal: false, fs: { readTextFile: false, writeTextFile: false }, auth: { terminal: false } } });
+    const initialization = await rpc.request<AcpInitializeResult>('initialize', { protocolVersion: 1, clientInfo: { name: 'generative-harness', version: '0.4.1' }, clientCapabilities: { terminal: false, fs: { readTextFile: false, writeTextFile: false }, auth: { terminal: false } } });
     assert();
     if (initialization.protocolVersion !== 1) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'This pinned Gemini CLI connection requires negotiated ACP v1. ACP v2 uses a different prompt acceptance and state lifecycle and is not enabled.');
     if (!context.modelOnly&&initialization.agentCapabilities?.mcpCapabilities?.http !== true) throw new HarnessError('OFFICIAL_ACP_UNSUPPORTED', 'The official Gemini CLI did not advertise HTTP MCP support.');
-    if (!(initialization.authMethods as { id?: unknown }[] | undefined)?.some(method => method.id === 'oauth-personal')) throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'The official Gemini CLI did not advertise Google account login.');
-    await rpc.request('authenticate', { methodId: 'oauth-personal' }); assert();
+    if (!(initialization.authMethods)?.some(method => method.id === 'oauth-personal')) throw new HarnessError('OFFICIAL_SUBSCRIPTION_REQUIRED', 'The official Gemini CLI did not advertise Google account login.');
+    await rpc.request<unknown>('authenticate', { methodId: 'oauth-personal' }); assert();
     if (sessionId && initialization.agentCapabilities?.loadSession !== true) throw new HarnessError('OFFICIAL_RESUME_UNSUPPORTED', 'The official Gemini CLI did not advertise session loading.');
-    const response = await rpc.request(sessionId ? 'session/load' : 'session/new', {
+    const response = await rpc.request<AcpSessionResult>(sessionId ? 'session/load' : 'session/new', {
       ...(sessionId ? { sessionId } : {}), cwd: context.taskDir,
       mcpServers: context.modelOnly?[]:[{ type: 'http', name: 'host', url: context.mcp.url, headers: Object.entries(context.mcp.headers).map(([name, value]) => ({ name, value })) }],
     });
@@ -183,10 +188,10 @@ export async function openGemini(context: DriverContext, spawnProcess: typeof sp
     if (modelId) {
       if (!driver.models.some(model => model.id === `gemini-cli/${modelId}`)) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The selected Gemini model is not advertised by this authenticated official session. Refresh models and select an available model.');
       if (advertised.configId) {
-        const selected = await rpc.request('session/set_config_option', { sessionId, configId: advertised.configId, value: modelId });
-        const option = (selected.configOptions as GeminiConfigOption[] | undefined)?.find(option => option.id === advertised.configId);
+        const selected = await rpc.request<AcpSetConfigResult>('session/set_config_option', { sessionId, configId: advertised.configId, value: modelId });
+        const option = selected.configOptions?.find(option => option.id === advertised.configId);
         if (option?.currentValue !== modelId) throw new HarnessError('OFFICIAL_MODEL_UNAVAILABLE', 'The official Gemini CLI did not confirm the selected model configuration.');
-      } else await rpc.request('session/set_model', { sessionId, modelId });
+      } else await rpc.request<unknown>('session/set_model', { sessionId, modelId });
       assert();
     }
     if (replaying) {
