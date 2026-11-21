@@ -36,8 +36,8 @@ export function DesktopBrowserSlot({sizing}:{sizing?:BrowserSlotSizing}){
 }
 export function DesktopBrowserDock(){
  const desktop=useDesktop(),docked=desktop?.state.dockedBrowser;
- const [preset,setPreset]=useState<DesktopBrowserWidthPreset>('fit'),[attempt,setAttempt]=useState(0),[ack,setAck]=useState<DesktopBrowserBoundsResult>(),[pending,setPending]=useState(false),[stale,setStale]=useState(false),[notice,setNotice]=useState('');
- useEffect(()=>{setPreset('fit');setAttempt(0);setAck(undefined);setPending(false);setStale(false);setNotice('');},[docked?.browserId]);
+ const prevBrowser=useRef<string|undefined>(undefined);const [preset,setPreset]=useState<DesktopBrowserWidthPreset>('fit'),[attempt,setAttempt]=useState(0),[ack,setAck]=useState<DesktopBrowserBoundsResult>(),[pending,setPending]=useState(false),[stale,setStale]=useState(false),[notice,setNotice]=useState('');
+ useEffect(()=>{const id=docked?.browserId;if(!id||id===prevBrowser.current){if(id)prevBrowser.current=id;return;}const had=prevBrowser.current;prevBrowser.current=id;if(had===undefined)return;setPreset('fit');setAttempt(0);setAck(undefined);setPending(false);setStale(false);setNotice('');},[docked?.browserId]);
  if(!docked)return null;
  const onMetrics=({pending:wait,result,error}:{pending?:boolean;result?:DesktopBrowserBoundsResult;error?:true})=>{if(error){setStale(true);return;}if(wait!==undefined)setPending(wait);if(!result)return;setAck(result);setStale(false);setPending(false);if(result.effective!==preset&&result.fallback){setPreset('fit');setNotice(`${result.requested} px no longer fits. Switched to Fit.`);}};
  const select=(next:DesktopBrowserWidthPreset)=>{setPreset(next);setAttempt(value=>value+1);setPending(true);setNotice('');};
