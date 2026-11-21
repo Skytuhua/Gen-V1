@@ -61,10 +61,10 @@ export function readChord(chord: string) {
 
 const macModifiers: Record<string, string> = {ctrl: '⌘', meta: '⌘', alt: '⌥', shift: '⇧'};
 const displayModifiers: Record<string, string> = {ctrl: 'Ctrl', meta: 'Meta', alt: 'Alt', shift: 'Shift'};
-const displayKeys: Record<string, string> = {comma: ',', esc: 'Esc', escape: 'Esc', home: 'Home', end: 'End', arrowup: '↑', arrowdown: '↓', arrowleft: '←', arrowright: '→', enter: '↩'};
+const displayKeys: Record<string, string> = {comma: ',', space: 'Space', esc: 'Esc', escape: 'Esc', home: 'Home', end: 'End', arrowup: '↑', arrowdown: '↓', arrowleft: '←', arrowright: '→', enter: '↩'};
 const spellKey = (key: string, named: string | undefined) => named ?? (/^[a-z]$/.test(key) ? key.toUpperCase() : key);
 const ariaModifiers: Record<string, string> = {ctrl: 'Control', meta: 'Meta', alt: 'Alt', shift: 'Shift'};
-const ariaKeys: Record<string, string> = {comma: ',', esc: 'Escape', escape: 'Escape', enter: 'Enter', home: 'Home', tab: 'Tab', arrowup: 'ArrowUp', arrowdown: 'ArrowDown', arrowleft: 'ArrowLeft', arrowright: 'ArrowRight'};
+const ariaKeys: Record<string, string> = {comma: ',', space: 'Space', esc: 'Escape', escape: 'Escape', enter: 'Enter', home: 'Home', tab: 'Tab', arrowup: 'ArrowUp', arrowdown: 'ArrowDown', arrowleft: 'ArrowLeft', arrowright: 'ArrowRight'};
 
 /** Detects the chord spelling a person expects for their platform; the app window reports mac or its own platform. */
 export function shortcutPlatform(nav: {platform?: string; userAgent?: string} | undefined = typeof navigator === 'undefined' ? undefined : navigator): ShortcutPlatform {
