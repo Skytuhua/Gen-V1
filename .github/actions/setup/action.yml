@@ -36,7 +36,7 @@ runs:
         python-version: '3.14'
         architecture: x64
         cache: pip
-        cache-dependency-path: third-party/hermes-agent/runtime-requirements.txt
+        cache-dependency-path: third-party/hermes-agent/runtime-requirements-hashed.txt
 
     - name: Cache pinned Python test dependencies
       if: inputs.python == 'true'
@@ -46,13 +46,13 @@ runs:
         path: |
           .harness-hermes-python-deps
           .harness-integrations-python-deps
-        key: python-deps-${{ runner.os }}-${{ hashFiles('third-party/hermes-agent/runtime-requirements.txt', 'third-party/integrations/PYTHON_LOCK.json') }}
+        key: python-deps-${{ runner.os }}-${{ hashFiles('third-party/hermes-agent/runtime-requirements.txt', 'third-party/hermes-agent/runtime-requirements-hashed.txt', 'third-party/integrations/PYTHON_LOCK.json') }}
 
     - name: Install pinned Python test dependencies
       if: inputs.python == 'true' && steps.python-deps.outputs.cache-hit != 'true'
       shell: pwsh
       run: |
-        python -m pip install --disable-pip-version-check --no-warn-script-location --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements.txt
+        python -m pip install --disable-pip-version-check --no-warn-script-location --require-hashes --target .harness-hermes-python-deps -r third-party/hermes-agent/runtime-requirements-hashed.txt
         if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
         $lock = Get-Content -Raw -LiteralPath third-party/integrations/PYTHON_LOCK.json | ConvertFrom-Json
         $requirements = foreach ($distribution in $lock.distributions) {
