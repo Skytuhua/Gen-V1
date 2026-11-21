@@ -16,6 +16,8 @@
     ".github/workflows/m01-m03-audit.yml",
     ".github/workflows/m15-evidence.yml",
     ".gitignore",
+    ".vscode/extensions.json",
+    ".vscode/launch.json",
     "CHANGELOG.md",
     "CONTRIBUTING.md",
     "DESIGN.md",
