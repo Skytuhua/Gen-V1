@@ -37,6 +37,47 @@ describe('sectionOf', () => {
   });
 });
 
+describe('sectionOf with sidebar sections', () => {
+  const sections = new Set(['sec_a', 'sec_b']);
+  it('places a member in its section after pinned and working', () => {
+    expect(sectionOf(row('a', {}, { sectionId: 'sec_a' }), false, {}, sections)).toBe('section:sec_a');
+    expect(sectionOf(row('a', { status: 'working' }, { sectionId: 'sec_a' }), true, {}, sections)).toBe('working');
+    expect(sectionOf(row('a', {}, { pinned: true, sectionId: 'sec_a' }), false, {}, sections)).toBe('pinned');
+  });
+  it('beats settled but keeps it cleared precedence order', () => {
+    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, {}, sections)).toBe('section:sec_a');
+    expect(sectionOf(row('a', {}, { settled: true, sectionId: 'sec_a' }), false, { sectionId: null }, sections)).toBe('settled');
+  });
+  it('treats an unknown section id as no section and ignores ids without the set', () => {
+    expect(sectionOf(row('a', {}, { sectionId: 'sec_gone' }), false, {}, sections)).toBe('flat');
+    expect(sectionOf(row('a', {}, { sectionId: 'sec_a' }), false)).toBe('flat');
+  });
+  it('applies the patch sectionId before evaluating', () => {
+    expect(sectionOf(row('a'), false, { sectionId: 'sec_b' }, sections)).toBe('section:sec_b');
+  });
+});
+
+describe('dropPatch with sidebar sections', () => {
+  const sections = new Set(['sec_a']);
+  it('drops into a section clearing pinned and settled', () => {
+    expect(dropPatch(row('a', {}, { pinned: true }), { list: 'section:sec_a', index: 0 }, false, sections)).toEqual({ pinned: false, settled: false, sectionId: 'sec_a' });
+    expect(dropPatch(row('a', {}, { settled: true, sectionId: 'sec_a' }), { list: 'section:sec_a', index: 0 }, false, sections)).toEqual({ pinned: false, settled: false, sectionId: 'sec_a' });
+  });
+  it('rejects a drop onto a section the flag does not advertise', () => {
+    expect(dropPatch(row('a'), { list: 'section:sec_a', index: 0 }, false)).toBeNull();
+    expect(dropPatch(row('a'), { list: 'section:sec_missing', index: 0 }, false, sections)).toBeNull();
+  });
+  it('clears membership dropping onto the flat list and keeps settled rows out', () => {
+    expect(dropPatch(row('a', {}, { sectionId: 'sec_a' }), { list: 'flat', index: 0 }, false, sections)).toEqual({ pinned: false, sectionId: null });
+    expect(dropPatch(row('a', {}, { settled: true, sectionId: 'sec_a' }), { list: 'flat', index: 0 }, false, sections)).toBeNull();
+  });
+  it('keeps pinned and working drops unchanged', () => {
+    expect(dropPatch(row('a', {}, { sectionId: 'sec_a' }), { list: 'pinned', index: 0 }, false, sections)).toEqual({ pinned: true });
+    expect(dropPatch(row('a'), { list: 'working', index: 0 }, false, sections)).toBeNull();
+    expect(dropPatch(row('a', { runId: 'r1' }), { list: 'working', index: 0 }, true, sections)).toEqual({ pinned: false });
+  });
+});
+
 describe('orderFor', () => {
   it('returns 1 for an empty list', () => {
     expect(orderFor([], 0)).toBe(1);
@@ -93,7 +134,7 @@ describe('dropPatch', () => {
   });
   it('unpins onto the flat list when the row settles there', () => {
     const item = row('a', {}, { pinned: true });
-    expect(dropPatch(item, { list: 'flat', index: 0 }, true)).toEqual({ pinned: false });
+    expect(dropPatch(item, { list: 'flat', index: 0 }, true)).toEqual({ pinned: false, sectionId: null });
   });
   it('rejects a flat drop for a settled row', () => {
     const item = row('a', {}, { pinned: true, settled: true });
