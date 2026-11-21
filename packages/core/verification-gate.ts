@@ -48,10 +48,6 @@ export function observationMatchesThreadOwner(observation: Pick<CheckObservation
 
 const QA_ALLOWED_OPERATIONS = new Set(['verification.run', 'verification.observe', 'context.read']);
 
-export interface QaWorkerRequest {
-  operation: 'verification.run' | 'verification.observe';
-  payload: unknown;
-}
 
 export function createQaWorkerRole(owner: ToolOwner) {
   return {

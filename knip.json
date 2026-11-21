@@ -1,0 +1,50 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "entry": [
+    "apps/server/main.ts",
+    "apps/web/src/main.tsx",
+    "apps/web/src/registry.tsx",
+    "apps/web/src/plugin-runtime.tsx",
+    "apps/desktop/main.ts",
+    "apps/desktop/preload.ts",
+    "scripts/**/*.ts",
+    "scripts/**/*.mts",
+    "scripts/**/*.mjs",
+    "tests/**/*.test.ts",
+    "tests/**/*.test.tsx",
+    "tests/e2e/*.playwright.config.ts",
+    "tests/e2e/*.spec.ts",
+    "tests/e2e/*.spec.mjs",
+    "tests/e2e/*.vite.config.ts",
+    "tests/e2e/*.setup.ts",
+    "tests/e2e/*-fixture.ts",
+    "tests/e2e/*-fixture.tsx",
+    "tests/e2e/*-renderer.tsx",
+    "tests/e2e/*-host.ts",
+    "tests/e2e/*-candidate.ts",
+    "tests/e2e/fixtures/**/*.tsx",
+    "tests/e2e/**/renderer.tsx",
+    "tests/e2e/*.html",
+    "tests/fixtures/**/*.ts",
+    "tests/fixtures/**/*.mjs",
+    "tests/host-fixture.ts",
+    "packages/widgets/receiver.ts",
+    "packages/widgets/worker.ts"
+  ],
+  "project": [
+    "apps/**/*.{ts,tsx}",
+    "packages/**/*.{ts,tsx,mts}",
+    "scripts/**/*.{ts,mts,mjs}",
+    "tests/**/*.{ts,tsx,mts,mjs}"
+  ],
+  "ignoreDependencies": [
+    "@biomejs/biome",
+    "@biomejs/cli-win32-x64",
+    "@upstash/context7-mcp",
+    "promptfoo"
+  ],
+  "rules": {
+    "unlisted": "off",
+    "binaries": "off"
+  }
+}
