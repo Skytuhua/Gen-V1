@@ -20,7 +20,9 @@ interface DesktopUpdateStatus {state:'unavailable'|'idle'|'checking'|'current'|'
 export interface DesktopState {windows:DesktopWindowInfo[];browser?:DesktopBrowserState;dockedBrowser?:{browserId:string;state:DesktopBrowserState};focusSurface?:DesktopSurface;backendError?:string;layoutError?:string;closeCancelled?:boolean;update?:DesktopUpdateStatus;nativeTitleBar?:boolean}
 export interface DesktopContext extends DesktopState {windowId:string;surface:DesktopSurface}
 export interface DesktopWorkspaceChange {connected:boolean;sequence:number}
-export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number}};
+export type DesktopBrowserWidthPreset='fit'|390|768;
+export interface DesktopBrowserBoundsResult {requested:DesktopBrowserWidthPreset;effective:DesktopBrowserWidthPreset;bounds:DesktopBounds;ownerBounds:DesktopBounds;actualWidth:number;availableWidth:number;availability:{390:boolean;768:boolean};hidden:boolean;fallbackReason?:string}
+export type DesktopBrowserCommand = {type:'open'}|{type:'close'}|{type:'navigate';url:string}|{type:'back'|'forward'|'reload'|'stop'}|{type:'bounds';bounds:{x:number;y:number;width:number;height:number};widthPreset?:DesktopBrowserWidthPreset};
 export interface DesktopMemoryExportResult {status:'saved'|'cancelled';admitted:true;filename:string;bytes:number;sha256:string}
 export interface DesktopBridge {
   exportProjectMemory?(serializedExport:string):Promise<DesktopMemoryExportResult>;
@@ -43,7 +45,7 @@ export interface DesktopBridge {
   control?(command:DesktopWindowControl):Promise<void>;
   captureLayout?():Promise<DesktopLayout>;
   applyLayout?(layout:DesktopLayout):Promise<void>;
-  browser(command:DesktopBrowserCommand):Promise<void>;
+  browser(command:DesktopBrowserCommand):Promise<void | DesktopBrowserBoundsResult>;
   onState(listener:(state:DesktopState)=>void):()=>void;
   onCloseRequested(handler:()=>Promise<boolean>):()=>void;
   onWorkspaceChanged?(listener:(change:DesktopWorkspaceChange)=>void):()=>void;
