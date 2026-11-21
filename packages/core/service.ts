@@ -1013,6 +1013,21 @@ export class Service {
         return withResourceGrant(grant, this.store.dataDir, relativePath, write, signal ?? new AbortController().signal, path => { assertAuthority(); return action(path); });
       },
       publishData: (value: unknown, provenance: string) => { assertAuthority(); return this.publishData(threadId, value, provenance); },
+      readDependencyScan: (scanId?: string, cursor?: string) => {
+        assertAuthority();
+        if (!capabilityEnabled('workspace.dependencyCheckV1')) throw new HarnessError('CAPABILITY_DENIED', 'Dependency check is disabled');
+        const thread = this.thread(threadId);
+        if (!thread.projectId || thread.kind === 'delegate' || thread.sideParentId) throw new HarnessError('CAPABILITY_DENIED', 'Dependency check requires a project thread');
+        const binding = thread.workspaceId ? this.store.get<import("../workspace/tools.ts").WorkspaceBinding>('workspaceBinding', thread.workspaceId) ?? undefined : undefined;
+        const owner = workspaceOwnerScope(thread.projectId, thread.id, binding);
+        const key = createHash('sha256').update(JSON.stringify(owner)).digest('hex');
+        const result = this.store.get<import('../contracts/dependency-check.ts').DependencyScanResult>('dependencyScan', key);
+        if (!result || (scanId !== undefined && result.scanId !== scanId)) throw new HarnessError('STALE_REVISION', 'No current dependency check result; run a new check');
+        const start = cursor === undefined ? 0 : Number.parseInt(cursor, 10);
+        if (!Number.isInteger(start) || start < 0) throw new HarnessError('INVALID_INPUT', 'Invalid result cursor');
+        const findings = result.findings.slice(start, start + 100);
+        return {...result, findings, nextCursor: start + 100 < result.findings.length ? String(start + 100) : undefined};
+      },
       prepareOperation: (kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string) => {
         assertAuthority();
         if (operationId) throw new HarnessError("CAPABILITY_DENIED", "An executor cannot create another operation");

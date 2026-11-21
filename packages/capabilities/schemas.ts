@@ -18,6 +18,7 @@ export const toolSchemas = {
   knowledge_publish: z.strictObject({ sources: z.array(z.strictObject(resource)).min(1).max(20), title: z.string().min(1).max(300), value: z.json() }),
   database_inspect: z.strictObject({ ...resource, table: z.string().min(1).max(200).optional(), limit: z.number().int().min(1).max(500).optional() }),
   database_prepare: z.strictObject({ ...resource, mode: z.enum(["transaction", "migration"]), statements: z.array(statement).min(1).max(100) }),
+  dependency_check_read: z.strictObject({ scanId: id.optional(), cursor: z.string().max(64).optional() }),
   pdf_inspect: z.strictObject(resource),
   pdf_prepare: z.strictObject({ ...resource, exportResourceId: id, outputPath: relativePath.refine(s => s.toLowerCase().endsWith(".pdf")), fields: z.record(z.string().min(1).max(300), z.union([z.string().max(10_000), z.boolean(), z.array(z.string().max(1000)).max(100)])).optional(), signatures: z.array(z.union([z.strictObject({ kind: z.literal("typed"), text: z.string().min(1).max(200), ...placement }), z.union([z.strictObject({ kind: z.literal("drawn"), points: z.array(point).min(2).max(2000), ...placement }), z.strictObject({ kind: z.literal("drawn"), strokes: z.array(z.array(point).min(2).max(2000)).min(1).max(1000).refine(strokes => strokes.reduce((sum, stroke) => sum + stroke.length, 0) <= 2000, "At most 2000 total signature points"), ...placement })]), z.strictObject({ kind: z.literal("image"), resourceId: id.refine(value => !/[\u0000-\u0020/\\?#]/.test(value) && ![".", ".."].includes(value)), ...placement })])).max(20).optional() }),
 };
@@ -35,6 +36,7 @@ export const descriptions: Record<ToolName, string> = {
   text_import: "Import a granted UTF-8 source document as reusable data with exact SHA-256 provenance. No network fetch.",
   knowledge_publish: "Publish derived structured data referencing granted source documents and their hashes. Provenance identifies synthesis, not independently verified truth.",
   database_inspect: "Inspect a selected external SQLite database: integrity, schema, real counts and bounded rows. WAL databases are unsupported; harness storage is denied by the host resolver.",
+  dependency_check_read: "Read this thread's latest approved dependency check result (bounded findings page by cursor; never advisory prose or lockfile bytes). Unavailable while the workspace.dependencyCheckV1 flag is off.",
   database_prepare: "Prepare an external SQLite transaction/migration with database version, integrity checks, bounded SQL, exact expected DML counts and rollback on mismatch. No ATTACH/extension/PRAGMA or harness database access.",
   pdf_inspect: "Inspect local PDF pages, supported form fields and best-effort unencrypted text streams. No OCR or complete custom-font extraction.",
   pdf_prepare: "Prepare supported PDF form fill and visual typed/drawn/PNG signature placement in a NEW local PDF export. No certificate signatures, OCR or email delivery; existing exports are never overwritten.",

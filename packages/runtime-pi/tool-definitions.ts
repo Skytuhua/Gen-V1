@@ -54,7 +54,10 @@ export async function loadDomainTools(): Promise<ToolMetadata[]> {
   const location = new URL("../capabilities/index.ts", import.meta.url).href;
   const module = await import(/* @vite-ignore */ location);
   if (!Array.isArray(module.DOMAIN_TOOLS)) throw new HarnessError("PI_TOOLS_UNAVAILABLE", "Domain capability metadata is unavailable.");
-  return module.DOMAIN_TOOLS;
+  const flagged = module.FLAGGED_DOMAIN_TOOLS as Record<string, string> | undefined;
+  if (!flagged) return module.DOMAIN_TOOLS;
+  const { capabilityEnabled } = await import("../core/capability-flags.ts");
+  return module.DOMAIN_TOOLS.filter((tool: { name: string }) => !(tool.name in flagged) || capabilityEnabled(flagged[tool.name] as never));
 }
 
 export function createHostTools(domain: readonly ToolMetadata[], call: (toolCallId: string, name: string, args: Record<string, unknown>, signal?: AbortSignal) => Promise<unknown>): ToolDefinition[] {
