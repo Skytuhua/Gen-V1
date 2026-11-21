@@ -3302,6 +3302,7 @@
     "tests/host-fixture-cleanup.test.ts",
     "tests/host-fixture.ts",
     "tests/human-handoff-v3.test.ts",
+    "tests/image-generation-flag.test.ts",
     "tests/inbox-presentation.test.ts",
     "tests/inference-admission.test.ts",
     "tests/inference-budget.test.ts",

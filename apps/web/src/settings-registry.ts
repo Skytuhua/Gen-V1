@@ -18,6 +18,17 @@ export const GROUPS: Record<string, string> = {
 // Rows whose effect only exists on one platform; everything else is cross-platform.
 const PLATFORM_OVERRIDES: Record<string, SettingPlatform> = {};
 
+// Rows gated behind a host capability flag: hidden everywhere — the section
+// list and search — until the host reports the flag on via shell-settings.
+export const FLAGGED_SETTINGS: Record<string, string> = {
+  'image-generation': 'media.imageGenerationV1',
+};
+
+export function settingVisible(item: { id: string }, flags: Readonly<Record<string, boolean | undefined>>): boolean {
+  const flag = FLAGGED_SETTINGS[item.id];
+  return flag === undefined || flags[flag] === true;
+}
+
 export function buildSupportedSettings(rows: readonly SettingsInventoryRow[], sections: readonly (readonly [string, string])[]): SupportedSettingRow[] {
  const labels = Object.fromEntries(sections);
  return rows.map(row => ({

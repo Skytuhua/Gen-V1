@@ -7,9 +7,9 @@ import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, I
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
-import { command, getModels } from './api';
+import { command, getModels, getShellSettings } from './api';
 import type { SettingsInventoryRow } from './settings-inventory';
-import { buildSupportedSettings, searchSettings, GROUPS, type SupportedSettingRow } from './settings-registry';
+import { buildSupportedSettings, searchSettings, settingVisible, GROUPS, type SupportedSettingRow } from './settings-registry';
 import { PREFERENCE_BINDINGS, chordFor } from './keyboard-bindings';
 import { matchesShortcut } from './shell-layout';
 import { KeyboardReference } from './KeyboardReference';
@@ -44,6 +44,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'unpin-confirmation': { key: 'unpinConfirmation', description: 'Ask before removing a pinned thread.' },
   'composer-context': { key: 'showComposerContext', description: 'Show conversation capacity beside the composer.' },
   'harness-composer-predictions': { key: 'composerPredictions', description: 'Uses the selected model and subscription quota.' },
+  'image-generation': { key: 'imageGeneration', description: 'Generate and edit images in a thread with the signed-in subscription. Generation consumes subscription usage faster than text turns.' },
   'thread-details-items': { key: 'showThreadDetails', description: 'Show task status in the conversation header.' },
   'project-grouping': { key: 'projectGrouping', description: 'Group sidebar threads by project.' },
   'project-order': { key: 'projectOrder', options: ['recent', 'created', 'manual'], labels: ['Recent activity', 'Creation time', 'Manual'], description: 'Order project groups in the sidebar.' },
@@ -62,7 +63,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('time-format', 'Time format', 'general'), row('archive-confirmation', 'Archive confirmation', 'general'), row('unpin-confirmation', 'Unpin confirmation', 'general'),
   row('harness-personalization', 'Appearance', 'appearance', 'theme dark light system accent custom contrast density compact comfortable touch fonts interface prompt code size radius motion speed reduced preview reset'),
   row('chat-width', 'Chat width', 'appearance', '680 760 full comfortable wide message composer'), row('word-wrap', 'Code line wrap', 'appearance'), row('harness-project-colors', 'Project colors', 'appearance', 'palette custom hex'),
-  row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
+  row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('image-generation', 'Image generation', 'chat', 'pictures media create'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
   row('harness-local-models', 'Available models', 'providers', 'refresh runtime'), row('default-model', 'Default model', 'providers'), row('harness-accounts', 'Accounts', 'providers', 'subscriptions sign in credentials'), row('harness-runtime', 'Local runtime & environments', 'providers', 'environment variables secret local host'),
   ...SUBSCRIPTION_CONNECTIONS.map(connection => row(`provider-${connection.id}`, connection.label, 'providers', `${connection.id} ${connection.description}`)),
   ...APPEARANCE_FIELDS.filter(field => field.id !== 'chat-width' && field.id !== 'word-wrap').map(field => row(field.id, field.label, 'appearance', field.terms)),
@@ -150,7 +151,9 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     await persist({ preferences: value });
   };
   const searching = query.trim().length > 0;
-  const rows = searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section);
+  const [flags, setFlags] = useState<Record<string, boolean>>({});
+  useEffect(() => { let live = true; void getShellSettings().then(value => { if (live) setFlags(value.flags ?? {}); }).catch(() => {}); return () => { live = false; }; }, []);
+  const rows = (searching ? searchSettings(query, SUPPORTED_SETTINGS, desktop ? 'desktop' : 'browser') : SUPPORTED_SETTINGS.filter(item => item.section === section)).filter(item => settingVisible(item, flags));
   const matches = (id: string) => rows.some(item => item.id === id);
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
