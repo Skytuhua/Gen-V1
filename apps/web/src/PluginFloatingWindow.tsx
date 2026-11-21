@@ -3,23 +3,38 @@ import {ToolDock} from '../../../packages/ui-shell/ToolDock';
 import {ChevronDown,ChevronUp,X} from 'lucide-react';
 import type {FloatingWindowProps} from './FloatingWindow';
 import {floatingLayoutKey,type FloatingLayout} from './floating-layout';
+import {animateTask,reducedMotion} from './task-motion';
 import {journalLocalIntent,journalReadRetainingIntent,journalWrite,registerEditorHandoff,retryJournalWrites} from './plugin-frame-client';
 import './floating-window.css';
 import './plugin-tools-dock.css';
 
 function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{layout:Partial<FloatingLayout>|null;onLayout:(layout:Partial<FloatingLayout>)=>void;notice:ReactNode}){
  const {id,title,children,open=true,onClose,defaultCollapsed=false,summary,collapsedLabel,minimizeLabel,ariaLabel,className='',escapeBehavior='close',focusOnOpen=true,expandRequest}=props;
- const [collapsed,setCollapsed]=useState(typeof layout?.collapsed==='boolean'?layout.collapsed:defaultCollapsed),disclosure=useRef<HTMLButtonElement>(null),shell=useRef<HTMLElement>(null),previousOpen=useRef(open),opener=useRef<HTMLElement|null>(null),bodyId=useId();
+ const [collapsed,setCollapsed]=useState(typeof layout?.collapsed==='boolean'?layout.collapsed:defaultCollapsed),disclosure=useRef<HTMLButtonElement>(null),shell=useRef<HTMLElement>(null),previousOpen=useRef<boolean|undefined>(undefined),opener=useRef<HTMLElement|null>(null),bodyId=useId(),[rendered,setRendered]=useState(open);
  const collapse=(value:boolean)=>{setCollapsed(value);onLayout({...layout,collapsed:value});disclosure.current?.focus({preventScroll:true});};
  // This effect's deps omit `layout`, so spreading it here could merge stale
  // fields over newer saved values; onLayout already merges into saved state.
  useLayoutEffect(()=>{if(expandRequest!==undefined&&open&&collapsed){setCollapsed(false);onLayout({collapsed:false});}},[expandRequest,open]);
  useLayoutEffect(()=>{
-  if(open&&!previousOpen.current){opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;if(focusOnOpen)disclosure.current?.focus({preventScroll:true});}
-  if(!open&&previousOpen.current&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
-  previousOpen.current=open;
+  const wasOpen=previousOpen.current;previousOpen.current=open;
+  const invokerOrigin=()=>{const rect=shell.current?.getBoundingClientRect(),invoker=opener.current?.isConnected?opener.current.getBoundingClientRect():null;return rect&&invoker?`${invoker.left+invoker.width/2-rect.left}px ${invoker.top+invoker.height/2-rect.top}px`:'center';};
+  if(!open){
+   if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
+   const origin=invokerOrigin();
+   const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
+   if(!animation){setRendered(false);return;}
+   let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
+   return()=>{active=false;animation.cancel();};
+  }
+  setRendered(true);
+  if(wasOpen)return;
+  if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
+  const origin=invokerOrigin();
+  const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:0,transform:'scale(.95)',transformOrigin:origin},{opacity:1,transform:'scale(1)',transformOrigin:origin}],180,{duration:'--ui-motion-popup-enter',easing:'--ui-ease-enter'});
+  if(wasOpen===false&&focusOnOpen)disclosure.current?.focus({preventScroll:true});
+  return()=>animation?.cancel();
  },[open,focusOnOpen]);
- return <section ref={shell} hidden={!open} className={`floating-window plugin-tool-window ${className}`} data-floating-id={id} data-floating="false" data-collapsed={collapsed} aria-label={ariaLabel??`${title} window`} onKeyDown={event=>{
+ return <section ref={shell} hidden={!open&&!rendered} inert={!open} aria-hidden={!open} className={`floating-window plugin-tool-window ${className}`} data-floating-id={id} data-floating="false" data-collapsed={collapsed} aria-label={ariaLabel??`${title} window`} onKeyDown={event=>{
   if(event.defaultPrevented||event.nativeEvent.isComposing||event.nativeEvent.keyCode===229||event.key!=='Escape')return;
   event.preventDefault();event.stopPropagation();if(props.minimizeOnly||escapeBehavior==='collapse'&&!collapsed)collapse(true);else onClose?.();
  }}>
@@ -27,8 +42,8 @@ function DockedWindow({layout,onLayout,notice,...props}:FloatingWindowProps&{lay
    <button ref={disclosure} type="button" className="floating-window-summary" aria-label={collapsed?(collapsedLabel??`Expand ${title}`):(minimizeLabel??`Minimize ${title}`)} aria-expanded={!collapsed} aria-controls={bodyId} onClick={()=>collapse(!collapsed)}><strong>{title}</strong>{collapsed&&summary}{collapsed?<ChevronUp size={13} aria-hidden="true"/>:<ChevronDown size={13} aria-hidden="true"/>}</button>
    {!props.minimizeOnly&&onClose&&<button type="button" className="floating-window-control" aria-label={`Close ${title}`} onClick={onClose}><X size={13} aria-hidden="true"/></button>}
   </div>
-  {notice}
-  <div id={bodyId} className="floating-window-body" hidden={collapsed}><div className="floating-window-content">{children}</div></div>
+  <div className="floating-window-notice">{notice}</div>
+  <div id={bodyId} className="floating-window-body" data-collapsed={collapsed} inert={collapsed} aria-hidden={collapsed}><div className="floating-window-content">{children}</div></div>
  </section>;
 }
 

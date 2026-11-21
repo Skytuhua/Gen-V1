@@ -3,6 +3,7 @@ import {ChevronDown,ChevronUp,GripVertical,RotateCcw,X} from 'lucide-react';
 import {clampFloatingLayout,FLOATING_COLLAPSED_HEIGHT,readFloatingLayout,writeFloatingLayout,type FloatingAnchor,type FloatingLayout,type FloatingSize,type FloatingViewport} from './floating-layout';
 import {bringForward,layerFor,removeLayer,subscribeLayer} from './floating-order';
 import {animateTask,reducedMotion} from './task-motion';
+import {createSpringValue} from './motion-spring';
 import {FloatingRailSlotContext} from './FloatingRail';
 import './floating-window.css';
 export interface FloatingWindowProps {id:string;title:string;children:ReactNode;open?:boolean;onClose?:()=>void;anchor?:FloatingAnchor;defaultSize?:FloatingSize;minSize?:FloatingSize;defaultCollapsed?:boolean;summary?:ReactNode;collapsedLabel?:string;minimizeLabel?:string;ariaLabel?:string;className?:string;escapeBehavior?:'close'|'collapse';resetPosition?:boolean;onDetach?:()=>void|Promise<void>;minimizeOnly?:boolean;sizing?:'manual'|'content';focusOnOpen?:boolean;expandRequest?:number;storage?:{read:typeof readFloatingLayout;write:typeof writeFloatingLayout}}
@@ -42,6 +43,7 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   const current=useRef(layout);current.current=layout;
   const resizeOrigin=useRef({layout,width:window.visualViewport?.width??window.innerWidth,height:window.visualViewport?.height??window.innerHeight});
   const [layer,setLayer]=useState(()=>layerFor(id)),[interacting,setInteracting]=useState(false),[adjusting,setAdjusting]=useState(Boolean(rail)),[rendered,setRendered]=useState(open);
+  const committedGeometry=useRef<{x:number;y:number;width:number;height:number;collapsed:boolean}|undefined>(undefined);
   const update=(next:FloatingLayout,persist=false,intent=persist)=>{
     floating.current=!rail||next.floating===true;
     const area=areaFor(next.collapsed),available=(area.bottom??area.height)-Math.max(area.top??0,next.y),preferred=sizing==='content'?{...next,height:next.collapsed?contentHeight.current:Math.min(contentHeight.current,Math.max(minSize.height,available))}:next,valid=clampFloatingLayout(rail&&!floating.current?{...preferred,width:minimizeOnly?Math.min(defaultSize.width,area.width):area.width}:preferred,area,minSize);current.current=valid;setLayout(valid);if(intent)resizeOrigin.current={layout:valid,width:area.width,height:area.height};if(persist)writeLayout(id,valid);
@@ -55,9 +57,11 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
   },[id,open]);
   useLayoutEffect(()=>{
     const wasOpen=previousOpen.current;previousOpen.current=open;
+    const invokerOrigin=()=>{const rect=shell.current?.getBoundingClientRect(),invoker=opener.current?.isConnected?opener.current.getBoundingClientRect():null;return rect&&invoker?`${invoker.left+invoker.width/2-rect.left}px ${invoker.top+invoker.height/2-rect.top}px`:'center';};
     if(!open){
       entrance.current?.cancel();stopInteraction.current();if(wasOpen&&shell.current?.contains(document.activeElement)&&opener.current?.isConnected)opener.current.focus({preventScroll:true});
-      const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'translateY(0) scale(1)'},{opacity:0,transform:'translateY(4px) scale(.99)'}],120):undefined;
+      const origin=invokerOrigin();
+      const animation=wasOpen&&!reducedMotion()&&shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')!=='false'?animateTask(shell.current,[{opacity:1,transform:'scale(1)',transformOrigin:origin},{opacity:0,transform:'scale(.97)',transformOrigin:origin}],140,{duration:'--ui-motion-popup-exit',easing:'--ui-ease-move'}):undefined;
       if(!animation){setRendered(false);return;}
       let active=true;void animation.finished.then(()=>{if(active)setRendered(false);}).catch(()=>{});
       return()=>{active=false;animation.cancel();};
@@ -66,11 +70,37 @@ export function FloatingWindow({id,title,children,open=true,onClose,anchor='top-
     update(current.current);
     if(wasOpen)return;
     if(wasOpen===false)opener.current=document.activeElement instanceof HTMLElement?document.activeElement:null;
-    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:.4,transform:'translateY(9px) scale(.985)'},{opacity:1,transform:'translateY(0) scale(1)'}],220,{duration:'--ui-motion-panel-enter',easing:'--ui-ease-enter'});
+    const origin=invokerOrigin();
+    const animation=shell.current?.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'?undefined:animateTask(shell.current,[{opacity:0,transform:'scale(.95)',transformOrigin:origin},{opacity:1,transform:'scale(1)',transformOrigin:origin}],180,{duration:'--ui-motion-popup-enter',easing:'--ui-ease-enter'});
     entrance.current=animation;
     if(wasOpen===false&&focusOnOpen)(minimizeOnly?(current.current.collapsed?summaryButton:minimizeButton):moveButton).current?.focus({preventScroll:true});
     return()=>animation?.cancel();
   },[open]);
+  // Spec S1: drag/reposition landings settle on a spring, never an ease. The
+  // spring retargets from the rect currently on screen, so an interrupted
+  // landing continues from wherever the window is.
+  useLayoutEffect(()=>{
+    const element=shell.current,target={x:layout.x,y:layout.y,width:layout.width,height:layout.collapsed?FLOATING_COLLAPSED_HEIGHT:layout.height},previous=committedGeometry.current;
+    committedGeometry.current={...target,collapsed:layout.collapsed};
+    if(!element||!open||!rendered||interacting||adjusting||!previous||previous.collapsed!==layout.collapsed)return;
+    // Only floating windows drag/reposition; docked x/y are slot-relative and
+    // move with the rail's own layout.
+    if(rail&&!floating.current)return;
+    if(element.closest('.app-shell')?.getAttribute('data-panel-animations')==='false'||reducedMotion())return;
+    // Enter/exit WAAPI animations distort the rect; they are not landings.
+    if(element.getAnimations().some(animation=>animation.playState==='running'))return;
+    const rect=element.getBoundingClientRect(),dx=rect.left-target.x,dy=rect.top-target.y,dw=rect.width-target.width,dh=rect.height-target.height;
+    if(Math.abs(dx)<.5&&Math.abs(dy)<.5&&Math.abs(dw)<.5&&Math.abs(dh)<.5)return;
+    // Restoring committed pixel values is required: clearing width/height
+    // would drop React's inline style and re-size the window to its contents.
+    const restore=()=>{element.style.transform='';element.style.width=`${current.current.width}px`;element.style.height=`${current.current.collapsed?FLOATING_COLLAPSED_HEIGHT:current.current.height}px`;};
+    const spring=createSpringValue(1,progress=>{
+      element.style.transform=dx||dy?`translate(${dx*progress}px,${dy*progress}px)`:'';
+      if(dw||dh){element.style.width=`${target.width+dw*progress}px`;element.style.height=`${target.height+dh*progress}px`;}
+    },restore);
+    spring.to(0);
+    return()=>{spring.dispose();restore();};
+  },[layout,open,rendered,interacting,adjusting]);
   useLayoutEffect(()=>{
     const before=previousCollapsed.current;previousCollapsed.current=layout.collapsed;
     if(before===undefined||before===layout.collapsed||!open)return;
