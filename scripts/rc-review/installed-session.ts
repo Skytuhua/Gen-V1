@@ -30,5 +30,9 @@ export async function installedSession(executable:string,action:(page:Page,pid:n
 }
 
 export async function closeInstalledSession(owned:boolean,browser:{close():Promise<unknown>}|undefined,child:ChildProcess,terminate:(child:ChildProcess)=>Promise<unknown>=terminateProcessTree){
- if(owned)await browser?.close();if(child.exitCode===null&&child.signalCode===null)await terminate(child);
+ const errors:unknown[]=[];
+ if(owned)await browser?.close().catch(error=>errors.push(error));
+ if(child.exitCode===null&&child.signalCode===null)await terminate(child).catch(error=>errors.push(error));
+ if(errors.length===1)throw errors[0];
+ if(errors.length>1)throw new AggregateError(errors,'Installed session teardown failed.');
 }
