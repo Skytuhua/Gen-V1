@@ -310,7 +310,7 @@ test('workspace layout persists and context unknowns never appear as zero', asyn
   await page.getByRole('complementary', { name: 'Workspace panel', exact: true }).getByRole('button', { name: 'Add surface', exact: true }).click();
   await page.getByRole('menuitem', { name: 'Usage', exact: true }).click();
   const usageDialog = page.getByRole('dialog', { name: 'Usage', exact: true });
-  await expect(usageDialog).toContainText('No usage reported yet');
+  await expect(usageDialog).toContainText('No usage recorded yet');
   await usageDialog.getByRole('button', { name: 'Close dialog', exact: true }).click();
   await page.reload();
   await expect(page.locator('.app-shell:not(.embedded-thread-app)')).toHaveAttribute('data-sidebar-collapsed', 'true');
