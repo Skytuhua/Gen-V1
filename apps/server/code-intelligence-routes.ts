@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { z } from 'zod';
+import { Sha256Hex } from '../../packages/contracts/hashing.ts';
 import type { Service } from '../../packages/core/service.ts';
 import { HarnessError } from '../../packages/contracts/index.ts';
 import { workspaceHost } from './workspace-host.ts';
@@ -139,7 +140,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
 
   const observeSchema = z.strictObject({
     threadId: identifier.optional(), language: z.string().min(1).max(64), path: z.string().min(1).max(4096),
-    text: z.string().max(4 * 1024 * 1024), beforeDigest: z.string().regex(/^[a-f0-9]{64}$/).nullable().optional(),
+    text: z.string().max(4 * 1024 * 1024), beforeDigest: Sha256Hex.nullable().optional(),
     editInvocationId: z.string().max(256).nullable().optional(), wait: z.enum(['inline', 'delayed']).optional(),
   });
   const navigateSchema = z.strictObject({
@@ -149,8 +150,8 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   });
   const previewSchema = z.strictObject({
     threadId: identifier.optional(), previewId: z.string().max(128).optional(),
-    schemaDigest: z.string().regex(/^[a-f0-9]{64}$/).optional(), chunk: z.string().max(1024 * 1024).optional(),
-    finalArgumentsDigest: z.string().regex(/^[a-f0-9]{64}$/).optional(), outcome: z.enum(['APPLIED', 'CONFLICT']).optional(),
+    schemaDigest: Sha256Hex.optional(), chunk: z.string().max(1024 * 1024).optional(),
+    finalArgumentsDigest: Sha256Hex.optional(), outcome: z.enum(['APPLIED', 'CONFLICT']).optional(),
     command: z.enum(['begin', 'append', 'seal', 'validate', 'settle', 'discard']),
   });
   const renameSchema = z.strictObject({
@@ -161,7 +162,7 @@ export function registerCodeIntelligenceRoutes(app: FastifyInstance, service: Se
   });
   const debugSchema = z.strictObject({
     threadId: identifier.optional(), sessionId: z.string().max(128).optional(), approvalId: z.string().min(1).max(256).optional(),
-    recipe: z.strictObject({ recipeId: z.string().min(1).max(256), executableDigest: z.string().regex(/^[a-f0-9]{64}$/), confinementProfile: z.string().min(1).max(256) }).optional(),
+    recipe: z.strictObject({ recipeId: z.string().min(1).max(256), executableDigest: Sha256Hex, confinementProfile: z.string().min(1).max(256) }).optional(),
     command: z.string().min(1).max(64), args: z.record(z.string(), z.unknown()).optional(),
   });
 

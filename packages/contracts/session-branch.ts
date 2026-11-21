@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 /** M14 contracts: branchable sessions and inert history imports.
  * A branch action never mutates source history, files, approvals, native
@@ -20,7 +21,7 @@ export type BranchModelBindingV1 = z.infer<typeof branchModelBindingV1Schema>;
 export const sourceCutV1Schema = z.strictObject({
   sequence: z.number().int().nonnegative(),
   messageCount: z.number().int().nonnegative(),
-  revisionDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  revisionDigest: Sha256Hex,
 });
 export type SourceCutV1 = z.infer<typeof sourceCutV1Schema>;
 
@@ -129,7 +130,7 @@ export const importStagingV1Schema = z.strictObject({
     projectId: z.string().max(200).nullable(),
   }),
   ownerKey: z.string().min(1).max(200),
-  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  digest: Sha256Hex,
   document: archiveV1DocumentSchema,
   secretFields: z.number().int().nonnegative(),
   blocked: z.boolean(),
@@ -147,7 +148,7 @@ export const importReceiptV1Schema = z.strictObject({
   ownerKey: z.string().min(1).max(200),
   threadId: z.string().min(1).max(200),
   projectId: z.string().max(200).nullable(),
-  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  digest: Sha256Hex,
   conversations: z.number().int().nonnegative(),
   messageCount: z.number().int().nonnegative(),
   committedAt: z.string().min(1).max(64),
@@ -170,7 +171,7 @@ const sessionCaptureMessageV1Schema = z.strictObject({
   role: z.enum(['user', 'assistant', 'activity']),
   createdAt: z.string().min(1).max(64),
   runId: z.string().max(200).nullable(),
-  revision: z.string().regex(/^[a-f0-9]{64}$/),
+  revision: Sha256Hex,
   content: z.string(),
 });
 export type SessionCaptureMessageV1 = z.infer<typeof sessionCaptureMessageV1Schema>;
@@ -251,7 +252,7 @@ export const importPreviewV1Schema = z.strictObject({
   version: z.literal(1),
   format: z.literal('ArchiveV1'),
   importId: z.string().min(1).max(200),
-  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  digest: Sha256Hex,
   source: z.strictObject({
     sourceProduct: z.string().max(200),
     exportedAt: z.string().max(64),

@@ -1,9 +1,10 @@
 import {z} from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 /** Presentation and quoted context only. None of these references is a grant. */
 export const WORKBENCH_LIMITS = Object.freeze({maxSourceRefs: 8, maxViewEntries: 64, maxSourceBytes: 1024 * 1024, maxSelectedBytes: 64 * 1024, maxPreviewBytes: 1024, maxCandidates: 100, maxQueuedInputs: 100, maxOutputMessages: 500, maxOutputBytes: 4 * 1024 * 1024, maxOutputRows: 100000});
 const id = z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9:_.-]*$/);
-const digest = z.string().regex(/^[a-f0-9]{64}$/);
+const digest = Sha256Hex;
 const revision = z.string().min(1).max(200);
 const path = z.string().min(1).max(4096).refine(value => !/[\\:\0]/.test(value) && !value.startsWith('/') && !value.split('/').some(part => !part || part === '.' || part === '..' || part.toLowerCase() === '.git'), 'Use a relative source path');
 const pointer = z.string().max(4096).refine(value => value === '' || value.startsWith('/') && value.slice(1).split('/').every(part => !/~(?![01])/.test(part) && !['__proto__', 'prototype', 'constructor'].includes(part.replace(/~1/g, '/').replace(/~0/g, '~'))), 'Use a safe JSON pointer');

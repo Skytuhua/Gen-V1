@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { Sha256Hex } from './hashing.ts';
 
 /** M07 code-intelligence contracts: revision-aware diagnostics, bounded
  * semantic navigation, exact edit previews, safe rename and a restricted
  * debugger workflow. A diagnostic observation is never task completion by
  * itself; a preview frame never authorizes a write. */
 
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 const nonEmpty = z.string().min(1).max(4096);
 
 const rangeEncodingSchema = z.enum(["UTF8", "UTF16", "UTF32"]);

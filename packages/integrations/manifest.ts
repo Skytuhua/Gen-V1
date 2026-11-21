@@ -1,4 +1,4 @@
-import {createHash} from 'node:crypto';
+import {sha256Hex} from '../core/hash.ts';
 import {lstat,readFile} from 'node:fs/promises';
 import {relative,resolve} from 'node:path';
 import type {IntegrationId,IntegrationStatus} from '../contracts/integrations.ts';
@@ -13,7 +13,7 @@ export interface IntegrationDefinition {
 }
 export interface IntegrationManifest {version:1;createdAt:string;integrations:IntegrationDefinition[];bytes:number}
 export const integrationIds=['humanizer','emil','impeccable','graphify','promptfoo','biome','superpowers','spec-kit','context7','ponytail'] as const;
-export const sha256=(bytes:Uint8Array|string)=>createHash('sha256').update(bytes).digest('hex');
+export const sha256=sha256Hex;
 export function payloadPath(root:string,path:string){
  if(!path||path.includes('\\')||path.includes(':')||path.split('/').some(part=>!part||part==='.'||part==='..'))throw Error('Invalid integration payload path');
  const target=resolve(root,...path.split('/'));if(relative(resolve(root),target).startsWith('..'))throw Error('Integration payload leaves its root');return target;

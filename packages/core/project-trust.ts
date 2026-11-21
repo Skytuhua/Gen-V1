@@ -1,8 +1,8 @@
-import { createHash, randomUUID } from 'node:crypto';
-import { createReadStream } from 'node:fs';
+import { randomUUID } from 'node:crypto';
 import { stat } from 'node:fs/promises';
 import { join } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
+import { sha256File } from './hash.ts';
 import { canonical, inside } from './security.ts';
 import {
   projectTrustV1Schema, projectTrustScopeV1Schema, rootRelativePathSchema,
@@ -26,17 +26,6 @@ export async function canonicalRootIdentity(path: string): Promise<RootIdentity>
   return { canonicalPath, dev: String(info.dev), ino: String(info.ino) };
 }
 
-async function sha256File(path: string): Promise<string> {
-  const hash = createHash('sha256');
-  let bytes = 0;
-  for await (const chunk of createReadStream(path)) {
-    bytes += (chunk as Buffer).length;
-    if (bytes > MAX_DIGEST_FILE_BYTES) throw new HarnessError('RESOURCE_LIMIT', 'Approved file exceeds the digest size limit');
-    hash.update(chunk as Buffer);
-  }
-  return hash.digest('hex');
-}
-
 function samePath(a: string, b: string): boolean {
   return process.platform === 'win32' ? a.toLowerCase() === b.toLowerCase() : a === b;
 }
@@ -55,7 +44,7 @@ export async function approvedFileDigests(rootCanonicalPath: string, files: read
     const info = await stat(candidate, { bigint: true });
     if (!info.isFile()) throw new HarnessError('INVALID_RESOURCE', 'Approved digests require regular files');
     if (info.nlink !== 1n) throw new HarnessError('CAPABILITY_DENIED', 'Approved files cannot have hardlink aliases');
-    entries.push({ path: parsedPath, kind: file.kind, sha256: await sha256File(candidate) });
+    entries.push({ path: parsedPath, kind: file.kind, sha256: await sha256File(candidate, MAX_DIGEST_FILE_BYTES, 'Approved file exceeds the digest size limit') });
   }
   return entries;
 }

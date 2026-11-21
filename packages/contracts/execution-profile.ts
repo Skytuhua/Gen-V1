@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 /** M03 trust, secret-reference, execution-profile and package-screening contracts.
  * These records carry identities, digests, scopes and decisions only. They never
  * carry secret values, raw environment dumps or low-entropy secret hashes. */
 
-export const sha256HexSchema = z.string().regex(/^[a-f0-9]{64}$/);
+export const sha256HexSchema = Sha256Hex;
 const isoTimestamp = z.string().datetime();
 const boundedText = (max: number) => z.string().min(1).max(max);
 

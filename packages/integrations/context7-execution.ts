@@ -1,6 +1,7 @@
 import { lstat, realpath } from 'node:fs/promises';
 import { isAbsolute } from 'node:path';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from '../contracts/index.ts';
 import { context7SecretReferenceMetadataSchema, integrationPrepareArgsSchema } from '../contracts/integration-secrets.ts';
 import { toolOwnerSchema } from '../contracts/tool-effects.ts';
@@ -9,7 +10,7 @@ import { buildToolRegistry } from '../core/tool-authority.ts';
 import { observeContext7Executable, type ObservedContext7Executable } from './context7-secret-reference.ts';
 
 const path = z.string().min(1).max(32767).refine(value => isAbsolute(value) && !value.includes('\0'));
-const digits = z.string().regex(/^\d+$/), sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const digits = z.string().regex(/^\d+$/), sha256 = Sha256Hex;
 const identity = z.strictObject({ path, dev: digits, ino: digits });
 const file = identity.extend({ size: digits, mtimeNs: z.string().regex(/^-?\d+$/), ctimeNs: z.string().regex(/^-?\d+$/), sha256 });
 const definition = z.strictObject({ id: z.literal('integration_prepare'), version: z.literal(1), schemaDigest: sha256, executorBinding: z.literal('domain-prepare') });

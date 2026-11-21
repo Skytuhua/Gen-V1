@@ -1,7 +1,8 @@
 import {z} from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 const id = z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9:_.-]*$/);
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const sequence = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 const cursor = z.string().min(1).max(2048);
 export const conversationTargetSchema = z.strictObject({authority: z.literal('personal'), threadId: id, includeArchived: z.boolean().default(false)});

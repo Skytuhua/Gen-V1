@@ -1,8 +1,9 @@
-import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
+import { createHmac, randomBytes, timingSafeEqual } from 'node:crypto';
 import { constants, type BigIntStats } from 'node:fs';
 import { lstat, open, opendir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { HarnessError } from '../contracts/index.ts';
+import { sha256Hex } from '../core/hash.ts';
 import { projectSearchIdSchema, projectSearchPathSchema, searchRequestSchema, type ProjectOwner, type SearchIssue, type SearchMatch, type SearchRequest, type SearchResponse } from '../contracts/project-search.ts';
 import { withPathGuard } from '../core/file-access.ts';
 import { assertNotStorage, inside } from '../core/security.ts';
@@ -214,7 +215,7 @@ export class ProjectSearch {
         try { text = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(data); }
         catch { issue(relative, 'binary'); return; }
         if (data.includes(0)) { issue(relative, 'binary'); return; }
-        const sha256 = createHash('sha256').update(data).digest('hex');
+        const sha256 = sha256Hex(data);
         const pathColumn = findColumn(relative, query);
         if (pathColumn !== null) add({ path: relative, kind: 'path', line: null, column: null, preview: preview(relative, pathColumn), sha256 });
         let line = 1, start = 0;

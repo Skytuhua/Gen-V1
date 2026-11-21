@@ -2,6 +2,7 @@ import { createHmac, randomBytes, randomUUID, timingSafeEqual } from 'node:crypt
 import { lstat, mkdir, open, realpath } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from '../contracts/index.ts';
 import { digest } from '../storage/store.ts';
 import { windowsSecretCodec, type SecretCodec } from './environment-settings.ts';
@@ -21,7 +22,7 @@ interface KeyOptions { codec?: SecretCodec; expectedKeyId?: string }
 const unavailable = () => new HarnessError('EFFECT_KEY_UNAVAILABLE', 'Protected effect authority is unavailable.');
 const keyIdentity = z.string().uuid();
 const envelope = z.strictObject({ version: z.literal(1), keyId: keyIdentity, protectedKey: z.string().min(1).max(32_768) });
-const payload = z.strictObject({ version: z.literal(1), keyId: keyIdentity, profile: z.string().min(1).max(4096), key: z.string().regex(/^[a-f0-9]{64}$/) });
+const payload = z.strictObject({ version: z.literal(1), keyId: keyIdentity, profile: z.string().min(1).max(4096), key: Sha256Hex });
 const MAX_KEY_FILE_BYTES = 65_536;
 
 /** Trusted host construction only. The retained copy is never a Store value,

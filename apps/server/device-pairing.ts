@@ -1,5 +1,5 @@
 import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
-import { createHash, randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
+import { randomBytes, randomUUID, timingSafeEqual } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { z } from 'zod';
 import { HarnessError } from '../../packages/contracts/index.ts';
@@ -30,6 +30,7 @@ import {
   type PairingRequestV1,
 } from '../../packages/contracts/paired-device.ts';
 import { capabilityEnabled } from '../../packages/core/capability-flags.ts';
+import { sha256Hex } from '../../packages/core/hash.ts';
 import type { Store } from '../../packages/storage/store.ts';
 import type { ReadSyncHost } from '../../packages/core/read-sync.ts';
 
@@ -40,7 +41,6 @@ import type { ReadSyncHost } from '../../packages/core/read-sync.ts';
  * bytes leave the host only inside the single issuing/confirming response,
  * never in the durable event log, receipts or snapshots (T01). */
 
-const sha256 = (value: string) => createHash('sha256').update(value).digest('hex');
 const iso = (ms: number) => new Date(ms).toISOString();
 const sameSet = (a: readonly string[], b: readonly string[]) => a.length === b.length && [...a].sort().join('') === [...b].sort().join('');
 
@@ -75,7 +75,7 @@ export class DevicePairingHost {
 
   private requestByChallenge(challenge: string): PairingRequestV1 | null {
     if (!/^[a-f0-9]{64}$/.test(challenge)) return null;
-    const verifier = Buffer.from(sha256(challenge), 'utf8');
+    const verifier = Buffer.from(sha256Hex(challenge), 'utf8');
     for (const request of this.requests()) {
       const expected = Buffer.from(request.verifier, 'utf8');
       if (expected.length === verifier.length && timingSafeEqual(expected, verifier)) return request;
@@ -96,7 +96,7 @@ export class DevicePairingHost {
     const challenge = randomBytes(PAIRING_CHALLENGE_BYTES).toString('hex');
     const request: PairingRequestV1 = pairingRequestV1Schema.parse({
       pairingId: `pair-${randomUUID()}`,
-      verifier: sha256(challenge),
+      verifier: sha256Hex(challenge),
       deviceIdentity: null,
       requestedScopes: [],
       requestedProjects: [],
@@ -173,14 +173,14 @@ export class DevicePairingHost {
       deviceId: request.deviceIdentity.deviceId,
       deviceIdentity: request.deviceIdentity,
       userBinding: 'local-host',
-      approverSessionDigest: sha256(sessionId),
+      approverSessionDigest: sha256Hex(sessionId),
       scopes: [...new Set(approval.scopes)],
       approvedProjects: [...new Set(approval.projects)],
       issuedAt: iso(this.now()),
       expiresAt: iso(this.now() + DEVICE_GRANT_TTL_MS),
       revokedAt: null,
       grantGeneration: 1,
-      deviceTokenDigest: sha256(token),
+      deviceTokenDigest: sha256Hex(token),
       lastSeenAt: null,
     });
     const outcome = this.write('device.pairing.approved', () => {
@@ -232,7 +232,7 @@ export class DevicePairingHost {
    * is the UI's last-seen display (U01) and is written at most once a minute. */
   authenticateDevice(token: string): DeviceGrantV1 {
     if (!/^[a-f0-9]{64}$/.test(token)) throw new HarnessError('CAPABILITY_DENIED', 'A device credential is required.');
-    const digest = Buffer.from(sha256(token), 'utf8');
+    const digest = Buffer.from(sha256Hex(token), 'utf8');
     let found: DeviceGrantV1 | null = null;
     for (const grant of this.grants()) {
       const expected = Buffer.from(grant.deviceTokenDigest, 'utf8');

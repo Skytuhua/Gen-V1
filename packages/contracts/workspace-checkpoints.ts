@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Sha256Hex } from './hashing.ts';
 
 // M08 managed-workspace contracts. These records describe provenance, file
 // checkpoints, restore plans and selective commits; none of them grant write
@@ -6,7 +7,7 @@ import { z } from "zod";
 // the host-owned Store transaction and the managed operation lock.
 
 const id = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 const oid = z.string().regex(/^[0-9a-f]{40}$/);
 const time = z.iso.datetime();
 const utf8 = (value: string) => new TextDecoder("utf-8", { ignoreBOM: true }).decode(new TextEncoder().encode(value)) === value;

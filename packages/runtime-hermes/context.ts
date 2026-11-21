@@ -1,10 +1,11 @@
 import { createHash } from 'node:crypto';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError, type StartRun } from '../contracts/index.ts';
 import type { NativeContextProjectionV1, RequestContextV1 } from '../contracts/request-context.ts';
 import { createContextCompiler } from '../core/context-compiler.ts';
 
-const sha = z.string().regex(/^[a-f0-9]{64}$/), count = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
+const sha = Sha256Hex, count = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 const category = z.enum(['SYSTEM', 'INSTRUCTION', 'MEMORY', 'USER', 'TOOL', 'REFERENCE']);
 const sourceSchema = z.strictObject({ sequence: count.max(4095), id: z.string().min(1).max(100), revision: z.literal(1), category,
   utf8Bytes: count.max(32 * 1024 * 1024), sha256: sha });

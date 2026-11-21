@@ -2,6 +2,7 @@ import { constants } from 'node:fs';
 import { lstat, open, opendir, realpath, rename, rm, type FileHandle } from 'node:fs/promises';
 import { join } from 'node:path';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { secureDirectory } from '../runtime-official/manifest.ts';
 import { MAX_TRACKED_RESULTS, RESULT_CAP_BYTES, type ContextResultStorage } from './context-results.ts';
 
@@ -11,7 +12,7 @@ const metadata = z.strictObject({
   handle: z.string().regex(handlePattern),
   owner: z.strictObject({ threadId: boundedText, workspaceId: boundedText, accountId: boundedText.nullable() }),
   sourceInvocationId: boundedText,
-  digest: z.string().regex(/^[a-f0-9]{64}$/),
+  digest: Sha256Hex,
   bytes: z.number().int().min(0).max(RESULT_CAP_BYTES),
   mediaType: boundedText,
   expiresAtMs: z.number().int().nonnegative(),

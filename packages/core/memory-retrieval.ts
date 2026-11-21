@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { sha256Hex } from './hash.ts';
 import { HarnessError } from '../contracts/index.ts';
 import { memoryContainsSecret } from './memory-publication.ts';
 import {
@@ -27,7 +27,6 @@ const MAX_QUERY_BYTES = 4096;
 const MAX_TERMS = 32;
 const MAX_TOMBSTONE_SOURCES = 4096;
 const ID = /^[a-zA-Z0-9:_.-]{1,200}$/;
-const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
 const compare = (left: string, right: string) => left < right ? -1 : left > right ? 1 : 0;
 const invalid = (message: string): never => { throw new HarnessError('INVALID_MEMORY_RECALL', message); };
 
@@ -101,7 +100,7 @@ export function lexicalRecall(input: LexicalRecallInput): MemoryRecallResult {
   const exclusions: MemoryRecallV1['exclusions'] = [], candidateIds = new Set<string>();
   const exclude = (itemId: string, reason: string) => { if (!exclusions.some(value => value.itemId === itemId && value.reason === reason)) exclusions.push({ itemId, reason }); };
   const recall: MemoryRecallV1 = { requestId: input.requestId, projectIdentity: access.projectIdentity, contextGeneration: input.contextGeneration,
-    queryDigest: sha256(input.query), candidateIds: [], selectedRevisions: [], scores: [], exclusions, budgetBytes, producedAt: new Date(observedNow).toISOString(), status: 'COMPLETE' };
+    queryDigest: sha256Hex(input.query), candidateIds: [], selectedRevisions: [], scores: [], exclusions, budgetBytes, producedAt: new Date(observedNow).toISOString(), status: 'COMPLETE' };
   const result = (items: MemoryItemV1[], status: MemoryRecallV1['status'] = 'COMPLETE'): MemoryRecallResult => {
     recall.status = status; recall.candidateIds = [...candidateIds]; recall.selectedRevisions = items.map(({ id, revision }) => ({ itemId: id, revision }));
     return frozenCopy({ recall: memoryRecallV1Schema.parse(recall), items, injection: injection(items, access.projectIdentity) });
@@ -161,7 +160,7 @@ export function lexicalRecall(input: LexicalRecallInput): MemoryRecallResult {
   return timedOut() ? result([], 'TIMEOUT') : result(selected);
 }
 
-const ownerDigest = (access: MemoryAccess) => sha256(JSON.stringify([access.profileId, access.projectId, access.projectIdentity, access.threadId, access.accountId, access.bindingDigest]));
+const ownerDigest = (access: MemoryAccess) => sha256Hex(JSON.stringify([access.profileId, access.projectId, access.projectIdentity, access.threadId, access.accountId, access.bindingDigest]));
 const requestKey = (access: MemoryAccess, requestId: string) => JSON.stringify([access.profileId, requestId]);
 interface RecallSnapshot { owner: string; fingerprint: string; captured: boolean; result: MemoryRecallResult }
 
@@ -181,7 +180,7 @@ export class MemoryRequestSnapshots {
   }
   prepare(input: LexicalRecallInput): MemoryRecallResult {
     const access = validateRequest(input), found = this.existing(access, input.requestId);
-    const fingerprint = sha256(JSON.stringify({ generation: input.contextGeneration, query: input.query, projectTerms: input.projectTerms ?? [],
+    const fingerprint = sha256Hex(JSON.stringify({ generation: input.contextGeneration, query: input.query, projectTerms: input.projectTerms ?? [],
       budgetBytes: input.budgetBytes ?? PROJECT_MEMORY_LIMITS.recallBytes, excludedIds: [...new Set(input.excludedIds ?? [])].sort(compare) }));
     if (found) {
       if (found.fingerprint !== fingerprint) throw new HarnessError('MEMORY_REQUEST_CHANGED', 'A memory request cannot be recaptured with another query or generation.');
@@ -322,7 +321,7 @@ export class BoundedMemoryRecallProvider {
   recall(input: ProviderRecallInput): Promise<ProviderRecallResult> {
     const started = performance.now(), access = validateRequest(input);
     if (!ID.test(input.providerId)) invalid('The provider identity is invalid.');
-    const request: MemoryProviderRequest = frozenCopy({ access, providerId: input.providerId, requestId: input.requestId, contextGeneration: input.contextGeneration, queryDigest: sha256(input.query), query: input.query });
+    const request: MemoryProviderRequest = frozenCopy({ access, providerId: input.providerId, requestId: input.requestId, contextGeneration: input.contextGeneration, queryDigest: sha256Hex(input.query), query: input.query });
     const output = (status: ProviderRecallResult['status'], reason: string | null, proposals: MemoryItemV1[] = []): ProviderRecallResult => frozenCopy({ request, status, proposals, reason });
     const reject = (reason: string) => Promise.resolve(output('UNAVAILABLE', reason));
     if (!this.enabled || !this.egressApproved || !this.approvedProviders.has(input.providerId)) return reject('EXPERIMENT_DISABLED');

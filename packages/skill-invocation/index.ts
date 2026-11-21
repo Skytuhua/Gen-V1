@@ -1,5 +1,6 @@
 import {createHmac, timingSafeEqual} from 'node:crypto';
 import {z} from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import {HarnessError, type StartRun} from '../contracts/index.ts';
 import {skillReferenceSchema} from '../contracts/skill-catalog.ts';
 import {skillInvocationAuthoritySchema, skillInvocationRequestSchema, type SkillInvocationAuthority, type AdmittedSkillGuidance, type RuntimeStartInput} from '../contracts/skill-invocation.ts';
@@ -9,7 +10,7 @@ import type {SkillSummary} from '../contracts/skills.ts';
 import {materialize, packagePath, verifyCaptured, SKILL_INVOCATION_LIMITS, type CapturedSkill, type HarnessVersionReader} from './materialize.ts';
 
 export {SKILL_INVOCATION_LIMITS} from './materialize.ts';
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const capturedFileSchema = z.strictObject({path: z.string().min(1).max(240), bytes: z.number().int().min(0).max(SKILL_INVOCATION_LIMITS.fileBytes), digest: hash, data: z.string().max(4 * Math.ceil(SKILL_INVOCATION_LIMITS.fileBytes / 3))});
 const recordSchema = z.strictObject({
   version: z.literal(1), commandId: z.string().min(1).max(240), requestDigest: hash,

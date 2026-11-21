@@ -1,5 +1,6 @@
 import type {FastifyInstance} from 'fastify';
 import {z} from 'zod';
+import { Sha256Hex } from '../../packages/contracts/hashing.ts';
 
 interface ConversationReadRouteHost {
   readonly authority: 'personal';
@@ -9,7 +10,7 @@ interface ConversationReadRouteHost {
   updates(input: unknown): unknown;
 }
 const cursor = z.string().min(1).max(2048);
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const target = z.strictObject({authority: z.literal('personal'), includeArchived: z.enum(['true', 'false']).transform(value => value === 'true').optional()});
 const scope = target.extend({scopeKey: hash});
 const history = scope.extend({limit: z.string().regex(/^[1-9][0-9]?$/).transform(Number).pipe(z.number().max(50)).optional(), cursor: cursor.optional()});

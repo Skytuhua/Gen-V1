@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../../../packages/contracts/hashing.ts';
 import {
   memoryActionEnvelopeSchema, memoryExportSchema, memoryForgetPreviewSchema, memoryMutationResultSchema,
   memoryScopeSchema, memorySourceDetailSchema, projectMemoryViewSchema,
@@ -86,7 +87,7 @@ export async function exportProjectMemory(scope: MemoryScope, isCurrent: () => b
   return result;
 }
 
-const nativeExportResult = z.strictObject({status: z.enum(['saved', 'cancelled']), admitted: z.literal(true), filename: z.string().max(240), bytes: z.number().int().nonnegative().max(8 * 1024 * 1024), sha256: z.string().regex(/^[a-f0-9]{64}$/)});
+const nativeExportResult = z.strictObject({status: z.enum(['saved', 'cancelled']), admitted: z.literal(true), filename: z.string().max(240), bytes: z.number().int().nonnegative().max(8 * 1024 * 1024), sha256: Sha256Hex});
 export async function downloadProjectMemory(scope: MemoryScope, isCurrent: () => boolean): Promise<DesktopMemoryExportResult | {status: 'started'; admitted: false}> {
   const output = await exportProjectMemory(scope, isCurrent), content = JSON.stringify(output, null, 2) + '\n';
   const bytes = new TextEncoder().encode(content), filename = 'project-memory-' + output.scope.projectId.replaceAll(':', '_') + '.json';

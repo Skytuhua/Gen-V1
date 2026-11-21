@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from "node:crypto";
 import { z } from "zod";
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from "../contracts/index.ts";
 import type { Store } from "../storage/store.ts";
 import {
@@ -81,7 +82,7 @@ const preparedSchema = z.strictObject({
   owner: checkpointScopeSchema,
   repositoryId: z.string().min(1).max(200),
   path: z.string().min(1).max(1024),
-  beforeDigest: z.string().regex(/^[a-f0-9]{64}$/).nullable(),
+  beforeDigest: Sha256Hex.nullable(),
   createdAt: z.iso.datetime(),
 });
 

@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../../../packages/contracts/hashing.ts';
 import {skillCatalogQuerySchema, skillReferenceSchema, type SkillCatalogPage, type SkillCatalogQuery} from '../../../packages/contracts/skill-catalog';
 import {ApiError, authenticated, read} from './api';
 
@@ -6,7 +7,7 @@ const availability = z.discriminatedUnion('status', [z.strictObject({status: z.l
 const identity = z.string().min(1).max(305);
 const source = z.strictObject({id: identity, kind: z.enum(['harness', 'bundled', 'personal', 'project', 'app']), label: z.string().min(1).max(240), availability});
 const skill = z.strictObject({id: identity, sourceId: identity, name: z.string().min(1).max(240), description: z.string().max(4096), files: z.number().int().min(0).max(512), availability, ref: skillReferenceSchema.nullable()});
-const schema = z.strictObject({scope: z.strictObject({kind: z.literal('personal')}), sources: z.array(source).max(512), skills: z.array(skill).max(100), inventoryRevision: z.string().regex(/^[a-f0-9]{64}$/), nextCursor: z.string().min(1).max(2048).nullable()});
+const schema = z.strictObject({scope: z.strictObject({kind: z.literal('personal')}), sources: z.array(source).max(512), skills: z.array(skill).max(100), inventoryRevision: Sha256Hex, nextCursor: z.string().min(1).max(2048).nullable()});
 const invalid = () => new ApiError('INVALID_RESPONSE', 'The skill catalog changed. Reload the menu.');
 function checked(value: unknown): SkillCatalogPage {
   const parsed = schema.safeParse(value); if (!parsed.success) throw invalid();

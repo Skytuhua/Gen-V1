@@ -1,5 +1,6 @@
 import {execFile,type ChildProcess} from 'node:child_process';
 import {randomBytes,createHash} from 'node:crypto';
+import {sha256Hex} from '../core/hash.ts';
 import {createServer,type Server} from 'node:http';
 import {mkdir,writeFile,lstat,readdir,mkdtemp,rm} from 'node:fs/promises';
 import {basename,dirname,isAbsolute,join,relative,resolve} from 'node:path';
@@ -146,8 +147,8 @@ export class IntegrationManager {
    const data=await ordinaryFile(path,8*1024*1024);bytes+=data.length;if(bytes>64*1024*1024)throw Error('Integration output exceeds its byte bound');
    if((await this.admitted(id,scope,'write')).scoped.projectRoot!==root)throw Error('Integration project changed before publication');
    await withPathGuard([{path:dirname(target),leaf:false,allowChildWrites:true}],signal,async()=>{
-    const sha256=createHash('sha256').update(data).digest('hex');let expected:string|undefined;
-    try{expected=createHash('sha256').update(await ordinaryFile(target,8*1024*1024)).digest('hex');}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
+    const sha256=sha256Hex(data);let expected:string|undefined;
+    try{expected=sha256Hex(await ordinaryFile(target,8*1024*1024));}catch(error){if((error as NodeJS.ErrnoException).code!=='ENOENT')throw error;}
     if(expected===sha256)return;
     const temporary=join(dirname(target),'.harness-integration-'+randomBytes(12).toString('hex'));
     try{await writeFile(temporary,data,{flag:'wx'});await replaceOwnedFile(temporary,target,await lstat(temporary,{bigint:true}),sha256,signal,expected);}finally{await rm(temporary,{force:true});}
@@ -345,7 +346,7 @@ export class IntegrationManager {
     try{const changes=[];for(let i=0;i<targets.length;i++){
      const path=targets[i]!,data=await withPathGuard([{path,leaf:true,readOnly:true}],new AbortController().signal,()=>readBoundFile(path,1024*1024)),copy=join(stage,String(i)+'-'+basename(path));await writeFile(copy,data,{flag:'wx'});
      await this.runNative(id,executable,[name,copy,'--write'],stage,this.environment(base),60000,scope,scoped.projectRoot);
-     changes.push({path:relative(scoped.projectRoot!,path),sha256:createHash('sha256').update(data).digest('hex'),text:(await ordinaryFile(copy,1024*1024)).toString()});
+     changes.push({path:relative(scoped.projectRoot!,path),sha256:sha256Hex(data),text:(await ordinaryFile(copy,1024*1024)).toString()});
     }return {changes,next:'Prepare each change with file_replace_prepare using a writable grant for that file, content=text and expectedSha256=sha256 (and a grant-relative path if needed); request approval before execution.'};}finally{await rm(stage,{recursive:true,force:true});}
    }
    return withPathGuard(targets.map(path=>({path,leaf:true,readOnly:true})),new AbortController().signal,async()=>({result:await this.runNative(id,executable,[name,...paths as string[]],scoped.projectRoot!,this.environment(join(this.options.dataRoot,'integrations','biome')),60000,scope,scoped.projectRoot)}));

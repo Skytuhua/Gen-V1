@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 // M09 typed multi-agent work: the durable contracts for admitted child work,
 // ordered agent input, the bounded task message board and the versioned plan
@@ -8,7 +9,7 @@ import { z } from 'zod';
 // artifact reference, never inline.
 
 const id = z.string().min(1).max(160).regex(/^[\w:.-]+$/);
-const sha256Hex = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256Hex = Sha256Hex;
 const sha1Hex = z.string().regex(/^[a-f0-9]{40}$/);
 const iso = z.string().datetime();
 const seq = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);

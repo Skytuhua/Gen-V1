@@ -2,12 +2,13 @@ import { createHash } from 'node:crypto';
 import { lstat, open, realpath } from 'node:fs/promises';
 import { isAbsolute, relative, resolve } from 'node:path';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from '../contracts/index.ts';
 import { withPathGuard } from '../core/file-access.ts';
 import { buildToolRegistry } from '../core/tool-authority.ts';
 import { toolSchemas } from './schemas.ts';
 
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 const identity = z.strictObject({
   path: z.string().min(1).max(32767).refine(path => isAbsolute(path) && !path.includes('\0')),
   dev: z.string().regex(/^\d+$/), ino: z.string().regex(/^\d+$/),

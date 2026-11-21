@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 
 const forbidden=new Set(['__proto__','prototype','constructor']);
 const key=z.string().regex(/^[a-zA-Z_][a-zA-Z0-9_-]{0,127}$/).refine(value=>!forbidden.has(value));
@@ -20,7 +21,7 @@ export const EXPLORATION_DATA_SCHEMAS={
  LogExplorer:z.strictObject({title:title.optional(),events:z.array(z.strictObject({id,timestamp:stamp.optional(),level:z.enum(['debug','info','warning','error','unknown']),message:z.string().max(2000),stream:z.string().max(160).optional(),detail:z.string().max(8000).optional(),correlationId:z.string().max(200).optional()})).max(500).refine(unique,'Event identities must be unique'),source}),
 };
 const annotation=z.strictObject({id,x:z.number().finite().min(0).max(1),y:z.number().finite().min(0).max(1),text:z.string().max(800)});
-const annotationCheckpoint=z.strictObject({resourceId,sourceIdentity:z.string().regex(/^[a-f0-9]{64}$/).optional(),selectedId:z.string().max(160).nullable(),annotations:z.array(annotation).max(32).refine(unique)});
+const annotationCheckpoint=z.strictObject({resourceId,sourceIdentity:Sha256Hex.optional(),selectedId:z.string().max(160).nullable(),annotations:z.array(annotation).max(32).refine(unique)});
 const ANNOTATION_STATE_SCHEMA=annotationCheckpoint.extend({previous:annotationCheckpoint.optional()});
 export type AnnotationState=z.infer<typeof ANNOTATION_STATE_SCHEMA>;
 const record=(value:unknown):value is Record<string,unknown>=>Boolean(value&&typeof value==='object'&&!Array.isArray(value));

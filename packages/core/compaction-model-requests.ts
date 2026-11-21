@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import {HarnessError, type Thread} from '../contracts/index.ts';
 import {MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1} from '../contracts/model-request.ts';
 import {Store, compactionOwnerKey, digest, type CompactionAttemptRecord} from '../storage/store.ts';
@@ -6,7 +7,7 @@ import {Store, compactionOwnerKey, digest, type CompactionAttemptRecord} from '.
 const identity = z.string().min(1).max(200);
 const context = modelRequestObservationV1Schema.shape.owner.pick({threadId: true, runId: true, epoch: true});
 const admission = context.extend({accountId: modelRequestObservationV1Schema.shape.binding.shape.accountId});
-const storedObservation = z.strictObject({id: identity.max(240), candidateId: identity, ownerKey: z.string().regex(/^[a-f0-9]{64}$/), ctx: context, value: modelRequestObservationV1Schema});
+const storedObservation = z.strictObject({id: identity.max(240), candidateId: identity, ownerKey: Sha256Hex, ctx: context, value: modelRequestObservationV1Schema});
 const unavailable = () => new HarnessError('COMPACTION_USAGE_UNAVAILABLE', 'The retained compaction measurements could not be verified.');
 const missing = () => new HarnessError('NOT_FOUND', 'Compaction history unavailable for the selected thread.');
 type Row = {row: number; id: string; body: string};
