@@ -1,4 +1,4 @@
-import {useEffect,useImperativeHandle,useLayoutEffect,useRef,useState,type Ref} from 'react';
+import {Fragment,useEffect,useImperativeHandle,useLayoutEffect,useRef,useState,type Ref} from 'react';
 import {ArrowUp,CircleStop,LoaderCircle,Plus} from 'lucide-react';
 import type {Snapshot,Thread} from '../../../packages/contracts';
 import {command} from './api';
@@ -8,11 +8,13 @@ import {CopyButton} from './CopyButton';
 import {journalCompareAndSwap,journalGeneration,journalRead,journalReadRecord,journalSubscribe,journalWrite} from './journal';
 import {useThreadMessages} from './thread-messages';
 import {Select} from '../../../packages/ui-shell/Select';
+import {ConversationDayDivider, dayBreaks, MessageTime, useLocalNow} from './message-time';
+import type {TimeFormat} from './time-format';
 import './side-chat.css';
 
 export interface SideChatHandle {ask(content:string):Promise<void>}
 const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'The side question could not be sent.';
-export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{parent:Thread;snapshot:Snapshot;modelId:string;open:boolean;onClose:()=>void;refresh:()=>Promise<void>;ref?:Ref<SideChatHandle>}){
+export function SideChat({parent,snapshot,modelId,timeFormat,open,onClose,refresh,ref}:{parent:Thread;snapshot:Snapshot;modelId:string;timeFormat:TimeFormat;open:boolean;onClose:()=>void;refresh:()=>Promise<void>;ref?:Ref<SideChatHandle>}){
  const storageKey='harness:side-selected:'+parent.id;
  const [selectedId,setSelectedId]=useState<string|null>(()=>{try{return localStorage.getItem(storageKey);}catch{return null;}});
  const side=snapshot.threads.find(thread=>thread.id===selectedId&&thread.sideParentId===parent.id);
@@ -23,6 +25,8 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  const sending=useRef(false),input=useRef<HTMLTextAreaElement>(null),scroll=useRef<HTMLDivElement>(null),tail=useRef(true);
  const working=Boolean(side?.runId)||side?.status==='working';
  const threadMessages=useThreadMessages(snapshot,side?.id,true),messages=threadMessages.messages.filter(message=>message.role!=='activity');
+ const localNow=useLocalNow();
+ const rowBreaks=new Map(dayBreaks(messages,message=>message.createdAt).map(item=>[item.beforeIndex,item.dayKey]));
  useLayoutEffect(()=>{if(draftTarget.current!==draftKey){draftEpoch.current++;draftTarget.current=draftKey;}},[draftKey]);
  useLayoutEffect(()=>()=>{draftEpoch.current++;},[]);
  useEffect(()=>{try{if(selectedId)localStorage.setItem(storageKey,selectedId);else localStorage.removeItem(storageKey);}catch{/* Drafts remain in the journal. */}},[storageKey,selectedId]);
@@ -65,7 +69,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
    {histories.length>0&&<label className="side-chat-history"><span className="sr-only">Side conversation history</span><Select aria-label="Side conversation history" disabled={busy} value={side?.id??''} onValueChange={value=>select(value||null)} options={[{value:'',label:'New question'},...histories.map(thread=>({value:thread.id,label:thread.title+(thread.runId?' · Working':'')}))]}/></label>}
    <div ref={scroll} className="side-chat-messages" role="log" aria-label="Side conversation messages" onScroll={()=>{const element=scroll.current;if(element)tail.current=element.scrollHeight-element.scrollTop-element.clientHeight<48;}}>
     {!messages.length&&<p className="side-chat-empty">Ask about this conversation without interrupting the main task.</p>}
-    {messages.map(message=><div key={message.id} className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span><Markdown text={message.content} animate={message.role==='assistant'&&working}/><CopyButton text={message.content} label="Copy message"/></div>)}
+    {messages.map((message,index)=><Fragment key={message.id}>{rowBreaks.has(index)&&<ConversationDayDivider dayKey={rowBreaks.get(index)??''} now={localNow}/>}<div className={'side-message side-message-'+message.role}><span className="sr-only">{message.role==='user'?'You':'Agent'}</span>{(message.role==='user'||message.role==='assistant')&&<MessageTime createdAt={message.createdAt} timeFormat={timeFormat}/>}<Markdown text={message.content} animate={message.role==='assistant'&&working}/><CopyButton text={message.content} label="Copy message"/></div></Fragment>)}
     {working&&<div className="side-chat-working" role="status"><LoaderCircle size={13} className="spinning"/>Thinking…</div>}
     {side?.error&&<p className="error-text" role="status">{side.error}</p>}
    </div>
