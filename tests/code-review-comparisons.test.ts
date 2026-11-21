@@ -417,3 +417,37 @@ it("rejects mismatched remote identities and reports empty and capped file inven
     error: { code: "COMPARISON_IDENTITY_CHANGED" },
   });
 }, 60000);
+
+it("accepts the same GitHub repository in its canonical URL casing without relaxing PR identity", async () => {
+  const projectId = "fixture", tools = {
+    store: { dataDir: "/fixture/data" },
+    binding: async () => ({ path: "/fixture/project" }),
+    gitReviewOrigin: async () => "https://github.com/example/fixture.git",
+  } as unknown as ProjectTools;
+  const github = new GitHubTools(tools, {} as TerminalHost);
+  const item = {
+    id: "PR_fixture", number: 12, title: "Fixture", url: "https://github.com/Example/Fixture/pull/12",
+    baseRefOid: base, headRefOid: head, baseRefName: "main", headRefName: "feature", statusCheckRollup: [],
+  };
+  const run = vi.fn(async (_path: string, args: string[]) => args[0] === "pr" ? JSON.stringify(item) : JSON.stringify({
+    base_commit: { sha: base }, merge_base_commit: { sha: mergeBase },
+    files: [{ sha: head, filename: "fixture.txt", status: "added", additions: 1, deletions: 0, patch: "@@ -0,0 +1 @@\n+fixture" }],
+  }));
+  (github as unknown as { run: typeof run }).run = run;
+  expect(await github.comparison(projectId, "main", 12)).toMatchObject({
+    state: "ready",
+    value: { identity: { repo: "example/fixture", number: 12 } },
+  });
+  expect(run).toHaveBeenCalledTimes(2);
+  for (const url of [
+    "https://github.com/Example/Different/pull/12",
+    "https://github.com/Example/Fixture/pull/13",
+    "https://github.com/Example/Fixture/PULL/12",
+    "https://github.com/Example/Fixture/pull/12?other=1",
+  ]) {
+    item.url = url;
+    run.mockClear();
+    expect(await github.comparison(projectId, "main", 12)).not.toMatchObject({ state: "ready" });
+    expect(run).toHaveBeenCalledTimes(1);
+  }
+}, 60000);

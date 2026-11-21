@@ -1,12 +1,17 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { mkdtempSync, writeFileSync, rmSync, renameSync, mkdirSync, lstatSync, utimesSync } from 'node:fs';
+import * as fs from 'node:fs';
+import { mkdtempSync, writeFileSync, rmSync, renameSync, mkdirSync, lstatSync, truncateSync, appendFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { ProjectTrustLedger } from '../packages/core/project-trust.ts';
+import { MAX_DIGEST_FILE_BYTES, ProjectTrustLedger } from '../packages/core/project-trust.ts';
 import { SecretReferenceLedger } from '../packages/core/secret-references.ts';
-import { digestFileSha256 } from '../packages/core/execution-policy.ts';
+import { digestFileSha256, MAX_EXECUTABLE_BYTES } from '../packages/core/execution-policy.ts';
 import { createVerificationBindingAuthority, type DescribeVerificationExecutor, type ObservedVerificationBackend, type VerificationExecutorHostConfig } from '../packages/core/verification-executor-binding.ts';
+import { createVerificationExecutorFactory } from '../packages/core/verification-executor.ts';
 import type { ExecutionProfileV1 } from '../packages/contracts/execution-profile.ts';
+
+// Keep disk I/O real; individual tests control only a filesystem observation.
+vi.mock('node:fs', async original => ({ ...await original<typeof import('node:fs')>() }));
 
 const dirs: string[] = [];
 afterEach(() => { dirs.splice(0).forEach(path => rmSync(path, { recursive: true, force: true })); vi.restoreAllMocks(); });
@@ -39,6 +44,13 @@ it('describes host identities without launching and freezes approval metadata', 
   expect(binding.executables).toEqual([{ id: 'test-tool', canonicalPath: f.executable, sha256: f.sha256 }]);
   expect(binding.environmentId).toMatch(/^[a-f0-9]{64}$/);
   expect(Object.isFrozen(binding.profile.executableAllowlist)).toBe(true);
+  expect(f.backend.launchObserved).not.toHaveBeenCalled();
+  expect(f.backend.launch).not.toHaveBeenCalled();
+});
+
+it('disables the executor when no host environment flags are set', async () => {
+  const f = await fixture(), factory = createVerificationExecutorFactory({ ...f.config, flags: {} });
+  await expect(factory.describe(f.input)).rejects.toMatchObject({ code: 'CAPABILITY_DISABLED' });
   expect(f.backend.launchObserved).not.toHaveBeenCalled();
   expect(f.backend.launch).not.toHaveBeenCalled();
 });
@@ -80,17 +92,94 @@ it('checks approved configuration file witnesses as well as executable witnesses
   expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
 });
 
-it('detects a same-length approved rewrite that restores the recorded timestamps', async () => {
+it('detects changed approved bytes when filesystem timestamps remain unchanged', async () => {
   const f = await fixture(), path = join(f.root, 'build-config'); writeFileSync(path, 'approved config');
   await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  const targetIdentity = lstatSync(path, { bigint: true }), originalStat = fs.lstatSync, originalFstat = fs.fstatSync;
+  vi.spyOn(fs, 'lstatSync').mockImplementation(((target, options) => {
+    const value = originalStat(target, options);
+    if (target === path && value && 'mtimeNs' in value) Object.assign(value, { mtimeNs: 0n, ctimeNs: 0n });
+    return value;
+  }) as typeof fs.lstatSync);
+  vi.spyOn(fs, 'fstatSync').mockImplementation(((fd, options) => {
+    const value = originalFstat(fd, options);
+    if (value.dev === targetIdentity.dev && value.ino === targetIdentity.ino && 'mtimeNs' in value) Object.assign(value, { mtimeNs: 0n, ctimeNs: 0n });
+    return value;
+  }) as typeof fs.fstatSync);
   const before = lstatSync(path, { bigint: true });
   const binding = await f.authority.describe(f.input);
   writeFileSync(path, 'modified config');
-  utimesSync(path, Number(before.atimeMs) / 1000, Number(before.mtimeMs) / 1000);
   const after = lstatSync(path, { bigint: true });
-  expect(after.size).toBe(before.size); expect(Number(after.mtimeNs - before.mtimeNs)).toBeLessThan(1_000_000);
+  for (const key of ['dev', 'ino', 'size', 'mtimeNs', 'ctimeNs', 'nlink'] as const) expect(after[key]).toBe(before[key]);
   expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
   await expect(f.authority.take(binding, f.input)).rejects.toThrow();
+});
+
+it.each(['configuration', 'executable'] as const)('rejects an oversized %s witness without reading the oversized contents', async kind => {
+  const f = await fixture(), path = kind === 'configuration' ? join(f.root, 'build-config') : join(f.parent, 'host-tool');
+  writeFileSync(path, kind === 'configuration' ? 'approved config' : 'unit-test executable bytes');
+  if (kind === 'configuration') await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  else (f.config.executables as { id: string; path: string }[])[0]!.path = path;
+  truncateSync(path, (kind === 'configuration' ? MAX_DIGEST_FILE_BYTES : MAX_EXECUTABLE_BYTES) + 1);
+  let bytesRead = 0;
+  const originalRead = fs.readSync;
+  vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
+    const count = originalRead(...args); bytesRead += count; return count;
+  }) as typeof fs.readSync);
+  await expect(f.authority.describe(f.input)).rejects.toThrow();
+  expect(bytesRead).toBeLessThan(1024);
+});
+
+it('rejects a configuration truncated after its last bytes were read', async () => {
+  const f = await fixture(), path = join(f.root, 'build-config'); writeFileSync(path, 'approved config');
+  await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  const binding = await f.authority.describe(f.input), target = lstatSync(path, { bigint: true });
+  let truncated = false;
+  const originalRead = fs.readSync;
+  vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
+    const count = originalRead(...args), identity = fs.fstatSync(args[0], { bigint: true });
+    if (!truncated && count > 0 && identity.dev === target.dev && identity.ino === target.ino) { truncateSync(path, 0); truncated = true; }
+    return count;
+  }) as typeof fs.readSync);
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+  expect(truncated).toBe(true);
+});
+
+it('rejects a byte appended after the measured length even when descriptor metadata is unchanged', async () => {
+  const f = await fixture(), path = join(f.root, 'build-config'); writeFileSync(path, 'approved config');
+  await f.trust.decide({ trustId: 'trust', rootPath: f.root, approvedFiles: [{ path: 'tool', kind: 'executable' }, { path: 'build-config', kind: 'configuration' }], scope: { read: true, write: true, network: 'none' }, decision: 'trusted' });
+  const binding = await f.authority.describe(f.input);
+  const target = lstatSync(path, { bigint: true }), originalFstat = fs.fstatSync, originalRead = fs.readSync;
+  let appended = false;
+  vi.spyOn(fs, 'fstatSync').mockImplementation(((fd, options) => {
+    const value = originalFstat(fd, options);
+    if (value.dev === target.dev && value.ino === target.ino && 'mtimeNs' in value)
+      Object.assign(value, { size: target.size, mtimeNs: target.mtimeNs, ctimeNs: target.ctimeNs });
+    return value;
+  }) as typeof fs.fstatSync);
+  vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
+    const count = originalRead(...args), identity = originalFstat(args[0], { bigint: true });
+    if (!appended && count === Number(target.size) && identity.dev === target.dev && identity.ino === target.ino) {
+      appendFileSync(path, '!');
+      appended = true;
+    }
+    return count;
+  }) as typeof fs.readSync);
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+  expect(appended).toBe(true);
+});
+
+it('rejects premature EOF without retrying or probing past the measured length', async () => {
+  const f = await fixture(), binding = await f.authority.describe(f.input);
+  const target = lstatSync(f.executable, { bigint: true }), originalRead = fs.readSync;
+  let targetReads = 0;
+  vi.spyOn(fs, 'readSync').mockImplementation(((...args: Parameters<typeof fs.readSync>) => {
+    const identity = fs.fstatSync(args[0], { bigint: true });
+    if (identity.dev === target.dev && identity.ino === target.ino && ++targetReads === 1) return 0;
+    return originalRead(...args);
+  }) as typeof fs.readSync);
+  expect(() => f.authority.assertCurrent(binding, f.input)).toThrow('Verification execution basis changed.');
+  expect(targetReads).toBe(1);
 });
 
 it('rejects backend implementation replacement during asynchronous preparation', async () => {

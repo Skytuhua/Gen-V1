@@ -8,6 +8,7 @@ import {FileCheckpoints} from '../../apps/web/src/FileCheckpoints';
 import {disabledCheckpointAdapter,type CheckpointOwner,type FileCheckpoint,type FileCheckpointAdapter} from '../../apps/web/src/file-checkpoint-api';
 import {RecordedDiffPanel} from '../../apps/web/src/WorkspacePanelBodies';
 import {DEFAULT_PREFERENCES} from '../../packages/contracts/preferences';
+declare global { interface Window { __restoreCalls: { kind: string; [key: string]: unknown }[] } }
 import {taskFixture} from './task-interface-fixture';
 import '@fontsource-variable/inter';
 import '../../apps/web/src/styles.css';
@@ -21,7 +22,7 @@ const mode=new URLSearchParams(location.search).get('mode')??'working';
 const hash='a'.repeat(64),otherHash='b'.repeat(64);
 const checkpoint:FileCheckpoint={id:'chk-fixture',label:'Before a guarded file edit',createdAt:'2026-11-10T18:42:00Z',provenance:{kind:'guarded_write',operationId:'op-fixture'},revision:hash,fileCount:2,expiresAt:null};
 const paths=['notes.txt','docs/info.md'];
-const calls:{kind:string;[key:string]:unknown}[]=[];(window as any).__restoreCalls=calls;
+const calls:{kind:string;[key:string]:unknown}[]=[];window.__restoreCalls=calls;
 // The server returns the whole StoredRestorePlan for plan and apply; the
 // fixture mirrors that full shape so the client's strict reader is exercised.
 const storedPlan=(plan:{id:string;owner:CheckpointOwner;checkpointId:string;selected:string[];approvalId:string;state:string;conflicts?:string[]})=>({version:1,id:plan.id,checkpointId:plan.checkpointId,scope:plan.owner,currentRevision:hash,selectedPaths:[...plan.selected],beforeDigests:plan.selected.map(path=>({path,digest:otherHash})),targetDigests:plan.selected.map(path=>({path,digest:hash})),preRestoreCheckpointId:'chk-pre-1',approvalId:plan.approvalId,state:plan.state,conflicts:plan.conflicts??[],createdAt:'2026-11-10T18:50:00Z'});

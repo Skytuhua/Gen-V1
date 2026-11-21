@@ -10,7 +10,7 @@ export function captureServerOptions(configFile: string, cacheRoot: string, role
   return { configFile: resolve(configFile), configLoader: 'runner', cacheDir: resolve(cacheRoot, 'node_modules', '.vite', role), server: { port: 0, strictPort: false, watch:{ignored:['**/.harness*/**']}, fs: {allow: [resolve('.'), realpathSync('node_modules')]} } };
 }
 export const pdfPrebundleIncludes = ['pdf-lib', 'pdfjs-dist/legacy/build/pdf.mjs'];
-export const pdfWarmupFiles = [
+const pdfWarmupFiles = [
   'apps/web/src/DocumentPreview.tsx',
   'apps/web/src/pdf-draft.worker.ts',
   'node_modules/pdfjs-dist/legacy/build/pdf.worker.min.mjs',

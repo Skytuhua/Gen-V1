@@ -4,7 +4,7 @@ import {authenticated,read} from '../api';
 import {getShellNavigationItem} from '../shell-read-api';
 import {factsFromProjectContext,type ThreadHoverScope,type ThreadHoverFacts} from './facts';
 export interface ThreadHoverPRTarget {repo:string;number:number}
-export interface ThreadHoverDestination {id:number;scope:ThreadHoverScope;target:ThreadHoverPRTarget}
+
 export async function loadPersonalThreadHover(scope:ThreadHoverScope,signal:AbortSignal):Promise<ThreadHoverFacts<ThreadHoverPRTarget>>{
  if(scope.authority.kind!=='local'||!scope.projectId||!scope.workingCopyId)throw Error('Thread details are unavailable.');
  const base='/api/projects/'+encodeURIComponent(scope.projectId),query='threadId='+encodeURIComponent(scope.threadId);

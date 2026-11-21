@@ -54,7 +54,7 @@ export function streamEvents(response: ServerResponse, store: Pick<Store, 'event
           written = 0;
         }
       }
-    } catch { if (!closed) response.destroy(); }
+    } catch { if (!closed) shutdown(); }
     finally { pumping = false; }
   }
   const unsubscribe = store.subscribe(() => { void pump(); });
@@ -65,10 +65,11 @@ export function streamEvents(response: ServerResponse, store: Pick<Store, 'event
     closed = true; controller.abort(); clearInterval(heartbeat); unsubscribe();
     response.off('close', close); response.off('error', fail); onClose();
   };
-  const fail = () => response.destroy();
+  // Close the subscription and abort any pending drain before socket teardown.
+  // A fatal error, like host shutdown, cannot depend on a later close event.
+  const shutdown = () => { close(); response.destroy(); };
+  const fail = () => shutdown();
   response.once('close', close); response.once('error', fail);
   void pump();
-  // Close the subscription and abort any pending drain before socket teardown.
-  // Node is not required to emit another 'close' for a destroyed response.
-  return () => { close(); response.destroy(); };
+  return shutdown;
 }

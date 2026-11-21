@@ -54,13 +54,14 @@ export function createContextToolDiscovery(registrations: readonly Registration[
 /** Per-owner next-request queue. Description alone never admits invocation in the current view. */
 export function createProgressiveToolSession(registrations: readonly Registration[], isAdmitted: (name: string) => boolean) {
   const projection = createContextToolDiscovery(registrations, isAdmitted);
+  const deferred = new Set(registrations.filter(entry => entry.exposure === 'DEFERRED').map(entry => entry.name));
   const described = new Set<string>();
   let visible = new Set<string>();
   return {
     discover: projection.discover,
     describe(name: string) {
       const result = projection.describe(name);
-      if (result && described.size < 64) described.add(result.name);
+      if (result && deferred.has(result.name) && described.size < 64) described.add(result.name);
       return result;
     },
     capture() {
