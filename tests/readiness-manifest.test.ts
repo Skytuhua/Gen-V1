@@ -413,4 +413,15 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('FOLLOW_ON_CANARY_7343');
   });
 
+  it('taints an unfinished unsafe terminal sequence before the opposite pipe can leak',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("password\x1b[=PARTIAL_CANARY_7344");setTimeout(()=>process.stderr.write("OPPOSITE_PIPE_CANARY_7344\n"),50);setTimeout(()=>process.stdout.write("\n"),100);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED UNSAFE CONTROL OUTPUT]');
+    expect(log).not.toContain('PARTIAL_CANARY_7344');
+    expect(log).not.toContain('OPPOSITE_PIPE_CANARY_7344');
+  });
+
 });
