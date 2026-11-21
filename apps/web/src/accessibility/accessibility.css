@@ -10,6 +10,7 @@
 	grid-template-columns: minmax(0, 1fr) auto;
 	flex: 1;
 	min-height: 0;
+	container-type: inline-size;
 }
 
 .a11y-browser-body:has(.a11y-panel) {
@@ -31,6 +32,10 @@
 	.a11y-browser-body:has(.a11y-panel) {
 		grid-template-columns: 1fr;
 		grid-template-rows: minmax(0, 55%) minmax(240px, 45%);
+	}
+	.a11y-panel {
+		border-left: 0;
+		border-top: 1px solid var(--border);
 	}
 }
 
@@ -410,7 +415,8 @@
 }
 
 :root[data-motion="reduced"] .a11y-rule-expand svg,
-:root[data-motion="reduced"] .a11y-rule-elements-wrap {
+:root[data-motion="reduced"] .a11y-rule-elements-wrap,
+:root[data-motion="reduced"] .a11y-sent {
 	transition: none;
 }
 

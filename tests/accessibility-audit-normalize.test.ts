@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { readFileSync } from "node:fs";
 import {
 	criterionLabel,
 	normalizeAudit,
@@ -126,6 +127,37 @@ describe("normalizeAudit", () => {
 		expect(
 			result.rules.find((rule) => rule.ruleId === "bad-url")!.helpUrl,
 		).toBe("");
+	});
+	it("normalizes the recorded T09 real-axe fixture to exactly five rules", () => {
+		const raw = JSON.parse(
+			readFileSync(
+				new URL("./fixtures/axe-violations-4.14.json", import.meta.url),
+				"utf8",
+			),
+		);
+		const result = normalizeAudit(raw, {
+			kind: "local",
+			url: raw.url,
+			title: raw.title,
+			width: raw.width,
+			height: raw.height,
+			startedAt: "2026-11-21T12:00:00.000Z",
+			durationMs: 40,
+			blockedRequests: 0,
+		});
+		expect(result).not.toBeNull();
+		expect(result!.rules.map((rule) => rule.ruleId).sort()).toEqual([
+			"button-name",
+			"color-contrast",
+			"html-has-lang",
+			"image-alt",
+			"label",
+		]);
+		expect(result!.axeVersion).toBe("4.14.1");
+		const contrast = result!.rules.find(
+			(rule) => rule.ruleId === "color-contrast",
+		);
+		expect(contrast!.wcag).toContain("1.4.3");
 	});
 	it("rejects malformed input", () => {
 		for (const raw of [null, undefined, 42, "x", [], {}, { violations: "x" }])

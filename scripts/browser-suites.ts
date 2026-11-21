@@ -65,6 +65,7 @@ export const browserSuites:BrowserSuite[] = [
   suite('composer-prediction'),
   suite('composer-press', ['composer-press.spec.ts']),
   suite('context-connections'),
+  suite('accessibility-check'),
   suite('desktop-surfaces'),
   suite('everyday', ['everyday-ui.spec.ts']),
   suite('floating', ['planning-ui.spec.ts']),
