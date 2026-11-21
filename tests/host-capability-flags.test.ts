@@ -1,7 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest';
 import { resolve } from 'node:path';
 import { launchHost, readHostOptions, type HostFactories } from '../apps/server/host.ts';
-import { capabilityEnabled, configureHostCapabilityFlags, readCapabilityFlagOverrides, registeredCapabilityFlags } from '../packages/core/capability-flags.ts';
+import { capabilityEnabled, capabilityFlagEnvName, configureHostCapabilityFlags, readCapabilityFlagOverrides, registeredCapabilityFlags } from '../packages/core/capability-flags.ts';
 
 const cleanup: (() => void | Promise<void>)[] = [];
 afterEach(async () => { for (const close of cleanup.splice(0).reverse()) await close(); vi.unstubAllEnvs(); });
@@ -55,6 +55,17 @@ it('rejects nonboolean host overrides before changing the current configuration'
   const before = registeredCapabilityFlags();
   expect(() => configureHostCapabilityFlags({ 'memory.projectV1': 'true' } as never)).toThrowError('Capability flag must be boolean');
   expect(registeredCapabilityFlags()).toEqual(before);
+});
+
+it('keeps workspace.publishV1 registered and off by default, enabled only by an explicit host override', () => {
+  expect(registeredCapabilityFlags()).toHaveProperty('workspace.publishV1', false);
+  expect(capabilityEnabled('workspace.publishV1')).toBe(false);
+  expect(capabilityFlagEnvName('workspace.publishV1')).toBe('HARNESS_FLAG_WORKSPACE_PUBLISH_V1');
+  expect(readCapabilityFlagOverrides({ HARNESS_FLAG_WORKSPACE_PUBLISH_V1: 'true' })).toEqual({ 'workspace.publishV1': true });
+  expect(readCapabilityFlagOverrides({ HARNESS_FLAG_WORKSPACE_PUBLISH_V1: '1' })).toEqual({ 'workspace.publishV1': true });
+  expect(readCapabilityFlagOverrides({ HARNESS_FLAG_WORKSPACE_PUBLISH_V1: '0' })).toEqual({ 'workspace.publishV1': false });
+  cleanup.push(configureHostCapabilityFlags({ 'workspace.publishV1': true }));
+  expect(capabilityEnabled('workspace.publishV1')).toBe(true);
 });
 
 it('prevents a competing host from changing live flags and retains an identical shared configuration until both owners close', () => {
