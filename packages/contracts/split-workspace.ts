@@ -3,10 +3,10 @@ import {surfaceRefSchema,type SurfaceRef} from './workspace.ts';
 
 export const SPLIT_WORKSPACE_LIMITS={panes:16,depth:8,views:256,tabs:100,history:20} as const;
 export const splitWorkspaceIdSchema=z.string().min(1).max(200).regex(/^[A-Za-z0-9][A-Za-z0-9:_.-]*$/).refine(id=>!['constructor','prototype','__proto__'].includes(id));
-export type SplitAxis='horizontal'|'vertical';
+type SplitAxis='horizontal'|'vertical';
 export type SplitDropEdge='left'|'right'|'top'|'bottom'|'center';
 export type SplitWorkspaceNode={kind:'pane';paneId:string}|{kind:'split';id:string;axis:SplitAxis;ratio:number;first:SplitWorkspaceNode;second:SplitWorkspaceNode};
-export interface SplitWorkspacePane {id:string;viewIds:string[];activeViewId?:string;collapsed:boolean}
+interface SplitWorkspacePane {id:string;viewIds:string[];activeViewId?:string;collapsed:boolean}
 export interface SplitWorkspaceLayout {version:2;id:string;revision:number;root:SplitWorkspaceNode;panes:Record<string,SplitWorkspacePane>;views:Record<string,SurfaceRef>;parkedViewIds:string[];focusedPaneId:string;undoDepth:number;redoDepth:number}
 
 const paneSchema=z.strictObject({id:splitWorkspaceIdSchema,viewIds:z.array(splitWorkspaceIdSchema).max(SPLIT_WORKSPACE_LIMITS.tabs),activeViewId:splitWorkspaceIdSchema.optional(),collapsed:z.boolean()});
@@ -46,4 +46,3 @@ export const splitWorkspaceLayoutSchema=z.unknown().superRefine(boundedTree).tra
 
 /** Opt-in command result; the layout-only response remains valid for existing callers. */
 export const splitProfileSaveResultSchema=z.strictObject({version:z.literal(2),layout:splitWorkspaceLayoutSchema,profile:z.strictObject({id:splitWorkspaceIdSchema,updatedAt:z.string().datetime()})});
-export type SplitProfileSaveResult=z.infer<typeof splitProfileSaveResultSchema>;

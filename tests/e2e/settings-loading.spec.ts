@@ -1,5 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import { serveTaskFixture, serveTaskSplitLayout, taskFixture } from './task-interface-fixture';
+declare global { interface Window { failDraftWrites?: boolean } }
 
 // The main pane intentionally starts empty without a saved selection.
 async function openFixtureConversation(page: Page) {
@@ -77,9 +78,9 @@ test('a failed Settings chunk preserves the conversation and can be safely reloa
 test('failed draft persistence blocks Settings recovery reload and retains the memory draft', async ({ page }) => {
   await page.addInitScript(() => {
     const transaction = IDBDatabase.prototype.transaction;
-    IDBDatabase.prototype.transaction = function(...args: Parameters<IDBDatabase['transaction']>) {if ((window as any).failDraftWrites && args[1] === 'readwrite') throw Error('IDB unavailable'); return transaction.apply(this, args);};
+    IDBDatabase.prototype.transaction = function(...args: Parameters<IDBDatabase['transaction']>) {if (window.failDraftWrites && args[1] === 'readwrite') throw Error('IDB unavailable'); return transaction.apply(this, args);};
     const original = Storage.prototype.setItem;
-    Storage.prototype.setItem = function(key, value) { if ((window as any).failDraftWrites && key.startsWith('harness:journal-pending:')) throw Error('Staging unavailable'); return original.call(this, key, value); };
+    Storage.prototype.setItem = function(key, value) { if (window.failDraftWrites && key.startsWith('harness:journal-pending:')) throw Error('Staging unavailable'); return original.call(this, key, value); };
   });
   await serveTaskFixture(page, taskFixture({ root: 'text', elements: { text: { type: 'Text', props: { text: 'Current task' } } } }));
   await serveTaskSplitLayout(page);
@@ -88,7 +89,7 @@ test('failed draft persistence blocks Settings recovery reload and retains the m
   await page.goto('/'); await bootstrapped;
   await openFixtureConversation(page);
   const composer = page.getByRole('textbox', { name: 'Message', exact: true }); await expect(composer).toBeEnabled();
-  await page.evaluate(() => {(window as any).failDraftWrites = true;});
+  await page.evaluate(() => {window.failDraftWrites = true;});
   await composer.fill('Only memory retains this draft');
   await expect(page.getByText('Draft could not be saved. Keep this workspace open.', { exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Settings', exact: true }).click();

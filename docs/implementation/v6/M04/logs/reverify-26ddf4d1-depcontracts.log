@@ -1,0 +1,210 @@
+{
+  "format": "M01.DependencyExecutionReceipt.v1",
+  "status": "PASS",
+  "releaseApproved": false,
+  "startedAt": "2026-11-19T23:08:55.088Z",
+  "endedAt": "2026-11-19T23:09:09.216Z",
+  "platform": "linux-x64",
+  "nodeVersion": "v24.22.2",
+  "packageManagerVersion": "10.30.3",
+  "vitestVersion": "4.1.12",
+  "source": {
+    "headSha": "26ddf4d16c2fc1196b520d8a46c5441d64d01463",
+    "treeSha": "5cc64ac418e1c272c5dd28968478b5bbf2098f10",
+    "sourceLockDigest": "f26733e1a8f9ce34d63fca74502b1f669059d21949e6a0a260bef4249aa5a614",
+    "blobs": {
+      "apps/web/src/ContextInspector.tsx": "ee86b4759bfe8d8ff21fcd9bcfa33705d6fd3d6d",
+      "docs/implementation/v3/M04-handoff.md": "adbebe51e5ca8033d16ca2b34e15c40e55c9cb6e",
+      "docs/implementation/v6/M04/requirements.json": "3cb9e6128cfde5e608fc9dbd5a7943614f33e42d",
+      "package.json": "7b32d8847cba1e1ac53a935f0f1f67f166148a10",
+      "packages/contracts/implementation-evidence.ts": "6851e571feeaf0fdade155011a4604f499383564",
+      "packages/contracts/index.ts": "a9d196f949239a8de432e0faf2e0ecba7d772ce4",
+      "packages/contracts/request-context.ts": "0efc0f5312a34743df9fdfd70cc74226b135d204",
+      "packages/contracts/tool-effects.ts": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0",
+      "packages/core/capability-flags.ts": "7bb6e1e50088bc4d8883c1f9a0b84f7eeee8e895",
+      "packages/core/context-compaction.ts": "e75ccb44b80f38ece463ce566c65725855c0da0d",
+      "packages/core/context-compiler.ts": "99b51bcfd066bf78230c9ad525298ef51299831d",
+      "packages/core/context-draft-sources.ts": "8d96db52f45d7c50ae964e4d5321434a55b3ee4e",
+      "packages/core/context-relevance.ts": "e0d61c4496c2ed6ad7b09f5b212a0d504a96ec67",
+      "packages/core/context-results.ts": "51639268ab6384b40addcb6d454bb9606145010e",
+      "packages/core/context-tool-discovery.ts": "185b28d7a37bf7f86a5a3b1809e34a112fba3d36",
+      "packages/core/host-context-projection.ts": "be0bb39b4690467c297d05ede6427766cc656044",
+      "packages/core/instruction-manifest.ts": "f7e20a57f14205bb42142a071447934f7fd6c416",
+      "packages/core/service.ts": "0d7ca25334bf98b3ac999c6b5174412250e212be",
+      "packages/runtime-hermes/broker.ts": "1ea53a9e3fbd47169a37fce7619b25f0229461b0",
+      "packages/runtime-hermes/index.ts": "dbd20a1def40530177660f582ab36a67559bfe61",
+      "packages/runtime-hermes/worker.py": "f216c7a1542cbca0980686f844a81b116a1e3457",
+      "packages/workspace/repo-map.ts": "dfda370100cb5b63a2fe7871de7b360097f6f7dc",
+      "scripts/public-source-files.json": "b76321fb783998c030502cb6c5ed96eb4d0dde2d",
+      "tests/context-contract-preservation-v6.test.ts": "7464c50b66cb6e42e61ab4dc84099a72ba24a0c6",
+      "tests/e2e/usage-context-fixture.tsx": "33dcc53a93fc2075eee0201463ec9c2b2213cd94",
+      "pnpm-lock.yaml": "e6b064fc166611e518f4cf1297d9b00493d9eaaf",
+      "vitest.config.ts": "90b2be612db1daf6813887f18bd9da6a8181c323",
+      "tests/compaction-v3.test.ts": "893d4f0cc697bd1c3e6b2a39a931c806e133c7ce",
+      "tests/context-compiler-v3.test.ts": "8c1d31c29d55cae269d42861f506bb769ea82d10",
+      "tests/context-request-observation.test.ts": "aa9b20a35483a4e5825f7951c4ebe5ce3c5c8f12",
+      "tests/context-results-v3.test.ts": "e156794c9160aa7d59acdd203dbfe688daf55e89",
+      "tests/effect-recovery-v3.test.ts": "e115c3a162a8c2d923f39cc097daa66d9d070f61",
+      "tests/m01-m02-compatibility.test.ts": "044b8b51fc0086ddfec6c47616e186c816cdad26",
+      "tests/research-baseline.test.ts": "3684aeeb4f4e2850d3058afd50a7b6988ce75bb8",
+      "tests/tool-authority-v3.test.ts": "9d7a4af5fda8f4f316ce7fac652e951fb5a14a05",
+      "tests/tool-effects-v3.test.ts": "d482ccc04f869c1965560ef060b7283eb00aafba"
+    }
+  },
+  "commands": [
+    {
+      "argv": [
+        "/home/ubuntu/.nvm/versions/node/v24.22.2/bin/corepack",
+        "pnpm",
+        "--version"
+      ],
+      "cwdIdentity": "/tmp/rv/wt",
+      "executableIdentity": "/home/ubuntu/.nvm/versions/node/v24.22.2/lib/node_modules/corepack/dist/corepack.js",
+      "startedAt": "2026-11-19T23:08:55.345Z",
+      "endedAt": "2026-11-19T23:08:55.607Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "/tmp/rv/dc-out/00-package-manager.log",
+      "logDigest": "638a9792ccff98f48e41d14dd016e522bc6f9c5cad30345c0dd55086a973bd7c"
+    },
+    {
+      "argv": [
+        "/home/ubuntu/.nvm/versions/node/v24.22.2/bin/corepack",
+        "pnpm",
+        "exec",
+        "vitest",
+        "run",
+        "--config",
+        "/tmp/rv/dc-out/vitest.config.mjs"
+      ],
+      "cwdIdentity": "/tmp/rv/wt",
+      "executableIdentity": "/home/ubuntu/.nvm/versions/node/v24.22.2/lib/node_modules/corepack/dist/corepack.js",
+      "startedAt": "2026-11-19T23:08:55.608Z",
+      "endedAt": "2026-11-19T23:09:09.012Z",
+      "exitCode": 0,
+      "termination": "NONE",
+      "status": "PASS",
+      "boundedLogRef": "/tmp/rv/dc-out/10-contract-tests.log",
+      "logDigest": "d507df5d7b1830f802aff9d356f8220df9689136530690060a534a1a07d0aac5"
+    }
+  ],
+  "tests": [
+    {
+      "testId": "tests/compaction-v3.test.ts",
+      "passed": 25,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/context-compiler-v3.test.ts",
+      "passed": 11,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/context-contract-preservation-v6.test.ts",
+      "passed": 6,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/context-request-observation.test.ts",
+      "passed": 81,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/context-results-v3.test.ts",
+      "passed": 7,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/effect-recovery-v3.test.ts",
+      "passed": 17,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/m01-m02-compatibility.test.ts",
+      "passed": 2,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/research-baseline.test.ts",
+      "passed": 33,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/tool-authority-v3.test.ts",
+      "passed": 6,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    },
+    {
+      "testId": "tests/tool-effects-v3.test.ts",
+      "passed": 13,
+      "failed": 0,
+      "unexecuted": 0,
+      "status": "PASS"
+    }
+  ],
+  "contracts": [
+    {
+      "name": "packages/contracts/implementation-evidence.ts",
+      "version": "6851e571feeaf0fdade155011a4604f499383564",
+      "testIds": [
+        "tests/research-baseline.test.ts",
+        "tests/m01-m02-compatibility.test.ts"
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "packages/core/capability-flags.ts",
+      "version": "7bb6e1e50088bc4d8883c1f9a0b84f7eeee8e895",
+      "testIds": [
+        "tests/tool-authority-v3.test.ts",
+        "tests/m01-m02-compatibility.test.ts",
+        "tests/context-request-observation.test.ts"
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "packages/contracts/tool-effects.ts",
+      "version": "1fef4b7309033ba0c637b3f60f587dc2658dfbe0",
+      "testIds": [
+        "tests/tool-effects-v3.test.ts",
+        "tests/effect-recovery-v3.test.ts"
+      ],
+      "status": "PASS"
+    },
+    {
+      "name": "packages/contracts/request-context.ts",
+      "version": "0efc0f5312a34743df9fdfd70cc74226b135d204",
+      "testIds": [
+        "tests/context-compiler-v3.test.ts",
+        "tests/context-results-v3.test.ts",
+        "tests/compaction-v3.test.ts",
+        "tests/context-contract-preservation-v6.test.ts"
+      ],
+      "status": "PASS"
+    }
+  ],
+  "report": {
+    "path": "/tmp/rv/dc-out/vitest.json",
+    "digest": "887c94c4046e72934cf96d62202eabec212c4b45d6e03091c5845d10a5f2668c"
+  },
+  "issues": []
+}
