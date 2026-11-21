@@ -11,6 +11,7 @@ import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {memoryItemV1Schema, memoryRecallV1Schema, type MemoryItemV1, type MemoryRecallV1, type MemoryRevisionRef} from '../../../packages/contracts/project-memory';
 import {MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1} from '../../../packages/contracts/model-request';
 import {ModelRequestDetails} from './UsageDialog';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 /** Only the owner of a real host-prepared request may supply this adapter. */
 interface MemoryRequestExclusionAdapter {
@@ -139,7 +140,7 @@ function ContextSession({ usage, thread, close, refresh, onError, anchor, compac
       setRequested(true); await refresh();
     } catch (cause) {
       if (!active.current) return;
-      const message = cause instanceof Error ? cause.message : 'Context could not be compacted. Try again.';
+      const message = errorMessage(cause, 'Context could not be compacted. Try again.');
       setError(message); onError?.(message);
     } finally { if (active.current) { locked.current = false; setSubmitting(false); } }
   };
@@ -316,7 +317,7 @@ function CompactionModelRequests({thread, entry}: {thread: Thread; entry: Compac
       }
       setState({owner, requests: [...retained, ...parsed.data], older: parsed.data.length === MODEL_REQUEST_OBSERVATION_LIMIT, loading: false, error: ''});
     } catch (cause) {
-      if (current()) setState({owner, older: false, loading: false, error: cause instanceof Error ? cause.message : 'Compaction model costs are unavailable.'});
+      if (current()) setState({owner, older: false, loading: false, error: errorMessage(cause, 'Compaction model costs are unavailable.')});
     } finally {if (pending.current === control) pending.current = null;}
   };
   return <section aria-label="Compaction model costs">
@@ -341,7 +342,7 @@ function MemoryRecallDetails({value}: {value: ContextMemoryRecall}) {
     if (!canExclude || !adapter || locked.current) return;
     locked.current = true; setPending(item.id); setError('');
     try {await adapter.exclude({itemId: item.id, revision: item.revision}); if (active.current) setRequested(values => [...values, item.id]);}
-    catch (cause) {if (active.current) setError(cause instanceof Error ? cause.message : 'This request could not be updated.');}
+    catch (cause) {if (active.current) setError(errorMessage(cause, 'This request could not be updated.'));}
     finally {if (active.current) {locked.current = false; setPending(undefined);}}
   }
   return <section className="context-memory-recall" aria-label="Recalled project memory"><h3>Why recalled</h3>{adapter && <p>{adapter.phase === 'CAPTURED' ? 'Captured for the last sent request.' : 'Prepared for the current draft.'}</p>}<p>{value.recall.status} · {value.injectedBytes} of {value.recall.budgetBytes} memory bytes</p><p>Request {value.requestId} · generation {value.contextGeneration}</p>

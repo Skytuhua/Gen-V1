@@ -16,6 +16,7 @@ import type { ConnectionAccount } from '../../../packages/contracts/accounts';
 import { command } from './api';
 import { useDesktop } from './desktop-context';
 import './connections.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 const AUTH_LABELS: Record<string, string> = {error: 'Status unavailable', checking: 'Checking connection…', cancelling: 'Stopping sign-in', configured: 'Saved, not verified', authenticated: 'Signed in', 'signed-out': 'Not signed in', blocked: 'Connection blocked', 'signing-in': 'Sign-in in progress', unavailable: 'Unavailable', unknown: 'Status unknown'};
 function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthChanged }: { target: AccountAuthTarget; flow?: AccountLoginFlow; desktop: ReturnType<typeof useDesktop>; login: () => void; label:string; busy:boolean; onAuthChanged:AccountAuthChanged }) {
   const [auth, setAuth] = useState<AccountAuthStatus | null>(null), [checking, setChecking] = useState(()=>!flow||!['opening','waiting','cancelling','blocked'].includes(flow.state)), [error, setError] = useState('');
@@ -36,7 +37,7 @@ function AccountReadiness({ target, flow, desktop, login, label, busy, onAuthCha
   const signout = async () => {
     if (pending.current) return; pending.current = true;const version=++generation.current;read.current?.abort();setChecking(true); setError('');
     try { const next=await signOutAccount(target);if(version===generation.current)setAuth(next);await onAuthChanged(target,'signed-out'); }
-    catch (cause) { if(version===generation.current)setError(cause instanceof Error ? cause.message : 'Local sign-out failed. Retry after native work stops.'); }
+    catch (cause) { if(version===generation.current)setError(errorMessage(cause, 'Local sign-out failed. Retry after native work stops.')); }
     finally { pending.current = false;if(version===generation.current)setChecking(false); }
   };
   const identityBound=target.providerId==='claude-code'&&(auth?.state==='authenticated'||auth?.state==='blocked');
@@ -112,7 +113,7 @@ export function Connections({ snapshot, refresh, loadModels, onAuthChanged, prov
     if (pending.current) return false;
     pending.current = true; setBusy(type); setError(''); setNotice('');
     try { await settingsOperation(async () => {await command(type, payload); await refresh(); if (type === 'account.select') await loadModels(true);}); return true; }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'The account could not be updated. Try again.'); return false; }
+    catch (cause) { setError(errorMessage(cause, 'The account could not be updated. Try again.')); return false; }
     finally { pending.current = false; setBusy(''); }
   };
   const login = async (id: string, accountId?: string) => {
@@ -120,7 +121,7 @@ export function Connections({ snapshot, refresh, loadModels, onAuthChanged, prov
     pending.current = true; setBusy(`login:${accountId ?? id}`); setError(''); setNotice('');
     const key=accountTargetKey(id,accountId);
     try { await cancelAccountPredictions(); const flow = await desktop.signIn(id, accountId); if(latestTarget.current===key)setNotice(flow ? '' : 'Connection console opened. Complete setup in that console, then check connection status.'); }
-    catch (cause) { if(latestTarget.current===key)setError(cause instanceof Error ? cause.message : 'The sign-in console could not open.'); }
+    catch (cause) { if(latestTarget.current===key)setError(errorMessage(cause, 'The sign-in console could not open.')); }
     finally { pending.current = false; setBusy(''); }
   };
   return <section className="connection-list" aria-label="AI subscription connections">

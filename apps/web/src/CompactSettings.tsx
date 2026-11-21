@@ -9,6 +9,7 @@ import {useAppearance} from './useAppearance';
 import {LoadingState} from './LoadingState';
 import {SettingsSkeleton} from './ViewSkeletons';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 export type CompactSettingsProps = Pick<SettingsActions, 'close' | 'addResource' | 'initialSection' | 'openBrowser' | 'environmentSettings'> & {
   /** Host identity. Changing it disposes this Settings view and its metadata scope. */
@@ -31,7 +32,7 @@ function ScopedSettings(actions: Omit<CompactSettingsProps, 'scopeKey'>) {
       controller.signal.throwIfAborted();
       if (generation.current === request) setData(next);
     } catch (cause) {
-      if (!controller.signal.aborted && generation.current === request) setError(cause instanceof Error ? cause.message : 'Settings could not load.');
+      if (!controller.signal.aborted && generation.current === request) setError(errorMessage(cause, 'Settings could not load.'));
       throw cause;
     } finally {
       if (!controller.signal.aborted && generation.current === request) setLoading(false);

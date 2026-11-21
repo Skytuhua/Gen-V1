@@ -101,6 +101,7 @@ import {DesktopBrowserSlot,DesktopBrowserToolbar} from './DesktopBrowser';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
 import {OperationProjectTrust, OperationProjectTrustStatus, type ProjectTrustReadiness} from './OperationProjectTrust';
 import { OperationExecutionReviewPanel } from './OperationExecutionReview';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 type SettingsComponent = typeof import('./Settings').Settings;
 let loadedSettings: SettingsComponent | undefined;
@@ -112,7 +113,7 @@ const DEFAULT_FLOAT_RECT:ChatRect={x:48,y:48,width:480,height:680};
 
 const emptySnapshot: Snapshot = { seq: 0, threads: [], messages: [], artifacts: [], userStates: [], data: [], requests: [], operations: [], resources: [], usage: {}, settings: { theme: 'dark', modelId: null }, activeThreadId: null };
 const hasPinnedAccount = (thread: Thread | undefined, snapshot: Snapshot) => Boolean(thread && (thread.accountId !== undefined || thread.modelId || thread.sessionPath || thread.runId || thread.epoch > 0 || snapshot.messages.some(message => message.threadId === thread.id)));
-const messageOf = (error: unknown) => error instanceof Error ? error.message : 'The request could not be completed.';
+const messageOf = (error: unknown) => errorMessage(error, 'The request could not be completed.');
 
 function Dialog({ title, children, close }: { title: string; children: ReactNode; close: () => void }) {
   return <Modal open title={title} onClose={close} className="dialog">{children}</Modal>;

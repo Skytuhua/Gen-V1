@@ -1,6 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import type {NavigationPage} from '../../../packages/contracts/shell-read-models';
 import {getShellNavigation} from './shell-read-api';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 /** Navigation rows are metadata, including empty drafts; never an agent inventory or Snapshot. */
 export function useShellNavigation(text: string) {
@@ -17,7 +18,7 @@ export function useShellNavigation(text: string) {
       const items = cursor && before ? [...before.items, ...value.items.filter(item => !before.items.some(previous => previous.id === item.id))] : value.items;
       const next = {...value, items}; current.current = next; setPage(next);
     } catch (cause) {
-      if (alive.current && !controller.signal.aborted) setError(cause instanceof Error ? cause.message : 'Threads could not load. Retry.');
+      if (alive.current && !controller.signal.aborted) setError(errorMessage(cause, 'Threads could not load. Retry.'));
     } finally {if (alive.current && !controller.signal.aborted) setPending(false);}
   }, []);
   useEffect(() => {

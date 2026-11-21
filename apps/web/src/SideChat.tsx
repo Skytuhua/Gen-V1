@@ -9,9 +9,9 @@ import {journalCompareAndSwap,journalGeneration,journalRead,journalReadRecord,jo
 import {useThreadMessages} from './thread-messages';
 import {Select} from '../../../packages/ui-shell/Select';
 import './side-chat.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 export interface SideChatHandle {ask(content:string):Promise<void>}
-const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'The side question could not be sent.';
 export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{parent:Thread;snapshot:Snapshot;modelId:string;open:boolean;onClose:()=>void;refresh:()=>Promise<void>;ref?:Ref<SideChatHandle>}){
  const storageKey='harness:side-selected:'+parent.id;
  const [selectedId,setSelectedId]=useState<string|null>(()=>{try{return localStorage.getItem(storageKey);}catch{return null;}});
@@ -30,7 +30,7 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
  useEffect(()=>journalSubscribe(draftKey,value=>{if(draftTarget.current===draftKey)setDraft(typeof value==='string'?value:'');}),[draftKey]);
  useEffect(()=>{if(open&&ready)input.current?.focus({preventScroll:true});},[open,ready]);
  useLayoutEffect(()=>{if(tail.current&&scroll.current)scroll.current.scrollTop=scroll.current.scrollHeight;},[messages.map(message=>message.id+message.content).join('\n'),open]);
- const updateDraft=(value:string)=>{setDraft(value);const target=draftTarget.current,epoch=draftEpoch.current;void journalWrite(target,value).catch(cause=>{if(draftTarget.current===target&&draftEpoch.current===epoch)setError(errorMessage(cause));});};
+ const updateDraft=(value:string)=>{setDraft(value);const target=draftTarget.current,epoch=draftEpoch.current;void journalWrite(target,value).catch(cause=>{if(draftTarget.current===target&&draftEpoch.current===epoch)setError(errorMessage(cause,'The side question could not be sent.'));});};
  const select=(id:string|null)=>{if(sending.current)return;if(id!==selectedId)draftEpoch.current++;setSelectedId(id);setError('');tail.current=true;};
  const send=async(content=draft)=>{
   if(sending.current||working)throw new Error('Wait for this side response, or stop it before asking another question.');
@@ -54,11 +54,11 @@ export function SideChat({parent,snapshot,modelId,open,onClose,refresh,ref}:{par
    await journalCompareAndSwap(draftKey,generation,'');
    if(newGeneration&&copiedGeneration===generation)await journalCompareAndSwap(`side-draft:${parent.id}:${id}`,newGeneration,'');
    await refresh();tail.current=true;
-  }catch(cause){setError(errorMessage(cause));throw cause;}
+  }catch(cause){setError(errorMessage(cause,'The side question could not be sent.'));throw cause;}
   finally{sending.current=false;setBusy(false);}
  };
  useImperativeHandle(ref,()=>({async ask(content){if(!content.trim())return;if(draft.trim()&&draft!==content)throw new Error('Finish or clear the saved side draft before sending another question.');updateDraft(content);await send(content);}}));
- const execute=async(type:string)=>{if(!side)return;setError('');setBusy(true);try{await command(type,type==='run.resume'?{modelId}:{},side.id);await refresh();}catch(cause){setError(errorMessage(cause));}finally{setBusy(false);}};
+ const execute=async(type:string)=>{if(!side)return;setError('');setBusy(true);try{await command(type,type==='run.resume'?{modelId}:{},side.id);await refresh();}catch(cause){setError(errorMessage(cause,'The side question could not be sent.'));}finally{setBusy(false);}};
  return <FloatingWindow id={'side-chat-'+parent.id} title="Side conversation" open={open} onClose={onClose} defaultSize={{width:440,height:540}} minSize={{width:300,height:280}} resetPosition className="side-chat-window">
   <div className="side-chat">
    <header className="side-chat-context"><span>Read-only · Main task keeps working</span><button className="icon-button" title="New side conversation" aria-label="New side conversation" disabled={busy} onClick={()=>select(null)}><Plus size={15}/></button></header>

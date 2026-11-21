@@ -1,6 +1,7 @@
 import {inventoryUpdateDisposition, type AgentScope, type AgentSummary, type InventoryUpdates, type MessageSlice} from '../../../../packages/contracts/agent-inventory';
 import {personalAgentTransport, type AgentTransport} from './transport';
 import {ApiError} from '../api';
+import {errorMessage} from '../../../../packages/ui-shell/helpers';
 
 export interface AgentNode {agent: AgentSummary; children: AgentNode[]}
 export interface ProjectRow {id: string | null; name: string; parents: AgentNode[]}
@@ -109,7 +110,7 @@ export class AgentsWorkspaceController {
    }
    throw Error('Agents changed while loading. Retry loading.');
   } catch (cause) {
-   if (!abort.signal.aborted && !this.disposed) this.emit({pending: false, error: cause instanceof Error ? cause.message : 'Agents could not load. Retry loading.'});
+   if (!abort.signal.aborted && !this.disposed) this.emit({pending: false, error: errorMessage(cause, 'Agents could not load. Retry loading.')});
   }
  }
  setVisible(ids: readonly string[]) {
@@ -143,7 +144,7 @@ export class AgentsWorkspaceController {
    await this.transport.events({...query, after: this.state.sequence}, update => {
     this.queue = this.queue.then(async () => {if (active()) await this.accept(update);}).catch(cause => {if (active()) this.emit({error: String(cause)});});
    }, abort.signal);
-  }).catch(cause => {if (active()) this.emit({error: cause instanceof Error ? cause.message : 'Live updates disconnected.'});}).finally(() => {
+  }).catch(cause => {if (active()) this.emit({error: errorMessage(cause, 'Live updates disconnected.')});}).finally(() => {
    if (!active()) return; this.emit({connected: false});
    this.retry = setTimeout(() => this.connect(), 1500);
   });
@@ -220,7 +221,7 @@ export class AgentsWorkspaceController {
    state.gaps.sort((a, b) => state.messages.findIndex(message => message.id === a.beforeId) - state.messages.findIndex(message => message.id === b.beforeId));
    state.sequence = page.sequence; state.loaded = true;
    if (changed && !earlier && !this.view(id).atEnd) this.setView(id, {unread: true});
-  } catch (cause) {if (!abort.signal.aborted && !this.disposed) state.error = cause instanceof Error ? cause.message : 'History could not load. Retry history.';}
+  } catch (cause) {if (!abort.signal.aborted && !this.disposed) state.error = errorMessage(cause, 'History could not load. Retry history.');}
   finally {if (this.histories.get(id) === abort) {state.pending = false; this.histories.delete(id); if (!this.disposed) {this.emit(); if (this.dirty.delete(id)) void this.loadHistory(id, false, true);}}}
  }
  dispose() {this.disposed = true; this.scopeAbort.abort(); this.stopStream(); clearTimeout(this.ancestorReload); this.histories.forEach(value => value.abort()); this.histories.clear(); if (this.rotation) clearInterval(this.rotation); this.listeners.clear();}

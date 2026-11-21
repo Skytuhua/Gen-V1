@@ -27,6 +27,7 @@ import { version } from '../../../package.json';
 import {settingsDataFromSnapshot, type SettingsData} from './settings-data';
 import {snapshotDraftReferences, type DraftReferenceSource} from './draft-transfer';
 import './settings.css';
+import {errorMessage} from '../../../packages/ui-shell/helpers';
 
 // Selective T3 Code presentation adaptation; see third-party/t3code/README.md.
 export const SETTINGS_SECTIONS = [
@@ -115,7 +116,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     const request = ++catalogRequest.current, selection = catalogSelection.current;
     catalogRead.current?.abort(); const controller = new AbortController(); catalogRead.current = controller;
     try { const result = await getModels(force, undefined, controller.signal,target); if (request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,result.models,target)); setNewTaskModelError(result.error ?? ''); } }
-    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,[],target)); setNewTaskModelError(cause instanceof Error ? cause.message : 'Models could not be loaded.'); } }
+    catch (cause) { if (!controller.signal.aborted && request === catalogRequest.current && selection === catalogSelection.current) { setNewTaskModels(current=>mergeAccountModels(current,[],target)); setNewTaskModelError(errorMessage(cause, 'Models could not be loaded.')); } }
     finally { if (catalogRead.current === controller) catalogRead.current = null; }
   }, []);
   useLayoutEffect(() => { setNewTaskModels([]); setNewTaskModelError(''); void loadNewTaskModels(true); return () => { catalogRequest.current++; catalogRead.current?.abort(); catalogRead.current = null; }; }, [loadNewTaskModels, selectedAccountsKey]);
@@ -141,7 +142,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
     if (busy) return false;
     setBusy(true); setSaved(false); setError('');
     try { await settingsOperation(async () => {await command('settings.update', payload); await refresh();}); setSaved(true); return true; }
-    catch (cause) { setError(cause instanceof Error ? cause.message : 'Settings could not be saved. Retry your change.'); return false; }
+    catch (cause) { setError(errorMessage(cause, 'Settings could not be saved. Retry your change.')); return false; }
     finally { setBusy(false); }
   };
   const update = async (value: Partial<UiPreferences>) => {
