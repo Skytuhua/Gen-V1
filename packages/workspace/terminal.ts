@@ -2,16 +2,22 @@ import {randomUUID} from 'node:crypto';
 import {spawn,type IPty} from 'node-pty';
 import {z} from 'zod';
 import {HarnessError} from '../contracts/index.ts';
+import {getPreferences,type PreferencePatch} from '../contracts/preferences.ts';
+import type {TerminalShellInfo} from '../contracts/terminal-shell.ts';
 import type {ProjectTools} from './tools.ts';
 import {processEnvironment} from '../capabilities/process.ts';
 import {environmentSettingsFor} from '../core/environment-settings.ts';
+import {TerminalShellResolver,type TerminalShellDeps,type TerminalShellDescriptor} from './terminal-shell.ts';
 
-interface Session{id:string;projectId:string;threadId?:string;path:string;pty:IPty;output:string;offset:number;exited:boolean;exitCode:number|null;done:Promise<void>}
+interface Session{id:string;projectId:string;threadId?:string;path:string;pty:IPty;output:string;offset:number;exited:boolean;exitCode:number|null;done:Promise<void>;shell?:TerminalShellInfo}
 const identifier=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),dimension=z.number().int().min(2).max(500);
+const missingFile=(error:unknown)=>{const cause=error as NodeJS.ErrnoException;return cause?.code==='ENOENT'||/ENOENT|file not found|cannot find/i.test(String(cause?.message??error));};
 /** Host owns processes; renderer visibility and native reparenting do not own their lifetime. */
 export class TerminalHost{
  private readonly sessions=new Map<string,Session>();
- constructor(private readonly projects:ProjectTools){
+ private readonly shells:TerminalShellResolver;
+ constructor(private readonly projects:ProjectTools,shellDeps?:TerminalShellDeps){
+  this.shells=new TerminalShellResolver(shellDeps);
   const store=projects.store,unfinished=store.all<{id:string;exited:boolean}>('terminalSession').filter(item=>!item.exited);
   if(unfinished.length)store.internal('terminal.recovered',null,()=>{for(const item of unfinished)store.put('terminalSession',item.id,null,{...item,exited:true,exitCode:null,reason:'Host restarted; the previous terminal is no longer attached.'});});
  }
@@ -22,8 +28,16 @@ export class TerminalHost{
   if(existing){if(existing.projectId!==projectId||existing.threadId!==threadId||existing.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(existing.exited)throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');return this.result(existing,0);}
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
-  const shell=process.platform==='win32'?(process.env.COMSPEC??'C:/Windows/System32/cmd.exe'):(process.env.SHELL??'/bin/sh'),args=process.platform==='win32'?['/D','/Q']:[];
   const configured=!input.program&&!input.environment?await environmentSettingsFor(this.projects.store.dataDir).resolve(projectId):{};
+  // Interactive opens (no pinned program/environment, no seeded command) read the
+  // shell preference once for this attempt; every async step finishes before the
+  // final synchronous ownership/capacity checks and spawn below.
+  const interactive=!input.program&&input.command===undefined&&input.environment===undefined;
+  let launch:TerminalShellDescriptor|undefined;
+  if(interactive){
+   const selection=getPreferences(this.projects.store.get<{preferences?:PreferencePatch}>('settings','global')??{}).terminalShell;
+   launch=await this.shells.resolve(selection,binding.path,configured);
+  }
   const currentBinding=await this.projects.binding(projectId,threadId);
   if(currentBinding.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','The project binding changed before the terminal could start.');
   // Secret resolution yields. Recheck ownership/capacity synchronously after
@@ -33,8 +47,20 @@ export class TerminalHost{
   if(this.projects.store.get('terminalSession',terminalId))throw new HarnessError('TERMINAL_ENDED','This terminal ended. Open a new terminal.');
   if([...this.sessions.values()].filter(item=>!item.exited).length>=12)throw new HarnessError('TERMINAL_CAPACITY','Twelve terminals are already running. Stop one before opening another.');
   // Trusted integration programs retain their explicitly pinned environments.
-  const pty=spawn(input.program??shell,input.args??args,{name:'xterm-256color',cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env:(input.environment??{...processEnvironment(),...configured}) as Record<string,string>,useConpty:true});
-  let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;})};
+  const legacyShell=process.platform==='win32'?(process.env.COMSPEC??'C:/Windows/System32/cmd.exe'):(process.env.SHELL??'/bin/sh'),legacyArgs=process.platform==='win32'?['/D','/Q']:[];
+  const file=launch?.file??input.program??legacyShell,args=launch?.args??input.args??legacyArgs,env=(launch?.env??input.environment??{...processEnvironment(),...configured}) as Record<string,string>;
+  const options={name:'xterm-256color' as const,cwd:binding.path,cols:dimension.parse(input.cols??100),rows:dimension.parse(input.rows??30),env,useConpty:true};
+  let pty:IPty;
+  try{pty=spawn(file,args,options);}
+  catch(error){
+   if(!launch)throw error;
+   this.shells.invalidate();
+   // Only the default COMSPEC choice may retry once against the system cmd; an
+   // explicit selection reports a structured failure instead of switching shells.
+   if(launch.fallback&&missingFile(error)){try{pty=spawn(launch.fallback.file,launch.fallback.args,options);}catch(retry){throw this.launchError(retry,launch.shell.label);}}
+   else throw this.launchError(error,launch.shell.label);
+  }
+  let finish!:()=>void;const session:Session={id:terminalId,projectId,...(threadId?{threadId}:{}),path:binding.path,pty,output:'',offset:0,exited:false,exitCode:null,done:new Promise<void>(resolve=>{finish=resolve;}),...(launch?{shell:launch.shell}:{})};
   this.sessions.set(terminalId,session);this.persist(session);
   pty.onData(data=>{
    session.output+=data;
@@ -57,7 +83,12 @@ export class TerminalHost{
   if(command!==undefined)pty.write(command+'\r');
   return this.result(session,0);
  }
- private persist(session:Session){this.projects.store.internal('terminal.changed',session.threadId??null,()=>this.projects.store.put('terminalSession',session.id,session.threadId??null,{id:session.id,projectId:session.projectId,threadId:session.threadId,exited:session.exited,exitCode:session.exitCode}));}
+ private launchError(error:unknown,label:string):HarnessError{
+  if(missingFile(error))return new HarnessError('TERMINAL_SHELL_UNAVAILABLE',`${label} is no longer available. Choose another terminal shell in Settings and try again.`);
+  return new HarnessError('TERMINAL_START_FAILED',`${label} could not be started. Retry, or choose another terminal shell in Settings.`);
+ }
+ async shellCatalog(options?:{refresh?:boolean;signal?:AbortSignal}){return this.shells.catalog(options);}
+ private persist(session:Session){this.projects.store.internal('terminal.changed',session.threadId??null,()=>this.projects.store.put('terminalSession',session.id,session.threadId??null,{id:session.id,projectId:session.projectId,threadId:session.threadId,exited:session.exited,exitCode:session.exitCode,...(session.shell?{shell:session.shell}:{})}));}
  /** Exited sessions keep up to 512 KiB of scrollback each; retain only the newest few so the map stays bounded. Reads of evicted ids still resolve TERMINAL_ENDED through the durable record. */
  private evictExited(session:Session){
   // Active terminals may outlive many later starts. Record recency when they exit.
@@ -65,7 +96,7 @@ export class TerminalHost{
   const dead=[...this.sessions.entries()].filter(([,session])=>session.exited);
   for(const [id]of dead.slice(0,Math.max(0,dead.length-48)))this.sessions.delete(id);
  }
- private result(session:Session,cursor:number){const end=session.offset+session.output.length,start=Math.min(end,Math.max(session.offset,cursor));return{id:session.id,projectId:session.projectId,threadId:session.threadId,output:session.output.slice(start-session.offset),start,cursor:end,exited:session.exited,exitCode:session.exitCode};}
+ private result(session:Session,cursor:number){const end=session.offset+session.output.length,start=Math.min(end,Math.max(session.offset,cursor));return{id:session.id,projectId:session.projectId,threadId:session.threadId,output:session.output.slice(start-session.offset),start,cursor:end,exited:session.exited,exitCode:session.exitCode,...(session.shell?{shell:session.shell}:{})};}
  private async owned(id:string,projectId:string,threadId?:string,stopping=false){const session=this.sessions.get(identifier.parse(id));if(!session){const old=this.projects.store.get<{projectId:string;threadId?:string}>('terminalSession',id);if(old&&old.projectId===projectId&&old.threadId===threadId)throw new HarnessError('TERMINAL_ENDED','The host restarted or this terminal ended. Open a new terminal.');throw new HarnessError('NOT_FOUND','Terminal is unavailable.');}if(session.projectId!==projectId||session.threadId!==threadId)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');if(!stopping){const binding=await this.projects.binding(projectId,threadId);if(session.path!==binding.path)throw new HarnessError('CAPABILITY_DENIED','Terminal belongs to another working copy.');}return session;}
  async read(id:string,projectId:string,threadId?:string,cursor=0){return this.result(await this.owned(id,projectId,threadId),z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).parse(cursor));}
  async command(id:string,projectId:string,threadId:string|undefined,input:Record<string,unknown>){const session=await this.owned(id,projectId,threadId,input.type==='stop');if(input.type==='stop'){if(!session.exited){session.pty.kill();let timer:ReturnType<typeof setTimeout>|undefined;try{await Promise.race([session.done,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(new HarnessError('TERMINAL_CANCEL_UNCONFIRMED','Terminal termination was not confirmed.')),5000);})]);}finally{clearTimeout(timer);}}}else{if(session.exited)throw new HarnessError('TERMINAL_ENDED','The terminal has exited.');if(input.type==='input')session.pty.write(z.string().max(64*1024).parse(input.data));else if(input.type==='resize')session.pty.resize(dimension.parse(input.cols),dimension.parse(input.rows));else throw new HarnessError('INVALID_INPUT','Unknown terminal action.');}return this.result(session,0);}

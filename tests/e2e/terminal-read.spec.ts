@@ -105,9 +105,14 @@ test('bound New uses openAnother and never recreates the owned terminal in place
  await page.evaluate(()=>window.terminalFixture.allowAnother());await page.getByRole('button',{name:'New terminal',exact:true}).click();expect(await page.evaluate(()=>window.terminalFixture.anotherCount())).toBe(1);expect(api.creates()).toHaveLength(1);expect(api.stops()).toEqual([]);
 });
 
-test('an unconfirmed create offers no blind Retry or fresh ID',async({page})=>{
- const api=await mount(page,{create:route=>failure(route)});await expect(phase(page)).toHaveText('Start unconfirmed');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();await expect(page.getByRole('button',{name:/Retry|New terminal/})).toHaveCount(0);
- expect(api.creates()).toHaveLength(1);expect(api.reads()).toEqual([]);
+test('an unconfirmed create retries the start with the same pending ID, never a fresh one',async({page})=>{
+ const api=await mount(page,{create:route=>failure(route)});await expect(phase(page)).toHaveText('Start unconfirmed');await expect(page.getByRole('button',{name:'Stop',exact:true})).toBeDisabled();
+ // The shell picker requires an explicit start retry; it re-sends the retained
+ // pending ID so the host deduplicates instead of minting a second process.
+ const retry=page.getByRole('button',{name:'Retry start',exact:true});await expect(retry).toBeVisible();
+ await expect(page.getByRole('button',{name:'New terminal',exact:true})).toHaveCount(0);
+ const firstId=api.creates()[0].body?.terminalId;await retry.click();
+ await expect.poll(()=>api.creates().length).toBe(2);expect(api.creates()[1].body?.terminalId).toBe(firstId);expect(api.reads()).toEqual([]);
 });
 
 test('bounded host output warns before appending and a reported end stops polling',async({page})=>{

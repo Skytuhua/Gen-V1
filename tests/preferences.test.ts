@@ -5,7 +5,7 @@ import { join } from 'node:path';
 import { Store } from '../packages/storage/store.ts';
 import { Service } from '../packages/core/service.ts';
 import type { RuntimeAdapter, Thread } from '../packages/contracts/index.ts';
-import { DEFAULT_PREFERENCES, getPreferences, mergePreferences } from '../packages/contracts/preferences.ts';
+import { DEFAULT_PREFERENCES, getPreferences, mergePreferences, type PreferencePatch } from '../packages/contracts/preferences.ts';
 
 const cleanups: (() => void)[] = [];
 afterEach(() => { for (const clean of cleanups.splice(0)) clean(); });
@@ -63,5 +63,46 @@ describe('UI preferences and thread presentation', () => {
     await command('thread.restore', {}, thread.id);
     expect(store.snapshot().threads[0].id).toBe(thread.id);
     expect(store.snapshot().archivedThreads).toHaveLength(0);
+  });
+});
+describe('terminal shell preference', () => {
+  it('defaults missing, legacy and corrupt stored values to the system default shell', () => {
+    expect(getPreferences({}).terminalShell).toEqual({ kind: 'default' });
+    expect(getPreferences({ preferences: { fontSize: 17 } }).terminalShell).toEqual({ kind: 'default' });
+    for (const corrupt of [
+      { kind: 'bash' }, { kind: 'cmd', distro: 'Ubuntu' }, { kind: 'wsl', distro: '-evil' },
+      'pwsh', 42, null, { kind: 'wsl', distro: 'x'.repeat(201) },
+    ]) expect(getPreferences({ preferences: { terminalShell: corrupt } as PreferencePatch }).terminalShell).toEqual({ kind: 'default' });
+  });
+  it('round trips every valid selection through settings.update and replaces it atomically', async () => {
+    const { store, command } = setup();
+    for (const selection of [
+      { kind: 'pwsh' }, { kind: 'git-bash' }, { kind: 'wsl', distro: 'Ubuntu-24.04' }, { kind: 'wsl' }, { kind: 'cmd' }, { kind: 'default' },
+    ]) {
+      await command('settings.update', { preferences: { terminalShell: selection } });
+      expect(store.snapshot().settings.preferences).toMatchObject({ terminalShell: selection });
+      expect(getPreferences(store.snapshot().settings).terminalShell).toEqual(selection);
+    }
+    // A whole selection replaces, never deep-merges: leaving wsl cannot retain the old distro.
+    await command('settings.update', { preferences: { terminalShell: { kind: 'wsl', distro: 'Debian' } } });
+    await command('settings.update', { preferences: { terminalShell: { kind: 'powershell' } } });
+    expect(getPreferences(store.snapshot().settings).terminalShell).toEqual({ kind: 'powershell' });
+  });
+  it('preserves unrelated and future-owned preference fields alongside the selection', async () => {
+    const { store, command } = setup();
+    store.internal('test.preferences.seeded', null, () => store.put('settings', 'global', null, { theme: 'dark', preferences: { density: 'compact', futureLane: { keep: true } } }));
+    await command('settings.update', { preferences: { terminalShell: { kind: 'wsl', distro: 'Ubuntu' } } });
+    expect(store.snapshot().settings.preferences).toMatchObject({ density: 'compact', futureLane: { keep: true }, terminalShell: { kind: 'wsl', distro: 'Ubuntu' } });
+  });
+  it('rejects invalid selections without committing a receipt or dropping the stored choice', async () => {
+    const { store, command } = setup();
+    await command('settings.update', { preferences: { terminalShell: { kind: 'git-bash' } } });
+    const seq = store.sequence;
+    for (const bad of [
+      { kind: 'bash' }, { kind: 'pwsh', distro: 'Ubuntu' }, { kind: 'wsl', distro: '-x' },
+      { kind: 'wsl', distro: 'fine', extra: 1 }, 'pwsh', { distro: 'Ubuntu' },
+    ]) await expect(command('settings.update', { preferences: { terminalShell: bad } })).rejects.toThrow();
+    expect(store.sequence).toBe(seq);
+    expect(getPreferences(store.snapshot().settings).terminalShell).toEqual({ kind: 'git-bash' });
   });
 });

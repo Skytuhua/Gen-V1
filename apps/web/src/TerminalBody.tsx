@@ -5,7 +5,7 @@ import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
 import './terminal-excerpts.css';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
 
-interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
+interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null;shell?:{kind:string;label:string;distro?:string;notice?:string}}
 type Phase='starting'|'running'|'read-interrupted'|'ended'|'unconfirmed';
 const message=(error:unknown)=>error instanceof Error?error.message:'The project tool could not complete this request.';
 const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()=>{
@@ -17,13 +17,14 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  const [selection,setSelection]=useState<TerminalExcerpt|null>(null),[adding,setAdding]=useState(false);
  const element=useRef<HTMLDivElement>(null);
  const [phase,setPhase]=useState<Phase>('starting'),[error,setError]=useState(''),[acknowledged,setAcknowledged]=useState(false),[retrying,setRetrying]=useState(false),[stopping,setStopping]=useState(false),[generation,setGeneration]=useState(0);
+ const [shell,setShell]=useState<TerminalRead['shell']>();
  const key=`gen-terminal:${projectId}:${threadId??'project'}:${terminalId??'default'}`;
  const latest=useRef({projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer});
  // Only a committed render may move ownership: a suspended concurrent render
  // must never lend its isCurrent guard to in-flight terminal work.
  useLayoutEffect(()=>{latest.current={projectId,threadId,terminalId,active,generation,isCurrent,excerptComposer};});
  const pendingId=useRef<{key:string;id:string}|null>(null);
- const actions=useRef<{current:()=>boolean;retry:()=>void;stop:()=>Promise<void>}|null>(null);
+ const actions=useRef<{current:()=>boolean;retry:()=>void;retryStart:()=>void;stop:()=>Promise<void>}|null>(null);
 
  useEffect(()=>{
   if(!active||!element.current)return;
@@ -40,7 +41,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    if(value.start>cursor)instance!.writeln('\r\n[Earlier output expired from the bounded host buffer]\r\n');
    // Stop returns the whole host buffer; only append output beyond our cursor.
    instance!.write(value.output.slice(Math.max(0,cursor-value.start)));
-   cursor=value.cursor;ended=value.exited;setPhase(ended?'ended':'running');
+   cursor=value.cursor;ended=value.exited;setShell(value.shell);setPhase(ended?'ended':'running');
   };
   const poll=async()=>{
    if(!ownerCurrent()||!confirmedId||ended||reading||stopPending)return;
@@ -65,6 +66,11 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   const ownedActions={current:ownerCurrent,retry:()=>{
    if(!ownerCurrent()||!interrupted||reading||stopPending||ended)return;
    setRetrying(true);void poll();
+  },retryStart:()=>{
+   // No acknowledged ID exists in 'unconfirmed': re-running the effect reuses
+   // the retained pending ID, so a failed shell start cannot duplicate a process.
+   if(!ownerCurrent()||confirmedId)return;
+   setGeneration(value=>value+1);
   },stop:async()=>{
    if(!ownerCurrent()||!confirmedId||ended||stopPending)return;
    stopPending=true;setStopping(true);
@@ -78,7 +84,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    finally{stopPending=false;if(ownerCurrent())setStopping(false);}
   }};
   actions.current=ownedActions;
-  setSelection(null);setAdding(false);setPhase('starting');setError('');setAcknowledged(false);setRetrying(false);setStopping(false);
+  setSelection(null);setAdding(false);setPhase('starting');setError('');setAcknowledged(false);setRetrying(false);setStopping(false);setShell(undefined);
   void(async()=>{
    const [{Terminal},{FitAddon}]=await Promise.all([import('@xterm/xterm'),import('@xterm/addon-fit'),import('@xterm/xterm/css/xterm.css')]);
    if(!ownerCurrent())return;
@@ -124,5 +130,5 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
  const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(message(cause));}finally{if(owner.current())setAdding(false);}};
  const canStop=active&&acknowledged&&phase!=='ended'&&!stopping&&!!actions.current?.current();
  const label=stopping?'Stopping':({starting:'Starting',running:'Running','read-interrupted':'Read interrupted',ended:'Ended',unconfirmed:'Start unconfirmed'} as const)[phase];
- return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
+ return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>{shell?.label??'Terminal'}</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{phase==='unconfirmed'&&<button disabled={!active||!actions.current?.current()} onClick={()=>actions.current?.retryStart()}>Retry start</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}{shell?.notice&&<p role="status">{shell.notice}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;
 }
