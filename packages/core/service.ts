@@ -38,6 +38,10 @@ import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweep
 import {isConnectionProviderId} from '../contracts/connections.ts';
 import {applySkillOperations,curateSkills,decideSkillProposal,listSkills,setSkillFlags,skillIndex,viewSkill,viewSkillProposal} from './skills.ts';
 import {LearningCoordinator,type LearningJob,type LearningOutcome,type LearningToolResult} from './learning.ts';
+import {HookRunner} from './hook-runner.ts';
+import {hookSettingsFor} from './hook-settings.ts';
+import type {Hook,HookEvent,HookRunRecord} from '../contracts/hooks.ts';
+import type {ProjectSummary} from '../contracts/workspace.ts';
 import {LEARN_REQUEST,learningReviewPrompt,searchSessions} from './learning-context.ts';
 import type {SkillActor,SkillChangeResult} from '../contracts/skills.ts';
 import type {HermesEvent} from '../runtime-hermes/client.ts';
@@ -134,6 +138,7 @@ export class Service {
   readonly agentWork: AgentWorkCoordinator;
   readonly planExtensions: PlanExtensionStore;
   readonly learning:LearningCoordinator;
+  readonly hookRunner: HookRunner;
   readonly backgroundWork:BackgroundWorkCoordinator;
   readonly intake:ExternalIntakeCoordinator;
   private aborts = new Map<string, AbortController>();
@@ -283,7 +288,8 @@ export class Service {
     this.source=options.source;
     this.research=new PersonalResearchRepository(store,{assertHostActive:()=>{if(this.closed||this.updateClosing)throw new HarnessError('HOST_CLOSING','Gen is closing. Saved work is retained.');}});
     this.predictions=new ComposerPredictions({factory:()=>{if(!options.predictionRuntimeFactory)throw new HarnessError('PREDICTION_UNAVAILABLE','Composer predictions are unavailable in this host.');return options.predictionRuntimeFactory();},current:id=>this.predictionBasis(id)});
-    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:this.thread(parent.threadId),role:"planning_child"},execute):execute();}});
+    this.hookRunner=new HookRunner(hookSettingsFor(store.dataDir),{onRecord:(hook,record,threadId)=>this.recordHookActivity(hook,record,threadId)});
+    this.planning=new PlanningCoordinator({store,assertRun:ctx=>this.assertRun(ctx),domainContext:(ctx,signal)=>this.context(ctx.threadId,signal,undefined,ctx),runtimeFactory:options.planningRuntimeFactory,canonicalJobs:options.canonicalPlanJobs,observeTool:(call,parent,execute)=>{this.effects.assertAdmissionsEnabled();const parentThread=this.thread(parent.threadId),hooked=()=>this.hookRunner.aroundTool(call.name,this.hookToolPayload(call,parent,parentThread),this.aborts.get(parent.threadId)?.signal??new AbortController().signal,execute);return this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")?this.effects.invoke({call,ctx:parent,thread:parentThread,role:"planning_child"},hooked):hooked();}});
     // M09: typed multi-agent work. No registered M08 managed-worktree profile
     // or M06 typed-verification proof exists on this host, so CODE_WORKTREE
     // and QA expose ROLE_UNAVAILABLE while PLAN_READ/RESEARCH_READ run
@@ -1493,6 +1499,8 @@ export class Service {
     this.assertNoOtherRun(thread.id);
     if (["stopped", "interrupted"].includes(thread.status)) throw new HarnessError("RESUME_REQUIRED", "Resume this thread before sending more work");
     const content = text(command.payload, "content", 64 * 1024), modelId = text(command.payload, "modelId", 300);
+    const promptBlocked = await this.hookRunner.pre('UserPromptSubmit', null, { ...this.hookBase('UserPromptSubmit', thread, thread.runId), prompt: content, attachments_count: Array.isArray(command.payload.attachments) ? command.payload.attachments.length : 0 }, this.aborts.get(thread.id)?.signal ?? new AbortController().signal);
+    if (promptBlocked.blocked) throw new HarnessError('HOOK_BLOCKED', promptBlocked.reason, { sendAccepted: false });
     const providerId=modelProvider(modelId),binding=this.binding(thread,providerId);
     if(this.reviewing){await this.cancelReview();this.assertBinding(this.thread(thread.id),providerId,binding);}
     const availableModels = await this.runtime.models({accountId:binding.accountId});
@@ -1796,6 +1804,8 @@ export class Service {
         this.backgroundWork.notifyHostEvent("runtime.settled", event.runId, `runtime.settled:${event.runId}`);
         this.backgroundWork.notifyHostEvent("runtime.settled", thread.id, `runtime.settled:${event.runId}`);
       } catch { /* A disabled background surface must not break settlement. */ }
+      const settledThread = this.thread(thread.id);
+      if (!settledThread.sideParentId && (settledThread.kind ?? 'main') === 'main') this.hookRunner.stop({ ...this.hookBase('Stop', settledThread, event.runId ?? null), final_state: settledThread.status, aborted: Boolean(event.aborted) });
     }
     if (event.type === "settled" && !event.aborted) {
       // Hermes may still be closing its background review here. Only this
@@ -1922,6 +1932,16 @@ export class Service {
       return { runId: event.runId };
     });
   }
+  private hookContext(thread: Thread) { const project = thread.projectId ? this.store.get<ProjectSummary>('workspaceProject', thread.projectId) : null, dir = project?.rootPath ?? null; return { cwd: dir ?? process.env.HOME ?? process.env.USERPROFILE ?? process.cwd(), projectDir: dir }; }
+  private hookBase(event: HookEvent, thread: Thread, runId: string | null) { const { cwd, projectDir } = this.hookContext(thread); return { hook_event_name: event, session_id: thread.id, thread_id: thread.id, run_id: runId, cwd, project_dir: projectDir, gen_version: process.env.GEN_VERSION ?? 'dev' }; }
+  private hookToolPayload(call: ToolCall, ctx: RunContext, thread: Thread) { return { ...this.hookBase('PreToolUse', thread, ctx.runId ?? thread.runId ?? null), tool_name: call.name, tool_use_id: null, tool_input: call.args }; }
+  private hookOperationInput(op: Operation) { const input: Record<string, unknown> = { kind: op.kind }; if (typeof op.args.path === 'string') input.path = op.args.path; if (typeof op.args.content === 'string') input.contentBytes = Buffer.byteLength(op.args.content, 'utf8'); return input; }
+  private recordHookActivity(hook: Hook, record: HookRunRecord, threadId: string | null) {
+    if (!threadId || (record.outcome === 'succeeded' && !record.systemMessage)) return;
+    const name = hook.name || hook.command.slice(0, 60), output = (record.stderr || record.stdout).slice(0, 4096);
+    const line = record.outcome === 'blocked' ? `Hook ${name} blocked ${record.matchKey ?? record.event}: ${record.reason}` : record.systemMessage ? `Hook ${name} (${record.event}): ${record.systemMessage}` : `Hook ${name} (${record.event}) ${record.outcome}: ${record.reason}`;
+    try { const message: Message = { id: randomUUID(), threadId, role: 'activity', content: line + (output ? '\n' + output : ''), runId: null, createdAt: now() }; this.store.internal('hook.activity', threadId, () => { this.store.put('message', message.id, threadId, message); return { id: message.id }; }); } catch { /* Activity rows are best-effort. */ }
+  }
   async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
     const owningThread=this.assertRun(ctx);
     this.effects.assertAdmissionsEnabled();
@@ -1953,7 +1973,7 @@ export class Service {
       if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
     } catch { /* Observation is optional for an otherwise authorized tool result. */ }
     let entered = false;
-    const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
+    const execute = () => { entered = true; return this.hookRunner.aroundTool(call.name, this.hookToolPayload(call, ctx, owningThread), this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, () => this.toolBody(call,ctx,owningThread,lineage)); };
     let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
       ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
     // A cached effect skips the domain guard. Its previous bytes cannot mint
@@ -2206,6 +2226,9 @@ export class Service {
       }
     } else this.store.internal("operation.started", op.threadId, markStarted);
     try {
+      const opThread = this.thread(op.threadId), hookKey = 'op:' + op.kind;
+      const hookBlocked = await this.hookRunner.pre('PreToolUse', hookKey, { ...this.hookBase('PreToolUse', opThread, opThread.runId), tool_name: hookKey, tool_use_id: op.id, tool_input: this.hookOperationInput(op) }, control.signal);
+      if (hookBlocked.blocked) throw new HarnessError('HOOK_BLOCKED', hookBlocked.reason);
       const domain = await import("../capabilities/index.ts");
       if (this.effectFlags.enabled("audit.effectsV1") || this.effectFlags.enabled("security.authorityV1")) {
         // Module loading yields after admission. Revalidate the durable owner
@@ -2225,6 +2248,7 @@ export class Service {
       if (result && typeof result === "object" && "exitCode" in result && (result.exitCode !== 0 || ("cancelled" in result && result.cancelled) || ("timedOut" in result && result.timedOut))) {
         throw new HarnessError("OPERATION_FAILED", "The check did not finish successfully", result);
       }
+      await this.hookRunner.post(hookKey, { ...this.hookBase('PostToolUse', opThread, opThread.runId), tool_name: hookKey, tool_use_id: op.id, tool_input: this.hookOperationInput(op), tool_response: { status: 'succeeded', result }, ...(writeEvidence?.path ? { file_path: writeEvidence.path } : {}) }, control.signal);
       const renewedGrant = await this.replacementGrant(op, result);
       if (!this.closed) this.store.internal("operation.succeeded", op.threadId, () => { const ended: Operation = { ...op, status: "succeeded", result }; if (renewedGrant) this.store.put("resource", renewedGrant.id, op.threadId, renewedGrant); this.store.put("operation", id, op.threadId, ended); this.operationData(ended); this.enqueueOperationResult(ended,writeEvidence); return { operationId: id }; });
       // Journal receipts append in their own transactions — Store rejects a

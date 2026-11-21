@@ -3304,6 +3304,7 @@
     "tests/history-import-v3.test.ts",
     "tests/hook-routes.test.ts",
     "tests/hook-runner.test.ts",
+    "tests/hook-service.test.ts",
     "tests/hook-settings.test.ts",
     "tests/host-capability-flags.test.ts",
     "tests/host-fixture-cleanup.test.ts",

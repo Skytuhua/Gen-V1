@@ -4,13 +4,11 @@ import type {Service} from '../../packages/core/service.ts';
 import {HarnessError} from '../../packages/contracts/index.ts';
 import {hookSchema,type Hook,type HooksView} from '../../packages/contracts/hooks.ts';
 import {hookSettingsFor} from '../../packages/core/hook-settings.ts';
-import {HookRunner} from '../../packages/core/hook-runner.ts';
 
 /** Dedicated authenticated write path: hook commands never enter Store.command or plug-in RPC. */
 export const HOOK_COVERAGE={covered:['Host tool calls (main and side conversations)','Planning child tool calls','Approved operation dispatch (op:*)'],notCovered:['Tools a model runtime executes natively (Hermes skill_tool/shared_skill_tool)','Trusted plug-in internal sub-effects','Pi built-in tools (bash, read, write, edit)']};
-const runners=new WeakMap<Service,HookRunner>();
-/** Shared per-service runner so Service integration (T06) and the Test button report the same lastRuns. */
-export function hookRunnerFor(service:Service){let runner=runners.get(service);if(!runner){runner=new HookRunner(hookSettingsFor(service.store.dataDir));runners.set(service,runner);}return runner;}
+/** The Service-owned runner, so hook activity and Test results share lastRuns. */
+export function hookRunnerFor(service:Service){return service.hookRunner;}
 const testInput=z.strictObject({id:hookSchema.shape.id.optional(),hook:hookSchema.omit({id:true}).extend({id:hookSchema.shape.id.optional()}).optional()});
 
 export function registerHookRoutes(app:FastifyInstance,service:Service){
