@@ -16,6 +16,7 @@ workspace presets and settings are application state, not separate URL routes.
 | Settings | `Settings.tsx` | `settings-leaf-selects` suite |
 | Local table controls | `TaskTable.tsx`, `TaskTableControls.tsx`, `task-table-model.ts` | `table-controls` suite |
 | Files and review surfaces | `files/FilesView.tsx`, `WorkspaceSurfaceBody.tsx`, `WorkspacePanelBodies.tsx` | `files-reading`, `workspace-host` suites |
+| Database browser (flag `data.databaseBrowserV1`) | `database/DatabasePanel.tsx`, `database/QueryResultGrid.tsx`, `database/SchemaTree.tsx`, `database/SqlEditor.tsx`, `DatabaseSettings.tsx`, `database-api.ts`; server `apps/server/database-routes.ts`, `packages/core/database-connections.ts`, `packages/capabilities/database-{gateway,sqlite,postgres,mysql}.ts` | `database-browser` suite, `tests/database-redaction.test.ts` |
 
 UI owning files above are under `apps/web/src/` unless a package path is given.
 Test paths are repository-relative. The built-in choices are Workspace and All Agents;
