@@ -52,16 +52,36 @@ export function redactSecrets(text:string):string{
   return redacted;
 }
 
-// Line-buffered so a secret split across stream chunks is still redacted whole.
+// Bound both captured input (including newline-free chunks) and persisted log bytes.
+// A saturated log is a FAIL, never successful evidence.
+const MAX_READINESS_LOG_BYTES=1_048_576;
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
-  let carry='';
+  let carry='',capturedBytes=0,writtenBytes=0,artifactOverflow=false;
+  const emit=(text:string):boolean=>{
+    const bytes=Buffer.from(text,'utf8');
+    if(bytes.length>MAX_READINESS_LOG_BYTES-writtenBytes){
+      artifactOverflow=true;
+      return false;
+    }
+    writtenBytes+=bytes.length;
+    stream.write(bytes);
+    return true;
+  };
   return {
-    write(chunk:Buffer|string){
-      carry+=String(chunk);
+    write(chunk:Buffer|string):boolean{
+      const text=String(chunk),bytes=Buffer.byteLength(text,'utf8');
+      if(bytes>MAX_READINESS_LOG_BYTES-capturedBytes)return false;
+      capturedBytes+=bytes;
+      carry+=text;
       const lines=carry.split('\n');carry=lines.pop()!;
-      for(const line of lines)stream.write(redactSecrets(line)+'\n');
+      for(const line of lines)if(!emit(redactSecrets(line)+'\n'))return false;
+      return true;
     },
-    end(){if(carry)stream.write(redactSecrets(carry));stream.end();},
+    end():boolean{
+      const withinLimit=!artifactOverflow&&(!carry||emit(redactSecrets(carry)));
+      stream.end();
+      return withinLimit;
+    },
   };
 }
 
@@ -104,33 +124,42 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
     return finish({status:'FAIL',errorKind:'spawn-error'});
   }
   return await new Promise<CheckResult>(resolvePromise=>{
-    let settled=false,timedOut=false;
+    let settled=false,timedOut=false,outputOverflow=false;
     let killTimer:ReturnType<typeof setTimeout>|undefined;
     const settle=(partial:{status:ReadinessStatus;errorKind:string|null;exitCode?:number|null;signal?:string|null})=>{
       if(settled)return;settled=true;
       clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);
-      logStream.once('finish',()=>resolvePromise(finish(partial)));
-      sink.end();
+      let finalStatus=partial;
+      logStream.once('finish',()=>resolvePromise(finish(finalStatus)));
+      if(!sink.end())finalStatus={status:'FAIL',errorKind:'output-limit'};
     };
     const timeoutTimer=setTimeout(()=>{
+      if(outputOverflow)return;
       timedOut=true;killProcessTree(child);
       // Bounded even if the child ignores the kill: never hang the baseline.
       killTimer=setTimeout(()=>settle({status:'FAIL',errorKind:'timeout'}),5_000);
     },spec.timeoutMs);
+    const failOnOverflow=()=>{
+      if(settled||outputOverflow)return;
+      outputOverflow=true;killProcessTree(child);
+      // Keep a bound even if a killed child never emits close.
+      killTimer=setTimeout(()=>settle({status:'FAIL',errorKind:'output-limit'}),5_000);
+    };
     logStream.once('error',()=>{
       if(!settled){settled=true;clearTimeout(timeoutTimer);if(killTimer!==undefined)clearTimeout(killTimer);killProcessTree(child);}
       resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
     });
     // Decode each byte stream incrementally before merging and redacting lines.
-    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
-    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled&&!timedOut&&!outputOverflow&&!sink.write(chunk))failOnOverflow();});
+    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled&&!timedOut&&!outputOverflow&&!sink.write(chunk))failOnOverflow();});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}
         :{status:'FAIL',errorKind:'spawn-error'});
     });
     child.once('close',(code,signal)=>{
-      if(timedOut)settle({status:'FAIL',errorKind:'timeout',exitCode:code,signal});
+      if(outputOverflow)settle({status:'FAIL',errorKind:'output-limit',exitCode:code,signal});
+      else if(timedOut)settle({status:'FAIL',errorKind:'timeout',exitCode:code,signal});
       else if(code===0)settle({status:'PASS',errorKind:null,exitCode:code,signal});
       else if(code!==null)settle({status:'FAIL',errorKind:'nonzero-exit',exitCode:code,signal});
       else settle({status:'FAIL',errorKind:'signal',exitCode:null,signal});
