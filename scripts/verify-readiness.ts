@@ -59,8 +59,23 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
   const taintedCarry:Record<Source,boolean>={stdout:false,stderr:false};
   const privateKeyEnd:Record<Source,string|null>={stdout:null,stderr:null};
   const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
+  // Recognized SGR color codes are presentation only. An unrecognized terminal
+  // control can conceal a credential start marker; suppress all subsequent
+  // child output rather than risk emitting its following unclassified lines.
+  let unsafeControlOutput=false;
+  const normalizeTerminalLine=(line:string):string=>{
+    if(unsafeControlOutput)return '';
+    const uncolored=line.replace(/\x1b\[(?:[0-9]{1,3}(?:;[0-9]{1,3})*)?m/g,'');
+    if(/[\x00-\x08\x0b-\x1f\x7f-\x9f]/.test(uncolored)){
+      unsafeControlOutput=true;
+      return '[REDACTED UNSAFE CONTROL OUTPUT]';
+    }
+    return uncolored;
+  };
   const scrubLine=(source:Source,line:string):string=>{
-    let remaining=line,visible='';
+    const normalized=normalizeTerminalLine(line);
+    if(unsafeControlOutput)return normalized;
+    let remaining=normalized,visible='';
     while(remaining){
       if(privateKeyEnd[source]!==null){
         const endAt=remaining.indexOf(privateKeyEnd[source]);
@@ -87,7 +102,7 @@ function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
         // Suppress other-pipe content while a key is open, even across partial lines.
         const suppress=suppressOther||(i===0&&carryWasTainted);
         const safe=scrubLine(source,lines[i]!);
-        if(!suppress&&(safe||privateKeyEnd[source]===null))stream.write(safe+'\n');
+        if(!suppress&&(safe||(!unsafeControlOutput&&privateKeyEnd[source]===null)))stream.write(safe+'\n');
       }
       taintedCarry[source]=suppressOther||(lines.length===0&&carryWasTainted);
     },
