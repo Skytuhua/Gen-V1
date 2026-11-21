@@ -1367,3 +1367,136 @@ test('keyboard, narrow layout and reduced motion remain usable', async ({ page }
   const duration = await page.locator('.sidebar').evaluate(element => getComputedStyle(element).transitionDuration);
   expect(parseFloat(duration)).toBeLessThan(.01);
 });
+
+// Message bookmarks (#1473): durable per-thread local records, exact anchored navigation.
+const bookmarkKey = (threadId: string) => `message-bookmarks:v1:${JSON.stringify(threadId)}`;
+async function seedBookmarks(page: Page, threadId: string, items: { messageId: string; role: 'user' | 'assistant'; savedAt: number }[]) {
+  await page.evaluate(({ key, value }: { key: string; value: unknown }) => new Promise<void>((resolve, reject) => {
+    const request = indexedDB.open('generative-harness-journal', 1);
+    request.onupgradeneeded = () => request.result.createObjectStore('entries');
+    request.onsuccess = () => {
+      const transaction = request.result.transaction('entries', 'readwrite');
+      transaction.objectStore('entries').put({ value, updatedAt: Date.now(), generation: `seed-${Date.now()}` }, key);
+      transaction.oncomplete = () => resolve(); transaction.onerror = () => reject(transaction.error);
+    };
+    request.onerror = () => reject(request.error);
+  }), { key: bookmarkKey(threadId), value: { version: 1, items } });
+}
+
+test('bookmarks are per-thread, persist across reload and never fetch history on open', async ({ page }, info) => {
+  const initial = populated();
+  initial.messages.push(
+    { id: 'user-one', threadId: 'one', role: 'user', content: 'Identical wording.', createdAt: timestamp, runId: null },
+    { id: 'activity-one', threadId: 'one', role: 'activity', content: 'resource_read: done', createdAt: timestamp, runId: 'live-run' },
+  );
+  await host(page, initial);
+  const historyReads: string[] = [];
+  page.on('request', request => { if (/\/api\/threads\/[^/]+\/messages/.test(request.url())) historyReads.push(request.url()); });
+  await page.goto('/');
+  const row = page.locator('[data-message-id="user-one"]');
+  await expect(row).toBeVisible();
+  await expect(page.locator('[data-message-id="activity-one"] .bookmark-toggle')).toHaveCount(0);
+  const toggle = row.getByRole('button', { name: 'Bookmark message', exact: true });
+  await toggle.focus();
+  await page.keyboard.press('Enter');
+  await expect(row.getByRole('button', { name: 'Remove bookmark', exact: true })).toHaveAttribute('aria-pressed', 'true');
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Bookmarks' });
+  await expect(panel).toBeVisible();
+  await expect(panel.locator('.bookmarks-row')).toHaveCount(1);
+  await expect(panel.locator('.bookmarks-row')).toContainText('You');
+  await page.screenshot({ path: info.outputPath('bookmarks-panel-light.png') });
+  await page.emulateMedia({ colorScheme: 'dark' });
+  await page.screenshot({ path: info.outputPath('bookmarks-panel-dark.png') });
+  await page.emulateMedia({ colorScheme: 'light' });
+  expect(historyReads).toHaveLength(0);
+  // A different thread owns a different record.
+  await page.getByRole('button', { name: 'Second task Ready' }).click();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Bookmarks' })).toContainText('No bookmarks yet.');
+  await page.keyboard.press('Escape');
+  await page.getByRole('button', { name: 'First task Ready' }).click();
+  // Same profile + origin reload keeps the record.
+  await page.reload();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  await expect(page.getByRole('dialog', { name: 'Bookmarks' }).locator('.bookmarks-row')).toHaveCount(1);
+  await page.getByRole('dialog', { name: 'Bookmarks' }).getByRole('button', { name: /Remove bookmark on/ }).click();
+  await expect(page.getByRole('dialog', { name: 'Bookmarks' })).toContainText('No bookmarks yet.');
+  await page.keyboard.press('Escape');
+  await expect(page.locator('[data-message-id="user-one"]').getByRole('button', { name: 'Bookmark message', exact: true })).toHaveAttribute('aria-pressed', 'false');
+});
+
+test('a bookmark jump lands on the exact older row and returns to latest', async ({ page }, info) => {
+  const older = Array.from({ length: 40 }, (_, index) => ({
+    id: `older-${index}`, threadId: 'one', role: index % 2 ? 'assistant' : 'user',
+    content: `Identical wording. ${index}`, createdAt: timestamp, runId: null,
+  }));
+  const initial = populated();
+  initial.messages.push({ id: 'tail-1', threadId: 'one', role: 'assistant', content: 'Identical wording. tail', createdAt: timestamp, runId: null });
+  await host(page, initial);
+  await page.route('**/api/threads/one/messages**', route => {
+    const url = new URL(route.request().url());
+    const anchor = url.searchParams.get('anchorId'), before = url.searchParams.get('beforeId');
+    if (anchor !== null) {
+      const index = older.findIndex(message => message.id === anchor);
+      const slice = index < 0 ? [] : older.slice(Math.max(0, index - 29), index + 1);
+      return route.fulfill({ json: { messages: slice, truncated: index < 0 ? 0 : index - slice.length + 1 } });
+    }
+    if (before !== null) {
+      const index = older.findIndex(message => message.id === before);
+      const slice = index < 0 ? [] : older.slice(Math.max(0, index - 9), index);
+      return route.fulfill({ json: { messages: slice, truncated: Math.max(0, index - slice.length) } });
+    }
+    return route.fulfill({ json: { messages: [], truncated: 0 } });
+  });
+  await page.goto('/');
+  await seedBookmarks(page, 'one', [
+    { messageId: 'older-34', role: 'user', savedAt: 1 },
+    { messageId: 'tail-1', role: 'assistant', savedAt: 2 },
+  ]);
+  await page.reload();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Bookmarks' });
+  await expect(panel.locator('.bookmarks-row')).toHaveCount(2);
+  await expect(panel.locator('.bookmarks-row').first()).toContainText('Assistant');
+  // Mounted target: direct scroll + focus, no fetch.
+  await panel.locator('.bookmarks-row').first().locator('.bookmarks-jump').click();
+  await expect(page.locator('[data-message-id="tail-1"]')).toBeFocused();
+  // Server-only target: bounded inclusive page ending at the exact row.
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  await page.getByRole('dialog', { name: 'Bookmarks' }).locator('.bookmarks-row', { hasText: 'You' }).locator('.bookmarks-jump').click();
+  const target = page.locator('[data-message-id="older-34"]');
+  await expect(target).toBeFocused();
+  await expect(target).toContainText('Identical wording. 34');
+  await expect(page.getByText('Viewing older messages')).toBeVisible();
+  await expect(page.locator('[data-message-id="tail-1"]')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('bookmark-jump-landed.png') });
+  // Earlier paging continues before the anchored window.
+  await page.getByRole('button', { name: /Load earlier/ }).click();
+  await expect(page.locator('[data-message-id="older-4"]')).toBeVisible();
+  await page.getByRole('button', { name: 'Return to latest' }).click();
+  await expect(page.locator('[data-message-id="tail-1"]')).toBeVisible();
+  await expect(page.locator('[data-message-id="older-34"]')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath('bookmark-return-latest.png') });
+});
+
+test('a missing bookmark reports unavailable without landing on another row', async ({ page }, info) => {
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'dark' });
+  await page.setViewportSize({ width: 420, height: 800 });
+  const initial = populated();
+  await host(page, initial);
+  await page.route('**/api/threads/one/messages**', route => route.fulfill({ json: { messages: [], truncated: 0 } }));
+  await page.goto('/');
+  await seedBookmarks(page, 'one', [{ messageId: 'ghost-1', role: 'user', savedAt: 1 }]);
+  await page.reload();
+  await page.getByRole('button', { name: 'Bookmarks', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Bookmarks' });
+  await panel.locator('.bookmarks-jump').focus();
+  await page.keyboard.press('Enter');
+  await expect(panel.getByText('Message no longer available')).toBeVisible();
+  await expect(panel.locator('.bookmarks-jump')).toBeDisabled();
+  await page.screenshot({ path: info.outputPath('bookmark-unavailable-dark-narrow.png') });
+  expect(await page.evaluate(() => (document.activeElement as HTMLElement | null)?.dataset?.messageId ?? null)).toBeNull();
+  await panel.getByRole('button', { name: /Remove bookmark on/ }).click();
+  await expect(panel).toContainText('No bookmarks yet.');
+});

@@ -138,8 +138,8 @@ export const getModels = (refresh = false, threadId?: string, signal?: AbortSign
 };
 export interface ResourceTree { path: string; entries: { name: string; path: string; kind: 'file' | 'directory'; bytes: number }[]; truncated: boolean }
 export const getResourceTree = (id: string, path = '', signal?: AbortSignal) => authenticated(() => fetch(`/api/resources/${encodeURIComponent(id)}/tree${path ? '?path=' + encodeURIComponent(path) : ''}`, { credentials: 'same-origin', cache: 'no-store', signal })).then(readSchema(resourceTreeSchema));
-export const getThreadMessages = (id: string, beforeId?: string, limit = 300) => {
-  const query = new URLSearchParams({ ...(beforeId ? { beforeId } : {}), limit: String(limit) }).toString();
+export const getThreadMessages = (id: string, beforeId?: string, limit = 300, anchorId?: string) => {
+  const query = new URLSearchParams({ ...(beforeId && !anchorId ? { beforeId } : {}), ...(anchorId ? { anchorId } : {}), limit: String(limit) }).toString();
   return authenticated(() => fetch(`/api/threads/${encodeURIComponent(id)}/messages?${query}`, { credentials: 'same-origin', cache: 'no-store' })).then(readSchema(threadMessagesSchema)) as Promise<{ messages: Message[]; truncated: number }>;
 };
 // Deep message search over threads the snapshot windowed; in-window threads are

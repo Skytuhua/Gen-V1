@@ -22,9 +22,11 @@ export interface ConversationReadState {
   readonly nextCursor: string | null;
   readonly historyPending: boolean;
   readonly historyLimited: boolean;
+  /** Message ID anchoring the current detached seek window, when one is active. */
+  readonly anchorId: string | null;
 }
 const PAGE_SIZE = 30, MAX_MESSAGES = 180, MAX_CONTENT = 65_536;
-export const closedConversation: ConversationReadState = {selectionKey: null, phase: 'closed', context: null, pending: false, error: null, messages: [], nextCursor: null, historyPending: false, historyLimited: false};
+export const closedConversation: ConversationReadState = {selectionKey: null, phase: 'closed', context: null, pending: false, error: null, messages: [], nextCursor: null, historyPending: false, historyLimited: false, anchorId: null};
 export function conversationSelectionKey(selection: ConversationSelection | null): string | null {
   return selection ? JSON.stringify([selection.navigationKey, selection.target.authority, selection.target.threadId, selection.target.includeArchived ?? false]) : null;
 }
@@ -131,9 +133,12 @@ export function createConversationReader(options: {onState?: (state: Conversatio
         // owner:null still carries a new sequenced checkpoint.
         const next = update.owner ?? {...context, sequence: update.sequence, checkpoint: update.checkpoint};
         if (update.transcriptChanged) {
-          const previous = state.messages;
+          const previous = state.messages, anchor = state.anchorId;
           cancelReads();
-          publish({context: next, messages: [], nextCursor: null, pending: true, historyPending: false});
+          publish({context: next, messages: [], nextCursor: null, anchorId: null, pending: true, historyPending: false});
+          // An anchored seek window revalidates its anchor on every refresh and
+          // only falls back to the latest transcript once the anchor is gone.
+          if (anchor && await reseek(next, anchor)) return;
           await history(version, true, previous);
           if (current(version) && state.context) publish({pending: false});
         } else publish({context: next});
@@ -141,6 +146,23 @@ export function createConversationReader(options: {onState?: (state: Conversatio
       finally {if (version === generation) {polling = null; schedule(version);}}
     };
     polling = work(); return polling;
+  }
+  async function fetchAnchor(context: ConversationContext, anchorId: string, signal: AbortSignal) {
+    const page = await getConversationHistory(context, {limit: PAGE_SIZE, anchorId}, signal);
+    checkSequence(page.sequence, context);
+    if (page.messages.length && page.messages[page.messages.length - 1].id !== anchorId) throw invalid();
+    return page;
+  }
+  /** Refreshes an anchored window after a transcript change; false means the anchor expired. */
+  async function reseek(context: ConversationContext, anchorId: string) {
+    const fence = readFence();
+    try {
+      const page = await fetchAnchor(context, anchorId, fence.signal);
+      if (!fence.valid()) return true;
+      if (!page.messages.length) return false;
+      publish({messages: page.messages.map(wrap), nextCursor: page.nextCursor, anchorId, pending: false, historyLimited: false});
+      return true;
+    } finally {fence.done();}
   }
   return {
     getSnapshot: () => state,
@@ -158,6 +180,30 @@ export function createConversationReader(options: {onState?: (state: Conversatio
     async loadOlder() {
       if (!state.context || state.pending || state.historyPending || !state.nextCursor || state.historyLimited) return;
       await history(generation, false);
+    },
+    /** Replaces the transcript with an inclusive window ending at the anchor; false when the anchor is gone or ineligible. */
+    async seekAnchor(anchorId: string) {
+      const context = state.context;
+      if (!context || state.pending || state.historyPending) return false;
+      const fence = readFence();
+      publish({historyPending: true});
+      try {
+        const page = await fetchAnchor(context, anchorId, fence.signal);
+        if (!fence.valid()) return false;
+        if (!page.messages.length) {publish({historyPending: false}); return false;}
+        publish({messages: page.messages.map(wrap), nextCursor: page.nextCursor, anchorId, historyPending: false, historyLimited: false});
+        return true;
+      } catch (error) {if (fence.valid()) await fail(error); return false;}
+      finally {fence.done();}
+    },
+    /** Drops an anchored seek window and reloads the latest transcript. */
+    async returnToLatest() {
+      if (!state.anchorId || !state.context || state.pending) return;
+      const previous = state.messages;
+      cancelReads();
+      publish({messages: [], nextCursor: null, anchorId: null, pending: true});
+      await history(generation, true, previous);
+      if (current(generation) && state.context) publish({pending: false});
     },
     async loadContent(id: string) {
       const context = state.context, message = state.messages.find(item => item.head.id === id);

@@ -109,3 +109,16 @@ it.each([
   const api = await import('../apps/web/src/conversation-read-api.ts');
   await expect(api.getConversationHistory(context)).rejects.toMatchObject({code: 'HTTP_ERROR', message: 'Request failed (502)'});
 });
+
+it('passes a transcript anchor as an exclusive query parameter and rejects mixing it with a cursor', async () => {
+  const calls: string[] = [];
+  vi.stubGlobal('fetch', vi.fn(async (url: string) => {
+    calls.push(url);
+    return Response.json(url === '/api/bootstrap' ? {csrfToken: 'token'} : {...envelope, messages: [message], nextCursor: null});
+  }));
+  const api = await import('../apps/web/src/conversation-read-api.ts');
+  await api.getConversationHistory(context, {limit: 30, anchorId: 'm-150'});
+  const params = new URL(calls.find(url => url.includes('/transcript'))!, 'http://local').searchParams;
+  expect(params.get('anchorId')).toBe('m-150'); expect(params.get('cursor')).toBeNull();
+  await expect(api.getConversationHistory(context, {anchorId: 'm-1', cursor: 'c'})).rejects.toMatchObject({code: 'INVALID_INPUT'});
+});

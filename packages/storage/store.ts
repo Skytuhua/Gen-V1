@@ -39,6 +39,7 @@ export class Store {
     messageCursor: ReturnType<DatabaseSync['prepare']>;
     messageTail: ReturnType<DatabaseSync['prepare']>;
     messageBefore: ReturnType<DatabaseSync['prepare']>;
+    messageAt: ReturnType<DatabaseSync['prepare']>;
     messageCount: ReturnType<DatabaseSync['prepare']>;
     messageCountBefore: ReturnType<DatabaseSync['prepare']>;
     snapshotMessages: ReturnType<DatabaseSync['prepare']>;
@@ -70,9 +71,10 @@ export class Store {
       // order for windowing, cursor paging, and tail slices.
       allKind: this.db.prepare("SELECT body FROM entities WHERE kind=? ORDER BY rowid"),
       allKindThread: this.db.prepare("SELECT body FROM entities WHERE kind=? AND thread_id=? ORDER BY rowid"),
-      messageCursor: this.db.prepare("SELECT rowid FROM entities WHERE kind='message' AND id=? AND thread_id=?"),
+      messageCursor: this.db.prepare("SELECT rowid, json_extract(body,'$.role') AS role FROM entities WHERE kind='message' AND id=? AND thread_id=?"),
       messageTail: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? ORDER BY rowid DESC LIMIT ?"),
       messageBefore: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<? ORDER BY rowid DESC LIMIT ?"),
+      messageAt: this.db.prepare("SELECT body FROM entities WHERE kind='message' AND thread_id=? AND rowid<=? ORDER BY rowid DESC LIMIT ?"),
       messageCount: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=?"),
       messageCountBefore: this.db.prepare("SELECT count(*) AS count FROM entities WHERE kind='message' AND thread_id=? AND rowid<?"),
       snapshotMessages: this.db.prepare(`
@@ -248,9 +250,17 @@ export class Store {
       activeThreadId: threads.find(t => !t.sideParentId && t.runId !== null && (t.status === "working" || t.status === "awaiting_input"))?.id ?? null
     };
   }
-  messagesFor(threadId: string, beforeId?: string, limit = 200): { messages: Message[]; truncated: number } {
+  messagesFor(threadId: string, beforeId?: string, limit = 200, anchorId?: string): { messages: Message[]; truncated: number } {
     const cap = Math.min(500, Math.max(1, Math.ceil(limit)));
     let rows: { body: string }[], count: { count: number };
+    if (anchorId !== undefined) {
+      // Inclusive seek: a bounded page ending at the anchor, capped at 30 rows.
+      const anchor = this.statements.messageCursor.get(anchorId, threadId) as { rowid: number; role: unknown } | undefined;
+      if (!anchor || (anchor.role !== 'user' && anchor.role !== 'assistant')) return { messages: [], truncated: 0 };
+      rows = this.statements.messageAt.all(threadId, anchor.rowid, Math.min(30, cap)) as { body: string }[];
+      const earlier = this.statements.messageCountBefore.get(threadId, anchor.rowid) as { count: number };
+      return { messages: rows.reverse().map(row => JSON.parse(row.body) as Message), truncated: Math.max(0, earlier.count - rows.length + 1) };
+    }
     if (beforeId === undefined) {
       rows = this.statements.messageTail.all(threadId, cap) as { body: string }[];
       count = this.statements.messageCount.get(threadId) as { count: number };

@@ -210,4 +210,24 @@ describe('bounded transcript paging', () => {
       expect(store.messagesFor('missing')).toEqual({ messages: [], truncated: 0 });
     } finally { decode.mockRestore(); }
   });
+
+  it('returns an inclusive bounded page ending at an eligible anchor and nothing for an ineligible one', () => {
+    const store = setup();
+    store.internal('fixture.anchor', null, () => {
+      for (let i = 1; i <= 40; i++)
+        store.put('message', 'm-' + i, 'a', { id: 'm-' + i, threadId: 'a', role: i % 2 ? 'user' : 'assistant', content: 'sample ' + i });
+      store.put('message', 'act-1', 'a', { id: 'act-1', threadId: 'a', role: 'activity', content: 'status' });
+      store.put('message', 'other-1', 'b', { id: 'other-1', threadId: 'b', role: 'user', content: 'foreign' });
+    });
+    const seek = store.messagesFor('a', undefined, 50, 'm-20');
+    expect(seek.messages.map(m => m.id)).toEqual(Array.from({length: 20}, (_, i) => 'm-' + (i + 1)));
+    expect(seek.truncated).toBe(0);
+    const capped = store.messagesFor('a', undefined, 50, 'm-38');
+    expect(capped.messages.map(m => m.id)).toEqual(Array.from({length: 30}, (_, i) => 'm-' + (i + 9)));
+    expect(capped.truncated).toBe(8);
+    expect(store.messagesFor('a', undefined, 200, 'act-1')).toEqual({ messages: [], truncated: 0 });
+    expect(store.messagesFor('a', undefined, 200, 'other-1')).toEqual({ messages: [], truncated: 0 });
+    expect(store.messagesFor('a', undefined, 200, 'missing')).toEqual({ messages: [], truncated: 0 });
+    expect(store.messagesFor('a', undefined, 200, 'm-40').messages.at(-1)?.id).toBe('m-40');
+  });
 });
