@@ -61,3 +61,23 @@ describe('explicit in-app browser opening',()=>{
   expect(owner.dockedBrowser).toBeUndefined();expect(created.owner).toBeUndefined();expect(disposed).toEqual([created]);
  });
 });
+
+describe('dock preview width preset commands',()=>{
+ it('admits fit and numeric presets on the bounds command only',()=>{
+  for(const preset of ['fit',390,768] as const)expect(parseBrowserCommand({type:'bounds',bounds:{x:0,y:96,width:400,height:300},widthPreset:preset})).toEqual({type:'bounds',bounds:{x:0,y:96,width:400,height:300},widthPreset:preset});
+ });
+ it('rejects unknown, arbitrary or extra-field preview presets',()=>{
+  for(const value of [
+   {type:'bounds',bounds:{x:0,y:0,width:1,height:1},widthPreset:391},
+   {type:'bounds',bounds:{x:0,y:0,width:1,height:1},widthPreset:'390'},
+   {type:'bounds',bounds:{x:0,y:0,width:1,height:1},widthPreset:'full'},
+   {type:'bounds',bounds:{x:0,y:0,width:1,height:1},widthPreset:NaN},
+   {type:'bounds',bounds:{x:0,y:0,width:1,height:1},widthPreset:'fit',extra:true},
+   {type:'open',widthPreset:390},
+   {type:'navigate',url:'https://example.org',widthPreset:'fit'},
+  ])expect(()=>parseBrowserCommand(value)).toThrow();
+ });
+ it('keeps legacy two-field bounds commands valid',()=>{
+  expect(parseBrowserCommand({type:'bounds',bounds:{x:0,y:96,width:400,height:300}})).toEqual({type:'bounds',bounds:{x:0,y:96,width:400,height:300}});
+ });
+});

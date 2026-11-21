@@ -34,3 +34,29 @@
 .desktop-surface-body {animation:desktop-content-in var(--ui-motion-panel-enter) var(--ui-ease-enter) both;}
 @keyframes desktop-content-in {from{opacity:.45;transform:translateY(7px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.desktop-surface-body {animation:none;}}
+.desktop-browser-dock {container-type:inline-size;}
+.desktop-browser-slot {display:flex;flex-direction:column;flex:1;min-height:0;}
+.desktop-browser-dock .desktop-browser-native {background:var(--canvas);}
+.browser-width {display:flex;align-items:center;gap:8px;min-width:0;flex-shrink:0;}
+.browser-width .segmented {flex:none;}
+.browser-width .segmented button {padding:3px 8px;font-size:11px;transition:color var(--ui-motion-hover) var(--ui-ease-enter),background-color var(--ui-motion-hover) var(--ui-ease-enter);}
+.browser-width .segmented button:disabled {opacity:.55;cursor:not-allowed;text-decoration:line-through;}
+.browser-width-readout {font-size:11px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap;}
+.browser-width-readout.stale {opacity:.7;}
+.browser-width-reason {display:none;font-size:10px;color:var(--muted);flex-basis:100%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 2px 2px;}
+.browser-preview-note {display:none;margin:0;padding:4px 8px;font-size:11px;color:var(--muted);background:var(--canvas);text-align:center;}
+.browser-width-notice {position:absolute;left:8px;bottom:8px;font-size:10px;color:var(--muted);pointer-events:none;transition:opacity var(--ui-motion-hover) var(--ui-ease-enter);}
+.browser-preview-edges {position:fixed;pointer-events:none;border:0 solid var(--border);border-width:0 1px;box-sizing:border-box;}
+@media(pointer:coarse){
+ .browser-width-reason {display:none!important;}
+ .browser-preview-note {display:block;}
+ .browser-width .segmented button {min-width:44px;}
+}
+@container (max-width:430px){
+ .desktop-browser-dock .desktop-browser-toolbar>header {flex-wrap:wrap;align-content:center;padding:4px 8px;row-gap:1px;}
+ .desktop-browser-dock .desktop-browser-toolbar>header strong {position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);}
+ .desktop-browser-dock .desktop-browser-toolbar .browser-width {flex:1 1 auto;min-width:0;}
+ .desktop-browser-dock .browser-width-reason {display:block;}
+}
+@media(prefers-reduced-motion:reduce){.browser-width-notice,.browser-width .segmented button {transition:none;}}
+html[data-motion="reduced"] .browser-width-notice,html[data-motion="off"] .browser-width-notice,html[data-motion="reduced"] .browser-width .segmented button,html[data-motion="off"] .browser-width .segmented button {transition:none;}
