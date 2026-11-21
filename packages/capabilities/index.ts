@@ -8,6 +8,10 @@ import { databaseJob, validateStatements } from "./database.ts";
 import { inspectPdf, renderPdf } from "./pdf.ts";
 import { gitExecutable, runProcess } from "./process.ts";
 import { readBoundFile, removeOwnedFile, replaceOwnedFile, withPathGuard } from "../core/file-access.ts";
+import { statSync } from "node:fs";
+import { capabilityEnabled } from "../core/capability-flags.ts";
+import { DatabaseGateway } from "./database-gateway.ts";
+import type { DatabaseAttachmentV1, DatabaseConnectionV1, DatabaseQueryResultV1 } from "../contracts/database.ts";
 import { withGitMetadata, type ManagedGitFamily } from "./git-access.ts";
 import { validateCanonicalPng } from './signature-png.ts';
 import { parseRepositoryTestOperation, requireRepositoryTestBinding, withRepositoryTestBinding } from './repository-test-binding.ts';
@@ -18,6 +22,7 @@ export interface DomainContext {
   withResource?<T>(id: string, relativePath: string | undefined, write: boolean, action: (path: string) => Promise<T>): Promise<T>;
   managedGitFamily?(cwd: string): ManagedGitFamily | undefined | Promise<ManagedGitFamily | undefined>;
   publishData(value: unknown, provenance: string): DataRecord;
+  databaseAttachment?(attachmentId: string): Promise<{ attachment: DatabaseAttachmentV1; connection: DatabaseConnectionV1; gateway: DatabaseGateway }>;
   prepareOperation(kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string): Operation;
   progress(message: string, counts?: Record<string, number>): void;
   assertRepositoryTestTrust?(operation: Operation, binding: import('./repository-test-binding.ts').RepositoryTestBinding): void;
@@ -60,6 +65,20 @@ async function signatureImages(ctx: DomainContext, args: PdfArgs, expected?: Rec
 }
 function utf8(bytes: Uint8Array): string { try { return new TextDecoder("utf-8", { fatal: true }).decode(bytes); } catch { throw new HarnessError("UNSUPPORTED_ENCODING", "Select a UTF-8 text file"); } }
 function provenance(resourceId: string, path: string | undefined, hash: string) { return `resource:${resourceId}${path ? `/${path}` : ""}; sha256:${hash}`; }
+const sqliteGateway = () => new DatabaseGateway(async () => { throw new HarnessError('DATABASE_AUTH_FAILED', 'Saved credentials are unavailable for this target'); });
+function syntheticConnection(path: string): DatabaseConnectionV1 {
+  const s = statSync(path, { bigint: true });
+  return { id: `adhoc:${path}`, version: 1, label: basename(path), engine: 'sqlite', sqlite: { path, identity: { dev: s.dev.toString(), ino: s.ino.toString() } }, createdAt: '', updatedAt: '' };
+}
+async function requireAttachment(ctx: DomainContext, attachmentId: string) {
+  if (!capabilityEnabled('data.databaseBrowserV1')) throw new HarnessError('CAPABILITY_DENIED', 'Database browsing is not enabled on this host.');
+  if (!ctx.databaseAttachment) throw new HarnessError('CAPABILITY_DENIED', 'Database attachments are unavailable in this context.');
+  return ctx.databaseAttachment(attachmentId);
+}
+function boundQueryResult(r: DatabaseQueryResultV1): DatabaseQueryResultV1 {
+  const rows = r.rows.slice(0, 200).map((row: DatabaseQueryResultV1['rows'][number]) => row.map((cell: DatabaseQueryResultV1['rows'][number][number]) => typeof cell === 'string' && cell.length > 1024 ? cell.slice(0, 1024) : cell));
+  return { ...r, rows, rowCount: rows.length, truncated: r.truncated || rows.length < r.rows.length };
+}
 function publish(ctx: DomainContext, value: unknown, source: string) {
   // SQLite values may include bytes or bigint; publish JSON-compatible data for every category.
   return ctx.publishData(JSON.parse(JSON.stringify(value, (_, v) => typeof v === "bigint" ? v.toString() : v instanceof Uint8Array ? { base64: Buffer.from(v).toString("base64") } : v)), source);
@@ -133,10 +152,35 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       const result = await access(ctx, a.resourceId, a.path, false, path => databaseJob({ mode: "inspect", path, table: a.table, limit: a.limit }, ctx));
       return publish(ctx, result, provenance(a.resourceId, a.path, result.resourceVersion));
     }
+    case "database_schema": {
+      const a = parse("database_schema", rawArgs);
+      if (a.attachmentId !== undefined) {
+        const t = await requireAttachment(ctx, a.attachmentId);
+        return publish(ctx, await t.gateway.schema(t.connection, ctx.signal), `attachment:${a.attachmentId}; schema`);
+      }
+      const result = await access(ctx, a.resourceId!, a.path, false, path => sqliteGateway().schema(syntheticConnection(path), ctx.signal));
+      return publish(ctx, result, provenance(a.resourceId!, a.path, result.digest));
+    }
+    case "database_query": {
+      const a = parse("database_query", rawArgs);
+      if (a.attachmentId !== undefined) {
+        const t = await requireAttachment(ctx, a.attachmentId);
+        const r = await t.gateway.query(t.connection, { sql: a.sql, signal: ctx.signal, limit: a.limit, timeoutMs: a.timeoutMs });
+        return publish(ctx, boundQueryResult(r), `attachment:${a.attachmentId}; sql:${r.sqlSha256}`);
+      }
+      const r = await access(ctx, a.resourceId!, a.path, false, path => sqliteGateway().query(syntheticConnection(path), { sql: a.sql, signal: ctx.signal, limit: a.limit, timeoutMs: a.timeoutMs }));
+      return publish(ctx, boundQueryResult(r), provenance(a.resourceId!, a.path, r.sqlSha256));
+    }
     case "database_prepare": {
       const a = parse("database_prepare", rawArgs); validateStatements(a);
-      const result = await access(ctx, a.resourceId, a.path, false, path => databaseJob({ mode: "prepare", path, statements: a.statements }, ctx));
-      return ctx.prepareOperation(`database.${a.mode}`, a, [a.resourceId], { resourceVersion: result.resourceVersion }, `Apply ${a.statements.length} SQLite statements with exact counts, rollback and resource version ${result.resourceVersion}`);
+      if (a.attachmentId !== undefined) {
+        const t = await requireAttachment(ctx, a.attachmentId);
+        if (!t.attachment.writable) throw new HarnessError('CAPABILITY_DENIED', 'The database attachment is read-only.');
+        const schema = await t.gateway.schema(t.connection, ctx.signal);
+        return ctx.prepareOperation(`database.${a.mode}`, a, [], { schemaDigest: schema.digest }, `Apply ${a.statements.length} statements to ${t.connection.label}; rollback on mismatch`);
+      }
+      const result = await access(ctx, a.resourceId!, a.path, false, path => databaseJob({ mode: "prepare", path, statements: a.statements }, ctx));
+      return ctx.prepareOperation(`database.${a.mode}`, a, [a.resourceId!], { resourceVersion: result.resourceVersion }, `Apply ${a.statements.length} SQLite statements with exact counts, rollback and resource version ${result.resourceVersion}`);
     }
     case "pdf_inspect": {
       const a = parse("pdf_inspect", rawArgs), source = await readResource(ctx, a.resourceId, a.path, 32 * 1024 * 1024);
@@ -196,11 +240,12 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
     }
     case "database.transaction":
     case "database.migration": {
-      const a = parse("database_prepare", operation.args); operationResources(operation, [a.resourceId]); validateStatements(a);
+      const a = parse("database_prepare", operation.args); operationResources(operation, [a.attachmentId ?? a.resourceId ?? ""]); validateStatements(a);
+      if (a.attachmentId !== undefined) throw new HarnessError("CAPABILITY_DENIED", "Attachment write execution is not available yet");
       if (operation.kind !== `database.${a.mode}` || !/^[a-f0-9]{64}$/.test(operation.preconditions.resourceVersion ?? "")) throw new HarnessError("INVALID_OPERATION", "Invalid database operation or version");
-      const result = await access(ctx, a.resourceId, a.path, true, path => databaseJob({ mode: "execute", path, statements: a.statements, expectedVersion: operation.preconditions.resourceVersion }, ctx));
+      const result = await access(ctx, a.resourceId!, a.path, true, path => databaseJob({ mode: "execute", path, statements: a.statements, expectedVersion: operation.preconditions.resourceVersion }, ctx));
       ctx.progress("Database transaction committed", { completed: a.statements.length, total: a.statements.length, changes: result.changes ?? 0 });
-      publish(ctx, result, `operation:${operation.id}; ${provenance(a.resourceId, a.path, result.resourceVersion)}`); return result;
+      publish(ctx, result, `operation:${operation.id}; ${provenance(a.resourceId!, a.path, result.resourceVersion)}`); return result;
     }
     case "pdf.export": {
       const a = parse("pdf_prepare", operation.args); operationResources(operation, pdfResources(a));
@@ -243,8 +288,9 @@ export async function reconcileDomainOperation(operation: Operation, ctx: Domain
     }
     case "database.transaction":
     case "database.migration": {
-      const a = parse("database_prepare", operation.args); operationResources(operation, [a.resourceId]);
-      const current = await access(ctx, a.resourceId, a.path, false, path => databaseJob({ mode: "inspect", path }, ctx));
+      const a = parse("database_prepare", operation.args); operationResources(operation, [a.attachmentId ?? a.resourceId ?? ""]);
+      if (a.attachmentId !== undefined) return unknown("Attachment write execution is not available yet; outcome remains unknown.");
+      const current = await access(ctx, a.resourceId!, a.path, false, path => databaseJob({ mode: "inspect", path }, ctx));
       const recorded = operation.result as { resourceVersion?: unknown; changes?: unknown } | undefined;
       if (typeof recorded?.resourceVersion === "string" && recorded.resourceVersion === current.resourceVersion) return { status: "succeeded", basis: "recorded-result", result: { ...recorded, integrity: current.integrity }, message: "Database integrity is valid and bytes match the recorded committed result version." };
       return unknown(current.resourceVersion === operation.preconditions.resourceVersion ? "Database still matches its before version; execution history remains unknown." : "Database version changed but no matching committed after version was recorded. Outcome remains unknown; inspect before taking a new action.", { resourceVersion: current.resourceVersion, integrity: current.integrity });

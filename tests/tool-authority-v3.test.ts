@@ -13,8 +13,12 @@ it('registers every classified host tool exactly once and rejects bad entries', 
   const registry = buildToolRegistry();
   const ids = registry.map(entry => entry.id);
   expect(new Set(ids).size).toBe(ids.length);
-  for (const name of ['repository_read', 'file_replace_prepare', 'task_delegate', 'integration_call', 'operation_execute', 'ui_present', 'task_finish', 'knowledge_publish'])
+  for (const name of ['repository_read', 'file_replace_prepare', 'task_delegate', 'integration_call', 'operation_execute', 'ui_present', 'task_finish', 'knowledge_publish', 'database_schema', 'database_query'])
     expect(ids).toContain(name);
+  for (const name of ['database_schema', 'database_query']) {
+    const entry = registry.find(e => e.id === name)!;
+    expect(entry).toMatchObject({ risk: 'READ', replayClass: 'READ_RETRYABLE', executorBinding: 'read', approval: 'none', allowedRoles: ['run'] });
+  }
   expect(() => new ToolAuthority([...registry, registry[0]])).toThrowError(/Duplicate tool registration/);
   expect(() => toolDefinitionSchema.parse({ ...registry[0], allowedRoles: ['intruder'] })).toThrow();
   expect(() => toolDefinitionSchema.parse({ ...registry[0], risk: 'SOMETIMES' })).toThrow();

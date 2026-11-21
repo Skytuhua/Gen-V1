@@ -1025,6 +1025,11 @@ export class Service {
         return withResourceGrant(grant, this.store.dataDir, relativePath, write, signal ?? new AbortController().signal, path => { assertAuthority(); return action(path); });
       },
       publishData: (value: unknown, provenance: string) => { assertAuthority(); return this.publishData(threadId, value, provenance); },
+      databaseAttachment: async (attachmentId: string) => {
+        assertAuthority();
+        const { attachment, connection } = this.databases().attachmentFor(threadId, attachmentId);
+        return { attachment, connection, gateway: this.databases().gateway() };
+      },
       prepareOperation: (kind: string, args: Record<string, unknown>, resourceIds: string[], preconditions: Record<string, string>, description: string) => {
         assertAuthority();
         if (operationId) throw new HarnessError("CAPABILITY_DENIED", "An executor cannot create another operation");

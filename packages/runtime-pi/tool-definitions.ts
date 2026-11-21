@@ -54,6 +54,8 @@ export async function loadDomainTools(): Promise<ToolMetadata[]> {
   const location = new URL("../capabilities/index.ts", import.meta.url).href;
   const module = await import(/* @vite-ignore */ location);
   if (!Array.isArray(module.DOMAIN_TOOLS)) throw new HarnessError("PI_TOOLS_UNAVAILABLE", "Domain capability metadata is unavailable.");
+  const flag = (await import(/* @vite-ignore */ new URL("../core/capability-flags.ts", import.meta.url).href)) as { capabilityEnabled(name: string): boolean };
+  if (!flag.capabilityEnabled("data.databaseBrowserV1")) return module.DOMAIN_TOOLS.filter((tool: { name: string }) => tool.name !== "database_schema" && tool.name !== "database_query");
   return module.DOMAIN_TOOLS;
 }
 

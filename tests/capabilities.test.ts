@@ -14,6 +14,10 @@ import { createFixtures } from "../scripts/create-fixtures.ts";
 import { CASES, scoreResults, type EvalResult } from "../evals/cases.ts";
 import { runEvals } from "../evals/runner.ts";
 import { applyReviews } from "../evals/review.ts";
+import { statSync } from "node:fs";
+import { configureHostCapabilityFlags } from "../packages/core/capability-flags.ts";
+import { DatabaseGateway } from "../packages/capabilities/database-gateway.ts";
+import type { DatabaseAttachmentV1, DatabaseConnectionV1 } from "../packages/contracts/database.ts";
 
 const roots: string[] = [];
 afterEach(async () => { await Promise.all(roots.splice(0).map(p => rm(p, { recursive: true, force: true }))); });
@@ -288,5 +292,72 @@ describe("disposable fixtures and held-out evaluations", () => {
     const novelFailure: EvalResult[] = structuredClone(results); for(const row of novelFailure.filter(r=>r.caseId==="novel-custody").slice(0,2))row.assertions[0].status="fail";
     expect(scoreResults(novelFailure)).toMatchObject({ status: "fail", mandatoryNovelGate: "fail" });
     expect(scoreResults(results.filter(r=>r.repetition===1),1)).toMatchObject({status:"pending",pilotEligible:false});
+  });
+});
+
+describe("database attachment tools", () => {
+  async function setup(s: Awaited<ReturnType<typeof sandbox>>, writable: boolean) {
+    const path = join(s.root, "data.sqlite");
+    const st = statSync(path, { bigint: true });
+    const connection: DatabaseConnectionV1 = { id: randomUUID(), version: 1, label: "tasks-db", engine: "sqlite", sqlite: { path, identity: { dev: st.dev.toString(), ino: st.ino.toString() } }, createdAt: "", updatedAt: "" };
+    const gateway = new DatabaseGateway(async () => { throw new HarnessError("DATABASE_AUTH_FAILED", "no secret"); });
+    const attachment: DatabaseAttachmentV1 = { id: randomUUID(), version: 1, threadId: "test-thread", connectionId: connection.id, writable, createdAt: "" };
+    const ctx: DomainContext = { ...s.ctx, async databaseAttachment(id: string) { if (id !== attachment.id) throw new HarnessError("NOT_FOUND", "attachment"); return { attachment, connection, gateway }; } };
+    return { ctx, connection, attachment, gateway };
+  }
+  async function tasks(s: Awaited<ReturnType<typeof sandbox>>) {
+    const db = new DatabaseSync(join(s.root, "data.sqlite"));
+    db.exec("CREATE TABLE tasks(id INTEGER PRIMARY KEY, title TEXT, done INTEGER); INSERT INTO tasks VALUES(1,'A',0),(2,'B',0)"); db.close();
+  }
+  it("reads schema and bounded query on a SQLite grant and publishes data", async () => {
+    const release = configureHostCapabilityFlags({ "data.databaseBrowserV1": true });
+    try {
+      const s = await sandbox(); await tasks(s);
+      const schema = await handleDomainTool("database_schema", { resourceId: "database" }, s.ctx) as DataRecord;
+      expect((schema.value as { tables: { name: string }[] }).tables.map(t => t.name)).toContain("tasks");
+      const q = await handleDomainTool("database_query", { resourceId: "database", sql: "SELECT * FROM tasks ORDER BY id" }, s.ctx) as DataRecord;
+      const value = q.value as { rows: unknown[][]; rowCount: number };
+      expect(value.rowCount).toBe(2); expect(value.rows[0]).toEqual([1, "A", 0]);
+      expect(q.provenance).toContain("resource:database");
+    } finally { release(); }
+  });
+  it("reads schema/query through an attachment and prepares with schemaDigest", async () => {
+    const release = configureHostCapabilityFlags({ "data.databaseBrowserV1": true });
+    try {
+      const s = await sandbox(); await tasks(s);
+      const { ctx, attachment } = await setup(s, true);
+      const schema = await handleDomainTool("database_schema", { attachmentId: attachment.id }, ctx) as DataRecord;
+      expect(schema.provenance).toContain(`attachment:${attachment.id}`);
+      const q = await handleDomainTool("database_query", { attachmentId: attachment.id, sql: "SELECT title FROM tasks ORDER BY id" }, ctx) as DataRecord;
+      expect((q.value as { rows: unknown[][] }).rows).toEqual([["A"], ["B"]]);
+      const op = await handleDomainTool("database_prepare", { attachmentId: attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1", expectedChanges: 2 }] }, ctx) as Operation;
+      expect(op.kind).toBe("database.transaction"); expect(op.resourceIds).toEqual([]);
+      expect(op.preconditions.schemaDigest).toMatch(/^[a-f0-9]{64}$/);
+      expect(op.preconditions.resourceVersion).toBeUndefined();
+      const ro = await setup(s, false);
+      await expect(handleDomainTool("database_prepare", { attachmentId: ro.attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1", expectedChanges: 2 }] }, ro.ctx)).rejects.toThrow(/read-only|denied/i);
+    } finally { release(); }
+  });
+  it("bounds query output to 200 rows and 1 KiB cells", async () => {
+    const release = configureHostCapabilityFlags({ "data.databaseBrowserV1": true });
+    try {
+      const s = await sandbox();
+      const db = new DatabaseSync(join(s.root, "data.sqlite"));
+      db.exec("CREATE TABLE wide(id INTEGER PRIMARY KEY, data TEXT)");
+      const values = Array.from({ length: 210 }, (_, i) => `(${i + 1},'${"x".repeat(2000)}')`).join(",");
+      db.exec(`INSERT INTO wide VALUES ${values}`); db.close();
+      const { ctx, attachment } = await setup(s, false);
+      const q = await handleDomainTool("database_query", { attachmentId: attachment.id, sql: "SELECT * FROM wide ORDER BY id" }, ctx) as DataRecord;
+      const value = q.value as { rows: unknown[][]; rowCount: number };
+      expect(value.rowCount).toBeLessThanOrEqual(200);
+      for (const row of value.rows) for (const cell of row) if (typeof cell === "string") expect(cell.length).toBeLessThanOrEqual(1024);
+    } finally { release(); }
+  });
+  it("denies attachment tools while the flag is off and exposes no leaked names", async () => {
+    const s = await sandbox(); await tasks(s);
+    const { ctx, attachment } = await setup(s, true);
+    await expect(handleDomainTool("database_query", { attachmentId: attachment.id, sql: "SELECT 1" }, ctx)).rejects.toThrow(/CAPABILITY_DENIED|not enabled/i);
+    await expect(handleDomainTool("database_schema", { attachmentId: attachment.id }, ctx)).rejects.toThrow(/CAPABILITY_DENIED|not enabled/i);
+    await expect(handleDomainTool("database_prepare", { attachmentId: attachment.id, mode: "transaction", statements: [{ sql: "UPDATE tasks SET done=1", expectedChanges: 2 }] }, ctx)).rejects.toThrow(/CAPABILITY_DENIED|not enabled/i);
   });
 });
