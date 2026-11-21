@@ -1,4 +1,5 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {useCallback, useRef, useState} from 'react';
+import {usePolling} from '../usePolling.ts';
 import {Ban, Eye, Play, Square} from 'lucide-react';
 import {Select} from '../../../../packages/ui-shell/Select';
 import {
@@ -39,7 +40,7 @@ export function AgentWorkPanel({threadId}: {threadId: string}) {
     } catch (e) { setError(e instanceof Error ? e.message : 'Agent work unavailable'); }
     finally { busy.current = false; }
   }, [threadId]);
-  useEffect(() => { void refresh(); const timer = setInterval(() => void refresh(), 4000); return () => clearInterval(timer); }, [refresh]);
+  usePolling(refresh, 4000);
   if (error && !list) return null;
   if (!list || list.works.length === 0) return null;
   const progress = plan?.extension ? plan.progress : undefined;
