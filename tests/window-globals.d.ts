@@ -86,7 +86,7 @@ interface Window {
 	__PV_READY: unknown;
 	__PV_PRESENTATION: unknown;
 	__PV_REGISTRATION: { manifest: { workspaces: unknown } };
-	__PV_STATE: { attempts: unknown[]; calls: unknown[]; document?: { title?: string }; draft?: unknown };
+	__PV_STATE: { attempts: { requestId?: string }[]; calls: unknown[]; document?: { title?: string }; draft?: unknown; receipts?: Record<string, unknown>; revision?: unknown };
 	__PV_FLUSH(): void;
 
 	// Plugin-frame custody probes.
