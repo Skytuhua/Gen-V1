@@ -58,6 +58,7 @@ export const M08_FLAG_KEYS = [
   "workspace.checkpointsV1",
   "workspace.restoreV1",
   "workspace.writeDelegateV1",
+  "workspace.manualEditV1",
 ] as const;
 export type M08FlagKey = (typeof M08_FLAG_KEYS)[number];
 
@@ -136,6 +137,7 @@ const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "workspace.checkpointsV1", owner: "m08", description: "File checkpoint capture and the host checkpoint provider behind the read adapter." },
   { key: "workspace.restoreV1", owner: "m08", description: "Reviewed restore protocol with pre-restore checkpoint and per-file preimage checks." },
   { key: "workspace.writeDelegateV1", owner: "m08", description: "Write-capable child worktrees gated by the M03 child profile and an M02 approval." },
+  { key: "workspace.manualEditV1", owner: "m08", description: "User-initiated text file edits from the Files surface with SHA precondition and guarded atomic save." },
   { key: "agents.workV1", owner: "m09", description: "Typed multi-agent work admission: role-gated child dispatch, ordered inputs, budget reservation and verified outputs." },
   { key: "models.requestMetricsV1", owner: "m11", description: "Publish measured per-request observations into the thread Usage dialog." },
   { key: "models.publicStreamingV1", owner: "m11", description: "Public streaming via a typed parser-approved delta channel; off until a real source parser integration exists." },
