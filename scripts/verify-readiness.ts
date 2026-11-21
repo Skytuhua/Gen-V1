@@ -52,39 +52,47 @@ export function redactSecrets(text:string):string{
   return redacted;
 }
 
-// Line-buffered so a secret split across stream chunks is still redacted whole.
+// Buffer each child pipe separately: stderr cannot terminate a key begun on stdout.
 function redactedLogSink(stream:ReturnType<typeof createWriteStream>){
-  let carry='',privateKeyEnd:string|null=null;
-  // PEM material spans lines; require the matching closing label before resuming output.
+  type Source='stdout'|'stderr';
+  const carry:Record<Source,string>={stdout:'',stderr:''};
+  const privateKeyEnd:Record<Source,string|null>={stdout:null,stderr:null};
   const begin=/-----BEGIN ([A-Z0-9 ]*PRIVATE KEY)-----/;
-  const scrubLine=(line:string):string=>{
+  const scrubLine=(source:Source,line:string):string=>{
     let remaining=line,visible='';
     while(remaining){
-      if(privateKeyEnd!==null){
-        const endAt=remaining.indexOf(privateKeyEnd);
+      if(privateKeyEnd[source]!==null){
+        const endAt=remaining.indexOf(privateKeyEnd[source]);
         if(endAt<0)break;
-        remaining=remaining.slice(endAt+privateKeyEnd.length);
-        privateKeyEnd=null;
+        remaining=remaining.slice(endAt+privateKeyEnd[source].length);
+        privateKeyEnd[source]=null;
       }else{
         const match=begin.exec(remaining);
         if(!match){visible+=remaining;break;}
         visible+=remaining.slice(0,match.index)+'[REDACTED PRIVATE KEY]';
-        privateKeyEnd='-----END '+match[1]+'-----';
+        privateKeyEnd[source]='-----END '+match[1]+'-----';
         remaining=remaining.slice(match.index+match[0].length);
       }
     }
     return redactSecrets(visible);
   };
   return {
-    write(chunk:Buffer|string){
-      carry+=String(chunk);
-      const lines=carry.split('\n');carry=lines.pop()!;
+    write(source:Source,chunk:string){
+      const lines=(carry[source]+chunk).split('\n');carry[source]=lines.pop()!;
       for(const line of lines){
-        const safe=scrubLine(line);
-        if(safe||privateKeyEnd===null)stream.write(safe+'\n');
+        const safe=scrubLine(source,line);
+        if(safe||privateKeyEnd[source]===null)stream.write(safe+'\n');
       }
     },
-    end(){if(carry){const safe=scrubLine(carry);if(safe)stream.write(safe);}stream.end();},
+    end(){
+      for(const source of ['stdout','stderr'] as const){
+        if(carry[source]){
+          const safe=scrubLine(source,carry[source]);
+          if(safe)stream.write(safe);
+        }
+      }
+      stream.end();
+    },
   };
 }
 
@@ -145,8 +153,8 @@ export async function runCheck(spec:CheckSpec):Promise<CheckResult>{
       resolvePromise(finish({status:'FAIL',errorKind:'log-error'}));
     });
     // Decode each byte stream incrementally before merging and redacting lines.
-    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
-    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write(chunk);});
+    child.stdout?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write('stdout',chunk);});
+    child.stderr?.setEncoding('utf8').on('data',chunk=>{if(!settled)sink.write('stderr',chunk);});
     child.once('error',(error:NodeJS.ErrnoException)=>{
       settle(error.code==='ENOENT'
         ?{status:'BLOCKED',errorKind:'missing-binary'}
