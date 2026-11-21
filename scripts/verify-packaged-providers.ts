@@ -14,6 +14,7 @@ export function assertContainedPath(root:string,path:string){
  if(part==='..'||part.startsWith('..\\')||part.startsWith('../')||isAbsolute(part))throw Error('Resolved distribution is outside the packaged host.');
 }
 async function sha256(path:string){const hash=createHash('sha256');for await(const chunk of createReadStream(path))hash.update(chunk);return hash.digest('hex');}
+export function decodeProbeStdout(chunks:Buffer[]){return Buffer.concat(chunks).toString('utf8').trim();}
 /** The package root may itself be a pnpm junction. Distribution children must be ordinary files. */
 export async function distributionManifest(root:string,options:{excludeNodeModules?:boolean}={}):Promise<DistributionManifest>{
  const canonical=await realpath(root),files:ManifestFile[]=[];let bytes=0,entries=0;
@@ -164,12 +165,12 @@ async function runProbe(host:string,node:string,directory:string,cursorRequired:
  for(const name of ['PATH','Path','SystemRoot','SYSTEMROOT','WINDIR','COMSPEC','PATHEXT','LANG','LC_ALL','TERM'])if(process.env[name]!==undefined)env[name]=process.env[name];
  const child=spawn(node,['--import',pathToFileURL(join(host,'node_modules/tsx/dist/loader.mjs')).href,'--input-type=module','-e',PROBE],{cwd:host,env,windowsHide:true,stdio:['ignore','pipe','pipe'],detached:process.platform!=='win32'});
  const output=await new Promise<string>((accept,reject)=>{
-  let stdout='',stderr='',bytes=0,failed=false;
+  const stdout:Buffer[]=[];let stderr='',bytes=0,failed=false;
   const fail=(error:Error)=>{if(failed)return;failed=true;clearTimeout(timer);void terminateProcessTree(child).then(()=>reject(error),reject);};
   const timer=setTimeout(()=>fail(Error('Packaged runtime verification exceeded its deadline.')),90000);
   child.once('error',fail);
-  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Packaged verification output exceeded its bound.'));return;}if(stream===child.stdout)stdout+=String(chunk);else stderr=(stderr+String(chunk)).slice(-16000);});
-  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(stdout.trim()):reject(Error('Packaged runtime verification exited '+code+'. No authentication or inference was requested. '+stderr));});
+  for(const stream of [child.stdout,child.stderr])stream.on('data',(chunk:Buffer)=>{bytes+=chunk.length;if(bytes>256*1024){fail(Error('Packaged verification output exceeded its bound.'));return;}if(stream===child.stdout)stdout.push(chunk);else stderr=(stderr+String(chunk)).slice(-16000);});
+  child.once('close',code=>{clearTimeout(timer);if(failed)return;failed=true;code===0?accept(decodeProbeStdout(stdout)):reject(Error('Packaged runtime verification exited '+code+'. No authentication or inference was requested. '+stderr));});
  });
  return JSON.parse(output);
 }
