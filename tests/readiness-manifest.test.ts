@@ -368,4 +368,16 @@ describe('aggregate and manifest',()=>{
     expect(log).not.toContain('SYNTHETIC_PEM_BODY_OTHER_PIPE');
   });
 
+
+  it('does not flush an opposite-pipe secret fragment after its owner key closes',async()=>{
+    const directory=temporaryDirectory();
+    const script=String.raw`process.stdout.write("-----BEGIN PRIVATE KEY-----\n");setTimeout(()=>process.stderr.write("SYNTHETIC_UNTERMINATED_OTHER_PIPE"),60);setTimeout(()=>process.stdout.write("-----END PRIVATE KEY-----\nafter\n"),120);`;
+    const result=await runCheck(specFor(directory,{args:['-e',script]}));
+    expect(result.status).toBe('PASS');
+    const log=readFileSync(result.artifact,'utf8');
+    expect(log).toContain('[REDACTED PRIVATE KEY]');
+    expect(log).toContain('after\n');
+    expect(log).not.toContain('SYNTHETIC_UNTERMINATED_OTHER_PIPE');
+  });
+
 });
