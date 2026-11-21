@@ -8,6 +8,7 @@ import type {
 	ProjectSearchRequest,
 } from "../../apps/web/src/files/project-search-api";
 import { taskFixture } from "./task-interface-fixture";
+import { Toaster } from "../../packages/ui-shell/Toast";
 import type { Snapshot } from "../../packages/contracts";
 import "../../apps/web/src/styles.css";
 
@@ -159,6 +160,7 @@ function Fixture() {
 		[active, setActive] = useState(true);
 	return (
 		<>
+			<Toaster />
 			<p>Synthetic production Files renderer · no live resources</p>
 			<div className="fixture-controls">
 				<button

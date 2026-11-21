@@ -178,6 +178,14 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	font-weight: 550;
+	flex: 1;
+	min-width: 0;
+}
+.files-preview-actions {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-shrink: 0;
 }
 .files-preview > header a {
 	font-size: 12px;

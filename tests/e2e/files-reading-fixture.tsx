@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import type { Snapshot } from "../../packages/contracts";
 import { WorkspaceSurfaceBody } from "../../apps/web/src/WorkspaceSurfaceBody";
 import { taskFixture } from "./task-interface-fixture";
+import { Toaster } from "../../packages/ui-shell/Toast";
 import "../../apps/web/src/styles.css";
 
 const params = new URLSearchParams(location.search);
@@ -28,6 +29,7 @@ function Fixture() {
 	const snapshot = { ...source, activeThreadId: threadId };
 	return (
 		<>
+			<Toaster />
 			<p>Synthetic production Files renderer · no live resources</p>
 			<div className="fixture-controls">
 				<button

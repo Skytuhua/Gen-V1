@@ -28,6 +28,15 @@ interface ProjectFilesProps {
 	fallback: ReactNode;
 	searchAdapter?: ProjectSearchAdapter;
 }
+// Copy uses the raw path; only ordinary single-line relative paths are eligible.
+const copyablePath = (path: string) =>
+	!!path &&
+	!/[\\:\x00-\x1f\x7f\u2028\u2029]/.test(path) &&
+	path
+		.split("/")
+		.every(
+			(segment) => segment !== "" && segment !== "." && segment !== "..",
+		);
 export function ProjectFiles(props: ProjectFilesProps) {
 	return <ProjectFilesReader key={props.base + "?" + props.query} {...props} />;
 }
@@ -102,6 +111,28 @@ function ProjectFilesReader({
 	const lines =
 		line && file?.text ? file.text.split(/(\r\n|\r|\n)/) : undefined;
 	const lineIndex = line ? (line - 1) * 2 : -1;
+	const copyTarget =
+		active &&
+		selected &&
+		file &&
+		!preview.pending &&
+		!preview.error &&
+		copyablePath(selected.path)
+			? selectedMatch?.kind === "text" &&
+				selectedMatch.path === selected.path &&
+				!stale &&
+				!file.binary &&
+				!!file.text &&
+				line &&
+				lines &&
+				lineIndex >= 0 &&
+				lineIndex < lines.length
+				? {
+						text: `${selected.path}:${line}`,
+						label: "Copy file reference",
+					}
+				: { text: selected.path, label: "Copy relative path" }
+			: undefined;
 	// DOM carriage returns need an explicit visual break; retain the source text.
 	const renderParts = (parts: string[]) =>
 		parts.map((part, index) =>
@@ -187,6 +218,7 @@ function ProjectFilesReader({
 					</>
 				) : null,
 			}}
+			copyTarget={copyTarget}
 			limitNote={
 				(folder.value?.entries.length ?? 0) >= 500
 					? "Showing up to 500 entries; more files may exist."
