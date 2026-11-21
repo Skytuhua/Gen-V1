@@ -36,7 +36,7 @@ export const SETTINGS_SECTIONS = [
   ['notifications', 'Notifications & Usage'], ['browser', 'Browser'],
   ['keybindings', 'Keyboard Shortcuts'], ['maintenance', 'Data & Recovery'], ['about', 'About & Licenses'],
 ] as const;
-const SECTION_ICONS: Record<string, LucideIcon> = {general: Settings2, appearance: Palette, chat: MessageSquare, providers: Plug, projects: Folder, diffs: GitBranch, skills: Boxes, notifications: Bell, browser: Globe, keybindings: Keyboard, maintenance: Database, about: Info};
+export const SECTION_ICONS: Record<string, LucideIcon> = {general: Settings2, appearance: Palette, chat: MessageSquare, providers: Plug, projects: Folder, diffs: GitBranch, skills: Boxes, notifications: Bell, browser: Globe, keybindings: Keyboard, maintenance: Database, about: Info};
 const legacySections: Record<string, string> = { threads: 'chat', integrations: 'skills', connections: 'providers', 'source-control': 'diffs', worktrees: 'projects', archived: 'maintenance', diagnostics: 'maintenance', licenses: 'about' };
 const preferenceRows: Record<string, { key: keyof UiPreferences; options?: readonly string[]; labels?: readonly string[]; description: string }> = {
   'time-format': { key: 'timeFormat', options: ['system', '12h', '24h'], labels: ['System', '12 hour', '24 hour'], description: 'Clock format for thread and activity timestamps.' },

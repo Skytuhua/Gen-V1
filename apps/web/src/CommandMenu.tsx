@@ -16,8 +16,8 @@ export function CommandMenu(props: {
   open: boolean;
   onClose(): void;
   commands: readonly CommandItem[];
-  threadResults?: CommandResults;
-  skillResults?: CommandResults;
+  threadResults?: (query: string) => CommandResults;
+  skillResults?: (query: string) => CommandResults;
   chord(bindingId: string): string | undefined;
   reportError(error: unknown): void;
 }) {
@@ -33,8 +33,10 @@ export function CommandMenu(props: {
   };
 
   const searching = query.trim().length > 0;
-  const threads = searching ? (threadResults?.items ?? []) : [];
-  const skills = searching ? (skillResults?.items ?? []) : [];
+  const threadState = searching ? threadResults?.(query) : undefined;
+  const skillState = searching ? skillResults?.(query) : undefined;
+  const threads = threadState?.items ?? [];
+  const skills = skillState?.items ?? [];
 
   const recent: Row[] = searching ? [] :
     readRecent(storage())
@@ -152,7 +154,7 @@ export function CommandMenu(props: {
     return null;
   };
 
-  const pending = searching && (threadResults?.pending || skillResults?.pending);
+  const pending = Boolean(threadState?.pending || skillState?.pending);
 
   return (
     <Modal open={open} title="Command menu" onClose={onClose} className="command-menu-dialog">
@@ -176,13 +178,13 @@ export function CommandMenu(props: {
             <div key={group} role="group" aria-label={COMMAND_GROUP_LABEL[group]}>
               <div className="command-menu-heading">{COMMAND_GROUP_LABEL[group]}</div>
               {items.map(row)}
-              {groupState(threadResults, 'threads', 'Searching threads…')}
-              {groupState(skillResults, 'skills', 'Searching skills…')}
+              {groupState(threadState, 'threads', 'Searching threads…')}
+              {groupState(skillState, 'skills', 'Searching skills…')}
             </div>
           ))}
-          {!grouped.some(({group}) => group === 'threads') && groupState(threadResults, 'threads', 'Searching threads…')}
-          {!grouped.some(({group}) => group === 'skills') && groupState(skillResults, 'skills', 'Searching skills…')}
-          {searching && rows.length === 0 && !pending && !threadResults?.error && !skillResults?.error && (
+          {!grouped.some(({group}) => group === 'threads') && groupState(threadState, 'threads', 'Searching threads…')}
+          {!grouped.some(({group}) => group === 'skills') && groupState(skillState, 'skills', 'Searching skills…')}
+          {searching && rows.length === 0 && !pending && !threadState?.error && !skillState?.error && (
             <div className="command-menu-empty">
               <div className="command-menu-empty-title">No results for “{query.trim()}”</div>
               <div className="command-menu-empty-hint">Try a different word, or press Esc to close.</div>

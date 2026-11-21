@@ -18,7 +18,7 @@ function render() {
       open={open}
       onClose={() => {open = false; (window as any).closeCount += 1; render();}}
       commands={commands}
-      threadResults={threadResults}
+      threadResults={() => threadResults}
       chord={binding => binding === 'new-thread' ? 'Ctrl+Shift+O' : undefined}
       reportError={error => calls.push('error:' + String(error))}
     />);
