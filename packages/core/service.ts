@@ -15,7 +15,7 @@ import {privateFamilyForBinding} from '../workspace/git-storage.ts';
 import { mkdir, readFile, writeFile, stat, open } from "node:fs/promises";
 import { existsSync, lstatSync, realpathSync } from 'node:fs';
 import { basename, join, relative, resolve, sep } from "node:path";
-import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from "../storage/store.ts";
+import { Store, digest } from "../storage/store.ts";
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
@@ -52,7 +52,7 @@ import { computeAssessment, observationMatchesThreadOwner } from "./verification
 import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
 import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
 import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
-import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1 } from "../contracts/model-request.ts";
+import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema } from "../contracts/model-request.ts";
 import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
@@ -61,14 +61,13 @@ import { capabilityEnabled } from "./capability-flags.ts";
 import { EditJournal, workspaceOwnerScope } from "../workspace/edit-journal.ts";
 import { CheckpointService } from "../workspace/checkpoints.ts";
 import { RequestContextCustody, REQUEST_PREPARATION_LIMITS, type RequestContextBasis, type RequestContextHooks, type RequestPreparationOptions, type RequestTextSource } from './request-custody.ts';
-import { createCompactionCandidateRegistry, applyCompactionCandidate } from './context-compaction.ts';
-import { readCompactionHostCut, prepareNativeCompaction, nativeCompactionEnvelope, requireNativeCompactionReceipt } from './native-compaction-protection.ts';
 import { automaticCompactionRefusalSchema } from '../contracts/native-compaction.ts';
-import type { NativeCompactionAdmissionV1, NativeCompactionAckV1, NativeCompactionReceiptV1 } from '../contracts/native-compaction.ts';
+import type { NativeCompactionAdmissionV1, NativeCompactionAckV1 } from '../contracts/native-compaction.ts';
 import { nativeContextProjectionSchema, inferenceBudgetSchema, type InferenceAdmissionV1, type RequestPreparationV1, type RequestContextV1 } from '../contracts/request-context.ts';
 import {SourceWorkbench, type PreparedSourceContext, type WorkbenchQueuedInput} from './source-workbench.ts';
+import {ServiceCompaction} from './service-compaction.ts';
 import {BrowserConsentHost, hostControlDriverRegistry} from './browser-consent.ts';
-import {sourceRefsV1Schema, sendModeV1Schema, WORKBENCH_LIMITS, type SendModeV1} from '../contracts/source-selection.ts';
+import {sourceRefsV1Schema, sendModeV1Schema, type SendModeV1} from '../contracts/source-selection.ts';
 import {ProjectMemoryHost} from './project-memory-host.ts';
 import {applySessionBranch} from './session-branches.ts';
 import {cancelImport,commitImport,prepareImport,stageImport} from './history-import.ts';
@@ -154,10 +153,7 @@ export class Service {
   private skillIndexes=new Map<string,string>();
   private learningSupported:boolean;
   private lastActivity=Date.now();
-  private readonly compactionRegistry = createCompactionCandidateRegistry();
-  private readonly compactionInflight = new Map<string, Promise<void>>();
-  private readonly nativeCompactionAdmissions = new Map<string, {request: NativeCompactionAdmissionV1; assertCurrent: () => void; attempted: boolean; accepted: boolean}>();
-  private readonly compactionModelOwners = new Map<string, {ctx: RunContext; candidateId: string; ownerKey: string; binding: CompactionAttemptRecord['metadata']['binding']}>();
+  private readonly compactionHost: ServiceCompaction;
   private curatorTimer:ReturnType<typeof setInterval>;
   private memoryPurgeFailure: string | null = null;
   private readonly source?:SourceIntegration;
@@ -292,6 +288,11 @@ export class Service {
     this.agentWork=new AgentWorkCoordinator({store,assertRun:ctx=>this.assertRun(ctx),isEnabled:capabilityEnabled,
       resourceResolver:async(_grant,_write,call)=>{const domain=await import('../capabilities/index.ts');return domain.handleDomainTool(call.name,call.args,this.agentReadDomain(_grant.threadId));},
       runtimeFactory:options.agentWorkRuntimeFactory});
+    this.compactionHost=new ServiceCompaction({store,runtime,aborts:this.aborts,sourceWorkbench:this.sourceWorkbench,
+      isClosed:()=>this.closed,background:p=>this.background(p),deliverOutbox:id=>this.deliverOutbox(id),thread:id=>this.thread(id),
+      binding:(t,p)=>this.binding(t,p),requestBasis:(t,m,l)=>this.requestBasis(t,m,l),latestRequestReceipt:id=>this.latestRequestReceipt(id),
+      retainController:c=>this.retainController(c),releaseController:(id,c)=>this.releaseController(id,c),
+      runtimeFailure:(ctx,cause)=>this.runtimeFailure(ctx,cause),assertNoOtherRun:id=>this.assertNoOtherRun(id),memoryHost:()=>this.memoryHost()});
     runtime.configure({ onEvent: event => {this.recordCompactionModelObservation(event);this.onRuntimeEvent(event);}, onTool: (call, ctx) => this.tool(call, ctx), onMemoryCheckpoint: request => this.memoryHost().checkpoint(request,()=>{this.assertRun(request.ctx);}), onBeforeInference: request => this.beforeInference(request), onCompactionCommit: request => this.commitNativeCompaction(request) });
     this.sideRuntime=new SideRuntime(options.sideRuntimeFactory??(()=>import('../runtime/index.ts').then(({createRuntime})=>createRuntime({dataDir:store.dataDir,accounts:accountResolver(store)}))),{onEvent:event=>this.onRuntimeEvent(event),onTool:(call,ctx)=>this.tool(call,ctx)});
     this.learningSupported=Boolean(options.source||options.learningRuntimeFactory);
@@ -558,217 +559,9 @@ export class Service {
     const receipt=(JSON.parse(row.body) as {receipt?:RequestContextV1}).receipt;
     return receipt??null;
   }
-  private compactionBindingOf(receipt:RequestContextV1){
-    return {generation:receipt.contextGeneration,modelId:receipt.modelBinding.modelId,accountId:receipt.modelBinding.accountId,workspaceId:receipt.owner.workspaceId,instructionDigest:receipt.instructionDigest,toolRegistryDigest:receipt.toolRegistryDigest,sourceCut:receipt.sourceCut.revisionDigest};
-  }
-  private async applyLossAwareCompaction(command:HostCommand,thread:Thread) {
-    const prev=this.compactionInflight.get(thread.id)??Promise.resolve();
-    const run=prev.then(()=>this.applyLossAwareCompactionInner(command,thread));
-    const tail=run.then(()=>undefined,()=>undefined);
-    this.compactionInflight.set(thread.id,tail);
-    this.background(tail);
-    tail.finally(()=>{
-      if(this.compactionInflight.get(thread.id)!==tail)return;
-      this.compactionInflight.delete(thread.id);
-      if(!this.closed)this.background(this.deliverOutbox(thread.id));
-    });
-    return run;
-  }
-  private commitNativeCompaction(request: NativeCompactionAdmissionV1): NativeCompactionAckV1 {
-    const gate = this.nativeCompactionAdmissions.get(request.candidateId);
-    if (!gate || gate.attempted) throw new HarnessError('HERMES_COMPACTION_OWNER', 'No unused host admission owns this native commit.');
-    gate.attempted = true;
-    if (digest(request) !== digest(gate.request)) throw new HarnessError('HERMES_COMPACTION_OWNER', 'The native commit differs from its captured host owner.');
-    gate.assertCurrent();
-    gate.accepted = true;
-    return {version: 1, accepted: true, planDigest: gate.request.planDigest};
-  }
-  private recordCompactionModelObservation(event: RuntimeEvent): void {
-    if(event.type!=='model.observation'||!capabilityEnabled('models.requestMetricsV1'))return;
-    const admitted=this.compactionModelOwners.get(event.runId);
-    if(!admitted||event.threadId!==admitted.ctx.threadId||event.epoch!==admitted.ctx.epoch)return;
-    const parsed=modelRequestObservationV1Schema.safeParse(event.observation);
-    if(!parsed.success)return;
-    const value=parsed.data,owner=value.owner,binding=admitted.binding;
-    if(owner.threadId!==admitted.ctx.threadId||owner.runId!==admitted.ctx.runId||owner.epoch!==admitted.ctx.epoch||
-      value.binding.modelId!==binding.modelId||value.binding.accountId!==binding.accountId||value.binding.providerId!==binding.modelId.split('/')[0])return;
-    const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',admitted.candidateId);
-    if(!attempt||attempt.id!==admitted.candidateId||attempt.threadId!==admitted.ctx.threadId||attempt.ownerKey!==admitted.ownerKey||
-      attempt.metadata.candidateId!==admitted.candidateId||digest(attempt.metadata.binding)!==digest(binding))return;
-    const id=`compactionModelRequest:${value.requestId}`;
-    const old=this.store.get<{candidateId:string;ownerKey:string;ctx:RunContext;value:ModelRequestObservationV1}>('compactionModelRequest',id);
-    // The broker may publish firstPublicDelta after its final observation. No
-    // repeated request may change identity, usage or outcome, or charge twice.
-    const immutable=(observation:ModelRequestObservationV1)=>digest({...observation,timings:{...observation.timings,firstPublicDelta:null}});
-    if(old&&(old.candidateId!==admitted.candidateId||old.ownerKey!==admitted.ownerKey||digest(old.ctx)!==digest(admitted.ctx)||immutable(old.value)!==immutable(value)||
-      old.value.timings.firstPublicDelta!==null&&old.value.timings.firstPublicDelta!==value.timings.firstPublicDelta))return;
-    if(old&&digest(old.value)===digest(value))return;
-    // This is a historical observation under the still-owned native call,
-    // not permission to update a stopped/new owner or a complete spend total.
-    this.store.internal('context.compaction.model_observed',admitted.ctx.threadId,()=>this.store.put('compactionModelRequest',id,admitted.ctx.threadId,
-      {id,candidateId:admitted.candidateId,ownerKey:admitted.ownerKey,ctx:admitted.ctx,value}));
-  }
-  private async applyLossAwareCompactionInner(command:HostCommand,thread:Thread) {
-    const duplicate=this.store.receipt(command);if(duplicate)return duplicate;
-    const receipt=this.latestRequestReceipt(thread.id);
-    if(!receipt||typeof this.runtime.nativeHistoryDigest!=='function'||typeof this.runtime.compactProtected!=='function')
-      throw new HarnessError('UNSUPPORTED_COMPACTION','This adapter has no verified protected native compare-and-swap for loss-aware compaction');
-    const currentGeneration=()=>this.store.get<{generation:number}>('requestContextGeneration',thread.id)?.generation??receipt.contextGeneration;
-    const generation=currentGeneration();
-    if(!Number.isSafeInteger(generation)||generation<receipt.contextGeneration||generation>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
-    const captured=this.requestBasis(thread,thread.modelId!,thread.thinkingLevel),receiptDigest=digest(receipt);
-    if(receipt.owner.threadId!==thread.id||receipt.owner.workspaceId!==captured.workspaceId||receipt.modelBinding.modelId!==captured.modelId||receipt.modelBinding.accountId!==captured.accountId)
-      throw new HarnessError('STALE_REQUEST_CONTEXT','The last request belongs to a different compaction owner.');
-    const stable=(basis:RequestContextBasis)=>{const {admissionDigest:_admission,...rest}=basis;return digest(rest);};
-    const stableDigest=stable(captured);
-    const beforeAdmission=()=>{
-      const current=this.thread(thread.id);
-      if(!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==thread.epoch||current.runId!==thread.runId||current.status!==thread.status||
-        digest(this.requestBasis(current,thread.modelId!,thread.thinkingLevel))!==digest(captured)||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
-        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during admission.');
-      this.assertNoOtherRun(thread.id);
-    };
-    const memoryCheckpoint=capabilityEnabled('memory.projectV1')?await this.memoryHost().requirement(thread.id):undefined;
-    beforeAdmission();
-    // This reads the retained source without replacing its conversation owner.
-    const inspection={threadId:thread.id,runId:'compaction-inspect:'+randomUUID(),epoch:thread.epoch};
-    const snapshot=await this.runtime.nativeHistoryDigest(inspection,thread.sessionPath!,captured.accountId);
-    beforeAdmission();
-    if(!snapshot)throw new HarnessError('HERMES_COMPACTION_MISMATCH','The retained native history is unavailable.');
-    const hostCut=readCompactionHostCut(this.store,thread.id,receipt);
-    const prepared=prepareNativeCompaction(snapshot,hostCut.references);
-    const sourceContexts:PreparedSourceContext[]=[];
-    const assertHostCut=()=>{
-      if(readCompactionHostCut(this.store,thread.id,receipt).revisionDigest!==hostCut.revisionDigest)
-        throw new HarnessError('STALE_REQUEST_CONTEXT','A protected decision, approval, work item or source choice changed.');
-      for(const source of sourceContexts)source.assertCurrent();
-    };
-    const sourceOwner=this.sourceWorkbench.owner(thread.id);
-    for(let offset=0;offset<hostCut.sourceRefs.length;offset+=WORKBENCH_LIMITS.maxSourceRefs){
-      sourceContexts.push(await this.sourceWorkbench.prepareSend(sourceOwner,hostCut.sourceRefs.slice(offset,offset+WORKBENCH_LIMITS.maxSourceRefs),{accepted:true}));
-      beforeAdmission();assertHostCut();
-    }
-    const binding={...this.compactionBindingOf(receipt),generation,sourceCut:digest([receipt.sourceCut.revisionDigest,prepared.sourceSha256,hostCut.revisionDigest])};
-    const {metadata,candidate}=this.compactionRegistry.prepare({binding,unresolvedRefs:prepared.retainedRefs,toolPairs:prepared.toolPairs,sourceInterval:prepared.sourceInterval});
-    if(candidate.status==='PREPARING')this.compactionRegistry.markReady(metadata.candidateId);
-    const ctx=Object.freeze({threadId:thread.id,runId:`compaction:${metadata.candidateId}`,epoch:thread.epoch+1,accountId:binding.accountId});
-    const envelope=nativeCompactionEnvelope(prepared,metadata.candidateId,{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch,
-      workspaceId:binding.workspaceId,modelId:binding.modelId,accountId:binding.accountId,generation,
-      instructionDigest:binding.instructionDigest,toolRegistryDigest:binding.toolRegistryDigest});
-    const accepted=this.store.command(command,()=>{
-      beforeAdmission();assertHostCut();
-      this.store.put('runtimeIntent',ctx.runId,thread.id,{kind:'compaction',previousStatus:thread.status});
-      this.store.put('thread',thread.id,thread.id,{...thread,runId:ctx.runId,epoch:ctx.epoch,status:'working',error:null,updatedAt:now()});
-      const entry=this.compactionRegistry.get(metadata.candidateId)!;
-      const attempt:CompactionAttemptRecord={id:metadata.candidateId,threadId:thread.id,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),...entry,verdict:null};
-      this.store.put('compactionAttempt',attempt.id,thread.id,attempt);
-      this.writeCompactionProjection(thread.id);
-      return ctx;
-    });
-    const assertCurrent=()=>{
-      const current=this.thread(thread.id);
-      if(this.closed||!capabilityEnabled('context.lossAwareCompactionV1')||current.epoch!==ctx.epoch||current.runId!==ctx.runId||
-        !['working','awaiting_input'].includes(current.status)||current.sessionPath!==thread.sessionPath||current.modelId!==thread.modelId||
-        this.binding(current,modelProvider(thread.modelId!)).accountId!==binding.accountId||
-        stable(this.requestBasis(current,thread.modelId!,current.thinkingLevel))!==stableDigest||digest(this.latestRequestReceipt(thread.id))!==receiptDigest||currentGeneration()!==generation)
-        throw new HarnessError('CANCELLED_RUN','The compaction owner or source cut changed during native work.');
-      assertHostCut();
-    };
-    let nativeError:unknown;
-    const verdict=await applyCompactionCandidate({candidate:this.compactionRegistry.get(metadata.candidateId)!.candidate,expected:binding,current:binding,cancelled:false,
-      retainedTailBytes:prepared.retainedBytes,maxRetainedTailBytes:64*1024,nativeApply:async()=>{
-      try{
-        assertCurrent();
-        let ended=false,settled=false,completionError:unknown;
-        const completed:{receipt?:NativeCompactionReceiptV1}={};
-        const unsubscribe=this.store.subscribe(event=>{
-          const payload=(event.payload as {result?:{runId?:string}}|null)?.result;
-          if(event.threadId!==thread.id||payload?.runId!==ctx.runId)return;
-          if(event.type==='runtime.compaction.end')ended=true;
-          if(event.type==='runtime.settled'&&ended)settled=true;
-        });
-        const control=this.aborts.get(thread.id)??new AbortController();this.aborts.set(thread.id,control);this.retainController(control);
-        try{
-          const expected=receipt.segments.find(segment=>segment.sourceId==='approved-project-instructions');
-          const compact=async(projectContext:StartRun['approvedProjectContext'],assertProjectCurrent:()=>void)=>{
-            const current=projectContext?.instructionText?'sha256:'+projectContext.instructionDigest:null;
-            if((expected?.contentRef??null)!==current||expected&&current===null)throw new HarnessError('STALE_REQUEST_CONTEXT','Project instruction sources changed or are unavailable. Start a new turn before compacting.');
-            const gate={request:{version:1 as const,candidateId:metadata.candidateId,planDigest:envelope.planDigest,sourceSha256:prepared.sourceSha256,owner:structuredClone(envelope.plan.owner)},
-              attempted:false,accepted:false,assertCurrent:()=>{
-                if(control.signal.aborted)throw new HarnessError('CANCELLED_RUN','Native compaction was cancelled.');
-                assertCurrent();assertProjectCurrent();
-              }};
-            const retainSourceFiles=async(index:number):Promise<void>=>{
-              const ref=hostCut.sourceRefs[index];
-              if(!ref){
-                gate.assertCurrent();
-                this.nativeCompactionAdmissions.set(metadata.candidateId,gate);
-                if(capabilityEnabled('models.requestMetricsV1'))this.compactionModelOwners.set(ctx.runId,{ctx:{threadId:ctx.threadId,runId:ctx.runId,epoch:ctx.epoch},
-                  candidateId:metadata.candidateId,ownerKey:compactionOwnerKey(thread,binding.modelId,binding.accountId),binding:structuredClone(binding)});
-                try{
-                  const result=await this.runtime.compactProtected!(ctx,thread.sessionPath!,thread.modelId!,binding.accountId,structuredClone(envelope),memoryCheckpoint);
-                  if(!gate.accepted)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The native source bypassed the host commit gate.');
-                  completed.receipt=requireNativeCompactionReceipt(result,envelope,prepared.toolPairs.length);
-                }finally{this.compactionModelOwners.delete(ctx.runId);this.nativeCompactionAdmissions.delete(metadata.candidateId);}
-                return;
-              }
-              if(ref.keepCaptured||ref.source.kind!=='FILE_RANGE')return retainSourceFiles(index+1);
-              const grant=this.store.get<ResourceGrant>('resource',ref.source.sourceId);
-              if(!grant||grant.threadId!==thread.id)throw new HarnessError('STALE_REQUEST_CONTEXT','A retained file source lost its original grant.');
-              await withResourceGrant(grant,this.store.dataDir,ref.source.path,false,control.signal,async()=>{
-                gate.assertCurrent();
-                await retainSourceFiles(index+1);
-              },{readOnly:true});
-            };
-            gate.assertCurrent();
-            await retainSourceFiles(0);
-          };
-          if(expected||capabilityEnabled('context.compilerV1')){
-            const nativeInput:StartRun={...ctx,modelId:thread.modelId!,thinkingLevel:thread.thinkingLevel,sessionPath:thread.sessionPath!,inputId:ctx.runId,prompt:'',resources:this.store.all<ResourceGrant>('resource',thread.id)};
-            await withApprovedProjectContext(this.store,nativeInput,control.signal,compact);
-          }else await compact(undefined,()=>{});
-        }catch(cause){
-          // A checked native receipt records an applied historical fact. A later
-          // guard cleanup failure cannot undo it or authorize another commit.
-          if(!completed.receipt)throw cause;
-          completionError=cause;
-        }finally{unsubscribe();this.releaseController(thread.id,control);}
-        if(!completed.receipt)throw new HarnessError('HERMES_COMPACTION_UNCONFIRMED','The protected native source did not confirm application.');
-        const proof=completed.receipt,usageObservationRef=`compactionUsage:${metadata.candidateId}`;
-        const appliedGeneration=this.store.internal('context.compaction.applied',thread.id,()=>{
-          const previous=currentGeneration();
-          if(!Number.isSafeInteger(previous)||previous<binding.generation||previous>=Number.MAX_SAFE_INTEGER)throw new HarnessError('INVALID_REQUEST_CONTEXT','The context generation counter is unavailable.');
-          this.store.put('requestContextGeneration',thread.id,thread.id,{generation:previous+1});
-          this.store.put('compactionUsage',metadata.candidateId,thread.id,{id:metadata.candidateId,threadId:thread.id,
-            beforeBytes:proof.beforeBytes,afterBytes:proof.afterBytes,nativeReceipt:proof,settled,
-            completionError:completionError instanceof Error?completionError.message:completionError?String(completionError):null});
-          // Keep the reference with its checked receipt even if terminal bookkeeping is interrupted.
-          const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
-          if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,metadata:{...attempt.metadata,usageObservationRef}});
-          return previous+1;
-        }) as number;
-        // Only clean up this still-owned maintenance run; a newer owner is untouched.
-        if(!settled)this.runtimeFailure(ctx,new HarnessError('HERMES_COMPACTION_UNCONFIRMED','Native compaction applied, but maintenance settlement was not confirmed.'));
-        return {generation:appliedGeneration,usageObservationRef};
-      }catch(cause){nativeError=cause;throw cause;}
-    }});
-    if(verdict.status==='APPLIED')this.compactionRegistry.markApplied(metadata.candidateId);
-    else if(verdict.status==='FAILED')this.compactionRegistry.markFailed(metadata.candidateId);
-    else this.compactionRegistry.markDiscarded(metadata.candidateId);
-    if(verdict.status!=='APPLIED')this.runtimeFailure(ctx,nativeError??new Error('Native compaction was not applied.'));
-    if(!this.closed)this.store.internal('context.compaction.observed',thread.id,()=>{
-      const attempt=this.store.get<CompactionAttemptRecord>('compactionAttempt',metadata.candidateId);
-      if(attempt)this.store.put('compactionAttempt',attempt.id,thread.id,{...attempt,candidate:this.compactionRegistry.get(attempt.id)!.candidate,verdict:verdict.status});
-      this.writeCompactionProjection(thread.id);
-      if(this.store.get<Thread>('thread',thread.id)?.runId===null){const usage=this.store.get<{value:RuntimeUsage}>('usage',thread.id)!;this.store.put('usage',thread.id,thread.id,{...usage,value:{...usage.value,activity:'idle'}});}
-    });
-    if(verdict.status!=='APPLIED')throw new HarnessError('COMPACTION_FAILED',nativeError instanceof Error?nativeError.message:'The verified native compaction apply failed.');
-    return accepted;
-  }
-  private writeCompactionProjection(threadId:string):void {
-    const old=this.store.get<{value:RuntimeUsage}>('usage',threadId)?.value??EMPTY_USAGE;
-    this.store.put('usage',threadId,threadId,{id:threadId,value:{...old,compaction:this.store.compactionProjection(threadId)}});
-  }
+  private applyLossAwareCompaction(command:HostCommand,thread:Thread) { return this.compactionHost.apply(command,thread); }
+  private commitNativeCompaction(request:NativeCompactionAdmissionV1):NativeCompactionAckV1 { return this.compactionHost.commit(request); }
+  private recordCompactionModelObservation(event:RuntimeEvent):void { this.compactionHost.recordModelObservation(event); }
   private requestAuthorityBasis(thread:Thread,modelId:string,thinkingLevel:string|null|undefined):Omit<RequestContextBasis,'sourceCutDigest'|'admissionDigest'> {
     if(this.closed||this.updateClosing)throw new HarnessError('CANCELLED_RUN','The request owner has closed.');
     if(this.store.get('archivedThread',thread.id)||['stopped','interrupted'].includes(thread.status))throw new HarnessError('STALE_REQUEST_CONTEXT','The request owner no longer admits this draft.');
@@ -1603,7 +1396,7 @@ export class Service {
   private async deliverInputs(threadId:string):Promise<void>{
     // Native settlement clears runId before loss-aware compaction records its
     // final digest and generation. Keep the next input behind that entire fence.
-    if(this.compactionInflight.has(threadId))return;
+    if(this.compactionHost.hasInflight(threadId))return;
     let thread = this.thread(threadId);
     if (["stopped", "interrupted", "failed", "completed"].includes(thread.status) || !thread.modelId) return;
     if (thread.runId && (this.store.get<{kind:string}>("runtimeIntent", thread.runId)?.kind === "compaction" || this.store.get("finish", thread.runId))) return;
@@ -2342,11 +2135,11 @@ export class Service {
   }
   async dispose(): Promise<void> {
     for(const key of [...this.deltaBuffers.keys()])this.flushDelta(key);
-    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.nativeCompactionAdmissions.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
+    this.closed=true;this.projectTrustHostInstance?.dispose();this.requestCustody.dispose();this.relevanceObserver.clear();this.repositoryMaps.clear();this.inferenceOwners.clear();this.contextResultAuthorities.clear();clearInterval(this.curatorTimer);for(const controller of this.aborts.values())controller.abort();
     const settled=await Promise.allSettled([this.backgroundWork.drain(),this.intake.drain(),this.agentWork.dispose(),this.memoryHostInstance?.dispose(),this.predictions.dispose(),this.learning.dispose(),this.planning.dispose(),this.sideRuntime.dispose(),this.runtime.dispose()]);
     this.backgroundWork.dispose();
     await Promise.allSettled([...this.pending]);
-    this.compactionModelOwners.clear();
+    this.compactionHost.dispose();
     const failures=settled.flatMap(result=>result.status==='rejected'?[result.reason]:[]);if(failures.length)throw new AggregateError(failures,'Could not close every workspace runtime.');
   }
 }
