@@ -2,8 +2,16 @@ import {mkdtemp,mkdir,writeFile,symlink,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {describe,it,expect} from 'vitest';
+import {spawn} from 'node:child_process';
+import {EventEmitter} from 'node:events';
+import {PassThrough} from 'node:stream';
+import {describe,it,expect,vi} from 'vitest';
 import {distributionManifest,assertDistributionMatches,assertContainedPath,cursorDependencyVersion,resolveCursorDistributions,assertPackagedProbe,probeCursorBootstrap} from '../scripts/verify-packaged-providers.ts';
+
+vi.mock('node:child_process',async importOriginal=>{
+ const original=await importOriginal<typeof import('node:child_process')>();
+ return {...original,spawn:vi.fn(original.spawn)};
+});
 
 async function cursorFixture(directory:string){
  await writeFile(join(directory,'package.json'),JSON.stringify({dependencies:{'@cursor/sdk':'1.0.38'}}));
@@ -75,6 +83,31 @@ describe('packaged provider custody',()=>{
    expect(result.check.bootstrap.nativeHelper.versionOutput).toMatch(/^ripgrep /);
   }finally{await rm(directory,{recursive:true,force:true});}
  },45000);
+ it('preserves a UTF-8 path split across packaged report stdout chunks',async()=>{
+  const directory=await mkdtemp(join(tmpdir(),'harness-cursor-report-'));
+  try{
+   const {sdk,native}=await cursorFixture(directory);
+   const home=join(directory,'résumé'),rg=join(native,'bin/rg.exe');
+   const report=Buffer.from(JSON.stringify({node:{path:process.execPath,version:process.versions.node},roots:{cursorSdk:sdk,cursorNative:native},checks:[{
+    provider:'cursor-sdk',entry:join(sdk,'dist/esm/index.js'),versionOutput:'1.0.38',elapsedMs:1,arguments:[],home,auth:false,inference:false,
+    bootstrap:{credentialStore:'empty-memory',authStatus:'logged-out',agentCreate:true,networkRequests:0,sandboxExecution:false,nativeHelper:{entry:rg,versionOutput:'ripgrep 14.1.1',arguments:['--version']}},
+   }]}));
+   const split=report.indexOf(Buffer.from('résumé'))+2;
+   const child=Object.assign(new EventEmitter(),{stdout:new PassThrough(),stderr:new PassThrough()});
+   const launch=vi.mocked(spawn).mockImplementationOnce(()=>{
+    queueMicrotask(()=>{
+     child.stdout.write(report.subarray(0,split));
+     child.stdout.end(report.subarray(split));
+     child.stderr.end();
+     child.emit('close',0);
+    });
+    return child as unknown as ReturnType<typeof spawn>;
+   });
+   try{
+    expect((await probeCursorBootstrap(directory,process.execPath,directory)).check.home).toBe(home);
+   }finally{launch.mockClear();}
+  }finally{await rm(directory,{recursive:true,force:true});}
+ });
  it('detects missing lazy Cursor code and changed native helper bytes in full custody manifests',async()=>{
   const directory=await mkdtemp(join(tmpdir(),'harness-package-cursor-'));
   try{
