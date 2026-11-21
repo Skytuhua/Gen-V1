@@ -177,6 +177,8 @@ it.skipIf(process.platform !== 'win32')('cut+generation custody through the real
     const legacyReceipts = await readFile(legacyPath + '.inputs.jsonl', 'utf8');
     expect(legacyReceipts).toContain('cut-turn-two');
     expect(legacyReceipts).not.toContain('gen-rerun-1');
+    // The generation run must release the foreground before another start is admitted.
+    await vi.waitFor(() => expect(events.filter(event => event === 'settled')).toHaveLength(3), { timeout: 120000, interval: 200 });
     // Negative: a generation file must not be readable as a legacy session.
     await expect(runtime.start({ ...genInput, sessionGeneration: undefined, sessionPath: genPath, prompt: 'p', inputId: 'nope-1', inputIds: ['nope-1'], resources: [] } as never)).rejects.toThrow(/native session|different task|session/);
   } finally {

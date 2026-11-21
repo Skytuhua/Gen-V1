@@ -7,7 +7,7 @@ import {createProgressiveToolSession} from '../core/context-tool-discovery.ts';
 import {CONTEXT_DISCOVER_TOOLS,CONTEXT_DESCRIBE_TOOL,contextDiscoverArgs,contextDescribeArgs,hermesContextExposure,isBoundedContextRead} from '../core/context-progressive-tools.ts';
 import {GENERATED_APPS_ENABLED} from '../core/widgets.ts';
 import {appendFile,lstat,readFile,realpath} from 'node:fs/promises';
-import {dirname,join,resolve} from 'node:path';
+import {basename,dirname,join,resolve} from 'node:path';
 import {fileURLToPath,pathToFileURL} from 'node:url';
 import {createRequire} from 'node:module';
 import {EMPTY_USAGE,HarnessError,type CompletedWriteReceipt,type RunContext,type RuntimeAdapter,type RuntimeCallbacks,type RuntimeUsage,type StartRun} from '../contracts/index.ts';
@@ -277,7 +277,7 @@ export function createHermesEngine(options:HermesEngineOptions,dependencies:Herm
  async function captureTurnCut(path:string):Promise<{cutId:string;path:string}>{
   const file=resolve(path);if(!within(sessions,file))throw error('HERMES_SESSION_INVALID','Cuts require an app-owned Hermes source session.');
   await safeFile(file);const text=await readFile(file,'utf8');if(Buffer.byteLength(text)>MODEL_ONLY_MAX_WIRE_BYTES)throw error('HERMES_SESSION_LIMIT','The source session exceeds its bounded reader limit.');
-  const saved=parseSessionFile(JSON.parse(text));if(saved.ownership!.sessionPath!==file||sessionFileName({threadId:saved.ownership!.threadId,sessionGeneration:saved.ownership!.sessionGeneration})!==file.slice(file.length-file.split('/').pop()!.length))throw error('HERMES_SESSION_INVALID','The source session does not name its own custody path.');
+  const saved=parseSessionFile(JSON.parse(text));if(saved.ownership!.sessionPath!==file||sessionFileName({threadId:saved.ownership!.threadId,sessionGeneration:saved.ownership!.sessionGeneration})!==basename(file))throw error('HERMES_SESSION_INVALID','The source session does not name its own custody path.');
   const cutId=turnCutId(text),cut=file.slice(0,-5)+'.cut-'+cutId+'.json';await secureDirectory(root,dirname(cut));try{const item=await lstat(cut);if(!item.isFile()||item.isSymbolicLink())throw error('HERMES_SESSION_INVALID','The turn cut path is not an app-owned regular file.');}catch(failure){if((failure as NodeJS.ErrnoException).code!=='ENOENT')throw failure;}
   if(!(await realpath(dirname(cut)).then(()=>true,()=>false)))throw error('HERMES_SESSION_INVALID','The turn cut parent is unavailable.');
   try{const {writeFile,rename}=await import('node:fs/promises');const tmp=cut+'.'+randomUUID()+'.tmp';await writeFile(tmp,text);await rename(tmp,cut);}catch(failure){throw failure instanceof HarnessError?failure:error('HERMES_CUT_WRITE','The immutable turn cut could not be persisted.');}
