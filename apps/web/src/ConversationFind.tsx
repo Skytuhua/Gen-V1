@@ -1,6 +1,8 @@
 import {useCallback,useId,useLayoutEffect,useRef,useState,type RefObject} from 'react';
 import {ArrowDown,ArrowUp,Search,X} from 'lucide-react';
 import {conversationRanges,highlightConversation,nextFindIndex,retainFindIndex,type ConversationMatch} from './conversation-find';
+import {promptClipBoundary,promptClipEntry,rangeClippedBy} from './prompt-clips';
+import {scrollConversation} from './conversation-scroll';
 import {chordFor} from './keyboard-bindings';
 import {matchesShortcut} from './shell-layout';
 import './conversation-find.css';
@@ -20,16 +22,31 @@ export interface ConversationFindProps {
 export function ConversationFind({ownerKey,transcript,scope,active=true,onNavigate,onLoadEarlier,historyPending,historyLimited,historyError}:ConversationFindProps){
  const id=useId(),input=useRef<HTMLInputElement>(null),trigger=useRef<HTMLButtonElement>(null),restoreFocus=useRef(false),opener=useRef<HTMLElement|null>(null);
  const [open,setOpen]=useState(false),[query,setQuery]=useState(''),[count,setCount]=useState(0),[index,setIndex]=useState(-1);
- const matches=useRef<ConversationMatch[]>([]),selected=useRef<string|null>(null),lastQuery=useRef('');
+ const matches=useRef<ConversationMatch[]>([]),selected=useRef<string|null>(null),lastQuery=useRef(''),pendingReveal=useRef<string|null>(null);
  const navigateRef=useRef(onNavigate);navigateRef.current=onNavigate;
+ const openRef=useRef(open);openRef.current=open;
  const jump=useCallback((value:number)=>{
   const match=matches.current[value],root=transcript.current;if(!match||!root)return;
+  const boundary=promptClipBoundary(match.range.commonAncestorContainer);
+  if(boundary){
+   const entry=promptClipEntry(boundary),clip=entry?.clip();
+   if(entry&&clip&&entry.collapsed()&&rangeClippedBy(clip,match.range)){
+    pendingReveal.current=match.key;
+    entry.reveal(()=>{
+     const key=pendingReveal.current;pendingReveal.current=null;
+     if(!key||!openRef.current)return;
+     const latest=matches.current.findIndex(candidate=>candidate.key===key);
+     if(latest>=0)jump(latest);
+    });
+    return;
+   }
+  }
   const rect=match.range.getBoundingClientRect(),bounds=root.getBoundingClientRect();
-  root.scrollTop+=rect.top-bounds.top-root.clientHeight/2+rect.height/2;
+  scrollConversation(root,root.scrollTop+rect.top-bounds.top-root.clientHeight/2+rect.height/2);
   selected.current=match.key;setIndex(value);highlightConversation(root.ownerDocument,id,matches.current,value);navigateRef.current?.();
  },[transcript,id]);
  const close=useCallback(()=>{restoreFocus.current=true;setOpen(false);},[]);
- useLayoutEffect(()=>{setOpen(false);setQuery('');selected.current=null;matches.current=[];setCount(0);setIndex(-1);},[ownerKey]);
+ useLayoutEffect(()=>{setOpen(false);setQuery('');selected.current=null;matches.current=[];setCount(0);setIndex(-1);pendingReveal.current=null;},[ownerKey]);
  useLayoutEffect(()=>{
   const root=scope.current;if(!root||!active)return;
   const key=(event:KeyboardEvent)=>{

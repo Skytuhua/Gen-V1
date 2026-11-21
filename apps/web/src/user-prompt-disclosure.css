@@ -1,0 +1,14 @@
+.up-disclosure { min-inline-size:0; }
+.up-disclosure:focus-visible { outline:2px solid var(--ui-focus-ring); outline-offset:2px; }
+.up-disclosure-rail { position:sticky; inset-block-start:0; z-index:1; display:flex; align-items:center; min-block-size:32px; margin-block-end:4px; padding-inline-end:32px; background:var(--subtle); }
+.canvas-thread .up-disclosure-rail { background:var(--selection-bg); }
+.up-disclosure-toggle { display:inline-flex; align-items:center; gap:6px; min-block-size:32px; padding:4px 8px; font-size:13px; color:var(--text); border-radius:var(--control-radius,6px); }
+.up-disclosure-toggle:focus-visible { outline:2px solid var(--ui-focus-ring); outline-offset:2px; }
+.up-disclosure-clip { min-inline-size:0; font-size:14px; line-height:1.65; }
+.up-disclosure-clip[data-collapsed] { max-block-size:8lh; overflow:clip; }
+.up-disclosure-clip[data-settling] { overflow:clip; }
+.up-disclosure-clip[data-fade] { mask-image:linear-gradient(to bottom,#000 0,#000 calc(100% - 24px),transparent 100%); }
+@supports not (overflow:clip) {
+ .up-disclosure-clip[data-collapsed],.up-disclosure-clip[data-settling] { overflow:hidden; }
+}
+.up-disclosure-content { display:flow-root; min-inline-size:0; }

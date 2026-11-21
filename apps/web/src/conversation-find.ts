@@ -1,3 +1,4 @@
+import {isPromptClipBoundary} from './prompt-clips';
 export interface TextOffset {start:number;end:number}
 export function findTextOffsets(text:string,query:string):TextOffset[]{
  if(!query)return [];
@@ -18,7 +19,13 @@ export function conversationRanges(root:HTMLElement,query:string):ConversationMa
   const nodes:Text[]=[];let text='';
   const walker=root.ownerDocument.createTreeWalker(block,NodeFilter.SHOW_TEXT,{acceptNode(node){
    const parent=node.parentElement;
-   if(!parent||parent.closest('button, input, textarea, select, .sr-only, [hidden], [aria-hidden="true"], [inert], script, style')||!parent.getClientRects().length||getComputedStyle(parent).visibility==='hidden')return NodeFilter.FILTER_REJECT;
+   if(!parent||parent.closest('button, input, textarea, select, .sr-only, [hidden], [aria-hidden="true"], script, style')||!parent.getClientRects().length||getComputedStyle(parent).visibility==='hidden')return NodeFilter.FILTER_REJECT;
+   // Walk every inert ancestor: bypass only a registered user-prompt clip
+   // boundary so clipped-but-rendered text stays countable; any other inert
+   // owner still excludes the node.
+   for(let element:Element|null=parent;element;element=element.parentElement){
+    if(element.hasAttribute('inert')&&!isPromptClipBoundary(element))return NodeFilter.FILTER_REJECT;
+   }
    return NodeFilter.FILTER_ACCEPT;
   }});
   while(walker.nextNode()){nodes.push(walker.currentNode as Text);text+=walker.currentNode.textContent;}
