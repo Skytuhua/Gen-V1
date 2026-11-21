@@ -23,7 +23,7 @@ When All Agents has zero agents the panel shows one bare text line, top-left: "N
 ## REPO_MAP (verified on main@e883ac03)
 - `apps/web/src/agents-workspace/AgentsWorkspace.tsx` — renders the bare line `No active agents. Agents appear here once a conversation starts working.` (the empty branch beside the `Live` filter row).
 - `apps/web/src/agents-workspace/agents-workspace.css` — panel styles; no empty-state rules today.
-- `apps/web/src/EmptyWorkspace.tsx` + `apps/web/src/empty-workspace.css` (#1305) — reference vocabulary: `.empty-state`, `.empty-symbol` tile, h1/paragraph hierarchy, `empty-workspace-arrive` keyframes, motion-token names (`--ui-motion-insert`, `--ui-motion-stagger`, `--ui-motion-press`, `--ui-ease-enter`).
+- `apps/web/src/EmptyWorkspace.tsx` + `apps/web/src/empty-workspace.css` — DEPENDENCY, not verified on baseline: these files land with PR #1305 (issue #1295), still unmerged. They are the reference vocabulary: `.empty-state`, `.empty-symbol` tile, h1/paragraph hierarchy, `empty-workspace-arrive` keyframes, motion-token names (`--ui-motion-insert`, `--ui-motion-stagger`, `--ui-motion-press`, `--ui-ease-enter`). If #1305 is not merged when T01 starts, read the token/class names from #1305's head branch (`git show origin/<pr-1305-branch>:apps/web/src/empty-workspace.css`) or replicate equivalent styles in `agents-workspace.css`; record which path was taken.
 - Tokens to reuse: `--border`, `--surface`, `--text`, `--muted`, `--accent`, `--ui-focus-ring`.
 - Tests: `tests/e2e/agents-workspace.spec.ts`, `tests/e2e/agents-workspace-evidence.spec.ts` (existing e2e files to extend).
 
@@ -42,15 +42,15 @@ Two states, one component `AgentsEmptyState` inside `AgentsWorkspace.tsx`:
 - Motion: entrance `empty-workspace-arrive`-equivalent (`opacity 0→1`, `translateY(6px)→0`, duration `calc(var(--ui-motion-insert) * 2)`, easing `var(--ui-ease-enter)`); h2 delay `var(--ui-motion-stagger)`, subline `×2`, action `×3`. Reduced/off/PRM: fade-only or none per the `empty-workspace.css` precedent.
 
 ## EXECUTION_DAG
-- T01: In `AgentsWorkspace.tsx`, replace the bare empty line with `AgentsEmptyState` covering both variants; wire "New conversation" to the existing new-thread path and "Clear filters" to the existing filter state reset. Done when both states render in the fixture host.
-- T02: Add CSS in `agents-workspace.css` per DESIGN values, including the three motion gates. Done when computed styles match spec in devtools in both themes.
-- T03: Extend `tests/e2e/agents-workspace.spec.ts`: assert hero region, copy, button role/labels; assert filtered variant appears when a filter excludes all rows and that "Clear filters" restores the list; assert `animationName` under `data-motion=reduced`/`off` mirrors the #1305 test. Done when the spec passes locally.
-- T04: Verify at 320 px and 1440 px, light+dark; attach screenshots to the implementing PR. Done when no overflow/clipping.
+- T01 (single owner, prerequisites: none; verify #1305 merge state first): In `AgentsWorkspace.tsx`, replace the bare empty line with `AgentsEmptyState` covering both variants; wire "New conversation" to the existing new-thread path and "Clear filters" to the existing filter state reset. Positive test: both variants render in the fixture host. Negative test: zero-agent branch does not render the agent grid or the filter row's empty-adjacent controls. Done when both states render on the fixture host. Hands off to T02.
+- T02 (same owner as T01; prerequisite: T01 DOM in place): Add CSS in `agents-workspace.css` per DESIGN values, including the three motion gates (`data-motion`, `data-panel-animations`, `prefers-reduced-motion`). Positive test: computed styles match spec in devtools, both themes. Negative test: animations resolve to none/fade under `data-motion="off"`/`"reduced"`. Done when computed values match DESIGN in both themes. Hands off to T03.
+- T03 (same owner; prerequisite: T01+T02): Extend `tests/e2e/agents-workspace.spec.ts`: assert hero region role/aria-label, copy strings, button role/labels; assert filtered variant appears when a filter excludes all rows and "Clear filters" restores the list; assert `animationName` under `data-motion=reduced`/`off` mirrors the #1305 test; run an axe accessibility scan (`@axe-core/playwright`, matching how other specs use it — verify the existing helper first) on the empty state and assert zero violations. Positive: spec passes locally. Negative: spec fails if copy, roles or motion gates regress. Done when the spec passes locally. Hands off to T04.
+- T04 (same owner; prerequisite: T01–T03 green): Verify at 320 px and 1440 px, light+dark; attach screenshots to the implementing PR. Positive: no overflow/clipping, correct token colors in both themes. Negative: none — visual pass only. Done when screenshots are on the PR and CI is green. Recipient: implementing PR author; no further handoff.
 
 ## VALIDATION
 - Commands: `pnpm lint`, `pnpm typecheck`, `pnpm exec vitest run tests/agents-workspace-grid.test.ts`, `pnpm exec playwright test tests/e2e/agents-workspace.spec.ts` (planned, not yet executed).
 - Fixture: review host on :4317 (recorded fixtures). Manual: open All Agents, apply project filter "No project" to force the filtered variant, run Clear filters.
-- Acceptance matrix: copy strings, roles, aria-labels, px values above; zero console errors; both motion policies honored.
+- Acceptance matrix: copy strings, roles, aria-labels, px values above; zero console errors; both motion policies honored; axe scan on the empty state reports zero violations (executed by T03).
 - Release gate: CI green on the implementing PR; visual evidence attached.
 
 ## STATE
