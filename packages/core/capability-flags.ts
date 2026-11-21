@@ -90,7 +90,7 @@ export type M11FlagKey = (typeof M11_FLAG_KEYS)[number];
 export const M14_FLAG_KEYS = ["sessions.branchV1", "sessions.inertImportV1"] as const;
 export type M14FlagKey = (typeof M14_FLAG_KEYS)[number];
 
-export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1"] as const;
+export const M15_FLAG_KEYS = ["ui.sourceWorkbenchV1", "ui.testResultsV1"] as const;
 export type M15FlagKey = (typeof M15_FLAG_KEYS)[number];
 
 // M10 flag set: durable background work and human handoffs. Each risky
@@ -125,6 +125,7 @@ export type CapabilityFlagKey = M02FlagKey | M08FlagKey | M04FlagKey | M04CoreFl
 
 const hostDefinitions: readonly CapabilityFlagDefinition[] = [
   { key: "ui.sourceWorkbenchV1", owner: "m15", description: "Owner-validated source selections and read-only operator workbench contributions." },
+  { key: "ui.testResultsV1", owner: "m15", description: "Structured test results and single-test rerun for approved repository test runs." },
   { key: "control.consentedBrowserV1", owner: "m16", description: "Consented control of an explicitly selected browser tab; requires an approved driver and explicit per-session consent." },
   { key: "control.selectedDesktopV1", owner: "m16", description: "Consented control of an explicitly selected desktop application; requires an approved driver and explicit per-session consent." },
   { key: "context.compilerV1", owner: "m04-core", description: "Host-issued immutable request preparation and measured context receipts." },

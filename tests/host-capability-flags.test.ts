@@ -64,3 +64,8 @@ it('prevents a competing host from changing live flags and retains an identical 
   first(); first(); expect(capabilityEnabled('memory.projectV1')).toBe(true);
   second(); expect(Object.values(registeredCapabilityFlags()).every(value => value === false)).toBe(true);
 });
+
+it('registers ui.testResultsV1 beside ui.sourceWorkbenchV1 with the default off', () => {
+  expect(capabilityEnabled('ui.testResultsV1')).toBe(false);
+  expect(capabilityEnabled('ui.sourceWorkbenchV1')).toBe(false);
+});

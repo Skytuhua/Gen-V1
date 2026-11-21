@@ -52,4 +52,5 @@ export interface Capability { name: string; category: string; description: strin
 export const EMPTY_USAGE: RuntimeUsage = { contextTokens: null, contextWindow: null, inputTokens: null, outputTokens: null, cacheReadTokens: null, cacheWriteTokens: null, cost: null, activity: "idle", sessionPercent: null, weeklyPercent: null };
 export class HarnessError extends Error { constructor(public code: string, message: string, public details?: unknown) { super(message); this.name = "HarnessError"; } }
 export * from "./tool-effects.ts";
+export * from "./test-results.ts";
 export type * from "./request-context.ts";
