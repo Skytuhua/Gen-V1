@@ -4,12 +4,13 @@ import type {CommandReceipt,Snapshot} from '../../../packages/contracts';
 import type {SkillDetail,SkillOperation,SkillProposal,SkillProposalSummary,SkillSummary} from '../../../packages/contracts/skills';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
 import {ApiError,command,getSkill,getSkillProposal} from './api';
+import {errorText} from './error-recovery.ts';
 import {journalCompareAndSwap,journalGeneration,journalRead,journalWrite} from './journal';
 import './skill-library.css';
 
 type Act=(type:string,payload:Record<string,unknown>)=>Promise<CommandReceipt>;
 type Draft={content:string;description:string;baseRevision:number};
-const message=(cause:unknown)=>cause instanceof Error?cause.message:'The skill could not be updated. Your draft is retained.';
+const message=(cause:unknown)=>errorText(cause,'The skill could not be updated. Your draft is retained.');
 
 function SkillEditor({skill,act,locked}:{skill:SkillSummary;act:Act;locked:boolean}){
  const [detail,setDetail]=useState<SkillDetail>(),[draft,setDraft]=useState<Draft>(),[latest,setLatest]=useState<SkillDetail>(),[history,setHistory]=useState<SkillDetail>(),[file,setFile]=useState<{path:string;content:string}>(),[error,setError]=useState(''),[busy,setBusy]=useState(false),[dirty,setDirty]=useState(false);

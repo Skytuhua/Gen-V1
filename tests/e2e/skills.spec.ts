@@ -72,7 +72,7 @@ test('retirement after historical detail rejects restore once and preserves the 
 });
 test('ordinary history transport failures stay retryable and do not retire source rows',async({page})=>{
  const x=await fixture(page,{sourceHistory:true});x.historyControl.error={code:'HERMES_SOURCE_BUSY',message:'The canonical source is busy.'};await x.open();await inspectHistory(page);await page.getByRole('button',{name:'View revision 1',exact:true}).click();
- await expect(skillStatus(page,'The canonical source is busy.')).toHaveText('The canonical source is busy.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
+ await expect(skillStatus(page,'The canonical source is busy.')).toHaveText('The canonical source is busy. Something went wrong on the local host. Try again.');await expect(page.getByRole('button',{name:'View revision 1',exact:true})).toBeEnabled();await expect(page.getByText('Source unavailable',{exact:true})).toHaveCount(0);
  x.historyControl.error=undefined;await page.getByRole('button',{name:'View revision 1',exact:true}).click();await expect(page.getByLabel('Historical skill version',{exact:true})).toContainText(detail().content);expect(x.host.commands).toHaveLength(0);expect(x.reads).toBe(3);
 });
 
