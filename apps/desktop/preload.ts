@@ -15,7 +15,7 @@ const bridge:DesktopBridge={
  exportProjectMemory:serializedExport=>ipcRenderer.invoke(channels.memoryExport,serializedExport),
  openAttention:eventId=>ipcRenderer.invoke(channels.attentionOpen,eventId),
  onAttentionOpen:listener=>{const receive=(_event:Electron.IpcRendererEvent,value:unknown)=>{if(value&&typeof value==='object'&&Object.keys(value).length===1&&typeof(value as {threadId?:unknown}).threadId==='string'&&/^[A-Za-z0-9_.:-]{1,200}$/.test((value as {threadId:string}).threadId))listener((value as {threadId:string}).threadId);};ipcRenderer.on(channels.attentionSelected,receive);return()=>ipcRenderer.removeListener(channels.attentionSelected,receive);},
- setTheme:theme=>ipcRenderer.invoke(channels.theme,theme),
+ setTheme:theme=>ipcRenderer.invoke(channels.theme,theme),setSpellcheck:state=>ipcRenderer.invoke(channels.spellcheck,state),spellcheckLanguages:()=>ipcRenderer.invoke(channels.spellcheckLanguages),
  update:action=>ipcRenderer.invoke(channels.update,action),
  getContext:()=>ipcRenderer.invoke(channels.context),ready:()=>ipcRenderer.invoke(channels.ready),detach:surface=>ipcRenderer.invoke(channels.detach,parseDesktopSurface(surface)),reattach:()=>ipcRenderer.invoke(channels.reattach),minimize:()=>ipcRenderer.invoke(channels.minimize),resetBounds:()=>ipcRenderer.invoke(channels.reset),focus:id=>ipcRenderer.invoke(channels.focus,id),list:()=>ipcRenderer.invoke(channels.list),browser:command=>ipcRenderer.invoke(channels.browser,command),
  control:command=>ipcRenderer.invoke(channels.control,command),captureLayout:()=>ipcRenderer.invoke(channels.captureLayout),applyLayout:layout=>ipcRenderer.invoke(channels.applyLayout,layout),

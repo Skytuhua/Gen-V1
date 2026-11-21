@@ -44,6 +44,7 @@ const preferenceRows: Record<string, { key: keyof UiPreferences; options?: reado
   'unpin-confirmation': { key: 'unpinConfirmation', description: 'Ask before removing a pinned thread.' },
   'composer-context': { key: 'showComposerContext', description: 'Show conversation capacity beside the composer.' },
   'harness-composer-predictions': { key: 'composerPredictions', description: 'Uses the selected model and subscription quota.' },
+  'composer-spellcheck': { key: 'composerSpellcheck', description: 'Underline misspelled words in messages you write.' },
   'thread-details-items': { key: 'showThreadDetails', description: 'Show task status in the conversation header.' },
   'project-grouping': { key: 'projectGrouping', description: 'Group sidebar threads by project.' },
   'project-order': { key: 'projectOrder', options: ['recent', 'created', 'manual'], labels: ['Recent activity', 'Creation time', 'Manual'], description: 'Order project groups in the sidebar.' },
@@ -62,7 +63,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('time-format', 'Time format', 'general'), row('archive-confirmation', 'Archive confirmation', 'general'), row('unpin-confirmation', 'Unpin confirmation', 'general'),
   row('harness-personalization', 'Appearance', 'appearance', 'theme dark light system accent custom contrast density compact comfortable touch fonts interface prompt code size radius motion speed reduced preview reset'),
   row('chat-width', 'Chat width', 'appearance', '680 760 full comfortable wide message composer'), row('word-wrap', 'Code line wrap', 'appearance'), row('harness-project-colors', 'Project colors', 'appearance', 'palette custom hex'),
-  row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
+  row('send-shortcut', 'Send shortcut', 'chat'), row('composer-context', 'Composer context', 'chat'), row('harness-composer-predictions', 'Suggest my next message', 'chat'), row('composer-spellcheck', 'Check spelling', 'chat', 'spelling spellcheck typo dictionary language'), row('spellcheck-language', 'Spelling language', 'chat', 'spelling language dictionary'), row('thread-details-items', 'Thread details', 'chat'), row('project-grouping', 'Group threads by project', 'chat'), row('project-order', 'Project order', 'chat'), row('working-shelf', 'Working section', 'chat'),
   row('harness-local-models', 'Available models', 'providers', 'refresh runtime'), row('default-model', 'Default model', 'providers'), row('harness-accounts', 'Accounts', 'providers', 'subscriptions sign in credentials'), row('harness-runtime', 'Local runtime & environments', 'providers', 'environment variables secret local host'),
   ...SUBSCRIPTION_CONNECTIONS.map(connection => row(`provider-${connection.id}`, connection.label, 'providers', `${connection.id} ${connection.description}`)),
   ...APPEARANCE_FIELDS.filter(field => field.id !== 'chat-width' && field.id !== 'word-wrap').map(field => row(field.id, field.label, 'appearance', field.terms)),
@@ -87,6 +88,17 @@ function PreferenceControl({ item, preferences, update, busy }: { item: Settings
 }
 function ShortcutInput({ action, label, value, save, busy }: { action: string; label: string; value: string; save: (key: string, value: string) => void; busy: boolean }) {
   return <input aria-label={`${label} shortcut`} title="Focus and press a shortcut" readOnly value={value} disabled={busy} onKeyDown={event => { if (event.nativeEvent.isComposing || event.keyCode === 229 || event.key === 'Tab') return; event.preventDefault(); event.stopPropagation(); if (['Control', 'Meta', 'Alt', 'Shift'].includes(event.key)) return; const key = event.key === ',' ? 'Comma' : event.key.length === 1 ? event.key.toUpperCase() : event.key; save(action, [event.ctrlKey ? 'Ctrl' : '', event.metaKey ? 'Meta' : '', event.altKey ? 'Alt' : '', event.shiftKey ? 'Shift' : '', key].filter(Boolean).join('+')); }}/>;
+}
+function SpellcheckLanguageControl({ item, preferences, update, busy, desktop }: { item: SettingsInventoryRow; preferences: UiPreferences; update: (value: Partial<UiPreferences>) => Promise<void>; busy: boolean; desktop: ReturnType<typeof useDesktop> }) {
+  const [languages, setLanguages] = useState<{ platformManaged: boolean; available: string[] } | null>(null);
+  useEffect(() => { let active = true; void desktop?.bridge.spellcheckLanguages?.().then(value => { if (active) setLanguages(value); }).catch(() => { if (active) setLanguages({ platformManaged: false, available: [] }); }); return () => { active = false; }; }, [desktop?.bridge]);
+  const displayNames = new Intl.DisplayNames([navigator.language], { type: 'language' });
+  if (!desktop) return <span className="settings-note muted">Your browser chooses the spelling language.</span>;
+  if (languages?.platformManaged) return <span className="settings-note muted">macOS uses the languages set in System Settings &gt; Keyboard &gt; Text Input.</span>;
+  const labels = (languages?.available ?? []).map(tag => ({ tag, label: displayNames.of(tag) ?? tag }));
+  const collisions = new Set(labels.map((a, i) => labels.some((b, j) => i !== j && a.label === b.label)).map((hit, i) => hit ? labels[i]!.tag : '').filter(Boolean));
+  const options = [{ value: '', label: 'Match system' }, ...[...labels].sort((a, b) => a.label.localeCompare(b.label)).map(({ tag, label }) => ({ value: tag, label: collisions.has(tag) ? `${label} (${tag})` : label }))];
+  return <Select aria-label={item.title} disabled={busy} value={preferences.spellcheckLanguage ?? ''} onValueChange={next => void update({ spellcheckLanguage: next === '' ? null : next })} options={options}/>;
 }
 export interface SettingsActions {
   environmentSettings?: ReactNode; openBrowser?: (url: string) => Promise<void>;
@@ -160,6 +172,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
     if (item.id === 'thread-notifications') return { description: desktop ? preferenceRows[item.id]!.description : `${preferenceRows[item.id]!.description} System popups and sound are unavailable in this browser build; in-app notices stay active.`, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
+    if (item.id === 'spellcheck-language') return { description: 'Language used to check spelling.', control: <SpellcheckLanguageControl item={item} preferences={preferences} update={update} busy={busy} desktop={desktop}/> };
     if (preferenceRows[item.id]) return { description: preferenceRows[item.id]!.description, control: <PreferenceControl item={item} preferences={preferences} update={update} busy={busy}/> };
     if (item.id.startsWith('harness-keybinding-')) { const action = item.id.slice('harness-keybinding-'.length) as keyof UiPreferences['keybindings']; return { description: 'Focus and press a shortcut.', control: <ShortcutInput action={action} label={item.title} value={preferences.keybindings[action]} busy={busy} save={(key, value) => void persist({ preferences: { keybindings: { [key]: value } } })}/> }; }
     if (item.id.startsWith('license-')) { const notice = DEPENDENCY_NOTICES.find(([name]) => name === item.title)!; return { description: `Version ${notice[1]} · ${notice[2]}. Complete LICENSE and NOTICE files remain in the installed package.`, control: <a href={`https://www.npmjs.com/package/${encodeURIComponent(notice[0])}/v/${notice[1]}`} target="_blank" rel="noreferrer">Package notice<ExternalLink size={12}/></a> }; }
@@ -197,7 +210,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
         {rows.length === 0 && <p className="settings-empty">No matching settings.</p>}
       </> : <>
       {showAppearance && <div data-setting-id="harness-personalization"><AppearanceSettings preferences={preferences} theme={data.settings.theme} projects={data.projects} busy={busy} save={(patch, theme) => persist({ preferences: patch, ...(theme ? { theme } : {}) })}/></div>}
-      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); return <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}</div><div className="settings-row-control">{control}</div></section>; })}
+      {rows.filter(item => !customRows.has(item.id)).map(item => { const { description, control } = details(item); const row = <section key={item.id} className="settings-row" data-setting-id={item.id==='harness-runtime'?'harness-runtime-summary':item.id}><div className="settings-row-copy"><h2>{item.title}</h2>{description&&<p>{description}</p>}</div><div className="settings-row-control">{control}</div></section>; return item.id === 'spellcheck-language' ? <div key={item.id} className="settings-row-reveal" data-open={preferences.composerSpellcheck}>{row}</div> : row; })}
       {matches('harness-keyboard-reference') && <div data-setting-id="harness-keyboard-reference"><KeyboardReference keybindings={preferences.keybindings}/></div>}
       {matches('harness-notification-controls') && <div data-setting-id="harness-notification-controls"><NotificationSettings preferences={preferences} busy={busy} update={update} desktop={Boolean(desktop)}/></div>}
       {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}

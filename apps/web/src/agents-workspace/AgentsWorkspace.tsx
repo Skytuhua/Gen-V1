@@ -22,7 +22,7 @@ export interface AgentsWorkspaceProps {
  controller: AgentsWorkspaceController;
  composers: SharedAgentComposers;
  onOpenConversation(threadId: string, intent?: 'model'): void;
- preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>};
+ preferences?: {density?: 'compact' | 'comfortable'; projectColors?: Record<string, string>; composerSpellcheck?: boolean};
  projects?: readonly {id: string; name: string}[];
  hasConversations?: boolean;
 }
@@ -135,7 +135,7 @@ function Agent({node, controller, composers, onOpenConversation, preferences}: {
   <div className="agents-activity">{agent.modelId && <span className="agents-model">{agent.modelId}</span>}<p>{agent.currentAction || (agent.status === 'completed' ? 'Work completed' : statusLabel(agent.status))}</p>{agent.reportedPercent !== null && <progress max={100} value={agent.reportedPercent} aria-label={`${agent.title} progress`}/>}</div>
   {agent.threadId ? <Transcript agent={agent} controller={controller}/> : <p className="agents-empty">Transcript unavailable.</p>}
   {!child && agent.threadId && <AgentWorkPanel threadId={agent.threadId}/>}
-  {composers.supports(agent) ? <InlineComposer agent={agent} composers={composers} controller={controller} onOpenConversation={onOpenConversation}/> : child && <p className="agents-readonly">{agent.status === 'working' ? 'Follow-up unavailable' : 'Read-only'}</p>}
+  {composers.supports(agent) ? <InlineComposer agent={agent} composers={composers} controller={controller} onOpenConversation={onOpenConversation} preferences={preferences}/> : child && <p className="agents-readonly">{agent.status === 'working' ? 'Follow-up unavailable' : 'Read-only'}</p>}
   {Boolean(children.length) && <div className="agents-children"><button type="button" className="agents-disclosure" aria-expanded={!view.collapsed} aria-controls={groupId} onClick={toggle}>{view.collapsed ? <ChevronRight size={15}/> : <ChevronDown size={15}/>}Subagents · {children.length}</button><div id={groupId} hidden={view.collapsed}>{children.map(child => <Agent key={child.agent.agentId} node={child} controller={controller} composers={composers} onOpenConversation={onOpenConversation} preferences={preferences}/>)}</div></div>}
  </section>;
 }
@@ -172,7 +172,7 @@ function Transcript({agent, controller}: {agent: AgentSummary; controller: Agent
   {state.error && <ErrorState className="agents-error" message={state.error} retryLabel="Retry history" onRetry={() => {void controller.retryHistory(agent.agentId);}} />}
  </div>{view.unread && <button type="button" className="agents-new-output" onClick={() => {controller.setView(agent.agentId, {atEnd: true, unread: false}, true); log.current?.scrollTo({top: log.current.scrollHeight});}}>New output</button>}</div>;
 }
-function InlineComposer({agent, composers, controller,onOpenConversation}: {agent: AgentSummary; composers: SharedAgentComposers; controller: AgentsWorkspaceController;onOpenConversation:AgentsWorkspaceProps['onOpenConversation']}) {
+function InlineComposer({agent, composers, controller,onOpenConversation, preferences}: {agent: AgentSummary; composers: SharedAgentComposers; controller: AgentsWorkspaceController;onOpenConversation:AgentsWorkspaceProps['onOpenConversation']; preferences?: AgentsWorkspaceProps['preferences']}) {
  const state = useSyncExternalStore(listener => composers.subscribe(agent, listener), () => composers.getSnapshot(agent)), input = useRef<HTMLTextAreaElement>(null), commands=useRef<ComposerCommandsHandle>(null);
  useEffect(() => {void composers.prepare(agent);}, [composers, agent.threadId, agent.agentId, agent.revision]);
  const desktop = useDesktop(), surface = agent.threadId ? {kind: 'thread' as const, threadId: agent.threadId} : null;
@@ -184,7 +184,7 @@ function InlineComposer({agent, composers, controller,onOpenConversation}: {agen
  const skillsBlocked = !agent.parentId && Boolean(state.skills?.length) && !state.retry;
  const send = () => {if (!currentHeld.current && !skillsBlocked) void composers.submit(agent);};
  return <><div inert={held}><ComposerView className="agents-composer" onSubmit={event => {event.preventDefault(); send();}}>
-  <textarea ref={input} aria-label={`Message to ${agent.title}`} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={1} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
+  <textarea ref={input} aria-label={`Message to ${agent.title}`} spellCheck={preferences?.composerSpellcheck === true} placeholder={agent.parentId ? 'Follow up…' : 'Message…'} rows={1} value={state.draft} disabled={held || !state.ready} onFocus={() => controller.setView(agent.agentId, {focus: 'composer'})} onChange={event => {void composers.edit(agent, event.target.value);}} onKeyDown={event => {if(commands.current?.keyDown(event))return;if (isComposing(event) || event.shiftKey || event.altKey || event.ctrlKey || event.metaKey) return; if (event.key === 'Enter') {event.preventDefault(); send();}}}/>
   {!agent.parentId&&<><ComposerSkillBindings bindings={state.skills??[]} retry={state.retry} disabled={held} onRemove={id=>{void composers.removeSkill(agent,id).catch(()=>{});}}/><ComposerCommands ref={commands} input={input} draft={state.draft} threadId={agent.threadId??undefined} projectId={agent.projectId??undefined} disabled={held||!state.ready||state.busy||state.stopping} onDraft={text=>{void composers.edit(agent,text);}} onModel={()=>{if(agent.threadId)onOpenConversation(agent.threadId,'model');}} onMode={async mode=>{if(agent.status==='working')throw Error('Wait for the active run to finish to change mode.');const revision=modeOwner.current.revision,owner=desktop?desktop.ownership(surface):0;if(agent.threadId)await command('thread.mode',{mode},agent.threadId,undefined,()=>modeOwner.current.active&&!currentHeld.current&&modeOwner.current.revision===revision&&owner!==undefined&&(!desktop||desktop.ownership(surface)===owner));}}/></>}
   <div className="agents-composer-actions"><span role="status">{state.ticket ? `${state.ticket.status.replaceAll('_', ' ')}${state.ticket.error ? ': ' + state.ticket.error : ''}` : state.busy ? 'Sending…' : ''}</span>
    {!agent.parentId && agent.status === 'working' && <button type="button" aria-label={`Stop ${agent.title}`} disabled={held || state.stopping} onClick={() => {if (!currentHeld.current) void composers.stop(agent);}}><Square size={13}/>{state.stopping ? 'Stopping…' : 'Stop'}</button>}

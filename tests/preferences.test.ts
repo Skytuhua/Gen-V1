@@ -44,6 +44,18 @@ describe('UI preferences and thread presentation', () => {
     const b = mergePreferences(DEFAULT_PREFERENCES, { keybindings: { search: 'Alt+K' } });
     expect(b.keybindings.newThread).toBe('Ctrl+Shift+O'); expect(b.keybindings.search).toBe('Alt+K');
   });
+  it('keeps composer spellcheck off by default, accepts valid patches and tolerates old profiles', () => {
+    const defaults = getPreferences({});
+    expect(defaults.composerSpellcheck).toBe(false); expect(defaults.spellcheckLanguage).toBeNull();
+    const merged = mergePreferences(defaults, { composerSpellcheck: true, spellcheckLanguage: 'de-DE' });
+    expect(merged.composerSpellcheck).toBe(true); expect(merged.spellcheckLanguage).toBe('de-DE');
+    expect(getPreferences({ preferences: { fontSize: 16 } }).composerSpellcheck).toBe(false);
+  });
+  it.each([{ spellcheckLanguage: '../x' }, { spellcheckLanguage: '' }, { spellcheckLanguage: 'ab-cdefghi-' + 'x'.repeat(40) }, { spellcheckLanguage: 12 }, { composerSpellcheck: 'yes' }])('rejects invalid spellcheck preference values %j', value => {
+    expect(() => mergePreferences(DEFAULT_PREFERENCES, value)).toThrow();
+    const read = getPreferences({ preferences: value as never });
+    expect(read.composerSpellcheck).toBe(DEFAULT_PREFERENCES.composerSpellcheck); expect(read.spellcheckLanguage).toBe(DEFAULT_PREFERENCES.spellcheckLanguage);
+  });
   it.each([{ remoteAccess: true }, { fontSize: 90 }, { panelAnimations: 'yes' }, { motionDuration: -1 }, { keybindings: { executeShell: 'Ctrl+X' } }])('rejects unsupported or invalid preference values %j', value => {
     expect(() => mergePreferences(DEFAULT_PREFERENCES, value)).toThrow();
   });

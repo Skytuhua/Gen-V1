@@ -40,6 +40,7 @@
     "apps/desktop/memory-export.ts",
     "apps/desktop/persistence.ts",
     "apps/desktop/preload.ts",
+    "apps/desktop/spellcheck.ts",
     "apps/desktop/startup.html",
     "apps/desktop/updater.ts",
     "apps/desktop/window-policy.ts",
@@ -2904,6 +2905,7 @@
     "tests/desktop-output.test.ts",
     "tests/desktop-packaging.test.ts",
     "tests/desktop-preload-accounts.test.ts",
+    "tests/desktop-spellcheck.test.ts",
     "tests/desktop-update-close.test.ts",
     "tests/desktop-updater.test.ts",
     "tests/device-pairing-v3.test.ts",
@@ -4523,6 +4525,7 @@
     "vitest.config.ts"
   ],
   "runtime": [
+    "apps/desktop/spellcheck.ts",
     "apps/server/account-auth.ts",
     "apps/server/agent-input-routes.ts",
     "apps/server/agent-inventory-routes.ts",
