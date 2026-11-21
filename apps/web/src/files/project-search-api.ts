@@ -1,7 +1,8 @@
 import { z } from "zod";
+import { Sha256Hex } from '../../../../packages/contracts/hashing.ts';
 
 const id = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
-const sha256 = z.string().regex(/^[a-f\d]{64}$/);
+const sha256 = Sha256Hex;
 const hostFiles = new Set([
 	"harness.sqlite",
 	"harness.sqlite-wal",

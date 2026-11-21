@@ -1,5 +1,6 @@
 import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { z } from "zod";
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from "../contracts/index.ts";
 import type { ApprovalV1, ToolEffectRecord } from "../contracts/tool-effects.ts";
 import { observationFreshness } from "./effect-recovery.ts";
@@ -11,7 +12,7 @@ import type { Store } from "../storage/store.ts";
  * current owner checks still apply before any captured data is released. */
 
 const target = z.strictObject({ threadId: z.string().min(1).max(200) });
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const scope = target.extend({ scopeKey: hash });
 const invocationPageSchema = scope.extend({
   limit: z.number().int().min(1).max(50).default(25),

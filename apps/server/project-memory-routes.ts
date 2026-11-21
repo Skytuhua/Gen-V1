@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { Sha256Hex } from '../../packages/contracts/hashing.ts';
 import { HarnessError } from '../../packages/contracts/index.ts';
 import { memoryActionEnvelopeSchema, memoryScope, memoryScopeSchema, memorySourceRefV1Schema } from '../../packages/contracts/project-memory.ts';
 import { ProjectMemory } from '../../packages/core/project-memory.ts';
@@ -9,7 +10,7 @@ import type { Service } from '../../packages/core/service.ts';
 const id = z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_.-]+$/);
 const ownerQuery = z.strictObject({ threadId: id });
 const revisionQuery = ownerQuery.extend({ itemId: id, revision: z.string().regex(/^[1-9][0-9]*$/).transform(Number).pipe(z.number().int().positive().safe()) });
-const sourceQuery = revisionQuery.extend({ sourceDigest: z.string().regex(/^[a-f0-9]{64}$/), sourceRef: z.string().max(4096).transform((text, ctx) => { try { return JSON.parse(text) as unknown; } catch { ctx.addIssue({code: 'custom', message: 'Invalid source reference'}); return z.NEVER; } }).pipe(memorySourceRefV1Schema).optional() });
+const sourceQuery = revisionQuery.extend({ sourceDigest: Sha256Hex, sourceRef: z.string().max(4096).transform((text, ctx) => { try { return JSON.parse(text) as unknown; } catch { ctx.addIssue({code: 'custom', message: 'Invalid source reference'}); return z.NEVER; } }).pipe(memorySourceRefV1Schema).optional() });
 
 /** Register only under the Personal host session/origin/CSRF hooks. No tool or plugin dispatch. */
 export function registerProjectMemoryRoutes(app: FastifyInstance, createMemory: () => ProjectMemory, service?: Service): void {

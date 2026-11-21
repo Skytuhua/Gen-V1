@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Sha256Hex } from './hashing.ts';
 
 /** Read-only contracts. These identifiers do not authorize Git or review writes. */
 export const CODE_REVIEW_LIMITS = {
@@ -10,7 +11,7 @@ export const CODE_REVIEW_LIMITS = {
 } as const;
 export const ComparisonScopeSchema = z.strictObject({ scope: z.enum(["staged", "worktree"]) });
 export const ComparisonFileRequestSchema = z.strictObject({
-  comparisonId: z.string().regex(/^[a-f0-9]{64}$/),
+  comparisonId: Sha256Hex,
   path: z
     .string()
     .min(1)

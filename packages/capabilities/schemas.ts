@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { Sha256Hex } from '../contracts/hashing.ts';
 const id = z.string().min(1).max(200);
 export const relativePath = z.string().min(1).max(1024).refine(s => !s.includes("\0") && !/^(?:[a-z]:|[\\/])|(?:^|[\\/])\.\.(?:[\\/]|$)|:/.test(s), "Path must stay within a resource grant");
 const resource = { resourceId: id, path: relativePath.optional() };
-const sha = z.string().regex(/^[a-f0-9]{64}$/);
+const sha = Sha256Hex;
 const statement = z.strictObject({ sql: z.string().min(1).max(32_000), params: z.array(z.union([z.string().max(100_000), z.number().finite(), z.null()])).max(200).optional(), expectedChanges: z.number().int().min(0).max(1_000_000).optional() });
 const point = z.strictObject({ x: z.number().min(0).max(1), y: z.number().min(0).max(1) });
 const placement = { page: z.number().int().min(1), x: z.number().min(0), y: z.number().min(0), width: z.number().positive().max(2000), height: z.number().positive().max(2000) };

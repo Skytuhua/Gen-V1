@@ -1,10 +1,11 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 import type { CommandReceipt } from './index.ts';
 import type { ComparisonIdentity } from './code-review.ts';
 
 // Durable command IDs retain the same domain at admission and read-only recovery.
 const identifier = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
-const revision = z.string().regex(/^[a-f0-9]{64}$/),
+const revision = Sha256Hex,
   oid = z.string().regex(/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/);
 const repo = z.string().regex(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/);
 export const workspaceActionTypeSchema = z.enum(['stage', 'unstage', 'commit', 'review-pr', 'create-pr']);

@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 import { toolOwnerSchema } from './tool-effects.ts';
 
 /** M16 consented browser and desktop actions — contract layer.
@@ -15,7 +16,7 @@ export const CONTROL_QUEUE_CAP = 16;
 export const CONTROL_MAX_OBSERVATION_AGE_MS = 2_000;
 
 const nonEmpty = z.string().min(1);
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 
 /** D01/S01: three separately named modes. Only the first may reuse M06 QA
  * defaults; an existing session never inherits access from a visible

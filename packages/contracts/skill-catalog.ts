@@ -1,7 +1,8 @@
 import {z} from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 const identity=z.string().min(1).max(240);
-const hash=z.string().regex(/^[a-f0-9]{64}$/);
+const hash=Sha256Hex;
 const skillCatalogScopeSchema=z.discriminatedUnion('kind',[
  z.strictObject({kind:z.literal('personal')}),
  z.strictObject({kind:z.literal('provider'),providerId:identity,scopeId:identity}),

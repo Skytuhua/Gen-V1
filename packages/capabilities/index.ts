@@ -1,5 +1,6 @@
 import { z } from "zod";
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
+import { sha256Hex } from "../core/hash.ts";
 import { readdir, stat, lstat, open, realpath } from "node:fs/promises";
 import { dirname, join, relative, basename } from "node:path";
 import { HarnessError, type DataRecord, type Operation } from "../contracts/index.ts";
@@ -25,7 +26,7 @@ export interface DomainContext {
   preWrite?(evidence:{path:string;bytes:Uint8Array;sha256:string}):Promise<void>;
 }
 export const DOMAIN_TOOLS = Object.entries(toolSchemas).map(([name, schema]) => ({ name, description: descriptions[name as ToolName], parameters: z.toJSONSchema(schema) as Record<string, unknown> }));
-const sha256 = (bytes: Uint8Array | string) => createHash("sha256").update(bytes).digest("hex");
+
 function active(ctx: DomainContext) { if (ctx.signal.aborted) throw new HarnessError("CANCELLED", "Operation cancelled"); }
 function parse<N extends ToolName>(name: N, args: unknown): z.infer<(typeof toolSchemas)[N]> {
   const result = toolSchemas[name].safeParse(args);
@@ -42,7 +43,7 @@ async function access<T>(ctx: DomainContext, id: string, path: string | undefine
 async function readResource(ctx: DomainContext, resourceId: string, path?: string, maxBytes = 8 * 1024 * 1024) {
   return access(ctx, resourceId, path, false, async filename => {
     const bytes = await readBoundFile(filename, maxBytes); active(ctx);
-    return { filename, bytes, sha256: sha256(bytes) };
+    return { filename, bytes, sha256: sha256Hex(bytes) };
   });
 }
 function pdfResources(args: PdfArgs): string[] {
@@ -146,7 +147,7 @@ export async function handleDomainTool(name: string, rawArgs: unknown, ctx: Doma
       const a = parse("pdf_prepare", rawArgs), source = await readResource(ctx, a.resourceId, a.path, 32 * 1024 * 1024);
       const marks = await signatureImages(ctx, a);
       const rendered = await renderPdf(source.bytes, a, marks.images, ctx.signal); // Validate before offering approval; no writes.
-      return ctx.prepareOperation("pdf.export", a, pdfResources(a), { sha256: source.sha256, ...marks.hashes, output: "absent", outputSha256: sha256(rendered) }, `Fill PDF and place ${(a.signatures ?? []).length} visual signature marks in new local export ${a.outputPath}; no certificate or delivery`);
+      return ctx.prepareOperation("pdf.export", a, pdfResources(a), { sha256: source.sha256, ...marks.hashes, output: "absent", outputSha256: sha256Hex(rendered) }, `Fill PDF and place ${(a.signatures ?? []).length} visual signature marks in new local export ${a.outputPath}; no certificate or delivery`);
     }
   }
 }
@@ -174,9 +175,9 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
         const preimage = await readResource(ctx, a.resourceId, a.path);
         if (preimage.sha256 !== operation.preconditions.sha256) throw new HarnessError("PRECONDITION_FAILED", "File changed immediately before replacement");
         await ctx.preWrite?.({path:source.filename,bytes:preimage.bytes,sha256:preimage.sha256});
-        await replaceOwnedFile(temp, filename, identity, sha256(a.content), ctx.signal, operation.preconditions.sha256); moved = true;
+        await replaceOwnedFile(temp, filename, identity, sha256Hex(a.content), ctx.signal, operation.preconditions.sha256); moved = true;
       } finally { await file.close().catch(() => {}); if (!moved) await removeOwnedFile(temp, identity, new AbortController().signal).catch(() => {}); }
-      const result = { resourceId: a.resourceId, path: a.path ?? null, sha256: sha256(a.content), bytes: Buffer.byteLength(a.content) };
+      const result = { resourceId: a.resourceId, path: a.path ?? null, sha256: sha256Hex(a.content), bytes: Buffer.byteLength(a.content) };
       ctx.completedWrite?.({path:filename,sha256:result.sha256,bytes:result.bytes});
       publish(ctx, result, `operation:${operation.id}; ${provenance(a.resourceId, a.path, result.sha256)}`); ctx.progress("File replacement complete", { completed: 1, total: 1 }); return result;
       });
@@ -210,10 +211,10 @@ export async function executeDomainOperation(operation: Operation, ctx: DomainCo
       const marks = await signatureImages(ctx, a, operation.preconditions);
       return access(ctx, a.exportResourceId, a.outputPath, true, async output => {
       const bytes = await renderPdf(source.bytes, a, marks.images, ctx.signal); active(ctx);
-      if (sha256(bytes) !== operation.preconditions.outputSha256) throw new HarnessError("PRECONDITION_FAILED", "Rendered PDF differs from prepared export hash");
+      if (sha256Hex(bytes) !== operation.preconditions.outputSha256) throw new HarnessError("PRECONDITION_FAILED", "Rendered PDF differs from prepared export hash");
       const file = await open(output, "wx");
       try { await file.writeFile(bytes); await file.sync(); } finally { await file.close(); }
-      const result = { resourceId: a.exportResourceId, path: a.outputPath, sha256: sha256(bytes), bytes: bytes.length, fieldsFilled: Object.keys(a.fields ?? {}).length, signaturesPlaced: a.signatures?.length ?? 0 };
+      const result = { resourceId: a.exportResourceId, path: a.outputPath, sha256: sha256Hex(bytes), bytes: bytes.length, fieldsFilled: Object.keys(a.fields ?? {}).length, signaturesPlaced: a.signatures?.length ?? 0 };
       publish(ctx, result, `operation:${operation.id}; source ${provenance(a.resourceId, a.path, source.sha256)}; exported ${provenance(a.exportResourceId, a.outputPath, result.sha256)}`); ctx.progress("PDF exported locally", { completed: 1, total: 1 }); return result;
       });
     }
@@ -230,7 +231,7 @@ export async function reconcileDomainOperation(operation: Operation, ctx: Domain
     case "file.replace": {
       const a = parse("file_replace_prepare", operation.args); operationResources(operation, [a.resourceId]);
       const current = await readResource(ctx, a.resourceId, a.path);
-      if (current.sha256 === sha256(a.content)) return { status: "succeeded", basis: "postcondition", result: { sha256: current.sha256, bytes: current.bytes.length }, message: "Current file matches the prepared replacement. This establishes the current postcondition, not which actor wrote it." };
+      if (current.sha256 === sha256Hex(a.content)) return { status: "succeeded", basis: "postcondition", result: { sha256: current.sha256, bytes: current.bytes.length }, message: "Current file matches the prepared replacement. This establishes the current postcondition, not which actor wrote it." };
       return unknown(current.sha256 === operation.preconditions.sha256 ? "File matches its before hash; execution history remains unknown. No automatic retry." : "File matches neither before nor after hash; preserve concurrent edits. No automatic retry.", { sha256: current.sha256 });
     }
     case "pdf.export": {

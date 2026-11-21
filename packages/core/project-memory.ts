@@ -1,5 +1,6 @@
 import { constants, closeSync, existsSync, fstatSync, fsyncSync, lstatSync, openSync, readFileSync, realpathSync, writeSync } from 'node:fs';
-import { createHash, randomUUID } from 'node:crypto';
+import { randomUUID } from 'node:crypto';
+import { sha256Hex } from './hash.ts';
 import { dirname, join, resolve } from 'node:path';
 import { z } from 'zod';
 import { HarnessError, type HostCommand, type Message, type ResourceGrant, type RunContext, type Thread } from '../contracts/index.ts';
@@ -27,7 +28,6 @@ interface PhysicalRoot { path: string; identity: { dev: string; ino: string } }
 interface Derived { id: string; projectIdentity: string; accountId: string | null; refs: { itemId: string; revision: number }[]; valid: boolean }
 interface LedgerIdentity { path: string; dev: string; ino: string }
 const stamp = () => new Date().toISOString();
-const sha256 = (text: string) => createHash('sha256').update(text, 'utf8').digest('hex');
 function fail(message: string, code = 'INVALID_MEMORY'): never { throw new HarnessError(code, message); }
 
 function checkedText(text: string): string {
@@ -234,7 +234,7 @@ export class ProjectMemory {
         const grant = source?.fileGrant && this.store.get<ResourceGrant>('resource', source.fileGrant.resourceId);
         if (!grant || grant.threadId !== ref.ownerThreadId || !['project', 'file'].includes(grant.kind) || !grant.identity || !physicalMatches({path: grant.path, identity: grant.identity}, grant.kind === 'file' ? 'file' : 'directory') || digest(grant) !== source!.fileGrant!.grantDigest) return false;
       }
-      return !!source && digest(source.ref) === digest(ref) && source.projectIdentity === access.projectIdentity && source.accountId === access.accountId && sha256(source.content) === ref.digest;
+      return !!source && digest(source.ref) === digest(ref) && source.projectIdentity === access.projectIdentity && source.accountId === access.accountId && sha256Hex(source.content) === ref.digest;
     } catch { return false; }
   }
   private saveSource(access: MemoryAccess, source: MemorySourceSnapshot): MemorySourceRefV1 {
@@ -264,7 +264,7 @@ export class ProjectMemory {
     this.requireEnabled(access); const message = this.store.get<Message>('message', messageId);
     if (!message || message.role === 'activity') fail('This exact source message is unavailable.', 'NOT_FOUND');
     this.settled(access, message!.threadId);
-    const ref = memorySourceRefV1Schema.parse({ ownerThreadId: message!.threadId, sourceKind: 'MESSAGE', sourceId: message!.id, sourceRevision: digest({ role: message!.role, createdAt: message!.createdAt, content: message!.content }), capturedSeq: this.store.sequence, digest: sha256(message!.content), observedStatus: message!.role === 'assistant' ? 'PROPOSED' : 'REPORTED' });
+    const ref = memorySourceRefV1Schema.parse({ ownerThreadId: message!.threadId, sourceKind: 'MESSAGE', sourceId: message!.id, sourceRevision: digest({ role: message!.role, createdAt: message!.createdAt, content: message!.content }), capturedSeq: this.store.sequence, digest: sha256Hex(message!.content), observedStatus: message!.role === 'assistant' ? 'PROPOSED' : 'REPORTED' });
     return this.saveSource(access, { ref, projectIdentity: access.projectIdentity, accountId: access.accountId, content: message!.content, label: `${message!.role} message ${message!.id}` });
   }
   async captureFile(access: MemoryAccess, resourceId: string, relativePath?: string): Promise<MemorySourceRefV1> {
@@ -275,7 +275,7 @@ export class ProjectMemory {
     this.assertAccess(access); this.settled(access, access.threadId);
     if (digest(resource) !== digest(this.store.get('resource', resourceId))) fail('The file grant changed.', 'CAPABILITY_DENIED');
     let content: string; try { content = new TextDecoder('utf-8', { fatal: true }).decode(bytes); } catch { fail('Only UTF-8 source files can be retained.'); }
-    const ref = memorySourceRefV1Schema.parse({ ownerThreadId: access.threadId, sourceKind: 'FILE', sourceId: `${resourceId}:${relativePath ?? ''}`, sourceRevision: sha256(content!), capturedSeq: this.store.sequence, digest: sha256(content!), observedStatus: 'OBSERVED' });
+    const ref = memorySourceRefV1Schema.parse({ ownerThreadId: access.threadId, sourceKind: 'FILE', sourceId: `${resourceId}:${relativePath ?? ''}`, sourceRevision: sha256Hex(content!), capturedSeq: this.store.sequence, digest: sha256Hex(content!), observedStatus: 'OBSERVED' });
     return this.saveSource(access, { ref, projectIdentity: access.projectIdentity, accountId: access.accountId, content: content!, label: relativePath ?? resource!.label, fileGrant: { resourceId, grantDigest: digest(resource) } });
   }
   propose(access: MemoryAccess, input: { kind: MemoryItemV1['kind']; text: string; sourceRefs: MemorySourceRefV1[]; expiresAt?: string | null; sensitivity?: MemoryItemV1['sensitivity'] }, assertedBy: MemoryItemV1['assertedBy']): MemoryItemV1 {
@@ -375,7 +375,7 @@ export class ProjectMemory {
         const content = captured.text;
         if (!content.trim() || memoryContainsSecret(content) || Buffer.byteLength(content) > LIMITS.sourceBytes) continue;
         const ref = memorySourceRefV1Schema.parse({ownerThreadId: access.threadId, sourceKind: 'FILE', sourceId: 'source-capture:' + captured.captureId,
-          sourceRevision: captured.source.sourceRevision, capturedSeq: this.store.sequence, digest: sha256(content), observedStatus: 'OBSERVED'});
+          sourceRevision: captured.source.sourceRevision, capturedSeq: this.store.sequence, digest: sha256Hex(content), observedStatus: 'OBSERVED'});
         if (this.sourceExcluded(access, ref)) continue;
         const snapshot = {ref, projectIdentity: access.projectIdentity, accountId: access.accountId, content,
           label: `${captured.label} (lines ${captured.source.range.startLine}-${captured.source.range.endLine})`};
@@ -404,7 +404,7 @@ export class ProjectMemory {
   publishExtraction(cut: MemoryExtractionCut, candidates: unknown, modelId: string): MemoryExtractionResult {
     this.assertExtractionCut(cut);
     const key = digest({projectIdentity: cut.access.projectIdentity, accountId: cut.access.accountId, sourceRunId: cut.sourceRunId});
-    const result = validateMemoryExtraction({...cut, tombstones: this.tombstones(cut.access)}, candidates, {assertedBy: 'model:' + sha256(modelId).slice(0, 32), observedAt: stamp()});
+    const result = validateMemoryExtraction({...cut, tombstones: this.tombstones(cut.access)}, candidates, {assertedBy: 'model:' + sha256Hex(modelId).slice(0, 32), observedAt: stamp()});
     if (this.store.get('projectMemoryExtraction', key)) return {...result, items: [], unresolvedWork: []};
     if (result.items.some(item => item.kind === 'PREFERENCE')) fail('Reusable preferences require an authenticated user confirmation.', 'MEMORY_PREFERENCE_CONFIRMATION_REQUIRED');
     if (this.rows(cut.access).length + this.tombstones(cut.access).length + result.items.length > LIMITS.items) fail('Project memory is full.');

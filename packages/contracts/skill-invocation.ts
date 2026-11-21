@@ -1,9 +1,10 @@
 import {z} from 'zod';
+import { Sha256Hex } from './hashing.ts';
 import type {StartRun} from './index.ts';
 import {skillReferenceSchema, type SkillReference} from './skill-catalog.ts';
 
 const identity = z.string().min(1).max(240);
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 /** Host-only Send context. No filesystem paths, credentials or resource grants. */
 export const skillInvocationAuthoritySchema = z.strictObject({
   kind: z.literal('personal'), authorityId: identity, threadId: identity,

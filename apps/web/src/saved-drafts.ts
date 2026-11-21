@@ -1,4 +1,5 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../../../packages/contracts/hashing.ts';
 import {skillReferenceSchema,type SkillReference} from '../../../packages/contracts/skill-catalog';
 import {terminalExcerptSchema,type TerminalExcerpt,excerptDraftKey} from './terminal-excerpts';
 import {journalCompareAndSwapMany,journalReadRecord,journalEntries,journalSubscribeEntries,type JournalRecord} from './journal';
@@ -10,7 +11,7 @@ export {SAVED_DRAFT_MAX_COUNT,SAVED_DRAFT_MAX_BYTES} from './draft-limits';
 const id=z.string().min(1).max(240),encoder=new TextEncoder();
 const savedDraftOwnerSchema=z.object({profileId:id,accountId:id.nullable(),threadId:id,projectId:id.nullable(),workingCopyId:id.nullable()}).strict();
 export type SavedDraftOwner=z.infer<typeof savedDraftOwnerSchema>;
-const referenceId=z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_.-]+$/),binding=z.string().regex(/^[a-f0-9]{64}$/);
+const referenceId=z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_.-]+$/),binding=Sha256Hex;
 const draftResourceRefSchema=z.strictObject({resourceId:referenceId,binding});
 // Legacy hints remain inspectable; only the distinct host-issued binding can enter validation.
 const resourceRefSchema=z.union([draftResourceRefSchema,z.strictObject({resourceId:id,identity:z.string().max(2048).optional()})]);

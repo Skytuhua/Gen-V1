@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 /** Observed request metadata. A content reference is not a grant or the native transcript. */
 export type ContextCategory = 'SYSTEM' | 'INSTRUCTION' | 'MEMORY' | 'USER' | 'TOOL' | 'REFERENCE';
@@ -131,9 +132,9 @@ export interface NativeContextProjectionV1 {
 
 const nativeCount = z.number().int().min(0).max(Number.MAX_SAFE_INTEGER);
 export const nativeContextProjectionSchema = z.strictObject({ source: z.literal('ORIGINAL_ACP_MESSAGES'), measurement: z.literal('BYTE_ONLY'), generation: nativeCount.min(1),
-  revisionDigest: z.string().regex(/^[a-f0-9]{64}$/), change: z.enum(['RESET', 'APPEND', 'UNCHANGED']), sourceCount: nativeCount.max(4096), sourceBytes: nativeCount.max(32 * 1024 * 1024),
+  revisionDigest: Sha256Hex, change: z.enum(['RESET', 'APPEND', 'UNCHANGED']), sourceCount: nativeCount.max(4096), sourceBytes: nativeCount.max(32 * 1024 * 1024),
   reusedSources: nativeCount.max(4096), compiledSources: nativeCount.max(4096), inspectedSources: nativeCount.max(4096), newToolResults: nativeCount.max(4096).nullable(), newToolResultBytes: nativeCount.max(32 * 1024 * 1024).nullable(),
-  sources: z.array(z.strictObject({ category: z.enum(['SYSTEM', 'INSTRUCTION', 'MEMORY', 'USER', 'TOOL', 'REFERENCE']), sourceId: z.string().regex(/^native:[1-9][0-9]*:[0-9]+$/).max(100), sourceRevision: z.literal(1), utf8Bytes: nativeCount.max(32 * 1024 * 1024), sha256: z.string().regex(/^[a-f0-9]{64}$/) })).max(32),
+  sources: z.array(z.strictObject({ category: z.enum(['SYSTEM', 'INSTRUCTION', 'MEMORY', 'USER', 'TOOL', 'REFERENCE']), sourceId: z.string().regex(/^native:[1-9][0-9]*:[0-9]+$/).max(100), sourceRevision: z.literal(1), utf8Bytes: nativeCount.max(32 * 1024 * 1024), sha256: Sha256Hex })).max(32),
   omittedSources: nativeCount.max(4096) }).refine(value => value.sources.length + value.omittedSources === value.sourceCount && value.inspectedSources === value.sourceCount && value.reusedSources + value.compiledSources === value.sourceCount &&
     value.sources.every((source, index) => source.sourceId === `native:${value.generation}:${index}`) && value.sources.reduce((sum, source) => sum + source.utf8Bytes, 0) <= value.sourceBytes,
   'Native source projection does not match its bounded cut');

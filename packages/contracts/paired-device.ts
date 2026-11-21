@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 /** M17 paired clients and bounded read synchronization — contract layer.
  * A device grant authorizes read-only synchronization of the host's public
@@ -52,7 +53,7 @@ const pairingRequestStateSchema = z.enum(['ISSUED', 'PENDING_APPROVAL', 'CONSUME
 
 export const pairingRequestV1Schema = z.strictObject({
   pairingId: nonEmpty,
-  verifier: z.string().regex(/^[a-f0-9]{64}$/),
+  verifier: Sha256Hex,
   deviceIdentity: deviceIdentityV1Schema.nullable(),
   requestedScopes: z.array(deviceScopeSchema),
   requestedProjects: z.array(nonEmpty),
@@ -76,14 +77,14 @@ export const deviceGrantV1Schema = z.strictObject({
   deviceId: nonEmpty,
   deviceIdentity: deviceIdentityV1Schema,
   userBinding: nonEmpty,
-  approverSessionDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  approverSessionDigest: Sha256Hex,
   scopes: z.array(deviceScopeSchema).min(1),
   approvedProjects: z.array(nonEmpty),
   issuedAt: isoDate,
   expiresAt: isoDate.nullable(),
   revokedAt: isoDate.nullable(),
   grantGeneration: z.number().int().positive(),
-  deviceTokenDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  deviceTokenDigest: Sha256Hex,
   lastSeenAt: isoDate.nullable(),
 });
 export type DeviceGrantV1 = z.infer<typeof deviceGrantV1Schema>;
@@ -95,7 +96,7 @@ export type DeviceGrantV1 = z.infer<typeof deviceGrantV1Schema>;
 const syncCursorV1Schema = z.strictObject({
   owner: nonEmpty,
   deviceGrantGeneration: z.number().int().positive(),
-  filterDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  filterDigest: Sha256Hex,
   schemaVersion: z.number().int().positive(),
   snapshotUpperSeq: z.number().int().nonnegative(),
   afterSeq: z.number().int().nonnegative(),

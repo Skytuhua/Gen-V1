@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { Sha256Hex } from './hashing.ts';
 import { toolOwnerSchema } from "./tool-effects.ts";
 
 /** M10 durable background work contracts. The host Store is the only writer;
@@ -134,7 +135,7 @@ export const intakeV1Schema = z.strictObject({
   repositoryId: z.number().int().positive(),
   eventId: z.string().min(1).max(200),
   deliveryId: z.string().min(1).max(300),
-  payloadDigest: z.string().regex(/^[a-f0-9]{64}$/),
+  payloadDigest: Sha256Hex,
   receivedAt: z.string().min(1),
   proposedTask: z.strictObject({
     title: z.string().min(1).max(300),

@@ -1,11 +1,12 @@
 import {z} from 'zod';
+import { Sha256Hex } from '../../../packages/contracts/hashing.ts';
 import {authenticated,csrfToken,read} from './api.ts';
 import {RESTORE_STATES} from '../../../packages/contracts/workspace-checkpoints.ts';
 
 const encoder=new TextEncoder(),decoder=new TextDecoder('utf-8',{ignoreBOM:true});
 const utf8=(value:string)=>decoder.decode(encoder.encode(value))===value;
 const bytes=(value:unknown)=>encoder.encode(JSON.stringify(value)).byteLength;
-const id=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),hash=z.string().regex(/^[a-f0-9]{64}$/),time=z.iso.datetime();
+const id=z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/),hash=Sha256Hex,time=z.iso.datetime();
 // The host still checks real storage roots and filesystem identities at admission.
 const protectedNames=new Set(['.git','.gen','.gen-main','checkpoints','harness.sqlite','harness.sqlite-wal','harness.sqlite-shm','.host-lease.sqlite','.host-lease.sqlite-wal','.host-lease.sqlite-shm','pi','artifacts','official','accounts','hermes','github','git','integrations']);
 const path=z.string().min(1).max(1024).refine(value=>utf8(value)&&encoder.encode(value).byteLength<=1024&&!/[\x00:\\]/.test(value)&&value.split('/').every(part=>part!==''&&part!=='.'&&part!=='..'&&!/[. ]$/.test(part)&&!protectedNames.has(part.toLowerCase())&&!/^(con|prn|aux|nul|com[1-9¹²³]|lpt[1-9¹²³]|conin\$|conout\$)$/i.test(part.split('.')[0].replace(/ +$/,''))),'Expected an exact, safe project-relative path.');

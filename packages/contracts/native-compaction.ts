@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 const boundedText = (bytes: number) => z.string().min(1).max(bytes)
   .refine(value => new TextEncoder().encode(value).byteLength <= bytes);
-const digest = z.string().regex(/^[a-f0-9]{64}$/);
+const digest = Sha256Hex;
 const count = z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER);
 
 export const NATIVE_COMPACTION_CAPABILITY = Object.freeze({

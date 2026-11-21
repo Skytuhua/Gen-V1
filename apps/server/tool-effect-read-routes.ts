@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { Sha256Hex } from '../../packages/contracts/hashing.ts';
 
 interface ToolEffectReadRouteHost {
   readonly authority: 'personal';
@@ -8,7 +9,7 @@ interface ToolEffectReadRouteHost {
   observations(input: unknown): unknown;
 }
 
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const scope = z.strictObject({ scopeKey: hash });
 const invocations = scope.extend({
   limit: z.string().regex(/^[1-9][0-9]?$/).transform(Number).pipe(z.number().max(50)).optional(),

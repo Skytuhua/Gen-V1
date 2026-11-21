@@ -1,6 +1,7 @@
 import type {FastifyInstance} from 'fastify';
 import {randomUUID} from 'node:crypto';
 import {z} from 'zod';
+import { Sha256Hex } from '../../packages/contracts/hashing.ts';
 import type {Service} from '../../packages/core/service.ts';
 import {HarnessError} from '../../packages/contracts/index.ts';
 import {integrationIdSchema} from '../../packages/contracts/integrations.ts';
@@ -77,7 +78,7 @@ export function registerWorkspaceRoutes(app:FastifyInstance,service:Service){
  app.get('/api/projects/:projectId/pull-requests/:number',async request=>{const{projectId,number}=z.object({projectId:identifier,number:z.coerce.number().int().positive()}).parse(request.params),{threadId}=querySchema.parse(request.query);return github.details(projectId,threadId,number);});
  // M08 managed-workspace checkpoints. The owner is always recomputed from the
  // thread's managed binding server-side; a client-supplied owner must match.
- const ownerPayload=z.strictObject({projectId:identifier,threadId:identifier.nullable(),workingCopyId:identifier.nullable(),binding:z.string().regex(/^[a-f0-9]{64}$/)});
+ const ownerPayload=z.strictObject({projectId:identifier,threadId:identifier.nullable(),workingCopyId:identifier.nullable(),binding:Sha256Hex});
  const checkpointBody=z.strictObject({owner:ownerPayload,threadId:identifier.optional()});
  const checkpointOwner=async(projectId:string,threadId:string|undefined)=>{
   const bound=await projects.binding(projectId,threadId);

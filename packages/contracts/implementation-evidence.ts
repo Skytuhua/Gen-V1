@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 // ImplementationEvidenceV3 / CommandEvidence / SourceLockV3 — the shared release
 // evidence format used by implementation bundles. A bundle is PASS only when
@@ -8,7 +9,7 @@ import { z } from 'zod';
 const EVIDENCE_SCHEMA_VERSION = 3;
 
 const sha1 = z.string().regex(/^[a-f0-9]{40}$/);
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 const nonEmpty = z.string().min(1);
 
 const phaseStatusSchema = z.enum(['PASS', 'FAIL', 'BLOCKED', 'NOT_RUN']);

@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 const unicode = z.string().refine(value => new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(new TextEncoder().encode(value)) === value, 'Use valid Unicode.');
 export const projectSearchIdSchema = z.string().regex(/^[a-zA-Z0-9:_.-]{1,200}$/);
-const sha256 = z.string().regex(/^[a-f0-9]{64}$/);
+const sha256 = Sha256Hex;
 const hostFiles = new Set(['harness.sqlite', 'harness.sqlite-wal', 'harness.sqlite-shm', '.host-lease.sqlite', '.host-lease.sqlite-wal', '.host-lease.sqlite-shm']);
 /** Storage location checks also run against the live host before traversal/read. */
 export const projectSearchPathSchema = unicode.refine(value =>

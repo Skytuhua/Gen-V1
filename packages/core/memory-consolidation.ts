@@ -1,5 +1,6 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { z } from 'zod';
+import { Sha256Hex } from '../contracts/hashing.ts';
 import { HarnessError } from '../contracts/index.ts';
 import {
   PROJECT_MEMORY_LIMITS, memoryItemV1Schema, memoryRevisionRefSchema, memoryScopeSchema, memorySourceRefV1Schema, memoryTextSchema, memoryTombstoneV1Schema,
@@ -369,7 +370,7 @@ export interface MemoryCheckpointHooks<T> {
   signal?: AbortSignal;
 }
 const checkpointCapabilitySchema = z.strictObject({ adapterId: identity, apiVersion: z.literal(2), hostOwned: z.literal(true) });
-const checkpointReceiptSchema = z.strictObject({ id: identity, persisted: z.literal(true), digest: z.string().regex(/^[a-f0-9]{64}$/) });
+const checkpointReceiptSchema = z.strictObject({ id: identity, persisted: z.literal(true), digest: Sha256Hex });
 
 /** Host checkpoint custody. Native adapters perform compaction only after this gate. */
 export async function checkpointBeforeCompaction<T>(hooks: MemoryCheckpointHooks<T>): Promise<{ checkpoint: MemoryCheckpointV1 | null; result: T }> {

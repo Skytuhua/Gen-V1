@@ -1,8 +1,9 @@
 import { z } from 'zod';
+import { Sha256Hex } from './hashing.ts';
 
 export const PROJECT_MEMORY_LIMITS = Object.freeze({ textBytes: 2048, recallItems: 8, recallBytes: 4096, foregroundMs: 750, items: 500, sources: 64, sourceBytes: 65536, purgeRetentionMs: 7 * 24 * 60 * 60 * 1000 });
 const id = z.string().min(1).max(200).regex(/^[a-zA-Z0-9:_.-]+$/);
-const hash = z.string().regex(/^[a-f0-9]{64}$/);
+const hash = Sha256Hex;
 const time = z.iso.datetime();
 const revision = z.number().int().positive();
 export const memoryTextSchema = z.string().max(2048).refine(text => new TextEncoder().encode(text).length <= PROJECT_MEMORY_LIMITS.textBytes, 'Memory text exceeds 2 KiB UTF-8.');
