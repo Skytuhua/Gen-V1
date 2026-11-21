@@ -108,21 +108,18 @@ export function DatabasePanel({ binding }: { binding: PanelBinding }) {
 		if (threadId && attachmentId && running) void cancelQuery(threadId, attachmentId, running).catch(() => {});
 	}, [threadId, attachmentId, running]);
 
-	// T10: grid edits are allowed when the attachment is writable and the last
-	// query is a simple SELECT over one schema table whose primary key columns
-	// are present in the result.
+	// T10: grid edits are allowed when the attachment is writable and the
+	// result carries a proven single-table source with primary key columns.
 	const editTarget = useMemo(() => {
-		if (!attachment?.writable || !result || !schema) return { editable: false as const, reason: 'This attachment is read only.' };
-		const match = /^\s*select\s+[\s\S]+?\sfrom\s+(?:"([^"]+)"\s*\.\s*)?["'`\[]?([A-Za-z_][\w]*)["'`\]]?/i.exec(sql);
-		if (!match) return { editable: false as const, reason: 'Editing works on a single SELECT over one table.' };
-		const object = schema.schemas.flatMap(entry => entry.objects.map(item => ({ ...item, schemaName: entry.name }))).find(item => item.name === match[2] && (!match[1] || item.schemaName === match[1]));
-		if (!object) return { editable: false as const, reason: 'The selected table is not in the loaded schema.' };
-		const pk = object.columns.filter(column => column.primaryKey).map(column => column.name);
+		if (!attachment?.writable || !result) return { editable: false as const, reason: 'This attachment is read only.' };
+		const table = result.source?.table;
+		if (!table) return { editable: false as const, reason: 'Editing works on a single SELECT over one table.' };
+		const pk = table.primaryKey ?? [];
 		if (!pk.length) return { editable: false as const, reason: 'Editing needs a primary key' };
 		const pkIndex = pk.map(name => result.columns.findIndex(column => column.name === name));
 		if (pkIndex.some(index => index < 0)) return { editable: false as const, reason: 'Editing needs the primary key columns in the result.' };
-		return { editable: true as const, schemaName: object.schemaName, table: object.name, pk, pkIndex };
-	}, [attachment, result, schema, sql]);
+		return { editable: true as const, schemaName: table.schema ?? 'main', table: table.name, pk, pkIndex };
+	}, [attachment, result]);
 	const draft = editing && editTarget.editable ? { edits, onEdit: (rowIndex: number, columnIndex: number, value: string) => setEdits(current => ({ ...current, [`${rowIndex}:${columnIndex}`]: value })) } : undefined;
 	const readOnlyColumns = draft && editTarget.editable ? new Set(editTarget.pkIndex) : undefined;
 	const editCount = Object.keys(edits).length;

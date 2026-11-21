@@ -7,6 +7,7 @@ import type { FastifyInstance } from 'fastify';
 import { randomUUID } from 'node:crypto';
 import { z } from 'zod';
 import { DATABASE_LIMITS } from '../../packages/contracts/database.ts';
+import type { DatabaseSchemaV1 } from '../../packages/contracts/database.ts';
 import type { Service } from '../../packages/core/service.ts';
 import { capabilityEnabled } from '../../packages/core/capability-flags.ts';
 
@@ -26,7 +27,16 @@ const editsBody = z.strictObject({
 	})).min(1).max(100),
 });
 const SCHEMA_CACHE_MS = 30_000;
-const schemaCache = new Map<string, { value: unknown; expiresAt: number }>();
+const schemaCache = new Map<string, { value: DatabaseSchemaV1; expiresAt: number }>();
+/** R10/R10: proven single-table source for grid edit eligibility. */
+const sourceTable = async (sql: string, schema: DatabaseSchemaV1 | undefined) => {
+	if (!schema) return undefined;
+	const match = /^\s*select\s+[\s\S]+?\sfrom\s+(?:"([^"]+)"\s*\.\s*)?["'`\[]?([A-Za-z_][\w]*)["'`\]]?/i.exec(sql);
+	if (!match) return undefined;
+	const object = schema.schemas.flatMap(entry => entry.objects.map(item => ({ ...item, schemaName: entry.name }))).find(item => item.name === match[2] && (!match[1] || item.schemaName === match[1]));
+	if (!object || object.kind !== 'table') return undefined;
+	return { table: { schema: object.schemaName, name: object.name, primaryKey: object.columns.filter(column => column.primaryKey).map(column => column.name) } };
+};
 const inFlight = new Map<string, AbortController>();
 
 export function registerDatabaseRoutes(app: FastifyInstance, service: Service) {
@@ -68,6 +78,10 @@ export function registerDatabaseRoutes(app: FastifyInstance, service: Service) {
 			inFlight.set(requestId, controller);
 			try {
 				const result = await databases.gateway().query(connection, { sql: body.sql, signal: controller.signal, limit: body.limit, timeoutMs: body.timeoutMs });
+				const cached = schemaCache.get(attachmentId);
+				const schema = cached && cached.expiresAt > Date.now() ? cached.value : await databases.gateway().schema(connection).catch(() => undefined);
+				const source = await sourceTable(body.sql, schema);
+				if (source) result.source = source;
 				const record = service.publishData(threadId, result, 'database-query');
 				return { requestId, dataId: record.id, result };
 			} finally {
