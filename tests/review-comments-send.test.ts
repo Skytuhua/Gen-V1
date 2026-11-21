@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { Store } from '../packages/storage/store.ts';
 import { Service, type ServiceOptions } from '../packages/core/service.ts';
 import { __setCapabilityFlagForTests } from '../packages/core/capability-flags.ts';
-import { HarnessError, type Message, type ReviewComment, type RuntimeAdapter, type RuntimeCallbacks, type StartRun, type Thread } from '../packages/contracts/index.ts';
+import { HarnessError, type Message, type RuntimeAdapter, type RuntimeCallbacks, type StartRun, type Thread } from '../packages/contracts/index.ts';
 import { listReviewComments, REVIEW_COMMENT_KIND } from '../packages/core/review-comments.ts';
 
 const cleanups: (() => Promise<void>)[] = [];

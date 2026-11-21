@@ -1,5 +1,5 @@
 import { HarnessError, type HostCommand, type Thread } from '../contracts/index.ts';
-import { REVIEW_COMMENT_LIMITS, ReviewCommentCreatePayloadV1, ReviewCommentEditPayloadV1, ReviewCommentRevPayloadV1, ReviewCommentV1, type ReviewComment } from '../contracts/review-comments.ts';
+import { REVIEW_COMMENT_LIMITS, ReviewCommentCreatePayloadV1, ReviewCommentEditPayloadV1, ReviewCommentRevPayloadV1, ReviewCommentV1, type ReviewComment, type ReviewCommentStatus, type ReviewResolveInput } from '../contracts/review-comments.ts';
 import type { Store } from '../storage/store.ts';
 
 export const REVIEW_COMMENT_KIND = 'reviewComment';
@@ -76,6 +76,21 @@ export function changeReviewComment(store: Store, thread: Thread, command: HostC
     return { commentId: next.id, rev: next.rev, comment: next };
   }
   throw new HarnessError('UNKNOWN_COMMAND', 'Unknown command: ' + command.type);
+}
+
+/** Agent resolution inside the caller's transaction. Throws
+ * REVIEW_COMMENT_NOT_IN_RUN when the comment was not delivered to this run;
+ * user-changed comments return a nonfatal ok:false. */
+export function applyAgentResolution(store: Store, ctx: { threadId: string; runId: string }, input: ReviewResolveInput): { ok: boolean; commentId: string; status?: ReviewCommentStatus; reason?: string } {
+  const parsed = ReviewCommentV1.safeParse(store.get(REVIEW_COMMENT_KIND, input.commentId));
+  const comment = parsed.success && parsed.data.threadId === ctx.threadId ? parsed.data : null;
+  if (!comment || comment.runId !== ctx.runId) throw new HarnessError('REVIEW_COMMENT_NOT_IN_RUN', 'This review comment was not delivered to your run.');
+  const expected: ReviewCommentStatus = input.outcome === 'fixed' ? 'resolved' : 'replied';
+  if (comment.resolvedBy === 'agent' && comment.status === expected && (comment.agentNote ?? undefined) === (input.note ?? undefined))
+    return { ok: true, commentId: comment.id, status: comment.status };
+  if (comment.status === 'draft' || comment.resolvedBy === 'user') return { ok: false, commentId: comment.id, reason: 'comment_changed' };
+  store.put(REVIEW_COMMENT_KIND, comment.id, comment.threadId, { ...comment, status: expected, resolvedBy: 'agent', agentNote: input.note ?? comment.agentNote, updatedAt: now(), rev: comment.rev + 1 });
+  return { ok: true, commentId: comment.id, status: expected };
 }
 
 /** Settlement/tool transitions commit outside a user command; they share the

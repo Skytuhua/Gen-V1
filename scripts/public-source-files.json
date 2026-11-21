@@ -3445,6 +3445,7 @@
     "tests/review-comments-contract.test.ts",
     "tests/review-comments-host.test.ts",
     "tests/review-comments-send.test.ts",
+    "tests/review-comments-tool.test.ts",
     "tests/review-fixtures.test.ts",
     "tests/review-host.test.ts",
     "tests/review-regressions.test.ts",

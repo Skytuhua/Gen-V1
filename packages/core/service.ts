@@ -23,8 +23,8 @@ import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } f
 import { patchSpec, protectedFingerprint } from "./presentation.ts";
 import { admitArtifactContents, threadData } from "./ui-admission.ts";
 import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
-import { changeReviewComment, markCommentsSent, dispatchReviewComments, reviewBlockFor, settleReviewComments } from './review-comments.ts';
-import { ReviewCommentIdsV1 } from '../contracts/review-comments.ts';
+import { changeReviewComment, markCommentsSent, dispatchReviewComments, reviewBlockFor, settleReviewComments, applyAgentResolution } from './review-comments.ts';
+import { ReviewCommentIdsV1, ReviewResolveToolInput } from '../contracts/review-comments.ts';
 import { discoverCapabilities } from './discovery.ts';
 import { inspectTask } from './task-inspection.ts';
 import {PlanningCoordinator} from './planning.ts';
@@ -2032,6 +2032,15 @@ export class Service {
       const { bytes, ...summary } = result;
       try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
       catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
+    }
+    if (call.name === 'review_comment_resolve') {
+      if (!capabilityEnabled('ui.reviewCommentsV1')) throw new HarnessError('CAPABILITY_DENIED', 'Review comments are disabled on this host.');
+      const { commandId: _commandId, ...rest } = args;
+      const parsed = ReviewResolveToolInput.parse(rest);
+      const apply = () => { this.assertRun(ctx); return applyAgentResolution(this.store, ctx, parsed); };
+      return typeof args.commandId === 'string'
+        ? this.store.command({ id: text(args, 'commandId', 200), type: 'review.comment.resolve.agent', threadId: ctx.threadId, payload: args }, apply).result
+        : this.store.internal('review.comment.changed', ctx.threadId, apply);
     }
     if (call.name === "ui_discover") return discoverCapabilities(args);
     if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
