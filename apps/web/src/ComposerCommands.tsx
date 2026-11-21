@@ -7,6 +7,7 @@ import {commandToken, replaceCommandToken, type SkillBinding} from './composer-c
 import {getSkillCatalog, mergeSkillCatalogPages} from './skill-catalog-api';
 import './composer-commands.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export interface ComposerCommandsHandle {keyDown(event: KeyboardEvent<HTMLTextAreaElement>): boolean}
 interface Props {
@@ -57,7 +58,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
     setLoading(true);
     const timer = window.setTimeout(() => {void getSkillCatalog({query, limit: 50, ...(threadId ? {threadId} : {}), ...(projectId ? {projectId} : {})}, controller.signal).then(value => {
       if (generation === request.current && !controller.signal.aborted) {setCaptured({key: catalogKey, page: value}); setLoading(false);}
-    }).catch(cause => {if (generation === request.current && !controller.signal.aborted) {setError(cause instanceof Error ? cause.message : 'Skills unavailable.'); setLoading(false);}});}, 150);
+    }).catch(cause => {if (generation === request.current && !controller.signal.aborted) {setError(errorMessage(cause,'Skills unavailable.')); setLoading(false);}});}, 150);
     return () => {controller.abort(); window.clearTimeout(timer); request.current++;};
   }, [open, query, threadId, projectId, reload]);
   const loadMore = async () => {
@@ -66,7 +67,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
     try {
       const next = await getSkillCatalog({query, limit: 50, cursor: page.nextCursor, ...(threadId ? {threadId} : {}), ...(projectId ? {projectId} : {})});
       if (generation === request.current) setCaptured({key: catalogKey, page: mergeSkillCatalogPages(page, next)});
-    } catch (cause) {if (generation === request.current) setError(cause instanceof Error ? cause.message : 'More skills unavailable.');}
+    } catch (cause) {if (generation === request.current) setError(errorMessage(cause,'More skills unavailable.'));}
     finally {if (generation === request.current) {loadingMore.current = false; setLoading(false);}}
   };
   const choose = async (option: Option) => {
@@ -79,7 +80,7 @@ export function ComposerCommands({ref, input, draft, threadId, projectId, disabl
       const replacement = replaceCommandToken(element.value, current); onDraft(replacement.text);
       await new Promise<void>(resolve => requestAnimationFrame(() => {if (element.isConnected) {element.focus(); element.setSelectionRange(replacement.caret, replacement.caret);} resolve();}));
       if (option.builtin.id === 'model') await onModel(); else await onMode(option.builtin.id === 'plan' ? 'plan' : 'build');
-    } catch (cause) {setError(cause instanceof Error ? cause.message : 'The command could not finish.');}
+    } catch (cause) {setError(errorMessage(cause,'The command could not finish.'));}
   };
   useImperativeHandle(ref, () => ({keyDown(event) {
     if (!open || isComposing(event)) return false;

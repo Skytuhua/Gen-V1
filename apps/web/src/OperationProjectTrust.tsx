@@ -4,9 +4,10 @@ import type { OperationProjectTrustReview, OperationProjectTrustStatus as TrustS
 import { Modal } from '../../../packages/ui-shell/Modal';
 import { decideOperationProjectTrust, getOperationProjectTrust, getOperationProjectTrustStatus, revokeOperationProjectTrust } from './operation-project-trust-api';
 import './operation-project-trust.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export interface ProjectTrustReadiness { key: string; allowed: boolean }
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The project trust request could not be completed.';
+
 const labels = { required: 'Project trust required', trusted: 'Trusted reviewed bytes', declined: 'Project trust declined', revoked: 'Project trust revoked', invalidated: 'Reviewed bytes or owner changed' } as const;
 
 /** One mounted session per complete operation/owner key. A late read or decision
@@ -30,7 +31,7 @@ export function OperationProjectTrust({ operation, owner, ownerKey, onReady }: {
       if (!active.current || request !== generation.current) return;
       setView(next); onReady({ key: ownerKey, allowed: !next.enabled || next.current.decision === 'trusted' });
     } catch (cause) {
-      if (active.current && request === generation.current) setError(message(cause));
+      if (active.current && request === generation.current) setError(errorMessage(cause,'The project trust request could not be completed.'));
     } finally { if (active.current && request === generation.current) setLoading(false); }
   }, [target, capturedOwner, ownerKey, onReady]);
   useEffect(() => { void load(); }, [load]);
@@ -54,7 +55,7 @@ export function OperationProjectTrust({ operation, owner, ownerKey, onReady }: {
       if (!active.current) return;
       setOpen(false); await load();
     } catch (cause) {
-      if (active.current) { setActionError(message(cause)); await load(); }
+      if (active.current) { setActionError(errorMessage(cause,'The project trust request could not be completed.')); await load(); }
     } finally { locked.current = false; if (active.current) setBusy(false); }
   };
   if (view && !view.enabled) return null;
@@ -98,7 +99,7 @@ export function OperationProjectTrustStatus({ operation, owner, ownerKey }: { op
     try {
       const next = await getOperationProjectTrustStatus(target, capturedOwner);
       if (active.current && request === generation.current) setView(next);
-    } catch (cause) { if (active.current && request === generation.current) setError(message(cause)); }
+    } catch (cause) { if (active.current && request === generation.current) setError(errorMessage(cause,'The project trust request could not be completed.')); }
     finally { if (active.current && request === generation.current) setLoading(false); }
   }, [target, capturedOwner]);
   useEffect(() => { void load(); }, [load]);
@@ -109,7 +110,7 @@ export function OperationProjectTrustStatus({ operation, owner, ownerKey }: { op
     try {
       await revokeOperationProjectTrust({ ...target, trustId: current.current.trustId, expectedTrustRevision: current.current.revision });
       if (active.current) await load();
-    } catch (cause) { if (active.current) { setActionError(message(cause)); await load(); } }
+    } catch (cause) { if (active.current) { setActionError(errorMessage(cause,'The project trust request could not be completed.')); await load(); } }
     finally { locked.current = false; if (active.current) setBusy(false); }
   };
   if (view && !view.enabled) return null;

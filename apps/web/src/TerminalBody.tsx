@@ -3,11 +3,12 @@ import {ApiError,authenticated,csrfToken,read} from './api.ts';
 import './terminal-read.css';
 import {captureTerminalExcerpt,type TerminalExcerpt} from './terminal-excerpts';
 import './terminal-excerpts.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 export interface TerminalExcerptComposer {projectId:string;threadId:string;readOnly?:boolean;addExcerpt:(excerpt:TerminalExcerpt)=>Promise<void>}
 
 interface TerminalRead{id:string;projectId:string;threadId?:string;output:string;start:number;cursor:number;exited:boolean;exitCode:number|null}
 type Phase='starting'|'running'|'read-interrupted'|'ended'|'unconfirmed';
-const message=(error:unknown)=>error instanceof Error?error.message:'The project tool could not complete this request.';
+
 const post=<T,>(url:string,body:unknown,isCurrent:()=>boolean)=>authenticated(()=>{
  if(!isCurrent())throw new ApiError('CAPABILITY_DENIED','The owning workspace changed.');
  return fetch(url,{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(body)});
@@ -34,7 +35,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
   const matches=(value:TerminalRead,id:string)=>{
    if(value.id!==id||value.projectId!==projectId||value.threadId!==threadId)throw new Error('The terminal response does not match the owning session.');
   };
-  const fail=(error:unknown)=>{if(ownerCurrent())setError(message(error));};
+  const fail=(error:unknown)=>{if(ownerCurrent())setError(errorMessage(error,'The project tool could not complete this request.'));};
   const command=(body:Record<string,unknown>)=>post<TerminalRead>(`/api/terminals/${encodeURIComponent(confirmedId!)}/commands`,{projectId,...(threadId?{threadId}:{}),...body},()=>ownerCurrent()&&!!confirmedId);
   const append=(value:TerminalRead)=>{
    if(value.start>cursor)instance!.writeln('\r\n[Earlier output expired from the bounded host buffer]\r\n');
@@ -57,7 +58,7 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    }catch(error){
     if(!ownerCurrent()||sequence!==readSequence)return;
     ended=error instanceof ApiError&&error.code==='TERMINAL_ENDED';interrupted=!ended;
-    setPhase(ended?'ended':'read-interrupted');setError(message(error));
+    setPhase(ended?'ended':'read-interrupted');setError(errorMessage(error,'The project tool could not complete this request.'));
    }finally{
     reading=false;if(ownerCurrent()&&sequence===readSequence)setRetrying(false);
    }
@@ -110,18 +111,18 @@ export function TerminalBody({projectId,threadId,terminalId,active,openAnother,i
    });
    observer.observe(element.current!);
    if(!ended)timer=setTimeout(()=>void poll(),250);
-  })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');setError(message(error));}});
+  })().catch(error=>{if(ownerCurrent()){setPhase(error instanceof ApiError&&error.code==='TERMINAL_ENDED'?'ended':'unconfirmed');setError(errorMessage(error,'The project tool could not complete this request.'));}});
   return()=>{disposed=true;readSequence++;clearTimeout(timer);controller.abort();observer?.disconnect();instance?.dispose();if(actions.current===ownedActions)actions.current=null;};
  },[projectId,threadId,terminalId,active,generation,key]);
 
  const restart=async()=>{
   const owner=actions.current;if(!owner?.current())return;
-  if(terminalId){if(openAnother)try{await openAnother();}catch(error){if(owner.current())setError(message(error));}return;}
+  if(terminalId){if(openAnother)try{await openAnother();}catch(error){if(owner.current())setError(errorMessage(error,'The project tool could not complete this request.'));}return;}
   pendingId.current=null;try{localStorage.removeItem(key);localStorage.removeItem(key+':pending');}catch{}
   setGeneration(value=>value+1);
  };
  const canAdd=active&&excerptComposer&&!excerptComposer.readOnly&&excerptComposer.projectId===projectId&&excerptComposer.threadId===threadId;
- const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(message(cause));}finally{if(owner.current())setAdding(false);}};
+ const addSelection=async()=>{const owner=actions.current,composer=excerptComposer;if(!selection||!canAdd||!owner?.current()||adding||!composer)return;setAdding(true);try{await composer.addExcerpt(selection);if(owner.current())setError('');}catch(cause){if(owner.current())setError(errorMessage(cause,'The project tool could not complete this request.'));}finally{if(owner.current())setAdding(false);}};
  const canStop=active&&acknowledged&&phase!=='ended'&&!stopping&&!!actions.current?.current();
  const label=stopping?'Stopping':({starting:'Starting',running:'Running','read-interrupted':'Read interrupted',ended:'Ended',unconfirmed:'Start unconfirmed'} as const)[phase];
  return <div className="live-terminal terminal-read"><div className="panel-toolbar"><strong>Terminal</strong><span role="status">{label}</span><button disabled={!canStop} onClick={()=>void actions.current?.stop()}>Stop</button>{phase==='read-interrupted'&&<button disabled={!active||retrying||stopping||!actions.current?.current()} aria-busy={retrying} onClick={()=>actions.current?.retry()}>Retry</button>}{(phase==='ended'||(error&&acknowledged))&&(!terminalId||openAnother?<button disabled={!active||stopping||!actions.current?.current()} onClick={()=>void restart()}>New terminal</button>:<span>Open a new terminal from the workspace.</span>)}</div>{error&&<p className="error-text" role="alert">{error}</p>}<div className="xterm-host" ref={element} aria-label="Terminal output"/>{canAdd&&<div className="terminal-selection-actions"><button type="button" className="secondary" disabled={!selection||adding} onPointerDown={event=>event.preventDefault()} onClick={()=>void addSelection()}>Add selection to prompt</button><p>{selection?.truncated?`Selection truncated from ${selection.originalBytes} bytes. Review before sending.`:'Selection stays editable before sending. Ctrl+Shift+A selects output.'}</p></div>}</div>;

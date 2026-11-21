@@ -12,6 +12,7 @@ import {useDesktop,useDesktopCloseGuard} from './desktop-context';
 import {animateTask} from './task-motion';
 import './document-window.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const MAX_BYTES=256*1024,MAX_CHARS=100_000;
 type Draft={text:string;baseHash?:string;baseText?:string;sourceId:string};
@@ -40,12 +41,12 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  const [loaded,setLoaded]=useState<{id:string;text:string}|null>(null),[error,setError]=useState(''),[retry,setRetry]=useState(0),[reading,setReading]=useState(false);
  const draftPath=statePath(props.editableStateKey),value=props.editableStateKey?store.get(draftPath):undefined;
  const retainedDraft=draftValue(value),foreignDraft=Boolean(retainedDraft&&retainedDraft.sourceId!==sourceId),draft=retainedDraft?.sourceId===sourceId?retainedDraft:null,source=text!==undefined?text:loaded?.id===sourceId?loaded.text:undefined;
- let sourceError='';try{if(source!==undefined)bounded(source);}catch(cause){sourceError=cause instanceof Error?cause.message:'Document unavailable.';}
+ let sourceError='';try{if(source!==undefined)bounded(source);}catch(cause){sourceError=errorMessage(cause,'Document unavailable.');}
  const visibleSource=allowed&&!sourceError?source:undefined,display=draft?.text??visibleSource??'';
  const [fingerprint,setFingerprint]=useState<{text:string;id:string;hash:string}|null>(null),[editError,setEditError]=useState('');
  const sourceHash=fingerprint?.id===sourceId&&fingerprint.text===visibleSource?fingerprint.hash:undefined,changed=Boolean(draft&&sourceHash&&(draft.baseHash?draft.baseHash!==sourceHash:draft.baseText!==visibleSource));
  useEffect(()=>{if(visibleSource===undefined)return;let current=true;void crypto.subtle.digest('SHA-256',new TextEncoder().encode(visibleSource)).then(bytes=>{if(current)setFingerprint({id:sourceId,text:visibleSource,hash:Array.from(new Uint8Array(bytes),byte=>byte.toString(16).padStart(2,'0')).join('')});}).catch(()=>{if(current)setEditError('The document could not be prepared for editing. Reopen it to try again.');});return()=>{current=false;};},[visibleSource,sourceId]);
- const saveDraft=(nextText:string,adopt=false)=>{if(!sourceHash||foreignDraft)return;try{bounded(nextText);const next={text:nextText,baseHash:adopt?sourceHash:draft?.baseHash??(draft?.baseText!==undefined&&draft.baseText!==visibleSource?undefined:sourceHash),...(draft?.baseText!==undefined&&draft.baseText!==visibleSource&&!adopt?{baseText:draft.baseText}:{}),sourceId};const values={...(store.getSnapshot().values as Record<string,unknown>),[String(props.editableStateKey)]:next};if(JSON.stringify(values).length>131072)throw new Error('This edit exceeds the saved draft limit. Shorten it before continuing.');store.set(draftPath,next);setEditError('');}catch(cause){setEditError(cause instanceof Error?cause.message:'The draft could not be saved.');}};
+ const saveDraft=(nextText:string,adopt=false)=>{if(!sourceHash||foreignDraft)return;try{bounded(nextText);const next={text:nextText,baseHash:adopt?sourceHash:draft?.baseHash??(draft?.baseText!==undefined&&draft.baseText!==visibleSource?undefined:sourceHash),...(draft?.baseText!==undefined&&draft.baseText!==visibleSource&&!adopt?{baseText:draft.baseText}:{}),sourceId};const values={...(store.getSnapshot().values as Record<string,unknown>),[String(props.editableStateKey)]:next};if(JSON.stringify(values).length>131072)throw new Error('This edit exceeds the saved draft limit. Shorten it before continuing.');store.set(draftPath,next);setEditError('');}catch(cause){setEditError(errorMessage(cause,'The draft could not be saved.'));}};
  const windowRef=useRef<HTMLElement>(null),editor=useRef<HTMLTextAreaElement>(null),opener=useRef<HTMLButtonElement>(null),stopDrag=useRef<()=>void>(()=>{}),dragPointer=useRef<number|null>(null),focused=useRef(false),[position,setPosition]=useState<{x:number;y:number}|null>(null);
  const [portalRoot,setPortalRoot]=useState<Element|null>(null);
  // The owning artifact is stable across expansion and workspace placement.
@@ -58,7 +59,7 @@ export function WindowDocument({props,text}:{props:Record<string,unknown>;text?:
  const close=()=>{rememberView();stopDrag.current();controlled?workspace.closeDocument?.(id):setLocalOpen(false);opener.current?.focus({preventScroll:true});};
  const place=(next:'docked'|'floating')=>{controlled?workspace.placeDocument?.(id,next):setLocalPlacement(next);};
  useEffect(()=>{if(!open||!resourceId||!allowed)return;const controller=new AbortController();let current=true;setReading(true);setLoaded(null);setError('');const timer=setTimeout(()=>controller.abort(),15_000);
-  void getResourceContent(resourceId,path,controller.signal).then(readText).then(body=>{if(current)setLoaded({id:sourceId,text:body});}).catch(cause=>{if(current)setError(cause instanceof Error?cause.message:'The document could not be read.');}).finally(()=>{clearTimeout(timer);if(current)setReading(false);});return()=>{current=false;clearTimeout(timer);controller.abort();};
+  void getResourceContent(resourceId,path,controller.signal).then(readText).then(body=>{if(current)setLoaded({id:sourceId,text:body});}).catch(cause=>{if(current)setError(errorMessage(cause,'The document could not be read.'));}).finally(()=>{clearTimeout(timer);if(current)setReading(false);});return()=>{current=false;clearTimeout(timer);controller.abort();};
  },[open,resourceId,path,allowed,sourceId,retry]);
  useEffect(()=>{setError('');setLoaded(null);},[sourceId]);
  useEffect(()=>{if(scope?.active===false||scope?.editable===false)workspace.closeDocument?.(id);},[scope?.active,scope?.editable,id]);

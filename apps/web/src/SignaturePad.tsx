@@ -8,10 +8,11 @@ import {useSecureArtifact} from './secure-artifact-context';
 import '@fontsource/caveat/400.css';
 import '@fontsource/dancing-script/400.css';
 import './document-preview.css';
+import {clamp} from '../../../packages/ui-shell/format-utils';
 export { readVisualSignature } from '../../../packages/ui-catalog/signature-data';
 export type { SignaturePoint, VisualSignature } from '../../../packages/ui-catalog/signature-data';
 export const documentStatePath = (key: string) => `/values/${key.replace(/~/g, '~0').replace(/\//g, '~1')}`;
-const clamp = (value: number) => Math.round(Math.min(1, Math.max(0, value)) * 100_000) / 100_000;
+const clampUnit = (value: number) => Math.round(clamp(value, 0, 1) * 100_000) / 100_000;
 const fromDataUrl = (url: string) => Uint8Array.from(atob(url.split(',')[1]), character => character.charCodeAt(0));
 const styles = [{ label: 'Handwritten', font: 'Caveat' }, { label: 'Flowing', font: 'Dancing Script' }];
 function canonicalCanvas() { const canvas = document.createElement('canvas'); canvas.width = 960; canvas.height = 320; return canvas; }
@@ -98,7 +99,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     paint.current = redraw; redraw(); const resize = new ResizeObserver(redraw); resize.observe(target); const theme = new MutationObserver(redraw); theme.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class', 'style'] });
     return () => { if (paint.current === redraw) paint.current = null; resize.disconnect(); theme.disconnect(); };
   }, [mode, serialized]);
-  const pointAt = (event: PointerEvent<HTMLCanvasElement>) => { const bounds = event.currentTarget.getBoundingClientRect(); return { x: clamp((event.clientX - bounds.left) / Math.max(1, bounds.width)), y: clamp((event.clientY - bounds.top) / Math.max(1, bounds.height)) }; };
+  const pointAt = (event: PointerEvent<HTMLCanvasElement>) => { const bounds = event.currentTarget.getBoundingClientRect(); return { x: clampUnit((event.clientX - bounds.left) / Math.max(1, bounds.width)), y: clampUnit((event.clientY - bounds.top) / Math.max(1, bounds.height)) }; };
   const start = (event: PointerEvent<HTMLCanvasElement>) => {
     if (!event.isPrimary || event.button !== 0 || drawing.current?.pointerId != null) return; event.preventDefault(); event.currentTarget.focus(); event.currentTarget.setPointerCapture(event.pointerId); keyboard.current = false; paint.current?.();
     const strokes = markStrokes().map(stroke => [...stroke]); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { setError('The signature reached 2000 points. Undo a stroke or clear it.'); return; }
@@ -116,7 +117,7 @@ export function SignaturePad({ stateKey, label = 'Your signature', initialMode =
     if (event.key === 'Delete') { clear(); return; } if (event.key === 'Backspace') { undo(); return; } if (event.key === 'Escape') { drawing.current = null; keyboard.current = false; paint.current?.(); return; }
     keyboard.current = true;
     if (event.key === 'Enter' || event.key === ' ') { if (drawing.current) drawing.current = null; else { const strokes = markStrokes(); if (strokes.flat().length > MAX_SIGNATURE_POINTS - 2) { paint.current?.(); return; } drawing.current = { pointerId: null, strokes: [...strokes, [cursor.current, cursor.current]] }; saveStrokes(); } paint.current?.(); return; }
-    const step = event.shiftKey ? .05 : .01; cursor.current = { x: clamp(cursor.current.x + (event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0)), y: clamp(cursor.current.y + (event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0)) };
+    const step = event.shiftKey ? .05 : .01; cursor.current = { x: clampUnit(cursor.current.x + (event.key === 'ArrowLeft' ? -step : event.key === 'ArrowRight' ? step : 0)), y: clampUnit(cursor.current.y + (event.key === 'ArrowUp' ? -step : event.key === 'ArrowDown' ? step : 0)) };
     if (drawing.current && drawing.current.strokes.flat().length < MAX_SIGNATURE_POINTS) { drawing.current.strokes.at(-1)!.push(cursor.current); saveStrokes(); }
     paint.current?.();
   };

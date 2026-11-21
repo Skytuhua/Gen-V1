@@ -3,6 +3,7 @@ import {z} from 'zod';
 import type {Snapshot} from '../../../packages/contracts';
 import {logicalOwnerV1Schema,sameLogicalOwner,type LogicalOwnerV1} from '../../../packages/contracts/source-selection';
 import {authenticated,read} from './api';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 // Validate the exact observed fields this read-only projection uses. Additional
 // custody metadata stays with M04 and is never accepted as command authority.
@@ -10,7 +11,7 @@ const receipt=z.object({requestId:z.string(),owner:z.object({threadId:z.string()
 const model=z.strictObject({logicalOwner:logicalOwnerV1Schema,state:z.enum(['EMPTY','AVAILABLE']),requestContext:z.object({status:z.literal('HOST_PREPARED'),runId:z.string(),epoch:z.number().int(),receipt}).nullable()});
 export function WorkbenchRequestPanel({owner,tools=false}:{owner:LogicalOwnerV1;tools?:boolean}) {
  const key=JSON.stringify(owner),[result,setResult]=useState<{key:string;value:z.infer<typeof model>}>(),[error,setError]=useState('');
- useEffect(()=>{const pending=new AbortController();setError('');void authenticated(()=>fetch(`/api/workbench/threads/${encodeURIComponent(owner.threadId)}/context`,{credentials:'same-origin',cache:'no-store',signal:pending.signal})).then(read<unknown>).then(value=>{const parsed=model.parse(value);if(!sameLogicalOwner(parsed.logicalOwner,owner)||parsed.requestContext&&parsed.requestContext.receipt.owner.threadId!==owner.threadId)throw Error('The request context owner changed.');if(!pending.signal.aborted)setResult({key,value:parsed});}).catch(cause=>{if(!pending.signal.aborted)setError(cause instanceof Error?cause.message:'Request context is unavailable.');});return()=>pending.abort();},[key]);
+ useEffect(()=>{const pending=new AbortController();setError('');void authenticated(()=>fetch(`/api/workbench/threads/${encodeURIComponent(owner.threadId)}/context`,{credentials:'same-origin',cache:'no-store',signal:pending.signal})).then(read<unknown>).then(value=>{const parsed=model.parse(value);if(!sameLogicalOwner(parsed.logicalOwner,owner)||parsed.requestContext&&parsed.requestContext.receipt.owner.threadId!==owner.threadId)throw Error('The request context owner changed.');if(!pending.signal.aborted)setResult({key,value:parsed});}).catch(cause=>{if(!pending.signal.aborted)setError(errorMessage(cause,'Request context is unavailable.'));});return()=>pending.abort();},[key]);
  if(error)return <p role="alert">{error}</p>;
  if(result?.key!==key)return <p role="status">Loading recorded request context.</p>;
  const record=result.value.requestContext;if(!record)return <p role="status">No prepared request has been recorded. Tokens, tool use, and cache outcomes are not reported.</p>;

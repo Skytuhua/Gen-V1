@@ -2,6 +2,7 @@ import {useCallback,useEffect,useRef,useState} from 'react';
 import type {CommandReceipt} from '../../../packages/contracts/index.ts';
 import {splitWorkspaceLayoutSchema,splitProfileSaveResultSchema,type SplitWorkspaceLayout} from '../../../packages/contracts/split-workspace.ts';
 import {ApiError,authenticated,csrfToken,read} from './api';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export const getSplitWorkspace=(workspaceId='workspace')=>authenticated(()=>fetch('/api/split-workspace?'+new URLSearchParams({workspaceId}),{credentials:'same-origin',cache:'no-store'})).then(read<unknown>).then(value=>splitWorkspaceLayoutSchema.parse(value));
 
@@ -20,7 +21,7 @@ export function useSplitWorkspaceState(enabled=true,workspaceId='workspace'){
  const refresh=useCallback(async()=>{
   const expected=generation.current,readId=++request.current;
   try{const value=await getSplitWorkspace(workspaceId);if(expected===generation.current)accept(value);return value;}
-  catch(cause){if(alive.current&&owner.current===workspaceId&&expected===generation.current&&readId===request.current&&!current.current)setError(cause instanceof Error?cause.message:'The workspace layout could not load.');throw cause;}
+  catch(cause){if(alive.current&&owner.current===workspaceId&&expected===generation.current&&readId===request.current&&!current.current)setError(errorMessage(cause,'The workspace layout could not load.'));throw cause;}
  },[workspaceId,accept]);
  useEffect(()=>{alive.current=enabled;generation.current++;current.current=null;setLayout(null);setError('');if(!enabled)return;const change=()=>{void refresh().catch(()=>{});};change();window.addEventListener('focus',change);window.addEventListener('harness:workspace-changed',change);return()=>{alive.current=false;generation.current++;window.removeEventListener('focus',change);window.removeEventListener('harness:workspace-changed',change);};},[enabled,refresh]);
  const sendResult=useCallback((type:string,payload:Record<string,unknown>={}):Promise<{layout:SplitWorkspaceLayout;profile?:{id:string;updatedAt:string}}>=>{
@@ -28,7 +29,7 @@ export function useSplitWorkspaceState(enabled=true,workspaceId='workspace'){
   const command={id:crypto.randomUUID(),type:type.startsWith('split-workspace.')?type:'split-workspace.'+type,payload:{...payload,workspaceId,baseRevision:payload.baseRevision??basis.revision}};
   const action=queue.current.catch(()=>{}).then(async()=>{
    try{const body=JSON.stringify(command),response=await authenticated(()=>{if(!alive.current||owner.current!==workspaceId||expected!==generation.current)throw Error('The workspace changed. Reopen its layout.');return fetch('/api/split-workspace/commands',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body});}),receipt=await read<CommandReceipt>(response),saved=splitProfileSaveResultSchema.safeParse(receipt.result),value=saved.success?saved.data.layout:splitWorkspaceLayoutSchema.parse(receipt.result);if(expected===generation.current)accept(value);return{layout:value,...(saved.success?{profile:saved.data.profile}:{})};}
-   catch(cause){if(cause instanceof ApiError&&cause.code==='WORKSPACE_CHANGED'&&expected===generation.current)await refresh().catch(()=>{});if(alive.current&&expected===generation.current)setError(cause instanceof Error?cause.message:'The layout could not be saved.');throw cause;}
+   catch(cause){if(cause instanceof ApiError&&cause.code==='WORKSPACE_CHANGED'&&expected===generation.current)await refresh().catch(()=>{});if(alive.current&&expected===generation.current)setError(errorMessage(cause,'The layout could not be saved.'));throw cause;}
   });queue.current=action;return action;
  },[workspaceId,accept,refresh]);
  const send=useCallback((type:string,payload:Record<string,unknown>={})=>sendResult(type,payload).then(result=>result.layout),[sendResult]);

@@ -6,6 +6,7 @@ import {displayFilePath} from './files/FilesView';
 import {checkpointOwnerKey,checkpointReviewPaths,disabledCheckpointAdapter,readCheckpointDetail,readCheckpointList,readCheckpointReview,readRestorePlan,readRestoreResult,type CheckpointOwner,type CheckpointRestorePlan,type CheckpointReview,type FileCheckpoint,type FileCheckpointAdapter} from './file-checkpoint-api';
 import './file-checkpoints.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const sources=['Current','Recorded','History'] as const;
 type Source=typeof sources[number];
@@ -29,7 +30,7 @@ export function FileCheckpoints({owner,preferences,current,recorded,adapter=disa
     </div>
   </div>;
 }
-const errorMessage=(cause:unknown)=>cause instanceof Error?cause.message:'Checkpoints could not load. Try again.';
+
 const plural=(count:number,word:string)=>`${count} ${word}${count===1?'':'s'}`;
 const formatTime=(value:string,preferences:UiPreferences)=>new Date(value).toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short',hour12:preferences.timeFormat==='system'?undefined:preferences.timeFormat==='12h'});
 const provenance=(checkpoint:FileCheckpoint)=>checkpoint.provenance.kind==='restore_backup'?'Saved before a restore':'Saved before an edit';
@@ -51,7 +52,7 @@ function CheckpointHistory({owner,adapter,preferences}:{owner:CheckpointOwner;pr
       if(controller.signal.aborted)return;
       const page=readCheckpointList(value,owner);
       setItems(previous=>cursor?[...previous,...page.items]:page.items);setNextCursor(page.nextCursor??undefined);
-    }).catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
+    }).catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause,'Checkpoints could not load. Try again.'));}).finally(()=>{if(!controller.signal.aborted)setLoading(false);});
     return()=>controller.abort();
   },[owner,adapter,attempt,cursor]);
   return <div className="file-checkpoints-history">
@@ -112,10 +113,10 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
           const review=readCheckpointReview(result,owner,checkpoint,paths);
           if(results.some(value=>value.reviewId===review.reviewId))throw Error('Duplicate review identity for different file subsets.');
           results.push(review);
-        }catch(cause){throw Error(`Review part ${index+1} of ${batches.length} is incomplete. ${errorMessage(cause)}`);}
+        }catch(cause){throw Error(`Review part ${index+1} of ${batches.length} is incomplete. ${errorMessage(cause,'Checkpoints could not load. Try again.')}`);}
       }
       if(!controller.signal.aborted)setReviews(results);
-    })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause));});
+    })().catch(cause=>{if(!controller.signal.aborted)setError(errorMessage(cause,'Checkpoints could not load. Try again.'));});
     return()=>controller.abort();
   },[owner,adapter,checkpoint,attempt]);
   const selectable=(file:CheckpointReview['files'][number])=>file.status==='ready'||(file.status==='missing'&&file.targetHash!==null);
@@ -131,7 +132,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
       const payload=await adapter.restore.plan!(owner,checkpoint,[...selected],approval);
       const staged=readRestorePlan(payload);
       setApprovalId(approval);setPlan(staged);setConfirming(true);
-    }catch(cause){setRestoreError(errorMessage(cause));}finally{setApplying(false);}
+    }catch(cause){setRestoreError(errorMessage(cause,'Checkpoints could not load. Try again.'));}finally{setApplying(false);}
   };
   const apply=async()=>{
     if(!restorable||!plan||!approvalId)return;
@@ -139,7 +140,7 @@ function CheckpointFiles({owner,adapter,checkpoint,preferences,onBack}:{owner:Ch
     try{
       const payload=await adapter.restore.apply!(owner,checkpoint,plan.planId,approvalId),result=readRestoreResult(payload);
       setDone({state:result.state,restored:result.restored,conflicts:result.conflicts});setConfirming(false);
-    }catch(cause){setRestoreError(errorMessage(cause));setConfirming(false);}finally{setApplying(false);}
+    }catch(cause){setRestoreError(errorMessage(cause,'Checkpoints could not load. Try again.'));setConfirming(false);}finally{setApplying(false);}
   };
   if(done)return <RestoreResult done={done} onBack={onBack} onReviewAgain={()=>{setDone(undefined);cancel();setAttempt(value=>value+1);}}/>;
   const count=selected.size,locked=applying||confirming;

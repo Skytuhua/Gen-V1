@@ -3,6 +3,7 @@ import type {ModelInfo} from '../../../packages/contracts';
 import {ModelPicker,type ModelPickerHandle} from './ModelPicker';
 import {useComposerPointerPress} from './composer-pointer-press';
 import './composer-toolbar.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 export interface ComposerToolbarProps {
  modelPickerRef?:Ref<ModelPickerHandle>;
  models:ModelInfo[];modelId:string;onModelChange:(id:string)=>void;
@@ -37,7 +38,7 @@ const validCounts=(value:ComposerToolbarProps['changeSummary'])=>value&&Number.i
 export function ComposerTaskActions({changeSummary,onChanges,onCreatePR,disabled=false,working=false}:Pick<ComposerToolbarProps,'changeSummary'|'onChanges'|'onCreatePR'|'disabled'|'working'>){
  const pointerPress=useComposerPointerPress();
  const [error,setError]=useState(''),counts=validCounts(changeSummary);
- async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(reason instanceof Error?reason.message:'The action could not finish. Try again.');}}
+ async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(errorMessage(reason,'The action could not finish. Try again.'));}}
  return <div className="composer-secondary-actions" role="group" aria-label="Task actions" {...pointerPress}>
   <button type="button" className="composer-context-chip composer-changes" aria-label="Inspect changes" title="Inspect recorded changes" disabled={disabled} onClick={()=>void invoke(onChanges)}>{changes}{counts?<span className="composer-change-counts"><span>+{counts.added}</span><span>−{counts.removed}</span></span>:<span>Changes</span>}</button>
   <button type="button" className="composer-context-chip composer-pr" aria-label="Create PR" title={working?'Wait for the active run to finish':'Ask the agent to prepare a pull request'} disabled={disabled||working} onClick={()=>void invoke(onCreatePR)}>{branch}<span>Create PR</span></button>
@@ -72,7 +73,7 @@ export function ComposerToolbar({modelPickerRef,models,modelId,onModelChange,thi
   recognition.onend=()=>{if(owns()){session.current=null;setListening(false);}};
   try{recognition.start();setListening(true);}catch{revoke();setListening(false);setError('Voice input could not start. Try again.');}
  }
- async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(reason instanceof Error?reason.message:'The action could not finish. Try again.');}}
+ async function invoke(action:()=>void|Promise<void>){setError('');try{await action();}catch(reason){setError(errorMessage(reason,'The action could not finish. Try again.'));}}
  return <div className="composer-toolbar" data-separated-actions={separateActions} {...pointerPress}>
   {!separateActions&&<ComposerTaskActions changeSummary={changeSummary} onChanges={onChanges} onCreatePR={onCreatePR} disabled={disabled} working={working}/>}
   <div className="composer-footer-main">

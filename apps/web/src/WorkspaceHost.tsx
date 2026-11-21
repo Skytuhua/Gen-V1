@@ -31,6 +31,7 @@ import type {ThreadHoverPRTarget} from './thread-hover/host';
 import type {ThreadHoverScope} from './thread-hover/facts';
 import './workspace-host.css';
 import {ErrorState} from '../../../packages/ui-shell/Feedback';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export type ConversationIntent = 'model' | 'settings' | 'usage' | 'new-thread' | 'connect-project' | 'resources' | 'linked-pull-requests' | 'plugin-workspace';
 export interface ConversationHost {
@@ -44,7 +45,7 @@ export interface ConversationHost {
   pluginCatalog: ReturnType<typeof usePluginCatalog>;
   openReview?(target:ThreadHoverPRTarget,scope:ThreadHoverScope):Promise<void>;
 }
-const message = (cause: unknown) => cause instanceof Error ? cause.message : 'The workspace could not open. Retry.';
+
 const prepare = async () => {await journalFlush(); await prepareEditorHandoff();};
 
 type CompactSettingsComponent = typeof import('./CompactSettings').CompactSettings;
@@ -65,7 +66,7 @@ function CompactSettingsContent(props: ComponentProps<CompactSettingsComponent>)
       if (hasPendingDocumentAssets()) {setError('Wait for the signature mark to finish saving, or clear it before reloading.'); return;}
       await prepare();
       if (alive.current) window.location.reload();
-    } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${message(cause)} Keep this window open and retry.`);}
+    } catch (cause) {if (alive.current) setError(`Drafts could not be saved. ${errorMessage(cause,'The workspace could not open. Retry.')} Keep this window open and retry.`);}
     finally {if (alive.current) setReloading(false);}
   };
   return Settings ? <Settings {...props}/> : error ? <ErrorState message={error} retryLabel="Reload to retry" busy={reloading} onRetry={() => void reload()}/> : <LoadingState pending hasContent={false} label="Opening settings…" skeleton={<SettingsSkeleton/>} className="view-loading-state"/>;
@@ -88,7 +89,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
   }));
   const inventory = useSyncExternalStore(controller.subscribe, controller.getSnapshot);
   const loadSettings = useCallback(async () => {const value = await getShellSettings(); if (alive.current) setSettings(value);}, []);
-  useEffect(() => {alive.current = true; void bootstrap().then(loadSettings).catch(cause => {if (alive.current) setError(message(cause));}); return () => {alive.current = false;};}, [loadSettings]);
+  useEffect(() => {alive.current = true; void bootstrap().then(loadSettings).catch(cause => {if (alive.current) setError(errorMessage(cause,'The workspace could not open. Retry.'));}); return () => {alive.current = false;};}, [loadSettings]);
   useEffect(() => () => {controller.dispose(); composers.dispose();}, [controller, composers]);
   useDesktopCloseGuard('workspace-host-journal', journalFlush);
   const activeCanvasId = workspace.envelope?.state.activeCanvasId;
@@ -147,7 +148,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
         setIntent({id:++intentSequence.current,kind:'linked-pull-requests',review:{...target,threadId:scope.threadId,projectId:scope.projectId!}});
       },undefined,isCurrent);
       if(isCurrent())try{localStorage.setItem('harness:selected-thread',scope.threadId);}catch{/* The explicit owner still reaches the mounted conversation. */}
-    }catch(cause){if(changed){selected.current=previous;setIntent(undefined);}if(alive.current)setError(message(cause));throw cause;}
+    }catch(cause){if(changed){selected.current=previous;setIntent(undefined);}if(alive.current)setError(errorMessage(cause,'The workspace could not open. Retry.'));throw cause;}
   };
   const openConversation = async (id?: string, kind?: ConversationIntent, pluginTarget?: {pluginId: string; workspaceId: string}) => {
     const previous = selected.current; let changed = false;
@@ -160,7 +161,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
       if (id) try {localStorage.setItem('harness:selected-thread', id);} catch { /* The explicit owner still reaches the mounted conversation. */ }
     } catch (cause) {if (changed) {selected.current = previous; setIntent(undefined);} throw cause;}
   };
-  const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(message(cause));});};
+  const fail = (action: () => Promise<unknown>) => {void action().catch(cause => {if (alive.current) setError(errorMessage(cause,'The workspace could not open. Retry.'));});};
   const resolvingRetired = useRef(false);
   const [workspaceRetry, setWorkspaceRetry] = useState(0);
   useEffect(() => {
@@ -169,7 +170,7 @@ export function WorkspaceHost({conversation}: {conversation: (host: Conversation
     const envelope = workspace.envelope, supported = envelope.state.canvases.find(canvas => isSupportedWorkspacePreset(canvas.preset));
     const payload = supported ? {canvasId: supported.id, baseRevision: envelope.state.revision} : {name: 'Workspace', preset: 'workspace', baseRevision: envelope.state.revision};
     void workspace.send(supported ? 'workspace.canvas.select' : 'workspace.canvas.create', payload)
-      .catch(cause => {if (alive.current) setError(message(cause));})
+      .catch(cause => {if (alive.current) setError(errorMessage(cause,'The workspace could not open. Retry.'));})
       .finally(() => {resolvingRetired.current = false;});
   }, [retiredActive, workspace.envelope?.state.activeCanvasId, workspace.envelope?.state.revision, workspaceRetry]);
   const retry = () => fail(async () => {

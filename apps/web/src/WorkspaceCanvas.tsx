@@ -4,6 +4,7 @@ import type {Thread} from '../../../packages/contracts/index.ts';
 import type {CanvasLayout,PanelBounds,PanelPlacement,ProjectSummary,WorkspacePanelKind} from '../../../packages/contracts/workspace.ts';
 import {arrangeCanvasPanels,canvasZoom,canvasZoomAt,fitCanvasViewport,groupCanvasPanels,panelInViewport,snapPanelBounds,threadParent} from './workspace-canvas-layout';
 import './workspace-canvas.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 type Viewport=CanvasLayout['viewport'];
 export interface WorkspaceCanvasProps {
@@ -28,7 +29,7 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
   const write=[...pending.current.values()].find(value=>!saveTimers.current.has(value.canvasId));if(!write)return;
   pending.current.delete(write.canvasId);saving.current=write;
   try{await write.save(write.value);confirmed.current.set(write.canvasId,write.value);if(generation.current.get(write.canvasId)===write.generation)localViewports.current.delete(write.canvasId);}
-  catch(cause){if(generation.current.get(write.canvasId)===write.generation){localViewports.current.delete(write.canvasId);const message=cause instanceof Error?cause.message:'The canvas position could not be saved.';viewportErrors.current.set(write.canvasId,message);if(mounted.current&&canvasId.current===write.canvasId){publish(confirmed.current.get(write.canvasId)!);setError(message);}}}
+  catch(cause){if(generation.current.get(write.canvasId)===write.generation){localViewports.current.delete(write.canvasId);const message=errorMessage(cause,'The canvas position could not be saved.');viewportErrors.current.set(write.canvasId,message);if(mounted.current&&canvasId.current===write.canvasId){publish(confirmed.current.get(write.canvasId)!);setError(message);}}}
   finally{saving.current=null;pumpRef.current();}
  };
  pumpRef.current=()=>{void pump();};
@@ -54,7 +55,7 @@ export function WorkspaceCanvas({canvas,panels,projects,disabledKinds,threads=[]
   };
   element.addEventListener('wheel',wheel,{passive:false});return()=>element.removeEventListener('wheel',wheel);
  },[embedded]);
- const run=(action:()=>Promise<void>)=>{setError('');void action().catch(cause=>{if(mounted.current)setError(cause instanceof Error?cause.message:'The canvas could not be updated.');});};
+ const run=(action:()=>Promise<void>)=>{setError('');void action().catch(cause=>{if(mounted.current)setError(errorMessage(cause,'The canvas could not be updated.'));});};
  const zoom=(direction:-1|0|1)=>{const current=viewportRef.current;saveViewport(canvasZoomAt(current,canvasZoom(current.zoom,direction),{x:size.width/2,y:size.height/2}));};
  const visiblePanels=panels.filter(panel=>panel.visible&&panel.placement==='canvas'&&!disabledKinds.includes(panel.kind));
  const displayed=visiblePanels.map(panel=>({...panel,bounds:drafts[panel.id]??panel.bounds}));

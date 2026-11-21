@@ -19,6 +19,7 @@ import { animateTask, useArtifactEntrance } from './task-motion';
 import { PendingStatus } from './LoadingState';
 import {useDesktop,useDesktopCloseGuard,useDetachedSurface,usePendingSurface} from './desktop-context';
 import {journalFlush} from './journal';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 class ArtifactBoundary extends Component<{ children: ReactNode; resetKey: string }, { error: string }> {
   state = { error: '' };
@@ -96,7 +97,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
   const act = async (type: string, payload: Record<string, unknown>) => {
     if (type === 'artifact.expand' && payload.expanded) expandButton.current = section.current?.querySelector<HTMLElement>('[aria-label="Expand artifact"]') ?? null;
     if (type === 'artifact.archive' && widgetDirty) { setArchiveGuard(true); return; }
-    try { setError(''); await command(type, { artifactId: artifact.id, ...payload }, artifact.threadId); await refresh(); } catch (error) { setError(error instanceof Error ? error.message : 'Action failed'); }
+    try { setError(''); await command(type, { artifactId: artifact.id, ...payload }, artifact.threadId); await refresh(); } catch (error) { setError(errorMessage(error,'Action failed')); }
   };
   useModalRegion(section, expanded && restored, () => { void act('artifact.expand', { expanded: false }); }, '[aria-label="Collapse artifact"]');
   useLayoutEffect(() => {
@@ -134,7 +135,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
       await widget.current.releaseLease();
       await command('artifact.archive', { artifactId: artifact.id }, artifact.threadId);
       dirtyChanged(false); setArchiveGuard(false); await refresh();
-    } catch (error) { setError(error instanceof Error ? error.message : 'Archive failed'); } finally { setArchiving(false); }
+    } catch (error) { setError(errorMessage(error,'Archive failed')); } finally { setArchiving(false); }
   };
   const effectiveRecord = widgetRecord && widgetRecord.revision > (record?.revision ?? -1) ? widgetRecord : record;
   const prepareDetach=async()=>{
@@ -142,7 +143,7 @@ export function Artifact({ artifact: incoming, snapshot, theme, refresh, onDirty
     if(artifact.kind==='widget'){if(widgetDirty)throw new Error('Checkpoint widget edits before moving this artifact.');await widget.current?.releaseLease();}else await state.release();
     await journalFlush();
   };
-  useDesktopCloseGuard(`artifact:${artifact.id}`,async()=>{if(detached)return;try{await prepareDetach();}catch(cause){setError(cause instanceof Error?cause.message:'Save the artifact before closing.');throw cause;}});
+  useDesktopCloseGuard(`artifact:${artifact.id}`,async()=>{if(detached)return;try{await prepareDetach();}catch(cause){setError(errorMessage(cause,'Save the artifact before closing.'));throw cause;}});
   // Mount the inert tree immediately so disclosure reservations precede journal I/O.
   const saveState = state.status === 'Saved' ? 'saved' : state.status.startsWith('Saving') ? 'saving' : state.status === 'Unsaved changes' || state.status.startsWith('Recovered draft') ? 'pending' : 'attention';
   return <ArtifactInline value={inline}><section ref={section} className={`artifact artifact-width-${artifact.presentation?.width ?? 'standard'} artifact-frame-${artifact.presentation?.frame ?? 'card'} ${expanded ? 'artifact-expanded' : ''} ${inWorkspace ? 'artifact-in-workspace' : ''} ${incoming.lifecycle === 'archived' ? 'artifact-archived' : ''}`} aria-label={artifact.title} role={expanded ? 'dialog' : undefined} aria-modal={expanded || undefined} data-artifact-id={artifact.id} data-artifact-inline={inline} data-artifact-measuring={!restored || undefined} data-artifact-pending={!ready || undefined} data-document-handoff={documentHandoff}>

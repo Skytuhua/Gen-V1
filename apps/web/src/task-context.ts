@@ -1,4 +1,5 @@
 import { createContext, useContext, useRef, useState } from 'react';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 export const ArtifactTitle = createContext('');
 export const ArtifactInline = createContext(false);
@@ -20,7 +21,7 @@ export function useTaskAction() {
     if (pending.current) return false;
     pending.current = true; setBusy(true); setError('');
     try { await action(actionId, payload); return true; }
-    catch (error) { setError(error instanceof Error ? error.message : 'The request failed. Try again.'); return false; }
+    catch (error) { setError(errorMessage(error,'The request failed. Try again.')); return false; }
     finally { pending.current = false; setBusy(false); }
   };
   return { run, busy, error };

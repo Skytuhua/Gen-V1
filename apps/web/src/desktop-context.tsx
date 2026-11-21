@@ -6,6 +6,7 @@ import {createAccountLoginMonitor} from './account-login-monitor';
 import {notifyAccountAuthChanged} from './account-api';
 import type {AccountLoginFlow} from '../../../packages/contracts/authentication';
 import './native-chrome.css';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 declare global {interface Window {harnessDesktop?:DesktopBridge}}
 type DesktopValue={bridge:DesktopBridge;context:DesktopContext;windows:DesktopWindowInfo[];browser?:DesktopState['browser'];state:DesktopState;prepareHandoff:()=>Promise<void>;registerClose:(key:string,guard:()=>Promise<void>)=>()=>void;closing:boolean;resumeEditing:()=>void;pending:DesktopSurface[];ownership:(surface:DesktopSurface|null)=>number|undefined;detachSurface:(surface:DesktopSurface,before?:()=>Promise<void>)=>Promise<DesktopWindowInfo>;flows:Record<string,AccountLoginFlow>;signIn:ReturnType<typeof createAccountLoginMonitor>['start'];cancelSignIn:ReturnType<typeof createAccountLoginMonitor>['cancel'];recoverSignIn:ReturnType<typeof createAccountLoginMonitor>['recover']};
@@ -57,5 +58,5 @@ export function DesktopProvider({bridge,context,children}:{bridge:DesktopBridge;
 }
 /** Recovery is offered only for a child that already owns saved work. */
 export function DesktopWindowActions(){const desktop=useDesktop(),[error,setError]=useState('');if(!desktop||desktop.context.surface.kind==='main')return null;
- return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(cause instanceof Error?cause.message:'The view could not return. Keep it open and retry.');});}}>Return to workspace</button>{error&&<p role="status">{error}</p>}</>;
+ return <><button type="button" className="quiet" onClick={()=>{void desktop.bridge.reattach().catch(cause=>{desktop.resumeEditing();setError(errorMessage(cause,'The view could not return. Keep it open and retry.'));});}}>Return to workspace</button>{error&&<p role="status">{error}</p>}</>;
 }

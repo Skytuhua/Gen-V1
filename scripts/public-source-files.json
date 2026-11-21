@@ -2669,6 +2669,7 @@
     "packages/ui-shell/controls.css",
     "packages/ui-shell/feedback.css",
     "packages/ui-shell/focus-retention.ts",
+    "packages/ui-shell/format-utils.ts",
     "packages/ui-shell/list-navigation.ts",
     "packages/ui-shell/overlay-position.ts",
     "packages/ui-shell/summary-dock.css",

@@ -7,6 +7,7 @@ import type {WorkspacePanelKind} from '../../../packages/contracts/workspace';
 import {useWorkspace,type WorkspaceTab} from './workspace-context';
 import {usageCost,usagePercent} from './usage-presentation';
 import {ContextMeter} from './ContextMeter';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 const countFormat = new Intl.NumberFormat(undefined, { notation: 'compact', maximumFractionDigits: 1 });
 const count = (value: number | null | undefined) => value == null ? 'Unavailable' : countFormat.format(value);
@@ -18,7 +19,7 @@ export function UsageSummary({ usage }: { usage?: RuntimeUsage }) {
 export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanelKind)=>void|Promise<void>}={}) {
   const workspace = useWorkspace();
   const [error,setError]=useState('');
-  const openTool=(kind:WorkspacePanelKind)=>{setError('');try{const result=onOpenTool?onOpenTool(kind):workspace.setActiveTab(kind as WorkspaceTab);if(result)void result.catch(cause=>setError(cause instanceof Error?cause.message:'The surface could not open.'));}catch(cause){setError(cause instanceof Error?cause.message:'The surface could not open.');}};
+  const openTool=(kind:WorkspacePanelKind)=>{setError('');try{const result=onOpenTool?onOpenTool(kind):workspace.setActiveTab(kind as WorkspaceTab);if(result)void result.catch(cause=>setError(errorMessage(cause,'The surface could not open.')));}catch(cause){setError(errorMessage(cause,'The surface could not open.'));}};
   const unavailable = 'Unavailable in this local harness';
   return <section className="workspace-launcher" aria-label="Workspace launcher"><h3>Open a surface</h3>{error&&<p role="status" className="error-text">{error}</p>}
     <button type="button" aria-label="Terminal" onClick={()=>openTool('terminal')} title="Open an interactive host terminal"><Terminal size={18} /><span>Terminal</span><small>Interactive host session</small></button>

@@ -3,6 +3,7 @@ import { createStateStore } from '@json-render/react';
 import type { ArtifactRecord, Snapshot, UserStateRecord } from '../../../packages/contracts';
 import { command, getSnapshot } from './api';
 import { journalCompareAndSwap, journalRead, journalReadRecord, journalSubscribe, journalWrite } from './journal';
+import {errorMessage} from '../../../packages/ui-shell/format-utils';
 
 interface PendingState { baseRevision: number; values: Record<string, unknown> }
 const clientId = crypto.randomUUID();
@@ -60,7 +61,7 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
         setStatus(dirty.current ? 'Unsaved changes' : 'Saved');
         refreshRef.current(await getSnapshot());
       } catch (error) {
-        setStatus(`Draft retained · ${error instanceof Error ? error.message : 'Save failed'}`);
+        setStatus(`Draft retained · ${errorMessage(error,'Save failed')}`);
         throw error;
       }
     };
@@ -130,7 +131,7 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
       if (host && typeof host === 'object' && !Array.isArray(host) && JSON.stringify(current) !== JSON.stringify(host)) {
         dirty.current = true; lane.owner = owner; generation.current += 1;
         setStatus('Unsaved changes');
-        void acquireLease().catch(error => setStatus(`Draft retained · ${error instanceof Error ? error.message : 'Lease failed'}`));
+        void acquireLease().catch(error => setStatus(`Draft retained · ${errorMessage(error,'Lease failed')}`));
         void journalWrite(key, { baseRevision: revision.current, values: current }).catch(() => setStatus('Local journal failed · keep this tab open'));
         clearTimeout(timer.current);
         timer.current = setTimeout(() => { void flush().catch(() => {}); }, 500);
@@ -146,7 +147,7 @@ export function useArtifactState(artifact: ArtifactRecord, record: UserStateReco
       lane.owner = owner;
       generation.current += 1;
       setStatus('Unsaved changes');
-      void acquireLease().catch(error => setStatus(`Draft retained · ${error instanceof Error ? error.message : 'Lease failed'}`));
+      void acquireLease().catch(error => setStatus(`Draft retained · ${errorMessage(error,'Lease failed')}`));
       void journalWrite(key, { baseRevision: revision.current, values: next }).catch(() => setStatus('Local journal failed · keep this tab open'));
       clearTimeout(timer.current);
       timer.current = setTimeout(() => { void flush().catch(() => {}); }, 500);
