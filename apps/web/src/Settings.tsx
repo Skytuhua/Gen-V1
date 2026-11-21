@@ -3,7 +3,7 @@ import {registerEditorHandoff} from './editor-handoff';
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {notifyAccountAuthChanged,onAccountCatalogChanged,mergeAccountModels} from './account-api';
 import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
-import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, Info, Keyboard, MessageSquare, Palette, Plug, Search, Settings2, type LucideIcon } from 'lucide-react';
+import { Bell, Boxes, Check, Database, ExternalLink, Folder, GitBranch, Globe, Info, Keyboard, MessageSquare, Palette, Plug, Search, Settings2, Webhook, type LucideIcon } from 'lucide-react';
 import type { ModelInfo, Snapshot } from '../../../packages/contracts';
 import { getPreferences, type UiPreferences } from '../../../packages/contracts/preferences';
 import { Select } from '../../../packages/ui-shell/Select';
@@ -23,6 +23,7 @@ import { IntegrationSettings } from './IntegrationSettings';
 import { UpdateControl } from './UpdateControl';
 import { AppearanceSettings, NotificationSettings, APPEARANCE_FIELDS } from './AppearanceSettings';
 import { PairedDevicesPanel } from './PairedDevicesPanel';
+import { HookSettings } from './HookSettings';
 import { version } from '../../../package.json';
 import {settingsDataFromSnapshot, type SettingsData} from './settings-data';
 import {snapshotDraftReferences, type DraftReferenceSource} from './draft-transfer';
@@ -32,11 +33,11 @@ import './settings.css';
 export const SETTINGS_SECTIONS = [
   ['general', 'General'], ['appearance', 'Appearance'], ['chat', 'Chat & Composer'],
   ['providers', 'Models & Accounts'], ['projects', 'Projects & Working Copies'],
-  ['diffs', 'Source Control & Reviews'], ['skills', 'Skills & Integrations'],
+  ['diffs', 'Source Control & Reviews'], ['skills', 'Skills & Integrations'], ['hooks', 'Hooks'],
   ['notifications', 'Notifications & Usage'], ['browser', 'Browser'],
   ['keybindings', 'Keyboard Shortcuts'], ['maintenance', 'Data & Recovery'], ['about', 'About & Licenses'],
 ] as const;
-const SECTION_ICONS: Record<string, LucideIcon> = {general: Settings2, appearance: Palette, chat: MessageSquare, providers: Plug, projects: Folder, diffs: GitBranch, skills: Boxes, notifications: Bell, browser: Globe, keybindings: Keyboard, maintenance: Database, about: Info};
+const SECTION_ICONS: Record<string, LucideIcon> = {general: Settings2, appearance: Palette, chat: MessageSquare, providers: Plug, projects: Folder, diffs: GitBranch, skills: Boxes, hooks: Webhook, notifications: Bell, browser: Globe, keybindings: Keyboard, maintenance: Database, about: Info};
 const legacySections: Record<string, string> = { threads: 'chat', integrations: 'skills', connections: 'providers', 'source-control': 'diffs', worktrees: 'projects', archived: 'maintenance', diagnostics: 'maintenance', licenses: 'about' };
 const preferenceRows: Record<string, { key: keyof UiPreferences; options?: readonly string[]; labels?: readonly string[]; description: string }> = {
   'time-format': { key: 'timeFormat', options: ['system', '12h', '24h'], labels: ['System', '12 hour', '24 hour'], description: 'Clock format for thread and activity timestamps.' },
@@ -69,6 +70,7 @@ export const SETTINGS_ROWS: SettingsInventoryRow[] = [
   row('project-overview', 'Granted resources', 'projects', 'project folder working copies permissions access'),
   row('diff-layout', 'Diff layout', 'diffs'), row('hide-whitespace-changes', 'Hide whitespace changes', 'diffs'), row('default-diff-file-state', 'Expand diffs', 'diffs'), row('diff-color-scheme', 'Diff colors', 'diffs'),
   row('harness-skills', 'Skills & learning', 'skills', 'library proposals automatic learning review archive restore rollback'), row('harness-integrations', 'Bundled integrations', 'skills', 'humanizer impeccable graphify superpowers ponytail tools hooks mcp'),
+  row('hooks-enabled', 'Run hooks', 'hooks', 'hooks script command formatter block automation event'), row('hooks-list', 'Your hooks', 'hooks', 'hooks script command formatter block automation event matcher timeout test'),
   row('thread-notifications', 'Task notifications', 'notifications', 'sound popup'), row('in-app-notifications', 'In-app notifications', 'notifications'), row('live-usage', 'Live usage', 'notifications'), row('harness-notification-controls', 'Notification preferences', 'notifications', 'volume sound preview privacy quiet hours'),
   row('browser-start-page', 'Start page', 'browser', 'manual browser address website'),
   ...PREFERENCE_BINDINGS.map(({ preference, label }) => row(`harness-keybinding-${preference}`, label, 'keybindings', `keyboard shortcut ${preference}`)),
@@ -155,7 +157,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
   const heading = searching ? `Search results (${rows.length})` : SETTINGS_SECTIONS.find(([id]) => id === section)?.[1];
   const HeadingIcon = searching ? Search : SECTION_ICONS[section] ?? Settings2;
   const showAppearance = !searching && section === 'appearance';
-  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
+  const customRows = new Set(['harness-personalization', 'chat-width', 'word-wrap', 'harness-project-colors', 'harness-notification-controls', 'harness-accounts', 'harness-skills', 'harness-integrations', 'harness-keyboard-reference', 'harness-paired-devices', 'browser-start-page', 'app-version', 'hooks-enabled', 'hooks-list', ...APPEARANCE_FIELDS.map(field => field.id), ...SUBSCRIPTION_CONNECTIONS.map(connection => `provider-${connection.id}`)]);
   const chooseSection = (id: string) => { if(id==='providers')setConnectionsOpened(true);setQuery(''); setSection(id); };
   const revealTarget = (item: SupportedSettingRow) => { if(item.targetId.startsWith('provider-'))setConnectionProvider(item.targetId.slice('provider-'.length));chooseSection(item.section); setPendingTarget(item.targetId); };
   const details = (item: SettingsInventoryRow): { description: string; control: ReactNode } => {
@@ -203,6 +205,7 @@ export function SettingsView({data, draftReferences, modelError, refresh, loadMo
       {matches('harness-runtime') && <details className="settings-runtime-details" data-setting-id="harness-runtime"><summary>Environment variables and advanced runtime settings</summary>{environmentSettings ?? <p className="settings-card-intro">Environment controls are unavailable in this view.</p>}</details>}
       {matches('harness-skills') && <div data-setting-id="harness-skills"><SkillLibrary snapshot={data} preferences={preferences} update={update} refresh={refresh} busy={busy}/></div>}
       {matches('harness-integrations') && <div data-setting-id="harness-integrations"><IntegrationSettings/></div>}
+      {matches('hooks-enabled') && <div data-setting-id="hooks"><HookSettings/></div>}
       {matches('harness-paired-devices') && <div data-setting-id="harness-paired-devices"><PairedDevicesPanel/></div>}
       {newTaskModelError && rows.some(item => item.section === 'providers') && <p role="status" className="error-text">{newTaskModelError}</p>}
       {matches('project-overview') && <div className="settings-records">{data.resources.map(resource => <div key={resource.id}><strong>{resource.label}</strong><span>{resource.kind} · {resource.writable ? 'Approved changes allowed' : 'Read only'}</span><code>{resource.path}</code></div>)}</div>}

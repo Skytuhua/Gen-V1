@@ -32,6 +32,12 @@ describe('one centralized settings search (T06)', () => {
     expect(search('accounts').map(row => row.id)).toContain('harness-accounts');
     expect(search('Copilot').map(row => row.id)).toContain('provider-github-copilot');
   });
+  it('finds the Hooks section and its rows through the registry', () => {
+    expect(search('formatter').map(row => row.id)).toEqual(expect.arrayContaining(['hooks-enabled', 'hooks-list']));
+    expect(search('automation').map(row => row.id)).toContain('hooks-enabled');
+    expect(search('hooks').every(row => row.section === 'hooks' || row.section === 'skills')).toBe(true);
+    expect(supported.find(row => row.id === 'hooks-list')?.group).toBe('Hooks');
+  });
   it('returns one truthful empty result for unknown phrases and keeps platform scope', () => {
     expect(search('no-match-9f8c7b6a')).toEqual([]);
     expect(search('preview').length).toBeGreaterThan(0);

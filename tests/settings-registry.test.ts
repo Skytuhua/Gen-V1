@@ -35,6 +35,11 @@ describe('settings registry search (T06)',()=>{
   expect(searchSettings('only',scoped,'browser').map(r=>r.id)).toEqual(['browser-row']);
   expect(searchSettings('everywhere',scoped,'browser').map(r=>r.id)).toEqual(['all-row']);
  });
+ it('maps the hooks rows to the Hooks group',()=>{
+  const hookRows=rows.filter(row=>row.section==='hooks');
+  expect(hookRows.map(row=>row.id)).toEqual(['hooks-enabled','hooks-list']);
+  for(const row of hookRows) expect(row.group).toBe('Hooks');
+ });
  it('gives every supported row a stable target and group',()=>{
   for(const row of rows){expect(row.targetId).toBeTruthy();expect(row.group).toBeTruthy();expect(['all','desktop','browser']).toContain(row.platform);}
  });
