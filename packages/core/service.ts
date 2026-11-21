@@ -1,11 +1,9 @@
-import {attestVerificationArtifacts} from './verification-artifacts.ts';
 import { randomUUID, createHash } from "node:crypto";
 import { MODEL_ONLY_MAX_PROMPT_BYTES } from '../runtime/model-only.ts';
 import type { ContextRequestObservationV1 } from '../contracts/request-context.ts';
 import { createContextResults, encodeContextResult, CONTEXT_PREVIEW_CAP_BYTES, MAX_TRACKED_RESULTS, type ContextResultStorage } from './context-results.ts';
 import { createContextResultLineage } from './context-result-lineage.ts';
 import { openContextResultCustody } from './context-result-custody.ts';
-import { contextResultReadArgs } from './context-result-tool.ts';
 import { projectHostRequest } from './host-context-projection.ts';
 import { createHostRelevanceObserver } from './context-relevance-host.ts';
 import { withApprovedProjectContext } from './approved-project-context.ts';
@@ -19,20 +17,17 @@ import { Store, digest, compactionOwnerKey, type CompactionAttemptRecord } from 
 import {PersonalResearchRepository} from '../research/repository.ts';
 import { assertNotStorage, canonical, inside, resolveGrant, projectMemoryDeletionLedgerPath } from "./security.ts";
 import { withResourceGrant } from "./file-access.ts";
-import { admitSchema, validateJson, widgetDefinition, GENERATED_APPS_ENABLED } from "./widgets.ts";
-import { patchSpec, protectedFingerprint } from "./presentation.ts";
-import { admitArtifactContents, threadData } from "./ui-admission.ts";
-import { changeTaskMemory, taskMemories, taskMemoryContext } from './task-memory.ts';
-import { discoverCapabilities } from './discovery.ts';
-import { inspectTask } from './task-inspection.ts';
+import { validateJson } from "./widgets.ts";
+import { threadData } from "./ui-admission.ts";
+import { changeTaskMemory, taskMemoryContext } from './task-memory.ts';
 import {PlanningCoordinator} from './planning.ts';
 import {AgentWorkCoordinator} from './agent-work.ts';
 import {PlanExtensionStore} from './plan-extension.ts';
 import {PLAN_RUNTIME_GUIDANCE} from './planning-tools.ts';
 import type {CanonicalPlanJobProvider} from './plan-timeline.ts';
+import {ServiceTools} from './service-tools.ts';
 import {SideRuntime} from './side-runtime.ts';
 import {ComposerPredictions,predictionContext,type PredictionBasis,type PredictionRequest} from './composer-prediction.ts';
-import {PlanningQuestionSchema} from '../contracts/planning-question.ts';
 import { getPreferences, mergePreferences } from "../contracts/preferences.ts";
 import {accountResolver,assertAccountAvailable,changeAccount,modelProvider,sweepStaleAccountLeases} from './accounts.ts';
 import {isConnectionProviderId} from '../contracts/connections.ts';
@@ -44,16 +39,13 @@ import type {HermesEvent} from '../runtime-hermes/client.ts';
 import type {HermesRuntime} from '../runtime-hermes/index.ts';
 import type {HermesSourceLibrary} from '../runtime-hermes/library.ts';
 import type {ApprovedWriteOrigin,CompletedWriteReceipt,WriteHookDiagnostic} from '../contracts/index.ts';
-import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type SurfaceSpec, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
+import { HarnessError, EMPTY_USAGE, type ArtifactRecord, type DataRecord, type HostCommand, type InputRequest, type Message, type Operation, type ResourceGrant, type RunContext, type CommandReceipt, type RuntimeAdapter, type RuntimeEvent, type RuntimeUsage, type Snapshot, type StartRun, type Thread, type ToolCall, type UserStateRecord } from "../contracts/index.ts";
 import { hostFlagEnabled } from "./host-flags.ts";
 import { OperationProjectTrustHost } from './operation-project-trust.ts';
 import { OperationExecutionAdviceHost } from './operation-execution-advice.ts';
-import { computeAssessment, observationMatchesThreadOwner } from "./verification-gate.ts";
-import { assertVerificationSourceRoot, sourceDigestSync } from "./project-verification.ts";
-import { verificationDeclarationV1Schema, type CheckObservationV1, type DeliverableAssessmentV1, type VerificationDeclarationV1, type VisualObservationV1 } from "../contracts/verification.ts";
-import type { ToolEffectRecord, ToolOwner } from "../contracts/tool-effects.ts";
+import type { ToolOwner } from "../contracts/tool-effects.ts";
 import { MODEL_REQUEST_OBSERVATION_LIMIT, modelRequestObservationV1Schema, type ModelRequestObservationV1 } from "../contracts/model-request.ts";
-import { buildToolRegistry, ToolAuthority, type ActorRole } from "./tool-authority.ts";
+import { buildToolRegistry, ToolAuthority } from "./tool-authority.ts";
 import { ToolEffectLedger, createToolEffectFlags, ownerFor, type ToolEffectFlag } from "./tool-effects.ts";
 import type { EffectAuthenticator } from "./host-effect-authenticator.ts";
 import { recoverEffects, disableEffects } from "./effect-recovery.ts";
@@ -173,10 +165,10 @@ export class Service {
   private readonly effectFlags:ReturnType<typeof createToolEffectFlags>;
   private contextStorage?: Promise<ContextResultStorage>;
   private contextResults?: ReturnType<typeof createContextResults>;
-  private activeContextReads = 0;
   private readonly contextResultAuthorities = new Map<string, { expiresAtMs: number; authorized: () => Promise<boolean> }>();
   private readonly relevanceObserver = createHostRelevanceObserver();
   private readonly repositoryMaps = createRepositoryMapReader();
+  private readonly tools:ServiceTools;
   private relevanceOwner(thread: Thread) {
     if (!capabilityEnabled('context.compilerV1') || this.closed || !thread.runId || !thread.modelId || thread.sideParentId || thread.kind === 'delegate') return null;
     const resources = this.store.db.prepare("SELECT body FROM entities WHERE kind='resource' AND thread_id=? ORDER BY id LIMIT 257").all(thread.id);
@@ -310,6 +302,26 @@ export class Service {
         await this.command({id:randomUUID(),type:'message.send',threadId:thread.id,payload:{content:request.content,modelId:request.modelId}});
         return {threadId:thread.id};
       }});
+    this.tools=new ServiceTools({
+      store,effects:this.effects,effectFlags:this.effectFlags,authority:this.authority,planning:this.planning,
+      repositoryMaps:this.repositoryMaps,relevanceObserver:this.relevanceObserver,
+      learningCalls:this.learningCalls,aborts:this.aborts,
+      additionalTool:options.additionalTool,hasHostOperationExecutor:kind=>this.hostOperationExecutors.has(kind),
+      source:()=>Boolean(this.source),assertRun:ctx=>this.assertRun(ctx),thread:id=>this.thread(id),hasGate:id=>this.hasGate(id),
+      request:(threadId,id,revision)=>this.request(threadId,id,revision),updateGateStatus:id=>this.updateGateStatus(id),
+      assertMutation:id=>this.assertMutation(id),dispatchOperation:id=>this.dispatchOperation(id),
+      artifact:(threadId,id)=>this.artifact(threadId,id),state:(threadId,id)=>this.state(threadId,id),
+      lease:id=>this.lease(id),data:(threadId,id,revision)=>this.data(threadId,id,revision),
+      publishData:(threadId,value,provenance)=>this.publishData(threadId,value,provenance),
+      contextResultsEnabled:()=>this.contextResultsEnabled(),
+      contextResultInvocation:thread=>this.contextResultInvocation(thread),
+      contextResultOwner:thread=>this.contextResultOwner(thread),
+      contextResultVault:()=>this.contextResultVault(),
+      deliverContextResult:(value,pub,thread,assertCurrent,lineage)=>this.deliverContextResult(value,pub,thread,assertCurrent,lineage),
+      relevanceOwner:thread=>this.relevanceOwner(thread),
+      skillTool:(call,actor)=>this.skillTool(call,actor),skillActor:(kind,ctx)=>this.skillActor(kind,ctx),
+      context:(threadId,signal,operationId,authority)=>this.context(threadId,signal,operationId,authority),
+    });
     this.curatorTimer=setInterval(()=>{if(!this.closed&&!this.updateClosing)this.curateIdle();},60_000);this.curatorTimer.unref();
   }
   /** Retire eligible local copies even if memory injection was disabled after Forget. */
@@ -1922,247 +1934,7 @@ export class Service {
       return { runId: event.runId };
     });
   }
-  async tool(call: ToolCall, ctx: RunContext): Promise<unknown> {
-    const owningThread=this.assertRun(ctx);
-    this.effects.assertAdmissionsEnabled();
-    if(owningThread.kind==='delegate')throw new HarnessError('AGENT_TOOL_DENIED','Delegated tools must use their parent-owned read-only coordinator.');
-    if(owningThread.sideParentId&&call.name!=='task_finish')throw new HarnessError('SIDE_CHAT_READ_ONLY','Side conversations answer in text; files, mutations and delegation are unavailable.');
-    const limited = capabilityEnabled('context.compilerV1') && this.authority.definition(call.name)?.risk === 'READ';
-    if (limited && this.activeContextReads >= 4) throw new HarnessError('CONTEXT_READ_LIMIT', 'Wait for an admitted context read to finish before requesting another.');
-    if (limited) this.activeContextReads++;
-    // A revoked call retains its slot until actual read/retention work settles.
-    // Releasing on cancellation alone would allow abandoned reads to accumulate.
-    try { return await this.admittedTool(call, ctx, owningThread); }
-    finally { if (limited) this.activeContextReads--; }
-  }
-  private async admittedTool(call: ToolCall, ctx: RunContext, owningThread: Thread): Promise<unknown> {
-    const role:ActorRole=owningThread.sideParentId?'side':'run';
-    const rangeRead = call.name === 'context_result_read';
-    const bound = this.contextResultsEnabled() && !rangeRead, basis = bound ? this.contextResultInvocation(owningThread) : undefined;
-    const publicCatalog = call.name === 'ui_discover';
-    const assertResultCurrent = () => {
-      if (!this.contextResultsEnabled() || this.contextResultInvocation(this.assertRun(ctx)) !== basis) throw new HarnessError('STALE_REQUEST_CONTEXT', 'Tool result owner changed.');
-    };
-    const definition = this.authority.definition(call.name);
-    const readRetryable = definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE';
-    const lineage = bound && readRetryable
-      ? createContextResultLineage({ store: this.store, threadId: ctx.threadId, signal: this.aborts.get(ctx.threadId)?.signal ?? new AbortController().signal, assertCurrent: assertResultCurrent }) : undefined;
-    let ticket: ReturnType<typeof this.relevanceObserver.begin>;
-    try {
-      const definition = this.authority.definition(call.name), owner = this.relevanceOwner(owningThread);
-      if (owner && definition?.risk === 'READ' && definition.replayClass === 'READ_RETRYABLE') ticket = this.relevanceObserver.begin(owner);
-    } catch { /* Observation is optional for an otherwise authorized tool result. */ }
-    let entered = false;
-    const execute = () => { entered = true; return this.toolBody(call,ctx,owningThread,lineage); };
-    let result = await (this.effectFlags.enabled("audit.effectsV1")||this.effectFlags.enabled("security.authorityV1")
-      ? this.effects.invoke({call,ctx,thread:owningThread,role},execute) : execute());
-    // A cached effect skips the domain guard. Its previous bytes cannot mint
-    // fresh resource authority, including when the old result was small.
-    if (readRetryable && !entered && !publicCatalog) result = rangeRead
-      ? { status: 'UNAVAILABLE' }
-      : { status: 'FULL_RESULT_UNAVAILABLE', handle: null, preview: '', omittedBytes: null, totalBytes: null };
-    else if (bound) result = await this.deliverContextResult(result, publicCatalog, owningThread, assertResultCurrent, lineage);
-    try {
-      const owner = ticket && this.relevanceOwner(this.assertRun(ctx));
-      if (owner) this.relevanceObserver.complete(ticket, owner, result);
-    } catch { /* Never change the delivered result because diagnostics failed. */ }
-    return result;
-  }
-  private async toolBody(call: ToolCall, ctx: RunContext, owningThread: Thread, lineage?: ReturnType<typeof createContextResultLineage>): Promise<unknown> {
-    if(!this.source&&!owningThread.sideParentId&&owningThread.mode!=='plan')this.learningCalls.set(ctx.threadId,(this.learningCalls.get(ctx.threadId)??0)+1);
-    const controller = this.aborts.get(ctx.threadId);
-    const args = call.args;
-    if(['skills_list','skill_view','skill_manage'].includes(call.name)){
-      if(this.source)throw new HarnessError('HERMES_SKILL_TOOL_OWNER','Original Hermes owns the skill tool schemas and execution.');
-      if(call.name==='skill_manage'&&owningThread.mode==='plan')throw new HarnessError('PLAN_MODE_READ_ONLY','Switch to Build before changing shared skills.');
-      return this.skillTool(call,this.skillActor('agent',ctx)).value;
-    }
-    if(call.name==='session_search'||this.source&&call.name==='harness_session_search')return searchSessions(this.store,args);
-    if (call.name === 'task_memory') {
-      if (args.action === 'list') return { notes: taskMemories(this.store, ctx.threadId), scope: 'this thread', authority: 'Notes are reminders, not source evidence or approval.' };
-      if (args.action !== 'save' && args.action !== 'delete') throw new HarnessError('INVALID_MEMORY', 'Choose list, save or delete.');
-      const apply = () => { this.assertRun(ctx); return changeTaskMemory(this.store, ctx.threadId, args.action as 'save' | 'delete', args, 'agent'); };
-      return args.commandId === undefined ? this.store.internal('memory.updated', ctx.threadId, apply) : this.store.command({ id: text(args, 'commandId', 200), type: 'task_memory', threadId: ctx.threadId, payload: args }, apply).result;
-    }
-    if(call.name==='plan_update')return this.planning.updatePlan({...ctx},args);
-    if(call.name==='integration_list'||call.name==='integration_call'||call.name==='integration_prepare'){
-      if(!this.options.additionalTool)throw new HarnessError('INTEGRATION_UNAVAILABLE','Managed integrations are unavailable in this host.');
-      const selected={modelId:owningThread.modelId,accountId:owningThread.accountId??null,projectId:owningThread.projectId};
-      const context=this.context(ctx.threadId,controller?.signal,undefined,{...ctx});
-      const host=Object.freeze<HostToolContext>({authenticatedApprovals:this.effectFlags.enabled('security.authorityV1'),prepareOperation:(kind,args,resourceIds,preconditions,description)=>{
-        if(!this.hostOperationExecutors.has(kind))throw new HarnessError('HOST_OPERATION_UNAVAILABLE','This host operation is unavailable.');
-        return context.prepareOperation(kind,args,resourceIds,preconditions,description);
-      }});
-      const result=await this.options.additionalTool(call,{...ctx},host),current=this.assertRun(ctx);
-      if(current.modelId!==selected.modelId||(current.accountId??null)!==selected.accountId||current.projectId!==selected.projectId)throw new HarnessError('CANCELLED_RUN','The integration scope changed during execution.');return result;
-    }
-    if(call.name==='task_delegate')return this.planning.delegate({...ctx},args,controller?.signal??new AbortController().signal);
-    if(call.name==='agent_progress')throw new HarnessError('AGENT_TOOL_DENIED','Agent progress belongs to a delegated session');
-    if(call.name==='repository_map')return this.repositoryMaps.read({store:this.store,ctx,signal:controller?.signal??new AbortController().signal,owner:()=>this.assertRun(ctx)},args,(value,provenance)=>this.publishData(ctx.threadId,value,provenance));
-    if (call.name === 'context_result_read') {
-      if (!this.contextResultsEnabled()) throw new HarnessError('CAPABILITY_UNAVAILABLE', 'Context result retrieval is disabled');
-      const parsed = contextResultReadArgs.safeParse(args);
-      if (!parsed.success) throw new HarnessError('INVALID_INPUT', 'Choose a valid context result range');
-      const result = await this.contextResultVault().read({ owner: this.contextResultOwner(owningThread), ...parsed.data });
-      this.assertRun(ctx);
-      if (result.status !== 'OK') return result;
-      const { bytes, ...summary } = result;
-      try { return { ...summary, text: new TextDecoder('utf-8', { fatal: true, ignoreBOM: true }).decode(bytes) }; }
-      catch { return { ...summary, encoding: 'base64', data: Buffer.from(bytes).toString('base64') }; }
-    }
-    if (call.name === "ui_discover") return discoverCapabilities(args);
-    if (call.name === "ui_inspect") return inspectTask(this.store, this.thread(ctx.threadId), this.planning.inspect(ctx.threadId), args);
-    if (call.name.startsWith("ui_") || call.name === "task_finish" || call.name === "verification_declare") return this.uiTool(call, ctx);
-    if (call.name === "operation_execute") {
-      this.assertMutation(ctx.threadId); const op = this.store.get<Operation>("operation", text(args, "operationId", 200));
-      if (!op || op.threadId !== ctx.threadId || !op.approved) throw new HarnessError("APPROVAL_REQUIRED", "The user must approve the exact prepared operation");
-      return this.dispatchOperation(op.id);
-    }
-    const domain = await import("../capabilities/index.ts");
-    this.assertRun(ctx);
-    const context = this.context(ctx.threadId, controller?.signal, undefined, { ...ctx });
-    return domain.handleDomainTool(call.name, args, lineage ? lineage.wrap(context) : context);
-  }
-  private async uiTool(call: ToolCall, ctx: RunContext): Promise<unknown> {
-    if (call.name === "ui_create_widget" && !GENERATED_APPS_ENABLED) throw new HarnessError("CAPABILITY_UNAVAILABLE", "Generated apps are disabled until execution isolation passes its integrity gates");
-    const a = call.args;
-    if (Buffer.byteLength(JSON.stringify(a)) > 128 * 1024) throw new HarnessError("INVALID_SPEC", "UI transaction exceeds 128 KiB");
-    const command: HostCommand | null = a.commandId === undefined ? null : { id: text(a,"commandId",200), type: call.name, threadId: ctx.threadId, payload: a };
-    const duplicate = command ? this.store.receipt(command) : null; if (duplicate) return duplicate.result;
-    let spec: SurfaceSpec | null = null;
-    if (call.name === "ui_present") {
-      if ((a.spec === undefined) === (a.patches === undefined)) throw new HarnessError("INVALID_SPEC", "Provide exactly one of spec or patches");
-      spec = a.patches !== undefined ? patchSpec(this.artifact(ctx.threadId, a.artifactId).spec!, a.patches) : object(a.spec) as unknown as SurfaceSpec;
-      const catalog = await import("../ui-catalog/index.ts");
-      try { catalog.validateSurface(spec); } catch (error) {
-        if (error instanceof HarnessError && error.code === "INVALID_SURFACE") throw new HarnessError("INVALID_SPEC", error.message, error.details);
-        throw error;
-      }
-    }
-    const widget = call.name === "ui_create_widget" ? widgetDefinition(a) : null;
-    this.assertRun(ctx);
-    const apply = () => {
-      this.assertRun(ctx);
-      if (["ui_present", "ui_create_widget"].includes(call.name)) {
-        const existing = a.artifactId ? this.artifact(ctx.threadId, a.artifactId) : null;
-        if (existing && a.baseRevision !== existing.revision) throw new HarnessError("STALE_REVISION", "Artifact revision changed", { currentRevision: existing.revision });
-        if (existing?.widget && widget && existing.widget.stateSchemaVersion !== widget.stateSchemaVersion) throw new HarnessError("USER_EDIT_CONFLICT", "State schema upgrades require a new artifact or an explicit state migration; the previous checkpoint is retained");
-        const lease = existing ? this.lease(existing.stateId) : null;
-        if (existing && (lease && (widget || protectedFingerprint(existing.spec, lease.fields) !== protectedFingerprint(spec, lease.fields)) || existing.pinned && existing.placement !== (a.placement ?? existing.placement))) throw new HarnessError("USER_EDIT_CONFLICT", "The user is editing or has pinned this artifact");
-        const { presentation, bindings, actions } = admitArtifactContents(this.store, ctx.threadId, a, spec, existing);
-        const artifactId = existing?.id ?? randomUUID(), stateId = existing?.stateId ?? randomUUID();
-        if (!existing) this.store.put("userState", stateId, ctx.threadId, { id: stateId, threadId: ctx.threadId, revision: 0, schemaVersion: 1, values: a.initialState ? object(a.initialState) : {} });
-        if (widget) validateJson(widget.stateSchema, this.state(ctx.threadId, stateId).values);
-        const messageId = existing?.messageId ?? randomUUID();
-        if (!existing) this.store.put("message", messageId, ctx.threadId, { id: messageId, threadId: ctx.threadId, role: "assistant", content: "", runId: ctx.runId, createdAt: now() });
-        const record: ArtifactRecord = { id: artifactId, threadId: ctx.threadId, messageId, title: typeof a.title === "string" ? a.title.slice(0, 140) : existing?.title ?? "Task interface", purpose: typeof a.purpose === "string" ? a.purpose : existing?.purpose ?? "", revision: (existing?.revision ?? 0) + 1, kind: widget ? "widget" : "structured", spec, widget, bindings, actions, stateId, lifecycle: "active", placement: existing?.placement ?? "inline", pinned: existing?.pinned ?? false, presentation, catalogVersion: "1", createdAt: existing?.createdAt ?? now(), updatedAt: now() };
-        this.store.put("artifact", artifactId, ctx.threadId, record); this.store.put("artifactVersion", artifactId + "@" + record.revision, ctx.threadId, record);
-        return { artifactId, surfaceId: artifactId, revision: record.revision, presentationRevision: record.revision, stateId };
-      }
-      if (call.name === "ui_request_input") {
-        if (a.artifactId) this.artifact(ctx.threadId, a.artifactId);
-        const schema = object(a.responseSchema); admitSchema(schema);
-        const existing=a.requestId?this.request(ctx.threadId,a.requestId,a.baseRevision):null;
-        if(existing&&digest(schema)!==digest(existing.responseSchema))throw new HarnessError('USER_EDIT_CONFLICT','Keep the decision response schema while explaining its options');
-        const presentation=a.presentation===undefined?existing?.presentation:PlanningQuestionSchema.parse(a.presentation);
-        if(presentation){
-          if(schema.type!=='string')throw new HarnessError('INVALID_INPUT','Option questions require a string response schema');
-          for(const option of presentation.options)validateJson(schema,option.id);
-          if(presentation.allowCustom&&(schema.enum!==undefined||schema.const!==undefined))throw new HarnessError('INVALID_INPUT','Custom options require an open string response schema');
-          for(const option of presentation.options)for(const example of option.examples??[])if(example.resourceId){const grant=this.store.get<ResourceGrant>('resource',example.resourceId);if(!grant||grant.threadId!==ctx.threadId)throw new HarnessError('CAPABILITY_DENIED','Example image is not granted to this thread');}
-          if(existing?.presentation&&!existing.presentation.options.every(option=>presentation.options.some(next=>next.id===option.id)))throw new HarnessError('USER_EDIT_CONFLICT','Preserve existing options while a user is deciding');
-        }
-        const basis = Array.isArray(a.basis) ? a.basis as InputRequest["basis"] : existing?.basis??[];
-        for (const ref of basis) this.data(ctx.threadId, ref.id, ref.revision);
-        const request: InputRequest = { id: existing?.id??randomUUID(), threadId: ctx.threadId, artifactId: typeof a.artifactId === "string" ? a.artifactId : existing?.artifactId??null, revision: (existing?.revision??0)+1, title: text(a, "title", 200), prompt: text(a, "prompt", 6000), responseSchema: schema, basis, status: "pending",...(presentation?{presentation}:{}),...(existing?.detailRequests?{detailRequests:existing.detailRequests.map(detail=>{const option=presentation?.options.find(item=>item.id===detail.optionId),resolved=detail.kind==='more-options'?(presentation?.options.length??0)>(existing.presentation?.options.length??0):detail.kind==='examples'?Boolean(option?.examples?.length):Boolean(option?.explanation?.trim());return {...detail,status:resolved?'resolved' as const:detail.status};})}:{}) };
-        this.store.put("request", request.id, ctx.threadId, request); this.updateGateStatus(ctx.threadId); return { requestId: request.id, status: "pending", revision: request.revision };
-      }
-      if (call.name === "ui_arrange" || call.name === "ui_close") {
-        const artifact = this.artifact(ctx.threadId, a.artifactId);
-        if (a.baseRevision !== artifact.revision) throw new HarnessError("STALE_REVISION", "Artifact revision changed");
-        if (artifact.pinned || this.lease(artifact.stateId)) throw new HarnessError("USER_EDIT_CONFLICT", "User ownership prevents this change");
-        const next = { ...artifact, placement: a.placement === "expanded" ? "expanded" : "inline", lifecycle: call.name === "ui_close" ? "archived" : artifact.lifecycle } as ArtifactRecord;
-        this.store.put("artifact", artifact.id, ctx.threadId, next); return { artifactId: artifact.id, revision: artifact.revision };
-      }
-      if (call.name === "verification_declare") {
-        if (!hostFlagEnabled("verification.workflowV1")) throw new HarnessError("CAPABILITY_DENIED", "The verification workflow capability is disabled on this host.");
-        // commandId is host plumbing for receipt dedup, not declaration data.
-        const { commandId: _commandId, ...declarationArgs } = a;
-        const declaration = verificationDeclarationV1Schema.parse({ version: 1, ...declarationArgs });
-        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
-        this.store.put("verificationDeclaration", ctx.threadId, ctx.threadId, declaration);
-        return { requirements: declaration.requirements.length };
-      }
-      if (call.name === "task_finish") {
-        if (this.hasGate(ctx.threadId) || this.store.all<Operation>("operation", ctx.threadId).some(o => ["running", "unknown", "prepared"].includes(o.status))) throw new HarnessError("REQUEST_GATED", "Resolve decisions and outstanding operations before completion");
-        const current = this.store.all<Outbox>("outbox", ctx.threadId).filter(i => i.status !== "handled" && !(i.status === 'persisted' && (i.sendMode === 'AFTER_CURRENT' || i.sourceFailure || i.sourceRecovery?.resumeRequired) && i.runId === null));
-        const pending = current.filter(i => i.runId !== ctx.runId || !i.enteredRuntime);
-        if (pending.length) throw new HarnessError("REQUEST_GATED", "There is unfinished input");
-        this.store.put("finish", ctx.runId, ctx.threadId, { outcome: a.outcome ?? a.summary, evidence: a.evidence ?? [], assessment: true, inputIds: current.map(i => i.id) });
-        if (hostFlagEnabled("verification.workflowV1")) {
-          const assessment = this.completionAssessment(ctx, call);
-          if (assessment) this.store.put("assessment", assessment.assessmentId, ctx.threadId, assessment);
-        }
-        return { accepted: true, settlesAfterRuntime: true };
-      }
-      throw new HarnessError("UNKNOWN_CAPABILITY", "Unknown UI tool");
-    };
-    return command ? this.store.command(command, apply).result : this.store.internal(call.name, ctx.threadId, apply);
-  }
-  /** M06 additive completion projection. Runs synchronously inside the
-   * task_finish store transaction — no awaits. Verified only when every
-   * declared requirement carries a fresh PASS observation against the current
-   * source/environment digests and no external effect is unresolved. */
-  private completionAssessment(ctx: RunContext, call: ToolCall): DeliverableAssessmentV1 | null {
-    const thread = this.assertRun(ctx);
-    const declaration = this.store.get<VerificationDeclarationV1>("verificationDeclaration", ctx.threadId);
-    const observations: (CheckObservationV1 | VisualObservationV1)[] = [
-      ...this.store.all<CheckObservationV1>("checkObservation", ctx.threadId),
-      ...this.store.all<VisualObservationV1>("visualObservation", ctx.threadId),
-    ].filter(observation => observationMatchesThreadOwner(observation, thread));
-    if (!declaration && !observations.length) return null;
-    // When effect auditing wraps task_finish, the ledger admits this very call
-    // as DISPATCHED and settles it only after the body returns. That record is
-    // the invocation itself, not an outstanding external effect — exclude it by
-    // its argument commitment so audited completion does not block on itself.
-    const selfCommitment = this.effects.privateArgumentCommitment(call);
-    const unresolvedEffects = this.store.all<ToolEffectRecord>("toolEffect", ctx.threadId)
-      .filter(effect => !["SUCCEEDED", "FAILED", "CANCELLED", "DENIED"].includes(effect.state) || effect.state === "UNKNOWN_EXTERNAL_OUTCOME")
-      .filter(effect => !(effect.toolId === "task_finish" && effect.privateArgumentCommitment === selfCommitment))
-      .map(effect => effect.invocationId);
-    const empty = "0".repeat(64);
-    let sourceAvailable = false;
-    let sourceCut: { headSha: string | null; codeDigest: string; dependencyDigest: string; environmentId: string };
-    if (declaration) {
-      sourceCut = { headSha: null, codeDigest: empty, dependencyDigest: empty, environmentId: declaration.environmentId };
-      try {
-        assertVerificationSourceRoot(this.store, ctx.threadId, declaration.rootPath);
-        sourceCut = { headSha: null, codeDigest: sourceDigestSync(declaration.rootPath, declaration.sourceFiles), dependencyDigest: sourceDigestSync(declaration.rootPath, declaration.dependencyFiles), environmentId: declaration.environmentId };
-        sourceAvailable = true;
-      } catch { /* Unavailable or revoked sources cannot establish verification. */ }
-    } else {
-      const last = observations.at(-1)!;
-      sourceCut = { headSha: null, codeDigest: last.codeDigest, dependencyDigest: last.dependencyDigest, environmentId: last.environmentId };
-    }
-    const assessment = computeAssessment({
-      threadId: ctx.threadId,
-      sourceCut,
-      requirements: declaration?.requirements ?? [],
-      observations,
-      artifactAttestations: attestVerificationArtifacts(this.store, observations, declaration?.requirements ?? []),
-      unresolvedEffects,
-      verifierIdentity: "service/" + ctx.runId,
-      provenance: "task_finish completion projection",
-    });
-    if (!sourceAvailable) {
-      for (const requirement of assessment.requirements) {
-        if (requirement.assessment === 'VERIFIED') requirement.assessment = 'UNVERIFIED';
-        requirement.missing = [...requirement.missing, 'current authorized source inputs are unavailable'].slice(0, 64);
-      }
-      if (assessment.label === 'VERIFIED') assessment.label = 'COMPLETED_UNVERIFIED';
-    }
-    return assessment;
-  }
+  async tool(call: ToolCall, ctx: RunContext): Promise<unknown> { return this.tools.tool(call,ctx); }
   async dispatchOperation(id: string): Promise<unknown> {
     const requested = this.store.get<Operation>('operation', id);
     if (!requested) throw new HarnessError('NOT_FOUND', 'Operation unavailable');
