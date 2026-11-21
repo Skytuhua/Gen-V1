@@ -58,7 +58,7 @@ New plan task IDs are R01.. so they never collide with the issue's own T01/T02/.
 
 ## STATE
 - Researched: issue scope + verified REPO_MAP entries. Not started: all tasks. Owner: unassigned (this plan's author released the claim).
-- Exact next step: claim the issue per AGENTS.md, then execute T01.
+- Exact next step: claim the issue per AGENTS.md, then execute R01.
 
 ## REFERENCES
 - Issue #1020: https://github.com/skytuhua-org/Gen-V1/issues/1020
