@@ -4,6 +4,7 @@ import type {Snapshot} from '../../../packages/contracts/index.ts';
 import type {ProjectContext} from '../../../packages/contracts/workspace.ts';
 import {contextCompanions} from './project-context-summary';
 import {LoadingState,PendingStatus} from './LoadingState';
+import {ConnectFolderNotice} from './WorkspacePanelBodies.tsx';
 import './project-context.css';
 
 const compactCount=new Intl.NumberFormat(undefined,{notation:'compact',maximumFractionDigits:1});
@@ -24,7 +25,7 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
  const planId=useId(),[expanded,setExpanded]=useState<'scripts'|'branch'|'commit'|'lineage'|null>(null),[busy,setBusy]=useState(false),[actionError,setActionError]=useState(''),[scriptName,setScriptName]=useState(''),[scriptCommand,setScriptCommand]=useState(''),[branch,setBranch]=useState(''),[commit,setCommit]=useState('');
  const run=(type:string,payload:Record<string,unknown>={})=>{if(!onAction||busy)return;setBusy(true);setActionError('');void onAction(type,payload).then(()=>{setExpanded(null);setCommit('');}).catch(cause=>setActionError(cause instanceof Error?cause.message:'The project action could not finish.')).finally(()=>setBusy(false));};
  const toggle=(name:NonNullable<typeof expanded>)=>setExpanded(value=>value===name?null:name);
- const connected=Boolean(context&&(context.project.rootPath||context.capabilities.git||context.capabilities.terminal||context.editor.available));
+ const connected=Boolean(context&&(context.project.rootPath||context.capabilities.git||context.capabilities.terminal||context.editor.available)),folderless=Boolean(context&&!context.project.rootPath);
  const total=(value:number)=>compactCount.format(value);
  const lineage=context?.lineage.toSorted((a,b)=>Number(b.status==='working')-Number(a.status==='working'))??[];
  const companions=snapshot?contextCompanions(snapshot,threadId):null,agents=companions?.agents??[],sideConversations=companions?.sideConversations??[],summary=companions?.plan;
@@ -58,6 +59,7 @@ export function ProjectContextCard({context,loading,error,threadTitle,plan,planO
    {snapshot&&automationsAvailable&&automationItems.length>0&&<details className="project-context-group"><summary><CalendarClock size={15}/><span>Automations</span><small>{automationItems.length}</small><ChevronDown size={13}/></summary><ul className="project-context-automations">{automationItems.map(item=><li key={item.id}><span>{item.title}</span><small>{item.status}{item.nextRunAt&&<> · <time dateTime={item.nextRunAt}>{new Date(item.nextRunAt).toLocaleString()}</time></>}</small></li>)}</ul></details>}
   </LoadingState>
   <PendingStatus pending={busy} label="Updating project…"/>
-  {(error||context?.error||actionError)&&<p role="alert" className="project-context-note error-text">{actionError||error||context?.error}</p>}
+  {context?.error&&(folderless?<ConnectFolderNotice message={context.error} onConnect={onConnect} className="project-context-note"/>:<p role="alert" className="project-context-note error-text">{context.error}</p>)}
+  {(error||actionError)&&<p role="alert" className="project-context-note error-text">{actionError||error}</p>}
  </div>;
 }

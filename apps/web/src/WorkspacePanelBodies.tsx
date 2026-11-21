@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {Folder,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined} from 'lucide-react';
+import {Folder,FolderPlus,Terminal,GitCompare,GitPullRequest,Link,Smartphone,ScrollText,ChartNoAxesCombined,ChevronRight} from 'lucide-react';
 import type {DataRecord,RuntimeUsage,Snapshot} from '../../../packages/contracts';
 import {formatLocalClock} from './time-format';
 import type {UiPreferences} from '../../../packages/contracts/preferences';
@@ -30,6 +30,11 @@ export function WorkspaceLauncher({onOpenTool}:{onOpenTool?:(kind:WorkspacePanel
     <button type="button" aria-label="Executor output" onClick={() => openTool('output')}><ScrollText size={18} /><span>Executor output</span><small>Recorded operations</small></button>
     <button type="button" aria-label="Usage" onClick={() => openTool('usage')}><ChartNoAxesCombined size={18} /><span>Usage</span><small>Runtime reports</small></button>
   </section>;
+}
+
+export function ConnectFolderNotice({message='Connect this project to a local folder',onConnect,className='panel-note'}:{message?:string;onConnect?:()=>void;className?:string}){
+  if(!onConnect)return <p role="status" className={className}>{message}</p>;
+  return <button type="button" className="secondary connect-folder-notice" onClick={onConnect}><FolderPlus size={14} aria-hidden="true"/><span>{message}</span><ChevronRight size={12} aria-hidden="true"/></button>;
 }
 
 export {GrantedFiles} from './files/GrantedFiles';
