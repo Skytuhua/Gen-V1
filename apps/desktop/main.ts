@@ -1,4 +1,4 @@
-import {app,BrowserWindow,WebContentsView,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,shell,type IpcMainInvokeEvent,type Session} from 'electron';
+import {app,BrowserWindow,WebContentsView,globalShortcut,ipcMain,session,screen,dialog,Menu,Tray,nativeImage,powerMonitor,shell,type IpcMainInvokeEvent,type Session} from 'electron';
 import {spawn,type ChildProcess} from 'node:child_process';
 import {randomBytes,randomUUID} from 'node:crypto';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
@@ -25,6 +25,7 @@ import {applyNativeLayout,requestNativeClose,type NativeCloseOwner} from './layo
 import {createPersistenceQueue,reconcileSavedWindows} from './persistence.ts';
 import {createMemoryExportDownloads} from './memory-export.ts';
 import {createAttentionPopups,attentionPopupHtml,type AttentionPopupAction,type AttentionPopupWindow} from './attention-popups.ts';
+import {createQuickAskHost,quickAskConfigValid,quickAskContextValid,clampQuickAskHeight,type QuickAskWindow} from './quick-ask.ts';
 import {attentionDeliverySchema} from '../../packages/contracts/attention.ts';
 const persistence=createPersistenceQueue();
 
@@ -66,8 +67,8 @@ const backendPort=Number(process.env.HARNESS_DESKTOP_PORT??4317),widgetPort=Numb
 function workAreas(){return screen.getAllDisplays().map(display=>display.workArea);}
 function displays():DesktopDisplay[]{const primary=screen.getPrimaryDisplay(),all=screen.getAllDisplays();return (all.length?all:[primary]).map(display=>({id:String(display.id),workArea:display.workArea,label:display.label,scaleFactor:display.scaleFactor,primary:display.id===primary.id}));}
 function info(record:WindowRecord):DesktopWindowInfo{return {id:record.id,surface:record.surface,ready:record.ready,minimized:record.window.isMinimized(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),bounds:record.window.getNormalBounds(),displayId:record.placement?.displayId};}
-function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()).map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
-function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
+function captureLayout():DesktopLayout{return {version:1,windows:[...windows.values()].filter(record=>!record.window.isDestroyed()&&record.surface.kind!=='quick-ask').map(record=>({surface:record.surface,bounds:record.normalBounds.read(),visible:record.visible,alwaysOnTop:record.window.isAlwaysOnTop(),...(record.dockedBrowser?{dockedBrowserId:record.dockedBrowser.id}:{}),...(record.placement?{displayId:record.placement.displayId,placement:record.placement}:{})}))};}
+function snapshot(record:WindowRecord):DesktopState{return {windows:[...windows.values()].filter(entry=>entry.surface.kind!=='quick-ask').map(info),...(record.browser?{browser:record.browser.state}:{}),...(record.dockedBrowser?{dockedBrowser:{browserId:record.dockedBrowser.id,state:record.dockedBrowser.state}}:{}),...(backendError?{backendError}:{}),...(layoutError?{layoutError}:{}),update:updateStatus,nativeTitleBar:process.platform==='win32'};}
 function broadcast(focusSurface?:DesktopSurface){
  for(const record of windows.values()){
   if(record.window.isDestroyed())continue;
@@ -87,7 +88,7 @@ function persist(){
  if(quitPending||quitting)return;
  clearTimeout(saveTimer);saveTimer=setTimeout(()=>{void persistence.enqueue(async()=>{await mkdir(dirname(stateFile),{recursive:true});await writeFile(stateFile,JSON.stringify({version:1,windows:saved.slice(-24)}),{encoding:'utf8',mode:0o600});if(!restoringLayout&&!layoutError){await backendRequest('harness.layout.save',{layout:captureLayout()});}}).catch(error=>{layoutError='Workspace layout could not be saved: '+String(error instanceof Error?error.message:error).slice(0,300);broadcast();});},180);
 }
-function remember(record:WindowRecord,open=true){if(record.window.isDestroyed())return;
+function remember(record:WindowRecord,open=true){if(record.window.isDestroyed()||record.surface.kind==='quick-ask')return;
  const normal=!record.window.isMaximized()&&!record.window.isMinimized()&&!record.window.isFullScreen();
  // Windows/macOS provide manual intent events. Other platforms retain their
  // normal-state geometry fallback; passive Windows frame reports never persist.
@@ -193,6 +194,26 @@ async function openSurface(raw:unknown,sourceBounds?:DesktopBounds):Promise<Desk
  return readyPromise;
 }
 function trustedUrl(id:string){return trustedDesktopUrl(backendOrigin,id,launchToken||undefined);}
+let quickAsk:ReturnType<typeof createQuickAskHost>|undefined;
+/** The quick-ask window registers a WindowRecord so the standard bridge (context/ready/state)
+ * authorizes it, but it is filtered out of snapshot/captureLayout/remember so it never lands in the layout. */
+async function createQuickAskWindow():Promise<QuickAskWindow>{
+ const id=randomUUID(),url=trustedUrl(id);
+ const native=new BrowserWindow({width:640,height:72,show:false,frame:false,resizable:false,movable:true,minimizable:false,maximizable:false,fullscreenable:false,alwaysOnTop:true,skipTaskbar:true,title:'Quick ask',backgroundColor:'#0f0f0f',autoHideMenuBar:true,webPreferences:{preload,partition:'persist:harness',sandbox:true,contextIsolation:true,nodeIntegration:false,webSecurity:true,allowRunningInsecureContent:false,spellcheck:false}});
+ native.setAlwaysOnTop(true,'floating');
+ let resolveReady!:(value:DesktopWindowInfo)=>void,rejectReady!:(error:Error)=>void;const readyPromise=new Promise<DesktopWindowInfo>((accept,reject)=>{resolveReady=accept;rejectReady=reject;});void readyPromise.catch(()=>{});
+ const record:WindowRecord={id,surface:{kind:'quick-ask'},window:native,url,ready:false,settled:false,visible:true,normalBounds:createNormalBounds({x:0,y:0,width:640,height:72}),resolveReady,rejectReady,readyPromise,readyTimer:setTimeout(()=>{if(!record.ready){record.settled=true;record.rejectReady(Error('The quick-ask window did not become ready.'));}},20000)};
+ windows.set(id,record);
+ native.webContents.setWindowOpenHandler(()=>({action:'deny'}));native.webContents.on('will-attach-webview',event=>event.preventDefault());
+ native.webContents.on('will-navigate',(event,next)=>{if(next!==url)event.preventDefault();});native.webContents.on('will-redirect',(event,next)=>{if(next!==url)event.preventDefault();});
+ native.webContents.session.setPermissionRequestHandler((_contents,_permission,callback)=>callback(false));native.webContents.session.setPermissionCheckHandler(()=>false);
+ native.on('close',event=>{if(!quitting){event.preventDefault();native.hide();}});
+ native.on('closed',()=>{clearTimeout(record.readyTimer);windows.delete(id);});
+ native.on('blur',()=>{if(!native.isDestroyed()&&!quitting)quickAsk?.hide();});
+ await native.loadURL(url);
+ return {window:native,webContents:native.webContents};
+}
+function quickAskHost(){if(!quickAsk)quickAsk=createQuickAskHost({createWindow:createQuickAskWindow,register:(accelerator,action)=>globalShortcut.register(accelerator,action),unregister:accelerator=>globalShortcut.unregister(accelerator),cursorArea:()=>screen.getDisplayNearestPoint(screen.getCursorScreenPoint()).workArea,sendToWindow:(channel,value)=>{const record=[...windows.values()].find(entry=>entry.surface.kind==='quick-ask'&&!entry.window.isDestroyed());if(record)record.window.webContents.send(channel,value);},sendToMain:(channel,value)=>{for(const record of windows.values())if(record.surface.kind==='main'&&!record.window.isDestroyed())record.window.webContents.send(channel,value);},mainFocused:()=>{const focused=BrowserWindow.getFocusedWindow();return [...windows.values()].some(entry=>entry.surface.kind==='main'&&entry.window===focused);}});return quickAsk;}
 function requestClose(record:WindowRecord):Promise<boolean>{
  if(record.window.isDestroyed())return Promise.resolve(true);
  return requestNativeClose(record,id=>record.window.webContents.send(channels.closeRequest,id));
@@ -238,6 +259,11 @@ function registerIpc(){
  ipcMain.handle(channels.attentionPopupAction,async(event,value:unknown)=>{const native=attentionNative;if(!native||native.isDestroyed()||event.sender.id!==native.webContents.id||event.senderFrame!==event.sender.mainFrame||event.senderFrame.url!==attentionUrl||event.sender.getURL()!==attentionUrl)throw Error('Notification action denied.');if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==2)throw Error('Invalid notification action.');const action=value as Record<string,unknown>;if(!['open','dismiss','pause','resume'].includes(String(action.type))||typeof action.eventId!=='string'||!/^[A-Za-z0-9][A-Za-z0-9:_.-]{0,999}$/.test(action.eventId))throw Error('Invalid notification action.');await attentionAction?.(action as unknown as AttentionPopupAction);});
  handle(channels.attentionOpen,async(record,value)=>{if(record.surface.kind!=='main'||typeof value!=='string')throw Error('Notification action denied.');await openAttention(value);});
  handle(channels.context,record=>context(record));
+ handle(channels.quickAskConfig,(record,value)=>{if(record.surface.kind!=='main'||!quickAskConfigValid(value))throw Error('Invalid quick-ask config.');return quickAskHost().applyConfig(value);});
+ handle(channels.quickAskContext,(record,value)=>{if(record.surface.kind!=='main'||!quickAskContextValid(value))throw Error('Invalid quick-ask context.');quickAskHost().setContext(value);});
+ handle(channels.quickAskHide,record=>{if(record.surface.kind!=='quick-ask')throw Error('This action is unavailable outside the quick-ask window.');quickAskHost().hide();});
+ handle(channels.quickAskResize,(record,value)=>{if(record.surface.kind!=='quick-ask')throw Error('This action is unavailable outside the quick-ask window.');quickAskHost().resize(clampQuickAskHeight(value));});
+ handle(channels.quickAskSent,(record,value)=>{if(record.surface.kind!=='quick-ask')throw Error('This action is unavailable outside the quick-ask window.');if(!value||typeof value!=='object'||Array.isArray(value)||Object.keys(value).length!==2||!desktopId((value as Record<string,unknown>).threadId)||!['new','current'].includes(String((value as Record<string,unknown>).target)))throw Error('Invalid quick-ask result.');quickAskHost().sent(value as {threadId:string;target:'new'|'current'});});
  handle(channels.memoryExport,(record,value)=>memoryExports.export({contents:record.window.webContents,surface:record.surface,documentUrl:record.url,isCurrent:()=>!quitting&&!quitPending&&windows.get(record.id)===record&&!record.window.isDestroyed()&&record.ready},value));
  handle(channels.theme,(record,value)=>{const theme=nativeTitlebarTheme(value);if(process.platform==='win32')record.window.setTitleBarOverlay(theme);});
  handle(channels.update,async(_record,value)=>{if(value!=='check'&&value!=='restart')throw Error('Invalid update action.');if(value==='check')return updater?await updater.check():updateStatus;if(updateStatus.state!=='ready'&&updateStatus.state!=='deferred')return updateStatus;if(osSessionEnding||signInFlows.isBusy()||(await backendRequest('harness.update.readiness')).idle!==true){updateStatus={state:'deferred',message:'Finish the current work before restarting to update.'};broadcast();return updateStatus;}restartForUpdate=true;app.quit();return updateStatus;});
@@ -304,6 +330,7 @@ function registerIpc(){
   else if(command.type==='reload'){browser.state.error=undefined;contents.reload();}
   else if(command.type==='stop')contents.stop();
  });
+ app.on('will-quit',()=>{quickAsk?.destroy();globalShortcut.unregisterAll();});
 }
 async function startBackend():Promise<void>{
  if(!launchToken)launchToken=randomBytes(32).toString('hex');const token=launchToken;
