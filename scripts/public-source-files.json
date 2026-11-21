@@ -3534,6 +3534,7 @@
     "tests/workbench-input-recovery-v3.test.ts",
     "tests/workbench-performance-v3.test.ts",
     "tests/workbench-recovery-v3.test.ts",
+    "tests/web-panels-v3.test.tsx",
     "tests/workspace-canvas-layout.test.ts",
     "tests/workspace-journal-v3.test.ts",
     "tests/workspace-layout.test.ts",
