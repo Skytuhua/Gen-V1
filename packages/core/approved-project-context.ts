@@ -7,6 +7,7 @@ import { Store, digest } from '../storage/store.ts';
 import { readBoundFile, withResourceGrant } from './file-access.ts';
 import { resolveGrant } from './security.ts';
 import { buildInstructionManifest, type HostAdmittedInstruction } from './instruction-manifest.ts';
+import { agentFilePolicyMatchers } from './agent-file-policy-store.ts';
 
 const FILENAMES = ['AGENTS.md', 'CLAUDE.md', 'GEMINI.md'] as const;
 const LIMITS = { roots: 8, grants: 256, fileBytes: 64 * 1024, instructionBytes: 64 * 1024 } as const;
@@ -63,6 +64,7 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
     scope: 'resource-' + hash(resource.id).slice(0, 16), precedence: directories.indexOf(scopeRoot(resource)),
   }))).sort((a, b) => a.precedence - b.precedence || compare(a.filename, b.filename) || compare(a.resource.id, b.resource.id));
   const captures: Capture[] = [], texts = new Map<string, string>(), exclusions: Exclusion[] = [];
+  const filePolicy = agentFilePolicyMatchers(store, store.get<Thread>('thread', input.threadId)?.projectId ?? null);
   const frame = (list: readonly Capture[]) => {
     const seen = new Set<string>(), blocks: string[] = [];
     for (const source of list.toSorted((a, b) => a.precedence - b.precedence || compare(a.filename, b.filename) || compare(a.path, b.path))) if (!seen.has(source.physicalId)) {
@@ -95,6 +97,7 @@ export async function withApprovedProjectContext<T>(store: Store, input: StartRu
     }
     let captured = false, resolved = false, acquired = false;
     const exclude = (reason: Exclusion['reason']) => exclusions.push({ filename: file.filename, resourceId: file.resource.id, reason });
+    if (filePolicy.denies(file.relative ?? basename(file.resource.path))) { exclude('DENIED_SOURCE'); captured = true; return visit(index + 1); }
     try {
       await resolveGrant(file.resource, file.relative, false, store.dataDir);
       resolved = true;

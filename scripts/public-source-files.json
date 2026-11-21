@@ -2821,6 +2821,7 @@
     "tests/account-storage-boundary.test.ts",
     "tests/accounts.test.ts",
     "tests/activity-output-v3.test.ts",
+    "tests/agent-file-policy-guard.test.ts",
     "tests/agent-file-policy-store.test.ts",
     "tests/agent-file-policy.test.ts",
     "tests/agent-input-v3.test.ts",

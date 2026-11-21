@@ -7,6 +7,7 @@ import {
 	type AgentFilePolicy,
 } from '../contracts/agent-file-policy.ts';
 import type { Store } from '../storage/store.ts';
+import { compileFilePolicy, filePolicyDenies } from './file-policy.ts';
 
 const kind = 'agentFilePolicy';
 export const agentFilePolicyScopeSchema = (value: unknown): value is string =>
@@ -29,7 +30,7 @@ export function readAgentFilePolicy(store: Store, scope: string): ResolvedAgentF
 }
 
 /** Effective deny is the union of the global scope with every applicable project scope. */
-export function resolvedAgentFilePolicy(store: Store, projectId: string | null): { global: AgentFilePolicy; project: AgentFilePolicy | null; revision: string } {
+export function resolvedAgentFilePolicy(store: Store, projectId: string | null | undefined): { global: AgentFilePolicy; project: AgentFilePolicy | null; revision: string } {
 	const global = readAgentFilePolicy(store, 'global');
 	const project = projectId ? readAgentFilePolicy(store, `project:${projectId}`) : null;
 	return { global, project, revision: `${global.revision}/${project?.revision ?? 0}` };
@@ -50,4 +51,10 @@ export function saveAgentFilePolicy(store: Store, scope: string, baseRevision: n
 		store.put(kind, scope, null, next);
 		return { scope, revision: next.revision };
 	}) as { scope: string; revision: number };
+}
+
+export function agentFilePolicyMatchers(store: Store, projectId: string | null | undefined): { revision: string; denies: (rootRelativePath: string) => boolean } {
+	const resolved = resolvedAgentFilePolicy(store, projectId);
+	const matchers = [compileFilePolicy(resolved.global.rules), compileFilePolicy(resolved.project?.rules ?? [])];
+	return { revision: resolved.revision, denies: rootRelativePath => filePolicyDenies(matchers, rootRelativePath) };
 }
