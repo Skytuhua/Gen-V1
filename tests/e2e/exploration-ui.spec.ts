@@ -91,3 +91,37 @@ test('renewed image identities cannot reuse old pins and retain feedback for the
 test('invalid replacement data reports unavailable instead of inventing slots or crashing',async({page})=>{
  const errors:string[]=[];page.on('pageerror',error=>errors.push(error.message));const {host}=await explorationFixture(page,'SchedulePicker',suppliedSlots);await page.goto('/');await page.getByRole('option',{name:'Design review',exact:true}).click();host.setInput('data',{...suppliedSlots,timeZone:'Invented/Nowhere'});await host.publish();await expect(page.getByText('Time slots are unavailable from the connected source.',{exact:true})).toBeVisible();await expect(page.getByRole('button',{name:'Propose this time',exact:true})).toHaveCount(0);expect(errors).toEqual([]);
 });
+test('pin faces claim once, pointer accents and delete restores an honest focus target',async({page})=>{
+ await explorationFixture(page,'ImageAnnotator');await page.goto('/');
+ const stage=page.locator('.annotation-image');
+ await stage.click({position:{x:80,y:80}});
+ const one=page.getByRole('button',{name:'Pin 1',exact:true});
+ expect(await one.locator('.annotation-pin-face').evaluate(el=>el.getAnimations().length)).toBeGreaterThan(0);
+ await stage.click({position:{x:160,y:160}});
+ await page.getByRole('button',{name:'Delete selected pin',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Pin 2',exact:true})).toHaveCount(0);await expect(one).toBeFocused();
+ await one.click();await page.getByRole('button',{name:'Delete selected pin',exact:true}).click();
+ await expect(page.getByRole('button',{name:'Add pin',exact:true})).toBeFocused();
+});
+test('schedule intervals keep measured geometry and pointer choice accents once',async({page})=>{
+ await explorationFixture(page,'SchedulePicker',suppliedSlots);await page.goto('/');
+ expect(await page.locator('.schedule-interval-ruler').first().evaluate(el=>el.getBoundingClientRect().height)).toBe(24);
+ expect((await page.locator('.schedule-interval-band').first().boundingBox())!.height).toBe(20);
+ const option=page.getByRole('option',{name:'Design review',exact:true});await option.click();
+ expect(await option.evaluate(el=>el.getAnimations().length)).toBeGreaterThan(0);
+ await expect(option.locator('.schedule-choice svg')).toBeVisible();
+ await option.press('ArrowDown');const alternate=page.getByRole('option',{name:'Alternate review',exact:true});
+ await expect(alternate).toHaveAttribute('aria-selected','true');await expect(alternate).toBeFocused();
+ expect(await alternate.evaluate(el=>el.getAnimations().filter(animation=>!(animation instanceof CSSTransition)).length)).toBe(0);
+ expect(await alternate.locator('.schedule-choice').evaluate(el=>el.getAnimations({subtree:true}).length)).toBe(0);
+});
+test('correlation control filters the list and filtered-out selections report status',async({page})=>{
+ await explorationFixture(page,'LogExplorer',suppliedLogs);await page.goto('/');
+ await page.getByRole('option',{name:'info: Request accepted',exact:true}).click();
+ await page.getByRole('button',{name:'Filter by correlation request-17',exact:true}).click();
+ await expect(page.getByRole('searchbox',{name:'Search logs',exact:true})).toHaveValue('request-17');
+ await expect(page.getByRole('listbox',{name:'Log events',exact:true}).getByRole('option')).toHaveCount(3);
+ await page.getByRole('option',{name:'warning: Retry budget is nearly exhausted',exact:true}).click();
+ await page.getByRole('searchbox',{name:'Search logs',exact:true}).fill('no matching event');
+ await expect(page.getByText('Selected event is hidden by the current filters.',{exact:true})).toBeVisible();
+});

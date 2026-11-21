@@ -1,4 +1,4 @@
-import { useEffect, useId, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from "react";
 import { ArrowDownToLine, GitBranch, MoreHorizontal, TriangleAlert } from "lucide-react";
 import type { Snapshot, Thread } from "../../../packages/contracts";
 import type { AgentJob } from "../../../packages/contracts/planning";
@@ -9,6 +9,8 @@ import {
 } from "../../../packages/core/plan-timeline";
 import { ActionMenu } from "../../../packages/ui-shell/ActionMenu";
 import { LoadingState } from "./LoadingState";
+import { animateTask } from "./task-motion";
+import { readMotionPolicy } from "./motion-policy";
 import { TimelineStep, AgentLane } from "./plan-timeline/TimelineRows";
 import { ReadingPosition } from "./plan-timeline/ReadingPosition";
 import "./plan-status.css";
@@ -150,6 +152,59 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
       return { timeline: null };
     }
   }, [record, owner]);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const fillRef = useRef<HTMLSpanElement | null>(null);
+  const progressBaseline = useRef<{ key: string; percent: number } | null>(null);
+  const statusBaseline = useRef(new Map<string, string>());
+  const seenOwner = useRef<string | undefined>(undefined);
+  const publishedOwners = useRef(new Set<string>());
+  const firstEffectDone = useRef(false);
+  useLayoutEffect(() => {
+    const timeline = projection?.timeline;
+    if (!record || !timeline) return;
+    const ownerKey = `${threadId}:${owner?.runId}:${owner?.epoch}`;
+    const steps = timeline.steps;
+    const complete = steps.filter((step) => step.status === "completed" || step.status === "accepted").length;
+    const percent = steps.length ? Math.round((100 * complete) / steps.length) : 0;
+    let accepted = false;
+    if (seenOwner.current !== ownerKey) {
+      seenOwner.current = ownerKey;
+      statusBaseline.current = new Map(steps.map((step) => [step.id, step.status]));
+    } else {
+      for (const step of steps) {
+        const before = statusBaseline.current.get(step.id);
+        statusBaseline.current.set(step.id, step.status);
+        if (before && !["accepted", "completed"].includes(before) && ["accepted", "completed"].includes(step.status)) {
+          accepted = true;
+          const node = sectionRef.current?.querySelector<HTMLElement>(`#${CSS.escape(`${prefix}-step-${step.id}`)} .plan-step-node`);
+          animateTask(node ?? null, [{ opacity: 0.6 }, { opacity: 1 }], 120, { duration: "--ui-motion-none", easing: "--ui-ease-enter" });
+        }
+      }
+    }
+    const fill = fillRef.current;
+    if (fill) {
+      const previous = progressBaseline.current;
+      progressBaseline.current = { key: ownerKey, percent };
+      if (accepted && previous && previous.key === ownerKey && previous.percent !== percent) {
+        const matrix = getComputedStyle(fill).transform.match(/^matrix\(([^,)]+)/);
+        const from = matrix ? parseFloat(matrix[1]) : previous.percent / 100;
+        fill.getAnimations().forEach((animation) => animation.cancel());
+        animateTask(fill, [{ transform: `scaleX(${from})` }, { transform: `scaleX(${percent / 100})` }], 160, { duration: "--ui-motion-none", easing: "--ui-ease-enter" });
+      }
+    }
+    if (!firstEffectDone.current) {
+      firstEffectDone.current = true;
+      // A record present on the first commit is a restore, not a new publication.
+      if (mountedAtBaseline.current) { publishedOwners.current.add(ownerKey); return; }
+    }
+    if (publishedOwners.current.has(ownerKey) || readMotionPolicy() !== "full") return;
+    publishedOwners.current.add(ownerKey);
+    // First publication ornament: the joining line under parallel branches.
+    const join = sectionRef.current?.querySelector<HTMLElement>(".plan-join");
+    if (join) animateTask(join, [{ opacity: 0.55 }, { opacity: 1 }], 140, { duration: "--ui-motion-none", easing: "--ui-ease-enter" });
+  }, [record, owner, projection, prefix, threadId]);
+  const mountedAtBaseline = useRef<boolean | null>(null);
+  if (mountedAtBaseline.current === null) mountedAtBaseline.current = Boolean(record && projection?.timeline);
   const invalid =
     unavailable || invalidLinks ||
     Boolean(
@@ -215,6 +270,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
   return (
     <ReadingPosition updateKey={`${record.revision}:${owner?.runId}:${owner?.epoch}`} key={threadId}>
       <section
+        ref={sectionRef}
         className="plan-status"
         aria-label={`Task plan: ${record.value.title}`}
         aria-busy={loading || undefined}
@@ -265,7 +321,7 @@ export function PlanStatus({ snapshot, threadId, loading, error, focusAgentId, o
             aria-valuenow={percent}
             aria-valuetext={`${complete} of ${timeline.steps.length} steps completed or accepted`}
           >
-            <span className="plan-overall-fill" style={{ width: `${percent}%` }} />
+            <span className="plan-overall-fill" ref={fillRef} style={{ width: "100%", transform: `scaleX(${percent / 100})` }} />
           </div>
         </header>
         {(error || invalid) && (

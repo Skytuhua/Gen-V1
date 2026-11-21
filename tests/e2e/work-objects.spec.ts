@@ -156,15 +156,16 @@ test('architecture and trace selections have subtle finite perimeter accents wit
  await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');const queue=page.locator('[data-architecture-node="queue"]');expect(await queue.evaluate(node=>getComputedStyle(node).borderLeftWidth)).toBe('1px');
  await queue.click();await expect(queue.locator('.work-selection-halo')).toBeAttached();await expect(queue.locator('.work-selection-halo')).toHaveCount(0);
  await page.reload();await expect(queue).toHaveAttribute('aria-pressed','true');await expect(queue.locator('.work-selection-halo')).toHaveCount(0);
- await fixture(page,'TraceWaterfall',suppliedTrace);await page.goto('/');const span=page.getByRole('treeitem',{name:'Parse document',exact:true});expect(await span.locator('.trace-bar').evaluate(node=>getComputedStyle(node).borderLeftColor)).not.toBe(await span.evaluate(node=>getComputedStyle(node).color));
+ await fixture(page,'TraceWaterfall',suppliedTrace);await page.goto('/');const span=page.getByRole('treeitem',{name:'Parse document',exact:true});expect(await span.locator('.trace-bar').evaluate(node=>getComputedStyle(node).boxShadow)).not.toBe('none');
  await page.emulateMedia({reducedMotion:'reduce'});await span.click();await expect(span.locator('.work-selection-halo')).toHaveCount(0);await expect(span).toHaveAttribute('aria-selected','true');
 });
 
 for(const policy of ['off','reduced'] as const){
  test(`app ${policy} settles active board motion and preserves keyboard focus`,async({page})=>{
-  await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page,'WorkflowBoard',suppliedBoard);await page.goto('/');const card=page.getByRole('button',{name:'Keep retries ordered',exact:true});await card.focus();await card.press('Alt+ArrowRight');
-  const result=await page.locator('[data-work-card="retry"]').evaluate(async(node,policy)=>{const before=(node as HTMLElement).style.transform;document.documentElement.dataset.motion=policy;await Promise.resolve();return {before,after:(node as HTMLElement).style.transform};},policy);
-  expect(result.before).not.toBe('');expect(result.after).toBe('');await expect(card).toBeFocused();await page.evaluate(()=>document.documentElement.dataset.motion='system');expect(await page.locator('[data-work-card="retry"]').evaluate(node=>(node as HTMLElement).style.transform)).toBe('');
+  await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page,'WorkflowBoard',suppliedBoard);await page.goto('/');const card=page.getByRole('button',{name:'Keep retries ordered',exact:true});
+  await page.locator('[data-work-card="retry"]').dragTo(page.getByRole('region',{name:'In review',exact:true}));
+  const result=await page.locator('[data-work-card="retry"]').evaluate(async(node,policy)=>{const before=node.getAnimations().length;document.documentElement.dataset.motion=policy;await Promise.resolve();return {before,after:node.getAnimations().length};},policy);
+  expect(result.before).toBeGreaterThan(0);expect(result.after).toBe(0);await expect(card).toBeFocused();await page.evaluate(()=>document.documentElement.dataset.motion='system');expect(await page.locator('[data-work-card="retry"]').evaluate(node=>node.getAnimations().length)).toBe(0);
  });
  test(`app ${policy} settles selection halo without replay`,async({page})=>{
   await page.emulateMedia({reducedMotion:'no-preference'});await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');const node=page.getByRole('button',{name:'Bounded parser',exact:true});await node.click();
@@ -179,9 +180,25 @@ test('halo replacement and unmount cancel previously owned animation work',async
  await page.emulateMedia({reducedMotion:'no-preference'});const {host}=await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');const node=page.getByRole('button',{name:'Bounded parser',exact:true});await node.click();
  const tone=await page.locator('.work-selection-halo').evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();animation.currentTime=Number(animation.effect!.getTiming().duration)*.35;Object.assign(window,{previousHalo:animation});const probe=document.createElement('span');probe.style.color='var(--ui-focus-ring,#808080)';document.body.append(probe);const neutral=getComputedStyle(probe).color;probe.remove();const style=getComputedStyle(node);return{neutral,color:style.borderColor,shadow:style.boxShadow};});
  expect(tone.color).toBe(tone.neutral);expect(tone.shadow).toBe('none');
- await node.evaluate(node=>(node as HTMLElement).click());
+ await page.getByRole('button',{name:'Draft queue',exact:true}).click();
  expect(await page.evaluate(()=>(window as unknown as {previousHalo:Animation}).previousHalo.playState)).toBe('idle');
  await page.locator('.work-selection-halo').evaluate(node=>{const animation=node.getAnimations()[0];animation.pause();Object.assign(window,{lastHalo:animation});});
  host.snapshot.artifacts=[];await host.publish();await expect(page.locator('.architecture-canvas')).toHaveCount(0);
  expect(await page.evaluate(()=>(window as unknown as {lastHalo:Animation}).lastHalo.playState)).toBe('idle');
+});
+test('architecture keyboard selection stays quiet while pointer selection plays the halo',async({page})=>{
+ await fixture(page,'ArchitectureCanvas',suppliedGraph);await page.goto('/');
+ const parser=page.getByRole('button',{name:'Bounded parser',exact:true});
+ await parser.click();expect(await parser.evaluate(el=>el.getAnimations().length)).toBeGreaterThan(0);
+ await parser.press('ArrowDown');const queue=page.getByRole('button',{name:'Draft queue',exact:true});
+ await expect(queue).toHaveAttribute('aria-pressed','true');await expect(queue).toBeFocused();
+ expect(await queue.evaluate(el=>el.getAnimations().filter(animation=>!(animation instanceof CSSTransition)).length)).toBe(0);
+});
+test('trace zero-duration spans are exact start markers and the caption counts supplied spans',async({page})=>{
+ const data={revision:'trace-z',spans:[{id:'a',name:'Parent',startMs:0,durationMs:100,status:'ok'},{id:'b',parentId:'a',name:'Marker',startMs:50,durationMs:0,status:'ok'},{id:'c',name:'Tail',startMs:100,durationMs:60,status:'ok'}]};
+ await fixture(page,'TraceWaterfall',data);await page.goto('/');
+ await expect(page.getByText('3 supplied spans',{exact:true})).toBeVisible();
+ const zero=page.locator('.trace-bar-zero');await expect(zero).toHaveCount(1);
+ const geometry=await zero.evaluate(el=>{const rect=el.getBoundingClientRect(),track=el.parentElement!.getBoundingClientRect();return {width:rect.width,start:(rect.left-track.left)/track.width};});
+ expect(geometry.width).toBeCloseTo(2,0);expect(geometry.start).toBeCloseTo(50/160,3);
 });
