@@ -5,20 +5,27 @@ export interface PopoverPlacement { left: number; top: number; width: number; he
 export interface PopoverPositionOptions {
   anchor: OverlayAnchor;
   viewport: OverlayViewport;
+  /** Optional container edge the popup must not paint left of, e.g. the column holding the trigger. */
+  bounds?: OverlayAnchor | null;
   width: number;
   height: number;
   preferredSide?: OverlaySide;
   align?: 'start' | 'end';
 }
 
-export function placePopover({ anchor, viewport, width, height, preferredSide = 'above', align = 'end' }: PopoverPositionOptions): PopoverPlacement {
+export function placePopover({ anchor, viewport, bounds, width, height, preferredSide = 'above', align = 'end' }: PopoverPositionOptions): PopoverPlacement {
   const size = (value: number) => Number.isFinite(value) ? Math.max(0, value) : 0;
   const origin = (value: number) => Number.isFinite(value) ? value : 0;
   const viewportWidth = size(viewport.width), viewportHeight = size(viewport.height);
   const horizontalInset = Math.min(8, viewportWidth / 2), verticalInset = Math.min(8, viewportHeight / 2);
-  const leftEdge = origin(viewport.left) + horizontalInset, topEdge = origin(viewport.top) + verticalInset;
-  const availableWidth = viewportWidth - horizontalInset * 2, availableHeight = viewportHeight - verticalInset * 2;
-  const bottomEdge = topEdge + availableHeight, rightEdge = leftEdge + availableWidth;
+  let leftEdge = origin(viewport.left) + horizontalInset;
+  const topEdge = origin(viewport.top) + verticalInset;
+  const availableHeight = viewportHeight - verticalInset * 2;
+  const bottomEdge = topEdge + availableHeight, rightEdge = origin(viewport.left) + viewportWidth - horizontalInset;
+  // A supplied container edge raises the left clamp so the popup never paints
+  // over siblings such as the sidebar; its width then shrinks to what fits.
+  if (bounds) leftEdge = Math.min(Math.max(leftEdge, origin(bounds.left) + horizontalInset), rightEdge);
+  const availableWidth = Math.max(0, rightEdge - leftEdge);
   const above = Math.max(0, origin(anchor.top) - 8 - topEdge);
   const below = Math.max(0, bottomEdge - origin(anchor.bottom) - 8);
   const desiredHeight = Math.min(size(height), availableHeight);

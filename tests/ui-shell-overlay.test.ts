@@ -38,6 +38,27 @@ describe('shared anchored popup geometry', () => {
     expect(result.height).toBe(134);
   });
 
+  it('keeps the popup right of a container edge instead of covering the sidebar', () => {
+    const trigger = { left: 280, right: 340, top: 540, bottom: 572 };
+    const bounds = { left: 260, right: 800, top: 42, bottom: 600 };
+    const result = placePopover({ anchor: trigger, viewport, width: 560, height: 390, bounds });
+    expect(result.left).toBeGreaterThanOrEqual(268);
+    expect(result.left + result.width).toBeLessThanOrEqual(792);
+    expect(result.side).toBe('above');
+    expect(result).toEqual({ left: 268, top: 142, width: 524, height: 390, side: 'above' });
+  });
+
+  it('still paints over the boundary area when no bounds are supplied', () => {
+    const trigger = { left: 280, right: 340, top: 540, bottom: 572 };
+    expect(placePopover({ anchor: trigger, viewport, width: 560, height: 390 })).toMatchObject({ left: 8, width: 560 });
+  });
+
+  it('ignores a boundary that starts left of the viewport edge', () => {
+    const trigger = { left: 280, right: 340, top: 540, bottom: 572 };
+    const bounds = { left: -50, right: 800, top: 42, bottom: 600 };
+    expect(placePopover({ anchor: trigger, viewport, width: 560, height: 390, bounds })).toMatchObject({ left: 8, width: 560 });
+  });
+
   it('never emits negative or nonfinite dimensions for temporarily hidden owners', () => {
     for (const width of [0, 8, Number.NaN, Number.POSITIVE_INFINITY]) {
       const result = placePopover({ anchor, viewport: { left: 0, top: 0, width, height: 0 }, width: 400, height: 390 });
