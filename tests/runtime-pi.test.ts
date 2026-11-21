@@ -100,7 +100,7 @@ async function isExecuting(pid: number): Promise<boolean> {
 
 function mockWorkers() {
   const children: (EventEmitter & {send:ReturnType<typeof vi.fn>})[] = [];
-  const commands: {requestId?:string;command?:string;input?:{runId?:string}}[] = [];
+  const commands: {requestId?:string;command?:string;providerId?:string;input?:{runId?:string}}[] = [];
   const spawnWorker = vi.spyOn(childProcess, "spawn").mockImplementation(() => {
     const child = Object.assign(new EventEmitter(), {
       connected: true, exitCode: null, signalCode: null,
