@@ -68,3 +68,22 @@ test('generic tables keep unchanged values plain and reject untrusted change met
   await expect(page.getByRole('status').filter({ hasText: 'Change metadata is unavailable' })).toBeVisible();
   await expect(page.locator('td[data-change]')).toHaveCount(0);
 });
+
+// The Windows CI signature: one dev-server subresource misses with
+// net::ERR_CONNECTION_FAILED during boot. The document itself is excluded — a
+// failed navigation rejects goto() before openApp's retry path can run.
+test('a simulated dev-server boot miss is recovered with a retry annotation', async ({ page }) => {
+  const snapshot = taskFixture(migrationSpec(), inputs, { table: 'users' }); snapshot.settings.theme = 'dark';
+  await serveTaskFixture(page, snapshot);
+  let missed = false;
+  await page.route('**/*', async route => {
+    const request = route.request();
+    const bootResource = ['script', 'stylesheet'].includes(request.resourceType()) && !new URL(request.url()).pathname.startsWith('/api/');
+    if (missed || !bootResource) return route.fallback();
+    missed = true; return route.abort('connectionfailed');
+  });
+  await openApp(page);
+  expect(missed).toBe(true);
+  expect(test.info().annotations.some(annotation => annotation.type === 'boot-transport-retry')).toBe(true);
+  await expect(page.getByText('3 workspaces added', { exact: true })).toBeVisible();
+});
