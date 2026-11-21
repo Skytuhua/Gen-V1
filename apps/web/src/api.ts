@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type { CommandReceipt, HostCommand, Message, ModelInfo, Snapshot, WorkspaceEvent } from '../../../packages/contracts';
 import type {AccountAuthTarget} from '../../../packages/contracts/authentication';
+import {networkProxyPublicStateSchema,type NetworkProxyDelete,type NetworkProxySave} from '../../../packages/contracts/network-proxy';
 
 export class ApiError extends Error {
   constructor(public code: string, message: string, public details?: unknown) { super(message); }
@@ -259,3 +260,7 @@ export const getToolEffectObservation = async (threadId: string, invocationId: s
     throw error;
   }
 };
+// #1531 T05 — profile network proxy management (authenticated, no-store).
+export const getNetworkProxy=()=>authenticated(()=>fetch('/api/network-proxy',{credentials:'same-origin',cache:'no-store',redirect:'error'})).then(readSchema(networkProxyPublicStateSchema));
+export const saveNetworkProxy=(input:NetworkProxySave)=>authenticated(()=>fetch('/api/network-proxy',{method:'PUT',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(input)})).then(readSchema(networkProxyPublicStateSchema));
+export const removeNetworkProxy=(input:NetworkProxyDelete)=>authenticated(()=>fetch('/api/network-proxy',{method:'DELETE',credentials:'same-origin',cache:'no-store',redirect:'error',headers:{'Content-Type':'application/json','x-harness-csrf':csrfToken},body:JSON.stringify(input)})).then(readSchema(networkProxyPublicStateSchema));
