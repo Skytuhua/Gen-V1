@@ -32,4 +32,4 @@ The backend data directory defaults to `%LOCALAPPDATA%\GenerativeHarness`. It ca
 
 Keep these directories and raw test evidence out of source control. Close the application before copying a profile for backup. Removing a local account registration or signing out locally does not imply that a provider revoked remote sessions or grants.
 
-For verification scope and known acceptance limits, see [the completion report](docs/2026-11-01-product-completion.md).
+For verification scope and known acceptance limits, see [the completion report](docs/archive/2026-11-01-product-completion.md).

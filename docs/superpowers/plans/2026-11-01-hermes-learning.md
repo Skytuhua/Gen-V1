@@ -57,4 +57,4 @@ Files: Settings, one small skills panel, skill detail HTTP/API, metadata snapsho
 - [x] Independently review code and security, fix confirmed findings with regressions, then run full units, typecheck, web/desktop builds and appropriate browser/native checks.
 - [x] Publish pinned primary-source comparison, source attribution and an explicit implemented/different/unverified parity matrix. Commit the coherent result; never promote fixture proof to live-provider quality or universal open-source superiority.
 
-Final verification and proof boundaries: `docs/2026-11-01-hermes-learning-verification.md`. Browser coverage combines the complete sweep with all affected files rerun; it is not described as a second clean complete sweep. Production sources remained unchanged through the final test-helper corrections.
+Final verification and proof boundaries: `docs/archive/2026-11-01-hermes-learning-verification.md`. Browser coverage combines the complete sweep with all affected files rerun; it is not described as a second clean complete sweep. Production sources remained unchanged through the final test-helper corrections.

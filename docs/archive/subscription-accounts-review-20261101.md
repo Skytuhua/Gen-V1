@@ -1,6 +1,6 @@
 # Named subscription accounts: resumed review
 
-Scope: the saved account integration after `a3b2877`, resumed on 2026-11-01. The implementation adds named provider accounts, explicit new-task defaults, native profile namespaces and immutable task ownership. Existing legacy profiles and task bindings are preserved. T3 copied/adapted sources and the full MIT notice are recorded in [third-party attribution](../third-party/t3code/README.md).
+Scope: the saved account integration after `a3b2877`, resumed on 2026-11-01. The implementation adds named provider accounts, explicit new-task defaults, native profile namespaces and immutable task ownership. Existing legacy profiles and task bindings are preserved. T3 copied/adapted sources and the full MIT notice are recorded in [third-party attribution](../../third-party/t3code/README.md).
 
 ## Corrections
 

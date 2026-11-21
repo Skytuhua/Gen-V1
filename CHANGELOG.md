@@ -187,7 +187,7 @@ These items are in 0.6.5 scope but not merged and ship only if they pass freeze 
   evidence are not whole-product 0.6.5 acceptance; existing large-chunk build
   warnings and visual-fidelity/user acceptance remain unresolved.
 
-See [usage](docs/visual-workspace.md), [visual verification boundaries](docs/visual-workspace-verification.md)
+See [usage](docs/visual-workspace.md), [visual verification boundaries](docs/archive/visual-workspace-verification.md)
 and [preview acceptance limits](docs/public/release-notes.md#known-issues).
 
 ## 0.6.4 source preview
@@ -217,6 +217,6 @@ See [the prerelease notes](https://github.com/skytuhua-org/Gen-V1/releases/tag/v
 - Enable generated-app **Preview** discovery and execution after actual-host checkpoint, recovery, startup-failure and responsiveness checks.
 - Preserve the original Hermes conversation/skill-learning implementation and pinned source custody.
 
-Verification included 1,040 passing application checks, 14 packaged native checks and genuine packaged OpenAI/Hermes task/restart acceptance. Other provider sign-ins, installer upgrade acceptance and physical multi-monitor checks remain open. See [the acceptance report](docs/2026-11-01-product-completion.md).
+Verification included 1,040 passing application checks, 14 packaged native checks and genuine packaged OpenAI/Hermes task/restart acceptance. Other provider sign-ins, installer upgrade acceptance and physical multi-monitor checks remain open. See [the acceptance report](docs/archive/2026-11-01-product-completion.md).
 
 Earlier development milestones retain their original evidence in the historical documentation. They should not be treated as validation of later changes.

@@ -83,7 +83,7 @@ Model discovery is cached, concurrent requests share the lookup, and explicit re
 
 ## Sources and verification scope
 
-The historical milestone recorded **532/532 unit checks passed** and two published-distribution `--version` passes in isolated empty homes: Claude Code 2.1.316 and Gemini CLI 0.66.0. The original local receipts are not tracked here. Those invocations performed no authentication or inference. Focused adapter tests use synthetic protocols and credentials. The [milestone](provider-expansion-milestone.md) separates these checks from pending live account and fresh-package acceptance.
+The historical milestone recorded **532/532 unit checks passed** and two published-distribution `--version` passes in isolated empty homes: Claude Code 2.1.316 and Gemini CLI 0.66.0. The original local receipts are not tracked here. Those invocations performed no authentication or inference. Focused adapter tests use synthetic protocols and credentials. The [milestone](archive/provider-expansion-milestone.md) separates these checks from pending live account and fresh-package acceptance.
 
 - [Pinned Pi OpenAI provider](https://github.com/earendil-works/pi/blob/v1.4.0/packages/ai/src/providers/openai.ts)
 - [Pinned legacy Codex provider](https://github.com/earendil-works/pi/blob/v1.4.0/packages/ai/src/providers/openai-codex.ts)

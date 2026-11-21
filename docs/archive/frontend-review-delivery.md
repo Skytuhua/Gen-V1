@@ -50,7 +50,7 @@ All media/evidence paths must name existing regular files inside the recording f
 
 ## Frame comparisons
 
-The only copied reference images are the six extracts already documented in [the reference contract](reference-videos.md):
+The only copied reference images are the six extracts already documented in [the reference contract](../reference-videos.md):
 
 | Scenario | Authorized reference extract | Source recording / extract |
 | --- | --- | --- |

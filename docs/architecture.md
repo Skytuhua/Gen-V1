@@ -74,7 +74,7 @@ For each model request, an authenticated loopback broker captures the exact mode
 
 Original `/learn`, background review, skill writes and curator behavior use the same source-owned library. Approval settings and protected/disabled skill names are captured for the run. Account use remains held until foreground/background work and native teardown are confirmed.
 
-See [the original-source integration notes](2026-11-01-hermes-source-integration.md) and [upstream manifest](../third-party/hermes-agent/UPSTREAM_MANIFEST.json).
+See [the original-source integration notes](archive/2026-11-01-hermes-source-integration.md) and [upstream manifest](../third-party/hermes-agent/UPSTREAM_MANIFEST.json).
 
 ## Accounts and native runtimes
 
@@ -108,4 +108,4 @@ Electron uses a real Node sidecar for the host and narrowly typed preload method
 
 Restart recovers durable tasks, artifact state and draft journals. Interrupted work remains visible and is not automatically repeated. Resume uses saved native/source evidence and receipts; it does not turn an uncertain operation into a completed one.
 
-The [acceptance report](2026-11-01-product-completion.md) distinguishes fixtures, source checks, genuine OpenAI runs, packaged native checks and remaining provider/hardware gates.
+The [acceptance report](archive/2026-11-01-product-completion.md) distinguishes fixtures, source checks, genuine OpenAI runs, packaged native checks and remaining provider/hardware gates.
