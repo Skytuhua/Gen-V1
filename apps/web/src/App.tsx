@@ -1178,7 +1178,9 @@ function ConversationWorkspace({onComposerChangesAvailability,sharedComposers,em
         const lastRowByRun = new Map<string, number>();
         messageRows.forEach((row, index) => { for (const update of row.updates ?? [row.message]) if (update.runId) lastRowByRun.set(update.runId, index); });
         const turnLines = new Map<number, TurnTimingV1[]>();
-        for (const item of turnTimings) { if (item.threadId !== thread?.id || !item.endedAt) continue; const index = lastRowByRun.get(item.runId); if (index === undefined) continue; (turnLines.get(index) ?? turnLines.set(index, []).get(index)!).push(item); }
+        const orphanTurns: TurnTimingV1[] = [];
+        for (const item of turnTimings) { if (item.threadId !== thread?.id || !item.endedAt) continue; const index = lastRowByRun.get(item.runId); if (index === undefined) { orphanTurns.push(item); continue; } (turnLines.get(index) ?? turnLines.set(index, []).get(index)!).push(item); }
+        if (orphanTurns.length && messageRows.length) turnLines.set(messageRows.length - 1, [...(turnLines.get(messageRows.length - 1) ?? []), ...orphanTurns.sort((a, b) => a.startedAt.localeCompare(b.startedAt))]);
         return <div key={thread?.id ?? 'new'} hidden={thread?.id !== (mainDetached?undefined:resolvedMainId)}><div className={`conversation ${!allMessages.length && !artifacts.length ? 'conversation-empty' : ''}`}>
         {!loaded && !error && <LoadingState pending hasContent={false} label="Opening workspace…" skeleton={<ConversationSkeleton/>}/>}
         {loaded && !allMessages.length && !artifacts.length && <div className="empty-state"><div className="empty-symbol"><MessageSquare size={25} strokeWidth={1.25} /></div><h1>{thread?.status==='working'?'Run in progress':'What are we working on?'}</h1><p>{thread?.status==='working'?'The transcript will appear here as the agent works.':'Start with a question, file, or project.'}</p>{!models.length && <button className="setup-inline" onClick={() => { setSettingsSection('providers'); setSettingsOpen(true); }}><CircleHelp size={15} /><span>Connect a model to get started</span><ChevronRight size={14} /></button>}</div>}
