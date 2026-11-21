@@ -38,6 +38,7 @@ function predicate(text: string, chord: string): boolean {
 
 /** Why a handler does not register this binding, or null when it does: it reads the registry chord, or its own predicate matches the chord's modifiers. */
 function unregistered(binding: KeyboardBinding, text: string): string | null {
+  if (binding.scope === 'System') return text.includes('toElectronAccelerator') ? null : 'a call to toElectronAccelerator';
   if (binding.preference) return text.includes(`keybindings.${binding.preference}`) ? null : `keybindings.${binding.preference}`;
   if (text.includes(`chordFor('${binding.id}')`)) return null;
   const missing = chords(binding).filter(chord => !predicate(text, chord));
@@ -153,7 +154,7 @@ describe('keyboard binding registry', () => {
     expect(ariaKeyShortcuts(['thread-reorder-up', 'thread-reorder-down'])).toBe('Alt+ArrowUp Alt+ArrowDown');
   });
   it('renders every registered binding from the registry and follows a rebound chord', () => {
-    const html = renderToStaticMarkup(createElement(KeyboardReference, {keybindings: {...DEFAULT_PREFERENCES.keybindings, search: 'Alt+K'}}));
+    const html = renderToStaticMarkup(createElement(KeyboardReference, {keybindings: {...DEFAULT_PREFERENCES.keybindings, search: 'Alt+K'}, desktop: true}));
     expect(html.split('data-binding-id="').length - 1).toBe(KEYBOARD_BINDINGS.length);
     for (const binding of KEYBOARD_BINDINGS) {
       expect(html, binding.id).toContain(`data-binding-id="${binding.id}"`);
@@ -172,7 +173,8 @@ describe('keyboard binding registry', () => {
     };
     const html = renderToStaticMarkup(createElement(SettingsView, {data, draftReferences: async () => ({threads: [], skills: [], requests: [], userStates: []}), initialSection: 'keybindings', modelError: '', refresh: async () => {}, loadModels: async () => {}, close: () => {}, addResource: () => {}}));
     expect(html).toContain('data-setting-id="harness-keyboard-reference"');
-    expect(html.split('data-binding-id="').length - 1).toBe(KEYBOARD_BINDINGS.length);
-    for (const binding of KEYBOARD_BINDINGS) expect(html, binding.id).toContain(`data-binding-id="${binding.id}"`);
+    const visible = KEYBOARD_BINDINGS.filter(binding => binding.scope !== 'System');
+    expect(html.split('data-binding-id="').length - 1).toBe(visible.length);
+    for (const binding of visible) expect(html, binding.id).toContain(`data-binding-id="${binding.id}"`);
   });
 });

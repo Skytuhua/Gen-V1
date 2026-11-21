@@ -1,8 +1,8 @@
 import {DEFAULT_PREFERENCES, type UiPreferences} from '../../../packages/contracts/preferences';
 
 /** Where a chord is registered. The reference lists scopes in this order. */
-export type KeyboardScope = 'Global' | 'Conversation' | 'Terminal' | 'Sidebar' | 'Settings' | 'Workspace';
-export const KEYBOARD_SCOPES: readonly KeyboardScope[] = ['Global', 'Conversation', 'Terminal', 'Sidebar', 'Settings', 'Workspace'];
+export type KeyboardScope = 'System' | 'Global' | 'Conversation' | 'Terminal' | 'Sidebar' | 'Settings' | 'Workspace';
+export const KEYBOARD_SCOPES: readonly KeyboardScope[] = ['System', 'Global', 'Conversation', 'Terminal', 'Sidebar', 'Settings', 'Workspace'];
 export type ShortcutPlatform = 'mac' | 'other';
 
 export interface KeyboardBinding {
@@ -23,6 +23,7 @@ const module = (name: string) => `apps/web/src/${name}`;
 
 /** The only declaration of a shortcut. Handlers, Settings rows and the reference all read it. */
 export const KEYBOARD_BINDINGS: readonly KeyboardBinding[] = [
+  {id: 'quick-ask', label: 'Open quick ask from any app', scope: 'System', preference: 'quickAsk', handlers: ['apps/desktop/quick-ask.ts']},
   {id: 'search', label: 'Search threads', scope: 'Global', preference: 'search', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
   {id: 'new-thread', label: 'New thread', scope: 'Global', preference: 'newThread', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
   {id: 'toggle-sidebar', label: 'Toggle sidebar', scope: 'Global', preference: 'toggleSidebar', handlers: [module('App.tsx'), module('WorkspaceHost.tsx')]},
