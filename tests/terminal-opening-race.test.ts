@@ -46,6 +46,38 @@ it('keeps the retained output and its cursor on a complete UTF-16 character boun
  expect((await host.read(opened.id,opened.projectId,undefined,result.cursor)).output).toBe('');
 });
 
+it('terminates an unregistered native process before allowing a retry of that pane',async()=>{
+ const {host,projects}=fixture();const input={projectId:'project-a',terminalId:'unregistered'};
+ const persist=projects.store.internal;let fail=true;projects.store.internal=(kind,owner,apply)=>{if(fail){fail=false;throw Error('synthetic start write failed');}return persist(kind,owner,apply);};
+ let exit!:(event:{exitCode:number})=>void;
+ const kill=vi.fn(()=>exit({exitCode:1}));
+ mocks.spawn.mockReturnValueOnce({onData:vi.fn(),onExit:vi.fn(handler=>{exit=handler;}),write:vi.fn(),kill});
+ await expect(host.open({...input,command:'echo ready'})).rejects.toThrow('synthetic start write failed');
+ expect(kill).toHaveBeenCalledOnce();
+ expect(mocks.spawn.mock.results[0]!.value.write).not.toHaveBeenCalled();
+ expect(projects.store.get('terminalSession',input.terminalId)).toBeUndefined();
+ await expect(host.open(input)).resolves.toMatchObject({id:input.terminalId,exited:false});
+ expect(mocks.spawn).toHaveBeenCalledTimes(2);
+});
+
+it('does not expose an unregistered pane while its native exit is still pending',async()=>{
+ const {host,projects}=fixture();const input={projectId:'project-a',terminalId:'closing'};
+ const persist=projects.store.internal;let fail=true;projects.store.internal=(kind,owner,apply)=>{if(fail){fail=false;throw Error('synthetic start write failed');}return persist(kind,owner,apply);};
+ let exit!:(event:{exitCode:number})=>void;
+ const kill=vi.fn();
+ mocks.spawn.mockReturnValueOnce({onData:vi.fn(),onExit:vi.fn(handler=>{exit=handler;}),write:vi.fn(),kill});
+ const opening=host.open(input).catch(error=>error);
+ try{
+  await vi.waitFor(()=>expect(kill).toHaveBeenCalledOnce());
+  await expect(host.open(input)).rejects.toMatchObject({code:'TERMINAL_CANCEL_UNCONFIRMED'});
+  await expect(host.read(input.terminalId,input.projectId)).rejects.toMatchObject({code:'TERMINAL_CANCEL_UNCONFIRMED'});
+  expect(mocks.spawn).toHaveBeenCalledOnce();
+ }finally{exit({exitCode:1});await opening;}
+ expect(await opening).toMatchObject({message:'synthetic start write failed'});
+ await expect(host.open(input)).resolves.toMatchObject({id:input.terminalId,exited:false});
+});
+
+
 it('settles an observed native exit even when recording it in the Store fails',async()=>{
  const {host,projects}=fixture();
  const opened=await host.open({projectId:'project-a',terminalId:'exit-storage'});
