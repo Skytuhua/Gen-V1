@@ -12,7 +12,7 @@
 | Revision / date | r1 / 2026-11-21 |
 | Baseline | fetched `origin/main` / `e883ac0327c834120d89c3697dec7380a342ba4d` |
 | Planning branch | `devin/explorer-open-in-genv1-plan` |
-| Issue / PR | Publication authorized; canonical issue and docs PR links will be filled after creation |
+| Issue / PR | [#1286](https://github.com/skytuhua-org/Gen-V1/issues/1286); docs-only [PR #1287](https://github.com/skytuhua-org/Gen-V1/pull/1287), open for review; no merge requested |
 | Implementation | NOT_STARTED; no runtime or installer changes |
 | Provenance | Approved by Leonardo (repository owner) on 2026-11-21 in the batch-2 proposals as: '"Open in Gen V1" in File Explorer (small): right-click a folder to open it as a project.' Instruction: create the issue and hand off to the front-end team to design it. Detailed decisions below were supplied in the planning handoff. Repository facts were read at the baseline; upstream builder facts were checked against the published `app-builder-lib@26.18.0` tarball. |
 
@@ -209,10 +209,10 @@ Release gate: A01–A10 satisfied with reviewed implementation and installed Win
 
 - **Researched/decided:** owner-approved scope and decisions R01–R10; executable naming, upstream NSIS extension points, existing project-scoped createThread and connect path inspected. Fresh fetch baseline recorded above.
 - **Implemented:** nothing. This document and its source-manifest entry are planning artifacts only.
-- **Verified:** source/upstream inspection only; no installed Windows, visual, launch/registry or implementation test results. No claim of HANDOFF_COMPLETE publication yet.
-- **Pending owners:** T01–T07 unassigned; T08 recipient front-end team, not yet claimed/acknowledged. Publication authorized on the planning branch; issue/PR creation and final SHA pin are in progress.
+- **Verified:** source/upstream inspection only; no installed Windows, visual, launch/registry or implementation test results. Publication verification is recorded by the issue's append-only checkpoint after final SHA-pinned source/body readback; no implementation verification is implied.
+- **Pending owners:** T01–T07 unassigned; T08 recipient front-end team, not yet claimed/acknowledged. Plan published through issue #1286 and docs-only PR #1287 on the planning branch; final source commit is pinned in the issue header. Planner ownership is released by CHECKPOINT 001, not transferred or accepted implicitly.
 - **Risks:** staged include resolution; signing-config overlap; opt-out marker during upgrade uninstaller lifecycle; registry partial writes; canonical result lookup; shared creationPending; renderer reload/deduplication; invalid Windows quote fixtures; final FE spec not yet delivered. T01 must close or explicitly block these before dependent code.
-- **Next exact step:** complete authorized issue/docs-PR publication, final SHA pin and readback, then T08 front-end team writes the design-spec PR and T01 integrator closes discovery before implementation. No implementation/merge/release authorized by this planning document.
+- **Next exact step:** T08 front-end team writes the design-spec PR linked from issue #1286; T01 integrator claims discovery and closes the recorded integration gaps before dependent implementation. Docs PR #1287 awaits normal review; no merge requested. No implementation/merge/release authorized by this planning document.
 
 ### PREPUBLISH AUDIT — requirement → task → acceptance
 
