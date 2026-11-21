@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { authenticated, command, read } from './api';
+import { usePolling } from './usePolling';
 import type { ControlSurfaceModelV1 } from '../../../packages/contracts/interactive-control.ts';
 
 /** M16 consented control surface. While input is active the persistent
@@ -17,16 +18,13 @@ const MODE_LABEL: Record<string, string> = {
 
 export function ControlConsentPanel({ threadId }: { threadId: string }) {
   const [model, setModel] = useState<ControlSurfaceModelV1 | null>(null);
-  useEffect(() => {
-    let cancelled = false;
-    const load = () => authenticated(() => fetch(`/api/threads/${encodeURIComponent(threadId)}/control`, { credentials: 'same-origin', cache: 'no-store' }))
-      .then(read<{ control: ControlSurfaceModelV1 }>)
-      .then(body => { if (!cancelled) setModel(body.control); })
-      .catch(() => {});
-    load();
-    const timer = setInterval(load, 4000);
-    return () => { cancelled = true; clearInterval(timer); };
-  }, [threadId]);
+  const cancelled = useRef(false);
+  useEffect(() => { cancelled.current = false; return () => { cancelled.current = true; }; }, [threadId]);
+  const load = () => authenticated(() => fetch(`/api/threads/${encodeURIComponent(threadId)}/control`, { credentials: 'same-origin', cache: 'no-store' }))
+    .then(read<{ control: ControlSurfaceModelV1 }>)
+    .then(body => { if (!cancelled.current) setModel(body.control); })
+    .catch(() => {});
+  usePolling(load, 4000);
   // The indicator exists only while control is live or consent is pending;
   // an untouched capability stays silent rather than claiming activity.
   if (!model || (model.state === 'unavailable' && !model.pendingConsent)) return null;
