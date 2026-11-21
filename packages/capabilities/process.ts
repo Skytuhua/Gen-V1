@@ -34,7 +34,7 @@ export async function runProcess(command: string, args: string[], cwd: string, s
       });
       return () => text;
     };
-    const stdout = capture(child.stdout), stderr = capture(child.stderr);
+    const stdout = capture(child.stdout as NodeJS.ReadableStream), stderr = capture(child.stderr as NodeJS.ReadableStream);
     let treeKill: Promise<void> | undefined;
     function stop() {
       if (!child.pid || settled || treeKill) return;
